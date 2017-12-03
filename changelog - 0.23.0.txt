@@ -1,0 +1,7 @@
+- Updated to Minecraft version 1.11.2.
+- Reworked the Mo' Bends Menu GUI and Customization GUI to make it more accessible and powerful.
+- Improved under-water combat.
+- Fixed hands and boots ignoring Skin Customization.
+- Added language support.
+- Added accessibility for public Bends Packs straight from the in-game menu.
+- Added the ability for servers to forbid the scaling of body parts.

@@ -1,0 +1,14 @@
+# Bends Pack Database (.bpd) file
+PACK
+    name="funatparties";
+    displayName="Fun at Parties";
+    author="GoblinBob";
+    description="Are you fun at parties?! I am... ;)";
+    uploadedDate="19.04.2017";
+    downloadLink="";
+PACK
+    name="dogewalk";
+    displayName="Doge Walk";
+    author="GoblinBob";
+    description="Walking like a doge wasn't as easy as it is now";
+    uploadedDate="19.04.2017";

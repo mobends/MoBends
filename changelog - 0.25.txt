@@ -1,0 +1,2 @@
+- Applied the new sprint run jump fix to version 1.12
+- Added a new animated cape

@@ -1,0 +1,6 @@
+-Added all the skin layers,
+-Hopefully fixed OpenGL errors after arrow impact,
+
+[Due to lack of free time I am not capable to produce much new content ;-;]
+[Please, stay patient and report any bugs you find in the game via email - gobbobminecraft@gmail.com]
+[Sincere apologies - GoblinBob]
