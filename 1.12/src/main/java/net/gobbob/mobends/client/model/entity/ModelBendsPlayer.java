@@ -10,7 +10,7 @@ import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
 import net.gobbob.mobends.client.model.ModelBoxBends;
 import net.gobbob.mobends.client.model.ModelRendererBends;
-import net.gobbob.mobends.client.model.ModelRendererBends_Child;
+import net.gobbob.mobends.client.model.ModelRendererBendsChild;
 import net.gobbob.mobends.client.model.ModelRendererBends_SeperatedChild;
 import net.gobbob.mobends.client.renderer.SwordTrail;
 import net.gobbob.mobends.data.Data_Player;
@@ -93,7 +93,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         this.bipedBody = new ModelRendererBends(this, 16, 16);
         this.bipedBody.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, p_i46304_1_);
         this.bipedBody.setRotationPoint(0.0F, 12.0F, 0.0F);
-        this.bipedHead = new ModelRendererBends_Child(this, 0, 0).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+        this.bipedHead = new ModelRendererBendsChild(this, 0, 0).setParent((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
         this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, p_i46304_1_);
         this.bipedHead.setRotationPoint(0.0F, -12.0F, 0.0F);
         
@@ -281,31 +281,31 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         this.setRotationAngles(p_78088_2_, p_78088_3_, p_78088_4_, p_78088_5_, p_78088_6_, p_78088_7_, argEntity);
         
         GL11.glPushMatrix();
-	        if (this.isChild)
-	        {
-	            float f6 = 2.0F;
-	            GL11.glPushMatrix();
-	            GL11.glScalef(1.5F / f6, 1.5F / f6, 1.5F / f6);
-	            GL11.glTranslatef(0.0F, 16.0F * p_78088_7_, 0.0F);
-	            this.bipedHead.render(p_78088_7_);
-	            GL11.glPopMatrix();
-	            GL11.glPushMatrix();
-	            GL11.glScalef(1.0F / f6, 1.0F / f6, 1.0F / f6);
-	            GL11.glTranslatef(0.0F, 24.0F * p_78088_7_, 0.0F);
-	            this.bipedBody.render(p_78088_7_);
-	            this.bipedRightArm.render(p_78088_7_);
-	            this.bipedLeftArm.render(p_78088_7_);
-	            this.bipedRightLeg.render(p_78088_7_);
-	            this.bipedLeftLeg.render(p_78088_7_);
-	            this.bipedHeadwear.render(p_78088_7_);
-	            GL11.glPopMatrix();
-	        }
-	        else
-	        {
-	            this.bipedBody.render(p_78088_7_);
-	            this.bipedRightLeg.render(p_78088_7_);
-	            this.bipedLeftLeg.render(p_78088_7_);
-	        }
+        if (this.isChild)
+        {
+            float f6 = 2.0F;
+            GL11.glPushMatrix();
+            GL11.glScalef(1.5F / f6, 1.5F / f6, 1.5F / f6);
+            GL11.glTranslatef(0.0F, 16.0F * p_78088_7_, 0.0F);
+            this.bipedHead.render(p_78088_7_);
+            GL11.glPopMatrix();
+            GL11.glPushMatrix();
+            GL11.glScalef(1.0F / f6, 1.0F / f6, 1.0F / f6);
+            GL11.glTranslatef(0.0F, 24.0F * p_78088_7_, 0.0F);
+            this.bipedBody.render(p_78088_7_);
+            this.bipedRightArm.render(p_78088_7_);
+            this.bipedLeftArm.render(p_78088_7_);
+            this.bipedRightLeg.render(p_78088_7_);
+            this.bipedLeftLeg.render(p_78088_7_);
+            this.bipedHeadwear.render(p_78088_7_);
+            GL11.glPopMatrix();
+        }
+        else
+        {
+            this.bipedBody.render(p_78088_7_);
+            this.bipedRightLeg.render(p_78088_7_);
+            this.bipedLeftLeg.render(p_78088_7_);
+        }
         GL11.glPopMatrix();
     }
     

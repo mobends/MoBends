@@ -40,10 +40,10 @@ public class Animation_Attack_Combo2 {
 		
 		float attackState = data.ticksAfterPunch/10.0f;
 		float armSwing = attackState*2.0f;
-		armSwing = GUtil.max(armSwing, 1.0f);
+		armSwing = Math.min(armSwing, 1.0f);
 		
 		float var5 = attackState*1.6f;
-		var5 = GUtil.max(var5, 1.0f);
+		var5 = Math.min(var5, 1.0f);
 		
 		float var = 50+360*var5;
 		float var2 = 50+360*var5;
@@ -56,7 +56,7 @@ public class Animation_Attack_Combo2 {
 		model.renderRotation.vFinal.y *= handDirMtp;
 		if(var > 360.0f){
 			float var3 = (attackState-DataUpdateHandler.ticksPerFrame/10.0f)*2.0f;
-			var3 = GUtil.max(var3, 1.0f);
+			var3 = Math.min(var3, 1.0f);
 			model.renderRotation.vOld.y = var2;
 			model.renderRotation.vFinal.y = var2;
 			model.renderRotation.completion.y = 0.0f;

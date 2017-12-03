@@ -20,7 +20,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
-public class Data_Player extends EntityData{
+public class Data_Player extends EntityData {
 	public ModelRendererBends head;
     public ModelRendererBends headwear;
     public ModelRendererBends body;
@@ -52,7 +52,7 @@ public class Data_Player extends EntityData{
 		super(argEntityID);
 	}
 	
-	public void syncModelInfo(ModelBendsPlayer argModel){
+	public void syncModelInfo(ModelBendsPlayer argModel) {
 		if(this.head == null) this.head = new ModelRendererBends(argModel, false); this.head.sync((ModelRendererBends)argModel.bipedHead);
 		if(this.headwear == null) this.headwear = new ModelRendererBends(argModel, false); this.headwear.sync((ModelRendererBends)argModel.bipedHeadwear);
 		if(this.body == null) this.body = new ModelRendererBends(argModel, false); this.body.sync((ModelRendererBends)argModel.bipedBody);
@@ -92,7 +92,7 @@ public class Data_Player extends EntityData{
 	}
 	
 	@Override
-	public void onLiftoff(){
+	public void onLiftoff() {
 		super.onLiftoff();
 		if(!sprintJumpLegSwitched) {
 			sprintJumpLeg = !sprintJumpLeg;
@@ -101,7 +101,7 @@ public class Data_Player extends EntityData{
 	}
 	
 	@Override
-	public void onPunch(){
+	public void onPunch() {
 		if(getEntity().getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR){
 			if(this.ticksAfterPunch > 6.0f){
 				if(this.currentAttack == 0){

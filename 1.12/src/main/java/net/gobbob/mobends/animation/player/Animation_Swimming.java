@@ -29,7 +29,7 @@ public class Animation_Swimming extends Animation{
 		float foreArmSway = ((float) ((data.ticks*0.1625f)%(Math.PI*2)))/((float)Math.PI*2);
 		float foreArmStretch = (armSway)*2.0f;
 		foreArmStretch-=1.0f;
-		foreArmStretch = GUtil.min(foreArmStretch, 0.0f);
+		foreArmStretch = Math.max(foreArmStretch, 0.0f);
 		
 		((ModelRendererBends)model.bipedLeftLeg).rotation.setSmoothY(0,0.3f);
 		((ModelRendererBends)model.bipedRightLeg).rotation.setSmoothY(0,0.3f);

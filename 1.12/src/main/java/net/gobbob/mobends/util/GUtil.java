@@ -17,38 +17,19 @@ import net.gobbob.mobends.pack.BPDFile.Entry;
 import net.minecraft.client.gui.FontRenderer;
 
 public class GUtil {
-	public static float max(float argNum, float argMax){
-		if(argNum > argMax){
-			return argMax;
-		}
-		return argNum;
-	}
-	public static Vector3f max(Vector3f argNum, float argMax){
-		Vector3f result = argNum;
-		if(argNum.x > argMax){
-			result.x = argMax;
-		}
-		if(argNum.y > argMax){
-			result.y = argMax;
-		}
-		if(argNum.z > argMax){
-			result.z = argMax;
-		}
+	public static Vector3f min(Vector3f vec, float value){
+		Vector3f result = vec;
+		result.x = vec.x > value ? value : vec.x;
+		result.y = vec.y > value ? value : vec.y;
+		result.z = vec.z > value ? value : vec.z;
 		return result;
-	}
-	
-	public static float min(float argNum, float argMax){
-		if(argNum < argMax){
-			return argMax;
-		}
-		return argNum;
 	}
 	
 	public static float clamp(float value, float min, float max) {
 		return Math.min(Math.max(value, min), max);
 	}
 	
-	public static int clampi(int value, int min, int max) {
+	public static int clamp(int value, int min, int max) {
 		return Math.min(Math.max(value, min), max);
 	}
 	

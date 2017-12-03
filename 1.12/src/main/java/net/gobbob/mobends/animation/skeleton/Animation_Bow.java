@@ -98,7 +98,7 @@ public class Animation_Bow extends Animation{
         		mainArmBox.pre_rotation.setSmoothY(var);
         		
         		float var5 = -90+model.headRotationX;
-        		var5 = GUtil.min(var5, -120);
+        		var5 = Math.max(var5, -120);
         		offArmBox.pre_rotation.setSmoothX(var5,0.3f);
         		
         		mainArmBox.rotation.setSmoothX(model.headRotationX-90.0f);

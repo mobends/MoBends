@@ -20,7 +20,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class RenderBendsSkeleton extends RenderBiped<AbstractSkeleton>
 {
 	private static final ResourceLocation SKELETON_TEXTURES = new ResourceLocation("textures/entity/skeleton/skeleton.png");
-    public int refreshModel = 0;
     
     public RenderBendsSkeleton(RenderManager renderManagerIn)
     {
@@ -33,12 +32,6 @@ public class RenderBendsSkeleton extends RenderBiped<AbstractSkeleton>
     
     protected void preRenderCallback(EntitySkeleton entitylivingbaseIn, float partialTickTime)
     {
-    	if(this.refreshModel != ModBase.refreshModel){
-    		this.refreshModel = ModBase.refreshModel;
-    		//this.mainModel = new ModelBendsSkeleton();
-    		//this.modelBipedMain = (ModelBiped) this.mainModel;
-    	}
-        
         ((ModelBendsSkeleton)this.mainModel).updateWithEntityData(entitylivingbaseIn);
         ((ModelBendsSkeleton)this.mainModel).postRenderTranslate(0.0625f);
         

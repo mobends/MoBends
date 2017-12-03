@@ -52,30 +52,36 @@ public abstract class EntityData {
 	public boolean onGround = true;
 	public boolean climbing = false;
 	
-	public EntityData(int argEntityID){
+	public EntityData(int argEntityID)
+	{
 		this.entityID = argEntityID;
-		if(Minecraft.getMinecraft().world.getEntityByID(argEntityID) != null){
+		if(Minecraft.getMinecraft().world.getEntityByID(argEntityID) != null)
+		{
 			this.entityType = Minecraft.getMinecraft().world.getEntityByID(argEntityID).getName();
-		}else{
-			this.entityType = "NULL";
 		}
+		else
+			this.entityType = "NULL";
 		
 		this.model = null;
 	}
 	
-	public static void add(int databaseId, EntityData data){
+	public static void add(int databaseId, EntityData data)
+	{
 		databases[databaseId].addEntry(data.entityID, data);
 	}
 	
-	public static void addNew(int databaseId, int entityId) {
+	public static void addNew(int databaseId, int entityId)
+	{
 		databases[databaseId].newEntry(entityId);
 	}
 	
-	public static void remove(int databaseId, int entityId) {
+	public static void remove(int databaseId, int entityId)
+	{
 		databases[databaseId].removeEntry(entityId);
 	}
 	
-	public static EntityData get(int databaseId, int entityId){
+	public static EntityData get(int databaseId, int entityId)
+	{
 		EntityData data = databases[databaseId].getEntry(entityId);
 		
 		if(data == null) data = databases[databaseId].newEntry(entityId);
@@ -83,11 +89,13 @@ public abstract class EntityData {
 		return data;
 	}
 	
-	public boolean canBeUpdated() {
+	public boolean canBeUpdated()
+	{
 		return !updatedThisFrame && !(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused());
 	}
 	
-	public boolean calcOnGround(){
+	public boolean calcOnGround()
+	{
 		Entity entity = Minecraft.getMinecraft().world.getEntityByID(this.entityID);
 		if(entity == null)
 			return false;
@@ -97,15 +105,12 @@ public abstract class EntityData {
         double var1 = this.position.y+this.motion.y;
         
         List list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(0,-0.025f,0));
-
-        for (int i = 0; i < list.size();)
-        {
-        	return true;
-        }
-        return false;
+        
+        return list.size() > 0;
 	}
 	
-	public boolean calcCollidedHorizontally(){
+	public boolean calcCollidedHorizontally()
+	{
 		Entity entity = Minecraft.getMinecraft().world.getEntityByID(this.entityID);
 		if(entity == null)
 			return false;
@@ -114,56 +119,62 @@ public abstract class EntityData {
         
         //double var1 = this.position.y+this.motion.y;
         
-        List list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(this.motion.x,0,this.motion.z));
+        List list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(this.motion.x, 0, this.motion.z));
 
-        for (int i = 0; i < list.size();)
-        {
-        	return true;
-        }
-        return false;
+        return list.size() > 0;
 	}
 	
-	public boolean isOnGround(){
+	public boolean isOnGround()
+	{
 		return onGround;
 	}
 	
-	public void update(float argPartialTicks){
-		if(this.getEntity() == null){
+	public void update(float partialTicks)
+	{
+		if(this.getEntity() == null)
 			return;
-		}
 		
-		if(this.ticks > (Minecraft.getMinecraft().player.ticksExisted+argPartialTicks)) {
+		if(this.ticks > (Minecraft.getMinecraft().player.ticksExisted + partialTicks))
+		{
 			this.onTicksRestart();
-			this.ticks = (Minecraft.getMinecraft().player.ticksExisted+argPartialTicks);
+			this.ticks = (Minecraft.getMinecraft().player.ticksExisted + partialTicks);
 		}
 		
-		this.ticks = (Minecraft.getMinecraft().player.ticksExisted+argPartialTicks);
+		this.ticks = (Minecraft.getMinecraft().player.ticksExisted + partialTicks);
 		
 		updatedThisFrame = false;
-		if(this.calcOnGround() & !this.onGround){
+		if(this.calcOnGround() & !this.onGround)
+		{
 			this.onTouchdown();
 			this.onGround = true;
 		}
-		if((!this.calcOnGround() & this.onGround) | (this.motion_prev.y <= 0 && this.motion.y-this.motion_prev.y > 0.4f && this.ticksAfterLiftoff > 2f)){
+		if((!this.calcOnGround() & this.onGround) | (this.motion_prev.y <= 0 && this.motion.y - this.motion_prev.y > 0.4f && this.ticksAfterLiftoff > 2f))
+		{
 			this.onLiftoff();
 			this.onGround = false;
 		}
 		
-		if(this.calcClimbing()){
+		if(this.calcClimbing())
+		{
 			this.climbingCycle+=DataUpdateHandler.ticksPerFrame*this.motion.y*2.6f;
 			this.climbing = true;
 		}
 		
-		if(getEntity().swingProgress > 0){
-	        if(!this.alreadyPunched){
+		if(getEntity().swingProgress > 0)
+		{
+	        if(!this.alreadyPunched)
+	        {
 	        	this.onPunch();
 	        	this.alreadyPunched = true;
 	        }
-		}else{
+		}
+		else
+		{
 			this.alreadyPunched = false;
 		}
 		
-		if(this.motion_prev.y <= 0 && this.motion.y > 0){
+		if(this.motion_prev.y <= 0 && this.motion.y > 0)
+		{
 			this.onThrowup();
 		}
 		
@@ -173,35 +184,39 @@ public abstract class EntityData {
 		this.ticksAfterThrowup+=DataUpdateHandler.ticksPerFrame;
 	}
 	
-	public EntityLivingBase getEntity(){
+	public EntityLivingBase getEntity()
+	{
 		if(Minecraft.getMinecraft().world.getEntityByID(this.entityID) instanceof EntityLivingBase)
 			return (EntityLivingBase) Minecraft.getMinecraft().world.getEntityByID(this.entityID);
-		else{
+		else
 			return null;
-		}
 	}
 	
-	public void onTicksRestart() {
-		
-	}
+	public void onTicksRestart()
+	{}
 	
-	public void onTouchdown(){
+	public void onTouchdown()
+	{
 		this.ticksAfterTouchdown = 0.0f;
 	}
 	
-	public void onLiftoff(){
+	public void onLiftoff()
+	{
 		this.ticksAfterLiftoff = 0.0f;
 	}
 	
-	public void onThrowup() {
+	public void onThrowup()
+	{
 		this.ticksAfterThrowup = 0.0f;
 	}
 	
-	public void onPunch(){
+	public void onPunch()
+	{
 		this.ticksAfterPunch = 0.0f;
 	}
 	
-	public float getClimbingRotation() {
+	public float getClimbingRotation()
+	{
 		EnumFacing facing = getLadderFacing();
 		if(facing == EnumFacing.NORTH) return 0.0f;
 		if(facing == EnumFacing.SOUTH) return 180.0f;
@@ -210,7 +225,8 @@ public abstract class EntityData {
 		return 0;
 	}
 	
-	public EnumFacing getLadderFacing() {
+	public EnumFacing getLadderFacing()
+	{
 		EntityLivingBase entity = (EntityLivingBase) getEntity();
 		
 		BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
@@ -225,7 +241,8 @@ public abstract class EntityData {
 		return EnumFacing.NORTH;
 	}
 	
-	public boolean calcClimbing() {
+	public boolean calcClimbing()
+	{
 		EntityLivingBase entity = (EntityLivingBase) getEntity();
 		
 		if(entity == null || entity.world == null) return false;
@@ -239,7 +256,8 @@ public abstract class EntityData {
 		return entity.isOnLadder() && !this.isOnGround() && (block.getBlock() instanceof BlockLadder || blockBelow.getBlock() instanceof BlockLadder || blockBelow2.getBlock() instanceof BlockLadder);
 	}
 	
-	public float getLedgeHeight() {
+	public float getLedgeHeight()
+	{
 		EntityLivingBase entity = (EntityLivingBase) getEntity();
 		
     	float clientY = (float) (entity.posY + (entity.posY-entity.prevPosY)*EventHandlerRenderPlayer.partialTicks);
@@ -249,26 +267,29 @@ public abstract class EntityData {
 		IBlockState block = entity.world.getBlockState(position.add(0, 2, 0));
 		IBlockState blockBelow = entity.world.getBlockState(position.add(0, 1, 0));
 		IBlockState blockBelow2 = entity.world.getBlockState(position.add(0, 0, 0));
-    	if(!(block.getBlock() instanceof BlockLadder)){
-	    	if(!(blockBelow.getBlock() instanceof BlockLadder)){
-	    		if(!(blockBelow2.getBlock() instanceof BlockLadder)){
+    	if(!(block.getBlock() instanceof BlockLadder))
+    	{
+	    	if(!(blockBelow.getBlock() instanceof BlockLadder))
+	    	{
+	    		if(!(blockBelow2.getBlock() instanceof BlockLadder))
 	    			return (float) (clientY-((int)clientY))+2;
-	    		}else{
+	    		else
 	    			return (float) (clientY-((int)clientY))+1;
-	    		}
-	    	}else{
-	    		return (float) (clientY-((int)clientY));
 	    	}
+	    	else
+	    		return (float) (clientY-((int)clientY));
     	}
     	
     	return -2.0f;
     }
 	
-	public boolean isClimbing() {
+	public boolean isClimbing()
+	{
 		return this.climbing;
 	}
 	
-	public float getLookAngle() {
+	public float getLookAngle()
+	{
 		EntityLivingBase entity = (EntityLivingBase) getEntity();
 		Vec3d vec3 = entity.getLookVec();
 		double x = vec3.x;
@@ -279,35 +300,39 @@ public abstract class EntityData {
 		return (float)(Math.atan2(x, z)/Math.PI*180.0f);
 	}
 	
-	public float getMovementAngle() {
+	public float getMovementAngle()
+	{
 		float lookAngle = this.getLookAngle();
 		
 		double x = this.motion.x;
 		double z = this.motion.z;
-		if(x*x+z*z == 0){
+		if(x*x+z*z == 0)
 			return 0;
-		}
 		float worldMoveAngle = (float)(Math.atan2(x, z)/Math.PI*180.0f);
 		
 		return worldMoveAngle-lookAngle;
 	}
 	
-	public boolean isStrafing() {
+	public boolean isStrafing()
+	{
 		float angle = this.getMovementAngle();
 		float threshold = 30.0f;
 		return (angle >= threshold && angle <= 180.0f-threshold) || 
 			   (angle >= -180.0f+threshold && angle <= -threshold);
 	}
 	
-	public float getMovementSpeed() {
+	public float getMovementSpeed()
+	{
 		return this.motion.length();
 	}
 	
-	public boolean isInitialized() {
+	public boolean isInitialized()
+	{
 		return this.initialized;
 	}
 	
-	public void setInitialized(boolean flag) {
+	public void setInitialized(boolean flag)
+	{
 		this.initialized = flag;
 	}
 	

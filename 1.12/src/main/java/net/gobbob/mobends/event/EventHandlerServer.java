@@ -12,6 +12,6 @@ public class EventHandlerServer {
 	public void onEntityJoinWorld(EntityJoinWorldEvent event) {
 		if(event.getEntity() == null || !(event.getEntity() instanceof EntityPlayerMP)) return;
 		
-		ModBase.networkWrapper.sendTo(new MessageClientConfigure(NetworkConfiguration.instance.allowModelScaling), (EntityPlayerMP) event.getEntity());
+		ModBase.instance.networkWrapper.sendTo(new MessageClientConfigure(NetworkConfiguration.instance.allowModelScaling), (EntityPlayerMP) event.getEntity());
 	}
 }

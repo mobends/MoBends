@@ -70,7 +70,7 @@ public class SwordTrail {
 					TrailPart part = this.trailPartList.get(i);
 					
 					float alpha = part.ticksExisted/5.0f;
-					alpha = GUtil.max(alpha, 1.0f);
+					alpha = Math.min(alpha, 1.0f);
 					alpha = 1.0f-alpha;
 					
 					GL11.glColor4f(1,1,1,alpha);

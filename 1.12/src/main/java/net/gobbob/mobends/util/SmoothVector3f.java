@@ -138,7 +138,7 @@ public class SmoothVector3f {
 		this.completion.x += argTicksPerFrame*this.smoothness.x;
 		this.completion.y += argTicksPerFrame*this.smoothness.y;
 		this.completion.z += argTicksPerFrame*this.smoothness.z;
-		this.completion = GUtil.max(this.completion, 1.0f);
+		this.completion = GUtil.min(this.completion, 1.0f);
 		
 		if(completion.x >= 1.0f) this.vOld.x = this.vSmooth.x = this.vFinal.x;
 		else this.vSmooth.x = this.vOld.x+(this.vFinal.x-this.vOld.x)*this.completion.x;

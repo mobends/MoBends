@@ -36,7 +36,7 @@ public class Animation_Attack_Combo1 {
 		
 		float attackState = data.ticksAfterPunch/10.0f;
 		float armSwing = attackState*3.0f;
-		armSwing = GUtil.max(armSwing, 1.0f);
+		armSwing = Math.min(armSwing, 1.0f);
 		
 		if(!skeleton.isRiding()){
 			model.renderRotation.setSmoothY(30*handDirMtp,0.7f);

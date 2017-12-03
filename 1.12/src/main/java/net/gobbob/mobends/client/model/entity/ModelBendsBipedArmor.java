@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL11;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
 import net.gobbob.mobends.client.model.ModelBoxBends;
 import net.gobbob.mobends.client.model.ModelRendererBends;
-import net.gobbob.mobends.client.model.ModelRendererBends_Child;
+import net.gobbob.mobends.client.model.ModelRendererBendsChild;
 import net.gobbob.mobends.client.model.ModelRendererBends_SeperatedChild;
 import net.gobbob.mobends.data.Data_Player;
 import net.gobbob.mobends.data.Data_Skeleton;
@@ -63,7 +63,7 @@ public class ModelBendsBipedArmor extends ModelPlayer{
         this.bipedBody = new ModelRendererBends(this, 16, 16).setShowChildIfHidden(true);
         this.bipedBody.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, p_i46304_1_);
         this.bipedBody.setRotationPoint(0.0F, 12.0F, 0.0F);
-        this.bipedHead = new ModelRendererBends_Child(this, 0, 0).setMother((ModelRendererBends) this.bipedBody);
+        this.bipedHead = new ModelRendererBendsChild(this, 0, 0).setParent((ModelRendererBends) this.bipedBody);
         this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, p_i46304_1_);
         this.bipedHead.setRotationPoint(0.0F, -12.0F, 0.0F);
         

@@ -185,7 +185,7 @@ public class GuiBendsMenu extends GuiScreen{
 	public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
-        ModBase.saveConfig();
+        ModBase.instance.configuration.save();
         switch(guiTab) {
         	case TAB_CUSTOMIZE:
         		if(PackManager.getCurrentPack() != null){

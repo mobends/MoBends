@@ -57,8 +57,8 @@ public class Animation_Sprint extends Animation{
 		
 		
 		float var10 = model.headRotationY*0.3f;
-		var10 = GUtil.max(var10,20);
-		var10 = GUtil.min(var10,-20);
+		var10 = Math.min(var10,20);
+		var10 = Math.max(var10,-20);
 		((ModelRendererBends)model.bipedBody).rotation.setSmoothZ(-var10, 0.3f);
 		
 		model.renderOffset.setSmoothY(var3*0.15f,0.9f);

@@ -58,8 +58,8 @@ public class Animation_Walk extends Animation{
 		((ModelRendererBends)model.bipedHead).rotation.setX(model.headRotationX - ((ModelRendererBends)model.bipedBody).rotation.getNextX(DataUpdateHandler.ticksPerFrame));
 		
 		float var10 = model.headRotationY*0.1f;
-		var10 = GUtil.max(var10,10);
-		var10 = GUtil.min(var10,-10);
+		var10 = Math.min(var10,10);
+		var10 = Math.max(var10,-10);
 		((ModelRendererBends)model.bipedBody).rotation.setSmoothZ(-var10, 0.3f);
 	}
 }

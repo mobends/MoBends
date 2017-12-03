@@ -153,7 +153,7 @@ public class GuiPackList {
 	
 	public GuiPackTab getSelectedTab() {
 		int tabAmount = Math.max(0, tabs.size()-1);
-		tabId = GUtil.clampi(tabId, 0, tabAmount);
+		tabId = GUtil.clamp(tabId, 0, tabAmount);
 		return tabs.get(tabId);
 	}
 
@@ -207,7 +207,7 @@ public class GuiPackList {
 	
 	public void scroll(double amount) {
 		int maxValue = Math.max(0, maxScrollAmount);
-		this.scrollAmount = GUtil.clampi(this.scrollAmount+(int)amount, 0, maxValue);
+		this.scrollAmount = GUtil.clamp(this.scrollAmount+(int)amount, 0, maxValue);
 	}
 	
 	public void apply() {

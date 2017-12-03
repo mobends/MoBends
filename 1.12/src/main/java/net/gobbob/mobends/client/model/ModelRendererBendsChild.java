@@ -8,25 +8,27 @@ import net.minecraft.client.model.ModelRenderer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
-public class ModelRendererBends_Child extends ModelRendererBends{
-	ModelRendererBends momModel;
+public class ModelRendererBendsChild extends ModelRendererBends{
+	protected ModelRendererBends parent;
 	
-	public ModelRendererBends_Child(ModelBase argModel, boolean register) {
-		super(argModel, register);
+	public ModelRendererBendsChild(ModelBase model, boolean register)
+	{
+		super(model, register);
 	}
 	
-	public ModelRendererBends_Child(ModelBase argModel, String argName)
+	public ModelRendererBendsChild(ModelBase model, String name)
     {
-		super(argModel, argName);
+		super(model, name);
     }
 	
-	public ModelRendererBends_Child(ModelBase argModel, int argTexOffsetX, int argTexOffsetY)
+	public ModelRendererBendsChild(ModelBase model, int texOffsetX, int texOffsetY)
     {
-        super(argModel,argTexOffsetX,argTexOffsetY);
+        super(model, texOffsetX, texOffsetY);
     }
     
-	public ModelRendererBends_Child setMother(ModelRendererBends argMom){
-		this.momModel = argMom;
+	public ModelRendererBendsChild setParent(ModelRendererBends parent)
+	{
+		this.parent = parent;
 		return this;
 	}
 	
@@ -35,7 +37,7 @@ public class ModelRendererBends_Child extends ModelRendererBends{
     {
 		this.updateBends(p_78794_1_);
 		
-		this.momModel.postRender(p_78794_1_);
+		this.parent.postRender(p_78794_1_);
 
 		/*if (!this.isHidden)
         {
