@@ -1,67 +1,46 @@
 package net.gobbob.mobends.client.gui;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.util.vector.Vector2f;
 
-import net.gobbob.mobends.MoBends;
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
-import net.gobbob.mobends.client.ClientProxy;
-import net.gobbob.mobends.client.gui.elements.GuiAddButton;
 import net.gobbob.mobends.client.gui.elements.GuiPortraitDisplay;
 import net.gobbob.mobends.client.gui.nodeeditor.GuiNodeEditor;
 import net.gobbob.mobends.client.gui.packeditor.GuiPackEditor;
 import net.gobbob.mobends.client.gui.packeditor.GuiPackList;
 import net.gobbob.mobends.client.gui.popup.GuiPopUp;
-import net.gobbob.mobends.client.gui.popup.GuiPopUpHelp;
 import net.gobbob.mobends.client.gui.popup.GuiPopUpCreatePack;
-import net.gobbob.mobends.pack.BendsAction;
-import net.gobbob.mobends.pack.BendsAction.Calculation;
-import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.pack.BendsAction.EnumModifier;
-import net.gobbob.mobends.pack.BendsAction.EnumOperator;
-import net.gobbob.mobends.pack.variable.BendsVariable;
+import net.gobbob.mobends.client.gui.popup.GuiPopUpHelp;
+import net.gobbob.mobends.configuration.SettingsManager;
+import net.gobbob.mobends.main.ModBase;
+import net.gobbob.mobends.main.ModStatics;
+import net.gobbob.mobends.configuration.SettingBoolean;
+import net.gobbob.mobends.configuration.Setting;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.BendsTarget;
 import net.gobbob.mobends.pack.PackManager;
-import net.gobbob.mobends.settings.SettingManager;
-import net.gobbob.mobends.settings.SettingsBoolean;
-import net.gobbob.mobends.settings.SettingsNode;
-import net.gobbob.mobends.util.Color;
 import net.gobbob.mobends.util.Draw;
-import net.gobbob.mobends.util.EnumAxis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiListWorldSelection;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiBendsMenu extends GuiScreen{
 	/*--VISUAL--*/
-	public static final ResourceLocation menuTitleTexture = new ResourceLocation(MoBends.MODID,"textures/gui/logo.png");
-	public static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(MoBends.MODID,"textures/gui/icons.png");
+	public static final ResourceLocation menuTitleTexture = new ResourceLocation(ModStatics.MODID,"textures/gui/logo.png");
+	public static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ModStatics.MODID,"textures/gui/icons.png");
 	
 	public float titleTransitionState = 0.0f;
-	public boolean titleTransition = true;
+	public boolean titleTransition = true;	
 
 	/*--TECHNICAL--*/
 	int guiTab = 0;
@@ -129,10 +108,10 @@ public class GuiBendsMenu extends GuiScreen{
 			settingsNodes.clear();
 			int x = width-150;
 			int y = 50;
-			for(SettingsNode node : SettingManager.settings){
+			for(Setting node : SettingsManager.settings){
 				GuiSettingsNode guiNode;
-				if(node instanceof SettingsBoolean){
-					guiNode = new GuiSettingsBoolean((SettingsBoolean) node, x, y).setTitle(I18n.format(node.getUnlocalizedName(), new Object[0]), 90);
+				if(node instanceof SettingBoolean){
+					guiNode = new GuiSettingsBoolean((SettingBoolean) node, x, y).setTitle(I18n.format(node.getUnlocalizedName(), new Object[0]), 90);
 				}else{
 					guiNode = null;
 				}
@@ -206,7 +185,7 @@ public class GuiBendsMenu extends GuiScreen{
 	public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
-        MoBends.saveConfig();
+        ModBase.saveConfig();
         switch(guiTab) {
         	case TAB_CUSTOMIZE:
         		if(PackManager.getCurrentPack() != null){
@@ -348,10 +327,10 @@ public class GuiBendsMenu extends GuiScreen{
     		this.openTab(TAB_CUSTOMIZE);
     	}else if(par1GuiButton.id >= 10){
     		int s = 0;
-    		for(SettingsNode node : SettingManager.settings){
-    			if(node instanceof SettingsBoolean){
+    		for(Setting node : SettingsManager.settings){
+    			if(node instanceof SettingBoolean){
     				if(s == par1GuiButton.id-10){
-    					((SettingsBoolean)node).toggle();
+    					((SettingBoolean)node).toggle();
     					break;
     				}
     				s++;

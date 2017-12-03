@@ -34,7 +34,7 @@ public class MessageClientConfigure implements IMessage {
         @Override
         public IMessage onMessage(MessageClientConfigure message, MessageContext ctx) {
         	System.out.println("Recieved Mo' Bends server configuration. (" + (message.allowModelScaling) + ")");
-        	NetworkConfiguration.allowModelScaling = message.allowModelScaling;
+        	NetworkConfiguration.instance.allowModelScaling = message.allowModelScaling;
             return null;
         }
     }

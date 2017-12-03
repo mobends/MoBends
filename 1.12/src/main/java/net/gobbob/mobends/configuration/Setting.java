@@ -1,4 +1,4 @@
-package net.gobbob.mobends.settings;
+package net.gobbob.mobends.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,31 +6,31 @@ import java.util.List;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.Configuration;
 
-public abstract class SettingsNode<T> {
+public abstract class Setting<T> {
 	protected String unlocalizedName;
-	protected T data;
+	protected T value;
 	protected T defaultValue;
 	
-	public SettingsNode(){
+	public Setting(){
 		this.unlocalizedName = "mobends.setting.null";
 	}
 	
-	public SettingsNode(String unlocalizedName){
+	public Setting(String unlocalizedName){
 		this.unlocalizedName = "mobends.setting."+unlocalizedName;
 	}
 	
-	public SettingsNode<T> setupDefault(T data){
+	public Setting<T> setupDefault(T data){
 		this.defaultValue = data;
-		this.data = this.defaultValue;
+		this.value = this.defaultValue;
 		return this;
 	}
 	
 	public T get(){
-		return this.data;
+		return this.value;
 	}
 	
 	public void set(T data) {
-		this.data = data;
+		this.value = data;
 	}
 
 	public String getUnlocalizedName() {
@@ -38,7 +38,7 @@ public abstract class SettingsNode<T> {
 	}
 
 	public T getData() {
-		return data;
+		return value;
 	}
 	
 	public T getDefaultValue() {

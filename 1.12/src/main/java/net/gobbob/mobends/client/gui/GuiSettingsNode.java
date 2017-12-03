@@ -1,6 +1,6 @@
 package net.gobbob.mobends.client.gui;
 
-import net.gobbob.mobends.settings.SettingsNode;
+import net.gobbob.mobends.configuration.Setting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -12,9 +12,9 @@ public abstract class GuiSettingsNode extends Gui{
     public int height;
 	public boolean enabled;
     public boolean visible;
-	public SettingsNode settingsNode;
+	public Setting settingsNode;
 	
-	public GuiSettingsNode(SettingsNode settingsNode, int xPosition, int yPosition) {
+	public GuiSettingsNode(Setting settingsNode, int xPosition, int yPosition) {
 		this.settingsNode = settingsNode;
 		this.xPosition = xPosition;
 		this.yPosition = yPosition;

@@ -2,16 +2,16 @@ package net.gobbob.mobends.client.renderer.entity;
 
 import org.lwjgl.opengl.GL11;
 
-import net.gobbob.mobends.MoBends;
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsBipedArmor;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsCape;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsCustomHead;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsElytra;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsHeldItem;
+import net.gobbob.mobends.configuration.SettingsManager;
 import net.gobbob.mobends.data.Data_Player;
 import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.settings.SettingManager;
+import net.gobbob.mobends.main.ModBase;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
@@ -61,7 +61,7 @@ public class RenderBendsPlayer extends RenderPlayer{
     
         Data_Player data = (Data_Player) EntityData.get(EntityData.PLAYER_DATA, clientPlayer.getEntityId());
     
-        if(SettingManager.SWORD_TRAIL.isEnabled()){
+        if(SettingsManager.SWORD_TRAIL.isEnabled()){
 			GL11.glPushMatrix();
 				float f5 = 0.0625F;
 				GL11.glScalef(-f5, -f5, f5);

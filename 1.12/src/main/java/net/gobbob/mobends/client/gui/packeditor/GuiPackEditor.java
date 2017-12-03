@@ -1,10 +1,8 @@
 package net.gobbob.mobends.client.gui.packeditor;
 
-import net.gobbob.mobends.MoBends;
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.client.gui.elements.GuiCompactTextField;
 import net.gobbob.mobends.client.gui.elements.GuiCustomButton;
-import net.gobbob.mobends.client.gui.elements.GuiTextArea;
+import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.PackManager;
 import net.gobbob.mobends.util.Draw;
@@ -17,7 +15,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiPackEditor {
-	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(MoBends.MODID,"textures/gui/pack_editor.png");
+	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,"textures/gui/pack_editor.png");
 	public static final int EDITOR_WIDTH = 248;
 	public static final int EDITOR_HEIGHT = 177;
 	public static final String publicInfoText = "Want your creation to be featured? Contact me at:";

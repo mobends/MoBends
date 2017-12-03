@@ -1,20 +1,19 @@
 package net.gobbob.mobends.client.gui.nodeeditor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import net.gobbob.mobends.MoBends;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.client.gui.GuiHelper;
 import net.gobbob.mobends.client.gui.elements.GuiAddButton;
 import net.gobbob.mobends.client.gui.elements.GuiDropDownList;
 import net.gobbob.mobends.client.gui.elements.GuiHelpButton;
+import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.network.NetworkConfiguration;
 import net.gobbob.mobends.pack.BendsCondition;
 import net.gobbob.mobends.pack.BendsPack;
@@ -24,13 +23,11 @@ import net.gobbob.mobends.util.Draw;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiNodeEditor {
-	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(MoBends.MODID,"textures/gui/node_editor.png");
+	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,"textures/gui/node_editor.png");
 	public static final int EDITOR_WIDTH = 210;
 	public static final int EDITOR_HEIGHT = 122;
 	public static final int SCROLLBAR_WIDTH = 5;
@@ -111,7 +108,7 @@ public class GuiNodeEditor {
 			Draw.rectangle(x+EDITOR_WIDTH-SCROLLBAR_WIDTH+4, y+4+(int)(scrollAmountY*(EDITOR_HEIGHT-scrollBarHeight)/(scrollMaxY-EDITOR_HEIGHT)), SCROLLBAR_WIDTH-2, scrollBarHeight-2, 0xff666666);
 		}
 		
-		if(!NetworkConfiguration.isModelScalingAllowed()) {
+		if(!NetworkConfiguration.instance.isModelScalingAllowed()) {
 			String errorText = I18n.format("mobends.gui.noscaleallowed", new Object[0]);
 			fontRenderer.drawStringWithShadow(errorText, this.x+(EDITOR_WIDTH-fontRenderer.getStringWidth(errorText))/2, this.y+EDITOR_HEIGHT+16, 0xffdd33);
 		}

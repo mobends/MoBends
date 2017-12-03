@@ -2,7 +2,7 @@ package net.gobbob.mobends.client.gui;
 
 import org.lwjgl.opengl.GL11;
 
-import net.gobbob.mobends.settings.SettingsBoolean;
+import net.gobbob.mobends.configuration.SettingBoolean;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -18,7 +18,7 @@ public class GuiSettingsBoolean extends GuiSettingsNode {
 	public String title;
 	public int titleWidth;
 	
-	public GuiSettingsBoolean(SettingsBoolean settingsNode, int xPosition, int yPosition) {
+	public GuiSettingsBoolean(SettingBoolean settingsNode, int xPosition, int yPosition) {
 		super(settingsNode, xPosition, yPosition);
 		
 		this.width = 40;

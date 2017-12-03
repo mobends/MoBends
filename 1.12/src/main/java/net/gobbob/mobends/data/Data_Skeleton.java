@@ -8,7 +8,7 @@ import net.gobbob.mobends.client.model.ModelRendererBends;
 import net.gobbob.mobends.client.model.entity.ModelBendsSkeleton;
 import net.gobbob.mobends.client.model.entity.ModelBendsZombieVillager;
 import net.gobbob.mobends.client.renderer.SwordTrail;
-import net.gobbob.mobends.settings.SettingsNode;
+import net.gobbob.mobends.configuration.Setting;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLiving;

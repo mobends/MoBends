@@ -1,6 +1,7 @@
 package net.gobbob.mobends.client.renderer;
 
-import net.gobbob.mobends.MoBends;
+import net.gobbob.mobends.main.ModBase;
+import net.gobbob.mobends.main.ModStatics;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
@@ -18,7 +19,7 @@ public class BendsCapeRenderer {
 	public static final int MODEL_DEPTH = 1;
 	public static final int SLAB_AMOUNT = 16;
 	
-	public static final ResourceLocation CAPE_TEXTURE = new ResourceLocation(MoBends.MODID,"textures/cape.png");
+	public static final ResourceLocation CAPE_TEXTURE = new ResourceLocation(ModStatics.MODID,"textures/cape.png");
 	
 	public Slab[] slabs;
 	

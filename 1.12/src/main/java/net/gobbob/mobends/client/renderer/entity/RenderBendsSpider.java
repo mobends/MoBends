@@ -4,9 +4,9 @@ import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.client.model.entity.ModelBendsSpider;
+import net.gobbob.mobends.configuration.SettingBoolean;
+import net.gobbob.mobends.configuration.Setting;
 import net.gobbob.mobends.data.Data_Player;
-import net.gobbob.mobends.settings.SettingsBoolean;
-import net.gobbob.mobends.settings.SettingsNode;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.GlStateManager;

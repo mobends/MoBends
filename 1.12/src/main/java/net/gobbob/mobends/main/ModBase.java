@@ -1,16 +1,16 @@
-package net.gobbob.mobends;
+package net.gobbob.mobends.main;
 
 import java.io.File;
 import java.util.List;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
+import net.gobbob.mobends.configuration.SettingsManager;
+import net.gobbob.mobends.configuration.SettingBoolean;
+import net.gobbob.mobends.configuration.Setting;
 import net.gobbob.mobends.modcomp.RFPR;
 import net.gobbob.mobends.network.msg.MessageClientConfigure;
 import net.gobbob.mobends.pack.PackManager;
-import net.gobbob.mobends.settings.SettingManager;
-import net.gobbob.mobends.settings.SettingsBoolean;
-import net.gobbob.mobends.settings.SettingsNode;
 import net.minecraft.init.Blocks;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
@@ -24,18 +24,14 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Mod(modid = MoBends.MODID, name = MoBends.MODNAME, version = MoBends.VERSION)
-public class MoBends
+@Mod(modid = ModStatics.MODID, name = ModStatics.MODNAME, version = ModStatics.VERSION)
+public class ModBase
 {
-	public static final String MODID = "mobends";
-    public static final String MODNAME = "Mo' Bends";
-    public static final String VERSION = "0.24";
-    
     @SidedProxy(serverSide="net.gobbob.mobends.CommonProxy", clientSide="net.gobbob.mobends.client.ClientProxy")
     public static CommonProxy proxy;
     
-    @Instance(value=MODID)
-    public static MoBends instance;
+    @Instance(value=ModStatics.MODID)
+    public static ModBase instance;
     
     public static File configFile;
 	public static int refreshModel = 0;
@@ -52,7 +48,7 @@ public class MoBends
         proxy.preInit(config);
         config.save();
         
-        networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+        networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(ModStatics.MODID);
         networkWrapper.registerMessage(MessageClientConfigure.Handler.class, MessageClientConfigure.class, 0, Side.CLIENT);
     }
     
@@ -84,7 +80,7 @@ public class MoBends
     		}
         }
     	
-    	SettingManager.saveConfiguration(config);
+    	SettingsManager.saveConfiguration(config);
     	
     	if(PackManager.getCurrentPack() != null)
     		config.get("General", "Current Pack", "none").setValue(PackManager.getCurrentPack().getFilename());

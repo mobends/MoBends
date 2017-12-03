@@ -1,8 +1,8 @@
 package net.gobbob.mobends.client.event;
 
 import net.gobbob.mobends.client.renderer.ArrowTrail;
+import net.gobbob.mobends.configuration.SettingsManager;
 import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.settings.SettingManager;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -37,7 +37,7 @@ public class DataUpdateHandler {
 				this.ticks = (Minecraft.getMinecraft().player.ticksExisted+event.renderTickTime);
 			}
 			
-			if(SettingManager.ARROW_TRAILS.isEnabled())
+			if(SettingsManager.ARROW_TRAILS.isEnabled())
 				ArrowTrail.onRenderTick();
 		}
 	}

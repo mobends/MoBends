@@ -6,8 +6,8 @@ import java.util.List;
 import net.gobbob.mobends.client.model.ModelRendererBends;
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.client.renderer.SwordTrail;
-import net.gobbob.mobends.settings.SettingManager;
-import net.gobbob.mobends.settings.SettingsNode;
+import net.gobbob.mobends.configuration.SettingsManager;
+import net.gobbob.mobends.configuration.Setting;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
@@ -112,7 +112,7 @@ public class Data_Player extends EntityData{
 					if(this.ticksAfterPunch < 15.0f){
 						if(this.currentAttack == 1) this.currentAttack = 2;
 						else if(this.currentAttack == 2){
-							this.currentAttack = (!SettingManager.SPIN_ATTACK.isEnabled() || this.getEntity().isRiding()) ? 1 : 3;
+							this.currentAttack = (!SettingsManager.SPIN_ATTACK.isEnabled() || this.getEntity().isRiding()) ? 1 : 3;
 						}
 						else if(this.currentAttack == 3) this.currentAttack = 1;
 						this.ticksAfterPunch = 0;

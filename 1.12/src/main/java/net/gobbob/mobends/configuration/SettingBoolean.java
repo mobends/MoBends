@@ -1,13 +1,13 @@
-package net.gobbob.mobends.settings;
+package net.gobbob.mobends.configuration;
 
 import net.minecraftforge.common.config.Configuration;
 
-public class SettingsBoolean extends SettingsNode<Boolean> {
-	public SettingsBoolean(){
+public class SettingBoolean extends Setting<Boolean> {
+	public SettingBoolean(){
 		super();
 	}
 	
-	public SettingsBoolean(String unlocalizedName){
+	public SettingBoolean(String unlocalizedName){
 		super(unlocalizedName);
 	}
 
@@ -18,14 +18,14 @@ public class SettingsBoolean extends SettingsNode<Boolean> {
 
 	@Override
 	public void loadFromConfig(Configuration config) {
-		this.data = config.get("General", getUnlocalizedName(), getDefaultValue()).getBoolean();
+		this.value = config.get("General", getUnlocalizedName(), getDefaultValue()).getBoolean();
 	}
 
 	public boolean isEnabled() {
-		return this.data;
+		return this.value;
 	}
 
 	public void toggle() {
-		this.data = !this.data;
+		this.value = !this.value;
 	}
 }

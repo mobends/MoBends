@@ -1,6 +1,5 @@
 package net.gobbob.mobends.pack;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,25 +13,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.BiConsumer;
 
-import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-
-import net.gobbob.mobends.MoBends;
-import net.gobbob.mobends.client.gui.nodeeditor.GuiAnimationSection;
-import net.gobbob.mobends.client.model.ModelRendererBends;
 import net.gobbob.mobends.client.model.entity.IBendsModel;
-import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
-import net.gobbob.mobends.client.model.entity.ModelBendsSkeleton;
-import net.gobbob.mobends.client.model.entity.ModelBendsSpider;
-import net.gobbob.mobends.client.model.entity.ModelBendsZombie;
-import net.gobbob.mobends.client.model.entity.ModelBendsZombieVillager;
-import net.gobbob.mobends.pack.BPDFile.Entry;
+import net.gobbob.mobends.main.ModBase;
+import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.pack.BendsAction.Calculation;
 import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.pack.BendsAction.EnumModifier;
 import net.gobbob.mobends.pack.BendsAction.EnumOperator;
-import net.gobbob.mobends.util.BendsLogger;
 import net.gobbob.mobends.util.EnumAxis;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.Minecraft;
@@ -40,12 +28,10 @@ import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ImageBufferDownload;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.config.Configuration;
 
 public class BendsPack {
-	public static final ResourceLocation DEFAULT_THUMBNAIL_TEXTURE = new ResourceLocation(MoBends.MODID,"textures/gui/default_pack_thumbnail.png");
+	public static final ResourceLocation DEFAULT_THUMBNAIL_TEXTURE = new ResourceLocation(ModStatics.MODID,"textures/gui/default_pack_thumbnail.png");
 	public static HashMap<String, BendsTarget> targets = new HashMap<String, BendsTarget>();
 	
 	private String filename;
@@ -160,7 +146,7 @@ public class BendsPack {
 	}
 	
 	public void downloadThumbnail() {
-		final ResourceLocation resourcelocation = new ResourceLocation(MoBends.MODID, "bendsPackThumbnails/" + filename);
+		final ResourceLocation resourcelocation = new ResourceLocation(ModStatics.MODID, "bendsPackThumbnails/" + filename);
         ITextureObject itextureobject = Minecraft.getMinecraft().getTextureManager().getTexture(resourcelocation);
         
         if (itextureobject == null)

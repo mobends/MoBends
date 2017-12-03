@@ -3,9 +3,10 @@ package net.gobbob.mobends.network;
 import net.minecraft.client.Minecraft;
 
 public class NetworkConfiguration {
-	public static boolean allowModelScaling = false;
+	public static NetworkConfiguration instance = new NetworkConfiguration();
+	public boolean allowModelScaling = false;
 	
-	public static boolean isModelScalingAllowed() {
+	public boolean isModelScalingAllowed() {
 		return allowModelScaling || Minecraft.getMinecraft().isSingleplayer();
 	}
 }

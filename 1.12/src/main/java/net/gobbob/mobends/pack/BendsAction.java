@@ -33,7 +33,7 @@ public class BendsAction {
 	
 	public float getNumber(float in){
 		float number = Calculation.calculateAll(modifier,in,calculations);
-		if(property == EnumBoxProperty.SCALE && !NetworkConfiguration.isModelScalingAllowed())
+		if(property == EnumBoxProperty.SCALE && !NetworkConfiguration.instance.isModelScalingAllowed())
 			number = Math.max(-1, Math.min(number, 1));
 		return number;
 	}

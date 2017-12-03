@@ -1,24 +1,24 @@
-package net.gobbob.mobends.settings;
+package net.gobbob.mobends.configuration;
 
 import net.minecraftforge.common.config.Configuration;
 
-public class SettingManager {
-	public static final SettingsBoolean SWORD_TRAIL = (SettingsBoolean) new SettingsBoolean("sword_trail").setupDefault(true);
-	public static final SettingsBoolean ARROW_TRAILS = (SettingsBoolean) new SettingsBoolean("arrow_trails").setupDefault(true);
-	public static final SettingsBoolean SPIN_ATTACK = (SettingsBoolean) new SettingsBoolean("spin_attack").setupDefault(true);
+public class SettingsManager {
+	public static final SettingBoolean SWORD_TRAIL = (SettingBoolean) new SettingBoolean("sword_trail").setupDefault(true);
+	public static final SettingBoolean ARROW_TRAILS = (SettingBoolean) new SettingBoolean("arrow_trails").setupDefault(true);
+	public static final SettingBoolean SPIN_ATTACK = (SettingBoolean) new SettingBoolean("spin_attack").setupDefault(true);
 	
-	public static SettingsNode[] settings = new SettingsNode[]{
+	public static Setting[] settings = new Setting[]{
 		SWORD_TRAIL, ARROW_TRAILS, SPIN_ATTACK
 	};
 	
 	public static void saveConfiguration(Configuration config) {
-		for(SettingsNode node : settings) {
+		for(Setting node : settings) {
 			node.saveToConfig(config);
 		}
 	}
 
 	public static void loadConfiguration(Configuration config) {
-		for(SettingsNode node : settings) {
+		for(Setting node : settings) {
 			node.loadFromConfig(config);
 		}
 	}
