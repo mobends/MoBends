@@ -107,6 +107,19 @@ public class GUtil {
 		return num;
 	}
 	
+	public static float interpolateRotation(float a, float b, float partialTicks)
+    {
+        float f;
+        for (f = b - a; f < -180.0F; f += 360.0F);
+
+        while (f >= 180.0F)
+        {
+            f -= 360.0F;
+        }
+
+        return a + partialTicks * f;
+    }
+	
 	public static Vector3f[] translate(Vector3f[] nums, Vector3f move){
 		for(int i = 0;i < nums.length;i++){
 			nums[i] = translate(nums[i],move);

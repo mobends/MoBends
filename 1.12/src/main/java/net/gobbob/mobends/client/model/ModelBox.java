@@ -1,13 +1,12 @@
 package net.gobbob.mobends.client.model;
 
-import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 
-public class ModelBoxBends extends ModelBox{
+public class ModelBox extends net.minecraft.client.model.ModelBox{
 	
 	public float offsetX,offsetY,offsetZ;
 	public float resX,resY,resZ;
@@ -28,7 +27,7 @@ public class ModelBoxBends extends ModelBox{
 	public static final int FRONT = 4;
 	public static final int BACK = 5;
 	
-	public ModelBoxBends(ModelRenderer p_i1171_1_, int p_i1171_2_, int p_i1171_3_, float p_i1171_4_, float p_i1171_5_, float p_i1171_6_, int p_i1171_7_, int p_i1171_8_, int p_i1171_9_, float p_i1171_10_)
+	public ModelBox(ModelRenderer p_i1171_1_, int p_i1171_2_, int p_i1171_3_, float p_i1171_4_, float p_i1171_5_, float p_i1171_6_, int p_i1171_7_, int p_i1171_8_, int p_i1171_9_, float p_i1171_10_)
     {
 		super(p_i1171_1_, p_i1171_9_, p_i1171_9_, p_i1171_10_, p_i1171_10_, p_i1171_10_, p_i1171_9_, p_i1171_9_, p_i1171_9_, p_i1171_10_);
         this.offsetX = p_i1171_4_;
@@ -165,7 +164,7 @@ public class ModelBoxBends extends ModelBox{
         }
     }
 	
-	public ModelBoxBends offsetTextureQuad(ModelRenderer argModel, int argID,float argX, float argY){
+	public ModelBox offsetTextureQuad(ModelRenderer argModel, int argID,float argX, float argY){
 		if(argID >= 0 & argID < this.quads.length){
 			this.quads[argID].vertexPositions[0].texturePositionX+=argX/argModel.textureWidth;
 			this.quads[argID].vertexPositions[1].texturePositionX+=argX/argModel.textureWidth;

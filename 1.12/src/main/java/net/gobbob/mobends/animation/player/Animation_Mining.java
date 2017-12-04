@@ -1,11 +1,11 @@
 package net.gobbob.mobends.animation.player;
 
 import net.gobbob.mobends.animation.Animation;
-import net.gobbob.mobends.client.model.ModelRendererBends;
+import net.gobbob.mobends.client.model.ModelPart;
+import net.gobbob.mobends.client.model.entity.IBendsModel;
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.data.Data_Player;
 import net.gobbob.mobends.data.EntityData;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
@@ -17,13 +17,13 @@ public class Animation_Mining extends Animation{
 	}
 
 	@Override
-	public void animate(EntityLivingBase argEntity, ModelBase argModel, EntityData argData) {
+	public void animate(EntityLivingBase argEntity, IBendsModel argModel, EntityData argData) {
 		ModelBendsPlayer model = (ModelBendsPlayer) argModel;
 		Data_Player data = (Data_Player) argData;
 		EntityPlayer player = (EntityPlayer) argEntity;
 		
-		((ModelRendererBends)model.bipedRightLeg).rotation.setSmoothZ(10,0.3f);
-		((ModelRendererBends)model.bipedLeftLeg).rotation.setSmoothZ(-10,0.3f);
+		((ModelPart)model.bipedRightLeg).rotation.setSmoothZ(10,0.3f);
+		((ModelPart)model.bipedLeftLeg).rotation.setSmoothZ(-10,0.3f);
 		model.renderOffset.setSmoothY(-1.5f,0.3f);
 		
 		if(player.isSwingInProgress){
@@ -37,13 +37,13 @@ public class Animation_Mining extends Animation{
 			
 			float armYRot = 30.0f+MathHelper.cos((armSwing-90)/180.0f*3.14f)*-5.0f;
 			
-			((ModelRendererBends)model.bipedRightArm).rotation.setSmoothX(armSwing,0.7f);
-			((ModelRendererBends)model.bipedRightArm).rotation.setSmoothY(-armYRot,0.7f);
+			((ModelPart)model.bipedRightArm).rotation.setSmoothX(armSwing,0.7f);
+			((ModelPart)model.bipedRightArm).rotation.setSmoothY(-armYRot,0.7f);
 			model.renderRightItemRotation.setSmoothZ(-30.0f,0.3f);
 			
-			((ModelRendererBends)model.bipedBody).rotation.setSmoothY(MathHelper.sin(progress2*(float)Math.PI*2)*-20);
-			((ModelRendererBends)model.bipedHead).rotation.setSmoothX(model.headRotationX-model.bipedBody.rotateAngleX);
-			((ModelRendererBends)model.bipedHead).rotation.setSmoothY(model.headRotationY-model.bipedBody.rotateAngleY);
+			((ModelPart)model.bipedBody).rotation.setSmoothY(MathHelper.sin(progress2*(float)Math.PI*2)*-20);
+			((ModelPart)model.bipedHead).rotation.setSmoothX(model.headRotationX-model.bipedBody.rotateAngleX);
+			((ModelPart)model.bipedHead).rotation.setSmoothY(model.headRotationY-model.bipedBody.rotateAngleY);
 		}
 	}
 }

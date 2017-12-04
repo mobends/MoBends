@@ -2,14 +2,13 @@ package net.gobbob.mobends.animation.skeleton;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animation.Animation;
+import net.gobbob.mobends.client.model.entity.IBendsModel;
 import net.gobbob.mobends.client.model.entity.ModelBendsSkeleton;
 import net.gobbob.mobends.data.Data_Skeleton;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.AbstractSkeleton;
-import net.minecraft.entity.monster.EntityWitherSkeleton;
 import net.minecraft.util.EnumHand;
 
 public class Animation_Attack extends Animation{
@@ -26,7 +25,7 @@ public class Animation_Attack extends Animation{
 	}
 	
 	@Override
-	public void animate(EntityLivingBase argEntity, ModelBase argModel, EntityData argData) {
+	public void animate(EntityLivingBase argEntity, IBendsModel argModel, EntityData argData) {
 		ModelBendsSkeleton model = (ModelBendsSkeleton) argModel;
 		Data_Skeleton data = (Data_Skeleton) argData;
 		AbstractSkeleton skeleton = (AbstractSkeleton) argEntity;

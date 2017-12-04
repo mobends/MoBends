@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
 public class ModelPartChildExtended extends ModelPartChild{
-	protected ModelPart extension;
+	protected IModelPart extension;
 	
 	public ModelPartChildExtended(ModelBase model, boolean register, int texOffsetX, int texOffsetY) {
 		super(model, register, texOffsetX, texOffsetY);
@@ -28,8 +28,8 @@ public class ModelPartChildExtended extends ModelPartChild{
 		this(model, true, texOffsetX, texOffsetY);
     }
 	
-	public ModelPartChildExtended setExtension(ModelPart modelRenderer) {
-		extension = modelRenderer;
+	public ModelPartChildExtended setExtension(IModelPart modelPart) {
+		extension = modelPart;
 		return this;
 	}
 	
@@ -55,7 +55,7 @@ public class ModelPartChildExtended extends ModelPartChild{
 	        }
 	        
 	        if(extension != null)
-	        	extension.render(scale);
+	        	extension.renderPart(scale);
         GlStateManager.popMatrix();
     }
 	
@@ -66,6 +66,6 @@ public class ModelPartChildExtended extends ModelPartChild{
 		super.postRender(scale);
 		
 		if(extension != null)
-        	extension.postRender(scale);
+        	extension.applyTransform(scale);
     }
 }

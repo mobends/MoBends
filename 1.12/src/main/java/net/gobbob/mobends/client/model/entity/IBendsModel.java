@@ -1,7 +1,7 @@
 package net.gobbob.mobends.client.model.entity;
 
-import net.gobbob.mobends.client.model.ModelRendererBends;
+import net.gobbob.mobends.client.model.ModelPart;
 
 public interface IBendsModel {
-	public Object getRendererForName(String name);
+	public Object getPartForName(String name);
 }

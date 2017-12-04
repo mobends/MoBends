@@ -3,7 +3,7 @@ package net.gobbob.mobends.pack;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.client.model.ModelRendererBends;
+import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.entity.IBendsModel;
 import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.util.EnumAxis;
@@ -26,8 +26,8 @@ public class BendsCondition {
 					if(actions.get(i).property == EnumBoxProperty.ROT){
 						vector.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? vector.vFinal.x : actions.get(i).axis == EnumAxis.Y ? vector.vFinal.y : vector.vFinal.z)),actions.get(i).smooth);
 					}
-				}else if(object instanceof ModelRendererBends){
-					ModelRendererBends box = (ModelRendererBends) object;
+				}else if(object instanceof ModelPart){
+					ModelPart box = (ModelPart) object;
 					if(actions.get(i).property == EnumBoxProperty.ROT){
 						box.rotation.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? box.rotation.vFinal.x : actions.get(i).axis == EnumAxis.Y ? box.rotation.vFinal.y : box.rotation.vFinal.z)),actions.get(i).smooth);
 					}else if(actions.get(i).property == EnumBoxProperty.PREROT){
@@ -44,15 +44,15 @@ public class BendsCondition {
 	
 	public void applyToModel(IBendsModel model) {
 		for(int i = 0;i < actions.size();i++){
-			Object object = model.getRendererForName(actions.get(i).model);
+			Object object = model.getPartForName(actions.get(i).model);
 			if(object != null){
 				if(object instanceof SmoothVector3f){
 					SmoothVector3f vector = (SmoothVector3f) object;
 					if(actions.get(i).property == EnumBoxProperty.ROT){
 						vector.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? vector.vFinal.x : actions.get(i).axis == EnumAxis.Y ? vector.vFinal.y : vector.vFinal.z)),actions.get(i).smooth);
 					}
-				}else if(object instanceof ModelRendererBends){
-					ModelRendererBends box = (ModelRendererBends) object;
+				}else if(object instanceof ModelPart){
+					ModelPart box = (ModelPart) object;
 					if(actions.get(i).property == EnumBoxProperty.ROT){
 						box.rotation.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? box.rotation.vFinal.x : actions.get(i).axis == EnumAxis.Y ? box.rotation.vFinal.y : box.rotation.vFinal.z)),actions.get(i).smooth);
 					}else if(actions.get(i).property == EnumBoxProperty.PREROT){

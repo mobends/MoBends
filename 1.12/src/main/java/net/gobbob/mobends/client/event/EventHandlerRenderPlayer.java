@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.lwjgl.opengl.GL11;
+
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.mutators.RenderMutatorPlayer;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -27,9 +30,10 @@ public class EventHandlerRenderPlayer
 	}
 	
 	@SubscribeEvent
-	public void onPlayerRender(RenderPlayerEvent.Pre event)
+	public void beforePlayerRender(RenderPlayerEvent.Pre event)
 	{
 		float pt = event.getPartialRenderTick();
+		GlStateManager.pushMatrix();
 		
 		if(!(event.getEntity() instanceof EntityPlayer))
 			return;
@@ -39,31 +43,20 @@ public class EventHandlerRenderPlayer
 		if(AnimatedEntity.getByEntity(event.getEntity()).getAlterEntry(0).isAnimated())
 		{
 			AbstractClientPlayer player = (AbstractClientPlayer) event.getEntity();
-			
-			if(!currentlyRenderedEntities.contains(event.getEntity().getUniqueID()))
-			{
-				currentlyRenderedEntities.add(event.getEntity().getUniqueID());
-				
-				RenderMutatorPlayer.apply(event.getRenderer(), player, pt);
-				
-				/*event.setCanceled(true);
-				
-				RenderBendsPlayer renderer = AnimatedEntity.getPlayerRenderer(player);
-				ModelBendsPlayer model = (ModelBendsPlayer) renderer.getMainModel();
-				
-				if(Minecraft.getMinecraft().gameSettings.thirdPersonView == 0 && !EventHandlerRenderPlayer.renderingGuiScreen && player instanceof EntityPlayerSP){
-					model.bipedHead.isHidden = true;
-					model.bipedHeadwear.isHidden = true;
-				}else{
-					model.bipedHead.isHidden = false;
-					model.bipedHeadwear.isHidden = false;
-				}
-				
-				float entityYaw = event.getEntity().prevRotationYaw + (event.getEntity().rotationYaw - event.getEntity().prevRotationYaw) * partialTicks;
-				AnimatedEntity.getPlayerRenderer(player).doRender(player, event.getX(), event.getY(), event.getZ(), entityYaw, event.getPartialRenderTick());*/
-				currentlyRenderedEntities.remove(event.getEntity().getUniqueID());
-			}
+			RenderMutatorPlayer.apply(event.getRenderer(), player, pt);
+			double yOffset = 0;
+
+            if (player.isSneaking())
+            {
+            	yOffset = 0.145D;
+            }
+            GlStateManager.translate(0, yOffset, 0);
 		}
+	}
+	
+	@SubscribeEvent
+	public void afterPlayerRender(RenderPlayerEvent.Post event) {
+		GlStateManager.popMatrix();
 	}
 	
 	@SubscribeEvent

@@ -4,83 +4,50 @@ import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
-public class ModelRendererBendsChild extends ModelRendererBends{
-	protected ModelRendererBends parent;
+public class ModelPartChild extends ModelPart
+{
+	protected ModelPart parent;
+	protected boolean hideLikeParent = false;
 	
-	public ModelRendererBendsChild(ModelBase model, boolean register)
-	{
-		super(model, register);
+	public ModelPartChild(ModelBase model, boolean register, int texOffsetX, int texOffsetY) {
+		super(model, register, texOffsetX, texOffsetY);
 	}
 	
-	public ModelRendererBendsChild(ModelBase model, String name)
-    {
-		super(model, name);
-    }
+	public ModelPartChild(ModelBase model, boolean register)
+	{
+		this(model, register, 0, 0);
+	}
 	
-	public ModelRendererBendsChild(ModelBase model, int texOffsetX, int texOffsetY)
+	public ModelPartChild(ModelBase model, int texOffsetX, int texOffsetY)
     {
-        super(model, texOffsetX, texOffsetY);
+		this(model, true, texOffsetX, texOffsetY);
     }
     
-	public ModelRendererBendsChild setParent(ModelRendererBends parent)
+	public ModelPartChild setParent(ModelPart parent)
 	{
 		this.parent = parent;
 		return this;
 	}
 	
+	public ModelPartChild setHideLikeParent(boolean flag){
+		this.hideLikeParent = flag;
+		return this;
+	}
+	
 	@Override
-    public void postRender(float p_78794_1_)
+    @SideOnly(Side.CLIENT)
+    public void postRender(float scale)
     {
-		this.updateBends(p_78794_1_);
+		if(this.parent != null)
+    		this.parent.postRender(scale);
 		
-		this.parent.postRender(p_78794_1_);
-
-		/*if (!this.isHidden)
-        {
-            if (this.showModel)
-            {*/
-                if (this.rotateAngleX == 0.0F && this.rotateAngleY == 0.0F && this.rotateAngleZ == 0.0F)
-                {
-                    if (this.rotationPointX != 0.0F || this.rotationPointY != 0.0F || this.rotationPointZ != 0.0F)
-                    {
-                        GL11.glTranslatef(this.rotationPointX * p_78794_1_, this.rotationPointY * p_78794_1_, this.rotationPointZ * p_78794_1_);
-                    
-                        GL11.glRotatef(-this.pre_rotation.getY(), 0.0F, 1.0F, 0.0F);
-                        GL11.glRotatef(this.pre_rotation.getX(), 1.0F, 0.0F, 0.0F);
-                        GL11.glRotatef(this.pre_rotation.getZ(), 0.0F, 0.0F, 1.0F);
-                        GL11.glScalef(this.scaleX,this.scaleY,this.scaleZ);
-                    }
-                }
-                else
-                {
-                    GL11.glTranslatef(this.rotationPointX * p_78794_1_, this.rotationPointY * p_78794_1_, this.rotationPointZ * p_78794_1_);
-                    
-                    GL11.glRotatef(-this.pre_rotation.getY(), 0.0F, 1.0F, 0.0F);
-                    GL11.glRotatef(this.pre_rotation.getX(), 1.0F, 0.0F, 0.0F);
-                    GL11.glRotatef(this.pre_rotation.getZ(), 0.0F, 0.0F, 1.0F);
-                    
-                    if (this.rotateAngleZ != 0.0F)
-                    {
-                        GL11.glRotatef(this.rotateAngleZ * (180F / (float)Math.PI), 0.0F, 0.0F, 1.0F);
-                    }
-
-                    if (this.rotateAngleY != 0.0F)
-                    {
-                        GL11.glRotatef(this.rotateAngleY * (180F / (float)Math.PI), 0.0F, 1.0F, 0.0F);
-                    }
-
-                    if (this.rotateAngleX != 0.0F)
-                    {
-                        GL11.glRotatef(this.rotateAngleX * (180F / (float)Math.PI), 1.0F, 0.0F, 0.0F);
-                    }
-                    
-                    GL11.glScalef(this.scaleX,this.scaleY,this.scaleZ);
-                }
-            //}
-        //}
+		super.postRender(scale);
     }
 }

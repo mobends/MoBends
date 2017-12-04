@@ -3,10 +3,9 @@ package net.gobbob.mobends.client.model.entity;
 import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
-import net.gobbob.mobends.client.model.ModelBoxBends;
-import net.gobbob.mobends.client.model.ModelRendererBends;
-import net.gobbob.mobends.client.model.ModelRendererBendsChild;
-import net.gobbob.mobends.client.model.ModelRendererBends_SeperatedChild;
+import net.gobbob.mobends.client.model.ModelBox;
+import net.gobbob.mobends.client.model.ModelPart;
+import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.data.Data_Player;
 import net.gobbob.mobends.data.Data_Skeleton;
 import net.gobbob.mobends.data.Data_Zombie;
@@ -21,13 +20,13 @@ import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class ModelBendsBipedArmor extends ModelPlayer{
-    public ModelRendererBends bipedRightForeArm;
-    public ModelRendererBends bipedLeftForeArm;
-    public ModelRendererBends bipedRightForeLeg;
-    public ModelRendererBends bipedLeftForeLeg;
+    public ModelPart bipedRightForeArm;
+    public ModelPart bipedLeftForeArm;
+    public ModelPart bipedRightForeLeg;
+    public ModelPart bipedLeftForeLeg;
     
-    public ModelRendererBends bipedCloak;
-    public ModelRendererBends bipedEars;
+    public ModelPart bipedCloak;
+    public ModelPart bipedEars;
     public boolean smallArms;
     
     public SmoothVector3f renderOffset = new SmoothVector3f();
@@ -51,16 +50,16 @@ public class ModelBendsBipedArmor extends ModelPlayer{
         this.textureHeight = bigTexture ? 64 : 32;
         
         this.smallArms = p_i46304_2_;
-        this.bipedEars = new ModelRendererBends(this, 24, 0);
+        this.bipedEars = new ModelPart(this, 24, 0);
         this.bipedEars.addBox(-3.0F, -6.0F, -1.0F, 6, 6, 1, p_i46304_1_);
-        this.bipedCloak = new ModelRendererBends(this, 0, 0);
+        this.bipedCloak = new ModelPart(this, 0, 0);
         this.bipedCloak.setTextureSize(64, 32);
         this.bipedCloak.addBox(-5.0F, 0.0F, -1.0F, 10, 16, 1, p_i46304_1_);
         
-        this.bipedHeadwear = new ModelRendererBends(this, 32, 0);
+        /*this.bipedHeadwear = new ModelRendererBends(this, 32, 0);
         this.bipedHeadwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, p_i46304_1_ + 0.5F);
         this.bipedHeadwear.setRotationPoint(0.0F, 0.0F, 0.0F);
-        this.bipedBody = new ModelRendererBends(this, 16, 16).setShowChildIfHidden(true);
+        this.bipedBody = new ModelRendererBends(this, 16, 16).setHideLikeParent(true);
         this.bipedBody.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, p_i46304_1_);
         this.bipedBody.setRotationPoint(0.0F, 12.0F, 0.0F);
         this.bipedHead = new ModelRendererBendsChild(this, 0, 0).setParent((ModelRendererBends) this.bipedBody);
@@ -69,10 +68,10 @@ public class ModelBendsBipedArmor extends ModelPlayer{
         
         if (p_i46304_2_)
         {
-            this.bipedLeftArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+            this.bipedLeftArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
             this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 3, 6, 4, p_i46304_1_);
             this.bipedLeftArm.setRotationPoint(5.0F, 2.5F-12.0f, 0.0F);
-            this.bipedRightArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+            this.bipedRightArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
             this.bipedRightArm.addBox(-2.0F, -2.0F, -2.0F, 3, 6, 4, p_i46304_1_);
             this.bipedRightArm.setRotationPoint(-5.0F, 2.5F-12.0f, 0.0F);
             ((ModelRendererBends)this.bipedRightArm).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(3.02f, 6.0f, 4.02f).updateVertices();
@@ -91,11 +90,11 @@ public class ModelBendsBipedArmor extends ModelPlayer{
         }
         else
         {
-            this.bipedLeftArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+            this.bipedLeftArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
             this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 6, 4, p_i46304_1_);
             this.bipedLeftArm.setRotationPoint(5.0F, 2.0F-12.0f, 0.0F);
             this.bipedLeftArm.mirror = true;
-            this.bipedRightArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+            this.bipedRightArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
             this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 6, 4, p_i46304_1_);
             this.bipedRightArm.setRotationPoint(-5.0F, 2.0F-12.0f, 0.0F);
             ((ModelRendererBends)this.bipedRightArm).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
@@ -145,7 +144,7 @@ public class ModelBendsBipedArmor extends ModelPlayer{
         ((ModelRendererBends_SeperatedChild)this.bipedLeftArm).setSeperatedPart((ModelRendererBends) this.bipedLeftForeArm);
         
         ((ModelRendererBends)this.bipedRightLeg).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
-        ((ModelRendererBends)this.bipedLeftLeg).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
+        ((ModelRendererBends)this.bipedLeftLeg).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();*/
     }
     
     public void render(Entity argEntity, float p_78088_2_, float p_78088_3_, float p_78088_4_, float p_78088_5_, float p_78088_6_, float p_78088_7_)
@@ -192,17 +191,17 @@ public class ModelBendsBipedArmor extends ModelPlayer{
     	
     	if(argEntity instanceof EntityPlayer) {
 	    	Data_Player data = (Data_Player) EntityData.get(EntityData.PLAYER_DATA, argEntity.getEntityId());
-	    	((ModelRendererBends) this.bipedHead).sync(data.head);
-	    	((ModelRendererBends) this.bipedHeadwear).sync(data.headwear);
-	    	((ModelRendererBends) this.bipedBody).sync(data.body);
-	    	((ModelRendererBends) this.bipedRightArm).sync(data.rightArm);
-	    	((ModelRendererBends) this.bipedLeftArm).sync(data.leftArm);
-	    	((ModelRendererBends) this.bipedRightLeg).sync(data.rightLeg);
-	    	((ModelRendererBends) this.bipedLeftLeg).sync(data.leftLeg);
-	    	((ModelRendererBends) this.bipedRightForeArm).sync(data.rightForeArm);
-	    	((ModelRendererBends) this.bipedLeftForeArm).sync(data.leftForeArm);
-	    	((ModelRendererBends) this.bipedRightForeLeg).sync(data.rightForeLeg);
-	    	((ModelRendererBends) this.bipedLeftForeLeg).sync(data.leftForeLeg);
+	    	((ModelPart) this.bipedHead).sync(data.head);
+	    	((ModelPart) this.bipedHeadwear).sync(data.headwear);
+	    	((ModelPart) this.bipedBody).sync(data.body);
+	    	((ModelPart) this.bipedRightArm).sync(data.rightArm);
+	    	((ModelPart) this.bipedLeftArm).sync(data.leftArm);
+	    	((ModelPart) this.bipedRightLeg).sync(data.rightLeg);
+	    	((ModelPart) this.bipedLeftLeg).sync(data.leftLeg);
+	    	((ModelPart) this.bipedRightForeArm).sync(data.rightForeArm);
+	    	((ModelPart) this.bipedLeftForeArm).sync(data.leftForeArm);
+	    	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
+	    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);
 	    	
 	    	this.renderOffset.set(data.renderOffset);
 	    	this.renderRotation.set(data.renderRotation);
@@ -210,41 +209,41 @@ public class ModelBendsBipedArmor extends ModelPlayer{
 	    	this.renderLeftItemRotation.set(data.renderLeftItemRotation);
     	}else if(argEntity instanceof EntityZombie) {
     		Data_Zombie data = (Data_Zombie) EntityData.get(EntityData.ZOMBIE_DATA, argEntity.getEntityId());
-	    	((ModelRendererBends) this.bipedHead).sync(data.head);
-	    	((ModelRendererBends) this.bipedHeadwear).sync(data.headwear);
-	    	((ModelRendererBends) this.bipedBody).sync(data.body);
-	    	((ModelRendererBends) this.bipedRightArm).sync(data.rightArm);
-	    	((ModelRendererBends) this.bipedLeftArm).sync(data.leftArm);
-	    	((ModelRendererBends) this.bipedRightLeg).sync(data.rightLeg);
-	    	((ModelRendererBends) this.bipedLeftLeg).sync(data.leftLeg);
-	    	((ModelRendererBends) this.bipedRightForeArm).sync(data.rightForeArm);
-	    	((ModelRendererBends) this.bipedLeftForeArm).sync(data.leftForeArm);
-	    	((ModelRendererBends) this.bipedRightForeLeg).sync(data.rightForeLeg);
-	    	((ModelRendererBends) this.bipedLeftForeLeg).sync(data.leftForeLeg);
+	    	((ModelPart) this.bipedHead).sync(data.head);
+	    	((ModelPart) this.bipedHeadwear).sync(data.headwear);
+	    	((ModelPart) this.bipedBody).sync(data.body);
+	    	((ModelPart) this.bipedRightArm).sync(data.rightArm);
+	    	((ModelPart) this.bipedLeftArm).sync(data.leftArm);
+	    	((ModelPart) this.bipedRightLeg).sync(data.rightLeg);
+	    	((ModelPart) this.bipedLeftLeg).sync(data.leftLeg);
+	    	((ModelPart) this.bipedRightForeArm).sync(data.rightForeArm);
+	    	((ModelPart) this.bipedLeftForeArm).sync(data.leftForeArm);
+	    	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
+	    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);
 	    	
 	    	this.renderOffset.set(data.renderOffset);
 	    	this.renderRotation.set(data.renderRotation);
     	}else if(argEntity instanceof EntitySkeleton) {
     		Data_Skeleton data = (Data_Skeleton) EntityData.get(EntityData.SKELETON_DATA, argEntity.getEntityId());
-	    	((ModelRendererBends) this.bipedHead).sync(data.head);
-	    	((ModelRendererBends) this.bipedHeadwear).sync(data.headwear);
-	    	((ModelRendererBends) this.bipedBody).sync(data.body);
-	    	((ModelRendererBends) this.bipedRightArm).sync(data.rightArm);
-	    	((ModelRendererBends) this.bipedLeftArm).sync(data.leftArm);
-	    	((ModelRendererBends) this.bipedRightLeg).sync(data.rightLeg);
-	    	((ModelRendererBends) this.bipedLeftLeg).sync(data.leftLeg);
-	    	((ModelRendererBends) this.bipedRightForeArm).sync(data.rightForeArm);
-	    	((ModelRendererBends) this.bipedLeftForeArm).sync(data.leftForeArm);
-	    	((ModelRendererBends) this.bipedRightForeLeg).sync(data.rightForeLeg);
-	    	((ModelRendererBends) this.bipedLeftForeLeg).sync(data.leftForeLeg);
+	    	((ModelPart) this.bipedHead).sync(data.head);
+	    	((ModelPart) this.bipedHeadwear).sync(data.headwear);
+	    	((ModelPart) this.bipedBody).sync(data.body);
+	    	((ModelPart) this.bipedRightArm).sync(data.rightArm);
+	    	((ModelPart) this.bipedLeftArm).sync(data.leftArm);
+	    	((ModelPart) this.bipedRightLeg).sync(data.rightLeg);
+	    	((ModelPart) this.bipedLeftLeg).sync(data.leftLeg);
+	    	((ModelPart) this.bipedRightForeArm).sync(data.rightForeArm);
+	    	((ModelPart) this.bipedLeftForeArm).sync(data.leftForeArm);
+	    	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
+	    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);
 	    	
 	    	this.renderOffset.set(data.renderOffset);
 	    	this.renderRotation.set(data.renderRotation);
     	}
     	
     	if(this.isRenderedInGui()){
-    		((ModelRendererBends) this.bipedHead).rotation.setY(this.headRotationY);
-    		((ModelRendererBends) this.bipedHead).rotation.setX(this.headRotationX);
+    		((ModelPart) this.bipedHead).rotation.setY(this.headRotationY);
+    		((ModelPart) this.bipedHead).rotation.setX(this.headRotationX);
     	}
     }
     

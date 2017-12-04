@@ -1,0 +1,25 @@
+mobends.gui.customize=Tilpass
+mobends.gui.packs=Pakker
+mobends.gui.publicpacks=Offentlige Pakker
+mobends.gui.localpacks=Lokale Pakker
+mobends.gui.use=Bruk
+mobends.gui.disable=Deaktiver
+mobends.gui.edit=Redigere
+mobends.gui.done=Ferdig
+mobends.gui.selectpack=Velg en pakke
+mobends.gui.entername=Skriv inn et nytt navn
+mobends.gui.filename=Filnavn
+mobends.gui.chooseapacktoedit=Velg en lokal pakke å redigere
+mobends.gui.apply=Anvende
+mobends.gui.openpacksfolder=Åpne pakke folder
+mobends.gui.help=Hjelp
+mobends.gui.discardchanges=Vil du kaste bort endringer?
+mobends.gui.createpack=Lag en pakke
+mobends.gui.condition=Betingelse
+mobends.gui.node=Node
+mobends.gui.calculation=Beregning
+mobends.gui.noscaleallowed=Advarsel: Denne serveren tilatter ikke kroppsskalering.
+
+mobends.setting.sword_trail=Sverd Hale
+mobends.setting.arrow_trails=Pil Hale
+mobends.setting.spin_attack=Spinne Angrep

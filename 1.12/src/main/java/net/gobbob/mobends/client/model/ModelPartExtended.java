@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModelPartExtended extends ModelPart {
-	protected ModelPart extension;
+	protected IModelPart extension;
 	
 	public ModelPartExtended(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
 	{
@@ -27,8 +27,8 @@ public class ModelPartExtended extends ModelPart {
 		super(model, texOffsetX, texOffsetY);
 	}
 
-	public ModelPartExtended setExtension(ModelPart modelRenderer) {
-		extension = modelRenderer;
+	public ModelPartExtended setExtension(IModelPart modelPart) {
+		extension = modelPart;
 		return this;
 	}
 	
@@ -54,7 +54,7 @@ public class ModelPartExtended extends ModelPart {
 	        }
 	        
 	        if(extension != null)
-	        	extension.render(scale);
+	        	extension.renderPart(scale);
         GlStateManager.popMatrix();
     }
 	
@@ -64,6 +64,6 @@ public class ModelPartExtended extends ModelPart {
         super.postRender(scale);
         
         if(extension != null)
-        	extension.postRender(scale);
+        	extension.applyTransform(scale);
     }
 }

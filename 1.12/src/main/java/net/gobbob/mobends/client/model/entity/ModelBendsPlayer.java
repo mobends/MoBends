@@ -8,10 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
-import net.gobbob.mobends.client.model.ModelBoxBends;
-import net.gobbob.mobends.client.model.ModelRendererBends;
-import net.gobbob.mobends.client.model.ModelRendererBendsChild;
-import net.gobbob.mobends.client.model.ModelRendererBends_SeperatedChild;
+import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.renderer.SwordTrail;
 import net.gobbob.mobends.data.Data_Player;
 import net.gobbob.mobends.data.EntityData;
@@ -40,18 +37,18 @@ import net.minecraft.util.math.MathHelper;
 
 public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
 {
-    public ModelRendererBends bipedRightForeArm;
-    public ModelRendererBends bipedLeftForeArm;
-    public ModelRendererBends bipedRightForeLeg;
-    public ModelRendererBends bipedLeftForeLeg;
+    public ModelPart bipedRightForeArm;
+    public ModelPart bipedLeftForeArm;
+    public ModelPart bipedRightForeLeg;
+    public ModelPart bipedLeftForeLeg;
     
-    public ModelRendererBends bipedRightForeArmwear;
-    public ModelRendererBends bipedLeftForeArmwear;
-    public ModelRendererBends bipedRightForeLegwear;
-    public ModelRendererBends bipedLeftForeLegwear;
+    public ModelPart bipedRightForeArmwear;
+    public ModelPart bipedLeftForeArmwear;
+    public ModelPart bipedRightForeLegwear;
+    public ModelPart bipedLeftForeLegwear;
     
-    public ModelRendererBends bipedCape;
-    public ModelRendererBends bipedEars;
+    public ModelPart bipedCape;
+    public ModelPart bipedEars;
     public boolean smallArms;
     
     public SmoothVector3f renderOffset = new SmoothVector3f();
@@ -81,7 +78,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         this.textureHeight = bigTexture ? 64 : 32;
         
         this.smallArms = p_i46304_2_;
-        this.bipedEars = new ModelRendererBends(this, 24, 0);
+        /*this.bipedEars = new ModelRendererBends(this, 24, 0);
         this.bipedEars.addBox(-3.0F, -6.0F, -1.0F, 6, 6, 1, p_i46304_1_);
         this.bipedCape = new ModelRendererBends(this, 0, 0);
         this.bipedCape.setTextureSize(64, 32);
@@ -93,16 +90,16 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         this.bipedBody = new ModelRendererBends(this, 16, 16);
         this.bipedBody.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, p_i46304_1_);
         this.bipedBody.setRotationPoint(0.0F, 12.0F, 0.0F);
-        this.bipedHead = new ModelRendererBendsChild(this, 0, 0).setParent((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+        this.bipedHead = new ModelRendererBendsChild(this, 0, 0).setParent((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
         this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, p_i46304_1_);
         this.bipedHead.setRotationPoint(0.0F, -12.0F, 0.0F);
         
         if (p_i46304_2_)
         {
-            this.bipedLeftArm = new ModelRendererBends_SeperatedChild(this, 32, 48).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+            this.bipedLeftArm = new ModelRendererBends_SeperatedChild(this, 32, 48).setMother((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
             this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 3, 6, 4, p_i46304_1_);
             this.bipedLeftArm.setRotationPoint(5.0F, 2.5F-12.0f, 0.0F);
-            this.bipedRightArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+            this.bipedRightArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
             this.bipedRightArm.addBox(-2.0F, -2.0F, -2.0F, 3, 6, 4, p_i46304_1_);
             this.bipedRightArm.setRotationPoint(-5.0F, 2.5F-12.0f, 0.0F);
             this.bipedLeftArmwear = new ModelRendererBends(this, 48, 48);
@@ -146,10 +143,10 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         }
         else
         {
-            this.bipedLeftArm = new ModelRendererBends_SeperatedChild(this, 32, 48).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+            this.bipedLeftArm = new ModelRendererBends_SeperatedChild(this, 32, 48).setMother((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
             this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 6, 4, p_i46304_1_);
             this.bipedLeftArm.setRotationPoint(5.0F, 2.0F-12.0f, 0.0F);
-            this.bipedRightArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setShowChildIfHidden(true);
+            this.bipedRightArm = new ModelRendererBends_SeperatedChild(this, 40, 16).setMother((ModelRendererBends) this.bipedBody).setHideLikeParent(true);
             this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 6, 4, p_i46304_1_);
             this.bipedRightArm.setRotationPoint(-5.0F, 2.0F-12.0f, 0.0F);
             this.bipedLeftArmwear = new ModelRendererBends(this, 48, 48);
@@ -273,7 +270,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         nameToRendererMap.put("rightForeLeg", bipedRightForeLeg);
         nameToRendererMap.put("rightItemRotation", renderRightItemRotation);
         nameToRendererMap.put("leftItemRotation", renderLeftItemRotation);
-        nameToRendererMap.put("playerRotation", renderRotation);
+        nameToRendererMap.put("playerRotation", renderRotation);*/
     }
     
     public void render(Entity argEntity, float p_78088_2_, float p_78088_3_, float p_78088_4_, float p_78088_5_, float p_78088_6_, float p_78088_7_)
@@ -322,17 +319,17 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     	this.headRotationX = MathHelper.wrapDegrees(argHeadX);
     	this.headRotationY = MathHelper.wrapDegrees(argHeadY);
     	
-    	((ModelRendererBends) this.bipedHead).sync(data.head);
-    	((ModelRendererBends) this.bipedHeadwear).sync(data.headwear);
-    	((ModelRendererBends) this.bipedBody).sync(data.body);
-    	((ModelRendererBends) this.bipedRightArm).sync(data.rightArm);
-    	((ModelRendererBends) this.bipedLeftArm).sync(data.leftArm);
-    	((ModelRendererBends) this.bipedRightLeg).sync(data.rightLeg);
-    	((ModelRendererBends) this.bipedLeftLeg).sync(data.leftLeg);
-    	((ModelRendererBends) this.bipedRightForeArm).sync(data.rightForeArm);
-    	((ModelRendererBends) this.bipedLeftForeArm).sync(data.leftForeArm);
-    	((ModelRendererBends) this.bipedRightForeLeg).sync(data.rightForeLeg);
-    	((ModelRendererBends) this.bipedLeftForeLeg).sync(data.leftForeLeg);
+    	((ModelPart) this.bipedHead).sync(data.head);
+    	((ModelPart) this.bipedHeadwear).sync(data.headwear);
+    	((ModelPart) this.bipedBody).sync(data.body);
+    	((ModelPart) this.bipedRightArm).sync(data.rightArm);
+    	((ModelPart) this.bipedLeftArm).sync(data.leftArm);
+    	((ModelPart) this.bipedRightLeg).sync(data.rightLeg);
+    	((ModelPart) this.bipedLeftLeg).sync(data.leftLeg);
+    	((ModelPart) this.bipedRightForeArm).sync(data.rightForeArm);
+    	((ModelPart) this.bipedLeftForeArm).sync(data.leftForeArm);
+    	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
+    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);
     	
     	this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
@@ -341,8 +338,8 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     	this.swordTrail = data.swordTrail;
     	
     	if(this.isRenderedInGui()){
-    		((ModelRendererBends) this.bipedHead).rotation.setY(this.headRotationY);
-    		((ModelRendererBends) this.bipedHead).rotation.setX(this.headRotationX);
+    		((ModelPart) this.bipedHead).rotation.setY(this.headRotationY);
+    		((ModelPart) this.bipedHead).rotation.setX(this.headRotationX);
     	}
     	
     	if(data.canBeUpdated()){
@@ -351,17 +348,17 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     		this.renderRightItemRotation.setSmooth(new Vector3f(0,0,0),0.5f);
     		this.renderLeftItemRotation.setSmooth(new Vector3f(0,0,0),0.5f);
     		
-    		((ModelRendererBends) this.bipedHead).resetScale();
-    		((ModelRendererBends) this.bipedHeadwear).resetScale();
-    		((ModelRendererBends) this.bipedBody).resetScale();
-    		((ModelRendererBends) this.bipedRightArm).resetScale();
-    		((ModelRendererBends) this.bipedLeftArm).resetScale();
-    		((ModelRendererBends) this.bipedRightLeg).resetScale();
-    		((ModelRendererBends) this.bipedLeftLeg).resetScale();
-    		((ModelRendererBends) this.bipedRightForeArm).resetScale();
-    		((ModelRendererBends) this.bipedLeftForeArm).resetScale();
-    		((ModelRendererBends) this.bipedRightForeLeg).resetScale();
-    		((ModelRendererBends) this.bipedLeftForeLeg).resetScale();
+    		((ModelPart) this.bipedHead).resetScale();
+    		((ModelPart) this.bipedHeadwear).resetScale();
+    		((ModelPart) this.bipedBody).resetScale();
+    		((ModelPart) this.bipedRightArm).resetScale();
+    		((ModelPart) this.bipedLeftArm).resetScale();
+    		((ModelPart) this.bipedRightLeg).resetScale();
+    		((ModelPart) this.bipedLeftLeg).resetScale();
+    		((ModelPart) this.bipedRightForeArm).resetScale();
+    		((ModelPart) this.bipedLeftForeArm).resetScale();
+    		((ModelPart) this.bipedRightForeLeg).resetScale();
+    		((ModelPart) this.bipedLeftForeLeg).resetScale();
     		
     		BendsVariable.tempData = data;
     		
@@ -475,8 +472,8 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     
     public void updateModelRenderers(Data_Player data) {
     	for(int i = 0; i < this.boxList.size(); i++) {
-			if(this.boxList.get(i) instanceof ModelRendererBends)
-				((ModelRendererBends)this.boxList.get(i)).update(DataUpdateHandler.ticksPerFrame);
+			if(this.boxList.get(i) instanceof ModelPart)
+				((ModelPart)this.boxList.get(i)).update(DataUpdateHandler.ticksPerFrame);
 		}
     	
     	this.renderOffset.update(DataUpdateHandler.ticksPerFrame);
@@ -516,8 +513,8 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
 	
 	public void postRenderArm(float scale, EnumHandSide side)
     {
-        ModelRendererBends armModelRenderer = (ModelRendererBends) this.getArmForSide(side);
-        ModelRendererBends foreArmModelRenderer = (ModelRendererBends) this.getForeArmForSide(side);
+        ModelPart armModelRenderer = (ModelPart) this.getArmForSide(side);
+        ModelPart foreArmModelRenderer = (ModelPart) this.getForeArmForSide(side);
 
         if (this.smallArms)
         {
@@ -593,7 +590,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     }
 
 	@Override
-	public Object getRendererForName(String name) {
+	public Object getPartForName(String name) {
 		return nameToRendererMap.get(name);
 	}
 }

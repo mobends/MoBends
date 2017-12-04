@@ -1,6 +1,6 @@
 package net.gobbob.mobends.client.renderer.entity.layers;
 
-import net.gobbob.mobends.client.model.ModelBendsElytra;
+import net.gobbob.mobends.client.model.items.ModelBendsElytra;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelElytra;
 import net.minecraft.client.renderer.GlStateManager;

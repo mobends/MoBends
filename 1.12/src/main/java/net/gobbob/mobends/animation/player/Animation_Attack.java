@@ -1,17 +1,14 @@
 package net.gobbob.mobends.animation.player;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.animation.Animation;
+import net.gobbob.mobends.client.model.entity.IBendsModel;
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.data.Data_Player;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemAxe;
 import net.minecraft.util.EnumHand;
 
 public class Animation_Attack extends Animation{
@@ -32,7 +29,7 @@ public class Animation_Attack extends Animation{
 	}
 	
 	@Override
-	public void animate(EntityLivingBase argEntity, ModelBase argModel, EntityData argData) {
+	public void animate(EntityLivingBase argEntity, IBendsModel argModel, EntityData argData) {
 		ModelBendsPlayer model = (ModelBendsPlayer) argModel;
 		Data_Player data = (Data_Player) argData;
 		EntityPlayer player = (EntityPlayer) argEntity;

@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL11;
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
-import net.gobbob.mobends.client.model.ModelRendererBends;
+import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.data.Data_Spider;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
@@ -19,14 +19,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntitySpider;
 
 public class ModelBendsSpider extends ModelSpider implements IBendsModel{
-    public ModelRendererBends spiderForeLeg1;
-    public ModelRendererBends spiderForeLeg2;
-    public ModelRendererBends spiderForeLeg3;
-    public ModelRendererBends spiderForeLeg4;
-    public ModelRendererBends spiderForeLeg5;
-    public ModelRendererBends spiderForeLeg6;
-    public ModelRendererBends spiderForeLeg7;
-    public ModelRendererBends spiderForeLeg8;
+    public ModelPart spiderForeLeg1;
+    public ModelPart spiderForeLeg2;
+    public ModelPart spiderForeLeg3;
+    public ModelPart spiderForeLeg4;
+    public ModelPart spiderForeLeg5;
+    public ModelPart spiderForeLeg6;
+    public ModelPart spiderForeLeg7;
+    public ModelPart spiderForeLeg8;
     
     public SmoothVector3f renderOffset = new SmoothVector3f();
     public SmoothVector3f renderRotation = new SmoothVector3f();
@@ -47,77 +47,77 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
         float legRatio = 1;
         float foreLegRatio = 1;
         
-        this.spiderHead = new ModelRendererBends(this, 32, 4);
+        this.spiderHead = new ModelPart(this, 32, 4);
         this.spiderHead.addBox(-4.0F, -4.0F, -8.0F, 8, 8, 8, f);
         this.spiderHead.setRotationPoint(0.0F, (float)b0, -3.0F);
-        this.spiderNeck = new ModelRendererBends(this, 0, 0);
+        this.spiderNeck = new ModelPart(this, 0, 0);
         this.spiderNeck.addBox(-3.0F, -3.0F, -3.0F, 6, 6, 6, f);
         this.spiderNeck.setRotationPoint(0.0F, (float)b0, 0.0F);
-        this.spiderBody = new ModelRendererBends(this, 0, 12);
+        this.spiderBody = new ModelPart(this, 0, 12);
         this.spiderBody.addBox(-5.0F, -4.0F, -6.0F, 10, 8, 12, f);
         this.spiderBody.setRotationPoint(0.0F, (float)b0, 9.0F);
-        this.spiderLeg1 = new ModelRendererBends(this, 18, 0);
+        this.spiderLeg1 = new ModelPart(this, 18, 0);
         this.spiderLeg1.addBox(-7.0F, -1.0F, -1.0F, 8, 2, 2, f);
         this.spiderLeg1.setRotationPoint(-4.0F, (float)b0, 2.0F);
-        ((ModelRendererBends)this.spiderLeg1).offsetBox_Add(+8-legLength, -0.01f, -0.01f).resizeBox(legLength, 2.02f, 2.02f).updateVertices();
-        this.spiderLeg2 = new ModelRendererBends(this, 18, 0);
+        ((ModelPart)this.spiderLeg1).offsetBox_Add(+8-legLength, -0.01f, -0.01f).resizeBox(legLength, 2.02f, 2.02f).updateVertices();
+        this.spiderLeg2 = new ModelPart(this, 18, 0);
         this.spiderLeg2.addBox(-1.0F, -1.0F, -1.0F, 8, 2, 2, f);
         this.spiderLeg2.setRotationPoint(4.0F, (float)b0, 2.0F);
-        ((ModelRendererBends)this.spiderLeg2).offsetBox_Add(0, -0.01f, -0.01f).resizeBox(legLength, 2.02f, 2.02f).updateVertices();
-        this.spiderLeg3 = new ModelRendererBends(this, 18, 0);
+        ((ModelPart)this.spiderLeg2).offsetBox_Add(0, -0.01f, -0.01f).resizeBox(legLength, 2.02f, 2.02f).updateVertices();
+        this.spiderLeg3 = new ModelPart(this, 18, 0);
         this.spiderLeg3.addBox(-7.0F, -1.0F, -1.0F, 8, 2, 2, f);
         this.spiderLeg3.setRotationPoint(-4.0F, (float)b0, 1.0F);
-        ((ModelRendererBends)this.spiderLeg3).offsetBox_Add(+8-legLength*legRatio, -0.01f, -0.01f).resizeBox(legLength*legRatio, 2.02f, 2.02f).updateVertices();
-        this.spiderLeg4 = new ModelRendererBends(this, 18, 0);
+        ((ModelPart)this.spiderLeg3).offsetBox_Add(+8-legLength*legRatio, -0.01f, -0.01f).resizeBox(legLength*legRatio, 2.02f, 2.02f).updateVertices();
+        this.spiderLeg4 = new ModelPart(this, 18, 0);
         this.spiderLeg4.addBox(-1.0F, -1.0F, -1.0F, 8, 2, 2, f);
         this.spiderLeg4.setRotationPoint(4.0F, (float)b0, 1.0F);
-        ((ModelRendererBends)this.spiderLeg4).offsetBox_Add(0, -0.01f, -0.01f).resizeBox(legLength*legRatio, 2.02f, 2.02f).updateVertices();
-        this.spiderLeg5 = new ModelRendererBends(this, 18, 0);
+        ((ModelPart)this.spiderLeg4).offsetBox_Add(0, -0.01f, -0.01f).resizeBox(legLength*legRatio, 2.02f, 2.02f).updateVertices();
+        this.spiderLeg5 = new ModelPart(this, 18, 0);
         this.spiderLeg5.addBox(-7.0F, -1.0F, -1.0F, 8, 2, 2, f);
         this.spiderLeg5.setRotationPoint(-4.0F, (float)b0, 0.0F);
-        ((ModelRendererBends)this.spiderLeg5).offsetBox_Add(+8-legLength*legRatio, -0.01f, -0.01f).resizeBox(legLength*legRatio, 2.02f, 2.02f).updateVertices();
-        this.spiderLeg6 = new ModelRendererBends(this, 18, 0);
+        ((ModelPart)this.spiderLeg5).offsetBox_Add(+8-legLength*legRatio, -0.01f, -0.01f).resizeBox(legLength*legRatio, 2.02f, 2.02f).updateVertices();
+        this.spiderLeg6 = new ModelPart(this, 18, 0);
         this.spiderLeg6.addBox(-1.0F, -1.0F, -1.0F, 8, 2, 2, f);
         this.spiderLeg6.setRotationPoint(4.0F, (float)b0, 0.0F);
-        ((ModelRendererBends)this.spiderLeg6).offsetBox_Add(0, -0.01f, -0.01f).resizeBox(legLength*legRatio, 2.02f, 2.02f).updateVertices();
-        this.spiderLeg7 = new ModelRendererBends(this, 18, 0);
+        ((ModelPart)this.spiderLeg6).offsetBox_Add(0, -0.01f, -0.01f).resizeBox(legLength*legRatio, 2.02f, 2.02f).updateVertices();
+        this.spiderLeg7 = new ModelPart(this, 18, 0);
         this.spiderLeg7.addBox(-7.0F, -1.0F, -1.0F, 8, 2, 2, f);
         this.spiderLeg7.setRotationPoint(-4.0F, (float)b0, -1.0F);
-        ((ModelRendererBends)this.spiderLeg7).offsetBox_Add(+8-legLength, -0.01f, -0.01f).resizeBox(legLength, 2.02f, 2.02f).updateVertices();
-        this.spiderLeg8 = new ModelRendererBends(this, 18, 0);
+        ((ModelPart)this.spiderLeg7).offsetBox_Add(+8-legLength, -0.01f, -0.01f).resizeBox(legLength, 2.02f, 2.02f).updateVertices();
+        this.spiderLeg8 = new ModelPart(this, 18, 0);
         this.spiderLeg8.addBox(-1.0F, -1.0F, -1.0F, 8, 2, 2, f);
         this.spiderLeg8.setRotationPoint(4.0F, (float)b0, -1.0F);
-        ((ModelRendererBends)this.spiderLeg8).offsetBox_Add(0, -0.01f, -0.01f).resizeBox(legLength, 2.02f, 2.02f).updateVertices();
+        ((ModelPart)this.spiderLeg8).offsetBox_Add(0, -0.01f, -0.01f).resizeBox(legLength, 2.02f, 2.02f).updateVertices();
         
-        this.spiderForeLeg1 = new ModelRendererBends(this, 18, 0);
+        this.spiderForeLeg1 = new ModelPart(this, 18, 0);
         this.spiderForeLeg1.addBox(-foreLegLength, 0.0F, -1.0F, 8, 2, 2, f);
         this.spiderForeLeg1.setRotationPoint(-legLength+1, -1.0f, 0.0f);
         this.spiderForeLeg1.resizeBox(foreLegLength, 2, 2).updateVertices();
-        this.spiderForeLeg2 = new ModelRendererBends(this, 18, 0);
+        this.spiderForeLeg2 = new ModelPart(this, 18, 0);
         this.spiderForeLeg2.addBox(0.0F, 0.0F, -1.0F, 8, 2, 2, f);
         this.spiderForeLeg2.setRotationPoint(legLength-1, -1.0f, 0);
         this.spiderForeLeg2.resizeBox(foreLegLength, 2, 2).updateVertices();
-        this.spiderForeLeg3 = new ModelRendererBends(this, 18, 0);
+        this.spiderForeLeg3 = new ModelPart(this, 18, 0);
         this.spiderForeLeg3.addBox(-foreLegLength*foreLegRatio, 0.0F, -1.0F, 8, 2, 2, f);
         this.spiderForeLeg3.setRotationPoint(-legLength*legRatio+1, -1.0f, 0);
         this.spiderForeLeg3.resizeBox(foreLegLength*foreLegRatio, 2, 2).updateVertices();
-        this.spiderForeLeg4 = new ModelRendererBends(this, 18, 0);
+        this.spiderForeLeg4 = new ModelPart(this, 18, 0);
         this.spiderForeLeg4.addBox(0.0F, 0.0F, -1.0F, 8, 2, 2, f);
         this.spiderForeLeg4.setRotationPoint(legLength*legRatio-1, -1.0f, 0);
         this.spiderForeLeg4.resizeBox(foreLegLength*foreLegRatio, 2, 2).updateVertices();
-        this.spiderForeLeg5 = new ModelRendererBends(this, 18, 0);
+        this.spiderForeLeg5 = new ModelPart(this, 18, 0);
         this.spiderForeLeg5.addBox(-foreLegLength*foreLegRatio, 0.0F, -1.0F, 8, 2, 2, f);
         this.spiderForeLeg5.setRotationPoint(-legLength*legRatio+1, -1.0f, 0.0F);
         this.spiderForeLeg5.resizeBox(foreLegLength*foreLegRatio, 2, 2).updateVertices();
-        this.spiderForeLeg6 = new ModelRendererBends(this, 18, 0);
+        this.spiderForeLeg6 = new ModelPart(this, 18, 0);
         this.spiderForeLeg6.addBox(0.0F, 0.0F, -1.0F, 8, 2, 2, f);
         this.spiderForeLeg6.setRotationPoint(legLength*legRatio-1, -1.0f, 0.0F);
         this.spiderForeLeg6.resizeBox(foreLegLength*foreLegRatio, 2, 2).updateVertices();
-        this.spiderForeLeg7 = new ModelRendererBends(this, 18, 0);
+        this.spiderForeLeg7 = new ModelPart(this, 18, 0);
         this.spiderForeLeg7.addBox(-foreLegLength, 0.0F, -1.0F, 8, 2, 2, f);
         this.spiderForeLeg7.setRotationPoint(-legLength+1, -1.0f, 0);
         this.spiderForeLeg7.resizeBox(foreLegLength, 2, 2).updateVertices();
-        this.spiderForeLeg8 = new ModelRendererBends(this, 18, 0);
+        this.spiderForeLeg8 = new ModelPart(this, 18, 0);
         this.spiderForeLeg8.addBox(0.0f, 0.0F, -1.0F, 8, 2, 2, f);
         this.spiderForeLeg8.setRotationPoint(legLength-1, -1.0f, 0);
         this.spiderForeLeg8.resizeBox(foreLegLength, 2, 2).updateVertices();
@@ -186,78 +186,78 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     	this.armSwing = argSwingTime;
     	this.armSwingAmount = argSwingAmount;
     	
-    	((ModelRendererBends)this.spiderHead).sync((ModelRendererBends)data.spiderHead);
-    	((ModelRendererBends)this.spiderNeck).sync((ModelRendererBends)data.spiderNeck);
-    	((ModelRendererBends)this.spiderBody).sync((ModelRendererBends)data.spiderBody);
+    	((ModelPart)this.spiderHead).sync((ModelPart)data.spiderHead);
+    	((ModelPart)this.spiderNeck).sync((ModelPart)data.spiderNeck);
+    	((ModelPart)this.spiderBody).sync((ModelPart)data.spiderBody);
 		
-    	((ModelRendererBends)this.spiderLeg1).sync((ModelRendererBends)data.spiderLeg1);
-    	((ModelRendererBends)this.spiderLeg2).sync((ModelRendererBends)data.spiderLeg2);
-    	((ModelRendererBends)this.spiderLeg3).sync((ModelRendererBends)data.spiderLeg3);
-    	((ModelRendererBends)this.spiderLeg4).sync((ModelRendererBends)data.spiderLeg4);
-    	((ModelRendererBends)this.spiderLeg5).sync((ModelRendererBends)data.spiderLeg5);
-    	((ModelRendererBends)this.spiderLeg6).sync((ModelRendererBends)data.spiderLeg6);
-    	((ModelRendererBends)this.spiderLeg7).sync((ModelRendererBends)data.spiderLeg7);
-    	((ModelRendererBends)this.spiderLeg8).sync((ModelRendererBends)data.spiderLeg8);
+    	((ModelPart)this.spiderLeg1).sync((ModelPart)data.spiderLeg1);
+    	((ModelPart)this.spiderLeg2).sync((ModelPart)data.spiderLeg2);
+    	((ModelPart)this.spiderLeg3).sync((ModelPart)data.spiderLeg3);
+    	((ModelPart)this.spiderLeg4).sync((ModelPart)data.spiderLeg4);
+    	((ModelPart)this.spiderLeg5).sync((ModelPart)data.spiderLeg5);
+    	((ModelPart)this.spiderLeg6).sync((ModelPart)data.spiderLeg6);
+    	((ModelPart)this.spiderLeg7).sync((ModelPart)data.spiderLeg7);
+    	((ModelPart)this.spiderLeg8).sync((ModelPart)data.spiderLeg8);
 		
-    	((ModelRendererBends)this.spiderForeLeg1).sync((ModelRendererBends)data.spiderForeLeg1);
-    	((ModelRendererBends)this.spiderForeLeg2).sync((ModelRendererBends)data.spiderForeLeg2);
-    	((ModelRendererBends)this.spiderForeLeg3).sync((ModelRendererBends)data.spiderForeLeg3);
-    	((ModelRendererBends)this.spiderForeLeg4).sync((ModelRendererBends)data.spiderForeLeg4);
-    	((ModelRendererBends)this.spiderForeLeg5).sync((ModelRendererBends)data.spiderForeLeg5);
-    	((ModelRendererBends)this.spiderForeLeg6).sync((ModelRendererBends)data.spiderForeLeg6);
-    	((ModelRendererBends)this.spiderForeLeg7).sync((ModelRendererBends)data.spiderForeLeg7);
-    	((ModelRendererBends)this.spiderForeLeg8).sync((ModelRendererBends)data.spiderForeLeg8);
+    	((ModelPart)this.spiderForeLeg1).sync((ModelPart)data.spiderForeLeg1);
+    	((ModelPart)this.spiderForeLeg2).sync((ModelPart)data.spiderForeLeg2);
+    	((ModelPart)this.spiderForeLeg3).sync((ModelPart)data.spiderForeLeg3);
+    	((ModelPart)this.spiderForeLeg4).sync((ModelPart)data.spiderForeLeg4);
+    	((ModelPart)this.spiderForeLeg5).sync((ModelPart)data.spiderForeLeg5);
+    	((ModelPart)this.spiderForeLeg6).sync((ModelPart)data.spiderForeLeg6);
+    	((ModelPart)this.spiderForeLeg7).sync((ModelPart)data.spiderForeLeg7);
+    	((ModelPart)this.spiderForeLeg8).sync((ModelPart)data.spiderForeLeg8);
 		
     	this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
     	
     	if(data.canBeUpdated())
     	{
-    		((ModelRendererBends)this.spiderHead).resetScale();
-    		((ModelRendererBends)this.spiderNeck).resetScale();
-    		((ModelRendererBends)this.spiderBody).resetScale();
+    		((ModelPart)this.spiderHead).resetScale();
+    		((ModelPart)this.spiderNeck).resetScale();
+    		((ModelPart)this.spiderBody).resetScale();
     		
-    		((ModelRendererBends)this.spiderLeg1).resetScale();
-    		((ModelRendererBends)this.spiderLeg2).resetScale();
-    		((ModelRendererBends)this.spiderLeg3).resetScale();
-    		((ModelRendererBends)this.spiderLeg4).resetScale();
-    		((ModelRendererBends)this.spiderLeg5).resetScale();
-    		((ModelRendererBends)this.spiderLeg6).resetScale();
-    		((ModelRendererBends)this.spiderLeg7).resetScale();
-    		((ModelRendererBends)this.spiderLeg8).resetScale();
+    		((ModelPart)this.spiderLeg1).resetScale();
+    		((ModelPart)this.spiderLeg2).resetScale();
+    		((ModelPart)this.spiderLeg3).resetScale();
+    		((ModelPart)this.spiderLeg4).resetScale();
+    		((ModelPart)this.spiderLeg5).resetScale();
+    		((ModelPart)this.spiderLeg6).resetScale();
+    		((ModelPart)this.spiderLeg7).resetScale();
+    		((ModelPart)this.spiderLeg8).resetScale();
     		
-    		((ModelRendererBends)this.spiderForeLeg1).resetScale();
-    		((ModelRendererBends)this.spiderForeLeg2).resetScale();
-    		((ModelRendererBends)this.spiderForeLeg3).resetScale();
-    		((ModelRendererBends)this.spiderForeLeg4).resetScale();
-    		((ModelRendererBends)this.spiderForeLeg5).resetScale();
-    		((ModelRendererBends)this.spiderForeLeg6).resetScale();
-    		((ModelRendererBends)this.spiderForeLeg7).resetScale();
-    		((ModelRendererBends)this.spiderForeLeg8).resetScale();
+    		((ModelPart)this.spiderForeLeg1).resetScale();
+    		((ModelPart)this.spiderForeLeg2).resetScale();
+    		((ModelPart)this.spiderForeLeg3).resetScale();
+    		((ModelPart)this.spiderForeLeg4).resetScale();
+    		((ModelPart)this.spiderForeLeg5).resetScale();
+    		((ModelPart)this.spiderForeLeg6).resetScale();
+    		((ModelPart)this.spiderForeLeg7).resetScale();
+    		((ModelPart)this.spiderForeLeg8).resetScale();
 
     		this.animate(aEntity, spider, data);
     		
-	        ((ModelRendererBends)this.spiderHead).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderNeck).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderBody).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderHead).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderNeck).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderBody).update(DataUpdateHandler.ticksPerFrame);
 	        
-	        ((ModelRendererBends)this.spiderLeg1).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderLeg2).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderLeg3).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderLeg4).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderLeg5).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderLeg6).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderLeg7).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderLeg8).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderLeg1).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderLeg2).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderLeg3).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderLeg4).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderLeg5).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderLeg6).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderLeg7).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderLeg8).update(DataUpdateHandler.ticksPerFrame);
 		    
-	        ((ModelRendererBends)this.spiderForeLeg1).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderForeLeg2).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderForeLeg3).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderForeLeg4).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderForeLeg5).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderForeLeg6).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderForeLeg7).update(DataUpdateHandler.ticksPerFrame);
-	        ((ModelRendererBends)this.spiderForeLeg8).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderForeLeg1).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderForeLeg2).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderForeLeg3).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderForeLeg4).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderForeLeg5).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderForeLeg6).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderForeLeg7).update(DataUpdateHandler.ticksPerFrame);
+	        ((ModelPart)this.spiderForeLeg8).update(DataUpdateHandler.ticksPerFrame);
 	        
 	        this.renderOffset.update(DataUpdateHandler.ticksPerFrame);
 	        this.renderRotation.update(DataUpdateHandler.ticksPerFrame);
@@ -323,7 +323,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
 	}
 
 	@Override
-	public Object getRendererForName(String name) {
+	public Object getPartForName(String name) {
 		return nameToRendererMap.get(name);
 	}
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.gobbob.mobends.client.ClientProxy;
-import net.gobbob.mobends.client.model.ModelRendererBends;
+import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.client.model.entity.ModelBendsSkeleton;
 import net.gobbob.mobends.util.GUtil;
@@ -28,7 +28,7 @@ public class SwordTrail {
 	}
 	
 	public class TrailPart{
-		public ModelRendererBends body,
+		public ModelPart body,
 						 		  arm,
 						 		  foreArm;
 		
@@ -40,16 +40,16 @@ public class SwordTrail {
 		float ticksExisted;
 		
 		public TrailPart(ModelBendsPlayer argModel){
-			body = new ModelRendererBends(argModel, false);
-			arm = new ModelRendererBends(argModel, false);
-			foreArm = new ModelRendererBends(argModel, false);
+			body = new ModelPart(argModel, false);
+			arm = new ModelPart(argModel, false);
+			foreArm = new ModelPart(argModel, false);
 			primaryHand = argModel.primaryHand;
 		}
 		
 		public TrailPart(ModelBendsSkeleton argModel){
-			body = new ModelRendererBends(argModel, false);
-			arm = new ModelRendererBends(argModel, false);
-			foreArm = new ModelRendererBends(argModel, false);
+			body = new ModelPart(argModel, false);
+			arm = new ModelPart(argModel, false);
+			foreArm = new ModelPart(argModel, false);
 			primaryHand = argModel.primaryHand;
 		}
 	}
@@ -89,27 +89,27 @@ public class SwordTrail {
 					GUtil.rotateY(point, part.foreArm.rotateAngleY/(float)Math.PI*180.0f);
 					GUtil.rotateZ(point, part.foreArm.rotateAngleZ/(float)Math.PI*180.0f);
 					
-					GUtil.rotateX(point, ((ModelRendererBends)part.foreArm).pre_rotation.getX());
-					GUtil.rotateY(point, ((ModelRendererBends)part.foreArm).pre_rotation.getY());
-					GUtil.rotateZ(point, -((ModelRendererBends)part.foreArm).pre_rotation.getZ());
+					GUtil.rotateX(point, ((ModelPart)part.foreArm).pre_rotation.getX());
+					GUtil.rotateY(point, ((ModelPart)part.foreArm).pre_rotation.getY());
+					GUtil.rotateZ(point, -((ModelPart)part.foreArm).pre_rotation.getZ());
 					
 					GUtil.translate(point, new Vector3f(0,-6+2,0));
 					GUtil.rotateX(point, part.arm.rotateAngleX/(float)Math.PI*180.0f);
 					GUtil.rotateY(point, part.arm.rotateAngleY/(float)Math.PI*180.0f);
 					GUtil.rotateZ(point, part.arm.rotateAngleZ/(float)Math.PI*180.0f);
 					
-					GUtil.rotateX(point, ((ModelRendererBends)part.arm).pre_rotation.getX());
-					GUtil.rotateY(point, ((ModelRendererBends)part.arm).pre_rotation.getY());
-					GUtil.rotateZ(point, -((ModelRendererBends)part.arm).pre_rotation.getZ());
+					GUtil.rotateX(point, ((ModelPart)part.arm).pre_rotation.getX());
+					GUtil.rotateY(point, ((ModelPart)part.arm).pre_rotation.getY());
+					GUtil.rotateZ(point, -((ModelPart)part.arm).pre_rotation.getZ());
 					
 					GUtil.translate(point, new Vector3f(-5,10,0));
 					GUtil.rotateX(point, part.body.rotateAngleX/(float)Math.PI*180.0f);
 					GUtil.rotateY(point, part.body.rotateAngleY/(float)Math.PI*180.0f);
 					GUtil.rotateZ(point, part.body.rotateAngleZ/(float)Math.PI*180.0f);
 					
-					GUtil.rotateX(point, ((ModelRendererBends)part.body).pre_rotation.getX());
-					GUtil.rotateY(point, ((ModelRendererBends)part.body).pre_rotation.getY());
-					GUtil.rotateZ(point, ((ModelRendererBends)part.body).pre_rotation.getZ());
+					GUtil.rotateX(point, ((ModelPart)part.body).pre_rotation.getX());
+					GUtil.rotateY(point, ((ModelPart)part.body).pre_rotation.getY());
+					GUtil.rotateZ(point, ((ModelPart)part.body).pre_rotation.getZ());
 					GUtil.translate(point, new Vector3f(0,12,0));
 					
 					GUtil.rotateX(point, part.renderRotation.getX());
@@ -142,22 +142,22 @@ public class SwordTrail {
 	
 	public void add(ModelBendsPlayer argModel){
 			TrailPart newPart = new TrailPart(argModel);
-			newPart.body.sync((ModelRendererBends)argModel.bipedBody);
+			newPart.body.sync((ModelPart)argModel.bipedBody);
 				newPart.body.setPosition(argModel.bipedBody.rotationPointX,argModel.bipedBody.rotationPointY,argModel.bipedBody.rotationPointZ);
 				newPart.body.setOffset(argModel.bipedBody.offsetX,argModel.bipedBody.offsetY,argModel.bipedBody.offsetZ);
 			if(argModel.primaryHand == EnumHandSide.RIGHT){
-				newPart.arm.sync((ModelRendererBends)argModel.bipedRightArm);
+				newPart.arm.sync((ModelPart)argModel.bipedRightArm);
 					newPart.arm.setPosition(argModel.bipedRightArm.rotationPointX,argModel.bipedRightArm.rotationPointY,argModel.bipedRightArm.rotationPointZ);
 					newPart.arm.setOffset(argModel.bipedRightArm.offsetX,argModel.bipedRightArm.offsetY,argModel.bipedRightArm.offsetZ);
-				newPart.foreArm.sync((ModelRendererBends)argModel.bipedRightForeArm);
+				newPart.foreArm.sync((ModelPart)argModel.bipedRightForeArm);
 					newPart.foreArm.setPosition(argModel.bipedRightForeArm.rotationPointX,argModel.bipedRightForeArm.rotationPointY,argModel.bipedRightForeArm.rotationPointZ);
 					newPart.foreArm.setOffset(argModel.bipedRightForeArm.offsetX,argModel.bipedRightForeArm.offsetY,argModel.bipedRightForeArm.offsetZ);
 					newPart.itemRotation.set(argModel.renderRightItemRotation.vSmooth);
 			}else{
-				newPart.arm.sync((ModelRendererBends)argModel.bipedLeftArm);
+				newPart.arm.sync((ModelPart)argModel.bipedLeftArm);
 					newPart.arm.setPosition(argModel.bipedLeftArm.rotationPointX,argModel.bipedLeftArm.rotationPointY,argModel.bipedLeftArm.rotationPointZ);
 					newPart.arm.setOffset(argModel.bipedLeftArm.offsetX,argModel.bipedLeftArm.offsetY,argModel.bipedLeftArm.offsetZ);
-				newPart.foreArm.sync((ModelRendererBends)argModel.bipedLeftForeArm);
+				newPart.foreArm.sync((ModelPart)argModel.bipedLeftForeArm);
 					newPart.foreArm.setPosition(argModel.bipedLeftForeArm.rotationPointX,argModel.bipedLeftForeArm.rotationPointY,argModel.bipedLeftForeArm.rotationPointZ);
 					newPart.foreArm.setOffset(argModel.bipedLeftForeArm.offsetX,argModel.bipedLeftForeArm.offsetY,argModel.bipedLeftForeArm.offsetZ);
 			}
@@ -168,22 +168,22 @@ public class SwordTrail {
 	
 	public void add(ModelBendsSkeleton argModel){
 		TrailPart newPart = new TrailPart(argModel);
-		newPart.body.sync((ModelRendererBends)argModel.bipedBody);
+		newPart.body.sync((ModelPart)argModel.bipedBody);
 			newPart.body.setPosition(argModel.bipedBody.rotationPointX,argModel.bipedBody.rotationPointY,argModel.bipedBody.rotationPointZ);
 			newPart.body.setOffset(argModel.bipedBody.offsetX,argModel.bipedBody.offsetY,argModel.bipedBody.offsetZ);
 		if(argModel.primaryHand == EnumHandSide.RIGHT){
-			newPart.arm.sync((ModelRendererBends)argModel.bipedRightArm);
+			newPart.arm.sync((ModelPart)argModel.bipedRightArm);
 				newPart.arm.setPosition(argModel.bipedRightArm.rotationPointX,argModel.bipedRightArm.rotationPointY,argModel.bipedRightArm.rotationPointZ);
 				newPart.arm.setOffset(argModel.bipedRightArm.offsetX,argModel.bipedRightArm.offsetY,argModel.bipedRightArm.offsetZ);
-			newPart.foreArm.sync((ModelRendererBends)argModel.bipedRightForeArm);
+			newPart.foreArm.sync((ModelPart)argModel.bipedRightForeArm);
 				newPart.foreArm.setPosition(argModel.bipedRightForeArm.rotationPointX,argModel.bipedRightForeArm.rotationPointY,argModel.bipedRightForeArm.rotationPointZ);
 				newPart.foreArm.setOffset(argModel.bipedRightForeArm.offsetX,argModel.bipedRightForeArm.offsetY,argModel.bipedRightForeArm.offsetZ);
 				newPart.itemRotation.set(argModel.renderRightItemRotation.vSmooth);
 		}else{
-			newPart.arm.sync((ModelRendererBends)argModel.bipedLeftArm);
+			newPart.arm.sync((ModelPart)argModel.bipedLeftArm);
 				newPart.arm.setPosition(argModel.bipedLeftArm.rotationPointX,argModel.bipedLeftArm.rotationPointY,argModel.bipedLeftArm.rotationPointZ);
 				newPart.arm.setOffset(argModel.bipedLeftArm.offsetX,argModel.bipedLeftArm.offsetY,argModel.bipedLeftArm.offsetZ);
-			newPart.foreArm.sync((ModelRendererBends)argModel.bipedLeftForeArm);
+			newPart.foreArm.sync((ModelPart)argModel.bipedLeftForeArm);
 				newPart.foreArm.setPosition(argModel.bipedLeftForeArm.rotationPointX,argModel.bipedLeftForeArm.rotationPointY,argModel.bipedLeftForeArm.rotationPointZ);
 				newPart.foreArm.setOffset(argModel.bipedLeftForeArm.offsetX,argModel.bipedLeftForeArm.offsetY,argModel.bipedLeftForeArm.offsetZ);
 		}

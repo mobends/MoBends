@@ -1,0 +1,25 @@
+mobends.gui.customize=Personalizza
+mobends.gui.packs=Pacchetti
+mobends.gui.publicpacks=Pacchetti Publici
+mobends.gui.localpacks=Pacchetti Locali
+mobends.gui.use=Usa
+mobends.gui.disable=Disabilita
+mobends.gui.edit=Modifica
+mobends.gui.done=Fatto
+mobends.gui.selectpack=Seleziona Un Pacchetto
+mobends.gui.entername=Inserisci Un Nuovo Nome
+mobends.gui.filename=Nome File
+mobends.gui.chooseapacktoedit=Scegli un Pacchetto Locale Da Modificare
+mobends.gui.apply=Applica
+mobends.gui.openpacksfolder=Apri Cartella Pacchetti
+mobends.gui.help=Aiuto
+mobends.gui.discardchanges=Vuoi Annullare I Cambiamenti?
+mobends.gui.createpack=Crea Un Pacchetto
+mobends.gui.condition=Condizione
+mobends.gui.node=Nodo
+mobends.gui.calculation=Calcolo
+mobends.gui.noscaleallowed=Attenzione: Questo Server Non Dispone Della Funzione Di Body Scaling
+
+mobends.setting.sword_trail=Scia Della Spada
+mobends.setting.arrow_trails=Scia Delle Freccie
+mobends.setting.spin_attack=Attacco Rotante
