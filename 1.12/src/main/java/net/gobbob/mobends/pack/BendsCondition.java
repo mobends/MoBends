@@ -33,9 +33,9 @@ public class BendsCondition {
 					}else if(actions.get(i).property == EnumBoxProperty.PREROT){
 						box.pre_rotation.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? box.pre_rotation.vFinal.x : actions.get(i).axis == EnumAxis.Y ? box.pre_rotation.vFinal.y : box.pre_rotation.vFinal.z)),actions.get(i).smooth);
 					}else if(actions.get(i).property == EnumBoxProperty.SCALE){
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X) box.scaleX = actions.get(i).getNumber(box.scaleX);
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y) box.scaleY = actions.get(i).getNumber(box.scaleY);
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z) box.scaleZ = actions.get(i).getNumber(box.scaleZ);
+						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X) box.scale.x = actions.get(i).getNumber(box.scale.x);
+						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y) box.scale.y = actions.get(i).getNumber(box.scale.y);
+						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z) box.scale.z = actions.get(i).getNumber(box.scale.z);
 					}
 				}
 			}
@@ -58,9 +58,9 @@ public class BendsCondition {
 					}else if(actions.get(i).property == EnumBoxProperty.PREROT){
 						box.pre_rotation.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? box.pre_rotation.vFinal.x : actions.get(i).axis == EnumAxis.Y ? box.pre_rotation.vFinal.y : box.pre_rotation.vFinal.z)),actions.get(i).smooth);
 					}else if(actions.get(i).property == EnumBoxProperty.SCALE){
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X) box.scaleX = actions.get(i).getNumber(box.scaleX);
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y) box.scaleY = actions.get(i).getNumber(box.scaleY);
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z) box.scaleZ = actions.get(i).getNumber(box.scaleZ);
+						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X) box.scale.x = actions.get(i).getNumber(box.scale.x);
+						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y) box.scale.y = actions.get(i).getNumber(box.scale.y);
+						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z) box.scale.z = actions.get(i).getNumber(box.scale.z);
 					}
 				}
 			}

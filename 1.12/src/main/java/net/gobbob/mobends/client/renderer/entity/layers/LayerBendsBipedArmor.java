@@ -1,6 +1,6 @@
 package net.gobbob.mobends.client.renderer.entity.layers;
 
-import net.gobbob.mobends.client.model.entity.ModelBendsBipedArmor;
+import net.gobbob.mobends.client.model.entity.ModelBipedArmorM;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class LayerBendsBipedArmor extends LayerArmorBase<ModelBendsBipedArmor>
+public class LayerBendsBipedArmor extends LayerArmorBase<ModelBipedArmorM>
 {
 	public LayerBendsBipedArmor(RenderLivingBase<?> rendererIn)
     {
@@ -20,17 +20,17 @@ public class LayerBendsBipedArmor extends LayerArmorBase<ModelBendsBipedArmor>
 
 	@Override
 	protected void initArmor() {
-		this.modelLeggings = new ModelBendsBipedArmor(0.5F, false, false);
-        this.modelArmor = new ModelBendsBipedArmor(1.0F, false, false);
+		this.modelLeggings = new ModelBipedArmorM(0.5F);
+        this.modelArmor = new ModelBipedArmorM(1.0F);
 	}
 	
-	protected void setModelVisible(ModelBendsBipedArmor model)
+	protected void setModelVisible(ModelBipedArmorM model)
     {
         model.setVisible(false);
     }
 
 	@Override
-	protected void setModelSlotVisible(ModelBendsBipedArmor model, EntityEquipmentSlot p_188359_2_) {
+	protected void setModelSlotVisible(ModelBipedArmorM model, EntityEquipmentSlot p_188359_2_) {
 		this.setModelVisible(model);
 		
 		switch (p_188359_2_)

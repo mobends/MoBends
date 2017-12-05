@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import net.gobbob.mobends.animation.controller.Controller;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
 import net.minecraft.block.BlockLadder;
@@ -24,40 +25,42 @@ public abstract class EntityData {
 	public static final int ZOMBIE_DATA = 3;
 	
 	public static EntityDatabase[] databases = {
-		new EntityDatabase(Data_Player.class),
+		new EntityDatabase(DataPlayer.class),
 		new EntityDatabase(Data_Skeleton.class),
 		new EntityDatabase(Data_Spider.class),
 		new EntityDatabase(Data_Zombie.class)
 	};
 	
-	public int entityID;
-	public String entityType;
-	
-	public ModelBase model;
+	protected int entityID;
+	protected String entityType;
+	protected ModelBase model;
+	protected Controller controller;
 	
 	public Vector3f position = new Vector3f();
 	public Vector3f motion_prev = new Vector3f();
 	public Vector3f motion = new Vector3f();
 	
-	private boolean initialized = false;
-    public float ticks = 0.0f;
-	public boolean updatedThisFrame = false;
-	public float ticksAfterLiftoff = 0.0f;
-	public float ticksAfterTouchdown = 0.0f;
-	public float ticksAfterPunch = 0.0f;
-	public float ticksAfterThrowup = 0.0f;
-	public boolean alreadyPunched = false;
-	public float climbingCycle = 0.0f;
+	protected boolean initialized = false;
+	protected float ticks = 0.0f;
+    protected boolean updatedThisFrame = false;
+    protected float ticksAfterLiftoff = 0.0f;
+    protected float ticksAfterTouchdown = 0.0f;
+	protected float ticksAfterPunch = 0.0f;
+	protected float ticksAfterThrowup = 0.0f;
+	protected boolean alreadyPunched = false;
+	protected float climbingCycle = 0.0f;
 	
-	public boolean onGround = true;
-	public boolean climbing = false;
+	protected boolean onGround = true;
+	protected boolean climbing = false;
+	protected float headYaw = 0.0f;
+	protected float headPitch = 0.0f;
 	
-	public EntityData(int argEntityID)
+	public EntityData(int entityID)
 	{
-		this.entityID = argEntityID;
-		if(Minecraft.getMinecraft().world.getEntityByID(argEntityID) != null)
+		this.entityID = entityID;
+		if(Minecraft.getMinecraft().world.getEntityByID(entityID) != null)
 		{
-			this.entityType = Minecraft.getMinecraft().world.getEntityByID(argEntityID).getName();
+			this.entityType = Minecraft.getMinecraft().world.getEntityByID(entityID).getName();
 		}
 		else
 			this.entityType = "NULL";
@@ -83,9 +86,8 @@ public abstract class EntityData {
 	public static EntityData get(int databaseId, int entityId)
 	{
 		EntityData data = databases[databaseId].getEntry(entityId);
-		
-		if(data == null) data = databases[databaseId].newEntry(entityId);
-		
+		if(data == null)
+			data = databases[databaseId].newEntry(entityId);
 		return data;
 	}
 	
@@ -117,16 +119,26 @@ public abstract class EntityData {
 		
         AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox();
         
-        //double var1 = this.position.y+this.motion.y;
-        
         List list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(this.motion.x, 0, this.motion.z));
 
         return list.size() > 0;
 	}
 	
-	public boolean isOnGround()
-	{
-		return onGround;
+	public boolean isOnGround() { return this.onGround; }
+	public boolean isClimbing() { return this.climbing; }
+	public float getTicks() { return this.ticks; }
+	public float getTicksAfterPunch() { return this.ticksAfterPunch; }
+	public float getHeadYaw() { return this.headYaw; }
+	public float getHeadPitch() { return this.headPitch; }
+	public Controller getController() { return this.controller; }
+	public void setClimbing(boolean flag) {
+		this.climbing = flag;
+	}
+	public void setHeadYaw(float headYaw) {
+		this.headYaw = headYaw;
+	}
+	public void setHeadPitch(float headPitch) {
+		this.headPitch = headPitch;
 	}
 	
 	public void update(float partialTicks)
@@ -282,11 +294,6 @@ public abstract class EntityData {
     	
     	return -2.0f;
     }
-	
-	public boolean isClimbing()
-	{
-		return this.climbing;
-	}
 	
 	public float getLookAngle()
 	{

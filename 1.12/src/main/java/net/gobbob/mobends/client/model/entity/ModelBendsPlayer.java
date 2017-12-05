@@ -10,7 +10,7 @@ import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.renderer.SwordTrail;
-import net.gobbob.mobends.data.Data_Player;
+import net.gobbob.mobends.data.DataPlayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
@@ -308,7 +308,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     
     public void setRotationAngles(float argSwingTime, float argSwingAmount, float argArmSway, float argHeadY, float argHeadX, float argNr6, Entity argEntity)
     {
-    	Data_Player data = (Data_Player) EntityData.get(EntityData.PLAYER_DATA, argEntity.getEntityId());
+    	DataPlayer data = (DataPlayer) EntityData.get(EntityData.PLAYER_DATA, argEntity.getEntityId());
     	AnimatedEntity aEntity = AnimatedEntity.getByEntity(argEntity);
     	
     	if(Minecraft.getMinecraft().world == null)
@@ -319,7 +319,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     	this.headRotationX = MathHelper.wrapDegrees(argHeadX);
     	this.headRotationY = MathHelper.wrapDegrees(argHeadY);
     	
-    	((ModelPart) this.bipedHead).sync(data.head);
+    	/*((ModelPart) this.bipedHead).sync(data.head);
     	((ModelPart) this.bipedHeadwear).sync(data.headwear);
     	((ModelPart) this.bipedBody).sync(data.body);
     	((ModelPart) this.bipedRightArm).sync(data.rightArm);
@@ -329,7 +329,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     	((ModelPart) this.bipedRightForeArm).sync(data.rightForeArm);
     	((ModelPart) this.bipedLeftForeArm).sync(data.leftForeArm);
     	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
-    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);
+    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);*/
     	
     	this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
@@ -369,12 +369,12 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     		 */
     		
     		boolean handleLadderGetoff = false;
-    		if(!data.calcClimbing() && data.climbing){
-    			data.climbing = false;
+    		if(!data.calcClimbing() && data.isClimbing()){
+    			data.setClimbing(false);
     			handleLadderGetoff = true;
     		}
     		
-    		if(((EntityLivingBase)argEntity).isElytraFlying()){
+    		/*if(((EntityLivingBase) argEntity).isElytraFlying()){
     			aEntity.getAnimation("elytra").animate((EntityLivingBase)argEntity, this, data);
 		        BendsPack.animate(this,"player","elytra");
     		}else if(argEntity.isRiding()){
@@ -407,7 +407,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     				aEntity.getAnimation("sneak").animate((EntityLivingBase)argEntity, this, data);
 			        BendsPack.animate(this,"player","sneak");
     			}
-			}
+			}*/
     		
     		if(handleLadderGetoff) {
     			this.renderRotation.setY(this.renderRotation.vFinal.y);
@@ -426,7 +426,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     			this.rightArmPose = ArmPose.BOW_AND_ARROW;
     		}
     		
-    		if(this.shouldPerformGuardingAnimation((EntityPlayer)argEntity)){
+    		/*if(this.shouldPerformGuardingAnimation((EntityPlayer)argEntity)){
     			aEntity.getAnimation("guard").animate((EntityLivingBase)argEntity, this, data);
     			if(this.rightArmPose == ArmPose.BLOCK){
     				this.renderRightItemRotation.set(45.0f, -30.0f, 50.0f);
@@ -450,14 +450,14 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
 	    				aEntity.getAnimation("attack").animate((EntityLivingBase)argEntity, this, data);
 	    			}
 	    		}
-    		}
+    		}*/
     		
     		updateModelRenderers(data);
 		    
-		    data.updatedThisFrame = true;
+		    /*data.updatedThisFrame = true;
 		    if(!this.isRenderedInGui()){
 		    	data.syncModelInfo(this);
-		    }
+		    }*/
     	}
     	
     	if(!data.isInitialized()){
@@ -470,7 +470,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         this.bipedCape.render(scale);
     }
     
-    public void updateModelRenderers(Data_Player data) {
+    public void updateModelRenderers(DataPlayer data) {
     	for(int i = 0; i < this.boxList.size(); i++) {
 			if(this.boxList.get(i) instanceof ModelPart)
 				((ModelPart)this.boxList.get(i)).update(DataUpdateHandler.ticksPerFrame);
@@ -546,7 +546,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     }
 	
 	public void updateWithEntityData(AbstractClientPlayer argPlayer){
-		Data_Player data = (Data_Player) EntityData.get(EntityData.PLAYER_DATA, argPlayer.getEntityId());
+		DataPlayer data = (DataPlayer) EntityData.get(EntityData.PLAYER_DATA, argPlayer.getEntityId());
 		if(data != null){
 			this.renderOffset.set(data.renderOffset);
 			this.renderRotation.set(data.renderRotation);

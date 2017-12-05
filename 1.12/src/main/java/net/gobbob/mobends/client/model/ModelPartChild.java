@@ -13,7 +13,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class ModelPartChild extends ModelPart
 {
-	protected ModelPart parent;
+	protected IModelPart parent;
 	protected boolean hideLikeParent = false;
 	
 	public ModelPartChild(ModelBase model, boolean register, int texOffsetX, int texOffsetY) {
@@ -30,7 +30,7 @@ public class ModelPartChild extends ModelPart
 		this(model, true, texOffsetX, texOffsetY);
     }
     
-	public ModelPartChild setParent(ModelPart parent)
+	public ModelPartChild setParent(IModelPart parent)
 	{
 		this.parent = parent;
 		return this;
@@ -46,7 +46,7 @@ public class ModelPartChild extends ModelPart
     public void postRender(float scale)
     {
 		if(this.parent != null)
-    		this.parent.postRender(scale);
+    		this.parent.applyTransform(scale);
 		
 		super.postRender(scale);
     }

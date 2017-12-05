@@ -42,13 +42,13 @@ public abstract class BendsVariable {
 	
 	private static class Ticks extends BendsVariable {
 		public float getValue() {
-			return tempData.ticks;
+			return tempData.getTicks();
 		}
 	}
 	
 	private static class TicksAfterPunch extends BendsVariable {
 		public float getValue() {
-			return tempData.ticksAfterPunch;
+			return tempData.getTicksAfterPunch();
 		}
 	}
 	

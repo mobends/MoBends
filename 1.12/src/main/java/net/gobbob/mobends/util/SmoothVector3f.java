@@ -114,12 +114,12 @@ public class SmoothVector3f {
 		this.completion = new Vector3f(1.0f, 1.0f, 1.0f);
 	}
 	
-	public void set(SmoothVector3f argV){
-		this.completion = argV.completion;
-		this.smoothness = argV.smoothness;
-		this.vFinal = argV.vFinal;
-		this.vOld = argV.vOld;
-		this.vSmooth = argV.vSmooth;
+	public void set(SmoothVector3f other){
+		this.completion = other.completion;
+		this.smoothness = other.smoothness;
+		this.vFinal = other.vFinal;
+		this.vOld = other.vOld;
+		this.vSmooth = other.vSmooth;
 	}
 	
 	public float getX(){

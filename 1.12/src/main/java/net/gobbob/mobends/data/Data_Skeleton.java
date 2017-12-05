@@ -49,7 +49,7 @@ public class Data_Skeleton extends EntityData{
 	}
 	
 	public void syncModelInfo(ModelBendsSkeleton argModel){
-		if(this.head == null) this.head = new ModelPart(argModel, false); this.head.sync((ModelPart)argModel.bipedHead);
+		/*if(this.head == null) this.head = new ModelPart(argModel, false); this.head.sync((ModelPart)argModel.bipedHead);
 		if(this.headwear == null) this.headwear = new ModelPart(argModel, false); this.headwear.sync((ModelPart)argModel.bipedHeadwear);
 		if(this.body == null) this.body = new ModelPart(argModel, false); this.body.sync((ModelPart)argModel.bipedBody);
 		if(this.rightArm == null) this.rightArm = new ModelPart(argModel, false); this.rightArm.sync((ModelPart)argModel.bipedRightArm);
@@ -60,7 +60,7 @@ public class Data_Skeleton extends EntityData{
 		if(this.leftForeArm == null) this.leftForeArm = new ModelPart(argModel, false); this.leftForeArm.sync((ModelPart)argModel.bipedLeftForeArm);
 		if(this.rightForeLeg == null) this.rightForeLeg = new ModelPart(argModel, false); this.rightForeLeg.sync((ModelPart)argModel.bipedRightForeLeg);
 		if(this.leftForeLeg == null) this.leftForeLeg = new ModelPart(argModel, false); this.leftForeLeg.sync((ModelPart)argModel.bipedLeftForeLeg);
-		
+		*/
 		this.renderOffset.set(argModel.renderOffset);
 		this.renderRotation.set(argModel.renderRotation);
 		this.renderRightItemRotation.set(argModel.renderRightItemRotation);

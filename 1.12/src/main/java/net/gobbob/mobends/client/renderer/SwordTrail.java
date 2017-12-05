@@ -142,7 +142,7 @@ public class SwordTrail {
 	
 	public void add(ModelBendsPlayer argModel){
 			TrailPart newPart = new TrailPart(argModel);
-			newPart.body.sync((ModelPart)argModel.bipedBody);
+			/*newPart.body.sync((ModelPart)argModel.bipedBody);
 				newPart.body.setPosition(argModel.bipedBody.rotationPointX,argModel.bipedBody.rotationPointY,argModel.bipedBody.rotationPointZ);
 				newPart.body.setOffset(argModel.bipedBody.offsetX,argModel.bipedBody.offsetY,argModel.bipedBody.offsetZ);
 			if(argModel.primaryHand == EnumHandSide.RIGHT){
@@ -160,7 +160,7 @@ public class SwordTrail {
 				newPart.foreArm.sync((ModelPart)argModel.bipedLeftForeArm);
 					newPart.foreArm.setPosition(argModel.bipedLeftForeArm.rotationPointX,argModel.bipedLeftForeArm.rotationPointY,argModel.bipedLeftForeArm.rotationPointZ);
 					newPart.foreArm.setOffset(argModel.bipedLeftForeArm.offsetX,argModel.bipedLeftForeArm.offsetY,argModel.bipedLeftForeArm.offsetZ);
-			}
+			}*/
 			newPart.renderOffset.set(argModel.renderOffset.vSmooth);
 			newPart.renderRotation.set(argModel.renderRotation.vSmooth);
 			this.trailPartList.add(newPart);
@@ -168,7 +168,7 @@ public class SwordTrail {
 	
 	public void add(ModelBendsSkeleton argModel){
 		TrailPart newPart = new TrailPart(argModel);
-		newPart.body.sync((ModelPart)argModel.bipedBody);
+		/*newPart.body.sync((ModelPart)argModel.bipedBody);
 			newPart.body.setPosition(argModel.bipedBody.rotationPointX,argModel.bipedBody.rotationPointY,argModel.bipedBody.rotationPointZ);
 			newPart.body.setOffset(argModel.bipedBody.offsetX,argModel.bipedBody.offsetY,argModel.bipedBody.offsetZ);
 		if(argModel.primaryHand == EnumHandSide.RIGHT){
@@ -186,7 +186,7 @@ public class SwordTrail {
 			newPart.foreArm.sync((ModelPart)argModel.bipedLeftForeArm);
 				newPart.foreArm.setPosition(argModel.bipedLeftForeArm.rotationPointX,argModel.bipedLeftForeArm.rotationPointY,argModel.bipedLeftForeArm.rotationPointZ);
 				newPart.foreArm.setOffset(argModel.bipedLeftForeArm.offsetX,argModel.bipedLeftForeArm.offsetY,argModel.bipedLeftForeArm.offsetZ);
-		}
+		}*/
 		newPart.renderOffset.set(argModel.renderOffset.vSmooth);
 		newPart.renderRotation.set(argModel.renderRotation.vSmooth);
 		this.trailPartList.add(newPart);

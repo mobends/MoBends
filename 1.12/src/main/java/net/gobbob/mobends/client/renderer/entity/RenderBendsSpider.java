@@ -6,7 +6,7 @@ import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.client.model.entity.ModelBendsSpider;
 import net.gobbob.mobends.configuration.SettingBoolean;
 import net.gobbob.mobends.configuration.Setting;
-import net.gobbob.mobends.data.Data_Player;
+import net.gobbob.mobends.data.DataPlayer;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.GlStateManager;

@@ -1,6 +1,6 @@
 package net.gobbob.mobends.client.renderer.entity;
 
-import net.gobbob.mobends.client.model.entity.ModelBendsBipedArmor;
+import net.gobbob.mobends.client.model.entity.ModelBipedArmorM;
 import net.gobbob.mobends.client.model.entity.ModelBendsSkeleton;
 import net.gobbob.mobends.client.model.entity.ModelBendsZombie;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsBipedArmor;

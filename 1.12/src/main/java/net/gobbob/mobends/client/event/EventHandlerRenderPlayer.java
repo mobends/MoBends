@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.client.mutators.RenderMutatorPlayer;
+import net.gobbob.mobends.client.mutators.MutatorPlayer;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,7 +43,7 @@ public class EventHandlerRenderPlayer
 		if(AnimatedEntity.getByEntity(event.getEntity()).getAlterEntry(0).isAnimated())
 		{
 			AbstractClientPlayer player = (AbstractClientPlayer) event.getEntity();
-			RenderMutatorPlayer.apply(event.getRenderer(), player, pt);
+			MutatorPlayer.apply(event.getRenderer(), player, pt);
 			double yOffset = 0;
 
             if (player.isSneaking())

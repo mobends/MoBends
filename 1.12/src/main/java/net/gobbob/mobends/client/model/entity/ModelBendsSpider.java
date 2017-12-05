@@ -186,7 +186,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     	this.armSwing = argSwingTime;
     	this.armSwingAmount = argSwingAmount;
     	
-    	((ModelPart)this.spiderHead).sync((ModelPart)data.spiderHead);
+    	/*((ModelPart)this.spiderHead).sync((ModelPart)data.spiderHead);
     	((ModelPart)this.spiderNeck).sync((ModelPart)data.spiderNeck);
     	((ModelPart)this.spiderBody).sync((ModelPart)data.spiderBody);
 		
@@ -206,7 +206,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     	((ModelPart)this.spiderForeLeg5).sync((ModelPart)data.spiderForeLeg5);
     	((ModelPart)this.spiderForeLeg6).sync((ModelPart)data.spiderForeLeg6);
     	((ModelPart)this.spiderForeLeg7).sync((ModelPart)data.spiderForeLeg7);
-    	((ModelPart)this.spiderForeLeg8).sync((ModelPart)data.spiderForeLeg8);
+    	((ModelPart)this.spiderForeLeg8).sync((ModelPart)data.spiderForeLeg8);*/
 		
     	this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
@@ -262,10 +262,10 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
 	        this.renderOffset.update(DataUpdateHandler.ticksPerFrame);
 	        this.renderRotation.update(DataUpdateHandler.ticksPerFrame);
 	        
-	        data.updatedThisFrame = true;
+	        /*data.updatedThisFrame = true;
 	        if(!this.isRenderedInGui()){
 		    	data.syncModelInfo(this);
-		    }
+		    }*/
     	}
     	
     	if(!data.isInitialized()){
@@ -276,7 +276,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     }
     
     public void animate(AnimatedEntity aEntity, EntitySpider entity, Data_Spider data) {
-    	if(data.calcCollidedHorizontally()){
+    	/*if(data.calcCollidedHorizontally()){
 			aEntity.getAnimation("wallClimb").animate(entity, this, data);
         	BendsPack.animate(this,"spider","wallClimb");
 		}else{
@@ -292,7 +292,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
 		        	BendsPack.animate(this, "spider", "walk");
 		        }
 	        }
-		}
+		}*/
     }
     
     public void postRender(float argScale){

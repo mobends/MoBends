@@ -46,7 +46,7 @@ public class Data_Spider extends EntityData{
 	}
 	
 	public void syncModelInfo(ModelBendsSpider argModel){
-		if(this.spiderHead == null) this.spiderHead = new ModelPart(argModel, false); this.spiderHead.sync((ModelPart)argModel.spiderHead);
+		/*if(this.spiderHead == null) this.spiderHead = new ModelPart(argModel, false); this.spiderHead.sync((ModelPart)argModel.spiderHead);
 		if(this.spiderNeck == null) this.spiderNeck = new ModelPart(argModel, false); this.spiderNeck.sync((ModelPart)argModel.spiderNeck);
 		if(this.spiderBody == null) this.spiderBody = new ModelPart(argModel, false); this.spiderBody.sync((ModelPart)argModel.spiderBody);
 		
@@ -67,7 +67,7 @@ public class Data_Spider extends EntityData{
 		if(this.spiderForeLeg6 == null) this.spiderForeLeg6 = new ModelPart(argModel, false); this.spiderForeLeg6.sync((ModelPart)argModel.spiderForeLeg6);
 		if(this.spiderForeLeg7 == null) this.spiderForeLeg7 = new ModelPart(argModel, false); this.spiderForeLeg7.sync((ModelPart)argModel.spiderForeLeg7);
 		if(this.spiderForeLeg8 == null) this.spiderForeLeg8 = new ModelPart(argModel, false); this.spiderForeLeg8.sync((ModelPart)argModel.spiderForeLeg8);
-		
+		*/
 		this.renderOffset.set(argModel.renderOffset);
 		this.renderRotation.set(argModel.renderRotation);
 	}

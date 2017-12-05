@@ -132,9 +132,9 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
         if (this.isChild)
         {
             float f6 = 2.0F;
-            ((ModelPart)this.bipedHead).scaleX*=1.5f;
-            ((ModelPart)this.bipedHead).scaleY*=1.5f;
-            ((ModelPart)this.bipedHead).scaleZ*=1.5f;
+            ((ModelPart)this.bipedHead).scale.x*=1.5f;
+            ((ModelPart)this.bipedHead).scale.y*=1.5f;
+            ((ModelPart)this.bipedHead).scale.z*=1.5f;
             GL11.glPushMatrix();
             GL11.glScalef(1.0F / f6, 1.0F / f6, 1.0F / f6);
             GL11.glTranslatef(0.0F, 24.0F * scale, 0.0F);
@@ -166,7 +166,7 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
     	this.headRotationX = argHeadX;
     	this.headRotationY = argHeadY;
     	
-    	((ModelPart) this.bipedHead).sync(data.head);
+    	/*((ModelPart) this.bipedHead).sync(data.head);
     	((ModelPart) this.bipedHeadwear).sync(data.headwear);
     	((ModelPart) this.bipedBody).sync(data.body);
     	((ModelPart) this.bipedRightArm).sync(data.rightArm);
@@ -176,7 +176,7 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
     	((ModelPart) this.bipedRightForeArm).sync(data.rightForeArm);
     	((ModelPart) this.bipedLeftForeArm).sync(data.leftForeArm);
     	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
-    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);
+    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);*/
     	
     	this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
@@ -199,13 +199,13 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
 			
 			BendsVariable.tempData = data;
 			
-			if(data.motion.x == 0.0f & data.motion.z == 0.0f){
+			/*if(data.motion.x == 0.0f & data.motion.z == 0.0f){
 				AnimatedEntity.getByEntity(argEntity).getAnimation("stand").animate((EntityLivingBase)argEntity, this, data);
 				BendsPack.animate(this,"zombie","stand");
 			}else{
 				AnimatedEntity.getByEntity(argEntity).getAnimation("walk").animate((EntityLivingBase)argEntity, this, data);
 				BendsPack.animate(this,"zombie","walk");
-			}
+			}*/
 			
 	        ((ModelPart) this.bipedHead).update(DataUpdateHandler.ticksPerFrame);
 	        ((ModelPart) this.bipedHeadwear).update(DataUpdateHandler.ticksPerFrame);
@@ -222,10 +222,10 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
 	        this.renderOffset.update(DataUpdateHandler.ticksPerFrame);
 	        this.renderRotation.update(DataUpdateHandler.ticksPerFrame);
 	        
-	        data.updatedThisFrame = true;
+	        /*data.updatedThisFrame = true;
 	        if(!this.isRenderedInGui()){
 		    	data.syncModelInfo(this);
-		    }
+		    }*/
 		}
     	if(!data.isInitialized()){
         	data.initModelPose();

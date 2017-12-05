@@ -14,10 +14,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModelPart extends ModelRenderer implements IModelPart
 {
-	public Vector3f position = new Vector3f();
-	public SmoothVector3f rotation = new SmoothVector3f();
-	public SmoothVector3f pre_rotation = new SmoothVector3f();
-	public float scaleX, scaleY, scaleZ;
+	public Vector3f position;
+	public Vector3f scale;
+	public SmoothVector3f rotation;
+	public SmoothVector3f pre_rotation;
 	public int texOffsetX, texOffsetY;
 	
 	public boolean compiled;
@@ -26,9 +26,12 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public ModelPart(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
 	{
 		super(model, texOffsetY, texOffsetY);
+		this.position = new Vector3f();
+		this.scale = new Vector3f(1, 1, 1);
+		this.rotation = new SmoothVector3f();
+		this.pre_rotation = new SmoothVector3f();
 		this.texOffsetX = texOffsetX;
         this.texOffsetY = texOffsetY;
-        this.scaleX = this.scaleY = this.scaleZ = 1.0f;
         if(!register)
         	model.boxList.remove(model.boxList.size() - 1);
 	}
@@ -104,6 +107,9 @@ public class ModelPart extends ModelRenderer implements IModelPart
             GlStateManager.rotate(this.rotation.getY(), 0F, 1F, 0F);
         if (this.rotation.getX() != 0.0F)
             GlStateManager.rotate(this.rotation.getX(), 1F, 0F, 0F);
+        
+        if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
+        	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
     }
 
     /**
@@ -153,41 +159,16 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	
 	public ModelPart setScale(float x, float y, float z)
 	{
-		this.scaleX = x;
-		this.scaleY = y;
-		this.scaleZ = z;
+		this.scale.x = x;
+		this.scale.y = y;
+		this.scale.z = z;
 		return this;
 	}
 	
 	public ModelPart resetScale()
 	{
-		this.scaleX = this.scaleY = this.scaleZ = 1.0f;
+		this.scale.set(0, 0, 0);
 		return this;
-	}
-	
-	public void sync(ModelPart box)
-	{
-		if(box != null)
-		{
-			this.rotateAngleX = box.rotateAngleX;
-			this.rotateAngleY = box.rotateAngleY;
-			this.rotateAngleZ = box.rotateAngleZ;
-			this.rotation.vOld.set(box.rotation.vOld);
-			this.rotation.completion.set(box.rotation.completion);
-			this.rotation.vFinal.set(box.rotation.vFinal);
-			this.rotation.vSmooth.set(box.rotation.vSmooth);
-			this.rotation.smoothness.set(box.rotation.smoothness);
-
-			this.pre_rotation.vOld.set(box.pre_rotation.vOld);
-			this.pre_rotation.completion.set(box.pre_rotation.completion);
-			this.pre_rotation.vFinal.set(box.pre_rotation.vFinal);
-			this.pre_rotation.vSmooth.set(box.pre_rotation.vSmooth);
-			this.pre_rotation.smoothness.set(box.pre_rotation.smoothness);
-			
-			this.scaleX = box.scaleX;
-			this.scaleY = box.scaleY;
-			this.scaleZ = box.scaleZ;
-		}
 	}
 	
 	public void addBox(float x, float y, float z, int width, int height, int length, float scaleFactor)
@@ -211,6 +192,30 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public ModelBox getBox(int idx)
 	{
 		return ((ModelBox)this.cubeList.get(idx));
+	}
+	
+	@Override
+	public Vector3f getPosition()
+	{
+		return this.position;
+	}
+	
+	@Override
+	public Vector3f getScale()
+	{
+		return this.scale;
+	}
+
+	@Override
+	public SmoothVector3f getRotation()
+	{
+		return this.rotation;
+	}
+
+	@Override
+	public SmoothVector3f getPreRotation()
+	{
+		return this.pre_rotation;
 	}
 	
 	public ModelPart offsetBox(float x, float y, float z)
@@ -261,5 +266,16 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public void renderPart(float scale)
 	{
 		this.render(scale);
+	}
+
+	@Override
+	public void syncUp(IModelPart part)
+	{
+		if(part == null)
+			return;
+		this.position.set(part.getPosition());
+		this.rotation.set(part.getRotation());
+		this.pre_rotation.set(part.getPreRotation());
+		this.scale.set(part.getScale());
 	}
 }

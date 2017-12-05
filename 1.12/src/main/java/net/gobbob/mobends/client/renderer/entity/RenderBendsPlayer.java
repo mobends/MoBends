@@ -9,7 +9,7 @@ import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsCustomHead;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsElytra;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsHeldItem;
 import net.gobbob.mobends.configuration.SettingsManager;
-import net.gobbob.mobends.data.Data_Player;
+import net.gobbob.mobends.data.DataPlayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.main.ModBase;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -59,7 +59,7 @@ public class RenderBendsPlayer extends RenderPlayer{
         ((ModelBendsPlayer)this.mainModel).updateWithEntityData(clientPlayer);
         ((ModelBendsPlayer)this.mainModel).postRenderTranslate(0.0625f);
     
-        Data_Player data = (Data_Player) EntityData.get(EntityData.PLAYER_DATA, clientPlayer.getEntityId());
+        DataPlayer data = (DataPlayer) EntityData.get(EntityData.PLAYER_DATA, clientPlayer.getEntityId());
     
         if(SettingsManager.SWORD_TRAIL.isEnabled()){
 			GL11.glPushMatrix();

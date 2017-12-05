@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.lwjgl.input.Keyboard;
 
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.mutators.RenderMutatorPlayer;
+import net.gobbob.mobends.client.mutators.MutatorPlayer;
 import net.gobbob.mobends.main.ModBase;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.PackManager;
@@ -26,7 +26,7 @@ public class EventHandlerKeyboard {
 			Minecraft.getMinecraft().displayGuiScreen(new GuiBendsMenu());
 			PackManager.initPacks();
 		}else if(key_Refresh.isPressed()) {
-			RenderMutatorPlayer.refresh();
+			MutatorPlayer.refresh();
 		}
 	}
 }
