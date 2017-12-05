@@ -123,7 +123,8 @@ public class MutatorPlayer implements IBendsModel
 		}
 		
 		// Does the renderer have Small Arms?
-		Field fieldSmallArms = getObfuscatedField(renderer.getClass(), "smallArms", "placeholder");;
+		//TODO Find out the obfuscated name for the smallArms field.
+		Field fieldSmallArms = getObfuscatedField(renderer.getClass(), "smallArms", "placeholder");
 		if(fieldSmallArms != null) {
 			fieldSmallArms.setAccessible(true);
 			try {
