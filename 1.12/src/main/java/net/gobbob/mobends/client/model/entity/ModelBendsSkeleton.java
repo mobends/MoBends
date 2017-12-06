@@ -12,7 +12,7 @@ import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.client.renderer.SwordTrail;
-import net.gobbob.mobends.data.Data_Skeleton;
+import net.gobbob.mobends.data.DataSkeleton;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
@@ -187,7 +187,7 @@ public class ModelBendsSkeleton extends ModelBiped implements IBendsModel
     
     public void setRotationAngles(float argSwingTime, float argSwingAmount, float argArmSway, float argHeadY, float argHeadX, float argNr6, Entity argEntity)
     {
-    	Data_Skeleton data = (Data_Skeleton) EntityData.get(EntityData.SKELETON_DATA, argEntity.getEntityId());
+    	/*Data_Skeleton data = (Data_Skeleton) EntityData.get(EntityData.SKELETON_DATA, argEntity.getEntityId());
     	AnimatedEntity aEntity = AnimatedEntity.getByEntity(argEntity);
     	AbstractSkeleton skeleton = (AbstractSkeleton) argEntity;
     	
@@ -198,7 +198,7 @@ public class ModelBendsSkeleton extends ModelBiped implements IBendsModel
     	this.armSwingAmount = argSwingAmount;
     	this.headRotationX = argHeadX;
     	this.headRotationY = argHeadY;
-    	this.primaryHand = skeleton.getPrimaryHand();
+    	this.primaryHand = skeleton.getPrimaryHand();*/
     	
     	/*((ModelPart) this.bipedHead).sync(data.head);
     	((ModelPart) this.bipedHeadwear).sync(data.headwear);
@@ -212,7 +212,7 @@ public class ModelBendsSkeleton extends ModelBiped implements IBendsModel
     	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
     	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);*/
     	
-    	this.renderOffset.set(data.renderOffset);
+    	/*this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
     	this.renderRightItemRotation.set(data.renderRightItemRotation);
     	this.renderLeftItemRotation.set(data.renderLeftItemRotation);
@@ -257,22 +257,22 @@ public class ModelBendsSkeleton extends ModelBiped implements IBendsModel
 		    this.renderRightItemRotation.update(DataUpdateHandler.ticksPerFrame);
 			this.renderLeftItemRotation.update(DataUpdateHandler.ticksPerFrame);
 			
-			this.swordTrail.update(DataUpdateHandler.ticksPerFrame);
+			this.swordTrail.update(DataUpdateHandler.ticksPerFrame);*/
 			
 		    /*data.updatedThisFrame = true;
 		    if(!this.isRenderedInGui()){
 		    	data.syncModelInfo(this);
 			}*/
-    	}
+    	/*}
     	
     	if(!data.isInitialized()){
     		this.animate(aEntity, skeleton, data);
     		data.syncModelInfo(this);
     		data.initModelPose();
-    	}
+    	}*/
     }
     
-    public void animate(AnimatedEntity aEntity, AbstractSkeleton entity, Data_Skeleton data) {
+    public void animate(AnimatedEntity aEntity, AbstractSkeleton entity, DataSkeleton data) {
 		/*if(data.motion.x == 0.0f & data.motion.z == 0.0f){
 			aEntity.getAnimation("stand").animate(entity, this, data);
 			BendsPack.animate(this, aEntity.getName(), "stand");
@@ -306,7 +306,7 @@ public class ModelBendsSkeleton extends ModelBiped implements IBendsModel
     	GlStateManager.rotate(this.renderRotation.getZ(),0.0f,0.0f,1.0f);
     }
 	
-	public void updateWithEntityData(AbstractSkeleton entitySkeleton){
+	/*public void updateWithEntityData(AbstractSkeleton entitySkeleton){
 		Data_Skeleton data = (Data_Skeleton) EntityData.get(EntityData.SKELETON_DATA, entitySkeleton.getEntityId());
 		if(data != null){
 			this.renderOffset.set(data.renderOffset);
@@ -314,7 +314,7 @@ public class ModelBendsSkeleton extends ModelBiped implements IBendsModel
 			this.renderRightItemRotation.set(data.renderRightItemRotation);
 			this.renderLeftItemRotation.set(data.renderLeftItemRotation);
 		}
-	}
+	}*/
 	
 	public boolean isRenderedInGui() {
 		return EventHandlerRenderPlayer.renderingGuiScreen;

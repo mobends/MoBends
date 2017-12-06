@@ -3,6 +3,7 @@ package net.gobbob.mobends.client.event;
 import net.gobbob.mobends.client.renderer.ArrowTrail;
 import net.gobbob.mobends.configuration.SettingsManager;
 import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.data.EntityDatabase;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -11,20 +12,22 @@ public class DataUpdateHandler {
 	public static float lastNotedRenderTick = 0.0f;
 	public static float lastNotedClientTick = 0.0f;
 	public static float partialTicks = 0.0f;
-	public static float ticks = 0.0f;
+	protected static float ticks = 0.0f;
 	public static float ticksPerFrame = 0.0f;
+	
+	public static float getTicks() {
+		return ticks;
+	}
 	
 	@SubscribeEvent
 	public void updateAnimations(TickEvent.RenderTickEvent event){
 		if(Minecraft.getMinecraft().world == null) return;
 		if(Minecraft.getMinecraft().player == null) return;
 		
-		if(lastNotedRenderTick != Minecraft.getMinecraft().player.ticksExisted+event.renderTickTime){
-			lastNotedRenderTick = Minecraft.getMinecraft().player.ticksExisted+event.renderTickTime;
+		if(lastNotedRenderTick != Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime){
+			lastNotedRenderTick = Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime;
 			
-			for(int i = 0; i < EntityData.databases.length; i++) {
-				EntityData.databases[i].updateRender(event.renderTickTime);
-			}
+			EntityDatabase.instance.updateRender(event.renderTickTime);
 			
 			partialTicks = event.renderTickTime;
 			if(Minecraft.getMinecraft().player != null) {
@@ -53,9 +56,7 @@ public class DataUpdateHandler {
 		if(lastNotedClientTick != Minecraft.getMinecraft().player.ticksExisted){
 			lastNotedClientTick = Minecraft.getMinecraft().player.ticksExisted;
 			
-			for(int d = 0; d < EntityData.databases.length; d++) {
-				EntityData.databases[d].updateClient();
-			}
+			EntityDatabase.instance.updateClient();
 		}
 	}
 }

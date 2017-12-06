@@ -56,37 +56,22 @@ public class ModelPartTransform implements IModelPart
 	}
 
 	@Override
-	public Vector3f getPosition()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	public Vector3f getPosition() { return this.position; }
 	@Override
-	public Vector3f getScale()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	public Vector3f getScale() { return this.scale; }
 	@Override
-	public SmoothVector3f getRotation()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	public SmoothVector3f getRotation() { return this.rotation; }
 	@Override
-	public SmoothVector3f getPreRotation()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public SmoothVector3f getPreRotation() { return this.pre_rotation; }
 
 	@Override
 	public void syncUp(IModelPart part)
 	{
-		// TODO Auto-generated method stub
-		
+		if(part == null)
+			return;
+		this.position.set(part.getPosition());
+		this.rotation.set(part.getRotation());
+		this.pre_rotation.set(part.getPreRotation());
+		this.scale.set(part.getScale());
 	}
 }

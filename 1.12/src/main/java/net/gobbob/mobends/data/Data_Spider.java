@@ -12,8 +12,9 @@ import net.gobbob.mobends.util.BendsLogger;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.entity.Entity;
 
-public class Data_Spider extends EntityData{
+public class Data_Spider extends DataLiving {
 	public static List<Data_Spider> dataList = new ArrayList<Data_Spider>(); 
 	
 	public ModelPart spiderHead;
@@ -41,8 +42,8 @@ public class Data_Spider extends EntityData{
     public SmoothVector3f renderOffset = new SmoothVector3f();
     public SmoothVector3f renderRotation = new SmoothVector3f();
     
-	public Data_Spider(int argEntityID) {
-		super(argEntityID);
+	public Data_Spider(Entity entity) {
+		super(entity);
 	}
 	
 	public void syncModelInfo(ModelBendsSpider argModel){
@@ -83,11 +84,7 @@ public class Data_Spider extends EntityData{
 	}
 
 	@Override
-	public void initModelPose() {
-		if(this.spiderBody == null) return;
-		
-		this.setInitialized(true);
-		
+	public void initModelPose() {		
 		this.spiderBody.finish();
 		this.spiderLeg1.finish();
 		this.spiderLeg2.finish();
@@ -97,5 +94,16 @@ public class Data_Spider extends EntityData{
 		this.spiderLeg6.finish();
 		this.spiderLeg7.finish();
 		this.spiderLeg8.finish();
+	}
+
+	@Override
+	public void updateParts(float ticksPerFrame)
+	{
+		// TODO Implement this
+	}
+
+	@Override
+	public void onTicksRestart()
+	{
 	}
 }

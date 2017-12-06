@@ -3,22 +3,20 @@ package net.gobbob.mobends.client.renderer.entity;
 import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
-import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsBipedArmor;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsCape;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsCustomHead;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsElytra;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsHeldItem;
+import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedArmorM;
 import net.gobbob.mobends.configuration.SettingsManager;
 import net.gobbob.mobends.data.DataPlayer;
 import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.main.ModBase;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.renderer.entity.layers.LayerCape;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
@@ -33,7 +31,7 @@ public class RenderBendsPlayer extends RenderPlayer{
     	this.smallArms = useSmallArms;
     	this.mainModel = new ModelBendsPlayer(0.0F, this.smallArms);
     	this.layerRenderers.clear();
-    	this.addLayer(new LayerBendsBipedArmor(this));
+    	this.addLayer(new LayerBipedArmorM(this));
         this.addLayer(new LayerBendsHeldItem(this));
         //this.addLayer(new LayerArrow(this));
         //this.addLayer(new LayerDeadmau5Head(this));
@@ -56,19 +54,19 @@ public class RenderBendsPlayer extends RenderPlayer{
         float f1 = 0.9375F;
         GlStateManager.scale(f1, f1, f1);
         
-        ((ModelBendsPlayer)this.mainModel).updateWithEntityData(clientPlayer);
+        //((ModelBendsPlayer)this.mainModel).updateWithEntityData(clientPlayer);
         ((ModelBendsPlayer)this.mainModel).postRenderTranslate(0.0625f);
     
-        DataPlayer data = (DataPlayer) EntityData.get(EntityData.PLAYER_DATA, clientPlayer.getEntityId());
+        //DataPlayer data = (DataPlayer) EntityData.get(EntityData.PLAYER_DATA, clientPlayer.getEntityId());
     
-        if(SettingsManager.SWORD_TRAIL.isEnabled()){
+        /*if(SettingsManager.SWORD_TRAIL.isEnabled()){
 			GL11.glPushMatrix();
 				float f5 = 0.0625F;
 				GL11.glScalef(-f5, -f5, f5);
 				data.swordTrail.render();
 				GL11.glColor4f(1,1,1,1);
 			GL11.glPopMatrix();
-        }
+        }*/
         
         ((ModelBendsPlayer)this.mainModel).postRenderRotate(0.0625f);
         

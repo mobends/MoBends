@@ -11,7 +11,7 @@ import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
-import net.gobbob.mobends.data.Data_Zombie;
+import net.gobbob.mobends.data.DataZombie;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
@@ -152,7 +152,7 @@ public class ModelBendsZombie extends ModelBiped implements IBendsModel
     
     public void setRotationAngles(float argSwingTime, float argSwingAmount, float argArmSway, float argHeadY, float argHeadX, float argNr6, Entity argEntity)
     {
-    	Data_Zombie data = (Data_Zombie) EntityData.get(EntityData.ZOMBIE_DATA, argEntity.getEntityId());
+    	/*Data_Zombie data = (Data_Zombie) EntityData.get(EntityData.ZOMBIE_DATA, argEntity.getEntityId());
     	AnimatedEntity aEntity = AnimatedEntity.getByEntity(argEntity);
     	EntityZombie zombie = (EntityZombie) argEntity;
     	
@@ -162,7 +162,7 @@ public class ModelBendsZombie extends ModelBiped implements IBendsModel
     	this.armSwing = argSwingTime;
     	this.armSwingAmount = argSwingAmount;
     	this.headRotationX = argHeadX;
-    	this.headRotationY = argHeadY;
+    	this.headRotationY = argHeadY;*/
     	
     	/*((ModelPart) this.bipedHead).sync(data.head);
     	((ModelPart) this.bipedHeadwear).sync(data.headwear);
@@ -176,7 +176,7 @@ public class ModelBendsZombie extends ModelBiped implements IBendsModel
     	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
     	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);*/
     	
-    	this.renderOffset.set(data.renderOffset);
+    	/*this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
     	
     		if(data.canBeUpdated()){
@@ -217,16 +217,16 @@ public class ModelBendsZombie extends ModelBiped implements IBendsModel
 		        /*data.updatedThisFrame = true;
 		        if(!this.isRenderedInGui()){
 			    	data.syncModelInfo(this);
-			    }*/
+			    }
     		}
     	if(!data.isInitialized()){
     		this.animate(aEntity, zombie, data);
     		data.syncModelInfo(this);
         	data.initModelPose();
-        }
+        }*/
     }
     
-    public void animate(AnimatedEntity aEntity, EntityZombie entity, Data_Zombie data) {
+    public void animate(AnimatedEntity aEntity, EntityZombie entity, DataZombie data) {
     	/*if(data.motion.x == 0.0f & data.motion.z == 0.0f){
 			aEntity.getAnimation("stand").animate(entity, this, data);
 			BendsPack.animate(this,"zombie","stand");
@@ -243,13 +243,13 @@ public class ModelBendsZombie extends ModelBiped implements IBendsModel
     	GL11.glRotatef(this.renderRotation.getZ(),0.0f,0.0f,1.0f);
 	}
     
-	public void updateWithEntityData(EntityZombie argZombie){
+	/*public void updateWithEntityData(EntityZombie argZombie){
 		Data_Zombie data = (Data_Zombie) EntityData.get(EntityData.ZOMBIE_DATA, argZombie.getEntityId());
 		if(data != null){
 			this.renderOffset.set(data.renderOffset);
 			this.renderRotation.set(data.renderRotation);
 		}
-	}
+	}*/
 	
 	public boolean isRenderedInGui() {
 		return EventHandlerRenderPlayer.renderingGuiScreen;

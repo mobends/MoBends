@@ -13,29 +13,29 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 
 public class EntityDatabase {
-	public HashMap<Integer, EntityData> entries;
-	protected final String name;
-	protected final Class dataClass;
+	public static EntityDatabase instance = new EntityDatabase();
 	
-	public EntityDatabase(Class dataClass)
+	// Contains data for all EntityData instances.
+	protected HashMap<Integer, EntityData> entryMap;
+	
+	public EntityDatabase()
 	{
-		this.name = null;
-		this.dataClass = dataClass;
-		this.entries = new HashMap<Integer, EntityData>();
+		this.entryMap = new HashMap<Integer, EntityData>();
 	}
 	
-	public EntityData getEntry(int identifier)
+	public EntityData get(Integer identifier)
 	{
-		return entries.get(identifier);
+		return entryMap.get(identifier);
 	}
 	
-	public EntityData newEntry(int identifier)
+	public EntityData newEntry(Class dataClass, Entity entity)
 	{
 		EntityData data = null;
 		try {
-			data = (EntityData) this.dataClass.getConstructor(int.class).newInstance(identifier);
+			data = (EntityData) dataClass.getConstructor(Entity.class).newInstance(entity);
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -49,38 +49,50 @@ public class EntityDatabase {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		}
-		if(data != null) this.entries.put(identifier, data);
+		if(data != null) this.add(entity.getEntityId(), data);
 		return data;
 	}
 	
-	public void addEntry(int identifier, EntityData data)
-	{
-		this.entries.put(identifier, data);
+	/*
+	 * If a data instance for that identifier is null, create one.
+	 * Return the data instance for that identifier.
+	 * */
+	public EntityData getAndMake(Class dataClass, Entity entity) {
+		EntityData data = this.get(entity.getEntityId());
+		if(data == null)
+			data = this.newEntry(dataClass, entity);
+		return data;
 	}
 	
-	public void removeEntry(int identifier)
+	public void add(int identifier, EntityData data)
 	{
-		this.entries.remove(identifier);
+		this.entryMap.put(identifier, data);
 	}
 	
-	public String getName()
+	public void add(Entity entity, EntityData data)
 	{
-		return this.name;
+		this.add(entity.getEntityId(), data);
+	}
+	
+	public void remove(int identifier)
+	{
+		this.entryMap.remove(identifier);
 	}
 	
 	public void updateClient()
 	{
-		Iterator<Integer> it = entries.keySet().iterator();
+		Iterator<Integer> it = entryMap.keySet().iterator();
 		while(it.hasNext())
 		{
 			Integer key = it.next();
-			EntityData entityData = getEntry(key);
+			EntityData entityData = get(key);
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(key);
 			if(entity != null)
 			{
-				if(!entityData.entityType.equalsIgnoreCase(entity.getName()))
+				if(entityData.getEntity() != entity)
 				{
-					this.newEntry(key);
+					System.out.println("Removing");
+					it.remove();
 				}
 				else
 				{
@@ -96,31 +108,16 @@ public class EntityDatabase {
 			else
 			{
 				it.remove();
-				this.removeEntry(key);
+				this.remove(key);
 			}
 		}
 	}
 	
 	public void updateRender(float partialTicks)
 	{
-		for(EntityData entityData : this.entries.values())
+		for(EntityData entityData : this.entryMap.values())
 		{
 			entityData.update(partialTicks);
 		}
-	}
-	
-	public EntityData[] toArray()
-	{
-		if(!this.entries.isEmpty())
-		{
-			return (EntityData[]) this.entries.values().toArray(new EntityData[0]);
-		}
-		else
-			return new EntityData[0];
-	}
-	
-	public Integer[] getKeys()
-	{
-		return (Integer[]) this.entries.keySet().toArray(new Integer[0]);
 	}
 }

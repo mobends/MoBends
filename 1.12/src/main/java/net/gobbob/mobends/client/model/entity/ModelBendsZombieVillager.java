@@ -11,7 +11,7 @@ import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
-import net.gobbob.mobends.data.Data_Zombie;
+import net.gobbob.mobends.data.DataZombie;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
@@ -156,7 +156,7 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
     
     public void setRotationAngles(float argSwingTime, float argSwingAmount, float argArmSway, float argHeadY, float argHeadX, float argNr6, Entity argEntity)
     {
-    	Data_Zombie data = (Data_Zombie) EntityData.get(EntityData.ZOMBIE_DATA, argEntity.getEntityId());
+    	/*Data_Zombie data = (Data_Zombie) EntityData.get(EntityData.ZOMBIE_DATA, argEntity.getEntityId());
 
     	if(Minecraft.getMinecraft().world == null)
     		return;
@@ -176,7 +176,7 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
     	((ModelPart) this.bipedRightForeArm).sync(data.rightForeArm);
     	((ModelPart) this.bipedLeftForeArm).sync(data.leftForeArm);
     	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
-    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);*/
+    	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);
     	
     	this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
@@ -205,7 +205,7 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
 			}else{
 				AnimatedEntity.getByEntity(argEntity).getAnimation("walk").animate((EntityLivingBase)argEntity, this, data);
 				BendsPack.animate(this,"zombie","walk");
-			}*/
+			}
 			
 	        ((ModelPart) this.bipedHead).update(DataUpdateHandler.ticksPerFrame);
 	        ((ModelPart) this.bipedHeadwear).update(DataUpdateHandler.ticksPerFrame);
@@ -225,11 +225,11 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
 	        /*data.updatedThisFrame = true;
 	        if(!this.isRenderedInGui()){
 		    	data.syncModelInfo(this);
-		    }*/
+		    }
 		}
     	if(!data.isInitialized()){
         	data.initModelPose();
-        }
+        }*/
     }
     
     public void postRender(float argScale){
@@ -239,13 +239,13 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
     	GL11.glRotatef(this.renderRotation.getZ(),0.0f,0.0f,1.0f);
 	}
     
-	public void updateWithEntityData(EntityZombie argZombie){
+	/*public void updateWithEntityData(EntityZombie argZombie){
 		Data_Zombie data = (Data_Zombie) EntityData.get(EntityData.ZOMBIE_DATA, argZombie.getEntityId());
 		if(data != null){
 			this.renderOffset.set(data.renderOffset);
 			this.renderRotation.set(data.renderRotation);
 		}
-	}
+	}*/
 	
 	public boolean isRenderedInGui() {
 		return EventHandlerRenderPlayer.renderingGuiScreen;

@@ -21,6 +21,7 @@ import net.gobbob.mobends.client.model.entity.IBendsModel;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedArmorM;
 import net.gobbob.mobends.data.DataPlayer;
 import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -54,6 +55,7 @@ public class MutatorPlayer implements IBendsModel
 	public float headYaw, headPitch;
 	public boolean smallArms;
 	public List<LayerRenderer<EntityLivingBase>> layerRenderers;
+	public LayerBipedArmorM layerArmor;
 	
 	protected HashMap<String, IModelPart> nameToPartMap;
 	
@@ -124,7 +126,7 @@ public class MutatorPlayer implements IBendsModel
 		
 		// Does the renderer have Small Arms?
 		//TODO Find out the obfuscated name for the smallArms field.
-		Field fieldSmallArms = getObfuscatedField(renderer.getClass(), "smallArms", "placeholder");
+		Field fieldSmallArms = getObfuscatedField(renderer.getClass(), "smallArms", "field_177140_a");
 		if(fieldSmallArms != null) {
 			fieldSmallArms.setAccessible(true);
 			try {
@@ -153,7 +155,8 @@ public class MutatorPlayer implements IBendsModel
 				LayerRenderer<EntityLivingBase> layer = layerRenderers.get(i);
 				if(layer instanceof LayerBipedArmor)
 				{
-					layerRenderers.set(i, new LayerBipedArmorM(renderer));
+					this.layerArmor = new LayerBipedArmorM(renderer);
+					layerRenderers.set(i, this.layerArmor);
 					System.out.println(layer);
 				}
 			}
@@ -223,24 +226,6 @@ public class MutatorPlayer implements IBendsModel
         		.offsetTextureQuad(rightForeLeg, ModelBox.BOTTOM, 0, -6.0f);
         rightLeg.setExtension(rightForeLeg);
         
-        // The player is null when refreshing.
-        if(entityPlayer != null) {
-	        EntityData entityData = EntityData.get(EntityData.PLAYER_DATA, entityPlayer.getEntityId());
-	        if(entityData instanceof DataPlayer) {
-	        	DataPlayer dataPlayer = (DataPlayer) entityData;
-	        	dataPlayer.head = head;
-	        	dataPlayer.body = body;
-	        	dataPlayer.leftArm = leftArm;
-	        	dataPlayer.rightArm = rightArm;
-	        	dataPlayer.leftLeg = leftLeg;
-	        	dataPlayer.rightLeg = rightLeg;
-	        	dataPlayer.leftForeArm = leftForeArm;
-	        	dataPlayer.rightForeArm = rightForeArm;
-	        	dataPlayer.leftForeLeg = leftForeLeg;
-	        	dataPlayer.rightForeLeg = rightForeLeg;
-	        }
-        }
-        
         nameToPartMap = new HashMap<String, IModelPart>();
         nameToPartMap.put("body", body);
         nameToPartMap.put("head", head);
@@ -263,7 +248,7 @@ public class MutatorPlayer implements IBendsModel
         
         if (shouldSit && player.getRidingEntity() instanceof EntityLivingBase)
         {
-            EntityLivingBase entitylivingbase = (EntityLivingBase)player.getRidingEntity();
+            EntityLivingBase entitylivingbase = (EntityLivingBase) player.getRidingEntity();
             f = GUtil.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset, partialTicks);
             yaw = f1 - f;
             float f3 = MathHelper.wrapDegrees(yaw);
@@ -300,12 +285,11 @@ public class MutatorPlayer implements IBendsModel
         this.headYaw = yaw;
         this.headPitch = pitch;
         performAnimations(player, renderer, yaw, pitch, partialTicks);
-        updateParts();
 	}
 	
 	public void performAnimations(AbstractClientPlayer player, RenderPlayer renderer, float yaw, float pitch, float partialTicks)
 	{
-		EntityData entityData = EntityData.get(EntityData.PLAYER_DATA, player.getEntityId());
+		EntityData entityData = EntityDatabase.instance.getAndMake(DataPlayer.class, player);
 		if(!(entityData instanceof DataPlayer))
 			return;
 		DataPlayer data = (DataPlayer) entityData;
@@ -323,29 +307,21 @@ public class MutatorPlayer implements IBendsModel
 			controller.perform(data);
 		}
 		
-		if(data instanceof DataPlayer) {
-			// Sync up with the EntityData
-			head.syncUp(data.head);
-			body.syncUp(data.body);
-			leftArm.syncUp(data.leftArm);
-			rightArm.syncUp(data.rightArm);
-			leftLeg.syncUp(data.leftLeg);
-			rightLeg.syncUp(data.rightLeg);
-			leftForeArm.syncUp(data.leftForeArm);
-			rightForeArm.syncUp(data.rightForeArm);
-			leftForeLeg.syncUp(data.leftForeLeg);
-			rightForeLeg.syncUp(data.rightForeLeg);
-		}
+		// Sync up with the EntityData
+		head.syncUp(data.head);
+		body.syncUp(data.body);
+		leftArm.syncUp(data.leftArm);
+		rightArm.syncUp(data.rightArm);
+		leftLeg.syncUp(data.leftLeg);
+		rightLeg.syncUp(data.rightLeg);
+		leftForeArm.syncUp(data.leftForeArm);
+		rightForeArm.syncUp(data.rightForeArm);
+		leftForeLeg.syncUp(data.leftForeLeg);
+		rightForeLeg.syncUp(data.rightForeLeg);
 		
 		//animatedEntity.getAnimation("stand").animate((EntityLivingBase)player, this, data);
         //BendsPack.animate(this, "player", "stand");
 	}
-	
-	public void updateParts() {
-    	for(IModelPart modelPart : nameToPartMap.values()) {
-    		modelPart.update(DataUpdateHandler.ticksPerFrame);
-		}
-    }
 	
 	public static void apply(RenderPlayer renderer, AbstractClientPlayer entityPlayer, float partialTicks)
 	{
@@ -367,6 +343,7 @@ public class MutatorPlayer implements IBendsModel
 	public static void refresh() {
 		for(Map.Entry<RenderPlayer, MutatorPlayer> mutator : mutatorMap.entrySet()) {
 			mutator.getValue().mutate(null, mutator.getKey());
+			mutator.getValue().layerArmor.initArmor();
 		}
 	}
 

@@ -174,7 +174,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     
     public void setRotationAngles(float argSwingTime, float argSwingAmount, float p_78087_3_, float p_78087_4_, float p_78087_5_, float p_78087_6_, Entity argEntity)
     {
-    	Data_Spider data = (Data_Spider) EntityData.get(EntityData.SPIDER_DATA, argEntity.getEntityId());
+    	/*Data_Spider data = (Data_Spider) EntityData.get(EntityData.SPIDER_DATA, argEntity.getEntityId());
     	AnimatedEntity aEntity = AnimatedEntity.getByEntity(argEntity);
     	EntitySpider spider = (EntitySpider) argEntity;
     	
@@ -184,7 +184,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     	this.headRotationX = p_78087_5_;
     	this.headRotationY = p_78087_4_;
     	this.armSwing = argSwingTime;
-    	this.armSwingAmount = argSwingAmount;
+    	this.armSwingAmount = argSwingAmount;*/
     	
     	/*((ModelPart)this.spiderHead).sync((ModelPart)data.spiderHead);
     	((ModelPart)this.spiderNeck).sync((ModelPart)data.spiderNeck);
@@ -208,7 +208,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     	((ModelPart)this.spiderForeLeg7).sync((ModelPart)data.spiderForeLeg7);
     	((ModelPart)this.spiderForeLeg8).sync((ModelPart)data.spiderForeLeg8);*/
 		
-    	this.renderOffset.set(data.renderOffset);
+    	/*this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
     	
     	if(data.canBeUpdated())
@@ -260,19 +260,19 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
 	        ((ModelPart)this.spiderForeLeg8).update(DataUpdateHandler.ticksPerFrame);
 	        
 	        this.renderOffset.update(DataUpdateHandler.ticksPerFrame);
-	        this.renderRotation.update(DataUpdateHandler.ticksPerFrame);
+	        this.renderRotation.update(DataUpdateHandler.ticksPerFrame);*/
 	        
 	        /*data.updatedThisFrame = true;
 	        if(!this.isRenderedInGui()){
 		    	data.syncModelInfo(this);
 		    }*/
-    	}
+    	/*}
     	
     	if(!data.isInitialized()){
     		this.animate(aEntity, spider, data);
     		data.syncModelInfo(this);
     		data.initModelPose();
-    	}
+    	}*/
     }
     
     public void animate(AnimatedEntity aEntity, EntitySpider entity, Data_Spider data) {
@@ -310,13 +310,13 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     	GlStateManager.rotate(this.renderRotation.getZ(),0.0f,0.0f,1.0f);
     }
 	
-	public void updateWithEntityData(EntitySpider argSpider){
+	/*public void updateWithEntityData(EntitySpider argSpider){
 		Data_Spider data = (Data_Spider) EntityData.get(EntityData.SPIDER_DATA, argSpider.getEntityId());
 		if(data != null){
 			this.renderOffset.set(data.renderOffset);
 			this.renderRotation.set(data.renderRotation);
 		}
-	}
+	}*/
 	
 	public boolean isRenderedInGui() {
 		return EventHandlerRenderPlayer.renderingGuiScreen;

@@ -23,7 +23,7 @@ public class RenderBendsCaveSpider extends RenderBendsSpider {
     {
         GlStateManager.scale(0.7F, 0.7F, 0.7F);
         
-        ((ModelBendsSpider)this.mainModel).updateWithEntityData((EntitySpider) entitylivingbaseIn);
+       // ((ModelBendsSpider)this.mainModel).updateWithEntityData((EntitySpider) entitylivingbaseIn);
         ((ModelBendsSpider)this.mainModel).postRenderTranslate(0.0625f);
         ((ModelBendsSpider)this.mainModel).postRenderRotate(0.0625f);
     }

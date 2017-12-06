@@ -35,7 +35,7 @@ public class RenderBendsSpider extends RenderSpider
         float f1 = 0.9375F;
         GlStateManager.scale(f1, f1, f1);
         
-        ((ModelBendsSpider)this.mainModel).updateWithEntityData((EntitySpider)argEntity);
+        //((ModelBendsSpider)this.mainModel).updateWithEntityData((EntitySpider)argEntity);
         ((ModelBendsSpider)this.mainModel).postRenderTranslate(0.0625f);
         ((ModelBendsSpider)this.mainModel).postRenderRotate(0.0625f);
     }

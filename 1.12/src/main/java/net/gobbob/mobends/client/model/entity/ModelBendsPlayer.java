@@ -308,7 +308,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     
     public void setRotationAngles(float argSwingTime, float argSwingAmount, float argArmSway, float argHeadY, float argHeadX, float argNr6, Entity argEntity)
     {
-    	DataPlayer data = (DataPlayer) EntityData.get(EntityData.PLAYER_DATA, argEntity.getEntityId());
+    	/*DataPlayer data = (DataPlayer) EntityData.get(EntityData.PLAYER_DATA, argEntity.getEntityId());
     	AnimatedEntity aEntity = AnimatedEntity.getByEntity(argEntity);
     	
     	if(Minecraft.getMinecraft().world == null)
@@ -317,7 +317,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     	this.armSwing = argSwingTime;
     	this.armSwingAmount = argSwingAmount;
     	this.headRotationX = MathHelper.wrapDegrees(argHeadX);
-    	this.headRotationY = MathHelper.wrapDegrees(argHeadY);
+    	this.headRotationY = MathHelper.wrapDegrees(argHeadY);*/
     	
     	/*((ModelPart) this.bipedHead).sync(data.head);
     	((ModelPart) this.bipedHeadwear).sync(data.headwear);
@@ -331,7 +331,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     	((ModelPart) this.bipedRightForeLeg).sync(data.rightForeLeg);
     	((ModelPart) this.bipedLeftForeLeg).sync(data.leftForeLeg);*/
     	
-    	this.renderOffset.set(data.renderOffset);
+    	/*this.renderOffset.set(data.renderOffset);
     	this.renderRotation.set(data.renderRotation);
     	this.renderRightItemRotation.set(data.renderRightItemRotation);
     	this.renderLeftItemRotation.set(data.renderLeftItemRotation);
@@ -366,13 +366,13 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     		 * Handling getting of a ladder, to instantly set the renderRotation parameter
     		 * without dealing with the smooth interpolation, which can make
     		 * the player do a 360 no scope ;).
-    		 */
+    		 
     		
     		boolean handleLadderGetoff = false;
     		if(!data.calcClimbing() && data.isClimbing()){
     			data.setClimbing(false);
     			handleLadderGetoff = true;
-    		}
+    		}*/
     		
     		/*if(((EntityLivingBase) argEntity).isElytraFlying()){
     			aEntity.getAnimation("elytra").animate((EntityLivingBase)argEntity, this, data);
@@ -409,7 +409,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     			}
 			}*/
     		
-    		if(handleLadderGetoff) {
+    		/*if(handleLadderGetoff) {
     			this.renderRotation.setY(this.renderRotation.vFinal.y);
     		}
     		
@@ -424,7 +424,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
     		ItemStack rightHandItemStack = ((EntityPlayer)argEntity).getHeldItem(mainHand ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND);
     		if(rightHandItemStack != null && rightHandItemStack.getItem() == Items.BOW && ((EntityPlayer)argEntity).getItemInUseMaxCount() != 0){
     			this.rightArmPose = ArmPose.BOW_AND_ARROW;
-    		}
+    		}*/
     		
     		/*if(this.shouldPerformGuardingAnimation((EntityPlayer)argEntity)){
     			aEntity.getAnimation("guard").animate((EntityLivingBase)argEntity, this, data);
@@ -452,17 +452,17 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
 	    		}
     		}*/
     		
-    		updateModelRenderers(data);
+    		//updateModelRenderers(data);
 		    
 		    /*data.updatedThisFrame = true;
 		    if(!this.isRenderedInGui()){
 		    	data.syncModelInfo(this);
-		    }*/
+		    }
     	}
     	
     	if(!data.isInitialized()){
     		data.initModelPose();
-    	}
+    	}*/
     }
     
     public void renderCape(float scale)
@@ -545,7 +545,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         return side == EnumHandSide.LEFT ? this.bipedLeftForeArm : this.bipedRightForeArm;
     }
 	
-	public void updateWithEntityData(AbstractClientPlayer argPlayer){
+	/*public void updateWithEntityData(AbstractClientPlayer argPlayer){
 		DataPlayer data = (DataPlayer) EntityData.get(EntityData.PLAYER_DATA, argPlayer.getEntityId());
 		if(data != null){
 			this.renderOffset.set(data.renderOffset);
@@ -553,7 +553,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
 			this.renderRightItemRotation.set(data.renderRightItemRotation);
 			this.renderLeftItemRotation.set(data.renderLeftItemRotation);
 		}
-	}
+	}*/
 	
 	public boolean shouldPerformGuardingAnimation(EntityPlayer player)
     {

@@ -3,12 +3,8 @@ package net.gobbob.mobends.animatedentity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
-import net.gobbob.mobends.animation.layer.AnimationLayer;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsCaveSpider;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsHusk;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsPlayer;
@@ -21,6 +17,7 @@ import net.gobbob.mobends.client.renderer.entity.RenderBendsWitherSkeleton;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsZombie;
 import net.gobbob.mobends.util.BendsLogger;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityCaveSpider;
@@ -30,17 +27,14 @@ import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityStray;
 import net.minecraft.entity.monster.EntityWitherSkeleton;
 import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntitySpectralArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
-public class AnimatedEntity {
+public class AnimatedEntity
+{
 	public static HashMap<String, AnimatedEntity> animatedEntities = new HashMap<String, AnimatedEntity>();
-	
-	public static Map skinMap = Maps.newHashMap();
-    public static RenderBendsPlayer playerRenderer;
 	
 	private String name;
 	private String displayName;
@@ -50,7 +44,8 @@ public class AnimatedEntity {
 	public Class<? extends Entity> entityClass;
 	public Render renderer;
 	
-	public AnimatedEntity(String id, String displayName, Class<? extends Entity> entityClass, Render renderer, String[] alterableParts){
+	public AnimatedEntity(String id, String displayName, Class<? extends Entity> entityClass, Render renderer, String[] alterableParts)
+	{
 		this.name = id;
 		this.displayName = displayName;
 		this.entityClass = entityClass;
@@ -59,43 +54,50 @@ public class AnimatedEntity {
 		this.addAlterEntry(new AlterEntry(this, displayName));
 	}
 	
-	public List<AlterEntry> getAlredEntries() {
+	public List<AlterEntry> getAlredEntries()
+	{
 		return this.alterEntries;
 	}
 	
-	public AlterEntry getAlterEntry(int index) {
+	public AlterEntry getAlterEntry(int index)
+	{
 		return this.alterEntries.get(index);
 	}
 
-	public String[] getAlterableParts() {
+	public String[] getAlterableParts()
+	{
 		return alterableParts;
 	}
 	
-	public String getDisplayName() {
+	public String getDisplayName()
+	{
 		return displayName;
 	}
 
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
 	
-	public AnimatedEntity addAlterEntry(AlterEntry alterEntry) {
+	public AnimatedEntity addAlterEntry(AlterEntry alterEntry)
+	{
 		this.alterEntries.add(alterEntry);
 		return this;
 	}
 	
-	public static void register(Configuration config){
+	public static void register(Configuration config)
+	{
 		BendsLogger.info("Registering Animated Entities...");
 		
 		animatedEntities.clear();
 		
-		registerEntity(config, new AnimatedEntity("player", "Player", EntityPlayer.class, 
+		registerEntity(config, new AnimatedEntity("player", "Player", AbstractClientPlayer.class, 
 			new RenderBendsPlayer(Minecraft.getMinecraft().getRenderManager()),
 			new String[] {"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 			"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "playerRotation",
 			"leftItemRotation", "rightItemRotation"}));
 		
-		registerEntity(config, new AnimatedEntity("zombie", "Zombie", EntityZombie.class,
+		/*registerEntity(config, new AnimatedEntity("zombie", "Zombie", EntityZombie.class,
 			new RenderBendsZombie(Minecraft.getMinecraft().getRenderManager()),
 			new String[] {"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 			"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg"}));
@@ -123,14 +125,10 @@ public class AnimatedEntity {
 		registerEntity(config, new AnimatedEntity("stray", "Stray", EntityStray.class,
 				new RenderBendsStray(Minecraft.getMinecraft().getRenderManager()),
 				new String[] {"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
-				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg"}));
+				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg"}));*/
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntitySpectralArrow.class, new RenderBendsSpectralArrow(Minecraft.getMinecraft().getRenderManager()));
 		RenderingRegistry.registerEntityRenderingHandler(EntityTippedArrow.class, new RenderBendsTippedArrow(Minecraft.getMinecraft().getRenderManager()));
-		
-		playerRenderer = new RenderBendsPlayer(Minecraft.getMinecraft().getRenderManager());
-		skinMap.put("default", playerRenderer);
-		skinMap.put("slim", new RenderBendsPlayer(Minecraft.getMinecraft().getRenderManager(), true));
 	}
 	
 	public static void registerEntity(Configuration config, AnimatedEntity argEntity){
@@ -143,15 +141,18 @@ public class AnimatedEntity {
 		animatedEntities.put(argEntity.name, argEntity);
 	}
 	
-	public static AnimatedEntity get(String name){
+	public static AnimatedEntity get(String name)
+	{
 		return (AnimatedEntity) animatedEntities.get(name);
 	}
 	
-	public static AnimatedEntity getByEntity(Entity argEntity)
+	public static AnimatedEntity getByEntity(Entity entity)
 	{
-		for (String key : animatedEntities.keySet()) {
-			if(animatedEntities.get(key).entityClass.isInstance(argEntity)){
-				return animatedEntities.get(key);
+		for (AnimatedEntity animatedEntity : animatedEntities.values())
+		{
+			if(animatedEntity.entityClass.isInstance(entity))
+			{
+				return animatedEntity;
 			}
 		}
 		return null;

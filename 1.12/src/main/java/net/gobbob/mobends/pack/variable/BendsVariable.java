@@ -2,7 +2,11 @@ package net.gobbob.mobends.pack.variable;
 
 import java.util.HashMap;
 
+import net.gobbob.mobends.client.event.DataUpdateHandler;
+import net.gobbob.mobends.data.DataLiving;
 import net.gobbob.mobends.data.EntityData;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 
 public abstract class BendsVariable {
 	public static EntityData tempData;
@@ -42,19 +46,26 @@ public abstract class BendsVariable {
 	
 	private static class Ticks extends BendsVariable {
 		public float getValue() {
-			return tempData.getTicks();
+			return DataUpdateHandler.getTicks();
 		}
 	}
 	
 	private static class TicksAfterPunch extends BendsVariable {
 		public float getValue() {
-			return tempData.getTicksAfterPunch();
+			if(tempData instanceof DataLiving)
+				return ((DataLiving) tempData).getTicksAfterPunch();
+			else
+				return 0F;
 		}
 	}
 	
 	private static class Health extends BendsVariable {
 		public float getValue() {
-			return tempData.getEntity().getHealth();
+			Entity entity = tempData.getEntity();
+			if(entity instanceof EntityLivingBase)
+				return ((EntityLivingBase) entity).getHealth();
+			else
+				return 0;
 		}
 	}
 	

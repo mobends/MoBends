@@ -1,44 +1,22 @@
 package net.gobbob.mobends.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-import org.lwjgl.util.vector.Vector3f;
-
-import net.gobbob.mobends.client.model.ModelPart;
+import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.model.entity.ModelBendsZombie;
 import net.gobbob.mobends.client.model.entity.ModelBendsZombieVillager;
-import net.gobbob.mobends.util.BendsLogger;
 import net.gobbob.mobends.util.SmoothVector3f;
-import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 
-public class Data_Zombie extends EntityData{
-	public static List<Data_Zombie> dataList = new ArrayList<Data_Zombie>(); 
-	
-	public ModelPart head;
-    public ModelPart headwear;
-    public ModelPart body;
-    public ModelPart rightArm;
-    public ModelPart leftArm;
-    public ModelPart rightLeg;
-    public ModelPart leftLeg;
-    public ModelPart ears;
-    public ModelPart cloak;
-
-    public ModelPart rightForeArm;
-    public ModelPart leftForeArm;
-    public ModelPart rightForeLeg;
-    public ModelPart leftForeLeg;
-	
+public class DataZombie extends DataBiped {
     public SmoothVector3f renderOffset = new SmoothVector3f();
     public SmoothVector3f renderRotation = new SmoothVector3f();
     
     public int currentWalkingState = 0;
     public float ticksBeforeStateChange = 0;
     
-	public Data_Zombie(int argEntityID) {
-		super(argEntityID);
+	public DataZombie(Entity entity) {
+		super(entity);
 	}
 	
 	public void syncModelInfo(ModelBendsZombie argModel){
@@ -76,10 +54,10 @@ public class Data_Zombie extends EntityData{
 	}
 
 	@Override
-	public void update(float argPartialTicks) {
-		super.update(argPartialTicks);
+	public void update(float partialTicks) {
+		super.update(partialTicks);
 		
-		this.ticksBeforeStateChange-=argPartialTicks;
+		this.ticksBeforeStateChange -= DataUpdateHandler.ticksPerFrame;
 		
 		if(this.ticksBeforeStateChange <= 0){
 			Random random = new Random();
@@ -94,21 +72,7 @@ public class Data_Zombie extends EntityData{
 	}
 
 	@Override
-	public void initModelPose() {
-		if(this.body == null) return;
-		
-		this.setInitialized(true);
-		
-		this.head.finish();
-        this.headwear.finish();
-        this.body.finish();
-        this.leftArm.finish();
-        this.rightArm.finish();
-        this.leftLeg.finish();
-        this.rightLeg.finish();
-        this.leftForeArm.finish();
-        this.rightForeArm.finish();
-        this.leftForeLeg.finish();
-        this.rightForeLeg.finish();
+	public void onTicksRestart()
+	{
 	}
 }

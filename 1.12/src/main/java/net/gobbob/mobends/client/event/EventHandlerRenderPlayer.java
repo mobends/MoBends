@@ -55,7 +55,8 @@ public class EventHandlerRenderPlayer
 	}
 	
 	@SubscribeEvent
-	public void afterPlayerRender(RenderPlayerEvent.Post event) {
+	public void afterPlayerRender(RenderPlayerEvent.Post event)
+	{
 		GlStateManager.popMatrix();
 	}
 	
