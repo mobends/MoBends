@@ -45,5 +45,7 @@ public class AnimationStand extends AnimationBit
 		data.body.rotation.setSmoothX( (float) ((Math.cos(DataUpdateHandler.getTicks() / 10)-1.0)/2.0f)*-3);
 		data.leftArm.rotation.setSmoothZ( -(float) ((Math.cos(DataUpdateHandler.getTicks() / 10+Math.PI/2)-1.0)/2.0f)*-5);
 		data.rightArm.rotation.setSmoothZ(  -(float) ((Math.cos(DataUpdateHandler.getTicks() / 10+Math.PI/2)-1.0)/2.0f)*5);
+		
+		data.rightArm.rotation.setX(-90F);
 	}
 }

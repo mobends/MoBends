@@ -9,7 +9,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class DataUpdateHandler {
-	public static float lastNotedRenderTick = 0.0f;
 	public static float lastNotedClientTick = 0.0f;
 	public static float partialTicks = 0.0f;
 	protected static float ticks = 0.0f;
@@ -24,21 +23,17 @@ public class DataUpdateHandler {
 		if(Minecraft.getMinecraft().world == null) return;
 		if(Minecraft.getMinecraft().player == null) return;
 		
-		if(lastNotedRenderTick != Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime){
-			lastNotedRenderTick = Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime;
-			
+		if(ticks != Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime){
 			EntityDatabase.instance.updateRender(event.renderTickTime);
 			
 			partialTicks = event.renderTickTime;
-			if(Minecraft.getMinecraft().player != null) {
-				if(this.ticks > (Minecraft.getMinecraft().player.ticksExisted+event.renderTickTime)) {
-					onTicksRestart();
-					this.ticks = (Minecraft.getMinecraft().player.ticksExisted+event.renderTickTime);
-				}
-				
-				this.ticksPerFrame = Math.max(0.0f, (Minecraft.getMinecraft().player.ticksExisted+event.renderTickTime)-this.ticks);
+			if(this.ticks > (Minecraft.getMinecraft().player.ticksExisted+event.renderTickTime)) {
+				onTicksRestart();
 				this.ticks = (Minecraft.getMinecraft().player.ticksExisted+event.renderTickTime);
 			}
+			
+			this.ticksPerFrame = Math.max(0F, (Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime) - ticks);
+			ticks = (Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime);
 			
 			if(SettingsManager.ARROW_TRAILS.isEnabled())
 				ArrowTrail.onRenderTick();
@@ -51,7 +46,7 @@ public class DataUpdateHandler {
 	
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event){
-		if(Minecraft.getMinecraft().world == null) return;
+		if(Minecraft.getMinecraft().player == null) return;
 		
 		if(lastNotedClientTick != Minecraft.getMinecraft().player.ticksExisted){
 			lastNotedClientTick = Minecraft.getMinecraft().player.ticksExisted;

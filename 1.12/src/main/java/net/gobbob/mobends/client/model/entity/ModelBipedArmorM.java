@@ -51,6 +51,7 @@ public class ModelBipedArmorM extends ModelBiped {
         this.bipedBody.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, modelSize);
         this.bipedHead = new ModelPartChild(this, 0, 0).setParent((IModelPart) this.bipedBody).setPosition(0.0F, -12.0F, 0.0F);;
         this.bipedHead.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, modelSize);
+        this.bipedHead.addChild(this.bipedHeadwear);
         
         // Arms
         float armHeight = -10.0F;

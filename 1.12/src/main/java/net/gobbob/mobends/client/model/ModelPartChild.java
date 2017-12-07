@@ -42,12 +42,11 @@ public class ModelPartChild extends ModelPart
 	}
 	
 	@Override
-    @SideOnly(Side.CLIENT)
-    public void postRender(float scale)
+    public void applyStandaloneTransform(float scale)
     {
 		if(this.parent != null)
-    		this.parent.applyTransform(scale);
+    		this.parent.applyStandaloneTransform(scale);
 		
-		super.postRender(scale);
+		super.applyStandaloneTransform(scale);
     }
 }

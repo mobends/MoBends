@@ -42,6 +42,8 @@ public abstract class DataLiving extends EntityData
 	
 	@Override
 	public void update(float partialTicks) {
+		super.update(partialTicks);
+		
 		if(this.calcOnGround() & !this.onGround)
 		{
 			this.onTouchdown();

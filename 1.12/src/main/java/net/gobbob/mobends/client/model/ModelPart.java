@@ -50,24 +50,54 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	@SideOnly(Side.CLIENT)
     public void render(float scale)
     {
-        if (this.isHidden || !this.showModel) return;
+        this.renderPart(scale);
+    }
+	
+	@Override
+	public void renderPart(float scale)
+	{
+		if (!(this.isShowing())) return;
         if (!this.compiled)
             this.compileDisplayList(scale);
         
         GlStateManager.pushMatrix();
-	        postRender(scale);
-	        
-	        GlStateManager.callList(this.displayList);
-	        
-	        if (this.childModels != null)
-	        {
-	            for (int k = 0; k < this.childModels.size(); ++k)
-	            {
-	                ((ModelRenderer)this.childModels.get(k)).render(scale);
-	            }
-	        }
+        
+        this.applyStandaloneTransform(scale);
+        GlStateManager.callList(this.displayList);
+        this.applyPostTransform(scale);
+        
+        if (this.childModels != null)
+        {
+            for (int k = 0; k < this.childModels.size(); ++k)
+            {
+                ((ModelRenderer)this.childModels.get(k)).render(scale);
+            }
+        }
         GlStateManager.popMatrix();
-    }
+	}
+	
+	@Override
+	public void renderJustPart(float scale)
+	{
+		if (!(this.isShowing())) return;
+        if (!this.compiled)
+            this.compileDisplayList(scale);
+        
+        GlStateManager.pushMatrix();
+        
+        this.applyOwnTransform(scale);
+        GlStateManager.callList(this.displayList);
+        this.applyPostTransform(scale);
+        
+        if (this.childModels != null)
+        {
+            for (int k = 0; k < this.childModels.size(); ++k)
+            {
+                ((ModelRenderer)this.childModels.get(k)).render(scale);
+            }
+        }
+        GlStateManager.popMatrix();
+	}
 
 	@Override
     @SideOnly(Side.CLIENT)
@@ -98,7 +128,20 @@ public class ModelPart extends ModelRenderer implements IModelPart
     @SideOnly(Side.CLIENT)
     public void postRender(float scale)
     {
-        if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
+        this.applyStandaloneTransform(scale);
+        this.applyPostTransform(scale);
+    }
+	
+	@Override
+	public void applyStandaloneTransform(float scale)
+	{
+		this.applyOwnTransform(scale);
+	}
+	
+	@Override
+	public void applyOwnTransform(float scale)
+	{
+		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
         	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
         
         if (this.rotation.getZ() != 0.0F)
@@ -110,7 +153,18 @@ public class ModelPart extends ModelRenderer implements IModelPart
         
         if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
         	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
-    }
+	}
+	
+	@Override
+	public void propagateTransform(float scale)
+	{
+		this.applyOwnTransform(scale);
+	}
+	
+	@Override
+	public void applyPostTransform(float scale)
+	{
+	}
 
     /**
      * Compiles a GL display list for this model
@@ -255,19 +309,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		this.rotation.finish();
 		this.pre_rotation.finish();
 	}
-
-	@Override
-	public void applyTransform(float scale)
-	{
-		this.postRender(scale);
-	}
-
-	@Override
-	public void renderPart(float scale)
-	{
-		this.render(scale);
-	}
-
+	
 	@Override
 	public void syncUp(IModelPart part)
 	{
@@ -277,5 +319,11 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		this.rotation.set(part.getRotation());
 		this.pre_rotation.set(part.getPreRotation());
 		this.scale.set(part.getScale());
+	}
+
+	@Override
+	public boolean isShowing()
+	{
+		return this.showModel && !this.isHidden;
 	}
 }

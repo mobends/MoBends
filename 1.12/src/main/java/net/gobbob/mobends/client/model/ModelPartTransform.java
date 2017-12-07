@@ -26,26 +26,20 @@ public class ModelPartTransform implements IModelPart
 	}
 	
 	@Override
-	public void applyTransform(float scale)
+	public void applyStandaloneTransform(float scale)
 	{
-		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
-        	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
-        
-        if (this.rotation.getZ() != 0.0F)
-            GlStateManager.rotate(this.rotation.getZ(), 0F, 0F, 1F);
-        if (this.rotation.getY() != 0.0F)
-            GlStateManager.rotate(this.rotation.getY(), 0F, 1F, 0F);
-        if (this.rotation.getX() != 0.0F)
-            GlStateManager.rotate(this.rotation.getX(), 1F, 0F, 0F);
-        
-        if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
-        	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
+		this.applyOwnTransform(scale);
 	}
 
 	@Override
 	public void renderPart(float scale)
 	{
 		//Since this is just a transform, do nothing.
+	}
+	
+	@Override
+	public void renderJustPart(float scale)
+	{
 	}
 
 	@Override
@@ -73,5 +67,39 @@ public class ModelPartTransform implements IModelPart
 		this.rotation.set(part.getRotation());
 		this.pre_rotation.set(part.getPreRotation());
 		this.scale.set(part.getScale());
+	}
+
+	@Override
+	public boolean isShowing()
+	{
+		return true;
+	}
+
+	@Override
+	public void applyOwnTransform(float scale)
+	{
+		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
+        	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
+        
+        if (this.rotation.getZ() != 0.0F)
+            GlStateManager.rotate(this.rotation.getZ(), 0F, 0F, 1F);
+        if (this.rotation.getY() != 0.0F)
+            GlStateManager.rotate(this.rotation.getY(), 0F, 1F, 0F);
+        if (this.rotation.getX() != 0.0F)
+            GlStateManager.rotate(this.rotation.getX(), 1F, 0F, 0F);
+        
+        if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
+        	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
+	}
+
+	@Override
+	public void propagateTransform(float scale)
+	{
+		this.applyOwnTransform(scale);
+	}
+
+	@Override
+	public void applyPostTransform(float scale)
+	{
 	}
 }

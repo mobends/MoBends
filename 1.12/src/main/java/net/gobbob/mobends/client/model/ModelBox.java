@@ -27,46 +27,46 @@ public class ModelBox extends net.minecraft.client.model.ModelBox{
 	public static final int FRONT = 4;
 	public static final int BACK = 5;
 	
-	public ModelBox(ModelRenderer p_i1171_1_, int p_i1171_2_, int p_i1171_3_, float p_i1171_4_, float p_i1171_5_, float p_i1171_6_, int p_i1171_7_, int p_i1171_8_, int p_i1171_9_, float p_i1171_10_)
+	public ModelBox(ModelRenderer modelRenderer, int texOffsetX, int texOffsetY, float offsetX, float offsetY, float offsetZ, int width, int height, int length, float p_i1171_10_)
     {
-		super(p_i1171_1_, p_i1171_9_, p_i1171_9_, p_i1171_10_, p_i1171_10_, p_i1171_10_, p_i1171_9_, p_i1171_9_, p_i1171_9_, p_i1171_10_);
-        this.offsetX = p_i1171_4_;
-        this.offsetY = p_i1171_5_;
-        this.offsetZ = p_i1171_6_;
-        this.resX = this.originalResX = (float)p_i1171_7_;
-        this.resY = this.originalResY = (float)p_i1171_8_;
-        this.resZ = this.originalResZ = (float)p_i1171_9_;
-        this.txOffsetX = p_i1171_2_;
-        this.txOffsetY = p_i1171_3_;
+		super(modelRenderer, texOffsetX, texOffsetY, p_i1171_10_, p_i1171_10_, p_i1171_10_, length, length, length, p_i1171_10_);
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.offsetZ = offsetZ;
+        this.resX = this.originalResX = (float)width;
+        this.resY = this.originalResY = (float)height;
+        this.resZ = this.originalResZ = (float)length;
+        this.txOffsetX = texOffsetX;
+        this.txOffsetY = texOffsetY;
         this.vertices = new PositionTextureVertex[8];
         this.quads = new TexturedQuad[6];
-        float f4 = p_i1171_4_ + (float)p_i1171_7_;
-        float f5 = p_i1171_5_ + (float)p_i1171_8_;
-        float f6 = p_i1171_6_ + (float)p_i1171_9_;
-        p_i1171_4_ -= p_i1171_10_;
-        p_i1171_5_ -= p_i1171_10_;
-        p_i1171_6_ -= p_i1171_10_;
+        float f4 = offsetX + (float)width;
+        float f5 = offsetY + (float)height;
+        float f6 = offsetZ + (float)length;
+        offsetX -= p_i1171_10_;
+        offsetY -= p_i1171_10_;
+        offsetZ -= p_i1171_10_;
         f4 += p_i1171_10_;
         f5 += p_i1171_10_;
         f6 += p_i1171_10_;
         
         this.addSize = p_i1171_10_;
         
-        if (p_i1171_1_.mirror)
+        if (modelRenderer.mirror)
         {
             float f7 = f4;
-            f4 = p_i1171_4_;
-            p_i1171_4_ = f7;
+            f4 = offsetX;
+            offsetX = f7;
         }
 
-        PositionTextureVertex positiontexturevertex7 = new PositionTextureVertex(p_i1171_4_, p_i1171_5_, p_i1171_6_, 0.0F, 0.0F);
-        PositionTextureVertex positiontexturevertex = new PositionTextureVertex(f4, p_i1171_5_, p_i1171_6_, 0.0F, 8.0F);
-        PositionTextureVertex positiontexturevertex1 = new PositionTextureVertex(f4, f5, p_i1171_6_, 8.0F, 8.0F);
-        PositionTextureVertex positiontexturevertex2 = new PositionTextureVertex(p_i1171_4_, f5, p_i1171_6_, 8.0F, 0.0F);
-        PositionTextureVertex positiontexturevertex3 = new PositionTextureVertex(p_i1171_4_, p_i1171_5_, f6, 0.0F, 0.0F);
-        PositionTextureVertex positiontexturevertex4 = new PositionTextureVertex(f4, p_i1171_5_, f6, 0.0F, 8.0F);
+        PositionTextureVertex positiontexturevertex7 = new PositionTextureVertex(offsetX, offsetY, offsetZ, 0.0F, 0.0F);
+        PositionTextureVertex positiontexturevertex = new PositionTextureVertex(f4, offsetY, offsetZ, 0.0F, 8.0F);
+        PositionTextureVertex positiontexturevertex1 = new PositionTextureVertex(f4, f5, offsetZ, 8.0F, 8.0F);
+        PositionTextureVertex positiontexturevertex2 = new PositionTextureVertex(offsetX, f5, offsetZ, 8.0F, 0.0F);
+        PositionTextureVertex positiontexturevertex3 = new PositionTextureVertex(offsetX, offsetY, f6, 0.0F, 0.0F);
+        PositionTextureVertex positiontexturevertex4 = new PositionTextureVertex(f4, offsetY, f6, 0.0F, 8.0F);
         PositionTextureVertex positiontexturevertex5 = new PositionTextureVertex(f4, f5, f6, 8.0F, 8.0F);
-        PositionTextureVertex positiontexturevertex6 = new PositionTextureVertex(p_i1171_4_, f5, f6, 8.0F, 0.0F);
+        PositionTextureVertex positiontexturevertex6 = new PositionTextureVertex(offsetX, f5, f6, 8.0F, 0.0F);
         this.vertices[0] = positiontexturevertex7;
         this.vertices[1] = positiontexturevertex;
         this.vertices[2] = positiontexturevertex1;
@@ -75,14 +75,14 @@ public class ModelBox extends net.minecraft.client.model.ModelBox{
         this.vertices[5] = positiontexturevertex4;
         this.vertices[6] = positiontexturevertex5;
         this.vertices[7] = positiontexturevertex6;
-        this.quads[0] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, p_i1171_2_ + p_i1171_9_ + p_i1171_7_, p_i1171_3_ + p_i1171_9_, p_i1171_2_ + p_i1171_9_ + p_i1171_7_ + p_i1171_9_, p_i1171_3_ + p_i1171_9_ + p_i1171_8_, p_i1171_1_.textureWidth, p_i1171_1_.textureHeight);
-        this.quads[1] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, p_i1171_2_, p_i1171_3_ + p_i1171_9_, p_i1171_2_ + p_i1171_9_, p_i1171_3_ + p_i1171_9_ + p_i1171_8_, p_i1171_1_.textureWidth, p_i1171_1_.textureHeight);
-        this.quads[2] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, p_i1171_2_ + p_i1171_9_, p_i1171_3_, p_i1171_2_ + p_i1171_9_ + p_i1171_7_, p_i1171_3_ + p_i1171_9_, p_i1171_1_.textureWidth, p_i1171_1_.textureHeight);
-        this.quads[3] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, p_i1171_2_ + p_i1171_9_ + p_i1171_7_, p_i1171_3_ + p_i1171_9_, p_i1171_2_ + p_i1171_9_ + p_i1171_7_ + p_i1171_7_, p_i1171_3_, p_i1171_1_.textureWidth, p_i1171_1_.textureHeight);
-        this.quads[4] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, p_i1171_2_ + p_i1171_9_, p_i1171_3_ + p_i1171_9_, p_i1171_2_ + p_i1171_9_ + p_i1171_7_, p_i1171_3_ + p_i1171_9_ + p_i1171_8_, p_i1171_1_.textureWidth, p_i1171_1_.textureHeight);
-        this.quads[5] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, p_i1171_2_ + p_i1171_9_ + p_i1171_7_ + p_i1171_9_, p_i1171_3_ + p_i1171_9_, p_i1171_2_ + p_i1171_9_ + p_i1171_7_ + p_i1171_9_ + p_i1171_7_, p_i1171_3_ + p_i1171_9_ + p_i1171_8_, p_i1171_1_.textureWidth, p_i1171_1_.textureHeight);
+        this.quads[0] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, texOffsetX + length + width, texOffsetY + length, texOffsetX + length + width + length, texOffsetY + length + height, modelRenderer.textureWidth, modelRenderer.textureHeight);
+        this.quads[1] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, texOffsetX, texOffsetY + length, texOffsetX + length, texOffsetY + length + height, modelRenderer.textureWidth, modelRenderer.textureHeight);
+        this.quads[2] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, texOffsetX + length, texOffsetY, texOffsetX + length + width, texOffsetY + length, modelRenderer.textureWidth, modelRenderer.textureHeight);
+        this.quads[3] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, texOffsetX + length + width, texOffsetY + length, texOffsetX + length + width + width, texOffsetY, modelRenderer.textureWidth, modelRenderer.textureHeight);
+        this.quads[4] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, texOffsetX + length, texOffsetY + length, texOffsetX + length + width, texOffsetY + length + height, modelRenderer.textureWidth, modelRenderer.textureHeight);
+        this.quads[5] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, texOffsetX + length + width + length, texOffsetY + length, texOffsetX + length + width + length + width, texOffsetY + length + height, modelRenderer.textureWidth, modelRenderer.textureHeight);
 
-        if (p_i1171_1_.mirror)
+        if (modelRenderer.mirror)
         {
             for (int j1 = 0; j1 < this.quads.length; ++j1)
             {
@@ -164,36 +164,36 @@ public class ModelBox extends net.minecraft.client.model.ModelBox{
         }
     }
 	
-	public ModelBox offsetTextureQuad(ModelRenderer argModel, int argID,float argX, float argY){
-		if(argID >= 0 & argID < this.quads.length){
-			this.quads[argID].vertexPositions[0].texturePositionX+=argX/argModel.textureWidth;
-			this.quads[argID].vertexPositions[1].texturePositionX+=argX/argModel.textureWidth;
-			this.quads[argID].vertexPositions[2].texturePositionX+=argX/argModel.textureWidth;
-			this.quads[argID].vertexPositions[3].texturePositionX+=argX/argModel.textureWidth;
+	public ModelBox offsetTextureQuad(ModelRenderer modelPart, int idx, float x, float y){
+		if(idx >= 0 & idx < this.quads.length){
+			this.quads[idx].vertexPositions[0].texturePositionX += x/modelPart.textureWidth;
+			this.quads[idx].vertexPositions[1].texturePositionX += x/modelPart.textureWidth;
+			this.quads[idx].vertexPositions[2].texturePositionX += x/modelPart.textureWidth;
+			this.quads[idx].vertexPositions[3].texturePositionX += x/modelPart.textureWidth;
 			
-			this.quads[argID].vertexPositions[0].texturePositionY+=argY/argModel.textureHeight;
-			this.quads[argID].vertexPositions[1].texturePositionY+=argY/argModel.textureHeight;
-			this.quads[argID].vertexPositions[2].texturePositionY+=argY/argModel.textureHeight;
-			this.quads[argID].vertexPositions[3].texturePositionY+=argY/argModel.textureHeight;
+			this.quads[idx].vertexPositions[0].texturePositionY += y/modelPart.textureHeight;
+			this.quads[idx].vertexPositions[1].texturePositionY += y/modelPart.textureHeight;
+			this.quads[idx].vertexPositions[2].texturePositionY += y/modelPart.textureHeight;
+			this.quads[idx].vertexPositions[3].texturePositionY += y/modelPart.textureHeight;
 		}
 		return this;
 	}
 	
-	public void resize(float argX, float argY, float argZ){
-		this.resX = argX;
-		this.resY = argY;
-		this.resZ = argZ;
+	public void resize(float x, float y, float z){
+		this.resX = x;
+		this.resY = y;
+		this.resZ = z;
 	}
 	
-	public void offset(float argX, float argY, float argZ){
-		this.offsetX = argX;
-		this.offsetY = argY;
-		this.offsetZ = argZ;
+	public void offset(float x, float y, float z){
+		this.offsetX = x;
+		this.offsetY = y;
+		this.offsetZ = z;
 	}
 	
-	public void offset_add(float argX, float argY, float argZ){
-		this.offsetX += argX;
-		this.offsetY += argY;
-		this.offsetZ += argZ;
+	public void offset_add(float x, float y, float z){
+		this.offsetX += x;
+		this.offsetY += y;
+		this.offsetZ += z;
 	}
 }

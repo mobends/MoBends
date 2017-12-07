@@ -44,12 +44,24 @@ public class MutatorPlayer implements IBendsModel
 	public ModelPartChild head;
 	public ModelPartChildExtended leftArm;
 	public ModelPartChildExtended rightArm;
-	public ModelPartExtended leftForeArm;
-	public ModelPartExtended rightForeArm;
+	public ModelPartChildExtended leftForeArm;
+	public ModelPartChildExtended rightForeArm;
 	public ModelPartExtended leftLeg;
 	public ModelPartExtended rightLeg;
-	public ModelPart leftForeLeg;
-	public ModelPart rightForeLeg;
+	public ModelPartChild leftForeLeg;
+	public ModelPartChild rightForeLeg;
+	
+	public ModelPartChild bodywear;
+	public ModelPartChild headwear;
+	public ModelPartChild leftArmwear;
+	public ModelPartChild rightArmwear;
+	public ModelPartChild leftForeArmwear;
+	public ModelPartChild rightForeArmwear;
+	public ModelPartChild leftLegwear;
+	public ModelPartChild rightLegwear;
+	public ModelPartChild leftForeLegwear;
+	public ModelPartChild rightForeLegwear;
+	
 	public ModelPartTransform leftItemTransform;
 	public ModelPartTransform rightItemTransform;
 	public float headYaw, headPitch;
@@ -192,12 +204,12 @@ public class MutatorPlayer implements IBendsModel
 		rightArm.offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
         leftArm.offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
     
-        leftForeArm = new ModelPartExtended(model, 32, 48+6);
+        leftForeArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 32, 48+6).setParent(leftArm);
         leftForeArm.addBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor);
         leftForeArm.setRotationPoint(0.0F, 4.0F, 2.0F);
         leftForeArm.getBox().offsetTextureQuad(leftForeArm, ModelBox.BOTTOM, 0, -6.0f);
         leftArm.setExtension(leftForeArm);
-        rightForeArm = new ModelPartExtended(model, 40, 16+6);
+        rightForeArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 40, 16+6).setParent(rightArm);
         rightForeArm.addBox(-armWidth+1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor);
         rightForeArm.setRotationPoint(0.0F, 4.0F, 2.0F);
         rightForeArm.getBox().offsetTextureQuad(rightForeArm, ModelBox.BOTTOM, 0, -6.0f);
@@ -217,14 +229,42 @@ public class MutatorPlayer implements IBendsModel
         		.setPosition(1.9F, 12.0F, 0.0F);
         leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
         
-        leftForeLeg = new ModelPart(model, 16, 48+6).setPosition(0, 6.0F, -2.0F);
+        leftForeLeg = (ModelPartChild) new ModelPartChild(model, 16, 48+6).setParent(leftLeg).setPosition(0, 6.0F, -2.0F);
         leftForeLeg.addModelBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
         		.offsetTextureQuad(leftForeLeg, ModelBox.BOTTOM, 0, -6.0f);
         leftLeg.setExtension(leftForeLeg);
-        rightForeLeg = new ModelPart(model, 0, 16+6).setPosition(0, 6.0F, -2.0F);
+        rightForeLeg = (ModelPartChild) new ModelPartChild(model, 0, 16+6).setParent(rightLeg).setPosition(0, 6.0F, -2.0F);
         rightForeLeg.addModelBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
         		.offsetTextureQuad(rightForeLeg, ModelBox.BOTTOM, 0, -6.0f);
         rightLeg.setExtension(rightForeLeg);
+        
+        // Wear
+        model.bipedHeadwear = headwear = new ModelPartChild(model, 32, 0).setParent(head);
+        headwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor + 0.5F);
+        
+        model.bipedLeftArmwear = leftArmwear = new ModelPartChild(model, 48, 48).setParent(leftArm);
+        leftArmwear.addBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F);
+        ((ModelPart)leftArmwear).getBox().resY-=0.25f;
+        ((ModelPart)leftArmwear).getBox().updateVertexPositions(leftArmwear);
+        model.bipedRightArmwear = rightArmwear = new ModelPartChild(model, 40, 32).setParent(rightArm);
+        rightArmwear.addBox(-armWidth+1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F);
+        ((ModelPart)rightArmwear).getBox().resY-=0.25f;
+        ((ModelPart)rightArmwear).getBox().updateVertexPositions(rightArmwear);
+        
+        model.bipedLeftLegwear = leftLegwear = new ModelPartChild(model, 0, 48).setParent(leftLeg);
+        leftLegwear.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F);
+        ((ModelPart)leftLegwear).getBox().resY-=0.25f;
+        ((ModelPart)leftLegwear).getBox().updateVertexPositions(leftLegwear);
+        ((ModelPart)leftLegwear).getBox().offsetTextureQuad(leftLegwear, ModelBox.BOTTOM, 4F, 0F);
+        leftLegwear.setRotationPoint(0.0f, 0.0f, 0.0f);
+        model.bipedRightLegwear = rightLegwear = new ModelPartChild(model, 0, 32).setParent(rightLeg);
+        rightLegwear.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F);
+        ((ModelPart) rightLegwear).getBox().resY-=0.25f;
+        ((ModelPart) rightLegwear).getBox().updateVertexPositions(rightLegwear);
+        ((ModelPart) rightLegwear).getBox().offsetTextureQuad(rightLegwear, ModelBox.BOTTOM, 4F, 0F);
+        model.bipedBodyWear = bodywear = new ModelPartChild(model, 16, 32).setParent(body);
+        bodywear.addBox(-4F, -12F, -2F, 8, 12, 4, scaleFactor + 0.25F);
+        
         
         nameToPartMap = new HashMap<String, IModelPart>();
         nameToPartMap.put("body", body);

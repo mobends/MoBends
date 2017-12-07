@@ -34,38 +34,65 @@ public class ModelPartChildExtended extends ModelPartChild{
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-    public void render(float scale)
-    {
-        if (this.isHidden || !this.showModel) return;
+	public void renderPart(float scale)
+	{
+		if (!(this.isShowing())) return;
         if (!this.compiled)
             this.compileDisplayList(scale);
         
         GlStateManager.pushMatrix();
-	        super.postRender(scale);
-	        
-	        GlStateManager.callList(this.displayList);
-	        
-	        if (this.childModels != null)
-	        {
-	            for (int k = 0; k < this.childModels.size(); ++k)
-	            {
-	                ((ModelRenderer)this.childModels.get(k)).render(scale);
-	            }
-	        }
-	        
-	        if(extension != null)
-	        	extension.renderPart(scale);
+        
+        this.applyStandaloneTransform(scale);
+        GlStateManager.callList(this.displayList);
+        if(extension != null)
+        	extension.renderJustPart(scale);
+        this.applyPostTransform(scale);
+        
+        if (this.childModels != null)
+        {
+            for (int k = 0; k < this.childModels.size(); ++k)
+            {
+                ((ModelRenderer)this.childModels.get(k)).render(scale);
+            }
+        }
         GlStateManager.popMatrix();
-    }
+	}
 	
 	@Override
-    @SideOnly(Side.CLIENT)
-    public void postRender(float scale)
-    {
-		super.postRender(scale);
-		
+	public void renderJustPart(float scale)
+	{
+		if (!(this.isShowing())) return;
+        if (!this.compiled)
+            this.compileDisplayList(scale);
+        
+        GlStateManager.pushMatrix();
+        
+        this.applyOwnTransform(scale);
+        GlStateManager.callList(this.displayList);
+        if(extension != null)
+        	extension.renderJustPart(scale);
+        this.applyPostTransform(scale);
+        
+        if (this.childModels != null)
+        {
+            for (int k = 0; k < this.childModels.size(); ++k)
+            {
+                ((ModelRenderer)this.childModels.get(k)).render(scale);
+            }
+        }
+        GlStateManager.popMatrix();
+	}
+	
+	@Override
+	public void applyPostTransform(float scale)
+	{
 		if(extension != null)
-        	extension.applyTransform(scale);
-    }
+			extension.propagateTransform(scale);
+	}
+	
+	@Override
+	public void propagateTransform(float scale) {
+		super.propagateTransform(scale);
+		this.applyPostTransform(scale);
+	}
 }
