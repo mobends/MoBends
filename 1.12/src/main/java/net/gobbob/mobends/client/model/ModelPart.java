@@ -326,4 +326,10 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	{
 		return this.showModel && !this.isHidden;
 	}
+
+	public static ModelPart createFrom(ModelBase model, ModelRenderer modelRenderer)
+	{
+		//TODO Implement this
+		return null;
+	}
 }
