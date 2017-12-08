@@ -64,7 +64,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
         
         this.applyStandaloneTransform(scale);
         GlStateManager.callList(this.displayList);
-        this.applyPostTransform(scale);
         
         if (this.childModels != null)
         {
@@ -87,7 +86,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
         
         this.applyOwnTransform(scale);
         GlStateManager.callList(this.displayList);
-        this.applyPostTransform(scale);
         
         if (this.childModels != null)
         {
@@ -225,6 +223,12 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		return this;
 	}
 	
+	public ModelPart setBox(float x, float y, float z, int width, int height, int length, float scaleFactor)
+    {
+        this.addBox(x, y, z, width, height, length, scaleFactor);
+        return this;
+    }
+	
 	public void addBox(float x, float y, float z, int width, int height, int length, float scaleFactor)
     {
         this.addModelBox(x, y, z, width, height, length, scaleFactor);
@@ -249,50 +253,50 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	}
 	
 	@Override
-	public Vector3f getPosition()
+	public Vector3f getPosition() { return this.position; }
+	@Override
+	public Vector3f getScale() { return this.scale; }
+	@Override
+	public SmoothVector3f getRotation() { return this.rotation; }
+	@Override
+	public SmoothVector3f getPreRotation() { return this.pre_rotation; }
+	
+	public ModelPart setBoxPosition(float x, float y, float z)
 	{
-		return this.position;
+		this.getBox().setPosition(x, y, z);
+		return this;
 	}
 	
-	@Override
-	public Vector3f getScale()
-	{
-		return this.scale;
-	}
-
-	@Override
-	public SmoothVector3f getRotation()
-	{
-		return this.rotation;
-	}
-
-	@Override
-	public SmoothVector3f getPreRotation()
-	{
-		return this.pre_rotation;
-	}
-	
-	public ModelPart offsetBox(float x, float y, float z)
+	public ModelPart offsetBoxBy(float x, float y, float z)
 	{
 		this.getBox().offset(x, y, z);
 		return this;
 	}
 	
-	public ModelPart offsetBox_Add(float x, float y, float z)
+	public ModelPart resizeBox(float width, float height, float length)
 	{
-		this.getBox().offset_add(x, y, z);
+		this.getBox().resize(width, height, length);
 		return this;
 	}
 	
-	public ModelPart resizeBox(float x, float y, float z)
-	{
-		this.getBox().resize(x, y, z);
+	public ModelPart setWidth(float width) {
+		this.getBox().width = width;
+		return this;
+	}
+	
+	public ModelPart setHeight(float height) {
+		this.getBox().height = height;
+		return this;
+	}
+	
+	public ModelPart setLength(float length) {
+		this.getBox().length = length;
 		return this;
 	}
 	
 	public ModelPart updateVertices()
 	{
-		this.getBox().updateVertexPositions(this);
+		this.getBox().updateVertices(this);
 		this.compiled = false;
 		return this;
 	}

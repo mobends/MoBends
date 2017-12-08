@@ -115,10 +115,10 @@ public class ModelBendsSkeleton extends ModelBiped implements IBendsModel
         this.bipedRightLeg.addChild(this.bipedRightForeLeg);
         this.bipedLeftLeg.addChild(this.bipedLeftForeLeg);
         
-        ((ModelPart)this.bipedRightArm).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(2.02f, 6.0f, 2.02f).updateVertices();
-        ((ModelPart)this.bipedLeftArm).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(2.02f, 6.0f, 2.02f).updateVertices();
-        ((ModelPart)this.bipedRightLeg).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(2.02f, 6.0f, 2.02f).updateVertices();
-        ((ModelPart)this.bipedLeftLeg).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(2.02f, 6.0f, 2.02f).updateVertices();
+        ((ModelPart)this.bipedRightArm).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(2.02f, 6.0f, 2.02f).updateVertices();
+        ((ModelPart)this.bipedLeftArm).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(2.02f, 6.0f, 2.02f).updateVertices();
+        ((ModelPart)this.bipedRightLeg).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(2.02f, 6.0f, 2.02f).updateVertices();
+        ((ModelPart)this.bipedLeftLeg).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(2.02f, 6.0f, 2.02f).updateVertices();
     
         nameToRendererMap = new HashMap<String, Object>();
         nameToRendererMap.put("head", bipedHead);

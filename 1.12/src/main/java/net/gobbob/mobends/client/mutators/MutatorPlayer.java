@@ -55,16 +55,16 @@ public class MutatorPlayer implements IBendsModel
 	public ModelPartChild headwear;
 	public ModelPartChild leftArmwear;
 	public ModelPartChild rightArmwear;
-	public ModelPartChild leftForeArmwear;
-	public ModelPartChild rightForeArmwear;
+	public ModelPart leftForeArmwear;
+	public ModelPart rightForeArmwear;
 	public ModelPartChild leftLegwear;
 	public ModelPartChild rightLegwear;
-	public ModelPartChild leftForeLegwear;
-	public ModelPartChild rightForeLegwear;
+	public ModelPart leftForeLegwear;
+	public ModelPart rightForeLegwear;
 	
 	public ModelPartTransform leftItemTransform;
 	public ModelPartTransform rightItemTransform;
-	public float headYaw, headPitch;
+	public float headYaw, headPitch, limbSwing, limbSwingAmount;
 	public boolean smallArms;
 	public List<LayerRenderer<EntityLivingBase>> layerRenderers;
 	public LayerBipedArmorM layerArmor;
@@ -201,8 +201,8 @@ public class MutatorPlayer implements IBendsModel
 				.setPosition(-5.0F, armHeight, 0.0F);
 		rightArm.addBox(-armWidth+1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor);
 		
-		rightArm.offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
-        leftArm.offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
+		rightArm.offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
+        leftArm.offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
     
         leftForeArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 32, 48+6).setParent(leftArm);
         leftForeArm.addBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor);
@@ -244,23 +244,37 @@ public class MutatorPlayer implements IBendsModel
         
         model.bipedLeftArmwear = leftArmwear = new ModelPartChild(model, 48, 48).setParent(leftArm);
         leftArmwear.addBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F);
-        ((ModelPart)leftArmwear).getBox().resY-=0.25f;
-        ((ModelPart)leftArmwear).getBox().updateVertexPositions(leftArmwear);
+        ((ModelPart)leftArmwear).getBox().height-=0.25f;
+        ((ModelPart)leftArmwear).getBox().updateVertices(leftArmwear);
         model.bipedRightArmwear = rightArmwear = new ModelPartChild(model, 40, 32).setParent(rightArm);
         rightArmwear.addBox(-armWidth+1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F);
-        ((ModelPart)rightArmwear).getBox().resY-=0.25f;
-        ((ModelPart)rightArmwear).getBox().updateVertexPositions(rightArmwear);
+        ((ModelPart)rightArmwear).getBox().height-=0.25f;
+        ((ModelPart)rightArmwear).getBox().updateVertices(rightArmwear);
+        
+        leftForeArmwear = new ModelPart(model, 48, 48+6)
+        		.setBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor + 0.25F).setHeight(5.75f).offsetBoxBy(0, 0.25f, 0).updateVertices();
+        leftForeArm.addChild(leftForeArmwear);
+        ((ModelPart) leftForeArmwear).getBox().offsetTextureQuad(leftForeArmwear, ModelBox.BOTTOM, 0, -6.0f);
+        rightForeArmwear = new ModelPart(model, 40, 32+6);
+        rightForeArm.addChild(rightForeArmwear);
+        rightForeArmwear.addBox(-armWidth+1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor + 0.25F);
+        rightForeArmwear.getBox().height -= 0.25f;
+        rightForeArmwear.getBox().y += 0.25f;
+        rightForeArmwear.getBox().updateVertices(rightForeArmwear);
+        ((ModelPart) rightForeArmwear).getBox().offsetTextureQuad(rightForeArmwear, ModelBox.BOTTOM, 0, -6.0f);
+        //((ModelRendererBends)this.bipedLeftForeArmwear).offsetBox_Add(-0.005f, 0, -0.005f).resizeBox(3.01f+0.5f, 6.0f+0.25f, 4.01f+0.5f).updateVertices();
+        //((ModelRendererBends)this.bipedRightForeArmwear).offsetBox_Add(-0.005f, 0, -0.005f).resizeBox(3.01f+0.5f, 6.0f+0.25f, 4.01f+0.5f).updateVertices();
         
         model.bipedLeftLegwear = leftLegwear = new ModelPartChild(model, 0, 48).setParent(leftLeg);
         leftLegwear.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F);
-        ((ModelPart)leftLegwear).getBox().resY-=0.25f;
-        ((ModelPart)leftLegwear).getBox().updateVertexPositions(leftLegwear);
+        ((ModelPart)leftLegwear).getBox().height-=0.25f;
+        ((ModelPart)leftLegwear).getBox().updateVertices(leftLegwear);
         ((ModelPart)leftLegwear).getBox().offsetTextureQuad(leftLegwear, ModelBox.BOTTOM, 4F, 0F);
         leftLegwear.setRotationPoint(0.0f, 0.0f, 0.0f);
         model.bipedRightLegwear = rightLegwear = new ModelPartChild(model, 0, 32).setParent(rightLeg);
         rightLegwear.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F);
-        ((ModelPart) rightLegwear).getBox().resY-=0.25f;
-        ((ModelPart) rightLegwear).getBox().updateVertexPositions(rightLegwear);
+        ((ModelPart) rightLegwear).getBox().height-=0.25f;
+        ((ModelPart) rightLegwear).getBox().updateVertices(rightLegwear);
         ((ModelPart) rightLegwear).getBox().offsetTextureQuad(rightLegwear, ModelBox.BOTTOM, 4F, 0F);
         model.bipedBodyWear = bodywear = new ModelPartChild(model, 16, 32).setParent(body);
         bodywear.addBox(-4F, -12F, -2F, 8, 12, 4, scaleFactor + 0.25F);
@@ -324,10 +338,12 @@ public class MutatorPlayer implements IBendsModel
         
         this.headYaw = yaw;
         this.headPitch = pitch;
-        performAnimations(player, renderer, yaw, pitch, partialTicks);
+        this.limbSwing = f6;
+        this.limbSwingAmount = f5;
+        performAnimations(player, renderer, partialTicks);
 	}
 	
-	public void performAnimations(AbstractClientPlayer player, RenderPlayer renderer, float yaw, float pitch, float partialTicks)
+	public void performAnimations(AbstractClientPlayer player, RenderPlayer renderer, float partialTicks)
 	{
 		EntityData entityData = EntityDatabase.instance.getAndMake(DataPlayer.class, player);
 		if(!(entityData instanceof DataPlayer))
@@ -341,6 +357,8 @@ public class MutatorPlayer implements IBendsModel
 		
 		data.setHeadYaw(this.headYaw);
 		data.setHeadPitch(this.headPitch);
+		data.setLimbSwing(this.limbSwing);
+		data.setLimbSwingAmount(this.limbSwingAmount);
 		
 		Controller controller = data.getController();
 		if(controller != null) {

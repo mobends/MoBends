@@ -17,4 +17,8 @@ public class AnimationLayerHard extends AnimationLayer
 		if(performedBit != null)
 			performedBit.perform(entityData);
 	}
+	
+	public boolean isPlaying(AnimationBit bit) {
+		return bit == performedBit;
+	}
 }

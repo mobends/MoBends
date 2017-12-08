@@ -45,7 +45,6 @@ public class ModelPartExtended extends ModelPart {
         GlStateManager.callList(this.displayList);
         if(extension != null)
         	extension.renderJustPart(scale);
-        this.applyPostTransform(scale);
         
         if (this.childModels != null)
         {
@@ -70,7 +69,6 @@ public class ModelPartExtended extends ModelPart {
         GlStateManager.callList(this.displayList);
         if(extension != null)
         	extension.renderJustPart(scale);
-        this.applyPostTransform(scale);
         
         if (this.childModels != null)
         {

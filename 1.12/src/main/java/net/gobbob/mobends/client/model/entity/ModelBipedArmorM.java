@@ -64,8 +64,8 @@ public class ModelBipedArmorM extends ModelBiped {
         		.setParent((IModelPart) this.bipedBody).setHideLikeParent(true)
         		.setPosition(-5.0F, armHeight, 0.0F);
         this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 6, 4, modelSize);
-        ((ModelPart)this.bipedRightArm).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
-        ((ModelPart)this.bipedLeftArm).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
+        ((ModelPart)this.bipedRightArm).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
+        ((ModelPart)this.bipedLeftArm).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
         
         this.bipedLeftForeArm = new ModelPart(this, 40, 16+6).setPosition(0.0F, 4.0F, 2.0F);;
         this.bipedLeftForeArm.addBox(-1.0F, 0.0F, -4.0F, 4, 6, 4, modelSize);
@@ -80,10 +80,10 @@ public class ModelBipedArmorM extends ModelBiped {
         // Legs
         this.bipedRightLeg = new ModelPartExtended(this, 0, 16).setPosition(-1.9F, 12.0F, 0.0F);
         this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, modelSize);
-        ((ModelPart)this.bipedRightLeg).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
+        ((ModelPart)this.bipedRightLeg).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
         this.bipedLeftLeg = new ModelPartExtended(this, 0, 16).setPosition(1.9F, 12.0F, 0.0F);
         this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, modelSize);
-        ((ModelPart)this.bipedLeftLeg).offsetBox_Add(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
+        ((ModelPart)this.bipedLeftLeg).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
         this.bipedLeftLeg.mirror = true;
         
         this.bipedRightForeLeg = new ModelPart(this, 0, 16+6).setPosition(0, 6.0F, -2.0F);

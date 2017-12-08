@@ -18,6 +18,8 @@ public abstract class DataLiving extends EntityData
 	protected float climbingCycle = 0.0f;
 	protected boolean alreadyPunched = false;
 	protected boolean climbing = false;
+	protected float limbSwing = 0.0f;
+	protected float limbSwingAmount = 0.0f;
 	protected float headYaw = 0.0f;
 	protected float headPitch = 0.0f;
 	
@@ -29,6 +31,12 @@ public abstract class DataLiving extends EntityData
 	public void setClimbing(boolean flag) {
 		this.climbing = flag;
 	}
+	public void setLimbSwing(float limbSwing) {
+		this.limbSwing = limbSwing;
+	}
+	public void setLimbSwingAmount(float limbSwingAmount) {
+		this.limbSwingAmount = limbSwingAmount;
+	}
 	public void setHeadYaw(float headYaw) {
 		this.headYaw = headYaw;
 	}
@@ -36,6 +44,8 @@ public abstract class DataLiving extends EntityData
 		this.headPitch = headPitch;
 	}
 	public float getTicksAfterPunch() { return this.ticksAfterAttack; }
+	public float getLimbSwing() { return this.limbSwing; }
+	public float getLimbSwingAmount() { return this.limbSwingAmount; }
 	public float getHeadYaw() { return this.headYaw; }
 	public float getHeadPitch() { return this.headPitch; }
 	public boolean isClimbing() { return this.climbing; }
