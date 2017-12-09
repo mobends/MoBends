@@ -183,10 +183,11 @@ public class ModelPart extends ModelRenderer implements IModelPart
         this.compiled = true;
     }
 	
-	public void update(float p_78785_1_)
+    @Override
+	public void update(float ticksPerFrame)
 	{
-		this.rotation.update(p_78785_1_);
-		this.pre_rotation.update(p_78785_1_);
+		this.rotation.update(ticksPerFrame);
+		this.pre_rotation.update(ticksPerFrame);
 	}
 	
 	@Override

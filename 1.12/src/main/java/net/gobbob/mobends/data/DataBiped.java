@@ -9,6 +9,8 @@ import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.renderer.SwordTrail;
 import net.gobbob.mobends.util.SmoothVector3f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 
 public abstract class DataBiped extends DataLiving

@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.lwjgl.input.Keyboard;
 
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.client.mutators.MutatorPlayer;
 import net.gobbob.mobends.main.ModBase;
 import net.gobbob.mobends.pack.BendsPack;
@@ -27,6 +28,7 @@ public class EventHandlerKeyboard {
 			PackManager.initPacks();
 		}else if(key_Refresh.isPressed()) {
 			MutatorPlayer.refresh();
+			ArmorModelFactory.refresh();
 		}
 	}
 }

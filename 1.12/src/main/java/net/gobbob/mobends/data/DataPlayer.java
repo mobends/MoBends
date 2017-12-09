@@ -3,10 +3,13 @@ package net.gobbob.mobends.data;
 import net.gobbob.mobends.animation.controller.ControllerPlayer;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
+import net.gobbob.mobends.client.mutators.MutatorPlayer;
 import net.gobbob.mobends.client.renderer.SwordTrail;
 import net.gobbob.mobends.configuration.SettingsManager;
 import net.gobbob.mobends.util.SmoothVector3f;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -34,7 +37,22 @@ public class DataPlayer extends DataBiped
 		super(entity);
 		this.controller = new ControllerPlayer();
 	}
-
+	
+	@Override
+	public void initModelPose() {
+		super.initModelPose();
+		
+		Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
+		
+		MutatorPlayer mutator = MutatorPlayer.getMutatorForRenderer(render);
+		if(mutator == null) return;
+		
+		if(mutator.smallArms) {
+			this.rightArm.position.set(-5F, -9.5F, 0F);
+			this.leftArm.position.set(5F, -9.5F, 0F);
+		}
+	}
+	
 	@Override
 	public void update(float partialTicks) {
 		super.update(partialTicks);

@@ -23,4 +23,8 @@ public class ArmorModelFactory
 		}
 		return custom;
 	}
+	
+	public static void refresh() {
+		customArchive.clear();
+	}
 }

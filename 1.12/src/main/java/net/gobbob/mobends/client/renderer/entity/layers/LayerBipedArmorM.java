@@ -20,8 +20,10 @@ public class LayerBipedArmorM extends LayerArmorBase<ModelBiped>
     @Override
     public void initArmor()
     {
-        this.modelLeggings = new ModelBipedArmorM(0.5F);
-        this.modelArmor = new ModelBipedArmorM(1.0F);
+        //this.modelLeggings = new ModelBipedArmorM(0.5F);
+        //this.modelArmor = new ModelBipedArmorM(1.0F);
+    	this.modelLeggings = new ModelBiped(0.5F);
+        this.modelArmor = new ModelBiped(1.0F);
     }
 
     @SuppressWarnings("incomplete-switch")

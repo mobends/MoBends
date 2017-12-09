@@ -26,6 +26,7 @@ import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelPlayer;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
@@ -381,6 +382,12 @@ public class MutatorPlayer implements IBendsModel
         //BendsPack.animate(this, "player", "stand");
 	}
 	
+	@Override
+	public Object getPartForName(String name)
+	{
+		return nameToPartMap.get(name);
+	}
+	
 	public static void apply(RenderPlayer renderer, AbstractClientPlayer entityPlayer, float partialTicks)
 	{
 		MutatorPlayer mutator = mutatorMap.get(renderer);
@@ -404,10 +411,8 @@ public class MutatorPlayer implements IBendsModel
 			mutator.getValue().layerArmor.initArmor();
 		}
 	}
-
-	@Override
-	public Object getPartForName(String name)
-	{
-		return nameToPartMap.get(name);
+	
+	public static MutatorPlayer getMutatorForRenderer(Render render) {
+		return mutatorMap.get(render);
 	}
 }
