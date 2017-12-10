@@ -1,5 +1,6 @@
 package net.gobbob.mobends.client.model.entity.armor;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,6 +115,12 @@ public class ModelBipedArmorCustom extends ModelBiped
 		this.rightArm.add((IModelPart) this.bipedRightArm);
 		this.leftLeg.add((IModelPart) this.bipedLeftLeg);
 		this.rightLeg.add((IModelPart) this.bipedRightLeg);
+		
+		Field[] fields = original.getClass().getDeclaredFields();
+		for(Field f : fields) {
+			f.setAccessible(true);
+			System.out.println("ArmorField: " + ModelRenderer.class.isAssignableFrom(f.getType()) + "(" + f + ")");
+		}
 	}
 	
 	protected ModelPartContainer mutatePart(ModelRenderer modelRenderer) {
