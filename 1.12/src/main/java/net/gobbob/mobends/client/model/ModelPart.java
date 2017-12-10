@@ -261,6 +261,8 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public SmoothVector3f getRotation() { return this.rotation; }
 	@Override
 	public SmoothVector3f getPreRotation() { return this.pre_rotation; }
+	@Override
+	public boolean isShowing() { return this.showModel && !this.isHidden; }
 	
 	public ModelPart setBoxPosition(float x, float y, float z)
 	{
@@ -327,11 +329,11 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	}
 
 	@Override
-	public boolean isShowing()
+	public void setVisible(boolean showModel)
 	{
-		return this.showModel && !this.isHidden;
+		this.showModel = showModel;
 	}
-
+	
 	public static ModelPart createFrom(ModelBase model, ModelRenderer modelRenderer)
 	{
 		//TODO Implement this

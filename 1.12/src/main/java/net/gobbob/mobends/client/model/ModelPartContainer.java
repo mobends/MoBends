@@ -204,4 +204,10 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	{
 		return this.showModel && !this.isHidden;
 	}
+
+	@Override
+	public void setVisible(boolean showModel)
+	{
+		this.showModel = showModel;
+	}
 }

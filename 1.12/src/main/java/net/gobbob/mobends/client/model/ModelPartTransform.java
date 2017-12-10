@@ -102,4 +102,10 @@ public class ModelPartTransform implements IModelPart
 	public void applyPostTransform(float scale)
 	{
 	}
+
+	@Override
+	public void setVisible(boolean showModel)
+	{
+		// Do nothing
+	}
 }

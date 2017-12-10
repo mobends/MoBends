@@ -24,6 +24,7 @@ public interface IModelPart
 	public SmoothVector3f getRotation();
 	public SmoothVector3f getPreRotation();
 	public boolean isShowing();
+	public void setVisible(boolean showModel);
 	
 	public void syncUp(IModelPart part);
 }
