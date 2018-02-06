@@ -6,7 +6,7 @@ import org.lwjgl.input.Keyboard;
 
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
-import net.gobbob.mobends.client.mutators.MutatorPlayer;
+import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.main.ModBase;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.PackManager;
@@ -22,12 +22,13 @@ public class EventHandlerKeyboard {
 	public static final KeyBinding key_Refresh = new KeyBinding("Mo'Bends Refresh", Keyboard.KEY_F12, "GobBob's Mods");
 	
 	@SubscribeEvent
-	public void onKeyPressed(InputEvent.KeyInputEvent event) throws IOException{
+	public void onKeyPressed(InputEvent.KeyInputEvent event) throws IOException
+	{
 		if(key_Menu.isPressed()){
 			Minecraft.getMinecraft().displayGuiScreen(new GuiBendsMenu());
 			PackManager.initPacks();
 		}else if(key_Refresh.isPressed()) {
-			MutatorPlayer.refresh();
+			PlayerMutator.refresh();
 			ArmorModelFactory.refresh();
 		}
 	}

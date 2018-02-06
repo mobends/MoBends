@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.gobbob.mobends.client.model.IModelPart;
+import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPartContainer;
+import net.gobbob.mobends.client.mutators.BoxMutator;
 import net.gobbob.mobends.data.DataBiped;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.util.ModelUtils;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -22,22 +23,22 @@ public class ModelBipedArmorCustom extends ModelBiped
 	protected ModelBiped original;
 	protected List<Field> gatheredFields;
 	
-	protected List<ModelPartContainer> body;
-	protected List<ModelPartContainer> head;
-	protected List<ModelPartContainer> leftArm;
-	protected List<ModelPartContainer> rightArm;
-	protected List<ModelPartContainer> leftLeg;
-	protected List<ModelPartContainer> rightLeg;
+	protected List<ModelPartContainer> bodyParts;
+	protected List<ModelPartContainer> headParts;
+	protected List<ModelPartContainer> leftArmParts;
+	protected List<ModelPartContainer> rightArmParts;
+	protected List<ModelPartContainer> leftLegParts;
+	protected List<ModelPartContainer> rightLegParts;
 	
 	public ModelBipedArmorCustom(ModelBiped original) {
 		this.original = original;
 		this.gatheredFields = new ArrayList<Field>();
-		this.body = new ArrayList<ModelPartContainer>();
-		this.head = new ArrayList<ModelPartContainer>();
-		this.leftArm = new ArrayList<ModelPartContainer>();
-		this.rightArm = new ArrayList<ModelPartContainer>();
-		this.leftLeg = new ArrayList<ModelPartContainer>();
-		this.rightLeg = new ArrayList<ModelPartContainer>();
+		this.bodyParts = new ArrayList<ModelPartContainer>();
+		this.headParts = new ArrayList<ModelPartContainer>();
+		this.leftArmParts = new ArrayList<ModelPartContainer>();
+		this.rightArmParts = new ArrayList<ModelPartContainer>();
+		this.leftLegParts = new ArrayList<ModelPartContainer>();
+		this.rightLegParts = new ArrayList<ModelPartContainer>();
 	}
 	
 	@Override
@@ -59,46 +60,46 @@ public class ModelBipedArmorCustom extends ModelBiped
 		
 		DataBiped dataBiped = (DataBiped) entityData;
 		
-		for(IModelPart part : this.head) {
+		for(IModelPart part : this.headParts) {
 			part.setVisible(this.bipedHead.showModel);
 			part.syncUp(dataBiped.head);
 		}
 		
-		for(IModelPart part : this.body) {
+		for(IModelPart part : this.bodyParts) {
 			part.setVisible(this.bipedBody.showModel);
 			part.syncUp(dataBiped.body);
 		}
 		
-		for(IModelPart part : this.leftArm) {
+		for(IModelPart part : this.leftArmParts) {
 			part.setVisible(this.bipedLeftArm.showModel);
 			part.syncUp(dataBiped.leftArm);
 			dataBiped.position.y = 2F;
 		}
 		
-		for(IModelPart part : this.rightArm) {
+		for(IModelPart part : this.rightArmParts) {
 			part.setVisible(this.bipedRightArm.showModel);
 			part.syncUp(dataBiped.rightArm);
 			dataBiped.position.y = 2F;
 		}
 		
-		for(IModelPart part : this.leftLeg) {
+		for(IModelPart part : this.leftLegParts) {
 			part.setVisible(this.bipedLeftLeg.showModel);
 			part.syncUp(dataBiped.leftLeg);
 		}
 		
-		for(IModelPart part : this.rightLeg) {
+		for(IModelPart part : this.rightLegParts) {
 			part.setVisible(this.bipedRightLeg.showModel);
 			part.syncUp(dataBiped.rightLeg);
 		}
     }
 	
 	protected void mutateOriginal() {
-		this.head.clear();
-		this.body.clear();
-		this.leftArm.clear();
-		this.rightArm.clear();
-		this.leftLeg.clear();
-		this.rightLeg.clear();
+		this.headParts.clear();
+		this.bodyParts.clear();
+		this.leftArmParts.clear();
+		this.rightArmParts.clear();
+		this.leftLegParts.clear();
+		this.rightLegParts.clear();
 		
 		gatherFields(original.getClass());
 		
@@ -126,6 +127,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 		}
 		
 		mutateParts();
+		sliceParts();
 	}
 	
 	protected void gatherFields(Class modelClass)
@@ -162,14 +164,14 @@ public class ModelBipedArmorCustom extends ModelBiped
 				// Right leg/foreleg
 				if(!(this.bipedRightLeg instanceof ModelPartContainer))
 					this.bipedRightLeg = container;
-				this.rightLeg.add(container);
+				this.rightLegParts.add(container);
 			}
 			else
 			{
 				// Left leg/foreleg
 				if(!(this.bipedLeftLeg instanceof ModelPartContainer))
 					this.bipedLeftLeg = container;
-				this.leftLeg.add(container);
+				this.leftLegParts.add(container);
 			}
 		}
 		else if(part.rotationPointX <= -5F || (part.cubeList != null &&
@@ -178,7 +180,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 			// Right arm/forearm
 			if(!(this.bipedRightArm instanceof ModelPartContainer))
 				this.bipedRightArm = container;
-			this.rightArm.add(container);
+			this.rightArmParts.add(container);
 		}
 		else if(part.rotationPointX >= 5F || (part.cubeList != null &&
 				part.cubeList.size() > 0 && part.rotationPointX+part.cubeList.get(0).posX2 >= 6F))
@@ -186,21 +188,21 @@ public class ModelBipedArmorCustom extends ModelBiped
 			// Left arm/forearm
 			if(!(this.bipedLeftArm instanceof ModelPartContainer))
 				this.bipedLeftArm = container;
-			this.leftArm.add(container);
+			this.leftArmParts.add(container);
 		}
 		else if(part.cubeList != null && part.cubeList.size() > 0 && bounds.maxY >= 4F)
 		{
 			// Body
 			if(!(this.bipedBody instanceof ModelPartContainer))
 				this.bipedBody = container;
-			this.body.add(container);
+			this.bodyParts.add(container);
 		}
 		else
 		{
 			// Head
 			if(!(this.bipedHead instanceof ModelPartContainer))
 				this.bipedHead = container;
-			this.head.add(container);
+			this.headParts.add(container);
 		}
 
 		return container;
@@ -208,53 +210,53 @@ public class ModelBipedArmorCustom extends ModelBiped
 	
 	protected void mutateParts()
 	{
-		for(ModelPartContainer part : head)
+		for(ModelPartContainer part : headParts)
 		{
 			part.setParent((IModelPart) this.bipedBody);
 		}
 		
-		for(ModelPartContainer part : body)
+		for(ModelPartContainer part : bodyParts)
 		{
 			part.setInnerOffset(0, -12F, 0);
 		}
 		
-		for(ModelPartContainer part : leftArm)
+		for(ModelPartContainer part : leftArmParts)
 		{
 			part.setInnerOffset(-5F, -2F, 0F);
 			part.setParent((IModelPart) this.bipedBody);
 		}
 		
-		for(ModelPartContainer part : rightArm)
+		for(ModelPartContainer part : rightArmParts)
 		{
 			part.setInnerOffset(5F, -2F, 0F);
 			part.setParent((IModelPart) this.bipedBody);
 		}
 		
-		for(ModelPartContainer part : leftLeg)
+		for(ModelPartContainer part : leftLegParts)
 			part.setInnerOffset(-1.9F, -12F, 0F);
-		for(ModelPartContainer part : rightLeg)
+		for(ModelPartContainer part : rightLegParts)
 			part.setInnerOffset(1.9F, -12F, 0F);
 	}
 	
-	public static ModelBipedArmorCustom createFrom(ModelBiped src) {
+	/* 
+	 * This function takes groups of models, and divides them up into sub-groups, like the upper arm and lower arm.
+	 * */
+	protected void sliceParts()
+	{
+		for(ModelPartContainer part : leftLegParts)
+		{
+			for(net.minecraft.client.model.ModelBox box : part.cubeList)
+			{
+				BoxMutator mutator = BoxMutator.createFrom(part, box);
+				ModelBox result = mutator.produce();
+			}
+		}
+	}
+	
+	public static ModelBipedArmorCustom createFrom(ModelBiped src)
+	{
 		ModelBipedArmorCustom customModel = new ModelBipedArmorCustom(src);
 		customModel.mutateOriginal();
-		
-		/* 
-		 * Gathering all children to later only process
-		 * models that are not children of other models.
-		 * */
-		List<ModelRenderer> children = new ArrayList<ModelRenderer>();
-		for(ModelRenderer modelRenderer : src.boxList) {
-			if(modelRenderer.childModels != null)
-				children.addAll(modelRenderer.childModels);
-		}
-		
-		/*for(int i = 0; i < src.boxList.size(); ++i) {
-			// Process only if it's not a child
-			if(!children.contains(src.boxList.get(i)))
-				customModel.addPart(src.boxList, i);
-		}*/
 		
 		return customModel;
 	}

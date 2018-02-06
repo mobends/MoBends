@@ -11,12 +11,16 @@ public class ArmorModelFactory
 {
 	protected static Map<Integer, ModelBiped> customArchive = new HashMap<Integer, ModelBiped>();
 	
-	public static ModelBiped getArmorModel(ModelBiped suggested) {
+	public static ModelBiped getArmorModel(ModelBiped suggested)
+	{
 		ModelBiped custom = suggested;
 		
-		if(customArchive.containsKey(suggested.hashCode())) {
+		if(customArchive.containsKey(suggested.hashCode()))
+		{
 			custom = customArchive.get(suggested.hashCode());
-		}else {
+		}
+		else
+		{
 			System.out.println("Creating a custom armor model." + suggested);
 			custom = ModelBipedArmorCustom.createFrom(suggested);
 			customArchive.put(suggested.hashCode(), custom);
@@ -24,7 +28,8 @@ public class ArmorModelFactory
 		return custom;
 	}
 	
-	public static void refresh() {
+	public static void refresh()
+	{
 		customArchive.clear();
 	}
 }

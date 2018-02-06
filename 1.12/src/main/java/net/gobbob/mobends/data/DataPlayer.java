@@ -3,7 +3,7 @@ package net.gobbob.mobends.data;
 import net.gobbob.mobends.animation.controller.ControllerPlayer;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
-import net.gobbob.mobends.client.mutators.MutatorPlayer;
+import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.renderer.SwordTrail;
 import net.gobbob.mobends.configuration.SettingsManager;
 import net.gobbob.mobends.util.SmoothVector3f;
@@ -44,7 +44,7 @@ public class DataPlayer extends DataBiped
 		
 		Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
 		
-		MutatorPlayer mutator = MutatorPlayer.getMutatorForRenderer(render);
+		PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);
 		if(mutator == null) return;
 		
 		if(mutator.smallArms) {

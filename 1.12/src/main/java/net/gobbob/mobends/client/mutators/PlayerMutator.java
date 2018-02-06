@@ -37,9 +37,9 @@ import net.minecraft.util.math.MathHelper;
 /*
  * Instantiated one per RenderPlayer
  */
-public class MutatorPlayer implements IBendsModel
+public class PlayerMutator implements IBendsModel
 {
-	public static HashMap<RenderPlayer, MutatorPlayer> mutatorMap = new HashMap<RenderPlayer, MutatorPlayer>();
+	public static HashMap<RenderPlayer, PlayerMutator> mutatorMap = new HashMap<RenderPlayer, PlayerMutator>();
 	
 	public ModelPart body;
 	public ModelPartChild head;
@@ -72,7 +72,7 @@ public class MutatorPlayer implements IBendsModel
 	
 	protected HashMap<String, IModelPart> nameToPartMap;
 	
-	public MutatorPlayer()
+	public PlayerMutator()
 	{
 		this.nameToPartMap = new HashMap<String, IModelPart>();
 	}
@@ -390,10 +390,10 @@ public class MutatorPlayer implements IBendsModel
 	
 	public static void apply(RenderPlayer renderer, AbstractClientPlayer entityPlayer, float partialTicks)
 	{
-		MutatorPlayer mutator = mutatorMap.get(renderer);
+		PlayerMutator mutator = mutatorMap.get(renderer);
 		if(!mutatorMap.containsKey(renderer))
 		{
-			mutator = new MutatorPlayer();
+			mutator = new PlayerMutator();
 			mutator.mutate(entityPlayer, renderer);
 			mutatorMap.put(renderer, mutator);
 		}
@@ -406,13 +406,13 @@ public class MutatorPlayer implements IBendsModel
 	 * changes during development.
 	 */
 	public static void refresh() {
-		for(Map.Entry<RenderPlayer, MutatorPlayer> mutator : mutatorMap.entrySet()) {
+		for(Map.Entry<RenderPlayer, PlayerMutator> mutator : mutatorMap.entrySet()) {
 			mutator.getValue().mutate(null, mutator.getKey());
 			mutator.getValue().layerArmor.initArmor();
 		}
 	}
 	
-	public static MutatorPlayer getMutatorForRenderer(Render render) {
+	public static PlayerMutator getMutatorForRenderer(Render render) {
 		return mutatorMap.get(render);
 	}
 }

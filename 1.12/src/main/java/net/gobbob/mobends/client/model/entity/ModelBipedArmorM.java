@@ -24,7 +24,8 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class ModelBipedArmorM extends ModelBiped {
+public class ModelBipedArmorM extends ModelBiped
+{
     public ModelPart bipedRightForeArm;
     public ModelPart bipedLeftForeArm;
     public ModelPart bipedRightForeLeg;
