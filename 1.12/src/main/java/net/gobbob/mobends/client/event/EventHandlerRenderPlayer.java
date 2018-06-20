@@ -48,7 +48,7 @@ public class EventHandlerRenderPlayer
 
             if (player.isSneaking())
             {
-            	yOffset = 0.145D;
+            	yOffset = 0.155D;
             }
             GlStateManager.translate(0, yOffset, 0);
 		}

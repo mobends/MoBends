@@ -17,8 +17,7 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.math.MathHelper;
 
-public class GuiTextArea extends Gui
-{
+public class GuiTextArea extends Gui {
     private final FontRenderer fontRendererInstance;
     public int xPosition;
     public int yPosition;

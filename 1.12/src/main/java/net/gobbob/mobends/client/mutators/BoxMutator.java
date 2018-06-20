@@ -1,26 +1,111 @@
 package net.gobbob.mobends.client.mutators;
 
+import java.lang.reflect.Field;
+
 import net.gobbob.mobends.client.model.ModelBox;
+import net.gobbob.mobends.util.FieldMiner;
+import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.model.TexturedQuad;
+import net.minecraft.util.math.MathHelper;
 
 public class BoxMutator
 {
-	protected ModelBox target;
+	protected ModelBase targetModel;
+	protected ModelRenderer targetRenderer;
+	protected ModelBox targetBox;
 	
-	public BoxMutator(ModelBox target)
+	protected int textureOffsetX;
+	protected int textureOffsetY;
+	
+	public BoxMutator(ModelBase targetModel, ModelRenderer targetRenderer, ModelBox target, int textureOffsetX, int textureOffsetY)
 	{
-		this.target = target;
+		this.targetModel = targetModel;
+		this.targetRenderer = targetRenderer;
+		this.targetBox = target;
+		this.textureOffsetX = textureOffsetX;
+		this.textureOffsetY = textureOffsetY;
 	}
 	
-	public static BoxMutator createFrom(ModelRenderer modelRenderer, net.minecraft.client.model.ModelBox original)
+	public static BoxMutator createFrom(ModelBase modelBase, ModelRenderer modelRenderer, net.minecraft.client.model.ModelBox original)
 	{
-		ModelBox target = new ModelBox(modelRenderer, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-		return new BoxMutator(target);
+		Field quadListField = FieldMiner.getObfuscatedField(original.getClass(), "quadList", "");
+		
+		if(quadListField == null)
+		{
+			return null;
+		}
+		
+		TexturedQuad[] quadList = null;
+		
+		try
+		{
+			quadListField.setAccessible(true);
+			quadList = (TexturedQuad[]) quadListField.get(original);
+		}
+		catch (IllegalArgumentException | IllegalAccessException e)
+		{
+			e.printStackTrace();
+		}
+		
+		float x = original.posX1;
+		float y = original.posY1;
+		float z = original.posZ1;
+		int width = (int) (original.posX2 - original.posX1);
+		int height = (int) (original.posY2 - original.posY1);
+		int length = (int) (original.posZ2 - original.posZ1);
+		
+		if (quadList == null)
+		{
+			return null;
+		}
+		
+		float textureWidth = modelRenderer.textureWidth;
+		float textureHeight = modelRenderer.textureHeight;
+		int texU = (int)(quadList[1].vertexPositions[1].texturePositionX * textureWidth);
+		int texV = (int)(quadList[3].vertexPositions[1].texturePositionY * textureHeight);
+		
+		float inflation = 0.0F;
+		if (!modelRenderer.mirror)
+			inflation = MathHelper.abs((float)(original.posX2 - quadList[1].vertexPositions[0].vector3D.x));
+		else
+			inflation = MathHelper.abs((float)(x - quadList[1].vertexPositions[0].vector3D.x));
+		
+		ModelBox target = new ModelBox(modelRenderer, texU, texV, x, y, z, width, height, length, inflation);
+		return new BoxMutator(modelBase, modelRenderer, target, texU, texV);
 	}
 
-	public ModelBox produce()
+	public ModelBox getTargetBox()
 	{
-		// TODO Make magic happen here.
-		return null;
+		return this.targetBox;
+	}
+	
+	public int getTextureOffsetX()
+	{
+		return this.textureOffsetX;
+	}
+	
+	public int getTextureOffsetY()
+	{
+		return this.textureOffsetY;
+	}
+	
+	public ModelBox sliceFromBottom(float sliceY, boolean preservePositions)
+	{
+		float height = targetBox.height;
+		
+		float localY = sliceY - this.targetBox.posY1 - this.targetRenderer.rotationPointY;
+		targetBox.height = localY - targetBox.inflation;
+		// Changing the original height to alter the texture
+		// to not stretch it.
+		targetBox.originalHeight = MathHelper.floor(localY);
+		targetBox.updateVertices(this.targetRenderer);
+		
+		float slicedY = preservePositions ? (this.targetBox.posY1 + localY) : 0;
+		ModelBox sliced = new ModelBox(targetRenderer, this.textureOffsetX, this.textureOffsetY + (int)localY, this.targetBox.posX1, slicedY, this.targetBox.posZ1,
+													   (int)targetBox.width, (int)(height - localY), (int)targetBox.length, targetBox.inflation);
+		sliced.offsetTextureQuad(targetRenderer, ModelBox.BOTTOM, 0, -localY);
+		
+		return sliced;
 	}
 }

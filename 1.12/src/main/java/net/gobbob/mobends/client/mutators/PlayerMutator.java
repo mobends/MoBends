@@ -97,7 +97,8 @@ public class PlayerMutator implements IBendsModel
 		}
 	}
 	
-	private static Field getObfuscatedField(Class classIn, String fieldName, String fieldNameObfuscated) {
+	private static Field getObfuscatedField(Class classIn, String fieldName, String fieldNameObfuscated)
+	{
 		Field field = null;
 		
 		try
@@ -120,7 +121,8 @@ public class PlayerMutator implements IBendsModel
 		return field;
 	}
 	
-	public void fetchFields(RenderPlayer renderer) {
+	public void fetchFields(RenderPlayer renderer)
+	{
 		// Getting the layer renderers
 		this.layerRenderers = null;
 		Field fieldLayers = getObfuscatedField(renderer.getClass(), "layerRenderers", "field_177097_h");
