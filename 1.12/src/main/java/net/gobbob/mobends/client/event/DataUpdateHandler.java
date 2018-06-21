@@ -1,10 +1,5 @@
 package net.gobbob.mobends.client.event;
 
-import net.gobbob.mobends.client.renderer.ArrowTrail;
-import net.gobbob.mobends.configuration.SettingsManager;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.EntityDatabase;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -20,6 +15,8 @@ public class DataUpdateHandler {
 	
 	@SubscribeEvent
 	public void updateAnimations(TickEvent.RenderTickEvent event){
+		return;
+		/*
 		if(Minecraft.getMinecraft().world == null) return;
 		if(Minecraft.getMinecraft().player == null) return;
 		
@@ -37,7 +34,7 @@ public class DataUpdateHandler {
 			
 			if(SettingsManager.ARROW_TRAILS.isEnabled())
 				ArrowTrail.onRenderTick();
-		}
+		}*/
 	}
 	
 	public static void onTicksRestart() {
@@ -46,12 +43,15 @@ public class DataUpdateHandler {
 	
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event){
+		return;
+		
+		/*
 		if(Minecraft.getMinecraft().player == null) return;
 		
 		if(lastNotedClientTick != Minecraft.getMinecraft().player.ticksExisted){
 			lastNotedClientTick = Minecraft.getMinecraft().player.ticksExisted;
 			
 			EntityDatabase.instance.updateClient();
-		}
+		}*/
 	}
 }

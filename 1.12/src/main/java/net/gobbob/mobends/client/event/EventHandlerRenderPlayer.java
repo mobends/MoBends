@@ -32,6 +32,7 @@ public class EventHandlerRenderPlayer
 	@SubscribeEvent
 	public void beforePlayerRender(RenderPlayerEvent.Pre event)
 	{
+		/*
 		float pt = event.getPartialRenderTick();
 		GlStateManager.pushMatrix();
 		
@@ -51,13 +52,13 @@ public class EventHandlerRenderPlayer
             	yOffset = 0.155D;
             }
             GlStateManager.translate(0, yOffset, 0);
-		}
+		}*/
 	}
 	
 	@SubscribeEvent
 	public void afterPlayerRender(RenderPlayerEvent.Post event)
 	{
-		GlStateManager.popMatrix();
+		//GlStateManager.popMatrix();
 	}
 	
 	@SubscribeEvent

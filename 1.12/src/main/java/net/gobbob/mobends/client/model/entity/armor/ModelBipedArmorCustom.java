@@ -343,7 +343,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 			sliceLeg(part, rightForeLegParts);
 		}
 		
-		/*for(ModelPartContainer part : leftArmParts)
+		for(ModelPartContainer part : leftArmParts)
 		{
 			sliceArm(part, leftForeArmParts);
 		}
@@ -351,7 +351,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 		for(ModelPartContainer part : rightArmParts)
 		{
 			sliceArm(part, rightForeArmParts);
-		}*/
+		}
 	}
 	
 	protected void sliceLeg(ModelPartContainer part, List<ModelPartContainer> listToAddTo)

@@ -33,8 +33,6 @@ public class ModConfiguration {
     		}
         }
     	
-    	SettingsManager.saveConfiguration(config);
-    	
     	if(PackManager.getCurrentPack() != null)
     		config.get("General", "Current Pack", "none").setValue(PackManager.getCurrentPack().getFilename());
     	else

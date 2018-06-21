@@ -69,7 +69,6 @@ public class BoxMutator
 			texV = (int)(quadList[ModelBox.BOTTOM].vertexPositions[1].texturePositionY * textureHeight);
 		else
 			texV = (int)(quadList[ModelBox.TOP].vertexPositions[1].texturePositionY * textureHeight);
-		System.out.println("Texture UVs: (" + texU + ", " + texV + ")");
 		
 		float inflation1 = Math.abs((float)(original.posX1 - quadList[1].vertexPositions[0].vector3D.x));
 		float inflation2 = Math.abs((float)(original.posX2 - quadList[1].vertexPositions[0].vector3D.x));
@@ -113,8 +112,6 @@ public class BoxMutator
 		sliced.updateVertices(this.targetRenderer);
 		sliced.offsetTextureQuad(targetRenderer, ModelBox.BOTTOM, 0, -localY);
 		sliced.setVisibility(ModelBox.TOP, false);
-		
-		System.out.println("Height: " + (height - localY) + ", " + (targetBox.originalHeight));
 		
 		return sliced;
 	}

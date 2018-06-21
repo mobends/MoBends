@@ -4,7 +4,6 @@ import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerKeyboard;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
-import net.gobbob.mobends.configuration.SettingsManager;
 import net.gobbob.mobends.main.CommonProxy;
 import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.pack.PackManager;
@@ -21,7 +20,6 @@ public class ClientProxy extends CommonProxy{
 	
 	public void preInit(Configuration config) {
 		preInitCommon(config);
-		SettingsManager.loadConfiguration(config);
 	}
 	
 	public void init(Configuration config) {

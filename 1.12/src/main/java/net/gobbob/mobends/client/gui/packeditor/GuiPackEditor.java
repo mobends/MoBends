@@ -15,7 +15,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiPackEditor {
-	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,"textures/gui/pack_editor.png");
+	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID, "textures/gui/pack_editor.png");
 	public static final int EDITOR_WIDTH = 248;
 	public static final int EDITOR_HEIGHT = 177;
 	public static final String publicInfoText = "Want your creation to be featured? Contact me at:";
@@ -188,12 +188,12 @@ public class GuiPackEditor {
 
 	public void keyTyped(char typedChar, int keyCode) {
 		if(this.titleTextField.textboxKeyTyped(typedChar, keyCode)) {
-			this.generatedName = BendsPack.constructName(this.titleTextField.getText())+".bends";
+			this.generatedName = BendsPack.constructName(this.titleTextField.getText()) + ".bends";
 		}
 	}
 	
 	public void populate() {
-		//if(!PackManager.arePublicPacksLoaded())
+		if(!PackManager.arePublicPacksLoaded())
 			PackManager.updatePublicDatabase();
 		packList.populate();
 	}
@@ -207,7 +207,7 @@ public class GuiPackEditor {
 				this.editButton.visible = false;
 				this.useButton.visible = false;
 				this.doneButton.visible = true;
-				this.generatedName = BendsPack.constructName(packList.getSelectedEntry().displayName)+".bends";
+				this.generatedName = BendsPack.constructName(packList.getSelectedEntry().displayName) + ".bends";
 			}else{
 				this.titleTextField.setVisible(false);
 				this.editButton.visible = true;

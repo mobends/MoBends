@@ -1,16 +1,11 @@
 package net.gobbob.mobends.client.renderer.entity;
 
-import org.lwjgl.opengl.GL11;
-
 import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsCape;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsCustomHead;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsElytra;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsHeldItem;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedArmorM;
-import net.gobbob.mobends.configuration.SettingsManager;
-import net.gobbob.mobends.data.DataPlayer;
-import net.gobbob.mobends.data.EntityData;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;

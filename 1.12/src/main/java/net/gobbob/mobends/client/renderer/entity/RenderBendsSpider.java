@@ -1,22 +1,10 @@
 package net.gobbob.mobends.client.renderer.entity;
 
-import org.lwjgl.opengl.GL11;
-
-import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.client.model.entity.ModelBendsSpider;
-import net.gobbob.mobends.configuration.SettingBoolean;
-import net.gobbob.mobends.configuration.Setting;
-import net.gobbob.mobends.data.DataPlayer;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderSpider;
-import net.minecraft.client.renderer.entity.layers.LayerSpiderEyes;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntitySpider;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 

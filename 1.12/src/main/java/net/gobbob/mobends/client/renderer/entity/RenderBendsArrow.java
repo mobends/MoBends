@@ -1,7 +1,7 @@
 package net.gobbob.mobends.client.renderer.entity;
 
 import net.gobbob.mobends.client.renderer.ArrowTrail;
-import net.gobbob.mobends.configuration.SettingsManager;
+import net.gobbob.mobends.main.ModConfig;
 import net.minecraft.client.renderer.entity.RenderArrow;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -17,7 +17,7 @@ public abstract class RenderBendsArrow<T extends EntityArrow> extends RenderArro
     
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-    	if(SettingsManager.ARROW_TRAILS.isEnabled())
+    	if(ModConfig.showArrowTrails)
     		ArrowTrail.renderTrail(entity, x, y, z, partialTicks);
     	super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }

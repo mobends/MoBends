@@ -2,16 +2,14 @@ package net.gobbob.mobends.data;
 
 import net.gobbob.mobends.animation.controller.ControllerPlayer;
 import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.client.model.entity.ModelBendsPlayer;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.renderer.SwordTrail;
-import net.gobbob.mobends.configuration.SettingsManager;
+import net.gobbob.mobends.main.ModConfig;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.util.EnumHand;
 
@@ -99,7 +97,7 @@ public class DataPlayer extends DataBiped
 					if(this.ticksAfterAttack < 15.0f){
 						if(this.currentAttack == 1) this.currentAttack = 2;
 						else if(this.currentAttack == 2){
-							this.currentAttack = (!SettingsManager.SPIN_ATTACK.isEnabled() || this.getEntity().isRiding()) ? 1 : 3;
+							this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 3;
 						}
 						else if(this.currentAttack == 3) this.currentAttack = 1;
 						this.ticksAfterAttack = 0;
