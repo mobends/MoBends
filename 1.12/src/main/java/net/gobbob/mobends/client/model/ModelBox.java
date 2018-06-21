@@ -18,6 +18,8 @@ public class ModelBox extends net.minecraft.client.model.ModelBox{
 	public PositionTextureVertex[] vertices;
 	/*0-LEFT, 1-RIGHT, 2-TOP, 3-BOTTOM, 4-FRONT, 5-BACK*/
 	public TexturedQuad[] quads;
+	// We just need 6 bits (6 faces)
+	public short faceVisibilityFlags = 0b111111;
 	
 	public static final int LEFT = 0;
 	public static final int RIGHT = 1;
@@ -160,38 +162,65 @@ public class ModelBox extends net.minecraft.client.model.ModelBox{
     {
         for (int i = 0; i < this.quads.length; ++i)
         {
-            this.quads[i].draw(p_178780_1_, p_78245_2_);
+        	// This check is done to not draw hidden
+        	// faces.
+        	if (this.isFaceVisible(i))
+        		this.quads[i].draw(p_178780_1_, p_78245_2_);
         }
     }
 	
-	public ModelBox offsetTextureQuad(ModelRenderer modelPart, int idx, float x, float y){
-		if(idx >= 0 & idx < this.quads.length){
-			this.quads[idx].vertexPositions[0].texturePositionX += x/modelPart.textureWidth;
-			this.quads[idx].vertexPositions[1].texturePositionX += x/modelPart.textureWidth;
-			this.quads[idx].vertexPositions[2].texturePositionX += x/modelPart.textureWidth;
-			this.quads[idx].vertexPositions[3].texturePositionX += x/modelPart.textureWidth;
+	public ModelBox offsetTextureQuad(ModelRenderer modelPart, int faceIndex, float x, float y){
+		if(faceIndex >= 0 & faceIndex < this.quads.length){
+			this.quads[faceIndex].vertexPositions[0].texturePositionX += x/modelPart.textureWidth;
+			this.quads[faceIndex].vertexPositions[1].texturePositionX += x/modelPart.textureWidth;
+			this.quads[faceIndex].vertexPositions[2].texturePositionX += x/modelPart.textureWidth;
+			this.quads[faceIndex].vertexPositions[3].texturePositionX += x/modelPart.textureWidth;
 			
-			this.quads[idx].vertexPositions[0].texturePositionY += y/modelPart.textureHeight;
-			this.quads[idx].vertexPositions[1].texturePositionY += y/modelPart.textureHeight;
-			this.quads[idx].vertexPositions[2].texturePositionY += y/modelPart.textureHeight;
-			this.quads[idx].vertexPositions[3].texturePositionY += y/modelPart.textureHeight;
+			this.quads[faceIndex].vertexPositions[0].texturePositionY += y/modelPart.textureHeight;
+			this.quads[faceIndex].vertexPositions[1].texturePositionY += y/modelPart.textureHeight;
+			this.quads[faceIndex].vertexPositions[2].texturePositionY += y/modelPart.textureHeight;
+			this.quads[faceIndex].vertexPositions[3].texturePositionY += y/modelPart.textureHeight;
 		}
 		return this;
 	}
 	
-	public void resize(float width, float height, float length){
+	public void setVisibility(int faceIndex, boolean visible)
+	{
+		byte mask = 1;
+		mask <<= faceIndex;
+		if (!visible)
+		{
+			//Invert the mask
+			mask = (byte) (~mask);
+			faceVisibilityFlags &= mask;
+		}
+		else
+		{
+			faceVisibilityFlags |= mask;
+		}
+	}
+	
+	public boolean isFaceVisible(int faceIndex)
+	{
+		return ((faceVisibilityFlags >> faceIndex) & 1) == 1;
+	}
+	
+	public void resize(float width, float height, float length)
+	{
 		this.width = width;
 		this.height = height;
 		this.length = length;
 	}
 	
-	public void setPosition(float x, float y, float z){
+	public void setPosition(float x, float y, float z)
+	{
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 	
-	public void offset(float x, float y, float z){
+	public void offset(float x, float y, float z)
+	{
 		this.x += x;
 		this.y += y;
 		this.z += z;

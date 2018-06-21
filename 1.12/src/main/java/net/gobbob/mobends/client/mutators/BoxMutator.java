@@ -3,6 +3,7 @@ package net.gobbob.mobends.client.mutators;
 import java.lang.reflect.Field;
 
 import net.gobbob.mobends.client.model.ModelBox;
+import net.gobbob.mobends.util.BendsLogger;
 import net.gobbob.mobends.util.FieldMiner;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
@@ -62,14 +63,17 @@ public class BoxMutator
 		
 		float textureWidth = modelRenderer.textureWidth;
 		float textureHeight = modelRenderer.textureHeight;
-		int texU = (int)(quadList[1].vertexPositions[1].texturePositionX * textureWidth);
-		int texV = (int)(quadList[3].vertexPositions[1].texturePositionY * textureHeight);
-		
-		float inflation = 0.0F;
-		if (!modelRenderer.mirror)
-			inflation = MathHelper.abs((float)(original.posX2 - quadList[1].vertexPositions[0].vector3D.x));
+		int texU = (int)(quadList[ModelBox.RIGHT].vertexPositions[1].texturePositionX * textureWidth);
+		int texV = 0;
+		if (modelRenderer.mirror)
+			texV = (int)(quadList[ModelBox.BOTTOM].vertexPositions[1].texturePositionY * textureHeight);
 		else
-			inflation = MathHelper.abs((float)(x - quadList[1].vertexPositions[0].vector3D.x));
+			texV = (int)(quadList[ModelBox.TOP].vertexPositions[1].texturePositionY * textureHeight);
+		System.out.println("Texture UVs: (" + texU + ", " + texV + ")");
+		
+		float inflation1 = Math.abs((float)(original.posX1 - quadList[1].vertexPositions[0].vector3D.x));
+		float inflation2 = Math.abs((float)(original.posX2 - quadList[1].vertexPositions[0].vector3D.x));
+		float inflation = Math.min(inflation1, inflation2);
 		
 		ModelBox target = new ModelBox(modelRenderer, texU, texV, x, y, z, width, height, length, inflation);
 		return new BoxMutator(modelBase, modelRenderer, target, texU, texV);
@@ -100,11 +104,17 @@ public class BoxMutator
 		// to not stretch it.
 		targetBox.originalHeight = MathHelper.floor(localY);
 		targetBox.updateVertices(this.targetRenderer);
+		targetBox.setVisibility(ModelBox.BOTTOM, false);
 		
 		float slicedY = preservePositions ? (this.targetBox.posY1 + localY) : 0;
-		ModelBox sliced = new ModelBox(targetRenderer, this.textureOffsetX, this.textureOffsetY + (int)localY, this.targetBox.posX1, slicedY, this.targetBox.posZ1,
+		ModelBox sliced = new ModelBox(targetRenderer, this.textureOffsetX, this.textureOffsetY + (int)localY, this.targetBox.posX1, slicedY + targetBox.inflation, this.targetBox.posZ1,
 													   (int)targetBox.width, (int)(height - localY), (int)targetBox.length, targetBox.inflation);
+		sliced.height -= targetBox.inflation;
+		sliced.updateVertices(this.targetRenderer);
 		sliced.offsetTextureQuad(targetRenderer, ModelBox.BOTTOM, 0, -localY);
+		sliced.setVisibility(ModelBox.TOP, false);
+		
+		System.out.println("Height: " + (height - localY) + ", " + (targetBox.originalHeight));
 		
 		return sliced;
 	}

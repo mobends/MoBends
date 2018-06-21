@@ -242,6 +242,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 	protected ModelPartContainer createAndAssignPart(ModelRenderer part)
 	{
 		ModelPartContainer container = new ModelPartContainer(this, part);
+		container.mirror = part.mirror;
 		
 		AxisAlignedBB bounds = ModelUtils.getBounds(part);
 		System.out.println("Bounds: " + bounds);
@@ -332,31 +333,6 @@ public class ModelBipedArmorCustom extends ModelBiped
 	 */
 	protected void sliceParts()
 	{
-		/*for(ModelPartContainer part : leftLegParts)
-		{
-			for(net.minecraft.client.model.ModelBox box : part.getModel().cubeList)
-			{
-				BoxMutator mutator = BoxMutator.createFrom(this, part, box);
-				if(mutator != null)
-				{
-					ModelBox lowerPart = mutator.sliceFromBottom(6, false);
-					ModelBox topPart = mutator.getTargetBox();
-					part.getModel().cubeList.remove(box);
-					part.getModel().cubeList.add(topPart);
-					
-					if(lowerPart != null)
-					{
-						ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
-						modelPart.cubeList.add(lowerPart);
-						modelPart.setPosition(0, 0, 0);
-						ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-						partContainer.setInnerOffset(0, 0F, 2F);
-						leftForeLegParts.add(partContainer);
-					}
-				}
-			}
-		}*/
-		
 		for(ModelPartContainer part : leftLegParts)
 		{
 			sliceLeg(part, leftForeLegParts);
@@ -366,6 +342,16 @@ public class ModelBipedArmorCustom extends ModelBiped
 		{
 			sliceLeg(part, rightForeLegParts);
 		}
+		
+		/*for(ModelPartContainer part : leftArmParts)
+		{
+			sliceArm(part, leftForeArmParts);
+		}
+		
+		for(ModelPartContainer part : rightArmParts)
+		{
+			sliceArm(part, rightForeArmParts);
+		}*/
 	}
 	
 	protected void sliceLeg(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
@@ -386,6 +372,30 @@ public class ModelBipedArmorCustom extends ModelBiped
 					modelPart.cubeList.add(lowerPart);
 					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
 					partContainer.setInnerOffset(0, 0F, 2F);
+					listToAddTo.add(partContainer);
+				}
+			}
+		}
+	}
+	
+	protected void sliceArm(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
+	{
+		for(net.minecraft.client.model.ModelBox box : part.getModel().cubeList)
+		{
+			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
+			if(mutator != null)
+			{
+				ModelBox lowerPart = mutator.sliceFromBottom(6, false);
+				ModelBox topPart = mutator.getTargetBox();
+				part.getModel().cubeList.remove(box);
+				part.getModel().cubeList.add(topPart);
+				
+				if(lowerPart != null)
+				{
+					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
+					modelPart.cubeList.add(lowerPart);
+					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
+					partContainer.setInnerOffset(0, 0F, -2F);
 					listToAddTo.add(partContainer);
 				}
 			}
