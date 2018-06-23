@@ -220,8 +220,8 @@ public class GuiBendsMenu extends GuiScreen
 		switch (guiTab)
 		{
 			case TAB_CUSTOMIZE:
-				this.nodeEditor.update(mouseX, mouseY);
-				this.portraitDisplay.update(mouseX, mouseY);
+				//this.nodeEditor.update(mouseX, mouseY);
+				//this.portraitDisplay.update(mouseX, mouseY);
 				break;
 			case TAB_PACKS:
 				this.packEditor.update(mouseX, mouseY);

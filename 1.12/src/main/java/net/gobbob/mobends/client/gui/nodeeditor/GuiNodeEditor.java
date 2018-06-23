@@ -2,6 +2,7 @@ package net.gobbob.mobends.client.gui.nodeeditor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 import org.lwjgl.input.Mouse;
@@ -26,13 +27,19 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiNodeEditor {
-	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,"textures/gui/node_editor.png");
+public class GuiNodeEditor
+{
+	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
+			"textures/gui/node_editor.png");
 	public static final int EDITOR_WIDTH = 210;
 	public static final int EDITOR_HEIGHT = 122;
 	public static final int SCROLLBAR_WIDTH = 5;
 	private int x, y;
-	private int height = 0;
+	/**
+	 * This is the height of the content, that's decided by
+	 * which nodes and sections are present in this editor.
+	 */
+	private int contentHeight = 0;
 	private FontRenderer fontRenderer;
 	private List<GuiAnimationSection> sections;
 	private GuiAddButton buttonAddSection;
@@ -47,8 +54,9 @@ public class GuiNodeEditor {
 	private int scrollMaxX;
 	private int scrollMaxY;
 	private boolean editorHovered = false;
-	
-	public GuiNodeEditor(GuiBendsMenu mainMenu) {
+
+	public GuiNodeEditor(GuiBendsMenu mainMenu)
+	{
 		this.sections = new ArrayList<GuiAnimationSection>();
 		this.x = 0;
 		this.y = 0;
@@ -62,71 +70,82 @@ public class GuiNodeEditor {
 		this.scrollMaxX = 0;
 		this.scrollMaxY = 0;
 		this.targetList = new GuiDropDownList(this).forbidNoValue();
-		for(AlterEntry alterEntry : mainMenu.alterEntries) {
+		for (AlterEntry alterEntry : mainMenu.alterEntries)
+		{
 			this.targetList.addEntry(alterEntry.getDisplayName());
 		}
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 	}
-	
-	public void initGui(int x, int y, int pX, int pY) {
+
+	public void initGui(int x, int y, int pX, int pY)
+	{
 		this.x = x;
 		this.y = y;
-		this.buttonAddSection.initGui(x+3, y+3 + this.height);
-		this.helpButton.initGui(x+196, y-77);
+		this.buttonAddSection.initGui(x + 3, y + 3 + this.contentHeight);
+		this.helpButton.initGui(x + 196, y - 77);
 		this.parameterEditor.initGui(pX, pY);
-		this.targetList.setPosition(x+56, y-77);
+		this.targetList.setPosition(x + 56, y - 77);
 		this.updateHeight();
 	}
-	
-	public void display(int mouseX, int mouseY, float partialTicks) {
-		editorHovered = mouseX >= x+3 && mouseX <= x+3+EDITOR_WIDTH &&
-						mouseY >= y+3 && mouseY <= y+3+EDITOR_HEIGHT;
-		
+
+	public void display(int mouseX, int mouseY, float partialTicks)
+	{
+		editorHovered = mouseX >= x + 3 && mouseX <= x + 3 + EDITOR_WIDTH && mouseY >= y + 3
+				&& mouseY <= y + 3 + EDITOR_HEIGHT;
+
 		this.targetList.display();
-						
-		if(!PackManager.isCurrentPackLocal()) return;
-		
-		int[] position = GuiHelper.getDeScaledCoords(x+3, y+3+EDITOR_HEIGHT/*-87*/);
+
+		if (!PackManager.isCurrentPackLocal())
+			return;
+
+		int[] position = GuiHelper.getDeScaledCoords(x + 3, y + 3 + EDITOR_HEIGHT);
 		int[] size = GuiHelper.getDeScaledVector(EDITOR_WIDTH, EDITOR_HEIGHT);
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		GL11.glScissor(position[0], position[1], size[0], size[1]);
 		GL11.glTranslatef(-scrollAmountX, -scrollAmountY, 0);
-		int yOffset = y+3;
-		for(int i = 0; i < this.sections.size(); i++) {
-			yOffset = this.sections.get(i).display(x+3, yOffset, mouseX+(int)scrollAmountX, mouseY+(int)scrollAmountY);
+		int yOffset = y + 3;
+		for (int i = 0; i < this.sections.size(); i++)
+		{
+			yOffset = this.sections.get(i).display(x + 3, yOffset, mouseX + (int) scrollAmountX,
+					mouseY + (int) scrollAmountY);
 		}
 		this.buttonAddSection.display();
 		GL11.glTranslatef(scrollAmountX, scrollAmountY, 0);
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
-		
+
 		this.parameterEditor.display(mouseX, mouseY, partialTicks);
 		this.helpButton.display();
-		
-		if(scrollMaxY > EDITOR_HEIGHT) {
-			int scrollBarHeight = EDITOR_HEIGHT*EDITOR_HEIGHT/scrollMaxY;
-			Draw.rectangle(x+EDITOR_WIDTH-SCROLLBAR_WIDTH+3, y+3, SCROLLBAR_WIDTH, EDITOR_HEIGHT, 0xff333333);
-			Draw.rectangle(x+EDITOR_WIDTH-SCROLLBAR_WIDTH+4, y+4+(int)(scrollAmountY*(EDITOR_HEIGHT-scrollBarHeight)/(scrollMaxY-EDITOR_HEIGHT)), SCROLLBAR_WIDTH-2, scrollBarHeight-2, 0xff666666);
+
+		if (scrollMaxY > EDITOR_HEIGHT)
+		{
+			int scrollBarHeight = EDITOR_HEIGHT * EDITOR_HEIGHT / scrollMaxY;
+			Draw.rectangle(x + EDITOR_WIDTH - SCROLLBAR_WIDTH + 3, y + 3, SCROLLBAR_WIDTH, EDITOR_HEIGHT, 0xff333333);
+			Draw.rectangle(x + EDITOR_WIDTH - SCROLLBAR_WIDTH + 4,
+					y + 4 + (int) (scrollAmountY * (EDITOR_HEIGHT - scrollBarHeight) / (scrollMaxY - EDITOR_HEIGHT)),
+					SCROLLBAR_WIDTH - 2, scrollBarHeight - 2, 0xff666666);
 		}
-		
-		if(!NetworkConfiguration.instance.isModelScalingAllowed()) {
+
+		if (!NetworkConfiguration.instance.isModelScalingAllowed())
+		{
 			String errorText = I18n.format("mobends.gui.noscaleallowed", new Object[0]);
-			fontRenderer.drawStringWithShadow(errorText, this.x+(EDITOR_WIDTH-fontRenderer.getStringWidth(errorText))/2, this.y+EDITOR_HEIGHT+16, 0xffdd33);
+			fontRenderer.drawStringWithShadow(errorText,
+					this.x + (EDITOR_WIDTH - fontRenderer.getStringWidth(errorText)) / 2, this.y + EDITOR_HEIGHT + 16,
+					0xffdd33);
 		}
- 	}
-	
-	public void populate(AlterEntry alterEntry) {
+	}
+
+	public void populate(AlterEntry alterEntry)
+	{
 		BendsTarget target = BendsPack.getTarget(alterEntry.getName());
 		this.sections = new ArrayList<GuiAnimationSection>();
 		final GuiNodeEditor editor = this;
-		if(target != null){
-			target.conditions.forEach(new BiConsumer() {
-				@Override
-				public void accept(Object animationName, Object arg1) {
-					GuiAnimationSection section = new GuiAnimationSection(editor, (String) animationName);
-					section.populate((BendsCondition) arg1);
-					editor.addSection(section);
-				}
-			});
+		if (target != null)
+		{
+			for (Map.Entry<String, BendsCondition> entry : target.conditions.entrySet()) {
+				GuiAnimationSection section = new GuiAnimationSection(editor, entry.getKey());
+				section.populate(entry.getValue());
+				this.addSection(section);
+			}
 		}
 		this.parameterEditor.deselect();
 		this.alterableParts = alterEntry.getOwner().getAlterableParts();
@@ -135,192 +154,236 @@ public class GuiNodeEditor {
 		this.targetList.selectValue(mainMenu.currentAlterEntry);
 	}
 
-	public void addSection(GuiAnimationSection section) {
+	public void addSection(GuiAnimationSection section)
+	{
 		this.sections.add(section);
 	}
-	
-	public void addDefaultSection() {
+
+	public void addDefaultSection()
+	{
 		GuiAnimationSection section = new GuiAnimationSection(this, "");
 		this.sections.add(section);
 	}
-	
-	public void removeSection(GuiAnimationSection guiAnimationSection) {
+
+	public void removeSection(GuiAnimationSection guiAnimationSection)
+	{
 		this.sections.remove(guiAnimationSection);
 		this.onChange();
 	}
 
-	public void update(int mouseX, int mouseY) {
-		editorHovered = mouseX >= x+3 && mouseX <= x+3+EDITOR_WIDTH &&
-						mouseY >= y+3 && mouseY <= y+3+EDITOR_HEIGHT;
-		
+	public void update(int mouseX, int mouseY)
+	{
+		editorHovered = mouseX >= x + 3 && mouseX <= x + 3 + EDITOR_WIDTH && mouseY >= y + 3
+				&& mouseY <= y + 3 + EDITOR_HEIGHT;
+
 		this.parameterEditor.update(mouseX, mouseY);
 		this.targetList.update(mouseX, mouseY);
 		this.helpButton.update(mouseX, mouseY);
-		
-		if(!editorHovered) return;
-		
-		this.buttonAddSection.update(mouseX+(int)scrollAmountX, mouseY+(int)scrollAmountY);
+
+		if (!editorHovered)
+			return;
+
+		this.buttonAddSection.update(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY);
 		int yOffset = 0;
-		for(int i = 0; i < this.sections.size(); i++) {
-			this.sections.get(i).update(this.x, this.y+yOffset, mouseX+(int)scrollAmountX, mouseY+(int)scrollAmountY);
+		for (int i = 0; i < this.sections.size(); i++)
+		{
+			this.sections.get(i).update(this.x, this.y + yOffset, mouseX + (int) scrollAmountX,
+					mouseY + (int) scrollAmountY);
 			yOffset += this.sections.get(i).getHeight();
 		}
 	}
-	
-	public void updateHeight() {
-		this.height = 0;
-		for(int i = 0; i < this.sections.size(); i++) {
-			this.height += this.sections.get(i).updateHeight(x+3, y+3+this.height);
+
+	public void updateHeight()
+	{
+		this.contentHeight = 0;
+		for (int i = 0; i < this.sections.size(); i++)
+		{
+			this.contentHeight += this.sections.get(i).updateHeight(x + 3, y + 3 + this.contentHeight);
 		}
-		this.buttonAddSection.setPosition(x+3, y+3 + this.height);
+		this.buttonAddSection.setPosition(x + 3, y + 3 + this.contentHeight);
 		updateScrollBounds();
 	}
-	
-	public void mouseClicked(int mouseX, int mouseY, int state) {
-		if(state != 0) return;
-		
+
+	public void mouseClicked(int mouseX, int mouseY, int state)
+	{
+		if (state != 0)
+			return;
+
 		boolean lastUnappliedChanged = unappliedChanges;
-		
+
 		boolean pressed = false;
-		
-		if(this.targetList.mouseClicked(mouseX, mouseY, state)){
+
+		if (this.targetList.mouseClicked(mouseX, mouseY, state))
+		{
 			applyTargetListChanges(lastUnappliedChanged);
 			pressed = true;
 		}
-		
-		if(!PackManager.isCurrentPackLocal()) return;
-		
-		if(!pressed && this.parameterEditor.mouseClicked(mouseX, mouseY, state))
+
+		if (!PackManager.isCurrentPackLocal())
+			return;
+
+		if (!pressed && this.parameterEditor.mouseClicked(mouseX, mouseY, state))
 			pressed = true;
-		else{
-			if(editorHovered) {
-				if(this.buttonAddSection.mouseClicked(mouseX+(int)scrollAmountX, mouseY+(int)scrollAmountY, state)) {
+		else
+		{
+			if (editorHovered)
+			{
+				if (this.buttonAddSection.mouseClicked(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY,
+						state))
+				{
 					this.addDefaultSection();
 					this.updateHeight();
 					this.onChange();
 					pressed = true;
 				}
-				for(int i = 0; i < this.sections.size(); i++) {
-					if(this.sections.get(i).mouseClicked(mouseX+(int)scrollAmountX, mouseY+(int)scrollAmountY, state))
+				for (int i = 0; i < this.sections.size(); i++)
+				{
+					if (this.sections.get(i).mouseClicked(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY,
+							state))
 						pressed = true;
 				}
 			}
 		}
-		
-		if(this.helpButton.mouseClicked(mouseX, mouseY, state)) {
+
+		if (this.helpButton.mouseClicked(mouseX, mouseY, state))
+		{
 			mainMenu.popUpHelp();
 		}
-		
-		if(!pressed) {
+
+		if (!pressed)
+		{
 			this.parameterEditor.deselect();
 		}
 	}
 
-	public void mouseReleased(int mouseX, int mouseY, int event) {
-		this.buttonAddSection.mouseReleased(mouseX+(int)scrollAmountX, mouseY+(int)scrollAmountY, event);
-		for(int i = 0; i < this.sections.size(); i++) {
-			this.sections.get(i).mouseReleased(mouseX+(int)scrollAmountX, mouseY+(int)scrollAmountY, event);
+	public void mouseReleased(int mouseX, int mouseY, int event)
+	{
+		this.buttonAddSection.mouseReleased(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY, event);
+		for (int i = 0; i < this.sections.size(); i++)
+		{
+			this.sections.get(i).mouseReleased(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY, event);
 		}
 		parameterEditor.mouseReleased(mouseX, mouseY, event);
 	}
-	
-	public void handleMouseInput() {
-		if(targetList.handleMouseInput()){
+
+	public void handleMouseInput()
+	{
+		if (targetList.handleMouseInput())
+		{
 			applyTargetListChanges(unappliedChanges);
 			return;
 		}
-		
-		if(!this.parameterEditor.handleMouseInput()) {
-			if(editorHovered) {
+
+		if (!this.parameterEditor.handleMouseInput())
+		{
+			if (editorHovered)
+			{
 				int i2 = Mouse.getEventDWheel();
 
-	            if (i2 != 0)
-	            {
-	                if (i2 > 0)
-	                {
-	                    i2 = -1;
-	                }
-	                else if (i2 < 0)
-	                {
-	                    i2 = 1;
-	                }
+				if (i2 != 0)
+				{
+					if (i2 > 0)
+					{
+						i2 = -1;
+					} else if (i2 < 0)
+					{
+						i2 = 1;
+					}
 
-	                scrollY((float) (i2*15));
-	            }
+					scrollY((float) (i2 * 15));
+				}
 			}
 		}
-		
-		if(Mouse.isButtonDown(1) || Mouse.isButtonDown(2)) {
+
+		if (Mouse.isButtonDown(1) || Mouse.isButtonDown(2))
+		{
 			scrollX(-Mouse.getDX());
 			scrollY(Mouse.getDY());
 		}
 	}
-	
-	public void applyTargetListChanges(boolean unappliedChanged) {
-		if(targetList.areChangedUnhandled()) {
-			if(unappliedChanged) {
+
+	public void applyTargetListChanges(boolean unappliedChanged)
+	{
+		if (targetList.areChangedUnhandled())
+		{
+			if (unappliedChanged)
+			{
 				mainMenu.popUpDiscardChanges(mainMenu.POPUP_CHANGETARGET);
-			}else{
+			} else
+			{
 				mainMenu.selectAlterEntry((Integer) targetList.getSelectedValue());
 			}
 			targetList.setChangesHandled();
 		}
 	}
-	
-	public void keyTyped(char typedChar, int keyCode) {
-		if(!PackManager.isCurrentPackLocal()) return;
-		
+
+	public void keyTyped(char typedChar, int keyCode)
+	{
+		if (!PackManager.isCurrentPackLocal())
+			return;
+
 		this.parameterEditor.keyTyped(typedChar, keyCode);
 	}
 
-	public void applyChanges(BendsTarget target) {
+	public void applyChanges(BendsTarget target)
+	{
 		target.conditions.clear();
-		for(int i = 0; i < this.sections.size(); i++) {
+		for (int i = 0; i < this.sections.size(); i++)
+		{
 			this.sections.get(i).applyChanges(target);
 		}
 		unappliedChanges = false;
 	}
-	
-	public void onChange() {
+
+	public void onChange()
+	{
 		this.unappliedChanges = true;
 		this.mainMenu.onNodeEditorChange();
 		updateScrollBounds();
 	}
-	
-	public void updateScrollBounds() {
+
+	public void updateScrollBounds()
+	{
 		scrollMaxX = 0;
 		scrollMaxY = 20;
-		for(int i = 0; i < sections.size(); i++) {
-			if(sections.get(i).getGlobalWidth() > scrollMaxX)
+		for (int i = 0; i < sections.size(); i++)
+		{
+			if (sections.get(i).getGlobalWidth() > scrollMaxX)
 				scrollMaxX = sections.get(i).getGlobalWidth();
-			
+
 			scrollMaxY += sections.get(i).getHeight();
 		}
 	}
-	
-	public void scrollX(float value) {
-		int width = Math.max(0, scrollMaxX-EDITOR_WIDTH);
-		scrollAmountX = GUtil.clamp(scrollAmountX+value, 0, width);
+
+	public void scrollX(float value)
+	{
+		int width = Math.max(0, scrollMaxX - EDITOR_WIDTH);
+		scrollAmountX = GUtil.clamp(scrollAmountX + value, 0, width);
 	}
-	
-	public void scrollY(float value) {
-		int height = Math.max(0, scrollMaxY-EDITOR_HEIGHT);
-		scrollAmountY = GUtil.clamp(scrollAmountY+value, 0, height);
+
+	public void scrollY(float value)
+	{
+		int height = Math.max(0, scrollMaxY - EDITOR_HEIGHT);
+		scrollAmountY = GUtil.clamp(scrollAmountY + value, 0, height);
 	}
-	
-	public GuiParameterEditor getParameterEditor() {
+
+	public GuiParameterEditor getParameterEditor()
+	{
 		return this.parameterEditor;
 	}
-	
-	public boolean areChangesUnapplied() {
+
+	public boolean areChangesUnapplied()
+	{
 		return unappliedChanges;
 	}
 
-	public String[] getAlterableParts() {
+	public String[] getAlterableParts()
+	{
 		return alterableParts;
 	}
 
-	public GuiDropDownList getTargetList() {
+	public GuiDropDownList getTargetList()
+	{
 		return targetList;
 	}
 }

@@ -110,7 +110,6 @@ public class GuiPortraitDisplay {
         entityLivingBase.prevRotationYawHead = entityLivingBase.rotationYaw;
         //GL11.glTranslatef(0.0F, (float) par5EntityLivingBase.getYOffset(), 0.0F);
         Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
-        entityLivingBase.moveForward=1.0f;
         Minecraft.getMinecraft().getRenderManager().doRenderEntity(entityLivingBase, 0.0D, 0.0D, 0.0D, 0.0F, 1.0f, false);
         //Minecraft.getMinecraft().getRenderManager().renderEntityStatic(par5EntityLivingBase, 0.0f, true);
         entityLivingBase.renderYawOffset = f2;
