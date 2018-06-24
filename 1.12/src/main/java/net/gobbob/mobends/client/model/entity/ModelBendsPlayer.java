@@ -10,7 +10,7 @@ import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.renderer.SwordTrail;
-import net.gobbob.mobends.data.DataPlayer;
+import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
@@ -470,7 +470,7 @@ public class ModelBendsPlayer extends ModelPlayer implements IBendsModel
         this.bipedCape.render(scale);
     }
     
-    public void updateModelRenderers(DataPlayer data) {
+    public void updateModelRenderers(PlayerData data) {
     	for(int i = 0; i < this.boxList.size(); i++) {
 			if(this.boxList.get(i) instanceof ModelPart)
 				((ModelPart)this.boxList.get(i)).update(DataUpdateHandler.ticksPerFrame);

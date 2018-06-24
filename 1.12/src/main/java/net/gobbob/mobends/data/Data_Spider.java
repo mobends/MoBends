@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 
-public class Data_Spider extends DataLiving {
+public class Data_Spider extends LivingEntityData {
 	public static List<Data_Spider> dataList = new ArrayList<Data_Spider>(); 
 	
 	public ModelPart spiderHead;

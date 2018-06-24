@@ -59,7 +59,6 @@ public class GuiBendsMenu extends GuiScreen
 	public int currentAlterEntry = 0;
 
 	private GuiNodeEditor nodeEditor;
-	private GuiPortraitDisplay portraitDisplay;
 	private GuiPopUp popUp;
 	private GuiPackEditor packEditor;
 	private int guiLeft;
@@ -79,7 +78,6 @@ public class GuiBendsMenu extends GuiScreen
 		}
 
 		this.nodeEditor = new GuiNodeEditor(this);
-		this.portraitDisplay = new GuiPortraitDisplay();
 		this.popUp = null;
 		this.packEditor = new GuiPackEditor();
 	}
@@ -91,7 +89,7 @@ public class GuiBendsMenu extends GuiScreen
 		this.guiTop = (this.height - this.ySize) / 2;
 		this.buttonList.clear();
 		this.nodeEditor.initGui(this.guiLeft + 7, this.guiTop + 97, this.guiLeft + this.xSize, this.guiTop + 70);
-		this.portraitDisplay.initGui(this.guiLeft + 8, this.guiTop + 21);
+		
 		this.packEditor.initGui(this.width / 2, this.height / 2);
 		if (this.popUp != null)
 			this.popUp.initGui(this.width / 2, this.height / 2);
@@ -131,10 +129,6 @@ public class GuiBendsMenu extends GuiScreen
 				this.nodeEditor.initGui(this.guiLeft + 7, this.guiTop + 97, this.guiLeft + this.xSize,
 						this.guiTop + 70);
 				this.nodeEditor.populate(getCurrentAlterEntry());
-				this.portraitDisplay.setViewEntity(this.getCurrentAlterEntry().getName().equalsIgnoreCase("player")
-						? Minecraft.getMinecraft().player
-						: this.getCurrentAlterEntry().getEntity());
-				this.portraitDisplay.setValue(getCurrentAlterEntry().isAnimated());
 				break;
 			case TAB_PACKS:
 				this.packEditor.onOpened();
@@ -220,8 +214,7 @@ public class GuiBendsMenu extends GuiScreen
 		switch (guiTab)
 		{
 			case TAB_CUSTOMIZE:
-				//this.nodeEditor.update(mouseX, mouseY);
-				//this.portraitDisplay.update(mouseX, mouseY);
+				this.nodeEditor.update(mouseX, mouseY);
 				break;
 			case TAB_PACKS:
 				this.packEditor.update(mouseX, mouseY);
@@ -286,10 +279,6 @@ public class GuiBendsMenu extends GuiScreen
 		{
 			case TAB_CUSTOMIZE:
 				this.nodeEditor.mouseClicked(x, y, p_73864_3_);
-				if (this.portraitDisplay.mouseClicked(x, y, p_73864_3_))
-				{
-					getCurrentAlterEntry().setAnimate(this.portraitDisplay.getValue());
-				}
 				break;
 			case TAB_PACKS:
 				this.packEditor.mouseClicked(x, y, p_73864_3_);
@@ -462,7 +451,7 @@ public class GuiBendsMenu extends GuiScreen
 			this.drawCenteredString(fontRenderer, I18n.format("mobends.gui.chooseapacktoedit", new Object[0]),
 					this.width / 2, this.guiTop + 135, 0xffffff);
 		}
-		this.portraitDisplay.display(partialTicks);
+		
 
 		GL11.glViewport(0, 0, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);

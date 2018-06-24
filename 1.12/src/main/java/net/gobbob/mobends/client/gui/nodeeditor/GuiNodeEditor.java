@@ -14,6 +14,7 @@ import net.gobbob.mobends.client.gui.GuiHelper;
 import net.gobbob.mobends.client.gui.elements.GuiAddButton;
 import net.gobbob.mobends.client.gui.elements.GuiDropDownList;
 import net.gobbob.mobends.client.gui.elements.GuiHelpButton;
+import net.gobbob.mobends.client.gui.elements.GuiPortraitDisplay;
 import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.network.NetworkConfiguration;
 import net.gobbob.mobends.pack.BendsCondition;
@@ -45,6 +46,7 @@ public class GuiNodeEditor
 	private GuiAddButton buttonAddSection;
 	private GuiHelpButton helpButton;
 	private GuiParameterEditor parameterEditor;
+	private GuiPortraitDisplay portraitDisplay;
 	private GuiBendsMenu mainMenu;
 	private GuiDropDownList targetList;
 	private boolean unappliedChanges;
@@ -63,6 +65,7 @@ public class GuiNodeEditor
 		this.buttonAddSection = new GuiAddButton();
 		this.helpButton = new GuiHelpButton();
 		this.parameterEditor = new GuiParameterEditor(this);
+		this.portraitDisplay = new GuiPortraitDisplay();
 		this.mainMenu = mainMenu;
 		this.unappliedChanges = false;
 		this.scrollAmountX = 0;
@@ -84,6 +87,7 @@ public class GuiNodeEditor
 		this.buttonAddSection.initGui(x + 3, y + 3 + this.contentHeight);
 		this.helpButton.initGui(x + 196, y - 77);
 		this.parameterEditor.initGui(pX, pY);
+		this.portraitDisplay.initGui(x + 1, y - 76);
 		this.targetList.setPosition(x + 56, y - 77);
 		this.updateHeight();
 	}
@@ -91,9 +95,10 @@ public class GuiNodeEditor
 	public void display(int mouseX, int mouseY, float partialTicks)
 	{
 		editorHovered = mouseX >= x + 3 && mouseX <= x + 3 + EDITOR_WIDTH && mouseY >= y + 3
-				&& mouseY <= y + 3 + EDITOR_HEIGHT;
+					 && mouseY <= y + 3 + EDITOR_HEIGHT;
 
 		this.targetList.display();
+		this.portraitDisplay.display(partialTicks);
 
 		if (!PackManager.isCurrentPackLocal())
 			return;
@@ -152,6 +157,11 @@ public class GuiNodeEditor
 		this.updateHeight();
 		this.unappliedChanges = false;
 		this.targetList.selectValue(mainMenu.currentAlterEntry);
+		
+		this.portraitDisplay.setViewEntity(alterEntry.getName().equalsIgnoreCase("player")
+				? Minecraft.getMinecraft().player
+				: alterEntry.getEntity());
+		this.portraitDisplay.setValue(alterEntry.isAnimated());
 	}
 
 	public void addSection(GuiAnimationSection section)
@@ -177,6 +187,7 @@ public class GuiNodeEditor
 				&& mouseY <= y + 3 + EDITOR_HEIGHT;
 
 		this.parameterEditor.update(mouseX, mouseY);
+		this.portraitDisplay.update(mouseX, mouseY);
 		this.targetList.update(mouseX, mouseY);
 		this.helpButton.update(mouseX, mouseY);
 
@@ -219,6 +230,11 @@ public class GuiNodeEditor
 			pressed = true;
 		}
 
+		if (this.portraitDisplay.mouseClicked(mouseX, mouseY, state))
+		{
+			this.mainMenu.getCurrentAlterEntry().setAnimate(this.portraitDisplay.getValue());
+		}
+		
 		if (!PackManager.isCurrentPackLocal())
 			return;
 
@@ -236,11 +252,13 @@ public class GuiNodeEditor
 					this.onChange();
 					pressed = true;
 				}
-				for (int i = 0; i < this.sections.size(); i++)
+				for (GuiAnimationSection section : this.sections)
 				{
-					if (this.sections.get(i).mouseClicked(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY,
-							state))
+					if (section.mouseClicked(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY, state))
+					{
 						pressed = true;
+						this.portraitDisplay.setAnimationToPreview(section.getAnimationName());
+					}
 				}
 			}
 		}

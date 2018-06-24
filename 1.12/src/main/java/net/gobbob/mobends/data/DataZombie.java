@@ -8,7 +8,7 @@ import net.gobbob.mobends.client.model.entity.ModelBendsZombieVillager;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.entity.Entity;
 
-public class DataZombie extends DataBiped {
+public class DataZombie extends BipedEntityData {
     public SmoothVector3f renderOffset = new SmoothVector3f();
     public SmoothVector3f renderRotation = new SmoothVector3f();
     

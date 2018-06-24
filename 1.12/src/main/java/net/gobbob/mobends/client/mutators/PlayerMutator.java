@@ -19,7 +19,7 @@ import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.model.entity.IBendsModel;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedArmorM;
-import net.gobbob.mobends.data.DataPlayer;
+import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.pack.BendsPack;
@@ -348,10 +348,10 @@ public class PlayerMutator implements IBendsModel
 	
 	public void performAnimations(AbstractClientPlayer player, RenderPlayer renderer, float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(DataPlayer.class, player);
-		if(!(entityData instanceof DataPlayer))
+		EntityData entityData = EntityDatabase.instance.getAndMake(PlayerData.class, player);
+		if(!(entityData instanceof PlayerData))
 			return;
-		DataPlayer data = (DataPlayer) entityData;
+		PlayerData data = (PlayerData) entityData;
     	AnimatedEntity animatedEntity = AnimatedEntity.getByEntity(player);
 		float ticks = player.ticksExisted + partialTicks;
 		
@@ -381,7 +381,7 @@ public class PlayerMutator implements IBendsModel
 		rightForeLeg.syncUp(data.rightForeLeg);
 		
 		//animatedEntity.getAnimation("stand").animate((EntityLivingBase)player, this, data);
-        //BendsPack.animate(this, "player", "stand");
+        BendsPack.animate(this, "player", "stand");
 	}
 	
 	@Override

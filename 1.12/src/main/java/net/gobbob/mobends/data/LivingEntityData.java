@@ -9,7 +9,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
-public abstract class DataLiving extends EntityData
+public abstract class LivingEntityData extends EntityData
 {
 	protected float ticksAfterLiftoff = 0.0f;
     protected float ticksAfterTouchdown = 0.0f;
@@ -23,7 +23,7 @@ public abstract class DataLiving extends EntityData
 	protected float headYaw = 0.0f;
 	protected float headPitch = 0.0f;
 	
-	public DataLiving(Entity entity)
+	public LivingEntityData(Entity entity)
 	{
 		super(entity);
 	}

@@ -9,8 +9,8 @@ import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.client.model.ModelPartExtended;
-import net.gobbob.mobends.data.DataBiped;
-import net.gobbob.mobends.data.DataPlayer;
+import net.gobbob.mobends.data.BipedEntityData;
+import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.DataSkeleton;
 import net.gobbob.mobends.data.DataZombie;
 import net.gobbob.mobends.data.EntityData;
@@ -144,10 +144,10 @@ public class ModelBipedArmorM extends ModelBiped
     		return;
     	
     	EntityData entityData = EntityDatabase.instance.get(entity.getEntityId());
-    	if(entityData == null || !(entityData instanceof DataBiped))
+    	if(entityData == null || !(entityData instanceof BipedEntityData))
     		return;
     	
-    	DataBiped dataBiped = (DataBiped) entityData;
+    	BipedEntityData dataBiped = (BipedEntityData) entityData;
     	
     	((ModelPart) this.bipedHead).syncUp(dataBiped.head);
     	((ModelPart) this.bipedHeadwear).syncUp(dataBiped.headwear);

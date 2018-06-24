@@ -1,6 +1,6 @@
 package net.gobbob.mobends.data;
 
-import net.gobbob.mobends.animation.controller.ControllerPlayer;
+import net.gobbob.mobends.animation.controller.PlayerController;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.renderer.SwordTrail;
@@ -13,112 +13,130 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.util.EnumHand;
 
-public class DataPlayer extends DataBiped
+public class PlayerData extends BipedEntityData
 {
-    public ModelPart ears;
-    public ModelPart cloak;
-	
-    public SmoothVector3f renderOffset = new SmoothVector3f();
-    public SmoothVector3f renderRotation = new SmoothVector3f();
-    public SmoothVector3f renderRightItemRotation = new SmoothVector3f();
-    public SmoothVector3f renderLeftItemRotation = new SmoothVector3f();
-    
-    public SwordTrail swordTrail = new SwordTrail();
-    
-    boolean sprintJumpLeg = false;
-    boolean sprintJumpLegSwitched = false;
-    boolean fistPunchArm = false;
-    int currentAttack = 0;
-    
-	public DataPlayer(Entity entity)
+	public ModelPart ears;
+	public ModelPart cloak;
+
+	public SmoothVector3f renderOffset = new SmoothVector3f();
+	public SmoothVector3f renderRotation = new SmoothVector3f();
+	public SmoothVector3f renderRightItemRotation = new SmoothVector3f();
+	public SmoothVector3f renderLeftItemRotation = new SmoothVector3f();
+
+	public SwordTrail swordTrail = new SwordTrail();
+
+	boolean sprintJumpLeg = false;
+	boolean sprintJumpLegSwitched = false;
+	boolean fistPunchArm = false;
+	int currentAttack = 0;
+
+	public PlayerData(Entity entity)
 	{
 		super(entity);
-		this.controller = new ControllerPlayer();
+		this.controller = new PlayerController();
 	}
-	
+
 	@Override
-	public void initModelPose() {
+	public void initModelPose()
+	{
 		super.initModelPose();
-		
+
 		Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
-		
+
 		PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);
-		if(mutator == null) return;
-		
-		if(mutator.smallArms) {
+		if (mutator == null)
+			return;
+
+		if (mutator.smallArms)
+		{
 			this.rightArm.position.set(-5F, -9.5F, 0F);
 			this.leftArm.position.set(5F, -9.5F, 0F);
 		}
 	}
-	
+
 	@Override
-	public void update(float partialTicks) {
+	public void update(float partialTicks)
+	{
 		super.update(partialTicks);
-		
-		if(ticksAfterAttack > 20){
+
+		if (ticksAfterAttack > 20)
+		{
 			currentAttack = 0;
 		}
-		
-		if(!sprintJumpLegSwitched && motion.y > 0) {
+
+		if (!sprintJumpLegSwitched && motion.y > 0)
+		{
 			sprintJumpLeg = !sprintJumpLeg;
 			sprintJumpLegSwitched = true;
 		}
-		
-		if(motion.y < 0) {
+
+		if (motion.y < 0)
+		{
 			sprintJumpLegSwitched = false;
 		}
 	}
-	
+
 	@Override
-	public void onLiftoff() {
+	public void onLiftoff()
+	{
 		super.onLiftoff();
-		if(!sprintJumpLegSwitched) {
+		if (!sprintJumpLegSwitched)
+		{
 			sprintJumpLeg = !sprintJumpLeg;
 			sprintJumpLegSwitched = true;
 		}
 	}
-	
+
 	@Override
-	public void onPunch() {
-		if(!(this.entity instanceof AbstractClientPlayer))
+	public void onPunch()
+	{
+		if (!(this.entity instanceof AbstractClientPlayer))
 			return;
-		
+
 		AbstractClientPlayer entityPlayer = (AbstractClientPlayer) this.entity;
-		
-		if(entityPlayer.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR)
+
+		if (entityPlayer.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR)
 		{
-			if(this.ticksAfterAttack > 6.0f){
-				if(this.currentAttack == 0){
+			if (this.ticksAfterAttack > 6.0f)
+			{
+				if (this.currentAttack == 0)
+				{
 					this.currentAttack = 1;
 					this.ticksAfterAttack = 0;
-				}
-				else
+				} else
 				{
-					if(this.ticksAfterAttack < 15.0f){
-						if(this.currentAttack == 1) this.currentAttack = 2;
-						else if(this.currentAttack == 2){
+					if (this.ticksAfterAttack < 15.0f)
+					{
+						if (this.currentAttack == 1)
+							this.currentAttack = 2;
+						else if (this.currentAttack == 2)
+						{
 							this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 3;
-						}
-						else if(this.currentAttack == 3) this.currentAttack = 1;
+						} else if (this.currentAttack == 3)
+							this.currentAttack = 1;
 						this.ticksAfterAttack = 0;
 					}
 				}
 			}
-		}else{
+		} else
+		{
 			this.fistPunchArm = !this.fistPunchArm;
 			this.ticksAfterAttack = 0;
 		}
 	}
-	
-	public int getCurrentAttack() {
+
+	public int getCurrentAttack()
+	{
 		return currentAttack;
 	}
-	
-	public boolean getFistPunchArm() {
+
+	public boolean getFistPunchArm()
+	{
 		return fistPunchArm;
 	}
-	
-	public boolean getSprintJumpLeg() {
+
+	public boolean getSprintJumpLeg()
+	{
 		return sprintJumpLeg;
 	}
 

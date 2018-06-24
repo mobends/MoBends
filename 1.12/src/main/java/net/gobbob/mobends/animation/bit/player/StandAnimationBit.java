@@ -5,21 +5,21 @@ import org.lwjgl.util.vector.Vector3f;
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.layer.AnimationLayer;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.data.DataPlayer;
+import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.EntityData;
 
-public class AnimationStand extends AnimationBit
+public class StandAnimationBit extends AnimationBit
 {
-	public AnimationStand(AnimationLayer layer) {
+	public StandAnimationBit(AnimationLayer layer) {
 		super(layer);
 	}
 	
 	@Override
 	public void perform(EntityData entityData)
 	{
-		if(!(entityData instanceof DataPlayer))
+		if(!(entityData instanceof PlayerData))
 			return;
-		DataPlayer data = (DataPlayer) entityData;
+		PlayerData data = (PlayerData) entityData;
 		
 		data.body.pre_rotation.setSmooth(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
 		data.body.rotation.setSmooth(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
@@ -46,7 +46,5 @@ public class AnimationStand extends AnimationBit
 		data.body.rotation.setSmoothX( (float) ((Math.cos(DataUpdateHandler.getTicks() / 10)-1.0)/2.0f)*-3);
 		data.leftArm.rotation.setSmoothZ( -(float) ((Math.cos(DataUpdateHandler.getTicks() / 10+Math.PI/2)-1.0)/2.0f)*-5);
 		data.rightArm.rotation.setSmoothZ(  -(float) ((Math.cos(DataUpdateHandler.getTicks() / 10+Math.PI/2)-1.0)/2.0f)*5);
-		
-		data.rightArm.rotation.setSmoothX(-90F);
 	}
 }

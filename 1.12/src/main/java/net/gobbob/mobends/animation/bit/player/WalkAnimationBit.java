@@ -5,22 +5,22 @@ import org.lwjgl.util.vector.Vector3f;
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.layer.AnimationLayer;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.data.DataPlayer;
+import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.EntityData;
 import net.minecraft.util.math.MathHelper;
 
-public class AnimationWalk extends AnimationBit
+public class WalkAnimationBit extends AnimationBit
 {
-	public AnimationWalk(AnimationLayer layer) {
+	public WalkAnimationBit(AnimationLayer layer) {
 		super(layer);
 	}
 	
 	@Override
 	public void perform(EntityData entityData)
 	{
-		if(!(entityData instanceof DataPlayer))
+		if(!(entityData instanceof PlayerData))
 			return;
-		DataPlayer data = (DataPlayer) entityData;
+		PlayerData data = (PlayerData) entityData;
 		
 		data.rightArm.pre_rotation.setSmooth(new Vector3f(0.0f, 0.0f, 0.0f));
 		data.rightArm.rotation.setSmoothX(0.5f*(float) ((MathHelper.cos(data.getLimbSwing() * 0.6662F + (float)Math.PI) * 2.0F * data.getLimbSwingAmount() * 0.5F ) / Math.PI * 180.0f));

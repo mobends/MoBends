@@ -11,7 +11,7 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 
-public class DataSkeleton extends DataBiped
+public class DataSkeleton extends BipedEntityData
 {
     public SmoothVector3f renderOffset = new SmoothVector3f();
     public SmoothVector3f renderRotation = new SmoothVector3f();

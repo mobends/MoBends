@@ -184,7 +184,7 @@ public class BendsPack {
 		os.newLine();
 		for(BendsTarget target : targets.values()) {
 			try {
-				os.write("target " + target.mob + " {\n");
+				os.write("target " + target.name + " {\n");
 				for(BendsCondition condition : target.conditions.values()) {
 					try {
 						os.write(tab+"anim "+condition.getAnimationName()+" {\n");

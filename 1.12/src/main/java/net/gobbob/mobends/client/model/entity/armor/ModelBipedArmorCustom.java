@@ -9,7 +9,7 @@ import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartContainer;
 import net.gobbob.mobends.client.mutators.BoxMutator;
-import net.gobbob.mobends.data.DataBiped;
+import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.util.ModelUtils;
@@ -59,10 +59,10 @@ public class ModelBipedArmorCustom extends ModelBiped
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
         
         EntityData entityData = EntityDatabase.instance.get(entityIn.getEntityId());
-		if(entityData == null || !(entityData instanceof DataBiped))
+		if(entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 		
-		DataBiped dataBiped = (DataBiped) entityData;
+		BipedEntityData dataBiped = (BipedEntityData) entityData;
         
         GlStateManager.pushMatrix();
         original.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
@@ -112,10 +112,10 @@ public class ModelBipedArmorCustom extends ModelBiped
 		original.setModelAttributes(this);
 		
 		EntityData entityData = EntityDatabase.instance.get(entityIn.getEntityId());
-		if(entityData == null || !(entityData instanceof DataBiped))
+		if(entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 		
-		DataBiped dataBiped = (DataBiped) entityData;
+		BipedEntityData dataBiped = (BipedEntityData) entityData;
 		
 		for(IModelPart part : this.headParts)
 		{

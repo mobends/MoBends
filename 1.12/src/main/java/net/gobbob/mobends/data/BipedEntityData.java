@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
 
-public abstract class DataBiped extends DataLiving
+public abstract class BipedEntityData extends LivingEntityData
 {
 	/*
 	 * These models need to be represented only
@@ -38,7 +38,7 @@ public abstract class DataBiped extends DataLiving
     public SmoothVector3f renderRightItemRotation = new SmoothVector3f();
     public SmoothVector3f renderLeftItemRotation = new SmoothVector3f();
 	
-	public DataBiped(Entity entity)
+	public BipedEntityData(Entity entity)
 	{
 		super(entity);
 	}

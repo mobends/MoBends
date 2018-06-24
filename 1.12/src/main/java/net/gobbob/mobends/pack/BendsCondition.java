@@ -9,77 +9,139 @@ import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.util.EnumAxis;
 import net.gobbob.mobends.util.SmoothVector3f;
 
-public class BendsCondition {
+public class BendsCondition
+{
 	private String animationName;
 	private List<BendsAction> actions;
-	
-	public BendsCondition(String animationName) {
+
+	public BendsCondition(String animationName)
+	{
 		this.actions = new ArrayList<BendsAction>();
 		this.animationName = animationName;
 	}
 
-	public void applyToModel(Object object, String anim, String model){
-		for(int i = 0;i < actions.size();i++){
-			if(actions.get(i).model.equalsIgnoreCase(model)){
-				if(object instanceof SmoothVector3f){
+	public void applyToModel(Object object, String anim, String model)
+	{
+		for (int i = 0; i < actions.size(); i++)
+		{
+			if (actions.get(i).model.equalsIgnoreCase(model))
+			{
+				if (object instanceof SmoothVector3f)
+				{
 					SmoothVector3f vector = (SmoothVector3f) object;
-					if(actions.get(i).property == EnumBoxProperty.ROT){
-						vector.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? vector.vFinal.x : actions.get(i).axis == EnumAxis.Y ? vector.vFinal.y : vector.vFinal.z)),actions.get(i).smooth);
+					if (actions.get(i).property == EnumBoxProperty.ROT)
+					{
+						vector.setSmooth(actions.get(i).axis,
+								actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? vector.vFinal.x
+										: actions.get(i).axis == EnumAxis.Y ? vector.vFinal.y : vector.vFinal.z)),
+								actions.get(i).smooth);
 					}
-				}else if(object instanceof ModelPart){
+				}
+				else if (object instanceof ModelPart)
+				{
 					ModelPart box = (ModelPart) object;
-					if(actions.get(i).property == EnumBoxProperty.ROT){
-						box.rotation.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? box.rotation.vFinal.x : actions.get(i).axis == EnumAxis.Y ? box.rotation.vFinal.y : box.rotation.vFinal.z)),actions.get(i).smooth);
-					}else if(actions.get(i).property == EnumBoxProperty.PREROT){
-						box.pre_rotation.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? box.pre_rotation.vFinal.x : actions.get(i).axis == EnumAxis.Y ? box.pre_rotation.vFinal.y : box.pre_rotation.vFinal.z)),actions.get(i).smooth);
-					}else if(actions.get(i).property == EnumBoxProperty.SCALE){
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X) box.scale.x = actions.get(i).getNumber(box.scale.x);
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y) box.scale.y = actions.get(i).getNumber(box.scale.y);
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z) box.scale.z = actions.get(i).getNumber(box.scale.z);
+					if (actions.get(i).property == EnumBoxProperty.ROT)
+					{
+						box.rotation.setSmooth(actions.get(i).axis,
+								actions.get(i)
+										.getNumber((actions.get(i).axis == EnumAxis.X ? box.rotation.vFinal.x
+												: actions.get(i).axis == EnumAxis.Y ? box.rotation.vFinal.y
+														: box.rotation.vFinal.z)),
+								actions.get(i).smooth);
+					}
+					else if (actions.get(i).property == EnumBoxProperty.PREROT)
+					{
+						box.pre_rotation.setSmooth(actions.get(i).axis,
+								actions.get(i)
+										.getNumber((actions.get(i).axis == EnumAxis.X ? box.pre_rotation.vFinal.x
+												: actions.get(i).axis == EnumAxis.Y ? box.pre_rotation.vFinal.y
+														: box.pre_rotation.vFinal.z)),
+								actions.get(i).smooth);
+					}
+					else if (actions.get(i).property == EnumBoxProperty.SCALE)
+					{
+						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X)
+							box.scale.x = actions.get(i).getNumber(box.scale.x);
+						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y)
+							box.scale.y = actions.get(i).getNumber(box.scale.y);
+						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z)
+							box.scale.z = actions.get(i).getNumber(box.scale.z);
 					}
 				}
 			}
 		}
 	}
-	
-	public void applyToModel(IBendsModel model) {
-		for(int i = 0;i < actions.size();i++){
+
+	public void applyToModel(IBendsModel model)
+	{
+		for (int i = 0; i < actions.size(); i++)
+		{
 			Object object = model.getPartForName(actions.get(i).model);
-			if(object != null){
-				if(object instanceof SmoothVector3f){
+			if (object != null)
+			{
+				if (object instanceof SmoothVector3f)
+				{
 					SmoothVector3f vector = (SmoothVector3f) object;
-					if(actions.get(i).property == EnumBoxProperty.ROT){
-						vector.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? vector.vFinal.x : actions.get(i).axis == EnumAxis.Y ? vector.vFinal.y : vector.vFinal.z)),actions.get(i).smooth);
+					if (actions.get(i).property == EnumBoxProperty.ROT)
+					{
+						vector.setSmooth(actions.get(i).axis,
+								actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? vector.vFinal.x
+										: actions.get(i).axis == EnumAxis.Y ? vector.vFinal.y : vector.vFinal.z)),
+								actions.get(i).smooth);
 					}
-				}else if(object instanceof ModelPart){
+				}
+				else if (object instanceof ModelPart)
+				{
 					ModelPart box = (ModelPart) object;
-					if(actions.get(i).property == EnumBoxProperty.ROT){
-						box.rotation.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? box.rotation.vFinal.x : actions.get(i).axis == EnumAxis.Y ? box.rotation.vFinal.y : box.rotation.vFinal.z)),actions.get(i).smooth);
-					}else if(actions.get(i).property == EnumBoxProperty.PREROT){
-						box.pre_rotation.setSmooth(actions.get(i).axis,actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? box.pre_rotation.vFinal.x : actions.get(i).axis == EnumAxis.Y ? box.pre_rotation.vFinal.y : box.pre_rotation.vFinal.z)),actions.get(i).smooth);
-					}else if(actions.get(i).property == EnumBoxProperty.SCALE){
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X) box.scale.x = actions.get(i).getNumber(box.scale.x);
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y) box.scale.y = actions.get(i).getNumber(box.scale.y);
-						if(actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z) box.scale.z = actions.get(i).getNumber(box.scale.z);
+					if (actions.get(i).property == EnumBoxProperty.ROT)
+					{
+						box.rotation.setSmooth(actions.get(i).axis,
+								actions.get(i)
+										.getNumber((actions.get(i).axis == EnumAxis.X ? box.rotation.vFinal.x
+												: actions.get(i).axis == EnumAxis.Y ? box.rotation.vFinal.y
+														: box.rotation.vFinal.z)),
+								actions.get(i).smooth);
+					}
+					else if (actions.get(i).property == EnumBoxProperty.PREROT)
+					{
+						box.pre_rotation.setSmooth(actions.get(i).axis,
+								actions.get(i)
+										.getNumber((actions.get(i).axis == EnumAxis.X ? box.pre_rotation.vFinal.x
+												: actions.get(i).axis == EnumAxis.Y ? box.pre_rotation.vFinal.y
+														: box.pre_rotation.vFinal.z)),
+								actions.get(i).smooth);
+					}
+					else if (actions.get(i).property == EnumBoxProperty.SCALE)
+					{
+						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X)
+							box.scale.x = actions.get(i).getNumber(box.scale.x);
+						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y)
+							box.scale.y = actions.get(i).getNumber(box.scale.y);
+						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z)
+							box.scale.z = actions.get(i).getNumber(box.scale.z);
 					}
 				}
 			}
 		}
 	}
-	
-	public void addAction(BendsAction action) {
+
+	public void addAction(BendsAction action)
+	{
 		this.actions.add(action);
 	}
-	
-	public String getAnimationName() {
+
+	public String getAnimationName()
+	{
 		return this.animationName;
 	}
 
-	public int getActionAmount() {
+	public int getActionAmount()
+	{
 		return this.actions.size();
 	}
-	
-	public BendsAction getAction(int a) {
+
+	public BendsAction getAction(int a)
+	{
 		return this.actions.get(a);
 	}
 }
