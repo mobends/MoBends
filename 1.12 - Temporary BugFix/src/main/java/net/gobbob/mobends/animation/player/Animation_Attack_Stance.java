@@ -13,7 +13,8 @@ import net.minecraft.util.EnumHandSide;
 import org.lwjgl.util.vector.Vector3f;
 
 public class Animation_Attack_Stance {
-	public static void animate(EntityPlayer player,ModelBendsPlayer model,Data_Player data){
+	public static void animate(EntityPlayer player,ModelBendsPlayer model,Data_Player data)
+	{
 		boolean mainHandSwitch = model.primaryHand == EnumHandSide.RIGHT;
 		float handDirMtp = mainHandSwitch ? 1 : -1; // Main Hand Direction Multiplier - it helps switch animation sides depending on what is your main hand.
 		ModelRendererBends mainArmBox = mainHandSwitch ? ((ModelRendererBends) model.bipedRightArm) : ((ModelRendererBends) model.bipedLeftArm);

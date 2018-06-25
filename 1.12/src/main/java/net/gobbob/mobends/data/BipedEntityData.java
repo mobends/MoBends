@@ -1,5 +1,7 @@
 package net.gobbob.mobends.data;
 
+import java.util.HashMap;
+
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelBox;
@@ -33,10 +35,10 @@ public abstract class BipedEntityData extends LivingEntityData
     public ModelPartTransform rightForeLeg;
     public ModelPartTransform leftForeLeg;
 	
-    public SmoothVector3f renderOffset = new SmoothVector3f();
-    public SmoothVector3f renderRotation = new SmoothVector3f();
-    public SmoothVector3f renderRightItemRotation = new SmoothVector3f();
-    public SmoothVector3f renderLeftItemRotation = new SmoothVector3f();
+    public SmoothVector3f renderOffset;
+    public SmoothVector3f renderRotation;
+    public SmoothVector3f renderRightItemRotation;
+    public SmoothVector3f renderLeftItemRotation;
 	
 	public BipedEntityData(Entity entity)
 	{
@@ -57,6 +59,27 @@ public abstract class BipedEntityData extends LivingEntityData
 		this.leftForeArm = new ModelPartTransform();
 		this.rightForeLeg = new ModelPartTransform();
 		this.leftForeLeg = new ModelPartTransform();
+		
+		this.renderOffset = new SmoothVector3f();
+		this.renderRotation = new SmoothVector3f();
+		this.renderRightItemRotation = new SmoothVector3f();
+		this.renderLeftItemRotation = new SmoothVector3f();
+		
+		nameToPartMap = new HashMap<String, Object>();
+        nameToPartMap.put("body", body);
+        nameToPartMap.put("head", head);
+        nameToPartMap.put("leftArm", leftArm);
+        nameToPartMap.put("rightArm", rightArm);
+        nameToPartMap.put("leftLeg", leftLeg);
+        nameToPartMap.put("rightLeg", rightLeg);
+        nameToPartMap.put("leftForeArm", leftForeArm);
+        nameToPartMap.put("rightForeArm", rightForeArm);
+        nameToPartMap.put("leftForeLeg", leftForeLeg);
+        nameToPartMap.put("rightForeLeg", rightForeLeg);
+        nameToPartMap.put("renderOffset", renderOffset);
+        nameToPartMap.put("renderRotation", renderRotation);
+        nameToPartMap.put("renderRightItemRotation", renderRightItemRotation);
+        nameToPartMap.put("renderLeftItemRotation", renderLeftItemRotation);
 		
 		this.body.position.set(0F, 12F, 0F);
 		this.head.position.set(0F, -12F, 0F);
@@ -84,5 +107,10 @@ public abstract class BipedEntityData extends LivingEntityData
 		this.leftForeArm.update(ticksPerFrame);
 		this.rightForeLeg.update(ticksPerFrame);
 		this.leftForeLeg.update(ticksPerFrame);
+		
+		this.renderOffset.update(ticksPerFrame);
+		this.renderRotation.update(ticksPerFrame);
+		this.renderRightItemRotation.update(ticksPerFrame);
+		this.renderLeftItemRotation.update(ticksPerFrame);
 	}
 }

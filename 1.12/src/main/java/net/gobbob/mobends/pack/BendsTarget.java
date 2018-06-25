@@ -6,8 +6,8 @@ import java.util.List;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
+import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.client.model.entity.IBendsModel;
 import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.util.EnumAxis;
 import net.gobbob.mobends.util.SmoothVector3f;

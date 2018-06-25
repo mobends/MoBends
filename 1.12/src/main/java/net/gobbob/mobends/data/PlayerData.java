@@ -1,6 +1,7 @@
 package net.gobbob.mobends.data;
 
 import net.gobbob.mobends.animation.controller.PlayerController;
+import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.renderer.SwordTrail;
@@ -17,11 +18,6 @@ public class PlayerData extends BipedEntityData
 {
 	public ModelPart ears;
 	public ModelPart cloak;
-
-	public SmoothVector3f renderOffset = new SmoothVector3f();
-	public SmoothVector3f renderRotation = new SmoothVector3f();
-	public SmoothVector3f renderRightItemRotation = new SmoothVector3f();
-	public SmoothVector3f renderLeftItemRotation = new SmoothVector3f();
 
 	public SwordTrail swordTrail = new SwordTrail();
 
@@ -59,7 +55,7 @@ public class PlayerData extends BipedEntityData
 	{
 		super.update(partialTicks);
 
-		if (ticksAfterAttack > 20)
+		if (getTicksAfterAttack() > 20)
 		{
 			currentAttack = 0;
 		}
@@ -74,6 +70,8 @@ public class PlayerData extends BipedEntityData
 		{
 			sprintJumpLegSwitched = false;
 		}
+		
+		//System.out.println("Ticks after attack: " + this.ticksAfterAttack);
 	}
 
 	@Override
@@ -97,7 +95,7 @@ public class PlayerData extends BipedEntityData
 
 		if (entityPlayer.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR)
 		{
-			if (this.ticksAfterAttack > 6.0f)
+			if (this.getTicksAfterAttack() > 6.0f)
 			{
 				if (this.currentAttack == 0)
 				{
@@ -105,7 +103,7 @@ public class PlayerData extends BipedEntityData
 					this.ticksAfterAttack = 0;
 				} else
 				{
-					if (this.ticksAfterAttack < 15.0f)
+					if (this.getTicksAfterAttack() < 15.0f)
 					{
 						if (this.currentAttack == 1)
 							this.currentAttack = 2;
@@ -118,7 +116,8 @@ public class PlayerData extends BipedEntityData
 					}
 				}
 			}
-		} else
+		}
+		else
 		{
 			this.fistPunchArm = !this.fistPunchArm;
 			this.ticksAfterAttack = 0;

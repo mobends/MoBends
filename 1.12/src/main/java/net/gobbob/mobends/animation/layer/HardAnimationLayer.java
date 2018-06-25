@@ -10,6 +10,13 @@ public class HardAnimationLayer extends AnimationLayer
 	public void playBit(AnimationBit bit)
 	{
 		this.performedBit = bit;
+		this.performedBit.setupForPlay(this);
+	}
+	
+	public void playOrContinueBit(AnimationBit bit)
+	{
+		if (!this.isPlaying(bit))
+			this.playBit(bit);
 	}
 
 	@Override
@@ -22,5 +29,10 @@ public class HardAnimationLayer extends AnimationLayer
 	public boolean isPlaying(AnimationBit bit)
 	{
 		return bit == performedBit;
+	}
+
+	public void clearAnimation()
+	{
+		this.performedBit = null;
 	}
 }

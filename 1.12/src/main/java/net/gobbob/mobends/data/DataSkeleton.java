@@ -42,7 +42,7 @@ public class DataSkeleton extends BipedEntityData
 		
 		this.ticksBeforeStateChange-=argPartialTicks;
 		
-		if(this.ticksAfterAttack > 10){
+		if(this.getTicksAfterAttack() > 10){
 			this.currentAttack = 0;
 		}
 		
@@ -66,7 +66,7 @@ public class DataSkeleton extends BipedEntityData
 		AbstractSkeleton entitySkeleton = (AbstractSkeleton) this.entity;
 		
 		if(entitySkeleton.getHeldItem(EnumHand.MAIN_HAND) != null){
-			if(this.ticksAfterAttack > 6.0f)
+			if(this.getTicksAfterAttack() > 6.0f)
 			{
 				if(this.currentAttack == 0)
 				{
@@ -75,7 +75,7 @@ public class DataSkeleton extends BipedEntityData
 				}
 				else
 				{
-					if(this.ticksAfterAttack < 15.0f)
+					if(this.getTicksAfterAttack() < 15.0f)
 					{
 						if(this.currentAttack == 1)
 							this.currentAttack = 2;

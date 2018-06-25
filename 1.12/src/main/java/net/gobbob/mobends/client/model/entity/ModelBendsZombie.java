@@ -8,6 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
@@ -237,7 +238,7 @@ public class ModelBendsZombie extends ModelBiped implements IBendsModel
     }
     
     public void postRender(float argScale){
-		GL11.glTranslatef(this.renderOffset.vSmooth.x*argScale,this.renderOffset.vSmooth.y*argScale,this.renderOffset.vSmooth.z*argScale);
+		GL11.glTranslatef(this.renderOffset.getX()*argScale,this.renderOffset.getY()*argScale,this.renderOffset.getZ()*argScale);
 		GL11.glRotatef(-this.renderRotation.getX(),1.0f,0.0f,0.0f);
     	GL11.glRotatef(-this.renderRotation.getY(),0.0f,1.0f,0.0f);
     	GL11.glRotatef(this.renderRotation.getZ(),0.0f,0.0f,1.0f);

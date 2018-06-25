@@ -41,7 +41,7 @@ public class DataUpdateHandler
 			this.ticksPerFrame = Math.max(0F,
 					(Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime) - ticks);
 			ticks = (Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime);
-			
+
 			if (ModConfig.showArrowTrails)
 				ArrowTrail.onRenderTick();
 		}

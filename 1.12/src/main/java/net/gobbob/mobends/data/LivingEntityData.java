@@ -43,7 +43,7 @@ public abstract class LivingEntityData extends EntityData
 	public void setHeadPitch(float headPitch) {
 		this.headPitch = headPitch;
 	}
-	public float getTicksAfterPunch() { return this.ticksAfterAttack; }
+	public float getTicksAfterAttack() { return this.ticksAfterAttack; }
 	public float getLimbSwing() { return this.limbSwing; }
 	public float getLimbSwingAmount() { return this.limbSwingAmount; }
 	public float getHeadYaw() { return this.headYaw; }
@@ -114,7 +114,7 @@ public abstract class LivingEntityData extends EntityData
 	
 	public void onPunch()
 	{
-		this.ticksAfterAttack = 0.0f;
+		this.ticksAfterAttack = 0.0F;
 	}
 	
 	public float getClimbingRotation()

@@ -2,178 +2,224 @@ package net.gobbob.mobends.util;
 
 import org.lwjgl.util.vector.Vector3f;
 
-public class SmoothVector3f {
-	public Vector3f vOld = new Vector3f(0,0,0);
-	public Vector3f vSmooth = new Vector3f(0,0,0);
-	public Vector3f vFinal = new Vector3f(0,0,0);
-	public Vector3f smoothness = new Vector3f(1,1,1);
-	public Vector3f completion = new Vector3f(0,0,0); //min: 0.0f, max: 1.0f
-	
-	public void setSmooth(Vector3f argRotation, float argSmooth){
-		if(this.vFinal != argRotation){
-			this.vFinal = argRotation;
-			this.vOld = this.vSmooth;
-			this.completion = new Vector3f(0,0,0);
-			this.smoothness = new Vector3f(argSmooth,argSmooth,argSmooth);
+public class SmoothVector3f
+{
+	public Vector3f start = new Vector3f(0, 0, 0);
+	public Vector3f end = new Vector3f(0, 0, 0);
+	public Vector3f smoothness = new Vector3f(1, 1, 1);
+	public Vector3f completion = new Vector3f(0, 0, 0); // <0.0F, 1.0F>
+
+	public void slideTo(float x, float y, float z, float smoothness)
+	{
+		if (this.end.x != x || this.end.y != y || this.end.z != z)
+		{
+			this.start.set(this.getX(), this.getY(), this.getZ());
+			this.end.set(x, y, z);
+			this.completion.set(0, 0, 0);
+			this.smoothness.set(smoothness, smoothness, smoothness);
 		}
 	}
 	
-	public void setSmoothZero(){
-		this.setSmoothZero(1.0f);
+	public void slideTo(Vector3f orientation, float smoothness)
+	{
+		this.slideTo(orientation.x, orientation.y, orientation.z, smoothness);
 	}
 	
-	public void setSmoothZero(float argSmooth){
-		this.setSmooth(new Vector3f(0,0,0), argSmooth);
+	public void slideTo(Vector3f orientation)
+	{
+		this.slideTo(orientation, 1.0F);
+	}
+
+	public void slideToZero(float smoothness)
+	{
+		this.slideTo(0, 0, 0, smoothness);
 	}
 	
-	public void setSmooth(Vector3f argRotation){
-		this.setSmooth(argRotation, 1.0f);
+	public void slideToZero()
+	{
+		this.slideToZero(1.0F);
 	}
-	
-	public void setSmooth(EnumAxis argAxis,float argRot,float argSmooth){
-		if((argAxis == EnumAxis.X ? this.vFinal.x : argAxis == EnumAxis.Y ? this.vFinal.y : this.vFinal.z) != argRot){
-			if(argAxis == EnumAxis.X) this.vFinal.x = argRot;
-			if(argAxis == EnumAxis.Y) this.vFinal.y = argRot;
-			if(argAxis == EnumAxis.Z) this.vFinal.z = argRot;
-			if(argAxis == EnumAxis.X) this.vOld.x = this.vSmooth.x;
-			if(argAxis == EnumAxis.Y) this.vOld.y = this.vSmooth.y;
-			if(argAxis == EnumAxis.Z) this.vOld.z = this.vSmooth.z;
-			if(argAxis == EnumAxis.X) this.completion.x = 0.0f;
-			if(argAxis == EnumAxis.Y) this.completion.y = 0.0f;
-			if(argAxis == EnumAxis.Z) this.completion.z = 0.0f;
+
+	public void slideTo(EnumAxis axis, float orientation, float smoothness)
+	{
+		if ((axis == EnumAxis.X ? this.end.x : axis == EnumAxis.Y ? this.end.y : this.end.z) != orientation)
+		{
+			if (axis == EnumAxis.X)
+			{
+				this.start.x = this.getX();
+				this.end.x = orientation;
+				this.completion.x = 0.0F;
+			}
+			
+			if (axis == EnumAxis.Y)
+			{
+				this.start.y = this.getY();
+				this.end.y = orientation;
+				this.completion.y = 0.0F;
+			}
+			
+			if (axis == EnumAxis.Z)
+			{
+				this.start.z = this.getZ();
+				this.end.z = orientation;
+				this.completion.z = 0.0F;
+			}
 		}
-		if(argAxis == EnumAxis.X) this.smoothness.x = argSmooth;
-		if(argAxis == EnumAxis.Y) this.smoothness.y = argSmooth;
-		if(argAxis == EnumAxis.Z) this.smoothness.z = argSmooth;
+		
+		if (axis == EnumAxis.X)
+			this.smoothness.x = smoothness;
+		if (axis == EnumAxis.Y)
+			this.smoothness.y = smoothness;
+		if (axis == EnumAxis.Z)
+			this.smoothness.z = smoothness;
 	}
-	
-	public void setSmoothX(float argX,float argSmooth){
-		if(this.vFinal.x != argX){
-			this.vFinal.x = argX;
-			this.vOld.x = this.vSmooth.x;
-			this.completion.x = 0.0f;
+
+	public void slideX(float orientation, float smoothness)
+	{
+		if (this.end.x != orientation)
+		{
+			this.start.x = this.getX();
+			this.end.x = orientation;
+			this.completion.x = 0.0F;
 		}
-		this.smoothness.x = argSmooth;
+		this.smoothness.x = smoothness;
 	}
-	
-	public void setSmoothY(float argY,float argSmooth){
-		if(this.vFinal.y != argY){
-			this.vFinal.y = argY;
-			this.vOld.y = this.vSmooth.y;
-			this.completion.y = 0.0f;
+
+	public void slideY(float argY, float argSmooth)
+	{
+		if (this.end.y != argY)
+		{
+			this.start.y = this.getY();
+			this.end.y = argY;
+			this.completion.y = 0.0F;
 		}
 		this.smoothness.y = argSmooth;
 	}
-	
-	public void setSmoothZ(float argZ,float argSmooth){
-		if(this.vFinal.z != argZ){
-			this.vFinal.z = argZ;
-			this.vOld.z = this.vSmooth.z;
-			this.completion.z = 0.0f;
+
+	public void slideZ(float argZ, float argSmooth)
+	{
+		if (this.end.z != argZ)
+		{
+			this.start.z = this.getZ();
+			this.end.z = argZ;
+			this.completion.z = 0.0F;
 		}
 		this.smoothness.z = argSmooth;
 	}
-	
-	public void setSmoothX(float argX){
-		this.setSmoothX(argX, 0.6f);
+
+	public void slideX(float x)
+	{
+		this.slideX(x, 0.6f);
+	}
+
+	public void slideY(float y)
+	{
+		this.slideY(y, 0.6f);
+	}
+
+	public void slideZ(float z)
+	{
+		this.slideZ(z, 0.6f);
+	}
+
+	public void setX(float x)
+	{
+		this.start.x = x;
+		this.end.x = x;
+		this.completion.x = 1.0F;
+	}
+
+	public void setY(float y)
+	{
+		this.start.y = y;
+		this.end.y = y;
+		this.completion.y = 1.0F;
+	}
+
+	public void setZ(float z)
+	{
+		this.start.z = z;
+		this.end.z = z;
+		this.completion.z = 1.0F;
+	}
+
+	public void set(float x, float y, float z)
+	{
+		this.start = new Vector3f(x, y, z);
+		this.end.set(start);
+		this.completion.set(1.0F, 1.0F, 1.0F);
+	}
+
+	public void set(SmoothVector3f other)
+	{
+		this.completion.set(other.completion);
+		this.smoothness.set(other.smoothness);
+		this.end.set(other.end);
+		this.start.set(other.start);
+	}
+
+	public float getX()
+	{
+		return this.start.x + (this.end.x - this.start.x) * this.completion.x;
+	}
+
+	public float getY()
+	{
+		return this.start.y + (this.end.y - this.start.y) * this.completion.y;
+	}
+
+	public float getZ()
+	{
+		return this.start.z + (this.end.z - this.start.z) * this.completion.z;
 	}
 	
-	public void setSmoothY(float argY){
-		this.setSmoothY(argY, 0.6f);
+	public Vector3f getSmooth()
+	{
+		return new Vector3f(this.getX(), this.getY(), this.getZ());
 	}
-	
-	public void setSmoothZ(float argZ){
-		this.setSmoothZ(argZ, 0.6f);
-	}
-	
-	public void setX(float argX){
-		this.vOld.x = argX;
-		this.vSmooth.x = argX;
-		this.vFinal.x = argX;
-		this.completion.x = 1.0f;
-	}
-	
-	public void setY(float argY){
-		this.vOld.y = argY;
-		this.vSmooth.y = argY;
-		this.vFinal.y = argY;
-		this.completion.y = 1.0f;
-	}
-	
-	public void setZ(float argZ){
-		this.vOld.z = argZ;
-		this.vSmooth.z = argZ;
-		this.vFinal.z = argZ;
-		this.completion.z = 1.0f;
-	}
-	
-	public void set(float _x, float _y, float _z) {
-		this.vOld = new Vector3f(_x, _y, _z);
-		this.vSmooth = vOld;
-		this.vFinal = vOld;
-		this.completion = new Vector3f(1.0f, 1.0f, 1.0f);
-	}
-	
-	public void set(SmoothVector3f other){
-		this.completion = other.completion;
-		this.smoothness = other.smoothness;
-		this.vFinal = other.vFinal;
-		this.vOld = other.vOld;
-		this.vSmooth = other.vSmooth;
-	}
-	
-	public float getX(){
-		return this.vSmooth.x;
-	}
-	
-	public float getY(){
-		return this.vSmooth.y;
-	}
-	
-	public float getZ(){
-		return this.vSmooth.z;
-	}
-	
-	public void update(float argTicksPerFrame){
-		this.completion.x += argTicksPerFrame*this.smoothness.x;
-		this.completion.y += argTicksPerFrame*this.smoothness.y;
-		this.completion.z += argTicksPerFrame*this.smoothness.z;
+
+	public void update(float ticksPerFrame)
+	{
+		this.completion.x += ticksPerFrame * this.smoothness.x;
+		this.completion.y += ticksPerFrame * this.smoothness.y;
+		this.completion.z += ticksPerFrame * this.smoothness.z;
 		this.completion = GUtil.min(this.completion, 1.0f);
-		
-		if(completion.x >= 1.0f) this.vOld.x = this.vSmooth.x = this.vFinal.x;
-		else this.vSmooth.x = this.vOld.x+(this.vFinal.x-this.vOld.x)*this.completion.x;
-		
-		if(completion.y >= 1.0f) this.vOld.y = this.vSmooth.y = this.vFinal.y;
-		else this.vSmooth.y = this.vOld.y+(this.vFinal.y-this.vOld.y)*this.completion.y;
-		
-		if(completion.z >= 1.0f) this.vOld.z = this.vSmooth.z = this.vFinal.z;
-		else this.vSmooth.z = this.vOld.z+(this.vFinal.z-this.vOld.z)*this.completion.z;
-		
-		//this.setSmooth(new Vector3f(0.0f,0.0f,0.0f), 0.5f);
 	}
-	
-	public float getNextX(float argTicksPerFrame) {
-		float c = this.completion.x + argTicksPerFrame*this.smoothness.x;
-		float v = this.vOld.x + (this.vFinal.x-this.vOld.x)*this.completion.x;
-		if(completion.x >= 1.0f) v = this.vFinal.x;
+
+	public float getNextX(float ticksPerFrame)
+	{
+		float c = this.completion.x + ticksPerFrame * this.smoothness.x;
+		float v = this.start.x + (this.end.x - this.start.x) * this.completion.x;
+		if (completion.x >= 1.0f)
+			v = this.end.x;
 		return v;
 	}
-	
-	public float getNextY(float argTicksPerFrame) {
-		float c = this.completion.y + argTicksPerFrame*this.smoothness.y;
-		float v = this.vOld.y + (this.vFinal.y-this.vOld.y)*this.completion.y;
-		if(completion.y >= 1.0f) v = this.vFinal.y;
+
+	public float getNextY(float ticksPerFrame)
+	{
+		float c = this.completion.y + ticksPerFrame * this.smoothness.y;
+		float v = this.start.y + (this.end.y - this.start.y) * this.completion.y;
+		if (completion.y >= 1.0f)
+			v = this.end.y;
 		return v;
 	}
-	
-	public float getNextZ(float argTicksPerFrame) {
-		float c = this.completion.z + argTicksPerFrame*this.smoothness.z;
-		float v = this.vOld.z + (this.vFinal.z-this.vOld.z)*this.completion.z;
-		if(completion.z >= 1.0f) v = this.vFinal.z;
+
+	public float getNextZ(float ticksPerFrame)
+	{
+		float c = this.completion.z + ticksPerFrame * this.smoothness.z;
+		float v = this.start.z + (this.end.z - this.start.z) * this.completion.z;
+		if (completion.z >= 1.0f)
+			v = this.end.z;
 		return v;
 	}
-	
-	public void finish() {
-		this.set(this.vFinal.x, this.vFinal.y, this.vFinal.z);
+
+	public void finish()
+	{
+		this.set(this.end.x, this.end.y, this.end.z);
+	}
+
+	public float getEnd(EnumAxis axis)
+	{
+		return axis == EnumAxis.X ? this.end.x : axis == EnumAxis.Y ? this.end.y : this.end.z;
 	}
 }

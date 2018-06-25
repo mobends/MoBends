@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.gobbob.mobends.client.model.entity.IBendsModel;
+import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.main.ModBase;
 import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.pack.BendsAction.Calculation;
@@ -447,16 +447,16 @@ public class BendsPack {
 		return action;
 	}
 	
-	public static BendsTarget getTarget(String id){
+	public static BendsTarget getTarget(String id)
+	{
 		return (BendsTarget) targets.get(id);
 	}
 	
-	public static void animate(IBendsModel model,String target,String anim){
-		BendsTarget bTarget = getTarget(target);
+	public static void animate(IBendsModel model, String target, String anim)
+	{
+		BendsTarget bendsTarget = getTarget(target);
 		
-		if(bTarget == null)
-			return;
-		
-		bTarget.applyToModel(model, anim);
+		if (bendsTarget != null)
+			bendsTarget.applyToModel(model, anim);
 	}
 }

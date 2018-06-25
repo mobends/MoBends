@@ -3,8 +3,11 @@ package net.gobbob.mobends.pack;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.util.vector.Vector3f;
+
+import net.gobbob.mobends.client.model.IBendsModel;
+import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.client.model.entity.IBendsModel;
 import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.util.EnumAxis;
 import net.gobbob.mobends.util.SmoothVector3f;
@@ -22,105 +25,64 @@ public class BendsCondition
 
 	public void applyToModel(Object object, String anim, String model)
 	{
-		for (int i = 0; i < actions.size(); i++)
+		for (BendsAction action : this.actions)
 		{
-			if (actions.get(i).model.equalsIgnoreCase(model))
+			if (!action.model.equalsIgnoreCase(model))
 			{
-				if (object instanceof SmoothVector3f)
-				{
-					SmoothVector3f vector = (SmoothVector3f) object;
-					if (actions.get(i).property == EnumBoxProperty.ROT)
-					{
-						vector.setSmooth(actions.get(i).axis,
-								actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? vector.vFinal.x
-										: actions.get(i).axis == EnumAxis.Y ? vector.vFinal.y : vector.vFinal.z)),
-								actions.get(i).smooth);
-					}
-				}
-				else if (object instanceof ModelPart)
-				{
-					ModelPart box = (ModelPart) object;
-					if (actions.get(i).property == EnumBoxProperty.ROT)
-					{
-						box.rotation.setSmooth(actions.get(i).axis,
-								actions.get(i)
-										.getNumber((actions.get(i).axis == EnumAxis.X ? box.rotation.vFinal.x
-												: actions.get(i).axis == EnumAxis.Y ? box.rotation.vFinal.y
-														: box.rotation.vFinal.z)),
-								actions.get(i).smooth);
-					}
-					else if (actions.get(i).property == EnumBoxProperty.PREROT)
-					{
-						box.pre_rotation.setSmooth(actions.get(i).axis,
-								actions.get(i)
-										.getNumber((actions.get(i).axis == EnumAxis.X ? box.pre_rotation.vFinal.x
-												: actions.get(i).axis == EnumAxis.Y ? box.pre_rotation.vFinal.y
-														: box.pre_rotation.vFinal.z)),
-								actions.get(i).smooth);
-					}
-					else if (actions.get(i).property == EnumBoxProperty.SCALE)
-					{
-						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X)
-							box.scale.x = actions.get(i).getNumber(box.scale.x);
-						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y)
-							box.scale.y = actions.get(i).getNumber(box.scale.y);
-						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z)
-							box.scale.z = actions.get(i).getNumber(box.scale.z);
-					}
-				}
+				continue;
 			}
+			
+			applyToPart(object, action);
 		}
 	}
 
 	public void applyToModel(IBendsModel model)
 	{
-		for (int i = 0; i < actions.size(); i++)
+		for (BendsAction action : this.actions)
 		{
-			Object object = model.getPartForName(actions.get(i).model);
-			if (object != null)
+			Object object = model.getPartForName(action.model);
+			
+			if(object != null)
 			{
-				if (object instanceof SmoothVector3f)
-				{
-					SmoothVector3f vector = (SmoothVector3f) object;
-					if (actions.get(i).property == EnumBoxProperty.ROT)
-					{
-						vector.setSmooth(actions.get(i).axis,
-								actions.get(i).getNumber((actions.get(i).axis == EnumAxis.X ? vector.vFinal.x
-										: actions.get(i).axis == EnumAxis.Y ? vector.vFinal.y : vector.vFinal.z)),
-								actions.get(i).smooth);
-					}
-				}
-				else if (object instanceof ModelPart)
-				{
-					ModelPart box = (ModelPart) object;
-					if (actions.get(i).property == EnumBoxProperty.ROT)
-					{
-						box.rotation.setSmooth(actions.get(i).axis,
-								actions.get(i)
-										.getNumber((actions.get(i).axis == EnumAxis.X ? box.rotation.vFinal.x
-												: actions.get(i).axis == EnumAxis.Y ? box.rotation.vFinal.y
-														: box.rotation.vFinal.z)),
-								actions.get(i).smooth);
-					}
-					else if (actions.get(i).property == EnumBoxProperty.PREROT)
-					{
-						box.pre_rotation.setSmooth(actions.get(i).axis,
-								actions.get(i)
-										.getNumber((actions.get(i).axis == EnumAxis.X ? box.pre_rotation.vFinal.x
-												: actions.get(i).axis == EnumAxis.Y ? box.pre_rotation.vFinal.y
-														: box.pre_rotation.vFinal.z)),
-								actions.get(i).smooth);
-					}
-					else if (actions.get(i).property == EnumBoxProperty.SCALE)
-					{
-						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.X)
-							box.scale.x = actions.get(i).getNumber(box.scale.x);
-						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Y)
-							box.scale.y = actions.get(i).getNumber(box.scale.y);
-						if (actions.get(i).axis == null | actions.get(i).axis == EnumAxis.Z)
-							box.scale.z = actions.get(i).getNumber(box.scale.z);
-					}
-				}
+				applyToPart(object, action);
+			}
+		}
+	}
+	
+	public void applyToPart(Object part, BendsAction action)
+	{
+		if (part instanceof SmoothVector3f)
+		{
+			SmoothVector3f vector = (SmoothVector3f) part;
+			if (action.property == EnumBoxProperty.ROT)
+			{
+				vector.slideTo(action.axis,
+							   action.getNumber(vector.getEnd(action.axis)),
+							   action.smooth);
+			}
+		}
+		else if (part instanceof IModelPart)
+		{
+			IModelPart box = (IModelPart) part;
+			if (action.property == EnumBoxProperty.ROT ||
+				action.property == EnumBoxProperty.PREROT)
+			{
+				SmoothVector3f rotation = action.property == EnumBoxProperty.ROT ? box.getRotation() : box.getPreRotation();
+				
+				rotation.slideTo(action.axis,
+								 action.getNumber((rotation.getEnd(action.axis))),
+								 action.smooth);
+			}
+			else if (action.property == EnumBoxProperty.SCALE)
+			{
+				Vector3f scale = box.getScale();
+				
+				if (action.axis == null || action.axis == EnumAxis.X)
+					box.getScale().setX(action.getNumber(scale.x));
+				if (action.axis == null || action.axis == EnumAxis.Y)
+					box.getScale().setY(action.getNumber(scale.y));
+				if (action.axis == null || action.axis == EnumAxis.Z)
+					box.getScale().setZ(action.getNumber(scale.z));
 			}
 		}
 	}

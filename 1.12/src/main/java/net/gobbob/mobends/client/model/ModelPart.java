@@ -17,7 +17,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public Vector3f position;
 	public Vector3f scale;
 	public SmoothVector3f rotation;
-	public SmoothVector3f pre_rotation;
+	public SmoothVector3f preRotation;
 	public int texOffsetX, texOffsetY;
 	
 	public boolean compiled;
@@ -29,7 +29,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		this.position = new Vector3f();
 		this.scale = new Vector3f(1, 1, 1);
 		this.rotation = new SmoothVector3f();
-		this.pre_rotation = new SmoothVector3f();
+		this.preRotation = new SmoothVector3f();
 		this.texOffsetX = texOffsetX;
         this.texOffsetY = texOffsetY;
         if(!register)
@@ -142,6 +142,13 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
         	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
         
+		if (this.preRotation.getZ() != 0.0F)
+            GlStateManager.rotate(this.preRotation.getZ(), 0F, 0F, 1F);
+        if (this.preRotation.getY() != 0.0F)
+            GlStateManager.rotate(this.preRotation.getY(), 0F, 1F, 0F);
+        if (this.preRotation.getX() != 0.0F)
+            GlStateManager.rotate(this.preRotation.getX(), 1F, 0F, 0F);
+		
         if (this.rotation.getZ() != 0.0F)
             GlStateManager.rotate(this.rotation.getZ(), 0F, 0F, 1F);
         if (this.rotation.getY() != 0.0F)
@@ -187,7 +194,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public void update(float ticksPerFrame)
 	{
 		this.rotation.update(ticksPerFrame);
-		this.pre_rotation.update(ticksPerFrame);
+		this.preRotation.update(ticksPerFrame);
 	}
 	
 	@Override
@@ -260,7 +267,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	@Override
 	public SmoothVector3f getRotation() { return this.rotation; }
 	@Override
-	public SmoothVector3f getPreRotation() { return this.pre_rotation; }
+	public SmoothVector3f getPreRotation() { return this.preRotation; }
 	@Override
 	public boolean isShowing() { return this.showModel && !this.isHidden; }
 	
@@ -314,7 +321,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public void finish()
 	{
 		this.rotation.finish();
-		this.pre_rotation.finish();
+		this.preRotation.finish();
 	}
 	
 	@Override
@@ -324,7 +331,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 			return;
 		this.position.set(part.getPosition());
 		this.rotation.set(part.getRotation());
-		this.pre_rotation.set(part.getPreRotation());
+		this.preRotation.set(part.getPreRotation());
 		this.scale.set(part.getScale());
 	}
 

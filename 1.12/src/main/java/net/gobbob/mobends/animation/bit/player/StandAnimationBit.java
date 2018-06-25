@@ -6,45 +6,56 @@ import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.layer.AnimationLayer;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.data.PlayerData;
+import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.data.EntityData;
 
 public class StandAnimationBit extends AnimationBit
 {
-	public StandAnimationBit(AnimationLayer layer) {
-		super(layer);
+	protected String animationTarget;
+
+	public StandAnimationBit(String animationTarget)
+	{
+		this.animationTarget = animationTarget;
 	}
-	
+
 	@Override
 	public void perform(EntityData entityData)
 	{
-		if(!(entityData instanceof PlayerData))
+		if (!(entityData instanceof PlayerData))
 			return;
 		PlayerData data = (PlayerData) entityData;
+
+		data.renderOffset.slideToZero(0.1F);
+		data.renderRotation.slideToZero(0.3F);
 		
-		data.body.pre_rotation.setSmooth(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
-		data.body.rotation.setSmooth(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
-		data.rightLeg.rotation.setSmoothZ(2, 0.2f);
-		data.leftLeg.rotation.setSmoothZ(-2, 0.2f);
-		data.rightLeg.rotation.setSmoothX(0.0F, 0.1f);
-		data.leftLeg.rotation.setSmoothX(0.0F, 0.1f);
-		
-		data.leftLeg.rotation.setSmoothY(-5);
-		data.rightLeg.rotation.setSmoothY(5);
-		
-		data.rightArm.pre_rotation.setSmooth(new Vector3f(0.0f, 0.0f, 0.0f));
-		data.rightArm.rotation.setSmooth(new Vector3f(0.0F, 0.0F, 0.0F), 0.1f);
-		data.leftArm.pre_rotation.setSmooth(new Vector3f(0.0f, 0.0f, 0.0f));
-		data.leftArm.rotation.setSmooth(new Vector3f(0.0F, 0.0F, 0.0F), 0.1f);
-		data.rightForeLeg.rotation.setSmoothX(4.0F, 0.1f);
-		data.leftForeLeg.rotation.setSmoothX(4.0F, 0.1f);
-		data.rightForeArm.rotation.setSmoothX(-4.0F, 0.1f);
-		data.leftForeArm.rotation.setSmoothX(-4.0F, 0.1f);
-		data.head.pre_rotation.setSmooth(new Vector3f(0.0f, 0.0f, 0.0f));
+		data.body.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
+		data.body.rotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
+		data.rightLeg.rotation.slideZ(2, 0.2f);
+		data.leftLeg.rotation.slideZ(-2, 0.2f);
+		data.rightLeg.rotation.slideX(0.0F, 0.1f);
+		data.leftLeg.rotation.slideX(0.0F, 0.1f);
+
+		data.leftLeg.rotation.slideY(-5);
+		data.rightLeg.rotation.slideY(5);
+
+		data.rightArm.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f));
+		data.rightArm.rotation.slideTo(new Vector3f(0.0F, 0.0F, 0.0F), 0.1f);
+		data.leftArm.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f));
+		data.leftArm.rotation.slideTo(new Vector3f(0.0F, 0.0F, 0.0F), 0.1f);
+		data.rightForeLeg.rotation.slideX(4.0F, 0.1f);
+		data.leftForeLeg.rotation.slideX(4.0F, 0.1f);
+		data.rightForeArm.rotation.slideX(-4.0F, 0.1f);
+		data.leftForeArm.rotation.slideX(-4.0F, 0.1f);
+		data.head.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f));
 		data.head.rotation.setY(data.getHeadYaw() - data.body.rotation.getNextY(DataUpdateHandler.ticksPerFrame));
 		data.head.rotation.setX(data.getHeadPitch() - data.body.rotation.getNextX(DataUpdateHandler.ticksPerFrame));
-		
-		data.body.rotation.setSmoothX( (float) ((Math.cos(DataUpdateHandler.getTicks() / 10)-1.0)/2.0f)*-3);
-		data.leftArm.rotation.setSmoothZ( -(float) ((Math.cos(DataUpdateHandler.getTicks() / 10+Math.PI/2)-1.0)/2.0f)*-5);
-		data.rightArm.rotation.setSmoothZ(  -(float) ((Math.cos(DataUpdateHandler.getTicks() / 10+Math.PI/2)-1.0)/2.0f)*5);
+
+		data.body.rotation.slideX((float) ((Math.cos(DataUpdateHandler.getTicks() / 10) - 1.0) / 2.0f) * -3);
+		data.leftArm.rotation
+				.slideZ(-(float) ((Math.cos(DataUpdateHandler.getTicks() / 10 + Math.PI / 2) - 1.0) / 2.0f) * -5);
+		data.rightArm.rotation
+				.slideZ(-(float) ((Math.cos(DataUpdateHandler.getTicks() / 10 + Math.PI / 2) - 1.0) / 2.0f) * 5);
+
+		BendsPack.animate(entityData, this.animationTarget, "stand");
 	}
 }

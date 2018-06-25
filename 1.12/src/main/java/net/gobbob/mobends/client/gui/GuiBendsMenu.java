@@ -34,13 +34,10 @@ import net.minecraft.util.ResourceLocation;
 public class GuiBendsMenu extends GuiScreen
 {
 	/*--VISUAL--*/
-	public static final ResourceLocation menuTitleTexture = new ResourceLocation(ModStatics.MODID,
-			"textures/gui/logo.png");
+	public static final ResourceLocation MENU_TITLE_TEXTURE = new ResourceLocation(ModStatics.MODID,
+			"textures/gui/title.png");
 	public static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/icons.png");
-
-	public float titleTransitionState = 0.0f;
-	public boolean titleTransition = true;
 
 	/*--TECHNICAL--*/
 	int guiTab = 0;
@@ -55,6 +52,9 @@ public class GuiBendsMenu extends GuiScreen
 	public static final int POPUP_EXIT = 3;
 	public static final int POPUP_CREATEPACK = 4;
 
+	public static final int CUSTOMIZE_BUTTON = 1;
+	public static final int PACKS_BUTTON = 3;
+	
 	public List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
 	public int currentAlterEntry = 0;
 
@@ -69,8 +69,6 @@ public class GuiBendsMenu extends GuiScreen
 	public GuiBendsMenu()
 	{
 		Keyboard.enableRepeatEvents(true);
-		this.titleTransition = true;
-		this.titleTransitionState = 0.0f;
 
 		for (AnimatedEntity animatedEntity : AnimatedEntity.animatedEntities.values())
 		{
@@ -89,15 +87,15 @@ public class GuiBendsMenu extends GuiScreen
 		this.guiTop = (this.height - this.ySize) / 2;
 		this.buttonList.clear();
 		this.nodeEditor.initGui(this.guiLeft + 7, this.guiTop + 97, this.guiLeft + this.xSize, this.guiTop + 70);
-		
+
 		this.packEditor.initGui(this.width / 2, this.height / 2);
 		if (this.popUp != null)
 			this.popUp.initGui(this.width / 2, this.height / 2);
 
 		if (this.guiTab == TAB_MAIN)
 		{
-			this.buttonList.add(new GuiButton(1, (this.width - 80) / 2, height / 2 - 30, 80, 20, "Customize"));
-			this.buttonList.add(new GuiButton(3, (this.width - 80) / 2, height / 2 + 30, 80, 20, "Packs"));
+			this.buttonList.add(new GuiButton(CUSTOMIZE_BUTTON, (this.width - 80) / 2, height / 2 - 15, 80, 20, "Customize"));
+			this.buttonList.add(new GuiButton(PACKS_BUTTON, (this.width - 80) / 2, height / 2 + 15, 80, 20, "Packs"));
 		} else
 		{
 			this.buttonList.add(new GuiButton(0, 10, height - 30, 60, 20, "Back"));
@@ -391,25 +389,14 @@ public class GuiBendsMenu extends GuiScreen
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glEnable(GL11.GL_BLEND);
 
-		if (this.titleTransition)
-		{
-			this.titleTransitionState += (128 - this.titleTransitionState) / 5;
-		} else
-		{
-			this.titleTransitionState += (100 - this.titleTransitionState) / 7;
-		}
-
-		if (this.titleTransitionState > 126)
-		{
-			this.titleTransition = false;
-		}
-
 		switch (guiTab)
 		{
 			case TAB_MAIN:
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				this.mc.renderEngine.bindTexture(menuTitleTexture);
-				Draw.rectangle(width / 2 - 64, titleTransitionState - 100, 128, 64);
+				this.mc.renderEngine.bindTexture(MENU_TITLE_TEXTURE);
+				int titleWidth = 167 * 2;
+				int titleHeight = 37 * 2;
+				Draw.rectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 60, titleWidth, titleHeight);
 				break;
 			case TAB_CUSTOMIZE:
 				displayCustomizeWindow(mouseX, mouseY, partialTicks);
@@ -451,7 +438,6 @@ public class GuiBendsMenu extends GuiScreen
 			this.drawCenteredString(fontRenderer, I18n.format("mobends.gui.chooseapacktoedit", new Object[0]),
 					this.width / 2, this.guiTop + 135, 0xffffff);
 		}
-		
 
 		GL11.glViewport(0, 0, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
 		GL11.glMatrixMode(GL11.GL_PROJECTION);

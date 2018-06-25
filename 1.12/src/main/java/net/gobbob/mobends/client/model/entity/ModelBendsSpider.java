@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.data.Data_Spider;
 import net.gobbob.mobends.data.EntityData;
@@ -301,7 +302,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     }
     
     public void postRenderTranslate(float argScale){
-    	GlStateManager.translate(this.renderOffset.vSmooth.x*argScale,-this.renderOffset.vSmooth.y*argScale,this.renderOffset.vSmooth.z*argScale);
+    	GlStateManager.translate(this.renderOffset.getX()*argScale,-this.renderOffset.getY()*argScale,this.renderOffset.getZ()*argScale);
     }
     
     public void postRenderRotate(float argScale){

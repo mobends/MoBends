@@ -8,6 +8,8 @@ import org.lwjgl.util.vector.Vector3f;
 import net.gobbob.mobends.animation.controller.Controller;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.model.IBendsModel;
+import net.gobbob.mobends.client.model.IModelPart;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -20,7 +22,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public abstract class EntityData
+public abstract class EntityData implements IBendsModel
 {
 	protected int entityID;
 	protected Entity entity;
@@ -29,10 +31,9 @@ public abstract class EntityData
 	public Vector3f position = new Vector3f();
 	public Vector3f motion_prev = new Vector3f();
 	public Vector3f motion = new Vector3f();
-
-	protected boolean updatedThisFrame = false;
-
 	protected boolean onGround = true;
+	protected boolean updatedThisFrame = false;
+	protected HashMap<String, Object> nameToPartMap;
 
 	public EntityData(Entity entity)
 	{
@@ -155,5 +156,11 @@ public abstract class EntityData
 	public float getMotionMagnitude()
 	{
 		return this.motion.length();
+	}
+	
+	@Override
+	public Object getPartForName(String name)
+	{
+		return nameToPartMap.get(name);
 	}
 }

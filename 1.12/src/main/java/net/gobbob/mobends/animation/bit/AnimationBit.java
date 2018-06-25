@@ -1,7 +1,7 @@
 package net.gobbob.mobends.animation.bit;
 
 import net.gobbob.mobends.animation.layer.AnimationLayer;
-import net.gobbob.mobends.client.model.entity.IBendsModel;
+import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.data.EntityData;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -13,7 +13,12 @@ public abstract class AnimationBit
 	 * */
 	protected AnimationLayer layer;
 	
-	public AnimationBit(AnimationLayer layer) {
+	/*
+	 * Called by the AnimationLayer before it plays
+	 * this bit.
+	 */
+	public void setupForPlay(AnimationLayer layer)
+	{
 		this.layer = layer;
 	}
 	
