@@ -23,6 +23,8 @@ public class SprintAnimationBit extends AnimationBit
 
 		data.renderOffset.slideToZero(0.1F);
 		data.renderRotation.slideToZero(0.3F);
+		data.renderRightItemRotation.slideToZero();
+		data.renderLeftItemRotation.slideToZero();
 		
 		data.rightArm.preRotation.slideToZero();
 		data.leftArm.preRotation.slideToZero();

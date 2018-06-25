@@ -48,6 +48,8 @@ public class StandAnimationBit extends AnimationBit
 
 		data.renderOffset.slideToZero(0.1F);
 		data.renderRotation.slideToZero(0.3F);
+		data.renderRightItemRotation.slideToZero();
+		data.renderLeftItemRotation.slideToZero();
 
 		data.body.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
 		data.body.rotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);

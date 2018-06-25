@@ -1,9 +1,8 @@
 package net.gobbob.mobends.client.renderer.entity;
 
 import net.gobbob.mobends.client.model.entity.ModelBendsSkeleton;
-import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsCustomHead;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsHeldItem;
-import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedArmorM;
+import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedCustomArmor;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderBiped;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -23,8 +22,8 @@ public class RenderBendsSkeleton extends RenderBiped<AbstractSkeleton>
     	super(renderManagerIn, new ModelBendsSkeleton(), 0.5F);
     	this.layerRenderers.clear();
     	this.addLayer(new LayerBendsHeldItem(this));
-        this.addLayer(new LayerBipedArmorM(this));
-        this.addLayer(new LayerBendsCustomHead(((ModelBendsSkeleton)this.getMainModel()).bipedHead));
+        this.addLayer(new LayerBipedCustomArmor(this));
+        //this.addLayer(new LayerBendsCustomHead(((ModelBendsSkeleton)this.getMainModel()).bipedHead));
     }
     
     protected void preRenderCallback(EntitySkeleton entitylivingbaseIn, float partialTickTime)

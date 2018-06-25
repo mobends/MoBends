@@ -29,6 +29,8 @@ public class WalkAnimationBit extends AnimationBit
 
 		data.renderOffset.slideToZero(0.1F);
 		data.renderRotation.slideToZero(0.3F);
+		data.renderRightItemRotation.slideToZero(0.3F);
+		data.renderLeftItemRotation.slideToZero(0.3F);
 		
 		data.rightArm.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f));
 		data.rightArm.rotation.slideX(0.5f * (float) ((MathHelper.cos(data.getLimbSwing() * 0.6662F + (float) Math.PI)

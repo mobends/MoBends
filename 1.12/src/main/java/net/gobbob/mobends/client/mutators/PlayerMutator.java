@@ -18,7 +18,8 @@ import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.client.model.ModelPartTransform;
-import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedArmorM;
+import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsHeldItem;
+import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedCustomArmor;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
@@ -30,6 +31,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
+import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
@@ -68,7 +70,8 @@ public class PlayerMutator implements IBendsModel
 	public float headYaw, headPitch, limbSwing, limbSwingAmount;
 	public boolean smallArms;
 	public List<LayerRenderer<EntityLivingBase>> layerRenderers;
-	public LayerBipedArmorM layerArmor;
+	public LayerBipedCustomArmor layerArmor;
+	public LayerBendsHeldItem layerHeldItem;
 
 	protected HashMap<String, IModelPart> nameToPartMap;
 
@@ -171,9 +174,13 @@ public class PlayerMutator implements IBendsModel
 				LayerRenderer<EntityLivingBase> layer = layerRenderers.get(i);
 				if (layer instanceof LayerBipedArmor)
 				{
-					this.layerArmor = new LayerBipedArmorM(renderer);
+					this.layerArmor = new LayerBipedCustomArmor(renderer);
 					layerRenderers.set(i, this.layerArmor);
-					System.out.println(layer);
+				}
+				else if (layer instanceof LayerHeldItem)
+				{
+					this.layerHeldItem = new LayerBendsHeldItem(renderer);
+					layerRenderers.set(i, this.layerHeldItem);
 				}
 			}
 		}

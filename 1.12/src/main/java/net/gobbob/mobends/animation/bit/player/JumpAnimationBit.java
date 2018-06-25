@@ -52,6 +52,8 @@ public class JumpAnimationBit extends AnimationBit
 		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
 
 		data.renderRotation.slideToZero();
+		data.renderRightItemRotation.slideToZero();
+		data.renderLeftItemRotation.slideToZero();
 		
 		data.body.preRotation.slideToZero(0.5F);
 		data.body.rotation.slideX(Math.max(1.0F - data.getTicksAfterLiftoff() * 0.1F, 0.0F), 0.2f);
