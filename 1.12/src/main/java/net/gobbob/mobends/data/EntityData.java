@@ -29,7 +29,7 @@ public abstract class EntityData implements IBendsModel
 	protected Controller controller;
 
 	protected Vector3f position = new Vector3f();
-	protected Vector3f motion_prev = new Vector3f();
+	protected Vector3f previousMotion = new Vector3f();
 	protected Vector3f motion = new Vector3f();
 	protected boolean onGround = true;
 	protected boolean updatedThisFrame = false;
@@ -92,6 +92,11 @@ public abstract class EntityData implements IBendsModel
 	public Vector3f getPosition()
 	{
 		return this.position;
+	}
+	
+	public Vector3f getPreviousMotion()
+	{
+		return this.previousMotion;
 	}
 	
 	public Vector3f getMotion()
@@ -181,7 +186,7 @@ public abstract class EntityData implements IBendsModel
 
 	public void updateClient(Entity entity)
 	{
-		this.motion_prev.set(this.motion);
+		this.previousMotion.set(this.motion);
 
 		this.motion.x = (float) entity.posX - this.position.x;
 		this.motion.y = (float) entity.posY - this.position.y;

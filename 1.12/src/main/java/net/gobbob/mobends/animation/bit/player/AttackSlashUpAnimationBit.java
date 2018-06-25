@@ -87,20 +87,19 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 
 		if (data.isStillHorizontally())
 		{
-			data.rightLeg.rotation.slideX(-30, 0.3f);
-			data.leftLeg.rotation.slideX(-30, 0.3f);
-			data.rightLeg.rotation.slideY(0, 0.3f);
-			data.leftLeg.rotation.slideY(-25, 0.3f);
+			//data.rightLeg.rotation.slideX(-30, 0.3f);
+			//data.leftLeg.rotation.slideX(-30, 0.3f);
+			//data.rightLeg.rotation.slideY(0, 0.3f);
+			//data.leftLeg.rotation.slideY(-25, 0.3f);
 			data.rightLeg.rotation.slideZ(10);
-			data.leftLeg.rotation.slideZ(-10);
 
 			data.rightForeLeg.rotation.slideX(30, 0.3f);
-			data.leftForeLeg.rotation.slideX(30, 0.3f);
+			//data.leftForeLeg.rotation.slideX(30, 0.3f);
 
 			if (!player.isRiding())
 			{
-				data.renderOffset.slideY(-2.0f);
-				data.renderRotation.slideY(-30 * handDirMtp, 0.7F);
+				data.renderOffset.slideY(0.0f);
+				//data.renderRotation.slideY(-30 * handDirMtp, 0.7F);
 			}
 		}
 		else

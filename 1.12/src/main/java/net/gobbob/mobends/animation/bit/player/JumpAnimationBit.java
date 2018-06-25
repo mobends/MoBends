@@ -1,6 +1,7 @@
 package net.gobbob.mobends.animation.bit.player;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
+import net.gobbob.mobends.animation.layer.AnimationLayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.pack.BendsPack;
@@ -9,6 +10,26 @@ import net.minecraft.util.math.MathHelper;
 
 public class JumpAnimationBit extends AnimationBit
 {
+	@Override
+	public void onPlay(EntityData entityData)
+	{
+		if (!(entityData instanceof PlayerData))
+			return;
+
+		PlayerData data = (PlayerData) entityData;
+
+		data.body.rotation.setX(20);
+		data.rightLeg.rotation.setX(0);
+		data.leftLeg.rotation.setX(0);
+		data.leftLeg.rotation.setY(0);
+		data.leftLeg.rotation.setZ(0);
+		data.rightForeLeg.rotation.setX(0);
+		data.leftForeLeg.rotation.setX(0);
+		data.rightArm.rotation.setZ(2);
+		data.leftArm.rotation.setZ(-2);
+		data.rightForeArm.rotation.setX(-20);
+		data.leftForeArm.rotation.setX(-20);
+	}
 
 	@Override
 	public void perform(EntityData entityData)
@@ -18,11 +39,22 @@ public class JumpAnimationBit extends AnimationBit
 		if (!(entityData.getEntity() instanceof AbstractClientPlayer))
 			return;
 
+		if (entityData.getPreviousMotion().y < 0 && entityData.getMotion().y > 0)
+		{
+			/*
+			 * Restarting the animation if the player is going back up
+			 * again after falling down.
+			 */
+			this.onPlay(entityData);
+		}
+
 		PlayerData data = (PlayerData) entityData;
 		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
 
+		data.renderRotation.slideToZero();
+		
 		data.body.preRotation.slideToZero(0.5F);
-		data.body.rotation.slideX(0, 0.05f);
+		data.body.rotation.slideX(Math.max(1.0F - data.getTicksAfterLiftoff() * 0.1F, 0.0F), 0.2f);
 		data.body.rotation.slideY(0, 0.1f);
 		data.body.rotation.slideZ(0.0f, 0.3f);
 		data.rightArm.preRotation.slideToZero();
@@ -35,13 +67,11 @@ public class JumpAnimationBit extends AnimationBit
 		data.leftArm.rotation.slideX(0.0f, 0.5f);
 		data.rightLeg.rotation.slideZ(10, 0.1f);
 		data.leftLeg.rotation.slideZ(-10, 0.1f);
-		data.rightLeg.rotation.slideX(-20, 0.1f);
-		data.leftLeg.rotation.slideX(-20, 0.1f);
 
-		data.rightLeg.rotation.slideX(-45, 0.1f);
-		data.leftLeg.rotation.slideX(-45, 0.1f);
-		data.rightForeLeg.rotation.slideX(50, 0.1f);
-		data.leftForeLeg.rotation.slideX(50, 0.1f);
+		data.rightLeg.rotation.slideX(-45, 0.3f);
+		data.leftLeg.rotation.slideX(-17, 0.3f);
+		data.rightForeLeg.rotation.slideX(70, 0.3f);
+		data.leftForeLeg.rotation.slideX(17, 0.5f);
 
 		data.rightForeArm.rotation.slideX(0, 0.3f);
 		data.leftForeArm.rotation.slideX(0, 0.3f);
@@ -50,20 +80,7 @@ public class JumpAnimationBit extends AnimationBit
 		data.head.rotation.setY(data.getHeadYaw());
 		data.head.rotation.setX(data.getHeadPitch() - data.body.rotation.getX());
 
-		if (data.getTicksAfterLiftoff() < 2.0f)
-		{
-			data.body.rotation.slideX(20.0f, 2f);
-			data.rightLeg.rotation.slideX(0.0f, 2f);
-			data.leftLeg.rotation.slideX(0.0f, 2f);
-			data.rightForeLeg.rotation.slideX(0.0f, 2f);
-			data.leftForeLeg.rotation.slideX(0.0f, 2f);
-			data.rightArm.rotation.slideZ(2, 2f);
-			data.leftArm.rotation.slideZ(-2, 2f);
-			data.rightForeArm.rotation.slideX(-20, 2f);
-			data.leftForeArm.rotation.slideX(-20, 2f);
-		}
-
-		if (! data.isStillHorizontally())
+		if (!data.isStillHorizontally())
 		{
 			if (player.isSprinting())
 			{
@@ -126,7 +143,7 @@ public class JumpAnimationBit extends AnimationBit
 						.slideX(((float) (Math.cos(data.getLimbSwing() * 0.6662F) + 1.0f) / 2.0f) * -20, 0.3f);
 			}
 		}
-		
+
 		BendsPack.animate(data, "player", "jump");
 	}
 }

@@ -11,7 +11,10 @@ import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.GlStateManager.DestFactor;
+import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
@@ -52,15 +55,15 @@ public class SwordTrail
 	{
 		Minecraft.getMinecraft().renderEngine.bindTexture(ClientProxy.TEXTURE_NULL);
 
-		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glDisable(GL11.GL_CULL_FACE);
-		GL11.glDisable(GL11.GL_LIGHTING);
+		GlStateManager.depthFunc(GL11.GL_LEQUAL);
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+		GlStateManager.disableCull();
+		GlStateManager.disableLighting();
 		GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);
-		GL11.glShadeModel(GL11.GL_SMOOTH);
-		GL11.glPushMatrix();
-		GL11.glBegin(GL11.GL_QUADS);
+		GlStateManager.shadeModel(GL11.GL_SMOOTH);
+		GlStateManager.pushMatrix();
+		GlStateManager.glBegin(GL11.GL_QUADS);
 		for (int i = 0; i < this.trailPartList.size(); i++)
 		{
 			TrailPart part = this.trailPartList.get(i);
@@ -69,7 +72,7 @@ public class SwordTrail
 			alpha = Math.min(alpha, 1.0f);
 			alpha = 1.0f - alpha;
 
-			GL11.glColor4f(1, 1, 1, alpha);
+			GlStateManager.color(1, 1, 1, alpha);
 
 			Vector3f[] point = new Vector3f[] {
 					new Vector3f(0, 0, -8 + 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)),
@@ -114,26 +117,26 @@ public class SwordTrail
 			if (i > 0)
 			{
 				// Closing up the previous strand
-				GL11.glVertex3f(point[1].x, point[1].y, point[1].z);
-				GL11.glVertex3f(point[0].x, point[0].y, point[0].z);
+				GlStateManager.glVertex3f(point[1].x, point[1].y, point[1].z);
+				GlStateManager.glVertex3f(point[0].x, point[0].y, point[0].z);
 			}
 			
-			GL11.glVertex3f(point[0].x, point[0].y, point[0].z);
-			GL11.glVertex3f(point[1].x, point[1].y, point[1].z);
+			GlStateManager.glVertex3f(point[0].x, point[0].y, point[0].z);
+			GlStateManager.glVertex3f(point[1].x, point[1].y, point[1].z);
 
 			if (i == this.trailPartList.size() - 1)
 			{
 				// Closing the trail
-				GL11.glVertex3f(point[1].x, point[1].y, point[1].z);
-				GL11.glVertex3f(point[0].x, point[0].y, point[0].z);
+				GlStateManager.glVertex3f(point[1].x, point[1].y, point[1].z);
+				GlStateManager.glVertex3f(point[0].x, point[0].y, point[0].z);
 			}
 		}
-		GL11.glEnd();
-		GL11.glPopMatrix();
+		GlStateManager.glEnd();
+		GlStateManager.popMatrix();
 
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_CULL_FACE);
-		GL11.glEnable(GL11.GL_LIGHTING);
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableCull();
+		GlStateManager.enableLighting();
 	}
 
 	public void add(BipedEntityData entityData)
@@ -170,12 +173,12 @@ public class SwordTrail
 		}
 	}
 
-	public void update(float partialTicks)
+	public void update(float ticksPerFrame)
 	{
 		for (int i = 0; i < this.trailPartList.size(); i++)
 		{
 			TrailPart trailPart = this.trailPartList.get(i);
-			trailPart.ticksExisted += partialTicks;
+			trailPart.ticksExisted += ticksPerFrame;
 			if (trailPart.ticksExisted > 20)
 			{
 				this.trailPartList.remove(trailPart);

@@ -12,8 +12,9 @@ import net.minecraft.util.math.MathHelper;
 
 public class WalkAnimationBit extends AnimationBit
 {
+	protected final float kneelDuration = 0.15F;
 	protected String animationTarget;
-
+	
 	public WalkAnimationBit(String animationTarget)
 	{
 		this.animationTarget = animationTarget;
@@ -78,6 +79,14 @@ public class WalkAnimationBit extends AnimationBit
 		var10 = Math.max(var10, -10);
 		data.body.rotation.slideZ(-var10, 0.3f);
 
+		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
+
+		if (touchdown < 1.0F)
+		{
+			data.body.rotation.setX(20.0F * (1 - touchdown));
+			data.renderOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
+		}
+		
 		BendsPack.animate(entityData, "player", "walk");
 	}
 }

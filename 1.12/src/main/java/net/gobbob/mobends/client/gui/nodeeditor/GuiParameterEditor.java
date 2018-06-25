@@ -131,6 +131,7 @@ public class GuiParameterEditor
 
 		title = I18n.format("mobends.gui.condition", new Object[0]);
 		textField.setVisible(true);
+		textField.setEnabled(true);
 		textField.setPlaceholderText("Animation");
 		textField.setText(String.valueOf(section.getAnimationName()));
 		radioField.disable();

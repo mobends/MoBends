@@ -61,7 +61,7 @@ public abstract class LivingEntityData extends EntityData
 			this.onTouchdown();
 			this.onGround = true;
 		}
-		if((!this.calcOnGround() & this.onGround) | (this.motion_prev.y <= 0 && this.motion.y - this.motion_prev.y > 0.4f && this.ticksAfterLiftoff > 2f))
+		if((!this.calcOnGround() & this.onGround) | (this.previousMotion.y <= 0 && this.motion.y - this.previousMotion.y > 0.4f && this.ticksAfterLiftoff > 2f))
 		{
 			this.onLiftoff();
 			this.onGround = false;
@@ -88,7 +88,7 @@ public abstract class LivingEntityData extends EntityData
 			}
 		}
 		
-		if(this.motion_prev.y <= 0 && this.motion.y > 0)
+		if(this.previousMotion.y <= 0 && this.motion.y > 0)
 		{
 			this.onThrowup();
 		}

@@ -2,6 +2,9 @@ package net.gobbob.mobends.client.renderer.entity.layers;
 
 import net.gobbob.mobends.client.model.entity.ModelBipedArmorM;
 import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
+import net.gobbob.mobends.data.BipedEntityData;
+import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.data.EntityDatabase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerArmorBase;
@@ -61,6 +64,16 @@ public class LayerBipedArmorM extends LayerArmorBase<ModelBiped>
     @Override
     protected ModelBiped getArmorModelHook(net.minecraft.entity.EntityLivingBase entity, net.minecraft.item.ItemStack itemStack, EntityEquipmentSlot slot, ModelBiped model)
     {
-        return ArmorModelFactory.getArmorModel(net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model));
+    	EntityData entityData = EntityDatabase.instance.get(entity);
+    	
+    	ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model);
+    	if (entityData instanceof BipedEntityData)
+    	{
+    		return ArmorModelFactory.getArmorModel(suggestedModel, (BipedEntityData) entityData);
+    	}
+    	else
+    	{
+    		return suggestedModel;
+    	}
     }
 }

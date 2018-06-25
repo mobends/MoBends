@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.gobbob.mobends.data.BipedEntityData;
 import net.minecraft.client.model.ModelBiped;
 
 public class ArmorModelFactory
 {
 	protected static Map<Integer, ModelBiped> customArchive = new HashMap<Integer, ModelBiped>();
 	
-	public static ModelBiped getArmorModel(ModelBiped suggested)
+	public static ModelBiped getArmorModel(ModelBiped suggested, BipedEntityData entityData)
 	{
 		ModelBiped custom = suggested;
 		
@@ -22,7 +23,7 @@ public class ArmorModelFactory
 		else
 		{
 			System.out.println("Creating a custom armor model." + suggested);
-			custom = ModelBipedArmorCustom.createFrom(suggested);
+			custom = ModelBipedArmorCustom.createFrom(suggested, entityData);
 			customArchive.put(suggested.hashCode(), custom);
 		}
 		return custom;

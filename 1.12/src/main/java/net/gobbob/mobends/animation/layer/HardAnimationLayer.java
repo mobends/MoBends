@@ -6,17 +6,19 @@ import net.gobbob.mobends.data.EntityData;
 public class HardAnimationLayer extends AnimationLayer
 {
 	protected AnimationBit performedBit;
-
-	public void playBit(AnimationBit bit)
+	protected AnimationBit previousBit;
+	
+	public void playBit(AnimationBit bit, EntityData entityData)
 	{
+		this.previousBit = this.performedBit;
 		this.performedBit = bit;
-		this.performedBit.setupForPlay(this);
+		this.performedBit.setupForPlay(this, entityData);
 	}
 	
-	public void playOrContinueBit(AnimationBit bit)
+	public void playOrContinueBit(AnimationBit bit, EntityData entityData)
 	{
 		if (!this.isPlaying(bit))
-			this.playBit(bit);
+			this.playBit(bit, entityData);
 	}
 
 	@Override

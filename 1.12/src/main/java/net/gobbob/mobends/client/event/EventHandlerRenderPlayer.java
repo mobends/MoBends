@@ -52,16 +52,22 @@ public class EventHandlerRenderPlayer
 		{
 			AbstractClientPlayer player = (AbstractClientPlayer) event.getEntity();
 			PlayerMutator.apply(event.getRenderer(), player, pt);
-			double yOffset = 0;
-
+			PlayerData data = (PlayerData) EntityDatabase.instance.getAndMake(PlayerData.class, player);
+			float scale = 0.0625F;
+			
+			GlStateManager.pushMatrix();
+			GlStateManager.rotate(-player.rotationYaw + 180.0F, 0F, 1F, 0F);
+			GlStateManager.scale(scale, scale, scale);
+			data.swordTrail.render();
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.popMatrix();
+			
             if (player.isSneaking())
             {
-            	yOffset = 0.155D * 2;
+            	GlStateManager.translate(0, 0.155D * 2, 0);
             }
-            GlStateManager.translate(0, yOffset, 0);
             
-            PlayerData data = (PlayerData) EntityDatabase.instance.getAndMake(PlayerData.class, player);
-            GlStateManager.translate(data.renderOffset.getX() * 0.0625F, data.renderOffset.getY() * 0.0625F, data.renderOffset.getZ() * 0.0625F);
+            GlStateManager.translate(data.renderOffset.getX() * scale, data.renderOffset.getY() * scale, data.renderOffset.getZ() * scale);
             GlStateManager.rotate(data.renderRotation.getZ(), 0F, 0F, 1F);
             GlStateManager.rotate(data.renderRotation.getY(), 0F, 1F, 0F);
             GlStateManager.rotate(data.renderRotation.getX(), 1F, 0F, 0F);

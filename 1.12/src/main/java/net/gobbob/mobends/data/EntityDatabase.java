@@ -31,6 +31,11 @@ public class EntityDatabase {
 		return entryMap.get(identifier);
 	}
 	
+	public EntityData get(Entity entity)
+	{
+		return this.get(entity.getEntityId());
+	}
+	
 	public EntityData newEntry(Class dataClass, Entity entity)
 	{
 		EntityData data = null;

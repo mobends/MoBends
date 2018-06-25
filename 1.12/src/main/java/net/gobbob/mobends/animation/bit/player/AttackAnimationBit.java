@@ -30,7 +30,7 @@ public class AttackAnimationBit extends AnimationBit
 		if (!(entityData instanceof PlayerData))
 			return;
 
-		PlayerData data = (PlayerData) entityData;
+		PlayerData playerData = (PlayerData) entityData;
 		Entity entity = entityData.getEntity();
 		if (entity instanceof AbstractClientPlayer)
 		{
@@ -38,17 +38,17 @@ public class AttackAnimationBit extends AnimationBit
 			ItemStack heldItemStack = player.getHeldItem(EnumHand.MAIN_HAND);
 			if (heldItemStack != null && heldItemStack.getItem() != Items.AIR)
 			{
-				if (data.getTicksAfterAttack() < 10)
+				if (playerData.getTicksAfterAttack() < 10)
 				{
-					 if (data.getCurrentAttack() == 1)
-					 {
-						 this.layerBase.playOrContinueBit(this.bitAttackSlashUp);
-					 }
-					 else
-					 {
-						 this.layerBase.clearAnimation();
-					 }
-					 // else if (data.getCurrentAttack() == 2)
+					if (playerData.getCurrentAttack() == 1)
+					{
+						this.layerBase.playOrContinueBit(this.bitAttackSlashUp, playerData);
+					}
+					else
+					{
+						this.layerBase.clearAnimation();
+					}
+					// else if (data.getCurrentAttack() == 2)
 					// {
 					// Animation_Attack_Combo1.animate((EntityPlayer) argEntity, model, data);
 					// BendsPack.animate(data, "player", "attack");
@@ -60,9 +60,10 @@ public class AttackAnimationBit extends AnimationBit
 					// BendsPack.animate(data, "player", "attack_2");
 					// }
 				}
-				else if (data.getTicksAfterAttack() < 60)
+				else if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround()
+						&& playerData.isStillHorizontally())
 				{
-					this.layerBase.playOrContinueBit(this.bitAttackStance);
+					this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
 				}
 				else
 				{

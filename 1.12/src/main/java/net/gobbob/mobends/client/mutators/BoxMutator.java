@@ -30,7 +30,7 @@ public class BoxMutator
 	
 	public static BoxMutator createFrom(ModelBase modelBase, ModelRenderer modelRenderer, net.minecraft.client.model.ModelBox original)
 	{
-		Field quadListField = FieldMiner.getObfuscatedField(original.getClass(), "quadList", "");
+		Field quadListField = FieldMiner.getObfuscatedField(original.getClass(), "quadList", "field_78254_i");
 		
 		if(quadListField == null)
 		{

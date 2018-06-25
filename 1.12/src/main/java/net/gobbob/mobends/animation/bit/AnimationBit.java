@@ -17,10 +17,21 @@ public abstract class AnimationBit
 	 * Called by the AnimationLayer before it plays
 	 * this bit.
 	 */
-	public void setupForPlay(AnimationLayer layer)
+	public void setupForPlay(AnimationLayer layer, EntityData entityData)
 	{
 		this.layer = layer;
+		this.onPlay(entityData);
 	}
 	
+	/*
+	 * Called by setupForPlay to setup the beginning of
+	 * this animation bit.
+	 */
+	public void onPlay(EntityData entityData) {}
+	
+	/*
+	 * Called by an AnimationLayer to perform a continuous
+	 * animation.
+	 */
 	public abstract void perform(EntityData entityData);
 }

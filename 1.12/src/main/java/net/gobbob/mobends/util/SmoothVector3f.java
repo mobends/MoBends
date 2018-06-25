@@ -121,6 +121,36 @@ public class SmoothVector3f
 	{
 		this.slideZ(z, 0.6f);
 	}
+	
+	public void add(float x, float y, float z)
+	{
+		this.start.set(this.getX(), this.getY(), this.getZ());
+		this.completion.set(0, 0, 0);
+		this.end.x += x;
+		this.end.y += y;
+		this.end.z += z;
+	}
+	
+	public void addX(float x)
+	{
+		this.start.setX(this.getX());
+		this.completion.setX(0);
+		this.end.x += x;
+	}
+	
+	public void addY(float y)
+	{
+		this.start.setY(this.getY());
+		this.completion.setY(0);
+		this.end.y += y;
+	}
+	
+	public void addZ(float z)
+	{
+		this.start.setZ(this.getZ());
+		this.completion.setZ(0);
+		this.end.z += z;
+	}
 
 	public void setX(float x)
 	{

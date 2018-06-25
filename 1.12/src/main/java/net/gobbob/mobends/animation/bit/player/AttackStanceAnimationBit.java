@@ -4,6 +4,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.layer.AnimationLayer;
+import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
@@ -13,8 +14,18 @@ import net.minecraft.util.EnumHandSide;
 
 public class AttackStanceAnimationBit extends AnimationBit
 {
+	protected final float kneelDuration = 0.15F;
+	protected final float legSpreadSpeed = 0.1F;
+	protected float legSpreadAnimation = 0F;
+	
 	public AttackStanceAnimationBit()
 	{
+	}
+	
+	@Override
+	public void onPlay(EntityData entityData)
+	{
+		this.legSpreadAnimation = 0F;
 	}
 
 	@Override
@@ -37,84 +48,78 @@ public class AttackStanceAnimationBit extends AnimationBit
 		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
 		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
 		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
+		IModelPart mainLeg = mainHandSwitch ? data.rightLeg : data.leftLeg;
+		IModelPart offLeg = mainHandSwitch ? data.leftLeg : data.rightLeg;
+		IModelPart mainForeLeg = mainHandSwitch ? data.rightForeLeg : data.leftForeLeg;
+		IModelPart offForeLeg = mainHandSwitch ? data.leftForeLeg : data.rightForeLeg;
 
 		// ItemStack offHandItemStack = player.getHeldItemOffhand();
 
-		if (!data.isOnGround())
+		float breath0 = (float) Math.sin(DataUpdateHandler.getTicks() / 5.0);
+		float breath1 = (float) Math.cos(DataUpdateHandler.getTicks() / 5.7);
+		
+		data.renderRotation.slideY(-30 * handDirMtp, 0.3F);
+
+		Vector3f bodyRot = new Vector3f(0, 0, 0);
+
+		bodyRot.x = 20.0F + breath0 * 2.0F;
+
+		data.body.rotation.slideTo(bodyRot, 0.3F);
+		data.head.rotation.setY(data.getHeadYaw() - 30 * handDirMtp);
+		data.head.rotation.setX(data.getHeadPitch());
+		data.head.preRotation.slideX(-bodyRot.x, 0.3F);
+		data.head.preRotation.slideY(-bodyRot.y, 0.3F);
+
+		data.rightLeg.rotation.slideX(-30, 0.3F);
+		data.leftLeg.rotation.slideX(-30, 0.3F);
+		data.leftLeg.rotation.slideY(-25, 0.3F);
+		data.rightLeg.rotation.slideZ(10);
+		data.leftLeg.rotation.slideZ(-10);
+
+		data.rightForeLeg.rotation.slideX(30, 0.3F);
+		data.leftForeLeg.rotation.slideX(30, 0.3F);
+
+		mainArm.getPreRotation().slideZ(60.0f * handDirMtp + breath0 * 5.0F, 0.3F);
+		mainArm.getRotation().slideX(60.0f, 0.3F);
+		mainArm.getRotation().slideY(breath1 * 5.0F, 0.3F);
+		offArm.getRotation().slideZ(20 * handDirMtp + breath1 * 5.0F, 0.3F);
+		offArm.getPreRotation().slideZ(-80 * handDirMtp, 0.3F);
+
+		/*
+		 * if (offHandItemStack != null &&
+		 * offHandItemStack.getItem().getItemUseAction(offHandItemStack) ==
+		 * EnumAction.BLOCK) { offArm.getPreRotation().slideZ(-40 * handDirMtp, 0.3f); }
+		 */
+
+		mainForeArm.getRotation().slideX(-20, 0.3f);
+		offForeArm.getRotation().slideX(-60, 0.3f);
+
+		if (mainHandSwitch)
 		{
-			return;
-		}
-
-		if (data.isStillHorizontally())
-		{
-			data.renderRotation.slideY(-30 * handDirMtp, 0.3F);
-
-			Vector3f bodyRot = new Vector3f(0, 0, 0);
-
-			bodyRot.x = 20.0F;
-
-			data.body.rotation.slideTo(bodyRot, 0.3F);
-			data.head.rotation.setY(data.getHeadYaw() - 30 * handDirMtp);
-			data.head.rotation.setX(data.getHeadPitch());
-			data.head.preRotation.slideX(-bodyRot.x, 0.3F);
-			data.head.preRotation.slideY(-bodyRot.y, 0.3F);
-
-			data.rightLeg.rotation.slideX(-30, 0.3F);
-			data.leftLeg.rotation.slideX(-30, 0.3F);
-			data.leftLeg.rotation.slideY(-25, 0.3F);
-			data.rightLeg.rotation.slideZ(10);
-			data.leftLeg.rotation.slideZ(-10);
-
-			data.rightForeLeg.rotation.slideX(30, 0.3F);
-			data.leftForeLeg.rotation.slideX(30, 0.3F);
-
-			mainArm.getPreRotation().slideZ(60.0f * handDirMtp, 0.3F);
-			mainArm.getRotation().slideX(60.0f, 0.3F);
-			offArm.getRotation().slideZ(20 * handDirMtp, 0.3F);
-			offArm.getPreRotation().slideZ(-80 * handDirMtp, 0.3F);
-
-			/*
-			 * if (offHandItemStack != null &&
-			 * offHandItemStack.getItem().getItemUseAction(offHandItemStack) ==
-			 * EnumAction.BLOCK) { offArm.getPreRotation().slideZ(-40 * handDirMtp, 0.3f); }
-			 */
-
-			mainForeArm.getRotation().slideX(-20, 0.3f);
-			offForeArm.getRotation().slideX(-60, 0.3f);
-
-			if (mainHandSwitch)
-			{
-				data.renderRightItemRotation.slideX(65, 0.3f);
-			}
-			else
-			{
-				data.renderLeftItemRotation.slideX(65, 0.3f);
-			}
-			data.renderOffset.slideY(-2.0F);
+			data.renderRightItemRotation.slideX(65, 0.3f);
 		}
 		else
 		{
-			if (player.isSprinting())
-			{
-				data.body.rotation.slideY(20, 0.3F);
-
-				data.head.rotation.setY(data.getHeadYaw() - 20);
-				data.head.rotation.setX(data.getHeadPitch() - 15);
-
-				data.rightLeg.rotation.slideY(0F);
-				data.leftLeg.rotation.slideY(0F);
-
-				mainArm.getRotation().slideX(60F, 0.3F);
-
-				if (mainHandSwitch)
-				{
-					data.renderRightItemRotation.slideX(90, 0.3F);
-				}
-				else
-				{
-					data.renderLeftItemRotation.slideX(90, 0.3F);
-				}
-			}
+			data.renderLeftItemRotation.slideX(65, 0.3f);
+		}
+		data.renderOffset.slideY(-2.0F);
+		
+		if (this.legSpreadAnimation < 1.0F)
+		{
+			this.legSpreadAnimation += this.legSpreadSpeed * DataUpdateHandler.ticksPerFrame;
+			if (this.legSpreadAnimation > 1.0F)
+				this.legSpreadAnimation = 1.0F;
+			
+			mainLeg.getRotation().setY((this.legSpreadAnimation * 10.0F - 5.0F) * handDirMtp);
+			mainLeg.getRotation().setX((float) Math.sin(this.legSpreadAnimation * Math.PI) * -20.0F - 40.0F);
+			mainForeLeg.getRotation().setX((float) Math.sin(this.legSpreadAnimation * Math.PI) * 40.0F + 40.0F);
+		}
+		
+		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
+		if (touchdown < 1.0F)
+		{
+			data.body.rotation.setX(5.0F * (1 - touchdown) + 15.0F);
+			data.renderOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F - 2.0F);
 		}
 
 		BendsPack.animate(data, "player", "attack_stance");

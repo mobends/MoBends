@@ -36,8 +36,6 @@ public class PlayerController extends Controller
 		this.bitJump = new net.gobbob.mobends.animation.bit.player.JumpAnimationBit();
 		this.bitSprint = new net.gobbob.mobends.animation.bit.player.SprintAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
-
-		this.layerAttack.playOrContinueBit(this.bitAttack);
 	}
 
 	@Override
@@ -48,33 +46,35 @@ public class PlayerController extends Controller
 		if (!(entityData.getEntity() instanceof AbstractClientPlayer))
 			return;
 
-		PlayerData data = (PlayerData) entityData;
-		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
-		BendsVariable.tempData = data;
+		PlayerData playerData = (PlayerData) entityData;
+		AbstractClientPlayer player = (AbstractClientPlayer) playerData.getEntity();
+		BendsVariable.tempData = playerData;
 
-		if (!data.isOnGround() | data.getTicksAfterTouchdown() < 2)
+		if (!playerData.isOnGround() | playerData.getTicksAfterTouchdown() < 2)
 		{
-			layerBase.playOrContinueBit(bitJump);
+			layerBase.playOrContinueBit(bitJump, playerData);
 		}
 		else
 		{
-			if (data.isStillHorizontally())
+			if (playerData.isStillHorizontally())
 			{
-				layerBase.playOrContinueBit(bitStand);
+				layerBase.playOrContinueBit(bitStand, playerData);
 			}
 			else
 			{
 				if (player.isSprinting())
 				{
-					layerBase.playOrContinueBit(bitSprint);
+					layerBase.playOrContinueBit(bitSprint, playerData);
 				}
 				else
 				{
-					layerBase.playOrContinueBit(bitWalk);
+					layerBase.playOrContinueBit(bitWalk, playerData);
 				}
 			}
 		}
 
+		this.layerAttack.playOrContinueBit(this.bitAttack, playerData);
+		
 		layerBase.perform(entityData);
 		layerAttack.perform(entityData);
 	}

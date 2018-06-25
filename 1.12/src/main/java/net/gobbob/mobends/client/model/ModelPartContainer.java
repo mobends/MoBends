@@ -150,6 +150,13 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
         	GlStateManager.translate(this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
 		
+		if (this.pre_rotation.getZ() != 0.0F)
+            GlStateManager.rotate(this.pre_rotation.getZ(), 0F, 0F, 1F);
+        if (this.pre_rotation.getY() != 0.0F)
+            GlStateManager.rotate(this.pre_rotation.getY(), 0F, 1F, 0F);
+        if (this.pre_rotation.getX() != 0.0F)
+            GlStateManager.rotate(this.pre_rotation.getX(), 1F, 0F, 0F);
+		
         if (this.rotation.getZ() != 0.0F)
             GlStateManager.rotate(this.rotation.getZ(), 0F, 0F, 1F);
         if (this.rotation.getY() != 0.0F)

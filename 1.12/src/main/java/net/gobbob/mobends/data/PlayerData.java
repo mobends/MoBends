@@ -19,7 +19,7 @@ public class PlayerData extends BipedEntityData
 	public ModelPart ears;
 	public ModelPart cloak;
 
-	public SwordTrail swordTrail = new SwordTrail();
+	public SwordTrail swordTrail;
 
 	boolean sprintJumpLeg = false;
 	boolean sprintJumpLegSwitched = false;
@@ -37,8 +37,9 @@ public class PlayerData extends BipedEntityData
 	{
 		super.initModelPose();
 
-		Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
+		this.swordTrail = new SwordTrail();
 
+		Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
 		PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);
 		if (mutator == null)
 			return;
@@ -64,7 +65,7 @@ public class PlayerData extends BipedEntityData
 		{
 			sprintJumpLegSwitched = false;
 		}
-		
+
 		if (!sprintJumpLegSwitched && motion.y > 0)
 		{
 			sprintJumpLeg = !sprintJumpLeg;
@@ -84,6 +85,13 @@ public class PlayerData extends BipedEntityData
 	}
 
 	@Override
+	public void updateParts(float ticksPerFrame)
+	{
+		super.updateParts(ticksPerFrame);
+		this.swordTrail.update(ticksPerFrame);
+	}
+
+	@Override
 	public void onPunch()
 	{
 		if (!(this.entity instanceof AbstractClientPlayer))
@@ -99,7 +107,8 @@ public class PlayerData extends BipedEntityData
 				{
 					this.currentAttack = 1;
 					this.ticksAfterAttack = 0;
-				} else
+				}
+				else
 				{
 					if (this.getTicksAfterAttack() < 15.0f)
 					{
@@ -108,7 +117,8 @@ public class PlayerData extends BipedEntityData
 						else if (this.currentAttack == 2)
 						{
 							this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 3;
-						} else if (this.currentAttack == 3)
+						}
+						else if (this.currentAttack == 3)
 							this.currentAttack = 1;
 						this.ticksAfterAttack = 0;
 					}
