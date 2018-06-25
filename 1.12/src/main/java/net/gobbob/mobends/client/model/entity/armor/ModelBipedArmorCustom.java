@@ -133,14 +133,14 @@ public class ModelBipedArmorCustom extends ModelBiped
 		{
 			part.setVisible(this.bipedLeftArm.showModel);
 			part.syncUp(dataBiped.leftArm);
-			dataBiped.position.y = 2F;
+			// part.position.y = 2F;
 		}
 		
 		for(IModelPart part : this.rightArmParts)
 		{
 			part.setVisible(this.bipedRightArm.showModel);
 			part.syncUp(dataBiped.rightArm);
-			dataBiped.position.y = 2F;
+			// part.position.y = 2F;
 		}
 		
 		for(IModelPart part : this.leftLegParts)

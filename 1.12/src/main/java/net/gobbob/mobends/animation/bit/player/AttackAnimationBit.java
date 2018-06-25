@@ -1,7 +1,6 @@
 package net.gobbob.mobends.animation.bit.player;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.animation.layer.AnimationLayer;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
@@ -16,19 +15,18 @@ import net.minecraft.util.EnumHand;
 public class AttackAnimationBit extends AnimationBit
 {
 	protected HardAnimationLayer layerBase;
-	protected AnimationBit bitAttackStance;
+	protected AnimationBit bitAttackStance, bitAttackSlashUp;
 
 	public AttackAnimationBit()
 	{
 		this.layerBase = new HardAnimationLayer();
 		this.bitAttackStance = new AttackStanceAnimationBit();
+		this.bitAttackSlashUp = new AttackSlashUpAnimationBit();
 	}
 
 	@Override
 	public void perform(EntityData entityData)
 	{
-		this.layerBase.clearAnimation();
-		
 		if (!(entityData instanceof PlayerData))
 			return;
 
@@ -42,12 +40,15 @@ public class AttackAnimationBit extends AnimationBit
 			{
 				if (data.getTicksAfterAttack() < 10)
 				{
-					// if (data.getCurrentAttack() == 1)
-					// {
-					// Animation_Attack_Combo0.animate((EntityPlayer) argEntity, model, data);
-					// BendsPack.animate(data, "player", "attack");
-					// BendsPack.animate(data, "player", "attack_0");
-					// } else if (data.getCurrentAttack() == 2)
+					 if (data.getCurrentAttack() == 1)
+					 {
+						 this.layerBase.playOrContinueBit(this.bitAttackSlashUp);
+					 }
+					 else
+					 {
+						 this.layerBase.clearAnimation();
+					 }
+					 // else if (data.getCurrentAttack() == 2)
 					// {
 					// Animation_Attack_Combo1.animate((EntityPlayer) argEntity, model, data);
 					// BendsPack.animate(data, "player", "attack");
@@ -61,7 +62,11 @@ public class AttackAnimationBit extends AnimationBit
 				}
 				else if (data.getTicksAfterAttack() < 60)
 				{
-					this.layerBase.playBit(this.bitAttackStance);
+					this.layerBase.playOrContinueBit(this.bitAttackStance);
+				}
+				else
+				{
+					this.layerBase.clearAnimation();
 				}
 			}
 			else
@@ -76,6 +81,7 @@ public class AttackAnimationBit extends AnimationBit
 				// Animation_Attack_PunchStance.animate((EntityPlayer) argEntity, model, data);
 				// BendsPack.animate(data, "player", "punch_stance");
 				// }
+				this.layerBase.clearAnimation();
 			}
 		}
 

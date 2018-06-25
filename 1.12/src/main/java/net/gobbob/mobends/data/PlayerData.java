@@ -60,18 +60,16 @@ public class PlayerData extends BipedEntityData
 			currentAttack = 0;
 		}
 
-		if (!sprintJumpLegSwitched && motion.y > 0)
-		{
-			sprintJumpLeg = !sprintJumpLeg;
-			sprintJumpLegSwitched = true;
-		}
-
 		if (motion.y < 0)
 		{
 			sprintJumpLegSwitched = false;
 		}
 		
-		//System.out.println("Ticks after attack: " + this.ticksAfterAttack);
+		if (!sprintJumpLegSwitched && motion.y > 0)
+		{
+			sprintJumpLeg = !sprintJumpLeg;
+			sprintJumpLegSwitched = true;
+		}
 	}
 
 	@Override

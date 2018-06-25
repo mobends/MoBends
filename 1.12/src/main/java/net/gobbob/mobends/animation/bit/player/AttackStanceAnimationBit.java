@@ -45,7 +45,7 @@ public class AttackStanceAnimationBit extends AnimationBit
 			return;
 		}
 
-		if (data.motion.x == 0 & data.motion.z == 0)
+		if (data.isStillHorizontally())
 		{
 			data.renderRotation.slideY(-30 * handDirMtp, 0.3F);
 

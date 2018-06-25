@@ -17,15 +17,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 
 /*
- * This is an animation controller for all players.
- * WARNING There is only one instance for all players
+ * This is an animation controller for a player instance.
+ * It's a part of the EntityData structure.
  */
 public class PlayerController extends Controller
 {
 	protected String animationTarget = "player";
 	protected HardAnimationLayer layerBase;
 	protected HardAnimationLayer layerAttack;
-	protected AnimationBit bitStand, bitWalk, bitAttack;
+	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitAttack;
 
 	public PlayerController()
 	{
@@ -33,8 +33,10 @@ public class PlayerController extends Controller
 		this.layerAttack = new HardAnimationLayer();
 		this.bitStand = new net.gobbob.mobends.animation.bit.player.StandAnimationBit(animationTarget);
 		this.bitWalk = new net.gobbob.mobends.animation.bit.player.WalkAnimationBit(animationTarget);
+		this.bitJump = new net.gobbob.mobends.animation.bit.player.JumpAnimationBit();
+		this.bitSprint = new net.gobbob.mobends.animation.bit.player.SprintAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
-		
+
 		this.layerAttack.playOrContinueBit(this.bitAttack);
 	}
 
@@ -49,15 +51,28 @@ public class PlayerController extends Controller
 		PlayerData data = (PlayerData) entityData;
 		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
 		BendsVariable.tempData = data;
-		
-		boolean still = data.motion.x == 0.0f && data.motion.z == 0.0f;
-		if (still)
+
+		if (!data.isOnGround() | data.getTicksAfterTouchdown() < 2)
 		{
-			layerBase.playOrContinueBit(bitStand);
+			layerBase.playOrContinueBit(bitJump);
 		}
 		else
 		{
-			layerBase.playOrContinueBit(bitWalk);
+			if (data.isStillHorizontally())
+			{
+				layerBase.playOrContinueBit(bitStand);
+			}
+			else
+			{
+				if (player.isSprinting())
+				{
+					layerBase.playOrContinueBit(bitSprint);
+				}
+				else
+				{
+					layerBase.playOrContinueBit(bitWalk);
+				}
+			}
 		}
 
 		layerBase.perform(entityData);

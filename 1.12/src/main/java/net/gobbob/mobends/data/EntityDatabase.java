@@ -96,13 +96,7 @@ public class EntityDatabase {
 				}
 				else
 				{
-					entityData.motion_prev.set(entityData.motion);
-					
-					entityData.motion.x = (float) entity.posX - entityData.position.x;
-					entityData.motion.y = (float) entity.posY - entityData.position.y;
-					entityData.motion.z = (float) entity.posZ - entityData.position.z;
-			    	
-					entityData.position = new Vector3f((float)entity.posX, (float)entity.posY, (float)entity.posZ);
+					entityData.updateClient(entity);
 				}
 			}
 			else

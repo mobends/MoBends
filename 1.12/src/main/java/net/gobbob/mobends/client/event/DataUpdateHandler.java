@@ -57,7 +57,7 @@ public class DataUpdateHandler
 	{
 		if (Minecraft.getMinecraft().player == null)
 			return;
-
+		
 		if (lastNotedClientTick != Minecraft.getMinecraft().player.ticksExisted)
 		{
 			lastNotedClientTick = Minecraft.getMinecraft().player.ticksExisted;

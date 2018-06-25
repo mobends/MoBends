@@ -43,6 +43,8 @@ public abstract class LivingEntityData extends EntityData
 	public void setHeadPitch(float headPitch) {
 		this.headPitch = headPitch;
 	}
+	public float getTicksAfterLiftoff() { return this.ticksAfterLiftoff; }
+	public float getTicksAfterTouchdown() { return this.ticksAfterTouchdown; }
 	public float getTicksAfterAttack() { return this.ticksAfterAttack; }
 	public float getLimbSwing() { return this.limbSwing; }
 	public float getLimbSwingAmount() { return this.limbSwingAmount; }

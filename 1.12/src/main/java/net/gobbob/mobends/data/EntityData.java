@@ -28,9 +28,9 @@ public abstract class EntityData implements IBendsModel
 	protected Entity entity;
 	protected Controller controller;
 
-	public Vector3f position = new Vector3f();
-	public Vector3f motion_prev = new Vector3f();
-	public Vector3f motion = new Vector3f();
+	protected Vector3f position = new Vector3f();
+	protected Vector3f motion_prev = new Vector3f();
+	protected Vector3f motion = new Vector3f();
 	protected boolean onGround = true;
 	protected boolean updatedThisFrame = false;
 	protected HashMap<String, Object> nameToPartMap;
@@ -89,9 +89,24 @@ public abstract class EntityData implements IBendsModel
 		return list.size() > 0;
 	}
 
+	public Vector3f getPosition()
+	{
+		return this.position;
+	}
+	
+	public Vector3f getMotion()
+	{
+		return this.motion;
+	}
+	
 	public boolean isOnGround()
 	{
 		return this.onGround;
+	}
+	
+	public boolean isStillHorizontally()
+	{
+		return motion.x == 0 && motion.z == 0;
 	}
 
 	public Controller getController()
@@ -157,10 +172,21 @@ public abstract class EntityData implements IBendsModel
 	{
 		return this.motion.length();
 	}
-	
+
 	@Override
 	public Object getPartForName(String name)
 	{
 		return nameToPartMap.get(name);
+	}
+
+	public void updateClient(Entity entity)
+	{
+		this.motion_prev.set(this.motion);
+
+		this.motion.x = (float) entity.posX - this.position.x;
+		this.motion.y = (float) entity.posY - this.position.y;
+		this.motion.z = (float) entity.posZ - this.position.z;
+
+		this.position.set((float) entity.posX, (float) entity.posY, (float) entity.posZ);
 	}
 }
