@@ -17,11 +17,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class LayerBendsHeldItem implements LayerRenderer<EntityLivingBase>
+public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
 {
     protected final RenderLivingBase<?> livingEntityRenderer;
 
-    public LayerBendsHeldItem(RenderLivingBase<?> livingEntityRendererIn)
+    public LayerCustomHeldItem(RenderLivingBase<?> livingEntityRendererIn)
     {
         this.livingEntityRenderer = livingEntityRendererIn;
     }

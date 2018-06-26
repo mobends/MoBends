@@ -18,8 +18,8 @@ import net.gobbob.mobends.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.client.model.ModelPartPostOffset;
 import net.gobbob.mobends.client.model.ModelPartTransform;
-import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsHeldItem;
-import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedCustomArmor;
+import net.gobbob.mobends.client.renderer.entity.layers.LayerCustomHeldItem;
+import net.gobbob.mobends.client.renderer.entity.layers.LayerCustomBipedArmor;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
@@ -44,6 +44,8 @@ public class PlayerMutator implements IBendsModel
 {
 	public static HashMap<RenderPlayer, PlayerMutator> mutatorMap = new HashMap<RenderPlayer, PlayerMutator>();
 
+	public ModelPlayer vanillaModel;
+	
 	public ModelPartPostOffset body;
 	public ModelPartChild head;
 	public ModelPartChildExtended leftArm;
@@ -71,8 +73,10 @@ public class PlayerMutator implements IBendsModel
 	public float headYaw, headPitch, limbSwing, limbSwingAmount;
 	public boolean smallArms;
 	public List<LayerRenderer<EntityLivingBase>> layerRenderers;
-	public LayerBipedCustomArmor layerArmor;
-	public LayerBendsHeldItem layerHeldItem;
+	public LayerBipedArmor vanillaLayerArmor;
+	public LayerHeldItem vanillaLayerHeldItem;
+	public LayerCustomBipedArmor layerArmor;
+	public LayerCustomHeldItem layerHeldItem;
 
 	protected HashMap<String, IModelPart> nameToPartMap;
 
@@ -102,7 +106,6 @@ public class PlayerMutator implements IBendsModel
 		}
 
 		// Does the renderer have Small Arms?
-		// TODO Find out the obfuscated name for the smallArms field.
 		Field fieldSmallArms = FieldMiner.getObfuscatedField(renderer.getClass(), "smallArms", "field_177140_a");
 		if (fieldSmallArms != null)
 		{
@@ -128,6 +131,31 @@ public class PlayerMutator implements IBendsModel
 	{
 		fetchFields(renderer);
 
+		ModelPlayer model = renderer.getMainModel();
+		float scaleFactor = 0F;
+		
+		// True, if this renderer wasn't mutated before.
+		boolean isModelVanilla = ! (model.bipedBody instanceof IModelPart);
+		
+		if (isModelVanilla)
+		{
+			// If this model wasn't mutated before, save it
+			// as the vanilla model.
+			this.vanillaModel = new ModelPlayer(scaleFactor, this.smallArms);
+			this.vanillaModel.bipedBody = model.bipedBody;
+			this.vanillaModel.bipedBodyWear = model.bipedBodyWear;
+			this.vanillaModel.bipedHead = model.bipedHead;
+			this.vanillaModel.bipedHeadwear = model.bipedHeadwear;
+			this.vanillaModel.bipedLeftArm = model.bipedLeftArm;
+			this.vanillaModel.bipedLeftArmwear = model.bipedLeftArmwear;
+			this.vanillaModel.bipedLeftLeg = model.bipedLeftLeg;
+			this.vanillaModel.bipedLeftLegwear = model.bipedLeftLegwear;
+			this.vanillaModel.bipedRightArm = model.bipedRightArm;
+			this.vanillaModel.bipedRightArmwear = model.bipedRightArmwear;
+			this.vanillaModel.bipedRightLeg = model.bipedRightLeg;
+			this.vanillaModel.bipedRightLegwear = model.bipedRightLegwear;
+		}
+		
 		if (this.layerRenderers != null)
 		{
 			for (int i = 0; i < layerRenderers.size(); ++i)
@@ -135,21 +163,21 @@ public class PlayerMutator implements IBendsModel
 				LayerRenderer<EntityLivingBase> layer = layerRenderers.get(i);
 				if (layer instanceof LayerBipedArmor)
 				{
-					this.layerArmor = new LayerBipedCustomArmor(renderer);
+					this.layerArmor = new LayerCustomBipedArmor(renderer);
+					if (isModelVanilla)
+						this.vanillaLayerArmor = (LayerBipedArmor) layerRenderers.get(i);
 					layerRenderers.set(i, this.layerArmor);
 				}
 				else if (layer instanceof LayerHeldItem)
 				{
-					this.layerHeldItem = new LayerBendsHeldItem(renderer);
+					this.layerHeldItem = new LayerCustomHeldItem(renderer);
+					if (isModelVanilla)
+						this.vanillaLayerHeldItem = (LayerHeldItem) layerRenderers.get(i);
 					layerRenderers.set(i, this.layerHeldItem);
 				}
 			}
 		}
-
-		// Model Section
-		ModelPlayer model = renderer.getMainModel();
-		float scaleFactor = 0.0f;
-
+		
 		// Body
 		model.bipedBody = body = (ModelPartPostOffset) new ModelPartPostOffset(model, 16, 16)
 				.setPostOffset(0.0F, -12.0F, 0.0F).setPosition(0.0F, 12.0F, 0.0F);
@@ -295,14 +323,6 @@ public class PlayerMutator implements IBendsModel
 		rightForeLegwear.getBox().offsetTextureQuad(rightForeLegwear, ModelBox.BOTTOM, 0, -6F);
 		rightForeLeg.addChild(rightForeLegwear);
 		
-		/*
-		 * leftForeLeg = (ModelPartChild) new ModelPartChild(model, 16, 48 + 6).setParent(leftLeg).setPosition(0, 6.0F,
-				-2.0F);
-		leftForeLeg.addModelBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor).offsetTextureQuad(leftForeLeg, ModelBox.BOTTOM,
-				0, -6.0f);
-		leftLeg.setExtension(leftForeLeg);
-		 */
-		
 		nameToPartMap = new HashMap<String, IModelPart>();
 		nameToPartMap.put("body", body);
 		nameToPartMap.put("head", head);
@@ -314,6 +334,40 @@ public class PlayerMutator implements IBendsModel
 		nameToPartMap.put("rightForeArm", rightForeArm);
 		nameToPartMap.put("leftForeLeg", leftForeLeg);
 		nameToPartMap.put("rightForeLeg", rightForeLeg);
+	}
+	
+	public void demutate(AbstractClientPlayer entityPlayer, RenderPlayer renderer)
+	{
+		ModelPlayer model = renderer.getMainModel();
+		
+		model.bipedBody = this.vanillaModel.bipedBody;
+		model.bipedBodyWear = this.vanillaModel.bipedBodyWear;
+		model.bipedHead = this.vanillaModel.bipedHead;
+		model.bipedHeadwear = this.vanillaModel.bipedHeadwear;
+		model.bipedLeftArm = this.vanillaModel.bipedLeftArm;
+		model.bipedLeftArmwear = this.vanillaModel.bipedLeftArmwear;
+		model.bipedLeftLeg = this.vanillaModel.bipedLeftLeg;
+		model.bipedLeftLegwear = this.vanillaModel.bipedLeftLegwear;
+		model.bipedRightArm = this.vanillaModel.bipedRightArm;
+		model.bipedRightArmwear = this.vanillaModel.bipedRightArmwear;
+		model.bipedRightLeg = this.vanillaModel.bipedRightLeg;
+		model.bipedRightLegwear = this.vanillaModel.bipedRightLegwear;
+		
+		if (this.layerRenderers != null)
+		{
+			for (int i = 0; i < layerRenderers.size(); ++i)
+			{
+				LayerRenderer<EntityLivingBase> layer = layerRenderers.get(i);
+				if (layer instanceof LayerCustomBipedArmor)
+				{
+					layerRenderers.set(i, this.vanillaLayerArmor);
+				}
+				else if (layer instanceof LayerCustomHeldItem)
+				{
+					layerRenderers.set(i, this.vanillaLayerHeldItem);
+				}
+			}
+		}
 	}
 
 	public void updateModel(AbstractClientPlayer player, RenderPlayer renderer, float partialTicks)
@@ -377,6 +431,11 @@ public class PlayerMutator implements IBendsModel
 		AnimatedEntity animatedEntity = AnimatedEntity.getByEntity(player);
 		float ticks = player.ticksExisted + partialTicks;
 
+		leftForeArmwear.setVisible(leftArmwear.isShowing());
+		rightForeArmwear.setVisible(rightArmwear.isShowing());
+		leftForeLegwear.setVisible(leftLegwear.isShowing());
+		rightForeLegwear.setVisible(rightLegwear.isShowing());
+		
 		leftItemTransform.position.setY(-3);
 		rightItemTransform.position.setY(-3);
 
@@ -410,6 +469,11 @@ public class PlayerMutator implements IBendsModel
 		return nameToPartMap.get(name);
 	}
 
+	/*
+	 * Used to apply the effect of the mutation, or just to update the model
+	 * if it was already mutated.
+	 * Called from PlayerRenderHandler.beforePlayerRender().
+	 */
 	public static void apply(RenderPlayer renderer, AbstractClientPlayer entityPlayer, float partialTicks)
 	{
 		PlayerMutator mutator = mutatorMap.get(renderer);
@@ -422,6 +486,20 @@ public class PlayerMutator implements IBendsModel
 
 		mutator.updateModel(entityPlayer, renderer, partialTicks);
 	}
+	
+	/*
+	 * Used to reverse the effect of the mutation.
+	 * Called from PlayerRenderHandler.beforePlayerRender().
+	 */
+	public static void deapply(RenderPlayer renderer, AbstractClientPlayer entityPlayer, float partialTicks)
+	{
+		if (mutatorMap.containsKey(renderer))
+		{
+			PlayerMutator mutator = mutatorMap.get(renderer);
+			mutator.demutate(entityPlayer, renderer);
+			mutatorMap.remove(renderer);
+		}
+	}
 
 	/*
 	 * Used to refresh the mutators in case of real-time changes during development.
@@ -431,7 +509,8 @@ public class PlayerMutator implements IBendsModel
 		for (Map.Entry<RenderPlayer, PlayerMutator> mutator : mutatorMap.entrySet())
 		{
 			mutator.getValue().mutate(null, mutator.getKey());
-			mutator.getValue().layerArmor.initArmor();
+			if (mutator.getValue().layerArmor != null)
+				mutator.getValue().layerArmor.initArmor();
 		}
 	}
 

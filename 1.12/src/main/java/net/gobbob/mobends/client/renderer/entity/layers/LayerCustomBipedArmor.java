@@ -13,9 +13,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class LayerBipedCustomArmor extends LayerArmorBase<ModelBiped>
+public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
 {
-    public LayerBipedCustomArmor(RenderLivingBase<?> rendererIn)
+    public LayerCustomBipedArmor(RenderLivingBase<?> rendererIn)
     {
         super(rendererIn);
     }

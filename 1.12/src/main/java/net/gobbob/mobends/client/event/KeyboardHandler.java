@@ -17,7 +17,7 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 
-public class EventHandlerKeyboard {
+public class KeyboardHandler {
 	public static final KeyBinding key_Menu = new KeyBinding("Mo'Bends Menu", Keyboard.KEY_G, "GobBob's Mods");
 	public static final KeyBinding key_Refresh = new KeyBinding("Mo'Bends Refresh", Keyboard.KEY_F12, "GobBob's Mods");
 	

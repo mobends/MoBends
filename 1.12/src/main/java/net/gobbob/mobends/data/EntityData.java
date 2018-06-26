@@ -7,7 +7,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.animation.controller.Controller;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.event.PlayerRenderHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.minecraft.block.BlockLadder;

@@ -21,7 +21,7 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-public class EventHandlerRenderPlayer
+public class PlayerRenderHandler
 {
 	
 	public static float partialTicks;
@@ -88,6 +88,11 @@ public class EventHandlerRenderPlayer
             GlStateManager.rotate(data.renderRotation.getY(), 0F, 1F, 0F);
             GlStateManager.rotate(data.renderRotation.getX(), 1F, 0F, 0F);
             GlStateManager.translate(viewX - playerX, viewY - playerY, viewZ - playerZ);
+		}
+		else
+		{
+			AbstractClientPlayer player = (AbstractClientPlayer) event.getEntity();
+			PlayerMutator.deapply(event.getRenderer(), player, pt);
 		}
 	}
 	

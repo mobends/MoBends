@@ -2,8 +2,8 @@ package net.gobbob.mobends.client;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.event.EventHandlerKeyboard;
-import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.event.KeyboardHandler;
+import net.gobbob.mobends.client.event.PlayerRenderHandler;
 import net.gobbob.mobends.main.CommonProxy;
 import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.pack.PackManager;
@@ -27,12 +27,12 @@ public class ClientProxy extends CommonProxy{
 		AnimatedEntity.register(config);
 		BendsVariable.init();
 		
-		ClientRegistry.registerKeyBinding(EventHandlerKeyboard.key_Menu);
+		ClientRegistry.registerKeyBinding(KeyboardHandler.key_Menu);
 		
-		FMLCommonHandler.instance().bus().register(new EventHandlerRenderPlayer());
+		FMLCommonHandler.instance().bus().register(new PlayerRenderHandler());
 		FMLCommonHandler.instance().bus().register(new DataUpdateHandler());
-		FMLCommonHandler.instance().bus().register(new EventHandlerKeyboard());
-		MinecraftForge.EVENT_BUS.register(new EventHandlerRenderPlayer());
+		FMLCommonHandler.instance().bus().register(new KeyboardHandler());
+		MinecraftForge.EVENT_BUS.register(new PlayerRenderHandler());
 		MinecraftForge.EVENT_BUS.register(new DataUpdateHandler());
 	}
 	

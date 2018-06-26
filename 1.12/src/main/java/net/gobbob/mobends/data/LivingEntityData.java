@@ -1,7 +1,7 @@
 package net.gobbob.mobends.data;
 
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.event.PlayerRenderHandler;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -182,7 +182,7 @@ public abstract class LivingEntityData extends EntityData
 	{
 		EntityLivingBase entity = (EntityLivingBase) getEntity();
 		
-    	float clientY = (float) (entity.posY + (entity.posY-entity.prevPosY)*EventHandlerRenderPlayer.partialTicks);
+    	float clientY = (float) (entity.posY + (entity.posY-entity.prevPosY)*PlayerRenderHandler.partialTicks);
     	
     	BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 		

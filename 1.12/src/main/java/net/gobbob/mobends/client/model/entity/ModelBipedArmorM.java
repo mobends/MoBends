@@ -2,7 +2,7 @@ package net.gobbob.mobends.client.model.entity;
 
 import org.lwjgl.opengl.GL11;
 
-import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.event.PlayerRenderHandler;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;

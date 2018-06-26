@@ -7,7 +7,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.event.PlayerRenderHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
@@ -253,7 +253,7 @@ public class ModelBendsZombie extends ModelBiped implements IBendsModel
 	}*/
 	
 	public boolean isRenderedInGui() {
-		return EventHandlerRenderPlayer.renderingGuiScreen;
+		return PlayerRenderHandler.renderingGuiScreen;
 	}
 
 	@Override

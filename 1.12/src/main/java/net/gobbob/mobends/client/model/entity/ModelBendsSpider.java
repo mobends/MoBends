@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.event.EventHandlerRenderPlayer;
+import net.gobbob.mobends.client.event.PlayerRenderHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.data.Data_Spider;
@@ -320,7 +320,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
 	}*/
 	
 	public boolean isRenderedInGui() {
-		return EventHandlerRenderPlayer.renderingGuiScreen;
+		return PlayerRenderHandler.renderingGuiScreen;
 	}
 
 	@Override
