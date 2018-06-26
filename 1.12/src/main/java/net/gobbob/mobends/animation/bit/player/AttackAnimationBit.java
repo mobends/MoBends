@@ -4,13 +4,13 @@ import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.bit.biped.AttackSlashDownAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.AttackSlashUpAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.AttackStanceSprintAnimationBit;
+import net.gobbob.mobends.animation.bit.biped.AttackWhirlSlashAnimationBit;
+import net.gobbob.mobends.animation.bit.biped.FistGuardAnimationBit;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.pack.BendsPack;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -18,7 +18,8 @@ import net.minecraft.util.EnumHand;
 public class AttackAnimationBit extends AnimationBit
 {
 	protected HardAnimationLayer layerBase;
-	protected AnimationBit bitAttackStance, bitAttackStanceSprint, bitAttackSlashUp, bitAttackSlashDown;
+	protected AnimationBit bitAttackStance, bitAttackStanceSprint, bitAttackSlashUp, bitAttackSlashDown,
+			bitAttackWhirlSlash, bitFistGuard, bitPunch;
 
 	public AttackAnimationBit()
 	{
@@ -27,6 +28,9 @@ public class AttackAnimationBit extends AnimationBit
 		this.bitAttackStanceSprint = new AttackStanceSprintAnimationBit();
 		this.bitAttackSlashUp = new AttackSlashUpAnimationBit();
 		this.bitAttackSlashDown = new AttackSlashDownAnimationBit();
+		this.bitAttackWhirlSlash = new AttackWhirlSlashAnimationBit();
+		this.bitFistGuard = new FistGuardAnimationBit();
+		this.bitPunch = new PunchAnimationBit();
 	}
 
 	@Override
@@ -69,6 +73,10 @@ public class AttackAnimationBit extends AnimationBit
 					{
 						this.layerBase.playOrContinueBit(this.bitAttackSlashDown, playerData);
 					}
+					else if (playerData.getCurrentAttack() == 3)
+					{
+						this.layerBase.playOrContinueBit(this.bitAttackWhirlSlash, playerData);
+					}
 					else
 					{
 						this.layerBase.clearAnimation();
@@ -78,11 +86,11 @@ public class AttackAnimationBit extends AnimationBit
 				{
 					if (player.isSprinting())
 					{
-						this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, playerData);
+						this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, entityData);
 					}
 					else if (playerData.isStillHorizontally())
 					{
-						this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
+						this.layerBase.playOrContinueBit(this.bitAttackStance, entityData);
 					}
 					else
 					{
@@ -96,17 +104,18 @@ public class AttackAnimationBit extends AnimationBit
 			}
 			else
 			{
-				// if (data.getTicksAfterAttack() < 10)
-				// {
-				// Animation_Attack_Punch.animate((EntityPlayer) argEntity, model, data);
-				// BendsPack.animate(data, "player", "attack");
-				// BendsPack.animate(data, "player", "punch");
-				// } else if (data.getTicksAfterAttack() < 60)
-				// {
-				// Animation_Attack_PunchStance.animate((EntityPlayer) argEntity, model, data);
-				// BendsPack.animate(data, "player", "punch_stance");
-				// }
-				this.layerBase.clearAnimation();
+				if (playerData.getTicksAfterAttack() < 10)
+				{
+					this.layerBase.playOrContinueBit(this.bitPunch, entityData);
+				}
+				else if (playerData.getTicksAfterAttack() < 60 && playerData.isStillHorizontally())
+				{
+					this.layerBase.playOrContinueBit(this.bitFistGuard, entityData);
+				}
+				else
+				{
+					this.layerBase.clearAnimation();
+				}
 			}
 		}
 

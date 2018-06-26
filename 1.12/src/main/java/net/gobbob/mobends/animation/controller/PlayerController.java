@@ -12,9 +12,13 @@ import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
@@ -30,7 +34,8 @@ public class PlayerController extends Controller
 	protected HardAnimationLayer layerBase;
 	protected HardAnimationLayer layerSneak;
 	protected HardAnimationLayer layerAction;
-	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSneak, bitAttack;
+	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSneak;
+	protected AnimationBit bitBow, bitAttack;
 
 	public PlayerController()
 	{
@@ -41,8 +46,9 @@ public class PlayerController extends Controller
 		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit();
 		this.bitJump = new net.gobbob.mobends.animation.bit.player.JumpAnimationBit();
 		this.bitSprint = new net.gobbob.mobends.animation.bit.biped.SprintAnimationBit();
-		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
 		this.bitSneak = new net.gobbob.mobends.animation.bit.biped.SneakAnimationBit();
+		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
+		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
 	}
 
 	@Override
@@ -54,8 +60,50 @@ public class PlayerController extends Controller
 			return;
 
 		PlayerData playerData = (PlayerData) entityData;
-		AbstractClientPlayer player = (AbstractClientPlayer) playerData.getEntity();
 		BendsVariable.tempData = playerData;
+		AbstractClientPlayer player = (AbstractClientPlayer) playerData.getEntity();
+		ItemStack itemstack = player.getHeldItemMainhand();
+        ItemStack itemstack1 = player.getHeldItemOffhand();
+        ModelBiped.ArmPose armPoseMain = ModelBiped.ArmPose.EMPTY;
+        ModelBiped.ArmPose armPoseOff = ModelBiped.ArmPose.EMPTY;
+
+        if (!itemstack.isEmpty())
+        {
+            armPoseMain = ModelBiped.ArmPose.ITEM;
+
+            if (player.getItemInUseCount() > 0)
+            {
+                EnumAction enumaction = itemstack.getItemUseAction();
+
+                if (enumaction == EnumAction.BLOCK)
+                {
+                    armPoseMain = ModelBiped.ArmPose.BLOCK;
+                }
+                else if (enumaction == EnumAction.BOW)
+                {
+                    armPoseMain = ModelBiped.ArmPose.BOW_AND_ARROW;
+                }
+            }
+        }
+		
+        if (!itemstack1.isEmpty())
+        {
+            armPoseOff = ModelBiped.ArmPose.ITEM;
+
+            if (player.getItemInUseCount() > 0)
+            {
+                EnumAction enumaction1 = itemstack1.getItemUseAction();
+
+                if (enumaction1 == EnumAction.BLOCK)
+                {
+                    armPoseOff = ModelBiped.ArmPose.BLOCK;
+                }
+                else if (enumaction1 == EnumAction.BOW)
+                {
+                    armPoseOff = ModelBiped.ArmPose.BOW_AND_ARROW;
+                }
+            }
+        }
 
 		if (!playerData.isOnGround() | playerData.getTicksAfterTouchdown() < 2)
 		{
@@ -90,7 +138,14 @@ public class PlayerController extends Controller
 			}
 		}
 
-		this.layerAction.playOrContinueBit(this.bitAttack, entityData);
+		if(armPoseMain == ArmPose.BOW_AND_ARROW || armPoseOff == ArmPose.BOW_AND_ARROW)
+		{
+			this.layerAction.playOrContinueBit(this.bitBow, entityData);
+		}
+		else
+		{
+			this.layerAction.playOrContinueBit(this.bitAttack, entityData);
+		}
 		
 		layerBase.perform(entityData);
 		layerSneak.perform(entityData);

@@ -124,7 +124,7 @@ public class SwordTrail
 			GUtil.translate(points, new Vector3f(0, 12, 0));
 
 			GUtil.rotateX(points, part.renderRotation.getX());
-			GUtil.rotateY(points, part.renderRotation.getY());
+			GUtil.rotateY(points, -part.renderRotation.getY());
 			GUtil.translate(points, part.renderOffset);
 
 			for (Vector3f point : points)
