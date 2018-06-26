@@ -318,6 +318,13 @@ public class ModelPart extends ModelRenderer implements IModelPart
         return this;
     }
 	
+	public ModelPart setVisibility(int faceIndex, boolean visible)
+	{
+		this.getBox().setVisibility(faceIndex, visible);
+		return this;
+	}
+	
+	
 	public void finish()
 	{
 		this.rotation.finish();

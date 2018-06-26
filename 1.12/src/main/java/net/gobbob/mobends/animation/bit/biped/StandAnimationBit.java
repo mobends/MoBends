@@ -43,7 +43,7 @@ public class StandAnimationBit extends AnimationBit
 			return;
 		BipedEntityData data = (BipedEntityData) entityData;
 
-		data.renderOffset.slideToZero(0.1F);
+		data.renderOffset.slideToZero(0.3F);
 		data.renderRotation.slideToZero(0.3F);
 		data.renderRightItemRotation.slideToZero();
 		data.renderLeftItemRotation.slideToZero();

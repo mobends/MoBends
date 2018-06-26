@@ -11,11 +11,11 @@ import net.minecraft.util.math.BlockPos;
 
 public abstract class LivingEntityData extends EntityData
 {
-	protected float ticksAfterLiftoff = 0.0f;
-    protected float ticksAfterTouchdown = 0.0f;
-	protected float ticksAfterAttack = 0.0f;
-	protected float ticksAfterThrowup = 0.0f;
-	protected float climbingCycle = 0.0f;
+	protected float ticksAfterLiftoff;
+    protected float ticksAfterTouchdown;
+	protected float ticksAfterAttack;
+	protected float ticksAfterThrowup;
+	protected float climbingCycle;
 	protected boolean alreadyPunched = false;
 	protected boolean climbing = false;
 	protected float limbSwing = 0.0f;
@@ -26,23 +26,41 @@ public abstract class LivingEntityData extends EntityData
 	public LivingEntityData(Entity entity)
 	{
 		super(entity);
+		
+		// Setting high values for ticksAfter* variables
+		// to avoid premature animation triggers.
+		// (like the automatic attack stance on creation)
+		this.ticksAfterLiftoff = 100F;
+		this.ticksAfterTouchdown = 100F;
+		this.ticksAfterAttack = 100F;
+		this.ticksAfterThrowup = 100F;
 	}
 	
-	public void setClimbing(boolean flag) {
+	public void setClimbing(boolean flag)
+	{
 		this.climbing = flag;
 	}
-	public void setLimbSwing(float limbSwing) {
+	
+	public void setLimbSwing(float limbSwing)
+	{
 		this.limbSwing = limbSwing;
 	}
-	public void setLimbSwingAmount(float limbSwingAmount) {
+	
+	public void setLimbSwingAmount(float limbSwingAmount)
+	{
 		this.limbSwingAmount = limbSwingAmount;
 	}
-	public void setHeadYaw(float headYaw) {
+	
+	public void setHeadYaw(float headYaw)
+	{
 		this.headYaw = headYaw;
 	}
-	public void setHeadPitch(float headPitch) {
+	
+	public void setHeadPitch(float headPitch)
+	{
 		this.headPitch = headPitch;
 	}
+	
 	public float getTicksAfterLiftoff() { return this.ticksAfterLiftoff; }
 	public float getTicksAfterTouchdown() { return this.ticksAfterTouchdown; }
 	public float getTicksAfterAttack() { return this.ticksAfterAttack; }

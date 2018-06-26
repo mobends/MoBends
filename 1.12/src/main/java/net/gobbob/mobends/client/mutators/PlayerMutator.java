@@ -151,7 +151,8 @@ public class PlayerMutator implements IBendsModel
 		float scaleFactor = 0.0f;
 
 		// Body
-		model.bipedBody = body = (ModelPartPostOffset) new ModelPartPostOffset(model, 16, 16).setPostOffset(0.0F, -12.0F, 0.0F).setPosition(0.0F, 12.0F, 0.0F);
+		model.bipedBody = body = (ModelPartPostOffset) new ModelPartPostOffset(model, 16, 16)
+				.setPostOffset(0.0F, -12.0F, 0.0F).setPosition(0.0F, 12.0F, 0.0F);
 		body.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, scaleFactor);
 
 		// Head
@@ -168,7 +169,8 @@ public class PlayerMutator implements IBendsModel
 		leftArm.addModelBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.BOTTOM, false);
 		model.bipedRightArm = rightArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 40, 16)
 				.setParent(body).setHideLikeParent(false).setPosition(-5.0F, armHeight, 0.0F);
-		rightArm.addModelBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.BOTTOM, false);
+		rightArm.addModelBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.BOTTOM,
+				false);
 
 		rightArm.offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
 		leftArm.offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
@@ -179,7 +181,8 @@ public class PlayerMutator implements IBendsModel
 		leftForeArm.getBox().offsetTextureQuad(leftForeArm, ModelBox.BOTTOM, 0, -6.0f);
 		leftArm.setExtension(leftForeArm);
 		rightForeArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 40, 16 + 6).setParent(rightArm);
-		rightForeArm.addModelBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.TOP, false);
+		rightForeArm.addModelBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.TOP,
+				false);
 		rightForeArm.setRotationPoint(0.0F, 4.0F, 2.0F);
 		rightForeArm.getBox().offsetTextureQuad(rightForeArm, ModelBox.BOTTOM, 0, -6.0f);
 		rightArm.setExtension(rightForeArm);
@@ -191,68 +194,115 @@ public class PlayerMutator implements IBendsModel
 		rightForeArm.setExtension(rightItemTransform);
 
 		// Legs
-		model.bipedRightLeg = rightLeg = (ModelPartExtended) new ModelPartExtended(model, 0, 16).setPosition(-1.9F,
-				12.0F, 0.0F);
-		rightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
-		model.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(model, 16, 48).setPosition(1.9F, 12.0F,
-				0.0F);
-		leftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
-
-		leftForeLeg = (ModelPartChild) new ModelPartChild(model, 16, 48 + 6).setParent(leftLeg).setPosition(0, 6.0F,
-				-2.0F);
-		leftForeLeg.addModelBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor).offsetTextureQuad(leftForeLeg, ModelBox.BOTTOM,
-				0, -6.0f);
+		model.bipedRightLeg = rightLeg = (ModelPartExtended) new ModelPartExtended(model, 0, 16)
+				.setPosition(-1.9F, 12F, 0F)
+				.setBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+		model.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(model, 16, 48)
+				.setPosition(1.9F, 12.0F, 0.0F)
+				.setBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+		leftForeLeg = (ModelPartChild) new ModelPartChild(model, 16, 48 + 6)
+				.setParent(leftLeg)
+				.setPosition(0, 6.0F, -2.0F)
+				.setBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
+				.offsetBoxBy(-0.005F, 0F, -0.005F)
+				.resizeBox(4.01F, 6.0F, 4.01F)
+				.updateVertices();
+		leftForeLeg.getBox().offsetTextureQuad(leftForeLeg, ModelBox.BOTTOM, 0, -6.0f);
 		leftLeg.setExtension(leftForeLeg);
-		rightForeLeg = (ModelPartChild) new ModelPartChild(model, 0, 16 + 6).setParent(rightLeg).setPosition(0, 6.0F,
-				-2.0F);
-		rightForeLeg.addModelBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor).offsetTextureQuad(rightForeLeg,
-				ModelBox.BOTTOM, 0, -6.0f);
+		rightForeLeg = (ModelPartChild) new ModelPartChild(model, 0, 16 + 6)
+				.setParent(rightLeg)
+				.setPosition(0, 6.0F, -2.0F)
+				.setBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
+				.offsetBoxBy(-0.005F, 0F, -0.005F)
+				.resizeBox(4.01F, 6.0F, 4.01F)
+				.updateVertices();
+		rightForeLeg.getBox().offsetTextureQuad(rightForeLeg, ModelBox.BOTTOM, 0, -6.0f);
 		rightLeg.setExtension(rightForeLeg);
 
 		// Wear
 		model.bipedHeadwear = headwear = new ModelPartChild(model, 32, 0).setParent(head);
 		headwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor + 0.5F);
-
-		model.bipedLeftArmwear = leftArmwear = new ModelPartChild(model, 48, 48).setParent(leftArm);
-		leftArmwear.addBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F);
-		((ModelPart) leftArmwear).getBox().height -= 0.25f;
-		((ModelPart) leftArmwear).getBox().updateVertices(leftArmwear);
-		model.bipedRightArmwear = rightArmwear = new ModelPartChild(model, 40, 32).setParent(rightArm);
-		rightArmwear.addBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F);
-		((ModelPart) rightArmwear).getBox().height -= 0.25f;
-		((ModelPart) rightArmwear).getBox().updateVertices(rightArmwear);
-
-		leftForeArmwear = new ModelPart(model, 48, 48 + 6)
-				.setBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor + 0.25F).setHeight(5.75f)
-				.offsetBoxBy(0, 0.25f, 0).updateVertices();
-		leftForeArm.addChild(leftForeArmwear);
-		((ModelPart) leftForeArmwear).getBox().offsetTextureQuad(leftForeArmwear, ModelBox.BOTTOM, 0, -6.0f);
-		rightForeArmwear = new ModelPart(model, 40, 32 + 6);
-		rightForeArm.addChild(rightForeArmwear);
-		rightForeArmwear.addBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor + 0.25F);
-		rightForeArmwear.getBox().height -= 0.25f;
-		rightForeArmwear.getBox().y += 0.25f;
-		rightForeArmwear.getBox().updateVertices(rightForeArmwear);
-		((ModelPart) rightForeArmwear).getBox().offsetTextureQuad(rightForeArmwear, ModelBox.BOTTOM, 0, -6.0f);
-		// ((ModelRendererBends)this.bipedLeftForeArmwear).offsetBox_Add(-0.005f, 0,
-		// -0.005f).resizeBox(3.01f+0.5f, 6.0f+0.25f, 4.01f+0.5f).updateVertices();
-		// ((ModelRendererBends)this.bipedRightForeArmwear).offsetBox_Add(-0.005f, 0,
-		// -0.005f).resizeBox(3.01f+0.5f, 6.0f+0.25f, 4.01f+0.5f).updateVertices();
-
-		model.bipedLeftLegwear = leftLegwear = new ModelPartChild(model, 0, 48).setParent(leftLeg);
-		leftLegwear.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F);
-		((ModelPart) leftLegwear).getBox().height -= 0.25f;
-		((ModelPart) leftLegwear).getBox().updateVertices(leftLegwear);
-		((ModelPart) leftLegwear).getBox().offsetTextureQuad(leftLegwear, ModelBox.BOTTOM, 4F, 0F);
-		leftLegwear.setRotationPoint(0.0f, 0.0f, 0.0f);
-		model.bipedRightLegwear = rightLegwear = new ModelPartChild(model, 0, 32).setParent(rightLeg);
-		rightLegwear.addBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F);
-		((ModelPart) rightLegwear).getBox().height -= 0.25f;
-		((ModelPart) rightLegwear).getBox().updateVertices(rightLegwear);
-		((ModelPart) rightLegwear).getBox().offsetTextureQuad(rightLegwear, ModelBox.BOTTOM, 4F, 0F);
 		model.bipedBodyWear = bodywear = new ModelPartChild(model, 16, 32).setParent(body);
 		bodywear.addBox(-4F, -12F, -2F, 8, 12, 4, scaleFactor + 0.25F);
+		
+		model.bipedLeftArmwear = leftArmwear = (ModelPartChild) new ModelPartChild(model, 48, 48)
+				.setParent(leftArm)
+				.setBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F)
+				.setHeight(5.75F)
+				.offsetBoxBy(-0.0025F, 0F, -0.0025F)
+				.resizeBox(armWidth + 0.005F, 5.75F, 4.005F)
+				.updateVertices()
+				.setVisibility(ModelBox.BOTTOM, false);
+		model.bipedRightArmwear = rightArmwear = (ModelPartChild) new ModelPartChild(model, 40, 32)
+				.setParent(rightArm)
+				.setBox(-armWidth + 1, -2F, -2F, armWidth, 6, 4, scaleFactor + 0.25F)
+				.setHeight(5.75F)
+				.offsetBoxBy(-0.0025F, 0F, -0.0025F)
+				.resizeBox(armWidth + 0.005F, 5.75F, 4.005F)
+				.updateVertices()
+				.setVisibility(ModelBox.BOTTOM, false);
 
+		leftForeArmwear = new ModelPart(model, 48, 48 + 6)
+				.setBox(-1F, 0F, -4F, armWidth, 6, 4, scaleFactor + 0.25F)
+				.setHeight(5.75F)
+				.offsetBoxBy(-0.005F, 0.25F, -0.005F)
+				.resizeBox(armWidth + 0.01F, 5.75F, 4.01F)
+				.updateVertices()
+				.setVisibility(ModelBox.TOP, false);
+		leftForeArmwear.getBox().offsetTextureQuad(leftForeArmwear, ModelBox.BOTTOM, 0, -6F);
+		leftForeArm.addChild(leftForeArmwear);
+		
+		rightForeArmwear = new ModelPart(model, 40, 32 + 6)
+				.setBox(-armWidth + 1, 0F, -4F, armWidth, 6, 4, scaleFactor + 0.25F)
+				.setHeight(5.75F)
+				.offsetBoxBy(-0.005F, 0.25F, -0.005F)
+				.resizeBox(armWidth + 0.01F, 5.75F, 4.01F)
+				.updateVertices()
+				.setVisibility(ModelBox.TOP, false);
+		rightForeArmwear.getBox().offsetTextureQuad(rightForeArmwear, ModelBox.BOTTOM, 0, -6F);
+		rightForeArm.addChild(rightForeArmwear);
+
+		model.bipedLeftLegwear = leftLegwear = (ModelPartChild) new ModelPartChild(model, 0, 48)
+				.setParent(leftLeg)
+				.setBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
+				.setHeight(5.75F)
+				.updateVertices()
+				.setVisibility(ModelBox.BOTTOM, false);
+		model.bipedRightLegwear = rightLegwear = (ModelPartChild) new ModelPartChild(model, 0, 32)
+				.setParent(rightLeg)
+				.setBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
+				.setHeight(5.75F)
+				.updateVertices()
+				.setVisibility(ModelBox.BOTTOM, false);
+
+		leftForeLegwear = new ModelPart(model, 0, 48 + 6)
+				.setBox(-2F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
+				.setHeight(5.75F)
+				.offsetBoxBy(-0.005F, 0.25F, -0.005F)
+				.resizeBox(4.01F, 5.75F, 4.01F)
+				.updateVertices()
+				.setVisibility(ModelBox.TOP, false);
+		leftForeLegwear.getBox().offsetTextureQuad(leftForeLegwear, ModelBox.BOTTOM, 0, -6F);
+		leftForeLeg.addChild(leftForeLegwear);
+		
+		rightForeLegwear = new ModelPart(model, 0, 32 + 6)
+				.setBox(-2F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
+				.setHeight(5.75F)
+				.offsetBoxBy(-0.005F, 0.25F, -0.005F)
+				.resizeBox(4.01F, 5.75F, 4.01F)
+				.updateVertices()
+				.setVisibility(ModelBox.TOP, false);
+		rightForeLegwear.getBox().offsetTextureQuad(rightForeLegwear, ModelBox.BOTTOM, 0, -6F);
+		rightForeLeg.addChild(rightForeLegwear);
+		
+		/*
+		 * leftForeLeg = (ModelPartChild) new ModelPartChild(model, 16, 48 + 6).setParent(leftLeg).setPosition(0, 6.0F,
+				-2.0F);
+		leftForeLeg.addModelBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor).offsetTextureQuad(leftForeLeg, ModelBox.BOTTOM,
+				0, -6.0f);
+		leftLeg.setExtension(leftForeLeg);
+		 */
+		
 		nameToPartMap = new HashMap<String, IModelPart>();
 		nameToPartMap.put("body", body);
 		nameToPartMap.put("head", head);
@@ -336,7 +386,7 @@ public class PlayerMutator implements IBendsModel
 		data.setLimbSwingAmount(this.limbSwingAmount);
 
 		Controller controller = data.getController();
-		if (controller != null)
+		if (controller != null && data.canBeUpdated())
 		{
 			controller.perform(data);
 		}
