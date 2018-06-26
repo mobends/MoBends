@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
-
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animation.controller.Controller;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
@@ -17,6 +16,7 @@ import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.client.model.ModelPartExtended;
+import net.gobbob.mobends.client.model.ModelPartPostOffset;
 import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBendsHeldItem;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerBipedCustomArmor;
@@ -44,7 +44,7 @@ public class PlayerMutator implements IBendsModel
 {
 	public static HashMap<RenderPlayer, PlayerMutator> mutatorMap = new HashMap<RenderPlayer, PlayerMutator>();
 
-	public ModelPart body;
+	public ModelPartPostOffset body;
 	public ModelPartChild head;
 	public ModelPartChildExtended leftArm;
 	public ModelPartChildExtended rightArm;
@@ -151,7 +151,7 @@ public class PlayerMutator implements IBendsModel
 		float scaleFactor = 0.0f;
 
 		// Body
-		model.bipedBody = body = new ModelPart(model, 16, 16).setPosition(0.0F, 12.0F, 0.0F);
+		model.bipedBody = body = (ModelPartPostOffset) new ModelPartPostOffset(model, 16, 16).setPostOffset(0.0F, -12.0F, 0.0F).setPosition(0.0F, 12.0F, 0.0F);
 		body.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, scaleFactor);
 
 		// Head
@@ -165,21 +165,21 @@ public class PlayerMutator implements IBendsModel
 
 		model.bipedLeftArm = leftArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 32, 48)
 				.setParent(body).setHideLikeParent(false).setPosition(5.0F, armHeight, 0.0F);
-		leftArm.addBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor);
+		leftArm.addModelBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.BOTTOM, false);
 		model.bipedRightArm = rightArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 40, 16)
 				.setParent(body).setHideLikeParent(false).setPosition(-5.0F, armHeight, 0.0F);
-		rightArm.addBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor);
+		rightArm.addModelBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.BOTTOM, false);
 
 		rightArm.offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
 		leftArm.offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(armWidth + 0.02f, 6.0f, 4.02f).updateVertices();
 
 		leftForeArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 32, 48 + 6).setParent(leftArm);
-		leftForeArm.addBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor);
+		leftForeArm.addModelBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.TOP, false);
 		leftForeArm.setRotationPoint(0.0F, 4.0F, 2.0F);
 		leftForeArm.getBox().offsetTextureQuad(leftForeArm, ModelBox.BOTTOM, 0, -6.0f);
 		leftArm.setExtension(leftForeArm);
 		rightForeArm = (ModelPartChildExtended) new ModelPartChildExtended(model, 40, 16 + 6).setParent(rightArm);
-		rightForeArm.addBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor);
+		rightForeArm.addModelBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor).setVisibility(ModelBox.TOP, false);
 		rightForeArm.setRotationPoint(0.0F, 4.0F, 2.0F);
 		rightForeArm.getBox().offsetTextureQuad(rightForeArm, ModelBox.BOTTOM, 0, -6.0f);
 		rightArm.setExtension(rightForeArm);

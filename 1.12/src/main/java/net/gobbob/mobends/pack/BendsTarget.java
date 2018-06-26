@@ -1,8 +1,10 @@
 package net.gobbob.mobends.pack;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
@@ -31,11 +33,6 @@ public class BendsTarget
 			((BendsCondition) this.conditions.get("all")).applyToModel(object, anim, model);
 	}
 
-	public BendsCondition getCondition(String anim)
-	{
-		return (BendsCondition) this.conditions.get(anim);
-	}
-
 	public void applyToModel(IBendsModel model, String anim)
 	{
 		if (this.conditions.containsKey(anim))
@@ -43,6 +40,22 @@ public class BendsTarget
 
 		if (this.conditions.containsKey("all"))
 			((BendsCondition) this.conditions.get("all")).applyToModel(model);
+	}
+	
+	public void applyToModel(IBendsModel model, Collection<String> animations)
+	{
+		for (Map.Entry<String, BendsCondition> entry : this.conditions.entrySet())
+		{
+			if (animations.contains(entry.getKey()) || entry.getKey().equalsIgnoreCase("all"))
+			{
+				entry.getValue().applyToModel(model);
+			}
+		}
+	}
+	
+	public BendsCondition getCondition(String anim)
+	{
+		return (BendsCondition) this.conditions.get(anim);
 	}
 
 	public AnimatedEntity getAnimatedEntity()

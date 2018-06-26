@@ -116,7 +116,8 @@ public class EntityDatabase {
 	{
 		for(EntityData entityData : this.entryMap.values())
 		{
-			entityData.update(partialTicks);
+			if (entityData.canBeUpdated())
+				entityData.update(partialTicks);
 		}
 	}
 }

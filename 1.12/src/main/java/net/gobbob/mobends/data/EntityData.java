@@ -32,7 +32,6 @@ public abstract class EntityData implements IBendsModel
 	protected Vector3f previousMotion = new Vector3f();
 	protected Vector3f motion = new Vector3f();
 	protected boolean onGround = true;
-	protected boolean updatedThisFrame = false;
 	protected HashMap<String, Object> nameToPartMap;
 
 	public EntityData(Entity entity)
@@ -56,8 +55,7 @@ public abstract class EntityData implements IBendsModel
 
 	public boolean canBeUpdated()
 	{
-		return !updatedThisFrame
-				&& !(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused());
+		return !(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused());
 	}
 
 	public boolean calcOnGround()
@@ -128,8 +126,6 @@ public abstract class EntityData implements IBendsModel
 			return;
 
 		this.updateParts(DataUpdateHandler.ticksPerFrame);
-
-		updatedThisFrame = false;
 	}
 
 	public Entity getEntity()

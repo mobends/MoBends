@@ -134,7 +134,7 @@ public class GuiPortraitDisplay
 		if (previewer != null)
 			previewer.prePreview(entityLivingBase, this.animationToPreview);
 		
-		Minecraft.getMinecraft().getRenderManager().doRenderEntity(entityLivingBase, 0.0D, 0.0D, 0.0D, 0.0F, 1.0f,
+		Minecraft.getMinecraft().getRenderManager().renderEntity(entityLivingBase, 0.0D, 0.0D, 0.0D, 0.0F, 1.0f,
 				false);
 		
 		if (previewer != null)

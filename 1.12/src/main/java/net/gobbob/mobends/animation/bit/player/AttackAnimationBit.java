@@ -1,6 +1,9 @@
 package net.gobbob.mobends.animation.bit.player;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
+import net.gobbob.mobends.animation.bit.biped.AttackSlashDownAnimationBit;
+import net.gobbob.mobends.animation.bit.biped.AttackSlashUpAnimationBit;
+import net.gobbob.mobends.animation.bit.biped.AttackStanceSprintAnimationBit;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
@@ -15,13 +18,32 @@ import net.minecraft.util.EnumHand;
 public class AttackAnimationBit extends AnimationBit
 {
 	protected HardAnimationLayer layerBase;
-	protected AnimationBit bitAttackStance, bitAttackSlashUp;
+	protected AnimationBit bitAttackStance, bitAttackStanceSprint, bitAttackSlashUp, bitAttackSlashDown;
 
 	public AttackAnimationBit()
 	{
 		this.layerBase = new HardAnimationLayer();
 		this.bitAttackStance = new AttackStanceAnimationBit();
+		this.bitAttackStanceSprint = new AttackStanceSprintAnimationBit();
 		this.bitAttackSlashUp = new AttackSlashUpAnimationBit();
+		this.bitAttackSlashDown = new AttackSlashDownAnimationBit();
+	}
+
+	@Override
+	public String[] getActions(EntityData entityData)
+	{
+		if (this.layerBase.isPlaying())
+		{
+			return this.layerBase.getPerformedBit().getActions(entityData);
+		}
+
+		return new String[] {};
+	}
+
+	public boolean shouldPerformAttack(AbstractClientPlayer player)
+	{
+		ItemStack heldItemStack = player.getHeldItem(EnumHand.MAIN_HAND);
+		return heldItemStack != null && heldItemStack.getItem() != Items.AIR;
 	}
 
 	@Override
@@ -35,8 +57,7 @@ public class AttackAnimationBit extends AnimationBit
 		if (entity instanceof AbstractClientPlayer)
 		{
 			AbstractClientPlayer player = (AbstractClientPlayer) entity;
-			ItemStack heldItemStack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if (heldItemStack != null && heldItemStack.getItem() != Items.AIR)
+			if (this.shouldPerformAttack(player))
 			{
 				if (playerData.getTicksAfterAttack() < 10)
 				{
@@ -44,26 +65,29 @@ public class AttackAnimationBit extends AnimationBit
 					{
 						this.layerBase.playOrContinueBit(this.bitAttackSlashUp, playerData);
 					}
+					else if (playerData.getCurrentAttack() == 2)
+					{
+						this.layerBase.playOrContinueBit(this.bitAttackSlashDown, playerData);
+					}
 					else
 					{
 						this.layerBase.clearAnimation();
 					}
-					// else if (data.getCurrentAttack() == 2)
-					// {
-					// Animation_Attack_Combo1.animate((EntityPlayer) argEntity, model, data);
-					// BendsPack.animate(data, "player", "attack");
-					// BendsPack.animate(data, "player", "attack_1");
-					// } else if (data.getCurrentAttack() == 3)
-					// {
-					// Animation_Attack_Combo2.animate((EntityPlayer) argEntity, model, data);
-					// BendsPack.animate(data, "player", "attack");
-					// BendsPack.animate(data, "player", "attack_2");
-					// }
 				}
-				else if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround()
-						&& playerData.isStillHorizontally())
+				else if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround())
 				{
-					this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
+					if (player.isSprinting())
+					{
+						this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, playerData);
+					}
+					else if (playerData.isStillHorizontally())
+					{
+						this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
+					}
+					else
+					{
+						this.layerBase.clearAnimation();
+					}
 				}
 				else
 				{

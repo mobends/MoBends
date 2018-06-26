@@ -1,5 +1,9 @@
 package net.gobbob.mobends.animation.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.data.EntityData;
@@ -33,12 +37,12 @@ public class PlayerController extends Controller
 		this.layerBase = new HardAnimationLayer();
 		this.layerSneak = new HardAnimationLayer();
 		this.layerAction = new HardAnimationLayer();
-		this.bitStand = new net.gobbob.mobends.animation.bit.player.StandAnimationBit(animationTarget);
-		this.bitWalk = new net.gobbob.mobends.animation.bit.player.WalkAnimationBit(animationTarget);
+		this.bitStand = new net.gobbob.mobends.animation.bit.biped.StandAnimationBit();
+		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit();
 		this.bitJump = new net.gobbob.mobends.animation.bit.player.JumpAnimationBit();
-		this.bitSprint = new net.gobbob.mobends.animation.bit.player.SprintAnimationBit();
+		this.bitSprint = new net.gobbob.mobends.animation.bit.biped.SprintAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
-		this.bitSneak = new net.gobbob.mobends.animation.bit.player.SneakAnimationBit();
+		this.bitSneak = new net.gobbob.mobends.animation.bit.biped.SneakAnimationBit();
 	}
 
 	@Override
@@ -55,30 +59,30 @@ public class PlayerController extends Controller
 
 		if (!playerData.isOnGround() | playerData.getTicksAfterTouchdown() < 2)
 		{
-			this.layerBase.playOrContinueBit(bitJump, playerData);
+			this.layerBase.playOrContinueBit(bitJump, entityData);
 			this.layerSneak.clearAnimation();
 		}
 		else
 		{
 			if (playerData.isStillHorizontally())
 			{
-				this.layerBase.playOrContinueBit(bitStand, playerData);
+				this.layerBase.playOrContinueBit(bitStand, entityData);
 			}
 			else
 			{
 				if (player.isSprinting())
 				{
-					this.layerBase.playOrContinueBit(bitSprint, playerData);
+					this.layerBase.playOrContinueBit(bitSprint, entityData);
 				}
 				else
 				{
-					this.layerBase.playOrContinueBit(bitWalk, playerData);
+					this.layerBase.playOrContinueBit(bitWalk, entityData);
 				}
 			}
 			
 			if (player.isSneaking())
 			{
-				this.layerSneak.playOrContinueBit(bitSneak, playerData);
+				this.layerSneak.playOrContinueBit(bitSneak, entityData);
 			}
 			else
 			{
@@ -86,10 +90,17 @@ public class PlayerController extends Controller
 			}
 		}
 
-		this.layerAction.playOrContinueBit(this.bitAttack, playerData);
+		this.layerAction.playOrContinueBit(this.bitAttack, entityData);
 		
 		layerBase.perform(entityData);
 		layerSneak.perform(entityData);
 		layerAction.perform(entityData);
+		
+		List<String> actions = new ArrayList<String>();
+		actions.addAll(Arrays.asList(layerBase.getActions(entityData)));
+		actions.addAll(Arrays.asList(layerSneak.getActions(entityData)));
+		actions.addAll(Arrays.asList(layerAction.getActions(entityData)));
+		
+		BendsPack.animate(entityData, this.animationTarget, actions);
 	}
 }

@@ -30,11 +30,31 @@ public class HardAnimationLayer extends AnimationLayer
 
 	public boolean isPlaying(AnimationBit bit)
 	{
-		return bit == performedBit;
+		return bit == this.performedBit;
+	}
+	
+	public boolean isPlaying()
+	{
+		return this.performedBit != null;
 	}
 
 	public void clearAnimation()
 	{
 		this.performedBit = null;
+	}
+
+	public AnimationBit getPerformedBit()
+	{
+		return this.performedBit;
+	}
+
+	@Override
+	public String[] getActions(EntityData entityData)
+	{
+		if (this.isPlaying())
+		{
+			return this.getPerformedBit().getActions(entityData);
+		}
+		return new String[] {};
 	}
 }

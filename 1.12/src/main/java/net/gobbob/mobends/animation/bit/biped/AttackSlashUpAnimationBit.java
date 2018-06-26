@@ -1,32 +1,37 @@
-package net.gobbob.mobends.animation.bit.player;
+package net.gobbob.mobends.animation.bit.biped;
 
 import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.client.model.IModelPart;
+import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.util.GUtil;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 
 public class AttackSlashUpAnimationBit extends AnimationBit
 {
-
+	@Override
+	public String[] getActions(EntityData entityData)
+	{
+		return new String[] { "attack", "attack_0" };
+	}
+	
 	@Override
 	public void perform(EntityData entityData)
 	{
-		if (!(entityData instanceof PlayerData))
+		if (!(entityData instanceof BipedEntityData))
 			return;
-		if (!(entityData.getEntity() instanceof AbstractClientPlayer))
+		if (!(entityData.getEntity() instanceof EntityLivingBase))
 			return;
 
-		PlayerData data = (PlayerData) entityData;
-		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
-		EnumHandSide primaryHand = player.getPrimaryHand();
+		BipedEntityData data = (BipedEntityData) entityData;
+		EntityLivingBase living = (EntityLivingBase) data.getEntity();
+		EnumHandSide primaryHand = living.getPrimaryHand();
 
 		boolean mainHandSwitch = primaryHand == EnumHandSide.RIGHT;
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on
@@ -42,10 +47,10 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 			data.swordTrail.reset();
 		}
 
-		if (player.getHeldItem(EnumHand.MAIN_HAND) != null)
+		if (living.getHeldItem(EnumHand.MAIN_HAND) != null)
 		{
 			if (data.getTicksAfterAttack() < 4F
-					&& player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
+					&& living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
 			{
 				data.swordTrail.add(data);
 			}
@@ -64,7 +69,7 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 		data.head.rotation.setY(data.getHeadYaw());
 		data.head.rotation.setX(data.getHeadPitch());
 		data.head.preRotation.slideX(-data.body.rotation.getX(), 0.9f);
-		data.head.preRotation.slideY(-data.body.rotation.getY() - 30 * handDirMtp, 0.9f);
+		data.head.preRotation.slideY(-data.body.rotation.getY(), 0.9f);
 
 		mainArm.getPreRotation().slideZ(60.0f * handDirMtp, 0.3f);
 
@@ -96,7 +101,7 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 			data.rightForeLeg.rotation.slideX(30, 0.3f);
 			//data.leftForeLeg.rotation.slideX(30, 0.3f);
 
-			if (!player.isRiding())
+			if (!living.isRiding())
 			{
 				data.renderOffset.slideY(0.0f);
 				//data.renderRotation.slideY(-30 * handDirMtp, 0.7F);
@@ -115,8 +120,5 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 		{
 			data.renderLeftItemRotation.slideX(180, 0.9f);
 		}
-		
-		BendsPack.animate(data, "player", "attack");
-		BendsPack.animate(data, "player", "attack_0");
 	}
 }

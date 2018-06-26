@@ -34,4 +34,10 @@ public abstract class AnimationBit
 	 * animation.
 	 */
 	public abstract void perform(EntityData entityData);
+	
+	/*
+	 * Returns the actions currently being performed
+	 * by the entityData. Used by BendsPacks
+	 */
+	public abstract String[] getActions(EntityData entityData);
 }

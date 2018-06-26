@@ -18,8 +18,10 @@ public class AttackStanceAnimationBit extends AnimationBit
 	protected final float legSpreadSpeed = 0.1F;
 	protected float legSpreadAnimation = 0F;
 	
-	public AttackStanceAnimationBit()
+	@Override
+	public String[] getActions(EntityData entityData)
 	{
+		return new String[] { "attack_stance" };
 	}
 	
 	@Override
@@ -121,8 +123,6 @@ public class AttackStanceAnimationBit extends AnimationBit
 			data.body.rotation.setX(5.0F * (1 - touchdown) + 15.0F);
 			data.renderOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F - 2.0F);
 		}
-
-		BendsPack.animate(data, "player", "attack_stance");
 	}
 
 }

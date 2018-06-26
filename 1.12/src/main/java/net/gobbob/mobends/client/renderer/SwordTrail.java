@@ -34,20 +34,32 @@ public class SwordTrail
 	public class TrailPart
 	{
 		public ModelPartTransform body, arm, foreArm;
-
 		public Vector3f renderRotation = new Vector3f();
 		public Vector3f renderOffset = new Vector3f();
 		public Vector3f itemRotation = new Vector3f();
-
+		public Vector3f position = new Vector3f();
+		
 		EnumHandSide primaryHand;
+		float velocityX, velocityY, velocityZ;
 		float ticksExisted = 0.0F;
 
-		public TrailPart(EnumHandSide primaryHand)
+		public TrailPart(EnumHandSide primaryHand, float velocityX, float velocityY, float velocityZ)
 		{
 			this.body = new ModelPartTransform();
 			this.arm = new ModelPartTransform();
 			this.foreArm = new ModelPartTransform();
 			this.primaryHand = primaryHand;
+			this.velocityX = velocityX;
+			this.velocityY = velocityY;
+			this.velocityZ = velocityZ;
+		}
+
+		public void update(float ticksPerFrame)
+		{
+			this.ticksExisted += ticksPerFrame;
+			this.position.x += this.velocityX * ticksPerFrame;
+			this.position.y += this.velocityY * ticksPerFrame;
+			this.position.z += this.velocityZ * ticksPerFrame;
 		}
 	}
 
@@ -63,6 +75,7 @@ public class SwordTrail
 		GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);
 		GlStateManager.shadeModel(GL11.GL_SMOOTH);
 		GlStateManager.pushMatrix();
+		
 		GlStateManager.glBegin(GL11.GL_QUADS);
 		for (int i = 0; i < this.trailPartList.size(); i++)
 		{
@@ -74,61 +87,68 @@ public class SwordTrail
 
 			GlStateManager.color(1, 1, 1, alpha);
 
-			Vector3f[] point = new Vector3f[] {
+			Vector3f[] points = new Vector3f[] {
 					new Vector3f(0, 0, -8 + 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)),
 					new Vector3f(0, 0, -8 - 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)), };
 
-			GUtil.rotateX(point, part.itemRotation.getX());
-			GUtil.rotateY(point, part.itemRotation.getY());
-			GUtil.rotateZ(point, part.itemRotation.getZ());
+			GUtil.rotateX(points, part.itemRotation.getX());
+			GUtil.rotateY(points, part.itemRotation.getY());
+			GUtil.rotateZ(points, part.itemRotation.getZ());
 
-			GUtil.translate(point, new Vector3f(-1, -6, 0));
-			GUtil.rotateX(point, part.foreArm.rotation.getX());
-			GUtil.rotateY(point, part.foreArm.rotation.getY());
-			GUtil.rotateZ(point, part.foreArm.rotation.getZ());
+			GUtil.translate(points, new Vector3f(-1, -6, 0));
+			GUtil.rotateX(points, part.foreArm.rotation.getX());
+			GUtil.rotateY(points, part.foreArm.rotation.getY());
+			GUtil.rotateZ(points, part.foreArm.rotation.getZ());
 
-			GUtil.rotateX(point, part.foreArm.preRotation.getX());
-			GUtil.rotateY(point, part.foreArm.preRotation.getY());
-			GUtil.rotateZ(point, -part.foreArm.preRotation.getZ());
+			GUtil.rotateX(points, part.foreArm.preRotation.getX());
+			GUtil.rotateY(points, part.foreArm.preRotation.getY());
+			GUtil.rotateZ(points, -part.foreArm.preRotation.getZ());
 
-			GUtil.translate(point, new Vector3f(0, -6 + 2, 0));
-			GUtil.rotateX(point, part.arm.rotation.getX());
-			GUtil.rotateY(point, part.arm.rotation.getY());
-			GUtil.rotateZ(point, part.arm.rotation.getZ());
+			GUtil.translate(points, new Vector3f(0, -6 + 2, 0));
+			GUtil.rotateX(points, part.arm.rotation.getX());
+			GUtil.rotateY(points, part.arm.rotation.getY());
+			GUtil.rotateZ(points, part.arm.rotation.getZ());
 
-			GUtil.rotateX(point, part.arm.preRotation.getX());
-			GUtil.rotateY(point, part.arm.preRotation.getY());
-			GUtil.rotateZ(point, -part.arm.preRotation.getZ());
+			GUtil.rotateX(points, part.arm.preRotation.getX());
+			GUtil.rotateY(points, part.arm.preRotation.getY());
+			GUtil.rotateZ(points, -part.arm.preRotation.getZ());
 
-			GUtil.translate(point, new Vector3f(-5, 10, 0));
-			GUtil.rotateX(point, part.body.rotation.getX());
-			GUtil.rotateY(point, part.body.rotation.getY());
-			GUtil.rotateZ(point, part.body.rotation.getZ());
+			GUtil.translate(points, new Vector3f(-5, 10, 0));
+			GUtil.rotateX(points, part.body.rotation.getX());
+			GUtil.rotateY(points, part.body.rotation.getY());
+			GUtil.rotateZ(points, part.body.rotation.getZ());
 
-			GUtil.rotateX(point, part.body.preRotation.getX());
-			GUtil.rotateY(point, part.body.preRotation.getY());
-			GUtil.rotateZ(point, part.body.preRotation.getZ());
-			GUtil.translate(point, new Vector3f(0, 12, 0));
+			GUtil.rotateX(points, part.body.preRotation.getX());
+			GUtil.rotateY(points, part.body.preRotation.getY());
+			GUtil.rotateZ(points, -part.body.preRotation.getZ());
+			GUtil.translate(points, new Vector3f(0, 12, 0));
 
-			GUtil.rotateX(point, part.renderRotation.getX());
-			GUtil.rotateY(point, part.renderRotation.getY());
-			GUtil.translate(point, part.renderOffset);
+			GUtil.rotateX(points, part.renderRotation.getX());
+			GUtil.rotateY(points, part.renderRotation.getY());
+			GUtil.translate(points, part.renderOffset);
 
+			for (Vector3f point : points)
+			{
+				point.x += part.position.x;
+				point.y += part.position.y;
+				point.z += part.position.z;
+			}
+			
 			if (i > 0)
 			{
 				// Closing up the previous strand
-				GlStateManager.glVertex3f(point[1].x, point[1].y, point[1].z);
-				GlStateManager.glVertex3f(point[0].x, point[0].y, point[0].z);
+				GlStateManager.glVertex3f(points[1].x, points[1].y, points[1].z);
+				GlStateManager.glVertex3f(points[0].x, points[0].y, points[0].z);
 			}
 			
-			GlStateManager.glVertex3f(point[0].x, point[0].y, point[0].z);
-			GlStateManager.glVertex3f(point[1].x, point[1].y, point[1].z);
+			GlStateManager.glVertex3f(points[0].x, points[0].y, points[0].z);
+			GlStateManager.glVertex3f(points[1].x, points[1].y, points[1].z);
 
 			if (i == this.trailPartList.size() - 1)
 			{
 				// Closing the trail
-				GlStateManager.glVertex3f(point[1].x, point[1].y, point[1].z);
-				GlStateManager.glVertex3f(point[0].x, point[0].y, point[0].z);
+				GlStateManager.glVertex3f(points[1].x, points[1].y, points[1].z);
+				GlStateManager.glVertex3f(points[0].x, points[0].y, points[0].z);
 			}
 		}
 		GlStateManager.glEnd();
@@ -138,14 +158,14 @@ public class SwordTrail
 		GlStateManager.disableCull();
 		GlStateManager.enableLighting();
 	}
-
-	public void add(BipedEntityData entityData)
+	
+	public void add(BipedEntityData entityData, float velocityX, float velocityY, float velocityZ)
 	{
 		Entity entity = entityData.getEntity();
 		if (entity instanceof EntityLivingBase)
 		{
 			EnumHandSide primaryHand = ((EntityLivingBase) entity).getPrimaryHand();
-			TrailPart newPart = new TrailPart(primaryHand);
+			TrailPart newPart = new TrailPart(primaryHand, velocityX, velocityY, velocityZ);
 			newPart.body.syncUp(entityData.body);
 			if (primaryHand == EnumHandSide.RIGHT)
 			{
@@ -172,13 +192,18 @@ public class SwordTrail
 			this.trailPartList.add(newPart);
 		}
 	}
+	
+	public void add(BipedEntityData entityData)
+	{
+		this.add(entityData, 0, 0, 0);
+	}
 
 	public void update(float ticksPerFrame)
 	{
 		for (int i = 0; i < this.trailPartList.size(); i++)
 		{
 			TrailPart trailPart = this.trailPartList.get(i);
-			trailPart.ticksExisted += ticksPerFrame;
+			trailPart.update(ticksPerFrame);
 			if (trailPart.ticksExisted > 20)
 			{
 				this.trailPartList.remove(trailPart);

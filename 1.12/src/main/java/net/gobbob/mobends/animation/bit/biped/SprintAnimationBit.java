@@ -1,31 +1,35 @@
-package net.gobbob.mobends.animation.bit.player;
+package net.gobbob.mobends.animation.bit.biped;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
+import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.pack.BendsPack;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
 public class SprintAnimationBit extends AnimationBit
 {
 
 	@Override
+	public String[] getActions(EntityData entityData)
+	{
+		return new String[] { "sprint" };
+	}
+
+	@Override
 	public void perform(EntityData entityData)
 	{
-		if (!(entityData instanceof PlayerData))
-			return;
-		if (!(entityData.getEntity() instanceof AbstractClientPlayer))
+		if (!(entityData instanceof BipedEntityData) || !(entityData.getEntity() instanceof EntityLivingBase))
 			return;
 
-		PlayerData data = (PlayerData) entityData;
+		BipedEntityData data = (BipedEntityData) entityData;
 
 		data.renderOffset.slideToZero(0.1F);
 		data.renderRotation.slideToZero(0.3F);
 		data.renderRightItemRotation.slideToZero();
 		data.renderLeftItemRotation.slideToZero();
-		
+
 		data.rightArm.preRotation.slideToZero();
 		data.leftArm.preRotation.slideToZero();
 		data.head.preRotation.slideToZero();
@@ -72,8 +76,6 @@ public class SprintAnimationBit extends AnimationBit
 		data.body.rotation.slideZ(-var10, 0.3f);
 
 		data.renderOffset.slideY(var3 * 0.15f, 0.9f);
-
-		BendsPack.animate(data, "player", "sprint");
 	}
 
 }

@@ -11,11 +11,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 import net.gobbob.mobends.client.model.IBendsModel;
-import net.gobbob.mobends.main.ModBase;
 import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.pack.BendsAction.Calculation;
 import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
@@ -458,5 +458,13 @@ public class BendsPack {
 		
 		if (bendsTarget != null)
 			bendsTarget.applyToModel(model, anim);
+	}
+	
+	public static void animate(IBendsModel model, String target, Collection<String> animations)
+	{
+		BendsTarget bendsTarget = getTarget(target);
+		
+		if (bendsTarget != null)
+			bendsTarget.applyToModel(model, animations);
 	}
 }

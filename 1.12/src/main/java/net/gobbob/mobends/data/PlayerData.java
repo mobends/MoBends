@@ -1,12 +1,9 @@
 package net.gobbob.mobends.data;
 
 import net.gobbob.mobends.animation.controller.PlayerController;
-import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
-import net.gobbob.mobends.client.renderer.SwordTrail;
 import net.gobbob.mobends.main.ModConfig;
-import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
@@ -18,8 +15,6 @@ public class PlayerData extends BipedEntityData
 {
 	public ModelPart ears;
 	public ModelPart cloak;
-
-	public SwordTrail swordTrail;
 
 	boolean sprintJumpLeg = false;
 	boolean sprintJumpLegSwitched = false;
@@ -36,8 +31,6 @@ public class PlayerData extends BipedEntityData
 	public void initModelPose()
 	{
 		super.initModelPose();
-
-		this.swordTrail = new SwordTrail();
 
 		Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
 		PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);
@@ -88,7 +81,6 @@ public class PlayerData extends BipedEntityData
 	public void updateParts(float ticksPerFrame)
 	{
 		super.updateParts(ticksPerFrame);
-		this.swordTrail.update(ticksPerFrame);
 	}
 
 	@Override

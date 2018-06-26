@@ -29,8 +29,6 @@ public class DataUpdateHandler
 
 		if (ticks != Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime)
 		{
-			EntityDatabase.instance.updateRender(event.renderTickTime);
-
 			partialTicks = event.renderTickTime;
 			if (this.ticks > (Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime))
 			{
@@ -38,12 +36,16 @@ public class DataUpdateHandler
 				this.ticks = (Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime);
 			}
 
-			this.ticksPerFrame = Math.max(0F,
-					(Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime) - ticks);
+			this.ticksPerFrame = Math.min(Math.max(0F,
+					(Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime) - ticks), 1.0F);
 			ticks = (Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime);
-
-			if (ModConfig.showArrowTrails)
-				ArrowTrail.onRenderTick();
+			
+			if (!(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused()))
+			{
+				EntityDatabase.instance.updateRender(event.renderTickTime);
+				if (ModConfig.showArrowTrails)
+					ArrowTrail.onRenderTick();
+			}
 		}
 	}
 

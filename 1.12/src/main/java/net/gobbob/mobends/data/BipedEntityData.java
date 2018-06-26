@@ -40,6 +40,8 @@ public abstract class BipedEntityData extends LivingEntityData
     public SmoothVector3f renderRightItemRotation;
     public SmoothVector3f renderLeftItemRotation;
 	
+    public SwordTrail swordTrail;
+    
 	public BipedEntityData(Entity entity)
 	{
 		super(entity);
@@ -64,6 +66,8 @@ public abstract class BipedEntityData extends LivingEntityData
 		this.renderRotation = new SmoothVector3f();
 		this.renderRightItemRotation = new SmoothVector3f();
 		this.renderLeftItemRotation = new SmoothVector3f();
+		
+		this.swordTrail = new SwordTrail();
 		
 		nameToPartMap = new HashMap<String, Object>();
         nameToPartMap.put("body", body);
@@ -112,5 +116,7 @@ public abstract class BipedEntityData extends LivingEntityData
 		this.renderRotation.update(ticksPerFrame);
 		this.renderRightItemRotation.update(ticksPerFrame);
 		this.renderLeftItemRotation.update(ticksPerFrame);
+		
+		this.swordTrail.update(ticksPerFrame);
 	}
 }

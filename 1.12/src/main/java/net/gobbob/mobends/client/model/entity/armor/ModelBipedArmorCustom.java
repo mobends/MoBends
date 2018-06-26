@@ -76,6 +76,8 @@ public class ModelBipedArmorCustom extends ModelBiped
 		}
 
 		GlStateManager.pushMatrix();
+		dataBiped.body.applyOwnTransform(scale);
+		dataBiped.leftArm.applyOwnTransform(scale);
 		for (IModelPart part : this.leftForeArmParts)
 		{
 			part.renderPart(scale);
@@ -83,6 +85,8 @@ public class ModelBipedArmorCustom extends ModelBiped
 		GlStateManager.popMatrix();
 
 		GlStateManager.pushMatrix();
+		dataBiped.body.applyOwnTransform(scale);
+		dataBiped.rightArm.applyOwnTransform(scale);
 		for (IModelPart part : this.rightForeArmParts)
 		{
 			part.renderPart(scale);
@@ -394,7 +398,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
 			if (mutator != null)
 			{
-				ModelBox lowerPart = mutator.sliceFromBottom(6, false);
+				ModelBox lowerPart = mutator.sliceFromBottom(4, false);
 				ModelBox topPart = mutator.getTargetBox();
 				part.getModel().cubeList.remove(box);
 				part.getModel().cubeList.add(topPart);

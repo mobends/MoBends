@@ -1,32 +1,29 @@
-package net.gobbob.mobends.animation.bit.player;
+package net.gobbob.mobends.animation.bit.biped;
 
 import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.animation.layer.AnimationLayer;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.pack.BendsPack;
-import net.minecraft.util.math.MathHelper;
+import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 
 public class StandAnimationBit extends AnimationBit
 {
 	protected final float kneelDuration = 0.15F;
-	protected String animationTarget;
-	
-	public StandAnimationBit(String animationTarget)
+
+	@Override
+	public String[] getActions(EntityData entityData)
 	{
-		this.animationTarget = animationTarget;
+		return new String[] { "stand" };
 	}
 	
 	@Override
 	public void onPlay(EntityData entityData)
 	{
-		if (!(entityData instanceof PlayerData))
+		if (!(entityData instanceof BipedEntityData))
 			return;
 
-		PlayerData data = (PlayerData) entityData;
+		BipedEntityData data = (BipedEntityData) entityData;
 		
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
 		if (touchdown < 0.5F)
@@ -42,9 +39,9 @@ public class StandAnimationBit extends AnimationBit
 	@Override
 	public void perform(EntityData entityData)
 	{
-		if (!(entityData instanceof PlayerData))
+		if (!(entityData instanceof BipedEntityData))
 			return;
-		PlayerData data = (PlayerData) entityData;
+		BipedEntityData data = (BipedEntityData) entityData;
 
 		data.renderOffset.slideToZero(0.1F);
 		data.renderRotation.slideToZero(0.3F);
@@ -86,7 +83,5 @@ public class StandAnimationBit extends AnimationBit
 			data.body.rotation.setX(20.0F * (1 - touchdown));
 			data.renderOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
 		}
-
-		BendsPack.animate(entityData, this.animationTarget, "stand");
 	}
 }

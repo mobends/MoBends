@@ -1,15 +1,19 @@
 package net.gobbob.mobends.animation.bit.player;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.animation.layer.AnimationLayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.pack.BendsPack;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.math.MathHelper;
 
 public class JumpAnimationBit extends AnimationBit
 {
+	@Override
+	public String[] getActions(EntityData entityData)
+	{
+		return new String[] { "jump" };
+	}
+	
 	@Override
 	public void onPlay(EntityData entityData)
 	{
@@ -145,7 +149,5 @@ public class JumpAnimationBit extends AnimationBit
 						.slideX(((float) (Math.cos(data.getLimbSwing() * 0.6662F) + 1.0f) / 2.0f) * -20, 0.3f);
 			}
 		}
-
-		BendsPack.animate(data, "player", "jump");
 	}
 }

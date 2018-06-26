@@ -11,8 +11,10 @@ import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.main.ModConfig;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -55,8 +57,18 @@ public class EventHandlerRenderPlayer
 			PlayerMutator.apply(event.getRenderer(), player, pt);
 			PlayerData data = (PlayerData) EntityDatabase.instance.getAndMake(PlayerData.class, player);
 			float scale = 0.0625F;
-			
-			if (ModConfig.showSwordTrail)
+            
+            Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
+            double viewX = viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * pt;
+            double viewY = viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * pt;
+            double viewZ = viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * pt;
+            double playerX = player.prevPosX + (player.posX - player.prevPosX) * pt;
+            double playerY = player.prevPosY + (player.posY - player.prevPosY) * pt;
+            double playerZ = player.prevPosZ + (player.posZ - player.prevPosZ) * pt;
+            GlStateManager.translate(playerX - viewX, playerY - viewY, playerZ - viewZ);
+            
+            
+            if (ModConfig.showSwordTrail)
 			{
 				GlStateManager.pushMatrix();
 				GlStateManager.rotate(-player.rotationYaw + 180.0F, 0F, 1F, 0F);
@@ -75,6 +87,7 @@ public class EventHandlerRenderPlayer
             GlStateManager.rotate(data.renderRotation.getZ(), 0F, 0F, 1F);
             GlStateManager.rotate(data.renderRotation.getY(), 0F, 1F, 0F);
             GlStateManager.rotate(data.renderRotation.getX(), 1F, 0F, 0F);
+            GlStateManager.translate(viewX - playerX, viewY - playerY, viewZ - playerZ);
 		}
 	}
 	
