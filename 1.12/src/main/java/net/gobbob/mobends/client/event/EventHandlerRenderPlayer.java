@@ -10,6 +10,7 @@ import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.PlayerData;
+import net.gobbob.mobends.main.ModConfig;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -55,12 +56,15 @@ public class EventHandlerRenderPlayer
 			PlayerData data = (PlayerData) EntityDatabase.instance.getAndMake(PlayerData.class, player);
 			float scale = 0.0625F;
 			
-			GlStateManager.pushMatrix();
-			GlStateManager.rotate(-player.rotationYaw + 180.0F, 0F, 1F, 0F);
-			GlStateManager.scale(scale, scale, scale);
-			data.swordTrail.render();
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			GlStateManager.popMatrix();
+			if (ModConfig.showSwordTrail)
+			{
+				GlStateManager.pushMatrix();
+				GlStateManager.rotate(-player.rotationYaw + 180.0F, 0F, 1F, 0F);
+				GlStateManager.scale(scale, scale, scale);
+				data.swordTrail.render();
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.popMatrix();
+			}
 			
             if (player.isSneaking())
             {
@@ -80,9 +84,9 @@ public class EventHandlerRenderPlayer
 		if (!currentlyRenderedEntities.contains(event.getEntity().getUniqueID()))
 			// The player is not being rendered.
 			return;
+		currentlyRenderedEntities.remove(event.getEntity().getUniqueID());
 		
 		GlStateManager.popMatrix();
-		currentlyRenderedEntities.remove(event.getEntity().getUniqueID());
 	}
 	
 	@SubscribeEvent

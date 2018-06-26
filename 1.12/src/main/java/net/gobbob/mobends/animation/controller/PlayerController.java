@@ -24,18 +24,21 @@ public class PlayerController extends Controller
 {
 	protected String animationTarget = "player";
 	protected HardAnimationLayer layerBase;
-	protected HardAnimationLayer layerAttack;
-	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitAttack;
+	protected HardAnimationLayer layerSneak;
+	protected HardAnimationLayer layerAction;
+	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSneak, bitAttack;
 
 	public PlayerController()
 	{
 		this.layerBase = new HardAnimationLayer();
-		this.layerAttack = new HardAnimationLayer();
+		this.layerSneak = new HardAnimationLayer();
+		this.layerAction = new HardAnimationLayer();
 		this.bitStand = new net.gobbob.mobends.animation.bit.player.StandAnimationBit(animationTarget);
 		this.bitWalk = new net.gobbob.mobends.animation.bit.player.WalkAnimationBit(animationTarget);
 		this.bitJump = new net.gobbob.mobends.animation.bit.player.JumpAnimationBit();
 		this.bitSprint = new net.gobbob.mobends.animation.bit.player.SprintAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
+		this.bitSneak = new net.gobbob.mobends.animation.bit.player.SneakAnimationBit();
 	}
 
 	@Override
@@ -52,30 +55,41 @@ public class PlayerController extends Controller
 
 		if (!playerData.isOnGround() | playerData.getTicksAfterTouchdown() < 2)
 		{
-			layerBase.playOrContinueBit(bitJump, playerData);
+			this.layerBase.playOrContinueBit(bitJump, playerData);
+			this.layerSneak.clearAnimation();
 		}
 		else
 		{
 			if (playerData.isStillHorizontally())
 			{
-				layerBase.playOrContinueBit(bitStand, playerData);
+				this.layerBase.playOrContinueBit(bitStand, playerData);
 			}
 			else
 			{
 				if (player.isSprinting())
 				{
-					layerBase.playOrContinueBit(bitSprint, playerData);
+					this.layerBase.playOrContinueBit(bitSprint, playerData);
 				}
 				else
 				{
-					layerBase.playOrContinueBit(bitWalk, playerData);
+					this.layerBase.playOrContinueBit(bitWalk, playerData);
 				}
+			}
+			
+			if (player.isSneaking())
+			{
+				this.layerSneak.playOrContinueBit(bitSneak, playerData);
+			}
+			else
+			{
+				this.layerSneak.clearAnimation();
 			}
 		}
 
-		this.layerAttack.playOrContinueBit(this.bitAttack, playerData);
+		this.layerAction.playOrContinueBit(this.bitAttack, playerData);
 		
 		layerBase.perform(entityData);
-		layerAttack.perform(entityData);
+		layerSneak.perform(entityData);
+		layerAction.perform(entityData);
 	}
 }

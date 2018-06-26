@@ -24,6 +24,7 @@ import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.pack.BendsPack;
+import net.gobbob.mobends.util.FieldMiner;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelPlayer;
@@ -80,53 +81,11 @@ public class PlayerMutator implements IBendsModel
 		this.nameToPartMap = new HashMap<String, IModelPart>();
 	}
 
-	private static Field getField(Class classIn, String fieldName) throws NoSuchFieldException
-	{
-		try
-		{
-			return classIn.getDeclaredField(fieldName);
-		} catch (NoSuchFieldException e)
-		{
-			Class superClass = classIn.getSuperclass();
-			if (superClass == null)
-			{
-				throw e;
-			}
-			else
-			{
-				return getField(superClass, fieldName);
-			}
-		}
-	}
-
-	private static Field getObfuscatedField(Class classIn, String fieldName, String fieldNameObfuscated)
-	{
-		Field field = null;
-
-		try
-		{
-			field = getField(classIn, fieldNameObfuscated);
-		} catch (NoSuchFieldException e)
-		{
-			try
-			{
-				field = getField(classIn, fieldName);
-			} catch (NoSuchFieldException e1)
-			{
-			}
-		} catch (SecurityException | IllegalArgumentException e)
-		{
-			e.printStackTrace();
-		}
-
-		return field;
-	}
-
 	public void fetchFields(RenderPlayer renderer)
 	{
 		// Getting the layer renderers
 		this.layerRenderers = null;
-		Field fieldLayers = getObfuscatedField(renderer.getClass(), "layerRenderers", "field_177097_h");
+		Field fieldLayers = FieldMiner.getObfuscatedField(renderer.getClass(), "layerRenderers", "field_177097_h");
 		if (fieldLayers != null)
 		{
 			fieldLayers.setAccessible(true);
@@ -134,7 +93,8 @@ public class PlayerMutator implements IBendsModel
 			try
 			{
 				layers = (List<LayerRenderer<EntityLivingBase>>) fieldLayers.get(renderer);
-			} catch (IllegalArgumentException | IllegalAccessException e)
+			}
+			catch (IllegalArgumentException | IllegalAccessException e)
 			{
 				e.printStackTrace();
 			}
@@ -143,14 +103,15 @@ public class PlayerMutator implements IBendsModel
 
 		// Does the renderer have Small Arms?
 		// TODO Find out the obfuscated name for the smallArms field.
-		Field fieldSmallArms = getObfuscatedField(renderer.getClass(), "smallArms", "field_177140_a");
+		Field fieldSmallArms = FieldMiner.getObfuscatedField(renderer.getClass(), "smallArms", "field_177140_a");
 		if (fieldSmallArms != null)
 		{
 			fieldSmallArms.setAccessible(true);
 			try
 			{
 				this.smallArms = (boolean) fieldSmallArms.get(renderer);
-			} catch (IllegalArgumentException | IllegalAccessException e)
+			}
+			catch (IllegalArgumentException | IllegalAccessException e)
 			{
 				e.printStackTrace();
 			}
