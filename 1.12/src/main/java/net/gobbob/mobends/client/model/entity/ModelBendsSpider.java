@@ -5,15 +5,11 @@ import java.util.HashMap;
 import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.event.PlayerRenderHandler;
+import net.gobbob.mobends.client.event.EntityRenderHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.data.Data_Spider;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.util.SmoothVector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -320,7 +316,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
 	}*/
 	
 	public boolean isRenderedInGui() {
-		return PlayerRenderHandler.renderingGuiScreen;
+		return EntityRenderHandler.renderingGuiScreen;
 	}
 
 	@Override

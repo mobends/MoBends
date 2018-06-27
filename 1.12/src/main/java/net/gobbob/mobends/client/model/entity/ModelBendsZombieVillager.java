@@ -3,25 +3,15 @@ package net.gobbob.mobends.client.model.entity;
 import java.util.HashMap;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.event.PlayerRenderHandler;
+import net.gobbob.mobends.client.event.EntityRenderHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
-import net.gobbob.mobends.data.ZombieData;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.pack.BendsPack;
-import net.gobbob.mobends.pack.variable.BendsVariable;
 import net.gobbob.mobends.util.SmoothVector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelZombieVillager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityZombie;
 
 public class ModelBendsZombieVillager extends ModelZombieVillager implements IBendsModel
 {
@@ -249,7 +239,7 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
 	}*/
 	
 	public boolean isRenderedInGui() {
-		return PlayerRenderHandler.renderingGuiScreen;
+		return EntityRenderHandler.renderingGuiScreen;
 	}
 
 	@Override

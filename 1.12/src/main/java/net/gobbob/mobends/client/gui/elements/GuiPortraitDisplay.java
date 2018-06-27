@@ -4,9 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animatedentity.previewer.Previewer;
-import net.gobbob.mobends.client.event.PlayerRenderHandler;
 import net.gobbob.mobends.client.gui.GuiHelper;
-import net.gobbob.mobends.util.Color;
 import net.gobbob.mobends.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

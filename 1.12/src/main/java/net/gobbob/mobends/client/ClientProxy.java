@@ -4,7 +4,6 @@ import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EntityRenderHandler;
 import net.gobbob.mobends.client.event.KeyboardHandler;
-import net.gobbob.mobends.client.event.PlayerRenderHandler;
 import net.gobbob.mobends.main.CommonProxy;
 import net.gobbob.mobends.main.ModStatics;
 import net.gobbob.mobends.pack.PackManager;
@@ -37,7 +36,6 @@ public class ClientProxy extends CommonProxy
 		ClientRegistry.registerKeyBinding(KeyboardHandler.key_Menu);
 
 		FMLCommonHandler.instance().bus().register(new EntityRenderHandler());
-		FMLCommonHandler.instance().bus().register(new PlayerRenderHandler());
 		FMLCommonHandler.instance().bus().register(new DataUpdateHandler());
 		FMLCommonHandler.instance().bus().register(new KeyboardHandler());
 	}

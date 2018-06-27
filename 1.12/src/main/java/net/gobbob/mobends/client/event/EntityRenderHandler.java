@@ -20,17 +20,21 @@ import net.minecraft.client.renderer.entity.RenderZombie;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class EntityRenderHandler
 {
+	public static float partialTicks;
+	public static boolean renderingGuiScreen = false;
 	public static List<UUID> currentlyRenderedEntities = new ArrayList<UUID>();
 
 	@SubscribeEvent
-	public void onLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
+	public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
 	{
 		AnimatedEntity animatedEntity = AnimatedEntity.getByEntity(event.getEntity());
 		if (animatedEntity == null)
@@ -57,10 +61,10 @@ public class EntityRenderHandler
 			double viewX = viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * pt;
 			double viewY = viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * pt;
 			double viewZ = viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * pt;
-			double playerX = living.prevPosX + (living.posX - living.prevPosX) * pt;
-			double playerY = living.prevPosY + (living.posY - living.prevPosY) * pt;
-			double playerZ = living.prevPosZ + (living.posZ - living.prevPosZ) * pt;
-			GlStateManager.translate(playerX - viewX, playerY - viewY, playerZ - viewZ);
+			double entityX = living.prevPosX + (living.posX - living.prevPosX) * pt;
+			double entityY = living.prevPosY + (living.posY - living.prevPosY) * pt;
+			double entityZ = living.prevPosZ + (living.posZ - living.prevPosZ) * pt;
+			GlStateManager.translate(entityX - viewX, entityY - viewY, entityZ - viewZ);
 
 			if (data instanceof BipedEntityData)
 			{
@@ -86,7 +90,7 @@ public class EntityRenderHandler
 				GlStateManager.rotate(bipedData.renderRotation.getY(), 0F, 1F, 0F);
 				GlStateManager.rotate(bipedData.renderRotation.getX(), 1F, 0F, 0F);
 			}
-			GlStateManager.translate(viewX - playerX, viewY - playerY, viewZ - playerZ);
+			GlStateManager.translate(viewX - entityX, viewY - entityY, viewZ - entityZ);
 		}
 		else
 		{
@@ -95,7 +99,7 @@ public class EntityRenderHandler
 	}
 
 	@SubscribeEvent
-	public void afterPlayerRender(RenderLivingEvent.Post<? extends EntityLivingBase> event)
+	public void afterLivingRender(RenderLivingEvent.Post<? extends EntityLivingBase> event)
 	{
 		if (AnimatedEntity.getByEntity(event.getEntity()) == null)
 			return;
@@ -106,5 +110,23 @@ public class EntityRenderHandler
 		currentlyRenderedEntities.remove(event.getEntity().getUniqueID());
 
 		GlStateManager.popMatrix();
+	}
+	
+	@SubscribeEvent
+	public void onRenderTick(TickEvent.RenderTickEvent event)
+	{
+		partialTicks = event.renderTickTime;
+	}
+	
+	@SubscribeEvent
+	public void beforeGuiScreenRender(GuiScreenEvent.DrawScreenEvent.Pre event)
+	{
+		renderingGuiScreen = true;
+	}
+	
+	@SubscribeEvent
+	public void afterGuiScreenRender(GuiScreenEvent.DrawScreenEvent.Post event)
+	{
+		renderingGuiScreen = false;
 	}
 }

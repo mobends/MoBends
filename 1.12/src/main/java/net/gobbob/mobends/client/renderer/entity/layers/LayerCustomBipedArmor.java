@@ -1,6 +1,5 @@
 package net.gobbob.mobends.client.renderer.entity.layers;
 
-import net.gobbob.mobends.client.model.entity.ModelBipedArmorM;
 import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
