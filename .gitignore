@@ -2,5 +2,5 @@
 
 !/build\.gradle
 !/gradle\.properties
-!/src/*
-!/misc/*
+!/src
+!/misc

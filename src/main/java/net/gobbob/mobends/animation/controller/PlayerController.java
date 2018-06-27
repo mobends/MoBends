@@ -111,7 +111,7 @@ public class PlayerController extends Controller
             }
         }
 
-		if (!playerData.isOnGround() | playerData.getTicksAfterTouchdown() < 2)
+		if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
 		{
 			if (player.isSprinting())
 			{
