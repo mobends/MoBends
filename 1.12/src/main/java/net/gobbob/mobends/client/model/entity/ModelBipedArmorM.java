@@ -12,7 +12,7 @@ import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.data.DataSkeleton;
-import net.gobbob.mobends.data.DataZombie;
+import net.gobbob.mobends.data.ZombieData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.util.SmoothVector3f;

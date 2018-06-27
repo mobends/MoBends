@@ -40,91 +40,37 @@ import net.minecraft.util.math.MathHelper;
 /*
  * Instantiated one per RenderPlayer
  */
-public class PlayerMutator implements IBendsModel
+public class PlayerMutator extends BipedMutator<AbstractClientPlayer>
 {
 	public static HashMap<RenderPlayer, PlayerMutator> mutatorMap = new HashMap<RenderPlayer, PlayerMutator>();
 
-	public ModelPlayer vanillaModel;
-	
-	public ModelPartPostOffset body;
-	public ModelPartChild head;
-	public ModelPartChildExtended leftArm;
-	public ModelPartChildExtended rightArm;
-	public ModelPartChildExtended leftForeArm;
-	public ModelPartChildExtended rightForeArm;
-	public ModelPartExtended leftLeg;
-	public ModelPartExtended rightLeg;
-	public ModelPartChild leftForeLeg;
-	public ModelPartChild rightForeLeg;
+	protected ModelPlayer vanillaModel;
 
-	public ModelPartChild bodywear;
-	public ModelPartChild headwear;
-	public ModelPartChild leftArmwear;
-	public ModelPartChild rightArmwear;
-	public ModelPart leftForeArmwear;
-	public ModelPart rightForeArmwear;
-	public ModelPartChild leftLegwear;
-	public ModelPartChild rightLegwear;
-	public ModelPart leftForeLegwear;
-	public ModelPart rightForeLegwear;
+	protected ModelPartChild bodywear;
+	protected ModelPartChild leftArmwear;
+	protected ModelPartChild rightArmwear;
+	protected ModelPart leftForeArmwear;
+	protected ModelPart rightForeArmwear;
+	protected ModelPartChild leftLegwear;
+	protected ModelPartChild rightLegwear;
+	protected ModelPart leftForeLegwear;
+	protected ModelPart rightForeLegwear;
 
-	public ModelPartTransform leftItemTransform;
-	public ModelPartTransform rightItemTransform;
-	public float headYaw, headPitch, limbSwing, limbSwingAmount;
-	public boolean smallArms;
-	public List<LayerRenderer<EntityLivingBase>> layerRenderers;
-	public LayerBipedArmor vanillaLayerArmor;
-	public LayerHeldItem vanillaLayerHeldItem;
-	public LayerCustomBipedArmor layerArmor;
-	public LayerCustomHeldItem layerHeldItem;
+	protected boolean smallArms;
 
-	protected HashMap<String, IModelPart> nameToPartMap;
-
-	public PlayerMutator()
+	public boolean hasSmallArms()
 	{
-		this.nameToPartMap = new HashMap<String, IModelPart>();
+		return this.smallArms;
 	}
-
-	public void fetchFields(RenderPlayer renderer)
+	
+	@Override
+	public void fetchFields(RenderLivingBase<AbstractClientPlayer> renderer)
 	{
-		// Getting the layer renderers
-		this.layerRenderers = null;
-		Field fieldLayers = FieldMiner.getObfuscatedField(renderer.getClass(), "layerRenderers", "field_177097_h");
-		if (fieldLayers != null)
-		{
-			fieldLayers.setAccessible(true);
-			List<LayerRenderer<EntityLivingBase>> layers = null;
-			try
-			{
-				layers = (List<LayerRenderer<EntityLivingBase>>) fieldLayers.get(renderer);
-			}
-			catch (IllegalArgumentException | IllegalAccessException e)
-			{
-				e.printStackTrace();
-			}
-			this.layerRenderers = layers;
-		}
+		super.fetchFields(renderer);
 
 		// Does the renderer have Small Arms?
-		Field fieldSmallArms = FieldMiner.getObfuscatedField(renderer.getClass(), "smallArms", "field_177140_a");
-		if (fieldSmallArms != null)
-		{
-			fieldSmallArms.setAccessible(true);
-			try
-			{
-				this.smallArms = (boolean) fieldSmallArms.get(renderer);
-			}
-			catch (IllegalArgumentException | IllegalAccessException e)
-			{
-				e.printStackTrace();
-			}
-		}
-
-		Field[] fields = renderer.getClass().getDeclaredFields();
-		for (Field f : fields)
-		{
-			System.out.println("Field: " + f);
-		}
+		Boolean smallArms = FieldMiner.getObfuscatedValue(renderer, "smallArms", "field_177140_a");
+		this.smallArms = smallArms != null ? smallArms : false;
 	}
 
 	public void mutate(AbstractClientPlayer entityPlayer, RenderPlayer renderer)
@@ -461,12 +407,6 @@ public class PlayerMutator implements IBendsModel
 		rightForeArm.syncUp(data.rightForeArm);
 		leftForeLeg.syncUp(data.leftForeLeg);
 		rightForeLeg.syncUp(data.rightForeLeg);
-	}
-
-	@Override
-	public Object getPartForName(String name)
-	{
-		return nameToPartMap.get(name);
 	}
 
 	/*

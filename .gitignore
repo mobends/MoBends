@@ -2,4 +2,6 @@
 !Resources/**
 !*/
 !**/src/**
+!**/gradle.properties
+!**/build.gradle
 /*.zip

@@ -1,0 +1,13 @@
+Player:
+
+stand
+walk
+jump
+attack
+attack_0
+attack_1
+attack_2
+attack_stance
+attack_stamce_sprint
+fist_guard
+sneak

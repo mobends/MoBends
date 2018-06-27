@@ -12,7 +12,7 @@ import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
-import net.gobbob.mobends.data.DataZombie;
+import net.gobbob.mobends.data.ZombieData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
@@ -227,7 +227,7 @@ public class ModelBendsZombie extends ModelBiped implements IBendsModel
         }*/
     }
     
-    public void animate(AnimatedEntity aEntity, EntityZombie entity, DataZombie data) {
+    public void animate(AnimatedEntity aEntity, EntityZombie entity, ZombieData data) {
     	/*if(data.motion.x == 0.0f & data.motion.z == 0.0f){
 			aEntity.getAnimation("stand").animate(entity, this, data);
 			BendsPack.animate(this,"zombie","stand");

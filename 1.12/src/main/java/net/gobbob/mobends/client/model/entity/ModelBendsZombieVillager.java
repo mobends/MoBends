@@ -12,7 +12,7 @@ import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
-import net.gobbob.mobends.data.DataZombie;
+import net.gobbob.mobends.data.ZombieData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;

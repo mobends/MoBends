@@ -37,7 +37,7 @@ public class PlayerData extends BipedEntityData
 		if (mutator == null)
 			return;
 
-		if (mutator.smallArms)
+		if (mutator.hasSmallArms())
 		{
 			this.rightArm.position.set(-5F, -9.5F, 0F);
 			this.leftArm.position.set(5F, -9.5F, 0F);
@@ -75,12 +75,6 @@ public class PlayerData extends BipedEntityData
 			sprintJumpLeg = !sprintJumpLeg;
 			sprintJumpLegSwitched = true;
 		}
-	}
-
-	@Override
-	public void updateParts(float ticksPerFrame)
-	{
-		super.updateParts(ticksPerFrame);
 	}
 
 	@Override

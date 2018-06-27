@@ -5,6 +5,8 @@ import java.util.List;
 
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.layers.LayerRenderer;
+import net.minecraft.entity.EntityLivingBase;
 
 /*
  * Used to more efficiently mine for protected fields
@@ -53,6 +55,23 @@ public class FieldMiner
 		}
 		
 		return field;
+	}
+	
+	public static <T> T getObfuscatedValue(Object object, String fieldName, String fieldNameObfuscated)
+	{
+		Field field = FieldMiner.getObfuscatedField(object.getClass(), fieldName, fieldNameObfuscated);
+		if (field != null)
+		{
+			field.setAccessible(true);
+			T value = null;
+			try
+			{
+				value = (T) field.get(object);
+			}
+			catch (IllegalArgumentException | IllegalAccessException e) {}
+			return value;
+		}
+		return null;
 	}
 
 	public static void printFields(Class classIn)
