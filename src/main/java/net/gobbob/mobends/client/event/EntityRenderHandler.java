@@ -57,13 +57,19 @@ public class EntityRenderHandler
 			EntityData data = EntityDatabase.instance.get(living);
 			float scale = 0.0625F;
 
-			Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-			double viewX = viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * pt;
-			double viewY = viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * pt;
-			double viewZ = viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * pt;
 			double entityX = living.prevPosX + (living.posX - living.prevPosX) * pt;
 			double entityY = living.prevPosY + (living.posY - living.prevPosY) * pt;
 			double entityZ = living.prevPosZ + (living.posZ - living.prevPosZ) * pt;
+			
+			Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
+			double viewX = entityX, viewY = entityY, viewZ = entityZ;
+			if (viewEntity != null)
+			{
+				// Checking in case of Main Menu or GUI rendering.
+				viewX = viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * pt;
+				viewY = viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * pt;
+				viewZ = viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * pt;
+			}
 			GlStateManager.translate(entityX - viewX, entityY - viewY, entityZ - viewZ);
 
 			if (data instanceof BipedEntityData)

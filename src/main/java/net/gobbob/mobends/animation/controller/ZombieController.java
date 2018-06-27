@@ -24,14 +24,21 @@ public class ZombieController extends Controller
 {
 	protected String animationTarget = "zombie";
 	protected HardAnimationLayer layerBase;
+	protected HardAnimationLayer layerSet;
 	protected AnimationBit bitStand, bitWalk, bitJump;
+	protected AnimationBit[] bitAnimationSet;
 	
 	public ZombieController()
 	{
 		this.layerBase = new HardAnimationLayer();
+		this.layerSet = new HardAnimationLayer();
 		this.bitStand = new net.gobbob.mobends.animation.bit.biped.StandAnimationBit();
 		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit();
 		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit();
+		this.bitAnimationSet = new AnimationBit[] {
+			new net.gobbob.mobends.animation.bit.zombie.ZombieLeanAnimationBit(),
+			new net.gobbob.mobends.animation.bit.zombie.ZombieStumblingAnimationBit()
+		};
 	}
 	
 	@Override
@@ -90,7 +97,7 @@ public class ZombieController extends Controller
             }
         }
 
-		if (!zombieData.isOnGround() | zombieData.getTicksAfterTouchdown() < 2)
+		if (!zombieData.isOnGround() || zombieData.getTicksAfterTouchdown() < 1)
 		{
 			this.layerBase.playOrContinueBit(bitJump, entityData);
 		}
@@ -106,10 +113,14 @@ public class ZombieController extends Controller
 			}
 		}
 		
+		this.layerSet.playOrContinueBit(bitAnimationSet[zombieData.getAnimationSet()], entityData);
+		
 		this.layerBase.perform(entityData);
+		this.layerSet.perform(entityData);
 		
 		List<String> actions = new ArrayList<String>();
 		actions.addAll(Arrays.asList(layerBase.getActions(entityData)));
+		actions.addAll(Arrays.asList(layerSet.getActions(entityData)));
 		
 		BendsPack.animate(entityData, this.animationTarget, actions);
 	}

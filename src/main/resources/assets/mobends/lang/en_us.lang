@@ -1,5 +1,5 @@
-mobends.gui.customize=Customize
-mobends.gui.packs=Packs
+mobends.gui.section.customize=customize
+mobends.gui.section.packs=packs
 mobends.gui.publicpacks=Public Packs
 mobends.gui.localpacks=Local Packs
 mobends.gui.use=Use
