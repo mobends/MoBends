@@ -1,9 +1,0 @@
--Fix the armor mods compatibility
--Exaustion animation
--Emoticons
--Fix the sword trail massive strech after death.
--Fix the sword trail appearing on every player in multiplayer.
--Add a sword guard animation.
--Add a flying animation.
--Add a ladder climbing animation.
--Fix capes.

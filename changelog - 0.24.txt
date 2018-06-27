@@ -1,6 +1,0 @@
-Fixed custom heads
-Fixed sprint jumping not switching legs sometimes
-Altered the packs editor gui
-Included the author names to public packs
-Reworked the setting system
-Increased performance

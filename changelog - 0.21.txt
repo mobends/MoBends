@@ -1,7 +1,0 @@
-Fixed the bow aiming
-Improved the Spider animations (Jump attack, wall climbing)
-
-Updated to 1.8!
-Added the Alex skin model support.
-Added an option to enable/disable player animations at runtime.
-Added an option to disable the third spin attack.
