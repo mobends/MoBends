@@ -9,12 +9,19 @@ import net.minecraft.util.EnumHandSide;
 
 public class BowAnimationBit extends AnimationBit
 {
+	protected EnumHandSide actionHand = EnumHandSide.RIGHT;
+	
 	@Override
 	public String[] getActions(EntityData entityData)
 	{
 		return new String[] { "bow" };
 	}
 
+	public void setActionHand(EnumHandSide handSide)
+	{
+		this.actionHand = handSide;
+	}
+	
 	@Override
 	public void perform(EntityData entityData)
 	{
@@ -25,9 +32,8 @@ public class BowAnimationBit extends AnimationBit
 
 		BipedEntityData data = (BipedEntityData) entityData;
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
-		EnumHandSide primaryHand = living.getPrimaryHand();
 
-		boolean mainHandSwitch = primaryHand == EnumHandSide.RIGHT;
+		boolean mainHandSwitch = this.actionHand == EnumHandSide.RIGHT;
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on
 		// what is your main hand.
 		float handDirMtp = mainHandSwitch ? 1 : -1;

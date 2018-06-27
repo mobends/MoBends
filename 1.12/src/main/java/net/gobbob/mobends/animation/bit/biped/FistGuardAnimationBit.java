@@ -27,7 +27,7 @@ public class FistGuardAnimationBit extends AnimationBit
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
 
 		data.renderRotation.slideY(-20.0f);
-		data.renderOffset.slideY(-2.0f);
+		data.renderOffset.addY(-2.0f);
 
 		data.rightArm.rotation.slideX(-90, 0.3f);
 		data.rightForeArm.rotation.slideX(-80, 0.3f);
@@ -38,7 +38,7 @@ public class FistGuardAnimationBit extends AnimationBit
 		data.rightArm.rotation.slideZ(20, 0.3f);
 		data.leftArm.rotation.slideZ(-20, 0.3f);
 
-		data.body.rotation.slideX(10, 0.3F);
+		data.body.rotation.addX(10);
 
 		data.rightLeg.rotation.slideX(-30, 0.3f);
 		data.leftLeg.rotation.slideX(-30, 0.3f);

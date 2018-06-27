@@ -80,7 +80,6 @@ public abstract class BipedEntityData extends LivingEntityData
         nameToPartMap.put("rightForeArm", rightForeArm);
         nameToPartMap.put("leftForeLeg", leftForeLeg);
         nameToPartMap.put("rightForeLeg", rightForeLeg);
-        nameToPartMap.put("renderOffset", renderOffset);
         nameToPartMap.put("renderRotation", renderRotation);
         nameToPartMap.put("renderRightItemRotation", renderRightItemRotation);
         nameToPartMap.put("renderLeftItemRotation", renderLeftItemRotation);

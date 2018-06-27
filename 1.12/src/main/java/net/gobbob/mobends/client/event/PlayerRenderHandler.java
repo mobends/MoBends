@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.lwjgl.opengl.GL11;
-
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.data.EntityDatabase;
@@ -23,7 +21,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class PlayerRenderHandler
 {
-	
 	public static float partialTicks;
 	public static List<UUID> currentlyRenderedEntities = new ArrayList<UUID>();
 	public static boolean renderingGuiScreen = false;
@@ -37,7 +34,7 @@ public class PlayerRenderHandler
 	@SubscribeEvent
 	public void beforePlayerRender(RenderPlayerEvent.Pre event)
 	{
-		float pt = event.getPartialRenderTick();
+		/*float pt = event.getPartialRenderTick();
 		
 		if (currentlyRenderedEntities.contains(event.getEntity().getUniqueID()))
 			// The player is already being rendered.
@@ -92,19 +89,19 @@ public class PlayerRenderHandler
 		else
 		{
 			AbstractClientPlayer player = (AbstractClientPlayer) event.getEntity();
-			PlayerMutator.deapply(event.getRenderer(), player, pt);
-		}
+			PlayerMutator.deapply(event.getRenderer(), player);
+		}*/
 	}
 	
 	@SubscribeEvent
 	public void afterPlayerRender(RenderPlayerEvent.Post event)
 	{
-		if (!currentlyRenderedEntities.contains(event.getEntity().getUniqueID()))
+		/*if (!currentlyRenderedEntities.contains(event.getEntity().getUniqueID()))
 			// The player is not being rendered.
 			return;
 		currentlyRenderedEntities.remove(event.getEntity().getUniqueID());
 		
-		GlStateManager.popMatrix();
+		GlStateManager.popMatrix();*/
 	}
 	
 	@SubscribeEvent

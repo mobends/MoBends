@@ -1,5 +1,7 @@
 package net.gobbob.mobends.animatedentity;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,13 +9,19 @@ import java.util.List;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
 import net.gobbob.mobends.animatedentity.previewer.PlayerPreviewer;
 import net.gobbob.mobends.animatedentity.previewer.Previewer;
+import net.gobbob.mobends.client.mutators.Mutator;
+import net.gobbob.mobends.client.mutators.PlayerMutator;
+import net.gobbob.mobends.client.mutators.ZombieMutator;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsSpectralArrow;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsTippedArrow;
 import net.gobbob.mobends.util.BendsLogger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.projectile.EntitySpectralArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraftforge.common.config.Configuration;
@@ -29,16 +37,16 @@ public class AnimatedEntity
 	private String[] alterableParts;
 
 	public Class<? extends Entity> entityClass;
-	public Render renderer;
+	public Class<? extends Mutator> mutatorClass;
 	public Previewer previewer;
 
-	public AnimatedEntity(String id, String displayName, Class<? extends Entity> entityClass, Render renderer,
-			String[] alterableParts)
+	public AnimatedEntity(String id, String displayName, Class<? extends Entity> entityClass,
+			Class<? extends Mutator> mutatorClass, String[] alterableParts)
 	{
 		this.name = id;
 		this.displayName = displayName;
 		this.entityClass = entityClass;
-		this.renderer = renderer;
+		this.mutatorClass = mutatorClass;
 		this.alterableParts = alterableParts;
 		this.addAlterEntry(new AlterEntry(this, displayName));
 	}
@@ -67,7 +75,7 @@ public class AnimatedEntity
 	{
 		return name;
 	}
-	
+
 	public Previewer getPreviewer()
 	{
 		return this.previewer;
@@ -85,6 +93,37 @@ public class AnimatedEntity
 		return this;
 	}
 
+	public void applyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity,
+			float partialTicks)
+	{
+		try
+		{
+			Method method = this.mutatorClass.getMethod("apply", RenderLivingBase.class, EntityLivingBase.class, float.class);
+			method.invoke(null, renderer, entity, partialTicks);
+		}
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+		{
+			System.err.println("The " + name + " animated entity's mutator didn't have a"
+					+ "static 'apply' method, that fulfulled the parameter requirements.");
+			e.printStackTrace();
+		}
+	}
+	
+	public void deapplyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
+	{
+		try
+		{
+			Method method = this.mutatorClass.getMethod("deapply", RenderLivingBase.class, EntityLivingBase.class);
+			method.invoke(null, renderer, entity);
+		}
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+		{
+			System.err.println("The " + name + " animated entity's mutator didn't have a"
+					+ "static 'deapply' method, that fulfulled the parameter requirements.");
+			e.printStackTrace();
+		}
+	}
+
 	public static void register(Configuration config)
 	{
 		BendsLogger.info("Registering Animated Entities...");
@@ -92,20 +131,16 @@ public class AnimatedEntity
 		animatedEntities.clear();
 
 		registerEntity(config,
-				new AnimatedEntity("player", "Player", AbstractClientPlayer.class,
-						null, // No renderer, mutated dynamically
+				new AnimatedEntity("player", "Player", AbstractClientPlayer.class, PlayerMutator.class,
 						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
-								"rightLeg", "leftForeLeg", "rightForeLeg", "playerRotation", "leftItemRotation",
-								"rightItemRotation" })
-				.setPreviewer(new PlayerPreviewer()));
+								"rightLeg", "leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation",
+								"rightItemRotation" }).setPreviewer(new PlayerPreviewer()));
 
+		registerEntity(config,
+				new AnimatedEntity("zombie", "Zombie", EntityZombie.class, ZombieMutator.class,
+						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
+								"rightLeg", "leftForeLeg", "rightForeLeg" }));
 		/*
-		 * registerEntity(config, new AnimatedEntity("zombie", "Zombie",
-		 * EntityZombie.class, new
-		 * RenderBendsZombie(Minecraft.getMinecraft().getRenderManager()), new String[]
-		 * {"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
-		 * "leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg"}));
-		 * 
 		 * registerEntity(config, new AnimatedEntity("husk", "Husk", EntityHusk.class,
 		 * new RenderBendsHusk(Minecraft.getMinecraft().getRenderManager()), new
 		 * String[] {"head", "body", "leftArm", "rightArm", "leftForeArm",
@@ -150,8 +185,6 @@ public class AnimatedEntity
 		{
 			alterEntry.setAnimate(config.get("Animated", alterEntry.getName(), true).getBoolean());
 		}
-		if (animatedEntity.alterEntries.get(0).isAnimated() && animatedEntity.renderer != null)
-			RenderingRegistry.registerEntityRenderingHandler(animatedEntity.entityClass, animatedEntity.renderer);
 		animatedEntities.put(animatedEntity.name, animatedEntity);
 	}
 

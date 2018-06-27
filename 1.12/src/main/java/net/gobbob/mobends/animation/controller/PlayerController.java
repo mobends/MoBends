@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
+import net.gobbob.mobends.animation.bit.biped.BowAnimationBit;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
@@ -23,6 +24,7 @@ import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumHandSide;
 
 /*
  * This is an animation controller for a player instance.
@@ -34,8 +36,9 @@ public class PlayerController extends Controller
 	protected HardAnimationLayer layerBase;
 	protected HardAnimationLayer layerSneak;
 	protected HardAnimationLayer layerAction;
-	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSneak;
-	protected AnimationBit bitBow, bitAttack;
+	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSprintJump, bitSneak;
+	protected AnimationBit bitAttack;
+	protected BowAnimationBit bitBow;
 
 	public PlayerController()
 	{
@@ -44,8 +47,9 @@ public class PlayerController extends Controller
 		this.layerAction = new HardAnimationLayer();
 		this.bitStand = new net.gobbob.mobends.animation.bit.biped.StandAnimationBit();
 		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit();
-		this.bitJump = new net.gobbob.mobends.animation.bit.player.JumpAnimationBit();
+		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit();
 		this.bitSprint = new net.gobbob.mobends.animation.bit.biped.SprintAnimationBit();
+		this.bitSprintJump = new net.gobbob.mobends.animation.bit.player.SprintJumpAnimationBit();
 		this.bitSneak = new net.gobbob.mobends.animation.bit.biped.SneakAnimationBit();
 		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
@@ -62,6 +66,8 @@ public class PlayerController extends Controller
 		PlayerData playerData = (PlayerData) entityData;
 		BendsVariable.tempData = playerData;
 		AbstractClientPlayer player = (AbstractClientPlayer) playerData.getEntity();
+		EnumHandSide primaryHand = player.getPrimaryHand();
+		EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
 		ItemStack itemstack = player.getHeldItemMainhand();
         ItemStack itemstack1 = player.getHeldItemOffhand();
         ModelBiped.ArmPose armPoseMain = ModelBiped.ArmPose.EMPTY;
@@ -107,7 +113,14 @@ public class PlayerController extends Controller
 
 		if (!playerData.isOnGround() | playerData.getTicksAfterTouchdown() < 2)
 		{
-			this.layerBase.playOrContinueBit(bitJump, entityData);
+			if (player.isSprinting())
+			{
+				this.layerBase.playOrContinueBit(bitSprintJump, entityData);
+			}
+			else
+			{
+				this.layerBase.playOrContinueBit(bitJump, entityData);
+			}
 			this.layerSneak.clearAnimation();
 		}
 		else
@@ -140,6 +153,7 @@ public class PlayerController extends Controller
 
 		if(armPoseMain == ArmPose.BOW_AND_ARROW || armPoseOff == ArmPose.BOW_AND_ARROW)
 		{
+			this.bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
 			this.layerAction.playOrContinueBit(this.bitBow, entityData);
 		}
 		else

@@ -324,6 +324,11 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		return this;
 	}
 	
+	public ModelPart setMirror(boolean mirror)
+	{
+		this.mirror = mirror;
+		return this;
+	}
 	
 	public void finish()
 	{

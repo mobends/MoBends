@@ -2,10 +2,8 @@ package net.gobbob.mobends.data;
 
 import java.util.Random;
 
+import net.gobbob.mobends.animation.controller.ZombieController;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.model.entity.ModelBendsZombie;
-import net.gobbob.mobends.client.model.entity.ModelBendsZombieVillager;
-import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.entity.Entity;
 
 public class ZombieData extends BipedEntityData
@@ -16,6 +14,7 @@ public class ZombieData extends BipedEntityData
 	public ZombieData(Entity entity)
 	{
 		super(entity);
+		this.controller = new ZombieController();
 	}
 
 	@Override
