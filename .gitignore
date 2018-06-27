@@ -1,7 +1,6 @@
-*/**
-!Resources/**
-!*/
-!**/src/**
-!**/gradle.properties
-!**/build.gradle
-/*.zip
+/*
+
+!/build\.gradle
+!/gradle\.properties
+!/src/*
+!/misc/*
