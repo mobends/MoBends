@@ -8,6 +8,7 @@ import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.client.model.ModelPartChildExtended;
+import net.gobbob.mobends.client.model.ModelPartChildPostOffset;
 import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.client.model.ModelPartPostOffset;
 import net.gobbob.mobends.client.model.ModelPartTransform;
@@ -32,8 +33,8 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	protected ModelPartChild headwear;
 	protected ModelPartChildExtended leftArm;
 	protected ModelPartChildExtended rightArm;
-	protected ModelPartChildExtended leftForeArm;
-	protected ModelPartChildExtended rightForeArm;
+	protected ModelPartChildPostOffset leftForeArm;
+	protected ModelPartChildPostOffset rightForeArm;
 	protected ModelPartExtended leftLeg;
 	protected ModelPartExtended rightLeg;
 	protected ModelPartChild leftForeLeg;
@@ -171,7 +172,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 				.updateVertices()
 				.setVisibility(ModelBox.BOTTOM, false);
 
-		leftForeArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16 + 6)
+		leftForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
 				.setParent(leftArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
 				.setMirror(true)
@@ -179,7 +180,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 				.setVisibility(ModelBox.TOP, false);
 		leftForeArm.getBox().offsetTextureQuad(leftForeArm, ModelBox.BOTTOM, 0, -6.0f);
 		leftArm.setExtension(leftForeArm);
-		rightForeArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16 + 6)
+		rightForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
 				.setParent(rightArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
 				.setBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)

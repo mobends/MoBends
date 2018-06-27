@@ -84,7 +84,7 @@ public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
     		BipedEntityData bipedData = (BipedEntityData) entityData;
     		SmoothVector3f itemRotation = handSide == EnumHandSide.RIGHT ? bipedData.renderRightItemRotation : bipedData.renderLeftItemRotation;
     		
-    		GlStateManager.translate(0, 8F * 0.0625F, -2f*0.0625F);
+    		GlStateManager.translate(0, 8F * 0.0625F, 0);
     		GlStateManager.rotate(itemRotation.getZ(), 0.0F, 0.0F, 1.0F);
     		GlStateManager.rotate(itemRotation.getY(), 0.0F, 1.0F, 0.0F);
             GlStateManager.rotate(itemRotation.getX(), 1.0F, 0.0F, 0.0F);

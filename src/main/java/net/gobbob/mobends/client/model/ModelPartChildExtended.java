@@ -89,7 +89,8 @@ public class ModelPartChildExtended extends ModelPartChild{
 	}
 	
 	@Override
-	public void propagateTransform(float scale) {
+	public void propagateTransform(float scale)
+	{
 		super.propagateTransform(scale);
 		this.applyPostTransform(scale);
 	}

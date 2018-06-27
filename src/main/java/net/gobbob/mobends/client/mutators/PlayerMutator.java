@@ -10,13 +10,13 @@ import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.client.model.ModelPartChildExtended;
+import net.gobbob.mobends.client.model.ModelPartChildPostOffset;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.util.FieldMiner;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -116,14 +116,16 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 				.updateVertices()
 				.setVisibility(ModelBox.BOTTOM, false);
 		
-		leftForeArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 32, 48 + 6)
+		leftForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 32, 48 + 6)
+				.setPostOffset(0, -4F, -2F)
 				.setParent(leftArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
 				.setBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
 				.setVisibility(ModelBox.TOP, false);
 		leftForeArm.getBox().offsetTextureQuad(leftForeArm, ModelBox.BOTTOM, 0, -6.0f);
 		leftArm.setExtension(leftForeArm);
-		rightForeArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16 + 6)
+		rightForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
+				.setPostOffset(0, -4F, -2F)
 				.setParent(rightArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
 				.setBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
