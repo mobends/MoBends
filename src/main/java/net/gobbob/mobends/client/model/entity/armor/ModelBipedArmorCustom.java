@@ -89,9 +89,16 @@ public class ModelBipedArmorCustom extends ModelBiped
 		if (animatedEntity == null || entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 
-		BipedEntityData dataBiped = (BipedEntityData) entityData;
+		if (animatedEntity.isAnimated() && !this.mutated)
+		{
+			this.mutate();
+		}
+		else if(!animatedEntity.isAnimated() && this.mutated)
+		{
+			this.demutate();
+		}
 		
-		//if (animatedEntity.)
+		BipedEntityData dataBiped = (BipedEntityData) entityData;
 		
 		GlStateManager.pushMatrix();
 		original.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);

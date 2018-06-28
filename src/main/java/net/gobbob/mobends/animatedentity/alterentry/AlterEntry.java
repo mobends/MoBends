@@ -9,23 +9,27 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.world.World;
 
-public class AlterEntry {
+public class AlterEntry
+{
 	private String name;
 	private String displayName;
 	public AnimatedEntity owner;
 	private boolean animate;
 	
-	public AlterEntry(AnimatedEntity owner, String displayName) {
+	public AlterEntry(AnimatedEntity owner, String displayName)
+	{
 		this.owner = owner;
 		this.name = owner.getName();
 		this.displayName = displayName;
 	}
 	
-	public void setAnimate(boolean animate) {
+	public void setAnimate(boolean animate)
+	{
 		this.animate = animate;
 	}
 	
-	public boolean isAnimated() {
+	public boolean isAnimated()
+	{
 		return this.animate;
 	}
 	

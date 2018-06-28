@@ -80,6 +80,19 @@ public class AnimatedEntity
 	{
 		return this.previewer;
 	}
+	
+	/*
+	 * Returns true if any of the alter entries are animated
+	 */
+	public boolean isAnimated()
+	{
+		for (AlterEntry entry : this.alterEntries)
+		{
+			if (entry.isAnimated())
+				return true;
+		}
+		return false;
+	}
 
 	public AnimatedEntity addAlterEntry(AlterEntry alterEntry)
 	{
