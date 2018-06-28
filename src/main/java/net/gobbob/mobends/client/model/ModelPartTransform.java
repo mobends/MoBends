@@ -17,7 +17,8 @@ public class ModelPartTransform implements IModelPart
 	public SmoothVector3f rotation;
 	public SmoothVector3f preRotation;
 	
-	public ModelPartTransform() {
+	public ModelPartTransform()
+	{
 		this.position = new Vector3f();
 		this.scale = new Vector3f(1, 1, 1);
 		this.rotation = new SmoothVector3f();

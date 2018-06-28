@@ -28,7 +28,11 @@ public class BoxMutator
 		this.textureOffsetY = textureOffsetY;
 	}
 	
-	public static BoxMutator createFrom(ModelBase modelBase, ModelRenderer modelRenderer, net.minecraft.client.model.ModelBox original)
+	/*
+	 * It creates a BoxMutator with a copy of the original model, that can be mutated.
+	 * The original stays in it's original state.
+	 */
+	public static BoxMutator createFrom(final ModelBase modelBase, final ModelRenderer modelRenderer, final net.minecraft.client.model.ModelBox original)
 	{
 		Field quadListField = FieldMiner.getObfuscatedField(original.getClass(), "quadList", "field_78254_i");
 		

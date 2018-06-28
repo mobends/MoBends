@@ -173,6 +173,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 				.setVisibility(ModelBox.BOTTOM, false);
 
 		leftForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
+				.setPostOffset(0, -4F, -2F)
 				.setParent(leftArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
 				.setMirror(true)
@@ -181,6 +182,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 		leftForeArm.getBox().offsetTextureQuad(leftForeArm, ModelBox.BOTTOM, 0, -6.0f);
 		leftArm.setExtension(leftForeArm);
 		rightForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
+				.setPostOffset(0, -4F, -2F)
 				.setParent(rightArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
 				.setBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)

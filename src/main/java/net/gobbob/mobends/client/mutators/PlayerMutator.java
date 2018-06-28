@@ -297,7 +297,7 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		if (!(entityData instanceof PlayerData))
 			return;
 		PlayerData data = (PlayerData) entityData;
-		AnimatedEntity animatedEntity = AnimatedEntity.getByEntity(player);
+		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(player);
 		float ticks = player.ticksExisted + partialTicks;
 
 		leftForeArmwear.setVisible(leftArmwear.isShowing());

@@ -123,7 +123,7 @@ public class GuiPortraitDisplay
 		Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
 		
 		Previewer previewer = null;
-		AnimatedEntity animatedEntity = AnimatedEntity.getByEntity(entityLivingBase);
+		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(entityLivingBase);
 		if (animatedEntity != null)
 		{
 			previewer = animatedEntity.getPreviewer();

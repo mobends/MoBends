@@ -53,9 +53,6 @@ public class GuiBendsMenu extends GuiScreen
 	public static final int POPUP_EXIT = 3;
 	public static final int POPUP_CREATEPACK = 4;
 
-	public static final int CUSTOMIZE_BUTTON = 1;
-	public static final int PACKS_BUTTON = 3;
-
 	public List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
 	public int currentAlterEntry = 0;
 
@@ -294,7 +291,7 @@ public class GuiBendsMenu extends GuiScreen
 				{
 					this.openTab(TAB_CUSTOMIZE);
 				}
-				if (this.packsButton.mouseClicked(x, y, state))
+				else if (this.packsButton.mouseClicked(x, y, state))
 				{
 					this.openTab(TAB_PACKS);
 				}
@@ -320,6 +317,8 @@ public class GuiBendsMenu extends GuiScreen
 	protected void mouseReleased(int mouseX, int mouseY, int state)
 	{
 		super.mouseReleased(mouseX, mouseY, state);
+		this.customizeButton.mouseReleased(mouseX, mouseY, state);
+		this.packsButton.mouseReleased(mouseX, mouseY, state);
 		this.nodeEditor.mouseReleased(mouseX, mouseY, state);
 	}
 

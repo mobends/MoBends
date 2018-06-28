@@ -36,7 +36,7 @@ public class EntityRenderHandler
 	@SubscribeEvent
 	public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
 	{
-		AnimatedEntity animatedEntity = AnimatedEntity.getByEntity(event.getEntity());
+		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(event.getEntity());
 		if (animatedEntity == null)
 			return;
 
@@ -107,7 +107,7 @@ public class EntityRenderHandler
 	@SubscribeEvent
 	public void afterLivingRender(RenderLivingEvent.Post<? extends EntityLivingBase> event)
 	{
-		if (AnimatedEntity.getByEntity(event.getEntity()) == null)
+		if (AnimatedEntity.getForEntity(event.getEntity()) == null)
 			return;
 
 		if (!currentlyRenderedEntities.contains(event.getEntity().getUniqueID()))

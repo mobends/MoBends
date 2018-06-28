@@ -147,7 +147,7 @@ public class ZombieMutator extends BipedMutator<EntityZombie, ModelZombie>
 		if (!(entityData instanceof ZombieData))
 			return;
 		ZombieData data = (ZombieData) entityData;
-		AnimatedEntity animatedEntity = AnimatedEntity.getByEntity(zombie);
+		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(zombie);
 		float ticks = zombie.ticksExisted + partialTicks;
 		
 		data.setHeadYaw(this.headYaw);

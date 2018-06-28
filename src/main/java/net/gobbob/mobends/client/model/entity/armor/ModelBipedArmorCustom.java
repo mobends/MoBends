@@ -2,12 +2,16 @@ package net.gobbob.mobends.client.model.entity.armor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartContainer;
+import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.mutators.BoxMutator;
 import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
@@ -25,7 +29,25 @@ public class ModelBipedArmorCustom extends ModelBiped
 {
 	protected ModelBiped original;
 	protected List<Field> gatheredFields;
+	/*
+	 * Used to demutate the armor back into it's vanilla state.
+	 */
+	protected HashMap<Field, ModelRenderer> fieldToOriginalMap;
+	/*
+	 * Used to demutate the armor back into it's vanilla state.
+	 * Both key and value are the of the original vanilla model.
+	 */
+	protected HashMap<ModelRenderer, net.minecraft.client.model.ModelBox> modelToBoxMap;
 
+	/*
+	 * Keeps track of whether the model is mutated or not.
+	 */
+	protected boolean mutated = false;
+	
+	/*
+	 * This is used as a parent for other parts, like the arms and head.
+	 */
+	protected ModelPartTransform mainBodyTransform;
 	protected List<ModelPartContainer> bodyParts;
 	protected List<ModelPartContainer> headParts;
 	protected List<ModelPartContainer> leftArmParts;
@@ -41,6 +63,9 @@ public class ModelBipedArmorCustom extends ModelBiped
 	{
 		this.original = original;
 		this.gatheredFields = new ArrayList<Field>();
+		this.fieldToOriginalMap = new HashMap<Field, ModelRenderer>();
+		this.modelToBoxMap = new HashMap<ModelRenderer, net.minecraft.client.model.ModelBox>();
+		this.mainBodyTransform = new ModelPartTransform();
 		this.bodyParts = new ArrayList<ModelPartContainer>();
 		this.headParts = new ArrayList<ModelPartContainer>();
 		this.leftArmParts = new ArrayList<ModelPartContainer>();
@@ -59,12 +84,15 @@ public class ModelBipedArmorCustom extends ModelBiped
 	{
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
+		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(entityIn);
 		EntityData entityData = EntityDatabase.instance.get(entityIn.getEntityId());
-		if (entityData == null || !(entityData instanceof BipedEntityData))
+		if (animatedEntity == null || entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 
 		BipedEntityData dataBiped = (BipedEntityData) entityData;
-
+		
+		//if (animatedEntity.)
+		
 		GlStateManager.pushMatrix();
 		original.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
@@ -75,6 +103,12 @@ public class ModelBipedArmorCustom extends ModelBiped
 			GlStateManager.translate(0, 0.2D, 0);
 		}
 
+		if (this.isChild)
+        {
+            GlStateManager.scale(0.5F, 0.5F, 0.5F);
+            GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
+        }
+		
 		GlStateManager.pushMatrix();
 		dataBiped.body.applyOwnTransform(scale);
 		dataBiped.leftArm.applyOwnTransform(scale);
@@ -123,6 +157,8 @@ public class ModelBipedArmorCustom extends ModelBiped
 
 		BipedEntityData dataBiped = (BipedEntityData) entityData;
 
+		this.mainBodyTransform.syncUp(dataBiped.body);
+		
 		for (IModelPart part : this.headParts)
 		{
 			part.setVisible(this.bipedHead.showModel);
@@ -139,14 +175,12 @@ public class ModelBipedArmorCustom extends ModelBiped
 		{
 			part.setVisible(this.bipedLeftArm.showModel);
 			part.syncUp(dataBiped.leftArm);
-			// part.position.y = 2F;
 		}
 
 		for (IModelPart part : this.rightArmParts)
 		{
 			part.setVisible(this.bipedRightArm.showModel);
 			part.syncUp(dataBiped.rightArm);
-			// part.position.y = 2F;
 		}
 
 		for (IModelPart part : this.leftLegParts)
@@ -186,7 +220,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 		}
 	}
 
-	protected void mutateOriginal(BipedEntityData entityData)
+	protected void mutate()
 	{
 		this.headParts.clear();
 		this.bodyParts.clear();
@@ -194,16 +228,16 @@ public class ModelBipedArmorCustom extends ModelBiped
 		this.rightArmParts.clear();
 		this.leftLegParts.clear();
 		this.rightLegParts.clear();
+		this.leftForeArmParts.clear();
+		this.rightForeArmParts.clear();
+		this.leftForeLegParts.clear();
+		this.rightForeLegParts.clear();
 
+		this.gatheredFields.clear();
+		this.fieldToOriginalMap.clear();
+		this.modelToBoxMap.clear();
 		gatherFields(original.getClass());
-
-		List<ModelRenderer> children = new ArrayList<ModelRenderer>();
-		for (ModelRenderer part : original.boxList)
-		{
-			if (part.childModels != null)
-				children.addAll(part.childModels);
-		}
-
+		
 		for (Field f : this.gatheredFields)
 		{
 			System.out.println("ArmorField: " + f);
@@ -214,19 +248,85 @@ public class ModelBipedArmorCustom extends ModelBiped
 
 				if (modelRenderer != null)
 				{
-					ModelPartContainer container = createAndAssignPart(modelRenderer);
+					ModelPartContainer container;
+					if (modelRenderer instanceof ModelPartContainer)
+					{
+						container = (ModelPartContainer) modelRenderer;
+					}
+					else
+					{
+						fieldToOriginalMap.put(f, modelRenderer);
+						container = this.mutatePart(modelRenderer);
+						container.mirror = modelRenderer.mirror;
+					}
+					this.assignPart(container);
 					f.set(original, container);
 				}
-			} catch (IllegalArgumentException | IllegalAccessException e)
+			}
+			catch (IllegalArgumentException | IllegalAccessException e)
 			{
 				e.printStackTrace();
 			}
 		}
 
-		mutateParts(entityData);
-		sliceParts();
+		this.positionParts();
+		this.sliceParts();
+		
+		this.mutated = true;
+	}
+	
+	/*
+	 * Brings the original model back to it's vanilla state.
+	 */
+	public void demutate()
+	{
+		for (Field f : this.gatheredFields)
+		{
+			if (fieldToOriginalMap.containsKey(f))
+			{
+				try
+				{
+					f.set(original, fieldToOriginalMap.get(f));
+				}
+				catch (IllegalArgumentException | IllegalAccessException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		for (ModelRenderer renderer : this.modelToBoxMap.keySet())
+		{
+			renderer.cubeList.clear();
+		}
+		
+		for (Map.Entry<ModelRenderer, net.minecraft.client.model.ModelBox> entry : this.modelToBoxMap.entrySet())
+		{
+			entry.getKey().cubeList.add(entry.getValue());
+		}
+		
+		this.gatheredFields.clear();
+		this.fieldToOriginalMap.clear();
+		this.modelToBoxMap.clear();
+		
+		this.headParts.clear();
+		this.bodyParts.clear();
+		this.leftArmParts.clear();
+		this.rightArmParts.clear();
+		this.leftLegParts.clear();
+		this.rightLegParts.clear();
+		this.leftForeArmParts.clear();
+		this.rightForeArmParts.clear();
+		this.leftForeLegParts.clear();
+		this.rightForeLegParts.clear();
+		
+		this.mutated = false;
 	}
 
+	/*
+	 * Used to get all the Fields from the modelClass and it's
+	 * superClasses that are an instance of ModelRenderer.
+	 */
 	protected void gatherFields(Class modelClass)
 	{
 		Field[] fields = modelClass.getDeclaredFields();
@@ -247,11 +347,10 @@ public class ModelBipedArmorCustom extends ModelBiped
 		return new ModelPartContainer(this, modelRenderer);
 	}
 
-	protected ModelPartContainer createAndAssignPart(ModelRenderer part)
+	protected void assignPart(ModelPartContainer container)
 	{
-		ModelPartContainer container = new ModelPartContainer(this, part);
-		container.mirror = part.mirror;
-
+		ModelRenderer part = container.getModel();
+		
 		AxisAlignedBB bounds = ModelUtils.getBounds(part);
 		System.out.println("Bounds: " + bounds);
 
@@ -302,15 +401,13 @@ public class ModelBipedArmorCustom extends ModelBiped
 				this.bipedHead = container;
 			this.headParts.add(container);
 		}
-
-		return container;
 	}
 
-	protected void mutateParts(BipedEntityData entityData)
+	protected void positionParts()
 	{
 		for (ModelPartContainer part : headParts)
 		{
-			part.setParent(entityData.body);
+			part.setParent(this.mainBodyTransform);
 		}
 
 		for (ModelPartContainer part : bodyParts)
@@ -321,13 +418,13 @@ public class ModelBipedArmorCustom extends ModelBiped
 		for (ModelPartContainer part : leftArmParts)
 		{
 			part.setInnerOffset(-5F, -2F, 0F);
-			part.setParent(entityData.body);
+			part.setParent(this.mainBodyTransform);
 		}
 
 		for (ModelPartContainer part : rightArmParts)
 		{
 			part.setInnerOffset(5F, -2F, 0F);
-			part.setParent(entityData.body);
+			part.setParent(this.mainBodyTransform);
 		}
 
 		for (ModelPartContainer part : leftLegParts)
@@ -336,6 +433,59 @@ public class ModelBipedArmorCustom extends ModelBiped
 			part.setInnerOffset(1.9F, -12F, 0F);
 	}
 
+	protected void sliceLeg(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
+	{
+		for (int i = part.getModel().cubeList.size() - 1; i >= 0; i--)
+		{
+			net.minecraft.client.model.ModelBox box = part.getModel().cubeList.get(i);
+			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
+			if (mutator != null)
+			{
+				modelToBoxMap.put(part.getModel(), box);
+				
+				ModelBox lowerPart = mutator.sliceFromBottom(6, false);
+				ModelBox topPart = mutator.getTargetBox();
+				part.getModel().cubeList.remove(box);
+				part.getModel().cubeList.add(topPart);
+
+				if (lowerPart != null)
+				{
+					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
+					modelPart.cubeList.add(lowerPart);
+					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
+					partContainer.setInnerOffset(0, 0F, 2F);
+					listToAddTo.add(partContainer);
+				}
+			}
+		}
+	}
+
+	protected void sliceArm(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
+	{
+		for (net.minecraft.client.model.ModelBox box : part.getModel().cubeList)
+		{
+			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
+			if (mutator != null)
+			{
+				modelToBoxMap.put(part.getModel(), box);
+				
+				ModelBox lowerPart = mutator.sliceFromBottom(4, false);
+				ModelBox topPart = mutator.getTargetBox();
+				part.getModel().cubeList.remove(box);
+				part.getModel().cubeList.add(topPart);
+
+				if (lowerPart != null)
+				{
+					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
+					modelPart.cubeList.add(lowerPart);
+					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
+					partContainer.setInnerOffset(0, 0F, -2F);
+					listToAddTo.add(partContainer);
+				}
+			}
+		}
+	}
+	
 	/*
 	 * This function takes groups of models, and divides them up into sub-groups,
 	 * like the upper arm and lower arm.
@@ -362,63 +512,11 @@ public class ModelBipedArmorCustom extends ModelBiped
 			sliceArm(part, rightForeArmParts);
 		}
 	}
-
-	protected void sliceLeg(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
-	{
-		System.out.println("Trying to slice leg... : " + part);
-		for (int i = part.getModel().cubeList.size() - 1; i >= 0; i--)
-		{
-			net.minecraft.client.model.ModelBox box = part.getModel().cubeList.get(i);
-			System.out.println("Trying to slice leg box... : " + box);
-			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
-			if (mutator != null)
-			{
-				System.out.println("Slicing leg box: " + box);
-				ModelBox lowerPart = mutator.sliceFromBottom(6, false);
-				ModelBox topPart = mutator.getTargetBox();
-				part.getModel().cubeList.remove(box);
-				part.getModel().cubeList.add(topPart);
-
-				if (lowerPart != null)
-				{
-					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
-					modelPart.cubeList.add(lowerPart);
-					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-					partContainer.setInnerOffset(0, 0F, 2F);
-					listToAddTo.add(partContainer);
-				}
-			}
-		}
-	}
-
-	protected void sliceArm(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
-	{
-		for (net.minecraft.client.model.ModelBox box : part.getModel().cubeList)
-		{
-			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
-			if (mutator != null)
-			{
-				ModelBox lowerPart = mutator.sliceFromBottom(4, false);
-				ModelBox topPart = mutator.getTargetBox();
-				part.getModel().cubeList.remove(box);
-				part.getModel().cubeList.add(topPart);
-
-				if (lowerPart != null)
-				{
-					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
-					modelPart.cubeList.add(lowerPart);
-					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-					partContainer.setInnerOffset(0, 0F, -2F);
-					listToAddTo.add(partContainer);
-				}
-			}
-		}
-	}
-
-	public static ModelBipedArmorCustom createFrom(ModelBiped src, BipedEntityData entityData)
+	
+	public static ModelBipedArmorCustom createFrom(ModelBiped src)
 	{
 		ModelBipedArmorCustom customModel = new ModelBipedArmorCustom(src);
-		customModel.mutateOriginal(entityData);
+		customModel.mutate();
 
 		return customModel;
 	}

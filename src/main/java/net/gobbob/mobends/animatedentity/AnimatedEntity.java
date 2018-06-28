@@ -190,10 +190,10 @@ public class AnimatedEntity
 
 	public static AnimatedEntity get(String name)
 	{
-		return (AnimatedEntity) animatedEntities.get(name);
+		return animatedEntities.get(name);
 	}
 
-	public static AnimatedEntity getByEntity(Entity entity)
+	public static AnimatedEntity getForEntity(Entity entity)
 	{
 		for (AnimatedEntity animatedEntity : animatedEntities.values())
 		{
