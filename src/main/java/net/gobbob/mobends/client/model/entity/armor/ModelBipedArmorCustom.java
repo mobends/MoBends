@@ -45,6 +45,11 @@ public class ModelBipedArmorCustom extends ModelBiped
 	protected boolean mutated = false;
 	
 	/*
+	 * The lastest AnimatedEntity that rendered this armor.
+	 */
+	protected AnimatedEntity lastAnimatedEntity;
+	
+	/*
 	 * This is used as a parent for other parts, like the arms and head.
 	 */
 	protected ModelPartTransform mainBodyTransform;
@@ -89,6 +94,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 		if (animatedEntity == null || entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 
+		lastAnimatedEntity = animatedEntity;
 		if (animatedEntity.isAnimated() && !this.mutated)
 		{
 			this.mutate();
@@ -229,6 +235,11 @@ public class ModelBipedArmorCustom extends ModelBiped
 
 	protected void mutate()
 	{
+		if (this.mutated)
+		{
+			this.demutate();
+		}
+		
 		this.headParts.clear();
 		this.bodyParts.clear();
 		this.leftArmParts.clear();
@@ -262,6 +273,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 					}
 					else
 					{
+						System.out.println("Added to fieldToOriginalMap " + modelRenderer);
 						fieldToOriginalMap.put(f, modelRenderer);
 						container = this.mutatePart(modelRenderer);
 						container.mirror = modelRenderer.mirror;
@@ -291,6 +303,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 		{
 			if (fieldToOriginalMap.containsKey(f))
 			{
+				System.out.println("Retrieved from fieldToOriginalMap " + fieldToOriginalMap.get(f));
 				try
 				{
 					f.set(original, fieldToOriginalMap.get(f));
@@ -328,6 +341,26 @@ public class ModelBipedArmorCustom extends ModelBiped
 		this.rightForeLegParts.clear();
 		
 		this.mutated = false;
+	}
+	
+	/*
+	 * Ensures that this armor's mutation state is in sync
+	 * with it's AnimatedEntity counterpart.
+	 * Called from ArmorModelFactory.updateMutation()
+	 */
+	public void updateMutation()
+	{
+		if (lastAnimatedEntity == null)
+			return;
+
+		if (lastAnimatedEntity.isAnimated() && !this.mutated)
+		{
+			this.mutate();
+		}
+		else if(!lastAnimatedEntity.isAnimated() && this.mutated)
+		{
+			this.demutate();
+		}
 	}
 
 	/*
@@ -469,14 +502,17 @@ public class ModelBipedArmorCustom extends ModelBiped
 
 	protected void sliceArm(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
 	{
-		for (net.minecraft.client.model.ModelBox box : part.getModel().cubeList)
+		for (int i = part.getModel().cubeList.size() - 1; i >= 0; i--)
 		{
+			net.minecraft.client.model.ModelBox box = part.getModel().cubeList.get(i);
 			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
 			if (mutator != null)
 			{
 				modelToBoxMap.put(part.getModel(), box);
 				
-				ModelBox lowerPart = mutator.sliceFromBottom(4, false);
+				//mutator.offsetBasedOnNewOrigin(0, 2, 0);
+				ModelBox lowerPart = mutator.sliceFromBottom(0, true);
+				//mutator.offsetBasedOnNewOrigin(0, -2, 0);
 				ModelBox topPart = mutator.getTargetBox();
 				part.getModel().cubeList.remove(box);
 				part.getModel().cubeList.add(topPart);

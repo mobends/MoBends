@@ -53,6 +53,13 @@ public class GuiBendsMenu extends GuiScreen
 	public static final int POPUP_EXIT = 3;
 	public static final int POPUP_CREATEPACK = 4;
 
+	/*
+	 * Used to remember which AlterEntry was used last, so
+	 * the GUI can show that as default the next time it
+	 * opens up.
+	 */
+	protected static int lastAlterEntryViewed = 0;
+	
 	public List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
 	public int currentAlterEntry = 0;
 
@@ -82,6 +89,10 @@ public class GuiBendsMenu extends GuiScreen
 		this.nodeEditor = new GuiNodeEditor(this);
 		this.popUp = null;
 		this.packEditor = new GuiPackEditor();
+		
+		// Showing the AlterEntry viewed the last time
+		// this gui was open.
+		this.currentAlterEntry = lastAlterEntryViewed;
 	}
 
 	public void initGui()
@@ -480,6 +491,7 @@ public class GuiBendsMenu extends GuiScreen
 	public void selectAlterEntry(int id)
 	{
 		this.currentAlterEntry = id;
+		this.lastAlterEntryViewed = id;
 		openTab(TAB_CUSTOMIZE);
 	}
 

@@ -6,8 +6,8 @@ import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 
-public class ModelBox extends net.minecraft.client.model.ModelBox{
-	
+public class ModelBox extends net.minecraft.client.model.ModelBox
+{
 	public float x, y, z;
 	public float width, height, length;
 	public int originalWidth, originalHeight, originalLength;

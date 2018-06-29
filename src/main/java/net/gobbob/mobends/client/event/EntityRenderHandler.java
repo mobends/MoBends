@@ -50,7 +50,7 @@ public class EntityRenderHandler
 
 		GlStateManager.pushMatrix();
 
-		if (animatedEntity.getAlterEntry(0).isAnimated())
+		if (animatedEntity.isAnimated())
 		{
 			animatedEntity.applyMutation(event.getRenderer(), living, pt);
 

@@ -18,6 +18,7 @@ public class BoxMutator
 	
 	protected int textureOffsetX;
 	protected int textureOffsetY;
+	protected float globalBoxX, globalBoxY, globalBoxZ;
 	
 	public BoxMutator(ModelBase targetModel, ModelRenderer targetRenderer, ModelBox target, int textureOffsetX, int textureOffsetY)
 	{
@@ -26,6 +27,10 @@ public class BoxMutator
 		this.targetBox = target;
 		this.textureOffsetX = textureOffsetX;
 		this.textureOffsetY = textureOffsetY;
+		
+		this.globalBoxX = this.targetRenderer.rotationPointX + this.targetBox.posX1;
+		this.globalBoxY = this.targetRenderer.rotationPointY + this.targetBox.posY1;
+		this.globalBoxZ = this.targetRenderer.rotationPointZ + this.targetBox.posZ1;
 	}
 	
 	/*
@@ -97,26 +102,62 @@ public class BoxMutator
 		return this.textureOffsetY;
 	}
 	
+	/*
+	 * Offsets the global position of this box to include what it's
+	 * parent would offset it by. This is helpful when slicing the target
+	 * box into mutliple boxes, so that the slice plane matches the model
+	 * space.
+	 */
+	public void includeParentTransform(ModelRenderer parentRenderer)
+	{
+		this.globalBoxX += parentRenderer.rotationPointX;
+		this.globalBoxY += parentRenderer.rotationPointY;
+		this.globalBoxZ += parentRenderer.rotationPointZ;
+	}
+	
+	/*
+	 * This will move the box to a new location, so that when the new
+	 * origin will be applied, it will stay in the same place.
+	 * 
+	 * The origin is in model space (aka. global space)
+	 */
+	public void offsetBasedOnNewOrigin(float originX, float originY, float originZ)
+	{
+		//TODO Implement it fully, if it hasn't been yet.
+		float offsetX = originX - this.globalBoxX;
+		float offsetY = originY - this.globalBoxY;
+		float offsetZ = originZ - this.globalBoxZ;
+		
+		this.targetBox.offset(-offsetX, -offsetY, -offsetZ);
+	}
+	
 	public ModelBox sliceFromBottom(float sliceY, boolean preservePositions)
 	{
 		float height = targetBox.height;
 		
-		float localY = sliceY - this.targetBox.posY1 - this.targetRenderer.rotationPointY;
-		targetBox.height = localY - targetBox.inflation;
-		// Changing the original height to alter the texture
-		// to not stretch it.
-		targetBox.originalHeight = MathHelper.floor(localY);
-		targetBox.updateVertices(this.targetRenderer);
-		targetBox.setVisibility(ModelBox.BOTTOM, false);
+		float localY = sliceY - this.globalBoxY;
+		// If slicing is necessarry (if the cut plane intersects the box)
+		if (localY > 0 && localY < height)
+		{
+			targetBox.height = localY - targetBox.inflation;
+			// Changing the original height to alter the texture
+			// to not stretch it.
+			targetBox.originalHeight = MathHelper.floor(localY);
+			targetBox.updateVertices(this.targetRenderer);
+			targetBox.setVisibility(ModelBox.BOTTOM, false);
+			
+			float slicedY = preservePositions ? (this.targetBox.posY1 + localY) : 0;
+			ModelBox sliced = new ModelBox(targetRenderer, this.textureOffsetX, this.textureOffsetY + (int)localY, this.targetBox.posX1, slicedY + targetBox.inflation, this.targetBox.posZ1,
+														   (int)targetBox.width, (int)(height - localY), (int)targetBox.length, targetBox.inflation);
+			sliced.height -= targetBox.inflation;
+			sliced.updateVertices(this.targetRenderer);
+			sliced.offsetTextureQuad(targetRenderer, ModelBox.BOTTOM, 0, -(int)localY);
+			sliced.setVisibility(ModelBox.TOP, false);
+			
+			return sliced;
+		}
 		
-		float slicedY = preservePositions ? (this.targetBox.posY1 + localY) : 0;
-		ModelBox sliced = new ModelBox(targetRenderer, this.textureOffsetX, this.textureOffsetY + (int)localY, this.targetBox.posX1, slicedY + targetBox.inflation, this.targetBox.posZ1,
-													   (int)targetBox.width, (int)(height - localY), (int)targetBox.length, targetBox.inflation);
-		sliced.height -= targetBox.inflation;
-		sliced.updateVertices(this.targetRenderer);
-		sliced.offsetTextureQuad(targetRenderer, ModelBox.BOTTOM, 0, -localY);
-		sliced.setVisibility(ModelBox.TOP, false);
-		
-		return sliced;
+		// Nothing was cut
+		return null;
 	}
 }

@@ -10,39 +10,42 @@ import net.minecraft.client.model.ModelBiped;
 
 public class ArmorModelFactory
 {
-	protected static Map<Integer, ModelBiped> customArchive = new HashMap<Integer, ModelBiped>();
+	protected static Map<ModelBiped, ModelBipedArmorCustom> customArchive = new HashMap<ModelBiped, ModelBipedArmorCustom>();
 
 	public static ModelBiped getArmorModel(ModelBiped suggested)
 	{
 		ModelBiped custom = suggested;
 
-		if (customArchive.containsKey(suggested.hashCode()))
+		if (customArchive.containsKey(suggested))
 		{
-			custom = customArchive.get(suggested.hashCode());
+			custom = customArchive.get(suggested);
 		}
 		else
 		{
-			System.out.println("Creating a custom armor model." + suggested);
+			System.out.println("Creating a custom armor model from " + suggested);
 			custom = ModelBipedArmorCustom.createFrom(suggested);
-			customArchive.put(suggested.hashCode(), custom);
+			customArchive.put(suggested, (ModelBipedArmorCustom) custom);
 		}
 		return custom;
 	}
 
-	public static void demutate()
+	/*
+	 * This ensures that each armor's mutation state is
+	 * in sync with it's AnimatedEntity counterpart.
+	 */
+	public static void updateMutation()
 	{
-		
+		for (ModelBipedArmorCustom model : customArchive.values())
+		{
+			model.updateMutation();
+		}
 	}
 	
 	public static void refresh()
 	{
-		for (ModelBiped model : customArchive.values())
+		for (ModelBipedArmorCustom model : customArchive.values())
 		{
-			if (model instanceof ModelBipedArmorCustom)
-			{
-				ModelBipedArmorCustom custom = (ModelBipedArmorCustom) model;
-				custom.demutate();
-			}
+			model.demutate();
 		}
 		customArchive.clear();
 	}

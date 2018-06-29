@@ -3,6 +3,7 @@ package net.gobbob.mobends.animatedentity.alterentry;
 import java.lang.reflect.InvocationTargetException;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -26,6 +27,7 @@ public class AlterEntry
 	public void setAnimate(boolean animate)
 	{
 		this.animate = animate;
+		ArmorModelFactory.updateMutation();
 	}
 	
 	public boolean isAnimated()
@@ -34,7 +36,7 @@ public class AlterEntry
 	}
 	
 	public void toggleAnimated() {
-		this.animate = !this.animate;
+		this.setAnimate(!this.animate);
 	}
 	
 	public String getDisplayName() {

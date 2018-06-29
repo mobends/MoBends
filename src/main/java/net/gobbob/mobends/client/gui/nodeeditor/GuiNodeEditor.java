@@ -35,6 +35,7 @@ public class GuiNodeEditor
 	public static final int EDITOR_WIDTH = 210;
 	public static final int EDITOR_HEIGHT = 122;
 	public static final int SCROLLBAR_WIDTH = 5;
+	
 	private int x, y;
 	/**
 	 * This is the height of the content, that's decided by
