@@ -1,6 +1,7 @@
 package net.gobbob.mobends.client.mutators;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.util.BendsLogger;
@@ -102,6 +103,21 @@ public class BoxMutator
 		return this.textureOffsetY;
 	}
 	
+	public float getGlobalBoxX()
+	{
+		return this.globalBoxX;
+	}
+	
+	public float getGlobalBoxY()
+	{
+		return this.globalBoxY;
+	}
+	
+	public float getGlobalBoxZ()
+	{
+		return this.globalBoxZ;
+	}
+	
 	/*
 	 * Offsets the global position of this box to include what it's
 	 * parent would offset it by. This is helpful when slicing the target
@@ -115,6 +131,14 @@ public class BoxMutator
 		this.globalBoxZ += parentRenderer.rotationPointZ;
 	}
 	
+	public void includeParentTransform(Collection<ModelRenderer> parentsList)
+	{
+		for (ModelRenderer parent : parentsList)
+		{
+			this.includeParentTransform(parent);
+		}
+	}
+	
 	/*
 	 * This will move the box to a new location, so that when the new
 	 * origin will be applied, it will stay in the same place.
@@ -123,12 +147,25 @@ public class BoxMutator
 	 */
 	public void offsetBasedOnNewOrigin(float originX, float originY, float originZ)
 	{
-		//TODO Implement it fully, if it hasn't been yet.
 		float offsetX = originX - this.globalBoxX;
 		float offsetY = originY - this.globalBoxY;
 		float offsetZ = originZ - this.globalBoxZ;
 		
 		this.targetBox.offset(-offsetX, -offsetY, -offsetZ);
+	}
+	
+	/*
+	 * This will reverse the effect of the offsetBasedOnNewOrigin function.
+	 * 
+	 * The origin is in model space (aka. global space)
+	 */
+	public void offsetBackBasedOnNewOrigin(float originX, float originY, float originZ)
+	{
+		float offsetX = originX - this.globalBoxX;
+		float offsetY = originY - this.globalBoxY;
+		float offsetZ = originZ - this.globalBoxZ;
+		
+		this.targetBox.offset(offsetX, offsetY, offsetZ);
 	}
 	
 	public ModelBox sliceFromBottom(float sliceY, boolean preservePositions)

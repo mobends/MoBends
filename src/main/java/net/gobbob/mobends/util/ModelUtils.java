@@ -1,5 +1,8 @@
 package net.gobbob.mobends.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.lwjgl.util.vector.Vector3f;
 
 import net.minecraft.client.model.ModelBox;
@@ -26,8 +29,10 @@ public class ModelUtils
 		float y = modelRenderer.rotationPointY + position.y;
 		float z = modelRenderer.rotationPointZ + position.z;
 		
-		if(modelRenderer.cubeList != null) {
-			for(ModelBox box : modelRenderer.cubeList) {
+		if(modelRenderer.cubeList != null)
+		{
+			for(ModelBox box : modelRenderer.cubeList)
+			{
 				if(x + box.posX1 < minX)
 					minX = x + box.posX1;
 				if(y + box.posY1 < minY)
@@ -46,10 +51,51 @@ public class ModelUtils
 		AxisAlignedBB newBounds = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 		
 		if(modelRenderer.childModels != null)
-		for(ModelRenderer child : modelRenderer.childModels) {
+		for(ModelRenderer child : modelRenderer.childModels)
+		{
 			newBounds = getBounds(child, new Vector3f(x, y, z), newBounds);
 		}
 		
 		return newBounds;
+	}
+
+	/*
+	 * This method iterates through all parts looking for the parent of the specified part.
+	 * It then runs itself with that parent as the next part, and it does that until the part
+	 * is not null.
+	 */
+	public static ModelRenderer getRootParent(final ModelRenderer partIn, final Collection<ModelRenderer> partsIn)
+	{
+		for (ModelRenderer possibleParent : partsIn)
+		{
+			if (possibleParent != null && possibleParent.childModels != null && possibleParent.childModels.contains(partIn))
+			{
+				ModelRenderer nextParent = getRootParent(possibleParent, partsIn);
+				if (nextParent != null)
+					return nextParent;
+				else
+					return possibleParent;
+			}
+		}
+		return null;
+	}
+	
+	public static Collection<ModelRenderer> getParentsList(ModelRenderer partIn, Collection<ModelRenderer> possibleParents, Collection<ModelRenderer> parentsList)
+	{
+		for (ModelRenderer possibleParent : possibleParents)
+		{
+			if (possibleParent != null && possibleParent.childModels != null && possibleParent.childModels.contains(partIn))
+			{
+				parentsList.add(possibleParent);
+				getParentsList(possibleParent, possibleParents, parentsList);
+			}
+		}
+		
+		return parentsList;
+	}
+	
+	public static Collection<ModelRenderer> getParentsList(ModelRenderer partIn, Collection<ModelRenderer> possibleParents)
+	{
+		return getParentsList(partIn, possibleParents, new ArrayList<ModelRenderer>());
 	}
 }

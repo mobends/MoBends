@@ -2,6 +2,7 @@ package net.gobbob.mobends.client.model.entity.armor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 	 * Both key and value are the of the original vanilla model.
 	 */
 	protected HashMap<ModelRenderer, net.minecraft.client.model.ModelBox> modelToBoxMap;
+	protected HashMap<ModelRenderer, IModelPart> originalToCustomMap;
 
 	/*
 	 * Keeps track of whether the model is mutated or not.
@@ -70,6 +72,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 		this.gatheredFields = new ArrayList<Field>();
 		this.fieldToOriginalMap = new HashMap<Field, ModelRenderer>();
 		this.modelToBoxMap = new HashMap<ModelRenderer, net.minecraft.client.model.ModelBox>();
+		this.originalToCustomMap = new HashMap<ModelRenderer, IModelPart>();
 		this.mainBodyTransform = new ModelPartTransform();
 		this.bodyParts = new ArrayList<ModelPartContainer>();
 		this.headParts = new ArrayList<ModelPartContainer>();
@@ -108,7 +111,10 @@ public class ModelBipedArmorCustom extends ModelBiped
 		
 		GlStateManager.pushMatrix();
 		original.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-
+		// The visibility is based on whatever is visible in the original, so it has to be called
+		// after rendering the original.
+		this.updateVisibility();
+		
 		if (entityIn.isSneaking())
 		{
 			// This value was fine-tuned to counteract the vanilla
@@ -173,64 +179,81 @@ public class ModelBipedArmorCustom extends ModelBiped
 		this.mainBodyTransform.syncUp(dataBiped.body);
 		
 		for (IModelPart part : this.headParts)
-		{
-			part.setVisible(this.bipedHead.showModel);
 			part.syncUp(dataBiped.head);
-		}
 
 		for (IModelPart part : this.bodyParts)
-		{
-			part.setVisible(this.bipedBody.showModel);
 			part.syncUp(dataBiped.body);
-		}
 
 		for (IModelPart part : this.leftArmParts)
-		{
-			part.setVisible(this.bipedLeftArm.showModel);
 			part.syncUp(dataBiped.leftArm);
-		}
 
 		for (IModelPart part : this.rightArmParts)
-		{
-			part.setVisible(this.bipedRightArm.showModel);
 			part.syncUp(dataBiped.rightArm);
-		}
 
 		for (IModelPart part : this.leftLegParts)
-		{
-			part.setVisible(this.bipedLeftLeg.showModel);
 			part.syncUp(dataBiped.leftLeg);
-		}
 
 		for (IModelPart part : this.rightLegParts)
-		{
-			part.setVisible(this.bipedRightLeg.showModel);
 			part.syncUp(dataBiped.rightLeg);
-		}
 
 		for (IModelPart part : this.leftForeArmParts)
-		{
-			part.setVisible(this.bipedLeftArm.showModel);
 			part.syncUp(dataBiped.leftForeArm);
-		}
 
 		for (IModelPart part : this.rightForeArmParts)
-		{
-			part.setVisible(this.bipedRightArm.showModel);
 			part.syncUp(dataBiped.rightForeArm);
-		}
 
 		for (IModelPart part : this.leftForeLegParts)
-		{
-			part.setVisible(this.bipedLeftLeg.showModel);
 			part.syncUp(dataBiped.leftForeLeg);
-		}
-
+			
 		for (IModelPart part : this.rightForeLegParts)
-		{
-			part.setVisible(this.bipedRightLeg.showModel);
 			part.syncUp(dataBiped.rightForeLeg);
-		}
+	}
+	
+	protected void updateVisibility()
+	{
+		if(original.bipedHead != null)
+			for (IModelPart part : this.headParts)
+				part.setVisible(this.bipedHead.showModel && original.bipedHead.showModel);
+		
+		if(original.bipedBody != null)
+			for (IModelPart part : this.bodyParts)
+				part.setVisible(this.bipedBody.showModel && original.bipedBody.showModel);
+		
+		if(original.bipedLeftArm != null)
+			for (IModelPart part : this.leftArmParts)
+				part.setVisible(this.bipedLeftArm.showModel && original.bipedLeftArm.showModel);
+
+		if(original.bipedRightArm != null)
+			for (IModelPart part : this.rightArmParts)
+				part.setVisible(this.bipedRightArm.showModel && original.bipedRightArm.showModel);
+		
+		if(original.bipedLeftLeg != null)
+			for (IModelPart part : this.leftLegParts)
+				part.setVisible(this.bipedLeftLeg.showModel && original.bipedLeftLeg.showModel);
+		
+		if(original.bipedRightLeg != null)
+			for (IModelPart part : this.rightLegParts)
+				part.setVisible(this.bipedRightLeg.showModel && original.bipedRightLeg.showModel);
+		
+		if(original.bipedLeftArm != null)
+			for (IModelPart part : this.leftForeArmParts)
+				part.setVisible(this.bipedLeftArm.showModel && original.bipedLeftArm.showModel);
+		
+		if(original.bipedRightArm != null)
+			for (IModelPart part : this.rightForeArmParts)
+				part.setVisible(this.bipedRightArm.showModel && original.bipedRightArm.showModel);
+
+		if(original.bipedLeftLeg != null)
+			for (IModelPart part : this.leftForeLegParts)
+				part.setVisible(this.bipedLeftLeg.showModel && original.bipedLeftLeg.showModel);
+
+		if(original.bipedRightLeg != null)
+			for (IModelPart part : this.rightForeLegParts)
+				part.setVisible(this.bipedRightLeg.showModel && original.bipedRightLeg.showModel);
+
+		for (Map.Entry<ModelRenderer, IModelPart> entry : this.originalToCustomMap.entrySet())
+			if (entry.getValue().isShowing())
+				entry.getValue().setVisible(entry.getKey().showModel && !entry.getKey().isHidden);
 	}
 
 	protected void mutate()
@@ -254,6 +277,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 		this.gatheredFields.clear();
 		this.fieldToOriginalMap.clear();
 		this.modelToBoxMap.clear();
+		this.originalToCustomMap.clear();
 		gatherFields(original.getClass());
 		
 		for (Field f : this.gatheredFields)
@@ -328,6 +352,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 		this.gatheredFields.clear();
 		this.fieldToOriginalMap.clear();
 		this.modelToBoxMap.clear();
+		this.originalToCustomMap.clear();
 		
 		this.headParts.clear();
 		this.bodyParts.clear();
@@ -390,55 +415,58 @@ public class ModelBipedArmorCustom extends ModelBiped
 	protected void assignPart(ModelPartContainer container)
 	{
 		ModelRenderer part = container.getModel();
+		ModelRenderer rootParent = ModelUtils.getRootParent(part, fieldToOriginalMap.values());
+		if (rootParent == null)
+			rootParent = part;
 		
 		AxisAlignedBB bounds = ModelUtils.getBounds(part);
 		System.out.println("Bounds: " + bounds);
 
-		if (part.rotationPointY >= 11F)
+		if (rootParent.rotationPointY >= 11F)
 		{
-			if (part.rotationPointX < 0F)
+			if (rootParent.rotationPointX < 0F)
 			{
 				// Right leg/foreleg
-				if (!(this.bipedRightLeg instanceof ModelPartContainer))
-					this.bipedRightLeg = container;
+				/*if (!(this.bipedRightLeg instanceof ModelPartContainer))
+					this.bipedRightLeg = container;*/
 				this.rightLegParts.add(container);
 			}
 			else
 			{
 				// Left leg/foreleg
-				if (!(this.bipedLeftLeg instanceof ModelPartContainer))
-					this.bipedLeftLeg = container;
+				/*if (!(this.bipedLeftLeg instanceof ModelPartContainer))
+					this.bipedLeftLeg = container;*/
 				this.leftLegParts.add(container);
 			}
 		}
-		else if (part.rotationPointX <= -5F || (part.cubeList != null && part.cubeList.size() > 0
+		else if (rootParent.rotationPointX <= -5F || (part.cubeList != null && part.cubeList.size() > 0
 				&& part.rotationPointX + part.cubeList.get(0).posX1 <= -6F))
 		{
 			// Right arm/forearm
-			if (!(this.bipedRightArm instanceof ModelPartContainer))
-				this.bipedRightArm = container;
+			/*if (!(this.bipedRightArm instanceof ModelPartContainer))
+				this.bipedRightArm = container;*/
 			this.rightArmParts.add(container);
 		}
-		else if (part.rotationPointX >= 5F || (part.cubeList != null && part.cubeList.size() > 0
+		else if (rootParent.rotationPointX >= 5F || (part.cubeList != null && part.cubeList.size() > 0
 				&& part.rotationPointX + part.cubeList.get(0).posX2 >= 6F))
 		{
 			// Left arm/forearm
-			if (!(this.bipedLeftArm instanceof ModelPartContainer))
-				this.bipedLeftArm = container;
+			/*if (!(this.bipedLeftArm instanceof ModelPartContainer))
+				this.bipedLeftArm = container;*/
 			this.leftArmParts.add(container);
 		}
 		else if (part.cubeList != null && part.cubeList.size() > 0 && bounds.maxY >= 4F)
 		{
 			// Body
-			if (!(this.bipedBody instanceof ModelPartContainer))
-				this.bipedBody = container;
+			/*if (!(this.bipedBody instanceof ModelPartContainer))
+				this.bipedBody = container;*/
 			this.bodyParts.add(container);
 		}
 		else
 		{
 			// Head
-			if (!(this.bipedHead instanceof ModelPartContainer))
-				this.bipedHead = container;
+			/*if (!(this.bipedHead instanceof ModelPartContainer))
+				this.bipedHead = container;*/
 			this.headParts.add(container);
 		}
 	}
@@ -475,26 +503,47 @@ public class ModelBipedArmorCustom extends ModelBiped
 
 	protected void sliceLeg(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
 	{
+		float cutPlane = 18F;
 		for (int i = part.getModel().cubeList.size() - 1; i >= 0; i--)
 		{
-			net.minecraft.client.model.ModelBox box = part.getModel().cubeList.get(i);
-			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
+			ModelRenderer originalPart = part.getModel();
+			net.minecraft.client.model.ModelBox box = originalPart.cubeList.get(i);
+			BoxMutator mutator = BoxMutator.createFrom(this, originalPart, box);
+			mutator.includeParentTransform(ModelUtils.getParentsList(originalPart, fieldToOriginalMap.values()));
 			if (mutator != null)
 			{
-				modelToBoxMap.put(part.getModel(), box);
-				
-				ModelBox lowerPart = mutator.sliceFromBottom(6, false);
-				ModelBox topPart = mutator.getTargetBox();
+				modelToBoxMap.put(originalPart, box);
 				part.getModel().cubeList.remove(box);
-				part.getModel().cubeList.add(topPart);
-
-				if (lowerPart != null)
+				
+				if (mutator.getGlobalBoxY() < cutPlane)
 				{
+					// Upper leg, try to cut the bottom
+					ModelBox lowerPart = mutator.sliceFromBottom(cutPlane, true);
+					ModelBox topPart = mutator.getTargetBox();
+					part.getModel().cubeList.add(topPart);
+	
+					if (lowerPart != null)
+					{
+						ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
+						modelPart.mirror = part.mirror;
+						modelPart.cubeList.add(lowerPart);
+						ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
+						partContainer.setInnerOffset(0, -6F, 2F);
+						listToAddTo.add(partContainer);
+						this.originalToCustomMap.put(originalPart, partContainer);
+					}
+				}
+				else
+				{
+					// Lower leg
+					ModelBox lowerBox = mutator.getTargetBox();
 					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
-					modelPart.cubeList.add(lowerPart);
+					modelPart.mirror = part.mirror;
+					modelPart.cubeList.add(lowerBox);
 					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-					partContainer.setInnerOffset(0, 0F, 2F);
+					partContainer.setInnerOffset(0F, -6.0F, 2F);
 					listToAddTo.add(partContainer);
+					this.originalToCustomMap.put(originalPart, partContainer);
 				}
 			}
 		}
@@ -502,28 +551,47 @@ public class ModelBipedArmorCustom extends ModelBiped
 
 	protected void sliceArm(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
 	{
+		float cutPlane = 6F;
 		for (int i = part.getModel().cubeList.size() - 1; i >= 0; i--)
 		{
-			net.minecraft.client.model.ModelBox box = part.getModel().cubeList.get(i);
-			BoxMutator mutator = BoxMutator.createFrom(this, part, box);
+			ModelRenderer originalPart = part.getModel();
+			net.minecraft.client.model.ModelBox box = originalPart.cubeList.get(i);
+			BoxMutator mutator = BoxMutator.createFrom(this, originalPart, box);
+			mutator.includeParentTransform(ModelUtils.getParentsList(originalPart, fieldToOriginalMap.values()));
 			if (mutator != null)
 			{
-				modelToBoxMap.put(part.getModel(), box);
-				
-				//mutator.offsetBasedOnNewOrigin(0, 2, 0);
-				ModelBox lowerPart = mutator.sliceFromBottom(0, true);
-				//mutator.offsetBasedOnNewOrigin(0, -2, 0);
-				ModelBox topPart = mutator.getTargetBox();
+				modelToBoxMap.put(originalPart, box);
 				part.getModel().cubeList.remove(box);
-				part.getModel().cubeList.add(topPart);
-
-				if (lowerPart != null)
+				
+				if (mutator.getGlobalBoxY() < cutPlane)
 				{
+					// Upper arm, try to cut the bottom
+					ModelBox lowerPart = mutator.sliceFromBottom(cutPlane, true);
+					ModelBox topPart = mutator.getTargetBox();
+					part.getModel().cubeList.add(topPart);
+
+					if (lowerPart != null)
+					{
+						ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
+						modelPart.mirror = part.mirror;
+						modelPart.cubeList.add(lowerPart);
+						ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
+						partContainer.setInnerOffset(0F, -4.0F, -2F);
+						listToAddTo.add(partContainer);
+						this.originalToCustomMap.put(originalPart, partContainer);
+					}
+				}
+				else
+				{
+					// Lower arm
+					ModelBox lowerBox = mutator.getTargetBox();
 					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
-					modelPart.cubeList.add(lowerPart);
+					modelPart.mirror = part.mirror;
+					modelPart.cubeList.add(lowerBox);
 					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-					partContainer.setInnerOffset(0, 0F, -2F);
+					partContainer.setInnerOffset(0F, -4.0F, -2F);
 					listToAddTo.add(partContainer);
+					this.originalToCustomMap.put(originalPart, partContainer);
 				}
 			}
 		}

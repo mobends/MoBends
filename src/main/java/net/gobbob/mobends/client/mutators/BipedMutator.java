@@ -150,12 +150,12 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 
 		// Arms
 		int armWidth = 4;
-		float armHeight = -10F;
+		float armY = -10F;
 
 		original.bipedLeftArm = leftArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16)
 				.setParent(body)
 				.setHideLikeParent(false)
-				.setPosition(5.0F, armHeight, 0.0F)
+				.setPosition(5.0F, armY, 0.0F)
 				.setMirror(true)
 				.setBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
 				.offsetBoxBy(-0.01f, 0, -0.01f)
@@ -165,7 +165,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 		original.bipedRightArm = rightArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16)
 				.setParent(body)
 				.setHideLikeParent(false)
-				.setPosition(-5.0F, armHeight, 0.0F)
+				.setPosition(-5.0F, armY, 0.0F)
 				.setBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
 				.offsetBoxBy(-0.01f, 0, -0.01f)
 				.resizeBox(armWidth + 0.02f, 6.0f, 4.02f)
