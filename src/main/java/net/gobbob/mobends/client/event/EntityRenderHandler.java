@@ -12,6 +12,8 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.main.ModConfig;
+import net.gobbob.mobends.util.Color;
+import net.gobbob.mobends.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -78,7 +80,7 @@ public class EntityRenderHandler
 				if (ModConfig.showSwordTrail)
 				{
 					GlStateManager.pushMatrix();
-					GlStateManager.rotate(-living.rotationYaw + 180.0F, 0F, 1F, 0F);
+					GlStateManager.rotate(-this.interpolateRotation(living.prevRenderYawOffset, living.renderYawOffset, pt) + 180.0F, 0F, 1F, 0F);
 					GlStateManager.scale(scale, scale, scale);
 					bipedData.swordTrail.render();
 					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -135,4 +137,15 @@ public class EntityRenderHandler
 	{
 		renderingGuiScreen = false;
 	}
+	
+	protected float interpolateRotation(float prevYawOffset, float yawOffset, float partialTicks)
+    {
+        float f;
+        for (f = yawOffset - prevYawOffset; f < -180.0F; f += 360.0F);
+
+        while (f >= 180.0F)
+            f -= 360.0F;
+
+        return prevYawOffset + partialTicks * f;
+    }
 }

@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelBox;
@@ -127,6 +129,7 @@ public class ModelBipedArmorCustom extends ModelBiped
             GlStateManager.scale(0.5F, 0.5F, 0.5F);
             GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
         }
+		
 		
 		GlStateManager.pushMatrix();
 		dataBiped.body.applyOwnTransform(scale);
@@ -418,55 +421,44 @@ public class ModelBipedArmorCustom extends ModelBiped
 		ModelRenderer rootParent = ModelUtils.getRootParent(part, fieldToOriginalMap.values());
 		if (rootParent == null)
 			rootParent = part;
+		Vector3f globalOrigin = ModelUtils.getGlobalOrigin(part, fieldToOriginalMap.values());
 		
 		AxisAlignedBB bounds = ModelUtils.getBounds(part);
 		System.out.println("Bounds: " + bounds);
 
-		if (rootParent.rotationPointY >= 11F)
+		if (globalOrigin.y >= 11F)
 		{
-			if (rootParent.rotationPointX < 0F)
+			if (globalOrigin.x < 0F)
 			{
 				// Right leg/foreleg
-				/*if (!(this.bipedRightLeg instanceof ModelPartContainer))
-					this.bipedRightLeg = container;*/
 				this.rightLegParts.add(container);
 			}
 			else
 			{
 				// Left leg/foreleg
-				/*if (!(this.bipedLeftLeg instanceof ModelPartContainer))
-					this.bipedLeftLeg = container;*/
 				this.leftLegParts.add(container);
 			}
 		}
-		else if (rootParent.rotationPointX <= -5F || (part.cubeList != null && part.cubeList.size() > 0
+		else if (globalOrigin.x <= -5F || (part.cubeList != null && part.cubeList.size() > 0
 				&& part.rotationPointX + part.cubeList.get(0).posX1 <= -6F))
 		{
 			// Right arm/forearm
-			/*if (!(this.bipedRightArm instanceof ModelPartContainer))
-				this.bipedRightArm = container;*/
 			this.rightArmParts.add(container);
 		}
-		else if (rootParent.rotationPointX >= 5F || (part.cubeList != null && part.cubeList.size() > 0
+		else if (globalOrigin.x >= 5F || (part.cubeList != null && part.cubeList.size() > 0
 				&& part.rotationPointX + part.cubeList.get(0).posX2 >= 6F))
 		{
 			// Left arm/forearm
-			/*if (!(this.bipedLeftArm instanceof ModelPartContainer))
-				this.bipedLeftArm = container;*/
 			this.leftArmParts.add(container);
 		}
 		else if (part.cubeList != null && part.cubeList.size() > 0 && bounds.maxY >= 4F)
 		{
 			// Body
-			/*if (!(this.bipedBody instanceof ModelPartContainer))
-				this.bipedBody = container;*/
 			this.bodyParts.add(container);
 		}
 		else
 		{
 			// Head
-			/*if (!(this.bipedHead instanceof ModelPartContainer))
-				this.bipedHead = container;*/
 			this.headParts.add(container);
 		}
 	}

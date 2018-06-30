@@ -129,6 +129,44 @@ public class Draw {
 		GL11.glEnd();
 	}
 	
+	public static void cube(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, Color color)
+	{
+		Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
+        // NEG_X
+        vertexbuffer.pos(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        // POS_X
+        vertexbuffer.pos(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        // NEG_Z
+        vertexbuffer.pos(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        // POS_Z
+        vertexbuffer.pos(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        // NEG_Y
+        vertexbuffer.pos(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        // POS_Y
+        vertexbuffer.pos(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        tessellator.draw();
+	}
+	
 	public static void texturedModalRect(int x, int y, int textureX, int textureY, int width, int height)
     {
         float f = 0.00390625F;

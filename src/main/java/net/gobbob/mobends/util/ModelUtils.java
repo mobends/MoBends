@@ -98,4 +98,19 @@ public class ModelUtils
 	{
 		return getParentsList(partIn, possibleParents, new ArrayList<ModelRenderer>());
 	}
+	
+	public static Vector3f getGlobalOrigin(ModelRenderer partIn, Collection<ModelRenderer> possibleParents)
+	{
+		Vector3f origin = new Vector3f(partIn.rotationPointX, partIn.rotationPointY, partIn.rotationPointZ);
+		
+		Collection<ModelRenderer> parentsList = getParentsList(partIn, possibleParents);
+		for (ModelRenderer parent : parentsList)
+		{
+			origin.x += parent.rotationPointX;
+			origin.y += parent.rotationPointY;
+			origin.z += parent.rotationPointZ;
+		}
+		
+		return origin;
+	}
 }
