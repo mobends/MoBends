@@ -49,7 +49,7 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	}
 	
 	@Override
-	public void fetchFields(RenderLivingBase<AbstractClientPlayer> renderer)
+	public void fetchFields(RenderLivingBase<? extends AbstractClientPlayer> renderer)
 	{
 		super.fetchFields(renderer);
 
@@ -209,89 +209,9 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		
 		return true;
 	}
-	
-	public void mutate(AbstractClientPlayer entityPlayer, RenderPlayer renderer)
-	{
-		fetchFields(renderer);
 
-		ModelPlayer model = renderer.getMainModel();
-		float scaleFactor = 0F;
-		
-		// True, if this renderer wasn't mutated before.
-		boolean isModelVanilla = ! (model.bipedBody instanceof IModelPart);
-		
-		if (isModelVanilla)
-		{
-			// If this model wasn't mutated before, save it
-			// as the vanilla model.
-			this.storeVanillaModel(model);
-		}
-		
-		// Swapping layers
-		if (this.layerRenderers != null)
-		{
-			for (int i = 0; i < layerRenderers.size(); ++i)
-			{
-				swapLayer(renderer, i, isModelVanilla);
-			}
-		}
-		
-		this.createParts(model, scaleFactor);
-	}
-
-	public void updateModel(AbstractClientPlayer player, RenderPlayer renderer, float partialTicks)
-	{
-		boolean shouldSit = player.isRiding()
-				&& (player.getRidingEntity() != null && player.getRidingEntity().shouldRiderSit());
-		float f = GUtil.interpolateRotation(player.prevRenderYawOffset, player.renderYawOffset, partialTicks);
-		float f1 = GUtil.interpolateRotation(player.prevRotationYawHead, player.rotationYawHead, partialTicks);
-		float yaw = f1 - f;
-
-		if (shouldSit && player.getRidingEntity() instanceof EntityLivingBase)
-		{
-			EntityLivingBase entitylivingbase = (EntityLivingBase) player.getRidingEntity();
-			f = GUtil.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset,
-					partialTicks);
-			yaw = f1 - f;
-			float f3 = MathHelper.wrapDegrees(yaw);
-
-			if (f3 < -85.0F)
-				f3 = -85.0F;
-			if (f3 >= 85.0F)
-				f3 = 85.0F;
-
-			f = f1 - f3;
-
-			if (f3 * f3 > 2500.0F)
-				f += f3 * 0.2F;
-
-			yaw = f1 - f;
-		}
-
-		float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
-		float f5 = 0.0F;
-		float f6 = 0.0F;
-
-		if (!player.isRiding())
-		{
-			f5 = player.prevLimbSwingAmount + (player.limbSwingAmount - player.prevLimbSwingAmount) * partialTicks;
-			f6 = player.limbSwing - player.limbSwingAmount * (1.0F - partialTicks);
-
-			if (player.isChild())
-				f6 *= 3.0F;
-			if (f5 > 1.0F)
-				f5 = 1.0F;
-			yaw = f1 - f;
-		}
-
-		this.headYaw = yaw;
-		this.headPitch = pitch;
-		this.limbSwing = f6;
-		this.limbSwingAmount = f5;
-		performAnimations(player, renderer, partialTicks);
-	}
-
-	public void performAnimations(AbstractClientPlayer player, RenderPlayer renderer, float partialTicks)
+	@Override
+	public void performAnimations(AbstractClientPlayer player, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
 	{
 		EntityData entityData = EntityDatabase.instance.getAndMake(PlayerData.class, player);
 		if (!(entityData instanceof PlayerData))
@@ -332,7 +252,7 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	/*
 	 * Used to apply the effect of the mutation, or just to update the model
 	 * if it was already mutated.
-	 * Called from PlayerRenderHandler.beforePlayerRender().
+	 * Called from AnimatedEntity.
 	 */
 	public static void apply(RenderLivingBase renderer, EntityLivingBase entity, float partialTicks)
 	{
@@ -340,21 +260,24 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 			return;
 		if (!(entity instanceof AbstractClientPlayer))
 			return;
+		RenderPlayer rendererPlayer = (RenderPlayer) renderer;
+		AbstractClientPlayer entityPlayer = (AbstractClientPlayer) entity;
 		
 		PlayerMutator mutator = mutatorMap.get(renderer);
 		if (!mutatorMap.containsKey(renderer))
 		{
 			mutator = new PlayerMutator();
-			mutator.mutate((AbstractClientPlayer) entity, (RenderPlayer) renderer);
-			mutatorMap.put((RenderPlayer) renderer, mutator);
+			mutator.mutate(entityPlayer, rendererPlayer);
+			mutatorMap.put(rendererPlayer, mutator);
 		}
 
-		mutator.updateModel((AbstractClientPlayer) entity, (RenderPlayer) renderer, partialTicks);
+		mutator.updateModel(entityPlayer, rendererPlayer, partialTicks);
+		mutator.performAnimations(entityPlayer, rendererPlayer, partialTicks);
 	}
 	
 	/*
 	 * Used to reverse the effect of the mutation.
-	 * Called from PlayerRenderHandler.beforePlayerRender().
+	 * Called from AnimatedEntity.
 	 */
 	public static void deapply(RenderLivingBase renderer, EntityLivingBase entity)
 	{

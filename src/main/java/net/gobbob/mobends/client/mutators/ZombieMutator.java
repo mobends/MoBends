@@ -9,17 +9,12 @@ import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.ZombieData;
-import net.gobbob.mobends.util.GUtil;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelZombie;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.RenderZombie;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.util.math.MathHelper;
 
 public class ZombieMutator extends BipedMutator<EntityZombie, ModelZombie>
 {
@@ -29,7 +24,7 @@ public class ZombieMutator extends BipedMutator<EntityZombie, ModelZombie>
 	protected boolean halfTexture = false;
 	
 	@Override
-	public void fetchFields(RenderLivingBase<EntityZombie> renderer)
+	public void fetchFields(RenderLivingBase<? extends EntityZombie> renderer)
 	{
 		super.fetchFields(renderer);
 
@@ -88,60 +83,8 @@ public class ZombieMutator extends BipedMutator<EntityZombie, ModelZombie>
 		return true;
 	}
 
-	public void updateModel(EntityZombie zombie, RenderZombie renderer, float partialTicks)
-	{
-		boolean shouldSit = zombie.isRiding()
-				&& (zombie.getRidingEntity() != null && zombie.getRidingEntity().shouldRiderSit());
-		float f = GUtil.interpolateRotation(zombie.prevRenderYawOffset, zombie.renderYawOffset, partialTicks);
-		float f1 = GUtil.interpolateRotation(zombie.prevRotationYawHead, zombie.rotationYawHead, partialTicks);
-		float yaw = f1 - f;
-
-		if (shouldSit && zombie.getRidingEntity() instanceof EntityLivingBase)
-		{
-			EntityLivingBase entitylivingbase = (EntityLivingBase) zombie.getRidingEntity();
-			f = GUtil.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset,
-					partialTicks);
-			yaw = f1 - f;
-			float f3 = MathHelper.wrapDegrees(yaw);
-
-			if (f3 < -85.0F)
-				f3 = -85.0F;
-			if (f3 >= 85.0F)
-				f3 = 85.0F;
-
-			f = f1 - f3;
-
-			if (f3 * f3 > 2500.0F)
-				f += f3 * 0.2F;
-
-			yaw = f1 - f;
-		}
-
-		float pitch = zombie.prevRotationPitch + (zombie.rotationPitch - zombie.prevRotationPitch) * partialTicks;
-		float f5 = 0.0F;
-		float f6 = 0.0F;
-
-		if (!zombie.isRiding())
-		{
-			f5 = zombie.prevLimbSwingAmount + (zombie.limbSwingAmount - zombie.prevLimbSwingAmount) * partialTicks;
-			f6 = zombie.limbSwing - zombie.limbSwingAmount * (1.0F - partialTicks);
-
-			if (zombie.isChild())
-				f6 *= 3.0F;
-			if (f5 > 1.0F)
-				f5 = 1.0F;
-			yaw = f1 - f;
-		}
-
-		this.headYaw = yaw;
-		this.headPitch = pitch;
-		this.limbSwing = f6;
-		this.limbSwingAmount = f5;
-		
-		performAnimations(zombie, renderer, partialTicks);
-	}
-
-	public void performAnimations(EntityZombie zombie, RenderZombie renderer, float partialTicks)
+	@Override
+	public void performAnimations(EntityZombie zombie, RenderLivingBase<? extends EntityZombie> renderer, float partialTicks)
 	{
 		EntityData entityData = EntityDatabase.instance.getAndMake(ZombieData.class, zombie);
 		if (!(entityData instanceof ZombieData))
@@ -177,30 +120,32 @@ public class ZombieMutator extends BipedMutator<EntityZombie, ModelZombie>
 	/*
 	 * Used to apply the effect of the mutation, or just to update the model
 	 * if it was already mutated.
-	 * Called from PlayerRenderHandler.beforePlayerRender().
+	 * Called from AnimatedEntity.
 	 */
-	public static void apply(RenderLivingBase renderer, EntityLivingBase entity,
-			float partialTicks)
+	public static void apply(RenderLivingBase renderer, EntityLivingBase entity, float partialTicks)
 	{
 		if (!(renderer instanceof RenderZombie))
 			return;
 		if (!(entity instanceof EntityZombie))
 			return;
+		RenderZombie rendererZombie = (RenderZombie) renderer;
+		EntityZombie entityZombie = (EntityZombie) entity;
 		
 		ZombieMutator mutator = mutatorMap.get(renderer);
 		if (!mutatorMap.containsKey(renderer))
 		{
 			mutator = new ZombieMutator();
-			mutator.mutate((EntityZombie) entity, (RenderZombie) renderer);
-			mutatorMap.put((RenderZombie) renderer, mutator);
+			mutator.mutate(entityZombie, rendererZombie);
+			mutatorMap.put(rendererZombie, mutator);
 		}
 
-		mutator.updateModel((EntityZombie) entity, (RenderZombie) renderer, partialTicks);
+		mutator.updateModel(entityZombie, rendererZombie, partialTicks);
+		mutator.performAnimations(entityZombie, rendererZombie, partialTicks);
 	}
 	
 	/*
 	 * Used to reverse the effect of the mutation.
-	 * Called from PlayerRenderHandler.beforePlayerRender().
+	 * Called from AnimatedEntity.
 	 */
 	public static void deapply(RenderLivingBase renderer, EntityLivingBase entity)
 	{

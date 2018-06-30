@@ -26,7 +26,7 @@ import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 
-public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBiped> extends Mutator<M>
+public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBiped> extends Mutator<T, M>
 {
 	protected ModelPartPostOffset body;
 	protected ModelPartChild head;
@@ -48,20 +48,11 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	public BipedMutator() {}
 
 	/*
-	 * Used to fetch private data from the original
-	 * renderer.
-	 */
-	public void fetchFields(RenderLivingBase<T> renderer)
-	{
-		// Getting the layer renderers
-		this.layerRenderers = FieldMiner.getObfuscatedValue(renderer, "layerRenderers", "field_177097_h");
-	}
-
-	/*
 	 * Used to store the model parameter as the
 	 * vanilla model, so then the mutation can be
 	 * reversed.
 	 */
+	@Override
 	public void storeVanillaModel(M model)
 	{
 		this.vanillaModel.bipedBody = model.bipedBody;
@@ -77,6 +68,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	 * Sets the model parameter back to it's vanilla
 	 * state. Used to demutate the model.
 	 */
+	@Override
 	public void applyVanillaModel(M model)
 	{
 		model.bipedBody = this.vanillaModel.bipedBody;
@@ -93,7 +85,8 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	 * and if it's a vanilla model, it stores the vanilla layers
 	 * for future mutation reversal.
 	 */
-	public void swapLayer(RenderLivingBase<T> renderer, int index, boolean isModelVanilla)
+	@Override
+	public void swapLayer(RenderLivingBase<? extends T> renderer, int index, boolean isModelVanilla)
 	{
 		LayerRenderer<EntityLivingBase> layer = layerRenderers.get(index);
 		if (layer instanceof LayerBipedArmor)
@@ -116,7 +109,8 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	 * Swaps the custom layers back with the vanilla layers.
 	 * Used to demutate the model.
 	 */
-	public void deswapLayer(RenderLivingBase<T> renderer, int index)
+	@Override
+	public void deswapLayer(RenderLivingBase<? extends T> renderer, int index)
 	{
 		LayerRenderer<EntityLivingBase> layer = layerRenderers.get(index);
 		if (layer instanceof LayerCustomBipedArmor)
@@ -133,6 +127,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	 * Creates all the custom parts you need! It swaps all the
 	 * original parts with newly created custom parts.
 	 */
+	@Override
 	public boolean createParts(M original, float scaleFactor)
 	{
 		// Body
@@ -226,22 +221,17 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	}
 	
 	/*
-	 * Performs the steps needed to demutate the model.
+	 * True, if this renderer wasn't mutated before.
 	 */
-	public void demutate(T entityPlayer, RenderLivingBase<T> renderer)
+	@Override
+	public boolean isModelVanilla(ModelBiped model)
 	{
-		if (!(renderer.getMainModel() instanceof ModelBiped))
-			return;
-		M model = (M) renderer.getMainModel();
-		
-		this.applyVanillaModel(model);
-		
-		if (this.layerRenderers != null)
-		{
-			for (int i = 0; i < layerRenderers.size(); ++i)
-			{
-				this.deswapLayer(renderer, i);
-			}
-		}
+		return !(model.bipedBody instanceof IModelPart);
+	}
+	
+	@Override
+	public boolean isModelEligible(ModelBase model)
+	{
+		return model instanceof ModelBiped;
 	}
 }

@@ -8,7 +8,7 @@ import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.event.EntityRenderHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.data.Data_Spider;
+import net.gobbob.mobends.data.SpiderData;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.GlStateManager;
@@ -272,7 +272,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     	}*/
     }
     
-    public void animate(AnimatedEntity aEntity, EntitySpider entity, Data_Spider data) {
+    public void animate(AnimatedEntity aEntity, EntitySpider entity, SpiderData data) {
     	/*if(data.calcCollidedHorizontally()){
 			aEntity.getAnimation("wallClimb").animate(entity, this, data);
         	BendsPack.animate(this,"spider","wallClimb");

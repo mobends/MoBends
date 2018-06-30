@@ -4,9 +4,11 @@ import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
+import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
+import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.main.ModBase;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.PackManager;
@@ -32,7 +34,8 @@ public class KeyboardHandler
 		}
 		else if (key_Refresh.isPressed())
 		{
-			PlayerMutator.refresh();
+			EntityDatabase.instance.refresh();
+			AnimatedEntity.refreshMutators();
 			ArmorModelFactory.refresh();
 		}
 	}

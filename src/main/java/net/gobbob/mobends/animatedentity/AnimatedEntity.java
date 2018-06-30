@@ -9,18 +9,24 @@ import java.util.List;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
 import net.gobbob.mobends.animatedentity.previewer.PlayerPreviewer;
 import net.gobbob.mobends.animatedentity.previewer.Previewer;
+import net.gobbob.mobends.animatedentity.previewer.SpiderPreviewer;
 import net.gobbob.mobends.client.mutators.Mutator;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
+import net.gobbob.mobends.client.mutators.SpiderMutator;
 import net.gobbob.mobends.client.mutators.ZombieMutator;
+import net.gobbob.mobends.client.renderer.entity.MutatedRenderer;
+import net.gobbob.mobends.client.renderer.entity.PlayerRenderer;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsSpectralArrow;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsTippedArrow;
+import net.gobbob.mobends.client.renderer.entity.SpiderRenderer;
+import net.gobbob.mobends.client.renderer.entity.ZombieRenderer;
 import net.gobbob.mobends.util.BendsLogger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.projectile.EntitySpectralArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
@@ -35,18 +41,20 @@ public class AnimatedEntity
 	private String displayName;
 	private List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
 	private String[] alterableParts;
-
+	private MutatedRenderer renderer;
+	
 	public Class<? extends Entity> entityClass;
 	public Class<? extends Mutator> mutatorClass;
 	public Previewer previewer;
 
 	public AnimatedEntity(String id, String displayName, Class<? extends Entity> entityClass,
-			Class<? extends Mutator> mutatorClass, String[] alterableParts)
+			Class<? extends Mutator> mutatorClass, MutatedRenderer renderer, String[] alterableParts)
 	{
 		this.name = id;
 		this.displayName = displayName;
 		this.entityClass = entityClass;
 		this.mutatorClass = mutatorClass;
+		this.renderer = renderer;
 		this.alterableParts = alterableParts;
 		this.addAlterEntry(new AlterEntry(this, displayName));
 	}
@@ -105,6 +113,18 @@ public class AnimatedEntity
 		this.previewer = previewer;
 		return this;
 	}
+	
+	public void beforeRender(EntityLivingBase entity, float partialTicks)
+	{
+		if (this.renderer != null)
+			this.renderer.beforeRender(entity, partialTicks);
+	}
+	
+	public void afterRender(EntityLivingBase entity, float partialTicks)
+	{
+		if (this.renderer != null)
+			this.renderer.afterRender(entity, partialTicks);
+	}
 
 	public void applyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity,
 			float partialTicks)
@@ -136,6 +156,16 @@ public class AnimatedEntity
 			e.printStackTrace();
 		}
 	}
+	
+	public void refreshMutation()
+	{
+		try
+		{
+			Method method = this.mutatorClass.getMethod("refresh");
+			method.invoke(null);
+		}
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
+	}
 
 	public static void register(Configuration config)
 	{
@@ -144,15 +174,21 @@ public class AnimatedEntity
 		animatedEntities.clear();
 
 		registerEntity(config,
-				new AnimatedEntity("player", "Player", AbstractClientPlayer.class, PlayerMutator.class,
+				new AnimatedEntity("player", "Player", AbstractClientPlayer.class, PlayerMutator.class, new PlayerRenderer(),
 						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 								"rightLeg", "leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation",
 								"rightItemRotation" }).setPreviewer(new PlayerPreviewer()));
 
 		registerEntity(config,
-				new AnimatedEntity("zombie", "Zombie", EntityZombie.class, ZombieMutator.class,
+				new AnimatedEntity("zombie", "Zombie", EntityZombie.class, ZombieMutator.class, new ZombieRenderer(),
 						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 								"rightLeg", "leftForeLeg", "rightForeLeg" }));
+		
+		registerEntity(config,
+				new AnimatedEntity("spider", "Spider", EntitySpider.class, SpiderMutator.class, new SpiderRenderer(),
+						new String[] { "head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6",
+								"leg7", "leg8", "foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5",
+								"foreLeg6", "foreLeg7", "foreLeg8" }).setPreviewer(new SpiderPreviewer()));
 		/*
 		 * registerEntity(config, new AnimatedEntity("husk", "Husk", EntityHusk.class,
 		 * new RenderBendsHusk(Minecraft.getMinecraft().getRenderManager()), new
@@ -216,5 +252,13 @@ public class AnimatedEntity
 			}
 		}
 		return null;
+	}
+	
+	public static void refreshMutators()
+	{
+		for (AnimatedEntity animatedEntity : animatedEntities.values())
+		{
+			animatedEntity.refreshMutation();
+		}
 	}
 }

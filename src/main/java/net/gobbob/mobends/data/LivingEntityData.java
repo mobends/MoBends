@@ -1,7 +1,10 @@
 package net.gobbob.mobends.data;
 
+import java.util.HashMap;
+
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EntityRenderHandler;
+import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -23,6 +26,9 @@ public abstract class LivingEntityData extends EntityData
 	protected float headYaw = 0.0f;
 	protected float headPitch = 0.0f;
 	
+	public SmoothVector3f renderOffset;
+    public SmoothVector3f renderRotation;
+	
 	public LivingEntityData(Entity entity)
 	{
 		super(entity);
@@ -34,6 +40,23 @@ public abstract class LivingEntityData extends EntityData
 		this.ticksAfterTouchdown = 100F;
 		this.ticksAfterAttack = 100F;
 		this.ticksAfterThrowup = 100F;
+	}
+	
+	@Override
+	public void initModelPose()
+	{
+		this.renderOffset = new SmoothVector3f();
+		this.renderRotation = new SmoothVector3f();
+		
+		this.nameToPartMap = new HashMap<String, Object>();
+		this.nameToPartMap.put("renderRotation", renderRotation);
+	}
+	
+	@Override
+	public void updateParts(float ticksPerFrame)
+	{
+		this.renderOffset.update(ticksPerFrame);
+		this.renderRotation.update(ticksPerFrame);
 	}
 	
 	public void setClimbing(boolean flag)
@@ -71,7 +94,8 @@ public abstract class LivingEntityData extends EntityData
 	public boolean isClimbing() { return this.climbing; }
 	
 	@Override
-	public void update(float partialTicks) {
+	public void update(float partialTicks)
+	{
 		super.update(partialTicks);
 		
 		if(this.calcOnGround() & !this.onGround)

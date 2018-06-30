@@ -64,7 +64,16 @@ public abstract class EntityData implements IBendsModel
 
 		return list.size() > 0;
 	}
-
+	
+	/*
+	 * Used by the Previewers to simulate the entities
+	 * being on ground.
+	 */
+	public void forceOnGround(boolean flag)
+	{
+		this.onGround = flag;
+	}
+	
 	public boolean calcCollidedHorizontally()
 	{
 		Entity entity = Minecraft.getMinecraft().world.getEntityByID(this.entityID);
@@ -166,12 +175,6 @@ public abstract class EntityData implements IBendsModel
 		return this.motion.length();
 	}
 
-	@Override
-	public Object getPartForName(String name)
-	{
-		return nameToPartMap.get(name);
-	}
-
 	public void updateClient(Entity entity)
 	{
 		this.previousMotion.set(this.motion);
@@ -181,5 +184,11 @@ public abstract class EntityData implements IBendsModel
 		this.motion.z = (float) entity.posZ - this.position.z;
 
 		this.position.set((float) entity.posX, (float) entity.posY, (float) entity.posZ);
+	}
+	
+	@Override
+	public Object getPartForName(String name)
+	{
+		return nameToPartMap.get(name);
 	}
 }

@@ -120,4 +120,9 @@ public class EntityDatabase {
 				entityData.update(partialTicks);
 		}
 	}
+
+	public void refresh()
+	{
+		this.entryMap.clear();
+	}
 }
