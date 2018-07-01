@@ -21,7 +21,7 @@ public class BipedRenderer extends MutatedRenderer
 			if (ModConfig.showSwordTrail)
 			{
 				GlStateManager.pushMatrix();
-				GlStateManager.rotate(-this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks) + 180.0F, 0F, 1F, 0F);
+				GlStateManager.rotate(-this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
 				GlStateManager.scale(scale, scale, scale);
 				bipedData.swordTrail.render();
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

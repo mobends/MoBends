@@ -79,7 +79,7 @@ public class AttackSlashDownAnimationBit extends AnimationBit
 		bodyRot.x = 20.0f - attackState * 20.0f;
 		bodyRot.y = (-40.0f * attackState + 50 * attackState) * handDirMtp;
 
-		data.body.rotation.slideTo(bodyRot, 0.9F);
+		/*data.body.rotation.slideTo(bodyRot, 0.9F);
 		data.head.rotation.setY(data.getHeadYaw());
 		data.head.rotation.setX(data.getHeadPitch());
 		data.head.preRotation.slideX(-bodyRot.x, 0.9f);
@@ -128,7 +128,7 @@ public class AttackSlashDownAnimationBit extends AnimationBit
 		else
 		{
 			data.renderLeftItemRotation.slideX(90, 2f);
-		}
+		}*/
 
 		ticksPlayed += DataUpdateHandler.ticksPerFrame;
 	}

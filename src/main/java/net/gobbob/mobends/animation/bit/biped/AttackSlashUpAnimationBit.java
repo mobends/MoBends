@@ -65,7 +65,7 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 		bodyRot.x = 20F - armSwing * 20F;
 		bodyRot.y = -90F * armSwing * handDirMtp;
 
-		data.body.rotation.slideTo(bodyRot, 0.9f);
+		/*data.body.rotation.slideTo(bodyRot, 0.9f);
 		data.head.rotation.setY(data.getHeadYaw());
 		data.head.rotation.setX(data.getHeadPitch());
 		data.head.preRotation.slideX(-data.body.rotation.getX(), 0.9f);
@@ -79,32 +79,19 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 		mainArm.getRotation().slideZ(0.0f, 0.9f);
 		offArm.getRotation().slideZ(20 * handDirMtp, 0.3f);
 		offArm.getPreRotation().slideZ(-80 * handDirMtp, 0.3f);
-
-		// if (offHandItemStack != null
-		// && offHandItemStack.getItem().getItemUseAction(offHandItemStack) ==
-		// EnumAction.BLOCK)
-		// {
-		// offArm.getPreRotation().slideZ(-40 * handDirMtp, 0.3f);
-		// }
+		
 
 		mainForeArm.getRotation().slideX(-20, 0.3f);
 		offForeArm.getRotation().slideX(-60, 0.3f);
 
 		if (data.isStillHorizontally())
 		{
-			//data.rightLeg.rotation.slideX(-30, 0.3f);
-			//data.leftLeg.rotation.slideX(-30, 0.3f);
-			//data.rightLeg.rotation.slideY(0, 0.3f);
-			//data.leftLeg.rotation.slideY(-25, 0.3f);
 			data.rightLeg.rotation.slideZ(10);
-
 			data.rightForeLeg.rotation.slideX(30, 0.3f);
-			//data.leftForeLeg.rotation.slideX(30, 0.3f);
 
 			if (!living.isRiding())
 			{
 				data.renderOffset.slideY(0.0f);
-				//data.renderRotation.slideY(-30 * handDirMtp, 0.7F);
 			}
 		}
 		else
@@ -119,6 +106,6 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 		else
 		{
 			data.renderLeftItemRotation.slideX(180, 0.9f);
-		}
+		}*/
 	}
 }

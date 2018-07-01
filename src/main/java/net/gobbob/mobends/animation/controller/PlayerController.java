@@ -11,19 +11,11 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
-import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 
 /*

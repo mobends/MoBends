@@ -2,7 +2,7 @@ package net.gobbob.mobends.client.model;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.util.SmoothVector3f;
+import net.gobbob.mobends.util.SmoothOrientation;
 
 public interface IModelPart
 {
@@ -21,8 +21,7 @@ public interface IModelPart
 	public void update(float ticksPerFrame);
 	public Vector3f getPosition();
 	public Vector3f getScale();
-	public SmoothVector3f getRotation();
-	public SmoothVector3f getPreRotation();
+	public SmoothOrientation getRotation();
 	public boolean isShowing();
 	public void setVisible(boolean showModel);
 	

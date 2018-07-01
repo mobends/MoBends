@@ -26,7 +26,7 @@ public class FistGuardAnimationBit extends AnimationBit
 		BipedEntityData data = (BipedEntityData) entityData;
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
 
-		data.renderRotation.slideY(-20.0f);
+		/*data.renderRotation.slideY(-20.0f);
 		data.renderOffset.addY(-2.0f);
 
 		data.rightArm.rotation.slideX(-90, 0.3f);
@@ -50,6 +50,6 @@ public class FistGuardAnimationBit extends AnimationBit
 		data.leftForeLeg.rotation.slideX(30, 0.3f);
 
 		data.head.rotation.setY(data.getHeadYaw() - data.body.rotation.getY() - 20);
-		data.head.rotation.setX(data.getHeadPitch() - 10);
+		data.head.rotation.setX(data.getHeadPitch() - 10);*/
 	}
 }

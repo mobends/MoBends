@@ -54,7 +54,7 @@ public class BowAnimationBit extends AnimationBit
 			aimedBowDuration = 15;
 		}
 
-		if (aimedBowDuration < 10)
+		/*if (aimedBowDuration < 10)
 		{
 			mainArm.getPreRotation().slideToZero(0.3F);
 			offArm.getPreRotation().slideToZero(0.3F);
@@ -113,15 +113,6 @@ public class BowAnimationBit extends AnimationBit
 			data.head.rotation.setY(var);
 			data.head.preRotation.slideX(-var1, 0.3f);
 			data.head.rotation.setX(data.getHeadPitch());
-
-			/*
-			 * if(offHandItemStack != null &&
-			 * offHandItemStack.getItem().getItemUseAction(offHandItemStack) ==
-			 * EnumAction.BLOCK){ if(model.rightArmPose == ArmPose.BOW_AND_ARROW){
-			 * model.renderLeftItemRotation.slide(new Vector3f(45.0f,70.0f,40), 0.8f);
-			 * }else{ model.renderRightItemRotation.slide(new Vector3f(45.0f,-70.0f,-40),
-			 * 0.8f); } }
-			 */
-		}
+		}*/
 	}
 }

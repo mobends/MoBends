@@ -24,7 +24,7 @@ public class ZombieLeanAnimationBit extends AnimationBit
 		
 		ZombieData data = (ZombieData) entityData;
 		
-		data.renderOffset.slideY(-3.0F);
+		/*data.renderOffset.slideY(-3.0F);
 		
 		data.body.rotation.addX(30F);
 		
@@ -44,6 +44,6 @@ public class ZombieLeanAnimationBit extends AnimationBit
 		{
 			data.rightArm.rotation.slideX(-90 - 30.0f);
 			data.leftArm.rotation.slideX(-90 - 30.0f);
-		}
+		}*/
 	}
 }

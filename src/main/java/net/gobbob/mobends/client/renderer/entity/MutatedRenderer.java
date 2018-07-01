@@ -48,9 +48,7 @@ public abstract class MutatedRenderer
 			GlStateManager.translate(livingData.renderOffset.getX() * scale,
 									livingData.renderOffset.getY() * scale,
 									livingData.renderOffset.getZ() * scale);
-			GlStateManager.rotate(livingData.renderRotation.getZ(), 0F, 0F, 1F);
-			GlStateManager.rotate(livingData.renderRotation.getY(), 0F, 1F, 0F);
-			GlStateManager.rotate(livingData.renderRotation.getX(), 1F, 0F, 0F);
+			GlStateManager.rotate(livingData.renderRotation.getSmooth());
 		}
 		
 		GlStateManager.translate(viewX - entityX, viewY - entityY, viewZ - entityZ);

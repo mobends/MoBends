@@ -207,7 +207,9 @@ public class SmoothVector3f
 		this.completion.x += ticksPerFrame * this.smoothness.x;
 		this.completion.y += ticksPerFrame * this.smoothness.y;
 		this.completion.z += ticksPerFrame * this.smoothness.z;
-		this.completion = GUtil.min(this.completion, 1.0f);
+		this.completion.x = Math.min(this.completion.x, 1.0F);
+		this.completion.y = Math.min(this.completion.y, 1.0F);
+		this.completion.z = Math.min(this.completion.z, 1.0F);
 	}
 
 	public float getNextX(float ticksPerFrame)

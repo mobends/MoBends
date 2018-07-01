@@ -25,7 +25,7 @@ public class SpiderDeathAnimationBit extends AnimationBit
 		float headYaw = data.getHeadYaw();
 		float headPitch = data.getHeadPitch();
 		
-		data.spiderHead.rotation.setY(headYaw * 0.017453292F);
+		/*data.spiderHead.rotation.setY(headYaw * 0.017453292F);
 		data.spiderHead.rotation.setX(headPitch * 0.017453292F);
 		
         data.spiderLeg1.rotation.setZ(-45F);
@@ -81,6 +81,6 @@ public class SpiderDeathAnimationBit extends AnimationBit
         data.spiderLeg5.rotation.addZ(f9);
         data.spiderLeg6.rotation.addZ(-f9);
         data.spiderLeg7.rotation.addZ(f10);
-        data.spiderLeg8.rotation.addZ(-f10);
+        data.spiderLeg8.rotation.addZ(-f10);*/
 	}
 }

@@ -10,6 +10,7 @@ import net.gobbob.mobends.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.renderer.SwordTrail;
+import net.gobbob.mobends.util.SmoothOrientation;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
@@ -35,8 +36,8 @@ public abstract class BipedEntityData extends LivingEntityData
     public ModelPartTransform rightForeLeg;
     public ModelPartTransform leftForeLeg;
 	
-    public SmoothVector3f renderRightItemRotation;
-    public SmoothVector3f renderLeftItemRotation;
+    public SmoothOrientation renderRightItemRotation;
+    public SmoothOrientation renderLeftItemRotation;
 	
     public SwordTrail swordTrail;
     
@@ -61,8 +62,8 @@ public abstract class BipedEntityData extends LivingEntityData
 		this.leftForeArm = new ModelPartTransform();
 		this.rightForeLeg = new ModelPartTransform();
 		this.leftForeLeg = new ModelPartTransform();
-		this.renderRightItemRotation = new SmoothVector3f();
-		this.renderLeftItemRotation = new SmoothVector3f();
+		this.renderRightItemRotation = new SmoothOrientation();
+		this.renderLeftItemRotation = new SmoothOrientation();
 		
 		this.swordTrail = new SwordTrail();
 		

@@ -2,6 +2,7 @@ package net.gobbob.mobends.client.model;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import net.gobbob.mobends.util.SmoothOrientation;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
@@ -24,8 +25,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	 * */
 	public Vector3f innerOffset;
 	public Vector3f scale;
-	public SmoothVector3f rotation;
-	public SmoothVector3f pre_rotation;
+	public SmoothOrientation rotation;
 	
 	ModelRenderer model;
 	
@@ -39,8 +39,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		this.offset = new Vector3f();
 		this.innerOffset = new Vector3f();
 		this.scale = new Vector3f(1, 1, 1);
-		this.rotation = new SmoothVector3f();
-		this.pre_rotation = new SmoothVector3f();
+		this.rotation = new SmoothOrientation();
 	}
 
 	public ModelRenderer getModel() { return this.model; }
@@ -150,19 +149,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
         	GlStateManager.translate(this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
 		
-		if (this.pre_rotation.getZ() != 0.0F)
-            GlStateManager.rotate(this.pre_rotation.getZ(), 0F, 0F, 1F);
-        if (this.pre_rotation.getY() != 0.0F)
-            GlStateManager.rotate(this.pre_rotation.getY(), 0F, 1F, 0F);
-        if (this.pre_rotation.getX() != 0.0F)
-            GlStateManager.rotate(this.pre_rotation.getX(), 1F, 0F, 0F);
-		
-        if (this.rotation.getZ() != 0.0F)
-            GlStateManager.rotate(this.rotation.getZ(), 0F, 0F, 1F);
-        if (this.rotation.getY() != 0.0F)
-            GlStateManager.rotate(this.rotation.getY(), 0F, 1F, 0F);
-        if (this.rotation.getX() != 0.0F)
-            GlStateManager.rotate(this.rotation.getX(), 1F, 0F, 0F);
+		GlStateManager.rotate(this.rotation.getSmooth());
         
         if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
         	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
@@ -183,7 +170,6 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	public void update(float ticksPerFrame)
 	{
 		this.rotation.update(ticksPerFrame);
-		this.pre_rotation.update(ticksPerFrame);
 	}
 
 	@Override
@@ -191,9 +177,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	@Override
 	public Vector3f getScale() { return this.scale; }
 	@Override
-	public SmoothVector3f getRotation() { return this.rotation; }
-	@Override
-	public SmoothVector3f getPreRotation() { return this.pre_rotation; }
+	public SmoothOrientation getRotation() { return this.rotation; }
 
 	@Override
 	public void syncUp(IModelPart part)
@@ -202,7 +186,6 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 			return;
 		this.position.set(part.getPosition());
 		this.rotation.set(part.getRotation());
-		this.pre_rotation.set(part.getPreRotation());
 		this.scale.set(part.getScale());
 	}
 

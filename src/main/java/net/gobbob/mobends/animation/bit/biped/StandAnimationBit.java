@@ -1,11 +1,12 @@
 package net.gobbob.mobends.animation.bit.biped;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
+import net.minecraft.item.ItemSword;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 
 public class StandAnimationBit extends AnimationBit
 {
@@ -16,7 +17,7 @@ public class StandAnimationBit extends AnimationBit
 	{
 		return new String[] { "stand" };
 	}
-	
+
 	@Override
 	public void onPlay(EntityData entityData)
 	{
@@ -24,15 +25,15 @@ public class StandAnimationBit extends AnimationBit
 			return;
 
 		BipedEntityData data = (BipedEntityData) entityData;
-		
+
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
 		if (touchdown < 0.5F)
 		{
-			data.body.rotation.setX(20);
-			data.rightLeg.rotation.setX(-20);
-			data.leftLeg.rotation.setX(-45);
-			data.rightForeLeg.rotation.setX(60);
-			data.leftForeLeg.rotation.setX(60);
+			data.body.rotation.orientInstant(20F, 1F, 0F, 0F);
+			data.rightLeg.rotation.orient(-20F, 1F, 0F, 0F);
+			data.leftLeg.rotation.orient(-45, 1F, 0F, 0F);
+			data.rightForeLeg.rotation.orient(60F, 1F, 0F, 0F);
+			data.leftForeLeg.rotation.orient(60, 1F, 0F, 0F);
 		}
 	}
 
@@ -42,45 +43,39 @@ public class StandAnimationBit extends AnimationBit
 		if (!(entityData instanceof BipedEntityData))
 			return;
 		BipedEntityData data = (BipedEntityData) entityData;
-
+		
 		data.renderOffset.slideToZero(0.3F);
-		data.renderRotation.slideToZero(0.3F);
-		data.renderRightItemRotation.slideToZero();
-		data.renderLeftItemRotation.slideToZero();
+		data.renderRotation.setSmoothness(.3F).orientZero();
+		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
+		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
+		
+		data.rightLeg.rotation.orient(0F, 1F, 0F, 0F);
+		data.rightLeg.rotation.rotate(2F, 0F, 0F, 1F);
+		data.rightLeg.rotation.rotate(5, 0F, 1F, 0F);
+		data.leftLeg.rotation.orient(0F, 1F, 0F, 0F);
+		data.leftLeg.rotation.rotate(-2F, 0F, 0F, 1F);
+		data.leftLeg.rotation.rotate(-5, 0F, 1F, 0F);
+		data.rightForeLeg.rotation.orient(4F, 1F, 0F, 0F);
+		data.leftForeLeg.rotation.orient(4F, 1F, 0F, 0F);
+		data.rightForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
+		data.leftForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
 
-		data.body.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
-		data.body.rotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f), 0.5f);
-		data.rightLeg.rotation.slideZ(2, 0.3f);
-		data.leftLeg.rotation.slideZ(-2, 0.3f);
-		data.rightLeg.rotation.slideX(0.0F, 0.3f);
-		data.leftLeg.rotation.slideX(0.0F, 0.3f);
+		data.head.rotation.orient(data.getHeadPitch(), 1F, 0F, 0F);
+		data.head.rotation.rotate(data.getHeadYaw(), 0F, 1F, 0F);
 
-		data.leftLeg.rotation.slideY(-5);
-		data.rightLeg.rotation.slideY(5);
-
-		data.rightArm.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f));
-		data.rightArm.rotation.slideTo(new Vector3f(0.0F, 0.0F, 0.0F), 0.1f);
-		data.leftArm.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f));
-		data.leftArm.rotation.slideTo(new Vector3f(0.0F, 0.0F, 0.0F), 0.1f);
-		data.rightForeLeg.rotation.slideX(4.0F, 0.3f);
-		data.leftForeLeg.rotation.slideX(4.0F, 0.3f);
-		data.rightForeArm.rotation.slideX(-4.0F, 0.3f);
-		data.leftForeArm.rotation.slideX(-4.0F, 0.3f);
-		data.head.preRotation.slideTo(new Vector3f(0.0f, 0.0f, 0.0f));
-		data.head.rotation.setY(data.getHeadYaw() - data.body.rotation.getNextY(DataUpdateHandler.ticksPerFrame));
-		data.head.rotation.setX(data.getHeadPitch() - data.body.rotation.getNextX(DataUpdateHandler.ticksPerFrame));
-
-		data.body.rotation.slideX((float) ((Math.cos(DataUpdateHandler.getTicks() / 10) - 1.0) / 2.0f) * -3);
-		data.leftArm.rotation
-				.slideZ(-(float) ((Math.cos(DataUpdateHandler.getTicks() / 10 + Math.PI / 2) - 1.0) / 2.0f) * -5);
-		data.rightArm.rotation
-				.slideZ(-(float) ((Math.cos(DataUpdateHandler.getTicks() / 10 + Math.PI / 2) - 1.0) / 2.0f) * 5);
+		final float PI = (float) Math.PI;
+		float phase = DataUpdateHandler.getTicks() / 10;
+		data.body.rotation.setSmoothness(1.0F).orientX(((MathHelper.cos(phase) - 1) / 2) * -3);
+		data.rightArm.rotation.setSmoothness(0.4F).orientX(0.0F)
+				.rotateZ(MathHelper.cos(phase + PI/2) * -2.5F + 2.5F);
+		data.leftArm.rotation.setSmoothness(0.4F).orientX(0.0F)
+				.rotateZ(MathHelper.cos(phase + PI/2) * 2.5F - 2.5F);
 
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
-
 		if (touchdown < 1.0F)
 		{
-			data.body.rotation.setX(20.0F * (1 - touchdown));
+			data.body.rotation.setSmoothness(1F);
+			data.body.rotation.orient(20.0F * (1 - touchdown), 1F, 0F, 0F);
 			data.renderOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
 		}
 	}

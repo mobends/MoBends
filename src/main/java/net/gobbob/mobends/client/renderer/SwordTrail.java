@@ -8,7 +8,12 @@ import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.model.entity.ModelBendsSkeleton;
 import net.gobbob.mobends.data.BipedEntityData;
+import net.gobbob.mobends.util.Color;
+import net.gobbob.mobends.util.Draw;
+import net.gobbob.mobends.util.GLHelper;
 import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.util.QuaternionUtils;
+import net.gobbob.mobends.util.Vector3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,6 +25,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 
 public class SwordTrail
@@ -34,14 +40,14 @@ public class SwordTrail
 	public class TrailPart
 	{
 		public ModelPartTransform body, arm, foreArm;
-		public Vector3f renderRotation = new Vector3f();
+		public Quaternion renderRotation = new Quaternion();
 		public Vector3f renderOffset = new Vector3f();
-		public Vector3f itemRotation = new Vector3f();
+		public Quaternion itemRotation = new Quaternion();
 		public Vector3f position = new Vector3f();
 		
 		EnumHandSide primaryHand;
 		float velocityX, velocityY, velocityZ;
-		float ticksExisted = 0.0F;
+		float ticksExisted = 0F;
 
 		public TrailPart(EnumHandSide primaryHand, float velocityX, float velocityY, float velocityZ)
 		{
@@ -87,52 +93,54 @@ public class SwordTrail
 
 			GlStateManager.color(1, 1, 1, alpha);
 
-			Vector3f[] points = new Vector3f[] {
-					new Vector3f(0, 0, -8 + 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)),
-					new Vector3f(0, 0, -8 - 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)), };
+			Vector3[] points = new Vector3[] {
+					new Vector3(0, 0, -8 + 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)),
+					new Vector3(0, 0, -8 - 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0))
+			};
+			 
+			/*
+			 * Test cube, to test tracking
+			 * Vector3[] points = new Vector3[] {
+					new Vector3(-1, -1, -1),
+					new Vector3(-1, -1, 1),
+					new Vector3(-1, 1, 1),
+					new Vector3(-1, 1, -1),
+					new Vector3(1, -1, -1),
+					new Vector3(1, -1, 1),
+					new Vector3(1, 1, 1),
+					new Vector3(1, 1, -1)
+			};*/
+			
+			GUtil.translate(points, 0, 0, 16);
+			GUtil.rotate(points, part.itemRotation);
+			GUtil.translate(points, -1, -6, 0);
+			GUtil.rotate(points, part.foreArm.rotation.getSmooth());
+			GUtil.translate(points, 0, -6 + 2, 0);
+			GUtil.rotate(points, part.arm.rotation.getSmooth());
+			GUtil.translate(points, part.arm.position.x, 10, 0);
+			GUtil.rotate(points, part.body.rotation.getSmooth());
+			GUtil.translate(points, 0, 12, 0);
+			GUtil.rotate(points, part.renderRotation);
+			GUtil.translate(points, part.renderOffset.x, part.renderOffset.y, part.renderOffset.z);
 
-			GUtil.rotateX(points, part.itemRotation.getX());
-			GUtil.rotateY(points, part.itemRotation.getY());
-			GUtil.rotateZ(points, part.itemRotation.getZ());
-
-			GUtil.translate(points, new Vector3f(-1, -6, 0));
-			GUtil.rotateX(points, part.foreArm.rotation.getX());
-			GUtil.rotateY(points, part.foreArm.rotation.getY());
-			GUtil.rotateZ(points, part.foreArm.rotation.getZ());
-
-			GUtil.rotateX(points, part.foreArm.preRotation.getX());
-			GUtil.rotateY(points, part.foreArm.preRotation.getY());
-			GUtil.rotateZ(points, -part.foreArm.preRotation.getZ());
-
-			GUtil.translate(points, new Vector3f(0, -6 + 2, 0));
-			GUtil.rotateX(points, part.arm.rotation.getX());
-			GUtil.rotateY(points, part.arm.rotation.getY());
-			GUtil.rotateZ(points, part.arm.rotation.getZ());
-
-			GUtil.rotateX(points, part.arm.preRotation.getX());
-			GUtil.rotateY(points, part.arm.preRotation.getY());
-			GUtil.rotateZ(points, -part.arm.preRotation.getZ());
-
-			GUtil.translate(points, new Vector3f(-5, 10, 0));
-			GUtil.rotateX(points, part.body.rotation.getX());
-			GUtil.rotateY(points, part.body.rotation.getY());
-			GUtil.rotateZ(points, part.body.rotation.getZ());
-
-			GUtil.rotateX(points, part.body.preRotation.getX());
-			GUtil.rotateY(points, part.body.preRotation.getY());
-			GUtil.rotateZ(points, -part.body.preRotation.getZ());
-			GUtil.translate(points, new Vector3f(0, 12, 0));
-
-			GUtil.rotateX(points, part.renderRotation.getX());
-			GUtil.rotateY(points, -part.renderRotation.getY());
-			GUtil.translate(points, part.renderOffset);
-
-			for (Vector3f point : points)
+			for (Vector3 point : points)
 			{
 				point.x += part.position.x;
 				point.y += part.position.y;
 				point.z += part.position.z;
 			}
+			
+			/*
+			 * Drawing the test cube.
+			GLHelper.vertex(points[0]);
+			GLHelper.vertex(points[1]);
+			GLHelper.vertex(points[2]);
+			GLHelper.vertex(points[3]);
+			GLHelper.vertex(points[4]);
+			GLHelper.vertex(points[5]);
+			GLHelper.vertex(points[6]);
+			GLHelper.vertex(points[7]);
+			*/
 			
 			if (i > 0)
 			{
@@ -171,24 +179,20 @@ public class SwordTrail
 			{
 				newPart.arm.syncUp(entityData.rightArm);
 				newPart.foreArm.syncUp(entityData.rightForeArm);
-				newPart.itemRotation.set(entityData.renderRightItemRotation.getX(),
-										 entityData.renderRightItemRotation.getY(),
-										 entityData.renderRightItemRotation.getZ());
+				newPart.itemRotation.set(entityData.renderRightItemRotation.getSmooth());
 			}
 			else
 			{
 				newPart.arm.syncUp(entityData.leftArm);
 				newPart.foreArm.syncUp(entityData.leftForeArm);
-				newPart.itemRotation.set(entityData.renderLeftItemRotation.getX(),
-										 entityData.renderLeftItemRotation.getY(),
-										 entityData.renderLeftItemRotation.getZ());
+				newPart.itemRotation.set(entityData.renderLeftItemRotation.getSmooth());
+				newPart.itemRotation = QuaternionUtils.rotate(newPart.itemRotation, 90F, 0F, 1F, 0F);
 			}
 			newPart.renderOffset.set(entityData.renderOffset.getX(),
 									 entityData.renderOffset.getY(),
 									 entityData.renderOffset.getZ());
-			newPart.renderRotation.set(entityData.renderRotation.getX(),
-									   entityData.renderRotation.getY(),
-									   entityData.renderRotation.getZ());
+			newPart.renderRotation.set(entityData.renderRotation.getSmooth());
+			newPart.renderRotation.negate(newPart.renderRotation);
 			this.trailPartList.add(newPart);
 		}
 	}

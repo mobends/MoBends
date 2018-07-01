@@ -19,33 +19,29 @@ public class SneakAnimationBit extends AnimationBit
 	{
 		if (!(entityData instanceof BipedEntityData))
 			return;
-
 		BipedEntityData data = (BipedEntityData) entityData;
 
-		data.renderOffset.addY(-1.3F);
+		data.renderOffset.slideY(-1.3F);
 		
-		float var = (float) ((float) (data.getLimbSwing() * 0.6662F) / Math.PI) % 2;
-		data.rightLeg.rotation.slideX(-5.0f
-				+ 1.1f * (float) ((MathHelper.cos(data.getLimbSwing() * 0.6662F) * 1.4F * data.getLimbSwingAmount())
-						/ Math.PI * 180.0f),
-				1.0f);
-		data.leftLeg.rotation
-				.slideX(-5.0f + 1.1f * (float) ((MathHelper.cos(data.getLimbSwing() * 0.6662F + (float) Math.PI) * 1.4F
-						* data.getLimbSwingAmount()) / Math.PI * 180.0f), 1.0f);
-		data.rightLeg.rotation.slideZ(10);
-		data.leftLeg.rotation.slideZ(-10);
+		final float PI = (float) Math.PI;
+		float limbSwing = data.getLimbSwing() * 0.6662F;
+		float limbSwingAmount = data.getLimbSwingAmount() * 1.4F * 1.1F / PI * 180F;
+		float var = (limbSwing / PI) % 2;
+		data.rightLeg.rotation.setSmoothness(1.0F).orientX(MathHelper.cos(limbSwing) * limbSwingAmount - 5F)
+				.rotateZ(10);
+		data.leftLeg.rotation.setSmoothness(1.0F).orientX(MathHelper.cos(limbSwing + PI) * limbSwingAmount - 5F)
+				.rotateZ(-10);
 
-		data.rightArm.rotation
-				.slideX(-20 + 20f * (float) (MathHelper.cos(data.getLimbSwing() * 0.6662F + (float) Math.PI)));
-		data.leftArm.rotation.slideX(-20 + 20f * (float) (MathHelper.cos(data.getLimbSwing() * 0.6662F)));
+		data.rightArm.rotation.setSmoothness(0.8F).orientX(20F * MathHelper.cos(limbSwing + PI) - 20F)
+				.rotateZ(10.0F);
+		data.leftArm.rotation.setSmoothness(0.8F).orientX(20F * MathHelper.cos(limbSwing) - 20F)
+				.rotateZ(-10.0F);
+		
+		data.leftForeLeg.rotation.setSmoothness(0.3F).orientX(var > 1 ? 45F : 10F);
+		data.rightForeLeg.rotation.setSmoothness(0.3F).orientX(var > 1 ? 10F : 45F);
 
-		data.leftArm.rotation.addZ(-10.0F);
-		data.rightArm.rotation.addZ(10.0F);
-
-		data.leftForeLeg.rotation.slideX((var > 1 ? 45 : 10), 0.3f);
-		data.rightForeLeg.rotation.slideX((var > 1 ? 10 : 45), 0.3f);
-
-		float var2 = 25.0f + (float) Math.cos(data.getLimbSwing() * 0.6662F * 2.0f) * 5;
-		data.body.rotation.addX(var2);
+		float var2 = 25F + MathHelper.cos(limbSwing * 2F) * 5F;
+		data.body.rotation.localRotateX(var2);
+		data.head.rotation.rotateX(-var2);
 	}
 }

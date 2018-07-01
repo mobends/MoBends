@@ -26,7 +26,7 @@ public class SpiderJumpAnimationBit extends AnimationBit
 		
 		float legAngle = -50.0F + ticksInAir * 65.0F;
 		float smoothness = 0.5F;
-		data.spiderLeg1.rotation.slideZ(legAngle, smoothness);
+		/*data.spiderLeg1.rotation.slideZ(legAngle, smoothness);
 		data.spiderLeg2.rotation.slideZ(-legAngle, smoothness);
 		data.spiderLeg3.rotation.slideZ(legAngle, smoothness);
 		data.spiderLeg4.rotation.slideZ(-legAngle, smoothness);
@@ -43,7 +43,7 @@ public class SpiderJumpAnimationBit extends AnimationBit
 		data.spiderForeLeg5.rotation.slideZ(foreLegAngle, smoothness);
 		data.spiderForeLeg6.rotation.slideZ(-foreLegAngle, smoothness);
 		data.spiderForeLeg7.rotation.slideZ(foreLegAngle, smoothness);
-		data.spiderForeLeg8.rotation.slideZ(-foreLegAngle, smoothness);
+		data.spiderForeLeg8.rotation.slideZ(-foreLegAngle, smoothness);*/
 		
 	}
 }

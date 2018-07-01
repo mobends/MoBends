@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.lwjgl.util.vector.Quaternion;
+import org.lwjgl.util.vector.Vector4f;
+
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.mutators.ZombieMutator;
@@ -34,7 +37,7 @@ public class EntityRenderHandler
 	public static float partialTicks;
 	public static boolean renderingGuiScreen = false;
 	public static List<UUID> currentlyRenderedEntities = new ArrayList<UUID>();
-
+	
 	@SubscribeEvent
 	public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
 	{
@@ -51,7 +54,7 @@ public class EntityRenderHandler
 		float pt = event.getPartialRenderTick();
 
 		GlStateManager.pushMatrix();
-
+		
 		if (animatedEntity.isAnimated())
 		{
 			animatedEntity.applyMutation(event.getRenderer(), living, pt);

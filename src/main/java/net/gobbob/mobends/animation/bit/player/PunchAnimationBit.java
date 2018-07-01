@@ -3,7 +3,6 @@ package net.gobbob.mobends.animation.bit.player;
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.util.EnumAxis;
 import net.minecraft.entity.EntityLivingBase;
 
 public class PunchAnimationBit extends AnimationBit
@@ -27,7 +26,7 @@ public class PunchAnimationBit extends AnimationBit
 		PlayerData data = (PlayerData) entityData;
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
 
-		data.rightArm.rotation.slideX(-90, 0.3f);
+		/*data.rightArm.rotation.slideX(-90, 0.3f);
 		data.rightForeArm.rotation.slideX(-80, 0.3f);
 
 		data.leftArm.rotation.slideX(-90, 0.3f);
@@ -83,7 +82,7 @@ public class PunchAnimationBit extends AnimationBit
 		
 		data.head.rotation.setY(data.getHeadYaw() - data.body.rotation.getY() + renderRotationY);
 		data.body.rotation.slideX(10, 0.3f);
-		data.renderRotation.slideY(renderRotationY);
+		data.renderRotation.slideY(renderRotationY);*/
 	}
 
 }

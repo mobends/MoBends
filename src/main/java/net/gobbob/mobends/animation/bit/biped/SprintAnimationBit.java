@@ -26,56 +26,42 @@ public class SprintAnimationBit extends AnimationBit
 		BipedEntityData data = (BipedEntityData) entityData;
 
 		data.renderOffset.slideToZero(0.1F);
-		data.renderRotation.slideToZero(0.3F);
-		data.renderRightItemRotation.slideToZero();
-		data.renderLeftItemRotation.slideToZero();
+		data.renderRotation.setSmoothness(.3F).orientZero();
+		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
+		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
 
-		data.rightArm.preRotation.slideToZero();
-		data.leftArm.preRotation.slideToZero();
-		data.head.preRotation.slideToZero();
+		final float PI = (float) Math.PI;
+		float limbSwing = data.getLimbSwing() * 0.6662F * 0.8F;
+		float armSwingAmount =  data.getLimbSwingAmount() / PI * 180F * 1.1F;
+		data.rightArm.rotation.setSmoothness(0.8F).orientX(MathHelper.cos(limbSwing + PI) * armSwingAmount)
+				.rotateZ(5);
+		data.leftArm.rotation.setSmoothness(0.8F).orientX(MathHelper.cos(limbSwing) * armSwingAmount)
+				.rotateZ(-5);
+		
+		float legSwingAmount = 1.26F * data.getLimbSwingAmount() / PI * 180F;
+		data.rightLeg.rotation.setSmoothness(1.0F).orientX(-5F + MathHelper.cos(limbSwing) * legSwingAmount)
+				.rotateZ(2);
+		data.leftLeg.rotation.setSmoothness(1.0F).orientX(-5F + MathHelper.cos(limbSwing + PI) * legSwingAmount)
+				.rotateZ(-2);
 
-		data.rightArm.rotation.slideX(1.1f * (float) ((MathHelper.cos(data.getLimbSwing() * 0.6662F + (float) Math.PI)
-				* 2.0F * data.getLimbSwingAmount() * 0.5F) / Math.PI * 180.0f));
-		data.leftArm.rotation.slideX(1.1f
-				* (float) ((MathHelper.cos(data.getLimbSwing() * 0.6662F) * 2.0F * data.getLimbSwingAmount() * 0.5F)
-						/ Math.PI * 180.0f));
+		float foreLegSwingAmount = 0.7F * data.getLimbSwingAmount() / PI * 180F;
+		float var = (limbSwing / PI) % 2;
+		data.leftForeLeg.rotation.setSmoothness(.7F).orientX(40F + MathHelper.cos(limbSwing + 1.8F) * foreLegSwingAmount);
+		data.rightForeLeg.rotation.setSmoothness(.7F).orientX(40F + MathHelper.cos(limbSwing + PI + 1.8F) * foreLegSwingAmount);
+		data.leftForeArm.rotation.setSmoothness(.3F).orientX((var > 1 ? -10F : -45F));
+		data.rightForeArm.rotation.setSmoothness(.3F).orientX((var > 1 ? -45F : -10F));
 
-		data.rightArm.rotation.slideZ(5, 0.3f);
-		data.leftArm.rotation.slideZ(-5, 0.3f);
+		float bodyRotationY = MathHelper.cos(limbSwing) * -40;
+		float bodyRotationX = MathHelper.cos(limbSwing * 2F) * 10F + 10F;
+		float var10 = data.getHeadYaw() * .3F;
+		var10 = Math.max(-10, Math.min(var10, 10));
+		data.body.rotation.setSmoothness(.8F).orientY(bodyRotationY)
+				.rotateX(bodyRotationX)
+				.rotateZ(-var10);
+		data.head.rotation.setSmoothness(.5F).orientX(data.getHeadPitch() - bodyRotationX)
+				.rotateY(data.getHeadYaw() - bodyRotationY);
 
-		data.rightLeg.rotation.slideX(-5.0f
-				+ 0.9f * (float) ((MathHelper.cos(data.getLimbSwing() * 0.6662F) * 1.4F * data.getLimbSwingAmount())
-						/ Math.PI * 180.0f),
-				1.0f);
-		data.leftLeg.rotation
-				.slideX(-5.0f + 0.9f * (float) ((MathHelper.cos(data.getLimbSwing() * 0.6662F + (float) Math.PI) * 1.4F
-						* data.getLimbSwingAmount()) / Math.PI * 180.0f), 1.0f);
-
-		data.rightLeg.rotation.slideY(0.0f);
-		data.leftLeg.rotation.slideY(0.0f);
-
-		data.rightLeg.rotation.slideZ(2, 0.2f);
-		data.leftLeg.rotation.slideZ(-2, 0.2f);
-
-		float var = (float) ((float) (data.getLimbSwing() * 0.6662F) / Math.PI) % 2;
-		data.leftForeLeg.rotation.slideX((var > 1 ? 45 : 0), 0.3f);
-		data.rightForeLeg.rotation.slideX((var > 1 ? 0 : 45), 0.3f);
-		data.leftForeArm.rotation.slideX((var > 1 ? -10 : -45), 0.3f);
-		data.rightForeArm.rotation.slideX((var > 1 ? -45 : -10), 0.3f);
-
-		float var2 = (float) Math.cos(data.getLimbSwing() * 0.6662F) * -40;
-		float var3 = (float) (Math.cos(data.getLimbSwing() * 0.6662F * 2.0f) * 0.5f + 0.5f) * 20;
-		data.body.rotation.slideY(var2, 0.5f);
-		data.body.rotation.slideX(var3);
-		data.head.rotation.setY(data.getHeadYaw() - data.body.rotation.getNextY(DataUpdateHandler.ticksPerFrame));
-		data.head.rotation.setX(data.getHeadPitch() - data.body.rotation.getNextX(DataUpdateHandler.ticksPerFrame));
-
-		float var10 = data.getHeadYaw() * 0.3f;
-		var10 = Math.min(var10, 20);
-		var10 = Math.max(var10, -20);
-		data.body.rotation.slideZ(-var10, 0.3f);
-
-		data.renderOffset.slideY(var3 * 0.15f, 0.9f);
+		data.renderOffset.slideY(MathHelper.cos(limbSwing * 2F + 0.6F) * 1.5f, .9f);
 	}
 
 }

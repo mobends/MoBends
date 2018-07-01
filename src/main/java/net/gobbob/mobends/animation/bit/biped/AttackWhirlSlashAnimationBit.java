@@ -72,7 +72,7 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit
 			var2 -= 360.0f;
 		}
 
-		if (var > 360.0f)
+		/*if (var > 360.0f)
 		{
 			data.renderRotation.setY(-var2 * handDirMtp);
 		}
@@ -131,6 +131,6 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit
 
 		data.rightLeg.rotation.slideZ(var61);
 		data.leftLeg.rotation.slideZ(-var61);
-		data.renderOffset.slideY(-2F);
+		data.renderOffset.slideY(-2F);*/
 	}
 }

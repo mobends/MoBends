@@ -42,22 +42,23 @@ public class AttackStanceSprintAnimationBit extends AnimationBit
 		{
 			if (living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
 			{
-				data.swordTrail.add(data, 0.0F, 0.0F, 10.0F);
+				data.swordTrail.add(data, 0.0F, 0.0F, -10.0F);
 			}
 		}
 		
-		data.body.rotation.addY(20 * handDirMtp);
-		mainArm.getRotation().addZ(60.0F * handDirMtp);
-		mainArm.getRotation().slideX(60.0F - data.body.rotation.getY());
-		offArm.getRotation().addZ(-30.0F * handDirMtp);
+		data.body.rotation.rotateY(20 * handDirMtp);
+		data.head.rotation.rotateY(-20 * handDirMtp);
+		mainArm.getRotation().orientZ(60.0F * handDirMtp);
+		mainArm.getRotation().rotateY(60.0F);
+		offArm.getRotation().rotateZ(-30.0F * handDirMtp);
 		
 		if (mainHandSwitch)
 		{
-			data.renderRightItemRotation.slideX(45, 0.3F);
+			data.renderRightItemRotation.setSmoothness(.3F).orientX(45);
 		}
 		else
 		{
-			data.renderLeftItemRotation.slideX(45, 0.3F);
+			data.renderLeftItemRotation.setSmoothness(.3F).orientX(45);
 		}
 	}
 }

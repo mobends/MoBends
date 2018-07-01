@@ -10,6 +10,7 @@ import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.util.EnumAxis;
+import net.gobbob.mobends.util.SmoothOrientation;
 import net.gobbob.mobends.util.SmoothVector3f;
 
 public class BendsCondition
@@ -67,11 +68,12 @@ public class BendsCondition
 			if (action.property == EnumBoxProperty.ROT ||
 				action.property == EnumBoxProperty.PREROT)
 			{
-				SmoothVector3f rotation = action.property == EnumBoxProperty.ROT ? box.getRotation() : box.getPreRotation();
+				//TODO Remove preRotation
+				SmoothOrientation rotation = box.getRotation();
 				
-				rotation.slideTo(action.axis,
+				/*rotation.slideTo(action.axis,
 								 action.getNumber((rotation.getEnd(action.axis))),
-								 action.smooth);
+								 action.smooth);*/
 			}
 			else if (action.property == EnumBoxProperty.SCALE)
 			{

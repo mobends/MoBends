@@ -10,55 +10,56 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.pack.PackManager;
 import net.gobbob.mobends.pack.BPDFile.Entry;
 import net.minecraft.client.gui.FontRenderer;
 
-public class GUtil {
-	public static Vector3f min(Vector3f vec, float value){
-		Vector3f result = vec;
-		result.x = vec.x > value ? value : vec.x;
-		result.y = vec.y > value ? value : vec.y;
-		result.z = vec.z > value ? value : vec.z;
-		return result;
-	}
+public class GUtil
+{
+	public static final float PI = (float) Math.PI;
 	
-	public static float clamp(float value, float min, float max) {
+	public static float clamp(float value, float min, float max)
+	{
 		return Math.min(Math.max(value, min), max);
 	}
 	
-	public static int clamp(int value, int min, int max) {
+	public static int clamp(int value, int min, int max)
+	{
 		return Math.min(Math.max(value, min), max);
 	}
 	
-	public static Vector3f translate(Vector3f num, Vector3f move){
-		num.x+=move.x;
-		num.y+=move.y;
-		num.z+=move.z;
-		return num;
+	public static Vector3 translate(Vector3 vector, float x, float y, float z)
+	{
+		vector.x += x;
+		vector.y += y;
+		vector.z += z;
+		return vector;
 	}
 	
-	public static Vector3f scale(Vector3f num, Vector3f move){
-		num.x*=move.x;
-		num.y*=move.y;
-		num.z*=move.z;
-		return num;
+	public static Vector3 scale(Vector3 vector, float x, float y, float z)
+	{
+		vector.x *= x;
+		vector.y *= y;
+		vector.z *= z;
+		return vector;
 	}
 	
-	public static Vector3f rotateX(Vector3f num, float rotation){
+	public static Vector3f rotateX(Vector3f num, float rotation)
+	{
 		Vector3f y = new Vector3f();
 		Vector3f z = new Vector3f();
 		
-		y.y = (float) Math.cos((180.0f+rotation)/180.0f*Math.PI);
-		y.z = (float) Math.sin((180.0f+rotation)/180.0f*Math.PI);
+		y.y = (float) Math.cos((180F+rotation)/180F*PI);
+		y.z = (float) Math.sin((180F+rotation)/180F*PI);
 		y.normalise();
 		y.y*=-num.y;
 		y.z*=num.y;
 		
-		z.y = (float) Math.sin((180.0f+rotation)/180.0f*Math.PI);
-		z.z = (float) Math.cos((180.0f+rotation)/180.0f*Math.PI);
+		z.y = (float) Math.sin((180.0f+rotation)/180.0f*PI);
+		z.z = (float) Math.cos((180.0f+rotation)/180.0f*PI);
 		z.normalise();
 		z.y*=-num.z;
 		z.z*=-num.z;
@@ -107,6 +108,14 @@ public class GUtil {
 		return num;
 	}
 	
+	public static void rotate(Vector3[] points, Quaternion rotation)
+	{
+		for (Vector3 point : points)
+		{
+			QuaternionUtils.multiply(point, rotation, point);
+		}
+	}
+	
 	public static float interpolateRotation(float a, float b, float partialTicks)
     {
         float f;
@@ -120,18 +129,22 @@ public class GUtil {
         return a + partialTicks * f;
     }
 	
-	public static Vector3f[] translate(Vector3f[] nums, Vector3f move){
-		for(int i = 0;i < nums.length;i++){
-			nums[i] = translate(nums[i],move);
+	public static Vector3[] translate(Vector3[] vectors, float x, float y, float z)
+	{
+		for(Vector3 vector : vectors)
+		{
+			translate(vector, x, y, z);
 		}
-		return nums;
+		return vectors;
 	}
 	
-	public static Vector3f[] scale(Vector3f[] nums, Vector3f move){
-		for(int i = 0;i < nums.length;i++){
-			nums[i] = scale(nums[i],move);
+	public static Vector3[] scale(Vector3[] vectors, float x, float y, float z)
+	{
+		for(Vector3 vector : vectors)
+		{
+			scale(vector, x, y, z);
 		}
-		return nums;
+		return vectors;
 	}
 	
 	public static Vector3f[] rotateX(Vector3f[] nums, float move){

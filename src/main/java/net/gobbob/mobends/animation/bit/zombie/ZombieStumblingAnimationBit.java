@@ -31,7 +31,7 @@ public class ZombieStumblingAnimationBit extends AnimationBit
 		limbSwing += Math.cos(limbSwing * 2.0F) * 0.3F;
 		float swingAmount = 45F * data.getLimbSwingAmount();
 
-		data.rightLeg.rotation.slideX((MathHelper.cos(limbSwing) * swingAmount), 1F);
+		/*data.rightLeg.rotation.slideX((MathHelper.cos(limbSwing) * swingAmount), 1F);
 		data.leftLeg.rotation.slideX((MathHelper.cos(limbSwing + PI) * swingAmount), 1F);
 		data.rightArm.rotation.slideX((MathHelper.cos(limbSwing + PI) * swingAmount), 1F);
 		data.leftArm.rotation.slideX((MathHelper.cos(limbSwing) * swingAmount), 1F);
@@ -43,6 +43,6 @@ public class ZombieStumblingAnimationBit extends AnimationBit
 		data.body.rotation.slideZ(MathHelper.cos(limbSwing) * 10F);
 		
 		// Head tilt
-		data.head.preRotation.slideZ(-40F + heavyStompValue * 20.0F);
+		data.head.preRotation.slideZ(-40F + heavyStompValue * 20.0F);*/
 	}
 }

@@ -2,8 +2,11 @@ package net.gobbob.mobends.data;
 
 import java.util.HashMap;
 
+import org.lwjgl.util.vector.Quaternion;
+
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.event.EntityRenderHandler;
+import net.gobbob.mobends.util.SmoothOrientation;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.state.IBlockState;
@@ -27,7 +30,7 @@ public abstract class LivingEntityData extends EntityData
 	protected float headPitch = 0.0f;
 	
 	public SmoothVector3f renderOffset;
-    public SmoothVector3f renderRotation;
+    public SmoothOrientation renderRotation;
 	
 	public LivingEntityData(Entity entity)
 	{
@@ -46,7 +49,7 @@ public abstract class LivingEntityData extends EntityData
 	public void initModelPose()
 	{
 		this.renderOffset = new SmoothVector3f();
-		this.renderRotation = new SmoothVector3f();
+		this.renderRotation = new SmoothOrientation();
 		
 		this.nameToPartMap = new HashMap<String, Object>();
 		this.nameToPartMap.put("renderRotation", renderRotation);

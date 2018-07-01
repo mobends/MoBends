@@ -28,7 +28,7 @@ public class SprintJumpAnimationBit extends AnimationBit
 			bodyLean = 0.2f;
 		bodyLean = bodyLean * -100.0f + 20;
 
-		data.body.rotation.slideX(bodyLean, 0.3f);
+		/*data.body.rotation.slideX(bodyLean, 0.3f);
 		data.rightLeg.rotation.slideZ(5, 0.3f);
 		data.leftLeg.rotation.slideZ(-5, 0.3f);
 		data.rightArm.rotation.slideZ(10, 0.3f);
@@ -58,6 +58,6 @@ public class SprintJumpAnimationBit extends AnimationBit
 
 		float var = data.rightLeg.rotation.getX();
 		data.leftForeLeg.rotation.slideX((var < 0 ? 45 : 2), 0.3f);
-		data.rightForeLeg.rotation.slideX((var < 0 ? 2 : 45), 0.3f);
+		data.rightForeLeg.rotation.slideX((var < 0 ? 2 : 45), 0.3f);*/
 	}
 }
