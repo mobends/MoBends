@@ -8,6 +8,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class SpiderBaseAnimationBit extends AnimationBit
 {
+	protected static final float PI = (float) Math.PI;
 	protected final float kneelDuration = 0.15F;
 	
 	@Override
@@ -105,15 +106,6 @@ public class SpiderBaseAnimationBit extends AnimationBit
         data.spiderLeg7.rotation.rotateY(-65F);
         data.spiderLeg8.rotation.rotateY(65F);
         
-        data.spiderLeg1.rotation.rotateX(0.0F);
-        data.spiderLeg2.rotation.rotateX(0.0F);
-        data.spiderLeg3.rotation.rotateX(0.0F);
-        data.spiderLeg4.rotation.rotateX(0.0F);
-        data.spiderLeg5.rotation.rotateX(0.0F);
-        data.spiderLeg6.rotation.rotateX(0.0F);
-        data.spiderLeg7.rotation.rotateX(0.0F);
-        data.spiderLeg8.rotation.rotateX(0.0F);
-        
         float foreBend = 89 - bodyHeight * 0.5F;
         data.spiderForeLeg1.rotation.orientZ(-foreBend);
         data.spiderForeLeg2.rotation.orientZ(foreBend);
@@ -123,6 +115,7 @@ public class SpiderBaseAnimationBit extends AnimationBit
         data.spiderForeLeg6.rotation.orientZ(foreBend);
         data.spiderForeLeg7.rotation.orientZ(-foreBend);
         data.spiderForeLeg8.rotation.orientZ(foreBend);
+        
         
         float limbSwing = data.getLimbSwing() * 0.6662F;
 		float limbSwingAmount = data.getLimbSwingAmount() / (float) Math.PI * 180F;

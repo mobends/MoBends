@@ -216,47 +216,48 @@ public class ModelBipedArmorCustom extends ModelBiped
 	{
 		if(original.bipedHead != null)
 			for (IModelPart part : this.headParts)
-				part.setVisible(this.bipedHead.showModel && original.bipedHead.showModel);
+				part.setVisible(this.bipedHead.showModel);
 		
 		if(original.bipedBody != null)
 			for (IModelPart part : this.bodyParts)
-				part.setVisible(this.bipedBody.showModel && original.bipedBody.showModel);
+				part.setVisible(this.bipedBody.showModel);
 		
 		if(original.bipedLeftArm != null)
 			for (IModelPart part : this.leftArmParts)
-				part.setVisible(this.bipedLeftArm.showModel && original.bipedLeftArm.showModel);
+				part.setVisible(this.bipedLeftArm.showModel);
 
 		if(original.bipedRightArm != null)
 			for (IModelPart part : this.rightArmParts)
-				part.setVisible(this.bipedRightArm.showModel && original.bipedRightArm.showModel);
+				part.setVisible(this.bipedRightArm.showModel);
 		
 		if(original.bipedLeftLeg != null)
 			for (IModelPart part : this.leftLegParts)
-				part.setVisible(this.bipedLeftLeg.showModel && original.bipedLeftLeg.showModel);
+				part.setVisible(this.bipedLeftLeg.showModel);
 		
 		if(original.bipedRightLeg != null)
 			for (IModelPart part : this.rightLegParts)
-				part.setVisible(this.bipedRightLeg.showModel && original.bipedRightLeg.showModel);
+				part.setVisible(this.bipedRightLeg.showModel);
 		
 		if(original.bipedLeftArm != null)
 			for (IModelPart part : this.leftForeArmParts)
-				part.setVisible(this.bipedLeftArm.showModel && original.bipedLeftArm.showModel);
+				part.setVisible(this.bipedLeftArm.showModel);
 		
 		if(original.bipedRightArm != null)
 			for (IModelPart part : this.rightForeArmParts)
-				part.setVisible(this.bipedRightArm.showModel && original.bipedRightArm.showModel);
+				part.setVisible(this.bipedRightArm.showModel);
 
 		if(original.bipedLeftLeg != null)
 			for (IModelPart part : this.leftForeLegParts)
-				part.setVisible(this.bipedLeftLeg.showModel && original.bipedLeftLeg.showModel);
+				part.setVisible(this.bipedLeftLeg.showModel);
 
 		if(original.bipedRightLeg != null)
 			for (IModelPart part : this.rightForeLegParts)
-				part.setVisible(this.bipedRightLeg.showModel && original.bipedRightLeg.showModel);
-
+				part.setVisible(this.bipedRightLeg.showModel);
+		
 		for (Map.Entry<ModelRenderer, IModelPart> entry : this.originalToCustomMap.entrySet())
 			if (entry.getValue().isShowing())
 				entry.getValue().setVisible(entry.getKey().showModel && !entry.getKey().isHidden);
+		
 	}
 
 	protected void mutate()

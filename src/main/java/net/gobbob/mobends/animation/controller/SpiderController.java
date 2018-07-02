@@ -51,8 +51,6 @@ public class SpiderController extends Controller
 		SpiderData spiderData = (SpiderData) entityData;
 		BendsVariable.tempData = spiderData;
 		EntitySpider spider = (EntitySpider) spiderData.getEntity();
-
-		this.layerBase.playOrContinueBit(bitBase, entityData);
 		
 		if (spider.getHealth() <= 0F)
 		{
@@ -61,6 +59,8 @@ public class SpiderController extends Controller
 		}
 		else
 		{
+			this.layerBase.playOrContinueBit(bitBase, entityData);
+			
 			if (!spiderData.isOnGround() || spiderData.getTicksAfterTouchdown() < 1)
 			{
 				this.layerAction.playOrContinueBit(bitJump, entityData);

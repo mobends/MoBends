@@ -1,7 +1,11 @@
 package net.gobbob.mobends.animation.bit.player;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
+import net.gobbob.mobends.animation.bit.biped.AttackSlashDownAnimationBit;
+import net.gobbob.mobends.animation.bit.biped.AttackSlashUpAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.AttackStanceSprintAnimationBit;
+import net.gobbob.mobends.animation.bit.biped.AttackWhirlSlashAnimationBit;
+import net.gobbob.mobends.animation.bit.biped.FistGuardAnimationBit;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
@@ -22,11 +26,11 @@ public class AttackAnimationBit extends AnimationBit
 		this.layerBase = new HardAnimationLayer();
 		this.bitAttackStance = new AttackStanceAnimationBit();
 		this.bitAttackStanceSprint = new AttackStanceSprintAnimationBit();
-		/*this.bitAttackSlashUp = new AttackSlashUpAnimationBit();
+		this.bitAttackSlashUp = new AttackSlashUpAnimationBit();
 		this.bitAttackSlashDown = new AttackSlashDownAnimationBit();
 		this.bitAttackWhirlSlash = new AttackWhirlSlashAnimationBit();
 		this.bitFistGuard = new FistGuardAnimationBit();
-		this.bitPunch = new PunchAnimationBit();*/
+		this.bitPunch = new PunchAnimationBit();
 	}
 
 	@Override
@@ -59,7 +63,7 @@ public class AttackAnimationBit extends AnimationBit
 			AbstractClientPlayer player = (AbstractClientPlayer) entity;
 			if (this.shouldPerformAttack(player))
 			{
-				/*if (playerData.getTicksAfterAttack() < 10)
+				if (playerData.getTicksAfterAttack() < 10)
 				{
 					if (playerData.getCurrentAttack() == 1)
 					{
@@ -78,7 +82,7 @@ public class AttackAnimationBit extends AnimationBit
 						this.layerBase.clearAnimation();
 					}
 				}
-				else */if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround())
+				else if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround())
 				{
 					if (player.isSprinting())
 					{
@@ -100,7 +104,7 @@ public class AttackAnimationBit extends AnimationBit
 			}
 			else
 			{
-				/*if (playerData.getTicksAfterAttack() < 10)
+				if (playerData.getTicksAfterAttack() < 10)
 				{
 					this.layerBase.playOrContinueBit(this.bitPunch, entityData);
 				}
@@ -111,7 +115,7 @@ public class AttackAnimationBit extends AnimationBit
 				else
 				{
 					this.layerBase.clearAnimation();
-				}*/
+				}
 			}
 		}
 

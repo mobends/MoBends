@@ -33,7 +33,8 @@ public abstract class EntityData implements IBendsModel
 		{
 			this.entityID = entity.getEntityId();
 		}
-
+		this.motion.set(0F, 1F, 0F);
+		this.previousMotion.set(this.motion);
 		this.initModelPose();
 	}
 

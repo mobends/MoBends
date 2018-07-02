@@ -24,26 +24,26 @@ public class SpiderJumpAnimationBit extends AnimationBit
 		ticksInAir = Math.min(ticksInAir * 0.1F, 1.0F);
 		ticksInAir = (float) GUtil.easeInOut(ticksInAir, 3);
 		
-		float legAngle = -50.0F + ticksInAir * 65.0F;
-		float smoothness = 0.5F;
-		/*data.spiderLeg1.rotation.slideZ(legAngle, smoothness);
-		data.spiderLeg2.rotation.slideZ(-legAngle, smoothness);
-		data.spiderLeg3.rotation.slideZ(legAngle, smoothness);
-		data.spiderLeg4.rotation.slideZ(-legAngle, smoothness);
-		data.spiderLeg5.rotation.slideZ(legAngle, smoothness);
-		data.spiderLeg6.rotation.slideZ(-legAngle, smoothness);
-		data.spiderLeg7.rotation.slideZ(legAngle, smoothness);
-		data.spiderLeg8.rotation.slideZ(-legAngle, smoothness);
+		float legAngle = -130.0F + ticksInAir * 95.0F;
+		float smoothness = 1F;
+		data.spiderLeg1.rotation.setSmoothness(smoothness).rotateZ(legAngle);
+		data.spiderLeg2.rotation.setSmoothness(smoothness).rotateZ(-legAngle);
+		data.spiderLeg3.rotation.setSmoothness(smoothness).rotateZ(legAngle);
+		data.spiderLeg4.rotation.setSmoothness(smoothness).rotateZ(-legAngle);
+		data.spiderLeg5.rotation.setSmoothness(smoothness).rotateZ(legAngle);
+		data.spiderLeg6.rotation.setSmoothness(smoothness).rotateZ(-legAngle);
+		data.spiderLeg7.rotation.setSmoothness(smoothness).rotateZ(legAngle);
+		data.spiderLeg8.rotation.setSmoothness(smoothness).rotateZ(-legAngle);
 		
-		float foreLegAngle = -20.0F - ticksInAir * 50.0F;
-		data.spiderForeLeg1.rotation.slideZ(foreLegAngle, smoothness);
-		data.spiderForeLeg2.rotation.slideZ(-foreLegAngle, smoothness);
-		data.spiderForeLeg3.rotation.slideZ(foreLegAngle, smoothness);
-		data.spiderForeLeg4.rotation.slideZ(-foreLegAngle, smoothness);
-		data.spiderForeLeg5.rotation.slideZ(foreLegAngle, smoothness);
-		data.spiderForeLeg6.rotation.slideZ(-foreLegAngle, smoothness);
-		data.spiderForeLeg7.rotation.slideZ(foreLegAngle, smoothness);
-		data.spiderForeLeg8.rotation.slideZ(-foreLegAngle, smoothness);*/
+		float foreLegAngle = 70.0F - ticksInAir * 50.0F;
+		data.spiderForeLeg1.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
+		data.spiderForeLeg2.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
+		data.spiderForeLeg3.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
+		data.spiderForeLeg4.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
+		data.spiderForeLeg5.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
+		data.spiderForeLeg6.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
+		data.spiderForeLeg7.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
+		data.spiderForeLeg8.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
 		
 	}
 }
