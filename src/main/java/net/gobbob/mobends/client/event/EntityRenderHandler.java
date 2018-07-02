@@ -20,12 +20,14 @@ import net.gobbob.mobends.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.RenderZombie;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -99,5 +101,22 @@ public class EntityRenderHandler
 	public void afterGuiScreenRender(GuiScreenEvent.DrawScreenEvent.Post event)
 	{
 		renderingGuiScreen = false;
+	}
+	
+	@SubscribeEvent
+	public void beforeHandRender(RenderHandEvent event)
+	{
+		Minecraft mc = Minecraft.getMinecraft();
+		Entity viewEntity = mc.getRenderViewEntity();
+		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(viewEntity);
+		EntityData entityData = EntityDatabase.instance.get(viewEntity);
+		
+		if (animatedEntity != null && animatedEntity.isAnimated() && entityData instanceof PlayerData)
+		{
+			Render<AbstractClientPlayer> render = mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(viewEntity);
+			PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);
+			if (mutator != null)
+				mutator.poseForFirstPersonView();
+		}
 	}
 }

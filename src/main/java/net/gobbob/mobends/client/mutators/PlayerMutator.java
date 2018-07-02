@@ -248,6 +248,19 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		leftForeLeg.syncUp(data.leftForeLeg);
 		rightForeLeg.syncUp(data.rightForeLeg);
 	}
+	
+	/*
+	 * Called before the first person hand is rendered, so the mutator can pose it
+	 * in any way.
+	 */
+	public void poseForFirstPersonView()
+	{
+		this.body.rotation.identity();
+		this.rightArm.rotation.identity();
+		this.rightForeArm.rotation.identity();
+		this.leftArm.rotation.identity();
+		this.leftForeArm.rotation.identity();
+	}
 
 	/*
 	 * Used to apply the effect of the mutation, or just to update the model
@@ -311,4 +324,5 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	{
 		return mutatorMap.get(render);
 	}
+
 }

@@ -1,15 +1,29 @@
 package net.gobbob.mobends.animation.bit.player;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
+import net.gobbob.mobends.client.event.DataUpdateHandler;
+import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
+import net.gobbob.mobends.util.GUtil;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.math.MathHelper;
 
 public class SprintJumpAnimationBit extends AnimationBit
 {
+	float relax = 0F;
+	
 	@Override
 	public String[] getActions(EntityData entityData)
 	{
 		return new String[] { "sprint_jump" };
+	}
+	
+	@Override
+	public void onPlay(EntityData entityData)
+	{
+		this.relax = 0F;
 	}
 	
 	@Override
@@ -18,46 +32,59 @@ public class SprintJumpAnimationBit extends AnimationBit
 		if (!(entityData instanceof PlayerData))
 			return;
 		
-		PlayerData data = (PlayerData) entityData;
+		if (entityData.getPreviousMotion().y < 0 && entityData.getMotion().y > 0)
+		{
+			/*
+			 * Restarting the animation if the player is going back up again after falling
+			 * down.
+			 */
+			this.onPlay(entityData);
+		}
 		
-		float bodyRot = 0.0f;
-		float bodyLean = data.getMotion().y;
-		if (bodyLean < -0.2f)
-			bodyLean = -0.2f;
-		if (bodyLean > 0.2f)
-			bodyLean = 0.2f;
-		bodyLean = bodyLean * -100.0f + 20;
+		PlayerData data = (PlayerData) entityData;
+		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
+		EnumHandSide primaryHand = player.getPrimaryHand();
 
-		/*data.body.rotation.slideX(bodyLean, 0.3f);
-		data.rightLeg.rotation.slideZ(5, 0.3f);
-		data.leftLeg.rotation.slideZ(-5, 0.3f);
-		data.rightArm.rotation.slideZ(10, 0.3f);
-		data.leftArm.rotation.slideZ(-10, 0.3f);
-
-		if (data.getSprintJumpLeg())
+		boolean sprintLegSwitch = data.getSprintJumpLeg();
+		
+		float legSwitchMtp = sprintLegSwitch ? 1 : -1;
+		IModelPart mainArm = sprintLegSwitch ? data.rightArm : data.leftArm;
+		IModelPart offArm = sprintLegSwitch ? data.leftArm : data.rightArm;
+		IModelPart mainForeArm = sprintLegSwitch ? data.rightForeArm : data.leftForeArm;
+		IModelPart offForeArm = sprintLegSwitch ? data.leftForeArm : data.rightForeArm;
+		IModelPart mainLeg = sprintLegSwitch ? data.rightLeg : data.leftLeg;
+		IModelPart offLeg = sprintLegSwitch ? data.leftLeg : data.rightLeg;
+		IModelPart mainForeLeg = sprintLegSwitch ? data.rightForeLeg : data.leftForeLeg;
+		IModelPart offForeLeg = sprintLegSwitch ? data.leftForeLeg : data.rightForeLeg;
+		
+		float bodyRotationY = 20 * legSwitchMtp;
+		float bodyLean = GUtil.clamp(data.getMotion().y, -.2F, .2F);
+		bodyLean = bodyLean * -100F + 20F;
+		
+		if (this.relax < 1F)
 		{
-			data.rightLeg.rotation.slideX(-45, 0.4f);
-			data.leftLeg.rotation.slideX(45, 0.4f);
-			data.rightArm.rotation.slideX(50, 0.3f);
-			data.leftArm.rotation.slideX(-50, 0.3f);
-			bodyRot = 20;
+			this.relax += DataUpdateHandler.ticksPerFrame * 0.1F;
+			this.relax = Math.min(this.relax, 1F);
 		}
-		else
-		{
-			data.rightLeg.rotation.slideX(45, 0.4f);
-			data.leftLeg.rotation.slideX(-45, 0.4f);
-			data.rightArm.rotation.slideX(-50, 0.3f);
-			data.leftArm.rotation.slideX(50, 0.3f);
-			bodyRot = -20;
-		}
+		
+		float relaxAngle = MathHelper.sqrt(MathHelper.sqrt(this.relax));
+		
+		data.body.rotation.setSmoothness(.3F).orientX(bodyLean)
+				.rotateY(bodyRotationY);
+		data.rightLeg.rotation.setSmoothness(.8F).orientZ(5);
+		data.leftLeg.rotation.setSmoothness(.8F).orientZ(-5);
+		data.rightArm.rotation.setSmoothness(.3F).orientZ(10);
+		data.leftArm.rotation.setSmoothness(.3F).orientZ(-10);
 
-		data.body.rotation.slideY(bodyRot, 0.3f);
-
-		data.head.rotation.setY(data.getHeadYaw() - bodyRot);
-		data.head.rotation.setX(data.getHeadPitch() - 20);
-
-		float var = data.rightLeg.rotation.getX();
-		data.leftForeLeg.rotation.slideX((var < 0 ? 45 : 2), 0.3f);
-		data.rightForeLeg.rotation.slideX((var < 0 ? 2 : 45), 0.3f);*/
+		mainLeg.getRotation().rotateX(-45);
+		offLeg.getRotation().rotateX(45);
+		mainArm.getRotation().rotateX(50);
+		offArm.getRotation().rotateX(-50);
+		
+		mainForeLeg.getRotation().orientX(80F - relaxAngle * 80F);
+		offForeLeg.getRotation().orientX(relaxAngle * 70F);
+		
+		data.head.rotation.orientInstantX(data.getHeadPitch() - 20);
+		data.head.rotation.rotateY(data.getHeadYaw() - bodyRotationY);
 	}
 }

@@ -79,6 +79,8 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 			this.storeVanillaModel(model);
 		}
 		
+		this.createParts(model, scaleFactor);
+		
 		// Swapping layers
 		if (this.layerRenderers != null)
 		{
@@ -87,8 +89,6 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 				swapLayer(renderer, i, isModelVanilla);
 			}
 		}
-		
-		this.createParts(model, scaleFactor);
 	}
 	
 	/*

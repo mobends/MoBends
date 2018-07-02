@@ -22,6 +22,7 @@ import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
+import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
@@ -40,10 +41,13 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	protected ModelPartChild leftForeLeg;
 	protected ModelPartChild rightForeLeg;
 
-	protected LayerBipedArmor vanillaLayerArmor;
-	protected LayerHeldItem vanillaLayerHeldItem;
-	protected LayerCustomBipedArmor layerArmor;
-	protected LayerCustomHeldItem layerHeldItem;
+	protected LayerCustomBipedArmor 	layerArmor;
+	protected LayerBipedArmor 			layerArmorVanilla;
+	protected LayerCustomHeldItem 		layerHeldItem;
+	protected LayerHeldItem 			layerHeldItemVanilla;
+	protected LayerCustomHead 			layerCustomHead;
+	protected LayerCustomHead 			layerCustomHeadVanilla;
+	
 
 	public BipedMutator() {}
 
@@ -93,15 +97,22 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 		{
 			this.layerArmor = new LayerCustomBipedArmor(renderer);
 			if (isModelVanilla)
-				this.vanillaLayerArmor = (LayerBipedArmor) layer;
+				this.layerArmorVanilla = (LayerBipedArmor) layer;
 			layerRenderers.set(index, this.layerArmor);
 		}
 		else if (layer instanceof LayerHeldItem)
 		{
 			this.layerHeldItem = new LayerCustomHeldItem(renderer);
 			if (isModelVanilla)
-				this.vanillaLayerHeldItem = (LayerHeldItem) layer;
+				this.layerHeldItemVanilla = (LayerHeldItem) layer;
 			layerRenderers.set(index, this.layerHeldItem);
+		}
+		else if (layer instanceof LayerCustomHead)
+		{
+			this.layerCustomHead = new LayerCustomHead(this.head);
+			if (isModelVanilla)
+				this.layerCustomHeadVanilla = (LayerCustomHead) layer;
+			layerRenderers.set(index, this.layerCustomHead);
 		}
 	}
 	
@@ -115,11 +126,15 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 		LayerRenderer<EntityLivingBase> layer = layerRenderers.get(index);
 		if (layer instanceof LayerCustomBipedArmor)
 		{
-			layerRenderers.set(index, this.vanillaLayerArmor);
+			layerRenderers.set(index, this.layerArmorVanilla);
 		}
 		else if (layer instanceof LayerCustomHeldItem)
 		{
-			layerRenderers.set(index, this.vanillaLayerHeldItem);
+			layerRenderers.set(index, this.layerHeldItemVanilla);
+		}
+		else if (layer instanceof LayerCustomHead)
+		{
+			layerRenderers.set(index, this.layerCustomHeadVanilla);
 		}
 	}
 	
