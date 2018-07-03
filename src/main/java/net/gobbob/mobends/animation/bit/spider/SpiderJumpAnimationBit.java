@@ -44,6 +44,5 @@ public class SpiderJumpAnimationBit extends AnimationBit
 		data.spiderForeLeg6.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
 		data.spiderForeLeg7.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
 		data.spiderForeLeg8.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
-		
 	}
 }

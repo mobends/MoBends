@@ -9,6 +9,7 @@ import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.pack.BendsPack;
+import net.gobbob.mobends.util.SmoothOrientation;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
@@ -56,7 +57,8 @@ public class AttackStanceAnimationBit extends AnimationBit
 		IModelPart offLeg = mainHandSwitch ? data.leftLeg : data.rightLeg;
 		IModelPart mainForeLeg = mainHandSwitch ? data.rightForeLeg : data.leftForeLeg;
 		IModelPart offForeLeg = mainHandSwitch ? data.leftForeLeg : data.rightForeLeg;
-
+		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
+		
 		// ItemStack offHandItemStack = player.getHeldItemOffhand();
 
 		float breath0 = (float) Math.sin(DataUpdateHandler.getTicks() / 5.0);
@@ -71,10 +73,11 @@ public class AttackStanceAnimationBit extends AnimationBit
 		data.head.rotation.rotateX(-bodyRotationX);
 
 		data.rightLeg.rotation.setSmoothness(0.3F).orientX(-30)
-				.rotateZ(10);
+				.rotateZ(10)
+				.rotateY(25);
 		data.leftLeg.rotation.setSmoothness(0.3F).orientX(-30)
-				.rotateY(-25)
-				.rotateZ(-10);
+				.rotateZ(-10)
+				.rotateY(-25);
 
 		data.rightForeLeg.rotation.setSmoothness(0.3F).orientX(30);
 		data.leftForeLeg.rotation.setSmoothness(0.3F).orientX(30);
@@ -86,14 +89,7 @@ public class AttackStanceAnimationBit extends AnimationBit
 		mainForeArm.getRotation().setSmoothness(0.3F).orientX(-20);
 		offForeArm.getRotation().setSmoothness(0.3F).orientX(-60);
 
-		if (mainHandSwitch)
-		{
-			data.renderRightItemRotation.setSmoothness(.3F).orientX(65);
-		}
-		else
-		{
-			data.renderLeftItemRotation.setSmoothness(.3F).orientX(65);
-		}
+		mainItemRotation.setSmoothness(.3F).orientX(65);
 		data.renderOffset.slideY(-2.0F);
 		
 		if (this.legSpreadAnimation < 1.0F)
@@ -102,9 +98,10 @@ public class AttackStanceAnimationBit extends AnimationBit
 			if (this.legSpreadAnimation > 1.0F)
 				this.legSpreadAnimation = 1.0F;
 			
-			mainLeg.getRotation().orientInstantX(MathHelper.sin(this.legSpreadAnimation * PI) * -20.0F - 40.0F);
-			mainLeg.getRotation().rotateY((this.legSpreadAnimation * 10.0F - 5.0F) * handDirMtp);
-			mainForeLeg.getRotation().orientX(MathHelper.sin(this.legSpreadAnimation * PI) * 40.0F + 40.0F);
+			mainLeg.getRotation().orientInstantX(MathHelper.sin(this.legSpreadAnimation * PI) * -20.0F - 40.0F)
+					.rotateInstantZ(10)
+					.rotateInstantY((this.legSpreadAnimation * 25.0F) * handDirMtp);
+			mainForeLeg.getRotation().orientX(MathHelper.sin(this.legSpreadAnimation * PI + 0.5F) * 70.0F + 50.0F);
 		}
 		
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);

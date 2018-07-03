@@ -8,6 +8,7 @@ import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.util.SmoothOrientation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
@@ -19,6 +20,16 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 	public String[] getActions(EntityData entityData)
 	{
 		return new String[] { "attack", "attack_0" };
+	}
+	
+	@Override
+	public void onPlay(EntityData entityData)
+	{
+		if (!(entityData instanceof BipedEntityData))
+			return;
+
+		BipedEntityData data = (BipedEntityData) entityData;
+		data.swordTrail.reset();
 	}
 	
 	@Override
@@ -41,11 +52,14 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
 		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
 		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
-
-		if (data.getTicksAfterAttack() < 0.5f)
-		{
-			data.swordTrail.reset();
-		}
+		IModelPart mainLeg = mainHandSwitch ? data.rightLeg : data.leftLeg;
+		IModelPart offLeg = mainHandSwitch ? data.leftLeg : data.rightLeg;
+		IModelPart mainForeLeg = mainHandSwitch ? data.rightForeLeg : data.leftForeLeg;
+		IModelPart offForeLeg = mainHandSwitch ? data.leftForeLeg : data.rightForeLeg;
+		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
+		
+		data.renderRotation.setSmoothness(.3F).orientY(0 * handDirMtp);
+		data.renderOffset.slideY(-1.0F);
 
 		if (living.getHeldItem(EnumHand.MAIN_HAND) != null)
 		{
@@ -61,51 +75,33 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 		armSwing = Math.min(armSwing, 1F);
 
 		Vector3f bodyRot = new Vector3f(0, 0, 0);
-
 		bodyRot.x = 20F - armSwing * 20F;
-		bodyRot.y = -90F * armSwing * handDirMtp;
+		bodyRot.y = -70F * armSwing * handDirMtp;
 
-		/*data.body.rotation.slideTo(bodyRot, 0.9f);
-		data.head.rotation.setY(data.getHeadYaw());
-		data.head.rotation.setX(data.getHeadPitch());
-		data.head.preRotation.slideX(-data.body.rotation.getX(), 0.9f);
-		data.head.preRotation.slideY(-data.body.rotation.getY(), 0.9f);
+		data.body.rotation.setSmoothness(.9F).orientX(bodyRot.x)
+				.orientY(bodyRot.y);
+		data.head.rotation.orientX(data.getHeadPitch() - bodyRot.x)
+				.rotateY(data.getHeadYaw() - bodyRot.y);
 
-		mainArm.getPreRotation().slideZ(60.0f * handDirMtp, 0.3f);
-
-		mainArm.getRotation().slideX(-20 + armSwing * 100, 3.0f);
-		mainArm.getRotation().slideX(60.0f - armSwing * 180, 3.0f);
-		mainArm.getRotation().slideY(0.0f, 0.9f);
-		mainArm.getRotation().slideZ(0.0f, 0.9f);
-		offArm.getRotation().slideZ(20 * handDirMtp, 0.3f);
-		offArm.getPreRotation().slideZ(-80 * handDirMtp, 0.3f);
+		mainArm.getRotation().setSmoothness(.9F).orientZ(110F * armSwing * handDirMtp)
+				.rotateY(60F - armSwing * 180F);
 		
+		offArm.getRotation().setSmoothness(.3F).orientZ(-20 * handDirMtp);
 
-		mainForeArm.getRotation().slideX(-20, 0.3f);
-		offForeArm.getRotation().slideX(-60, 0.3f);
+		mainForeArm.getRotation().setSmoothness(.3F).orientX(-20);
+		offForeArm.getRotation().setSmoothness(.3F).orientX(-60);
 
 		if (data.isStillHorizontally())
 		{
-			data.rightLeg.rotation.slideZ(10);
-			data.rightForeLeg.rotation.slideX(30, 0.3f);
-
-			if (!living.isRiding())
-			{
-				data.renderOffset.slideY(0.0f);
-			}
-		}
-		else
-		{
-			data.body.rotation.slideY(-70.0F * armSwing * handDirMtp, 0.9f);
+			data.rightLeg.rotation.orientZ(5)
+					.rotateY(15F)
+					.rotateX(-20F);
+			data.leftLeg.rotation.orientZ(-5)
+					.rotateY(-15F)
+					.rotateX(-20F);
+			data.rightForeLeg.rotation.orientX(25F);
 		}
 
-		if (mainHandSwitch)
-		{
-			data.renderRightItemRotation.slideX(180, 0.9f);
-		}
-		else
-		{
-			data.renderLeftItemRotation.slideX(180, 0.9f);
-		}*/
+		mainItemRotation.setSmoothness(.9F).orientInstantX(180);
 	}
 }

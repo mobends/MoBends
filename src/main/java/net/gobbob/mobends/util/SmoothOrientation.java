@@ -113,6 +113,31 @@ public class SmoothOrientation
 		return this.rotate(angle, 0F, 0F, 1F);
 	}
 	
+	public SmoothOrientation rotateInstant(float angle, float x, float y, float z)
+	{
+		Quaternion rotation = new Quaternion();
+		rotation.setFromAxisAngle(new Vector4f(x, y, z, angle / 180.0F * PI));
+		Quaternion.mul(rotation, this.end, this.end);
+		this.start.set(this.end);
+		this.smooth.set(this.end);
+		return this;
+	}
+	
+	public SmoothOrientation rotateInstantX(float angle)
+	{
+		return this.rotateInstant(angle, 1F, 0F, 0F);
+	}
+	
+	public SmoothOrientation rotateInstantY(float angle)
+	{
+		return this.rotateInstant(angle, 0F, 1F, 0F);
+	}
+	
+	public SmoothOrientation rotateInstantZ(float angle)
+	{
+		return this.rotateInstant(angle, 0F, 0F, 1F);
+	}
+	
 	/*
 	 * Rotates the orientation based on the local
 	 * space, not the global space.
