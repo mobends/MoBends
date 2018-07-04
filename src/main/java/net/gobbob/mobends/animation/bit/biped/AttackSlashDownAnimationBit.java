@@ -18,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.math.MathHelper;
 
 public class AttackSlashDownAnimationBit extends AnimationBit
 {
@@ -76,17 +77,16 @@ public class AttackSlashDownAnimationBit extends AnimationBit
 		float attackState = this.ticksPlayed / 10F;
 		float armSwing = GUtil.clamp(attackState * 3F, 0F, 1F);
 
-		Vector3f bodyRot = new Vector3f(0, 0, 0);
-		bodyRot.x = 20F - attackState * 20F;
-		bodyRot.y = (30F + 10F * attackState) * handDirMtp;
+		float bodyRotationX = 20F - attackState * 20F;
+		float bodyRotationY = (30F + 10F * attackState) * handDirMtp;
 
-		data.body.rotation.setSmoothness(.9F).orientX(bodyRot.x)
-				.orientY(bodyRot.y);
-		data.head.rotation.orientX(data.getHeadPitch() - bodyRot.x)
-				.rotateY(data.getHeadYaw() - bodyRot.y - 30 * handDirMtp);
+		data.body.rotation.setSmoothness(.9F).orientX(bodyRotationX)
+											 .orientY(bodyRotationY);
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRotationX)
+						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRotationY);
 		
 		mainArm.getRotation().setSmoothness(.3F).orientZ(60F * handDirMtp)
-				.rotateInstantY(-20F + armSwing * 70F);
+												.rotateInstantY(-20F + armSwing * 70F);
 		offArm.getRotation().setSmoothness(.3F).orientZ(-80 * handDirMtp);
 
 		mainForeArm.getRotation().setSmoothness(.3F).orientX(-20F);
@@ -103,11 +103,13 @@ public class AttackSlashDownAnimationBit extends AnimationBit
 			
 			data.rightForeLeg.rotation.setSmoothness(.3F).orientX(30F);
 			data.leftForeLeg.rotation.setSmoothness(.3F).orientX(30F);
+			
+			data.head.rotation.rotateY(-30 * handDirMtp);
+			data.renderOffset.slideY(-2F);
+			data.renderRotation.setSmoothness(.3F).orientY(-30 * handDirMtp);
 		}
 
-		data.renderOffset.slideY(-2F);
 		mainItemRotation.orientInstantX(90);
-		data.renderRotation.setSmoothness(.3F).orientY(-30 * handDirMtp);
 
 		ticksPlayed += DataUpdateHandler.ticksPerFrame;
 	}

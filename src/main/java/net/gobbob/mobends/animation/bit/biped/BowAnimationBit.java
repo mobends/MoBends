@@ -6,6 +6,7 @@ import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.math.MathHelper;
 
 public class BowAnimationBit extends AnimationBit
 {
@@ -54,65 +55,48 @@ public class BowAnimationBit extends AnimationBit
 			aimedBowDuration = 15;
 		}
 
-		/*if (aimedBowDuration < 10)
+		if (aimedBowDuration < 10)
 		{
-			mainArm.getPreRotation().slideToZero(0.3F);
-			offArm.getPreRotation().slideToZero(0.3F);
-			mainArm.getRotation().slideToZero( 0.3F);
-			offArm.getRotation().slideToZero(0.3F);
+			data.body.getRotation().setSmoothness(.3F).orientX(30);
 
-			data.body.rotation.slideX(30, 0.3F);
-			data.body.rotation.slideY(0, 0.3F);
-
-			mainArm.getRotation().slideZ(0);
-			mainArm.getRotation().slideX(-30);
-			offArm.getRotation().slideX(-0 - 30);
-
-			offArm.getRotation().slideY(80F * handDirMtp);
+			mainArm.getRotation().setSmoothness(.3F).orientX(-30);
+			offArm.getRotation().setSmoothness(.3F).orientX(-30)
+					.rotateY(80F * handDirMtp);
 
 			float var = (aimedBowDuration / 10.0f);
-			offForeArm.getRotation().slideX(var * -50F);
+			offForeArm.getRotation().orientX(var * -50F);
 
-			data.head.rotation.slideX(data.getHeadPitch() - 30, 0.3F);
+			data.head.rotation.setSmoothness(.3F).rotateX(-30);
 		}
 		else
 		{
-			mainArm.getPreRotation().slideToZero(0.3F);
-			offArm.getPreRotation().slideToZero(0.3F);
-			mainArm.getRotation().slideToZero(0.3F);
-			offArm.getRotation().slideToZero(0.3F);
-
-			float var1 = 20 - (((aimedBowDuration - 10)) / 5.0f) * 20;
-			data.body.rotation.slideX(var1, 0.3f);
 			float var = (((aimedBowDuration - 10) / 5.0f) * -25) * handDirMtp;
-			data.body.rotation.slideY(-var + data.getHeadYaw(), 0.3F);
-
+			float var2 = (aimedBowDuration / 10.0f);
+			float var5 = data.getHeadPitch() - 90F;
+			var5 = Math.max(var5, -160);
+			
+			float bodyRotationX = 20 - (((aimedBowDuration - 10)) / 5.0f) * 20;
+			float bodyRotationY = -var + data.getHeadYaw();
 			if (data.isClimbing())
 			{
-				data.body.rotation.slideY(var + data.getHeadYaw() * 1.5F, 0.3F);
+				bodyRotationY = var + data.getHeadYaw() * 1.5F;
 			}
+			
+			data.body.rotation.setSmoothness(.3F).orientX(bodyRotationX)
+			.rotateY(bodyRotationY);
 
-			mainForeArm.getRotation().slideX(0.0f, 1.0f);
+			mainArm.getRotation().setSmoothness(.8F).orientX(data.getHeadPitch() - 90F)
+					.rotateY(var);
+			offArm.getRotation().setSmoothness(1F).orientY(80F * handDirMtp)
+				.rotateZ(-MathHelper.cos(data.getHeadPitch()/180F*3.14F)*40.0F + 40.0F) //Keeping it close to the arm no matter the head pitch
+				.rotateX(var5);
+					//
 
-			mainArm.getRotation().slideX(-90 - var1, 0.3f);
-			offArm.getRotation().slideX(-0 - 30);
-
-			offArm.getRotation().slideY(80.0f * handDirMtp);
-
-			float var2 = (aimedBowDuration / 10.0f);
-			offForeArm.getRotation().slideX(var2 * -30.0f);
-
-			mainArm.getPreRotation().slideY(var);
-
-			float var5 = -90 + data.getHeadPitch();
-			var5 = Math.max(var5, -120);
-			offArm.getPreRotation().slideX(var5, 0.3F);
-
-			mainArm.getRotation().slideX(data.getHeadPitch() - 90F);
-
-			data.head.rotation.setY(var);
-			data.head.preRotation.slideX(-var1, 0.3f);
-			data.head.rotation.setX(data.getHeadPitch());
-		}*/
+			mainForeArm.getRotation().setSmoothness(1F).orientX(0);
+			offForeArm.getRotation().orientX(var2 * -30F);
+			
+			data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRotationX)
+												  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRotationY);
+		}
 	}
 }

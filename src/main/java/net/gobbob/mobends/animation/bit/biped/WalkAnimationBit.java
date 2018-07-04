@@ -58,8 +58,8 @@ public class WalkAnimationBit extends AnimationBit
 				.rotateX(bodyRotationX)
 				.rotateZ(-var10);
 		
-		data.head.rotation.setSmoothness(0.5F).orientX(data.getHeadPitch() - bodyRotationX);
-		data.head.rotation.rotateY(data.getHeadYaw() - bodyRotationY);
+		data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRotationX)
+											  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRotationY);
 
 		data.renderOffset.slideY(MathHelper.cos(limbSwing * 2) * 0.6F);
 		

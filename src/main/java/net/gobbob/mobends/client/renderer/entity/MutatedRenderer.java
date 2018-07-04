@@ -32,7 +32,8 @@ public abstract class MutatedRenderer
 			viewZ = viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * partialTicks;
 		}
 		GlStateManager.translate(entityX - viewX, entityY - viewY, entityZ - viewZ);
-
+		GlStateManager.rotate(-this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
+		
 		this.renderLocalAccessories(entity, partialTicks);
 		
 		EntityData data = EntityDatabase.instance.get(entity);
@@ -45,12 +46,13 @@ public abstract class MutatedRenderer
 				GlStateManager.translate(0, 0.155D * 2, 0);
 			}
 
+			GlStateManager.rotate(livingData.renderRotation.getSmooth());
 			GlStateManager.translate(livingData.renderOffset.getX() * scale,
 									livingData.renderOffset.getY() * scale,
 									livingData.renderOffset.getZ() * scale);
-			GlStateManager.rotate(livingData.renderRotation.getSmooth());
 		}
 		
+		GlStateManager.rotate(this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
 		GlStateManager.translate(viewX - entityX, viewY - entityY, viewZ - entityZ);
 	}
 	

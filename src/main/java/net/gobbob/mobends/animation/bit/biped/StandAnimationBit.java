@@ -60,8 +60,8 @@ public class StandAnimationBit extends AnimationBit
 		data.rightForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
 		data.leftForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
 
-		data.head.rotation.orient(data.getHeadPitch(), 1F, 0F, 0F);
-		data.head.rotation.rotate(data.getHeadYaw(), 0F, 1F, 0F);
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
+						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
 
 		final float PI = (float) Math.PI;
 		float phase = DataUpdateHandler.getTicks() / 10;

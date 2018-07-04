@@ -4,6 +4,7 @@ import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.EnumHandSide;
 
 public class FistGuardAnimationBit extends AnimationBit
 {
@@ -25,31 +26,36 @@ public class FistGuardAnimationBit extends AnimationBit
 
 		BipedEntityData data = (BipedEntityData) entityData;
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
+		EnumHandSide primaryHand = living.getPrimaryHand();
 
-		/*data.renderRotation.slideY(-20.0f);
-		data.renderOffset.addY(-2.0f);
+		boolean mainHandSwitch = primaryHand == EnumHandSide.RIGHT;
+		// Main Hand Direction Multiplier - it helps switch animation sides depending on
+		// what is your main hand.
+		float handDirMtp = mainHandSwitch ? 1 : -1;
+		
+		data.renderOffset.slideY(-2.0F);
+		data.renderRotation.setSmoothness(.3F).orientY(-20 * handDirMtp);
+		
+		data.rightArm.rotation.setSmoothness(.3F).orientX(-90F)
+				.rotateZ(20F);
+		data.rightForeArm.rotation.setSmoothness(.3F).orientX(-80F);
 
-		data.rightArm.rotation.slideX(-90, 0.3f);
-		data.rightForeArm.rotation.slideX(-80, 0.3f);
+		data.leftArm.rotation.setSmoothness(.3F).orientX(-90F)
+				.rotateZ(-20F);
+		data.leftForeArm.rotation.setSmoothness(.3F).orientX(-80F);
+		
+		data.body.rotation.rotateX(10);
 
-		data.leftArm.rotation.slideX(-90, 0.3f);
-		data.leftForeArm.rotation.slideX(-80, 0.3f);
+		data.rightLeg.rotation.setSmoothness(.3F).orientX(-30F)
+				.rotateZ(10);
+		data.leftLeg.rotation.setSmoothness(.3F).orientX(-30F)
+				.rotateY(-25F)
+				.rotateZ(-10);
 
-		data.rightArm.rotation.slideZ(20, 0.3f);
-		data.leftArm.rotation.slideZ(-20, 0.3f);
+		data.rightForeLeg.rotation.setSmoothness(.3F).orientX(30);
+		data.leftForeLeg.rotation.setSmoothness(.3F).orientX(30);
 
-		data.body.rotation.addX(10);
-
-		data.rightLeg.rotation.slideX(-30, 0.3f);
-		data.leftLeg.rotation.slideX(-30, 0.3f);
-		data.leftLeg.rotation.slideY(-25, 0.3f);
-		data.rightLeg.rotation.slideZ(10);
-		data.leftLeg.rotation.slideZ(-10);
-
-		data.rightForeLeg.rotation.slideX(30, 0.3f);
-		data.leftForeLeg.rotation.slideX(30, 0.3f);
-
-		data.head.rotation.setY(data.getHeadYaw() - data.body.rotation.getY() - 20);
-		data.head.rotation.setX(data.getHeadPitch() - 10);*/
+		data.head.rotation.rotateX(-10);
+		data.head.rotation.rotateY(-20 * handDirMtp);
 	}
 }

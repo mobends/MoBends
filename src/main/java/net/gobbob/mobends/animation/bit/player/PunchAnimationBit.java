@@ -3,6 +3,7 @@ package net.gobbob.mobends.animation.bit.player;
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
+import net.gobbob.mobends.util.EnumAxis;
 import net.minecraft.entity.EntityLivingBase;
 
 public class PunchAnimationBit extends AnimationBit
@@ -26,14 +27,14 @@ public class PunchAnimationBit extends AnimationBit
 		PlayerData data = (PlayerData) entityData;
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
 
-		/*data.rightArm.rotation.slideX(-90, 0.3f);
-		data.rightForeArm.rotation.slideX(-80, 0.3f);
-
-		data.leftArm.rotation.slideX(-90, 0.3f);
-		data.leftForeArm.rotation.slideX(-80, 0.3f);
-
-		data.rightArm.rotation.slideZ(20, 0.3f);
-		data.leftArm.rotation.slideZ(-20, 0.3f);
+		data.rightArm.rotation.setSmoothness(.3F).orientX(-90)
+				.rotateZ(20);
+		
+		data.leftArm.rotation.setSmoothness(.3F).orientZ(-20)
+				.rotateX(-90);
+		
+		data.rightForeArm.rotation.setSmoothness(.3F).orientX(-80);
+		data.leftForeArm.rotation.setSmoothness(.3F).orientX(-80);
 		
 		float renderRotationY = 0F;
 		
@@ -42,47 +43,37 @@ public class PunchAnimationBit extends AnimationBit
 			renderRotationY = -20F;
 			data.renderOffset.slideY(-2.0f);
 
-			data.rightLeg.rotation.slideX(-30, 0.3f);
-			data.leftLeg.rotation.slideX(-30, 0.3f);
-			data.leftLeg.rotation.slideY(-25, 0.3f);
-			data.rightLeg.rotation.slideZ(10);
-			data.leftLeg.rotation.slideZ(-10);
-
-			data.rightForeLeg.rotation.slideX(30, 0.3f);
-			data.leftForeLeg.rotation.slideX(30, 0.3f);
+			data.rightLeg.rotation.setSmoothness(.3F).orientX(-30F)
+					.rotateZ(10);
+			data.leftLeg.rotation.setSmoothness(.3F).orientX(-30F)
+					.rotateY(-25F)
+					.rotateZ(-10);
+			data.rightForeLeg.rotation.setSmoothness(.3F).orientX(30);
+			data.leftForeLeg.rotation.setSmoothness(.3F).orientX(30);
 		}
 		
 		if (data.getFistPunchArm())
 		{
-			data.rightArm.preRotation.slideZ(90, 0.9F);
-
-			data.rightArm.rotation.slideX(-80 - data.renderRotation.getEnd(EnumAxis.Y), 0.9F);
-			data.rightArm.preRotation.slideY(-(-20.0f + data.getHeadPitch()), 0.9f);
-			data.rightForeArm.rotation.slideX(0, 0.9f);
+			data.rightArm.rotation.setSmoothness(.9F).orientY(-90)
+					.rotateX(-90.0f + data.getHeadPitch())
+					.rotateY(10);
+			data.rightForeArm.rotation.setSmoothness(.9F).orientX(0);
 			
-			data.body.rotation.slideY(-20.0f + renderRotationY, 0.6f);
-
-			//data.head.rotation.slideY(data.getHeadYaw() + 20.0F + renderRotationY);
-			//data.head.rotation.setX(data.getHeadPitch() - 10);
+			data.body.rotation.setSmoothness(.6F).orientY(-20.0f + renderRotationY);
+			data.head.rotation.rotateY(20.0F);
 		}
 		else
 		{
-			data.leftArm.preRotation.slideZ(-100, 0.9f);
-			data.leftArm.preRotation.slideY(-15, 0.9f);
+			data.leftArm.rotation.setSmoothness(.9F).orientY(100)
+					.rotateX(-90F + data.getHeadPitch())
+					.rotateY(- 16.0F);
 
-			data.leftArm.rotation.slideX(-70, 0.9f);
-			data.leftArm.preRotation.slideY(-20.0f + data.getHeadPitch(), 0.9f);
-			data.leftForeArm.rotation.slideX(0, 0.9f);
-
-			data.body.rotation.slideY(20.0f + renderRotationY, 0.6f);
-
-			//data.head.rotation.slideY(data.getHeadYaw() - 20.0F + renderRotationY);
-			//data.head.rotation.setX(data.getHeadPitch() - 10);
+			data.leftForeArm.rotation.setSmoothness(.9F).orientX(0);
+			data.body.rotation.setSmoothness(.6F).orientY(20.0f + renderRotationY);
+			data.head.rotation.rotateY(-20.0F);
 		}
 		
-		data.head.rotation.setY(data.getHeadYaw() - data.body.rotation.getY() + renderRotationY);
-		data.body.rotation.slideX(10, 0.3f);
-		data.renderRotation.slideY(renderRotationY);*/
+		data.renderRotation.orientY(renderRotationY);
 	}
 
 }

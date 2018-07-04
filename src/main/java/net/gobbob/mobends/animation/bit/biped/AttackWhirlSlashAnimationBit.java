@@ -71,8 +71,8 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit
 
 		data.body.rotation.setSmoothness(.9F).orientX(bodyRot.x)
 				.orientY(bodyRot.y);
-		data.head.rotation.orientX(data.getHeadPitch() - bodyRot.x)
-				.rotateY(data.getHeadYaw() - bodyRot.y - 30);
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRot.x)
+						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRot.y - 30);
 		
 		offArm.getRotation().setSmoothness(.3F).orientZ(20F * handDirMtp);
 		offArm.getRotation().setSmoothness(.3F).orientZ(-80F * handDirMtp);
@@ -99,6 +99,6 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit
 		data.renderOffset.slideY(-2F);
 		mainItemRotation.setSmoothness(.9F).orientX(90 * attackState);
 		float renderRotationY = 30 + 360 * var5;
-		data.renderRotation.orientInstantY(-renderRotationY * handDirMtp);
+		data.renderRotation.orientInstantY(MathHelper.wrapDegrees(-renderRotationY * handDirMtp));
 	}
 }

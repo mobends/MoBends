@@ -206,5 +206,6 @@ public class SmoothOrientation
 				this.start.y + (this.end.y-this.start.y) * this.progress,
 				this.start.z + (this.end.z-this.start.z) * this.progress,
 				this.start.w + (this.end.w-this.start.w) * this.progress);
+		this.smooth.normalise();
 	}
 }

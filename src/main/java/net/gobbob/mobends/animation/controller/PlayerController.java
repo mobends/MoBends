@@ -28,7 +28,7 @@ public class PlayerController extends Controller
 	protected HardAnimationLayer layerBase;
 	protected HardAnimationLayer layerSneak;
 	protected HardAnimationLayer layerAction;
-	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSprintJump, bitSneak;
+	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSprintJump, bitSneak, bitLadderClimb;
 	protected AnimationBit bitAttack;
 	protected BowAnimationBit bitBow;
 
@@ -43,6 +43,7 @@ public class PlayerController extends Controller
 		this.bitSprint = new net.gobbob.mobends.animation.bit.biped.SprintAnimationBit();
 		this.bitSprintJump = new net.gobbob.mobends.animation.bit.player.SprintJumpAnimationBit();
 		this.bitSneak = new net.gobbob.mobends.animation.bit.biped.SneakAnimationBit();
+		this.bitLadderClimb = new net.gobbob.mobends.animation.bit.biped.LadderClimbAnimationBit();
 		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
 	}
@@ -103,46 +104,42 @@ public class PlayerController extends Controller
             }
         }
 
-		if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
-		{
-			if (player.isSprinting())
-			{
-				this.layerBase.playOrContinueBit(bitSprintJump, entityData);
-			}
-			else
-			{
-				this.layerBase.playOrContinueBit(bitJump, entityData);
-			}
-			this.layerSneak.clearAnimation();
+        if(playerData.isClimbing())
+        {
+        	this.layerBase.playOrContinueBit(bitLadderClimb, entityData);
+        	this.layerSneak.clearAnimation();
 		}
-		else
-		{
-			if (playerData.isStillHorizontally())
-			{
-				this.layerBase.playOrContinueBit(bitStand, entityData);
-			}
-			else
+        else
+        {
+			if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
 			{
 				if (player.isSprinting())
+					this.layerBase.playOrContinueBit(bitSprintJump, entityData);
+				else
+					this.layerBase.playOrContinueBit(bitJump, entityData);
+				this.layerSneak.clearAnimation();
+			}
+			else
+			{
+				if (playerData.isStillHorizontally())
 				{
-					this.layerBase.playOrContinueBit(bitSprint, entityData);
+					this.layerBase.playOrContinueBit(bitStand, entityData);
 				}
 				else
 				{
-					this.layerBase.playOrContinueBit(bitWalk, entityData);
+					if (player.isSprinting())
+						this.layerBase.playOrContinueBit(bitSprint, entityData);
+					else
+						this.layerBase.playOrContinueBit(bitWalk, entityData);
 				}
+				
+				if (player.isSneaking())
+					this.layerSneak.playOrContinueBit(bitSneak, entityData);
+				else
+					this.layerSneak.clearAnimation();
 			}
-			
-			if (player.isSneaking())
-			{
-				this.layerSneak.playOrContinueBit(bitSneak, entityData);
-			}
-			else
-			{
-				this.layerSneak.clearAnimation();
-			}
-		}
-
+        }
+		
 		if(armPoseMain == ArmPose.BOW_AND_ARROW || armPoseOff == ArmPose.BOW_AND_ARROW)
 		{
 			this.bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);

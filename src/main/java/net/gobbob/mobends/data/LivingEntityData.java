@@ -21,13 +21,13 @@ public abstract class LivingEntityData extends EntityData
     protected float ticksAfterTouchdown;
 	protected float ticksAfterAttack;
 	protected float ticksAfterThrowup;
-	protected float climbingCycle;
+	protected float climbingCycle = 0F;
 	protected boolean alreadyPunched = false;
 	protected boolean climbing = false;
-	protected float limbSwing = 0.0f;
-	protected float limbSwingAmount = 0.0f;
-	protected float headYaw = 0.0f;
-	protected float headPitch = 0.0f;
+	protected float limbSwing = 0F;
+	protected float limbSwingAmount = 0F;
+	protected float headYaw = 0F;
+	protected float headPitch = 0F;
 	
 	public SmoothVector3f renderOffset;
     public SmoothOrientation renderRotation;
@@ -87,6 +87,7 @@ public abstract class LivingEntityData extends EntityData
 		this.headPitch = headPitch;
 	}
 	
+	public float getClimbingCycle() { return this.climbingCycle; }
 	public float getTicksAfterLiftoff() { return this.ticksAfterLiftoff; }
 	public float getTicksAfterTouchdown() { return this.ticksAfterTouchdown; }
 	public float getTicksAfterAttack() { return this.ticksAfterAttack; }
@@ -117,6 +118,11 @@ public abstract class LivingEntityData extends EntityData
 			this.climbingCycle += DataUpdateHandler.ticksPerFrame*this.motion.y*2.6f;
 			this.climbing = true;
 		}
+		else
+		{
+			this.climbing = false;
+		}
+			
 		
 		if(this.entity instanceof EntityLivingBase) {
 			if(((EntityLivingBase)this.entity).swingProgress > 0)

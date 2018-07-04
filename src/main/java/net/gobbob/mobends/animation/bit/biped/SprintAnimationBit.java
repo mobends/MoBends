@@ -58,8 +58,9 @@ public class SprintAnimationBit extends AnimationBit
 		data.body.rotation.setSmoothness(.8F).orientY(bodyRotationY)
 				.rotateX(bodyRotationX)
 				.rotateZ(-var10);
-		data.head.rotation.setSmoothness(.5F).orientX(data.getHeadPitch() - bodyRotationX)
-				.rotateY(data.getHeadYaw() - bodyRotationY);
+		data.head.rotation.setSmoothness(.5F).orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRotationX)
+											 .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRotationY);
+		
 
 		data.renderOffset.slideY(MathHelper.cos(limbSwing * 2F + 0.6F) * 1.5f, .9f);
 	}

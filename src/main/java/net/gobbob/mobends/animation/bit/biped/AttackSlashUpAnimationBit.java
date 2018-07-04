@@ -13,6 +13,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.math.MathHelper;
 
 public class AttackSlashUpAnimationBit extends AnimationBit
 {
@@ -58,9 +59,6 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 		IModelPart offForeLeg = mainHandSwitch ? data.leftForeLeg : data.rightForeLeg;
 		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
 		
-		data.renderRotation.setSmoothness(.3F).orientY(0 * handDirMtp);
-		data.renderOffset.slideY(-1.0F);
-
 		if (living.getHeldItem(EnumHand.MAIN_HAND) != null)
 		{
 			if (data.getTicksAfterAttack() < 4F
@@ -80,8 +78,8 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 
 		data.body.rotation.setSmoothness(.9F).orientX(bodyRot.x)
 				.orientY(bodyRot.y);
-		data.head.rotation.orientX(data.getHeadPitch() - bodyRot.x)
-				.rotateY(data.getHeadYaw() - bodyRot.y);
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRot.x)
+						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRot.y);
 
 		mainArm.getRotation().setSmoothness(.9F).orientZ(110F * armSwing * handDirMtp)
 				.rotateY(60F - armSwing * 180F);
@@ -100,6 +98,9 @@ public class AttackSlashUpAnimationBit extends AnimationBit
 					.rotateY(-15F)
 					.rotateX(-20F);
 			data.rightForeLeg.rotation.orientX(25F);
+			
+			data.renderRotation.setSmoothness(.3F).orientY(0 * handDirMtp);
+			data.renderOffset.slideY(-1.0F);
 		}
 
 		mainItemRotation.setSmoothness(.9F).orientInstantX(180);

@@ -65,8 +65,8 @@ public class JumpAnimationBit extends AnimationBit
 		data.rightForeArm.rotation.setSmoothness(0.3F).orientX(0);
 		data.leftForeArm.rotation.setSmoothness(0.3F).orientX(0);
 
-		data.head.rotation.orientX(data.getHeadPitch() - bodyRotationX);
-		data.head.rotation.rotateY(data.getHeadYaw());
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRotationX)
+						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
 
 		if (!data.isStillHorizontally())
 		{
