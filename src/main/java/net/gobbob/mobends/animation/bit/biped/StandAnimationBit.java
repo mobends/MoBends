@@ -2,6 +2,7 @@ package net.gobbob.mobends.animation.bit.biped;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
+import net.gobbob.mobends.client.event.EntityRenderHandler;
 import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.minecraft.item.ItemSword;
@@ -64,7 +65,7 @@ public class StandAnimationBit extends AnimationBit
 						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
 
 		final float PI = (float) Math.PI;
-		float phase = DataUpdateHandler.getTicks() / 10;
+		float phase = (DataUpdateHandler.getTicks() + DataUpdateHandler.partialTicks) / 10;
 		data.body.rotation.setSmoothness(1.0F).orientX(((MathHelper.cos(phase) - 1) / 2) * -3);
 		data.rightArm.rotation.setSmoothness(0.4F).orientX(0.0F)
 				.rotateZ(MathHelper.cos(phase + PI/2) * -2.5F + 2.5F);

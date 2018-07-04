@@ -5,7 +5,7 @@ import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.data.EntityData;
 import net.minecraft.entity.EntityLivingBase;
 
-public abstract class AnimationBit
+public abstract class AnimationBit<DataType extends EntityData>
 {
 	/*
 	 * The layer that this bit is performed by.
@@ -17,7 +17,7 @@ public abstract class AnimationBit
 	 * Called by the AnimationLayer before it plays
 	 * this bit.
 	 */
-	public void setupForPlay(AnimationLayer layer, EntityData entityData)
+	public void setupForPlay(AnimationLayer layer, DataType entityData)
 	{
 		this.layer = layer;
 		this.onPlay(entityData);
@@ -27,17 +27,17 @@ public abstract class AnimationBit
 	 * Called by setupForPlay to setup the beginning of
 	 * this animation bit.
 	 */
-	public void onPlay(EntityData entityData) {}
+	public void onPlay(DataType entityData) {}
 	
 	/*
 	 * Called by an AnimationLayer to perform a continuous
 	 * animation.
 	 */
-	public abstract void perform(EntityData entityData);
+	public abstract void perform(DataType entityData);
 	
 	/*
 	 * Returns the actions currently being performed
 	 * by the entityData. Used by BendsPacks
 	 */
-	public abstract String[] getActions(EntityData entityData);
+	public abstract String[] getActions(DataType entityData);
 }

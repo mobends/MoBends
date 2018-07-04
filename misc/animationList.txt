@@ -16,3 +16,4 @@ attack_stance_sprint
 fist_guard
 punch
 bow
+eating

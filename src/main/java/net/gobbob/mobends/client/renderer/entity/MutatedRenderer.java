@@ -46,10 +46,10 @@ public abstract class MutatedRenderer
 				GlStateManager.translate(0, 0.155D * 2, 0);
 			}
 
-			GlStateManager.rotate(livingData.renderRotation.getSmooth());
 			GlStateManager.translate(livingData.renderOffset.getX() * scale,
-									livingData.renderOffset.getY() * scale,
-									livingData.renderOffset.getZ() * scale);
+					livingData.renderOffset.getY() * scale,
+					livingData.renderOffset.getZ() * scale);
+			GlStateManager.rotate(livingData.renderRotation.getSmooth());
 		}
 		
 		GlStateManager.rotate(this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
