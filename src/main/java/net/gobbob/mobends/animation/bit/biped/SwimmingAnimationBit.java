@@ -101,9 +101,11 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
 			}
 			
 			data.leftArm.rotation.setSmoothness(.3F).orientX(armSway*-120)
-					.rotateY(-90F * t);
+					.rotateY(-90F * t)
+					.rotateX(armSway * 20);
 			data.rightArm.rotation.setSmoothness(.3F).orientX(armSway*-120)
-					.rotateY(90F * t);
+					.rotateY(90F * t)
+					.rotateX(armSway * 20);
 			
 			data.leftForeArm.rotation.setSmoothness(.3F).orientX((foreArmSway < 0.55f | foreArmSway > 0.9) ? foreArmStretch*-60.0f : -60);
 			data.rightForeArm.rotation.setSmoothness(.3F).orientX((foreArmSway < 0.55f | foreArmSway > 0.9) ? foreArmStretch*-60.0f : -60);

@@ -2,6 +2,7 @@ package net.gobbob.mobends.client.model;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import net.gobbob.mobends.util.GLHelper;
 import net.gobbob.mobends.util.SmoothOrientation;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.model.ModelBase;
@@ -149,7 +150,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
         	GlStateManager.translate(this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
 		
-		GlStateManager.rotate(this.rotation.getSmooth());
+		GLHelper.rotate(this.rotation.getSmooth());
         
         if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
         	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);

@@ -4,6 +4,7 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.LivingEntityData;
 import net.gobbob.mobends.main.ModConfig;
+import net.gobbob.mobends.util.GLHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -47,9 +48,9 @@ public abstract class MutatedRenderer
 			}
 
 			GlStateManager.translate(livingData.renderOffset.getX() * scale,
-					livingData.renderOffset.getY() * scale,
-					livingData.renderOffset.getZ() * scale);
-			GlStateManager.rotate(livingData.renderRotation.getSmooth());
+									 livingData.renderOffset.getY() * scale,
+									 livingData.renderOffset.getZ() * scale);
+			GLHelper.rotate(livingData.renderRotation.getSmooth());
 		}
 		
 		GlStateManager.rotate(this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);

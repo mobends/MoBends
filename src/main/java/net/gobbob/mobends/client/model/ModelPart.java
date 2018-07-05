@@ -2,6 +2,7 @@ package net.gobbob.mobends.client.model;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import net.gobbob.mobends.util.GLHelper;
 import net.gobbob.mobends.util.SmoothOrientation;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.model.ModelBase;
@@ -107,7 +108,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
         GlStateManager.pushMatrix();
         GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
 
-        GlStateManager.rotate(rotation.getSmooth());
+        GLHelper.rotate(rotation.getSmooth());
 
         GlStateManager.callList(this.displayList);
         GlStateManager.popMatrix();
@@ -136,7 +137,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
         	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
         
-		GlStateManager.rotate(rotation.getSmooth());
+		GLHelper.rotate(rotation.getSmooth());
         
         if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
         	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);

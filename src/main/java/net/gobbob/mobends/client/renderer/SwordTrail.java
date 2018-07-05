@@ -12,6 +12,7 @@ import net.gobbob.mobends.util.Color;
 import net.gobbob.mobends.util.Draw;
 import net.gobbob.mobends.util.GLHelper;
 import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.util.Quaternion;
 import net.gobbob.mobends.util.QuaternionUtils;
 import net.gobbob.mobends.util.Vector3;
 import net.minecraft.client.Minecraft;
@@ -25,7 +26,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 
 public class SwordTrail
@@ -192,7 +192,7 @@ public class SwordTrail
 									 entityData.renderOffset.getY(),
 									 entityData.renderOffset.getZ());
 			newPart.renderRotation.set(entityData.renderRotation.getSmooth());
-			newPart.renderRotation.negate(newPart.renderRotation);
+			newPart.renderRotation.negate();
 			this.trailPartList.add(newPart);
 		}
 	}

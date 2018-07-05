@@ -17,3 +17,4 @@ fist_guard
 punch
 bow
 eating
+axe_cut

@@ -1,6 +1,5 @@
 package net.gobbob.mobends.util;
 
-import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -45,8 +44,8 @@ public class SmoothOrientation
 	public SmoothOrientation orient(float a, float x, float y, float z)
 	{
 		this.start.set(this.smooth);
-		this.end.setFromAxisAngle(new Vector4f(x, y, z, a / 180.0F * PI));
-		this.progress = 0.0F;
+		this.end.setFromAxisAngle(x, y, z, a / 180F * PI);
+		this.progress = 0F;
 		this.updateSmooth();
 		return this;
 	}
@@ -68,7 +67,7 @@ public class SmoothOrientation
 	
 	public SmoothOrientation orientInstant(float a, float x, float y, float z)
 	{
-		this.end.setFromAxisAngle(new Vector4f(x, y, z, a / 180.0F * PI));
+		this.end.setFromAxisAngle(x, y, z, a / 180.0F * PI);
 		this.start.set(this.end);
 		this.smooth.set(this.end);
 		return this;
@@ -91,9 +90,7 @@ public class SmoothOrientation
 	
 	public SmoothOrientation rotate(float angle, float x, float y, float z)
 	{
-		Quaternion rotation = new Quaternion();
-		rotation.setFromAxisAngle(new Vector4f(x, y, z, angle / 180.0F * PI));
-		Quaternion.mul(rotation, this.end, this.end);
+		this.end.rotate(x, y, z, angle / 180.0F * PI);
 		this.updateSmooth();
 		return this;
 	}
@@ -116,7 +113,7 @@ public class SmoothOrientation
 	public SmoothOrientation rotateInstant(float angle, float x, float y, float z)
 	{
 		Quaternion rotation = new Quaternion();
-		rotation.setFromAxisAngle(new Vector4f(x, y, z, angle / 180.0F * PI));
+		rotation.setFromAxisAngle(x, y, z, angle / 180.0F * PI);
 		Quaternion.mul(rotation, this.end, this.end);
 		this.start.set(this.end);
 		this.smooth.set(this.end);
@@ -145,7 +142,7 @@ public class SmoothOrientation
 	public SmoothOrientation localRotate(float angle, float x, float y, float z)
 	{
 		Quaternion rotation = new Quaternion();
-		rotation.setFromAxisAngle(new Vector4f(x, y, z, angle / 180.0F * PI));
+		rotation.setFromAxisAngle(x, y, z, angle / 180.0F * PI);
 		Quaternion.mul(this.end, rotation, this.end);
 		this.updateSmooth();
 		return this;

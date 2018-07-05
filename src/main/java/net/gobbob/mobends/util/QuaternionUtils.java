@@ -1,8 +1,11 @@
 package net.gobbob.mobends.util;
 
-import org.lwjgl.util.vector.Quaternion;
+import java.nio.FloatBuffer;
+
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import net.minecraft.client.renderer.GlStateManager;
 
 public class QuaternionUtils
 {
@@ -38,14 +41,46 @@ public class QuaternionUtils
 	
 	public static Quaternion rotate(final Quaternion quat, float angle, float x, float y, float z, Quaternion dest)
 	{
-		Quaternion rotation = new Quaternion();
-		rotation.setFromAxisAngle(new Vector4f(x, y, z, angle / 180.0F * PI));
-		Quaternion.mul(rotation, quat, dest);
+		dest.set(quat);
+		dest.rotate(x, y, z, angle / 180.0F * PI);
 		return dest;
 	}
 	
 	public static Quaternion rotate(final Quaternion quat, float angle, float x, float y, float z)
 	{
-		return rotate(quat, angle, x, y, z, quat);
+		quat.rotate(x, y, z, angle / 180.0F * PI);
+		return quat;
 	}
+
+    public static FloatBuffer quatToGlMatrix(FloatBuffer buffer, Quaternion quaternionIn)
+    {
+        buffer.clear();
+        float f = quaternionIn.x * quaternionIn.x;
+        float f1 = quaternionIn.x * quaternionIn.y;
+        float f2 = quaternionIn.x * quaternionIn.z;
+        float f3 = quaternionIn.x * quaternionIn.w;
+        float f4 = quaternionIn.y * quaternionIn.y;
+        float f5 = quaternionIn.y * quaternionIn.z;
+        float f6 = quaternionIn.y * quaternionIn.w;
+        float f7 = quaternionIn.z * quaternionIn.z;
+        float f8 = quaternionIn.z * quaternionIn.w;
+        buffer.put(1.0F - 2.0F * (f4 + f7));
+        buffer.put(2.0F * (f1 + f8));
+        buffer.put(2.0F * (f2 - f6));
+        buffer.put(0.0F);
+        buffer.put(2.0F * (f1 - f8));
+        buffer.put(1.0F - 2.0F * (f + f7));
+        buffer.put(2.0F * (f5 + f3));
+        buffer.put(0.0F);
+        buffer.put(2.0F * (f2 + f6));
+        buffer.put(2.0F * (f5 - f3));
+        buffer.put(1.0F - 2.0F * (f + f4));
+        buffer.put(0.0F);
+        buffer.put(0.0F);
+        buffer.put(0.0F);
+        buffer.put(0.0F);
+        buffer.put(1.0F);
+        buffer.rewind();
+        return buffer;
+    }
 }
