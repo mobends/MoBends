@@ -41,7 +41,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
 			return;
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
 		
-		float ticks = DataUpdateHandler.getTicks() + DataUpdateHandler.partialTicks;
+		float ticks = DataUpdateHandler.getTicks();
 		
 		float armSway = (MathHelper.cos(ticks * .1625F)+1F)/2.0f;
 		float armSway2 = (-MathHelper.sin(ticks * .1625F)+1F)/2.0f;

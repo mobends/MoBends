@@ -17,6 +17,7 @@ import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.main.ModConfig;
 import net.gobbob.mobends.util.Color;
 import net.gobbob.mobends.util.Draw;
+import net.gobbob.mobends.util.GLHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -26,6 +27,7 @@ import net.minecraft.client.renderer.entity.RenderZombie;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -101,6 +103,19 @@ public class EntityRenderHandler
 	public void afterGuiScreenRender(GuiScreenEvent.DrawScreenEvent.Post event)
 	{
 		renderingGuiScreen = false;
+	}
+	
+	@SubscribeEvent
+	public void beforeSpecialRender(RenderPlayerEvent.Specials.Pre event)
+	{
+		System.out.println("Special");
+		EntityPlayer player = event.getEntityPlayer();
+		EntityData entityData = EntityDatabase.instance.get(player);
+		if (entityData instanceof BipedEntityData)
+		{
+			BipedEntityData data = (BipedEntityData) entityData;
+			GLHelper.rotate(data.renderRotation.getSmooth());
+		}
 	}
 	
 	@SubscribeEvent

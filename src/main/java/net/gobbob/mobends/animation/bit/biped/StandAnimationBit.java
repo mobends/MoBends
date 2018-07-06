@@ -65,7 +65,7 @@ public class StandAnimationBit extends AnimationBit
 						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
 
 		final float PI = (float) Math.PI;
-		float phase = (DataUpdateHandler.getTicks() + DataUpdateHandler.partialTicks) / 10;
+		float phase = DataUpdateHandler.getTicks() / 10;
 		data.body.rotation.setSmoothness(1.0F).orientX(((MathHelper.cos(phase) - 1) / 2) * -3);
 		data.rightArm.rotation.setSmoothness(0.4F).orientX(0.0F)
 				.rotateZ(MathHelper.cos(phase + PI/2) * -2.5F + 2.5F);
