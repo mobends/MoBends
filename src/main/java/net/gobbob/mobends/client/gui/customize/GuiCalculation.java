@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui.nodeeditor;
+package net.gobbob.mobends.client.gui.customize;
 
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.pack.BendsAction;
@@ -21,7 +21,7 @@ public class GuiCalculation {
 	
 	public GuiCalculation(GuiAnimationNode parentNode) {
 		this.parentNode = parentNode;
-		this.parameterEditor = parentNode.getParentSection().getNodeEditor().getParameterEditor();
+		this.parameterEditor = parentNode.getParentSection().getCustomizeWindow().getParameterEditor();
 		this.operator = EnumOperator.SET;
 		this.number = 0.0F;
 		this.globalVar = null;

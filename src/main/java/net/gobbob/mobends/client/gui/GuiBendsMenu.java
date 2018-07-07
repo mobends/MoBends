@@ -10,9 +10,9 @@ import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
+import net.gobbob.mobends.client.gui.customize.GuiCustomizeWindow;
 import net.gobbob.mobends.client.gui.elements.GuiPortraitDisplay;
 import net.gobbob.mobends.client.gui.elements.GuiSectionButton;
-import net.gobbob.mobends.client.gui.nodeeditor.GuiNodeEditor;
 import net.gobbob.mobends.client.gui.packeditor.GuiPackEditor;
 import net.gobbob.mobends.client.gui.packeditor.GuiPackList;
 import net.gobbob.mobends.client.gui.popup.GuiPopUp;
@@ -65,7 +65,7 @@ public class GuiBendsMenu extends GuiScreen
 
 	private GuiSectionButton customizeButton;
 	private GuiSectionButton packsButton;
-	private GuiNodeEditor nodeEditor;
+	private GuiCustomizeWindow customizeWindow;
 	private GuiPopUp popUp;
 	private GuiPackEditor packEditor;
 	private int guiLeft;
@@ -86,7 +86,7 @@ public class GuiBendsMenu extends GuiScreen
 				.setLeftIcon(0, 43, 19, 19).setRightIcon(19, 43, 19, 19);
 		this.packsButton = new GuiSectionButton(I18n.format("mobends.gui.section.packs", new Object[0]), 0xFF4577DE)
 				.setLeftIcon(38, 43, 23, 20).setRightIcon(38, 43, 23, 20);
-		this.nodeEditor = new GuiNodeEditor(this);
+		this.customizeWindow = new GuiCustomizeWindow(this);
 		this.popUp = null;
 		this.packEditor = new GuiPackEditor();
 		
@@ -101,7 +101,7 @@ public class GuiBendsMenu extends GuiScreen
 		this.guiLeft = (this.width - this.xSize) / 2;
 		this.guiTop = (this.height - this.ySize) / 2;
 		this.buttonList.clear();
-		this.nodeEditor.initGui(this.guiLeft + 7, this.guiTop + 97, this.guiLeft + this.xSize, this.guiTop + 70);
+		this.customizeWindow.initGui(this.guiLeft + 7, this.guiTop + 97, this.guiLeft + this.xSize, this.guiTop + 70);
 
 		this.packEditor.initGui(this.width / 2, this.height / 2);
 		if (this.popUp != null)
@@ -123,7 +123,7 @@ public class GuiBendsMenu extends GuiScreen
 			{
 				GuiButton applyButton = new GuiButton(4, guiLeft + xSize - 50 - 7, guiTop + 77 - 4, 50, 20,
 						I18n.format("mobends.gui.apply", new Object[0]));
-				applyButton.enabled = nodeEditor.areChangesUnapplied();
+				applyButton.enabled = customizeWindow.areChangesUnapplied();
 				this.buttonList.add(applyButton);
 			}
 			else
@@ -141,9 +141,9 @@ public class GuiBendsMenu extends GuiScreen
 		switch (this.guiTab)
 		{
 			case TAB_CUSTOMIZE:
-				this.nodeEditor.initGui(this.guiLeft + 7, this.guiTop + 97, this.guiLeft + this.xSize,
+				this.customizeWindow.initGui(this.guiLeft + 7, this.guiTop + 97, this.guiLeft + this.xSize,
 						this.guiTop + 70);
-				this.nodeEditor.populate(getCurrentAlterEntry());
+				this.customizeWindow.populate(getCurrentAlterEntry());
 				break;
 			case TAB_PACKS:
 				this.packEditor.onOpened();
@@ -163,7 +163,7 @@ public class GuiBendsMenu extends GuiScreen
 		switch (keyCode)
 		{
 			case 1:
-				if (guiTab == TAB_CUSTOMIZE && nodeEditor.areChangesUnapplied())
+				if (guiTab == TAB_CUSTOMIZE && customizeWindow.areChangesUnapplied())
 					popUpDiscardChanges(POPUP_EXIT);
 				else if (guiTab == TAB_PACKS)
 				{
@@ -180,7 +180,7 @@ public class GuiBendsMenu extends GuiScreen
 		switch (guiTab)
 		{
 			case TAB_CUSTOMIZE:
-				this.nodeEditor.keyTyped(typedChar, keyCode);
+				this.customizeWindow.keyTyped(typedChar, keyCode);
 				break;
 			case TAB_PACKS:
 				this.packEditor.keyTyped(typedChar, keyCode);
@@ -234,7 +234,7 @@ public class GuiBendsMenu extends GuiScreen
 				this.packsButton.update(mouseX, mouseY);
 				break;
 			case TAB_CUSTOMIZE:
-				this.nodeEditor.update(mouseX, mouseY);
+				this.customizeWindow.update(mouseX, mouseY);
 				break;
 			case TAB_PACKS:
 				this.packEditor.update(mouseX, mouseY);
@@ -254,10 +254,10 @@ public class GuiBendsMenu extends GuiScreen
 					switch (button)
 					{
 						case 0: // Yes
-							selectAlterEntry((Integer) nodeEditor.getTargetList().getSelectedValue());
+							selectAlterEntry((Integer) customizeWindow.getTargetList().getSelectedValue());
 							break;
 						case 1: // No
-							nodeEditor.getTargetList().selectValue(currentAlterEntry);
+							customizeWindow.getTargetList().selectValue(currentAlterEntry);
 							break;
 					}
 					break;
@@ -268,7 +268,7 @@ public class GuiBendsMenu extends GuiScreen
 							this.openTab(TAB_MAIN);
 							break;
 						case 1: // No
-							nodeEditor.getTargetList().selectValue(currentAlterEntry);
+							customizeWindow.getTargetList().selectValue(currentAlterEntry);
 							break;
 					}
 					break;
@@ -283,7 +283,7 @@ public class GuiBendsMenu extends GuiScreen
 							close();
 							break;
 						case 1: // No
-							nodeEditor.getTargetList().selectValue(currentAlterEntry);
+							customizeWindow.getTargetList().selectValue(currentAlterEntry);
 							break;
 					}
 					break;
@@ -309,7 +309,7 @@ public class GuiBendsMenu extends GuiScreen
 				
 				break;
 			case TAB_CUSTOMIZE:
-				this.nodeEditor.mouseClicked(x, y, state);
+				this.customizeWindow.mouseClicked(x, y, state);
 				break;
 			case TAB_PACKS:
 				this.packEditor.mouseClicked(x, y, state);
@@ -330,7 +330,7 @@ public class GuiBendsMenu extends GuiScreen
 		super.mouseReleased(mouseX, mouseY, state);
 		this.customizeButton.mouseReleased(mouseX, mouseY, state);
 		this.packsButton.mouseReleased(mouseX, mouseY, state);
-		this.nodeEditor.mouseReleased(mouseX, mouseY, state);
+		this.customizeWindow.mouseReleased(mouseX, mouseY, state);
 	}
 
 	public void handleMouseInput() throws IOException
@@ -345,7 +345,7 @@ public class GuiBendsMenu extends GuiScreen
 		switch (guiTab)
 		{
 			case TAB_CUSTOMIZE:
-				nodeEditor.handleMouseInput();
+				customizeWindow.handleMouseInput();
 				break;
 			case TAB_PACKS:
 				packEditor.handleMouseInput();
@@ -376,7 +376,7 @@ public class GuiBendsMenu extends GuiScreen
 		switch (par1GuiButton.id)
 		{
 			case 0: // Back
-				if (guiTab == TAB_CUSTOMIZE && nodeEditor.areChangesUnapplied())
+				if (guiTab == TAB_CUSTOMIZE && customizeWindow.areChangesUnapplied())
 					this.popUpDiscardChanges(POPUP_GOBACK);
 				else if (guiTab == TAB_PACKS)
 				{
@@ -390,7 +390,7 @@ public class GuiBendsMenu extends GuiScreen
 				BendsTarget target = BendsPack.getTarget(getCurrentAlterEntry().getName());
 				if (target == null)
 					target = BendsPack.createTarget(getCurrentAlterEntry().getName());
-				this.nodeEditor.applyChanges(target);
+				this.customizeWindow.applyChanges(target);
 				try
 				{
 					PackManager.getCurrentPack().save();
@@ -456,14 +456,14 @@ public class GuiBendsMenu extends GuiScreen
 	public void displayCustomizeWindow(int mouseX, int mouseY, float partialTicks)
 	{
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		this.mc.getTextureManager().bindTexture(GuiNodeEditor.BACKGROUND_TEXTURE);
+		this.mc.getTextureManager().bindTexture(GuiCustomizeWindow.BACKGROUND_TEXTURE);
 		this.drawTexturedModalRect(this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		BendsTarget bendsTarget = BendsPack.getTarget(getCurrentAlterEntry().getName());
 
 		this.drawCenteredString(this.fontRenderer, I18n.format("mobends.gui.customize", new Object[0]),
 				(int) (this.width / 2), this.guiTop + 4, 0xffffff);
 
-		this.nodeEditor.display(mouseX, mouseY, partialTicks);
+		this.customizeWindow.display(mouseX, mouseY, partialTicks);
 		if (!PackManager.isCurrentPackLocal())
 		{
 			this.drawCenteredString(fontRenderer, I18n.format("mobends.gui.chooseapacktoedit", new Object[0]),

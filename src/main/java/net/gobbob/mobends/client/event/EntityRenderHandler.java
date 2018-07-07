@@ -106,19 +106,6 @@ public class EntityRenderHandler
 	}
 	
 	@SubscribeEvent
-	public void beforeSpecialRender(RenderPlayerEvent.Specials.Pre event)
-	{
-		System.out.println("Special");
-		EntityPlayer player = event.getEntityPlayer();
-		EntityData entityData = EntityDatabase.instance.get(player);
-		if (entityData instanceof BipedEntityData)
-		{
-			BipedEntityData data = (BipedEntityData) entityData;
-			GLHelper.rotate(data.renderRotation.getSmooth());
-		}
-	}
-	
-	@SubscribeEvent
 	public void beforeHandRender(RenderHandEvent event)
 	{
 		Minecraft mc = Minecraft.getMinecraft();

@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <asset>
+    <contributor>
+      <author>Blender User</author>
+      <authoring_tool>Blender 2.79.0 commit date:2017-09-11, commit time:10:43, hash:5bd8ac9</authoring_tool>
+    </contributor>
+    <created>2018-07-07T22:04:48</created>
+    <modified>2018-07-07T22:04:48</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_images/>
+  <library_effects/>
+  <library_animations>
+    <animation id="Armature_root_pose_matrix">
+      <source id="Armature_root_pose_matrix-input">
+        <float_array id="Armature_root_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_root_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_root_pose_matrix-output">
+        <float_array id="Armature_root_pose_matrix-output-array" count="32">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_root_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_root_pose_matrix-interpolation">
+        <Name_array id="Armature_root_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_root_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_root_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_root_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_root_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_root_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_root_pose_matrix-sampler" target="Armature_root/transform"/>
+    </animation>
+    <animation id="Armature_body_pose_matrix">
+      <source id="Armature_body_pose_matrix-input">
+        <float_array id="Armature_body_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_body_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_body_pose_matrix-output">
+        <float_array id="Armature_body_pose_matrix-output-array" count="32">1 0 0 0 0 0 -1 0 0 1 0 12 0 0 0 1 1 0 0 0 0 -0.2393767 -0.9709268 0 0 0.9709268 -0.2393767 12 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_body_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_body_pose_matrix-interpolation">
+        <Name_array id="Armature_body_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_body_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_body_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_body_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_body_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_body_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_body_pose_matrix-sampler" target="Armature_body/transform"/>
+    </animation>
+    <animation id="Armature_headBone_pose_matrix">
+      <source id="Armature_headBone_pose_matrix-input">
+        <float_array id="Armature_headBone_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_headBone_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_headBone_pose_matrix-output">
+        <float_array id="Armature_headBone_pose_matrix-output-array" count="32">1 0 0 0 0 0.9999999 0 12 0 0 1 0 0 0 0 1 1 0 0 0 0 0.9203851 0.391013 12 0 -0.3910131 0.9203852 0 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_headBone_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_headBone_pose_matrix-interpolation">
+        <Name_array id="Armature_headBone_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_headBone_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_headBone_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_headBone_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_headBone_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_headBone_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_headBone_pose_matrix-sampler" target="Armature_headBone/transform"/>
+    </animation>
+    <animation id="Armature_leftArm_pose_matrix">
+      <source id="Armature_leftArm_pose_matrix-input">
+        <float_array id="Armature_leftArm_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_leftArm_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_leftArm_pose_matrix-output">
+        <float_array id="Armature_leftArm_pose_matrix-output-array" count="32">1 0 -8.74228e-8 5 0 -0.9999999 0 12 -8.74228e-8 0 -1 0 0 0 0 1 0.9380111 0.3246112 -0.1215025 5 0.3466054 -0.8784887 0.3288195 12 -8.9407e-8 -0.3505498 -0.9365442 0 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_leftArm_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_leftArm_pose_matrix-interpolation">
+        <Name_array id="Armature_leftArm_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_leftArm_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_leftArm_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_leftArm_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_leftArm_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_leftArm_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_leftArm_pose_matrix-sampler" target="Armature_leftArm/transform"/>
+    </animation>
+    <animation id="Armature_leftForeArm_pose_matrix">
+      <source id="Armature_leftForeArm_pose_matrix-input">
+        <float_array id="Armature_leftForeArm_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_leftForeArm_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_leftForeArm_pose_matrix-output">
+        <float_array id="Armature_leftForeArm_pose_matrix-output-array" count="32">1 8.9407e-8 7.45058e-8 9.53674e-7 -4.17233e-7 0.9999999 8.9407e-8 5.999998 2.08616e-7 8.9407e-8 0.9999999 2.000001 0 0 0 1 1 5.96046e-8 8.19564e-8 9.53674e-7 -4.17233e-7 0.9643896 0.2644856 5.999998 1.93715e-7 -0.2644854 0.9643896 2.000001 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_leftForeArm_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_leftForeArm_pose_matrix-interpolation">
+        <Name_array id="Armature_leftForeArm_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_leftForeArm_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_leftForeArm_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_leftForeArm_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_leftForeArm_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_leftForeArm_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_leftForeArm_pose_matrix-sampler" target="Armature_leftForeArm/transform"/>
+    </animation>
+    <animation id="Armature_rightArm_pose_matrix">
+      <source id="Armature_rightArm_pose_matrix-input">
+        <float_array id="Armature_rightArm_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_rightArm_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rightArm_pose_matrix-output">
+        <float_array id="Armature_rightArm_pose_matrix-output-array" count="32">1 0 -8.74228e-8 -5 0 -0.9999999 0 12 -8.74228e-8 0 -1 0 0 0 0 1 0.8979025 -0.4401943 -8.09773e-8 -5 -0.4401943 -0.8979025 0 12 -7.45058e-8 4.47035e-8 -1 0 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_rightArm_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rightArm_pose_matrix-interpolation">
+        <Name_array id="Armature_rightArm_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_rightArm_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_rightArm_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_rightArm_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_rightArm_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_rightArm_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_rightArm_pose_matrix-sampler" target="Armature_rightArm/transform"/>
+    </animation>
+    <animation id="Armature_rightForeArm_pose_matrix">
+      <source id="Armature_rightForeArm_pose_matrix-input">
+        <float_array id="Armature_rightForeArm_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_rightForeArm_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rightForeArm_pose_matrix-output">
+        <float_array id="Armature_rightForeArm_pose_matrix-output-array" count="32">1 -2.98023e-8 8.9407e-8 -9.53674e-7 -1.19209e-7 1 0 5.999999 -6.70552e-8 -1.49012e-8 1 2 0 0 0 1 1 -8.9407e-8 6.70552e-8 -9.53674e-7 -8.9407e-8 0.8318149 0.5550532 5.999999 -8.9407e-8 -0.5550532 0.8318148 2 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_rightForeArm_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rightForeArm_pose_matrix-interpolation">
+        <Name_array id="Armature_rightForeArm_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_rightForeArm_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_rightForeArm_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_rightForeArm_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_rightForeArm_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_rightForeArm_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_rightForeArm_pose_matrix-sampler" target="Armature_rightForeArm/transform"/>
+    </animation>
+    <animation id="Armature_leftLeg_pose_matrix">
+      <source id="Armature_leftLeg_pose_matrix-input">
+        <float_array id="Armature_leftLeg_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_leftLeg_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_leftLeg_pose_matrix-output">
+        <float_array id="Armature_leftLeg_pose_matrix-output-array" count="32">1 0 0 2 0 0 1 0 0 -1 0 12 0 0 0 1 1 0 0 2 0 0 1 0 0 -1 0 12 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_leftLeg_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_leftLeg_pose_matrix-interpolation">
+        <Name_array id="Armature_leftLeg_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_leftLeg_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_leftLeg_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_leftLeg_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_leftLeg_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_leftLeg_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_leftLeg_pose_matrix-sampler" target="Armature_leftLeg/transform"/>
+    </animation>
+    <animation id="Armature_leftForeLeg_pose_matrix">
+      <source id="Armature_leftForeLeg_pose_matrix-input">
+        <float_array id="Armature_leftForeLeg_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_leftForeLeg_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_leftForeLeg_pose_matrix-output">
+        <float_array id="Armature_leftForeLeg_pose_matrix-output-array" count="32">1 0 0 0 0 1 0 6 0 0 1 -2 0 0 0 1 1 0 0 0 0 1 0 6 0 0 1 -2 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_leftForeLeg_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_leftForeLeg_pose_matrix-interpolation">
+        <Name_array id="Armature_leftForeLeg_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_leftForeLeg_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_leftForeLeg_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_leftForeLeg_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_leftForeLeg_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_leftForeLeg_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_leftForeLeg_pose_matrix-sampler" target="Armature_leftForeLeg/transform"/>
+    </animation>
+    <animation id="Armature_rightLeg_pose_matrix">
+      <source id="Armature_rightLeg_pose_matrix-input">
+        <float_array id="Armature_rightLeg_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_rightLeg_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rightLeg_pose_matrix-output">
+        <float_array id="Armature_rightLeg_pose_matrix-output-array" count="32">1 0 0 -2 0 0 1 0 0 -1 0 12 0 0 0 1 1 0 0 -2 0 -0.7749889 0.6319748 0 0 -0.6319748 -0.7749889 12 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_rightLeg_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rightLeg_pose_matrix-interpolation">
+        <Name_array id="Armature_rightLeg_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_rightLeg_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_rightLeg_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_rightLeg_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_rightLeg_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_rightLeg_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_rightLeg_pose_matrix-sampler" target="Armature_rightLeg/transform"/>
+    </animation>
+    <animation id="Armature_rightForeLeg_pose_matrix">
+      <source id="Armature_rightForeLeg_pose_matrix-input">
+        <float_array id="Armature_rightForeLeg_pose_matrix-input-array" count="2">0 0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_rightForeLeg_pose_matrix-input-array" count="2" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rightForeLeg_pose_matrix-output">
+        <float_array id="Armature_rightForeLeg_pose_matrix-output-array" count="32">1 0 0 0 0 1 5.96046e-8 6 0 -2.98023e-8 1 -2 0 0 0 1 1 0 0 0 0 0.2295761 -0.9732907 6 0 0.9732908 0.2295761 -2 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#Armature_rightForeLeg_pose_matrix-output-array" count="2" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rightForeLeg_pose_matrix-interpolation">
+        <Name_array id="Armature_rightForeLeg_pose_matrix-interpolation-array" count="2">LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#Armature_rightForeLeg_pose_matrix-interpolation-array" count="2" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_rightForeLeg_pose_matrix-sampler">
+        <input semantic="INPUT" source="#Armature_rightForeLeg_pose_matrix-input"/>
+        <input semantic="OUTPUT" source="#Armature_rightForeLeg_pose_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_rightForeLeg_pose_matrix-interpolation"/>
+      </sampler>
+      <channel source="#Armature_rightForeLeg_pose_matrix-sampler" target="Armature_rightForeLeg/transform"/>
+    </animation>
+    <animation id="Armature_location.X">
+      <source id="Armature_location.X-input">
+        <float_array id="Armature_location.X-input-array" count="1">0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.X-input-array" count="1" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.X-output">
+        <float_array id="Armature_location.X-output-array" count="1">0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.X-output-array" count="1" stride="1">
+            <param name="X" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.X-interpolation">
+        <Name_array id="Armature_location.X-interpolation-array" count="1">BEZIER</Name_array>
+        <technique_common>
+          <accessor source="#Armature_location.X-interpolation-array" count="1" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.X-intangent">
+        <float_array id="Armature_location.X-intangent-array" count="2">0.3 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.X-intangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.X-outtangent">
+        <float_array id="Armature_location.X-outtangent-array" count="2">0.3666667 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.X-outtangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_location.X-sampler">
+        <input semantic="INPUT" source="#Armature_location.X-input"/>
+        <input semantic="OUTPUT" source="#Armature_location.X-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_location.X-interpolation"/>
+        <input semantic="IN_TANGENT" source="#Armature_location.X-intangent"/>
+        <input semantic="OUT_TANGENT" source="#Armature_location.X-outtangent"/>
+      </sampler>
+      <channel source="#Armature_location.X-sampler" target="Armature/location.X"/>
+    </animation>
+    <animation id="Armature_location.Y">
+      <source id="Armature_location.Y-input">
+        <float_array id="Armature_location.Y-input-array" count="1">0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.Y-input-array" count="1" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.Y-output">
+        <float_array id="Armature_location.Y-output-array" count="1">0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.Y-output-array" count="1" stride="1">
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.Y-interpolation">
+        <Name_array id="Armature_location.Y-interpolation-array" count="1">BEZIER</Name_array>
+        <technique_common>
+          <accessor source="#Armature_location.Y-interpolation-array" count="1" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.Y-intangent">
+        <float_array id="Armature_location.Y-intangent-array" count="2">0.3 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.Y-intangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.Y-outtangent">
+        <float_array id="Armature_location.Y-outtangent-array" count="2">0.3666667 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.Y-outtangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_location.Y-sampler">
+        <input semantic="INPUT" source="#Armature_location.Y-input"/>
+        <input semantic="OUTPUT" source="#Armature_location.Y-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_location.Y-interpolation"/>
+        <input semantic="IN_TANGENT" source="#Armature_location.Y-intangent"/>
+        <input semantic="OUT_TANGENT" source="#Armature_location.Y-outtangent"/>
+      </sampler>
+      <channel source="#Armature_location.Y-sampler" target="Armature/location.Y"/>
+    </animation>
+    <animation id="Armature_location.Z">
+      <source id="Armature_location.Z-input">
+        <float_array id="Armature_location.Z-input-array" count="1">0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.Z-input-array" count="1" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.Z-output">
+        <float_array id="Armature_location.Z-output-array" count="1">0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.Z-output-array" count="1" stride="1">
+            <param name="Z" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.Z-interpolation">
+        <Name_array id="Armature_location.Z-interpolation-array" count="1">BEZIER</Name_array>
+        <technique_common>
+          <accessor source="#Armature_location.Z-interpolation-array" count="1" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.Z-intangent">
+        <float_array id="Armature_location.Z-intangent-array" count="2">0.3 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.Z-intangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_location.Z-outtangent">
+        <float_array id="Armature_location.Z-outtangent-array" count="2">0.3666667 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_location.Z-outtangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_location.Z-sampler">
+        <input semantic="INPUT" source="#Armature_location.Z-input"/>
+        <input semantic="OUTPUT" source="#Armature_location.Z-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_location.Z-interpolation"/>
+        <input semantic="IN_TANGENT" source="#Armature_location.Z-intangent"/>
+        <input semantic="OUT_TANGENT" source="#Armature_location.Z-outtangent"/>
+      </sampler>
+      <channel source="#Armature_location.Z-sampler" target="Armature/location.Z"/>
+    </animation>
+    <animation id="Armature_rotation_euler.X">
+      <source id="Armature_rotation_euler.X-input">
+        <float_array id="Armature_rotation_euler.X-input-array" count="1">0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.X-input-array" count="1" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.X-output">
+        <float_array id="Armature_rotation_euler.X-output-array" count="1">0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.X-output-array" count="1" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.X-interpolation">
+        <Name_array id="Armature_rotation_euler.X-interpolation-array" count="1">BEZIER</Name_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.X-interpolation-array" count="1" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.X-intangent">
+        <float_array id="Armature_rotation_euler.X-intangent-array" count="2">0.3 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.X-intangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.X-outtangent">
+        <float_array id="Armature_rotation_euler.X-outtangent-array" count="2">0.3666667 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.X-outtangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_rotation_euler.X-sampler">
+        <input semantic="INPUT" source="#Armature_rotation_euler.X-input"/>
+        <input semantic="OUTPUT" source="#Armature_rotation_euler.X-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_rotation_euler.X-interpolation"/>
+        <input semantic="IN_TANGENT" source="#Armature_rotation_euler.X-intangent"/>
+        <input semantic="OUT_TANGENT" source="#Armature_rotation_euler.X-outtangent"/>
+      </sampler>
+      <channel source="#Armature_rotation_euler.X-sampler" target="Armature/rotationX.ANGLE"/>
+    </animation>
+    <animation id="Armature_rotation_euler.Y">
+      <source id="Armature_rotation_euler.Y-input">
+        <float_array id="Armature_rotation_euler.Y-input-array" count="1">0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Y-input-array" count="1" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.Y-output">
+        <float_array id="Armature_rotation_euler.Y-output-array" count="1">0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Y-output-array" count="1" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.Y-interpolation">
+        <Name_array id="Armature_rotation_euler.Y-interpolation-array" count="1">BEZIER</Name_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Y-interpolation-array" count="1" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.Y-intangent">
+        <float_array id="Armature_rotation_euler.Y-intangent-array" count="2">0.3 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Y-intangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.Y-outtangent">
+        <float_array id="Armature_rotation_euler.Y-outtangent-array" count="2">0.3666667 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Y-outtangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_rotation_euler.Y-sampler">
+        <input semantic="INPUT" source="#Armature_rotation_euler.Y-input"/>
+        <input semantic="OUTPUT" source="#Armature_rotation_euler.Y-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_rotation_euler.Y-interpolation"/>
+        <input semantic="IN_TANGENT" source="#Armature_rotation_euler.Y-intangent"/>
+        <input semantic="OUT_TANGENT" source="#Armature_rotation_euler.Y-outtangent"/>
+      </sampler>
+      <channel source="#Armature_rotation_euler.Y-sampler" target="Armature/rotationY.ANGLE"/>
+    </animation>
+    <animation id="Armature_rotation_euler.Z">
+      <source id="Armature_rotation_euler.Z-input">
+        <float_array id="Armature_rotation_euler.Z-input-array" count="1">0.3333333</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Z-input-array" count="1" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.Z-output">
+        <float_array id="Armature_rotation_euler.Z-output-array" count="1">0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Z-output-array" count="1" stride="1">
+            <param name="ANGLE" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.Z-interpolation">
+        <Name_array id="Armature_rotation_euler.Z-interpolation-array" count="1">BEZIER</Name_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Z-interpolation-array" count="1" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.Z-intangent">
+        <float_array id="Armature_rotation_euler.Z-intangent-array" count="2">0.3 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Z-intangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="Armature_rotation_euler.Z-outtangent">
+        <float_array id="Armature_rotation_euler.Z-outtangent-array" count="2">0.3666667 0</float_array>
+        <technique_common>
+          <accessor source="#Armature_rotation_euler.Z-outtangent-array" count="1" stride="2">
+            <param name="X" type="float"/>
+            <param name="Y" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="Armature_rotation_euler.Z-sampler">
+        <input semantic="INPUT" source="#Armature_rotation_euler.Z-input"/>
+        <input semantic="OUTPUT" source="#Armature_rotation_euler.Z-output"/>
+        <input semantic="INTERPOLATION" source="#Armature_rotation_euler.Z-interpolation"/>
+        <input semantic="IN_TANGENT" source="#Armature_rotation_euler.Z-intangent"/>
+        <input semantic="OUT_TANGENT" source="#Armature_rotation_euler.Z-outtangent"/>
+      </sampler>
+      <channel source="#Armature_rotation_euler.Z-sampler" target="Armature/rotationZ.ANGLE"/>
+    </animation>
+  </library_animations>
+  <library_controllers/>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Armature" name="Armature" type="NODE">
+        <translate sid="location">0 0 0</translate>
+        <rotate sid="rotationZ">0 0 1 0</rotate>
+        <rotate sid="rotationY">0 1 0 0</rotate>
+        <rotate sid="rotationX">1 0 0 0</rotate>
+        <scale sid="scale">1 1 1</scale>
+        <node id="Armature_root" name="root" sid="root" type="JOINT">
+          <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+          <node id="Armature_body" name="body" sid="body" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 0 -1 0 0 1 0 12 0 0 0 1</matrix>
+            <node id="Armature_headBone" name="headBone" sid="headBone" type="JOINT">
+              <matrix sid="transform">1 0 0 0 0 1 0 12 0 0 1 0 0 0 0 1</matrix>
+              <extra>
+                <technique profile="blender">
+                  <connect sid="connect" type="bool">1</connect>
+                  <layer sid="layer" type="string">0</layer>
+                  <tip_x sid="tip_x" type="float">0</tip_x>
+                  <tip_y sid="tip_y" type="float">0</tip_y>
+                  <tip_z sid="tip_z" type="float">8</tip_z>
+                </technique>
+              </extra>
+            </node>
+            <node id="Armature_leftArm" name="leftArm" sid="leftArm" type="JOINT">
+              <matrix sid="transform">1 0 -8.74228e-8 5 0 -1 0 12 -8.74228e-8 0 -1 0 0 0 0 1</matrix>
+              <node id="Armature_leftForeArm" name="leftForeArm" sid="leftForeArm" type="JOINT">
+                <matrix sid="transform">1 2.98023e-8 8.74228e-8 -4.76837e-7 -1.49012e-8 1 -4.39353e-14 6.000002 -8.74228e-8 0 1 2 0 0 0 1</matrix>
+                <extra>
+                  <technique profile="blender">
+                    <layer sid="layer" type="string">0</layer>
+                    <tip_x sid="tip_x" type="float">0</tip_x>
+                    <tip_y sid="tip_y" type="float">0</tip_y>
+                    <tip_z sid="tip_z" type="float">-6</tip_z>
+                  </technique>
+                </extra>
+              </node>
+              <extra>
+                <technique profile="blender">
+                  <layer sid="layer" type="string">0</layer>
+                  <tip_x sid="tip_x" type="float">0</tip_x>
+                  <tip_y sid="tip_y" type="float">0</tip_y>
+                  <tip_z sid="tip_z" type="float">-6</tip_z>
+                </technique>
+              </extra>
+            </node>
+            <node id="Armature_rightArm" name="rightArm" sid="rightArm" type="JOINT">
+              <matrix sid="transform">1 0 -8.74228e-8 -5 0 -1 0 12 -8.74228e-8 0 -1 0 0 0 0 1</matrix>
+              <node id="Armature_rightForeArm" name="rightForeArm" sid="rightForeArm" type="JOINT">
+                <matrix sid="transform">1 -2.98023e-8 8.74228e-8 4.76837e-7 1.49012e-8 1 4.39353e-14 6.000002 -8.74228e-8 0 1 2 0 0 0 1</matrix>
+                <extra>
+                  <technique profile="blender">
+                    <layer sid="layer" type="string">0</layer>
+                    <tip_x sid="tip_x" type="float">0</tip_x>
+                    <tip_y sid="tip_y" type="float">0</tip_y>
+                    <tip_z sid="tip_z" type="float">-6</tip_z>
+                  </technique>
+                </extra>
+              </node>
+              <extra>
+                <technique profile="blender">
+                  <layer sid="layer" type="string">0</layer>
+                  <tip_x sid="tip_x" type="float">0</tip_x>
+                  <tip_y sid="tip_y" type="float">0</tip_y>
+                  <tip_z sid="tip_z" type="float">-6</tip_z>
+                </technique>
+              </extra>
+            </node>
+            <extra>
+              <technique profile="blender">
+                <layer sid="layer" type="string">0</layer>
+              </technique>
+            </extra>
+          </node>
+          <node id="Armature_leftLeg" name="leftLeg" sid="leftLeg" type="JOINT">
+            <matrix sid="transform">1 0 0 2 0 0 1 0 0 -1 0 12 0 0 0 1</matrix>
+            <node id="Armature_leftForeLeg" name="leftForeLeg" sid="leftForeLeg" type="JOINT">
+              <matrix sid="transform">1 0 0 0 0 1 0 6 0 0 1 -2 0 0 0 1</matrix>
+              <extra>
+                <technique profile="blender">
+                  <layer sid="layer" type="string">0</layer>
+                  <tip_x sid="tip_x" type="float">0</tip_x>
+                  <tip_y sid="tip_y" type="float">0</tip_y>
+                  <tip_z sid="tip_z" type="float">-6</tip_z>
+                </technique>
+              </extra>
+            </node>
+            <extra>
+              <technique profile="blender">
+                <layer sid="layer" type="string">0</layer>
+                <tip_x sid="tip_x" type="float">0</tip_x>
+                <tip_y sid="tip_y" type="float">0</tip_y>
+                <tip_z sid="tip_z" type="float">-6</tip_z>
+              </technique>
+            </extra>
+          </node>
+          <node id="Armature_rightLeg" name="rightLeg" sid="rightLeg" type="JOINT">
+            <matrix sid="transform">1 0 0 -2 0 0 1 0 0 -1 0 12 0 0 0 1</matrix>
+            <node id="Armature_rightForeLeg" name="rightForeLeg" sid="rightForeLeg" type="JOINT">
+              <matrix sid="transform">1 0 0 0 0 1 0 6 0 0 1 -2 0 0 0 1</matrix>
+              <extra>
+                <technique profile="blender">
+                  <layer sid="layer" type="string">0</layer>
+                  <tip_x sid="tip_x" type="float">0</tip_x>
+                  <tip_y sid="tip_y" type="float">0</tip_y>
+                  <tip_z sid="tip_z" type="float">-6</tip_z>
+                </technique>
+              </extra>
+            </node>
+            <extra>
+              <technique profile="blender">
+                <layer sid="layer" type="string">0</layer>
+                <tip_x sid="tip_x" type="float">0</tip_x>
+                <tip_y sid="tip_y" type="float">0</tip_y>
+                <tip_z sid="tip_z" type="float">-6</tip_z>
+              </technique>
+            </extra>
+          </node>
+          <extra>
+            <technique profile="blender">
+              <layer sid="layer" type="string">0</layer>
+              <tip_x sid="tip_x" type="float">0</tip_x>
+              <tip_y sid="tip_y" type="float">5</tip_y>
+              <tip_z sid="tip_z" type="float">0</tip_z>
+            </technique>
+          </extra>
+        </node>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>

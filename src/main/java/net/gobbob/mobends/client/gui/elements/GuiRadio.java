@@ -1,13 +1,13 @@
 package net.gobbob.mobends.client.gui.elements;
 
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.gui.nodeeditor.GuiNodeEditor;
+import net.gobbob.mobends.client.gui.customize.GuiCustomizeWindow;
 import net.gobbob.mobends.pack.BendsAction.EnumOperator;
 import net.gobbob.mobends.util.Draw;
 import net.minecraft.client.Minecraft;
 
 public class GuiRadio {
-	public GuiNodeEditor nodeEditor;
+	public GuiCustomizeWindow nodeEditor;
 	public int x, y;
 	public int buttonX, buttonY, buttonWidth, buttonHeight;
 	public int elementX, elementY, elementWidth, elementHeight;
@@ -24,7 +24,7 @@ public class GuiRadio {
 	public int hoveredId;
 	public boolean enabled;
 	
-	public GuiRadio(GuiNodeEditor nodeEditor) {
+	public GuiRadio(GuiCustomizeWindow nodeEditor) {
 		this.x = 0;
 		this.y = 0;
 		this.nodeEditor = nodeEditor;
@@ -82,7 +82,7 @@ public class GuiRadio {
 		
 		if(newSelectedId != selectedId) {
 			selectedId = newSelectedId;
-			nodeEditor.onChange();
+			nodeEditor.onNodesChange();
 			return true;
 		}
 		

@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui.nodeeditor;
+package net.gobbob.mobends.client.gui.customize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class GuiAnimationNode {
 	public GuiAnimationNode(GuiAnimationSection parentSection) {
 		this.parentSection = parentSection;
 		this.calculations = new ArrayList<GuiCalculation>();
-		this.parameterEditor = this.parentSection.getNodeEditor().getParameterEditor();
+		this.parameterEditor = this.parentSection.getCustomizeWindow().getParameterEditor();
 		this.axis = null;
 		this.property = EnumBoxProperty.ROT;
 		this.addNodeX = 0;
@@ -193,14 +193,14 @@ public class GuiAnimationNode {
 		GuiCalculation calculation = new GuiCalculation(this);
 		calculations.add(calculation);
 		this.addNodeX += calculation.getVisualWidth();
-		getParentSection().getNodeEditor().onChange();
+		getParentSection().getCustomizeWindow().onNodesChange();
 		return calculation;
 	}
 	
 	public void removeCalculation(GuiCalculation guiCalculation) {
 		if(calculations.remove(guiCalculation))
 			this.addNodeX -= guiCalculation.getVisualWidth();
-		parentSection.getNodeEditor().onChange();
+		parentSection.getCustomizeWindow().onNodesChange();
 	}
 
 	public void remove(){

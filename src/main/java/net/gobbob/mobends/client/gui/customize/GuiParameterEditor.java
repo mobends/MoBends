@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui.nodeeditor;
+package net.gobbob.mobends.client.gui.customize;
 
 import java.util.HashMap;
 import java.util.function.BiConsumer;
@@ -19,9 +19,9 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 
-public class GuiParameterEditor
+public class GuiParameterEditor implements GuiDropDownList.ChangeListener
 {
-	public GuiNodeEditor nodeEditor;
+	public GuiCustomizeWindow parentWindow;
 	public GuiAnimationSection selectedSection;
 	public GuiAnimationNode selectedNode;
 	public GuiCalculation selectedCalculation;
@@ -42,9 +42,9 @@ public class GuiParameterEditor
 	public GuiDropDownList modifierList;
 	private HashMap partMap;
 
-	public GuiParameterEditor(GuiNodeEditor nodeEditor)
+	public GuiParameterEditor(GuiCustomizeWindow parentWindow)
 	{
-		this.nodeEditor = nodeEditor;
+		this.parentWindow = parentWindow;
 		this.x = 0;
 		this.y = 0;
 		this.width = 100;
@@ -52,13 +52,15 @@ public class GuiParameterEditor
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 		this.textField = new GuiCompactTextField(0, Minecraft.getMinecraft().fontRenderer, x + 4, y + 14, width - 8,
 				14);
-		this.radioField = new GuiRadio(nodeEditor);
-		this.radioField2 = new GuiRadio(nodeEditor);
+		this.radioField = new GuiRadio(parentWindow);
+		this.radioField2 = new GuiRadio(parentWindow);
 		this.radioField2.setButton(0, 76, 10, 12).setElement(36, 64, 6, 8).setNumberOfElements(4).setOffset(2, 2)
 				.setPadding(0, 4).setBackground(42, 48, 46, 16);
 		this.removeButton = new GuiCustomButton(60, 20);
-		this.dropDownList = new GuiDropDownList(nodeEditor).setEntryAmount(5);
-		this.modifierList = new GuiDropDownList(nodeEditor);
+		this.dropDownList = new GuiDropDownList().setEntryAmount(5);
+		this.dropDownList.addListener(this);
+		this.modifierList = new GuiDropDownList();
+		this.modifierList.addListener(this);
 		for (int i = 0; i < EnumModifier.values().length; i++)
 		{
 			this.modifierList.addEntry(EnumModifier.values()[i].getDisplayName());
@@ -162,9 +164,9 @@ public class GuiParameterEditor
 
 		dropDownList.init().setEntryAmount(5).forbidNoValue();
 		dropDownList.setPosition(x + 3, y + 13);
-		if (nodeEditor.getAlterableParts() != null)
+		if (parentWindow.getNodeEditor().getAlterableParts() != null)
 		{
-			for (String part : nodeEditor.getAlterableParts())
+			for (String part : parentWindow.getNodeEditor().getAlterableParts())
 			{
 				dropDownList.addEntry(part, part);
 			}
@@ -249,7 +251,7 @@ public class GuiParameterEditor
 			textField.textboxKeyTyped(typedChar, keyCode);
 			if (changedState != null)
 			{
-				nodeEditor.onChange();
+				parentWindow.onNodesChange();
 				switch (changedState)
 				{
 					case CALCULATION:
@@ -409,5 +411,11 @@ public class GuiParameterEditor
 		}
 
 		deselect();
+	}
+
+	@Override
+	public void onDropDownListChanged()
+	{
+		parentWindow.onNodesChange();
 	}
 }
