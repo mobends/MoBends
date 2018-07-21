@@ -8,6 +8,8 @@ import org.lwjgl.util.vector.Vector3f;
 import net.gobbob.mobends.animation.controller.Controller;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
+import net.gobbob.mobends.util.SmoothOrientation;
+import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -26,6 +28,9 @@ public abstract class EntityData implements IBendsModel
 	protected boolean onGround = true;
 	protected HashMap<String, Object> nameToPartMap;
 
+	public SmoothVector3f renderOffset;
+    public SmoothOrientation renderRotation;
+	
 	public EntityData(Entity entity)
 	{
 		this.entity = entity;
@@ -35,16 +40,28 @@ public abstract class EntityData implements IBendsModel
 		}
 		this.motion.set(0F, 1F, 0F);
 		this.previousMotion.set(this.motion);
+		
 		this.initModelPose();
 	}
 
-	public abstract void initModelPose();
+	public void initModelPose()
+	{
+		this.renderOffset = new SmoothVector3f();
+		this.renderRotation = new SmoothOrientation();
+		
+		this.nameToPartMap = new HashMap<String, Object>();
+		this.nameToPartMap.put("renderRotation", renderRotation);
+	}
 
 	/*
 	 * Updates all the model's parts to be in their next frame. Called in
 	 * EntityData.update();
 	 */
-	public abstract void updateParts(float ticksPerFrame);
+	public void updateParts(float ticksPerFrame)
+	{
+		this.renderOffset.update(ticksPerFrame);
+		this.renderRotation.update(ticksPerFrame);
+	}
 
 	public boolean canBeUpdated()
 	{

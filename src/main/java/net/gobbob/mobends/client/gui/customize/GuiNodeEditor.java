@@ -35,7 +35,7 @@ public class GuiNodeEditor
 	 */
 	private int contentHeight = 0;
 	
-	private List<GuiAnimationSection> sections;
+	private List<GuiConditionSection> sections;
 	private GuiAddButton buttonAddSection;
 	
 	private boolean unappliedChanges;
@@ -52,7 +52,7 @@ public class GuiNodeEditor
 	
 	public GuiNodeEditor(GuiCustomizeWindow customizeWindow, GuiBendsMenu mainMenu)
 	{
-		this.sections = new ArrayList<GuiAnimationSection>();
+		this.sections = new ArrayList<GuiConditionSection>();
 		this.x = 0;
 		this.y = 0;
 		this.buttonAddSection = new GuiAddButton();
@@ -126,7 +126,7 @@ public class GuiNodeEditor
 
 		this.buttonAddSection.update(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY);
 		int yOffset = 0;
-		for (GuiAnimationSection section : this.sections)
+		for (GuiConditionSection section : this.sections)
 		{
 			section.update(this.x, this.y + yOffset, mouseX + (int) scrollAmountX,
 					mouseY + (int) scrollAmountY);
@@ -157,7 +157,7 @@ public class GuiNodeEditor
 				pressed = true;
 			}
 			
-			for (GuiAnimationSection section : this.sections)
+			for (GuiConditionSection section : this.sections)
 			{
 				if (section.mouseClicked(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY, state))
 					pressed = true;
@@ -171,7 +171,7 @@ public class GuiNodeEditor
 	public void mouseReleased(int mouseX, int mouseY, int event)
 	{
 		this.buttonAddSection.mouseReleased(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY, event);
-		for (GuiAnimationSection section : this.sections)
+		for (GuiConditionSection section : this.sections)
 		{
 			section.mouseReleased(mouseX + (int) scrollAmountX, mouseY + (int) scrollAmountY, event);
 		}
@@ -207,17 +207,17 @@ public class GuiNodeEditor
 	public void populate(AlterEntry alterEntry)
 	{
 		BendsTarget target = BendsPack.getTarget(alterEntry.getName());
-		this.sections = new ArrayList<GuiAnimationSection>();
+		this.sections = new ArrayList<GuiConditionSection>();
 		if (target != null)
 		{
 			for (Map.Entry<String, BendsCondition> entry : target.conditions.entrySet())
 			{
-				GuiAnimationSection section = new GuiAnimationSection(this.customizeWindow, entry.getKey());
+				GuiConditionSection section = new GuiConditionSection(this.customizeWindow, entry.getKey());
 				section.populate(entry.getValue());
 				this.addSection(section);
 			}
 		}
-		this.alterableParts = alterEntry.getOwner().getAlterableParts();
+		
 		this.updateHeight();
 		this.unappliedChanges = false;
 	}
@@ -246,18 +246,18 @@ public class GuiNodeEditor
 		}
 	}
 	
-	public void addSection(GuiAnimationSection section)
+	public void addSection(GuiConditionSection section)
 	{
 		this.sections.add(section);
 	}
 
 	public void addDefaultSection()
 	{
-		GuiAnimationSection section = new GuiAnimationSection(this.customizeWindow, "");
+		GuiConditionSection section = new GuiConditionSection(this.customizeWindow, "");
 		this.sections.add(section);
 	}
 
-	public void removeSection(GuiAnimationSection guiAnimationSection)
+	public void removeSection(GuiConditionSection guiAnimationSection)
 	{
 		this.sections.remove(guiAnimationSection);
 		this.onChange();

@@ -1,5 +1,7 @@
 package net.gobbob.mobends.animation.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,11 +9,15 @@ import java.util.List;
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.bit.biped.BowAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.EatingAnimationBit;
+import net.gobbob.mobends.animation.keyframe.AnimationLoader;
+import net.gobbob.mobends.animation.keyframe.KeyframeAnimation;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
+import net.gobbob.mobends.animation.layer.KeyframeAnimationLayer;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
@@ -31,16 +37,21 @@ public class PlayerController extends Controller
 	protected HardAnimationLayer layerBase;
 	protected HardAnimationLayer layerSneak;
 	protected HardAnimationLayer layerAction;
+	protected KeyframeAnimationLayer layerKeyframe;
+	
 	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSprintJump, bitSneak, bitLadderClimb, bitSwimming;
 	protected AnimationBit bitAttack;
 	protected BowAnimationBit bitBow;
 	protected EatingAnimationBit bitEating;
+	protected KeyframeAnimation bitKeyframe;
 
 	public PlayerController()
 	{
 		this.layerBase = new HardAnimationLayer();
 		this.layerSneak = new HardAnimationLayer();
 		this.layerAction = new HardAnimationLayer();
+		this.layerKeyframe = new KeyframeAnimationLayer();
+		
 		this.bitStand = new net.gobbob.mobends.animation.bit.biped.StandAnimationBit();
 		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit();
 		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit();
@@ -52,6 +63,15 @@ public class PlayerController extends Controller
 		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
 		this.bitEating = new net.gobbob.mobends.animation.bit.biped.EatingAnimationBit();
+		
+		try
+		{
+			this.bitKeyframe = AnimationLoader.loadFromFile(new File(Minecraft.getMinecraft().mcDataDir, "keyframes.json"));
+		}
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -169,14 +189,12 @@ public class PlayerController extends Controller
 			}
         }
 		
-		layerBase.perform(entityData);
-		layerSneak.perform(entityData);
-		layerAction.perform(entityData);
-		
-		List<String> actions = new ArrayList<String>();
-		actions.addAll(Arrays.asList(layerBase.getActions(entityData)));
-		actions.addAll(Arrays.asList(layerSneak.getActions(entityData)));
-		actions.addAll(Arrays.asList(layerAction.getActions(entityData)));
+        List<String> actions = new ArrayList<String>();
+		/*layerBase.perform(entityData, actions);
+		layerSneak.perform(entityData, actions);
+		layerAction.perform(entityData, actions);*/
+        layerKeyframe.playOrContinueBit(this.bitKeyframe, entityData);
+        layerKeyframe.perform(entityData, actions);
 		
 		BendsPack.animate(entityData, this.animationTarget, actions);
 	}

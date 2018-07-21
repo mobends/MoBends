@@ -10,24 +10,24 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class SprintJumpAnimationBit extends AnimationBit
+public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 {
-	float relax = 0F;
+	private float relax = 0F;
 	
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(PlayerData entityData)
 	{
 		return new String[] { "sprint_jump" };
 	}
 	
 	@Override
-	public void onPlay(EntityData entityData)
+	public void onPlay(PlayerData entityData)
 	{
 		this.relax = 0F;
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(PlayerData entityData)
 	{
 		if (!(entityData instanceof PlayerData))
 			return;

@@ -8,24 +8,17 @@ import net.gobbob.mobends.data.ZombieData;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.util.math.MathHelper;
 
-public class ZombieStumblingAnimationBit extends AnimationBit
+public class ZombieStumblingAnimationBit extends AnimationBit<ZombieData>
 {
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(ZombieData data)
 	{
 		return new String[] { "stumbling" };
 	}
 
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(ZombieData data)
 	{
-		if (!(entityData instanceof ZombieData))
-			return;
-		if (!(entityData.getEntity() instanceof EntityZombie))
-			return;
-
-		ZombieData data = (ZombieData) entityData;
-
 		final float PI = (float) Math.PI;
 		float limbSwing = data.getLimbSwing() * 0.6662F;
 		limbSwing += Math.cos(limbSwing * 2.0F) * 0.3F;

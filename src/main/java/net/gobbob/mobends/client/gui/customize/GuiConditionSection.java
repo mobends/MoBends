@@ -10,7 +10,7 @@ import net.gobbob.mobends.pack.BendsTarget;
 import net.gobbob.mobends.util.Draw;
 import net.minecraft.client.Minecraft;
 
-public class GuiAnimationSection
+public class GuiConditionSection
 {
 	private List<GuiAnimationNode> nodes;
 	private String animationName;
@@ -24,7 +24,7 @@ public class GuiAnimationSection
 	public static final int HEADER_HEIGHT = 15;
 	public static final int MARGIN_HEIGHT = 17;
 
-	public GuiAnimationSection(GuiCustomizeWindow customizeWindow, String animationName)
+	public GuiConditionSection(GuiCustomizeWindow customizeWindow, String animationName)
 	{
 		this.nodes = new ArrayList<GuiAnimationNode>();
 		this.setAnimationName(animationName);
@@ -71,8 +71,8 @@ public class GuiAnimationSection
 	public void addDefaultNode()
 	{
 		GuiAnimationNode node = new GuiAnimationNode(this);
-		node.setModel(customizeWindow.getNodeEditor().getAlterableParts() != null && customizeWindow.getNodeEditor().getAlterableParts().length > 0
-				? customizeWindow.getNodeEditor().getAlterableParts()[0]
+		node.setModel(customizeWindow.getAlterableParts() != null && customizeWindow.getAlterableParts().length > 0
+				? customizeWindow.getAlterableParts()[0]
 				: "");
 		this.nodes.add(node);
 	}

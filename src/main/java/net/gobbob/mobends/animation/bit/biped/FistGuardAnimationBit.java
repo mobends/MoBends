@@ -6,25 +6,21 @@ import net.gobbob.mobends.data.EntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 
-public class FistGuardAnimationBit extends AnimationBit
+public class FistGuardAnimationBit extends AnimationBit<BipedEntityData>
 {
 
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(BipedEntityData entityData)
 	{
-		// TODO Auto-generated method stub
 		return new String[] { "fist_guard" };
 	}
 
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(BipedEntityData data)
 	{
-		if (!(entityData instanceof BipedEntityData))
-			return;
-		if (!(entityData.getEntity() instanceof EntityLivingBase))
+		if (!(data.getEntity() instanceof EntityLivingBase))
 			return;
 
-		BipedEntityData data = (BipedEntityData) entityData;
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
 		EnumHandSide primaryHand = living.getPrimaryHand();
 

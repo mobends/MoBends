@@ -1,18 +1,18 @@
 package net.gobbob.mobends.animation.bit.spider;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.data.SpiderData;
 
-public class SpiderMoveAnimationBit extends AnimationBit
+public class SpiderMoveAnimationBit extends AnimationBit<SpiderData>
 {
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(SpiderData entityData)
 	{
 		return new String[] { "move" };
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(SpiderData entityData)
 	{
 		
 	}

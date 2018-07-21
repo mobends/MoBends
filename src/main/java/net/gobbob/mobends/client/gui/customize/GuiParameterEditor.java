@@ -1,9 +1,14 @@
 package net.gobbob.mobends.client.gui.customize;
 
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.function.BiConsumer;
 
+import javax.swing.event.ChangeListener;
+
+import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.client.gui.IChangeListener;
+import net.gobbob.mobends.client.gui.Observable;
 import net.gobbob.mobends.client.gui.elements.GuiCompactTextField;
 import net.gobbob.mobends.client.gui.elements.GuiCustomButton;
 import net.gobbob.mobends.client.gui.elements.GuiDropDownList;
@@ -19,10 +24,9 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 
-public class GuiParameterEditor implements GuiDropDownList.ChangeListener
+public class GuiParameterEditor extends Observable implements IChangeListener
 {
-	public GuiCustomizeWindow parentWindow;
-	public GuiAnimationSection selectedSection;
+	public GuiConditionSection selectedSection;
 	public GuiAnimationNode selectedNode;
 	public GuiCalculation selectedCalculation;
 
@@ -40,20 +44,28 @@ public class GuiParameterEditor implements GuiDropDownList.ChangeListener
 	public GuiCustomButton removeButton;
 	public GuiDropDownList dropDownList;
 	public GuiDropDownList modifierList;
-	private HashMap partMap;
+	/*
+	 * Populated through the parent container.
+	 */
+	private String[] alterableParts;
+	
+	/*
+	 * These listeners will respond, when a change has occured in this editor.
+	 */
+	private LinkedList<ChangeListener> changeListeners;
 
-	public GuiParameterEditor(GuiCustomizeWindow parentWindow)
+	public GuiParameterEditor()
 	{
-		this.parentWindow = parentWindow;
 		this.x = 0;
 		this.y = 0;
 		this.width = 100;
 		this.height = 130;
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
-		this.textField = new GuiCompactTextField(0, Minecraft.getMinecraft().fontRenderer, x + 4, y + 14, width - 8,
-				14);
-		this.radioField = new GuiRadio(parentWindow);
-		this.radioField2 = new GuiRadio(parentWindow);
+		this.textField = new GuiCompactTextField(0, this.fontRenderer, x + 4, y + 14, width - 8, 14);
+		this.radioField = new GuiRadio();
+		this.radioField.addListener(this);
+		this.radioField2 = new GuiRadio();
+		this.radioField2.addListener(this);
 		this.radioField2.setButton(0, 76, 10, 12).setElement(36, 64, 6, 8).setNumberOfElements(4).setOffset(2, 2)
 				.setPadding(0, 4).setBackground(42, 48, 46, 16);
 		this.removeButton = new GuiCustomButton(60, 20);
@@ -95,6 +107,11 @@ public class GuiParameterEditor implements GuiDropDownList.ChangeListener
 			}
 		}
 	}
+	
+	public void populate(AlterEntry alterEntry)
+	{
+		this.alterableParts = alterEntry.getOwner().getAlterableParts();
+	}
 
 	public void display(int mouseX, int mouseY, float partialTicks)
 	{
@@ -124,7 +141,7 @@ public class GuiParameterEditor implements GuiDropDownList.ChangeListener
 		dropDownList.display();
 	}
 
-	public void select(GuiAnimationSection section)
+	public void select(GuiConditionSection section)
 	{
 		selectedSection = section;
 		selectedNode = null;
@@ -164,13 +181,15 @@ public class GuiParameterEditor implements GuiDropDownList.ChangeListener
 
 		dropDownList.init().setEntryAmount(5).forbidNoValue();
 		dropDownList.setPosition(x + 3, y + 13);
-		if (parentWindow.getNodeEditor().getAlterableParts() != null)
+		
+		if (this.alterableParts != null)
 		{
-			for (String part : parentWindow.getNodeEditor().getAlterableParts())
+			for (String part : this.alterableParts)
 			{
 				dropDownList.addEntry(part, part);
 			}
 		}
+		
 		dropDownList.selectValue(selectedNode.getModel());
 		modifierList.enable();
 		modifierList.selectValue(node.getModifier() == null ? null : node.getModifier().ordinal());
@@ -251,7 +270,7 @@ public class GuiParameterEditor implements GuiDropDownList.ChangeListener
 			textField.textboxKeyTyped(typedChar, keyCode);
 			if (changedState != null)
 			{
-				parentWindow.onNodesChange();
+				this.notifyChanged();
 				switch (changedState)
 				{
 					case CALCULATION:
@@ -414,8 +433,8 @@ public class GuiParameterEditor implements GuiDropDownList.ChangeListener
 	}
 
 	@Override
-	public void onDropDownListChanged()
+	public void handleChange(Observable objectChanged)
 	{
-		parentWindow.onNodesChange();
+		this.notifyChanged();
 	}
 }

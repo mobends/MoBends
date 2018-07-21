@@ -35,10 +35,28 @@ public class BendsAction
 
 	public float getNumber(float in)
 	{
-		float number = Calculation.calculateAll(modifier, in, calculations);
+		float number = Calculation.calculateAll(this.modifier, in, this.calculations);
 		if (property == EnumBoxProperty.SCALE && !NetworkConfiguration.instance.isModelScalingAllowed())
 			number = Math.max(-1, Math.min(number, 1));
 		return number;
+	}
+	
+	public float getNumber()
+	{
+		return getNumber(0);
+	}
+	
+	/**
+	 * @return true, if any of the calculations are SET operations
+	 */
+	public boolean doesOverride()
+	{
+		for (Calculation calc : this.calculations)
+		{
+			if (calc.operator == EnumOperator.SET)
+				return true;
+		}
+		return false;
 	}
 
 	public enum EnumOperator

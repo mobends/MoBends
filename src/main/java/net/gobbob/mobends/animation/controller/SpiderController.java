@@ -78,12 +78,9 @@ public class SpiderController extends Controller
 			}
 		}
 		
-		this.layerBase.perform(entityData);
-		this.layerAction.perform(entityData);
-		
 		List<String> actions = new ArrayList<String>();
-		actions.addAll(Arrays.asList(layerBase.getActions(entityData)));
-		actions.addAll(Arrays.asList(layerAction.getActions(entityData)));
+		this.layerBase.perform(entityData, actions);
+		this.layerAction.perform(entityData, actions);
 		
 		BendsPack.animate(entityData, this.animationTarget, actions);
 	}

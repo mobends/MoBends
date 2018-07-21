@@ -5,25 +5,17 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.ZombieData;
 import net.minecraft.entity.monster.EntityZombie;
 
-public class ZombieLeanAnimationBit extends AnimationBit
+public class ZombieLeanAnimationBit extends AnimationBit<ZombieData>
 {
-
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(ZombieData entityData)
 	{
-		return new String[] {};
+		return new String[] { "lean" };
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(ZombieData data)
 	{
-		if (!(entityData instanceof ZombieData))
-			return;
-		if (!(entityData.getEntity() instanceof EntityZombie))
-			return;
-		
-		ZombieData data = (ZombieData) entityData;
-		
 		data.renderOffset.slideY(-3F);
 		
 		data.body.rotation.localRotateX(30F);

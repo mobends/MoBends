@@ -7,13 +7,14 @@ import java.util.List;
 import org.lwjgl.input.Mouse;
 
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.client.gui.Observable;
 import net.gobbob.mobends.util.Draw;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class GuiDropDownList
+public class GuiDropDownList extends Observable
 {
 	public static final int HEIGHT = 16;
 	public static final int LIST_HEIGHT = 90;
@@ -40,16 +41,12 @@ public class GuiDropDownList
 	private int scrollBarHeight;
 	private int scrollBarGrabY;
 
-	private LinkedList<ChangeListener> changeListeners;
-
 	public GuiDropDownList()
 	{
 		this.entries = new ArrayList<Entry>();
 		this.width = 94;
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 		this.scrollAmount = 0;
-
-		this.changeListeners = new LinkedList<ChangeListener>();
 	}
 
 	public GuiDropDownList init()
@@ -420,25 +417,5 @@ public class GuiDropDownList
 	public boolean areChangedUnhandled()
 	{
 		return valueChangeUnhandled;
-	}
-
-	/*-- LISTENERS --*/
-	
-	public void addListener(ChangeListener listener)
-	{
-		this.changeListeners.add(listener);
-	}
-	
-	private void notifyChanged()
-	{
-		for (ChangeListener listener : this.changeListeners)
-		{
-			listener.onDropDownListChanged();
-		}
-	}
-	
-	public static interface ChangeListener
-	{
-		void onDropDownListChanged();
 	}
 }

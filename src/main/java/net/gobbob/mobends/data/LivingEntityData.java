@@ -29,9 +29,6 @@ public abstract class LivingEntityData extends EntityData
 	protected float headYaw = 0F;
 	protected float headPitch = 0F;
 	
-	public SmoothVector3f renderOffset;
-    public SmoothOrientation renderRotation;
-	
 	public LivingEntityData(Entity entity)
 	{
 		super(entity);
@@ -43,23 +40,6 @@ public abstract class LivingEntityData extends EntityData
 		this.ticksAfterTouchdown = 100F;
 		this.ticksAfterAttack = 100F;
 		this.ticksAfterThrowup = 100F;
-	}
-	
-	@Override
-	public void initModelPose()
-	{
-		this.renderOffset = new SmoothVector3f();
-		this.renderRotation = new SmoothOrientation();
-		
-		this.nameToPartMap = new HashMap<String, Object>();
-		this.nameToPartMap.put("renderRotation", renderRotation);
-	}
-	
-	@Override
-	public void updateParts(float ticksPerFrame)
-	{
-		this.renderOffset.update(ticksPerFrame);
-		this.renderRotation.update(ticksPerFrame);
 	}
 	
 	public void setClimbing(boolean flag)

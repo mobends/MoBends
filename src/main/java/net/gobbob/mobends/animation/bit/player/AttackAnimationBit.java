@@ -15,7 +15,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 
-public class AttackAnimationBit extends AnimationBit
+public class AttackAnimationBit extends AnimationBit<PlayerData>
 {
 	protected HardAnimationLayer layerBase;
 	protected AnimationBit bitAttackStance, bitAttackStanceSprint, bitAttackSlashUp, bitAttackSlashDown,
@@ -34,14 +34,14 @@ public class AttackAnimationBit extends AnimationBit
 	}
 
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(PlayerData entityData)
 	{
 		if (this.layerBase.isPlaying())
 		{
 			return this.layerBase.getPerformedBit().getActions(entityData);
 		}
 
-		return new String[] {};
+		return null;
 	}
 
 	public boolean shouldPerformAttack(AbstractClientPlayer player)
@@ -51,13 +51,9 @@ public class AttackAnimationBit extends AnimationBit
 	}
 
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(PlayerData playerData)
 	{
-		if (!(entityData instanceof PlayerData))
-			return;
-
-		PlayerData playerData = (PlayerData) entityData;
-		Entity entity = entityData.getEntity();
+		Entity entity = playerData.getEntity();
 		if (entity instanceof AbstractClientPlayer)
 		{
 			AbstractClientPlayer player = (AbstractClientPlayer) entity;
@@ -86,11 +82,11 @@ public class AttackAnimationBit extends AnimationBit
 				{
 					if (player.isSprinting())
 					{
-						this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, entityData);
+						this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, playerData);
 					}
 					else if (playerData.isStillHorizontally())
 					{
-						this.layerBase.playOrContinueBit(this.bitAttackStance, entityData);
+						this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
 					}
 					else
 					{
@@ -106,11 +102,11 @@ public class AttackAnimationBit extends AnimationBit
 			{
 				if (playerData.getTicksAfterAttack() < 10)
 				{
-					this.layerBase.playOrContinueBit(this.bitPunch, entityData);
+					this.layerBase.playOrContinueBit(this.bitPunch, playerData);
 				}
 				else if (playerData.getTicksAfterAttack() < 60 && playerData.isStillHorizontally())
 				{
-					this.layerBase.playOrContinueBit(this.bitFistGuard, entityData);
+					this.layerBase.playOrContinueBit(this.bitFistGuard, playerData);
 				}
 				else
 				{
@@ -119,6 +115,6 @@ public class AttackAnimationBit extends AnimationBit
 			}
 		}
 
-		this.layerBase.perform(entityData);
+		this.layerBase.perform(playerData);
 	}
 }

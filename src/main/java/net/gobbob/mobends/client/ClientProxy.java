@@ -32,8 +32,7 @@ public class ClientProxy extends CommonProxy
 		PackManager.initialize(config);
 		AnimatedEntity.register(config);
 		BendsVariable.init();
-
-		ClientRegistry.registerKeyBinding(KeyboardHandler.key_Menu);
+		KeyboardHandler.initKeyBindings();
 
 		FMLCommonHandler.instance().bus().register(new EntityRenderHandler());
 		FMLCommonHandler.instance().bus().register(new DataUpdateHandler());

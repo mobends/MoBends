@@ -7,7 +7,7 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
-public class SpiderDeathAnimationBit extends AnimationBit
+public class SpiderDeathAnimationBit extends AnimationBit<SpiderData>
 {
 	protected static final float PI = (float) Math.PI;
 	
@@ -15,25 +15,21 @@ public class SpiderDeathAnimationBit extends AnimationBit
 	protected float wigglePhase = 0.0F;
 	
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(SpiderData entityData)
 	{
 		return new String[] { "death" };
 	}
 	
 	@Override
-	public void onPlay(EntityData entityData)
+	public void onPlay(SpiderData entityData)
 	{
 		wiggleSpeedMultiplier = 1.0F;
 		wigglePhase = 0.0F;
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(SpiderData data)
 	{
-		if (!(entityData instanceof SpiderData))
-			return;
-		SpiderData data = (SpiderData) entityData;
-		
 		data.renderOffset.slideY(10.0F, 0.3F);
 		
 		float headYaw = data.getHeadYaw();

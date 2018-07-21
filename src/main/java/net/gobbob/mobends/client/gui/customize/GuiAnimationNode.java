@@ -17,7 +17,7 @@ public class GuiAnimationNode {
 	public static final int HEIGHT = 15;
 	public static int ADD_NODE_WIDTH = 20;
 	
-	private GuiAnimationSection parentSection;
+	private GuiConditionSection parentSection;
 	private GuiParameterEditor parameterEditor;
 	private List<GuiCalculation> calculations;
 	private EnumAxis axis;
@@ -31,7 +31,7 @@ public class GuiAnimationNode {
 	private boolean addNodeHover;
 	private int modifierWidth;
 	
-	public GuiAnimationNode(GuiAnimationSection parentSection) {
+	public GuiAnimationNode(GuiConditionSection parentSection) {
 		this.parentSection = parentSection;
 		this.calculations = new ArrayList<GuiCalculation>();
 		this.parameterEditor = this.parentSection.getCustomizeWindow().getParameterEditor();
@@ -41,7 +41,7 @@ public class GuiAnimationNode {
 		this.addNodeHover = false;
 	}
 
-	public GuiAnimationNode(GuiAnimationSection parentSection, BendsAction action) {
+	public GuiAnimationNode(GuiConditionSection parentSection, BendsAction action) {
 		this(parentSection);
 		this.axis = action.axis;
 		this.property = action.property;
@@ -125,7 +125,7 @@ public class GuiAnimationNode {
 		}
 	}
 	
-	public GuiAnimationSection getParentSection() {
+	public GuiConditionSection getParentSection() {
 		return this.parentSection;
 	}
 

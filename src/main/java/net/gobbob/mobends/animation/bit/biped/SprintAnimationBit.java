@@ -8,22 +8,20 @@ import net.gobbob.mobends.pack.BendsPack;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-public class SprintAnimationBit extends AnimationBit
+public class SprintAnimationBit extends AnimationBit<BipedEntityData>
 {
 
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(BipedEntityData entityData)
 	{
 		return new String[] { "sprint" };
 	}
 
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(BipedEntityData data)
 	{
-		if (!(entityData instanceof BipedEntityData) || !(entityData.getEntity() instanceof EntityLivingBase))
+		if (!(data.getEntity() instanceof EntityLivingBase))
 			return;
-
-		BipedEntityData data = (BipedEntityData) entityData;
 
 		data.renderOffset.slideToZero(0.1F);
 		data.renderRotation.setSmoothness(.3F).orientZero();

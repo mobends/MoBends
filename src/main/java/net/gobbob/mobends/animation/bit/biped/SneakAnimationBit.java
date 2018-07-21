@@ -6,23 +6,19 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.minecraft.util.math.MathHelper;
 
-public class SneakAnimationBit extends AnimationBit
+public class SneakAnimationBit extends AnimationBit<BipedEntityData>
 {
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(BipedEntityData entityData)
 	{
 		return new String[] { "sneak" };
 	}
 
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(BipedEntityData data)
 	{
-		if (!(entityData instanceof BipedEntityData))
-			return;
-		BipedEntityData data = (BipedEntityData) entityData;
-
 		data.renderOffset.slideY(-1.3F);
-		
+	
 		final float PI = (float) Math.PI;
 		float limbSwing = data.getLimbSwing() * 0.6662F;
 		float limbSwingAmount = data.getLimbSwingAmount() * 1.4F * 1.1F / PI * 180F;

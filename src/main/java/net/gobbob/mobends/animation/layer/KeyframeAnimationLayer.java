@@ -1,0 +1,126 @@
+package net.gobbob.mobends.animation.layer;
+
+import java.util.Map;
+
+import org.lwjgl.util.vector.Vector3f;
+
+import net.gobbob.mobends.animation.bit.AnimationBit;
+import net.gobbob.mobends.animation.keyframe.Bone;
+import net.gobbob.mobends.animation.keyframe.Keyframe;
+import net.gobbob.mobends.animation.keyframe.KeyframeAnimation;
+import net.gobbob.mobends.animation.keyframe.KeyframeArmature;
+import net.gobbob.mobends.client.event.DataUpdateHandler;
+import net.gobbob.mobends.client.model.IModelPart;
+import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
+import net.gobbob.mobends.util.EnumAxis;
+import net.gobbob.mobends.util.Quaternion;
+import net.gobbob.mobends.util.SmoothOrientation;
+
+public class KeyframeAnimationLayer<DataType extends EntityData> extends AnimationLayer<DataType>
+{
+	public KeyframeAnimation performedAnimation;
+	public float keyframeIndex = 0;
+	
+	public void playBit(KeyframeAnimation animation, DataType entityData)
+	{
+		this.performedAnimation = animation;
+	}
+	
+	public void playOrContinueBit(KeyframeAnimation animation, DataType entityData)
+	{
+		if (!this.isPlaying(animation))
+			this.playBit(animation, entityData);
+	}
+	
+	public boolean isPlaying(KeyframeAnimation animation)
+	{
+		return animation == this.performedAnimation;
+	}
+	
+	public boolean isPlaying()
+	{
+		return this.performedAnimation != null;
+	}
+
+	public void clearAnimation()
+	{
+		this.performedAnimation = null;
+	}
+
+	public KeyframeAnimation getPerformedBit()
+	{
+		return this.performedAnimation;
+	}
+	
+	@Override
+	public String[] getActions(EntityData entityData)
+	{
+		return null;
+	}
+	
+	@Override
+	public void perform(EntityData entityData)
+	{
+		int minKeyframes = Integer.MAX_VALUE;
+		
+		if (this.performedAnimation != null)
+		{
+			if (this.performedAnimation.armatures.size() > 0)
+			{
+				KeyframeArmature armature = this.performedAnimation.armatures.get(0);
+				
+				int index = (int) keyframeIndex;
+				int nextIndex = index + 1;
+				if (nextIndex >= minKeyframes - 1)
+					nextIndex = minKeyframes - 1;
+				
+				if (armature.bones.containsKey("root"))
+				{
+					Bone rootBone = armature.bones.get("root");
+					Keyframe keyframe = rootBone.keyframes.get(index);
+					Keyframe nextFrame = rootBone.keyframes.get(nextIndex);
+					
+					if (keyframe.position != null)
+						entityData.renderOffset.set(keyframe.position[0], keyframe.position[1], keyframe.position[2]);
+				}
+				
+				for (Map.Entry<String, Bone> entry : armature.bones.entrySet())
+				{
+					Bone bone = entry.getValue();
+					minKeyframes = bone.keyframes.size();
+					
+					Object part = entityData.getPartForName(entry.getKey());
+					
+					Keyframe keyframe = bone.keyframes.get(index);
+					Keyframe nextFrame = bone.keyframes.get(nextIndex);
+					
+					if (keyframe != null && nextFrame != null)
+					{
+						if (part instanceof IModelPart)
+						{
+							IModelPart box = (IModelPart) part;
+							float x0 = keyframe.rotation[1];
+							float y0 = keyframe.rotation[2];
+							float z0 = keyframe.rotation[3];
+							float w0 = keyframe.rotation[0];
+							float x1 = nextFrame.rotation[1];
+							float y1 = nextFrame.rotation[2];
+							float z1 = nextFrame.rotation[3];
+							float w1 = nextFrame.rotation[0];
+							float progress = keyframeIndex - index;
+							box.getRotation().set(x0 + (x1-x0) * progress,
+									y0 + (y1-y0) * progress,
+									z0 + (z1-z0) * progress,
+									w0 + (w1-w0) * progress);
+						}
+					}
+				}
+				
+				keyframeIndex += DataUpdateHandler.ticksPerFrame * 0.5F;
+				if (keyframeIndex >= minKeyframes - 1)
+					keyframeIndex -= minKeyframes - 1;
+			}
+		}
+	}
+}

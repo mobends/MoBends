@@ -68,12 +68,19 @@ public class BendsCondition
 			if (action.property == EnumBoxProperty.ROT ||
 				action.property == EnumBoxProperty.PREROT)
 			{
-				//TODO Remove preRotation
 				SmoothOrientation rotation = box.getRotation();
 				
-				/*rotation.slideTo(action.axis,
-								 action.getNumber((rotation.getEnd(action.axis))),
-								 action.smooth);*/
+				if (action.doesOverride())
+				{
+					rotation.setSmoothness(action.smooth).orient(action.axis, action.getNumber());
+				}
+				else
+				{
+					if (action.property == EnumBoxProperty.ROT)
+						rotation.setSmoothness(action.smooth).rotate(action.axis, action.getNumber());
+					else if (action.property == EnumBoxProperty.PREROT)
+						rotation.setSmoothness(action.smooth).localRotate(action.axis, action.getNumber());
+				}
 			}
 			else if (action.property == EnumBoxProperty.SCALE)
 			{

@@ -5,21 +5,17 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.SpiderData;
 import net.gobbob.mobends.util.GUtil;
 
-public class SpiderJumpAnimationBit extends AnimationBit
+public class SpiderJumpAnimationBit extends AnimationBit<SpiderData>
 {
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(SpiderData entityData)
 	{
 		return new String[] { "jump" };
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(SpiderData data)
 	{
-		if (!(entityData instanceof SpiderData))
-			return;
-		SpiderData data = (SpiderData) entityData;
-		
 		float ticksInAir = data.getTicksAfterLiftoff();
 		ticksInAir = Math.min(ticksInAir * 0.1F, 1.0F);
 		ticksInAir = (float) GUtil.easeInOut(ticksInAir, 3);

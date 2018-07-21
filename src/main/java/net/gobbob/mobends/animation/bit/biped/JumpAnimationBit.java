@@ -6,16 +6,16 @@ import net.gobbob.mobends.data.EntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-public class JumpAnimationBit extends AnimationBit
+public class JumpAnimationBit extends AnimationBit<BipedEntityData>
 {
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(BipedEntityData entityData)
 	{
 		return new String[] { "jump" };
 	}
 
 	@Override
-	public void onPlay(EntityData entityData)
+	public void onPlay(BipedEntityData entityData)
 	{
 		if (!(entityData instanceof BipedEntityData))
 			return;
@@ -34,23 +34,20 @@ public class JumpAnimationBit extends AnimationBit
 	}
 
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(BipedEntityData data)
 	{
-		if (!(entityData instanceof BipedEntityData))
-			return;
-		if (!(entityData.getEntity() instanceof EntityLivingBase))
+		if (!(data.getEntity() instanceof EntityLivingBase))
 			return;
 
-		if (entityData.getPreviousMotion().y < 0 && entityData.getMotion().y > 0)
+		if (data.getPreviousMotion().y < 0 && data.getMotion().y > 0)
 		{
 			/*
 			 * Restarting the animation if the player is going back up again after falling
 			 * down.
 			 */
-			this.onPlay(entityData);
+			this.onPlay(data);
 		}
 
-		BipedEntityData data = (BipedEntityData) entityData;
 		EntityLivingBase player = (EntityLivingBase) data.getEntity();
 
 		data.renderOffset.slideToZero(0.3F);

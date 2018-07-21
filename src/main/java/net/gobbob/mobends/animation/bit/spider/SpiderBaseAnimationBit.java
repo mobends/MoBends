@@ -6,24 +6,20 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
-public class SpiderBaseAnimationBit extends AnimationBit
+public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
 {
 	protected static final float PI = (float) Math.PI;
 	protected final float kneelDuration = 0.15F;
 	
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(SpiderData entityData)
 	{
-		return new String[] {};
+		return null;
 	}
 	
 	@Override
-	public void onPlay(EntityData entityData)
+	public void onPlay(SpiderData data)
 	{
-		if (!(entityData instanceof SpiderData))
-			return;
-		SpiderData data = (SpiderData) entityData;
-		
 		float legBend = 33.3F;
         data.spiderLeg1.rotation.orientInstantZ(legBend);
         data.spiderLeg2.rotation.orientInstantZ(-legBend);
@@ -64,15 +60,11 @@ public class SpiderBaseAnimationBit extends AnimationBit
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(SpiderData data)
 	{
-		if (!(entityData instanceof SpiderData))
-			return;
-		SpiderData data = (SpiderData) entityData;
-		
 		float headYaw = data.getHeadYaw();
 		float headPitch = data.getHeadPitch();
-		float ticks = entityData.getEntity().ticksExisted + EntityRenderHandler.partialTicks;
+		float ticks = data.getEntity().ticksExisted + EntityRenderHandler.partialTicks;
 		float bodyHeight = 0.0F;
 		
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);

@@ -14,7 +14,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class AttackStanceAnimationBit extends AnimationBit
+public class AttackStanceAnimationBit extends AnimationBit<PlayerData>
 {
 	protected final float PI = (float) Math.PI;
 	protected final float kneelDuration = 0.15F;
@@ -22,26 +22,20 @@ public class AttackStanceAnimationBit extends AnimationBit
 	protected float legSpreadAnimation = 0F;
 	
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(PlayerData entityData)
 	{
 		return new String[] { "attack_stance" };
 	}
 	
 	@Override
-	public void onPlay(EntityData entityData)
+	public void onPlay(PlayerData entityData)
 	{
 		this.legSpreadAnimation = 0F;
 	}
 
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(PlayerData data)
 	{
-		if (!(entityData instanceof PlayerData))
-			return;
-		if (!(entityData.getEntity() instanceof AbstractClientPlayer))
-			return;
-
-		PlayerData data = (PlayerData) entityData;
 		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
 		EnumHandSide primaryHand = player.getPrimaryHand();
 

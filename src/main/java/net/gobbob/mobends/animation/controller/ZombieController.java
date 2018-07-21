@@ -115,12 +115,9 @@ public class ZombieController extends Controller
 		
 		this.layerSet.playOrContinueBit(bitAnimationSet[zombieData.getAnimationSet()], entityData);
 		
-		this.layerBase.perform(entityData);
-		this.layerSet.perform(entityData);
-		
 		List<String> actions = new ArrayList<String>();
-		actions.addAll(Arrays.asList(layerBase.getActions(entityData)));
-		actions.addAll(Arrays.asList(layerSet.getActions(entityData)));
+		this.layerBase.perform(entityData, actions);
+		this.layerSet.perform(entityData, actions);
 		
 		BendsPack.animate(entityData, this.animationTarget, actions);
 	}

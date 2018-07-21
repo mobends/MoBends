@@ -11,6 +11,8 @@ import org.lwjgl.opengl.GL11;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.client.gui.GuiHelper;
+import net.gobbob.mobends.client.gui.IChangeListener;
+import net.gobbob.mobends.client.gui.Observable;
 import net.gobbob.mobends.client.gui.elements.GuiAddButton;
 import net.gobbob.mobends.client.gui.elements.GuiDropDownList;
 import net.gobbob.mobends.client.gui.elements.GuiHelpButton;
@@ -29,7 +31,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiCustomizeWindow implements GuiDropDownList.ChangeListener
+public class GuiCustomizeWindow implements IChangeListener
 {
 	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/node_editor.png");
@@ -45,6 +47,7 @@ public class GuiCustomizeWindow implements GuiDropDownList.ChangeListener
 	private GuiPortraitDisplay portraitDisplay;
 	private GuiBendsMenu mainMenu;
 	private GuiDropDownList targetList;
+	private AlterEntry currentAlterEntry;
 
 	public GuiCustomizeWindow(GuiBendsMenu mainMenu)
 	{
@@ -53,7 +56,8 @@ public class GuiCustomizeWindow implements GuiDropDownList.ChangeListener
 		this.nodeEditor = new GuiNodeEditor(this, mainMenu);
 		this.helpButton = new GuiIconButton(247, 0, 9, 13);
 		this.bigModeButton = new GuiIconButton(234, 0, 13, 13);
-		this.parameterEditor = new GuiParameterEditor(this);
+		this.parameterEditor = new GuiParameterEditor();
+		this.parameterEditor.addListener(this);
 		this.portraitDisplay = new GuiPortraitDisplay();
 		this.mainMenu = mainMenu;
 		
@@ -96,7 +100,9 @@ public class GuiCustomizeWindow implements GuiDropDownList.ChangeListener
 	{
 		BendsTarget target = BendsPack.getTarget(alterEntry.getName());
 		
+		this.currentAlterEntry = alterEntry;
 		this.nodeEditor.populate(alterEntry);
+		this.parameterEditor.populate(alterEntry); 
 		this.parameterEditor.deselect();
 		this.targetList.selectValue(mainMenu.currentAlterEntry);
 		
@@ -145,7 +151,8 @@ public class GuiCustomizeWindow implements GuiDropDownList.ChangeListener
 		{
 			if (this.nodeEditor.mouseClicked(mouseX, mouseY, state))
 			{
-				GuiAnimationSection section = this.parameterEditor.selectedSection;
+				pressed = true;
+				GuiConditionSection section = this.parameterEditor.selectedSection;
 				if (section != null)
 				{
 					this.portraitDisplay.setAnimationToPreview(section.getAnimationName());
@@ -237,9 +244,17 @@ public class GuiCustomizeWindow implements GuiDropDownList.ChangeListener
 	{
 		return targetList;
 	}
-
+	
+	public String[] getAlterableParts()
+	{
+		if (this.currentAlterEntry != null)
+			return this.currentAlterEntry.getOwner().getAlterableParts();
+		else
+			return null;
+	}
+	
 	@Override
-	public void onDropDownListChanged()
+	public void handleChange(Observable changedObject)
 	{
 		this.onNodesChange();
 	}

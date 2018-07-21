@@ -41,11 +41,13 @@ public class GuiIconButton
 	
 	public void display()
 	{
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiBendsMenu.ICONS_TEXTURE);
 		int bgTextureY = hovered ? 64 : 44;
-		Draw.texturedModalRect(x, y, 88, bgTextureY, WIDTH, HEIGHT);
+		
+		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiBendsMenu.ICONS_TEXTURE);
+		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.enableAlpha();
 		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+		Draw.texturedModalRect(x, y, 88, bgTextureY, WIDTH, HEIGHT);
 		Draw.texturedModalRect(x + WIDTH/2 - this.iconWidth / 2, y + HEIGHT/2 - this.iconHeight / 2, this.iconU, this.iconV, this.iconWidth, this.iconHeight);
 	}
 	

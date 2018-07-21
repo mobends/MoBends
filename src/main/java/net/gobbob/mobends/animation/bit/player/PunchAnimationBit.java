@@ -6,25 +6,18 @@ import net.gobbob.mobends.data.PlayerData;
 import net.gobbob.mobends.util.EnumAxis;
 import net.minecraft.entity.EntityLivingBase;
 
-public class PunchAnimationBit extends AnimationBit
+public class PunchAnimationBit extends AnimationBit<PlayerData>
 {
 
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(PlayerData entityData)
 	{
-		// TODO Auto-generated method stub
 		return new String[] { "attack", "punch" };
 	}
 
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(PlayerData data)
 	{
-		if (!(entityData instanceof PlayerData))
-			return;
-		if (!(entityData.getEntity() instanceof EntityLivingBase))
-			return;
-
-		PlayerData data = (PlayerData) entityData;
 		EntityLivingBase living = (EntityLivingBase) data.getEntity();
 
 		data.rightArm.rotation.setSmoothness(.3F).orientX(-90)

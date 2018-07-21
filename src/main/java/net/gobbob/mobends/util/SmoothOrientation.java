@@ -22,6 +22,11 @@ public class SmoothOrientation
 		this.smoothness = 1.0F;
 	}
 
+	public Quaternion getEnd()
+	{
+		return this.end;
+	}
+	
 	public Quaternion getSmooth()
 	{
 		return this.smooth;
@@ -41,10 +46,20 @@ public class SmoothOrientation
 		return this;
 	}
 	
-	public SmoothOrientation orient(float a, float x, float y, float z)
+	public SmoothOrientation set(float x, float y, float z, float w)
+	{
+		this.start.set(x, y, z, w);
+		this.start.normalise();
+		this.end.set(this.start);
+		this.smooth.set(this.start);
+		this.progress = 0F;
+		return this;
+	}
+	
+	public SmoothOrientation orient(float angle, float x, float y, float z)
 	{
 		this.start.set(this.smooth);
-		this.end.setFromAxisAngle(x, y, z, a / 180F * PI);
+		this.end.setFromAxisAngle(x, y, z, angle / 180F * PI);
 		this.progress = 0F;
 		this.updateSmooth();
 		return this;
@@ -187,6 +202,39 @@ public class SmoothOrientation
 		this.start.set(this.end);
 		this.progress = 1.0F;
 		this.updateSmooth();
+		return this;
+	}
+	
+	public SmoothOrientation orient(EnumAxis axis, float angle)
+	{
+		if (axis == EnumAxis.X)
+			this.orientX(angle);
+		else if (axis == EnumAxis.Y)
+			this.orientY(angle);
+		else if (axis == EnumAxis.Z)
+			this.orientZ(angle);
+		return this;
+	}
+	
+	public SmoothOrientation rotate(EnumAxis axis, float angle)
+	{
+		if (axis == EnumAxis.X)
+			this.rotateX(angle);
+		else if (axis == EnumAxis.Y)
+			this.rotateY(angle);
+		else if (axis == EnumAxis.Z)
+			this.rotateZ(angle);
+		return this;
+	}
+	
+	public SmoothOrientation localRotate(EnumAxis axis, float angle)
+	{
+		if (axis == EnumAxis.X)
+			this.localRotateX(angle);
+		else if (axis == EnumAxis.Y)
+			this.localRotateY(angle);
+		else if (axis == EnumAxis.Z)
+			this.localRotateZ(angle);
 		return this;
 	}
 	
