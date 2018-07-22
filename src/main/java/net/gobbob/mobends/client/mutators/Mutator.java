@@ -61,10 +61,10 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 	 */
 	public abstract boolean createParts(M original, float scaleFactor);
 	
-	public void mutate(T entity, RenderLivingBase<? extends T> renderer)
+	public boolean mutate(T entity, RenderLivingBase<? extends T> renderer)
 	{
 		if (renderer.getMainModel() == null || !this.isModelEligible(renderer.getMainModel()))
-			return;
+			return false;
 		
 		this.fetchFields(renderer);
 		
@@ -89,6 +89,8 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 				swapLayer(renderer, i, isModelVanilla);
 			}
 		}
+		
+		return true;
 	}
 	
 	/*

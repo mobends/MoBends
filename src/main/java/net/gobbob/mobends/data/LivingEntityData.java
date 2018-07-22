@@ -87,6 +87,7 @@ public abstract class LivingEntityData extends EntityData
 			this.onTouchdown();
 			this.onGround = true;
 		}
+		
 		if((!this.calcOnGround() & this.onGround) | (this.previousMotion.y <= 0 && this.motion.y - this.previousMotion.y > 0.4f && this.ticksAfterLiftoff > 2f))
 		{
 			this.onLiftoff();
@@ -104,7 +105,8 @@ public abstract class LivingEntityData extends EntityData
 		}
 			
 		
-		if(this.entity instanceof EntityLivingBase) {
+		if(this.entity instanceof EntityLivingBase)
+		{
 			if(((EntityLivingBase)this.entity).swingProgress > 0)
 			{
 		        if(!this.alreadyPunched)

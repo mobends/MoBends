@@ -16,9 +16,12 @@ import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 
-/*
+/**
  * This is an animation controller for a zombie instance.
  * It's a part of the EntityData structure.
+ * 
+ * @author Iwo Plaza
+ *
  */
 public class ZombieController extends Controller
 {

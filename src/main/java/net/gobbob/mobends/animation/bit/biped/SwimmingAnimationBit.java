@@ -22,16 +22,19 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
 	private float transitionSpeed = 0.1F;
 	
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(BipedEntityData data)
 	{
-		return new String[] { "swimming" };
+		if (data.isUnderwater())
+			return new String[] { "swimming", "swimming_deep" };
+		else
+			return new String[] { "swimming", "swimming_surface" };
 	}
 	
 	@Override
-	public void onPlay(BipedEntityData entityData)
+	public void onPlay(BipedEntityData data)
 	{
 		transformTransition = 0F;
-		transitionSpeed = 0.1F;
+		transitionSpeed = .1F;
 	}
 	
 	@Override
@@ -70,7 +73,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
 		
         float t = (float) GUtil.easeInOut(this.transformTransition, 3F);
         
-		if(data.isStillHorizontally() || drawingBow || data.getTicksAfterAttack() < 10)
+		if(data.isStillHorizontally() || drawingBow || data.getTicksAfterAttack() < 10 || !data.isUnderwater())
 		{
 			if (this.transformTransition > 0F)
 			{

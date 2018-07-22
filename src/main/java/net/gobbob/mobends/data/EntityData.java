@@ -10,10 +10,13 @@ import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.util.SmoothOrientation;
 import net.gobbob.mobends.util.SmoothVector3f;
+import net.minecraft.block.BlockStaticLiquid;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public abstract class EntityData implements IBendsModel
@@ -186,6 +189,18 @@ public abstract class EntityData implements IBendsModel
 		float threshold = 30.0f;
 		return (angle >= threshold && angle <= 180.0f - threshold)
 				|| (angle >= -180.0f + threshold && angle <= -threshold);
+	}
+	
+	/**
+	 * @return True, if the player is sufficiently underwater.
+	 */
+	public boolean isUnderwater()
+	{
+		int blockX = (int) this.entity.posX;
+		int blockY = (int) this.entity.posY + 2;
+		int blockZ = (int) this.entity.posZ;
+		IBlockState state = Minecraft.getMinecraft().world.getBlockState(new BlockPos(blockX, blockY, blockZ));
+		return this.entity.isInWater() && state.getBlock() instanceof BlockStaticLiquid;
 	}
 
 	public float getMotionMagnitude()

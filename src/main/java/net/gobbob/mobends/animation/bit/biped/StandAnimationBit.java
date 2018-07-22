@@ -9,18 +9,18 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 
-public class StandAnimationBit extends AnimationBit<BipedEntityData>
+public class StandAnimationBit<DataType extends BipedEntityData> extends AnimationBit<DataType>
 {
 	protected final float kneelDuration = 0.15F;
 
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(DataType entityData)
 	{
 		return new String[] { "stand" };
 	}
 
 	@Override
-	public void onPlay(BipedEntityData entityData)
+	public void onPlay(DataType entityData)
 	{
 		if (!(entityData instanceof BipedEntityData))
 			return;
@@ -39,7 +39,7 @@ public class StandAnimationBit extends AnimationBit<BipedEntityData>
 	}
 
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(DataType data)
 	{
 		data.renderOffset.slideToZero(0.3F);
 		data.renderRotation.setSmoothness(.3F).orientZero();

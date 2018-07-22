@@ -74,6 +74,7 @@ public class KeyframeAnimationLayer<DataType extends EntityData> extends Animati
 				int nextIndex = index + 1;
 				if (nextIndex >= minKeyframes - 1)
 					nextIndex = minKeyframes - 1;
+				float progress = keyframeIndex - index;
 				
 				if (armature.bones.containsKey("root"))
 				{
@@ -81,8 +82,12 @@ public class KeyframeAnimationLayer<DataType extends EntityData> extends Animati
 					Keyframe keyframe = rootBone.keyframes.get(index);
 					Keyframe nextFrame = rootBone.keyframes.get(nextIndex);
 					
+					float x = keyframe.position[0] + (nextFrame.position[0] - keyframe.position[0]) * progress;
+					float y = keyframe.position[1] + (nextFrame.position[1] - keyframe.position[1]) * progress;
+					float z = keyframe.position[2] + (nextFrame.position[2] - keyframe.position[2]) * progress;
+					
 					if (keyframe.position != null)
-						entityData.renderOffset.set(keyframe.position[0], keyframe.position[1], keyframe.position[2]);
+						entityData.renderOffset.set(z, x, y);
 				}
 				
 				for (Map.Entry<String, Bone> entry : armature.bones.entrySet())
@@ -100,15 +105,15 @@ public class KeyframeAnimationLayer<DataType extends EntityData> extends Animati
 						if (part instanceof IModelPart)
 						{
 							IModelPart box = (IModelPart) part;
-							float x0 = keyframe.rotation[1];
-							float y0 = keyframe.rotation[2];
-							float z0 = keyframe.rotation[3];
-							float w0 = keyframe.rotation[0];
-							float x1 = nextFrame.rotation[1];
-							float y1 = nextFrame.rotation[2];
-							float z1 = nextFrame.rotation[3];
-							float w1 = nextFrame.rotation[0];
-							float progress = keyframeIndex - index;
+							float x0 = keyframe.rotation[0];
+							float y0 = keyframe.rotation[1];
+							float z0 = keyframe.rotation[2];
+							float w0 = keyframe.rotation[3];
+							float x1 = nextFrame.rotation[0];
+							float y1 = nextFrame.rotation[1];
+							float z1 = nextFrame.rotation[2];
+							float w1 = nextFrame.rotation[3];
+							
 							box.getRotation().set(x0 + (x1-x0) * progress,
 									y0 + (y1-y0) * progress,
 									z0 + (z1-z0) * progress,
@@ -117,7 +122,7 @@ public class KeyframeAnimationLayer<DataType extends EntityData> extends Animati
 					}
 				}
 				
-				keyframeIndex += DataUpdateHandler.ticksPerFrame * 0.5F;
+				keyframeIndex += DataUpdateHandler.ticksPerFrame * 0.8F;
 				if (keyframeIndex >= minKeyframes - 1)
 					keyframeIndex -= minKeyframes - 1;
 			}

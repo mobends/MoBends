@@ -48,7 +48,7 @@ public class EntityRenderHandler
 		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(event.getEntity());
 		if (animatedEntity == null)
 			return;
-
+		
 		if (currentlyRenderedEntities.contains(event.getEntity().getUniqueID()))
 			// The entity is already being rendered.
 			return;

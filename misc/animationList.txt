@@ -17,4 +17,7 @@ fist_guard
 punch
 bow
 eating
-axe_cut
+breaking
+swimming
+swimming_surface
+swimming_deep

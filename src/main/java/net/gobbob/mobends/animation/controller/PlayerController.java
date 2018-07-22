@@ -7,9 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
+import net.gobbob.mobends.animation.bit.KeyframeAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.BowAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.EatingAnimationBit;
 import net.gobbob.mobends.animation.keyframe.AnimationLoader;
+import net.gobbob.mobends.animation.keyframe.ArmatureMask;
 import net.gobbob.mobends.animation.keyframe.KeyframeAnimation;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.animation.layer.KeyframeAnimationLayer;
@@ -22,7 +24,9 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
@@ -43,7 +47,9 @@ public class PlayerController extends Controller
 	protected AnimationBit bitAttack;
 	protected BowAnimationBit bitBow;
 	protected EatingAnimationBit bitEating;
-	protected KeyframeAnimation bitKeyframe;
+	protected KeyframeAnimationBit bitBreaking;
+	
+	protected ArmatureMask upperBodyOnlyMask;
 
 	public PlayerController()
 	{
@@ -63,17 +69,30 @@ public class PlayerController extends Controller
 		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
 		this.bitEating = new net.gobbob.mobends.animation.bit.biped.EatingAnimationBit();
+		this.bitBreaking = new net.gobbob.mobends.animation.bit.biped.BreakingAnimationBit(1.2F);
 		
-		try
-		{
-			this.bitKeyframe = AnimationLoader.loadFromFile(new File(Minecraft.getMinecraft().mcDataDir, "keyframes.json"));
-		}
-		catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		}
+		this.upperBodyOnlyMask = new ArmatureMask(ArmatureMask.Mode.EXCLUDE_ONLY);
+		this.upperBodyOnlyMask.exclude("root");
+		this.upperBodyOnlyMask.exclude("head");
+		this.upperBodyOnlyMask.exclude("leftLeg");
+		this.upperBodyOnlyMask.exclude("leftForeLeg");
+		this.upperBodyOnlyMask.exclude("rightLeg");
+		this.upperBodyOnlyMask.exclude("rightForeLeg");
 	}
 
+	public static boolean shouldPerformBreaking(PlayerData data)
+	{
+		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
+		ItemStack itemstack = player.getHeldItemMainhand();
+		
+		if(itemstack != null)
+		{
+			return itemstack.getItem() instanceof ItemPickaxe ||
+				  (itemstack.getItem() instanceof ItemAxe);
+		}
+		return false;
+	}
+	
 	@Override
 	public void perform(EntityData entityData)
 	{
@@ -137,25 +156,30 @@ public class PlayerController extends Controller
         {
         	this.layerBase.playOrContinueBit(bitLadderClimb, entityData);
         	this.layerSneak.clearAnimation();
+        	this.bitBreaking.setMask(this.upperBodyOnlyMask);
 		}
         else if(player.isInWater())
         {
 			this.layerBase.playOrContinueBit(bitSwimming, entityData);
 			this.layerSneak.clearAnimation();
+			this.bitBreaking.setMask(this.upperBodyOnlyMask);
 		}
         else if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
 		{
+        	// Airborne
 			if (player.isSprinting())
 				this.layerBase.playOrContinueBit(bitSprintJump, entityData);
 			else
 				this.layerBase.playOrContinueBit(bitJump, entityData);
 			this.layerSneak.clearAnimation();
+			this.bitBreaking.setMask(this.upperBodyOnlyMask);
 		}
 		else
 		{
 			if (playerData.isStillHorizontally())
 			{
 				this.layerBase.playOrContinueBit(bitStand, entityData);
+				this.bitBreaking.setMask(null);
 			}
 			else
 			{
@@ -163,6 +187,7 @@ public class PlayerController extends Controller
 					this.layerBase.playOrContinueBit(bitSprint, entityData);
 				else
 					this.layerBase.playOrContinueBit(bitWalk, entityData);
+				this.bitBreaking.setMask(this.upperBodyOnlyMask);
 			}
 			
 			if (player.isSneaking())
@@ -171,6 +196,9 @@ public class PlayerController extends Controller
 				this.layerSneak.clearAnimation();
 		}
 		
+        /**
+         * ACTIONS
+         */
         if (activeStack != null && activeStack.getItem() instanceof ItemFood)
 		{
         	this.bitEating.setActionHand(activeHandSide);
@@ -183,6 +211,13 @@ public class PlayerController extends Controller
 				this.bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
 				this.layerAction.playOrContinueBit(this.bitBow, entityData);
 			}
+			else if(itemstack != null && (itemstack.getItem() instanceof ItemPickaxe || itemstack.getItem() instanceof ItemAxe))
+			{
+				if (player.isSwingInProgress)
+					this.layerAction.playOrContinueBit(this.bitBreaking, entityData);
+				else
+					this.layerAction.clearAnimation();
+			}
 			else
 			{
 				this.layerAction.playOrContinueBit(this.bitAttack, entityData);
@@ -190,10 +225,9 @@ public class PlayerController extends Controller
         }
 		
         List<String> actions = new ArrayList<String>();
-		/*layerBase.perform(entityData, actions);
+		layerBase.perform(entityData, actions);
 		layerSneak.perform(entityData, actions);
-		layerAction.perform(entityData, actions);*/
-        layerKeyframe.playOrContinueBit(this.bitKeyframe, entityData);
+		layerAction.perform(entityData, actions);
         layerKeyframe.perform(entityData, actions);
 		
 		BendsPack.animate(entityData, this.animationTarget, actions);

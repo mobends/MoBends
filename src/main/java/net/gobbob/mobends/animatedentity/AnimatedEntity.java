@@ -11,6 +11,7 @@ import net.gobbob.mobends.animatedentity.previewer.PlayerPreviewer;
 import net.gobbob.mobends.animatedentity.previewer.Previewer;
 import net.gobbob.mobends.animatedentity.previewer.SpiderPreviewer;
 import net.gobbob.mobends.client.mutators.Mutator;
+import net.gobbob.mobends.client.mutators.PigZombieMutator;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.mutators.SpiderMutator;
 import net.gobbob.mobends.client.mutators.ZombieMutator;
@@ -26,6 +27,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.projectile.EntitySpectralArrow;
@@ -178,6 +180,11 @@ public class AnimatedEntity
 						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 								"rightLeg", "leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation",
 								"rightItemRotation" }).setPreviewer(new PlayerPreviewer()));
+		
+		registerEntity(config,
+				new AnimatedEntity("pig_zombie", "Zombie Pigman", EntityPigZombie.class, PigZombieMutator.class, new ZombieRenderer(),
+						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
+								"rightLeg", "leftForeLeg", "rightForeLeg" }));
 
 		registerEntity(config,
 				new AnimatedEntity("zombie", "Zombie", EntityZombie.class, ZombieMutator.class, new ZombieRenderer(),
@@ -189,6 +196,7 @@ public class AnimatedEntity
 						new String[] { "head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6",
 								"leg7", "leg8", "foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5",
 								"foreLeg6", "foreLeg7", "foreLeg8" }).setPreviewer(new SpiderPreviewer()));
+		
 		/*
 		 * registerEntity(config, new AnimatedEntity("husk", "Husk", EntityHusk.class,
 		 * new RenderBendsHusk(Minecraft.getMinecraft().getRenderManager()), new
@@ -244,21 +252,22 @@ public class AnimatedEntity
 
 	public static AnimatedEntity getForEntity(Entity entity)
 	{
+		// Checking direct registration
 		for (AnimatedEntity animatedEntity : animatedEntities.values())
-		{
-			if (animatedEntity.entityClass.isInstance(entity))
-			{
+			if (animatedEntity.entityClass.equals(entity.getClass()))
 				return animatedEntity;
-			}
-		}
+		
+		// Checking indirect inheritance
+		for (AnimatedEntity animatedEntity : animatedEntities.values())
+			if (animatedEntity.entityClass.isInstance(entity))
+				return animatedEntity;
+		
 		return null;
 	}
 	
 	public static void refreshMutators()
 	{
 		for (AnimatedEntity animatedEntity : animatedEntities.values())
-		{
 			animatedEntity.refreshMutation();
-		}
 	}
 }
