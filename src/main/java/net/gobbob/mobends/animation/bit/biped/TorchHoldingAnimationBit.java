@@ -1,0 +1,57 @@
+package net.gobbob.mobends.animation.bit.biped;
+
+import net.gobbob.mobends.animation.bit.AnimationBit;
+import net.gobbob.mobends.client.model.IModelPart;
+import net.gobbob.mobends.data.BipedEntityData;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumHandSide;
+
+public class TorchHoldingAnimationBit extends AnimationBit<BipedEntityData>
+{
+
+	@Override
+	public String[] getActions(BipedEntityData data)
+	{
+		return new String[] { "torch_holding" };
+	}
+	
+	@Override
+	public void perform(BipedEntityData data)
+	{
+		if (!(data.getEntity() instanceof EntityLivingBase))
+			return;
+
+		EntityLivingBase living = (EntityLivingBase) data.getEntity();
+		EnumHandSide torchHand;
+		ItemStack mainStack = living.getHeldItem(EnumHand.MAIN_HAND);
+		ItemStack offStack = living.getHeldItem(EnumHand.OFF_HAND);
+		
+		if (mainStack != null && mainStack.getItem() == Item.getItemFromBlock(Blocks.TORCH))
+		{
+			torchHand = living.getPrimaryHand();
+		}
+		else if (offStack != null && offStack.getItem() == Item.getItemFromBlock(Blocks.TORCH))
+		{
+			torchHand = living.getPrimaryHand() == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
+		}
+		else
+		{
+			return;
+		}
+		
+		// Main Hand Direction Multiplier - it helps switch animation sides depending on
+		// what is your main hand.
+		float handDirMtp = torchHand == EnumHandSide.RIGHT ? 1 : -1;
+		IModelPart mainArm = torchHand == EnumHandSide.RIGHT ? data.rightArm : data.leftArm;
+		IModelPart mainForeArm = torchHand == EnumHandSide.RIGHT ? data.rightForeArm : data.leftForeArm;
+		
+		mainArm.getRotation().orientX(-90.0F + data.getHeadPitch() * 0.5F)
+							 .rotateY(data.getHeadYaw() * 0.7F);
+		mainForeArm.getRotation().orientX(-5.0F);
+	}
+}
