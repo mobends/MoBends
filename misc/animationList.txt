@@ -21,3 +21,4 @@ breaking
 swimming
 swimming_surface
 swimming_deep
+torch_holding

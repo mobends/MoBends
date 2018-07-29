@@ -2,6 +2,7 @@ package net.gobbob.mobends.animation.bit.pigzombie;
 
 import net.gobbob.mobends.data.PigZombieData;
 import net.gobbob.mobends.data.ZombieData;
+import net.minecraft.util.math.MathHelper;
 
 public class StandAnimationBit extends net.gobbob.mobends.animation.bit.biped.StandAnimationBit<PigZombieData>
 {

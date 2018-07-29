@@ -39,11 +39,13 @@ public class PlayerController extends Controller
 {
 	protected String animationTarget = "player";
 	protected HardAnimationLayer layerBase;
+	protected HardAnimationLayer layerTorch;
 	protected HardAnimationLayer layerSneak;
 	protected HardAnimationLayer layerAction;
 	protected KeyframeAnimationLayer layerKeyframe;
 	
 	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSprintJump, bitSneak, bitLadderClimb, bitSwimming;
+	protected AnimationBit bitTorchHolding;
 	protected AnimationBit bitAttack;
 	protected BowAnimationBit bitBow;
 	protected EatingAnimationBit bitEating;
@@ -54,6 +56,7 @@ public class PlayerController extends Controller
 	public PlayerController()
 	{
 		this.layerBase = new HardAnimationLayer();
+		this.layerTorch = new HardAnimationLayer();
 		this.layerSneak = new HardAnimationLayer();
 		this.layerAction = new HardAnimationLayer();
 		this.layerKeyframe = new KeyframeAnimationLayer();
@@ -66,8 +69,9 @@ public class PlayerController extends Controller
 		this.bitSneak = new net.gobbob.mobends.animation.bit.biped.SneakAnimationBit();
 		this.bitLadderClimb = new net.gobbob.mobends.animation.bit.biped.LadderClimbAnimationBit();
 		this.bitSwimming = new net.gobbob.mobends.animation.bit.biped.SwimmingAnimationBit();
-		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
+		this.bitTorchHolding = new net.gobbob.mobends.animation.bit.biped.TorchHoldingAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
+		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
 		this.bitEating = new net.gobbob.mobends.animation.bit.biped.EatingAnimationBit();
 		this.bitBreaking = new net.gobbob.mobends.animation.bit.biped.BreakingAnimationBit(1.2F);
 		
@@ -156,12 +160,14 @@ public class PlayerController extends Controller
         {
         	this.layerBase.playOrContinueBit(bitLadderClimb, entityData);
         	this.layerSneak.clearAnimation();
+        	this.layerTorch.clearAnimation();
         	this.bitBreaking.setMask(this.upperBodyOnlyMask);
 		}
         else if(player.isInWater())
         {
 			this.layerBase.playOrContinueBit(bitSwimming, entityData);
 			this.layerSneak.clearAnimation();
+			this.layerTorch.clearAnimation();
 			this.bitBreaking.setMask(this.upperBodyOnlyMask);
 		}
         else if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
@@ -172,6 +178,7 @@ public class PlayerController extends Controller
 			else
 				this.layerBase.playOrContinueBit(bitJump, entityData);
 			this.layerSneak.clearAnimation();
+			this.layerTorch.clearAnimation();
 			this.bitBreaking.setMask(this.upperBodyOnlyMask);
 		}
 		else
@@ -179,14 +186,21 @@ public class PlayerController extends Controller
 			if (playerData.isStillHorizontally())
 			{
 				this.layerBase.playOrContinueBit(bitStand, entityData);
+				this.layerTorch.playOrContinueBit(bitTorchHolding, entityData);
 				this.bitBreaking.setMask(null);
 			}
 			else
 			{
 				if (player.isSprinting())
+				{
 					this.layerBase.playOrContinueBit(bitSprint, entityData);
+					this.layerTorch.clearAnimation();
+				}
 				else
+				{
 					this.layerBase.playOrContinueBit(bitWalk, entityData);
+					this.layerTorch.playOrContinueBit(bitTorchHolding, entityData);
+				}
 				this.bitBreaking.setMask(this.upperBodyOnlyMask);
 			}
 			
@@ -227,6 +241,7 @@ public class PlayerController extends Controller
         List<String> actions = new ArrayList<String>();
 		layerBase.perform(entityData, actions);
 		layerSneak.perform(entityData, actions);
+		layerTorch.perform(entityData, actions);
 		layerAction.perform(entityData, actions);
         layerKeyframe.perform(entityData, actions);
 		

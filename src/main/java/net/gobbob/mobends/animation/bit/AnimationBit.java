@@ -24,6 +24,12 @@ public abstract class AnimationBit<DataType extends EntityData>
 	}
 	
 	/*
+	 * Returns the actions currently being performed
+	 * by the entityData. Used by BendsPacks
+	 */
+	public abstract String[] getActions(DataType entityData);
+	
+	/*
 	 * Called by setupForPlay to setup the beginning of
 	 * this animation bit.
 	 */
@@ -34,10 +40,4 @@ public abstract class AnimationBit<DataType extends EntityData>
 	 * animation.
 	 */
 	public abstract void perform(DataType entityData);
-	
-	/*
-	 * Returns the actions currently being performed
-	 * by the entityData. Used by BendsPacks
-	 */
-	public abstract String[] getActions(DataType entityData);
 }

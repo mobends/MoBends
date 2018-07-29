@@ -8,18 +8,18 @@ import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.minecraft.util.math.MathHelper;
 
-public class WalkAnimationBit extends AnimationBit<BipedEntityData>
+public class WalkAnimationBit<DataType extends BipedEntityData> extends AnimationBit<DataType>
 {
 	protected final float kneelDuration = 0.15F;
 
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(DataType entityData)
 	{
 		return new String[] { "walk" };
 	}
 	
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(DataType data)
 	{
 		data.renderOffset.slideToZero(0.3F);
 		data.renderRotation.setSmoothness(.3F).orientZero();
