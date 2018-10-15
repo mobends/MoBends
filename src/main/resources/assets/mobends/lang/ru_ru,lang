@@ -1,0 +1,25 @@
+mobends.gui.customize=Настроить
+mobends.gui.packs=Пакет
+mobends.gui.publicpacks=Общедоступные пакеты
+mobends.gui.localpacks=Локальные пакеты
+mobends.gui.use=Использовать
+mobends.gui.disable=Отключить
+mobends.gui.edit=Редактировать
+mobends.gui.done=Отмена
+mobends.gui.selectpack=Выбрать пакет
+mobends.gui.entername=Введите новое название
+mobends.gui.filename=Название файла
+mobends.gui.chooseapacktoedit=Выберите локальный пакет для редактирования
+mobends.gui.apply=Применить
+mobends.gui.openpacksfolder=Открыть папку пакетов
+mobends.gui.help=Помощь
+mobends.gui.discardchanges=Вы хотите отказаться от изменений?
+mobends.gui.createpack=Создать пакет
+mobends.gui.condition=Состояние
+mobends.gui.node=Узел
+mobends.gui.calculation=Расчёт
+mobends.gui.noscaleallowed=Предупреждение: этот сервер не позволяет масштабировать тело.
+
+mobends.setting.sword_trail=След меча
+mobends.setting.arrow_trails=Следы стрел
+mobends.setting.spin_attack=Вращающаяся атака
