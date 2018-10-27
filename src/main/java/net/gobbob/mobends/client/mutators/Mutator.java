@@ -2,17 +2,9 @@ package net.gobbob.mobends.client.mutators;
 
 import java.util.List;
 
-import net.gobbob.mobends.client.renderer.entity.layers.LayerCustomBipedArmor;
-import net.gobbob.mobends.client.renderer.entity.layers.LayerCustomHeldItem;
-import net.gobbob.mobends.util.FieldMiner;
 import net.gobbob.mobends.util.GUtil;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
-import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
@@ -31,7 +23,7 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 	public void fetchFields(RenderLivingBase<? extends T> renderer)
 	{
 		// Getting the layer renderers
-		this.layerRenderers = FieldMiner.getObfuscatedValue(renderer, "layerRenderers", "field_177097_h");
+		this.layerRenderers = (List<LayerRenderer<EntityLivingBase>>) ((Object) renderer.layerRenderers); // Type safety hack...
 	}
 	
 	public abstract void storeVanillaModel(M model);

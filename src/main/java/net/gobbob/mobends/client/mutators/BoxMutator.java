@@ -1,11 +1,8 @@
 package net.gobbob.mobends.client.mutators;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 
 import net.gobbob.mobends.client.model.ModelBox;
-import net.gobbob.mobends.util.BendsLogger;
-import net.gobbob.mobends.util.FieldMiner;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.TexturedQuad;
@@ -39,24 +36,11 @@ public class BoxMutator
 	 * The original stays in it's original state.
 	 */
 	public static BoxMutator createFrom(final ModelBase modelBase, final ModelRenderer modelRenderer, final net.minecraft.client.model.ModelBox original)
-	{
-		Field quadListField = FieldMiner.getObfuscatedField(original.getClass(), "quadList", "field_78254_i");
-		
-		if(quadListField == null)
+	{		
+		TexturedQuad[] quadList = original.quadList;
+		if (quadList == null)
 		{
 			return null;
-		}
-		
-		TexturedQuad[] quadList = null;
-		
-		try
-		{
-			quadListField.setAccessible(true);
-			quadList = (TexturedQuad[]) quadListField.get(original);
-		}
-		catch (IllegalArgumentException | IllegalAccessException e)
-		{
-			e.printStackTrace();
 		}
 		
 		float x = original.posX1;
@@ -65,11 +49,6 @@ public class BoxMutator
 		int width = (int) (original.posX2 - original.posX1);
 		int height = (int) (original.posY2 - original.posY1);
 		int length = (int) (original.posZ2 - original.posZ1);
-		
-		if (quadList == null)
-		{
-			return null;
-		}
 		
 		float textureWidth = modelRenderer.textureWidth;
 		float textureHeight = modelRenderer.textureHeight;

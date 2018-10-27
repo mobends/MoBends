@@ -58,6 +58,18 @@ dependencies {
 
 }
 
+jar {
+    manifest {
+        attributes(
+                'Built-By': System.properties['user.name'],
+                'Created-By': System.properties['java.vm.version'] + ' (' + System.properties['java.vm.vendor'] + ')',
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'FMLAT': 'mobends_at.cfg'
+        )
+    }
+}
+
 processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version

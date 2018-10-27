@@ -1,9 +1,5 @@
 package net.gobbob.mobends.client.mutators;
 
-import java.util.HashMap;
-import java.util.List;
-
-import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPartChild;
@@ -11,16 +7,11 @@ import net.gobbob.mobends.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.client.model.ModelPartChildPostOffset;
 import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.client.model.ModelPartPostOffset;
-import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerCustomBipedArmor;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerCustomHeldItem;
-import net.gobbob.mobends.util.FieldMiner;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;

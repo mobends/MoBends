@@ -3,11 +3,9 @@ package net.gobbob.mobends.client.mutators;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animation.controller.Controller;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.SpiderData;
@@ -20,7 +18,7 @@ import net.minecraft.entity.monster.EntitySpider;
 
 public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 {
-	public static HashMap<RenderSpider, SpiderMutator> mutatorMap = new HashMap<RenderSpider, SpiderMutator>();
+	public static HashMap<RenderSpider<? extends EntitySpider>, SpiderMutator> mutatorMap = new HashMap<>();
 	
 	public ModelPart spiderHead;
     public ModelPart spiderNeck;
@@ -186,12 +184,10 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 	public void performAnimations(EntitySpider entity, RenderLivingBase<? extends EntitySpider> renderer,
 			float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(SpiderData.class, entity);
+		EntityData entityData = EntityDatabase.instance.getAndMake(SpiderData::new, entity);
 		if (!(entityData instanceof SpiderData))
 			return;
 		SpiderData data = (SpiderData) entityData;
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(entity);
-		float ticks = entity.ticksExisted + partialTicks;
 
 		data.setHeadYaw(this.headYaw);
 		data.setHeadPitch(this.headPitch);
@@ -288,7 +284,7 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 	 */
 	public static void refresh()
 	{
-		for (Map.Entry<RenderSpider, SpiderMutator> mutator : mutatorMap.entrySet())
+		for (Map.Entry<RenderSpider<? extends EntitySpider>, SpiderMutator> mutator : mutatorMap.entrySet())
 		{
 			mutator.getValue().mutate(null, mutator.getKey());
 		}

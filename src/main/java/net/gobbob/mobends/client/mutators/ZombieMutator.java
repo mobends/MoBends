@@ -3,9 +3,7 @@ package net.gobbob.mobends.client.mutators;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animation.controller.Controller;
-import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.ZombieData;
@@ -18,7 +16,7 @@ import net.minecraft.entity.monster.EntityZombie;
 
 public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator<EntityType, ModelZombie>
 {
-	public static HashMap<RenderZombie, ZombieMutator> mutatorMap = new HashMap<RenderZombie, ZombieMutator>();
+	public static HashMap<RenderZombie, ZombieMutator> mutatorMap = new HashMap<>();
 	
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
@@ -51,13 +49,11 @@ public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator
 	@Override
 	public void performAnimations(EntityType zombie, RenderLivingBase<? extends EntityType> renderer, float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(ZombieData.class, zombie);
+		EntityData entityData = EntityDatabase.instance.getAndMake(ZombieData::new, zombie);
 		if (!(entityData instanceof ZombieData))
 			return;
 		
 		ZombieData data = (ZombieData) entityData;
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(zombie);
-		float ticks = zombie.ticksExisted + partialTicks;
 		
 		data.setHeadYaw(this.headYaw);
 		data.setHeadPitch(this.headPitch);
