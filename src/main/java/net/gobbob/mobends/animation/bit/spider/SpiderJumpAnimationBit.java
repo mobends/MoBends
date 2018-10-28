@@ -16,7 +16,7 @@ public class SpiderJumpAnimationBit extends AnimationBit<SpiderData>
 	@Override
 	public void perform(SpiderData data)
 	{
-		float ticksInAir = data.getTicksAfterLiftoff();
+		float ticksInAir = data.getTicksInAir();
 		ticksInAir = Math.min(ticksInAir * 0.1F, 1.0F);
 		ticksInAir = (float) GUtil.easeInOut(ticksInAir, 3);
 		

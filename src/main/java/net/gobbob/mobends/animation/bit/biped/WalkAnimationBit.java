@@ -10,12 +10,14 @@ import net.minecraft.util.math.MathHelper;
 
 public class WalkAnimationBit<DataType extends BipedEntityData> extends AnimationBit<DataType>
 {
+	private static final String[] ACTIONS = new String[] { "walk" };
+	
 	protected final float kneelDuration = 0.15F;
 
 	@Override
 	public String[] getActions(DataType entityData)
 	{
-		return new String[] { "walk" };
+		return ACTIONS;
 	}
 	
 	@Override

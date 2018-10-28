@@ -17,7 +17,7 @@ import net.minecraft.util.math.BlockPos;
 
 public abstract class LivingEntityData extends EntityData
 {
-	protected float ticksAfterLiftoff;
+	protected float ticksInAir;
     protected float ticksAfterTouchdown;
 	protected float ticksAfterAttack;
 	protected float ticksAfterThrowup;
@@ -36,7 +36,7 @@ public abstract class LivingEntityData extends EntityData
 		// Setting high values for ticksAfter* variables
 		// to avoid premature animation triggers.
 		// (like the automatic attack stance on creation)
-		this.ticksAfterLiftoff = 100F;
+		this.ticksInAir = 100F;
 		this.ticksAfterTouchdown = 100F;
 		this.ticksAfterAttack = 100F;
 		this.ticksAfterThrowup = 100F;
@@ -68,7 +68,7 @@ public abstract class LivingEntityData extends EntityData
 	}
 	
 	public float getClimbingCycle() { return this.climbingCycle; }
-	public float getTicksAfterLiftoff() { return this.ticksAfterLiftoff; }
+	public float getTicksInAir() { return this.ticksInAir; }
 	public float getTicksAfterTouchdown() { return this.ticksAfterTouchdown; }
 	public float getTicksAfterAttack() { return this.ticksAfterAttack; }
 	public float getLimbSwing() { return this.limbSwing; }
@@ -88,7 +88,7 @@ public abstract class LivingEntityData extends EntityData
 			this.onGround = true;
 		}
 		
-		if((!this.calcOnGround() & this.onGround) | (this.previousMotion.y <= 0 && this.motion.y - this.previousMotion.y > 0.4f && this.ticksAfterLiftoff > 2f))
+		if((!this.calcOnGround() & this.onGround) | (this.previousMotion.y <= 0 && this.motion.y - this.previousMotion.y > 0.4f && this.ticksInAir > 2f))
 		{
 			this.onLiftoff();
 			this.onGround = false;
@@ -126,7 +126,7 @@ public abstract class LivingEntityData extends EntityData
 			this.onThrowup();
 		}
 		
-		if(!this.isOnGround()) this.ticksAfterLiftoff += DataUpdateHandler.ticksPerFrame;
+		if(!this.isOnGround()) this.ticksInAir += DataUpdateHandler.ticksPerFrame;
 		if(this.isOnGround()) this.ticksAfterTouchdown += DataUpdateHandler.ticksPerFrame;
 		this.ticksAfterAttack += DataUpdateHandler.ticksPerFrame;
 		this.ticksAfterThrowup += DataUpdateHandler.ticksPerFrame;
@@ -139,7 +139,7 @@ public abstract class LivingEntityData extends EntityData
 	
 	public void onLiftoff()
 	{
-		this.ticksAfterLiftoff = 0.0f;
+		this.ticksInAir = 0.0f;
 	}
 	
 	public void onThrowup()

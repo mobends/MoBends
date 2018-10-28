@@ -7,6 +7,9 @@ sprint
 sprint_jump
 sneak
 ladder_climb
+riding
+sitting
+falling
 attack
 attack_0
 attack_1

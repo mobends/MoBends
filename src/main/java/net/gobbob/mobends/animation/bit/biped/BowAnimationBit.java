@@ -10,12 +10,14 @@ import net.minecraft.util.math.MathHelper;
 
 public class BowAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "bow" };
+	
 	protected EnumHandSide actionHand = EnumHandSide.RIGHT;
 	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "bow" };
+		return ACTIONS;
 	}
 
 	public void setActionHand(EnumHandSide handSide)

@@ -9,10 +9,12 @@ import net.gobbob.mobends.data.BipedEntityData;
 
 public class BreakingAnimationBit extends KeyframeAnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "breaking" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "breaking" };
+		return ACTIONS;
 	}
 	
 	public BreakingAnimationBit(float animationSpeed)

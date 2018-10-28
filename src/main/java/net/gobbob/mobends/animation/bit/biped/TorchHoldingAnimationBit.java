@@ -13,11 +13,12 @@ import net.minecraft.util.EnumHandSide;
 
 public class TorchHoldingAnimationBit extends AnimationBit<BipedEntityData>
 {
-
+	private static final String[] ACTIONS = new String[] { "torch_holding" };
+	
 	@Override
 	public String[] getActions(BipedEntityData data)
 	{
-		return new String[] { "torch_holding" };
+		return ACTIONS;
 	}
 	
 	@Override

@@ -17,10 +17,12 @@ import net.minecraft.util.math.MathHelper;
 
 public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "attack", "attack_0" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "attack", "attack_0" };
+		return ACTIONS;
 	}
 	
 	@Override
@@ -86,7 +88,7 @@ public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData>
 		mainForeArm.getRotation().setSmoothness(.3F).orientX(-20);
 		offForeArm.getRotation().setSmoothness(.3F).orientX(-60);
 
-		if (data.isStillHorizontally())
+		if (data.isStillHorizontally() && !living.isRiding())
 		{
 			data.rightLeg.rotation.orientZ(5)
 					.rotateY(15F)

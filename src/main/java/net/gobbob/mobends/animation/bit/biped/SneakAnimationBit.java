@@ -8,10 +8,12 @@ import net.minecraft.util.math.MathHelper;
 
 public class SneakAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "sneak" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "sneak" };
+		return ACTIONS;
 	}
 
 	@Override

@@ -9,10 +9,12 @@ import net.minecraft.util.math.MathHelper;
 
 public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "ladder_climb" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "ladder_climb" };
+		return ACTIONS;
 	}
 	
 	@Override

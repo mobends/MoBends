@@ -8,10 +8,12 @@ import net.minecraft.util.math.MathHelper;
 
 public class JumpAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "jump" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "jump" };
+		return ACTIONS;
 	}
 
 	@Override
@@ -55,7 +57,7 @@ public class JumpAnimationBit extends AnimationBit<BipedEntityData>
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
 		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
 
-		float bodyRotationX = Math.max(1.0F - data.getTicksAfterLiftoff() * 0.1F, 0.0F);
+		float bodyRotationX = Math.max(1.0F - data.getTicksInAir() * 0.1F, 0.0F);
 		data.body.rotation.setSmoothness(0.2F).orientX(bodyRotationX);
 		data.rightArm.rotation.setSmoothness(0.05F).orientZ(45F);
 		data.leftArm.rotation.setSmoothness(0.05F).orientZ(-45F);

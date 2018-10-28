@@ -8,11 +8,12 @@ import net.minecraft.util.EnumHandSide;
 
 public class FistGuardAnimationBit extends AnimationBit<BipedEntityData>
 {
-
+	private static final String[] ACTIONS = new String[] { "fist_guard" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "fist_guard" };
+		return ACTIONS;
 	}
 
 	@Override

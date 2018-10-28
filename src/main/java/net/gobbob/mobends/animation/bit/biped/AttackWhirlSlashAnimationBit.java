@@ -18,10 +18,12 @@ import net.minecraft.util.math.MathHelper;
 
 public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "attack", "attack_2" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "attack", "attack_2" };
+		return ACTIONS;
 	}
 
 	@Override

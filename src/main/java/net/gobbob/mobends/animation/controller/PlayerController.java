@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemFood;
@@ -44,7 +45,9 @@ public class PlayerController extends Controller
 	protected HardAnimationLayer layerAction;
 	protected KeyframeAnimationLayer layerKeyframe;
 	
-	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSprintJump, bitSneak, bitLadderClimb, bitSwimming;
+	protected AnimationBit bitStand, bitWalk, bitJump, bitSprint, bitSprintJump,
+						   bitSneak, bitLadderClimb, bitSwimming, bitRiding, bitSitting,
+						   bitFalling;
 	protected AnimationBit bitTorchHolding;
 	protected AnimationBit bitAttack;
 	protected BowAnimationBit bitBow;
@@ -69,6 +72,9 @@ public class PlayerController extends Controller
 		this.bitSneak = new net.gobbob.mobends.animation.bit.biped.SneakAnimationBit();
 		this.bitLadderClimb = new net.gobbob.mobends.animation.bit.biped.LadderClimbAnimationBit();
 		this.bitSwimming = new net.gobbob.mobends.animation.bit.biped.SwimmingAnimationBit();
+		this.bitRiding = new net.gobbob.mobends.animation.bit.biped.RidingAnimationBit();
+		this.bitSitting = new net.gobbob.mobends.animation.bit.biped.SittingAnimationBit();
+		this.bitFalling = new net.gobbob.mobends.animation.bit.biped.FallingAnimationBit();
 		this.bitTorchHolding = new net.gobbob.mobends.animation.bit.biped.TorchHoldingAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
 		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
@@ -156,59 +162,82 @@ public class PlayerController extends Controller
             }
         }
 
-        if(playerData.isClimbing())
+        if (player.isRiding())
         {
-        	this.layerBase.playOrContinueBit(bitLadderClimb, entityData);
+        	if (player.getRidingEntity() instanceof EntityLivingBase)
+        	{
+        		this.layerBase.playOrContinueBit(bitRiding, entityData);
+        	}
+        	else
+        	{
+        		this.layerBase.playOrContinueBit(bitSitting, entityData);
+        	}
         	this.layerSneak.clearAnimation();
-        	this.layerTorch.clearAnimation();
         	this.bitBreaking.setMask(this.upperBodyOnlyMask);
-		}
-        else if(player.isInWater())
+        }
+        else
         {
-			this.layerBase.playOrContinueBit(bitSwimming, entityData);
-			this.layerSneak.clearAnimation();
-			this.layerTorch.clearAnimation();
-			this.bitBreaking.setMask(this.upperBodyOnlyMask);
-		}
-        else if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
-		{
-        	// Airborne
-			if (player.isSprinting())
-				this.layerBase.playOrContinueBit(bitSprintJump, entityData);
-			else
-				this.layerBase.playOrContinueBit(bitJump, entityData);
-			this.layerSneak.clearAnimation();
-			this.layerTorch.clearAnimation();
-			this.bitBreaking.setMask(this.upperBodyOnlyMask);
-		}
-		else
-		{
-			if (playerData.isStillHorizontally())
+	        if (playerData.isClimbing())
+	        {
+	        	this.layerBase.playOrContinueBit(bitLadderClimb, entityData);
+	        	this.layerSneak.clearAnimation();
+	        	this.layerTorch.clearAnimation();
+	        	this.bitBreaking.setMask(this.upperBodyOnlyMask);
+			}
+	        else if (player.isInWater())
+	        {
+				this.layerBase.playOrContinueBit(bitSwimming, entityData);
+				this.layerSneak.clearAnimation();
+				this.layerTorch.clearAnimation();
+				this.bitBreaking.setMask(this.upperBodyOnlyMask);
+			}
+	        else if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
 			{
-				this.layerBase.playOrContinueBit(bitStand, entityData);
-				this.layerTorch.playOrContinueBit(bitTorchHolding, entityData);
-				this.bitBreaking.setMask(null);
+	        	// Airborne
+	        	if (playerData.getTicksInAir() > 20.0F) 
+	        	{
+	        		this.layerBase.playOrContinueBit(bitFalling, entityData);
+	        	}
+	        	else
+	        	{
+					if (player.isSprinting())
+						this.layerBase.playOrContinueBit(bitSprintJump, entityData);
+					else
+						this.layerBase.playOrContinueBit(bitJump, entityData);
+	        	}
+				this.layerSneak.clearAnimation();
+				this.layerTorch.clearAnimation();
+				this.bitBreaking.setMask(this.upperBodyOnlyMask);
 			}
 			else
 			{
-				if (player.isSprinting())
+				if (playerData.isStillHorizontally())
 				{
-					this.layerBase.playOrContinueBit(bitSprint, entityData);
-					this.layerTorch.clearAnimation();
+					this.layerBase.playOrContinueBit(bitStand, entityData);
+					this.layerTorch.playOrContinueBit(bitTorchHolding, entityData);
+					this.bitBreaking.setMask(null);
 				}
 				else
 				{
-					this.layerBase.playOrContinueBit(bitWalk, entityData);
-					this.layerTorch.playOrContinueBit(bitTorchHolding, entityData);
+					if (player.isSprinting())
+					{
+						this.layerBase.playOrContinueBit(bitSprint, entityData);
+						this.layerTorch.clearAnimation();
+					}
+					else
+					{
+						this.layerBase.playOrContinueBit(bitWalk, entityData);
+						this.layerTorch.playOrContinueBit(bitTorchHolding, entityData);
+					}
+					this.bitBreaking.setMask(this.upperBodyOnlyMask);
 				}
-				this.bitBreaking.setMask(this.upperBodyOnlyMask);
+				
+				if (player.isSneaking())
+					this.layerSneak.playOrContinueBit(bitSneak, entityData);
+				else
+					this.layerSneak.clearAnimation();
 			}
-			
-			if (player.isSneaking())
-				this.layerSneak.playOrContinueBit(bitSneak, entityData);
-			else
-				this.layerSneak.clearAnimation();
-		}
+        }
 		
         /**
          * ACTIONS

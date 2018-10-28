@@ -13,6 +13,8 @@ import net.minecraft.util.math.MathHelper;
 
 public class EatingAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "eating" };
+	
 	protected EnumHandSide actionHand = EnumHandSide.RIGHT;
 	
 	protected float bringUpAnimation;
@@ -20,7 +22,7 @@ public class EatingAnimationBit extends AnimationBit<BipedEntityData>
 	@Override
 	public String[] getActions(BipedEntityData data)
 	{
-		return new String[] { "eating" };
+		return ACTIONS;
 	}
 
 	public void setActionHand(EnumHandSide handSide)

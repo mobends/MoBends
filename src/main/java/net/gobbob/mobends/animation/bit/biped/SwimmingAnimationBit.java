@@ -15,6 +15,8 @@ import net.minecraft.util.math.MathHelper;
 
 public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "swimming", "swimming_surface" };
+	private static final String[] ACTIONS_UNDERWATER = new String[] { "swimming", "swimming_deep" };
 	private static final float PI = (float) Math.PI;
 	private static final float PI_2 = PI*2;
 	
@@ -25,9 +27,9 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
 	public String[] getActions(BipedEntityData data)
 	{
 		if (data.isUnderwater())
-			return new String[] { "swimming", "swimming_deep" };
+			return ACTIONS_UNDERWATER;
 		else
-			return new String[] { "swimming", "swimming_surface" };
+			return ACTIONS;
 	}
 	
 	@Override

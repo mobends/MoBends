@@ -22,12 +22,14 @@ import net.minecraft.util.math.MathHelper;
 
 public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "attack", "attack_1" };
+	
 	private float ticksPlayed;
 	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "attack", "attack_1" };
+		return ACTIONS;
 	}
 
 	@Override
@@ -89,7 +91,7 @@ public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData>
 		mainForeArm.getRotation().setSmoothness(.3F).orientX(-20F);
 		offForeArm.getRotation().setSmoothness(.3F).orientX(-60F);
 
-		if (data.isStillHorizontally())
+		if (data.isStillHorizontally() && !living.isRiding())
 		{
 			data.rightLeg.rotation.setSmoothness(.3F).orientX(-30F)
 					.rotateZ(10)

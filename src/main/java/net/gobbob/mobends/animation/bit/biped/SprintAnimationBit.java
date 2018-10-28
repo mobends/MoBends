@@ -10,11 +10,12 @@ import net.minecraft.util.math.MathHelper;
 
 public class SprintAnimationBit extends AnimationBit<BipedEntityData>
 {
-
+	private static String[] ACTIONS = new String[] { "sprint" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "sprint" };
+		return ACTIONS;
 	}
 
 	@Override

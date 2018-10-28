@@ -11,10 +11,12 @@ import net.minecraft.util.EnumHandSide;
 
 public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData>
 {
+	private static final String[] ACTIONS = new String[] { "attack_stance_sprint" };
+	
 	@Override
 	public String[] getActions(BipedEntityData entityData)
 	{
-		return new String[] { "attack_stance_sprint" };
+		return ACTIONS;
 	}
 
 	@Override
