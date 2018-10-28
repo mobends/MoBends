@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import net.gobbob.mobends.data.EntityData;
 
-public abstract class AnimationLayer<DataType extends EntityData>
+public abstract class AnimationLayer<T extends EntityData>
 {
 	/**
 	 * Returns the actions currently being performed
@@ -14,7 +14,7 @@ public abstract class AnimationLayer<DataType extends EntityData>
 	 * @param entityData Provides some context for the layer to know
 	 * what actions to return.
 	 */
-	public abstract String[] getActions(DataType entityData);
+	public abstract String[] getActions(T entityData);
 	
 	/**
 	 * Called by a Controller to perform a continuous
@@ -24,7 +24,7 @@ public abstract class AnimationLayer<DataType extends EntityData>
 	 * how to perform it's action, and allows the animation to manipulate
 	 * the pose of the target.
 	 */
-	public abstract void perform(DataType entityData);
+	public abstract void perform(T entityData);
 	
 	/**
 	 * Adds actions to the specified list.
@@ -33,7 +33,7 @@ public abstract class AnimationLayer<DataType extends EntityData>
 	 * what actions to return.
 	 * @param list The list to add actions to.
 	 */
-	public void addActionsToList(DataType entityData, Collection<String> list) {
+	public void addActionsToList(T entityData, Collection<String> list) {
 		String[] actions = getActions(entityData);
 		if (actions != null)
 			list.addAll(Arrays.asList(actions));
@@ -45,7 +45,7 @@ public abstract class AnimationLayer<DataType extends EntityData>
 	 * @param entityData The same as in @see perform.
 	 * @param list The same as in @see addActionsToList.
 	 */
-	public void perform(DataType entityData, Collection<String> list) {
+	public void perform(T entityData, Collection<String> list) {
 		this.perform(entityData);
 		this.addActionsToList(entityData, list);
 	}

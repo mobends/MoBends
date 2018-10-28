@@ -217,13 +217,7 @@ public class GuiParameterEditor extends Observable implements IChangeListener
 
 		dropDownList.init().setEntryAmount(5).allowNoValue();
 		dropDownList.setPosition(x + 3, y + 50);
-		BendsVariable.variables.forEach(new BiConsumer() {
-			@Override
-			public void accept(Object key, Object value)
-			{
-				dropDownList.addEntry(((BendsVariable) value).getDisplayName(), key);
-			}
-		});
+		BendsVariable.variables.forEach((key, value) -> { dropDownList.addEntry(value.getDisplayName(), key); });
 		dropDownList.selectValue(selectedCalculation.globalVar);
 		modifierList.disable();
 		textField.setEnabled(selectedCalculation.getGlobalVariable() == null);

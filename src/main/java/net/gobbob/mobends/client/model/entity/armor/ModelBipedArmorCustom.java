@@ -396,7 +396,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 	 * Used to get all the Fields from the modelClass and it's
 	 * superClasses that are an instance of ModelRenderer.
 	 */
-	protected void gatherFields(Class modelClass)
+	protected void gatherFields(Class<?> modelClass)
 	{
 		Field[] fields = modelClass.getDeclaredFields();
 		for (Field f : fields)

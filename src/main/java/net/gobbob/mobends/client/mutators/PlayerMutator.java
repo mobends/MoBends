@@ -21,6 +21,7 @@ import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
@@ -267,7 +268,7 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	 * if it was already mutated.
 	 * Called from AnimatedEntity.
 	 */
-	public static void apply(RenderLivingBase renderer, EntityLivingBase entity, float partialTicks)
+	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity, float partialTicks)
 	{
 		if (!(renderer instanceof RenderPlayer))
 			return;
@@ -292,7 +293,8 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	 * Used to reverse the effect of the mutation.
 	 * Called from AnimatedEntity.
 	 */
-	public static void deapply(RenderLivingBase renderer, EntityLivingBase entity)
+	@SuppressWarnings("unchecked")
+	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
 	{
 		if (!(renderer instanceof RenderPlayer))
 			return;
@@ -302,7 +304,7 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		if (mutatorMap.containsKey(renderer))
 		{
 			PlayerMutator mutator = mutatorMap.get(renderer);
-			mutator.demutate((AbstractClientPlayer) entity, renderer);
+			mutator.demutate((AbstractClientPlayer) entity, (RenderLivingBase<? extends AbstractClientPlayer>) renderer);
 			mutatorMap.remove(renderer);
 		}
 	}
@@ -320,7 +322,7 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		}
 	}
 
-	public static PlayerMutator getMutatorForRenderer(Render render)
+	public static PlayerMutator getMutatorForRenderer(Render<Entity> render)
 	{
 		return mutatorMap.get(render);
 	}

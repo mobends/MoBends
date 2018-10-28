@@ -7,7 +7,7 @@ import net.gobbob.mobends.animation.bit.biped.AttackStanceSprintAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.AttackWhirlSlashAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.FistGuardAnimationBit;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.PlayerData;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
@@ -17,13 +17,18 @@ import net.minecraft.util.EnumHand;
 
 public class AttackAnimationBit extends AnimationBit<PlayerData>
 {
-	protected HardAnimationLayer layerBase;
-	protected AnimationBit bitAttackStance, bitAttackStanceSprint, bitAttackSlashUp, bitAttackSlashDown,
-			bitAttackWhirlSlash, bitFistGuard, bitPunch;
+	protected HardAnimationLayer<BipedEntityData> layerBase;
+	protected AttackStanceAnimationBit bitAttackStance;
+	protected AttackStanceSprintAnimationBit bitAttackStanceSprint;
+	protected AttackSlashUpAnimationBit bitAttackSlashUp;
+	protected AttackSlashDownAnimationBit bitAttackSlashDown;
+	protected AttackWhirlSlashAnimationBit bitAttackWhirlSlash;
+	protected FistGuardAnimationBit bitFistGuard;
+	protected PunchAnimationBit bitPunch;
 
 	public AttackAnimationBit()
 	{
-		this.layerBase = new HardAnimationLayer();
+		this.layerBase = new HardAnimationLayer<>();
 		this.bitAttackStance = new AttackStanceAnimationBit();
 		this.bitAttackStanceSprint = new AttackStanceSprintAnimationBit();
 		this.bitAttackSlashUp = new AttackSlashUpAnimationBit();

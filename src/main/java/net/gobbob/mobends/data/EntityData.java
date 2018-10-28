@@ -77,12 +77,7 @@ public abstract class EntityData implements IBendsModel
 		if (entity == null)
 			return false;
 
-		AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox();
-
-		double var1 = this.position.y + this.motion.y;
-
-		List list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(0, -0.025f, 0));
-
+		List<AxisAlignedBB> list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(0, -0.025f, 0));
 		return list.size() > 0;
 	}
 	
@@ -101,11 +96,8 @@ public abstract class EntityData implements IBendsModel
 		if (entity == null)
 			return false;
 
-		AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox();
-
-		List list = entity.world.getCollisionBoxes(entity,
+		List<AxisAlignedBB> list = entity.world.getCollisionBoxes(entity,
 				entity.getEntityBoundingBox().offset(this.motion.x, 0, this.motion.z));
-
 		return list.size() > 0;
 	}
 

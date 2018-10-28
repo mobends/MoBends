@@ -11,7 +11,7 @@ import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.EntityData;
 
-public class KeyframeAnimationBit<DataType extends EntityData> extends AnimationBit<DataType>
+public class KeyframeAnimationBit<T extends EntityData> extends AnimationBit<T>
 {
 	protected KeyframeAnimation performedAnimation;
 	private ArmatureMask mask;
@@ -48,21 +48,21 @@ public class KeyframeAnimationBit<DataType extends EntityData> extends Animation
 		this.animationSpeed = animationSpeed;
 	}
 	
-	public KeyframeAnimationBit setTriggerMode(TriggerMode triggerMode)
+	public KeyframeAnimationBit<T> setTriggerMode(TriggerMode triggerMode)
 	{
 		this.triggerMode = triggerMode;
 		return this;
 	}
 	
 	@Override
-	public void onPlay(DataType entityData)
+	public void onPlay(T entityData)
 	{
 		if (this.triggerMode == TriggerMode.RETRIGGER)
 			this.keyframeIndex = 0F;
 	}
 	
 	@Override
-	public void perform(DataType entityData)
+	public void perform(T entityData)
 	{
 		if (this.performedAnimation != null)
 		{
@@ -140,7 +140,7 @@ public class KeyframeAnimationBit<DataType extends EntityData> extends Animation
 	}
 
 	@Override
-	public String[] getActions(DataType entityData)
+	public String[] getActions(T entityData)
 	{
 		return null;
 	}

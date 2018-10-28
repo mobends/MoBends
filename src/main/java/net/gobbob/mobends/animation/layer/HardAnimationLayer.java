@@ -3,32 +3,32 @@ package net.gobbob.mobends.animation.layer;
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.data.EntityData;
 
-public class HardAnimationLayer<DataType extends EntityData> extends AnimationLayer<DataType>
+public class HardAnimationLayer<T extends EntityData> extends AnimationLayer<T>
 {
-	protected AnimationBit<DataType> performedBit;
-	protected AnimationBit<DataType> previousBit;
+	protected AnimationBit<T> performedBit, previousBit;
 	
-	public void playBit(AnimationBit bit, DataType entityData)
+	@SuppressWarnings("unchecked")
+	public void playBit(AnimationBit<? extends T> bit, T entityData)
 	{
 		this.previousBit = this.performedBit;
-		this.performedBit = bit;
+		this.performedBit = (AnimationBit<T>) bit;
 		this.performedBit.setupForPlay(this, entityData);
 	}
 	
-	public void playOrContinueBit(AnimationBit bit, DataType entityData)
+	public void playOrContinueBit(AnimationBit<? extends T> bit, T entityData)
 	{
 		if (!this.isPlaying(bit))
 			this.playBit(bit, entityData);
 	}
 
 	@Override
-	public void perform(DataType entityData)
+	public void perform(T entityData)
 	{
 		if (performedBit != null)
 			performedBit.perform(entityData);
 	}
 
-	public boolean isPlaying(AnimationBit bit)
+	public boolean isPlaying(AnimationBit<? extends T> bit)
 	{
 		return bit == this.performedBit;
 	}
@@ -43,13 +43,13 @@ public class HardAnimationLayer<DataType extends EntityData> extends AnimationLa
 		this.performedBit = null;
 	}
 
-	public AnimationBit getPerformedBit()
+	public AnimationBit<T> getPerformedBit()
 	{
 		return this.performedBit;
 	}
 
 	@Override
-	public String[] getActions(DataType entityData)
+	public String[] getActions(T entityData)
 	{
 		if (this.isPlaying())
 		{

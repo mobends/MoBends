@@ -19,7 +19,6 @@ import net.gobbob.mobends.util.Color;
 import net.gobbob.mobends.util.Draw;
 import net.gobbob.mobends.util.GLHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderPlayer;
@@ -115,7 +114,7 @@ public class EntityRenderHandler
 		
 		if (animatedEntity != null && animatedEntity.isAnimated() && entityData instanceof PlayerData)
 		{
-			Render<AbstractClientPlayer> render = mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(viewEntity);
+			Render<Entity> render = mc.getRenderManager().getEntityRenderObject(viewEntity);
 			PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);
 			if (mutator != null)
 				mutator.poseForFirstPersonView();

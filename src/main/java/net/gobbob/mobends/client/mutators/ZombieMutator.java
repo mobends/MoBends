@@ -5,26 +5,24 @@ import java.util.Map;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animation.controller.Controller;
-import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.ZombieData;
 import net.minecraft.client.model.ModelZombie;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderZombie;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
 
-public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator<EntityType, ModelZombie>
+public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, ModelZombie>
 {
-	public static HashMap<RenderZombie, ZombieMutator> mutatorMap = new HashMap<RenderZombie, ZombieMutator>();
+	public static HashMap<RenderZombie, ZombieMutator<EntityZombie>> mutatorMap = new HashMap<>();
 	
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
 	
 	@Override
-	public void fetchFields(RenderLivingBase<? extends EntityType> renderer)
+	public void fetchFields(RenderLivingBase<? extends T> renderer)
 	{
 		super.fetchFields(renderer);
 
@@ -49,7 +47,7 @@ public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator
 	}
 
 	@Override
-	public void performAnimations(EntityType zombie, RenderLivingBase<? extends EntityType> renderer, float partialTicks)
+	public void performAnimations(T zombie, RenderLivingBase<? extends T> renderer, float partialTicks)
 	{
 		EntityData entityData = EntityDatabase.instance.getAndMake(ZombieData.class, zombie);
 		if (!(entityData instanceof ZombieData))
@@ -88,7 +86,7 @@ public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator
 	 * if it was already mutated.
 	 * Called from AnimatedEntity.
 	 */
-	public static void apply(RenderLivingBase renderer, EntityLivingBase entity, float partialTicks)
+	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity, float partialTicks)
 	{
 		if (!(renderer instanceof RenderZombie))
 			return;
@@ -98,10 +96,10 @@ public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator
 		RenderZombie rendererZombie = (RenderZombie) renderer;
 		EntityZombie entityZombie = (EntityZombie) entity;
 		
-		ZombieMutator mutator = mutatorMap.get(renderer);
+		ZombieMutator<EntityZombie> mutator = mutatorMap.get(renderer);
 		if (!mutatorMap.containsKey(renderer))
 		{
-			mutator = new ZombieMutator();
+			mutator = new ZombieMutator<>();
 			mutator.mutate(entityZombie, rendererZombie);
 			mutatorMap.put(rendererZombie, mutator);
 		}
@@ -114,7 +112,7 @@ public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator
 	 * Used to reverse the effect of the mutation.
 	 * Called from AnimatedEntity.
 	 */
-	public static void deapply(RenderLivingBase renderer, EntityLivingBase entity)
+	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
 	{
 		if (!(renderer instanceof RenderZombie))
 			return;
@@ -123,7 +121,7 @@ public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator
 		
 		if (mutatorMap.containsKey(renderer))
 		{
-			ZombieMutator mutator = mutatorMap.get(renderer);
+			ZombieMutator<EntityZombie> mutator = mutatorMap.get(renderer);
 			mutator.demutate((EntityZombie) entity, (RenderZombie) renderer);
 			mutatorMap.remove(renderer);
 		}
@@ -134,7 +132,7 @@ public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator
 	 */
 	public static void refresh()
 	{
-		for (Map.Entry<RenderZombie, ZombieMutator> mutator : mutatorMap.entrySet())
+		for (Map.Entry<RenderZombie, ZombieMutator<EntityZombie>> mutator : mutatorMap.entrySet())
 		{
 			mutator.getValue().mutate(null, mutator.getKey());
 			if (mutator.getValue().layerArmor != null)
@@ -142,7 +140,7 @@ public class ZombieMutator<EntityType extends EntityZombie> extends BipedMutator
 		}
 	}
 
-	public static ZombieMutator getMutatorForRenderer(Render render)
+	public static ZombieMutator<EntityZombie> getMutatorForRenderer(RenderZombie render)
 	{
 		return mutatorMap.get(render);
 	}

@@ -1,7 +1,6 @@
 package net.gobbob.mobends.animation.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
@@ -25,19 +24,20 @@ import net.minecraft.util.EnumHandSide;
  */
 public class ZombieController extends Controller
 {
-	protected String animationTarget = "zombie";
-	protected HardAnimationLayer layerBase;
-	protected HardAnimationLayer layerSet;
-	protected AnimationBit bitStand, bitWalk, bitJump;
-	protected AnimationBit[] bitAnimationSet;
+	final String animationTarget = "zombie";
+	protected HardAnimationLayer<ZombieData> layerBase;
+	protected HardAnimationLayer<ZombieData> layerSet;
+	protected AnimationBit<ZombieData> bitStand, bitWalk, bitJump;
+	protected AnimationBit<ZombieData>[] bitAnimationSet;
 	
+	@SuppressWarnings("unchecked")
 	public ZombieController()
 	{
-		this.layerBase = new HardAnimationLayer();
-		this.layerSet = new HardAnimationLayer();
-		this.bitStand = new net.gobbob.mobends.animation.bit.biped.StandAnimationBit();
-		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit();
-		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit();
+		this.layerBase = new HardAnimationLayer<>();
+		this.layerSet = new HardAnimationLayer<>();
+		this.bitStand = new net.gobbob.mobends.animation.bit.biped.StandAnimationBit<>();
+		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit<>();
+		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit<>();
 		this.bitAnimationSet = new AnimationBit[] {
 			new net.gobbob.mobends.animation.bit.zombie.ZombieLeanAnimationBit(),
 			new net.gobbob.mobends.animation.bit.zombie.ZombieStumblingAnimationBit()
@@ -102,25 +102,25 @@ public class ZombieController extends Controller
 
 		if (!zombieData.isOnGround() || zombieData.getTicksAfterTouchdown() < 1)
 		{
-			this.layerBase.playOrContinueBit(bitJump, entityData);
+			this.layerBase.playOrContinueBit(bitJump, zombieData);
 		}
 		else
 		{
 			if (zombieData.isStillHorizontally())
 			{
-				this.layerBase.playOrContinueBit(bitStand, entityData);
+				this.layerBase.playOrContinueBit(bitStand, zombieData);
 			}
 			else
 			{
-				this.layerBase.playOrContinueBit(bitWalk, entityData);
+				this.layerBase.playOrContinueBit(bitWalk, zombieData);
 			}
 		}
 		
-		this.layerSet.playOrContinueBit(bitAnimationSet[zombieData.getAnimationSet()], entityData);
+		this.layerSet.playOrContinueBit(bitAnimationSet[zombieData.getAnimationSet()], zombieData);
 		
 		List<String> actions = new ArrayList<String>();
-		this.layerBase.perform(entityData, actions);
-		this.layerSet.perform(entityData, actions);
+		this.layerBase.perform(zombieData, actions);
+		this.layerSet.perform(zombieData, actions);
 		
 		BendsPack.animate(entityData, this.animationTarget, actions);
 	}

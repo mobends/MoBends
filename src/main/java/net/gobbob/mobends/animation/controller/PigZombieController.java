@@ -5,13 +5,12 @@ import java.util.List;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
+import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.PigZombieData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.variable.BendsVariable;
 import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.item.ItemFood;
 
 /**
  * This is an animation controller for a zombie instance.
@@ -22,19 +21,19 @@ import net.minecraft.item.ItemFood;
  */
 public class PigZombieController extends Controller
 {
-	protected String animationTarget = "pig_zombie";
-	protected HardAnimationLayer layerBase;
-	protected HardAnimationLayer layerAction;
-	protected AnimationBit bitStand, bitWalk, bitJump;
-	protected AnimationBit bitAttack;
+	final String animationTarget = "pig_zombie";
+	protected HardAnimationLayer<? super BipedEntityData> layerBase;
+	protected HardAnimationLayer<? super BipedEntityData> layerAction;
+	protected AnimationBit<? extends BipedEntityData> bitStand, bitWalk, bitJump;
+	protected AnimationBit<? extends BipedEntityData> bitAttack;
 	
 	public PigZombieController()
 	{
-		this.layerBase = new HardAnimationLayer();
-		this.layerAction = new HardAnimationLayer();
+		this.layerBase = new HardAnimationLayer<>();
+		this.layerAction = new HardAnimationLayer<>();
 		this.bitStand = new net.gobbob.mobends.animation.bit.pigzombie.StandAnimationBit();
 		this.bitWalk = new net.gobbob.mobends.animation.bit.pigzombie.WalkAnimationBit();
-		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit();
+		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit<>();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.biped.AttackSlashUpAnimationBit();
 	}
 	
@@ -52,24 +51,24 @@ public class PigZombieController extends Controller
 		
 		if (!pigZombieData.isOnGround() || pigZombieData.getTicksAfterTouchdown() < 1)
 		{
-			this.layerBase.playOrContinueBit(bitJump, entityData);
+			this.layerBase.playOrContinueBit(bitJump, pigZombieData);
 		}
 		else
 		{
 			if (pigZombieData.isStillHorizontally())
 			{
-				this.layerBase.playOrContinueBit(bitStand, entityData);
+				this.layerBase.playOrContinueBit(bitStand, pigZombieData);
 			}
 			else
 			{
-				this.layerBase.playOrContinueBit(bitWalk, entityData);
+				this.layerBase.playOrContinueBit(bitWalk, pigZombieData);
 			}
 		}
 		
 		System.out.println(pigZombie.swingProgress);
 		if (pigZombie.swingProgress > 0)
 		{
-			this.layerAction.playOrContinueBit(this.bitAttack, entityData);
+			this.layerAction.playOrContinueBit(this.bitAttack, pigZombieData);
 		}
 		else
 		{
@@ -77,8 +76,8 @@ public class PigZombieController extends Controller
 		}
 		
 		List<String> actions = new ArrayList<String>();
-		this.layerBase.perform(entityData, actions);
-		this.layerAction.perform(entityData, actions);
+		this.layerBase.perform(pigZombieData, actions);
+		this.layerAction.perform(pigZombieData, actions);
 		
 		BendsPack.animate(entityData, this.animationTarget, actions);
 	}

@@ -2,22 +2,21 @@ package net.gobbob.mobends.animation.bit.biped;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.EntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-public class JumpAnimationBit extends AnimationBit<BipedEntityData>
+public class JumpAnimationBit<T extends BipedEntityData> extends AnimationBit<T>
 {
 	private static final String[] ACTIONS = new String[] { "jump" };
 	
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(T entityData)
 	{
 		return ACTIONS;
 	}
 
 	@Override
-	public void onPlay(BipedEntityData entityData)
+	public void onPlay(T entityData)
 	{
 		if (!(entityData instanceof BipedEntityData))
 			return;
@@ -36,7 +35,7 @@ public class JumpAnimationBit extends AnimationBit<BipedEntityData>
 	}
 
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(T data)
 	{
 		if (!(data.getEntity() instanceof EntityLivingBase))
 			return;

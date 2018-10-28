@@ -243,13 +243,14 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 	 * if it was already mutated.
 	 * Called from AnimatedEntity.
 	 */
-	public static void apply(RenderLivingBase renderer, EntityLivingBase entity, float partialTicks)
+	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity, float partialTicks)
 	{
 		if (!(renderer instanceof RenderSpider))
 			return;
 		if (!(entity instanceof EntitySpider))
 			return;
-		RenderSpider rendererSpider = (RenderSpider) renderer;
+		@SuppressWarnings("unchecked")
+		RenderSpider<EntitySpider> rendererSpider = (RenderSpider<EntitySpider>) renderer;
 		EntitySpider entitySpider = (EntitySpider) entity;
 		
 		SpiderMutator mutator = mutatorMap.get(renderer);
@@ -268,7 +269,8 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 	 * Used to reverse the effect of the mutation.
 	 * Called from AnimatedEntity.
 	 */
-	public static void deapply(RenderLivingBase renderer, EntityLivingBase entity)
+	@SuppressWarnings("unchecked")
+	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
 	{
 		if (!(renderer instanceof RenderSpider))
 			return;
@@ -278,7 +280,7 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 		if (mutatorMap.containsKey(renderer))
 		{
 			SpiderMutator mutator = mutatorMap.get(renderer);
-			mutator.demutate((EntitySpider) entity, renderer);
+			mutator.demutate((EntitySpider) entity, (RenderLivingBase<EntitySpider>) renderer);
 			mutatorMap.remove(renderer);
 		}
 	}

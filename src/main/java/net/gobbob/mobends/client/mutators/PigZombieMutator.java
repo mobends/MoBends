@@ -88,7 +88,7 @@ public class PigZombieMutator extends BipedMutator<EntityPigZombie, ModelZombie>
 	 * if it was already mutated.
 	 * Called from AnimatedEntity.
 	 */
-	public static void apply(RenderLivingBase renderer, EntityLivingBase entity, float partialTicks)
+	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity, float partialTicks)
 	{
 		if (!(renderer instanceof RenderPigZombie))
 			return;
@@ -114,7 +114,7 @@ public class PigZombieMutator extends BipedMutator<EntityPigZombie, ModelZombie>
 	 * Used to reverse the effect of the mutation.
 	 * Called from AnimatedEntity.
 	 */
-	public static void deapply(RenderLivingBase renderer, EntityLivingBase entity)
+	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
 	{
 		if (!(renderer instanceof RenderPigZombie))
 			return;
@@ -142,7 +142,7 @@ public class PigZombieMutator extends BipedMutator<EntityPigZombie, ModelZombie>
 		}
 	}
 
-	public static PigZombieMutator getMutatorForRenderer(Render render)
+	public static PigZombieMutator getMutatorForRenderer(Render<EntityPigZombie> render)
 	{
 		return mutatorMap.get(render);
 	}

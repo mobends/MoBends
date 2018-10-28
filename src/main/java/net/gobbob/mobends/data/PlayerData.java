@@ -32,7 +32,7 @@ public class PlayerData extends BipedEntityData
 	{
 		super.initModelPose();
 
-		Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
+		Render<Entity> render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
 		PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);
 		if (mutator == null)
 			return;

@@ -10,6 +10,7 @@ import net.gobbob.mobends.client.model.IBendsModel;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.data.SpiderData;
 import net.gobbob.mobends.util.SmoothVector3f;
+import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -31,7 +32,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
     public float headRotationX,headRotationY;
     public float armSwing, armSwingAmount;
     
-    private HashMap nameToRendererMap;
+    private HashMap<String, ModelRenderer> nameToRendererMap;
     
     public ModelBendsSpider()
     {
@@ -128,7 +129,7 @@ public class ModelBendsSpider extends ModelSpider implements IBendsModel{
         this.spiderLeg7.addChild(this.spiderForeLeg7);
         this.spiderLeg8.addChild(this.spiderForeLeg8);
     
-        nameToRendererMap = new HashMap<String, Object>();
+        nameToRendererMap = new HashMap<>();
         nameToRendererMap.put("head", spiderHead);
         nameToRendererMap.put("body", spiderBody);
         nameToRendererMap.put("neck", spiderNeck);

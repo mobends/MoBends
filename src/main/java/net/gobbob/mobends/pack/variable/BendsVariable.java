@@ -11,7 +11,7 @@ import net.minecraft.entity.EntityLivingBase;
 public abstract class BendsVariable
 {
 	public static EntityData tempData;
-	public static HashMap variables;
+	public static HashMap<String, BendsVariable> variables;
 
 	public static void init()
 	{

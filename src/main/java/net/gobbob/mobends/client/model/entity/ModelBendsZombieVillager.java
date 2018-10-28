@@ -10,6 +10,7 @@ import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
 import net.gobbob.mobends.util.SmoothVector3f;
+import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.ModelZombieVillager;
 import net.minecraft.entity.Entity;
 
@@ -26,7 +27,7 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
     public float headRotationX,headRotationY;
     public float armSwing,armSwingAmount;
 	
-    private HashMap nameToRendererMap;
+    private HashMap<String, ModelRenderer> nameToRendererMap;
     
     public ModelBendsZombieVillager()
     {
@@ -103,7 +104,7 @@ public class ModelBendsZombieVillager extends ModelZombieVillager implements IBe
         ((ModelPart)this.bipedRightLeg).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
         ((ModelPart)this.bipedLeftLeg).offsetBoxBy(-0.01f, 0, -0.01f).resizeBox(4.02f, 6.0f, 4.02f).updateVertices();
     
-        nameToRendererMap = new HashMap<String, Object>();
+        nameToRendererMap = new HashMap<>();
         nameToRendererMap.put("head", bipedHead);
         nameToRendererMap.put("body", bipedBody);
         nameToRendererMap.put("leftArm", bipedLeftArm);
