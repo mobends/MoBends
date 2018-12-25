@@ -1,37 +1,21 @@
 package net.gobbob.mobends.client.event;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.UUID;
-
-import org.lwjgl.util.vector.Quaternion;
-import org.lwjgl.util.vector.Vector4f;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
-import net.gobbob.mobends.client.mutators.ZombieMutator;
-import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.main.ModConfig;
-import net.gobbob.mobends.util.Color;
-import net.gobbob.mobends.util.Draw;
-import net.gobbob.mobends.util.GLHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.renderer.entity.RenderZombie;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -39,7 +23,7 @@ public class EntityRenderHandler
 {
 	public static float partialTicks;
 	public static boolean renderingGuiScreen = false;
-	public static List<UUID> currentlyRenderedEntities = new ArrayList<UUID>();
+	private HashSet<UUID> currentlyRenderedEntities = new HashSet<>();
 	
 	@SubscribeEvent
 	public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)

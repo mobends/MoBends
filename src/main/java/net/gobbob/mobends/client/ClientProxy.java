@@ -11,8 +11,6 @@ import net.gobbob.mobends.pack.variable.BendsVariable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class ClientProxy extends CommonProxy
 {
@@ -23,8 +21,6 @@ public class ClientProxy extends CommonProxy
 	public void preInit(Configuration config)
 	{
 		preInitCommon(config);
-		
-		MinecraftForge.EVENT_BUS.register(new EntityRenderHandler());
 	}
 
 	public void init(Configuration config)
@@ -34,9 +30,9 @@ public class ClientProxy extends CommonProxy
 		BendsVariable.init();
 		KeyboardHandler.initKeyBindings();
 
-		FMLCommonHandler.instance().bus().register(new EntityRenderHandler());
-		FMLCommonHandler.instance().bus().register(new DataUpdateHandler());
-		FMLCommonHandler.instance().bus().register(new KeyboardHandler());
+		MinecraftForge.EVENT_BUS.register(new EntityRenderHandler());
+		MinecraftForge.EVENT_BUS.register(new DataUpdateHandler());
+		MinecraftForge.EVENT_BUS.register(new KeyboardHandler());
 	}
 
 	public void postInit()
