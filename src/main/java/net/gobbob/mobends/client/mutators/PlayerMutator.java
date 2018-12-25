@@ -3,9 +3,7 @@ package net.gobbob.mobends.client.mutators;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animation.controller.Controller;
-import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.client.model.ModelBox;
 import net.gobbob.mobends.client.model.ModelPart;
 import net.gobbob.mobends.client.model.ModelPartChild;
@@ -14,8 +12,6 @@ import net.gobbob.mobends.client.model.ModelPartChildPostOffset;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.util.FieldMiner;
-import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.Render;
@@ -23,7 +19,6 @@ import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.MathHelper;
 
 /*
  * Instantiated one per RenderPlayer
@@ -55,8 +50,7 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		super.fetchFields(renderer);
 
 		// Does the renderer have Small Arms?
-		Boolean smallArms = FieldMiner.getObfuscatedValue(renderer, "smallArms", "field_177140_a");
-		this.smallArms = smallArms != null ? smallArms : false;
+		this.smallArms = ((RenderPlayer) renderer).smallArms;
 	}
 
 	@Override
@@ -214,12 +208,10 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	@Override
 	public void performAnimations(AbstractClientPlayer player, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(PlayerData.class, player);
+		EntityData entityData = EntityDatabase.instance.getAndMake(PlayerData::new, player);
 		if (!(entityData instanceof PlayerData))
 			return;
 		PlayerData data = (PlayerData) entityData;
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(player);
-		float ticks = player.ticksExisted + partialTicks;
 
 		leftForeArmwear.setVisible(leftArmwear.isShowing());
 		rightForeArmwear.setVisible(rightArmwear.isShowing());

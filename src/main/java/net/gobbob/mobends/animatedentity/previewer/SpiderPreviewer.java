@@ -18,7 +18,7 @@ public class SpiderPreviewer extends Previewer
 	{
 		if (!(entity instanceof EntitySpider))
 			return;
-		EntityData entityData = EntityDatabase.instance.getAndMake(SpiderData.class, entity);
+		EntityData entityData = EntityDatabase.instance.getAndMake(SpiderData::new, entity);
 		if (!(entityData instanceof SpiderData))
 			return;
 		

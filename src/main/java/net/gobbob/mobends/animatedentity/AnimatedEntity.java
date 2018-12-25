@@ -1,7 +1,5 @@
 package net.gobbob.mobends.animatedentity;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,11 +8,12 @@ import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
 import net.gobbob.mobends.animatedentity.previewer.PlayerPreviewer;
 import net.gobbob.mobends.animatedentity.previewer.Previewer;
 import net.gobbob.mobends.animatedentity.previewer.SpiderPreviewer;
-import net.gobbob.mobends.client.mutators.Mutator;
 import net.gobbob.mobends.client.mutators.PigZombieMutator;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.mutators.SpiderMutator;
 import net.gobbob.mobends.client.mutators.ZombieMutator;
+import net.gobbob.mobends.client.mutators.functions.ApplyMutationFunction;
+import net.gobbob.mobends.client.mutators.functions.DeapplyMutationFunction;
 import net.gobbob.mobends.client.renderer.entity.MutatedRenderer;
 import net.gobbob.mobends.client.renderer.entity.PlayerRenderer;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsSpectralArrow;
@@ -46,16 +45,22 @@ public class AnimatedEntity
 	private MutatedRenderer renderer;
 	
 	public Class<? extends Entity> entityClass;
-	public Class<? extends Mutator> mutatorClass;
+	private final ApplyMutationFunction applyMutation;
+	private final DeapplyMutationFunction deapplyMutation;
+	private final Runnable refreshMutation;
+	
 	public Previewer previewer;
 
 	public AnimatedEntity(String id, String displayName, Class<? extends Entity> entityClass,
-			Class<? extends Mutator> mutatorClass, MutatedRenderer renderer, String[] alterableParts)
+			ApplyMutationFunction applyMutation, DeapplyMutationFunction deapplyMutation,
+			Runnable refreshMutation, MutatedRenderer renderer, String[] alterableParts)
 	{
 		this.name = id;
 		this.displayName = displayName;
 		this.entityClass = entityClass;
-		this.mutatorClass = mutatorClass;
+		this.applyMutation = applyMutation;
+		this.deapplyMutation = deapplyMutation;
+		this.refreshMutation = refreshMutation;
 		this.renderer = renderer;
 		this.alterableParts = alterableParts;
 		this.addAlterEntry(new AlterEntry(this, displayName));
@@ -131,42 +136,17 @@ public class AnimatedEntity
 	public void applyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity,
 			float partialTicks)
 	{
-		try
-		{
-			Method method = this.mutatorClass.getMethod("apply", RenderLivingBase.class, EntityLivingBase.class, float.class);
-			method.invoke(null, renderer, entity, partialTicks);
-		}
-		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-		{
-			System.err.println("The " + name + " animated entity's mutator didn't have a"
-					+ "static 'apply' method, that fulfulled the parameter requirements.");
-			e.printStackTrace();
-		}
+		applyMutation.apply(renderer, entity, partialTicks);
 	}
 	
 	public void deapplyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
 	{
-		try
-		{
-			Method method = this.mutatorClass.getMethod("deapply", RenderLivingBase.class, EntityLivingBase.class);
-			method.invoke(null, renderer, entity);
-		}
-		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-		{
-			System.err.println("The " + name + " animated entity's mutator didn't have a"
-					+ "static 'deapply' method, that fulfulled the parameter requirements.");
-			e.printStackTrace();
-		}
+		deapplyMutation.deapply(renderer, entity);
 	}
 	
 	public void refreshMutation()
 	{
-		try
-		{
-			Method method = this.mutatorClass.getMethod("refresh");
-			method.invoke(null);
-		}
-		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
+		refreshMutation.run();
 	}
 
 	public static void register(Configuration config)
@@ -176,23 +156,27 @@ public class AnimatedEntity
 		animatedEntities.clear();
 
 		registerEntity(config,
-				new AnimatedEntity("player", "Player", AbstractClientPlayer.class, PlayerMutator.class, new PlayerRenderer(),
+				new AnimatedEntity("player", "Player", AbstractClientPlayer.class,
+						PlayerMutator::apply, PlayerMutator::deapply, PlayerMutator::refresh, new PlayerRenderer(),
 						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 								"rightLeg", "leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation",
 								"rightItemRotation" }).setPreviewer(new PlayerPreviewer()));
 		
 		registerEntity(config,
-				new AnimatedEntity("pig_zombie", "Zombie Pigman", EntityPigZombie.class, PigZombieMutator.class, new ZombieRenderer(),
+				new AnimatedEntity("pig_zombie", "Zombie Pigman", EntityPigZombie.class,
+						PigZombieMutator::apply, PigZombieMutator::deapply, PigZombieMutator::refresh, new ZombieRenderer(),
 						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 								"rightLeg", "leftForeLeg", "rightForeLeg" }));
 
 		registerEntity(config,
-				new AnimatedEntity("zombie", "Zombie", EntityZombie.class, ZombieMutator.class, new ZombieRenderer(),
+				new AnimatedEntity("zombie", "Zombie", EntityZombie.class,
+						ZombieMutator::apply, ZombieMutator::deapply, ZombieMutator::refresh, new ZombieRenderer(),
 						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 								"rightLeg", "leftForeLeg", "rightForeLeg" }));
 		
 		registerEntity(config,
-				new AnimatedEntity("spider", "Spider", EntitySpider.class, SpiderMutator.class, new SpiderRenderer(),
+				new AnimatedEntity("spider", "Spider", EntitySpider.class,
+						SpiderMutator::apply, SpiderMutator::deapply, SpiderMutator::refresh, new SpiderRenderer(),
 						new String[] { "head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6",
 								"leg7", "leg8", "foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5",
 								"foreLeg6", "foreLeg7", "foreLeg8" }).setPreviewer(new SpiderPreviewer()));
@@ -253,8 +237,9 @@ public class AnimatedEntity
 	public static AnimatedEntity getForEntity(Entity entity)
 	{
 		// Checking direct registration
+		Class<? extends Entity> entityClass = entity.getClass();
 		for (AnimatedEntity animatedEntity : animatedEntities.values())
-			if (animatedEntity.entityClass.equals(entity.getClass()))
+			if (animatedEntity.entityClass.equals(entityClass))
 				return animatedEntity;
 		
 		// Checking indirect inheritance

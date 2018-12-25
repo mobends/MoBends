@@ -3,9 +3,7 @@ package net.gobbob.mobends.client.mutators;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.animation.controller.Controller;
-import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
 import net.gobbob.mobends.data.PigZombieData;
@@ -51,13 +49,11 @@ public class PigZombieMutator extends BipedMutator<EntityPigZombie, ModelZombie>
 	@Override
 	public void performAnimations(EntityPigZombie zombie, RenderLivingBase<? extends EntityPigZombie> renderer, float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(PigZombieData.class, zombie);
+		EntityData entityData = EntityDatabase.instance.getAndMake(PigZombieData::new, zombie);
 		if (!(entityData instanceof PigZombieData))
 			return;
 		
 		PigZombieData data = (PigZombieData) entityData;
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(zombie);
-		float ticks = zombie.ticksExisted + partialTicks;
 		
 		data.setHeadYaw(this.headYaw);
 		data.setHeadPitch(this.headPitch);

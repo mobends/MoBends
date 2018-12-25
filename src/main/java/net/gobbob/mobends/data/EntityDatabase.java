@@ -1,19 +1,11 @@
 package net.gobbob.mobends.data;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.lwjgl.util.vector.Vector3f;
+import java.util.function.Function;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
 
 public class EntityDatabase {
 	public static EntityDatabase instance = new EntityDatabase();
@@ -36,40 +28,23 @@ public class EntityDatabase {
 		return this.get(entity.getEntityId());
 	}
 	
-	public EntityData newEntry(Class dataClass, Entity entity)
-	{
-		EntityData data = null;
-		try {
-			data = (EntityData) dataClass.getConstructor(Entity.class).newInstance(entity);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		}
-		if(data != null) this.add(entity.getEntityId(), data);
-		return data;
-	}
-	
 	/*
 	 * If a data instance for that identifier is null, create one.
 	 * Return the data instance for that identifier.
 	 * */
-	public EntityData getAndMake(Class dataClass, Entity entity) {
+	public EntityData getAndMake(Function<Entity, EntityData> dataCreationFunction, Entity entity) {
 		EntityData data = this.get(entity.getEntityId());
-		if(data == null)
-			data = this.newEntry(dataClass, entity);
+		if (data == null) {
+			data = dataCreationFunction.apply(entity);
+			if (data != null)
+			{
+				this.add(entity.getEntityId(), data);
+			}
+		}
 		return data;
 	}
 	
-	public void add(int identifier, EntityData data)
+	private void add(int identifier, EntityData data)
 	{
 		this.entryMap.put(identifier, data);
 	}
@@ -79,7 +54,7 @@ public class EntityDatabase {
 		this.add(entity.getEntityId(), data);
 	}
 	
-	public void remove(int identifier)
+	private void remove(int identifier)
 	{
 		this.entryMap.remove(identifier);
 	}
