@@ -7,7 +7,6 @@ public class HardAnimationLayer<T extends EntityData> extends AnimationLayer<T>
 {
 	protected AnimationBit<T> performedBit, previousBit;
 	
-	@SuppressWarnings("unchecked")
 	public void playBit(AnimationBit<? extends T> bit, T entityData)
 	{
 		this.previousBit = this.performedBit;

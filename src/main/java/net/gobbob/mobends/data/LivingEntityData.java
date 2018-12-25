@@ -197,7 +197,7 @@ public abstract class LivingEntityData extends EntityData
 	{
 		EntityLivingBase entity = (EntityLivingBase) getEntity();
 		
-    	float clientY = (float) (entity.posY + (entity.posY-entity.prevPosY) * EntityRenderHandler.partialTicks);
+    	float clientY = (float) (entity.posY + (entity.posY-entity.prevPosY) * DataUpdateHandler.partialTicks);
     	
     	BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 		

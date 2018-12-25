@@ -285,7 +285,6 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	 * Used to reverse the effect of the mutation.
 	 * Called from AnimatedEntity.
 	 */
-	@SuppressWarnings("unchecked")
 	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
 	{
 		if (!(renderer instanceof RenderPlayer))

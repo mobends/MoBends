@@ -245,7 +245,7 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 			return;
 		if (!(entity instanceof EntitySpider))
 			return;
-		@SuppressWarnings("unchecked")
+		
 		RenderSpider<EntitySpider> rendererSpider = (RenderSpider<EntitySpider>) renderer;
 		EntitySpider entitySpider = (EntitySpider) entity;
 		
@@ -265,7 +265,6 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 	 * Used to reverse the effect of the mutation.
 	 * Called from AnimatedEntity.
 	 */
-	@SuppressWarnings("unchecked")
 	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
 	{
 		if (!(renderer instanceof RenderSpider))

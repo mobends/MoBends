@@ -21,7 +21,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class EntityRenderHandler
 {
-	public static float partialTicks;
 	public static boolean renderingGuiScreen = false;
 	private HashSet<UUID> currentlyRenderedEntities = new HashSet<>();
 	
@@ -68,12 +67,6 @@ public class EntityRenderHandler
 		animatedEntity.afterRender(event.getEntity(), event.getPartialRenderTick());
 		
 		GlStateManager.popMatrix();
-	}
-	
-	@SubscribeEvent
-	public void onRenderTick(TickEvent.RenderTickEvent event)
-	{
-		partialTicks = event.renderTickTime;
 	}
 	
 	@SubscribeEvent

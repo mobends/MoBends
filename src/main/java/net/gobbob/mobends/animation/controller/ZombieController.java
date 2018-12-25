@@ -30,7 +30,6 @@ public class ZombieController extends Controller
 	protected AnimationBit<ZombieData> bitStand, bitWalk, bitJump;
 	protected AnimationBit<ZombieData>[] bitAnimationSet;
 	
-	@SuppressWarnings("unchecked")
 	public ZombieController()
 	{
 		this.layerBase = new HardAnimationLayer<>();

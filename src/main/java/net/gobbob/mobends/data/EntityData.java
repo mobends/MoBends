@@ -147,8 +147,6 @@ public abstract class EntityData implements IBendsModel
 		return this.entity;
 	}
 
-	public abstract void onTicksRestart();
-
 	public float getLookAngle()
 	{
 		EntityLivingBase entity = (EntityLivingBase) getEntity();
@@ -216,4 +214,6 @@ public abstract class EntityData implements IBendsModel
 	{
 		return nameToPartMap.get(name);
 	}
+	
+	public void onTicksRestart() {}
 }

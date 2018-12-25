@@ -154,9 +154,4 @@ public class SpiderData extends LivingEntityData
 		this.spiderForeLeg7.update(ticksPerFrame);
 		this.spiderForeLeg8.update(ticksPerFrame);
 	}
-
-	@Override
-	public void onTicksRestart()
-	{
-	}
 }

@@ -219,6 +219,11 @@ public class ModelPart extends ModelRenderer implements IModelPart
         return this;
     }
 	
+	public ModelPart setBox(float x, float y, float z, int width, int height, int length)
+    {
+        return this.setBox(x, y, z, width, height, length, 0.0F);
+    }
+	
 	public void addBox(float x, float y, float z, int width, int height, int length, float scaleFactor)
     {
         this.addModelBox(x, y, z, width, height, length, scaleFactor);

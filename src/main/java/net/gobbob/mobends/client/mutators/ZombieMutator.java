@@ -2,6 +2,7 @@ package net.gobbob.mobends.client.mutators;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.gobbob.mobends.animation.controller.Controller;
 import net.gobbob.mobends.data.EntityData;
@@ -129,7 +130,7 @@ public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, Model
 	 */
 	public static void refresh()
 	{
-		for (Map.Entry<RenderZombie, ZombieMutator> mutator : mutatorMap.entrySet())
+		for (Entry<RenderZombie, ZombieMutator> mutator : mutatorMap.entrySet())
 		{
 			mutator.getValue().mutate(null, mutator.getKey());
 			if (mutator.getValue().layerArmor != null)

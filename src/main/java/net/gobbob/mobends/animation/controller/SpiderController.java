@@ -14,6 +14,9 @@ import net.minecraft.entity.monster.EntitySpider;
 /*
  * This is an animation controller for a spider instance.
  * It's a part of the EntityData structure.
+ * 
+ * @author Iwo Plaza
+ * 
  */
 public class SpiderController extends Controller
 {

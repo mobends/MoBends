@@ -1,8 +1,7 @@
 package net.gobbob.mobends.animation.bit.spider;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.client.event.EntityRenderHandler;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
@@ -64,7 +63,7 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
 	{
 		float headYaw = data.getHeadYaw();
 		float headPitch = data.getHeadPitch();
-		float ticks = data.getEntity().ticksExisted + EntityRenderHandler.partialTicks;
+		float ticks = data.getEntity().ticksExisted + DataUpdateHandler.partialTicks;
 		float bodyHeight = 0.0F;
 		
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
