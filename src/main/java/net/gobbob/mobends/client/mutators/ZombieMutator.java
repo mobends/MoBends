@@ -129,7 +129,7 @@ public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, Model
 	 */
 	public static void refresh()
 	{
-		for (Map.Entry<RenderZombie, ZombieMutator<EntityZombie>> mutator : mutatorMap.entrySet())
+		for (Map.Entry<RenderZombie, ZombieMutator> mutator : mutatorMap.entrySet())
 		{
 			mutator.getValue().mutate(null, mutator.getKey());
 			if (mutator.getValue().layerArmor != null)
