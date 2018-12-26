@@ -3,19 +3,18 @@ package net.gobbob.mobends.animation.bit.biped;
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.EntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class BowAnimationBit extends AnimationBit<BipedEntityData>
+public class BowAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 {
 	private static final String[] ACTIONS = new String[] { "bow" };
 	
 	protected EnumHandSide actionHand = EnumHandSide.RIGHT;
 	
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(BipedEntityData<?, ?> entityData)
 	{
 		return ACTIONS;
 	}
@@ -26,12 +25,9 @@ public class BowAnimationBit extends AnimationBit<BipedEntityData>
 	}
 	
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(BipedEntityData<?, ?> data)
 	{
-		if (!(data.getEntity() instanceof EntityLivingBase))
-			return;
-
-		EntityLivingBase living = (EntityLivingBase) data.getEntity();
+		EntityLivingBase living = data.getEntity();
 
 		boolean mainHandSwitch = this.actionHand == EnumHandSide.RIGHT;
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on

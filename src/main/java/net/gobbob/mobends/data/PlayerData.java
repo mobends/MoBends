@@ -11,7 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.util.EnumHand;
 
-public class PlayerData extends BipedEntityData
+public class PlayerData extends BipedEntityData<PlayerData, AbstractClientPlayer>
 {
 	public ModelPart ears;
 	public ModelPart cloak;
@@ -21,7 +21,7 @@ public class PlayerData extends BipedEntityData
 	boolean fistPunchArm = false;
 	int currentAttack = 0;
 
-	public PlayerData(Entity entity)
+	public PlayerData(AbstractClientPlayer entity)
 	{
 		super(entity);
 		this.controller = new PlayerController();
@@ -80,12 +80,7 @@ public class PlayerData extends BipedEntityData
 	@Override
 	public void onPunch()
 	{
-		if (!(this.entity instanceof AbstractClientPlayer))
-			return;
-
-		AbstractClientPlayer entityPlayer = (AbstractClientPlayer) this.entity;
-
-		if (entityPlayer.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR)
+		if (this.entity.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR)
 		{
 			if (this.getTicksAfterAttack() > 6.0f)
 			{
@@ -131,10 +126,5 @@ public class PlayerData extends BipedEntityData
 	public boolean getSprintJumpLeg()
 	{
 		return sprintJumpLeg;
-	}
-
-	@Override
-	public void onTicksRestart()
-	{
 	}
 }

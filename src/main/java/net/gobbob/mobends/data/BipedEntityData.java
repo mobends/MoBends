@@ -1,22 +1,11 @@
 package net.gobbob.mobends.data;
 
-import java.util.HashMap;
-
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.model.IModelPart;
-import net.gobbob.mobends.client.model.ModelBox;
-import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.client.model.ModelPartChildExtended;
-import net.gobbob.mobends.client.model.ModelPartExtended;
 import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.renderer.SwordTrail;
 import net.gobbob.mobends.util.SmoothOrientation;
-import net.gobbob.mobends.util.SmoothVector3f;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 
-public abstract class BipedEntityData extends LivingEntityData
+public abstract class BipedEntityData<T extends BipedEntityData, E extends EntityLivingBase> extends LivingEntityData<T, E>
 {
 	/*
 	 * These models need to be represented only
@@ -41,7 +30,7 @@ public abstract class BipedEntityData extends LivingEntityData
 	
     public SwordTrail swordTrail;
     
-	public BipedEntityData(Entity entity)
+	public BipedEntityData(E entity)
 	{
 		super(entity);
 	}

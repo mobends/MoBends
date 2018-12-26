@@ -19,11 +19,11 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public abstract class EntityData implements IBendsModel
+public abstract class EntityData<T extends EntityData, E extends Entity> implements IBendsModel
 {
 	protected int entityID;
-	protected Entity entity;
-	protected Controller controller;
+	protected E entity;
+	protected Controller<T> controller;
 
 	protected Vector3f position = new Vector3f();
 	protected Vector3f previousMotion = new Vector3f();
@@ -34,7 +34,7 @@ public abstract class EntityData implements IBendsModel
 	public SmoothVector3f renderOffset;
     public SmoothOrientation renderRotation;
 	
-	public EntityData(Entity entity)
+	public EntityData(E entity)
 	{
 		this.entity = entity;
 		if (this.entity != null)
@@ -126,7 +126,7 @@ public abstract class EntityData implements IBendsModel
 		return motion.x == 0 && motion.z == 0;
 	}
 
-	public Controller getController()
+	public Controller<T> getController()
 	{
 		return this.controller;
 	}
@@ -142,7 +142,7 @@ public abstract class EntityData implements IBendsModel
 		this.updateParts(DataUpdateHandler.ticksPerFrame);
 	}
 
-	public Entity getEntity()
+	public E getEntity()
 	{
 		return this.entity;
 	}

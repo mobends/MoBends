@@ -6,18 +6,18 @@ import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.pack.BendsPack;
 import net.minecraft.util.math.MathHelper;
 
-public class SneakAnimationBit extends AnimationBit<BipedEntityData>
+public class SneakAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 {
 	private static final String[] ACTIONS = new String[] { "sneak" };
 	
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(BipedEntityData<?, ?> entityData)
 	{
 		return ACTIONS;
 	}
 
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(BipedEntityData<?, ?> data)
 	{
 		data.renderOffset.slideY(-1.3F);
 	

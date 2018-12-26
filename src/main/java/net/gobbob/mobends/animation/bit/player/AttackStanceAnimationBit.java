@@ -36,7 +36,7 @@ public class AttackStanceAnimationBit extends AnimationBit<PlayerData>
 	@Override
 	public void perform(PlayerData data)
 	{
-		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
+		AbstractClientPlayer player = data.getEntity();
 		EnumHandSide primaryHand = player.getPrimaryHand();
 
 		boolean mainHandSwitch = primaryHand == EnumHandSide.RIGHT;

@@ -5,7 +5,7 @@ import net.gobbob.mobends.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-public class JumpAnimationBit<T extends BipedEntityData> extends AnimationBit<T>
+public class JumpAnimationBit<T extends BipedEntityData<?, ?>> extends AnimationBit<T>
 {
 	private static final String[] ACTIONS = new String[] { "jump" };
 	
@@ -16,13 +16,8 @@ public class JumpAnimationBit<T extends BipedEntityData> extends AnimationBit<T>
 	}
 
 	@Override
-	public void onPlay(T entityData)
+	public void onPlay(T data)
 	{
-		if (!(entityData instanceof BipedEntityData))
-			return;
-
-		BipedEntityData data = (BipedEntityData) entityData;
-
 		data.body.rotation.orientInstantX(20F);
 		data.rightLeg.rotation.orientInstantX(0F);
 		data.leftLeg.rotation.orientInstantX(0F);
@@ -37,9 +32,6 @@ public class JumpAnimationBit<T extends BipedEntityData> extends AnimationBit<T>
 	@Override
 	public void perform(T data)
 	{
-		if (!(data.getEntity() instanceof EntityLivingBase))
-			return;
-
 		if (data.getPreviousMotion().y < 0 && data.getMotion().y > 0)
 		{
 			/*
@@ -49,7 +41,7 @@ public class JumpAnimationBit<T extends BipedEntityData> extends AnimationBit<T>
 			this.onPlay(data);
 		}
 
-		EntityLivingBase player = (EntityLivingBase) data.getEntity();
+		EntityLivingBase biped = data.getEntity();
 
 		data.renderOffset.slideToZero(0.3F);
 		data.renderRotation.setSmoothness(.3F).orientZero();

@@ -9,23 +9,20 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 
-public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData>
+public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 {
 	private static final String[] ACTIONS = new String[] { "attack_stance_sprint" };
 	
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(BipedEntityData<?, ?> entityData)
 	{
 		return ACTIONS;
 	}
 
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(BipedEntityData<?, ?> data)
 	{
-		if (!(data.getEntity() instanceof EntityLivingBase))
-			return;
-
-		EntityLivingBase living = (EntityLivingBase) data.getEntity();
+		EntityLivingBase living = data.getEntity();
 		EnumHandSide primaryHand = living.getPrimaryHand();
 
 		boolean mainHandSwitch = primaryHand == EnumHandSide.RIGHT;

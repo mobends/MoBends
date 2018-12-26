@@ -18,7 +18,7 @@ import net.minecraft.entity.monster.EntitySpider;
  * @author Iwo Plaza
  * 
  */
-public class SpiderController extends Controller
+public class SpiderController extends Controller<SpiderData>
 {
 	final String animationTarget = "spider";
 	protected HardAnimationLayer<SpiderData> layerBase, layerAction;
@@ -38,16 +38,10 @@ public class SpiderController extends Controller
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(SpiderData spiderData)
 	{
-		if (!(entityData instanceof SpiderData))
-			return;
-		if (!(entityData.getEntity() instanceof EntitySpider))
-			return;
-
-		SpiderData spiderData = (SpiderData) entityData;
 		BendsVariable.tempData = spiderData;
-		EntitySpider spider = (EntitySpider) spiderData.getEntity();
+		EntitySpider spider = spiderData.getEntity();
 		
 		if (spider.getHealth() <= 0F)
 		{
@@ -79,6 +73,6 @@ public class SpiderController extends Controller
 		this.layerBase.perform(spiderData, actions);
 		this.layerAction.perform(spiderData, actions);
 		
-		BendsPack.animate(entityData, this.animationTarget, actions);
+		BendsPack.animate(spiderData, this.animationTarget, actions);
 	}
 }

@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
+public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 {
 	private static final String[] ACTIONS = new String[] { "swimming", "swimming_surface" };
 	private static final String[] ACTIONS_UNDERWATER = new String[] { "swimming", "swimming_deep" };
@@ -24,7 +24,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
 	private float transitionSpeed = 0.1F;
 	
 	@Override
-	public String[] getActions(BipedEntityData data)
+	public String[] getActions(BipedEntityData<?, ?> data)
 	{
 		if (data.isUnderwater())
 			return ACTIONS_UNDERWATER;
@@ -33,18 +33,16 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData>
 	}
 	
 	@Override
-	public void onPlay(BipedEntityData data)
+	public void onPlay(BipedEntityData<?, ?> data)
 	{
 		transformTransition = 0F;
 		transitionSpeed = .1F;
 	}
 	
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(BipedEntityData<?, ?> data)
 	{
-		if (!(data.getEntity() instanceof EntityLivingBase))
-			return;
-		EntityLivingBase living = (EntityLivingBase) data.getEntity();
+		EntityLivingBase living = data.getEntity();
 		
 		float ticks = DataUpdateHandler.getTicks();
 		

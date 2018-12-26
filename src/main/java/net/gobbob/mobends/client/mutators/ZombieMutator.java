@@ -49,11 +49,7 @@ public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, Model
 	@Override
 	public void performAnimations(T zombie, RenderLivingBase<? extends T> renderer, float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(ZombieData::new, zombie);
-		if (!(entityData instanceof ZombieData))
-			return;
-		
-		ZombieData data = (ZombieData) entityData;
+		ZombieData data = EntityDatabase.instance.getAndMake(ZombieData::new, zombie);
 		
 		data.setHeadYaw(this.headYaw);
 		data.setHeadPitch(this.headPitch);

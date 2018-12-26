@@ -22,7 +22,7 @@ import net.minecraft.util.EnumHandSide;
  * @author Iwo Plaza
  *
  */
-public class ZombieController extends Controller
+public class ZombieController extends Controller<ZombieData>
 {
 	final String animationTarget = "zombie";
 	protected HardAnimationLayer<ZombieData> layerBase;
@@ -44,16 +44,10 @@ public class ZombieController extends Controller
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(ZombieData zombieData)
 	{
-		if (!(entityData instanceof ZombieData))
-			return;
-		if (!(entityData.getEntity() instanceof EntityZombie))
-			return;
-
-		ZombieData zombieData = (ZombieData) entityData;
 		BendsVariable.tempData = zombieData;
-		EntityZombie zombie = (EntityZombie) zombieData.getEntity();
+		EntityZombie zombie = zombieData.getEntity();
 		EnumHandSide primaryHand = zombie.getPrimaryHand();
 		EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
 		ItemStack itemstack = zombie.getHeldItemMainhand();
@@ -121,6 +115,6 @@ public class ZombieController extends Controller
 		this.layerBase.perform(zombieData, actions);
 		this.layerSet.perform(zombieData, actions);
 		
-		BendsPack.animate(entityData, this.animationTarget, actions);
+		BendsPack.animate(zombieData, this.animationTarget, actions);
 	}
 }

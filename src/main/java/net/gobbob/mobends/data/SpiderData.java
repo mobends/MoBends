@@ -1,13 +1,10 @@
 package net.gobbob.mobends.data;
 
-import java.util.HashMap;
-
 import net.gobbob.mobends.animation.controller.SpiderController;
 import net.gobbob.mobends.client.model.ModelPartTransform;
-import net.gobbob.mobends.util.SmoothVector3f;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.EntitySpider;
 
-public class SpiderData extends LivingEntityData
+public class SpiderData extends LivingEntityData<SpiderData, EntitySpider>
 {
 	public ModelPartTransform spiderHead;
     public ModelPartTransform spiderNeck;
@@ -31,7 +28,7 @@ public class SpiderData extends LivingEntityData
     public ModelPartTransform spiderForeLeg7;
     public ModelPartTransform spiderForeLeg8;
     
-	public SpiderData(Entity entity)
+	public SpiderData(EntitySpider entity)
 	{
 		super(entity);
 		this.controller = new SpiderController();

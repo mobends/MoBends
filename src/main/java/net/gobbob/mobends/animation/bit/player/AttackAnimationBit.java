@@ -58,45 +58,37 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 	@Override
 	public void perform(PlayerData playerData)
 	{
-		Entity entity = playerData.getEntity();
-		if (entity instanceof AbstractClientPlayer)
+		AbstractClientPlayer player = playerData.getEntity();
+		if (this.shouldPerformAttack(player))
 		{
-			AbstractClientPlayer player = (AbstractClientPlayer) entity;
-			if (this.shouldPerformAttack(player))
+			if (playerData.getTicksAfterAttack() < 10)
 			{
-				if (playerData.getTicksAfterAttack() < 10)
+				if (playerData.getCurrentAttack() == 1)
 				{
-					if (playerData.getCurrentAttack() == 1)
-					{
-						this.layerBase.playOrContinueBit(this.bitAttackSlashUp, playerData);
-					}
-					else if (playerData.getCurrentAttack() == 2)
-					{
-						this.layerBase.playOrContinueBit(this.bitAttackSlashDown, playerData);
-					}
-					else if (playerData.getCurrentAttack() == 3)
-					{
-						this.layerBase.playOrContinueBit(this.bitAttackWhirlSlash, playerData);
-					}
-					else
-					{
-						this.layerBase.clearAnimation();
-					}
+					this.layerBase.playOrContinueBit(this.bitAttackSlashUp, playerData);
 				}
-				else if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround())
+				else if (playerData.getCurrentAttack() == 2)
 				{
-					if (player.isSprinting())
-					{
-						this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, playerData);
-					}
-					else if (playerData.isStillHorizontally())
-					{
-						this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
-					}
-					else
-					{
-						this.layerBase.clearAnimation();
-					}
+					this.layerBase.playOrContinueBit(this.bitAttackSlashDown, playerData);
+				}
+				else if (playerData.getCurrentAttack() == 3)
+				{
+					this.layerBase.playOrContinueBit(this.bitAttackWhirlSlash, playerData);
+				}
+				else
+				{
+					this.layerBase.clearAnimation();
+				}
+			}
+			else if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround())
+			{
+				if (player.isSprinting())
+				{
+					this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, playerData);
+				}
+				else if (playerData.isStillHorizontally())
+				{
+					this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
 				}
 				else
 				{
@@ -105,18 +97,22 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 			}
 			else
 			{
-				if (playerData.getTicksAfterAttack() < 10)
-				{
-					this.layerBase.playOrContinueBit(this.bitPunch, playerData);
-				}
-				else if (playerData.getTicksAfterAttack() < 60 && playerData.isStillHorizontally())
-				{
-					this.layerBase.playOrContinueBit(this.bitFistGuard, playerData);
-				}
-				else
-				{
-					this.layerBase.clearAnimation();
-				}
+				this.layerBase.clearAnimation();
+			}
+		}
+		else
+		{
+			if (playerData.getTicksAfterAttack() < 10)
+			{
+				this.layerBase.playOrContinueBit(this.bitPunch, playerData);
+			}
+			else if (playerData.getTicksAfterAttack() < 60 && playerData.isStillHorizontally())
+			{
+				this.layerBase.playOrContinueBit(this.bitFistGuard, playerData);
+			}
+			else
+			{
+				this.layerBase.clearAnimation();
 			}
 		}
 

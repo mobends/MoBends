@@ -8,7 +8,7 @@ import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
 import net.minecraft.util.math.MathHelper;
 
-public class WalkAnimationBit<T extends BipedEntityData> extends AnimationBit<T>
+public class WalkAnimationBit<T extends BipedEntityData<?, ?>> extends AnimationBit<T>
 {
 	private static final String[] ACTIONS = new String[] { "walk" };
 	

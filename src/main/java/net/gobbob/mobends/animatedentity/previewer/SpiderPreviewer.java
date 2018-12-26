@@ -6,7 +6,7 @@ import net.gobbob.mobends.data.SpiderData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntitySpider;
 
-public class SpiderPreviewer extends Previewer
+public class SpiderPreviewer extends Previewer<EntitySpider>
 {
 
 	/*
@@ -14,21 +14,16 @@ public class SpiderPreviewer extends Previewer
 	 * it can be manipulated in any way.
 	 */
 	@Override
-	public void prePreview(Entity entity, String animationToPreview)
+	public void prePreview(EntitySpider spider, String animationToPreview)
 	{
-		if (!(entity instanceof EntitySpider))
-			return;
-		EntityData entityData = EntityDatabase.instance.getAndMake(SpiderData::new, entity);
-		if (!(entityData instanceof SpiderData))
-			return;
+		SpiderData data = EntityDatabase.instance.getAndMake(SpiderData::new, spider);
 		
-		SpiderData data = (SpiderData) entityData;
 		data.forceOnGround(true);
-		data.getController().perform(entityData);
+		data.getController().perform(data);
 	}
 
 	@Override
-	public void postPreview(Entity entity, String animationToPreview)
+	public void postPreview(EntitySpider entity, String animationToPreview)
 	{
 	}
 }

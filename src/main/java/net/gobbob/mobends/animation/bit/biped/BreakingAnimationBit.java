@@ -1,18 +1,15 @@
 package net.gobbob.mobends.animation.bit.biped;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.bit.KeyframeAnimationBit;
 import net.gobbob.mobends.animation.keyframe.AnimationLoader;
-import net.gobbob.mobends.animation.keyframe.KeyframeAnimation;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.data.BipedEntityData;
 
-public class BreakingAnimationBit extends KeyframeAnimationBit<BipedEntityData>
+public class BreakingAnimationBit extends KeyframeAnimationBit<BipedEntityData<?, ?>>
 {
 	private static final String[] ACTIONS = new String[] { "breaking" };
 	
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(BipedEntityData<?, ?> entityData)
 	{
 		return ACTIONS;
 	}
@@ -24,7 +21,7 @@ public class BreakingAnimationBit extends KeyframeAnimationBit<BipedEntityData>
 	}
 	
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(BipedEntityData<?, ?> data)
 	{
 		super.perform(data);
 		

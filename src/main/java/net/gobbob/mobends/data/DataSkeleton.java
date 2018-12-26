@@ -11,7 +11,7 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 
-public class DataSkeleton extends BipedEntityData
+public class DataSkeleton<E extends EntitySkeleton> extends BipedEntityData<DataSkeleton, E>
 {
     public SmoothVector3f renderOffset = new SmoothVector3f();
     public SmoothVector3f renderRotation = new SmoothVector3f();
@@ -22,7 +22,7 @@ public class DataSkeleton extends BipedEntityData
     public float ticksBeforeStateChange = 0;
     public int currentAttack = 0;
     
-	public DataSkeleton(Entity entity) {
+	public DataSkeleton(E entity) {
 		super(entity);
 	}
 	

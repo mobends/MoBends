@@ -3,36 +3,30 @@ package net.gobbob.mobends.animation.bit.biped;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.model.IModelPart;
 import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.util.GUtil;
 import net.gobbob.mobends.util.SmoothOrientation;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData>
+public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 {
 	private static final String[] ACTIONS = new String[] { "attack", "attack_2" };
 	
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(BipedEntityData<?, ?> entityData)
 	{
 		return ACTIONS;
 	}
 
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(BipedEntityData<?, ?> data)
 	{
-		if (!(data.getEntity() instanceof EntityLivingBase))
-			return;
-
-		EntityLivingBase living = (EntityLivingBase) data.getEntity();
+		EntityLivingBase living = data.getEntity();
 		EnumHandSide primaryHand = living.getPrimaryHand();
 
 		boolean mainHandSwitch = primaryHand == EnumHandSide.RIGHT;

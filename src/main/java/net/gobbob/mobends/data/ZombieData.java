@@ -4,9 +4,9 @@ import java.util.Random;
 
 import net.gobbob.mobends.animation.controller.ZombieController;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.EntityZombie;
 
-public class ZombieData extends BipedEntityData
+public class ZombieData extends BipedEntityData<ZombieData, EntityZombie>
 {
 	public static final int ANIMATION_SETS_AMOUNT = 2;
 
@@ -17,7 +17,7 @@ public class ZombieData extends BipedEntityData
 	protected int currentWalkingState = 0;
 	protected float ticksBeforeStateChange = 0;
 
-	public ZombieData(Entity entity)
+	public ZombieData(EntityZombie entity)
 	{
 		super(entity);
 		this.controller = new ZombieController();

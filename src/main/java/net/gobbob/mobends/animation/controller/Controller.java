@@ -9,7 +9,7 @@ import net.gobbob.mobends.data.EntityData;
  * It's a member of an EntityData instance, and it holds all
  * the information about the current animation's state.
  * */
-public abstract class Controller
+public abstract class Controller<T extends EntityData>
 {
-	public abstract void perform(EntityData entityData);
+	public abstract void perform(T entityData);
 }

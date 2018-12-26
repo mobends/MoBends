@@ -19,7 +19,7 @@ import net.minecraft.entity.monster.EntityPigZombie;
  * @author Iwo Plaza
  *
  */
-public class PigZombieController extends Controller
+public class PigZombieController extends Controller<PigZombieData>
 {
 	final String animationTarget = "pig_zombie";
 	protected HardAnimationLayer<? super BipedEntityData> layerBase;
@@ -38,16 +38,10 @@ public class PigZombieController extends Controller
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(PigZombieData pigZombieData)
 	{
-		if (!(entityData instanceof PigZombieData))
-			return;
-		if (!(entityData.getEntity() instanceof EntityPigZombie))
-			return;
-
-		PigZombieData pigZombieData = (PigZombieData) entityData;
-		EntityPigZombie pigZombie = (EntityPigZombie) pigZombieData.getEntity();
 		BendsVariable.tempData = pigZombieData;
+		EntityPigZombie pigZombie =  pigZombieData.getEntity();
 		
 		if (!pigZombieData.isOnGround() || pigZombieData.getTicksAfterTouchdown() < 1)
 		{
@@ -79,7 +73,7 @@ public class PigZombieController extends Controller
 		this.layerBase.perform(pigZombieData, actions);
 		this.layerAction.perform(pigZombieData, actions);
 		
-		BendsPack.animate(entityData, this.animationTarget, actions);
+		BendsPack.animate(pigZombieData, this.animationTarget, actions);
 	}
 
 }

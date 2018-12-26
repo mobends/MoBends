@@ -1,17 +1,17 @@
 package net.gobbob.mobends.animatedentity.previewer;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.client.entity.AbstractClientPlayer;
 
-public class PlayerPreviewer extends Previewer
+public class PlayerPreviewer extends Previewer<AbstractClientPlayer>
 {
 	@Override
-	public void prePreview(Entity entity, String animationToPreview)
+	public void prePreview(AbstractClientPlayer entity, String animationToPreview)
 	{
 		
 	}
 
 	@Override
-	public void postPreview(Entity entity, String animationToPreview)
+	public void postPreview(AbstractClientPlayer entity, String animationToPreview)
 	{
 		
 	}

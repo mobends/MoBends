@@ -27,22 +27,18 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 	}
 	
 	@Override
-	public void perform(PlayerData entityData)
+	public void perform(PlayerData data)
 	{
-		if (!(entityData instanceof PlayerData))
-			return;
-		
-		if (entityData.getPreviousMotion().y < 0 && entityData.getMotion().y > 0)
+		if (data.getPreviousMotion().y < 0 && data.getMotion().y > 0)
 		{
 			/*
 			 * Restarting the animation if the player is going back up again after falling
 			 * down.
 			 */
-			this.onPlay(entityData);
+			this.onPlay(data);
 		}
 		
-		PlayerData data = (PlayerData) entityData;
-		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
+		AbstractClientPlayer player = data.getEntity();
 		EnumHandSide primaryHand = player.getPrimaryHand();
 
 		boolean sprintLegSwitch = data.getSprintJumpLeg();

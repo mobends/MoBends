@@ -19,8 +19,6 @@ import net.minecraft.entity.passive.EntitySquid;
 
 public class SquidMutator extends Mutator<EntitySquid, ModelSquid>
 {
-	
-	
 	public static HashMap<RenderSquid, SquidMutator> mutatorMap = new HashMap<>();
 
 	public ModelPart squidBody;
@@ -88,10 +86,7 @@ public class SquidMutator extends Mutator<EntitySquid, ModelSquid>
 	public void performAnimations(EntitySquid entity, RenderLivingBase<? extends EntitySquid> renderer,
 			float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(SquidData::new, entity);
-		if (!(entityData instanceof SquidData))
-			return;
-		SquidData data = (SquidData) entityData;
+		SquidData data = EntityDatabase.instance.getAndMake(SquidData::new, entity);
 
 		data.setHeadYaw(this.headYaw);
 		data.setHeadPitch(this.headPitch);

@@ -3,8 +3,9 @@ package net.gobbob.mobends.data;
 import net.gobbob.mobends.animation.controller.SquidController;
 import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.EntitySquid;
 
-public class SquidData extends LivingEntityData
+public class SquidData extends LivingEntityData<SquidData, EntitySquid>
 {
 	public static final int TENTACLE_SECTIONS = 9;
 	public static final int SECTION_HEIGHT = 18 / TENTACLE_SECTIONS;
@@ -12,7 +13,7 @@ public class SquidData extends LivingEntityData
 	public ModelPartTransform squidBody;
 	public ModelPartTransform[][] squidTentacles;
 
-	public SquidData(Entity entity)
+	public SquidData(EntitySquid entity)
 	{
 		super(entity);
 		this.controller = new SquidController();

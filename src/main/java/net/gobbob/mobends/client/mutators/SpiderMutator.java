@@ -184,10 +184,7 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 	public void performAnimations(EntitySpider entity, RenderLivingBase<? extends EntitySpider> renderer,
 			float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(SpiderData::new, entity);
-		if (!(entityData instanceof SpiderData))
-			return;
-		SpiderData data = (SpiderData) entityData;
+		SpiderData data = EntityDatabase.instance.getAndMake(SpiderData::new, entity);
 
 		data.setHeadYaw(this.headYaw);
 		data.setHeadPitch(this.headPitch);

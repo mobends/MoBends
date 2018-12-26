@@ -208,10 +208,7 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	@Override
 	public void performAnimations(AbstractClientPlayer player, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
 	{
-		EntityData entityData = EntityDatabase.instance.getAndMake(PlayerData::new, player);
-		if (!(entityData instanceof PlayerData))
-			return;
-		PlayerData data = (PlayerData) entityData;
+		PlayerData data = EntityDatabase.instance.getAndMake(PlayerData::new, player);
 
 		leftForeArmwear.setVisible(leftArmwear.isShowing());
 		rightForeArmwear.setVisible(rightArmwear.isShowing());

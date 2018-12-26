@@ -15,7 +15,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
-public abstract class LivingEntityData extends EntityData
+public abstract class LivingEntityData<T extends LivingEntityData, E extends EntityLivingBase> extends EntityData<T, E>
 {
 	protected float ticksInAir;
     protected float ticksAfterTouchdown;
@@ -29,7 +29,7 @@ public abstract class LivingEntityData extends EntityData
 	protected float headYaw = 0F;
 	protected float headPitch = 0F;
 	
-	public LivingEntityData(Entity entity)
+	public LivingEntityData(E entity)
 	{
 		super(entity);
 		
@@ -164,8 +164,6 @@ public abstract class LivingEntityData extends EntityData
 	
 	public EnumFacing getLadderFacing()
 	{
-		EntityLivingBase entity = (EntityLivingBase) getEntity();
-		
 		BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 		
 		IBlockState block = entity.world.getBlockState(position);
@@ -180,8 +178,6 @@ public abstract class LivingEntityData extends EntityData
 	
 	public boolean calcClimbing()
 	{
-		EntityLivingBase entity = (EntityLivingBase) getEntity();
-		
 		if(entity == null || entity.world == null) return false;
 		
 		BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
@@ -195,8 +191,6 @@ public abstract class LivingEntityData extends EntityData
 	
 	public float getLedgeHeight()
 	{
-		EntityLivingBase entity = (EntityLivingBase) getEntity();
-		
     	float clientY = (float) (entity.posY + (entity.posY-entity.prevPosY) * DataUpdateHandler.partialTicks);
     	
     	BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
