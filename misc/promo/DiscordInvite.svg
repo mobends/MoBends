@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="Layer_1"
+   viewBox="0 0 800 272.1"
+   version="1.1"
+   sodipodi:docname="DiscordInvite.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata3737">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3735" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="498"
+     inkscape:window-height="405"
+     id="namedview3733"
+     showgrid="false"
+     inkscape:zoom="0.39001358"
+     inkscape:cx="411.32731"
+     inkscape:cy="42.074418"
+     inkscape:window-x="1105"
+     inkscape:window-y="155"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="Layer_1" />
+  <style
+     id="style3726">.st0{fill:#7289DA;}</style>
+  <path
+     class="st0"
+     d="m 153.05605,128.1 c -5.7,0 -10.2,4.9 -10.2,11 0,6.1 4.6,11 10.2,11 5.7,0 10.2,-4.9 10.2,-11 0,-6.1 -4.6,-11 -10.2,-11 z m -36.5,0 c -5.7,0 -10.2,4.9 -10.2,11 0,6.1 4.6,11 10.2,11 5.7,0 10.2,-4.9 10.2,-11 0.1,-6.1 -4.5,-11 -10.2,-11 z"
+     id="path3728"
+     style="fill:#7289da"
+     inkscape:connector-curvature="0" />
+  <g
+     id="g3766"
+     transform="translate(10.256053,8)">
+    <g
+       id="g3789">
+      <path
+         class="st0"
+         d="m 191.4,36.9 h -134 c -11.3,0 -20.5,9.2 -20.5,20.5 v 134 c 0,11.3 9.2,20.5 20.5,20.5 h 113.4 l -5.3,-18.3 12.8,11.8 12.1,11.1 21.6,18.7 V 57.4 C 211.9,46.1 202.7,36.9 191.4,36.9 Z m -38.6,129.5 c 0,0 -3.6,-4.3 -6.6,-8 13.1,-3.7 18.1,-11.8 18.1,-11.8 -4.1,2.7 -8,4.6 -11.5,5.9 -5,2.1 -9.8,3.4 -14.5,4.3 -9.6,1.8 -18.4,1.3 -25.9,-0.1 -5.7,-1.1 -10.6,-2.6 -14.7,-4.3 -2.3,-0.9 -4.8,-2 -7.3,-3.4 -0.3,-0.2 -0.6,-0.3 -0.9,-0.5 -0.2,-0.1 -0.3,-0.2 -0.4,-0.2 -1.8,-1 -2.8,-1.7 -2.8,-1.7 0,0 4.8,7.9 17.5,11.7 -3,3.8 -6.7,8.2 -6.7,8.2 C 75,165.8 66.6,151.4 66.6,151.4 66.6,119.5 81,93.6 81,93.6 95.4,82.9 109,83.2 109,83.2 l 1,1.2 c -18,5.1 -26.2,13 -26.2,13 0,0 2.2,-1.2 5.9,-2.8 10.7,-4.7 19.2,-5.9 22.7,-6.3 0.6,-0.1 1.1,-0.2 1.7,-0.2 6.1,-0.8 13,-1 20.2,-0.2 9.5,1.1 19.7,3.9 30.1,9.5 0,0 -7.9,-7.5 -24.9,-12.6 l 1.4,-1.6 c 0,0 13.7,-0.3 28,10.4 0,0 14.4,25.9 14.4,57.8 0,-0.1 -8.4,14.3 -30.5,15 z M 283.85666,58.850141 h -33.2 v 37.300005 l 22.1,19.900004 V 79.850141 h 11.8 c 7.5,0 11.2,3.6 11.2,9.400005 v 27.700004 c 0,5.8 -3.5,9.7 -11.2,9.7 h -34 v 21.1 h 33.2 c 17.8,0.1 34.5,-8.8 34.5,-29.2 V 88.750146 c 0.1,-20.800005 -16.6,-29.900005 -34.4,-29.900005 z m 174,59.700009 V 87.950146 c 0,-11.000005 19.8,-13.500005 25.8,-2.500005 l 18.3,-7.4 c -7.2,-15.8 -20.3,-20.4 -31.2,-20.4 -17.8,0 -35.4,10.3 -35.4,30.300005 v 30.600004 c 0,20.2 17.6,30.3 35,30.3 11.2,0 24.6,-5.5 32,-19.9 l -19.6,-9 c -4.8,12.3 -24.9,9.3 -24.9,-1.4 z m -60.5,-26.400004 c -6.9,-1.5 -11.5,-4 -11.8,-8.300005 0.4,-10.3 16.3,-10.7 25.6,-0.8 l 14.7,-11.3 c -9.2,-11.2 -19.6,-14.2 -30.3,-14.2 -16.3,0 -32.1,9.2 -32.1,26.6 0,16.900009 13,26.000009 27.3,28.200009 7.3,1 15.4,3.9 15.2,8.9 -0.6,9.5 -20.2,9 -29.1,-1.8 l -14.2,13.3 c 8.3,10.7 19.6,16.1 30.2,16.1 16.3,0 34.4,-9.4 35.1,-26.6 1,-21.7 -14.8,-27.200004 -30.6,-30.100004 z m -67,55.500004 h 22.4 V 58.850141 h -22.4 z m 377.7,-88.800009 h -33.2 v 37.300005 l 22.1,19.900004 V 79.850141 h 11.8 c 7.5,0 11.2,3.6 11.2,9.400005 v 27.700004 c 0,5.8 -3.5,9.7 -11.2,9.7 h -34 v 21.1 h 33.3 c 17.8,0.1 34.5,-8.8 34.5,-29.2 V 88.750146 c 0,-20.800005 -16.7,-29.900005 -34.5,-29.900005 z m -162.9,-1.2 c -18.4,0 -36.7,10 -36.7,30.500005 v 30.300004 c 0,20.3 18.4,30.5 36.9,30.5 18.4,0 36.7,-10.2 36.7,-30.5 V 88.150146 c 0,-20.400005 -18.5,-30.500005 -36.9,-30.500005 z m 14.4,60.800009 c 0,6.4 -7.2,9.7 -14.3,9.7 -7.2,0 -14.4,-3.1 -14.4,-9.7 V 88.150146 c 0,-6.500005 7,-10.000005 14,-10.000005 7.3,0 14.7,3.1 14.7,10.000005 z m 102.9,-30.300004 c -0.5,-20.800005 -14.7,-29.200005 -33,-29.200005 h -35.5 v 88.800009 h 22.7 v -28.2 h 4 l 20.6,28.2 h 28 l -24.2,-30.5 c 10.7,-3.4 17.4,-12.7 17.4,-29.100004 z m -32.6,12.000004 h -13.2 V 79.850141 h 13.2 c 14.1,0 14.1,20.300009 0,20.300009 z"
+         id="path3730"
+         inkscape:connector-curvature="0"
+         style="fill:#7289da"
+         sodipodi:nodetypes="sssssccccccsccccccccccccccccccccccccccccsccccsssscccscsssccssssccsccccssccccscccccccsccccsssscccssssssssssssssssscscccccccccsccss" />
+    </g>
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:61.33333206px;line-height:8.34999847;font-family:Calibri;-inkscape-font-specification:Calibri;letter-spacing:0px;word-spacing:0px;fill:#7289da;fill-opacity:1;stroke:none"
+     x="255.26703"
+     y="212.15686"
+     id="text3741"><tspan
+       sodipodi:role="line"
+       id="tspan3739"
+       x="255.26703"
+       y="212.15686">discord.gg/Epf7atm</tspan></text>
+</svg>

@@ -12,7 +12,7 @@ public class WalkAnimationBit<T extends BipedEntityData<?, ?>> extends Animation
 {
 	private static final String[] ACTIONS = new String[] { "walk" };
 	
-	protected final float kneelDuration = 0.15F;
+	protected final float KNEEL_DURATION = 0.15F;
 
 	@Override
 	public String[] getActions(T entityData)
@@ -58,11 +58,11 @@ public class WalkAnimationBit<T extends BipedEntityData<?, ?>> extends Animation
 				.rotateZ(-var10);
 		
 		data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRotationX)
-											  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRotationY);
+										  	  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRotationY);
 
 		data.renderOffset.slideY(MathHelper.cos(limbSwing * 2) * 0.6F);
 		
-		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
+		float touchdown = Math.min(data.getTicksAfterTouchdown() * KNEEL_DURATION, 1.0F);
 		if (touchdown < 1.0F)
 		{
 			data.body.rotation.setSmoothness(1F);

@@ -263,6 +263,21 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 		final double prevMagnitude = this.getPrevMotionMagnitude();
 		return prevMagnitude + (magnitude - prevMagnitude) * DataUpdateHandler.partialTicks;
 	}
+	
+	public double getXZMotionMagnitude() {
+		return Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+	}
+	
+	public double getPrevXZMotionMagnitude() {
+		return Math.sqrt(this.prevMotionX * this.prevMotionX + this.prevMotionZ * this.prevMotionZ);
+	}
+	
+	public double getInterpolatedXZMotionMagnitude()
+	{
+		final double magnitude = this.getXZMotionMagnitude();
+		final double prevMagnitude = this.getPrevXZMotionMagnitude();
+		return prevMagnitude + (magnitude - prevMagnitude) * DataUpdateHandler.partialTicks;
+	}
 
 	public void updateClient(Entity entity)
 	{

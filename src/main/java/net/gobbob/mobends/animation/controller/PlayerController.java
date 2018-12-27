@@ -42,9 +42,9 @@ public class PlayerController extends Controller<PlayerData>
 	protected HardAnimationLayer<BipedEntityData<?, ?>> layerAction;
 	protected KeyframeAnimationLayer<PlayerData> layerKeyframe;
 
-	protected AnimationBit<BipedEntityData<?, ?>> bitStand, bitWalk, bitJump, bitSprint, bitSneak, bitLadderClimb,
+	protected AnimationBit<BipedEntityData<?, ?>> bitStand, bitJump, bitSneak, bitLadderClimb,
 			bitSwimming, bitRiding, bitSitting, bitFalling;
-	protected AnimationBit<PlayerData> bitSprintJump;
+	protected AnimationBit<PlayerData> bitWalk, bitSprint, bitSprintJump;
 	protected AnimationBit<BipedEntityData<?, ?>> bitTorchHolding;
 	protected AnimationBit<PlayerData> bitAttack;
 	protected FlyingAnimationBit bitFlying;
@@ -63,13 +63,13 @@ public class PlayerController extends Controller<PlayerData>
 		this.layerKeyframe = new KeyframeAnimationLayer<>();
 
 		this.bitStand = new net.gobbob.mobends.animation.bit.biped.StandAnimationBit<>();
-		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit<>();
 		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit<>();
-		this.bitSprint = new net.gobbob.mobends.animation.bit.biped.SprintAnimationBit();
-		this.bitSprintJump = new net.gobbob.mobends.animation.bit.player.SprintJumpAnimationBit();
 		this.bitSneak = new net.gobbob.mobends.animation.bit.biped.SneakAnimationBit();
 		this.bitLadderClimb = new net.gobbob.mobends.animation.bit.biped.LadderClimbAnimationBit();
 		this.bitSwimming = new net.gobbob.mobends.animation.bit.biped.SwimmingAnimationBit();
+		this.bitWalk = new net.gobbob.mobends.animation.bit.player.WalkAnimationBit();
+		this.bitSprint = new net.gobbob.mobends.animation.bit.player.SprintAnimationBit();
+		this.bitSprintJump = new net.gobbob.mobends.animation.bit.player.SprintJumpAnimationBit();
 		this.bitRiding = new net.gobbob.mobends.animation.bit.biped.RidingAnimationBit();
 		this.bitSitting = new net.gobbob.mobends.animation.bit.biped.SittingAnimationBit();
 		this.bitFalling = new net.gobbob.mobends.animation.bit.biped.FallingAnimationBit();

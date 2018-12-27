@@ -41,71 +41,92 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 		final double magnitude = data.getInterpolatedMotionMagnitude();
 
 		float ticks = DataUpdateHandler.getTicks();
-		float armSway = (MathHelper.cos(ticks * .1625F)+1F)/2.0f;
-		float armSway2 = (-MathHelper.sin(ticks * .1625F)+1F)/2.0f;
-		float legFlap = MathHelper.cos(ticks * .06F);
-		float foreArmSway = ((ticks * .1625F) % PI_2)/PI_2;
-		float foreArmStretch = armSway * 2F;
-		foreArmStretch -= 1F;
-		foreArmStretch = Math.max(foreArmStretch, 0);
+		
 		
 		float t = (float) GUtil.easeInOut(this.transformTransition, 3F);
 		
-		float forwardMomentum = (float) data.getForwardMomentum();
-		float sideMomentum = (float) data.getSidewaysMomentum();
+		float forwardMomentum = MathHelper.clamp((float) data.getForwardMomentum(), -1F, 1F);
+		float sideMomentum = MathHelper.clamp((float) data.getSidewaysMomentum(), -1F, 1F);
+		double xzMomentum = data.getInterpolatedXZMotionMagnitude();
 		
 		float headPitch = MathHelper.wrapDegrees(data.getHeadPitch());
 		float headYaw = MathHelper.wrapDegrees(data.getHeadYaw());
+		float headYawAbs = MathHelper.abs(headYaw);
+		float yMomentumAngle = (float) MathHelper.atan2(xzMomentum,  data.getMotionY()) * 180.0F / GUtil.PI;
 		
-		if (magnitude < STILL_MOTION_THRESHOLD || data.isDrawingBow() || data.getTicksAfterAttack() < 10)
+		if (player.isSprinting() && !data.isDrawingBow() && data.getTicksAfterAttack() >= 10)
 		{
-			if (this.transformTransition > 0F)
-			{
-				this.transformTransition -= DataUpdateHandler.ticksPerFrame * this.transitionSpeed;
-				this.transformTransition = Math.max(0F, this.transformTransition);
-			}
+			float speedFactor = MathHelper.clamp((float) magnitude, 0.0F, 0.2F) / 0.2F;
 			
-			armSway = (MathHelper.cos(ticks * .0825F) + 1) / 2;
-			armSway2 = (-MathHelper.sin(ticks * .0825F) + 1) / 2;
-			legFlap = MathHelper.cos(ticks * .125F);
+			// Full Speed
+			data.centerRotation.setSmoothness(1.0F).orientX(yMomentumAngle * speedFactor).rotateZ(headYaw);
+			
+			float bodyRotationX = MathHelper.clamp(headPitch * 0.8F, -60.0F, 0.0F);
+			data.head.rotation.setSmoothness(1.0F).orientY(headYaw).rotateX(headPitch - bodyRotationX - yMomentumAngle * speedFactor);
+			data.body.rotation.setSmoothness(0.7F).orientX(bodyRotationX);
+			data.leftArm.rotation.setSmoothness(0.7F).orientX(-bodyRotationX).rotateZ(-60F + 55F * speedFactor - headYawAbs * 0.5F);
+			data.rightArm.rotation.setSmoothness(0.7F).orientX(-bodyRotationX).rotateZ(60F - 55F * speedFactor + headYawAbs * 0.5F);
+			data.leftForeArm.rotation.setSmoothness(.7F).orientZero();
+			data.rightForeArm.rotation.setSmoothness(.7F).orientZero();
+			data.leftLeg.rotation.setSmoothness(0.7F).orientZ(-5.0F);
+			data.rightLeg.rotation.setSmoothness(0.7F).orientZ(5.0F);
+			data.leftForeLeg.rotation.setSmoothness(0.7F).orientX(0.0F);
+			data.rightForeLeg.rotation.setSmoothness(0.7F).orientX(0.0F);
+		}
+		else if (magnitude < STILL_MOTION_THRESHOLD)
+		{
+			// Hovering Still
+			
+			float armSway = (MathHelper.cos(ticks * .0825F) + 1) / 2;
+			float armSway2 = (-MathHelper.sin(ticks * .0825F) + 1) / 2;
+			float legFlap = MathHelper.cos(ticks * .125F);
+			float legFlap2 = MathHelper.sin(ticks * .125F);
+			float foreArmSway = ((ticks * .1625F) % PI_2)/PI_2;
+			float foreArmStretch = armSway * 2F;
+			foreArmStretch -= 1F;
+			foreArmStretch = Math.max(foreArmStretch, 0);
 			
 			data.leftArm.rotation.setSmoothness(.3F).orientX(armSway2*30-15).rotateZ(-armSway*30);
 			data.rightArm.rotation.setSmoothness(.3F).orientX(armSway2*30-15).rotateZ(armSway*30);
 			data.leftForeArm.rotation.setSmoothness(.3F).orientX(armSway2*-40);
 			data.rightForeArm.rotation.setSmoothness(.3F).orientX(armSway2*-40);
-			data.leftLeg.rotation.setSmoothness(.3F).orientZ(-10 + legFlap*5);
-			data.rightLeg.rotation.setSmoothness(.3F).orientZ(10 -legFlap*5);
-			data.leftForeLeg.rotation.setSmoothness(.4F).orientX(5);
+			data.leftLeg.rotation.setSmoothness(.3F).orientZ(-5 + legFlap*3).rotateX(-25F + legFlap2*5);
+			data.rightLeg.rotation.setSmoothness(.3F).orientZ(5 -legFlap*3).rotateX(-6F + legFlap2*5);
+			data.leftForeLeg.rotation.setSmoothness(.4F).orientX(20 - legFlap2*15);
 			data.rightForeLeg.rotation.setSmoothness(.4F).orientX(5);
 			data.body.rotation.orientX(armSway * 10.0F);
 			
 			data.centerRotation.orientZero();
 			
 			data.head.rotation.setSmoothness(1.0F).orientX(headPitch)
-					.rotateY(MathHelper.wrapDegrees(data.getHeadYaw())).rotateX(-80F * t);
+					.rotateY(headYaw).rotateX(-80F * t);
 		}
-		else if (!player.isSprinting())
+		else
 		{
+			// Moving
+			
 			data.centerRotation.orientZero();
 			data.centerRotation.rotateX(forwardMomentum * 50.0F);
+			data.body.rotation.orientZero();
 			data.leftArm.rotation.orientX(forwardMomentum * 90.0F).localRotateZ(sideMomentum * -80.0F - 20.0F);
 			data.rightArm.rotation.orientX(forwardMomentum * 90.0F).localRotateZ(sideMomentum * -80.0F + 20.0F);
 			data.leftForeArm.rotation.orientZero();
 			data.rightForeArm.rotation.orientZero();
 			
+			data.leftLeg.rotation.orientX(-45F).localRotateZ(sideMomentum * -40.0F - 5.0F);
+			data.rightLeg.rotation.orientX(-6F).localRotateZ(sideMomentum * -40.0F + 5.0F);
+			data.leftForeLeg.rotation.orientX(30F);
+			data.rightForeLeg.rotation.orientX(10F);
+			
 			data.head.rotation.setSmoothness(1.0F).orientX(headPitch).rotateX(-forwardMomentum * 50.0F);
 			
-			data.centerRotation.localRotateY(-headYaw);
-		}
-		else
-		{
-			data.centerRotation.setSmoothness(0.7F).orientX(headPitch + 90.0F);
-			
-			data.head.rotation.setSmoothness(1.0F).orientY(MathHelper.wrapDegrees(data.getHeadYaw()))
-					.rotateX(-90F);
+			if (!data.isDrawingBow()) {
+				data.centerRotation.localRotateY(-headYaw);
+			}
 		}
 		
-		data.renderRotation.setSmoothness(.7F).orientX(t * 80F);
+		
+		data.renderRotation.setSmoothness(.7F).orientX(0);
 		data.renderOffset.slideToZero(.7F);
 	}
 }
