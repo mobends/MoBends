@@ -1,4 +1,4 @@
-package net.gobbob.mobends.animation.controller;
+package net.gobbob.mobends.standard.animation.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
-import net.gobbob.mobends.data.ZombieData;
+import net.gobbob.mobends.standard.data.ZombieData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.item.EnumAction;
@@ -35,12 +35,12 @@ public class ZombieController extends Controller<ZombieData>
 	{
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerSet = new HardAnimationLayer<>();
-		this.bitStand = new net.gobbob.mobends.animation.bit.biped.StandAnimationBit<>();
-		this.bitWalk = new net.gobbob.mobends.animation.bit.biped.WalkAnimationBit<>();
-		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit<>();
+		this.bitStand = new net.gobbob.mobends.standard.animation.bit.biped.StandAnimationBit<>();
+		this.bitWalk = new net.gobbob.mobends.standard.animation.bit.biped.WalkAnimationBit<>();
+		this.bitJump = new net.gobbob.mobends.standard.animation.bit.biped.JumpAnimationBit<>();
 		this.bitAnimationSet = new AnimationBit[] {
-			new net.gobbob.mobends.animation.bit.zombie.ZombieLeanAnimationBit(),
-			new net.gobbob.mobends.animation.bit.zombie.ZombieStumblingAnimationBit()
+			new net.gobbob.mobends.standard.animation.bit.zombie.ZombieLeanAnimationBit(),
+			new net.gobbob.mobends.standard.animation.bit.zombie.ZombieStumblingAnimationBit()
 		};
 	}
 	

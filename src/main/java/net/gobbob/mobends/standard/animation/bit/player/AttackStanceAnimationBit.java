@@ -1,4 +1,4 @@
-package net.gobbob.mobends.animation.bit.player;
+package net.gobbob.mobends.standard.animation.bit.player;
 
 import org.lwjgl.util.vector.Vector3f;
 
@@ -9,7 +9,7 @@ import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.util.SmoothOrientation;
-import net.gobbob.mobends.data.PlayerData;
+import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;

@@ -1,9 +1,9 @@
-package net.gobbob.mobends.data;
+package net.gobbob.mobends.standard.data;
 
-import net.gobbob.mobends.client.renderer.entity.SwordTrail;
 import net.gobbob.mobends.core.LivingEntityData;
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.util.SmoothOrientation;
+import net.gobbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.entity.EntityLivingBase;
 
 public abstract class BipedEntityData<T extends BipedEntityData, E extends EntityLivingBase> extends LivingEntityData<T, E>

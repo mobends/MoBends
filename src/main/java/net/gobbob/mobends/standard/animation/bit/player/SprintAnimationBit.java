@@ -1,9 +1,9 @@
-package net.gobbob.mobends.animation.bit.player;
+package net.gobbob.mobends.standard.animation.bit.player;
 
-import net.gobbob.mobends.data.PlayerData;
+import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.util.math.MathHelper;
 
-public class SprintAnimationBit extends net.gobbob.mobends.animation.bit.biped.SprintAnimationBit<PlayerData>
+public class SprintAnimationBit extends net.gobbob.mobends.standard.animation.bit.biped.SprintAnimationBit<PlayerData>
 {
 	@Override
 	public void perform(PlayerData data)

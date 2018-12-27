@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.mutators;
+package net.gobbob.mobends.standard.client.mutators;
 
 import java.util.Collection;
 

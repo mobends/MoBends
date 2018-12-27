@@ -1,4 +1,4 @@
-package net.gobbob.mobends.animation.controller;
+package net.gobbob.mobends.standard.animation.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,8 @@ import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
-import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.PigZombieData;
+import net.gobbob.mobends.standard.data.BipedEntityData;
+import net.gobbob.mobends.standard.data.PigZombieData;
 import net.minecraft.entity.monster.EntityPigZombie;
 
 /**
@@ -32,10 +32,10 @@ public class PigZombieController extends Controller<PigZombieData>
 	{
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerAction = new HardAnimationLayer<>();
-		this.bitStand = new net.gobbob.mobends.animation.bit.pigzombie.StandAnimationBit();
-		this.bitWalk = new net.gobbob.mobends.animation.bit.pigzombie.WalkAnimationBit();
-		this.bitJump = new net.gobbob.mobends.animation.bit.biped.JumpAnimationBit<>();
-		this.bitAttack = new net.gobbob.mobends.animation.bit.biped.AttackSlashUpAnimationBit();
+		this.bitStand = new net.gobbob.mobends.standard.animation.bit.pigzombie.StandAnimationBit();
+		this.bitWalk = new net.gobbob.mobends.standard.animation.bit.pigzombie.WalkAnimationBit();
+		this.bitJump = new net.gobbob.mobends.standard.animation.bit.biped.JumpAnimationBit<>();
+		this.bitAttack = new net.gobbob.mobends.standard.animation.bit.biped.AttackSlashUpAnimationBit();
 	}
 	
 	@Override

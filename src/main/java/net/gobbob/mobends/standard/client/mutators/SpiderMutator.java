@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.mutators;
+package net.gobbob.mobends.standard.client.mutators;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.client.mutators.Mutator;
-import net.gobbob.mobends.data.SpiderData;
+import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.entity.RenderLivingBase;

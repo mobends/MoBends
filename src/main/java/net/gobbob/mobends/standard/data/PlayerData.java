@@ -1,9 +1,9 @@
-package net.gobbob.mobends.data;
+package net.gobbob.mobends.standard.data;
 
-import net.gobbob.mobends.animation.controller.PlayerController;
-import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.main.ModConfig;
+import net.gobbob.mobends.standard.animation.controller.PlayerController;
+import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;

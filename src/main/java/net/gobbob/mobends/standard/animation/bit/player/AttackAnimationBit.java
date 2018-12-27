@@ -1,14 +1,14 @@
-package net.gobbob.mobends.animation.bit.player;
+package net.gobbob.mobends.standard.animation.bit.player;
 
-import net.gobbob.mobends.animation.bit.biped.AttackSlashDownAnimationBit;
-import net.gobbob.mobends.animation.bit.biped.AttackSlashUpAnimationBit;
-import net.gobbob.mobends.animation.bit.biped.AttackStanceSprintAnimationBit;
-import net.gobbob.mobends.animation.bit.biped.AttackWhirlSlashAnimationBit;
-import net.gobbob.mobends.animation.bit.biped.FistGuardAnimationBit;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
-import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.PlayerData;
+import net.gobbob.mobends.standard.animation.bit.biped.AttackSlashDownAnimationBit;
+import net.gobbob.mobends.standard.animation.bit.biped.AttackSlashUpAnimationBit;
+import net.gobbob.mobends.standard.animation.bit.biped.AttackStanceSprintAnimationBit;
+import net.gobbob.mobends.standard.animation.bit.biped.AttackWhirlSlashAnimationBit;
+import net.gobbob.mobends.standard.animation.bit.biped.FistGuardAnimationBit;
+import net.gobbob.mobends.standard.data.BipedEntityData;
+import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;

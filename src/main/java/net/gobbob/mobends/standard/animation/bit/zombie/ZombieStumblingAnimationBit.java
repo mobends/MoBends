@@ -1,10 +1,10 @@
-package net.gobbob.mobends.animation.bit.zombie;
+package net.gobbob.mobends.standard.animation.bit.zombie;
 
 import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
-import net.gobbob.mobends.data.ZombieData;
+import net.gobbob.mobends.standard.data.ZombieData;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.util.math.MathHelper;
 

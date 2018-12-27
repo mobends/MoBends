@@ -1,8 +1,8 @@
-package net.gobbob.mobends.animation.bit.biped;
+package net.gobbob.mobends.standard.animation.bit.biped;
 
 import net.gobbob.mobends.core.animation.bit.KeyframeAnimationBit;
 import net.gobbob.mobends.core.animation.keyframe.AnimationLoader;
-import net.gobbob.mobends.data.BipedEntityData;
+import net.gobbob.mobends.standard.data.BipedEntityData;
 
 public class BreakingAnimationBit extends KeyframeAnimationBit<BipedEntityData<?, ?>>
 {

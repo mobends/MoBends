@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.mutators;
+package net.gobbob.mobends.standard.client.mutators;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animation.controller.Controller;
-import net.gobbob.mobends.data.ZombieData;
+import net.gobbob.mobends.standard.data.ZombieData;
 import net.minecraft.client.model.ModelZombie;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderZombie;

@@ -1,9 +1,9 @@
-package net.gobbob.mobends.animation.bit.pigzombie;
+package net.gobbob.mobends.standard.animation.bit.pigzombie;
 
-import net.gobbob.mobends.data.PigZombieData;
+import net.gobbob.mobends.standard.data.PigZombieData;
 import net.minecraft.util.math.MathHelper;
 
-public class WalkAnimationBit extends net.gobbob.mobends.animation.bit.biped.WalkAnimationBit<PigZombieData>
+public class WalkAnimationBit extends net.gobbob.mobends.standard.animation.bit.biped.WalkAnimationBit<PigZombieData>
 {
 	@Override
 	public void perform(PigZombieData data)

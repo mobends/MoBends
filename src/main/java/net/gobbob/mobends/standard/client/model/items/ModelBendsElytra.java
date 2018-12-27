@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.model.items;
+package net.gobbob.mobends.standard.client.model.items;
 
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;

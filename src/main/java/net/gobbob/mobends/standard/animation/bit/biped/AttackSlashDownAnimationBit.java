@@ -1,4 +1,4 @@
-package net.gobbob.mobends.animation.bit.biped;
+package net.gobbob.mobends.standard.animation.bit.biped;
 
 import org.lwjgl.util.vector.Vector3f;
 
@@ -9,8 +9,8 @@ import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.SmoothOrientation;
-import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.PlayerData;
+import net.gobbob.mobends.standard.data.BipedEntityData;
+import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.EnumAction;

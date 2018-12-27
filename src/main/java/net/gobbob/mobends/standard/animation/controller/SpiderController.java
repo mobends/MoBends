@@ -1,4 +1,4 @@
-package net.gobbob.mobends.animation.controller;
+package net.gobbob.mobends.standard.animation.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
-import net.gobbob.mobends.data.SpiderData;
+import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.monster.EntitySpider;
 
 /*
@@ -31,11 +31,11 @@ public class SpiderController extends Controller<SpiderData>
 	{
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerAction = new HardAnimationLayer<>();
-		this.bitBase = new net.gobbob.mobends.animation.bit.spider.SpiderBaseAnimationBit();
-		this.bitIdle = new net.gobbob.mobends.animation.bit.spider.SpiderIdleAnimationBit();
-		this.bitMove = new net.gobbob.mobends.animation.bit.spider.SpiderMoveAnimationBit();
-		this.bitJump = new net.gobbob.mobends.animation.bit.spider.SpiderJumpAnimationBit();
-		this.bitDeath = new net.gobbob.mobends.animation.bit.spider.SpiderDeathAnimationBit();
+		this.bitBase = new net.gobbob.mobends.standard.animation.bit.spider.SpiderBaseAnimationBit();
+		this.bitIdle = new net.gobbob.mobends.standard.animation.bit.spider.SpiderIdleAnimationBit();
+		this.bitMove = new net.gobbob.mobends.standard.animation.bit.spider.SpiderMoveAnimationBit();
+		this.bitJump = new net.gobbob.mobends.standard.animation.bit.spider.SpiderJumpAnimationBit();
+		this.bitDeath = new net.gobbob.mobends.standard.animation.bit.spider.SpiderDeathAnimationBit();
 	}
 	
 	@Override

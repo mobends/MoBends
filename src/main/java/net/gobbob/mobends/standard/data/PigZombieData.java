@@ -1,7 +1,7 @@
-package net.gobbob.mobends.data;
+package net.gobbob.mobends.standard.data;
 
-import net.gobbob.mobends.animation.controller.PigZombieController;
-import net.gobbob.mobends.animation.controller.ZombieController;
+import net.gobbob.mobends.standard.animation.controller.PigZombieController;
+import net.gobbob.mobends.standard.animation.controller.ZombieController;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityPigZombie;
 

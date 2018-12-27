@@ -1,8 +1,8 @@
-package net.gobbob.mobends.animation.bit.spider;
+package net.gobbob.mobends.standard.animation.bit.spider;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.data.SpiderData;
+import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
 public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>

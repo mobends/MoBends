@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.renderer.entity;
+package net.gobbob.mobends.standard.client.renderer.entity;
 
 import java.util.HashMap;
 

@@ -1,9 +1,9 @@
-package net.gobbob.mobends.data;
+package net.gobbob.mobends.standard.data;
 
 import java.util.Random;
 
-import net.gobbob.mobends.animation.controller.ZombieController;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.standard.animation.controller.ZombieController;
 import net.minecraft.entity.monster.EntityZombie;
 
 public class ZombieData extends BipedEntityData<ZombieData, EntityZombie>
