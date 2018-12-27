@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui;
+package net.gobbob.mobends.core.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;

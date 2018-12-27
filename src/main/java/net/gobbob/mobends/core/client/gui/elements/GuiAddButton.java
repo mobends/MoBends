@@ -1,6 +1,6 @@
-package net.gobbob.mobends.client.gui.elements;
+package net.gobbob.mobends.core.client.gui.elements;
 
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;

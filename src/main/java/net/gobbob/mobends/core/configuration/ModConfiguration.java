@@ -1,13 +1,13 @@
-package net.gobbob.mobends.configuration;
+package net.gobbob.mobends.core.configuration;
 
 import java.io.File;
 import java.util.List;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
-import net.gobbob.mobends.main.MoBends;
-import net.gobbob.mobends.pack.PackManager;
+import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.main.MoBends;
+import net.gobbob.mobends.core.pack.PackManager;
 import net.minecraftforge.common.config.Configuration;
 
 public class ModConfiguration

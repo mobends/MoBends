@@ -1,4 +1,4 @@
-package net.gobbob.mobends.animatedentity.previewer;
+package net.gobbob.mobends.core.animatedentity;
 
 import net.minecraft.entity.Entity;
 

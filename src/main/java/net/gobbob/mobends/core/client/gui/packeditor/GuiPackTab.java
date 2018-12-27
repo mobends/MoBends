@@ -1,9 +1,9 @@
-package net.gobbob.mobends.client.gui.packeditor;
+package net.gobbob.mobends.core.client.gui.packeditor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.util.Draw;
+import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 
 public class GuiPackTab {

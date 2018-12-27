@@ -1,11 +1,11 @@
-package net.gobbob.mobends.client.gui.elements;
+package net.gobbob.mobends.core.client.gui.elements;
 
 import org.lwjgl.opengl.GL11;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.animatedentity.previewer.Previewer;
-import net.gobbob.mobends.client.gui.GuiHelper;
-import net.gobbob.mobends.util.Draw;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.animatedentity.Previewer;
+import net.gobbob.mobends.core.client.gui.GuiHelper;
+import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;

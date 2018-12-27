@@ -1,29 +1,27 @@
-package net.gobbob.mobends.animatedentity;
+package net.gobbob.mobends.core.animatedentity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
-import net.gobbob.mobends.animatedentity.previewer.PlayerPreviewer;
-import net.gobbob.mobends.animatedentity.previewer.Previewer;
-import net.gobbob.mobends.animatedentity.previewer.SpiderPreviewer;
 import net.gobbob.mobends.client.mutators.PigZombieMutator;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.mutators.SpiderMutator;
 import net.gobbob.mobends.client.mutators.SquidMutator;
 import net.gobbob.mobends.client.mutators.ZombieMutator;
-import net.gobbob.mobends.client.mutators.functions.ApplyMutationFunction;
-import net.gobbob.mobends.client.mutators.functions.DeapplyMutationFunction;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsArrow;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsSpectralArrow;
 import net.gobbob.mobends.client.renderer.entity.RenderBendsTippedArrow;
-import net.gobbob.mobends.client.renderer.entity.mutated.MutatedRenderer;
 import net.gobbob.mobends.client.renderer.entity.mutated.PlayerRenderer;
 import net.gobbob.mobends.client.renderer.entity.mutated.SpiderRenderer;
 import net.gobbob.mobends.client.renderer.entity.mutated.SquidRenderer;
 import net.gobbob.mobends.client.renderer.entity.mutated.ZombieRenderer;
-import net.gobbob.mobends.util.BendsLogger;
+import net.gobbob.mobends.core.client.MutatedRenderer;
+import net.gobbob.mobends.core.client.mutators.functions.ApplyMutationFunction;
+import net.gobbob.mobends.core.client.mutators.functions.DeapplyMutationFunction;
+import net.gobbob.mobends.core.util.BendsLogger;
+import net.gobbob.mobends.previewer.PlayerPreviewer;
+import net.gobbob.mobends.previewer.SpiderPreviewer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;

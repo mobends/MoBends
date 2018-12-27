@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui.packeditor;
+package net.gobbob.mobends.core.client.gui.packeditor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,11 +7,11 @@ import java.util.List;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import net.gobbob.mobends.client.gui.GuiHelper;
-import net.gobbob.mobends.pack.BendsPack;
-import net.gobbob.mobends.pack.PackManager;
-import net.gobbob.mobends.util.Draw;
-import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.core.client.gui.GuiHelper;
+import net.gobbob.mobends.core.pack.BendsPack;
+import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;

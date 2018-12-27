@@ -1,4 +1,4 @@
-package net.gobbob.mobends.animation.keyframe;
+package net.gobbob.mobends.core.animation.keyframe;
 
 public class Keyframe
 {

@@ -1,13 +1,13 @@
-package net.gobbob.mobends.client.gui.customize;
+package net.gobbob.mobends.core.client.gui.customize;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.gui.elements.GuiAddButton;
-import net.gobbob.mobends.pack.BendsCondition;
-import net.gobbob.mobends.pack.BendsTarget;
-import net.gobbob.mobends.util.Draw;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.client.gui.elements.GuiAddButton;
+import net.gobbob.mobends.core.pack.BendsCondition;
+import net.gobbob.mobends.core.pack.BendsTarget;
+import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 
 public class GuiConditionSection

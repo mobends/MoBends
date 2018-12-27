@@ -1,8 +1,8 @@
-package net.gobbob.mobends.event;
+package net.gobbob.mobends.core.event;
 
-import net.gobbob.mobends.main.MoBends;
-import net.gobbob.mobends.network.NetworkConfiguration;
-import net.gobbob.mobends.network.msg.MessageClientConfigure;
+import net.gobbob.mobends.core.main.MoBends;
+import net.gobbob.mobends.core.network.NetworkConfiguration;
+import net.gobbob.mobends.core.network.msg.MessageClientConfigure;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

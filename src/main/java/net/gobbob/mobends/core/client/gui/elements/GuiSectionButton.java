@@ -1,12 +1,12 @@
-package net.gobbob.mobends.client.gui.elements;
+package net.gobbob.mobends.core.client.gui.elements;
 
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.gui.CustomFont;
-import net.gobbob.mobends.client.gui.CustomFontRenderer;
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.main.ModStatics;
-import net.gobbob.mobends.util.Color;
-import net.gobbob.mobends.util.Draw;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.client.gui.CustomFont;
+import net.gobbob.mobends.core.client.gui.CustomFontRenderer;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.main.ModStatics;
+import net.gobbob.mobends.core.util.Color;
+import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.BufferBuilder;

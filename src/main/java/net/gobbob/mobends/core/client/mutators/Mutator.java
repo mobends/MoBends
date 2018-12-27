@@ -1,8 +1,8 @@
-package net.gobbob.mobends.client.mutators;
+package net.gobbob.mobends.core.client.mutators;
 
 import java.util.List;
 
-import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;

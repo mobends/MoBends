@@ -1,21 +1,21 @@
-package net.gobbob.mobends.animation.layer;
+package net.gobbob.mobends.core.animation.layer;
 
 import java.util.Map;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.animation.keyframe.Bone;
-import net.gobbob.mobends.animation.keyframe.Keyframe;
-import net.gobbob.mobends.animation.keyframe.KeyframeAnimation;
-import net.gobbob.mobends.animation.keyframe.KeyframeArmature;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.model.IModelPart;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.util.EnumAxis;
-import net.gobbob.mobends.util.Quaternion;
-import net.gobbob.mobends.util.SmoothOrientation;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.animation.keyframe.Bone;
+import net.gobbob.mobends.core.animation.keyframe.Keyframe;
+import net.gobbob.mobends.core.animation.keyframe.KeyframeAnimation;
+import net.gobbob.mobends.core.animation.keyframe.KeyframeArmature;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
+import net.gobbob.mobends.core.util.EnumAxis;
+import net.gobbob.mobends.core.util.Quaternion;
+import net.gobbob.mobends.core.util.SmoothOrientation;
 
 public class KeyframeAnimationLayer<DataType extends EntityData> extends AnimationLayer<DataType>
 {

@@ -1,9 +1,8 @@
-package net.gobbob.mobends.animatedentity;
+package net.gobbob.mobends.core.animatedentity;
 
 import java.util.HashMap;
 
-import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
-import net.gobbob.mobends.util.BendsLogger;
+import net.gobbob.mobends.core.util.BendsLogger;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.common.config.Configuration;
 

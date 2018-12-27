@@ -1,9 +1,8 @@
-package net.gobbob.mobends.animatedentity.alterentry;
+package net.gobbob.mobends.core.animatedentity;
 
 import java.lang.reflect.InvocationTargetException;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
+import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;

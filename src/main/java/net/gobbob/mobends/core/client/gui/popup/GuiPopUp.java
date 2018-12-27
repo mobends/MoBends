@@ -1,13 +1,13 @@
-package net.gobbob.mobends.client.gui.popup;
+package net.gobbob.mobends.core.client.gui.popup;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.gui.elements.GuiCustomButton;
-import net.gobbob.mobends.pack.BendsPack;
-import net.gobbob.mobends.util.Draw;
-import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
+import net.gobbob.mobends.core.pack.BendsPack;
+import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;

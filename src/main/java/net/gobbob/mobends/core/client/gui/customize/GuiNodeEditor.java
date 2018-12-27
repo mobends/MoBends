@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui.customize;
+package net.gobbob.mobends.core.client.gui.customize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,17 +7,17 @@ import java.util.Map;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.gui.GuiHelper;
-import net.gobbob.mobends.client.gui.elements.GuiAddButton;
-import net.gobbob.mobends.network.NetworkConfiguration;
-import net.gobbob.mobends.pack.BendsCondition;
-import net.gobbob.mobends.pack.BendsPack;
-import net.gobbob.mobends.pack.BendsTarget;
-import net.gobbob.mobends.pack.PackManager;
-import net.gobbob.mobends.util.Draw;
-import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.client.gui.GuiHelper;
+import net.gobbob.mobends.core.client.gui.elements.GuiAddButton;
+import net.gobbob.mobends.core.network.NetworkConfiguration;
+import net.gobbob.mobends.core.pack.BendsCondition;
+import net.gobbob.mobends.core.pack.BendsPack;
+import net.gobbob.mobends.core.pack.BendsTarget;
+import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;

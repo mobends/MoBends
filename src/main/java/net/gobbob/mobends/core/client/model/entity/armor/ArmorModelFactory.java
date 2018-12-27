@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.model.entity.armor;
+package net.gobbob.mobends.core.client.model.entity.armor;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,11 +1,11 @@
-package net.gobbob.mobends.pack;
+package net.gobbob.mobends.core.pack;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.network.NetworkConfiguration;
-import net.gobbob.mobends.pack.variable.BendsVariable;
-import net.gobbob.mobends.util.EnumAxis;
+import net.gobbob.mobends.core.network.NetworkConfiguration;
+import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.core.util.EnumAxis;
 import net.minecraft.util.math.MathHelper;
 
 public class BendsAction

@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui;
+package net.gobbob.mobends.core.client.gui;
 
 /**
  * Allows the implementation to listen for changes of observable objects.

@@ -1,12 +1,12 @@
-package net.gobbob.mobends.client.event;
+package net.gobbob.mobends.core.client.event;
 
 import java.util.HashSet;
 import java.util.UUID;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.EntityDatabase;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.data.PlayerData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;

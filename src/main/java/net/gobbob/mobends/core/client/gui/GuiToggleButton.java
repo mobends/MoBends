@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui;
+package net.gobbob.mobends.core.client.gui;
 
 import org.lwjgl.opengl.GL11;
 

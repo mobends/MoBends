@@ -1,10 +1,10 @@
-package net.gobbob.mobends.client.gui.elements;
+package net.gobbob.mobends.core.client.gui.elements;
 
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.gui.Observable;
-import net.gobbob.mobends.client.gui.customize.GuiCustomizeWindow;
-import net.gobbob.mobends.pack.BendsAction.EnumOperator;
-import net.gobbob.mobends.util.Draw;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.client.gui.Observable;
+import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
+import net.gobbob.mobends.core.pack.BendsAction.EnumOperator;
+import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 
 public class GuiRadio extends Observable

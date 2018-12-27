@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui.elements;
+package net.gobbob.mobends.core.client.gui.elements;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

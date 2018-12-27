@@ -1,16 +1,16 @@
-package net.gobbob.mobends.client.gui.customize;
+package net.gobbob.mobends.core.client.gui.customize;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.pack.BendsAction;
-import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.pack.BendsAction.EnumModifier;
-import net.gobbob.mobends.pack.BendsCondition;
-import net.gobbob.mobends.pack.BendsTarget;
-import net.gobbob.mobends.util.Draw;
-import net.gobbob.mobends.util.EnumAxis;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.pack.BendsAction;
+import net.gobbob.mobends.core.pack.BendsCondition;
+import net.gobbob.mobends.core.pack.BendsTarget;
+import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
+import net.gobbob.mobends.core.pack.BendsAction.EnumModifier;
+import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.EnumAxis;
 import net.minecraft.client.Minecraft;
 
 public class GuiAnimationNode {

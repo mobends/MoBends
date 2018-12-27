@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.model;
+package net.gobbob.mobends.core.client.model;
 
 import java.util.ArrayList;
 import java.util.List;

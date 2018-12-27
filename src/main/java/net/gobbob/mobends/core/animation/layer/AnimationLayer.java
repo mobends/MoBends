@@ -1,9 +1,9 @@
-package net.gobbob.mobends.animation.layer;
+package net.gobbob.mobends.core.animation.layer;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.core.EntityData;
 
 public abstract class AnimationLayer<T extends EntityData>
 {

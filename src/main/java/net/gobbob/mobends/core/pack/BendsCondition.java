@@ -1,17 +1,17 @@
-package net.gobbob.mobends.pack;
+package net.gobbob.mobends.core.pack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.client.model.IBendsModel;
-import net.gobbob.mobends.client.model.IModelPart;
-import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.util.EnumAxis;
-import net.gobbob.mobends.util.SmoothOrientation;
-import net.gobbob.mobends.util.SmoothVector3f;
+import net.gobbob.mobends.core.client.model.IBendsModel;
+import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.client.model.ModelPart;
+import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
+import net.gobbob.mobends.core.util.EnumAxis;
+import net.gobbob.mobends.core.util.SmoothOrientation;
+import net.gobbob.mobends.core.util.SmoothVector3f;
 
 public class BendsCondition
 {

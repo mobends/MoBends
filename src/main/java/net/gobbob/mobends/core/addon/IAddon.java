@@ -1,6 +1,6 @@
-package net.gobbob.mobends.addon;
+package net.gobbob.mobends.core.addon;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 
 public interface IAddon
 {

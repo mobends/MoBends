@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.gui.elements;
+package net.gobbob.mobends.core.client.gui.elements;
 
 import java.util.ArrayList;
 import java.util.List;

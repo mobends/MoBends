@@ -1,10 +1,10 @@
-package net.gobbob.mobends.client.renderer.entity.mutated;
+package net.gobbob.mobends.core.client;
 
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.EntityDatabase;
-import net.gobbob.mobends.data.LivingEntityData;
-import net.gobbob.mobends.main.ModConfig;
-import net.gobbob.mobends.util.GLHelper;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.LivingEntityData;
+import net.gobbob.mobends.core.main.ModConfig;
+import net.gobbob.mobends.core.util.GLHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -12,7 +12,7 @@ import net.minecraft.entity.EntityLivingBase;
 
 public abstract class MutatedRenderer<T extends EntityLivingBase>
 {
-	final float scale = 0.0625F;
+	protected final float scale = 0.0625F;
 	
 	/*
 	 * Called right before the entity is rendered

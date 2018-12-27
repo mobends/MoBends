@@ -1,6 +1,6 @@
-package net.gobbob.mobends.client.model;
+package net.gobbob.mobends.core.client.model;
 
-import net.gobbob.mobends.util.SmoothVector3f;
+import net.gobbob.mobends.core.util.SmoothVector3f;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;

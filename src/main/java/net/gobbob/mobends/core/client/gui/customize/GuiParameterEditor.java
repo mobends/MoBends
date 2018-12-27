@@ -1,24 +1,24 @@
-package net.gobbob.mobends.client.gui.customize;
+package net.gobbob.mobends.core.client.gui.customize;
 
 import java.util.LinkedList;
 import java.util.function.BiConsumer;
 
 import javax.swing.event.ChangeListener;
 
-import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.gui.IChangeListener;
-import net.gobbob.mobends.client.gui.Observable;
-import net.gobbob.mobends.client.gui.elements.GuiCompactTextField;
-import net.gobbob.mobends.client.gui.elements.GuiCustomButton;
-import net.gobbob.mobends.client.gui.elements.GuiDropDownList;
-import net.gobbob.mobends.client.gui.elements.GuiRadio;
-import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.pack.BendsAction.EnumModifier;
-import net.gobbob.mobends.pack.BendsAction.EnumOperator;
-import net.gobbob.mobends.pack.variable.BendsVariable;
-import net.gobbob.mobends.util.Draw;
-import net.gobbob.mobends.util.EnumAxis;
+import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.client.gui.IChangeListener;
+import net.gobbob.mobends.core.client.gui.Observable;
+import net.gobbob.mobends.core.client.gui.elements.GuiCompactTextField;
+import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
+import net.gobbob.mobends.core.client.gui.elements.GuiDropDownList;
+import net.gobbob.mobends.core.client.gui.elements.GuiRadio;
+import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
+import net.gobbob.mobends.core.pack.BendsAction.EnumModifier;
+import net.gobbob.mobends.core.pack.BendsAction.EnumOperator;
+import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.EnumAxis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;

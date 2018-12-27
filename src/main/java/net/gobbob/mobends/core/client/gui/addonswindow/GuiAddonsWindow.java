@@ -1,10 +1,10 @@
-package net.gobbob.mobends.client.gui.addonswindow;
+package net.gobbob.mobends.core.client.gui.addonswindow;
 
-import net.gobbob.mobends.addon.AddonHelper;
-import net.gobbob.mobends.addon.IAddon;
-import net.gobbob.mobends.client.gui.customize.GuiCustomizeWindow;
-import net.gobbob.mobends.main.ModStatics;
-import net.gobbob.mobends.util.Lang;
+import net.gobbob.mobends.core.addon.AddonHelper;
+import net.gobbob.mobends.core.addon.IAddon;
+import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
+import net.gobbob.mobends.core.main.ModStatics;
+import net.gobbob.mobends.core.util.Lang;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;

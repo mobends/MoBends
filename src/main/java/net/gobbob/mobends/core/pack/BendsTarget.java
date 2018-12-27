@@ -1,12 +1,12 @@
-package net.gobbob.mobends.pack;
+package net.gobbob.mobends.core.pack;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.client.model.IBendsModel;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.client.model.IBendsModel;
 
 public class BendsTarget
 {

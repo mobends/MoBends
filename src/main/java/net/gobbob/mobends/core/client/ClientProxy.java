@@ -1,13 +1,13 @@
-package net.gobbob.mobends.client;
+package net.gobbob.mobends.core.client;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.event.EntityRenderHandler;
-import net.gobbob.mobends.client.event.KeyboardHandler;
-import net.gobbob.mobends.main.CommonProxy;
-import net.gobbob.mobends.main.ModStatics;
-import net.gobbob.mobends.pack.PackManager;
-import net.gobbob.mobends.pack.variable.BendsVariable;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.client.event.EntityRenderHandler;
+import net.gobbob.mobends.core.client.event.KeyboardHandler;
+import net.gobbob.mobends.core.main.CommonProxy;
+import net.gobbob.mobends.core.main.ModStatics;
+import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.core.pack.variable.BendsVariable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;

@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.model.entity.armor;
+package net.gobbob.mobends.core.client.model.entity.armor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -9,17 +9,17 @@ import java.util.Map;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.client.model.IModelPart;
-import net.gobbob.mobends.client.model.ModelBox;
-import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.client.model.ModelPartContainer;
-import net.gobbob.mobends.client.model.ModelPartTransform;
 import net.gobbob.mobends.client.mutators.BoxMutator;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.client.model.ModelBox;
+import net.gobbob.mobends.core.client.model.ModelPart;
+import net.gobbob.mobends.core.client.model.ModelPartContainer;
+import net.gobbob.mobends.core.client.model.ModelPartTransform;
+import net.gobbob.mobends.core.util.ModelUtils;
 import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.EntityDatabase;
-import net.gobbob.mobends.util.ModelUtils;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;

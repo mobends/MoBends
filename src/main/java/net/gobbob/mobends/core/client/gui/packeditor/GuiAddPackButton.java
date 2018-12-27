@@ -1,6 +1,6 @@
-package net.gobbob.mobends.client.gui.packeditor;
+package net.gobbob.mobends.core.client.gui.packeditor;
 
-import net.gobbob.mobends.util.Draw;
+import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 

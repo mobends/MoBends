@@ -1,17 +1,17 @@
-package net.gobbob.mobends.client.event;
+package net.gobbob.mobends.core.client.event;
 
 import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
-import net.gobbob.mobends.data.EntityDatabase;
-import net.gobbob.mobends.main.MoBends;
-import net.gobbob.mobends.pack.BendsPack;
-import net.gobbob.mobends.pack.PackManager;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
+import net.gobbob.mobends.core.main.MoBends;
+import net.gobbob.mobends.core.pack.BendsPack;
+import net.gobbob.mobends.core.pack.PackManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.settings.KeyBinding;

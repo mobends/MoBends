@@ -1,9 +1,5 @@
-package net.gobbob.mobends.addon;
+package net.gobbob.mobends.core.addon;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.animatedentity.previewer.PlayerPreviewer;
-import net.gobbob.mobends.animatedentity.previewer.SpiderPreviewer;
 import net.gobbob.mobends.client.mutators.PigZombieMutator;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.client.mutators.SpiderMutator;
@@ -13,6 +9,10 @@ import net.gobbob.mobends.client.renderer.entity.mutated.PlayerRenderer;
 import net.gobbob.mobends.client.renderer.entity.mutated.SpiderRenderer;
 import net.gobbob.mobends.client.renderer.entity.mutated.SquidRenderer;
 import net.gobbob.mobends.client.renderer.entity.mutated.ZombieRenderer;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.previewer.PlayerPreviewer;
+import net.gobbob.mobends.previewer.SpiderPreviewer;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySpider;

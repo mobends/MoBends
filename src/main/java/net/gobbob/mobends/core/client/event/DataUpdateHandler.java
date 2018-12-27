@@ -1,8 +1,8 @@
-package net.gobbob.mobends.client.event;
+package net.gobbob.mobends.core.client.event;
 
-import net.gobbob.mobends.client.renderer.ArrowTrail;
-import net.gobbob.mobends.data.EntityDatabase;
-import net.gobbob.mobends.main.ModConfig;
+import net.gobbob.mobends.client.renderer.entity.ArrowTrail;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.main.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;

@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.model;
+package net.gobbob.mobends.core.client.model;
 
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;

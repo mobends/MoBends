@@ -1,4 +1,4 @@
-package net.gobbob.mobends.pack;
+package net.gobbob.mobends.core.pack;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,14 +15,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import net.gobbob.mobends.client.model.IBendsModel;
-import net.gobbob.mobends.main.ModStatics;
-import net.gobbob.mobends.pack.BendsAction.Calculation;
-import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.pack.BendsAction.EnumModifier;
-import net.gobbob.mobends.pack.BendsAction.EnumOperator;
-import net.gobbob.mobends.util.EnumAxis;
-import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.core.client.model.IBendsModel;
+import net.gobbob.mobends.core.main.ModStatics;
+import net.gobbob.mobends.core.pack.BendsAction.Calculation;
+import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
+import net.gobbob.mobends.core.pack.BendsAction.EnumModifier;
+import net.gobbob.mobends.core.pack.BendsAction.EnumOperator;
+import net.gobbob.mobends.core.util.EnumAxis;
+import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ImageBufferDownload;

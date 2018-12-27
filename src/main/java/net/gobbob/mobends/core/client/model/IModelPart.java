@@ -1,8 +1,8 @@
-package net.gobbob.mobends.client.model;
+package net.gobbob.mobends.core.client.model;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.util.SmoothOrientation;
+import net.gobbob.mobends.core.util.SmoothOrientation;
 
 public interface IModelPart
 {

@@ -1,10 +1,10 @@
-package net.gobbob.mobends.addon;
+package net.gobbob.mobends.core.addon;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.gobbob.mobends.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 
 public class AddonHelper
 {
