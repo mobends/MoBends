@@ -20,6 +20,8 @@ public class SittingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	{
 		EntityLivingBase living = data.getEntity();
 		
+		data.centerRotation.setSmoothness(.3F).orientZero();
+		
 		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
 		  				  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
 		data.body.rotation.orientY(0).setSmoothness(0.5F);

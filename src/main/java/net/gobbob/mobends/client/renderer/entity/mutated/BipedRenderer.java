@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.renderer.entity;
+package net.gobbob.mobends.client.renderer.entity.mutated;
 
 import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.EntityData;
@@ -7,10 +7,10 @@ import net.gobbob.mobends.main.ModConfig;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 
-public class BipedRenderer extends MutatedRenderer
+public class BipedRenderer<T extends EntityLivingBase> extends MutatedRenderer<T>
 {
 	@Override
-	public void renderLocalAccessories(EntityLivingBase entity, float partialTicks)
+	public void renderLocalAccessories(T entity, float partialTicks)
 	{
 		float scale = 0.0625F;
 		
@@ -26,6 +26,15 @@ public class BipedRenderer extends MutatedRenderer
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				GlStateManager.popMatrix();
 			}
+		}
+	}
+	
+	@Override
+	protected void transformLocally(T entity, float partialTicks)
+	{
+		if (entity.isSneaking())
+		{
+			GlStateManager.translate(0F, 5F * scale, 0F);
 		}
 	}
 }

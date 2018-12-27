@@ -9,7 +9,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 
-public class StandAnimationBit<T extends BipedEntityData<?, ?>> extends AnimationBit<T>
+public class StandAnimationBit<T extends BipedEntityData> extends AnimationBit<T>
 {
 	private static final String[] ACTIONS = new String[] { "stand" };
 	
@@ -40,6 +40,7 @@ public class StandAnimationBit<T extends BipedEntityData<?, ?>> extends Animatio
 	{
 		data.renderOffset.slideToZero(0.3F);
 		data.renderRotation.setSmoothness(.3F).orientZero();
+		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
 		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
 		

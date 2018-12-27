@@ -22,8 +22,8 @@ import net.minecraft.entity.monster.EntityPigZombie;
 public class PigZombieController extends Controller<PigZombieData>
 {
 	final String animationTarget = "pig_zombie";
-	protected HardAnimationLayer<? super BipedEntityData> layerBase;
-	protected HardAnimationLayer<? super BipedEntityData> layerAction;
+	protected HardAnimationLayer<BipedEntityData> layerBase;
+	protected HardAnimationLayer<BipedEntityData> layerAction;
 	protected AnimationBit<? extends BipedEntityData> bitStand, bitWalk, bitJump;
 	protected AnimationBit<? extends BipedEntityData> bitAttack;
 	

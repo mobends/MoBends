@@ -7,6 +7,8 @@ import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.animation.bit.KeyframeAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.BowAnimationBit;
 import net.gobbob.mobends.animation.bit.biped.EatingAnimationBit;
+import net.gobbob.mobends.animation.bit.biped.FallingAnimationBit;
+import net.gobbob.mobends.animation.bit.player.FlyingAnimationBit;
 import net.gobbob.mobends.animation.keyframe.ArmatureMask;
 import net.gobbob.mobends.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.animation.layer.KeyframeAnimationLayer;
@@ -33,7 +35,7 @@ import net.minecraft.util.EnumHandSide;
  */
 public class PlayerController extends Controller<PlayerData>
 {
-	final String animationTarget = "player";
+	protected final String ANIMATION_TARGET = "player";
 	protected HardAnimationLayer<BipedEntityData<?, ?>> layerBase;
 	protected HardAnimationLayer<BipedEntityData<?, ?>> layerTorch;
 	protected HardAnimationLayer<BipedEntityData<?, ?>> layerSneak;
@@ -45,6 +47,7 @@ public class PlayerController extends Controller<PlayerData>
 	protected AnimationBit<PlayerData> bitSprintJump;
 	protected AnimationBit<BipedEntityData<?, ?>> bitTorchHolding;
 	protected AnimationBit<PlayerData> bitAttack;
+	protected FlyingAnimationBit bitFlying;
 	protected BowAnimationBit bitBow;
 	protected EatingAnimationBit bitEating;
 	protected KeyframeAnimationBit<BipedEntityData<?, ?>> bitBreaking;
@@ -70,6 +73,7 @@ public class PlayerController extends Controller<PlayerData>
 		this.bitRiding = new net.gobbob.mobends.animation.bit.biped.RidingAnimationBit();
 		this.bitSitting = new net.gobbob.mobends.animation.bit.biped.SittingAnimationBit();
 		this.bitFalling = new net.gobbob.mobends.animation.bit.biped.FallingAnimationBit();
+		this.bitFlying = new net.gobbob.mobends.animation.bit.player.FlyingAnimationBit();
 		this.bitTorchHolding = new net.gobbob.mobends.animation.bit.biped.TorchHoldingAnimationBit();
 		this.bitAttack = new net.gobbob.mobends.animation.bit.player.AttackAnimationBit();
 		this.bitBow = new net.gobbob.mobends.animation.bit.biped.BowAnimationBit();
@@ -176,15 +180,22 @@ public class PlayerController extends Controller<PlayerData>
 			} else if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
 			{
 				// Airborne
-				if (playerData.getTicksInAir() > 20.0F)
+				if (player.capabilities.isFlying)
 				{
-					this.layerBase.playOrContinueBit(bitFalling, playerData);
+					// Flying
+					this.layerBase.playOrContinueBit(bitFlying, playerData);
 				} else
 				{
-					if (player.isSprinting())
-						this.layerBase.playOrContinueBit(bitSprintJump, playerData);
-					else
-						this.layerBase.playOrContinueBit(bitJump, playerData);
+					if (playerData.getTicksFalling() > FallingAnimationBit.TICKS_BEFORE_FALLING)
+					{
+						this.layerBase.playOrContinueBit(bitFalling, playerData);
+					} else
+					{
+						if (player.isSprinting())
+							this.layerBase.playOrContinueBit(bitSprintJump, playerData);
+						else
+							this.layerBase.playOrContinueBit(bitJump, playerData);
+					}
 				}
 				this.layerSneak.clearAnimation();
 				this.layerTorch.clearAnimation();
@@ -250,6 +261,6 @@ public class PlayerController extends Controller<PlayerData>
 		layerAction.perform(playerData, actions);
 		layerKeyframe.perform(playerData, actions);
 
-		BendsPack.animate(playerData, this.animationTarget, actions);
+		BendsPack.animate(playerData, this.ANIMATION_TARGET, actions);
 	}
 }

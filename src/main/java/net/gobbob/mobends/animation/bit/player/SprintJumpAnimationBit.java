@@ -29,7 +29,7 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 	@Override
 	public void perform(PlayerData data)
 	{
-		if (data.getPreviousMotion().y < 0 && data.getMotion().y > 0)
+		if (data.getPrevMotionY() < 0 && data.getMotionY() > 0)
 		{
 			/*
 			 * Restarting the animation if the player is going back up again after falling
@@ -54,7 +54,7 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		IModelPart offForeLeg = sprintLegSwitch ? data.leftForeLeg : data.rightForeLeg;
 		
 		float bodyRotationY = 20 * legSwitchMtp;
-		float bodyLean = GUtil.clamp(data.getMotion().y, -.2F, .2F);
+		float bodyLean = MathHelper.clamp((float) data.getMotionY(), -.2F, .2F);
 		bodyLean = bodyLean * -100F + 20F;
 		
 		if (this.relax < 1F)

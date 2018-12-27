@@ -24,6 +24,11 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	{
 		EntityLivingBase living = data.getEntity();
 		
+		data.renderRotation.orientZero();
+		data.centerRotation.setSmoothness(.3F).orientZero();
+		data.renderLeftItemRotation.orientZero();
+		data.renderRightItemRotation.orientZero();
+		
 		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
 		  				  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
 		data.body.rotation.orientY(0).setSmoothness(0.5F);
@@ -38,9 +43,7 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 		data.rightArm.rotation.orientX(0.0F).rotateZ(10F);
 		data.rightForeArm.rotation.orientX(-10.0F);
 		
-		data.renderRotation.orientZero();
-		data.renderLeftItemRotation.orientZero();
-		data.renderRightItemRotation.orientZero();
+		
 		
 		Entity ridden = living.getRidingEntity();
 		if (ridden != null && ridden instanceof EntityLivingBase)

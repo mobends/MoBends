@@ -18,6 +18,7 @@ public class JumpAnimationBit<T extends BipedEntityData<?, ?>> extends Animation
 	@Override
 	public void onPlay(T data)
 	{
+		data.centerRotation.identity();
 		data.body.rotation.orientInstantX(20F);
 		data.rightLeg.rotation.orientInstantX(0F);
 		data.leftLeg.rotation.orientInstantX(0F);
@@ -32,7 +33,7 @@ public class JumpAnimationBit<T extends BipedEntityData<?, ?>> extends Animation
 	@Override
 	public void perform(T data)
 	{
-		if (data.getPreviousMotion().y < 0 && data.getMotion().y > 0)
+		if (data.getPrevMotionY() < 0 && data.getMotionY() > 0)
 		{
 			/*
 			 * Restarting the animation if the player is going back up again after falling

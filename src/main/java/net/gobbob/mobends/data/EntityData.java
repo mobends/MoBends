@@ -3,11 +3,13 @@ package net.gobbob.mobends.data;
 import java.util.HashMap;
 import java.util.List;
 
+import org.lwjgl.util.vector.Vector;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.animation.controller.Controller;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.client.model.IBendsModel;
+import net.gobbob.mobends.util.GUtil;
 import net.gobbob.mobends.util.SmoothOrientation;
 import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.block.BlockStaticLiquid;
@@ -25,14 +27,21 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 	protected E entity;
 	protected Controller<T> controller;
 
-	protected Vector3f position = new Vector3f();
-	protected Vector3f previousMotion = new Vector3f();
-	protected Vector3f motion = new Vector3f();
+	protected double positionX = 0.0D;
+	protected double positionY = 0.0D;
+	protected double positionZ = 0.0D;
+	protected double prevMotionX = 0.0D;
+	protected double prevMotionY = 0.0D;
+	protected double prevMotionZ = 0.0D;
+	protected double motionX = 0.0D;
+	protected double motionY = 0.0D;
+	protected double motionZ = 0.0D;
 	protected boolean onGround = true;
 	protected HashMap<String, Object> nameToPartMap;
 
 	public SmoothVector3f renderOffset;
     public SmoothOrientation renderRotation;
+    public SmoothOrientation centerRotation;
 	
 	public EntityData(E entity)
 	{
@@ -41,8 +50,9 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 		{
 			this.entityID = entity.getEntityId();
 		}
-		this.motion.set(0F, 1F, 0F);
-		this.previousMotion.set(this.motion);
+		this.motionX = this.prevMotionX = 0.0D;
+		this.motionY = this.prevMotionY = 1.0D;
+		this.motionZ = this.prevMotionZ = 0.0D;
 		
 		this.initModelPose();
 	}
@@ -51,9 +61,11 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 	{
 		this.renderOffset = new SmoothVector3f();
 		this.renderRotation = new SmoothOrientation();
+		this.centerRotation = new SmoothOrientation();
 		
 		this.nameToPartMap = new HashMap<String, Object>();
 		this.nameToPartMap.put("renderRotation", renderRotation);
+		this.nameToPartMap.put("centerRotation", centerRotation);
 	}
 
 	/*
@@ -64,6 +76,7 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 	{
 		this.renderOffset.update(ticksPerFrame);
 		this.renderRotation.update(ticksPerFrame);
+		this.centerRotation.update(ticksPerFrame);
 	}
 
 	public boolean canBeUpdated()
@@ -97,24 +110,23 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 			return false;
 
 		List<AxisAlignedBB> list = entity.world.getCollisionBoxes(entity,
-				entity.getEntityBoundingBox().offset(this.motion.x, 0, this.motion.z));
+				entity.getEntityBoundingBox().offset(this.motionX, 0, this.motionZ));
 		return list.size() > 0;
 	}
 
-	public Vector3f getPosition()
-	{
-		return this.position;
-	}
 	
-	public Vector3f getPreviousMotion()
-	{
-		return this.previousMotion;
-	}
-	
-	public Vector3f getMotion()
-	{
-		return this.motion;
-	}
+	public double getPositionX() { return this.positionX; }
+	public double getPositionY() { return this.positionY; }
+	public double getPositionZ() { return this.positionZ; }
+	public double getMotionX() { return this.motionX; }
+	public double getMotionY() { return this.motionY; }
+	public double getMotionZ() { return this.motionZ; }
+	public double getPrevMotionX() { return this.prevMotionX; }
+	public double getPrevMotionY() { return this.prevMotionY; }
+	public double getPrevMotionZ() { return this.prevMotionZ; }
+	public double getInterpolatedMotionX() { return this.prevMotionX + (this.motionX - this.prevMotionX) * DataUpdateHandler.partialTicks; }
+	public double getInterpolatedMotionY() { return this.prevMotionY + (this.motionY - this.prevMotionY) * DataUpdateHandler.partialTicks; }
+	public double getInterpolatedMotionZ() { return this.prevMotionZ + (this.motionZ - this.prevMotionZ) * DataUpdateHandler.partialTicks; }
 	
 	public boolean isOnGround()
 	{
@@ -123,7 +135,7 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 	
 	public boolean isStillHorizontally()
 	{
-		return motion.x == 0 && motion.z == 0;
+		return motionX == 0.0D && motionZ == 0.0D;
 	}
 
 	public Controller<T> getController()
@@ -164,13 +176,55 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 	{
 		float lookAngle = this.getLookAngle();
 
-		double x = this.motion.x;
-		double z = this.motion.z;
+		double x = this.motionX;
+		double z = this.motionZ;
 		if (x * x + z * z == 0)
 			return 0;
 		float worldMoveAngle = (float) (Math.atan2(x, z) / Math.PI * 180.0f);
 
 		return worldMoveAngle - lookAngle;
+	}
+	
+	public double getForwardMomentum()
+	{
+		double motionLen = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+		
+		if (motionLen == 0)
+			return 0;
+		
+		double mx = motionX;
+		double mz = motionZ;
+		
+		Vec3d lookVec = entity.getLookVec();
+		Vec3d vec = new Vec3d(lookVec.x, 0, lookVec.z);
+		if (vec.lengthSquared() == 0)
+			return 0;
+		vec = vec.normalize();
+		double lx = vec.x;
+		double lz = vec.z;
+		
+		return lx * mx + lz * mz;
+	}
+	
+	public double getSidewaysMomentum()
+	{
+		double motionLen = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+		
+		if (motionLen == 0)
+			return 0;
+		
+		double mx = motionX;
+		double mz = motionZ;
+		
+		Vec3d rightVec = entity.getLookVec().rotateYaw(-GUtil.PI / 2.0F);
+		Vec3d vec = new Vec3d(rightVec.x, 0, rightVec.z);
+		if (vec.lengthSquared() == 0)
+			return 0;
+		vec = vec.normalize();
+		double lx = vec.x;
+		double lz = vec.z;
+		
+		return lx * mx + lz * mz;
 	}
 
 	public boolean isStrafing()
@@ -193,20 +247,36 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 		return this.entity.isInWater() && state.getBlock() instanceof BlockStaticLiquid;
 	}
 
-	public float getMotionMagnitude()
+	public double getPrevMotionMagnitude()
 	{
-		return this.motion.length();
+		return Math.sqrt(this.prevMotionX * this.prevMotionX + this.prevMotionY * this.prevMotionY + this.prevMotionZ * this.prevMotionZ);
+	}
+	
+	public double getMotionMagnitude()
+	{
+		return Math.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
+	}
+	
+	public double getInterpolatedMotionMagnitude()
+	{
+		final double magnitude = this.getMotionMagnitude();
+		final double prevMagnitude = this.getPrevMotionMagnitude();
+		return prevMagnitude + (magnitude - prevMagnitude) * DataUpdateHandler.partialTicks;
 	}
 
 	public void updateClient(Entity entity)
 	{
-		this.previousMotion.set(this.motion);
+		this.prevMotionX = this.motionX;
+		this.prevMotionY = this.motionY;
+		this.prevMotionZ = this.motionZ;
 
-		this.motion.x = (float) entity.posX - this.position.x;
-		this.motion.y = (float) entity.posY - this.position.y;
-		this.motion.z = (float) entity.posZ - this.position.z;
+		this.motionX = entity.posX - this.positionX;
+		this.motionY = entity.posY - this.positionY;
+		this.motionZ = entity.posZ - this.positionZ;
 
-		this.position.set((float) entity.posX, (float) entity.posY, (float) entity.posZ);
+		this.positionX = entity.posX;
+		this.positionY = entity.posY;
+		this.positionZ = entity.posZ;
 	}
 	
 	@Override

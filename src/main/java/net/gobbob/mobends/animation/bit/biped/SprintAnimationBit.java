@@ -22,6 +22,7 @@ public class SprintAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	public void perform(BipedEntityData<?, ?> data)
 	{
 		data.renderOffset.slideToZero(0.1F);
+		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.renderRotation.setSmoothness(.3F).orientZero();
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
 		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();

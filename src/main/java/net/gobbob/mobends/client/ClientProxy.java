@@ -21,6 +21,7 @@ public class ClientProxy extends CommonProxy
 	public void preInit(Configuration config)
 	{
 		preInitCommon(config);
+		AnimatedEntity.registerRegularRenderers();
 	}
 
 	public void init(Configuration config)

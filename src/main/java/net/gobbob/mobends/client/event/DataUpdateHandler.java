@@ -51,7 +51,6 @@ public class DataUpdateHandler
 
 	public static void onTicksRestart()
 	{
-
 	}
 
 	@SubscribeEvent

@@ -193,17 +193,17 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 
 		// Legs
 		original.bipedRightLeg = rightLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
-				.setPosition(-1.9F, 12F, 0F)
-				.setBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+				.setPosition(0.0F, 12F, 0F)
+				.setBox(-3.9F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
 		original.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
-				.setPosition(1.9F, 12.0F, 0.0F)
+				.setPosition(0.0F, 12.0F, 0.0F)
 				.setMirror(true)
-				.setBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+				.setBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
 		leftForeLeg = (ModelPartChild) new ModelPartChild(original, 0, 16 + 6)
 				.setParent(leftLeg)
 				.setPosition(0, 6.0F, -2.0F)
 				.setMirror(true)
-				.setBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
+				.setBox(-0.1F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
 				.offsetBoxBy(-0.005F, 0F, -0.005F)
 				.resizeBox(4.01F, 6.0F, 4.01F)
 				.updateVertices();
@@ -212,7 +212,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 		rightForeLeg = (ModelPartChild) new ModelPartChild(original, 0, 16 + 6)
 				.setParent(rightLeg)
 				.setPosition(0, 6.0F, -2.0F)
-				.setBox(-2.0F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
+				.setBox(-3.9F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
 				.offsetBoxBy(-0.005F, 0F, -0.005F)
 				.resizeBox(4.01F, 6.0F, 4.01F)
 				.updateVertices();

@@ -1,5 +1,6 @@
 package net.gobbob.mobends.animation.bit.pigzombie;
 
+import net.gobbob.mobends.data.BipedEntityData;
 import net.gobbob.mobends.data.PigZombieData;
 import net.gobbob.mobends.data.ZombieData;
 import net.minecraft.util.math.MathHelper;

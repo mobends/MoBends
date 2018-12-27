@@ -59,6 +59,7 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 	public void perform(PlayerData playerData)
 	{
 		AbstractClientPlayer player = playerData.getEntity();
+		
 		if (this.shouldPerformAttack(player))
 		{
 			if (playerData.getTicksAfterAttack() < 10)

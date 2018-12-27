@@ -22,6 +22,8 @@ public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	{
 		EntityLivingBase living = data.getEntity();
 		
+		data.centerRotation.setSmoothness(.3F).orientZero();
+		
 		float legAnimationOffset = (float)Math.PI;
 		float progress = data.getClimbingCycle();
 		float armSwingRight = (float) Math.sin(progress)*0.5f+0.5f;

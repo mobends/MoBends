@@ -41,7 +41,7 @@ public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?,
 	}
 
 	@Override
-	public void perform(BipedEntityData<?, ?> data)
+	public void perform(BipedEntityData data)
 	{
 		EntityLivingBase living = data.getEntity();
 		EnumHandSide primaryHand = living.getPrimaryHand();

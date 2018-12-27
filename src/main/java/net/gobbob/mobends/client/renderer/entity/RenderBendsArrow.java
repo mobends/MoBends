@@ -2,9 +2,11 @@ package net.gobbob.mobends.client.renderer.entity;
 
 import net.gobbob.mobends.client.renderer.ArrowTrail;
 import net.gobbob.mobends.main.ModConfig;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderArrow;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -15,6 +17,7 @@ public abstract class RenderBendsArrow<T extends EntityArrow> extends RenderArro
 		super(renderManagerIn);
 	}
     
+    @Override
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
     	if(ModConfig.showArrowTrails)

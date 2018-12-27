@@ -73,8 +73,8 @@ public abstract class BipedEntityData<T extends BipedEntityData, E extends Entit
 		this.head.position.set(0F, -12F, 0F);
 		this.rightArm.position.set(-5F, -10F, 0F);
 		this.leftArm.position.set(5F, -10f, 0f);
-		this.rightLeg.position.set(-1.9F, 12.0F, 0.0F);
-		this.leftLeg.position.set(1.9F, 12.0F, 0.0F);
+		this.rightLeg.position.set(0F, 12.0F, 0.0F);
+		this.leftLeg.position.set(0F, 12.0F, 0.0F);
 		this.rightForeArm.position.set(0F, 4F, 2F);
 		this.leftForeArm.position.set(0F, 4F, 2F);
 		this.leftForeLeg.position.set(0, 6.0F, -2.0F);
@@ -104,5 +104,10 @@ public abstract class BipedEntityData<T extends BipedEntityData, E extends Entit
 		this.renderLeftItemRotation.update(ticksPerFrame);
 		
 		this.swordTrail.update(ticksPerFrame);
+	}
+	
+	@Override
+	public E getEntity() {
+		return super.getEntity();
 	}
 }

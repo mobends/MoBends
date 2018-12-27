@@ -54,12 +54,12 @@ public class PlayerData extends BipedEntityData<PlayerData, AbstractClientPlayer
 			currentAttack = 0;
 		}
 
-		if (motion.y < 0)
+		if (motionY < 0)
 		{
 			sprintJumpLegSwitched = false;
 		}
 
-		if (!sprintJumpLegSwitched && motion.y > 0)
+		if (!sprintJumpLegSwitched && motionY > 0)
 		{
 			sprintJumpLeg = !sprintJumpLeg;
 			sprintJumpLegSwitched = true;

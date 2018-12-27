@@ -12,6 +12,8 @@ import net.minecraft.block.BlockLadder;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.EnumAction;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
@@ -21,6 +23,7 @@ public abstract class LivingEntityData<T extends LivingEntityData, E extends Ent
     protected float ticksAfterTouchdown;
 	protected float ticksAfterAttack;
 	protected float ticksAfterThrowup;
+	protected float ticksFalling;
 	protected float climbingCycle = 0F;
 	protected boolean alreadyPunched = false;
 	protected boolean climbing = false;
@@ -40,6 +43,7 @@ public abstract class LivingEntityData<T extends LivingEntityData, E extends Ent
 		this.ticksAfterTouchdown = 100F;
 		this.ticksAfterAttack = 100F;
 		this.ticksAfterThrowup = 100F;
+		this.ticksFalling = 100F;
 	}
 	
 	public void setClimbing(boolean flag)
@@ -71,6 +75,7 @@ public abstract class LivingEntityData<T extends LivingEntityData, E extends Ent
 	public float getTicksInAir() { return this.ticksInAir; }
 	public float getTicksAfterTouchdown() { return this.ticksAfterTouchdown; }
 	public float getTicksAfterAttack() { return this.ticksAfterAttack; }
+	public float getTicksFalling() { return this.ticksFalling; }
 	public float getLimbSwing() { return this.limbSwing; }
 	public float getLimbSwingAmount() { return this.limbSwingAmount; }
 	public float getHeadYaw() { return this.headYaw; }
@@ -82,21 +87,21 @@ public abstract class LivingEntityData<T extends LivingEntityData, E extends Ent
 	{
 		super.update(partialTicks);
 		
-		if(this.calcOnGround() & !this.onGround)
+		if (this.calcOnGround() & !this.onGround)
 		{
 			this.onTouchdown();
 			this.onGround = true;
 		}
 		
-		if((!this.calcOnGround() & this.onGround) | (this.previousMotion.y <= 0 && this.motion.y - this.previousMotion.y > 0.4f && this.ticksInAir > 2f))
+		if ((!this.calcOnGround() & this.onGround) | (this.prevMotionY <= 0 && this.motionY - this.prevMotionY > 0.4D && this.ticksInAir > 2.0F))
 		{
 			this.onLiftoff();
 			this.onGround = false;
 		}
 		
-		if(this.calcClimbing())
+		if (this.calcClimbing())
 		{
-			this.climbingCycle += DataUpdateHandler.ticksPerFrame*this.motion.y*2.6f;
+			this.climbingCycle += DataUpdateHandler.ticksPerFrame * this.motionY * 2.6F;
 			this.climbing = true;
 		}
 		else
@@ -121,30 +126,38 @@ public abstract class LivingEntityData<T extends LivingEntityData, E extends Ent
 			}
 		}
 		
-		if(this.previousMotion.y <= 0 && this.motion.y > 0)
+		if(this.prevMotionY <= 0.0D && this.motionY > 0.0D)
 		{
 			this.onThrowup();
 		}
 		
-		if(!this.isOnGround()) this.ticksInAir += DataUpdateHandler.ticksPerFrame;
-		if(this.isOnGround()) this.ticksAfterTouchdown += DataUpdateHandler.ticksPerFrame;
+		if (!this.isOnGround()) {
+			this.ticksInAir += DataUpdateHandler.ticksPerFrame;
+			if (this.motionY < 0.0D) {
+				this.ticksFalling += DataUpdateHandler.ticksPerFrame;
+			} else {
+				this.ticksFalling = 0.0F;
+			}
+		}
+		if (this.isOnGround()) this.ticksAfterTouchdown += DataUpdateHandler.ticksPerFrame;
 		this.ticksAfterAttack += DataUpdateHandler.ticksPerFrame;
 		this.ticksAfterThrowup += DataUpdateHandler.ticksPerFrame;
 	}
 	
 	public void onTouchdown()
 	{
-		this.ticksAfterTouchdown = 0.0f;
+		this.ticksAfterTouchdown = 0.0F;
+		this.ticksFalling = 0.0F;
 	}
 	
 	public void onLiftoff()
 	{
-		this.ticksInAir = 0.0f;
+		this.ticksInAir = 0.0F;
 	}
 	
 	public void onThrowup()
 	{
-		this.ticksAfterThrowup = 0.0f;
+		this.ticksAfterThrowup = 0.0F;
 	}
 	
 	public void onPunch()
@@ -213,4 +226,19 @@ public abstract class LivingEntityData<T extends LivingEntityData, E extends Ent
     	
     	return -2.0f;
     }
+	
+	public boolean isDrawingBow()
+	{
+        if (entity.getItemInUseCount() > 0)
+        {
+        	ItemStack itemstack = entity.getHeldItemMainhand();
+            ItemStack itemstack1 = entity.getHeldItemOffhand();
+	        if ((!itemstack.isEmpty() && itemstack.getItemUseAction() == EnumAction.BOW) ||
+	        	(!itemstack1.isEmpty() && itemstack1.getItemUseAction() == EnumAction.BOW))
+	        {
+	        	return true;
+	        }
+		}
+        return false;
+	}
 }

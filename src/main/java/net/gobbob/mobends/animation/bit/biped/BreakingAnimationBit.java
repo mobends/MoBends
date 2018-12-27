@@ -25,6 +25,7 @@ public class BreakingAnimationBit extends KeyframeAnimationBit<BipedEntityData<?
 	{
 		super.perform(data);
 		
+		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.body.rotation.rotateX(data.getHeadPitch() * 0.5F).finish();
 		data.head.rotation.rotateX(-data.getHeadPitch() * 0.5F);
 	}

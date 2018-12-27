@@ -1,4 +1,4 @@
-package net.gobbob.mobends.client.renderer.entity;
+package net.gobbob.mobends.client.renderer.entity.mutated;
 
 import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.data.EntityDatabase;
@@ -10,15 +10,15 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 
-public abstract class MutatedRenderer
+public abstract class MutatedRenderer<T extends EntityLivingBase>
 {
+	final float scale = 0.0625F;
+	
 	/*
 	 * Called right before the entity is rendered
 	 */
-	public void beforeRender(EntityLivingBase entity, float partialTicks)
+	public void beforeRender(T entity, float partialTicks)
 	{
-		float scale = 0.0625F;
-
 		double entityX = entity.prevPosX + (entity.posX - entity.prevPosX) * partialTicks;
 		double entityY = entity.prevPosY + (entity.posY - entity.prevPosY) * partialTicks;
 		double entityZ = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * partialTicks;
@@ -42,16 +42,16 @@ public abstract class MutatedRenderer
 		{
 			LivingEntityData livingData = (LivingEntityData) data;
 
-			if (entity.isSneaking())
-			{
-				GlStateManager.translate(0, 0.155D * 2, 0);
-			}
-
 			GlStateManager.translate(livingData.renderOffset.getX() * scale,
 									 livingData.renderOffset.getY() * scale,
 									 livingData.renderOffset.getZ() * scale);
+			GlStateManager.translate(0, entity.height / 2, 0);
+			GLHelper.rotate(livingData.centerRotation.getSmooth());
+			GlStateManager.translate(0, -entity.height / 2, 0);
 			GLHelper.rotate(livingData.renderRotation.getSmooth());
 		}
+		
+		this.transformLocally(entity, partialTicks);
 		
 		GlStateManager.rotate(this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
 		GlStateManager.translate(viewX - entityX, viewY - entityY, viewZ - entityZ);
@@ -60,16 +60,14 @@ public abstract class MutatedRenderer
 	/*
 	 * Called right after the entity is rendered.
 	 */
-	public void afterRender(EntityLivingBase entity, float partialTicks)
-	{
-		
-	}
+	public void afterRender(T entity, float partialTicks) {}
 	
 	/*
 	 * Used to render accessories for that entity, e.g. Sword trails.
 	 * Also used to transform the entity, like offset or rotate it.
 	 */
-	public abstract void renderLocalAccessories(EntityLivingBase entity, float partialTicks);
+	protected void renderLocalAccessories(T entity, float partialTicks) {}
+	protected void transformLocally(T entity, float partialTicks) {}
 	
 	protected static float interpolateRotation(float prevYawOffset, float yawOffset, float partialTicks)
     {

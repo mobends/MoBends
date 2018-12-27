@@ -3,14 +3,7 @@ package net.gobbob.mobends.animation.bit.biped;
 import net.gobbob.mobends.animation.bit.AnimationBit;
 import net.gobbob.mobends.client.event.DataUpdateHandler;
 import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.EntityData;
 import net.gobbob.mobends.util.GUtil;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.model.ModelBiped.ArmPose;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
 public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
@@ -24,7 +17,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	private float transitionSpeed = 0.1F;
 	
 	@Override
-	public String[] getActions(BipedEntityData<?, ?> data)
+	public String[] getActions(BipedEntityData data)
 	{
 		if (data.isUnderwater())
 			return ACTIONS_UNDERWATER;
@@ -33,7 +26,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	}
 	
 	@Override
-	public void onPlay(BipedEntityData<?, ?> data)
+	public void onPlay(BipedEntityData data)
 	{
 		transformTransition = 0F;
 		transitionSpeed = .1F;
@@ -42,8 +35,6 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	@Override
 	public void perform(BipedEntityData<?, ?> data)
 	{
-		EntityLivingBase living = data.getEntity();
-		
 		float ticks = DataUpdateHandler.getTicks();
 		
 		float armSway = (MathHelper.cos(ticks * .1625F)+1F)/2.0f;
@@ -54,26 +45,9 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 		foreArmStretch -= 1F;
 		foreArmStretch = Math.max(foreArmStretch, 0);
 		
-		EnumHandSide primaryHand = living.getPrimaryHand();
-		EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
-		ItemStack itemstack = living.getHeldItemMainhand();
-        ItemStack itemstack1 = living.getHeldItemOffhand();
-        ModelBiped.ArmPose armPoseMain = ModelBiped.ArmPose.EMPTY;
-        ModelBiped.ArmPose armPoseOff = ModelBiped.ArmPose.EMPTY;
-
-        boolean drawingBow = false;
-        if (living.getItemInUseCount() > 0)
-        {
-	        if ((!itemstack.isEmpty() && itemstack.getItemUseAction() == EnumAction.BOW) ||
-	        	(!itemstack1.isEmpty() && itemstack1.getItemUseAction() == EnumAction.BOW))
-	        {
-	        	drawingBow = true;
-	        }
-		}
-		
         float t = (float) GUtil.easeInOut(this.transformTransition, 3F);
         
-		if(data.isStillHorizontally() || drawingBow || data.getTicksAfterAttack() < 10 || !data.isUnderwater())
+		if(data.isStillHorizontally() || data.isDrawingBow() || data.getTicksAfterAttack() < 10 || !data.isUnderwater())
 		{
 			if (this.transformTransition > 0F)
 			{
