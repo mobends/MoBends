@@ -1,5 +1,8 @@
 package net.gobbob.mobends.main;
 
+import net.gobbob.mobends.addon.AddonHelper;
+import net.gobbob.mobends.addon.DefaultAddon;
+import net.gobbob.mobends.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.configuration.ModConfiguration;
 import net.gobbob.mobends.modcomp.RFPR;
 import net.gobbob.mobends.network.msg.MessageClientConfigure;
@@ -16,13 +19,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid = ModStatics.MODID, name = ModStatics.MODNAME, version = ModStatics.VERSION)
-public class ModBase
+public class MoBends
 {
 	@SidedProxy(serverSide = "net.gobbob.mobends.main.CommonProxy", clientSide = "net.gobbob.mobends.client.ClientProxy")
 	public static CommonProxy proxy;
 
 	@Instance(value = ModStatics.MODID)
-	public static ModBase instance;
+	public static MoBends instance;
 
 	public SimpleNetworkWrapper networkWrapper;
 	public ModConfiguration configuration;
@@ -46,6 +49,8 @@ public class ModBase
 	{
 		Configuration config = configuration.getConfiguration();
 
+		AddonHelper.registerAddon(new DefaultAddon());
+		
 		config.load();
 		proxy.init(config);
 		config.save();
@@ -54,6 +59,9 @@ public class ModBase
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
+		Configuration config = configuration.getConfiguration();
+		
+		AnimatedEntityRegistry.applyConfiguration(config);
 		RFPR.init();
 	}
 }

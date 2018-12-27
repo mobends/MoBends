@@ -1,6 +1,6 @@
 package net.gobbob.mobends.client.renderer;
 
-import net.gobbob.mobends.main.ModBase;
+import net.gobbob.mobends.main.MoBends;
 import net.gobbob.mobends.main.ModStatics;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.PositionTextureVertex;

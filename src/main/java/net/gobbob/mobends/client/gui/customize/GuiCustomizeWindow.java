@@ -1,43 +1,30 @@
 package net.gobbob.mobends.client.gui.customize;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
 import net.gobbob.mobends.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.client.gui.GuiHelper;
 import net.gobbob.mobends.client.gui.IChangeListener;
 import net.gobbob.mobends.client.gui.Observable;
-import net.gobbob.mobends.client.gui.elements.GuiAddButton;
 import net.gobbob.mobends.client.gui.elements.GuiDropDownList;
-import net.gobbob.mobends.client.gui.elements.GuiHelpButton;
 import net.gobbob.mobends.client.gui.elements.GuiIconButton;
 import net.gobbob.mobends.client.gui.elements.GuiPortraitDisplay;
 import net.gobbob.mobends.main.ModStatics;
-import net.gobbob.mobends.network.NetworkConfiguration;
-import net.gobbob.mobends.pack.BendsCondition;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.BendsTarget;
 import net.gobbob.mobends.pack.PackManager;
-import net.gobbob.mobends.util.Draw;
-import net.gobbob.mobends.util.GUtil;
+import net.gobbob.mobends.util.Lang;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiCustomizeWindow implements IChangeListener
+public class GuiCustomizeWindow extends Gui implements IChangeListener
 {
 	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/node_editor.png");
+	static final int WIDTH = 230;
+	static final int HEIGHT = 232;
 	
 	private int x, y;
-	
 	private FontRenderer fontRenderer;
 	
 	private GuiNodeEditor nodeEditor;
@@ -74,21 +61,33 @@ public class GuiCustomizeWindow implements IChangeListener
 	{
 		this.x = x;
 		this.y = y;
-		this.nodeEditor.initGui(x, y);
-		this.helpButton.initGui(x + 196, y - 77);
-		this.bigModeButton.initGui(x + 144, y - 24);
+		this.nodeEditor.initGui(x + 7, y + 97);
+		this.helpButton.initGui(x + 203, y + 20);
+		this.bigModeButton.initGui(x + 151, y + 73);
 		this.parameterEditor.initGui(pX, pY);
-		this.portraitDisplay.initGui(x + 1, y - 76);
-		this.targetList.setPosition(x + 56, y - 77);
+		this.portraitDisplay.initGui(x + 8, y + 21);
+		this.targetList.setPosition(x + 63, y + 20);
 	}
 
 	public void display(int mouseX, int mouseY, float partialTicks)
 	{
+		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomizeWindow.BACKGROUND_TEXTURE);
+		this.drawTexturedModalRect(this.x, this.y, 0, 0, this.WIDTH, this.HEIGHT);
+		BendsTarget bendsTarget = BendsPack.getTarget(this.currentAlterEntry.getName());
+
+		this.drawCenteredString(this.fontRenderer, Lang.format("mobends.gui.customize"),
+				(int) (this.x + this.WIDTH/2), this.y + 4, 0xFFFFFF);
+		
 		this.targetList.display();
 		this.portraitDisplay.display(partialTicks);
 
 		if (!PackManager.isCurrentPackLocal())
+		{
+			this.drawCenteredString(fontRenderer, Lang.format("mobends.gui.chooseapacktoedit"),
+					this.x + this.WIDTH / 2, this.y + 135, 0xffffff);
+			
 			return;
+		}
 		
 		this.nodeEditor.display(mouseX, mouseY, partialTicks);
 		this.parameterEditor.display(mouseX, mouseY, partialTicks);

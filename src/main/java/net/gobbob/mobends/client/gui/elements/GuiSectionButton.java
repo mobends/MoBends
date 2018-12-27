@@ -22,7 +22,8 @@ public class GuiSectionButton
 			"textures/gui/buttons.png");
 
 	// Expressed in ticks
-	public static final float hoverAnimationDuration = 2.0F;
+	public static final float HOVER_ICON_ANIMATION_DURATION = 2.0F;
+	public static final float HOVER_BG_ANIMATION_DURATION = 2.0F;
 	
 	private String label;
 	private int x, y;
@@ -140,30 +141,43 @@ public class GuiSectionButton
 
 		float uScale = 0.001953125F;
 		float vScale = 0.0078125F;
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder vertexbuffer = tessellator.getBuffer();
-		vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
 		
-		vertexbuffer.pos((double) (x + 0), (double) (y + height), (double) this.zLevel)
-				.tex((double) ((float) (tX + 0) * uScale), (double) ((float) (tY + height) * vScale))
-				.endVertex();
-		vertexbuffer.pos((double) (x + width), (double) (y + height), (double) this.zLevel)
-				.tex((double) ((float) (tX + width) * uScale), (double) ((float) (tY + height) * vScale))
-				.endVertex();
-		vertexbuffer.pos((double) (x + width), (double) (y + 0), (double) this.zLevel)
-				.tex((double) ((float) (tX + width) * uScale), (double) ((float) (tY + 0) * vScale))
-				.endVertex();
-		vertexbuffer.pos((double) (x + 0), (double) (y + 0), (double) this.zLevel)
-				.tex((double) ((float) (tX + 0) * uScale), (double) ((float) (tY + 0) * vScale)).endVertex();
-		tessellator.draw();
+		if (this.hover)
+			GlStateManager.color(this.bgColor.r, this.bgColor.g, this.bgColor.b, this.bgColor.a);
+		else
+			GlStateManager.color(this.neutralColor.r, this.neutralColor.g, this.neutralColor.b, this.neutralColor.a);
+		
+		GlStateManager.disableTexture2D();
+		Draw.rectangle(x, y, width, height);
+		GlStateManager.enableTexture2D();
+		
+		float bgt = 1;
+		if (this.hover) {
+			if (this.ticksAfterHovered < HOVER_BG_ANIMATION_DURATION)
+			{
+				bgt = (1 - this.ticksAfterHovered/HOVER_BG_ANIMATION_DURATION);
+				bgt = bgt*bgt*bgt;
+			}
+			else
+			{
+				bgt = 0;
+			}
+		}
+		
+		int mountainOffsetY = (int) (bgt * 10);
+		int mountainScrollX = (int) this.ticksAfterHovered;
+		
+		Draw.texturedRectangle(x, y + mountainOffsetY, width, height-2 - mountainOffsetY, tX * uScale, tY * vScale, (tX + width) * uScale, (tY + height-2 - mountainOffsetY) * vScale);
+		// Bottom bar
+		Draw.texturedRectangle(x, y + height - 2, width, 2, tX * uScale, (tY + height - 2) * vScale, (tX + width) * uScale, (tY + 2) * vScale);
 		
 		if (this.hover)
 		{
 			float scale = 1.0F;
-			if (this.ticksAfterHovered < hoverAnimationDuration)
+			if (this.ticksAfterHovered < HOVER_ICON_ANIMATION_DURATION)
 			{
 				float PI = (float) Math.PI;
-				float t = this.ticksAfterHovered / hoverAnimationDuration;
+				float t = this.ticksAfterHovered / HOVER_ICON_ANIMATION_DURATION;
 				scale = (1F - MathHelper.cos(t * PI * 1.5F));
 				scale = MathHelper.sqrt(scale);
 			}

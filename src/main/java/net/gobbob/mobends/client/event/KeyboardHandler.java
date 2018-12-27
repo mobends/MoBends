@@ -9,7 +9,7 @@ import net.gobbob.mobends.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.data.EntityDatabase;
-import net.gobbob.mobends.main.ModBase;
+import net.gobbob.mobends.main.MoBends;
 import net.gobbob.mobends.pack.BendsPack;
 import net.gobbob.mobends.pack.PackManager;
 import net.minecraft.client.Minecraft;

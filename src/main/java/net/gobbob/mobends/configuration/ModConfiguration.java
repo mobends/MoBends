@@ -4,29 +4,33 @@ import java.io.File;
 import java.util.List;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
-import net.gobbob.mobends.main.ModBase;
+import net.gobbob.mobends.main.MoBends;
 import net.gobbob.mobends.pack.PackManager;
 import net.minecraftforge.common.config.Configuration;
 
-public class ModConfiguration {
+public class ModConfiguration
+{
 	protected File configFile;
 	
-	public ModConfiguration(File file) {
+	public ModConfiguration(File file)
+	{
 		configFile = file;
     	Configuration config = getConfiguration();
 
         config.load();
-        ModBase.instance.proxy.preInit(config);
+        MoBends.instance.proxy.preInit(config);
         config.save();
 	}
 	
-	public void save() {
+	public void save()
+	{
     	Configuration config = getConfiguration();
     	
     	config.load();
     	
-    	for(AnimatedEntity animatedEntity : AnimatedEntity.animatedEntities.values()) {
+    	for(AnimatedEntity animatedEntity : AnimatedEntityRegistry.getRegistered()) {
     		List<AlterEntry> alterEntries = animatedEntity.getAlredEntries();
     		for(int a = 0; a < alterEntries.size(); a++) {
     			config.get("Animated", alterEntries.get(a).getName(), true).setValue(alterEntries.get(a).isAnimated());
@@ -41,7 +45,8 @@ public class ModConfiguration {
     	config.save();
     }
 	
-	public Configuration getConfiguration() {
+	public Configuration getConfiguration()
+	{
 		return new Configuration(configFile);
 	}
 }

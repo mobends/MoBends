@@ -36,6 +36,7 @@ public class CustomFont
 		put('x', new Symbol(227, 0, 11, 11));
 		put('y', new Symbol(239, 0, 11, 11));
 		put('z', new Symbol(0, 12, 9, 11));
+		put('-', new Symbol(10, 12, 9, 11));
 	}});
 	
 	protected String textureName;

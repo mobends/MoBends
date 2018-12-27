@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import net.gobbob.mobends.main.ModBase;
+import net.gobbob.mobends.main.MoBends;
 import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;

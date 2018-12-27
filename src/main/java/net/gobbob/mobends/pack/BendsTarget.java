@@ -1,18 +1,12 @@
 package net.gobbob.mobends.pack;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.gobbob.mobends.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.animatedentity.alterentry.AlterEntry;
+import net.gobbob.mobends.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.client.model.IBendsModel;
-import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.util.EnumAxis;
-import net.gobbob.mobends.util.SmoothVector3f;
 
 public class BendsTarget
 {
@@ -60,6 +54,6 @@ public class BendsTarget
 
 	public AnimatedEntity getAnimatedEntity()
 	{
-		return AnimatedEntity.get(name);
+		return AnimatedEntityRegistry.get(name);
 	}
 }

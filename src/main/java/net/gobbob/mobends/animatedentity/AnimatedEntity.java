@@ -41,11 +41,9 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
 public class AnimatedEntity<T extends EntityLivingBase>
 {
-	public static HashMap<String, AnimatedEntity> animatedEntities = new HashMap<String, AnimatedEntity>();
-
-	private String name;
-	private String displayName;
-	private List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
+	String name;
+	String displayName;
+	List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
 	private String[] alterableParts;
 	private MutatedRenderer<T> renderer;
 
@@ -164,38 +162,6 @@ public class AnimatedEntity<T extends EntityLivingBase>
 	{
 		BendsLogger.info("Registering Animated Entities...");
 
-		animatedEntities.clear();
-
-		registerEntity(config,
-				new AnimatedEntity<AbstractClientPlayer>("player", "Player", AbstractClientPlayer.class,
-						PlayerMutator::apply, PlayerMutator::deapply, PlayerMutator::refresh, new PlayerRenderer(),
-						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
-								"rightLeg", "leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation",
-								"rightItemRotation" }).setPreviewer(new PlayerPreviewer()));
-
-		registerEntity(config,
-				new AnimatedEntity<EntityPigZombie>("pig_zombie", "Zombie Pigman", EntityPigZombie.class,
-						PigZombieMutator::apply, PigZombieMutator::deapply, PigZombieMutator::refresh,
-						new ZombieRenderer(), new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm",
-								"rightForeArm", "leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg" }));
-
-		registerEntity(config,
-				new AnimatedEntity<EntityZombie>("zombie", "Zombie", EntityZombie.class, ZombieMutator::apply,
-						ZombieMutator::deapply, ZombieMutator::refresh, new ZombieRenderer(),
-						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
-								"rightLeg", "leftForeLeg", "rightForeLeg" }));
-
-		registerEntity(config,
-				new AnimatedEntity<EntitySpider>("spider", "Spider", EntitySpider.class, SpiderMutator::apply,
-						SpiderMutator::deapply, SpiderMutator::refresh, new SpiderRenderer(),
-						new String[] { "head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6", "leg7",
-								"leg8", "foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5", "foreLeg6",
-								"foreLeg7", "foreLeg8" }).setPreviewer(new SpiderPreviewer()));
-
-		registerEntity(config, new AnimatedEntity<EntitySquid>("squid", "Squid", EntitySquid.class, SquidMutator::apply,
-				SquidMutator::deapply, SquidMutator::refresh, new SquidRenderer(), new String[] { "body", "tentacle1",
-						"tentacle2", "tentacle3", "tentacle4", "tentacle5", "tentacle6", "tentacle7", "tentacle8" }));
-
 		/*
 		 * registerEntity(config, new AnimatedEntity("husk", "Husk", EntityHusk.class,
 		 * new RenderBendsHusk(Minecraft.getMinecraft().getRenderManager()), new
@@ -229,40 +195,13 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		 */
 	}
 
-	public static void registerEntity(Configuration config, AnimatedEntity<?> animatedEntity)
-	{
-		BendsLogger.info("Registering " + animatedEntity.displayName);
-		for (AlterEntry alterEntry : animatedEntity.alterEntries)
-		{
-			alterEntry.setAnimate(config.get("Animated", alterEntry.getName(), true).getBoolean());
-		}
-		animatedEntities.put(animatedEntity.name, animatedEntity);
-	}
-
-	public static AnimatedEntity get(String name)
-	{
-		return animatedEntities.get(name);
-	}
-
 	public static AnimatedEntity getForEntity(Entity entity)
 	{
-		// Checking direct registration
-		Class<? extends Entity> entityClass = entity.getClass();
-		for (AnimatedEntity animatedEntity : animatedEntities.values())
-			if (animatedEntity.entityClass.equals(entityClass))
-				return animatedEntity;
-
-		// Checking indirect inheritance
-		for (AnimatedEntity animatedEntity : animatedEntities.values())
-			if (animatedEntity.entityClass.isInstance(entity))
-				return animatedEntity;
-
-		return null;
+		return AnimatedEntityRegistry.getForEntity(entity);
 	}
-
+	
 	public static void refreshMutators()
 	{
-		for (AnimatedEntity animatedEntity : animatedEntities.values())
-			animatedEntity.refreshMutation();
+		AnimatedEntityRegistry.refreshMutators();
 	}
 }
