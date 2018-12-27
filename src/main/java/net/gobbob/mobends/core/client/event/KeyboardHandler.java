@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
-import net.gobbob.mobends.client.mutators.PlayerMutator;
 import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
@@ -12,6 +11,7 @@ import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.core.main.MoBends;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.settings.KeyBinding;

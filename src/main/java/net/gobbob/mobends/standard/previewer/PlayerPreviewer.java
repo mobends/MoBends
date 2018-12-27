@@ -1,4 +1,4 @@
-package net.gobbob.mobends.previewer;
+package net.gobbob.mobends.standard.previewer;
 
 import net.gobbob.mobends.core.animatedentity.Previewer;
 import net.minecraft.client.entity.AbstractClientPlayer;

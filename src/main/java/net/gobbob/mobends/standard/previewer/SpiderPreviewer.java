@@ -1,9 +1,9 @@
-package net.gobbob.mobends.previewer;
+package net.gobbob.mobends.standard.previewer;
 
 import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animatedentity.Previewer;
-import net.gobbob.mobends.data.SpiderData;
+import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntitySpider;
 

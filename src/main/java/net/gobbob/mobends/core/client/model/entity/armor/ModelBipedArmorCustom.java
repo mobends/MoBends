@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.client.mutators.BoxMutator;
 import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
@@ -19,7 +18,8 @@ import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.client.model.ModelPartContainer;
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.util.ModelUtils;
-import net.gobbob.mobends.data.BipedEntityData;
+import net.gobbob.mobends.standard.client.mutators.BoxMutator;
+import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;

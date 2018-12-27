@@ -1,11 +1,11 @@
 package net.gobbob.mobends.core.main;
 
 import net.gobbob.mobends.core.addon.AddonHelper;
-import net.gobbob.mobends.core.addon.DefaultAddon;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.configuration.ModConfiguration;
 import net.gobbob.mobends.core.modcomp.RFPR;
 import net.gobbob.mobends.core.network.msg.MessageClientConfigure;
+import net.gobbob.mobends.standard.DefaultAddon;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;

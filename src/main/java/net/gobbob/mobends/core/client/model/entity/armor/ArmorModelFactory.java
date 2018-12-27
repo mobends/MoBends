@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.gobbob.mobends.data.BipedEntityData;
+import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.model.ModelBiped;
 
 public class ArmorModelFactory
