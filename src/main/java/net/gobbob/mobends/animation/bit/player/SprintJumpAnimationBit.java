@@ -1,11 +1,11 @@
 package net.gobbob.mobends.animation.bit.player;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.model.IModelPart;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.util.GUtil;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;

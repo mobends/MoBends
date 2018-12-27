@@ -2,14 +2,14 @@ package net.gobbob.mobends.animation.bit.player;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.animation.layer.AnimationLayer;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.client.model.IModelPart;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.animation.layer.AnimationLayer;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.pack.BendsPack;
+import net.gobbob.mobends.core.util.SmoothOrientation;
 import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.pack.BendsPack;
-import net.gobbob.mobends.util.SmoothOrientation;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;

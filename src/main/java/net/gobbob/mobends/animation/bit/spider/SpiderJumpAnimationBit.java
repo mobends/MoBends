@@ -1,9 +1,9 @@
 package net.gobbob.mobends.animation.bit.spider;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.data.SpiderData;
-import net.gobbob.mobends.util.GUtil;
 
 public class SpiderJumpAnimationBit extends AnimationBit<SpiderData>
 {

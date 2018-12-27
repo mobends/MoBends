@@ -3,9 +3,9 @@ package net.gobbob.mobends.client.mutators;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.gobbob.mobends.animation.controller.Controller;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.EntityDatabase;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.data.PigZombieData;
 import net.minecraft.client.model.ModelZombie;
 import net.minecraft.client.renderer.entity.Render;

@@ -1,7 +1,7 @@
 package net.gobbob.mobends.animation.bit.zombie;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.data.ZombieData;
 import net.minecraft.entity.monster.EntityZombie;
 

@@ -1,7 +1,6 @@
 package net.gobbob.mobends.client.renderer.entity;
 
-import net.gobbob.mobends.client.renderer.ArrowTrail;
-import net.gobbob.mobends.main.ModConfig;
+import net.gobbob.mobends.core.main.ModConfig;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderArrow;
 import net.minecraft.client.renderer.entity.RenderManager;

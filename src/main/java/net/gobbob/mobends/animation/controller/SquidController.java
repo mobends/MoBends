@@ -1,10 +1,11 @@
 package net.gobbob.mobends.animation.controller;
 
-import net.gobbob.mobends.animation.layer.HardAnimationLayer;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.data.SquidData;
-import net.gobbob.mobends.util.GUtil;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.util.math.MathHelper;
 

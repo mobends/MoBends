@@ -1,9 +1,9 @@
 package net.gobbob.mobends.client.renderer.entity.layers;
 
-import net.gobbob.mobends.client.model.entity.armor.ArmorModelFactory;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.EntityDatabase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerArmorBase;

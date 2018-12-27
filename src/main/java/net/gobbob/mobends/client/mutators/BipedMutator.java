@@ -1,14 +1,15 @@
 package net.gobbob.mobends.client.mutators;
 
-import net.gobbob.mobends.client.model.IModelPart;
-import net.gobbob.mobends.client.model.ModelBox;
-import net.gobbob.mobends.client.model.ModelPartChild;
-import net.gobbob.mobends.client.model.ModelPartChildExtended;
-import net.gobbob.mobends.client.model.ModelPartChildPostOffset;
-import net.gobbob.mobends.client.model.ModelPartExtended;
-import net.gobbob.mobends.client.model.ModelPartPostOffset;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerCustomBipedArmor;
 import net.gobbob.mobends.client.renderer.entity.layers.LayerCustomHeldItem;
+import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.client.model.ModelBox;
+import net.gobbob.mobends.core.client.model.ModelPartChild;
+import net.gobbob.mobends.core.client.model.ModelPartChildExtended;
+import net.gobbob.mobends.core.client.model.ModelPartChildPostOffset;
+import net.gobbob.mobends.core.client.model.ModelPartExtended;
+import net.gobbob.mobends.core.client.model.ModelPartPostOffset;
+import net.gobbob.mobends.core.client.mutators.Mutator;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;

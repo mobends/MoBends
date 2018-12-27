@@ -1,10 +1,10 @@
 package net.gobbob.mobends.animation.bit.biped;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.pack.BendsPack;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 

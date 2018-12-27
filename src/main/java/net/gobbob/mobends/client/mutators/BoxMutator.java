@@ -2,7 +2,7 @@ package net.gobbob.mobends.client.mutators;
 
 import java.util.Collection;
 
-import net.gobbob.mobends.client.model.ModelBox;
+import net.gobbob.mobends.core.client.model.ModelBox;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.TexturedQuad;

@@ -3,12 +3,13 @@ package net.gobbob.mobends.animation.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.animation.layer.HardAnimationLayer;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
+import net.gobbob.mobends.core.pack.BendsPack;
+import net.gobbob.mobends.core.pack.variable.BendsVariable;
 import net.gobbob.mobends.data.ZombieData;
-import net.gobbob.mobends.pack.BendsPack;
-import net.gobbob.mobends.pack.variable.BendsVariable;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.item.EnumAction;

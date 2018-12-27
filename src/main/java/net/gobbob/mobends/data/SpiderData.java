@@ -1,7 +1,8 @@
 package net.gobbob.mobends.data;
 
 import net.gobbob.mobends.animation.controller.SpiderController;
-import net.gobbob.mobends.client.model.ModelPartTransform;
+import net.gobbob.mobends.core.LivingEntityData;
+import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.minecraft.entity.monster.EntitySpider;
 
 public class SpiderData extends LivingEntityData<SpiderData, EntitySpider>

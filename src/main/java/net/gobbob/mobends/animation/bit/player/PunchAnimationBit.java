@@ -1,9 +1,9 @@
 package net.gobbob.mobends.animation.bit.player;
 
-import net.gobbob.mobends.animation.bit.AnimationBit;
-import net.gobbob.mobends.data.EntityData;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.data.PlayerData;
-import net.gobbob.mobends.util.EnumAxis;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
 

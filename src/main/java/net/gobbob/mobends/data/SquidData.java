@@ -1,7 +1,8 @@
 package net.gobbob.mobends.data;
 
 import net.gobbob.mobends.animation.controller.SquidController;
-import net.gobbob.mobends.client.model.ModelPartTransform;
+import net.gobbob.mobends.core.LivingEntityData;
+import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.EntitySquid;
 

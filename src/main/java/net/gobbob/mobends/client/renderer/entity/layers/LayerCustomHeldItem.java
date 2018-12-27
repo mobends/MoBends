@@ -1,11 +1,11 @@
 package net.gobbob.mobends.client.renderer.entity.layers;
 
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.util.GLHelper;
+import net.gobbob.mobends.core.util.SmoothOrientation;
+import net.gobbob.mobends.core.util.SmoothVector3f;
 import net.gobbob.mobends.data.BipedEntityData;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.EntityDatabase;
-import net.gobbob.mobends.util.GLHelper;
-import net.gobbob.mobends.util.SmoothOrientation;
-import net.gobbob.mobends.util.SmoothVector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;

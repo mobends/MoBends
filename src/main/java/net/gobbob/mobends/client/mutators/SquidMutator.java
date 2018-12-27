@@ -3,11 +3,12 @@ package net.gobbob.mobends.client.mutators;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import net.gobbob.mobends.animation.controller.Controller;
-import net.gobbob.mobends.client.model.IModelPart;
-import net.gobbob.mobends.client.model.ModelPart;
-import net.gobbob.mobends.data.EntityData;
-import net.gobbob.mobends.data.EntityDatabase;
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.client.model.ModelPart;
+import net.gobbob.mobends.core.client.mutators.Mutator;
 import net.gobbob.mobends.data.SquidData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
