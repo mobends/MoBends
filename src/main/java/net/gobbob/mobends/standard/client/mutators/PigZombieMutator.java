@@ -16,7 +16,6 @@ import net.minecraft.entity.monster.EntityPigZombie;
 
 public class PigZombieMutator extends BipedMutator<EntityPigZombie, ModelZombie>
 {
-	public static HashMap<RenderPigZombie, PigZombieMutator> mutatorMap = new HashMap<RenderPigZombie, PigZombieMutator>();
 	
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
@@ -74,68 +73,5 @@ public class PigZombieMutator extends BipedMutator<EntityPigZombie, ModelZombie>
 		leftForeLeg.syncUp(data.leftForeLeg);
 		rightForeLeg.syncUp(data.rightForeLeg);
 	}
-
-	/**
-	 * Used to apply the effect of the mutation, or just to update the model
-	 * if it was already mutated.
-	 * Called from AnimatedEntity.
-	 */
-	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity, float partialTicks)
-	{
-		if (!(renderer instanceof RenderPigZombie))
-			return;
-		if (!(entity instanceof EntityPigZombie))
-			return;
-		
-		RenderPigZombie rendererZombie = (RenderPigZombie) renderer;
-		EntityPigZombie entityZombie = (EntityPigZombie) entity;
-		
-		PigZombieMutator mutator = mutatorMap.get(renderer);
-		if (!mutatorMap.containsKey(renderer))
-		{
-			mutator = new PigZombieMutator();
-			mutator.mutate(entityZombie, rendererZombie);
-			mutatorMap.put(rendererZombie, mutator);
-		}
-
-		mutator.updateModel(entityZombie, rendererZombie, partialTicks);
-		mutator.performAnimations(entityZombie, rendererZombie, partialTicks);
-	}
 	
-	/**
-	 * Used to reverse the effect of the mutation.
-	 * Called from AnimatedEntity.
-	 */
-	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
-	{
-		if (!(renderer instanceof RenderPigZombie))
-			return;
-		if (!(entity instanceof EntityPigZombie))
-			return;
-		
-		if (mutatorMap.containsKey(renderer))
-		{
-			PigZombieMutator mutator = mutatorMap.get(renderer);
-			mutator.demutate((EntityPigZombie) entity, (RenderPigZombie) renderer);
-			mutatorMap.remove(renderer);
-		}
-	}
-
-	/**
-	 * Used to refresh the mutators in case of real-time changes during development.
-	 */
-	public static void refresh()
-	{
-		for (Map.Entry<RenderPigZombie, PigZombieMutator> mutator : mutatorMap.entrySet())
-		{
-			mutator.getValue().mutate(null, mutator.getKey());
-			if (mutator.getValue().layerArmor != null)
-				mutator.getValue().layerArmor.initArmor();
-		}
-	}
-
-	public static PigZombieMutator getMutatorForRenderer(Render<EntityPigZombie> render)
-	{
-		return mutatorMap.get(render);
-	}
 }

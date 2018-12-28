@@ -11,18 +11,18 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 
-public class TorchHoldingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
+public class TorchHoldingAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "torch_holding" };
 	
 	@Override
-	public String[] getActions(BipedEntityData<?, ?> data)
+	public String[] getActions(BipedEntityData<?> data)
 	{
 		return ACTIONS;
 	}
 	
 	@Override
-	public void perform(BipedEntityData<?, ?> data)
+	public void perform(BipedEntityData<?> data)
 	{
 		EntityLivingBase living = data.getEntity();
 		EnumHandSide torchHand;

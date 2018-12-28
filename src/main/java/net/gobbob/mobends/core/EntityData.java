@@ -21,11 +21,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public abstract class EntityData<T extends EntityData, E extends Entity> implements IBendsModel
+public abstract class EntityData<E extends Entity> implements IBendsModel
 {
 	protected int entityID;
 	protected E entity;
-	protected Controller<T> controller;
 
 	protected double positionX = 0.0D;
 	protected double positionY = 0.0D;
@@ -138,11 +137,8 @@ public abstract class EntityData<T extends EntityData, E extends Entity> impleme
 		return motionX == 0.0D && motionZ == 0.0D;
 	}
 
-	public Controller<T> getController()
-	{
-		return this.controller;
-	}
-
+	public abstract Controller<?> getController();
+	
 	/*
 	 * Called during the render tick in EntityDatabase.updateRender()
 	 */

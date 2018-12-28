@@ -13,8 +13,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import net.gobbob.mobends.core.main.MoBends;
 import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.standard.main.MoBends;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;

@@ -1,6 +1,6 @@
 package net.gobbob.mobends.standard.client.renderer.entity;
 
-import net.gobbob.mobends.core.main.ModConfig;
+import net.gobbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderArrow;
 import net.minecraft.client.renderer.entity.RenderManager;

@@ -3,7 +3,6 @@ package net.gobbob.mobends.standard.animation.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
@@ -11,6 +10,7 @@ import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
 import net.gobbob.mobends.standard.DefaultAddon;
 import net.gobbob.mobends.standard.data.ZombieData;
+import net.gobbob.mobends.standard.data.ZombieVillagerData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.item.EnumAction;
@@ -18,23 +18,23 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 
 /**
- * This is an animation controller for a zombie instance.
+ * This is an animation controller for a zombie villager instance.
  * It's a part of the EntityData structure.
  * 
  * @author Iwo Plaza
  *
  */
-public class ZombieController extends Controller<ZombieData<?, ?>>
+public class ZombieVillagerController extends Controller<ZombieVillagerData>
 {
 	protected String animationTarget;
-	protected HardAnimationLayer<ZombieData> layerBase;
-	protected HardAnimationLayer<ZombieData> layerSet;
-	protected AnimationBit<ZombieData> bitStand, bitWalk, bitJump;
-	protected AnimationBit<ZombieData>[] bitAnimationSet;
+	protected HardAnimationLayer<ZombieVillagerData> layerBase;
+	protected HardAnimationLayer<ZombieVillagerData> layerSet;
+	protected AnimationBit<ZombieVillagerData> bitStand, bitWalk, bitJump;
+	protected AnimationBit<ZombieVillagerData>[] bitAnimationSet;
 	
-	public ZombieController()
+	public ZombieVillagerController()
 	{
-		animationTarget = DefaultAddon.ZOMBIE.getKey();
+		animationTarget = DefaultAddon.ZOMBIE_VILLAGER.getKey();
 		
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerSet = new HardAnimationLayer<>();
@@ -48,7 +48,7 @@ public class ZombieController extends Controller<ZombieData<?, ?>>
 	}
 	
 	@Override
-	public void perform(ZombieData<?, ?> zombieData)
+	public void perform(ZombieVillagerData zombieData)
 	{
 		BendsVariable.tempData = zombieData;
 		EntityZombie zombie = zombieData.getEntity();

@@ -7,7 +7,7 @@ import net.gobbob.mobends.core.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.core.client.model.ModelPartChildPostOffset;
 import net.gobbob.mobends.core.client.model.ModelPartExtended;
 import net.gobbob.mobends.core.client.model.ModelPartPostOffset;
-import net.gobbob.mobends.core.client.mutators.Mutator;
+import net.gobbob.mobends.core.mutators.Mutator;
 import net.gobbob.mobends.standard.client.renderer.entity.layers.LayerCustomBipedArmor;
 import net.gobbob.mobends.standard.client.renderer.entity.layers.LayerCustomHeldItem;
 import net.minecraft.client.model.ModelBase;

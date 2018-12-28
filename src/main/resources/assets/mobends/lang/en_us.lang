@@ -23,6 +23,7 @@ mobends.gui.condition=Condition
 mobends.gui.node=Node
 mobends.gui.calculation=Calculation
 mobends.gui.noscaleallowed=Warning: This server doesn't allow body scaling.
+mobends.player=Player
 
 mobends.config.show_arrow_trails=Show Arrow Trails
 mobends.config.show_arrow_trails.tooltip=If true, arrow trails will be shown

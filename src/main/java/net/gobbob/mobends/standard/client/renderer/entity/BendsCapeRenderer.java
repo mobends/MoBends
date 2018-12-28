@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard.client.renderer.entity;
 
-import net.gobbob.mobends.core.main.MoBends;
-import net.gobbob.mobends.core.main.ModStatics;
+import net.gobbob.mobends.standard.main.MoBends;
+import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;

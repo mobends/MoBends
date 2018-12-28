@@ -8,4 +8,9 @@ public class Lang
 	{
 		return I18n.format(langKey, params);
 	}
+	
+	public static String localize(String key)
+	{
+		return I18n.format(key);
+	}
 }

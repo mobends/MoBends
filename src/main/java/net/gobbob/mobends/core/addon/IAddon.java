@@ -1,11 +1,11 @@
 package net.gobbob.mobends.core.addon;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
 
 public interface IAddon
 {
 	
-	void registerAnimatedEntities(AnimatedEntityRegistry registry);
+	void registerAnimatedEntities(AddonAnimationRegistry registry);
 	String getDisplayName();
 	
 }

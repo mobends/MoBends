@@ -4,10 +4,10 @@ import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.event.EntityRenderHandler;
 import net.gobbob.mobends.core.client.event.KeyboardHandler;
-import net.gobbob.mobends.core.main.CommonProxy;
-import net.gobbob.mobends.core.main.ModStatics;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.standard.main.CommonProxy;
+import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -27,7 +27,6 @@ public class ClientProxy extends CommonProxy
 	public void init(Configuration config)
 	{
 		PackManager.initialize(config);
-		AnimatedEntity.register(config);
 		BendsVariable.init();
 		KeyboardHandler.initKeyBindings();
 

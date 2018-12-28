@@ -6,12 +6,12 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.core.client.ClientProxy;
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.Quaternion;
 import net.gobbob.mobends.core.util.QuaternionUtils;
 import net.gobbob.mobends.core.util.Vector3;
+import net.gobbob.mobends.standard.client.ClientProxy;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -64,13 +64,12 @@ public class SwordTrail
 
 	public void render()
 	{
-		Minecraft.getMinecraft().renderEngine.bindTexture(ClientProxy.TEXTURE_NULL);
-
 		GlStateManager.depthFunc(GL11.GL_LEQUAL);
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 		GlStateManager.disableCull();
 		GlStateManager.disableLighting();
+		GlStateManager.disableTexture2D();
 		GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);
 		GlStateManager.shadeModel(GL11.GL_SMOOTH);
 		GlStateManager.pushMatrix();

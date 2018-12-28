@@ -6,7 +6,7 @@ import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.util.math.MathHelper;
 
-public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
+public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "swimming", "swimming_surface" };
 	private static final String[] ACTIONS_UNDERWATER = new String[] { "swimming", "swimming_deep" };
@@ -33,7 +33,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	}
 	
 	@Override
-	public void perform(BipedEntityData<?, ?> data)
+	public void perform(BipedEntityData<?> data)
 	{
 		float ticks = DataUpdateHandler.getTicks();
 		

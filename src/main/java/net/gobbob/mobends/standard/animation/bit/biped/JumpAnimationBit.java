@@ -5,7 +5,7 @@ import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-public class JumpAnimationBit<T extends BipedEntityData<?, ?>> extends AnimationBit<T>
+public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit<T>
 {
 	private static final String[] ACTIONS = new String[] { "jump" };
 	

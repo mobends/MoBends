@@ -2,53 +2,86 @@ package net.gobbob.mobends.core.animatedentity;
 
 import java.util.HashMap;
 
+import net.gobbob.mobends.core.client.MutatedRenderer;
+import net.gobbob.mobends.core.mutators.IMutatorFactory;
 import net.gobbob.mobends.core.util.BendsLogger;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 
 public class AnimatedEntityRegistry
 {
 	public static AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
 	
-	private HashMap<String, AnimatedEntity<?>> animatedEntities = new HashMap<String, AnimatedEntity<?>>();
-
+	private HashMap<String, AnimatedEntity<?>> nameToInstanceMap = new HashMap<String, AnimatedEntity<?>>();
+	private HashMap<Class<? extends Entity>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<Class<? extends Entity>, AnimatedEntity<?>>();
+	
+	private int nextUnregisteredEntityId = 0;
+	
 	public void registerEntity(AnimatedEntity<?> animatedEntity)
 	{
-		BendsLogger.info("Registering " + animatedEntity.name);
-		animatedEntities.put(animatedEntity.name, animatedEntity);
+		BendsLogger.info("Registering " + animatedEntity.key);
+		nameToInstanceMap.put(animatedEntity.key, animatedEntity);
+		entityClassToInstanceMap.put(animatedEntity.entityClass, animatedEntity);
+	}
+	
+	public void registerEntity(Class<? extends Entity> entityClass,
+			IMutatorFactory mutatorFactory,
+			MutatedRenderer renderer, String[] alterableParts)
+	{
+		String key = "";
+		ResourceLocation location = EntityList.getKey(entityClass);
+		if (location == null)
+		{
+			key = AnimatedEntityRegistry.generateUniqueUnregisteredIdName();
+		}
+	}
+	
+	public static String generateUniqueUnregisteredIdName()
+	{
+		String name = "UNREGISTERED_" + INSTANCE.nextUnregisteredEntityId;
+		INSTANCE.nextUnregisteredEntityId++;
+		
+		return name;
 	}
 	
 	public static void applyConfiguration(Configuration config)
 	{
-		for (AnimatedEntity<?> e : INSTANCE.animatedEntities.values())
+		for (AnimatedEntity<?> e : INSTANCE.nameToInstanceMap.values())
 		{
 			for (AlterEntry alterEntry : e.alterEntries)
 			{
-				alterEntry.setAnimate(config.get("Animated", alterEntry.getName(), true).getBoolean());
+				alterEntry.setAnimate(config.get("Animated", alterEntry.getKey(), true).getBoolean());
 			}
 		}
 	}
 	
 	public static Iterable<AnimatedEntity<?>> getRegistered()
 	{
-		return INSTANCE.animatedEntities.values();
+		return INSTANCE.nameToInstanceMap.values();
 	}
 	
 	public static AnimatedEntity get(String name)
 	{
-		return INSTANCE.animatedEntities.get(name);
+		return INSTANCE.nameToInstanceMap.get(name);
+	}
+	
+	public static AnimatedEntity getForEntityClass(Class<? extends Entity> c)
+	{
+		return INSTANCE.entityClassToInstanceMap.get(c);
 	}
 	
 	public static AnimatedEntity getForEntity(Entity entity)
 	{
 		// Checking direct registration
 		Class<? extends Entity> entityClass = entity.getClass();
-		for (AnimatedEntity animatedEntity : INSTANCE.animatedEntities.values())
+		for (AnimatedEntity animatedEntity : INSTANCE.nameToInstanceMap.values())
 			if (animatedEntity.entityClass.equals(entityClass))
 				return animatedEntity;
 
 		// Checking indirect inheritance
-		for (AnimatedEntity animatedEntity : INSTANCE.animatedEntities.values())
+		for (AnimatedEntity animatedEntity : INSTANCE.nameToInstanceMap.values())
 			if (animatedEntity.entityClass.isInstance(entity))
 				return animatedEntity;
 
@@ -57,7 +90,7 @@ public class AnimatedEntityRegistry
 	
 	public static void refreshMutators()
 	{
-		for (AnimatedEntity animatedEntity : INSTANCE.animatedEntities.values())
+		for (AnimatedEntity animatedEntity : INSTANCE.nameToInstanceMap.values())
 			animatedEntity.refreshMutation();
 	}
 }

@@ -206,7 +206,7 @@ public class GuiNodeEditor
 	
 	public void populate(AlterEntry alterEntry)
 	{
-		BendsTarget target = BendsPack.getTarget(alterEntry.getName());
+		BendsTarget target = BendsPack.getTarget(alterEntry.getKey());
 		this.sections = new ArrayList<GuiConditionSection>();
 		if (target != null)
 		{

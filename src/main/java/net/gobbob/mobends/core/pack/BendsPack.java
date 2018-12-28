@@ -16,13 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.gobbob.mobends.core.client.model.IBendsModel;
-import net.gobbob.mobends.core.main.ModStatics;
 import net.gobbob.mobends.core.pack.BendsAction.Calculation;
 import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.core.pack.BendsAction.EnumModifier;
 import net.gobbob.mobends.core.pack.BendsAction.EnumOperator;
 import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IImageBuffer;
 import net.minecraft.client.renderer.ImageBufferDownload;

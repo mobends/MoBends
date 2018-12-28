@@ -3,8 +3,8 @@ package net.gobbob.mobends.standard.client.renderer.entity.mutated;
 import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.client.MutatedRenderer;
-import net.gobbob.mobends.core.main.ModConfig;
 import net.gobbob.mobends.standard.data.BipedEntityData;
+import net.gobbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 

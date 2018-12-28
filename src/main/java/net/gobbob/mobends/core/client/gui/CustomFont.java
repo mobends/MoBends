@@ -2,7 +2,7 @@ package net.gobbob.mobends.core.client.gui;
 
 import java.util.HashMap;
 
-import net.gobbob.mobends.core.main.ModStatics;
+import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.util.ResourceLocation;
 
 public class CustomFont

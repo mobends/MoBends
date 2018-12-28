@@ -1,26 +1,19 @@
 package net.gobbob.mobends.standard.animation.bit.biped;
 
-import org.lwjgl.util.vector.Vector3f;
-
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.SmoothOrientation;
 import net.gobbob.mobends.standard.data.BipedEntityData;
-import net.gobbob.mobends.standard.data.PlayerData;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
+public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "attack", "attack_1" };
 	

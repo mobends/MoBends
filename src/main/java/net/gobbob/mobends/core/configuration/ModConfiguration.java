@@ -6,8 +6,8 @@ import java.util.List;
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.core.main.MoBends;
 import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.standard.main.MoBends;
 import net.minecraftforge.common.config.Configuration;
 
 public class ModConfiguration
@@ -17,11 +17,6 @@ public class ModConfiguration
 	public ModConfiguration(File file)
 	{
 		configFile = file;
-    	Configuration config = getConfiguration();
-
-        config.load();
-        MoBends.instance.proxy.preInit(config);
-        config.save();
 	}
 	
 	public void save()
@@ -33,7 +28,7 @@ public class ModConfiguration
     	for(AnimatedEntity animatedEntity : AnimatedEntityRegistry.getRegistered()) {
     		List<AlterEntry> alterEntries = animatedEntity.getAlredEntries();
     		for(int a = 0; a < alterEntries.size(); a++) {
-    			config.get("Animated", alterEntries.get(a).getName(), true).setValue(alterEntries.get(a).isAnimated());
+    			config.get("Animated", alterEntries.get(a).getKey(), true).setValue(alterEntries.get(a).isAnimated());
     		}
         }
     	

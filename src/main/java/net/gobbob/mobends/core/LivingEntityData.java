@@ -17,7 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
-public abstract class LivingEntityData<T extends LivingEntityData, E extends EntityLivingBase> extends EntityData<T, E>
+public abstract class LivingEntityData<E extends EntityLivingBase> extends EntityData<E>
 {
 	protected float ticksInAir;
     protected float ticksAfterTouchdown;

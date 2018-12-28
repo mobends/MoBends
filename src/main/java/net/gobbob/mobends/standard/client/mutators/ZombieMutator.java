@@ -16,8 +16,7 @@ import net.minecraft.entity.monster.EntityZombie;
 
 public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, ModelZombie>
 {
-	public static HashMap<RenderZombie, ZombieMutator> mutatorMap = new HashMap<>();
-	
+
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
 	
@@ -75,67 +74,4 @@ public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, Model
 		rightForeLeg.syncUp(data.rightForeLeg);
 	}
 
-	/**
-	 * Used to apply the effect of the mutation, or just to update the model
-	 * if it was already mutated.
-	 * Called from AnimatedEntity.
-	 */
-	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity, float partialTicks)
-	{
-		if (!(renderer instanceof RenderZombie))
-			return;
-		if (!(entity instanceof EntityZombie))
-			return;
-		
-		RenderZombie rendererZombie = (RenderZombie) renderer;
-		EntityZombie entityZombie = (EntityZombie) entity;
-		
-		ZombieMutator<EntityZombie> mutator = mutatorMap.get(renderer);
-		if (!mutatorMap.containsKey(renderer))
-		{
-			mutator = new ZombieMutator<>();
-			mutator.mutate(entityZombie, rendererZombie);
-			mutatorMap.put(rendererZombie, mutator);
-		}
-
-		mutator.updateModel(entityZombie, rendererZombie, partialTicks);
-		mutator.performAnimations(entityZombie, rendererZombie, partialTicks);
-	}
-	
-	/**
-	 * Used to reverse the effect of the mutation.
-	 * Called from AnimatedEntity.
-	 */
-	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
-	{
-		if (!(renderer instanceof RenderZombie))
-			return;
-		if (!(entity instanceof EntityZombie))
-			return;
-		
-		if (mutatorMap.containsKey(renderer))
-		{
-			ZombieMutator<EntityZombie> mutator = mutatorMap.get(renderer);
-			mutator.demutate((EntityZombie) entity, (RenderZombie) renderer);
-			mutatorMap.remove(renderer);
-		}
-	}
-
-	/**
-	 * Used to refresh the mutators in case of real-time changes during development.
-	 */
-	public static void refresh()
-	{
-		for (Entry<RenderZombie, ZombieMutator> mutator : mutatorMap.entrySet())
-		{
-			mutator.getValue().mutate(null, mutator.getKey());
-			if (mutator.getValue().layerArmor != null)
-				mutator.getValue().layerArmor.initArmor();
-		}
-	}
-
-	public static ZombieMutator<EntityZombie> getMutatorForRenderer(RenderZombie render)
-	{
-		return mutatorMap.get(render);
-	}
 }

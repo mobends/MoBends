@@ -7,14 +7,14 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class BowAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
+public class BowAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "bow" };
 	
 	protected EnumHandSide actionHand = EnumHandSide.RIGHT;
 	
 	@Override
-	public String[] getActions(BipedEntityData<?, ?> entityData)
+	public String[] getActions(BipedEntityData<?> entityData)
 	{
 		return ACTIONS;
 	}
@@ -25,7 +25,7 @@ public class BowAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	}
 	
 	@Override
-	public void perform(BipedEntityData<?, ?> data)
+	public void perform(BipedEntityData<?> data)
 	{
 		EntityLivingBase living = data.getEntity();
 

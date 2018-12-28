@@ -2,11 +2,11 @@ package net.gobbob.mobends.core.client.gui.packeditor;
 
 import net.gobbob.mobends.core.client.gui.elements.GuiCompactTextField;
 import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
-import net.gobbob.mobends.core.main.ModStatics;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;

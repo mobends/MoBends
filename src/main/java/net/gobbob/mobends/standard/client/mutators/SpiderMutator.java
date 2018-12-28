@@ -8,7 +8,7 @@ import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelPart;
-import net.gobbob.mobends.core.client.mutators.Mutator;
+import net.gobbob.mobends.core.mutators.Mutator;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelSpider;
@@ -19,7 +19,6 @@ import net.minecraft.entity.monster.EntitySpider;
 
 public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 {
-	public static HashMap<RenderSpider<? extends EntitySpider>, SpiderMutator> mutatorMap = new HashMap<>();
 	
 	public ModelPart spiderHead;
     public ModelPart spiderNeck;
@@ -232,60 +231,4 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 		return model instanceof ModelSpider;
 	}
 	
-	/*
-	 * Used to apply the effect of the mutation, or just to update the model
-	 * if it was already mutated.
-	 * Called from AnimatedEntity.
-	 */
-	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity, float partialTicks)
-	{
-		if (!(renderer instanceof RenderSpider))
-			return;
-		if (!(entity instanceof EntitySpider))
-			return;
-		
-		RenderSpider<EntitySpider> rendererSpider = (RenderSpider<EntitySpider>) renderer;
-		EntitySpider entitySpider = (EntitySpider) entity;
-		
-		SpiderMutator mutator = mutatorMap.get(renderer);
-		if (!mutatorMap.containsKey(renderer))
-		{
-			mutator = new SpiderMutator();
-			mutator.mutate(entitySpider, rendererSpider);
-			mutatorMap.put(rendererSpider, mutator);
-		}
-
-		mutator.updateModel(entitySpider, rendererSpider, partialTicks);
-		mutator.performAnimations(entitySpider, rendererSpider, partialTicks);
-	}
-	
-	/*
-	 * Used to reverse the effect of the mutation.
-	 * Called from AnimatedEntity.
-	 */
-	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
-	{
-		if (!(renderer instanceof RenderSpider))
-			return;
-		if (!(entity instanceof EntitySpider))
-			return;
-		
-		if (mutatorMap.containsKey(renderer))
-		{
-			SpiderMutator mutator = mutatorMap.get(renderer);
-			mutator.demutate((EntitySpider) entity, (RenderLivingBase<EntitySpider>) renderer);
-			mutatorMap.remove(renderer);
-		}
-	}
-	
-	/*
-	 * Used to refresh the mutators in case of real-time changes during development.
-	 */
-	public static void refresh()
-	{
-		for (Map.Entry<RenderSpider<? extends EntitySpider>, SpiderMutator> mutator : mutatorMap.entrySet())
-		{
-			mutator.getValue().mutate(null, mutator.getKey());
-		}
-	}
 }

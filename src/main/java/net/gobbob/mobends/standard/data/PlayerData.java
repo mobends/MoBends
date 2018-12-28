@@ -1,12 +1,12 @@
 package net.gobbob.mobends.standard.data;
 
 import net.gobbob.mobends.core.client.model.ModelPart;
-import net.gobbob.mobends.core.main.ModConfig;
 import net.gobbob.mobends.standard.animation.controller.PlayerController;
-import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
+import net.gobbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.util.EnumHand;
@@ -31,13 +31,10 @@ public class PlayerData extends BipedEntityData<PlayerData, AbstractClientPlayer
 	public void initModelPose()
 	{
 		super.initModelPose();
-
-		Render<Entity> render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
-		PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);
-		if (mutator == null)
-			return;
-
-		if (mutator.hasSmallArms())
+		
+		Render<AbstractClientPlayer> render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
+		
+		if (((RenderPlayer) render).smallArms)
 		{
 			this.rightArm.position.set(-5F, -9.5F, 0F);
 			this.leftArm.position.set(5F, -9.5F, 0F);

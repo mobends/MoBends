@@ -1,35 +1,22 @@
-package net.gobbob.mobends.core.main;
+package net.gobbob.mobends.core;
 
 import net.gobbob.mobends.core.event.EventHandlerServer;
 import net.gobbob.mobends.core.network.NetworkConfiguration;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-public class CommonProxy
+public class CoreServer extends Core
 {
-	public void preInit(Configuration config)
+	@Override
+	public void preInit(FMLPreInitializationEvent event)
 	{
-		preInitCommon(config);
-		preInitServer(config);
-	}
-
-	public void preInitCommon(Configuration config)
-	{
-
-	}
-
-	public void preInitServer(Configuration config)
-	{
+		super.preInit(event);
+		
+		Configuration config = configuration.getConfiguration();
+		
 		MinecraftForge.EVENT_BUS.register(new EventHandlerServer());
 		NetworkConfiguration.instance.allowModelScaling = config.getBoolean("AllowModelScaling", "Server", false,
 				"Does the server allow scaling of the player model more than the normal size?");
-	}
-
-	public void init(Configuration config)
-	{
-	}
-
-	public void postInit()
-	{
 	}
 }

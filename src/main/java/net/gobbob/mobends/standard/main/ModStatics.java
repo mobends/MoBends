@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.main;
+package net.gobbob.mobends.standard.main;
 
 public class ModStatics {
 	public static final String MODID = "mobends";

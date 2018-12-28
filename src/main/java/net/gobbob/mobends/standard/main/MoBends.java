@@ -1,5 +1,6 @@
-package net.gobbob.mobends.core.main;
+package net.gobbob.mobends.standard.main;
 
+import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.addon.AddonHelper;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.configuration.ModConfiguration;
@@ -21,47 +22,34 @@ import net.minecraftforge.fml.relauncher.Side;
 @Mod(modid = ModStatics.MODID, name = ModStatics.MODNAME, version = ModStatics.VERSION)
 public class MoBends
 {
-	@SidedProxy(serverSide = "net.gobbob.mobends.core.main.CommonProxy", clientSide = "net.gobbob.mobends.core.client.ClientProxy")
+	@SidedProxy(serverSide = "net.gobbob.mobends.standard.main.CommonProxy", clientSide = "net.gobbob.mobends.standard.client.ClientProxy")
 	public static CommonProxy proxy;
 
 	@Instance(value = ModStatics.MODID)
 	public static MoBends instance;
-
-	public SimpleNetworkWrapper networkWrapper;
-	public ModConfiguration configuration;
-
+	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		configuration = new ModConfiguration(event.getSuggestedConfigurationFile());
-		Configuration config = configuration.getConfiguration();
-		config.load();
-		proxy.preInit(config);
-		config.save();
-
-		networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(ModStatics.MODID);
-		networkWrapper.registerMessage(MessageClientConfigure.Handler.class, MessageClientConfigure.class, 0,
-				Side.CLIENT);
+		proxy.createCore();
+		Core.INSTANCE.preInit(event);
+		proxy.preInit();
 	}
 
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		Configuration config = configuration.getConfiguration();
-
-		AddonHelper.registerAddon(new DefaultAddon());
+		Core.INSTANCE.init(event);
+		proxy.init();
 		
-		config.load();
-		proxy.init(config);
-		config.save();
+		// Registering the standard set of animations.
+		AddonHelper.registerAddon(ModStatics.MODID, new DefaultAddon());
 	}
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
-		Configuration config = configuration.getConfiguration();
-		
-		AnimatedEntityRegistry.applyConfiguration(config);
-		RFPR.init();
+		Core.INSTANCE.postInit(event);
+		proxy.postInit();
 	}
 }

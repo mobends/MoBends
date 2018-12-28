@@ -29,27 +29,20 @@ public class EntityDatabase
 		return this.get(entity.getEntityId());
 	}
 
-	/*
+	/**
 	 * If a data instance for that identifier is null, create one. Return the data
 	 * instance for that identifier.
+	 * 
+	 * @param dataCreationFunction The function that creates
+	 * 	      and returned a new EntityData instance
+	 * @param entity The entity whose data we want to get (or first create if there is none)
+	 * @return Entity's data
 	 */
 	public <T extends EntityData, E extends Entity> T getAndMake(Function<E, T> dataCreationFunction, E entity)
 	{
 		final int entityId = entity.getEntityId();
 		
-		T data = null;
-		try
-		{
-			// We try to get and cast the data to the appropriate type.
-			data = (T) this.get(entityId);
-		}
-		catch (ClassCastException e)
-		{
-			// The data that is located inside the database is of the wrong type,
-			// so we remove the old one, and add a new one.
-			this.remove(entityId);
-			data = null;
-		}
+		T data = (T) this.get(entityId);
 		
 		if (data == null)
 		{
@@ -95,7 +88,8 @@ public class EntityDatabase
 				{
 					entityData.updateClient(entity);
 				}
-			} else
+			}
+			else
 			{
 				it.remove();
 				this.remove(key);

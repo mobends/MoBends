@@ -3,6 +3,7 @@ package net.gobbob.mobends.core.animatedentity;
 import java.lang.reflect.InvocationTargetException;
 
 import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
+import net.gobbob.mobends.core.util.Lang;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -11,16 +12,16 @@ import net.minecraft.world.World;
 
 public class AlterEntry
 {
-	private String name;
-	private String displayName;
+	private String key;
+	private String unlocalizedName;
 	public AnimatedEntity owner;
 	private boolean animate;
 	
-	public AlterEntry(AnimatedEntity owner, String displayName)
+	public AlterEntry(AnimatedEntity owner, String key, String unlocalizedName)
 	{
 		this.owner = owner;
-		this.name = owner.getName();
-		this.displayName = displayName;
+		this.key = key;
+		this.unlocalizedName = unlocalizedName;
 	}
 	
 	public void setAnimate(boolean animate)
@@ -38,12 +39,8 @@ public class AlterEntry
 		this.setAnimate(!this.animate);
 	}
 	
-	public String getDisplayName() {
-		return this.displayName;
-	}
-	
-	public String getName() {
-		return name;
+	public String getUnlocalizedName() {
+		return this.unlocalizedName;
 	}
 	
 	public AnimatedEntity getOwner() {
@@ -72,5 +69,15 @@ public class AlterEntry
 		}
 		
 		return entity;
+	}
+
+	public String getLocalizedName()
+	{
+		return Lang.localize(this.unlocalizedName);
+	}
+
+	public String getKey()
+	{
+		return this.key;
 	}
 }

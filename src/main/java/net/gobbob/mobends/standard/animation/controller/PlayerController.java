@@ -3,7 +3,6 @@ package net.gobbob.mobends.standard.animation.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.bit.KeyframeAnimationBit;
 import net.gobbob.mobends.core.animation.controller.Controller;
@@ -12,6 +11,7 @@ import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.animation.layer.KeyframeAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.standard.DefaultAddon;
 import net.gobbob.mobends.standard.animation.bit.biped.BowAnimationBit;
 import net.gobbob.mobends.standard.animation.bit.biped.EatingAnimationBit;
 import net.gobbob.mobends.standard.animation.bit.biped.FallingAnimationBit;
@@ -36,27 +36,29 @@ import net.minecraft.util.EnumHandSide;
  */
 public class PlayerController extends Controller<PlayerData>
 {
-	protected final String ANIMATION_TARGET = "player";
-	protected HardAnimationLayer<BipedEntityData<?, ?>> layerBase;
-	protected HardAnimationLayer<BipedEntityData<?, ?>> layerTorch;
-	protected HardAnimationLayer<BipedEntityData<?, ?>> layerSneak;
-	protected HardAnimationLayer<BipedEntityData<?, ?>> layerAction;
+	protected String animationTarget;
+	protected HardAnimationLayer<BipedEntityData<?>> layerBase;
+	protected HardAnimationLayer<BipedEntityData<?>> layerTorch;
+	protected HardAnimationLayer<BipedEntityData<?>> layerSneak;
+	protected HardAnimationLayer<BipedEntityData<?>> layerAction;
 	protected KeyframeAnimationLayer<PlayerData> layerKeyframe;
 
-	protected AnimationBit<BipedEntityData<?, ?>> bitStand, bitJump, bitSneak, bitLadderClimb,
+	protected AnimationBit<BipedEntityData<?>> bitStand, bitJump, bitSneak, bitLadderClimb,
 			bitSwimming, bitRiding, bitSitting, bitFalling;
 	protected AnimationBit<PlayerData> bitWalk, bitSprint, bitSprintJump;
-	protected AnimationBit<BipedEntityData<?, ?>> bitTorchHolding;
+	protected AnimationBit<BipedEntityData<?>> bitTorchHolding;
 	protected AnimationBit<PlayerData> bitAttack;
 	protected FlyingAnimationBit bitFlying;
 	protected BowAnimationBit bitBow;
 	protected EatingAnimationBit bitEating;
-	protected KeyframeAnimationBit<BipedEntityData<?, ?>> bitBreaking;
+	protected KeyframeAnimationBit<BipedEntityData<?>> bitBreaking;
 
 	protected ArmatureMask upperBodyOnlyMask;
 
 	public PlayerController()
 	{
+		animationTarget = DefaultAddon.PLAYER.getKey();
+		
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerTorch = new HardAnimationLayer<>();
 		this.layerSneak = new HardAnimationLayer<>();
@@ -262,6 +264,6 @@ public class PlayerController extends Controller<PlayerData>
 		layerAction.perform(playerData, actions);
 		layerKeyframe.perform(playerData, actions);
 
-		BendsPack.animate(playerData, this.ANIMATION_TARGET, actions);
+		BendsPack.animate(playerData, this.animationTarget, actions);
 	}
 }

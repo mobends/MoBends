@@ -25,8 +25,6 @@ import net.minecraft.entity.EntityLivingBase;
  */
 public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlayer>
 {
-	public static HashMap<RenderPlayer, PlayerMutator> mutatorMap = new HashMap<RenderPlayer, PlayerMutator>();
-
 	protected ModelPartChild bodywear;
 	protected ModelPartChild leftArmwear;
 	protected ModelPartChild rightArmwear;
@@ -239,6 +237,13 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		rightForeLeg.syncUp(data.rightForeLeg);
 	}
 	
+	@Override
+	public void postRefresh()
+	{
+		if (this.layerArmor != null)
+			this.layerArmor.initArmor();
+	}
+	
 	/*
 	 * Called before the first person hand is rendered, so the mutator can pose it
 	 * in any way.
@@ -251,68 +256,5 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		this.leftArm.rotation.identity();
 		this.leftForeArm.rotation.identity();
 	}
-
-	/*
-	 * Used to apply the effect of the mutation, or just to update the model
-	 * if it was already mutated.
-	 * Called from AnimatedEntity.
-	 */
-	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity, float partialTicks)
-	{
-		if (!(renderer instanceof RenderPlayer))
-			return;
-		if (!(entity instanceof AbstractClientPlayer))
-			return;
-		RenderPlayer rendererPlayer = (RenderPlayer) renderer;
-		AbstractClientPlayer entityPlayer = (AbstractClientPlayer) entity;
-		
-		PlayerMutator mutator = mutatorMap.get(renderer);
-		if (!mutatorMap.containsKey(renderer))
-		{
-			mutator = new PlayerMutator();
-			mutator.mutate(entityPlayer, rendererPlayer);
-			mutatorMap.put(rendererPlayer, mutator);
-		}
-
-		mutator.updateModel(entityPlayer, rendererPlayer, partialTicks);
-		mutator.performAnimations(entityPlayer, rendererPlayer, partialTicks);
-	}
 	
-	/*
-	 * Used to reverse the effect of the mutation.
-	 * Called from AnimatedEntity.
-	 */
-	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
-	{
-		if (!(renderer instanceof RenderPlayer))
-			return;
-		if (!(entity instanceof AbstractClientPlayer))
-			return;
-		
-		if (mutatorMap.containsKey(renderer))
-		{
-			PlayerMutator mutator = mutatorMap.get(renderer);
-			mutator.demutate((AbstractClientPlayer) entity, (RenderLivingBase<? extends AbstractClientPlayer>) renderer);
-			mutatorMap.remove(renderer);
-		}
-	}
-
-	/*
-	 * Used to refresh the mutators in case of real-time changes during development.
-	 */
-	public static void refresh()
-	{
-		for (Map.Entry<RenderPlayer, PlayerMutator> mutator : mutatorMap.entrySet())
-		{
-			mutator.getValue().mutate(null, mutator.getKey());
-			if (mutator.getValue().layerArmor != null)
-				mutator.getValue().layerArmor.initArmor();
-		}
-	}
-
-	public static PlayerMutator getMutatorForRenderer(Render<Entity> render)
-	{
-		return mutatorMap.get(render);
-	}
-
 }

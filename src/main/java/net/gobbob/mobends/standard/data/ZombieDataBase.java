@@ -2,12 +2,11 @@ package net.gobbob.mobends.standard.data;
 
 import java.util.Random;
 
-import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.animation.controller.ZombieController;
 import net.minecraft.entity.monster.EntityZombie;
 
-public class ZombieData<D extends ZombieData, E extends EntityZombie> extends BipedEntityData<D, E>
+public abstract class ZombieDataBase<E extends EntityZombie> extends BipedEntityData<E>
 {
 	public static final int ANIMATION_SETS_AMOUNT = 2;
 
@@ -17,13 +16,10 @@ public class ZombieData<D extends ZombieData, E extends EntityZombie> extends Bi
 	protected int animationSet = 0;
 	protected int currentWalkingState = 0;
 	protected float ticksBeforeStateChange = 0;
-
-	final Controller<ZombieData> controller;
 	
-	public ZombieData(E entity)
+	public ZombieDataBase(E entity)
 	{
 		super(entity);
-		this.controller = new ZombieController();
 		// Getting a pseudo-random animationType based on something
 		// that is shared across clients, so that every players
 		// sees the same variation

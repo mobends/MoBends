@@ -1,11 +1,12 @@
 package net.gobbob.mobends.standard.data;
 
 import net.gobbob.mobends.core.LivingEntityData;
+import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.standard.animation.controller.SpiderController;
 import net.minecraft.entity.monster.EntitySpider;
 
-public class SpiderData extends LivingEntityData<SpiderData, EntitySpider>
+public class SpiderData extends LivingEntityData<EntitySpider>
 {
 	public ModelPartTransform spiderHead;
     public ModelPartTransform spiderNeck;
@@ -29,12 +30,19 @@ public class SpiderData extends LivingEntityData<SpiderData, EntitySpider>
     public ModelPartTransform spiderForeLeg7;
     public ModelPartTransform spiderForeLeg8;
     
+    private final SpiderController controller = new SpiderController();
+    
 	public SpiderData(EntitySpider entity)
 	{
 		super(entity);
-		this.controller = new SpiderController();
 	}
 
+	@Override
+	public SpiderController getController()
+	{
+		return controller;
+	}
+	
 	@Override
 	public void update(float partialTicks)
 	{

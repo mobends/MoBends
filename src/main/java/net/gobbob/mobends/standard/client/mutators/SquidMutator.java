@@ -8,7 +8,7 @@ import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelPart;
-import net.gobbob.mobends.core.client.mutators.Mutator;
+import net.gobbob.mobends.core.mutators.Mutator;
 import net.gobbob.mobends.standard.data.SquidData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
@@ -20,8 +20,7 @@ import net.minecraft.entity.passive.EntitySquid;
 
 public class SquidMutator extends Mutator<EntitySquid, ModelSquid>
 {
-	public static HashMap<RenderSquid, SquidMutator> mutatorMap = new HashMap<>();
-
+	
 	public ModelPart squidBody;
 	public ModelPart[][] squidTentacles = new ModelPart[8][SquidData.TENTACLE_SECTIONS];
 
@@ -123,59 +122,4 @@ public class SquidMutator extends Mutator<EntitySquid, ModelSquid>
 		return model instanceof ModelSquid;
 	}
 
-	/*
-	 * Used to apply the effect of the mutation, or just to update the model if it
-	 * was already mutated. Called from AnimatedEntity.
-	 */
-	public static void apply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity,
-			float partialTicks)
-	{
-		if (!(renderer instanceof RenderSquid))
-			return;
-		if (!(entity instanceof EntitySquid))
-			return;
-
-		RenderSquid rendererSpider = (RenderSquid) renderer;
-		EntitySquid entitySpider = (EntitySquid) entity;
-
-		SquidMutator mutator = mutatorMap.get(renderer);
-		if (!mutatorMap.containsKey(renderer))
-		{
-			mutator = new SquidMutator();
-			mutator.mutate(entitySpider, rendererSpider);
-			mutatorMap.put(rendererSpider, mutator);
-		}
-
-		mutator.updateModel(entitySpider, rendererSpider, partialTicks);
-		mutator.performAnimations(entitySpider, rendererSpider, partialTicks);
-	}
-
-	/*
-	 * Used to reverse the effect of the mutation. Called from AnimatedEntity.
-	 */
-	public static void deapply(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
-	{
-		if (!(renderer instanceof RenderSquid))
-			return;
-		if (!(entity instanceof EntitySquid))
-			return;
-
-		if (mutatorMap.containsKey(renderer))
-		{
-			SquidMutator mutator = mutatorMap.get(renderer);
-			mutator.demutate((EntitySquid) entity, (RenderLivingBase<EntitySquid>) renderer);
-			mutatorMap.remove(renderer);
-		}
-	}
-
-	/*
-	 * Used to refresh the mutators in case of real-time changes during development.
-	 */
-	public static void refresh()
-	{
-		for (Entry<RenderSquid, SquidMutator> mutator : mutatorMap.entrySet())
-		{
-			mutator.getValue().mutate(null, mutator.getKey());
-		}
-	}
 }

@@ -1,26 +1,41 @@
-package net.gobbob.mobends.core.client.mutators;
+package net.gobbob.mobends.core.mutators;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
+import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.LivingEntityData;
+import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.standard.data.ZombieData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
+public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLivingBase, M extends ModelBase>
 {
 	protected M vanillaModel;
 	protected float headYaw, headPitch, limbSwing, limbSwingAmount;
 	
+	protected Function<E, D> dataCreationFunction;
 	protected List<LayerRenderer<EntityLivingBase>> layerRenderers;
+	
+	public Mutator(Function<E, D> dataCreationFunction)
+	{
+		this.dataCreationFunction = dataCreationFunction;
+	}
 	
 	/*
 	 * Used to fetch private data from the original
 	 * renderer.
 	 */
-	public void fetchFields(RenderLivingBase<? extends T> renderer)
+	public void fetchFields(RenderLivingBase<? extends E> renderer)
 	{
 		// Getting the layer renderers
 		this.layerRenderers = (List<LayerRenderer<EntityLivingBase>>) ((Object) renderer.layerRenderers); // Type safety hack...
@@ -39,13 +54,13 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 	 * and if it's a vanilla model, it stores the vanilla layers
 	 * for future mutation reversal.
 	 */
-	public abstract void swapLayer(RenderLivingBase<? extends T> renderer, int index, boolean isModelVanilla);
+	public abstract void swapLayer(RenderLivingBase<? extends E> renderer, int index, boolean isModelVanilla);
 	
 	/*
 	 * Swaps the custom layers back with the vanilla layers.
 	 * Used to demutate the model.
 	 */
-	public abstract void deswapLayer(RenderLivingBase<? extends T> renderer, int index);
+	public abstract void deswapLayer(RenderLivingBase<? extends E> renderer, int index);
 	
 	/*
 	 * Creates all the custom parts you need! It swaps all the
@@ -53,7 +68,7 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 	 */
 	public abstract boolean createParts(M original, float scaleFactor);
 	
-	public boolean mutate(T entity, RenderLivingBase<? extends T> renderer)
+	public boolean mutate(E entity, RenderLivingBase<? extends E> renderer)
 	{
 		if (renderer.getMainModel() == null || !this.isModelEligible(renderer.getMainModel()))
 			return false;
@@ -88,7 +103,7 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 	/*
 	 * Performs the steps needed to demutate the model.
 	 */
-	public void demutate(T entity, RenderLivingBase<? extends T> renderer)
+	public void demutate(E entity, RenderLivingBase<? extends E> renderer)
 	{
 		if (!this.isModelEligible(renderer.getMainModel()))
 			return;
@@ -106,7 +121,7 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 		}
 	}
 	
-	public void updateModel(T entity, RenderLivingBase<? extends T> renderer, float partialTicks)
+	public void updateModel(E entity, RenderLivingBase<? extends E> renderer, float partialTicks)
 	{
 		boolean shouldSit = entity.isRiding()
 				&& (entity.getRidingEntity() != null && entity.getRidingEntity().shouldRiderSit());
@@ -157,7 +172,26 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 		this.limbSwingAmount = f5;
 	}
 	
-	public abstract void performAnimations(T entity, RenderLivingBase<? extends T> renderer, float partialTicks);
+	protected void performAnimations(D data, RenderLivingBase<? extends E> renderer, float partialTicks)
+	{
+		data.setHeadYaw(this.headYaw);
+		data.setHeadPitch(this.headPitch);
+		data.setLimbSwing(this.limbSwing);
+		data.setLimbSwingAmount(this.limbSwingAmount);
+
+		Controller controller = data.getController();
+		if (controller != null && data.canBeUpdated())
+		{
+			controller.perform(data);
+		}
+	}
+	
+	protected abstract void syncUpWithData(D data);
+	
+	D getOrMakeData(E entity)
+	{
+		return EntityDatabase.instance.getAndMake(dataCreationFunction, entity);
+	}
 	
 	/*
 	 * True, if this renderer wasn't mutated before.
@@ -168,4 +202,9 @@ public abstract class Mutator<T extends EntityLivingBase, M extends ModelBase>
 	 * Returns true, if this model should be mutated.
 	 */
 	public abstract boolean isModelEligible(ModelBase model);
+
+	/*
+	 * Called right after this mutator has been refreshed.
+	 */
+	protected void postRefresh() {}
 }

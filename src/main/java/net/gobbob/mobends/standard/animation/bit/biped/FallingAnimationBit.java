@@ -6,20 +6,20 @@ import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-public class FallingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
+public class FallingAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "falling" };
 	public static final float TICKS_BEFORE_FALLING = 10;
 	public static final float FALLING_TRANSITION_TICKS = 80;
 
 	@Override
-	public String[] getActions(BipedEntityData<?, ?> entityData)
+	public String[] getActions(BipedEntityData<?> entityData)
 	{
 		return ACTIONS;
 	}
 
 	@Override
-	public void perform(BipedEntityData<?, ?> data)
+	public void perform(BipedEntityData<?> data)
 	{
 		EntityLivingBase living = data.getEntity();
 

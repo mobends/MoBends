@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.main;
+package net.gobbob.mobends.standard.main;
 
 import java.util.Map;
 
