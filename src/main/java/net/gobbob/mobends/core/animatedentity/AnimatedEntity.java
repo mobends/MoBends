@@ -46,7 +46,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		this.addAlterEntry(new AlterEntry(this));
 	}
 
-	public List<AlterEntry> getAlredEntries()
+	public List<AlterEntry> getAlterEntries()
 	{
 		return this.alterEntries;
 	}
