@@ -5,7 +5,7 @@ import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.standard.animation.controller.SpiderController;
 import net.minecraft.entity.monster.EntitySpider;
 
-public class SpiderData extends LivingEntityData<SpiderData, EntitySpider>
+public class SpiderData extends LivingEntityData<EntitySpider>
 {
 	public ModelPartTransform spiderHead;
     public ModelPartTransform spiderNeck;
@@ -32,7 +32,14 @@ public class SpiderData extends LivingEntityData<SpiderData, EntitySpider>
 	public SpiderData(EntitySpider entity)
 	{
 		super(entity);
-		this.controller = new SpiderController();
+	}
+	
+	private final SpiderController controller = new SpiderController();
+	
+	@Override
+	public SpiderController getController()
+	{
+		return controller;
 	}
 
 	@Override

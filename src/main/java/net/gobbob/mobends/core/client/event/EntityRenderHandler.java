@@ -3,12 +3,10 @@ package net.gobbob.mobends.core.client.event;
 import java.util.HashSet;
 import java.util.UUID;
 
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
-import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.Entity;
@@ -17,7 +15,6 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class EntityRenderHandler
 {
@@ -27,7 +24,7 @@ public class EntityRenderHandler
 	@SubscribeEvent
 	public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
 	{
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(event.getEntity());
+		AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntity.getForEntity(event.getEntity());
 		if (animatedEntity == null)
 			return;
 		
@@ -55,7 +52,7 @@ public class EntityRenderHandler
 	@SubscribeEvent
 	public void afterLivingRender(RenderLivingEvent.Post<? extends EntityLivingBase> event)
 	{
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(event.getEntity());
+		AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntity.getForEntity(event.getEntity());
 		if (animatedEntity == null)
 			return;
 
@@ -86,10 +83,12 @@ public class EntityRenderHandler
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		Entity viewEntity = mc.getRenderViewEntity();
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(viewEntity);
-		EntityData entityData = EntityDatabase.instance.get(viewEntity);
+		if (!(viewEntity instanceof AbstractClientPlayer))
+			return;
+		AbstractClientPlayer player = (AbstractClientPlayer) viewEntity;
+		AnimatedEntity<AbstractClientPlayer> animatedEntity = AnimatedEntity.getForEntity(player);
 		
-		if (animatedEntity != null && animatedEntity.isAnimated() && entityData instanceof PlayerData)
+		if (animatedEntity != null && animatedEntity.isAnimated())
 		{
 			Render<Entity> render = mc.getRenderManager().getEntityRenderObject(viewEntity);
 			PlayerMutator mutator = PlayerMutator.getMutatorForRenderer(render);

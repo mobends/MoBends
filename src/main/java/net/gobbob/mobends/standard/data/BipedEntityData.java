@@ -6,7 +6,7 @@ import net.gobbob.mobends.core.util.SmoothOrientation;
 import net.gobbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.entity.EntityLivingBase;
 
-public abstract class BipedEntityData<T extends BipedEntityData, E extends EntityLivingBase> extends LivingEntityData<T, E>
+public abstract class BipedEntityData<E extends EntityLivingBase> extends LivingEntityData<E>
 {
 	/*
 	 * These models need to be represented only
@@ -108,7 +108,8 @@ public abstract class BipedEntityData<T extends BipedEntityData, E extends Entit
 	}
 	
 	@Override
-	public E getEntity() {
-		return super.getEntity();
+	public E getEntity()
+	{
+		return this.entity;
 	}
 }

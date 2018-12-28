@@ -3,7 +3,6 @@ package net.gobbob.mobends.standard.animation.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.bit.KeyframeAnimationBit;
 import net.gobbob.mobends.core.animation.controller.Controller;
@@ -37,21 +36,21 @@ import net.minecraft.util.EnumHandSide;
 public class PlayerController extends Controller<PlayerData>
 {
 	protected final String ANIMATION_TARGET = "player";
-	protected HardAnimationLayer<BipedEntityData<?, ?>> layerBase;
-	protected HardAnimationLayer<BipedEntityData<?, ?>> layerTorch;
-	protected HardAnimationLayer<BipedEntityData<?, ?>> layerSneak;
-	protected HardAnimationLayer<BipedEntityData<?, ?>> layerAction;
+	protected HardAnimationLayer<BipedEntityData<?>> layerBase;
+	protected HardAnimationLayer<BipedEntityData<?>> layerTorch;
+	protected HardAnimationLayer<BipedEntityData<?>> layerSneak;
+	protected HardAnimationLayer<BipedEntityData<?>> layerAction;
 	protected KeyframeAnimationLayer<PlayerData> layerKeyframe;
 
-	protected AnimationBit<BipedEntityData<?, ?>> bitStand, bitJump, bitSneak, bitLadderClimb,
+	protected AnimationBit<BipedEntityData<?>> bitStand, bitJump, bitSneak, bitLadderClimb,
 			bitSwimming, bitRiding, bitSitting, bitFalling;
 	protected AnimationBit<PlayerData> bitWalk, bitSprint, bitSprintJump;
-	protected AnimationBit<BipedEntityData<?, ?>> bitTorchHolding;
+	protected AnimationBit<BipedEntityData<?>> bitTorchHolding;
 	protected AnimationBit<PlayerData> bitAttack;
 	protected FlyingAnimationBit bitFlying;
 	protected BowAnimationBit bitBow;
 	protected EatingAnimationBit bitEating;
-	protected KeyframeAnimationBit<BipedEntityData<?, ?>> bitBreaking;
+	protected KeyframeAnimationBit<BipedEntityData<?>> bitBreaking;
 
 	protected ArmatureMask upperBodyOnlyMask;
 

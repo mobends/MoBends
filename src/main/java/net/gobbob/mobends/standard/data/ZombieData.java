@@ -6,7 +6,7 @@ import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.animation.controller.ZombieController;
 import net.minecraft.entity.monster.EntityZombie;
 
-public class ZombieData extends BipedEntityData<ZombieData, EntityZombie>
+public class ZombieData extends BipedEntityData<EntityZombie>
 {
 	public static final int ANIMATION_SETS_AMOUNT = 2;
 
@@ -20,11 +20,18 @@ public class ZombieData extends BipedEntityData<ZombieData, EntityZombie>
 	public ZombieData(EntityZombie entity)
 	{
 		super(entity);
-		this.controller = new ZombieController();
 		// Getting a pseudo-random animationType based on something
 		// that is shared across clients, so that every players
 		// sees the same variation
 		this.animationSet = ((int) (entity.getEntityId() * 3.61352F)) % ANIMATION_SETS_AMOUNT;
+	}
+	
+	private final ZombieController controller = new ZombieController();
+	
+	@Override
+	public ZombieController getController()
+	{
+		return controller;
 	}
 
 	public int getAnimationSet()
@@ -37,6 +44,8 @@ public class ZombieData extends BipedEntityData<ZombieData, EntityZombie>
 		return this.currentWalkingState;
 	}
 	
+	private final Random random = new Random();
+	
 	@Override
 	public void update(float partialTicks)
 	{
@@ -46,7 +55,6 @@ public class ZombieData extends BipedEntityData<ZombieData, EntityZombie>
 
 		if (this.ticksBeforeStateChange <= 0)
 		{
-			Random random = new Random();
 			this.currentWalkingState = random.nextInt(2);
 			this.ticksBeforeStateChange = 80 + random.nextInt(20);
 		}

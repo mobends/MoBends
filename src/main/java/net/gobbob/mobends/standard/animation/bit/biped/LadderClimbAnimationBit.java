@@ -7,18 +7,18 @@ import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
+public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "ladder_climb" };
 	
 	@Override
-	public String[] getActions(BipedEntityData<?, ?> entityData)
+	public String[] getActions(BipedEntityData<?> entityData)
 	{
 		return ACTIONS;
 	}
 	
 	@Override
-	public void perform(BipedEntityData<?, ?> data)
+	public void perform(BipedEntityData<?> data)
 	{
 		EntityLivingBase living = data.getEntity();
 		

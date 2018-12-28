@@ -9,10 +9,11 @@ public class SprintAnimationBit extends net.gobbob.mobends.standard.animation.bi
 	public void perform(PlayerData data)
 	{
 		super.perform(data);
-		
-		if (data.getTicksAfterAttack() < 10) {
+
+		if (data.getTicksAfterAttack() < 10)
+		{
 			data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
-		  	  									  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
+					.rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
 		}
 	}
 }

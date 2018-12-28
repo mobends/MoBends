@@ -11,16 +11,12 @@ import net.minecraft.world.World;
 
 public class AlterEntry
 {
-	private String name;
-	private String displayName;
-	public AnimatedEntity owner;
+	private final AnimatedEntity<?> owner;
 	private boolean animate;
 	
-	public AlterEntry(AnimatedEntity owner, String displayName)
+	public AlterEntry(AnimatedEntity<?> owner)
 	{
 		this.owner = owner;
-		this.name = owner.getName();
-		this.displayName = displayName;
 	}
 	
 	public void setAnimate(boolean animate)
@@ -39,14 +35,14 @@ public class AlterEntry
 	}
 	
 	public String getDisplayName() {
-		return this.displayName;
+		return owner.getDisplayName();
 	}
 	
 	public String getName() {
-		return name;
+		return owner.getName();
 	}
 	
-	public AnimatedEntity getOwner() {
+	public AnimatedEntity<?> getOwner() {
 		return owner;
 	}
 	
@@ -57,17 +53,7 @@ public class AlterEntry
 			entity.world = Minecraft.getMinecraft().world;
 			entity.setLocationAndAngles(0, 0, 0, 0, 0);
 			entity.onInitialSpawn(entity.world.getDifficultyForLocation(entity.getPosition()), null);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		

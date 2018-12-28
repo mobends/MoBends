@@ -25,7 +25,7 @@ import net.minecraft.entity.EntityLivingBase;
  */
 public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlayer>
 {
-	public static HashMap<RenderPlayer, PlayerMutator> mutatorMap = new HashMap<RenderPlayer, PlayerMutator>();
+	public static final HashMap<RenderPlayer, PlayerMutator> mutatorMap = new HashMap<RenderPlayer, PlayerMutator>();
 
 	protected ModelPartChild bodywear;
 	protected ModelPartChild leftArmwear;

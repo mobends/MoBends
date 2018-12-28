@@ -1,37 +1,16 @@
 package net.gobbob.mobends.core.animatedentity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import net.gobbob.mobends.core.client.MutatedRenderer;
 import net.gobbob.mobends.core.client.mutators.functions.ApplyMutationFunction;
 import net.gobbob.mobends.core.client.mutators.functions.DeapplyMutationFunction;
 import net.gobbob.mobends.core.util.BendsLogger;
-import net.gobbob.mobends.standard.client.mutators.PigZombieMutator;
-import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
-import net.gobbob.mobends.standard.client.mutators.SpiderMutator;
-import net.gobbob.mobends.standard.client.mutators.SquidMutator;
-import net.gobbob.mobends.standard.client.mutators.ZombieMutator;
-import net.gobbob.mobends.standard.client.renderer.entity.RenderBendsArrow;
 import net.gobbob.mobends.standard.client.renderer.entity.RenderBendsSpectralArrow;
 import net.gobbob.mobends.standard.client.renderer.entity.RenderBendsTippedArrow;
-import net.gobbob.mobends.standard.client.renderer.entity.mutated.PlayerRenderer;
-import net.gobbob.mobends.standard.client.renderer.entity.mutated.SpiderRenderer;
-import net.gobbob.mobends.standard.client.renderer.entity.mutated.SquidRenderer;
-import net.gobbob.mobends.standard.client.renderer.entity.mutated.ZombieRenderer;
-import net.gobbob.mobends.standard.previewer.PlayerPreviewer;
-import net.gobbob.mobends.standard.previewer.SpiderPreviewer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraft.entity.monster.EntitySpider;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntitySpectralArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraftforge.common.config.Configuration;
@@ -39,22 +18,22 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
 public class AnimatedEntity<T extends EntityLivingBase>
 {
-	String name;
-	String displayName;
+	final String name;
+	final String displayName;
 	List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
 	private String[] alterableParts;
 	private MutatedRenderer<T> renderer;
 
-	public Class<? extends Entity> entityClass;
+	public final Class<T> entityClass;
 	private final ApplyMutationFunction applyMutation;
 	private final DeapplyMutationFunction deapplyMutation;
 	private final Runnable refreshMutation;
 
-	public Previewer previewer;
+	public Previewer<T> previewer;
 
-	public AnimatedEntity(String id, String displayName, Class<? extends Entity> entityClass,
+	public AnimatedEntity(String id, String displayName, Class<T> entityClass,
 			ApplyMutationFunction applyMutation, DeapplyMutationFunction deapplyMutation, Runnable refreshMutation,
-			MutatedRenderer renderer, String[] alterableParts)
+			MutatedRenderer<T> renderer, String[] alterableParts)
 	{
 		this.name = id;
 		this.displayName = displayName;
@@ -64,7 +43,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		this.refreshMutation = refreshMutation;
 		this.renderer = renderer;
 		this.alterableParts = alterableParts;
-		this.addAlterEntry(new AlterEntry(this, displayName));
+		this.addAlterEntry(new AlterEntry(this));
 	}
 
 	public List<AlterEntry> getAlredEntries()
@@ -92,7 +71,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		return name;
 	}
 
-	public Previewer getPreviewer()
+	public Previewer<T> getPreviewer()
 	{
 		return this.previewer;
 	}
@@ -110,13 +89,13 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		return false;
 	}
 
-	public AnimatedEntity addAlterEntry(AlterEntry alterEntry)
+	public AnimatedEntity<T> addAlterEntry(AlterEntry alterEntry)
 	{
 		this.alterEntries.add(alterEntry);
 		return this;
 	}
 
-	public AnimatedEntity setPreviewer(Previewer previewer)
+	public AnimatedEntity<T> setPreviewer(Previewer<T> previewer)
 	{
 		this.previewer = previewer;
 		return this;
@@ -193,9 +172,9 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		 */
 	}
 
-	public static AnimatedEntity getForEntity(Entity entity)
+	public static <E extends EntityLivingBase> AnimatedEntity<E> getForEntity(E entity)
 	{
-		return AnimatedEntityRegistry.getForEntity(entity);
+		return (AnimatedEntity<E>) AnimatedEntityRegistry.getForEntity(entity);
 	}
 	
 	public static void refreshMutators()

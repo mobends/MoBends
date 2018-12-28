@@ -8,7 +8,9 @@ import net.minecraftforge.common.config.Configuration;
 
 public class AnimatedEntityRegistry
 {
-	public static AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
+	public static final AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
+	
+	private AnimatedEntityRegistry() {}
 	
 	private HashMap<String, AnimatedEntity<?>> animatedEntities = new HashMap<String, AnimatedEntity<?>>();
 
@@ -34,21 +36,21 @@ public class AnimatedEntityRegistry
 		return INSTANCE.animatedEntities.values();
 	}
 	
-	public static AnimatedEntity get(String name)
+	public static AnimatedEntity<?> get(String name)
 	{
 		return INSTANCE.animatedEntities.get(name);
 	}
 	
-	public static AnimatedEntity getForEntity(Entity entity)
+	public static AnimatedEntity<?> getForEntity(Entity entity)
 	{
 		// Checking direct registration
 		Class<? extends Entity> entityClass = entity.getClass();
-		for (AnimatedEntity animatedEntity : INSTANCE.animatedEntities.values())
+		for (AnimatedEntity<?> animatedEntity : INSTANCE.animatedEntities.values())
 			if (animatedEntity.entityClass.equals(entityClass))
 				return animatedEntity;
 
 		// Checking indirect inheritance
-		for (AnimatedEntity animatedEntity : INSTANCE.animatedEntities.values())
+		for (AnimatedEntity<?> animatedEntity : INSTANCE.animatedEntities.values())
 			if (animatedEntity.entityClass.isInstance(entity))
 				return animatedEntity;
 
@@ -57,7 +59,7 @@ public class AnimatedEntityRegistry
 	
 	public static void refreshMutators()
 	{
-		for (AnimatedEntity animatedEntity : INSTANCE.animatedEntities.values())
+		for (AnimatedEntity<?> animatedEntity : INSTANCE.animatedEntities.values())
 			animatedEntity.refreshMutation();
 	}
 }

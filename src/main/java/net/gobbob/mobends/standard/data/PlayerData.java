@@ -11,7 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.util.EnumHand;
 
-public class PlayerData extends BipedEntityData<PlayerData, AbstractClientPlayer>
+public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 {
 	public ModelPart ears;
 	public ModelPart cloak;
@@ -24,7 +24,14 @@ public class PlayerData extends BipedEntityData<PlayerData, AbstractClientPlayer
 	public PlayerData(AbstractClientPlayer entity)
 	{
 		super(entity);
-		this.controller = new PlayerController();
+	}
+	
+	private final PlayerController controller = new PlayerController();
+	
+	@Override
+	public PlayerController getController()
+	{
+		return controller;
 	}
 
 	@Override

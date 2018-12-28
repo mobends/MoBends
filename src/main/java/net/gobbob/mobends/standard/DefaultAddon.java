@@ -34,22 +34,22 @@ public class DefaultAddon implements IAddon
 
 		registry.registerEntity(new AnimatedEntity<EntityPigZombie>("pig_zombie", "Zombie Pigman", EntityPigZombie.class,
 						PigZombieMutator::apply, PigZombieMutator::deapply, PigZombieMutator::refresh,
-						new ZombieRenderer(), new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm",
+						new ZombieRenderer<EntityPigZombie>(), new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm",
 								"rightForeArm", "leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg" }));
 
 		registry.registerEntity(new AnimatedEntity<EntityZombie>("zombie", "Zombie", EntityZombie.class, ZombieMutator::apply,
-						ZombieMutator::deapply, ZombieMutator::refresh, new ZombieRenderer(),
+						ZombieMutator::deapply, ZombieMutator::refresh, new ZombieRenderer<EntityZombie>(),
 						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 								"rightLeg", "leftForeLeg", "rightForeLeg" }));
 
 		registry.registerEntity(new AnimatedEntity<EntitySpider>("spider", "Spider", EntitySpider.class, SpiderMutator::apply,
-						SpiderMutator::deapply, SpiderMutator::refresh, new SpiderRenderer(),
+						SpiderMutator::deapply, SpiderMutator::refresh, new SpiderRenderer<EntitySpider>(),
 						new String[] { "head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6", "leg7",
 								"leg8", "foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5", "foreLeg6",
 								"foreLeg7", "foreLeg8" }).setPreviewer(new SpiderPreviewer()));
 
 		registry.registerEntity(new AnimatedEntity<EntitySquid>("squid", "Squid", EntitySquid.class, SquidMutator::apply,
-						SquidMutator::deapply, SquidMutator::refresh, new SquidRenderer(),
+						SquidMutator::deapply, SquidMutator::refresh, new SquidRenderer<EntitySquid>(),
 						new String[] { "body", "tentacle1", "tentacle2", "tentacle3", "tentacle4", "tentacle5", "tentacle6",
 								"tentacle7", "tentacle8" }));
 	}

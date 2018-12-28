@@ -1,12 +1,10 @@
 package net.gobbob.mobends.standard.client.mutators;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.EntityDatabase;
-import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.standard.animation.controller.ZombieController;
 import net.gobbob.mobends.standard.data.ZombieData;
 import net.minecraft.client.model.ModelZombie;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -16,7 +14,7 @@ import net.minecraft.entity.monster.EntityZombie;
 
 public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, ModelZombie>
 {
-	public static HashMap<RenderZombie, ZombieMutator> mutatorMap = new HashMap<>();
+	private static final HashMap<RenderZombie, ZombieMutator<EntityZombie>> mutatorMap = new HashMap<>();
 	
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
@@ -56,8 +54,8 @@ public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, Model
 		data.setLimbSwing(this.limbSwing);
 		data.setLimbSwingAmount(this.limbSwingAmount);
 
-		Controller controller = data.getController();
-		if (controller != null && data.canBeUpdated())
+		ZombieController controller = data.getController();
+		if (data.canBeUpdated())
 		{
 			controller.perform(data);
 		}
@@ -126,7 +124,7 @@ public class ZombieMutator<T extends EntityZombie> extends BipedMutator<T, Model
 	 */
 	public static void refresh()
 	{
-		for (Entry<RenderZombie, ZombieMutator> mutator : mutatorMap.entrySet())
+		for (Entry<RenderZombie, ZombieMutator<EntityZombie>> mutator : mutatorMap.entrySet())
 		{
 			mutator.getValue().mutate(null, mutator.getKey());
 			if (mutator.getValue().layerArmor != null)

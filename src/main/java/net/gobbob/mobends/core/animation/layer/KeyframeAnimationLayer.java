@@ -2,32 +2,25 @@ package net.gobbob.mobends.core.animation.layer;
 
 import java.util.Map;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.keyframe.Bone;
 import net.gobbob.mobends.core.animation.keyframe.Keyframe;
 import net.gobbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import net.gobbob.mobends.core.animation.keyframe.KeyframeArmature;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.core.util.EnumAxis;
-import net.gobbob.mobends.core.util.Quaternion;
-import net.gobbob.mobends.core.util.SmoothOrientation;
 
-public class KeyframeAnimationLayer<DataType extends EntityData> extends AnimationLayer<DataType>
+public class KeyframeAnimationLayer<T extends EntityData<?>> extends AnimationLayer<T>
 {
 	public KeyframeAnimation performedAnimation;
 	public float keyframeIndex = 0;
 	
-	public void playBit(KeyframeAnimation animation, DataType entityData)
+	public void playBit(KeyframeAnimation animation, T entityData)
 	{
 		this.performedAnimation = animation;
 	}
 	
-	public void playOrContinueBit(KeyframeAnimation animation, DataType entityData)
+	public void playOrContinueBit(KeyframeAnimation animation, T entityData)
 	{
 		if (!this.isPlaying(animation))
 			this.playBit(animation, entityData);
@@ -54,13 +47,13 @@ public class KeyframeAnimationLayer<DataType extends EntityData> extends Animati
 	}
 	
 	@Override
-	public String[] getActions(EntityData entityData)
+	public String[] getActions(T entityData)
 	{
 		return null;
 	}
 	
 	@Override
-	public void perform(EntityData entityData)
+	public void perform(T entityData)
 	{
 		int minKeyframes = Integer.MAX_VALUE;
 		

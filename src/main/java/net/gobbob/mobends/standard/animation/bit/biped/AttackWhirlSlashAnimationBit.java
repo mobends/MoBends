@@ -13,18 +13,18 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
+public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "attack", "attack_2" };
 	
 	@Override
-	public String[] getActions(BipedEntityData<?, ?> entityData)
+	public String[] getActions(BipedEntityData<?> entityData)
 	{
 		return ACTIONS;
 	}
 
 	@Override
-	public void perform(BipedEntityData<?, ?> data)
+	public void perform(BipedEntityData<?> data)
 	{
 		EntityLivingBase living = data.getEntity();
 		EnumHandSide primaryHand = living.getPrimaryHand();

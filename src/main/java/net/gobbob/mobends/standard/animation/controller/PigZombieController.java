@@ -3,12 +3,12 @@ package net.gobbob.mobends.standard.animation.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.standard.animation.bit.biped.AttackSlashUpAnimationBit;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.gobbob.mobends.standard.data.PigZombieData;
 import net.minecraft.entity.monster.EntityPigZombie;
@@ -23,10 +23,10 @@ import net.minecraft.entity.monster.EntityPigZombie;
 public class PigZombieController extends Controller<PigZombieData>
 {
 	final String animationTarget = "pig_zombie";
-	protected HardAnimationLayer<BipedEntityData> layerBase;
-	protected HardAnimationLayer<BipedEntityData> layerAction;
-	protected AnimationBit<? extends BipedEntityData> bitStand, bitWalk, bitJump;
-	protected AnimationBit<? extends BipedEntityData> bitAttack;
+	protected HardAnimationLayer<BipedEntityData<EntityPigZombie>> layerBase;
+	protected HardAnimationLayer<BipedEntityData<?>> layerAction;
+	protected AnimationBit<? extends BipedEntityData<EntityPigZombie>> bitStand, bitWalk, bitJump;
+	protected AttackSlashUpAnimationBit bitAttack;
 	
 	public PigZombieController()
 	{
@@ -60,7 +60,6 @@ public class PigZombieController extends Controller<PigZombieData>
 			}
 		}
 		
-		System.out.println(pigZombie.swingProgress);
 		if (pigZombie.swingProgress > 0)
 		{
 			this.layerAction.playOrContinueBit(this.bitAttack, pigZombieData);

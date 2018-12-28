@@ -3,7 +3,7 @@ package net.gobbob.mobends.core.animation.bit;
 import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.layer.AnimationLayer;
 
-public abstract class AnimationBit<T extends EntityData>
+public abstract class AnimationBit<T extends EntityData<?>>
 {
 	/*
 	 * The layer that this bit is performed by.

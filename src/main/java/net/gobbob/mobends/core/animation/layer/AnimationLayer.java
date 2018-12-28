@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import net.gobbob.mobends.core.EntityData;
 
-public abstract class AnimationLayer<T extends EntityData>
+public abstract class AnimationLayer<T extends EntityData<?>>
 {
 	/**
 	 * Returns the actions currently being performed

@@ -12,8 +12,6 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.core.pack.PackManager;
-import net.gobbob.mobends.core.pack.BPDFile.Entry;
 import net.minecraft.client.gui.FontRenderer;
 
 public class GUtil
@@ -28,6 +26,11 @@ public class GUtil
 	public static int clamp(int value, int min, int max)
 	{
 		return Math.min(Math.max(value, min), max);
+	}
+	
+	public static double angleFromCoordinates(double x, double z)
+	{
+		return Math.atan2(x, z) / Math.PI * 180.0;
 	}
 	
 	public static Vector3 translate(Vector3 vector, float x, float y, float z)

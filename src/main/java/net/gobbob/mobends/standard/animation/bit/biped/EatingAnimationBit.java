@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class EatingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
+public class EatingAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "eating" };
 	
@@ -20,7 +20,7 @@ public class EatingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	protected float bringUpAnimation;
 	
 	@Override
-	public String[] getActions(BipedEntityData<?, ?> data)
+	public String[] getActions(BipedEntityData<?> data)
 	{
 		return ACTIONS;
 	}
@@ -31,13 +31,13 @@ public class EatingAnimationBit extends AnimationBit<BipedEntityData<?, ?>>
 	}
 	
 	@Override
-	public void onPlay(BipedEntityData<?, ?> data)
+	public void onPlay(BipedEntityData<?> data)
 	{
 		bringUpAnimation = 0F;
 	}
 	
 	@Override
-	public void perform(BipedEntityData<?, ?> data)
+	public void perform(BipedEntityData<?> data)
 	{
 		float ticks = DataUpdateHandler.getTicks();
 		
