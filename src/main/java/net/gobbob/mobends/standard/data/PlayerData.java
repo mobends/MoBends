@@ -1,5 +1,6 @@
 package net.gobbob.mobends.standard.data;
 
+import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.standard.animation.controller.PlayerController;
 import net.gobbob.mobends.standard.main.ModConfig;
@@ -7,11 +8,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.util.EnumHand;
 
-public class PlayerData extends BipedEntityData<PlayerData, AbstractClientPlayer>
+public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 {
 	public ModelPart ears;
 	public ModelPart cloak;
@@ -21,10 +21,11 @@ public class PlayerData extends BipedEntityData<PlayerData, AbstractClientPlayer
 	boolean fistPunchArm = false;
 	int currentAttack = 0;
 
+	final PlayerController controller = new PlayerController();
+	
 	public PlayerData(AbstractClientPlayer entity)
 	{
 		super(entity);
-		this.controller = new PlayerController();
 	}
 
 	@Override
@@ -123,5 +124,11 @@ public class PlayerData extends BipedEntityData<PlayerData, AbstractClientPlayer
 	public boolean getSprintJumpLeg()
 	{
 		return sprintJumpLeg;
+	}
+
+	@Override
+	public PlayerController getController()
+	{
+		return this.controller;
 	}
 }

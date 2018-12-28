@@ -1,20 +1,19 @@
-package net.gobbob.mobends.standard.animation.bit.zombie;
+package net.gobbob.mobends.standard.animation.bit.zombie_base;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.standard.data.ZombieData;
-import net.minecraft.entity.monster.EntityZombie;
+import net.gobbob.mobends.standard.data.ZombieDataBase;
 
-public class ZombieLeanAnimationBit extends AnimationBit<ZombieData>
+public class ZombieLeanAnimationBit extends AnimationBit<ZombieDataBase>
 {
 	@Override
-	public String[] getActions(ZombieData entityData)
+	public String[] getActions(ZombieDataBase entityData)
 	{
 		return new String[] { "lean" };
 	}
 	
 	@Override
-	public void perform(ZombieData data)
+	public void perform(ZombieDataBase data)
 	{
 		data.renderOffset.slideY(-3F);
 		

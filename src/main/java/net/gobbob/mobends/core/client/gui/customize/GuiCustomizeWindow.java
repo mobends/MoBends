@@ -52,7 +52,7 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 		this.targetList.addListener(this);
 		for (AlterEntry alterEntry : mainMenu.alterEntries)
 		{
-			this.targetList.addEntry(alterEntry.getDisplayName());
+			this.targetList.addEntry(alterEntry.getLocalizedName());
 		}
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 	}
@@ -73,7 +73,7 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 	{
 		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomizeWindow.BACKGROUND_TEXTURE);
 		this.drawTexturedModalRect(this.x, this.y, 0, 0, this.WIDTH, this.HEIGHT);
-		BendsTarget bendsTarget = BendsPack.getTarget(this.currentAlterEntry.getName());
+		BendsTarget bendsTarget = BendsPack.getTarget(this.currentAlterEntry.getKey());
 
 		this.drawCenteredString(this.fontRenderer, Lang.format("mobends.gui.customize"),
 				(int) (this.x + this.WIDTH/2), this.y + 4, 0xFFFFFF);
@@ -97,7 +97,7 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 
 	public void populate(AlterEntry alterEntry)
 	{
-		BendsTarget target = BendsPack.getTarget(alterEntry.getName());
+		BendsTarget target = BendsPack.getTarget(alterEntry.getKey());
 		
 		this.currentAlterEntry = alterEntry;
 		this.nodeEditor.populate(alterEntry);
@@ -105,9 +105,7 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 		this.parameterEditor.deselect();
 		this.targetList.selectValue(mainMenu.currentAlterEntry);
 		
-		this.portraitDisplay.setViewEntity(alterEntry.getName().equalsIgnoreCase("player")
-				? Minecraft.getMinecraft().player
-				: alterEntry.getEntity());
+		this.portraitDisplay.setViewEntity(alterEntry.getEntityForPreview());
 		this.portraitDisplay.setValue(alterEntry.isAnimated());
 	}
 

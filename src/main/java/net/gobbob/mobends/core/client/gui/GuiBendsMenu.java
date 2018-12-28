@@ -8,6 +8,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
@@ -217,7 +218,7 @@ public class GuiBendsMenu extends GuiScreen
 	public void onGuiClosed()
 	{
 		Keyboard.enableRepeatEvents(false);
-		MoBends.instance.configuration.save();
+		Core.saveConfiguration();
 		switch (guiTab)
 		{
 			case TAB_CUSTOMIZE:
@@ -419,9 +420,9 @@ public class GuiBendsMenu extends GuiScreen
 					this.openTab(TAB_MAIN);
 				break;
 			case 4: // Apply
-				BendsTarget target = BendsPack.getTarget(getCurrentAlterEntry().getName());
+				BendsTarget target = BendsPack.getTarget(getCurrentAlterEntry().getKey());
 				if (target == null)
-					target = BendsPack.createTarget(getCurrentAlterEntry().getName());
+					target = BendsPack.createTarget(getCurrentAlterEntry().getKey());
 				this.customizeWindow.applyChanges(target);
 				try
 				{
@@ -486,7 +487,7 @@ public class GuiBendsMenu extends GuiScreen
 
 	public boolean doesGuiPauseGame()
 	{
-		return true;
+		return false;
 	}
 
 	public AlterEntry getCurrentAlterEntry()

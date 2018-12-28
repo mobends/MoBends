@@ -24,7 +24,7 @@ import net.minecraft.util.EnumHandSide;
  * @author Iwo Plaza
  *
  */
-public class ZombieController extends Controller<ZombieData<?, ?>>
+public class ZombieController extends Controller<ZombieData>
 {
 	protected String animationTarget;
 	protected HardAnimationLayer<ZombieData> layerBase;
@@ -42,13 +42,13 @@ public class ZombieController extends Controller<ZombieData<?, ?>>
 		this.bitWalk = new net.gobbob.mobends.standard.animation.bit.biped.WalkAnimationBit<>();
 		this.bitJump = new net.gobbob.mobends.standard.animation.bit.biped.JumpAnimationBit<>();
 		this.bitAnimationSet = new AnimationBit[] {
-			new net.gobbob.mobends.standard.animation.bit.zombie.ZombieLeanAnimationBit(),
-			new net.gobbob.mobends.standard.animation.bit.zombie.ZombieStumblingAnimationBit()
+			new net.gobbob.mobends.standard.animation.bit.zombie_base.ZombieLeanAnimationBit(),
+			new net.gobbob.mobends.standard.animation.bit.zombie_base.ZombieStumblingAnimationBit()
 		};
 	}
 	
 	@Override
-	public void perform(ZombieData<?, ?> zombieData)
+	public void perform(ZombieData zombieData)
 	{
 		BendsVariable.tempData = zombieData;
 		EntityZombie zombie = zombieData.getEntity();

@@ -1,11 +1,10 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.Function;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelBox;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.client.model.ModelPartChild;
@@ -13,18 +12,17 @@ import net.gobbob.mobends.core.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.core.client.model.ModelPartChildPostOffset;
 import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 
 /*
  * Instantiated one per RenderPlayer
  */
-public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlayer>
+public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer, ModelPlayer>
 {
+
 	protected ModelPartChild bodywear;
 	protected ModelPartChild leftArmwear;
 	protected ModelPartChild rightArmwear;
@@ -37,6 +35,11 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 
 	protected boolean smallArms;
 
+	public PlayerMutator()
+	{
+		super(PlayerData::new);
+	}
+	
 	public boolean hasSmallArms()
 	{
 		return this.smallArms;
@@ -204,37 +207,14 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 	}
 
 	@Override
-	public void performAnimations(AbstractClientPlayer player, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
+	protected void performAnimations(PlayerData data, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
 	{
-		PlayerData data = EntityDatabase.instance.getAndMake(PlayerData::new, player);
-
 		leftForeArmwear.setVisible(leftArmwear.isShowing());
 		rightForeArmwear.setVisible(rightArmwear.isShowing());
 		leftForeLegwear.setVisible(leftLegwear.isShowing());
 		rightForeLegwear.setVisible(rightLegwear.isShowing());
-
-		data.setHeadYaw(this.headYaw);
-		data.setHeadPitch(this.headPitch);
-		data.setLimbSwing(this.limbSwing);
-		data.setLimbSwingAmount(this.limbSwingAmount);
-
-		Controller controller = data.getController();
-		if (controller != null && data.canBeUpdated())
-		{
-			controller.perform(data);
-		}
-
-		// Sync up with the EntityData
-		head.syncUp(data.head);
-		body.syncUp(data.body);
-		leftArm.syncUp(data.leftArm);
-		rightArm.syncUp(data.rightArm);
-		leftLeg.syncUp(data.leftLeg);
-		rightLeg.syncUp(data.rightLeg);
-		leftForeArm.syncUp(data.leftForeArm);
-		rightForeArm.syncUp(data.rightForeArm);
-		leftForeLeg.syncUp(data.leftForeLeg);
-		rightForeLeg.syncUp(data.rightForeLeg);
+		
+		super.performAnimations(data, renderer, partialTicks);
 	}
 	
 	@Override
@@ -255,6 +235,18 @@ public class PlayerMutator extends BipedMutator<AbstractClientPlayer, ModelPlaye
 		this.rightForeArm.rotation.identity();
 		this.leftArm.rotation.identity();
 		this.leftForeArm.rotation.identity();
+	}
+
+	@Override
+	public boolean isModelVanilla(ModelPlayer model)
+	{
+		return !(model.bipedBody instanceof IModelPart);
+	}
+
+	@Override
+	public boolean isModelEligible(ModelBase model)
+	{
+		return model instanceof ModelPlayer;
 	}
 	
 }

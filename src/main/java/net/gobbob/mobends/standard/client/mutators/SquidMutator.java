@@ -18,12 +18,17 @@ import net.minecraft.client.renderer.entity.RenderSquid;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntitySquid;
 
-public class SquidMutator extends Mutator<EntitySquid, ModelSquid>
+public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 {
 	
 	public ModelPart squidBody;
 	public ModelPart[][] squidTentacles = new ModelPart[8][SquidData.TENTACLE_SECTIONS];
 
+	public SquidMutator()
+	{
+		super(SquidData::new);
+	}
+	
 	@Override
 	public void storeVanillaModel(ModelSquid model)
 	{
@@ -81,25 +86,10 @@ public class SquidMutator extends Mutator<EntitySquid, ModelSquid>
 
 		return true;
 	}
-
+	
 	@Override
-	public void performAnimations(EntitySquid entity, RenderLivingBase<? extends EntitySquid> renderer,
-			float partialTicks)
+	protected void syncUpWithData(SquidData data)
 	{
-		SquidData data = EntityDatabase.instance.getAndMake(SquidData::new, entity);
-
-		data.setHeadYaw(this.headYaw);
-		data.setHeadPitch(this.headPitch);
-		data.setLimbSwing(this.limbSwing);
-		data.setLimbSwingAmount(this.limbSwingAmount);
-
-		Controller controller = data.getController();
-		if (controller != null && data.canBeUpdated())
-		{
-			controller.perform(data);
-		}
-
-		// Sync up with the EntityData
 		this.squidBody.syncUp(data.squidBody);
 		for (int i = 0; i < this.squidTentacles.length; ++i)
 		{

@@ -10,28 +10,12 @@ import net.minecraft.client.model.ModelZombieVillager;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.monster.EntityZombieVillager;
 
-public class ZombieVillagerMutator extends BipedMutator<ZombieVillagerData, EntityZombieVillager, ModelZombieVillager>
+public class ZombieVillagerMutator extends ZombieMutatorBase<ZombieVillagerData, EntityZombieVillager, ModelZombieVillager>
 {
-	
-	// Should the height of the texture be 64 or 32(half)?
-	protected boolean halfTexture = false;
-	
+
 	public ZombieVillagerMutator()
 	{
 		super(ZombieVillagerData::new);
-	}
-	
-	@Override
-	public void fetchFields(RenderLivingBase<? extends EntityZombieVillager> renderer)
-	{
-		super.fetchFields(renderer);
-
-		if (renderer.getMainModel() instanceof ModelZombie)
-		{
-			ModelZombieVillager model = (ModelZombieVillager) renderer.getMainModel();
-			
-			this.halfTexture = model.textureHeight == 32;
-		}
 	}
 	
 	@Override
@@ -49,6 +33,8 @@ public class ZombieVillagerMutator extends BipedMutator<ZombieVillagerData, Enti
 	@Override
 	public boolean createParts(ModelZombieVillager original, float scaleFactor)
 	{
+		boolean success = super.createParts(original, scaleFactor);
+		
 		original.bipedHead = this.head = (ModelPartChild) new ModelPartChild(original, 0, 0)
 				.setParent(body)
 				.setHideLikeParent(false)
@@ -57,7 +43,7 @@ public class ZombieVillagerMutator extends BipedMutator<ZombieVillagerData, Enti
 
 		this.head.setTextureOffset(24, 0).addBox(-1.0F, -3.0F, -6.0F, 2, 4, 2, scaleFactor);
 		
-		return true;
+		return success;
 	}
 
 	@Override

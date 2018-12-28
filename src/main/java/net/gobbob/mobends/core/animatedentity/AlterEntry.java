@@ -12,16 +12,31 @@ import net.minecraft.world.World;
 
 public class AlterEntry
 {
-	private String key;
-	private String unlocalizedName;
+	String key;
+	String unlocalizedName;
+	String postfix;
 	public AnimatedEntity owner;
 	private boolean animate;
 	
-	public AlterEntry(AnimatedEntity owner, String key, String unlocalizedName)
+	public AlterEntry(String postfix, String unlocalizedName)
+	{
+		this.postfix = postfix;
+		this.unlocalizedName = unlocalizedName;
+	}
+	
+	public AlterEntry()
+	{
+		this("", null);
+	}
+	
+	void onRegistered(AnimatedEntity owner)
 	{
 		this.owner = owner;
-		this.key = key;
-		this.unlocalizedName = unlocalizedName;
+		this.key = this.owner.key + postfix;
+		if (this.unlocalizedName == null)
+		{
+			this.unlocalizedName = this.owner.unlocalizedName;
+		}
 	}
 	
 	public void setAnimate(boolean animate)
@@ -47,7 +62,8 @@ public class AlterEntry
 		return owner;
 	}
 	
-	public EntityLivingBase getEntity() {
+	public EntityLivingBase getEntityForPreview()
+	{
 		EntityLiving entity = null;
 		try {
 			entity = (EntityLiving) this.getOwner().entityClass.getConstructor(World.class).newInstance(Minecraft.getMinecraft().world);

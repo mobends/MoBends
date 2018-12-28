@@ -17,33 +17,16 @@ public class AnimatedEntityRegistry
 	private HashMap<String, AnimatedEntity<?>> nameToInstanceMap = new HashMap<String, AnimatedEntity<?>>();
 	private HashMap<Class<? extends Entity>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<Class<? extends Entity>, AnimatedEntity<?>>();
 	
-	private int nextUnregisteredEntityId = 0;
 	
 	public void registerEntity(AnimatedEntity<?> animatedEntity)
 	{
-		BendsLogger.info("Registering " + animatedEntity.key);
-		nameToInstanceMap.put(animatedEntity.key, animatedEntity);
-		entityClassToInstanceMap.put(animatedEntity.entityClass, animatedEntity);
-	}
-	
-	public void registerEntity(Class<? extends Entity> entityClass,
-			IMutatorFactory mutatorFactory,
-			MutatedRenderer renderer, String[] alterableParts)
-	{
-		String key = "";
-		ResourceLocation location = EntityList.getKey(entityClass);
-		if (location == null)
-		{
-			key = AnimatedEntityRegistry.generateUniqueUnregisteredIdName();
-		}
-	}
-	
-	public static String generateUniqueUnregisteredIdName()
-	{
-		String name = "UNREGISTERED_" + INSTANCE.nextUnregisteredEntityId;
-		INSTANCE.nextUnregisteredEntityId++;
+		BendsLogger.LOGGER.info("Registering " + animatedEntity.key);
 		
-		return name;
+		if (animatedEntity.onRegistraton())
+		{
+			nameToInstanceMap.put(animatedEntity.key, animatedEntity);
+			entityClassToInstanceMap.put(animatedEntity.entityClass, animatedEntity);
+		}
 	}
 	
 	public static void applyConfiguration(Configuration config)

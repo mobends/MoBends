@@ -3,6 +3,7 @@ package net.gobbob.mobends.core.animatedentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.gobbob.mobends.core.LivingEntityData;
 import net.gobbob.mobends.core.client.MutatedRenderer;
 import net.gobbob.mobends.core.mutators.IMutatorFactory;
 import net.gobbob.mobends.core.mutators.MutationContainer;
@@ -19,46 +20,66 @@ public class AnimatedEntity<T extends EntityLivingBase>
 {
 	String modid;
 	String key;
+	String keyWithoutModId;
 	String unlocalizedName;
 	List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
 	private String[] alterableParts;
 	private MutatedRenderer<T> renderer;
-	public Class<? extends Entity> entityClass;
+	public Class<T> entityClass;
 
 	public MutationContainer mutationContainer;
 	public Previewer previewer;
 
-	public AnimatedEntity(String modid, String key, String unlocalizedName, Class<? extends Entity> entityClass,
+	public AnimatedEntity(String key, String unlocalizedName, Class<T> entityClass,
 			IMutatorFactory mutatorFactory,
 			MutatedRenderer renderer, String[] alterableParts)
 	{
-		init(modid, key, unlocalizedName, entityClass, mutatorFactory, renderer, alterableParts);
-	}
-	
-	public AnimatedEntity(String modid, Class<? extends Entity> entityClass,
-			IMutatorFactory mutatorFactory,
-			MutatedRenderer renderer, String[] alterableParts)
-	{
-		ResourceLocation key = EntityList.getKey(entityClass);
-		String name = "entity." + EntityList.getTranslationName(key) + ".name";
-		String keyString = modid + "-" + key.toString();
-		
-		init(modid, keyString, name, entityClass,
-			 mutatorFactory, renderer, alterableParts);
-	}
-	
-	private void init(String modid, String key, String unlocalizedName, Class<? extends Entity> entityClass,
-			IMutatorFactory mutatorFactory,
-			MutatedRenderer renderer, String[] alterableParts)
-	{
-		this.modid = modid;
-		this.key = key;
+		this.keyWithoutModId = key;
+		if (this.keyWithoutModId != null)
+			this.key = modid + "-" + this.keyWithoutModId;
 		this.unlocalizedName = unlocalizedName;
 		this.entityClass = entityClass;
 		this.mutationContainer = new MutationContainer(mutatorFactory);
 		this.renderer = renderer;
-		this.alterableParts = alterableParts;
-		this.addAlterEntry(new AlterEntry(this, key, unlocalizedName));
+		this.alterableParts = alterableParts;	
+	}
+	
+	public AnimatedEntity(Class<T> entityClass,
+			IMutatorFactory mutatorFactory,
+			MutatedRenderer renderer, String[] alterableParts)
+	{
+		this(null, null, entityClass, mutatorFactory, renderer, alterableParts);
+	}
+	
+	public boolean onRegistraton()
+	{
+		if (this.key == null)
+		{
+			ResourceLocation key = EntityList.getKey(entityClass);
+			if (key == null)
+				return false;
+			
+			this.key = modid + "-" + key;
+			this.unlocalizedName = "entity." + EntityList.getTranslationName(key) + ".name";
+		}
+		
+		// Creating the default alter entry if none has been added
+		generateDefaultAlterEntry();
+		
+		for (AlterEntry entry : this.alterEntries)
+		{
+			entry.onRegistered(this);
+		}
+		
+		return true;
+	}
+	
+	public void generateDefaultAlterEntry()
+	{
+		if (this.alterEntries.size() == 0)
+		{
+			this.alterEntries.add(new AlterEntry());
+		}
 	}
 	
 	public List<AlterEntry> getAlredEntries()
@@ -103,9 +124,26 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		}
 		return false;
 	}
+	
+	public AnimatedEntity setModId(String modid)
+	{
+		this.modid = modid;
+		if (this.keyWithoutModId != null)
+			this.key = modid + "-" + this.keyWithoutModId;
+		return this;
+	}
+	
+	public AnimatedEntity setAlterEntry(AlterEntry alterEntry)
+	{
+		this.alterEntries.clear();
+		this.alterEntries.add(alterEntry);
+		return this;
+	}
 
 	public AnimatedEntity addAlterEntry(AlterEntry alterEntry)
 	{
+		this.generateDefaultAlterEntry();
+		
 		this.alterEntries.add(alterEntry);
 		return this;
 	}
@@ -128,10 +166,10 @@ public class AnimatedEntity<T extends EntityLivingBase>
 			this.renderer.afterRender(entity, partialTicks);
 	}
 
-	public void applyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity,
+	public boolean applyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity,
 			float partialTicks)
 	{
-		mutationContainer.apply(renderer, entity, partialTicks);
+		return mutationContainer.apply(renderer, entity, partialTicks);
 	}
 
 	public void deapplyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
@@ -154,7 +192,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		AnimatedEntityRegistry.refreshMutators();
 	}
 	
-	public static <E extends EntityLivingBase, M extends ModelBase> Mutator<E, M> getMutatorForRenderer(Class<? extends Entity> entityClass, RenderLivingBase<? extends E> renderer)
+	public static <D extends LivingEntityData<E>, E extends EntityLivingBase, M extends ModelBase> Mutator<D, E, M> getMutatorForRenderer(Class<? extends Entity> entityClass, RenderLivingBase<? extends E> renderer)
 	{
 		AnimatedEntity ae = AnimatedEntityRegistry.getForEntityClass(entityClass);
 		if (ae == null)

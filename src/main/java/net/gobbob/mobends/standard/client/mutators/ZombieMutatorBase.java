@@ -2,7 +2,7 @@ package net.gobbob.mobends.standard.client.mutators;
 
 import java.util.function.Function;
 
-import net.gobbob.mobends.standard.data.ZombieData;
+import net.gobbob.mobends.standard.data.ZombieDataBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelZombie;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -19,7 +19,7 @@ import net.minecraft.entity.monster.EntityZombie;
  * @param <E>
  * @param <M>
  */
-public abstract class ZombieMutatorBase<D extends ZombieData<D, E>,
+public abstract class ZombieMutatorBase<D extends ZombieDataBase<E>,
 										E extends EntityZombie,
 										M extends ModelBiped>
 									   extends BipedMutator<D, E, M>

@@ -1,5 +1,7 @@
 package net.gobbob.mobends.standard.client.mutators;
 
+import java.util.function.Function;
+
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelBox;
 import net.gobbob.mobends.core.client.model.ModelPartChild;
@@ -10,6 +12,7 @@ import net.gobbob.mobends.core.client.model.ModelPartPostOffset;
 import net.gobbob.mobends.core.mutators.Mutator;
 import net.gobbob.mobends.standard.client.renderer.entity.layers.LayerCustomBipedArmor;
 import net.gobbob.mobends.standard.client.renderer.entity.layers.LayerCustomHeldItem;
+import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -19,7 +22,10 @@ import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 
-public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBiped> extends Mutator<T, M>
+public abstract class BipedMutator<D extends BipedEntityData<E>,
+								   E extends EntityLivingBase,
+								   M extends ModelBiped>
+								  extends Mutator<D, E, M>
 {
 	protected ModelPartPostOffset body;
 	protected ModelPartChild head;
@@ -41,7 +47,10 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	protected LayerCustomHead 			layerCustomHeadVanilla;
 	
 
-	public BipedMutator() {}
+	public BipedMutator(Function<E, D> dataCreationFunction)
+	{
+		super(dataCreationFunction);
+	}
 
 	/*
 	 * Used to store the model parameter as the
@@ -82,7 +91,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	 * for future mutation reversal.
 	 */
 	@Override
-	public void swapLayer(RenderLivingBase<? extends T> renderer, int index, boolean isModelVanilla)
+	public void swapLayer(RenderLivingBase<? extends E> renderer, int index, boolean isModelVanilla)
 	{
 		LayerRenderer<EntityLivingBase> layer = layerRenderers.get(index);
 		if (layer instanceof LayerBipedArmor)
@@ -113,7 +122,7 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	 * Used to demutate the model.
 	 */
 	@Override
-	public void deswapLayer(RenderLivingBase<? extends T> renderer, int index)
+	public void deswapLayer(RenderLivingBase<? extends E> renderer, int index)
 	{
 		LayerRenderer<EntityLivingBase> layer = layerRenderers.get(index);
 		if (layer instanceof LayerCustomBipedArmor)
@@ -227,6 +236,21 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 		return true;
 	}
 	
+	@Override
+	protected void syncUpWithData(D data)
+	{
+		head.syncUp(data.head);
+		body.syncUp(data.body);
+		leftArm.syncUp(data.leftArm);
+		rightArm.syncUp(data.rightArm);
+		leftLeg.syncUp(data.leftLeg);
+		rightLeg.syncUp(data.rightLeg);
+		leftForeArm.syncUp(data.leftForeArm);
+		rightForeArm.syncUp(data.rightForeArm);
+		leftForeLeg.syncUp(data.leftForeLeg);
+		rightForeLeg.syncUp(data.rightForeLeg);
+	}
+	
 	/*
 	 * True, if this renderer wasn't mutated before.
 	 */
@@ -234,11 +258,5 @@ public abstract class BipedMutator<T extends EntityLivingBase, M extends ModelBi
 	public boolean isModelVanilla(ModelBiped model)
 	{
 		return !(model.bipedBody instanceof IModelPart);
-	}
-	
-	@Override
-	public boolean isModelEligible(ModelBase model)
-	{
-		return model instanceof ModelBiped;
 	}
 }

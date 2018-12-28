@@ -28,13 +28,15 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 
 public class EntityRenderHandler
 {
+	
 	public static boolean renderingGuiScreen = false;
 	private HashSet<UUID> currentlyRenderedEntities = new HashSet<>();
 	
 	@SubscribeEvent
 	public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
 	{
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(event.getEntity());
+		EntityLivingBase living = event.getEntity();
+		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(living);
 		if (animatedEntity == null)
 			return;
 		
@@ -43,30 +45,21 @@ public class EntityRenderHandler
 			return;
 		currentlyRenderedEntities.add(event.getEntity().getUniqueID());
 
-		EntityLivingBase living = (EntityLivingBase) event.getEntity();
+		
 		float pt = event.getPartialRenderTick();
 
 		GlStateManager.pushMatrix();
 		
 		if (animatedEntity.isAnimated())
 		{
-			animatedEntity.applyMutation(event.getRenderer(), living, pt);
-			animatedEntity.beforeRender(living, pt);
+			if (animatedEntity.applyMutation(event.getRenderer(), living, pt))
+			{
+				animatedEntity.beforeRender(living, pt);
+			}
 		}
 		else
 		{
 			animatedEntity.deapplyMutation(event.getRenderer(), living);
-		}
-		
-		EntityEntry entry = EntityRegistry.getEntry(AbstractClientPlayer.class);
-		if (entry != null)
-			System.out.println(entry.getName());
-		
-		ResourceLocation location = EntityList.getKey(EntitySpider.class);
-		if (location != null)
-		{
-			String s1 = EntityList.getTranslationName(location);
-			System.out.println(I18n.translateToLocal("entity." + s1 + ".name"));
 		}
 	}
 
@@ -99,23 +92,4 @@ public class EntityRenderHandler
 		renderingGuiScreen = false;
 	}
 	
-	@SubscribeEvent
-	public void beforeHandRender(RenderHandEvent event)
-	{
-		Minecraft mc = Minecraft.getMinecraft();
-		Entity viewEntity = mc.getRenderViewEntity();
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(viewEntity);
-		EntityData entityData = EntityDatabase.instance.get(viewEntity);
-		
-		if (animatedEntity != null && animatedEntity.isAnimated() && entityData instanceof PlayerData)
-		{
-			Render<Entity> render = mc.getRenderManager().getEntityRenderObject(viewEntity);
-			if (render instanceof RenderLivingBase)
-			{
-				PlayerMutator mutator = (PlayerMutator) AnimatedEntity.getMutatorForRenderer(AbstractClientPlayer.class, (RenderLivingBase) render);
-				if (mutator != null)
-					mutator.poseForFirstPersonView();
-			}
-		}
-	}
 }

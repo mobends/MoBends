@@ -17,7 +17,7 @@ import net.minecraft.client.renderer.entity.RenderSpider;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySpider;
 
-public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
+public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider>
 {
 	
 	public ModelPart spiderHead;
@@ -39,6 +39,11 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
     public ModelPart spiderForeLeg6;
     public ModelPart spiderForeLeg7;
     public ModelPart spiderForeLeg8;
+    
+    public SpiderMutator()
+    {
+    	super(SpiderData::new);
+    }
     
 	@Override
 	public void storeVanillaModel(ModelSpider model)
@@ -181,23 +186,8 @@ public class SpiderMutator extends Mutator<EntitySpider, ModelSpider>
 	}
 	
 	@Override
-	public void performAnimations(EntitySpider entity, RenderLivingBase<? extends EntitySpider> renderer,
-			float partialTicks)
+	protected void syncUpWithData(SpiderData data)
 	{
-		SpiderData data = EntityDatabase.instance.getAndMake(SpiderData::new, entity);
-
-		data.setHeadYaw(this.headYaw);
-		data.setHeadPitch(this.headPitch);
-		data.setLimbSwing(this.limbSwing);
-		data.setLimbSwingAmount(this.limbSwingAmount);
-
-		Controller controller = data.getController();
-		if (controller != null && data.canBeUpdated())
-		{
-			controller.perform(data);
-		}
-
-		// Sync up with the EntityData
 		spiderHead.syncUp(data.spiderHead);
 		spiderNeck.syncUp(data.spiderNeck);
 		spiderBody.syncUp(data.spiderBody);
