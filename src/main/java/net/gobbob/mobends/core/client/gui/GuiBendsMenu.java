@@ -86,7 +86,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		for (AnimatedEntity animatedEntity : AnimatedEntityRegistry.getRegistered())
 		{
-			this.alterEntries.addAll(animatedEntity.getAlredEntries());
+			this.alterEntries.addAll(animatedEntity.getAlterEntries());
 		}
 
 		this.customizeButton = new GuiSectionButton(Lang.format("mobends.gui.section.customize"), 0xFFDA3A00)

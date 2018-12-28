@@ -20,13 +20,13 @@ public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?>
 	private float ticksPlayed;
 	
 	@Override
-	public String[] getActions(BipedEntityData entityData)
+	public String[] getActions(BipedEntityData<?> entityData)
 	{
 		return ACTIONS;
 	}
 
 	@Override
-	public void onPlay(BipedEntityData data)
+	public void onPlay(BipedEntityData<?> data)
 	{
 		data.swordTrail.reset();
 		
@@ -34,7 +34,7 @@ public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?>
 	}
 
 	@Override
-	public void perform(BipedEntityData data)
+	public void perform(BipedEntityData<?> data)
 	{
 		EntityLivingBase living = data.getEntity();
 		EnumHandSide primaryHand = living.getPrimaryHand();

@@ -10,14 +10,13 @@ import net.gobbob.mobends.standard.animation.bit.biped.FistGuardAnimationBit;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 
 public class AttackAnimationBit extends AnimationBit<PlayerData>
 {
-	protected HardAnimationLayer<BipedEntityData> layerBase;
+	protected HardAnimationLayer<BipedEntityData<?>> layerBase;
 	protected AttackStanceAnimationBit bitAttackStance;
 	protected AttackStanceSprintAnimationBit bitAttackStanceSprint;
 	protected AttackSlashUpAnimationBit bitAttackSlashUp;

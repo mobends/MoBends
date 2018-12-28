@@ -3,9 +3,6 @@ package net.gobbob.mobends.core;
 import java.util.HashMap;
 import java.util.List;
 
-import org.lwjgl.util.vector.Vector;
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IBendsModel;
@@ -16,9 +13,9 @@ import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public abstract class EntityData<E extends Entity> implements IBendsModel
@@ -26,17 +23,11 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	protected int entityID;
 	protected E entity;
 
-	protected double positionX = 0.0D;
-	protected double positionY = 0.0D;
-	protected double positionZ = 0.0D;
-	protected double prevMotionX = 0.0D;
-	protected double prevMotionY = 0.0D;
-	protected double prevMotionZ = 0.0D;
-	protected double motionX = 0.0D;
-	protected double motionY = 0.0D;
-	protected double motionZ = 0.0D;
+	protected double positionX, positionY, positionZ;
+	protected double prevMotionX, prevMotionY, prevMotionZ;
+	protected double motionX, motionY, motionZ;
 	protected boolean onGround = true;
-	protected HashMap<String, Object> nameToPartMap;
+	protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
 
 	public SmoothVector3f renderOffset;
     public SmoothOrientation renderRotation;
@@ -62,7 +53,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 		this.renderRotation = new SmoothOrientation();
 		this.centerRotation = new SmoothOrientation();
 		
-		this.nameToPartMap = new HashMap<String, Object>();
 		this.nameToPartMap.put("renderRotation", renderRotation);
 		this.nameToPartMap.put("centerRotation", centerRotation);
 	}
@@ -94,8 +84,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	}
 	
 	/*
-	 * Used by the Previewers to simulate the entities
-	 * being on ground.
+	 * Used by the Previewers to simulate the entities being on ground.
 	 */
 	public void forceOnGround(boolean flag)
 	{
@@ -134,7 +123,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	
 	public boolean isStillHorizontally()
 	{
-		return motionX == 0.0D && motionZ == 0.0D;
+		return Math.abs(motionX) < 1e-9 && Math.abs(motionZ) < 1e-9;
 	}
 
 	public abstract Controller<?> getController();
@@ -157,78 +146,47 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 
 	public float getLookAngle()
 	{
-		EntityLivingBase entity = (EntityLivingBase) getEntity();
-		Vec3d vec3 = entity.getLookVec();
-		double x = vec3.x;
-		double z = vec3.z;
-		if (x * x + z * z == 0)
-		{
-			return 0;
-		}
-		return (float) (Math.atan2(x, z) / Math.PI * 180.0f);
+		Vec3d lookVec = this.entity.getLookVec();
+		return (float) GUtil.angleFromCoordinates(lookVec.x, lookVec.z);
+	}
+	
+	private float getWorldMovementAngle()
+	{
+		return (float) GUtil.angleFromCoordinates(this.motionX, this.motionZ);
 	}
 
 	public float getMovementAngle()
 	{
-		float lookAngle = this.getLookAngle();
-
-		double x = this.motionX;
-		double z = this.motionZ;
-		if (x * x + z * z == 0)
+		if (isStillHorizontally())
 			return 0;
-		float worldMoveAngle = (float) (Math.atan2(x, z) / Math.PI * 180.0f);
-
-		return worldMoveAngle - lookAngle;
+		return this.getWorldMovementAngle() - this.getLookAngle();
 	}
 	
 	public double getForwardMomentum()
 	{
-		double motionLen = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
-		
-		if (motionLen == 0)
+		if (isStillHorizontally())
 			return 0;
-		
-		double mx = motionX;
-		double mz = motionZ;
-		
-		Vec3d lookVec = entity.getLookVec();
-		Vec3d vec = new Vec3d(lookVec.x, 0, lookVec.z);
-		if (vec.lengthSquared() == 0)
-			return 0;
-		vec = vec.normalize();
-		double lx = vec.x;
-		double lz = vec.z;
-		
-		return lx * mx + lz * mz;
+		Vec3d lookVec = this.entity.getLookVec();
+		Vec3d lookVecHorizontal = new Vec3d(lookVec.x, 0, lookVec.z).normalize();
+		return lookVecHorizontal.x * this.motionX + lookVecHorizontal.z * this.motionZ;
 	}
 	
 	public double getSidewaysMomentum()
 	{
-		double motionLen = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
-		
-		if (motionLen == 0)
+		if (isStillHorizontally())
 			return 0;
-		
-		double mx = motionX;
-		double mz = motionZ;
-		
 		Vec3d rightVec = entity.getLookVec().rotateYaw(-GUtil.PI / 2.0F);
-		Vec3d vec = new Vec3d(rightVec.x, 0, rightVec.z);
-		if (vec.lengthSquared() == 0)
-			return 0;
-		vec = vec.normalize();
-		double lx = vec.x;
-		double lz = vec.z;
-		
-		return lx * mx + lz * mz;
+		Vec3d rightVecHorizontal = new Vec3d(rightVec.x, 0, rightVec.z).normalize();
+		return rightVecHorizontal.x * this.motionX + rightVecHorizontal.z * this.motionZ;
 	}
+	
+	private static final float STRAFING_THRESHOLD = 30.0f;
 
 	public boolean isStrafing()
 	{
 		float angle = this.getMovementAngle();
-		float threshold = 30.0f;
-		return (angle >= threshold && angle <= 180.0f - threshold)
-				|| (angle >= -180.0f + threshold && angle <= -threshold);
+		return (angle >= STRAFING_THRESHOLD && angle <= 180.0f - STRAFING_THRESHOLD)
+				|| (angle >= -180.0f + STRAFING_THRESHOLD && angle <= -STRAFING_THRESHOLD);
 	}
 	
 	/**
@@ -236,11 +194,14 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	 */
 	public boolean isUnderwater()
 	{
-		int blockX = (int) this.entity.posX;
-		int blockY = (int) this.entity.posY + 2;
-		int blockZ = (int) this.entity.posZ;
+		if (!this.entity.isInWater())
+			return false;
+		
+		int blockX = MathHelper.floor(this.entity.posX);
+		int blockY = MathHelper.floor(this.entity.posY + 2);
+		int blockZ = MathHelper.floor(this.entity.posZ);
 		IBlockState state = Minecraft.getMinecraft().world.getBlockState(new BlockPos(blockX, blockY, blockZ));
-		return this.entity.isInWater() && state.getBlock() instanceof BlockStaticLiquid;
+		return state.getBlock() instanceof BlockStaticLiquid;
 	}
 
 	public double getPrevMotionMagnitude()
@@ -255,9 +216,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	
 	public double getInterpolatedMotionMagnitude()
 	{
-		final double magnitude = this.getMotionMagnitude();
-		final double prevMagnitude = this.getPrevMotionMagnitude();
-		return prevMagnitude + (magnitude - prevMagnitude) * DataUpdateHandler.partialTicks;
+		return interpolateMagitude(this.getMotionMagnitude(), this.getPrevMotionMagnitude());
 	}
 	
 	public double getXZMotionMagnitude() {
@@ -270,8 +229,11 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	
 	public double getInterpolatedXZMotionMagnitude()
 	{
-		final double magnitude = this.getXZMotionMagnitude();
-		final double prevMagnitude = this.getPrevXZMotionMagnitude();
+		return interpolateMagitude(this.getXZMotionMagnitude(), this.getPrevXZMotionMagnitude());
+	}
+	
+	private static double interpolateMagitude(double magnitude, double prevMagnitude)
+	{
 		return prevMagnitude + (magnitude - prevMagnitude) * DataUpdateHandler.partialTicks;
 	}
 

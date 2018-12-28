@@ -1,9 +1,6 @@
 package net.gobbob.mobends.standard.animation.bit.pigzombie;
 
-import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.gobbob.mobends.standard.data.PigZombieData;
-import net.gobbob.mobends.standard.data.ZombieData;
-import net.minecraft.util.math.MathHelper;
 
 public class StandAnimationBit extends net.gobbob.mobends.standard.animation.bit.biped.StandAnimationBit<PigZombieData>
 {

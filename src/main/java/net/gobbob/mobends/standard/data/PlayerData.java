@@ -13,6 +13,7 @@ import net.minecraft.util.EnumHand;
 
 public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 {
+	
 	public ModelPart ears;
 	public ModelPart cloak;
 
@@ -21,11 +22,17 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	boolean fistPunchArm = false;
 	int currentAttack = 0;
 
-	final PlayerController controller = new PlayerController();
+	private final PlayerController controller = new PlayerController();
 	
 	public PlayerData(AbstractClientPlayer entity)
 	{
 		super(entity);
+	}
+	
+	@Override
+	public PlayerController getController()
+	{
+		return controller;
 	}
 
 	@Override
@@ -125,10 +132,5 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	{
 		return sprintJumpLeg;
 	}
-
-	@Override
-	public PlayerController getController()
-	{
-		return this.controller;
-	}
+	
 }

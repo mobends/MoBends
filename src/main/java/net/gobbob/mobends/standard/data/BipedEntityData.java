@@ -108,7 +108,8 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	}
 	
 	@Override
-	public E getEntity() {
-		return super.getEntity();
+	public E getEntity()
+	{
+		return this.entity;
 	}
 }

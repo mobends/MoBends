@@ -1,7 +1,6 @@
 package net.gobbob.mobends.core.addon;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
@@ -11,6 +10,8 @@ public class AddonHelper
 {
 	
 	private static final AddonHelper INSTANCE = new AddonHelper();
+	
+	private AddonHelper() {}
 	
 	private List<IAddon> addons = new ArrayList<IAddon>();
 	

@@ -17,7 +17,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?>>
 	private float transitionSpeed = 0.1F;
 	
 	@Override
-	public String[] getActions(BipedEntityData data)
+	public String[] getActions(BipedEntityData<?> data)
 	{
 		if (data.isUnderwater())
 			return ACTIONS_UNDERWATER;
@@ -26,7 +26,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?>>
 	}
 	
 	@Override
-	public void onPlay(BipedEntityData data)
+	public void onPlay(BipedEntityData<?> data)
 	{
 		transformTransition = 0F;
 		transitionSpeed = .1F;

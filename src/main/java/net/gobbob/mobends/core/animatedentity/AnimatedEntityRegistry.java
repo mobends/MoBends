@@ -12,7 +12,7 @@ import net.minecraftforge.common.config.Configuration;
 
 public class AnimatedEntityRegistry
 {
-	public static AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
+	public static final AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
 	
 	private HashMap<String, AnimatedEntity<?>> nameToInstanceMap = new HashMap<String, AnimatedEntity<?>>();
 	private HashMap<Class<? extends Entity>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<Class<? extends Entity>, AnimatedEntity<?>>();
@@ -45,7 +45,7 @@ public class AnimatedEntityRegistry
 		return INSTANCE.nameToInstanceMap.values();
 	}
 	
-	public static AnimatedEntity get(String name)
+	public static AnimatedEntity<?> get(String name)
 	{
 		return INSTANCE.nameToInstanceMap.get(name);
 	}

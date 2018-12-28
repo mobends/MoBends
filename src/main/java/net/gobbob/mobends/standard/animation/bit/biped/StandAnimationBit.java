@@ -1,15 +1,11 @@
 package net.gobbob.mobends.standard.animation.bit.biped;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.client.event.EntityRenderHandler;
 import net.gobbob.mobends.standard.data.BipedEntityData;
-import net.minecraft.item.ItemSword;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 
-public class StandAnimationBit<T extends BipedEntityData> extends AnimationBit<T>
+public class StandAnimationBit<T extends BipedEntityData<?>> extends AnimationBit<T>
 {
 	private static final String[] ACTIONS = new String[] { "stand" };
 	

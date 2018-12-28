@@ -12,19 +12,14 @@ public class EntityDatabase
 	public static EntityDatabase instance = new EntityDatabase();
 
 	// Contains data for all EntityData instances.
-	protected HashMap<Integer, EntityData> entryMap;
+	protected final HashMap<Integer, EntityData<?>> entryMap = new HashMap<>();
 
-	public EntityDatabase()
-	{
-		this.entryMap = new HashMap<Integer, EntityData>();
-	}
-
-	public EntityData get(Integer identifier)
+	public EntityData<?> get(Integer identifier)
 	{
 		return entryMap.get(identifier);
 	}
 
-	public EntityData get(Entity entity)
+	public EntityData<?> get(Entity entity)
 	{
 		return this.get(entity.getEntityId());
 	}
@@ -38,36 +33,30 @@ public class EntityDatabase
 	 * @param entity The entity whose data we want to get (or first create if there is none)
 	 * @return Entity's data
 	 */
-	public <T extends EntityData, E extends Entity> T getAndMake(Function<E, T> dataCreationFunction, E entity)
+	public <T extends EntityData<E>, E extends Entity> T getAndMake(Function<E, T> dataCreationFunction, E entity)
 	{
 		final int entityId = entity.getEntityId();
 		
+		// Both T and the return type of #get(Entity) will be EntityData during runtime due to generic type erasure. 
+		@SuppressWarnings("unchecked")
 		T data = (T) this.get(entityId);
 		
 		if (data == null)
 		{
 			data = dataCreationFunction.apply(entity);
-			if (data != null)
-			{
-				this.add(entityId, data);
-			}
+			this.add(entityId, data);
 		}
 		return data;
 	}
 
-	private void add(int identifier, EntityData data)
+	private void add(int identifier, EntityData<?> data)
 	{
 		this.entryMap.put(identifier, data);
 	}
 
-	public void add(Entity entity, EntityData data)
+	public void add(Entity entity, EntityData<?> data)
 	{
 		this.add(entity.getEntityId(), data);
-	}
-
-	private void remove(int identifier)
-	{
-		this.entryMap.remove(identifier);
 	}
 
 	public void updateClient()
@@ -76,13 +65,12 @@ public class EntityDatabase
 		while (it.hasNext())
 		{
 			Integer key = it.next();
-			EntityData entityData = get(key);
+			EntityData<?> entityData = get(key);
 			Entity entity = Minecraft.getMinecraft().world.getEntityByID(key);
 			if (entity != null)
 			{
 				if (entityData.getEntity() != entity)
 				{
-					System.out.println("Removing");
 					it.remove();
 				} else
 				{
@@ -92,14 +80,13 @@ public class EntityDatabase
 			else
 			{
 				it.remove();
-				this.remove(key);
 			}
 		}
 	}
 
 	public void updateRender(float partialTicks)
 	{
-		for (EntityData entityData : this.entryMap.values())
+		for (EntityData<?> entityData : this.entryMap.values())
 		{
 			if (entityData.canBeUpdated())
 				entityData.update(partialTicks);

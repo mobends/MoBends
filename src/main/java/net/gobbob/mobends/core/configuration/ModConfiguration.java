@@ -26,7 +26,7 @@ public class ModConfiguration
     	config.load();
     	
     	for(AnimatedEntity animatedEntity : AnimatedEntityRegistry.getRegistered()) {
-    		List<AlterEntry> alterEntries = animatedEntity.getAlredEntries();
+    		List<AlterEntry> alterEntries = animatedEntity.getAlterEntries();
     		for(int a = 0; a < alterEntries.size(); a++) {
     			config.get("Animated", alterEntries.get(a).getKey(), true).setValue(alterEntries.get(a).isAnimated());
     		}

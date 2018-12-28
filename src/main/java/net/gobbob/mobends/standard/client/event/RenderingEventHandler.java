@@ -10,6 +10,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -20,17 +21,21 @@ public class RenderingEventHandler
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		Entity viewEntity = mc.getRenderViewEntity();
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(viewEntity);
-		EntityData entityData = EntityDatabase.instance.get(viewEntity);
 		
-		if (animatedEntity != null && animatedEntity.isAnimated() && entityData instanceof PlayerData)
+		if (viewEntity instanceof EntityLivingBase)
 		{
-			Render<Entity> render = mc.getRenderManager().getEntityRenderObject(viewEntity);
-			if (render instanceof RenderLivingBase)
+			AnimatedEntity animatedEntity = AnimatedEntity.getForEntity((EntityLivingBase) viewEntity);
+			EntityData entityData = EntityDatabase.instance.get(viewEntity);
+			
+			if (animatedEntity != null && animatedEntity.isAnimated() && entityData instanceof PlayerData)
 			{
-				PlayerMutator mutator = (PlayerMutator) AnimatedEntity.getMutatorForRenderer(AbstractClientPlayer.class, (RenderLivingBase) render);
-				if (mutator != null)
-					mutator.poseForFirstPersonView();
+				Render<Entity> render = mc.getRenderManager().getEntityRenderObject(viewEntity);
+				if (render instanceof RenderLivingBase)
+				{
+					PlayerMutator mutator = (PlayerMutator) AnimatedEntity.getMutatorForRenderer(AbstractClientPlayer.class, (RenderLivingBase) render);
+					if (mutator != null)
+						mutator.poseForFirstPersonView();
+				}
 			}
 		}
 	}

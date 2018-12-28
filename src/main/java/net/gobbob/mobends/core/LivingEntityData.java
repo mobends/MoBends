@@ -1,16 +1,8 @@
 package net.gobbob.mobends.core;
 
-import java.util.HashMap;
-
-import org.lwjgl.util.vector.Quaternion;
-
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.client.event.EntityRenderHandler;
-import net.gobbob.mobends.core.util.SmoothOrientation;
-import net.gobbob.mobends.core.util.SmoothVector3f;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
@@ -110,20 +102,17 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 		}
 			
 		
-		if(this.entity instanceof EntityLivingBase)
+		if(this.entity.swingProgress > 0)
 		{
-			if(((EntityLivingBase)this.entity).swingProgress > 0)
+			if(!this.alreadyPunched)
 			{
-		        if(!this.alreadyPunched)
-		        {
-		        	this.onPunch();
-		        	this.alreadyPunched = true;
-		        }
+				this.onPunch();
+				this.alreadyPunched = true;
 			}
-			else
-			{
-				this.alreadyPunched = false;
-			}
+		}
+		else
+		{
+			this.alreadyPunched = false;
 		}
 		
 		if(this.prevMotionY <= 0.0D && this.motionY > 0.0D)
@@ -167,12 +156,18 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 	
 	public float getClimbingRotation()
 	{
-		EnumFacing facing = getLadderFacing();
-		if(facing == EnumFacing.NORTH) return 0.0f;
-		if(facing == EnumFacing.SOUTH) return 180.0f;
-		if(facing == EnumFacing.WEST) return -90.0f;
-		if(facing == EnumFacing.EAST) return 90.0f;
-		return 0;
+		switch (getLadderFacing()) {
+		case NORTH:
+			return 0f;
+		case SOUTH:
+			return 180f;
+		case WEST:
+			return -90f;
+		case EAST:
+			return 90f;
+		default:
+			return 0;
+		}
 	}
 	
 	public EnumFacing getLadderFacing()
@@ -204,41 +199,46 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 	
 	public float getLedgeHeight()
 	{
-    	float clientY = (float) (entity.posY + (entity.posY-entity.prevPosY) * DataUpdateHandler.partialTicks);
-    	
-    	BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
-		
+		float clientY = (float) (entity.posY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks);
+
+		BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
+
 		IBlockState block = entity.world.getBlockState(position.add(0, 2, 0));
 		IBlockState blockBelow = entity.world.getBlockState(position.add(0, 1, 0));
 		IBlockState blockBelow2 = entity.world.getBlockState(position.add(0, 0, 0));
-    	if(!(block.getBlock() instanceof BlockLadder))
-    	{
-	    	if(!(blockBelow.getBlock() instanceof BlockLadder))
-	    	{
-	    		if(!(blockBelow2.getBlock() instanceof BlockLadder))
-	    			return (float) (clientY-((int)clientY))+2;
-	    		else
-	    			return (float) (clientY-((int)clientY))+1;
-	    	}
-	    	else
-	    		return (float) (clientY-((int)clientY));
-    	}
-    	
-    	return -2.0f;
-    }
+		if (!(block.getBlock() instanceof BlockLadder))
+		{
+			if (!(blockBelow.getBlock() instanceof BlockLadder))
+			{
+				if (!(blockBelow2.getBlock() instanceof BlockLadder))
+					return (float) (clientY - ((int) clientY)) + 2;
+				else
+					return (float) (clientY - ((int) clientY)) + 1;
+			} else
+				return (float) (clientY - ((int) clientY));
+		}
+
+		return -2.0f;
+	}
 	
 	public boolean isDrawingBow()
 	{
-        if (entity.getItemInUseCount() > 0)
-        {
-        	ItemStack itemstack = entity.getHeldItemMainhand();
-            ItemStack itemstack1 = entity.getHeldItemOffhand();
-	        if ((!itemstack.isEmpty() && itemstack.getItemUseAction() == EnumAction.BOW) ||
-	        	(!itemstack1.isEmpty() && itemstack1.getItemUseAction() == EnumAction.BOW))
-	        {
-	        	return true;
-	        }
+		if (entity.getItemInUseCount() > 0)
+		{
+			ItemStack itemstack = entity.getHeldItemMainhand();
+			ItemStack itemstack1 = entity.getHeldItemOffhand();
+			if ((!itemstack.isEmpty() && itemstack.getItemUseAction() == EnumAction.BOW)
+					|| (!itemstack1.isEmpty() && itemstack1.getItemUseAction() == EnumAction.BOW))
+			{
+				return true;
+			}
 		}
-        return false;
+		return false;
+	}
+	
+	@Override
+	public E getEntity()
+	{
+		return this.entity;
 	}
 }

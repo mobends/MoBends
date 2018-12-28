@@ -82,7 +82,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		}
 	}
 	
-	public List<AlterEntry> getAlredEntries()
+	public List<AlterEntry> getAlterEntries()
 	{
 		return this.alterEntries;
 	}
@@ -107,7 +107,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		return key;
 	}
 
-	public Previewer getPreviewer()
+	public Previewer<T> getPreviewer()
 	{
 		return this.previewer;
 	}
@@ -140,7 +140,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		return this;
 	}
 
-	public AnimatedEntity addAlterEntry(AlterEntry alterEntry)
+	public AnimatedEntity<T> addAlterEntry(AlterEntry alterEntry)
 	{
 		this.generateDefaultAlterEntry();
 		
@@ -148,7 +148,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		return this;
 	}
 
-	public AnimatedEntity setPreviewer(Previewer previewer)
+	public AnimatedEntity<T> setPreviewer(Previewer<T> previewer)
 	{
 		this.previewer = previewer;
 		return this;
@@ -182,9 +182,9 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		mutationContainer.refresh();
 	}
 
-	public static AnimatedEntity getForEntity(Entity entity)
+	public static <E extends EntityLivingBase> AnimatedEntity<E> getForEntity(E entity)
 	{
-		return AnimatedEntityRegistry.getForEntity(entity);
+		return (AnimatedEntity<E>) AnimatedEntityRegistry.getForEntity(entity);
 	}
 	
 	public static void refreshMutators()

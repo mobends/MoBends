@@ -8,6 +8,7 @@ import net.minecraft.entity.monster.EntitySpider;
 
 public class SpiderData extends LivingEntityData<EntitySpider>
 {
+	
 	public ModelPartTransform spiderHead;
     public ModelPartTransform spiderNeck;
     public ModelPartTransform spiderBody;
@@ -36,7 +37,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 	{
 		super(entity);
 	}
-
+	
 	@Override
 	public SpiderController getController()
 	{

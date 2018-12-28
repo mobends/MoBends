@@ -1,8 +1,6 @@
 package net.gobbob.mobends.standard.animation.bit.biped;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
-import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.util.math.MathHelper;
 

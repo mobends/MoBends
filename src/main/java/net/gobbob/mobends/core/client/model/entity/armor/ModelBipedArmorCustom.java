@@ -2,7 +2,6 @@ package net.gobbob.mobends.core.client.model.entity.armor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,6 @@ import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.mutators.BoxMutator;
 import net.gobbob.mobends.core.util.ModelUtils;
 import net.gobbob.mobends.standard.data.BipedEntityData;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -51,7 +49,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 	/*
 	 * The lastest AnimatedEntity that rendered this armor.
 	 */
-	protected AnimatedEntity lastAnimatedEntity;
+	protected AnimatedEntity<EntityLivingBase> lastAnimatedEntity;
 	
 	/*
 	 * This is used as a parent for other parts, like the arms and head.
@@ -94,9 +92,15 @@ public class ModelBipedArmorCustom extends ModelBiped
 	{
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(entityIn);
-		EntityData entityData = EntityDatabase.instance.get(entityIn.getEntityId());
-		if (animatedEntity == null || entityData == null || !(entityData instanceof BipedEntityData))
+		if (!(entityIn instanceof EntityLivingBase))
+			return;
+		EntityLivingBase entityLiving = (EntityLivingBase) entityIn;
+		
+		AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntity.getForEntity(entityLiving);
+		if (animatedEntity == null)
+			return;
+		EntityData<?> entityData = EntityDatabase.instance.get(entityIn.getEntityId());
+		if (entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 
 		lastAnimatedEntity = animatedEntity;
@@ -109,7 +113,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 			this.demutate();
 		}
 		
-		BipedEntityData dataBiped = (BipedEntityData) entityData;
+		BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
 		
 		GlStateManager.pushMatrix();
 		original.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
@@ -173,11 +177,11 @@ public class ModelBipedArmorCustom extends ModelBiped
 	{
 		original.setModelAttributes(this);
 
-		EntityData entityData = EntityDatabase.instance.get(entityIn.getEntityId());
+		EntityData<?> entityData = EntityDatabase.instance.get(entityIn.getEntityId());
 		if (entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 
-		BipedEntityData dataBiped = (BipedEntityData) entityData;
+		BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
 
 		this.mainBodyTransform.syncUp(dataBiped.body);
 		

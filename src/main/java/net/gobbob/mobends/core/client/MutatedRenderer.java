@@ -33,14 +33,14 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 			viewZ = viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * partialTicks;
 		}
 		GlStateManager.translate(entityX - viewX, entityY - viewY, entityZ - viewZ);
-		GlStateManager.rotate(-this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
+		GlStateManager.rotate(-interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
 		
 		this.renderLocalAccessories(entity, partialTicks);
 		
-		EntityData data = EntityDatabase.instance.get(entity);
+		EntityData<?> data = EntityDatabase.instance.get(entity);
 		if (data != null && data instanceof LivingEntityData)
 		{
-			LivingEntityData livingData = (LivingEntityData) data;
+			LivingEntityData<?> livingData = (LivingEntityData<?>) data;
 
 			GlStateManager.translate(livingData.renderOffset.getX() * scale,
 									 livingData.renderOffset.getY() * scale,
@@ -53,7 +53,7 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 		
 		this.transformLocally(entity, partialTicks);
 		
-		GlStateManager.rotate(this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
+		GlStateManager.rotate(interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
 		GlStateManager.translate(viewX - entityX, viewY - entityY, viewZ - entityZ);
 	}
 	

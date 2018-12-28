@@ -11,7 +11,7 @@ import net.gobbob.mobends.core.animation.keyframe.KeyframeArmature;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IModelPart;
 
-public class KeyframeAnimationBit<T extends EntityData> extends AnimationBit<T>
+public class KeyframeAnimationBit<T extends EntityData<?>> extends AnimationBit<T>
 {
 	protected KeyframeAnimation performedAnimation;
 	private ArmatureMask mask;

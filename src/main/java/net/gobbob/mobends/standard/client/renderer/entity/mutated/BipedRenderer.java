@@ -15,10 +15,10 @@ public class BipedRenderer<T extends EntityLivingBase> extends MutatedRenderer<T
 	{
 		float scale = 0.0625F;
 		
-		EntityData data = EntityDatabase.instance.get(entity);
+		EntityData<?> data = EntityDatabase.instance.get(entity);
 		if (data instanceof BipedEntityData)
 		{
-			BipedEntityData bipedData = (BipedEntityData) data;
+			BipedEntityData<?> bipedData = (BipedEntityData<?>) data;
 			if (ModConfig.showSwordTrail)
 			{
 				GlStateManager.pushMatrix();

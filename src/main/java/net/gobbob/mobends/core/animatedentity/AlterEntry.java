@@ -12,6 +12,7 @@ import net.minecraft.world.World;
 
 public class AlterEntry
 {
+	
 	String key;
 	String unlocalizedName;
 	String postfix;
@@ -50,15 +51,18 @@ public class AlterEntry
 		return this.animate;
 	}
 	
-	public void toggleAnimated() {
+	public void toggleAnimated()
+	{
 		this.setAnimate(!this.animate);
 	}
 	
-	public String getUnlocalizedName() {
+	public String getUnlocalizedName()
+	{
 		return this.unlocalizedName;
 	}
 	
-	public AnimatedEntity getOwner() {
+	public AnimatedEntity getOwner()
+	{
 		return owner;
 	}
 	
@@ -70,17 +74,7 @@ public class AlterEntry
 			entity.world = Minecraft.getMinecraft().world;
 			entity.setLocationAndAngles(0, 0, 0, 0, 0);
 			entity.onInitialSpawn(entity.world.getDifficultyForLocation(entity.getPosition()), null);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		
@@ -96,4 +90,5 @@ public class AlterEntry
 	{
 		return this.key;
 	}
+	
 }
