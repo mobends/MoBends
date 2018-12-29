@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core;
+package net.gobbob.mobends.core.data;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +26,16 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	protected double positionX, positionY, positionZ;
 	protected double prevMotionX, prevMotionY, prevMotionZ;
 	protected double motionX, motionY, motionZ;
-	protected boolean onGround = true;
 	protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
 
 	public SmoothVector3f renderOffset;
     public SmoothOrientation renderRotation;
     public SmoothOrientation centerRotation;
 	
+    public boolean onGround = true;
+    public Boolean onGroundOverride = null;
+    public Boolean stillnessOverride = null;
+    
 	public EntityData(E entity)
 	{
 		this.entity = entity;
@@ -45,6 +48,26 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 		this.motionZ = this.prevMotionZ = 0.0D;
 		
 		this.initModelPose();
+	}
+	
+	public void overrideOnGroundState(boolean state)
+	{
+		this.onGroundOverride = state;
+	}
+	
+	public void unsetOnGroundStateOverride()
+	{
+		this.onGroundOverride = null;
+	}
+	
+	public void overrideStillness(boolean stillness)
+	{
+		this.stillnessOverride = stillness;
+	}
+	
+	public void unsetStillnessOverride()
+	{
+		this.stillnessOverride = null;
 	}
 
 	public void initModelPose()
@@ -75,20 +98,15 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 
 	public boolean calcOnGround()
 	{
+		if (this.onGroundOverride != null)
+			return this.onGroundOverride;
+		
 		Entity entity = Minecraft.getMinecraft().world.getEntityByID(this.entityID);
 		if (entity == null)
 			return false;
 
 		List<AxisAlignedBB> list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(0, -0.025f, 0));
 		return list.size() > 0;
-	}
-	
-	/*
-	 * Used by the Previewers to simulate the entities being on ground.
-	 */
-	public void forceOnGround(boolean flag)
-	{
-		this.onGround = flag;
 	}
 	
 	public boolean calcCollidedHorizontally()
@@ -123,7 +141,9 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	
 	public boolean isStillHorizontally()
 	{
-		return Math.abs(motionX) < 1e-9 && Math.abs(motionZ) < 1e-9;
+		return this.stillnessOverride != null ?
+				this.stillnessOverride :
+				(Math.abs(motionX) < 1e-9 && Math.abs(motionZ) < 1e-9);
 	}
 
 	public abstract Controller<?> getController();
@@ -237,7 +257,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 		return prevMagnitude + (magnitude - prevMagnitude) * DataUpdateHandler.partialTicks;
 	}
 
-	public void updateClient(Entity entity)
+	public void updateClient()
 	{
 		this.prevMotionX = this.motionX;
 		this.prevMotionY = this.motionY;

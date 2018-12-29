@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.animation.layer;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.data.EntityData;
 
 public class HardAnimationLayer<T extends EntityData<?>> extends AnimationLayer<T>
 {

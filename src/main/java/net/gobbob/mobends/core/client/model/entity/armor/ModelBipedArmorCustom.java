@@ -8,14 +8,14 @@ import java.util.Map;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelBox;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.client.model.ModelPartContainer;
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
+import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.mutators.BoxMutator;
 import net.gobbob.mobends.core.util.ModelUtils;
 import net.gobbob.mobends.standard.data.BipedEntityData;

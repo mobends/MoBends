@@ -1,21 +1,14 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.EntityDatabase;
-import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelPart;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.mutators.Mutator;
 import net.gobbob.mobends.standard.data.SquidData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.ModelSquid;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderSquid;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntitySquid;
 
 public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
@@ -24,9 +17,9 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 	public ModelPart squidBody;
 	public ModelPart[][] squidTentacles = new ModelPart[8][SquidData.TENTACLE_SECTIONS];
 
-	public SquidMutator()
+	public SquidMutator(IEntityDataFactory dataFactory)
 	{
-		super(SquidData::new);
+		super(dataFactory);
 	}
 	
 	@Override

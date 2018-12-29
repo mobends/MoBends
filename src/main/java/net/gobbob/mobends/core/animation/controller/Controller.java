@@ -1,6 +1,6 @@
 package net.gobbob.mobends.core.animation.controller;
 
-import net.gobbob.mobends.core.EntityData;
+import net.gobbob.mobends.core.data.EntityData;
 
 /*
  * This class is responsible for updating animation for each

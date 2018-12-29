@@ -1,8 +1,7 @@
 package net.gobbob.mobends.core.client.gui.addonswindow;
 
-import net.gobbob.mobends.core.addon.AddonHelper;
+import net.gobbob.mobends.core.addon.Addons;
 import net.gobbob.mobends.core.addon.IAddon;
-import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
 import net.gobbob.mobends.core.util.Lang;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
@@ -46,7 +45,7 @@ public class GuiAddonsWindow extends Gui
 				(int) (this.x + this.WIDTH/2), this.y + 4, 0xFFFFFF);
 		
 		int y = this.y + 50;
-		for (IAddon addon : AddonHelper.getRegistered()) {
+		for (IAddon addon : Addons.getRegistered()) {
 			this.drawCenteredString(this.fontRenderer, addon.getDisplayName(),
 					(int) (this.x + this.WIDTH/2), y, 0xFFFFFF);
 			y += 50;

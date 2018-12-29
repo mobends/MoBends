@@ -2,9 +2,12 @@ package net.gobbob.mobends.core.client.gui.elements;
 
 import org.lwjgl.opengl.GL11;
 
+import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.Previewer;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
+import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -21,7 +24,7 @@ public class GuiPortraitDisplay
 	private boolean value = false;
 	private double rotation;
 	private float animationValue;
-	private EntityLivingBase viewEntity;
+	private AlterEntry alterEntryToView;
 	private String animationToPreview = "";
 	protected long time, lastTime;
 
@@ -76,13 +79,13 @@ public class GuiPortraitDisplay
 			smoothAnimation = 2 - (1 - animationValue) * (1 - animationValue) * 4;
 		smoothAnimation /= 2;
 
-		if (viewEntity != null)
+		if (alterEntryToView != null)
 		{
 			float scale = 1.0f - smoothAnimation * 0.2f;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x + 25, y + height / 2, 0);
 			GlStateManager.scale(scale, scale, scale);
-			renderLivingEntity(0, 24, 24, viewEntity);
+			renderLivingEntity(0, 24, 24, alterEntryToView);
 			GlStateManager.popMatrix();
 		}
 
@@ -94,7 +97,7 @@ public class GuiPortraitDisplay
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 	}
 
-	public void renderLivingEntity(int argX, int argY, float scale, EntityLivingBase entityLivingBase)
+	public void renderLivingEntity(int argX, int argY, float scale, AlterEntry alterEntry)
 	{
 		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 		GL11.glPushMatrix();
@@ -109,40 +112,38 @@ public class GuiPortraitDisplay
 		RenderHelper.enableStandardItemLighting();
 		GL11.glRotatef(-lightAngle, 0.0F, 1.0F, 0.0F);
 		
-		float f2 = entityLivingBase.renderYawOffset;
-		float f3 = entityLivingBase.rotationYaw;
-		float f4 = entityLivingBase.rotationPitch;
-		float f5 = entityLivingBase.prevRotationYawHead;
-		float f6 = entityLivingBase.rotationYawHead;
-		entityLivingBase.renderYawOffset = 0;
-		entityLivingBase.rotationYaw = 0;
-		entityLivingBase.rotationPitch = 0;
-		entityLivingBase.rotationYawHead = entityLivingBase.rotationYaw;
-		entityLivingBase.prevRotationYawHead = entityLivingBase.rotationYaw;
+		LivingEntityData data = alterEntry.getDataForPreview();
+		EntityLivingBase living = data.getEntity();
+		
+		float f2 = living.renderYawOffset;
+		float f3 = living.rotationYaw;
+		float f4 = living.rotationPitch;
+		float f5 = living.prevRotationYawHead;
+		float f6 = living.rotationYawHead;
+		living.renderYawOffset = 0;
+		living.rotationYaw = 0;
+		living.rotationPitch = 0;
+		living.rotationYawHead = living.rotationYaw;
+		living.prevRotationYawHead = living.rotationYaw;
 		
 		Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
 		
-		Previewer previewer = null;
-		AnimatedEntity animatedEntity = AnimatedEntity.getForEntity(entityLivingBase);
-		if (animatedEntity != null)
-		{
-			previewer = animatedEntity.getPreviewer();
-		}
+		Previewer previewer = alterEntry.getPreviewer();
 		
 		if (previewer != null)
-			previewer.prePreview(entityLivingBase, this.animationToPreview);
+			previewer.prePreview(data, this.animationToPreview);
 		
-		Minecraft.getMinecraft().getRenderManager().renderEntity(entityLivingBase, 0.0D, 0.0D, 0.0D, 0.0F, 1.0f,
+		Minecraft.getMinecraft().getRenderManager().renderEntity(living, 0.0D, 0.0D, 0.0D, 0.0F, 1.0f,
 				false);
 		
 		if (previewer != null)
-			previewer.postPreview(entityLivingBase, this.animationToPreview);
+			previewer.postPreview(data, this.animationToPreview);
 		
-		entityLivingBase.renderYawOffset = f2;
-		entityLivingBase.rotationYaw = f3;
-		entityLivingBase.rotationPitch = f4;
-		entityLivingBase.prevRotationYawHead = f5;
-		entityLivingBase.rotationYawHead = f6;
+		living.renderYawOffset = f2;
+		living.rotationYaw = f3;
+		living.rotationPitch = f4;
+		living.prevRotationYawHead = f5;
+		living.rotationYawHead = f6;
 		GL11.glPopMatrix();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableRescaleNormal();
@@ -161,31 +162,20 @@ public class GuiPortraitDisplay
 		return false;
 	}
 
-	public GuiPortraitDisplay setValue(boolean value)
-	{
-		this.value = value;
-		return this;
-	}
-
 	public void toggle()
 	{
 		value = !value;
 	}
 
-	public GuiPortraitDisplay setViewEntity(EntityLivingBase viewEntity)
+	public void showAlterEntry(AlterEntry alterEntry)
 	{
-		this.viewEntity = viewEntity;
-		return this;
+		this.alterEntryToView = alterEntry;
+		this.value = alterEntry.isAnimated();
 	}
 	
 	public void setAnimationToPreview(String animation)
 	{
 		this.animationToPreview = animation;
-	}
-
-	public EntityLivingBase getViewEntity()
-	{
-		return viewEntity;
 	}
 
 	public boolean getValue()

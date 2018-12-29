@@ -1,10 +1,14 @@
 package net.gobbob.mobends.standard.client.event;
 
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.addon.AddonHelper;
+import net.gobbob.mobends.core.addon.Addons;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
+import net.gobbob.mobends.standard.client.renderer.entity.ArrowTrail;
 import net.gobbob.mobends.standard.data.PlayerData;
+import net.gobbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
@@ -13,9 +17,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class RenderingEventHandler
 {
+	
 	@SubscribeEvent
 	public void beforeHandRender(RenderHandEvent event)
 	{

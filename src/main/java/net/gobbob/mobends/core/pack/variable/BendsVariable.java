@@ -2,9 +2,9 @@ package net.gobbob.mobends.core.pack.variable;
 
 import java.util.HashMap;
 
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.LivingEntityData;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.data.LivingEntityData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 

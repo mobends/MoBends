@@ -12,6 +12,7 @@ import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.animatedentity.DefaultAlterEntry;
 import net.gobbob.mobends.core.client.gui.addonswindow.GuiAddonsWindow;
 import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
 import net.gobbob.mobends.core.client.gui.elements.GuiSectionButton;
@@ -25,13 +26,10 @@ import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.Lang;
-import net.gobbob.mobends.standard.main.MoBends;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
@@ -65,7 +63,7 @@ public class GuiBendsMenu extends GuiScreen
 	 */
 	protected static int lastAlterEntryViewed = 0;
 	
-	public List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
+	public List<AlterEntry> alterEntries = new ArrayList<>();
 	public int currentAlterEntry = 0;
 
 	private GuiSectionButton customizeButton;

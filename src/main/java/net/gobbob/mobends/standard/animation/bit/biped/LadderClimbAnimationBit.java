@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard.animation.bit.biped;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;
@@ -41,7 +41,7 @@ public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData<?>>
 		float armOrientX = -45F;
 		
 		float climbingRotation = data.getClimbingRotation();
-		float renderRotationY = MathHelper.wrapDegrees(living.rotationYaw-data.getHeadYaw()-climbingRotation);
+		float renderRotationY = MathHelper.wrapDegrees(living.rotationYaw-data.headYaw.get()-climbingRotation);
 		data.renderRotation.setSmoothness(.6F).orientY(renderRotationY);
 		data.renderOffset.slideZ(armSwingDouble2, .6F);
 		
@@ -56,8 +56,8 @@ public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData<?>>
 		data.rightForeLeg.rotation.setSmoothness(.5F).orientX(20.0f+legSwingRight2*90F);
 		data.leftForeLeg.rotation.setSmoothness(.5F).orientX(20.0f+legSwingLeft2*90F);
 		
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
-		  				  .rotateY(GUtil.clamp(MathHelper.wrapDegrees(data.getHeadYaw() + renderRotationY), -90F, 90F));
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()))
+		  				  .rotateY(GUtil.clamp(MathHelper.wrapDegrees(data.headYaw.get() + renderRotationY), -90F, 90F));
 		
 		float ledgeClimbStart = 0.6F;
 		if(data.getLedgeHeight() >= ledgeClimbStart)

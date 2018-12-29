@@ -1,13 +1,8 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.function.Function;
-
-import net.gobbob.mobends.core.EntityDatabase;
-import net.gobbob.mobends.core.animation.controller.Controller;
-import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.standard.data.PigZombieData;
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelZombie;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.monster.EntityPigZombie;
@@ -18,9 +13,9 @@ public class PigZombieMutator extends BipedMutator<PigZombieData, EntityPigZombi
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
 	
-	public PigZombieMutator()
+	public PigZombieMutator(IEntityDataFactory dataFactory)
 	{
-		super(PigZombieData::new);
+		super(dataFactory);
 	}
 	
 	@Override

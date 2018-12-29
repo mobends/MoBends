@@ -1,19 +1,100 @@
 package net.gobbob.mobends.standard.previewer;
 
 import net.gobbob.mobends.core.animatedentity.Previewer;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.standard.data.PlayerData;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 
-public class PlayerPreviewer extends Previewer<AbstractClientPlayer>
+public class PlayerPreviewer extends BipedPreviewer<PlayerData>
 {
-	@Override
-	public void prePreview(AbstractClientPlayer entity, String animationToPreview)
+	
+	private static PlayerData PREVIEW_DATA;
+	private static boolean previewInProgress = false;
+	
+	public static void createPreviewData()
 	{
+		if (Minecraft.getMinecraft().player == null)
+		{
+			PREVIEW_DATA = null;
+			return;
+		}
+		PREVIEW_DATA = new PlayerData(Minecraft.getMinecraft().player);
+	}
+	
+	public static void deletePreviewData()
+	{
+		PREVIEW_DATA = null;
+	}
+	
+	public static PlayerData getPreviewData()
+	{
+		if (PREVIEW_DATA == null || PREVIEW_DATA.getEntity() == null)
+			createPreviewData();
+		return PREVIEW_DATA;
+	}
+	
+	public static void updatePreviewData(float partialTicks)
+	{
+		PlayerData data = getPreviewData();
+		if (data != null) {
+			data.update(partialTicks);
+		}
+	}
+	
+	public static void updatePreviewDataClient()
+	{
+		PlayerData data = getPreviewData();
+		if (data != null)
+		{
+			data.updateClient();
+		}
+	}
+	
+	public static boolean isPreviewInProgress()
+	{
+		return previewInProgress;
+	}
+	
+	@Override
+	public void prePreview(PlayerData data, String animationToPreview)
+	{
+		previewInProgress = true;
 		
+		data.overrideFlyingState(false);
+		
+		super.prePreview(data, animationToPreview);
+		
+		switch(animationToPreview)
+		{
+			case "flying":
+				data.overrideOnGroundState(false);
+				data.overrideFlyingState(true);
+				data.limbSwingAmount.override(0F);
+				
+				data.overrideStillness(true);
+				break;
+		}
 	}
 
 	@Override
-	public void postPreview(AbstractClientPlayer entity, String animationToPreview)
+	protected void prepareForWalk(PlayerData data)
 	{
-		
+		super.prepareForWalk(data);
+		data.overrideFlyingState(false);
 	}
+	
+	@Override
+	protected void prepareForDefault(PlayerData data)
+	{
+		super.prepareForDefault(data);
+		data.overrideFlyingState(false);
+	}
+	
+	@Override
+	public void postPreview(PlayerData data, String animationToPreview)
+	{
+		previewInProgress = false;
+	}
+	
 }

@@ -20,8 +20,8 @@ public class SneakAnimationBit extends AnimationBit<BipedEntityData<?>>
 		data.renderOffset.slideY(-1.3F);
 	
 		final float PI = (float) Math.PI;
-		float limbSwing = data.getLimbSwing() * 0.6662F;
-		float limbSwingAmount = data.getLimbSwingAmount() * 1.4F * 1.1F / PI * 180F;
+		float limbSwing = data.limbSwing.get() * 0.6662F;
+		float limbSwingAmount = data.limbSwingAmount.get() * 1.4F * 1.1F / PI * 180F;
 		float var = (limbSwing / PI) % 2;
 		data.rightLeg.rotation.setSmoothness(1.0F).orientX(MathHelper.cos(limbSwing) * limbSwingAmount - 5F)
 				.rotateZ(10);

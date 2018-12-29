@@ -2,11 +2,11 @@ package net.gobbob.mobends.standard.animation.bit.player;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.layer.AnimationLayer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.util.SmoothOrientation;
 import net.gobbob.mobends.standard.data.PlayerData;

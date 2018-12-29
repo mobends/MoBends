@@ -67,32 +67,32 @@ public class BowAnimationBit extends AnimationBit<BipedEntityData<?>>
 		{
 			float bodyTwistY = (((aimedBowDuration - 10) / 5.0f) * -25) * handDirMtp;
 			float var2 = (aimedBowDuration / 10.0f);
-			float var5 = data.getHeadPitch() - 90F;
+			float var5 = data.headPitch.get() - 90F;
 			var5 = Math.max(var5, -160);
 			
 			float bodyRotationX = 20 - (((aimedBowDuration - 10)) / 5.0f) * 20;
-			float bodyRotationY = -bodyTwistY + data.getHeadYaw();
+			float bodyRotationY = -bodyTwistY + data.headYaw.get();
 			if (data.isClimbing())
 			{
 				float climbingRotation = data.getClimbingRotation();
-				float renderRotationY = MathHelper.wrapDegrees(living.rotationYaw-data.getHeadYaw() - climbingRotation);
-				bodyRotationY = MathHelper.wrapDegrees(data.getHeadYaw() + renderRotationY);
+				float renderRotationY = MathHelper.wrapDegrees(living.rotationYaw-data.headYaw.get() - climbingRotation);
+				bodyRotationY = MathHelper.wrapDegrees(data.headYaw.get() + renderRotationY);
 				
-				data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.getHeadPitch() - bodyRotationX));
+				data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.headPitch.get() - bodyRotationX));
 			}
 			else
 			{
-				data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.getHeadPitch() - bodyRotationX))
-				  									  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw() - bodyRotationY));
+				data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.headPitch.get() - bodyRotationX))
+				  									  .rotateY(MathHelper.wrapDegrees(data.headYaw.get() - bodyRotationY));
 			}
 			
 			data.body.rotation.setSmoothness(.3F).orientX(bodyRotationX)
 			.rotateY(bodyRotationY);
 
-			mainArm.getRotation().setSmoothness(.8F).orientX(data.getHeadPitch() - 90F)
+			mainArm.getRotation().setSmoothness(.8F).orientX(data.headPitch.get() - 90F)
 					.rotateY(bodyTwistY);
 			offArm.getRotation().setSmoothness(1F).orientY(80F * handDirMtp)
-					.rotateZ(-MathHelper.cos(data.getHeadPitch()/180F*3.14F)*40.0F + 40.0F) //Keeping it close to the arm no matter the head pitch
+					.rotateZ(-MathHelper.cos(data.headPitch.get()/180F*3.14F)*40.0F + 40.0F) //Keeping it close to the arm no matter the head pitch
 					.rotateX(var5);
 
 			mainForeArm.getRotation().setSmoothness(1F).orientX(0);

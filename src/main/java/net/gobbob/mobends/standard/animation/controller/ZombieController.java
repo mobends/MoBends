@@ -3,10 +3,10 @@ package net.gobbob.mobends.standard.animation.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
+import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
 import net.gobbob.mobends.standard.DefaultAddon;
@@ -58,7 +58,7 @@ public class ZombieController extends Controller<ZombieData>
         ItemStack itemstack1 = zombie.getHeldItemOffhand();
         ModelBiped.ArmPose armPoseMain = ModelBiped.ArmPose.EMPTY;
         ModelBiped.ArmPose armPoseOff = ModelBiped.ArmPose.EMPTY;
-
+        
         if (!itemstack.isEmpty())
         {
             armPoseMain = ModelBiped.ArmPose.ITEM;
@@ -100,9 +100,11 @@ public class ZombieController extends Controller<ZombieData>
 		if (!zombieData.isOnGround() || zombieData.getTicksAfterTouchdown() < 1)
 		{
 			this.layerBase.playOrContinueBit(bitJump, zombieData);
+			System.out.println("Airborne");
 		}
 		else
 		{
+			//System.out.println("On ground");
 			if (zombieData.isStillHorizontally())
 			{
 				this.layerBase.playOrContinueBit(bitStand, zombieData);

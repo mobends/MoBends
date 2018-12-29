@@ -25,8 +25,8 @@ public class FallingAnimationBit extends AnimationBit<BipedEntityData<?>>
 
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
-				.rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()))
+				.rotateY(MathHelper.wrapDegrees(data.headYaw.get()));
 		data.body.rotation.orientY(0).setSmoothness(0.5F);
 
 		float ticks = DataUpdateHandler.getTicks() * 0.5F;

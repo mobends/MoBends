@@ -1,9 +1,10 @@
-package net.gobbob.mobends.core;
+package net.gobbob.mobends.core.data;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.function.Function;
 
+import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 
@@ -33,7 +34,7 @@ public class EntityDatabase
 	 * @param entity The entity whose data we want to get (or first create if there is none)
 	 * @return Entity's data
 	 */
-	public <T extends EntityData<E>, E extends Entity> T getAndMake(Function<E, T> dataCreationFunction, E entity)
+	public <T extends EntityData<E>, E extends Entity> T getOrMake(IEntityDataFactory<E> dataCreationFunction, E entity)
 	{
 		final int entityId = entity.getEntityId();
 		
@@ -43,7 +44,7 @@ public class EntityDatabase
 		
 		if (data == null)
 		{
-			data = dataCreationFunction.apply(entity);
+			data = (T) dataCreationFunction.createEntityData(entity);
 			this.add(entityId, data);
 		}
 		return data;
@@ -66,20 +67,30 @@ public class EntityDatabase
 		{
 			Integer key = it.next();
 			EntityData<?> entityData = get(key);
-			Entity entity = Minecraft.getMinecraft().world.getEntityByID(key);
-			if (entity != null)
+			Entity entityInData = entityData.getEntity();
+			
+			if (AlterEntry.isPreviewEntity(entityInData))
 			{
-				if (entityData.getEntity() != entity)
-				{
-					it.remove();
-				} else
-				{
-					entityData.updateClient(entity);
-				}
+				entityData.updateClient();
 			}
 			else
 			{
-				it.remove();
+				Entity entity = Minecraft.getMinecraft().world.getEntityByID(key);
+				if (entity != null)
+				{
+					if (entityData.getEntity() != entity)
+					{
+						it.remove();
+					}
+					else
+					{
+						entityData.updateClient();
+					}
+				}
+				else
+				{
+					it.remove();
+				}
 			}
 		}
 	}
@@ -96,5 +107,10 @@ public class EntityDatabase
 	public void refresh()
 	{
 		this.entryMap.clear();
+	}
+
+	public void onTicksRestart()
+	{
+		entryMap.values().forEach( data -> data.onTicksRestart() );
 	}
 }

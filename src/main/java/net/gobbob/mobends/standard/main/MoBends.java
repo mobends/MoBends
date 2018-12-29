@@ -22,7 +22,8 @@ import net.minecraftforge.fml.relauncher.Side;
 @Mod(modid = ModStatics.MODID, name = ModStatics.MODNAME, version = ModStatics.VERSION)
 public class MoBends
 {
-	@SidedProxy(serverSide = "net.gobbob.mobends.standard.main.CommonProxy", clientSide = "net.gobbob.mobends.standard.client.ClientProxy")
+	@SidedProxy(serverSide = "net.gobbob.mobends.standard.main.CommonProxy",
+				clientSide = "net.gobbob.mobends.standard.client.ClientProxy")
 	public static CommonProxy proxy;
 
 	@Instance(value = ModStatics.MODID)

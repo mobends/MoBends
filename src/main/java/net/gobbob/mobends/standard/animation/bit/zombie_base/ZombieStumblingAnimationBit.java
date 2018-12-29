@@ -4,21 +4,22 @@ import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.standard.data.ZombieDataBase;
 import net.minecraft.util.math.MathHelper;
 
-public class ZombieStumblingAnimationBit extends AnimationBit<ZombieDataBase>
+public class ZombieStumblingAnimationBit extends AnimationBit<ZombieDataBase<?>>
 {
 	@Override
-	public String[] getActions(ZombieDataBase data)
+	public String[] getActions(ZombieDataBase<?> data)
 	{
 		return new String[] { "stumbling" };
 	}
 
 	@Override
-	public void perform(ZombieDataBase data)
+	public void perform(ZombieDataBase<?> data)
 	{
+		
 		final float PI = (float) Math.PI;
-		float limbSwing = data.getLimbSwing() * 0.6662F;
+		float limbSwing = data.limbSwing.get() * 0.6662F;
 		limbSwing += Math.cos(limbSwing * 2.0F) * 0.3F;
-		float swingAmount = 45F * data.getLimbSwingAmount();
+		float swingAmount = 45F * data.limbSwingAmount.get();
 
 		data.rightLeg.rotation.setSmoothness(1F).orientX((MathHelper.cos(limbSwing) * swingAmount));
 		data.leftLeg.rotation.setSmoothness(1F).orientX((MathHelper.cos(limbSwing + PI) * swingAmount));

@@ -61,8 +61,8 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
 	@Override
 	public void perform(SpiderData data)
 	{
-		float headYaw = data.getHeadYaw();
-		float headPitch = data.getHeadPitch();
+		float headYaw = data.headYaw.get();
+		float headPitch = data.headPitch.get();
 		float ticks = data.getEntity().ticksExisted + DataUpdateHandler.partialTicks;
 		float bodyHeight = 0.0F;
 		
@@ -108,8 +108,8 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
         data.spiderForeLeg8.rotation.orientZ(foreBend);
         
         
-        float limbSwing = data.getLimbSwing() * 0.6662F;
-		float limbSwingAmount = data.getLimbSwingAmount() / (float) Math.PI * 180F;
+        float limbSwing = data.limbSwing.get() * 0.6662F;
+		float limbSwingAmount = data.limbSwingAmount.get() / (float) Math.PI * 180F;
         float f3 = -(MathHelper.cos(limbSwing * 2.0F + 0.0F) * 0.4F) * limbSwingAmount;
         float f4 = -(MathHelper.cos(limbSwing * 2.0F + (float)Math.PI) * 0.4F) * limbSwingAmount;
         float f5 = -(MathHelper.cos(limbSwing * 2.0F + ((float)Math.PI / 2F)) * 0.4F) * limbSwingAmount;

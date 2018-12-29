@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core;
+package net.gobbob.mobends.core.data;
 
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.minecraft.block.BlockLadder;
@@ -19,10 +19,11 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 	protected float climbingCycle = 0F;
 	protected boolean alreadyPunched = false;
 	protected boolean climbing = false;
-	protected float limbSwing = 0F;
-	protected float limbSwingAmount = 0F;
-	protected float headYaw = 0F;
-	protected float headPitch = 0F;
+	
+	public OverridableProperty<Float> limbSwing = new OverridableProperty<>(0F);
+	public OverridableProperty<Float> limbSwingAmount = new OverridableProperty<>(0F);
+	public OverridableProperty<Float> headYaw = new OverridableProperty<>(0F);
+	public OverridableProperty<Float> headPitch = new OverridableProperty<>(0F);
 	
 	public LivingEntityData(E entity)
 	{
@@ -43,41 +44,17 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 		this.climbing = flag;
 	}
 	
-	public void setLimbSwing(float limbSwing)
-	{
-		this.limbSwing = limbSwing;
-	}
-	
-	public void setLimbSwingAmount(float limbSwingAmount)
-	{
-		this.limbSwingAmount = limbSwingAmount;
-	}
-	
-	public void setHeadYaw(float headYaw)
-	{
-		this.headYaw = headYaw;
-	}
-	
-	public void setHeadPitch(float headPitch)
-	{
-		this.headPitch = headPitch;
-	}
-	
 	public float getClimbingCycle() { return this.climbingCycle; }
 	public float getTicksInAir() { return this.ticksInAir; }
 	public float getTicksAfterTouchdown() { return this.ticksAfterTouchdown; }
 	public float getTicksAfterAttack() { return this.ticksAfterAttack; }
 	public float getTicksFalling() { return this.ticksFalling; }
-	public float getLimbSwing() { return this.limbSwing; }
-	public float getLimbSwingAmount() { return this.limbSwingAmount; }
-	public float getHeadYaw() { return this.headYaw; }
-	public float getHeadPitch() { return this.headPitch; }
 	public boolean isClimbing() { return this.climbing; }
 	
 	@Override
-	public void update(float partialTicks)
+	public void updateClient()
 	{
-		super.update(partialTicks);
+		super.updateClient();
 		
 		if (this.calcOnGround() & !this.onGround)
 		{
@@ -119,16 +96,31 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 		{
 			this.onThrowup();
 		}
+	}
+	
+	@Override
+	public void update(float partialTicks)
+	{
+		super.update(partialTicks);
 		
-		if (!this.isOnGround()) {
+		if (this.isOnGround())
+		{
+			this.ticksAfterTouchdown += DataUpdateHandler.ticksPerFrame;
+		}
+		else
+		{
 			this.ticksInAir += DataUpdateHandler.ticksPerFrame;
-			if (this.motionY < 0.0D) {
+			
+			if (this.motionY < 0.0D)
+			{
 				this.ticksFalling += DataUpdateHandler.ticksPerFrame;
-			} else {
+			}
+			else
+			{
 				this.ticksFalling = 0.0F;
 			}
 		}
-		if (this.isOnGround()) this.ticksAfterTouchdown += DataUpdateHandler.ticksPerFrame;
+		
 		this.ticksAfterAttack += DataUpdateHandler.ticksPerFrame;
 		this.ticksAfterThrowup += DataUpdateHandler.ticksPerFrame;
 	}

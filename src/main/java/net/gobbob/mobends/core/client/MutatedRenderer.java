@@ -1,8 +1,8 @@
 package net.gobbob.mobends.core.client;
 
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.EntityDatabase;
-import net.gobbob.mobends.core.LivingEntityData;
+import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.data.EntityDatabase;
+import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.GLHelper;
 import net.gobbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;

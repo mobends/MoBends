@@ -105,10 +105,10 @@ public class PlayerController extends Controller<PlayerData>
 	}
 
 	@Override
-	public void perform(PlayerData playerData)
+	public void perform(PlayerData data)
 	{
-		BendsVariable.tempData = playerData;
-		AbstractClientPlayer player = playerData.getEntity();
+		BendsVariable.tempData = data;
+		AbstractClientPlayer player = data.getEntity();
 		EnumHandSide primaryHand = player.getPrimaryHand();
 		EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
 		ItemStack itemstack = player.getHeldItemMainhand();
@@ -130,7 +130,8 @@ public class PlayerController extends Controller<PlayerData>
 				if (enumaction == EnumAction.BLOCK)
 				{
 					armPoseMain = ModelBiped.ArmPose.BLOCK;
-				} else if (enumaction == EnumAction.BOW)
+				}
+				else if (enumaction == EnumAction.BOW)
 				{
 					armPoseMain = ModelBiped.ArmPose.BOW_AND_ARROW;
 				}
@@ -148,7 +149,8 @@ public class PlayerController extends Controller<PlayerData>
 				if (enumaction1 == EnumAction.BLOCK)
 				{
 					armPoseOff = ModelBiped.ArmPose.BLOCK;
-				} else if (enumaction1 == EnumAction.BOW)
+				}
+				else if (enumaction1 == EnumAction.BOW)
 				{
 					armPoseOff = ModelBiped.ArmPose.BOW_AND_ARROW;
 				}
@@ -159,73 +161,82 @@ public class PlayerController extends Controller<PlayerData>
 		{
 			if (player.getRidingEntity() instanceof EntityLivingBase)
 			{
-				this.layerBase.playOrContinueBit(bitRiding, playerData);
-			} else
+				this.layerBase.playOrContinueBit(bitRiding, data);
+			}
+			else
 			{
-				this.layerBase.playOrContinueBit(bitSitting, playerData);
+				this.layerBase.playOrContinueBit(bitSitting, data);
 			}
 			this.layerSneak.clearAnimation();
 			this.bitBreaking.setMask(this.upperBodyOnlyMask);
-		} else
+		}
+		else
 		{
-			if (playerData.isClimbing())
+			if (data.isClimbing())
 			{
-				this.layerBase.playOrContinueBit(bitLadderClimb, playerData);
+				this.layerBase.playOrContinueBit(bitLadderClimb, data);
 				this.layerSneak.clearAnimation();
 				this.layerTorch.clearAnimation();
 				this.bitBreaking.setMask(this.upperBodyOnlyMask);
-			} else if (player.isInWater())
+			}
+			else if (player.isInWater())
 			{
-				this.layerBase.playOrContinueBit(bitSwimming, playerData);
+				this.layerBase.playOrContinueBit(bitSwimming, data);
 				this.layerSneak.clearAnimation();
 				this.layerTorch.clearAnimation();
 				this.bitBreaking.setMask(this.upperBodyOnlyMask);
-			} else if (!playerData.isOnGround() || playerData.getTicksAfterTouchdown() < 1)
+			}
+			else if (!data.isOnGround() || data.getTicksAfterTouchdown() < 1)
 			{
 				// Airborne
-				if (player.capabilities.isFlying)
+				if (data.isFlying())
 				{
 					// Flying
-					this.layerBase.playOrContinueBit(bitFlying, playerData);
-				} else
+					this.layerBase.playOrContinueBit(bitFlying, data);
+				}
+				else
 				{
-					if (playerData.getTicksFalling() > FallingAnimationBit.TICKS_BEFORE_FALLING)
+					if (data.getTicksFalling() > FallingAnimationBit.TICKS_BEFORE_FALLING)
 					{
-						this.layerBase.playOrContinueBit(bitFalling, playerData);
-					} else
+						this.layerBase.playOrContinueBit(bitFalling, data);
+					}
+					else
 					{
 						if (player.isSprinting())
-							this.layerBase.playOrContinueBit(bitSprintJump, playerData);
+							this.layerBase.playOrContinueBit(bitSprintJump, data);
 						else
-							this.layerBase.playOrContinueBit(bitJump, playerData);
+							this.layerBase.playOrContinueBit(bitJump, data);
 					}
 				}
 				this.layerSneak.clearAnimation();
 				this.layerTorch.clearAnimation();
 				this.bitBreaking.setMask(this.upperBodyOnlyMask);
-			} else
+			}
+			else
 			{
-				if (playerData.isStillHorizontally())
+				if (data.isStillHorizontally())
 				{
-					this.layerBase.playOrContinueBit(bitStand, playerData);
-					this.layerTorch.playOrContinueBit(bitTorchHolding, playerData);
+					this.layerBase.playOrContinueBit(bitStand, data);
+					this.layerTorch.playOrContinueBit(bitTorchHolding, data);
 					this.bitBreaking.setMask(null);
-				} else
+				}
+				else
 				{
 					if (player.isSprinting())
 					{
-						this.layerBase.playOrContinueBit(bitSprint, playerData);
+						this.layerBase.playOrContinueBit(bitSprint, data);
 						this.layerTorch.clearAnimation();
-					} else
+					}
+					else
 					{
-						this.layerBase.playOrContinueBit(bitWalk, playerData);
-						this.layerTorch.playOrContinueBit(bitTorchHolding, playerData);
+						this.layerBase.playOrContinueBit(bitWalk, data);
+						this.layerTorch.playOrContinueBit(bitTorchHolding, data);
 					}
 					this.bitBreaking.setMask(this.upperBodyOnlyMask);
 				}
 
 				if (player.isSneaking())
-					this.layerSneak.playOrContinueBit(bitSneak, playerData);
+					this.layerSneak.playOrContinueBit(bitSneak, data);
 				else
 					this.layerSneak.clearAnimation();
 			}
@@ -237,33 +248,36 @@ public class PlayerController extends Controller<PlayerData>
 		if (activeStack != null && activeStack.getItem() instanceof ItemFood)
 		{
 			this.bitEating.setActionHand(activeHandSide);
-			this.layerAction.playOrContinueBit(bitEating, playerData);
-		} else
+			this.layerAction.playOrContinueBit(bitEating, data);
+		}
+		else
 		{
 			if (armPoseMain == ArmPose.BOW_AND_ARROW || armPoseOff == ArmPose.BOW_AND_ARROW)
 			{
 				this.bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
-				this.layerAction.playOrContinueBit(this.bitBow, playerData);
-			} else if (itemstack != null
+				this.layerAction.playOrContinueBit(this.bitBow, data);
+			}
+			else if (itemstack != null
 					&& (itemstack.getItem() instanceof ItemPickaxe || itemstack.getItem() instanceof ItemAxe))
 			{
 				if (player.isSwingInProgress)
-					this.layerAction.playOrContinueBit(this.bitBreaking, playerData);
+					this.layerAction.playOrContinueBit(this.bitBreaking, data);
 				else
 					this.layerAction.clearAnimation();
-			} else
+			}
+			else
 			{
-				this.layerAction.playOrContinueBit(this.bitAttack, playerData);
+				this.layerAction.playOrContinueBit(this.bitAttack, data);
 			}
 		}
 
 		List<String> actions = new ArrayList<String>();
-		layerBase.perform(playerData, actions);
-		layerSneak.perform(playerData, actions);
-		layerTorch.perform(playerData, actions);
-		layerAction.perform(playerData, actions);
-		layerKeyframe.perform(playerData, actions);
+		layerBase.perform(data, actions);
+		layerSneak.perform(data, actions);
+		layerTorch.perform(data, actions);
+		layerAction.perform(data, actions);
+		layerKeyframe.perform(data, actions);
 
-		BendsPack.animate(playerData, this.animationTarget, actions);
+		BendsPack.animate(data, this.animationTarget, actions);
 	}
 }

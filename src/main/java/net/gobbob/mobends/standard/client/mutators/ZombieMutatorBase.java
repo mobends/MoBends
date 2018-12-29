@@ -1,7 +1,6 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.function.Function;
-
+import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.standard.data.ZombieDataBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelZombie;
@@ -28,7 +27,7 @@ public abstract class ZombieMutatorBase<D extends ZombieDataBase<E>,
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
 	
-	public ZombieMutatorBase(Function<E, D> dataCreationFunction)
+	public ZombieMutatorBase(IEntityDataFactory dataCreationFunction)
 	{
 		super(dataCreationFunction);
 	}

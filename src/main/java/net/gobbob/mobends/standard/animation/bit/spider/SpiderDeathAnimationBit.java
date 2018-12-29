@@ -1,9 +1,9 @@
 package net.gobbob.mobends.standard.animation.bit.spider;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.event.EntityRenderHandler;
+import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
@@ -32,8 +32,8 @@ public class SpiderDeathAnimationBit extends AnimationBit<SpiderData>
 	{
 		data.renderOffset.slideY(10.0F, 0.3F);
 		
-		float headYaw = data.getHeadYaw();
-		float headPitch = data.getHeadPitch();
+		float headYaw = data.headYaw.get();
+		float headPitch = data.headPitch.get();
 		
 		data.spiderHead.rotation.orientInstantX(headPitch);
 		data.spiderHead.rotation.rotateY(headYaw);
@@ -66,8 +66,8 @@ public class SpiderDeathAnimationBit extends AnimationBit<SpiderData>
         data.spiderForeLeg7.rotation.orientInstantZ(-foreBend);
         data.spiderForeLeg8.rotation.orientInstantZ(foreBend);
         
-        float limbSwing = data.getLimbSwing() * 0.6662F;
-		float limbSwingAmount = data.getLimbSwingAmount() / (float) Math.PI * 180F;
+        float limbSwing = data.limbSwing.get() * 0.6662F;
+		float limbSwingAmount = data.limbSwingAmount.get() / (float) Math.PI * 180F;
         float f3 = -(MathHelper.cos(limbSwing * 2.0F + 0.0F) * 0.4F) * limbSwingAmount;
         float f4 = -(MathHelper.cos(limbSwing * 2.0F + (float)Math.PI) * 0.4F) * limbSwingAmount;
         float f5 = -(MathHelper.cos(limbSwing * 2.0F + ((float)Math.PI / 2F)) * 0.4F) * limbSwingAmount;

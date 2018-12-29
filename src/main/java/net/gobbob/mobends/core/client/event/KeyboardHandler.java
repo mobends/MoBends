@@ -4,10 +4,10 @@ import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
-import net.gobbob.mobends.core.EntityDatabase;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
+import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.standard.client.mutators.PlayerMutator;

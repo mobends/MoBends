@@ -1,6 +1,7 @@
 package net.gobbob.mobends.core.client.event;
 
-import net.gobbob.mobends.core.EntityDatabase;
+import net.gobbob.mobends.core.addon.Addons;
+import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.standard.client.renderer.entity.ArrowTrail;
 import net.gobbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
@@ -43,14 +44,14 @@ public class DataUpdateHandler
 			if (!(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused()))
 			{
 				EntityDatabase.instance.updateRender(event.renderTickTime);
-				if (ModConfig.showArrowTrails)
-					ArrowTrail.onRenderTick();
+				Addons.onRenderTick(event.renderTickTime);
 			}
 		}
 	}
 
 	public static void onTicksRestart()
 	{
+		EntityDatabase.instance.onTicksRestart();
 	}
 
 	@SubscribeEvent
@@ -64,6 +65,7 @@ public class DataUpdateHandler
 			lastNotedClientTick = Minecraft.getMinecraft().player.ticksExisted;
 
 			EntityDatabase.instance.updateClient();
+			Addons.onClientTick();
 		}
 	}
 }

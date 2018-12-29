@@ -26,8 +26,8 @@ public class BreakingAnimationBit extends KeyframeAnimationBit<BipedEntityData<?
 		super.perform(data);
 		
 		data.centerRotation.setSmoothness(.3F).orientZero();
-		data.body.rotation.rotateX(data.getHeadPitch() * 0.5F).finish();
-		data.head.rotation.rotateX(-data.getHeadPitch() * 0.5F);
+		data.body.rotation.rotateX(data.headPitch.get() * 0.5F).finish();
+		data.head.rotation.rotateX(-data.headPitch.get() * 0.5F);
 	}
 	
 	public static final String ANIMATION_JSON = "{\r\n" + 

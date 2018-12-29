@@ -3,8 +3,9 @@ package net.gobbob.mobends.core.mutators;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.LivingEntityData;
+import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
+import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
@@ -17,10 +18,12 @@ public class MutationContainer<D extends LivingEntityData<E>, E extends EntityLi
 {
 	
 	private HashMap<R, M> mutatorMap = new HashMap<R, M>();
+	private IEntityDataFactory<E> entityDataFactory;
 	private IMutatorFactory<M> mutatorFactory;
 	
-	public MutationContainer(IMutatorFactory<M> mutatorFactory)
+	public MutationContainer(IEntityDataFactory<E> entityDataFactory, IMutatorFactory<M> mutatorFactory)
 	{
+		this.entityDataFactory = entityDataFactory;
 		this.mutatorFactory = mutatorFactory;
 	}
 	
@@ -34,7 +37,7 @@ public class MutationContainer<D extends LivingEntityData<E>, E extends EntityLi
 		M mutator = mutatorMap.get(renderer);
 		if (!mutatorMap.containsKey(renderer))
 		{
-			mutator = mutatorFactory.createMutator();
+			mutator = mutatorFactory.createMutator(entityDataFactory);
 			if (!mutator.mutate(entity, renderer))
 			{
 				return false;

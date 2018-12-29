@@ -12,8 +12,8 @@ public class SprintAnimationBit extends net.gobbob.mobends.standard.animation.bi
 
 		if (data.getTicksAfterAttack() < 10)
 		{
-			data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
-					.rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
+			data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.headPitch.get()))
+					.rotateY(MathHelper.wrapDegrees(data.headYaw.get()));
 		}
 	}
 }

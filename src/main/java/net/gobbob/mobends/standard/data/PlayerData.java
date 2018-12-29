@@ -1,6 +1,5 @@
 package net.gobbob.mobends.standard.data;
 
-import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.standard.animation.controller.PlayerController;
 import net.gobbob.mobends.standard.main.ModConfig;
@@ -21,13 +20,13 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	boolean sprintJumpLegSwitched = false;
 	boolean fistPunchArm = false;
 	int currentAttack = 0;
-
-	private final PlayerController controller = new PlayerController();
 	
 	public PlayerData(AbstractClientPlayer entity)
 	{
 		super(entity);
 	}
+	
+	private final PlayerController controller = new PlayerController();
 	
 	@Override
 	public PlayerController getController()
@@ -35,6 +34,18 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		return controller;
 	}
 
+	private Boolean flyingStateOverride = null;
+	
+	public void overrideFlyingState(boolean flying)
+	{
+		this.flyingStateOverride = flying;
+	}
+	
+	public void unsetFlyingStateOverride()
+	{
+		this.flyingStateOverride = null;
+	}
+	
 	@Override
 	public void initModelPose()
 	{
@@ -131,6 +142,18 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	public boolean getSprintJumpLeg()
 	{
 		return sprintJumpLeg;
+	}
+	
+	public boolean isFlying()
+	{
+		return this.flyingStateOverride != null ?
+				this.flyingStateOverride :
+				this.entity.capabilities.isFlying;
+	}
+	
+	public void setMotionY(double motionY)
+	{
+		this.motionY = motionY;
 	}
 	
 }

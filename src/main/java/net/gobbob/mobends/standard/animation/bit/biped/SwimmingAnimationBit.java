@@ -98,8 +98,8 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?>>
 			data.renderRightItemRotation.setSmoothness(.3F).orientX(armSway*50);
 		}
 		
-		data.head.rotation.setSmoothness(1.0F).orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
-		  				  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()))
+		data.head.rotation.setSmoothness(1.0F).orientX(MathHelper.wrapDegrees(data.headPitch.get()))
+		  				  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()))
 		  				  .rotateX(-80F * t);
 		
 		data.renderRotation.setSmoothness(.7F).orientX(t * 80F);

@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.EntityDatabase;
-import net.gobbob.mobends.core.LivingEntityData;
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.data.EntityDatabase;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
+import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.ZombieData;
 import net.minecraft.client.model.ModelBase;
@@ -23,12 +24,12 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 	protected M vanillaModel;
 	protected float headYaw, headPitch, limbSwing, limbSwingAmount;
 	
-	protected Function<E, D> dataCreationFunction;
+	private IEntityDataFactory<E> dataFactory;
 	protected List<LayerRenderer<EntityLivingBase>> layerRenderers;
 	
-	public Mutator(Function<E, D> dataCreationFunction)
+	public Mutator(IEntityDataFactory<E> dataFactory)
 	{
-		this.dataCreationFunction = dataCreationFunction;
+		this.dataFactory = dataFactory;
 	}
 	
 	/*
@@ -174,10 +175,10 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 	
 	protected void performAnimations(D data, RenderLivingBase<? extends E> renderer, float partialTicks)
 	{
-		data.setHeadYaw(this.headYaw);
-		data.setHeadPitch(this.headPitch);
-		data.setLimbSwing(this.limbSwing);
-		data.setLimbSwingAmount(this.limbSwingAmount);
+		data.headYaw.set(this.headYaw);
+		data.headPitch.set(this.headPitch);
+		data.limbSwing.set(this.limbSwing);
+		data.limbSwingAmount.set(this.limbSwingAmount);
 
 		Controller controller = data.getController();
 		if (controller != null && data.canBeUpdated())
@@ -188,9 +189,9 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 	
 	protected abstract void syncUpWithData(D data);
 	
-	D getOrMakeData(E entity)
+	protected D getOrMakeData(E entity)
 	{
-		return EntityDatabase.instance.getAndMake(dataCreationFunction, entity);
+		return EntityDatabase.instance.getOrMake(dataFactory, entity);
 	}
 	
 	/*

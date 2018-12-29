@@ -29,8 +29,8 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		data.renderLeftItemRotation.orientZero();
 		data.renderRightItemRotation.orientZero();
 		
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()))
-		  				  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()));
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()))
+		  				  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()));
 		data.body.rotation.orientY(0).setSmoothness(0.5F);
 		
 		data.leftLeg.rotation.orientX(-90.0F).rotateZ(-10.0F).rotateY(-25.0F);
@@ -50,7 +50,7 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		{
 			EntityLivingBase riddenLiving = (EntityLivingBase) ridden;
 			float relativeHeadYaw = MathHelper.wrapDegrees(living.rotationYaw - riddenLiving.renderYawOffset);
-			float relativeYaw = MathHelper.wrapDegrees(living.rotationYaw - data.getHeadYaw() - riddenLiving.renderYawOffset);
+			float relativeYaw = MathHelper.wrapDegrees(living.rotationYaw - data.headYaw.get() - riddenLiving.renderYawOffset);
 			
 			data.body.rotation.orientZ(MathHelper.clamp(-relativeHeadYaw * 0.25F, -20.0F, 20.0F));
 			data.leftLeg.rotation.rotateX(-MathHelper.sin(relativeYaw / 180.0F * PI * 1.5F) * 45.0F);

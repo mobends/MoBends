@@ -67,8 +67,8 @@ public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?>
 
 		data.body.rotation.setSmoothness(.9F).orientX(bodyRotationX)
 											 .orientY(bodyRotationY);
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRotationX)
-						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRotationY);
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRotationX)
+						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRotationY);
 		
 		mainArm.getRotation().setSmoothness(.3F).orientZ(60F * handDirMtp)
 												.rotateInstantY(-20F + armSwing * 70F);

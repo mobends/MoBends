@@ -16,17 +16,20 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 public class ClientProxy extends CommonProxy
 {
 	
-	public void preInit(Configuration config)
+	@Override
+	public void preInit()
 	{
 		RenderingRegistry.registerEntityRenderingHandler(EntitySpectralArrow.class, RenderBendsSpectralArrow::new);
 		RenderingRegistry.registerEntityRenderingHandler(EntityTippedArrow.class, RenderBendsTippedArrow::new);
 	}
 
+	@Override
 	public void init()
 	{
 		MinecraftForge.EVENT_BUS.register(new RenderingEventHandler());
 	}
 	
+	@Override
 	public void postInit() {}
 	
 	@Override

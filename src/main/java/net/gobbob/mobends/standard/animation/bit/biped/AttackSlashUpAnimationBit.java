@@ -2,9 +2,9 @@ package net.gobbob.mobends.standard.animation.bit.biped;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.SmoothOrientation;
@@ -70,8 +70,8 @@ public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
 
 		data.body.rotation.setSmoothness(.9F).orientX(bodyRot.x)
 				.orientY(bodyRot.y);
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRot.x)
-						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRot.y);
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRot.x)
+						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRot.y);
 
 		mainArm.getRotation().setSmoothness(.9F).orientZ(110F * armSwing * handDirMtp)
 				.rotateY(60F - armSwing * 180F);

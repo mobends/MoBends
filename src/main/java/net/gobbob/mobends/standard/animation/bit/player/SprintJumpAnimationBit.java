@@ -1,9 +1,9 @@
 package net.gobbob.mobends.standard.animation.bit.player;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -65,6 +65,8 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		
 		float relaxAngle = MathHelper.sqrt(MathHelper.sqrt(this.relax));
 		
+		data.centerRotation.setSmoothness(.3F).orientZero();
+		
 		data.body.rotation.setSmoothness(.3F).orientX(bodyLean)
 				.rotateY(bodyRotationY);
 		data.rightLeg.rotation.setSmoothness(.8F).orientZ(5);
@@ -80,7 +82,7 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		mainForeLeg.getRotation().orientX(80F - relaxAngle * 80F);
 		offForeLeg.getRotation().orientX(relaxAngle * 70F);
 		
-		data.head.rotation.orientInstantX(data.getHeadPitch() - 20);
-		data.head.rotation.rotateY(data.getHeadYaw() - bodyRotationY);
+		data.head.rotation.orientInstantX(data.headPitch.get() - 20);
+		data.head.rotation.rotateY(data.headYaw.get() - bodyRotationY);
 	}
 }

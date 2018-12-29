@@ -1,6 +1,7 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.DefaultAlterEntry;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.IChangeListener;
 import net.gobbob.mobends.core.client.gui.Observable;
@@ -105,8 +106,7 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 		this.parameterEditor.deselect();
 		this.targetList.selectValue(mainMenu.currentAlterEntry);
 		
-		this.portraitDisplay.setViewEntity(alterEntry.getEntityForPreview());
-		this.portraitDisplay.setValue(alterEntry.isAnimated());
+		this.portraitDisplay.showAlterEntry(alterEntry);
 	}
 
 	public void update(int mouseX, int mouseY)

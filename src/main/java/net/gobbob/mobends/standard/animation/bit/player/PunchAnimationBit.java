@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard.animation.bit.player;
 
-import net.gobbob.mobends.core.EntityData;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
+import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -40,7 +40,7 @@ public class PunchAnimationBit extends AnimationBit<PlayerData>
 
 		if (data.getFistPunchArm())
 		{
-			data.rightArm.rotation.setSmoothness(.9F).orientY(-90).rotateX(-90.0f + data.getHeadPitch()).rotateY(10);
+			data.rightArm.rotation.setSmoothness(.9F).orientY(-90).rotateX(-90.0f + data.headPitch.get()).rotateY(10);
 			data.rightForeArm.rotation.setSmoothness(.9F).orientX(0);
 
 			data.body.rotation.setSmoothness(.6F).orientY(-20.0f + renderRotationY);
@@ -48,7 +48,7 @@ public class PunchAnimationBit extends AnimationBit<PlayerData>
 		}
 		else
 		{
-			data.leftArm.rotation.setSmoothness(.9F).orientY(100).rotateX(-90F + data.getHeadPitch()).rotateY(-16.0F);
+			data.leftArm.rotation.setSmoothness(.9F).orientY(100).rotateX(-90F + data.headPitch.get()).rotateY(-16.0F);
 
 			data.leftForeArm.rotation.setSmoothness(.9F).orientX(0);
 			data.body.rotation.setSmoothness(.6F).orientY(20.0f + renderRotationY);

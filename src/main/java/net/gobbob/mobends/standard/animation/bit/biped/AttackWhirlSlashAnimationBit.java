@@ -64,8 +64,8 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?
 
 		data.body.rotation.setSmoothness(.9F).orientX(bodyRot.x)
 				.orientY(bodyRot.y);
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.getHeadPitch()) - bodyRot.x)
-						  .rotateY(MathHelper.wrapDegrees(data.getHeadYaw()) - bodyRot.y - 30);
+		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRot.x)
+						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRot.y - 30);
 		
 		offArm.getRotation().setSmoothness(.3F).orientZ(20F * handDirMtp);
 		offArm.getRotation().setSmoothness(.3F).orientZ(-80F * handDirMtp);

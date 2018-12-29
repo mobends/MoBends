@@ -7,7 +7,6 @@ import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.pack.PackManager;
-import net.gobbob.mobends.standard.main.MoBends;
 import net.minecraftforge.common.config.Configuration;
 
 public class ModConfiguration

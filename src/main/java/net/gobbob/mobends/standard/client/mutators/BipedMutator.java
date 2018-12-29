@@ -1,7 +1,5 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.function.Function;
-
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelBox;
 import net.gobbob.mobends.core.client.model.ModelPartChild;
@@ -9,11 +7,11 @@ import net.gobbob.mobends.core.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.core.client.model.ModelPartChildPostOffset;
 import net.gobbob.mobends.core.client.model.ModelPartExtended;
 import net.gobbob.mobends.core.client.model.ModelPartPostOffset;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.mutators.Mutator;
 import net.gobbob.mobends.standard.client.renderer.entity.layers.LayerCustomBipedArmor;
 import net.gobbob.mobends.standard.client.renderer.entity.layers.LayerCustomHeldItem;
 import net.gobbob.mobends.standard.data.BipedEntityData;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
@@ -47,9 +45,9 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	protected LayerCustomHead 			layerCustomHeadVanilla;
 	
 
-	public BipedMutator(Function<E, D> dataCreationFunction)
+	public BipedMutator(IEntityDataFactory dataFactory)
 	{
-		super(dataCreationFunction);
+		super(dataFactory);
 	}
 
 	/*

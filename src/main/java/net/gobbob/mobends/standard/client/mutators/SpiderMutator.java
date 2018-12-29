@@ -1,20 +1,13 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import net.gobbob.mobends.core.EntityData;
-import net.gobbob.mobends.core.EntityDatabase;
-import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelPart;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.mutators.Mutator;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderSpider;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySpider;
 
 public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider>
@@ -40,9 +33,9 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
     public ModelPart spiderForeLeg7;
     public ModelPart spiderForeLeg8;
     
-    public SpiderMutator()
+    public SpiderMutator(IEntityDataFactory dataFactory)
     {
-    	super(SpiderData::new);
+    	super(dataFactory);
     }
     
 	@Override

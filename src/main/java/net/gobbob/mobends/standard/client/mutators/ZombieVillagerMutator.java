@@ -1,21 +1,18 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.function.Function;
-
 import net.gobbob.mobends.core.client.model.ModelPartChild;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.standard.data.ZombieVillagerData;
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelZombie;
 import net.minecraft.client.model.ModelZombieVillager;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.monster.EntityZombieVillager;
 
 public class ZombieVillagerMutator extends ZombieMutatorBase<ZombieVillagerData, EntityZombieVillager, ModelZombieVillager>
 {
 
-	public ZombieVillagerMutator()
+	public ZombieVillagerMutator(IEntityDataFactory dataFactory)
 	{
-		super(ZombieVillagerData::new);
+		super(dataFactory);
 	}
 	
 	@Override

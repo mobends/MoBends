@@ -3,8 +3,9 @@ package net.gobbob.mobends.core.animatedentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gobbob.mobends.core.LivingEntityData;
 import net.gobbob.mobends.core.client.MutatedRenderer;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
+import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.mutators.IMutatorFactory;
 import net.gobbob.mobends.core.mutators.MutationContainer;
 import net.gobbob.mobends.core.mutators.Mutator;
@@ -22,16 +23,16 @@ public class AnimatedEntity<T extends EntityLivingBase>
 	String key;
 	String keyWithoutModId;
 	String unlocalizedName;
-	List<AlterEntry> alterEntries = new ArrayList<AlterEntry>();
+	List<AlterEntry<T>> alterEntries = new ArrayList<>();
 	private String[] alterableParts;
 	private MutatedRenderer<T> renderer;
+	private IEntityDataFactory<T> entityDataFactory;
 	public Class<T> entityClass;
 
 	public MutationContainer mutationContainer;
-	public Previewer previewer;
 
 	public AnimatedEntity(String key, String unlocalizedName, Class<T> entityClass,
-			IMutatorFactory mutatorFactory,
+			IEntityDataFactory<T> entityDataFactory, IMutatorFactory mutatorFactory,
 			MutatedRenderer renderer, String[] alterableParts)
 	{
 		this.keyWithoutModId = key;
@@ -39,16 +40,17 @@ public class AnimatedEntity<T extends EntityLivingBase>
 			this.key = modid + "-" + this.keyWithoutModId;
 		this.unlocalizedName = unlocalizedName;
 		this.entityClass = entityClass;
-		this.mutationContainer = new MutationContainer(mutatorFactory);
+		this.entityDataFactory = entityDataFactory;
+		this.mutationContainer = new MutationContainer(entityDataFactory, mutatorFactory);
 		this.renderer = renderer;
 		this.alterableParts = alterableParts;	
 	}
 	
 	public AnimatedEntity(Class<T> entityClass,
-			IMutatorFactory mutatorFactory,
+			IEntityDataFactory<T> entityDataFactory, IMutatorFactory mutatorFactory,
 			MutatedRenderer renderer, String[] alterableParts)
 	{
-		this(null, null, entityClass, mutatorFactory, renderer, alterableParts);
+		this(null, null, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
 	}
 	
 	public boolean onRegistraton()
@@ -78,16 +80,16 @@ public class AnimatedEntity<T extends EntityLivingBase>
 	{
 		if (this.alterEntries.size() == 0)
 		{
-			this.alterEntries.add(new AlterEntry());
+			this.alterEntries.add(new DefaultAlterEntry());
 		}
 	}
 	
-	public List<AlterEntry> getAlterEntries()
+	public List<AlterEntry<T>> getAlterEntries()
 	{
 		return this.alterEntries;
 	}
 
-	public AlterEntry getAlterEntry(int index)
+	public AlterEntry<T> getAlterEntry(int index)
 	{
 		return this.alterEntries.get(index);
 	}
@@ -106,10 +108,10 @@ public class AnimatedEntity<T extends EntityLivingBase>
 	{
 		return key;
 	}
-
-	public Previewer<T> getPreviewer()
+	
+	public IEntityDataFactory<T> getDataFactory()
 	{
-		return this.previewer;
+		return this.entityDataFactory;
 	}
 
 	/*
@@ -117,7 +119,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 	 */
 	public boolean isAnimated()
 	{
-		for (AlterEntry entry : this.alterEntries)
+		for (AlterEntry<T> entry : this.alterEntries)
 		{
 			if (entry.isAnimated())
 				return true;
@@ -148,9 +150,10 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		return this;
 	}
 
-	public AnimatedEntity<T> setPreviewer(Previewer<T> previewer)
+	public AnimatedEntity<T> setPreviewer(Previewer previewer)
 	{
-		this.previewer = previewer;
+		this.generateDefaultAlterEntry();
+		this.alterEntries.get(0).setPreviewer(previewer);
 		return this;
 	}
 

@@ -1,16 +1,14 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.function.Function;
-
-import net.gobbob.mobends.core.EntityDatabase;
-import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelBox;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.client.model.ModelPartChild;
 import net.gobbob.mobends.core.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.core.client.model.ModelPartChildPostOffset;
+import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.standard.data.PlayerData;
+import net.gobbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelPlayer;
@@ -18,7 +16,7 @@ import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 
 /*
- * Instantiated one per RenderPlayer
+ * Instantiated once per RenderPlayer
  */
 public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer, ModelPlayer>
 {
@@ -35,9 +33,9 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 
 	protected boolean smallArms;
 
-	public PlayerMutator()
+	public PlayerMutator(IEntityDataFactory dataFactory)
 	{
-		super(PlayerData::new);
+		super(dataFactory);
 	}
 	
 	public boolean hasSmallArms()
@@ -249,4 +247,9 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		return model instanceof ModelPlayer;
 	}
 	
+	@Override
+	protected PlayerData getOrMakeData(AbstractClientPlayer entity)
+	{
+		return PlayerPreviewer.isPreviewInProgress() ? PlayerPreviewer.getPreviewData() : super.getOrMakeData(entity);
+	}
 }

@@ -1,15 +1,11 @@
 package net.gobbob.mobends.standard;
 
-import java.lang.reflect.InvocationTargetException;
-
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.world.World;
+import net.gobbob.mobends.core.data.LivingEntityData;
+import net.gobbob.mobends.standard.previewer.PlayerPreviewer;
+import net.minecraft.client.entity.AbstractClientPlayer;
 
-public class PlayerAlterEntry extends AlterEntry
+public class PlayerAlterEntry extends AlterEntry<AbstractClientPlayer>
 {
 
 	public PlayerAlterEntry()
@@ -18,9 +14,9 @@ public class PlayerAlterEntry extends AlterEntry
 	}
 	
 	@Override
-	public EntityLivingBase getEntityForPreview()
+	public LivingEntityData getDataForPreview()
 	{
-		return Minecraft.getMinecraft().player;
+		return PlayerPreviewer.getPreviewData();
 	}
 	
 }

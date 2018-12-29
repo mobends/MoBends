@@ -49,8 +49,8 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 		float sideMomentum = MathHelper.clamp((float) data.getSidewaysMomentum(), -1F, 1F);
 		double xzMomentum = data.getInterpolatedXZMotionMagnitude();
 		
-		float headPitch = MathHelper.wrapDegrees(data.getHeadPitch());
-		float headYaw = MathHelper.wrapDegrees(data.getHeadYaw());
+		float headPitch = MathHelper.wrapDegrees(data.headPitch.get());
+		float headYaw = MathHelper.wrapDegrees(data.headYaw.get());
 		float headYawAbs = MathHelper.abs(headYaw);
 		float yMomentumAngle = (float) MathHelper.atan2(xzMomentum,  data.getMotionY()) * 180.0F / GUtil.PI;
 		

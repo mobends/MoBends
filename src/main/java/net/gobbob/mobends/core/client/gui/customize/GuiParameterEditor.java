@@ -1,7 +1,6 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
 import java.util.LinkedList;
-import java.util.function.BiConsumer;
 
 import javax.swing.event.ChangeListener;
 
