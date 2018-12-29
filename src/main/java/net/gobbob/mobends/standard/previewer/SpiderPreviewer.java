@@ -16,6 +16,8 @@ public class SpiderPreviewer extends Previewer<SpiderData>
 	@Override
 	public void prePreview(SpiderData data, String animationToPreview)
 	{
+		data.limbSwingAmount.override(0F);
+		
 		switch (animationToPreview)
 		{
 			case "jump":
@@ -40,6 +42,14 @@ public class SpiderPreviewer extends Previewer<SpiderData>
 					data.limbSwingAmount.override(0F);
 					data.overrideStillness(true);
 				}
+				break;
+			case "walk":
+				final float ticks = DataUpdateHandler.getTicks();
+				
+				data.limbSwing.override(ticks * 0.6F);
+				data.overrideOnGroundState(true);
+				data.limbSwingAmount.override(1F);
+				data.overrideStillness(false);
 				break;
 			default:
 				data.overrideOnGroundState(true);

@@ -2,6 +2,7 @@ package net.gobbob.mobends.standard.animation.bit.spider;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
@@ -90,10 +91,10 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
         
         data.spiderLeg1.rotation.rotateY(65F);
         data.spiderLeg2.rotation.rotateY(-65F);
-        data.spiderLeg3.rotation.rotateY(40F);
-        data.spiderLeg4.rotation.rotateY(-40F);
-        data.spiderLeg5.rotation.rotateY(-40F);
-        data.spiderLeg6.rotation.rotateY(40F);
+        data.spiderLeg3.rotation.rotateY(20F);
+        data.spiderLeg4.rotation.rotateY(-20F);
+        data.spiderLeg5.rotation.rotateY(-20F);
+        data.spiderLeg6.rotation.rotateY(20F);
         data.spiderLeg7.rotation.rotateY(-65F);
         data.spiderLeg8.rotation.rotateY(65F);
         
@@ -108,32 +109,48 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
         data.spiderForeLeg8.rotation.orientZ(foreBend);
         
         
-        float limbSwing = data.limbSwing.get() * 0.6662F;
-		float limbSwingAmount = data.limbSwingAmount.get() / (float) Math.PI * 180F;
-        float f3 = -(MathHelper.cos(limbSwing * 2.0F + 0.0F) * 0.4F) * limbSwingAmount;
-        float f4 = -(MathHelper.cos(limbSwing * 2.0F + (float)Math.PI) * 0.4F) * limbSwingAmount;
-        float f5 = -(MathHelper.cos(limbSwing * 2.0F + ((float)Math.PI / 2F)) * 0.4F) * limbSwingAmount;
-        float f6 = -(MathHelper.cos(limbSwing * 2.0F + ((float)Math.PI * 3F / 2F)) * 0.4F) * limbSwingAmount;
-        float f7 = Math.abs(MathHelper.sin(limbSwing + 0.0F) * 0.4F) * limbSwingAmount;
-        float f8 = Math.abs(MathHelper.sin(limbSwing + (float)Math.PI) * 0.4F) * limbSwingAmount;
-        float f9 = Math.abs(MathHelper.sin(limbSwing + ((float)Math.PI / 2F)) * 0.4F) * limbSwingAmount;
-        float f10 = Math.abs(MathHelper.sin(limbSwing + ((float)Math.PI * 3F / 2F)) * 0.4F) * limbSwingAmount;
-        data.spiderLeg1.rotation.rotateY(f3);
-        data.spiderLeg2.rotation.rotateY(-f3);
-        data.spiderLeg3.rotation.rotateY(f4);
-        data.spiderLeg4.rotation.rotateY(-f4);
-        data.spiderLeg5.rotation.rotateY(f5);
-        data.spiderLeg6.rotation.rotateY(-f5);
-        data.spiderLeg7.rotation.rotateY(f6);
-        data.spiderLeg8.rotation.rotateY(-f6);
+        float limbSwing = data.limbSwing.get() * 0.8662F;
+		float limbSwingAmount = data.limbSwingAmount.get();
+		float forwardBackSwing = limbSwingAmount * 16;
+		float upDownSwing = limbSwingAmount * 26;
+		
+        float f3 = forwardBackSwing * MathHelper.cos(limbSwing + 0.0F);
+        float f4 = forwardBackSwing * MathHelper.cos(limbSwing + GUtil.PI);
+        float f5 = forwardBackSwing * MathHelper.cos(limbSwing + (GUtil.PI / 2F));
+        float f6 = forwardBackSwing * MathHelper.cos(limbSwing + (GUtil.PI * 3F / 2F));
         
-        data.spiderLeg1.rotation.rotateZ(f7);
-        data.spiderLeg2.rotation.rotateZ(-f7);
-        data.spiderLeg3.rotation.rotateZ(f8);
-        data.spiderLeg4.rotation.rotateZ(-f8);
-        data.spiderLeg5.rotation.rotateZ(f9);
-        data.spiderLeg6.rotation.rotateZ(-f9);
-        data.spiderLeg7.rotation.rotateZ(f10);
-        data.spiderLeg8.rotation.rotateZ(-f10);
+        // Lifting limbs off the ground
+        float f7 =  upDownSwing * Math.max(0F, MathHelper.sin(limbSwing + 0.0F));
+        float f8 =  upDownSwing * Math.max(0F, MathHelper.sin(limbSwing + GUtil.PI));
+        float f9 =  upDownSwing * Math.max(0F, MathHelper.sin(limbSwing + (GUtil.PI / 2F)));
+        float f10 = upDownSwing * Math.max(0F, MathHelper.sin(limbSwing + (GUtil.PI * 3F / 2F)));
+        
+        data.spiderLeg1.rotation.rotateY(f3);
+        data.spiderLeg2.rotation.rotateY(-f4);
+        data.spiderLeg3.rotation.rotateY(f4);
+        data.spiderLeg4.rotation.rotateY(-f3);
+        data.spiderLeg5.rotation.rotateY(f5);
+        data.spiderLeg6.rotation.rotateY(-f6);
+        data.spiderLeg7.rotation.rotateY(f6);
+        data.spiderLeg8.rotation.rotateY(-f5);
+        
+        data.spiderLeg1.rotation.localRotateZ(f7);
+        data.spiderLeg2.rotation.localRotateZ(-f8);
+        data.spiderLeg3.rotation.localRotateZ(f8);
+        data.spiderLeg4.rotation.localRotateZ(-f7);
+        data.spiderLeg5.rotation.localRotateZ(f9);
+        data.spiderLeg6.rotation.localRotateZ(-f10);
+        data.spiderLeg7.rotation.localRotateZ(f10);
+        data.spiderLeg8.rotation.localRotateZ(-f9);
+        
+        /*final float foreArmBend = 2F;
+        data.spiderForeLeg1.rotation.localRotateZ(-f7 * foreArmBend);
+        data.spiderForeLeg1.rotation.localRotateZ(f7 * foreArmBend);
+        data.spiderForeLeg1.rotation.localRotateZ(-f8 * foreArmBend);
+        data.spiderForeLeg1.rotation.localRotateZ(f8 * foreArmBend);
+        data.spiderForeLeg1.rotation.localRotateZ(-f9 * foreArmBend);
+        data.spiderForeLeg1.rotation.localRotateZ(f9 * foreArmBend);
+        data.spiderForeLeg1.rotation.localRotateZ(-f10 * foreArmBend);
+        data.spiderForeLeg1.rotation.localRotateZ(f10 * foreArmBend);*/
 	}
 }

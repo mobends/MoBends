@@ -104,7 +104,9 @@ public class GuiPortraitDisplay
 		GL11.glTranslatef((float) argX, (float) argY, 50.0F);
 		GL11.glScalef((float) (-scale), (float) scale, (float) scale);
 		GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
-		GL11.glRotated(rotation, 0.0, 1.0, 0.0);
+		//GL11.glRotated(rotation, 0.0, 1.0, 0.0);
+		GL11.glRotatef(20.0F, 1.0F, 0.0F, 0.0F);
+		GL11.glRotatef(-45.0F, 0.0F, 1.0F, 0.0F);
 		
 		float lightAngle = 135.0F;
 		GL11.glRotatef(lightAngle, 0.0F, 1.0F, 0.0F);
