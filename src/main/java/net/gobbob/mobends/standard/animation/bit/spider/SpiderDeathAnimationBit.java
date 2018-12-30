@@ -38,33 +38,33 @@ public class SpiderDeathAnimationBit extends AnimationBit<SpiderData>
 		data.spiderHead.rotation.orientInstantX(headPitch);
 		data.spiderHead.rotation.rotateY(headYaw);
 		
-        data.spiderLeg1.rotation.orientInstantZ(-45F);
-        data.spiderLeg2.rotation.orientInstantZ(45F);
-        data.spiderLeg3.rotation.orientInstantZ(-33.3F);
-        data.spiderLeg4.rotation.orientInstantZ(33.3F);
-        data.spiderLeg5.rotation.orientInstantZ(-33.3F);
-        data.spiderLeg6.rotation.orientInstantZ(33.3F);
-        data.spiderLeg7.rotation.orientInstantZ(-45F);
-        data.spiderLeg8.rotation.orientInstantZ(45F);
+        data.upperLimbs[0].part.rotation.orientInstantZ(-45F);
+        data.upperLimbs[1].part.rotation.orientInstantZ(45F);
+        data.upperLimbs[2].part.rotation.orientInstantZ(-33.3F);
+        data.upperLimbs[3].part.rotation.orientInstantZ(33.3F);
+        data.upperLimbs[4].part.rotation.orientInstantZ(-33.3F);
+        data.upperLimbs[5].part.rotation.orientInstantZ(33.3F);
+        data.upperLimbs[6].part.rotation.orientInstantZ(-45F);
+        data.upperLimbs[7].part.rotation.orientInstantZ(45F);
         
-        data.spiderLeg1.rotation.rotateY(45F);
-        data.spiderLeg2.rotation.rotateY(-45F);
-        data.spiderLeg3.rotation.rotateY(22.5F);
-        data.spiderLeg4.rotation.rotateY(-22.5F);
-        data.spiderLeg5.rotation.rotateY(-22.5F);
-        data.spiderLeg6.rotation.rotateY(22.5F);
-        data.spiderLeg7.rotation.rotateY(-45F);
-        data.spiderLeg8.rotation.rotateY(45F);
+        data.upperLimbs[0].part.rotation.rotateY(45F);
+        data.upperLimbs[1].part.rotation.rotateY(-45F);
+        data.upperLimbs[2].part.rotation.rotateY(22.5F);
+        data.upperLimbs[3].part.rotation.rotateY(-22.5F);
+        data.upperLimbs[4].part.rotation.rotateY(-22.5F);
+        data.upperLimbs[5].part.rotation.rotateY(22.5F);
+        data.upperLimbs[6].part.rotation.rotateY(-45F);
+        data.upperLimbs[7].part.rotation.rotateY(45F);
         
         float foreBend = 89;
-        data.spiderForeLeg1.rotation.orientInstantZ(-foreBend);
-        data.spiderForeLeg2.rotation.orientInstantZ(foreBend);
-        data.spiderForeLeg3.rotation.orientInstantZ(-foreBend);
-        data.spiderForeLeg4.rotation.orientInstantZ(foreBend);
-        data.spiderForeLeg5.rotation.orientInstantZ(-foreBend);
-        data.spiderForeLeg6.rotation.orientInstantZ(foreBend);
-        data.spiderForeLeg7.rotation.orientInstantZ(-foreBend);
-        data.spiderForeLeg8.rotation.orientInstantZ(foreBend);
+        data.lowerLimbs[0].part.rotation.orientInstantZ(-foreBend);
+        data.lowerLimbs[1].part.rotation.orientInstantZ(foreBend);
+        data.lowerLimbs[2].part.rotation.orientInstantZ(-foreBend);
+        data.lowerLimbs[3].part.rotation.orientInstantZ(foreBend);
+        data.lowerLimbs[4].part.rotation.orientInstantZ(-foreBend);
+        data.lowerLimbs[5].part.rotation.orientInstantZ(foreBend);
+        data.lowerLimbs[6].part.rotation.orientInstantZ(-foreBend);
+        data.lowerLimbs[7].part.rotation.orientInstantZ(foreBend);
         
         float limbSwing = data.limbSwing.get() * 0.6662F;
 		float limbSwingAmount = data.limbSwingAmount.get() / (float) Math.PI * 180F;
@@ -76,14 +76,14 @@ public class SpiderDeathAnimationBit extends AnimationBit<SpiderData>
         float f8 = Math.abs(MathHelper.sin(limbSwing + (float)Math.PI) * 0.4F) * limbSwingAmount;
         float f9 = Math.abs(MathHelper.sin(limbSwing + ((float)Math.PI / 2F)) * 0.4F) * limbSwingAmount;
         float f10 = Math.abs(MathHelper.sin(limbSwing + ((float)Math.PI * 3F / 2F)) * 0.4F) * limbSwingAmount;
-        data.spiderLeg1.rotation.rotateY(f3);
-        data.spiderLeg2.rotation.rotateY(-f3);
-        data.spiderLeg3.rotation.rotateY(f4);
-        data.spiderLeg4.rotation.rotateY(-f4);
-        data.spiderLeg5.rotation.rotateY(f5);
-        data.spiderLeg6.rotation.rotateY(-f5);
-        data.spiderLeg7.rotation.rotateY(f6);
-        data.spiderLeg8.rotation.rotateY(-f6);
+        data.upperLimbs[0].part.rotation.rotateY(f3);
+        data.upperLimbs[1].part.rotation.rotateY(-f3);
+        data.upperLimbs[2].part.rotation.rotateY(f4);
+        data.upperLimbs[3].part.rotation.rotateY(-f4);
+        data.upperLimbs[4].part.rotation.rotateY(f5);
+        data.upperLimbs[5].part.rotation.rotateY(-f5);
+        data.upperLimbs[6].part.rotation.rotateY(f6);
+        data.upperLimbs[7].part.rotation.rotateY(-f6);
         
         if (wiggleSpeedMultiplier > 0.0F)
         {
@@ -99,13 +99,13 @@ public class SpiderDeathAnimationBit extends AnimationBit<SpiderData>
         float wiggle3 = MathHelper.cos(wigglePhase + PI/2) * wiggleAmount;
         float wiggle4 = MathHelper.cos(wigglePhase + PI/4*3) * wiggleAmount;
         
-        data.spiderLeg1.rotation.rotateZ(f7 + wiggle1);
-        data.spiderLeg2.rotation.rotateZ(-f7 + wiggle2);
-        data.spiderLeg3.rotation.rotateZ(f8 + wiggle3);
-        data.spiderLeg4.rotation.rotateZ(-f8 + wiggle4);
-        data.spiderLeg5.rotation.rotateZ(f9 + wiggle1);
-        data.spiderLeg6.rotation.rotateZ(-f9 + wiggle2);
-        data.spiderLeg7.rotation.rotateZ(f10 + wiggle3);
-        data.spiderLeg8.rotation.rotateZ(-f10 + wiggle4);
+        data.upperLimbs[0].part.rotation.rotateZ(f7 + wiggle1);
+        data.upperLimbs[1].part.rotation.rotateZ(-f7 + wiggle2);
+        data.upperLimbs[2].part.rotation.rotateZ(f8 + wiggle3);
+        data.upperLimbs[3].part.rotation.rotateZ(-f8 + wiggle4);
+        data.upperLimbs[4].part.rotation.rotateZ(f9 + wiggle1);
+        data.upperLimbs[5].part.rotation.rotateZ(-f9 + wiggle2);
+        data.upperLimbs[6].part.rotation.rotateZ(f10 + wiggle3);
+        data.upperLimbs[7].part.rotation.rotateZ(-f10 + wiggle4);
 	}
 }

@@ -184,22 +184,22 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 		spiderHead.syncUp(data.spiderHead);
 		spiderNeck.syncUp(data.spiderNeck);
 		spiderBody.syncUp(data.spiderBody);
-		spiderLeg1.syncUp(data.spiderLeg1);
-		spiderLeg2.syncUp(data.spiderLeg2);
-		spiderLeg3.syncUp(data.spiderLeg3);
-		spiderLeg4.syncUp(data.spiderLeg4);
-		spiderLeg5.syncUp(data.spiderLeg5);
-		spiderLeg6.syncUp(data.spiderLeg6);
-		spiderLeg7.syncUp(data.spiderLeg7);
-		spiderLeg8.syncUp(data.spiderLeg8);
-		spiderForeLeg1.syncUp(data.spiderForeLeg1);
-		spiderForeLeg2.syncUp(data.spiderForeLeg2);
-		spiderForeLeg3.syncUp(data.spiderForeLeg3);
-		spiderForeLeg4.syncUp(data.spiderForeLeg4);
-		spiderForeLeg5.syncUp(data.spiderForeLeg5);
-		spiderForeLeg6.syncUp(data.spiderForeLeg6);
-		spiderForeLeg7.syncUp(data.spiderForeLeg7);
-		spiderForeLeg8.syncUp(data.spiderForeLeg8);
+		spiderLeg1.syncUp(data.upperLimbs[0].part);
+		spiderLeg2.syncUp(data.upperLimbs[1].part);
+		spiderLeg3.syncUp(data.upperLimbs[2].part);
+		spiderLeg4.syncUp(data.upperLimbs[3].part);
+		spiderLeg5.syncUp(data.upperLimbs[4].part);
+		spiderLeg6.syncUp(data.upperLimbs[5].part);
+		spiderLeg7.syncUp(data.upperLimbs[6].part);
+		spiderLeg8.syncUp(data.upperLimbs[7].part);
+		spiderForeLeg1.syncUp(data.lowerLimbs[0].part);
+		spiderForeLeg2.syncUp(data.lowerLimbs[1].part);
+		spiderForeLeg3.syncUp(data.lowerLimbs[2].part);
+		spiderForeLeg4.syncUp(data.lowerLimbs[3].part);
+		spiderForeLeg5.syncUp(data.lowerLimbs[4].part);
+		spiderForeLeg6.syncUp(data.lowerLimbs[5].part);
+		spiderForeLeg7.syncUp(data.lowerLimbs[6].part);
+		spiderForeLeg8.syncUp(data.lowerLimbs[7].part);
 	}
 	
 	@Override

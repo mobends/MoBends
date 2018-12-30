@@ -25,6 +25,7 @@ import net.gobbob.mobends.standard.previewer.BipedPreviewer;
 import net.gobbob.mobends.standard.previewer.PlayerPreviewer;
 import net.gobbob.mobends.standard.previewer.SpiderPreviewer;
 import net.gobbob.mobends.standard.previewer.ZombiePreviewer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySpider;

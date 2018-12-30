@@ -22,23 +22,23 @@ public class SpiderJumpAnimationBit extends AnimationBit<SpiderData>
 		
 		float legAngle = -100.0F + ticksInAir * 95.0F;
 		float smoothness = 1F;
-		data.spiderLeg1.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
-		data.spiderLeg2.rotation.setSmoothness(smoothness).localRotateZ(-legAngle);
-		data.spiderLeg3.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
-		data.spiderLeg4.rotation.setSmoothness(smoothness).localRotateZ(-legAngle);
-		data.spiderLeg5.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
-		data.spiderLeg6.rotation.setSmoothness(smoothness).localRotateZ(-legAngle);
-		data.spiderLeg7.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
-		data.spiderLeg8.rotation.setSmoothness(smoothness).localRotateZ(-legAngle);
+		data.upperLimbs[0].part.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
+		data.upperLimbs[1].part.rotation.setSmoothness(smoothness).localRotateZ(-legAngle);
+		data.upperLimbs[2].part.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
+		data.upperLimbs[3].part.rotation.setSmoothness(smoothness).localRotateZ(-legAngle);
+		data.upperLimbs[4].part.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
+		data.upperLimbs[5].part.rotation.setSmoothness(smoothness).localRotateZ(-legAngle);
+		data.upperLimbs[6].part.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
+		data.upperLimbs[7].part.rotation.setSmoothness(smoothness).localRotateZ(-legAngle);
 		
 		float foreLegAngle = 70.0F - ticksInAir * 50.0F;
-		data.spiderForeLeg1.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
-		data.spiderForeLeg2.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
-		data.spiderForeLeg3.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
-		data.spiderForeLeg4.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
-		data.spiderForeLeg5.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
-		data.spiderForeLeg6.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
-		data.spiderForeLeg7.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
-		data.spiderForeLeg8.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
+		data.lowerLimbs[0].part.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
+		data.lowerLimbs[1].part.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
+		data.lowerLimbs[2].part.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
+		data.lowerLimbs[3].part.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
+		data.lowerLimbs[4].part.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
+		data.lowerLimbs[5].part.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
+		data.lowerLimbs[6].part.rotation.setSmoothness(smoothness).rotateZ(foreLegAngle);
+		data.lowerLimbs[7].part.rotation.setSmoothness(smoothness).rotateZ(-foreLegAngle);
 	}
 }

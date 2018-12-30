@@ -2,6 +2,7 @@ package net.gobbob.mobends.standard.animation.bit.spider;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
@@ -21,42 +22,26 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
 	public void onPlay(SpiderData data)
 	{
 		float legBend = 33.3F;
-        data.spiderLeg1.rotation.orientInstantZ(legBend);
-        data.spiderLeg2.rotation.orientInstantZ(-legBend);
-        data.spiderLeg3.rotation.orientInstantZ(legBend);
-        data.spiderLeg4.rotation.orientInstantZ(-legBend);
-        data.spiderLeg5.rotation.orientInstantZ(legBend);
-        data.spiderLeg6.rotation.orientInstantZ(-legBend);
-        data.spiderLeg7.rotation.orientInstantZ(legBend);
-        data.spiderLeg8.rotation.orientInstantZ(-legBend);
+		for (int i = 0; i < data.upperLimbs.length; ++i)
+		{
+			data.upperLimbs[i].part.rotation.orientInstantZ(i%2 == 0 ? legBend : -legBend);
+			data.upperLimbs[i].part.rotation.rotateX(0.0F);
+		}
         
-        data.spiderLeg1.rotation.rotateY(65F);
-        data.spiderLeg2.rotation.rotateY(-65F);
-        data.spiderLeg3.rotation.rotateY(40F);
-        data.spiderLeg4.rotation.rotateY(-40F);
-        data.spiderLeg5.rotation.rotateY(-40F);
-        data.spiderLeg6.rotation.rotateY(40F);
-        data.spiderLeg7.rotation.rotateY(-65F);
-        data.spiderLeg8.rotation.rotateY(65F);
+        data.upperLimbs[0].part.rotation.rotateY(65F);
+        data.upperLimbs[1].part.rotation.rotateY(-65F);
+        data.upperLimbs[2].part.rotation.rotateY(40F);
+        data.upperLimbs[3].part.rotation.rotateY(-40F);
+        data.upperLimbs[4].part.rotation.rotateY(-40F);
+        data.upperLimbs[5].part.rotation.rotateY(40F);
+        data.upperLimbs[6].part.rotation.rotateY(-65F);
+        data.upperLimbs[7].part.rotation.rotateY(65F);
         
-        data.spiderLeg1.rotation.rotateX(0.0F);
-        data.spiderLeg2.rotation.rotateX(0.0F);
-        data.spiderLeg3.rotation.rotateX(0.0F);
-        data.spiderLeg4.rotation.rotateX(0.0F);
-        data.spiderLeg5.rotation.rotateX(0.0F);
-        data.spiderLeg6.rotation.rotateX(0.0F);
-        data.spiderLeg7.rotation.rotateX(0.0F);
-        data.spiderLeg8.rotation.rotateX(0.0F);
-        
-        float foreBend = 89;
-        data.spiderForeLeg1.rotation.orientInstantZ(-foreBend);
-        data.spiderForeLeg2.rotation.orientInstantZ(foreBend);
-        data.spiderForeLeg3.rotation.orientInstantZ(-foreBend);
-        data.spiderForeLeg4.rotation.orientInstantZ(foreBend);
-        data.spiderForeLeg5.rotation.orientInstantZ(-foreBend);
-        data.spiderForeLeg6.rotation.orientInstantZ(foreBend);
-        data.spiderForeLeg7.rotation.orientInstantZ(-foreBend);
-        data.spiderForeLeg8.rotation.orientInstantZ(foreBend);
+        final float foreBend = 89;
+        for (int i = 0; i < data.lowerLimbs.length; ++i)
+		{
+			data.lowerLimbs[i].part.rotation.orientInstantZ(i%2 == 0 ? -foreBend : foreBend);
+		}
 	}
 	
 	@Override
@@ -79,35 +64,28 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
 		
 		data.spiderHead.rotation.orientInstantX(headPitch);
 		data.spiderHead.rotation.rotateY(headYaw);
-        float legBend = 33.3F - bodyHeight;
-        data.spiderLeg1.rotation.orientZ(legBend);
-        data.spiderLeg2.rotation.orientZ(-legBend);
-        data.spiderLeg3.rotation.orientZ(legBend);
-        data.spiderLeg4.rotation.orientZ(-legBend);
-        data.spiderLeg5.rotation.orientZ(legBend);
-        data.spiderLeg6.rotation.orientZ(-legBend);
-        data.spiderLeg7.rotation.orientZ(legBend);
-        data.spiderLeg8.rotation.orientZ(-legBend);
+        //float legBend = 33.3F - bodyHeight;
+        float legBend = 0F;
+		
+        for (int i = 0; i < data.upperLimbs.length; ++i)
+		{
+			data.upperLimbs[i].part.rotation.orientZ(i%2 == 0 ? legBend : -legBend);
+		}
         
-        data.spiderLeg1.rotation.rotateY(65F);
-        data.spiderLeg2.rotation.rotateY(-65F);
-        data.spiderLeg3.rotation.rotateY(20F);
-        data.spiderLeg4.rotation.rotateY(-20F);
-        data.spiderLeg5.rotation.rotateY(-20F);
-        data.spiderLeg6.rotation.rotateY(20F);
-        data.spiderLeg7.rotation.rotateY(-65F);
-        data.spiderLeg8.rotation.rotateY(65F);
+        data.upperLimbs[0].part.rotation.rotateY(65F);
+        data.upperLimbs[1].part.rotation.rotateY(-65F);
+        data.upperLimbs[2].part.rotation.rotateY(20F);
+        data.upperLimbs[3].part.rotation.rotateY(-20F);
+        data.upperLimbs[4].part.rotation.rotateY(-20F);
+        data.upperLimbs[5].part.rotation.rotateY(20F);
+        data.upperLimbs[6].part.rotation.rotateY(-65F);
+        data.upperLimbs[7].part.rotation.rotateY(65F);
         
         float foreBend = 89 - bodyHeight * 0.5F;
-        data.spiderForeLeg1.rotation.orientZ(-foreBend);
-        data.spiderForeLeg2.rotation.orientZ(foreBend);
-        data.spiderForeLeg3.rotation.orientZ(-foreBend);
-        data.spiderForeLeg4.rotation.orientZ(foreBend);
-        data.spiderForeLeg5.rotation.orientZ(-foreBend);
-        data.spiderForeLeg6.rotation.orientZ(foreBend);
-        data.spiderForeLeg7.rotation.orientZ(-foreBend);
-        data.spiderForeLeg8.rotation.orientZ(foreBend);
-        
+        for (int i = 0; i < data.lowerLimbs.length; ++i)
+		{
+			data.lowerLimbs[i].part.rotation.orientZ(i%2 == 0 ? -foreBend : foreBend);
+		}
         
         float limbSwing = data.limbSwing.get() * 0.8662F;
 		float limbSwingAmount = data.limbSwingAmount.get();
@@ -125,23 +103,34 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
         float f9 =  upDownSwing * Math.max(0F, MathHelper.sin(limbSwing + (GUtil.PI / 2F)));
         float f10 = upDownSwing * Math.max(0F, MathHelper.sin(limbSwing + (GUtil.PI * 3F / 2F)));
         
-        data.spiderLeg1.rotation.rotateY(f3);
-        data.spiderLeg2.rotation.rotateY(-f4);
-        data.spiderLeg3.rotation.rotateY(f4);
-        data.spiderLeg4.rotation.rotateY(-f3);
-        data.spiderLeg5.rotation.rotateY(f5);
-        data.spiderLeg6.rotation.rotateY(-f6);
-        data.spiderLeg7.rotation.rotateY(f6);
-        data.spiderLeg8.rotation.rotateY(-f5);
+        /*data.upperLimbs[0].part.rotation.rotateY(f3);
+        data.upperLimbs[1].part.rotation.rotateY(-f4);
+        data.upperLimbs[2].part.rotation.rotateY(f4);
+        data.upperLimbs[3].part.rotation.rotateY(-f3);
+        data.upperLimbs[4].part.rotation.rotateY(f5);
+        data.upperLimbs[5].part.rotation.rotateY(-f6);
+        data.upperLimbs[6].part.rotation.rotateY(f6);
+        data.upperLimbs[7].part.rotation.rotateY(-f5);
         
-        data.spiderLeg1.rotation.localRotateZ(f7);
-        data.spiderLeg2.rotation.localRotateZ(-f8);
-        data.spiderLeg3.rotation.localRotateZ(f8);
-        data.spiderLeg4.rotation.localRotateZ(-f7);
-        data.spiderLeg5.rotation.localRotateZ(f9);
-        data.spiderLeg6.rotation.localRotateZ(-f10);
-        data.spiderLeg7.rotation.localRotateZ(f10);
-        data.spiderLeg8.rotation.localRotateZ(-f9);
+        data.upperLimbs[0].part.rotation.localRotateZ(f7);
+        data.upperLimbs[1].part.rotation.localRotateZ(-f8);
+        data.upperLimbs[2].part.rotation.localRotateZ(f8);
+        data.upperLimbs[3].part.rotation.localRotateZ(-f7);
+        data.upperLimbs[4].part.rotation.localRotateZ(f9);
+        data.upperLimbs[5].part.rotation.localRotateZ(-f10);
+        data.upperLimbs[6].part.rotation.localRotateZ(f10);
+        data.upperLimbs[7].part.rotation.localRotateZ(-f9);*/
+        
+        
+        float beta = MathHelper.sin(ticks * 0.3F) * 1F;
+        beta = Math.max(-0.2F, beta);
+        
+        for (int i = 0; i < data.upperLimbs.length; ++i)
+        {
+        	float angle = getLowerLimbAngle(beta);
+	        data.upperLimbs[i].part.rotation.localRotateZ((i%2 == 0 ? beta : -beta) / GUtil.PI * 180F);
+	        data.lowerLimbs[i].part.rotation.orientZ((i%2 == 0 ? -angle : angle) / GUtil.PI * 180F);
+        }
         
         /*final float foreArmBend = 2F;
         data.spiderForeLeg1.rotation.localRotateZ(-f7 * foreArmBend);
@@ -152,5 +141,18 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
         data.spiderForeLeg1.rotation.localRotateZ(f9 * foreArmBend);
         data.spiderForeLeg1.rotation.localRotateZ(-f10 * foreArmBend);
         data.spiderForeLeg1.rotation.localRotateZ(f10 * foreArmBend);*/
+	}
+	
+	public static float getLowerLimbAngle(float upperLimbAngle)
+	{
+		float limbSegmentLength = 8;
+        float height = 0;
+        
+        float xsinB = limbSegmentLength * MathHelper.sin(upperLimbAngle);
+        float gamma = (float) Math.acos((height + xsinB) / limbSegmentLength);
+        float alpha = 90 - gamma + upperLimbAngle;
+        if (Float.isNaN(alpha))
+        	return 0;
+        return alpha;
 	}
 }
