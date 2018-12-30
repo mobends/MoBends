@@ -19,13 +19,10 @@ import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.pack.BendsAction.Calculation;
 import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.core.pack.BendsAction.EnumModifier;
-import net.gobbob.mobends.core.pack.BendsAction.EnumOperator;
 import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IImageBuffer;
-import net.minecraft.client.renderer.ImageBufferDownload;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.util.ResourceLocation;
@@ -196,10 +193,9 @@ public class BendsPack
 
 		if (itextureobject == null)
 		{
-			File file2 = new File(PackManager.cacheDirectory, filename + ".png");
-			final IImageBuffer iimagebuffer = new ImageBufferDownload();
+			File file = new File(PackManager.cacheDirectory, filename + ".png");
 
-			ThreadDownloadImageData threaddownloadimagedata = new ThreadDownloadImageData(file2, thumbnailURL,
+			ThreadDownloadImageData threaddownloadimagedata = new ThreadDownloadImageData(file, thumbnailURL,
 					DEFAULT_THUMBNAIL_TEXTURE, null);
 			Minecraft.getMinecraft().getTextureManager().loadTexture(resourcelocation, threaddownloadimagedata);
 		}
@@ -214,81 +210,96 @@ public class BendsPack
 
 		System.out.println("Saving " + this.filename);
 
-		final String tab = "	";
-
 		if (this.filename == null)
 		{
 			this.filename = constructName(this.displayName);
 		}
 
-		File packFile = new File(PackManager.localDirectory, this.filename + "");
+		File packFile = new File(PackManager.localDirectory, this.filename);
 		packFile.createNewFile();
 
-		final BufferedWriter os = new BufferedWriter(new FileWriter(packFile));
+		StringBuilder sb = new StringBuilder();
+		sb.append("name: \"").append(this.displayName).append("\"\n");
+		sb.append("author: \"").append(this.author).append("\"\n");
+		sb.append("description: \"").append(this.description).append("\"\n");
 
-		os.write("name: \"" + this.displayName + "\"\n");
-		os.write("author: \"" + this.author + "\"\n");
-		os.write("description: \"" + this.description + "\"\n");
-
-		os.newLine();
+		sb.append('\n');
 		for (BendsTarget target : targets.values())
 		{
-			try
+			sb.append("target ").append(target.name).append(" {\n");
+			for (BendsCondition condition : target.conditions.values())
 			{
-				os.write("target " + target.name + " {\n");
-				for (BendsCondition condition : target.conditions.values())
+				sb.append("\tanim ").append(condition.getAnimationName()).append(" {\n");
+				for (int a = 0; a < condition.getActionAmount(); a++)
 				{
-					try
-					{
-						os.write(tab + "anim " + condition.getAnimationName() + " {\n");
-						for (int a = 0; a < condition.getActionAmount(); a++)
-						{
-							BendsAction action = condition.getAction(a);
-							os.write(tab + tab + "@" + action.model + ":"
-									+ (action.property == EnumBoxProperty.ROT ? "rot"
-											: action.property == EnumBoxProperty.SCALE ? "scale" : "prerot")
-									+ ":"
-									+ (action.axis == EnumAxis.X ? "x"
-											: action.axis == EnumAxis.Y ? "y" : action.axis == EnumAxis.Z ? "z" : "")
-									+ " ");
+					BendsAction action = condition.getAction(a);
+					sb.append("\t\t@").append(action.model).append(':');
+					switch (action.property) {
+					case ROT:
+						sb.append("rot");
+						break;
+					case SCALE:
+						sb.append("scale");
+						break;
+					case PREROT:
+						sb.append("prerot");
+						break;
+					}
+					sb.append(':');
+					switch (action.axis) {
+					case X:
+						sb.append('x');
+						break;
+					case Y:
+						sb.append('y');
+						break;
+					case Z:
+						sb.append('z');
+						break;
+					}
+					sb.append(' ');
 
-							for (int c = 0; c < action.calculations.size(); c++)
-							{
-								Calculation calc = action.calculations.get(c);
-								os.write((calc.operator == EnumOperator.SET ? "=="
-										: calc.operator == EnumOperator.ADD ? "+="
-												: calc.operator == EnumOperator.SUBSTRACT ? "-="
-														: calc.operator == EnumOperator.MULTIPLY ? "*="
-																: calc.operator == EnumOperator.DIVIDE ? "/=" : "=="));
-								if (c == 0)
-								{
-									os.write(" ");
-									if (action.modifier != null)
-									{
-										os.write(":" + action.modifier.name().toLowerCase() + ":");
-									}
-								}
-								os.write(calc.globalVar == null ? ("" + calc.number) : ("$" + calc.globalVar));
-							}
-							os.write(" #" + action.smooth);
-							os.newLine();
+					for (int c = 0; c < action.calculations.size(); c++)
+					{
+						Calculation calc = action.calculations.get(c);
+						switch (calc.operator) {
+						case SET:
+							sb.append("==");
+							break;
+						case ADD:
+							sb.append("+=");
+							break;
+						case SUBTRACT:
+							sb.append("-=");
+							break;
+						case MULTIPLY:
+							sb.append("*=");
+							break;
+						case DIVIDE:
+							sb.append("/=");
+							break;
 						}
-						os.write(tab + "}\n");
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-				}
-				os.write("}\n\n");
-			}
-			catch (IOException e1)
-			{
-				e1.printStackTrace();
-			}
-		}
 
-		os.close();
+						if (c == 0)
+						{
+							sb.append(' ');
+							if (action.modifier != null)
+							{
+								sb.append(":").append(action.modifier.name().toLowerCase()).append(":");
+							}
+						}
+						sb.append(calc.globalVar == null ? calc.number : ("$" + calc.globalVar));
+					}
+					sb.append(" #").append(action.smooth).append('\n');
+				}
+				sb.append("\t}\n");
+			}
+			sb.append("}\n\n");
+		}
+		
+		try(BufferedWriter writer = new BufferedWriter(new FileWriter(packFile))) {
+			writer.write(sb.toString());
+		}
 	}
 
 	public void saveBasicInfo()
@@ -296,40 +307,43 @@ public class BendsPack
 		if (isPublic())
 			return;
 
-		final String tab = "	";
 		if (this.filename == null)
 		{
 			this.filename = constructName(this.displayName);
 		}
-		File packFile = new File(PackManager.localDirectory, this.filename + "");
-		try
+		File packFile = new File(PackManager.localDirectory, this.filename);
+
+		String animationInfo = "";
+		if (packFile.exists())
 		{
-			String animationInfo = "";
-			if (packFile.exists())
-			{
-				animationInfo = GUtil.readFile(packFile);
-				int index = animationInfo.indexOf("\ntarget");
-				if (index >= 0)
-					animationInfo = animationInfo.substring(index);
-				else
-				{
-					animationInfo = "";
-				}
-			}
+			animationInfo = GUtil.readFile(packFile);
+			int index = animationInfo.indexOf("\ntarget");
+			if (index >= 0)
+				animationInfo = animationInfo.substring(index);
 			else
 			{
-				packFile.createNewFile();
+				animationInfo = "";
 			}
-			final BufferedWriter os = new BufferedWriter(new FileWriter(packFile));
-			os.write("name: \"" + this.displayName + "\"\n");
-			os.write("author: \"" + this.author + "\"\n");
-			os.write("description: \"" + this.description + "\"\n");
-			os.write(animationInfo);
-
-			os.close();
 		}
-		catch (IOException e)
+		else
 		{
+			try {
+				packFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+			
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("name: \"").append(this.displayName).append("\"\n");
+		sb.append("author: \"").append(this.author).append("\"\n");
+		sb.append("description: \"").append(this.description).append("\"\n");
+		sb.append(animationInfo);
+
+		try (BufferedWriter os = new BufferedWriter(new FileWriter(packFile))) {
+			os.write(sb.toString());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -441,13 +455,9 @@ public class BendsPack
 	 */
 	private static class Operation
 	{
-		public String operator = "";
-		public String num = "";
-		public String globalVar = null;
-
-		public Operation()
-		{
-		}
+		String operator = "";
+		String num = "";
+		String globalVar = null;
 	}
 
 	public static BendsAction getActionFromLine(String line)
@@ -582,7 +592,7 @@ public class BendsPack
 
 	public static BendsTarget getTarget(String id)
 	{
-		return (BendsTarget) targets.get(id);
+		return targets.get(id);
 	}
 
 	public static void animate(IBendsModel model, String target, String anim)

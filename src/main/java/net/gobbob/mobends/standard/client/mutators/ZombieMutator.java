@@ -1,21 +1,15 @@
 package net.gobbob.mobends.standard.client.mutators;
 
-import java.util.function.Function;
-
-import net.gobbob.mobends.core.animation.controller.Controller;
-import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.standard.data.ZombieData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelZombie;
-import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
 
 public class ZombieMutator extends ZombieMutatorBase<ZombieData, EntityZombie, ModelZombie>
 {
 
-	public ZombieMutator(IEntityDataFactory dataFactory)
+	public ZombieMutator(IEntityDataFactory<EntityZombie> dataFactory)
 	{
 		super(dataFactory);
 	}
@@ -36,11 +30,5 @@ public class ZombieMutator extends ZombieMutatorBase<ZombieData, EntityZombie, M
 	public boolean isModelEligible(ModelBase model)
 	{
 		return model instanceof ModelZombie;
-	}
-	
-	@Override
-	protected void syncUpWithData(ZombieData data)
-	{
-		super.syncUpWithData(data);
 	}
 }

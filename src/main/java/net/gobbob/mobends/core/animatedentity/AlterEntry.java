@@ -5,10 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
-import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.data.LivingEntityData;
-import net.gobbob.mobends.core.util.Lang;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,23 +20,24 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 	 * should refrain from removing an entity's data, since they aren't a part of the world
 	 * and the system will think of them as dead.
 	 */
-	private static final Set<Entity> previewEntities = new HashSet<>();
+	private static final Set<Entity> PREVIEW_ENTITIES = new HashSet<>();
 	
 	public static void registerPreviewEntity(Entity entity)
 	{
-		previewEntities.add(entity);
+		PREVIEW_ENTITIES.add(entity);
 	}
 	
 	public static boolean isPreviewEntity(Entity entity)
 	{
-		return previewEntities.contains(entity);
+		return PREVIEW_ENTITIES.contains(entity);
 	}
 	
-	String key;
-	String unlocalizedName;
-	String postfix;
-	protected Previewer<?> previewer;
+	private String key;
+	private String unlocalizedName;
+	private String postfix;
 	private boolean animate;
+	
+	protected Previewer<?> previewer;
 	protected AnimatedEntity<T> owner;
 	
 	public AlterEntry(String postfix, String unlocalizedName)
@@ -51,16 +51,17 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 		this("", null);
 	}
 	
-	void onRegistered(AnimatedEntity<T> owner)
+	void onRegister(AnimatedEntity<T> owner)
 	{
 		this.owner = owner;
-		this.key = this.owner.key + postfix;
+		this.key = this.owner.getKey() + postfix;
 		if (this.unlocalizedName == null)
 		{
-			this.unlocalizedName = this.owner.unlocalizedName;
+			this.unlocalizedName = this.owner.getUnlocalizedName();
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected T createPreviewEntity()
 	{
 		try 
@@ -87,7 +88,7 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 		ArmorModelFactory.updateMutation();
 	}
 	
-	public AlterEntry<T> setPreviewer(Previewer previewer)
+	public AlterEntry<T> setPreviewer(Previewer<?> previewer)
 	{
 		this.previewer = previewer;
 		return this;
@@ -108,7 +109,7 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 		return this.unlocalizedName;
 	}
 	
-	public AnimatedEntity getOwner()
+	public AnimatedEntity<?> getOwner()
 	{
 		return owner;
 	}
@@ -118,11 +119,11 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 		return this.previewer;
 	}
 	
-	public abstract LivingEntityData getDataForPreview();
+	public abstract LivingEntityData<T> getDataForPreview();
 
 	public String getLocalizedName()
 	{
-		return Lang.localize(this.unlocalizedName);
+		return I18n.format(this.unlocalizedName);
 	}
 
 	public String getKey()

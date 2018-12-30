@@ -61,7 +61,7 @@ public class BendsAction
 
 	public enum EnumOperator
 	{
-		SET, ADD, MULTIPLY, DIVIDE, SUBSTRACT,
+		SET, ADD, MULTIPLY, DIVIDE, SUBTRACT,
 	}
 
 	public enum EnumBoxProperty
@@ -73,7 +73,7 @@ public class BendsAction
 	{
 		COS("Cosine"), SIN("Sine"), TAN("Tangent"), ABS("Absolute"), POW("Power");
 
-		String displayName;
+		final String displayName;
 
 		EnumModifier(String displayName)
 		{
@@ -89,7 +89,7 @@ public class BendsAction
 	public static EnumOperator getOperatorFromSymbol(String symbol)
 	{
 		return symbol.equalsIgnoreCase("+=") ? EnumOperator.ADD
-				: symbol.equalsIgnoreCase("-=") ? EnumOperator.SUBSTRACT
+				: symbol.equalsIgnoreCase("-=") ? EnumOperator.SUBTRACT
 						: symbol.equalsIgnoreCase("==") ? EnumOperator.SET
 								: symbol.equalsIgnoreCase("*=") ? EnumOperator.MULTIPLY : EnumOperator.DIVIDE;
 	}
@@ -121,7 +121,7 @@ public class BendsAction
 				out = in + num;
 			else if (operator == EnumOperator.SET)
 				out = num;
-			else if (operator == EnumOperator.SUBSTRACT)
+			else if (operator == EnumOperator.SUBTRACT)
 				out = in - num;
 			else if (operator == EnumOperator.MULTIPLY)
 				out = in * num;

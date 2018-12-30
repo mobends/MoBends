@@ -4,7 +4,6 @@ import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.util.GLHelper;
 import net.gobbob.mobends.core.util.SmoothOrientation;
-import net.gobbob.mobends.core.util.SmoothVector3f;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;

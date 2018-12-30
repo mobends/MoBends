@@ -1,8 +1,5 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
@@ -13,7 +10,6 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.math.MathHelper;
 
@@ -25,7 +21,6 @@ public class GuiTextArea extends Gui
     public int width;
     public int height;
     private String text = "";
-    private List<String> displayedLines;
     protected int lineHeight = 14;
     private int cursorCounter;
     private boolean enableBackgroundDrawing = true;
@@ -49,7 +44,6 @@ public class GuiTextArea extends Gui
         this.yPosition = 0;
         this.width = width;
         this.height = height;
-        this.displayedLines = new ArrayList<String>();
     }
     
     public void update(int mouseX, int mouseY) {

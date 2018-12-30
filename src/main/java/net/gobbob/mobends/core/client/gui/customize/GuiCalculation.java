@@ -2,9 +2,9 @@ package net.gobbob.mobends.core.client.gui.customize;
 
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.pack.BendsAction;
-import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.pack.BendsAction.Calculation;
 import net.gobbob.mobends.core.pack.BendsAction.EnumOperator;
+import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 

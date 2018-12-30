@@ -1,12 +1,13 @@
 package net.gobbob.mobends.standard.client.renderer.entity.mutated;
 
+import net.gobbob.mobends.core.data.EntityData;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 
 public class PlayerRenderer extends BipedRenderer<AbstractClientPlayer>
 {
 	@Override
-	protected void transformLocally(AbstractClientPlayer entity, float partialTicks)
+	protected void transformLocally(AbstractClientPlayer entity, EntityData<?> data, float partialTicks)
 	{
 		if (entity.isSneaking())
 		{

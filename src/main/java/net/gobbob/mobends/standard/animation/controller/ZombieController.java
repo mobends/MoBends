@@ -6,7 +6,6 @@ import java.util.List;
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
-import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
 import net.gobbob.mobends.standard.DefaultAddon;
@@ -34,7 +33,7 @@ public class ZombieController extends Controller<ZombieData>
 	
 	public ZombieController()
 	{
-		animationTarget = DefaultAddon.ZOMBIE.getKey();
+		animationTarget = DefaultAddon.zombieKey;
 		
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerSet = new HardAnimationLayer<>();

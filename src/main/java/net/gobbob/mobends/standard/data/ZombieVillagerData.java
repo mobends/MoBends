@@ -1,8 +1,5 @@
 package net.gobbob.mobends.standard.data;
 
-import java.util.Random;
-
-import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.animation.controller.ZombieVillagerController;
 import net.minecraft.entity.monster.EntityZombieVillager;
 

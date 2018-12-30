@@ -2,7 +2,7 @@ package net.gobbob.mobends.core.data;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.function.Function;
+import java.util.Map.Entry;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.minecraft.client.Minecraft;
@@ -15,7 +15,7 @@ public class EntityDatabase
 	// Contains data for all EntityData instances.
 	protected final HashMap<Integer, EntityData<?>> entryMap = new HashMap<>();
 
-	public EntityData<?> get(Integer identifier)
+	private EntityData<?> get(Integer identifier)
 	{
 		return entryMap.get(identifier);
 	}
@@ -62,35 +62,21 @@ public class EntityDatabase
 
 	public void updateClient()
 	{
-		Iterator<Integer> it = entryMap.keySet().iterator();
+		Iterator<Entry<Integer, EntityData<?>>> it = entryMap.entrySet().iterator();
 		while (it.hasNext())
 		{
-			Integer key = it.next();
-			EntityData<?> entityData = get(key);
+			Entry<Integer, EntityData<?>> entry = it.next();
+
+			EntityData<?> entityData = entry.getValue();
 			Entity entityInData = entityData.getEntity();
-			
-			if (AlterEntry.isPreviewEntity(entityInData))
+			Entity entity = Minecraft.getMinecraft().world.getEntityByID(entry.getKey());
+			if (!AlterEntry.isPreviewEntity(entityInData) && (entity == null || entityInData != entity))
 			{
-				entityData.updateClient();
+				it.remove();
 			}
 			else
 			{
-				Entity entity = Minecraft.getMinecraft().world.getEntityByID(key);
-				if (entity != null)
-				{
-					if (entityData.getEntity() != entity)
-					{
-						it.remove();
-					}
-					else
-					{
-						entityData.updateClient();
-					}
-				}
-				else
-				{
-					it.remove();
-				}
+				entityData.updateClient();
 			}
 		}
 	}
@@ -99,8 +85,7 @@ public class EntityDatabase
 	{
 		for (EntityData<?> entityData : this.entryMap.values())
 		{
-			if (entityData.canBeUpdated())
-				entityData.update(partialTicks);
+			entityData.update(partialTicks);
 		}
 	}
 

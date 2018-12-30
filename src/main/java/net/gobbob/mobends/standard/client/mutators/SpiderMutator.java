@@ -33,7 +33,7 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
     public ModelPart spiderForeLeg7;
     public ModelPart spiderForeLeg8;
     
-    public SpiderMutator(IEntityDataFactory dataFactory)
+    public SpiderMutator(IEntityDataFactory<EntitySpider> dataFactory)
     {
     	super(dataFactory);
     }
@@ -179,7 +179,7 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 	}
 	
 	@Override
-	protected void syncUpWithData(SpiderData data)
+	public void syncUpWithData(SpiderData data)
 	{
 		spiderHead.syncUp(data.spiderHead);
 		spiderNeck.syncUp(data.spiderNeck);

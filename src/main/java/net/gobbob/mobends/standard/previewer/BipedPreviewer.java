@@ -3,18 +3,14 @@ package net.gobbob.mobends.standard.previewer;
 import net.gobbob.mobends.core.animatedentity.Previewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.data.BipedEntityData;
-import net.gobbob.mobends.standard.data.PlayerData;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class BipedPreviewer<D extends BipedEntityData> extends Previewer<D>
+public class BipedPreviewer<D extends BipedEntityData<?>> extends Previewer<D>
 {
 	
 	@Override
 	public void prePreview(D data, String animationToPreview)
-	{
-		final float ticks = DataUpdateHandler.getTicks();
-		
+	{	
 		data.headYaw.override(0F);
 		data.headPitch.override(0F);
 		

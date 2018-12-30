@@ -7,7 +7,6 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.core.util.SmoothOrientation;

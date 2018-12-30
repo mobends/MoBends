@@ -1,8 +1,5 @@
 package net.gobbob.mobends.core.util;
 
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
-
 public class SmoothOrientation
 {
 	public static final float PI = (float) Math.PI;

@@ -1,7 +1,6 @@
 package net.gobbob.mobends.standard.animation.bit.biped;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
-import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;

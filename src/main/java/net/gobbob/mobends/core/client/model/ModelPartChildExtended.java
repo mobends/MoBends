@@ -1,15 +1,8 @@
 package net.gobbob.mobends.core.client.model;
 
-import net.gobbob.mobends.core.util.SmoothVector3f;
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
 
 public class ModelPartChildExtended extends ModelPartChild{
 	protected IModelPart extension;

@@ -11,9 +11,7 @@ import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.Quaternion;
 import net.gobbob.mobends.core.util.QuaternionUtils;
 import net.gobbob.mobends.core.util.Vector3;
-import net.gobbob.mobends.standard.client.ClientProxy;
 import net.gobbob.mobends.standard.data.BipedEntityData;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
@@ -159,7 +157,7 @@ public class SwordTrail
 		GlStateManager.enableLighting();
 	}
 	
-	public void add(BipedEntityData entityData, float velocityX, float velocityY, float velocityZ)
+	public void add(BipedEntityData<?> entityData, float velocityX, float velocityY, float velocityZ)
 	{
 		Entity entity = entityData.getEntity();
 		if (entity instanceof EntityLivingBase)
@@ -189,7 +187,7 @@ public class SwordTrail
 		}
 	}
 	
-	public void add(BipedEntityData entityData)
+	public void add(BipedEntityData<?> entityData)
 	{
 		this.add(entityData, 0, 0, 0);
 	}

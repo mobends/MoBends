@@ -1,7 +1,6 @@
 package net.gobbob.mobends.core.configuration;
 
 import java.io.File;
-import java.util.List;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
@@ -24,10 +23,9 @@ public class ModConfiguration
     	
     	config.load();
     	
-    	for(AnimatedEntity animatedEntity : AnimatedEntityRegistry.getRegistered()) {
-    		List<AlterEntry> alterEntries = animatedEntity.getAlterEntries();
-    		for(int a = 0; a < alterEntries.size(); a++) {
-    			config.get("Animated", alterEntries.get(a).getKey(), true).setValue(alterEntries.get(a).isAnimated());
+    	for(AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.getRegistered()) {
+    		for(AlterEntry<?> alterEntry : animatedEntity.getAlterEntries()) {
+    			config.get("Animated", alterEntry.getKey(), true).setValue(alterEntry.isAnimated());
     		}
         }
     	

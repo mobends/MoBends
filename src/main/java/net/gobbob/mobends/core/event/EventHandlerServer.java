@@ -3,7 +3,6 @@ package net.gobbob.mobends.core.event;
 import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.network.NetworkConfiguration;
 import net.gobbob.mobends.core.network.msg.MessageClientConfigure;
-import net.gobbob.mobends.standard.main.MoBends;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

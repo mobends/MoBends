@@ -1,21 +1,19 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
-import net.gobbob.mobends.core.animatedentity.DefaultAlterEntry;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.IChangeListener;
 import net.gobbob.mobends.core.client.gui.Observable;
 import net.gobbob.mobends.core.client.gui.elements.GuiDropDownList;
 import net.gobbob.mobends.core.client.gui.elements.GuiIconButton;
 import net.gobbob.mobends.core.client.gui.elements.GuiPortraitDisplay;
-import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.pack.PackManager;
-import net.gobbob.mobends.core.util.Lang;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiCustomizeWindow extends Gui implements IChangeListener
@@ -73,19 +71,18 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 	public void display(int mouseX, int mouseY, float partialTicks)
 	{
 		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomizeWindow.BACKGROUND_TEXTURE);
-		this.drawTexturedModalRect(this.x, this.y, 0, 0, this.WIDTH, this.HEIGHT);
-		BendsTarget bendsTarget = BendsPack.getTarget(this.currentAlterEntry.getKey());
+		this.drawTexturedModalRect(this.x, this.y, 0, 0, WIDTH, HEIGHT);
 
-		this.drawCenteredString(this.fontRenderer, Lang.format("mobends.gui.customize"),
-				(int) (this.x + this.WIDTH/2), this.y + 4, 0xFFFFFF);
+		this.drawCenteredString(this.fontRenderer, I18n.format("mobends.gui.customize"),
+				(int) (this.x + WIDTH/2), this.y + 4, 0xFFFFFF);
 		
 		this.targetList.display();
 		this.portraitDisplay.display(partialTicks);
 
 		if (!PackManager.isCurrentPackLocal())
 		{
-			this.drawCenteredString(fontRenderer, Lang.format("mobends.gui.chooseapacktoedit"),
-					this.x + this.WIDTH / 2, this.y + 135, 0xffffff);
+			this.drawCenteredString(fontRenderer, I18n.format("mobends.gui.chooseapacktoedit"),
+					this.x + WIDTH / 2, this.y + 135, 0xffffff);
 			
 			return;
 		}
@@ -98,8 +95,6 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 
 	public void populate(AlterEntry alterEntry)
 	{
-		BendsTarget target = BendsPack.getTarget(alterEntry.getKey());
-		
 		this.currentAlterEntry = alterEntry;
 		this.nodeEditor.populate(alterEntry);
 		this.parameterEditor.populate(alterEntry); 
@@ -194,7 +189,7 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 		{
 			if (unappliedChanged)
 			{
-				mainMenu.popUpDiscardChanges(mainMenu.POPUP_CHANGETARGET);
+				mainMenu.popUpDiscardChanges(GuiBendsMenu.POPUP_CHANGETARGET);
 			}
 			else
 			{

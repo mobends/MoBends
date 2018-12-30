@@ -14,7 +14,7 @@ public class PlayerAlterEntry extends AlterEntry<AbstractClientPlayer>
 	}
 	
 	@Override
-	public LivingEntityData getDataForPreview()
+	public LivingEntityData<AbstractClientPlayer> getDataForPreview()
 	{
 		return PlayerPreviewer.getPreviewData();
 	}

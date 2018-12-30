@@ -1,6 +1,5 @@
 package net.gobbob.mobends.standard.data;
 
-import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.standard.animation.controller.PigZombieController;
 import net.minecraft.entity.monster.EntityPigZombie;
 

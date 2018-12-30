@@ -1,14 +1,8 @@
 package net.gobbob.mobends.core;
 
-import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.client.event.EntityRenderHandler;
-import net.gobbob.mobends.core.client.event.KeyboardHandler;
 import net.gobbob.mobends.core.configuration.ModConfiguration;
 import net.gobbob.mobends.core.network.msg.MessageClientConfigure;
-import net.gobbob.mobends.core.pack.PackManager;
-import net.gobbob.mobends.core.pack.variable.BendsVariable;
 import net.gobbob.mobends.standard.main.ModStatics;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;

@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
-import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
@@ -24,7 +23,6 @@ public class GuiPopUp {
 	
 	public GuiPopUp(String title, int action, String[] buttons) {
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
-		String leftoverTitle = title + "";
 		this.width = 120;
 		this.height = 60;
 		this.title = GUtil.squashText(fontRenderer, title, width-40);

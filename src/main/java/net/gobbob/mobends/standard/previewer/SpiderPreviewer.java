@@ -2,7 +2,6 @@ package net.gobbob.mobends.standard.previewer;
 
 import net.gobbob.mobends.core.animatedentity.Previewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.client.renderer.GlStateManager;
 

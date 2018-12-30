@@ -103,10 +103,6 @@ public class GuiPopUpHelp extends GuiPopUp {
 			}
 		}
 		
-		public int getLines() {
-			return definitionLines.length;
-		}
-		
 		public int getTitleOffset() {
 			return titleMaxWidth;
 		}

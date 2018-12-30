@@ -21,7 +21,7 @@ import net.minecraft.util.math.Vec3d;
 public abstract class EntityData<E extends Entity> implements IBendsModel
 {
 	protected int entityID;
-	protected E entity;
+	protected final E entity;
 
 	protected double positionX, positionY, positionZ;
 	protected double prevMotionX, prevMotionY, prevMotionZ;
@@ -89,11 +89,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 		this.renderOffset.update(ticksPerFrame);
 		this.renderRotation.update(ticksPerFrame);
 		this.centerRotation.update(ticksPerFrame);
-	}
-
-	public boolean canBeUpdated()
-	{
-		return !(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused());
 	}
 
 	public boolean calcOnGround()
@@ -263,13 +258,13 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 		this.prevMotionY = this.motionY;
 		this.prevMotionZ = this.motionZ;
 
-		this.motionX = entity.posX - this.positionX;
-		this.motionY = entity.posY - this.positionY;
-		this.motionZ = entity.posZ - this.positionZ;
+		this.motionX = this.entity.posX - this.positionX;
+		this.motionY = this.entity.posY - this.positionY;
+		this.motionZ = this.entity.posZ - this.positionZ;
 
-		this.positionX = entity.posX;
-		this.positionY = entity.posY;
-		this.positionZ = entity.posZ;
+		this.positionX = this.entity.posX;
+		this.positionY = this.entity.posY;
+		this.positionZ = this.entity.posZ;
 	}
 	
 	@Override

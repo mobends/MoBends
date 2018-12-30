@@ -1,97 +1,85 @@
 package net.gobbob.mobends.core.animatedentity;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import net.gobbob.mobends.core.client.MutatedRenderer;
 import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.mutators.IMutatorFactory;
-import net.gobbob.mobends.core.mutators.MutationContainer;
 import net.gobbob.mobends.core.mutators.Mutator;
-import net.gobbob.mobends.core.util.Lang;
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 public class AnimatedEntity<T extends EntityLivingBase>
 {
-	String modid;
-	String key;
-	String keyWithoutModId;
-	String unlocalizedName;
-	List<AlterEntry<T>> alterEntries = new ArrayList<>();
-	private String[] alterableParts;
-	private MutatedRenderer<T> renderer;
-	private IEntityDataFactory<T> entityDataFactory;
-	public Class<T> entityClass;
+	private final String key;
+	private final String unlocalizedName;
+	private final List<AlterEntry<T>> alterEntries;
+	private final String[] alterableParts;
+	private final MutatedRenderer<T> renderer;
+	public final Class<T> entityClass;
 
-	public MutationContainer mutationContainer;
+	private final HashMap<RenderLivingBase<? extends T>, Mutator<LivingEntityData<T>, T, ?>> mutatorMap = new HashMap<>();
+	
+	private final IEntityDataFactory<T> entityDataFactory;
+	private final IMutatorFactory<T> mutatorFactory;
+	public final Previewer<?> previewer;
 
-	public AnimatedEntity(String key, String unlocalizedName, Class<T> entityClass,
-			IEntityDataFactory<T> entityDataFactory, IMutatorFactory mutatorFactory,
-			MutatedRenderer renderer, String[] alterableParts)
+	AnimatedEntity(String modId, String key, String unlocalizedName, Class<T> entityClass,
+			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
+			MutatedRenderer<T> renderer, Previewer<?> previwer, List<AlterEntry<T>> alterEntries, String... alterableParts)
 	{
-		this.keyWithoutModId = key;
-		if (this.keyWithoutModId != null)
-			this.key = modid + "-" + this.keyWithoutModId;
+		if (renderer == null)
+			throw new NullPointerException("The mutated renderer cannot be null.");
+		if (entityClass == null)
+			throw new NullPointerException("The entity class cannot be null.");
+		if (modId == null)
+			throw new NullPointerException("The mod ID cannot be null.");
+		
+		
+		if (key == null)
+		{
+			ResourceLocation resourceLocation = EntityList.getKey(entityClass);
+			if (resourceLocation == null)
+				throw new RuntimeException("Unable to find a key for " + entityClass.getName());
+			key = resourceLocation.toString();
+			unlocalizedName = "entity." + EntityList.getTranslationName(resourceLocation) + ".name";
+		}
+		
+		if (alterEntries == null || alterEntries.isEmpty())
+			this.alterEntries = Arrays.asList(new DefaultAlterEntry<T>());
+		else
+			this.alterEntries = Collections.unmodifiableList(alterEntries);
+		
+		this.key = modId + "-" + key;
 		this.unlocalizedName = unlocalizedName;
 		this.entityClass = entityClass;
 		this.entityDataFactory = entityDataFactory;
-		this.mutationContainer = new MutationContainer(entityDataFactory, mutatorFactory);
+		this.mutatorFactory = mutatorFactory;
 		this.renderer = renderer;
-		this.alterableParts = alterableParts;	
+		this.previewer = previwer;
+		this.alterableParts = alterableParts;
 	}
 	
-	public AnimatedEntity(Class<T> entityClass,
-			IEntityDataFactory<T> entityDataFactory, IMutatorFactory mutatorFactory,
-			MutatedRenderer renderer, String[] alterableParts)
+	public boolean onRegister()
 	{
-		this(null, null, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
-	}
-	
-	public boolean onRegistraton()
-	{
-		if (this.key == null)
+		for (AlterEntry<T> entry : this.alterEntries)
 		{
-			ResourceLocation key = EntityList.getKey(entityClass);
-			if (key == null)
-				return false;
-			
-			this.key = modid + "-" + key;
-			this.unlocalizedName = "entity." + EntityList.getTranslationName(key) + ".name";
+			entry.onRegister(this);
 		}
-		
-		// Creating the default alter entry if none has been added
-		generateDefaultAlterEntry();
-		
-		for (AlterEntry entry : this.alterEntries)
-		{
-			entry.onRegistered(this);
-		}
-		
 		return true;
-	}
-	
-	public void generateDefaultAlterEntry()
-	{
-		if (this.alterEntries.size() == 0)
-		{
-			this.alterEntries.add(new DefaultAlterEntry());
-		}
 	}
 	
 	public List<AlterEntry<T>> getAlterEntries()
 	{
 		return this.alterEntries;
-	}
-
-	public AlterEntry<T> getAlterEntry(int index)
-	{
-		return this.alterEntries.get(index);
 	}
 
 	public String[] getAlterableParts()
@@ -101,12 +89,17 @@ public class AnimatedEntity<T extends EntityLivingBase>
 
 	public String getLocalizedName()
 	{
-		return Lang.localize(this.unlocalizedName);
+		return I18n.format(this.unlocalizedName);
 	}
 
 	public String getKey()
 	{
-		return key;
+		return this.key;
+	}
+	
+	public String getUnlocalizedName()
+	{
+		return this.unlocalizedName;
 	}
 	
 	public IEntityDataFactory<T> getDataFactory()
@@ -126,81 +119,76 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		}
 		return false;
 	}
-	
-	public AnimatedEntity setModId(String modid)
-	{
-		this.modid = modid;
-		if (this.keyWithoutModId != null)
-			this.key = modid + "-" + this.keyWithoutModId;
-		return this;
-	}
-	
-	public AnimatedEntity setAlterEntry(AlterEntry alterEntry)
-	{
-		this.alterEntries.clear();
-		this.alterEntries.add(alterEntry);
-		return this;
-	}
-
-	public AnimatedEntity<T> addAlterEntry(AlterEntry alterEntry)
-	{
-		this.generateDefaultAlterEntry();
-		
-		this.alterEntries.add(alterEntry);
-		return this;
-	}
-
-	public AnimatedEntity<T> setPreviewer(Previewer previewer)
-	{
-		this.generateDefaultAlterEntry();
-		this.alterEntries.get(0).setPreviewer(previewer);
-		return this;
-	}
 
 	public void beforeRender(T entity, float partialTicks)
 	{
-		if (this.renderer != null)
-			this.renderer.beforeRender(entity, partialTicks);
+		this.renderer.beforeRender(entity, partialTicks);
 	}
 
 	public void afterRender(T entity, float partialTicks)
 	{
-		if (this.renderer != null)
-			this.renderer.afterRender(entity, partialTicks);
+		this.renderer.afterRender(entity, partialTicks);
 	}
 
-	public boolean applyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity,
-			float partialTicks)
+	/*
+	 * Used to apply the effect of the mutation, or just to update the model if it was already mutated.
+	 * Called from AnimatedEntity.
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean applyMutation(RenderLivingBase<? extends T> renderer, T entity, float partialTicks)
 	{
-		return mutationContainer.apply(renderer, entity, partialTicks);
+		Mutator<LivingEntityData<T>, T, ?> mutator = mutatorMap.get(renderer);
+		if (mutator == null)
+		{
+			mutator = (Mutator<LivingEntityData<T>, T, ?>) mutatorFactory.createMutator(entityDataFactory);
+			if (!mutator.mutate(renderer))
+			{
+				return false;
+			}
+			
+			mutatorMap.put(renderer, mutator);
+		}
+
+		mutator.updateModel(entity, renderer, partialTicks);
+		LivingEntityData<T> data = mutator.getOrMakeData(entity);
+		mutator.performAnimations(data, renderer, partialTicks);
+		mutator.syncUpWithData(data);
+		
+		return true;
 	}
 
-	public void deapplyMutation(RenderLivingBase<? extends EntityLivingBase> renderer, EntityLivingBase entity)
+	/*
+	 * Used to reverse the effect of the mutation.
+	 * Called from AnimatedEntity.
+	 */
+	public void deapplyMutation(RenderLivingBase<? extends T> renderer, EntityLivingBase entity)
 	{
-		mutationContainer.deapply(renderer, entity);
+		if (mutatorMap.containsKey(renderer))
+		{
+			Mutator<LivingEntityData<T>, T, ?> mutator = mutatorMap.get(renderer);
+			mutator.demutate(renderer);
+			mutatorMap.remove(renderer);
+		}
 	}
 
+	/*
+	 * Used to refresh the mutators in case of real-time changes during development.
+	 */
 	public void refreshMutation()
 	{
-		mutationContainer.refresh();
-	}
-
-	public static <E extends EntityLivingBase> AnimatedEntity<E> getForEntity(E entity)
-	{
-		return (AnimatedEntity<E>) AnimatedEntityRegistry.getForEntity(entity);
-	}
-	
-	public static void refreshMutators()
-	{
-		AnimatedEntityRegistry.refreshMutators();
+		for (Entry<RenderLivingBase<? extends T>, Mutator<LivingEntityData<T>, T, ?>> entry : mutatorMap.entrySet())
+		{
+			Mutator<?, T, ?> mutator = entry.getValue();
+			mutator.mutate(entry.getKey());
+			mutator.postRefresh();
+		}
 	}
 	
-	public static <D extends LivingEntityData<E>, E extends EntityLivingBase, M extends ModelBase> Mutator<D, E, M> getMutatorForRenderer(Class<? extends Entity> entityClass, RenderLivingBase<? extends E> renderer)
+	public static <T extends EntityLivingBase> Mutator<?, ?, ?> getMutatorForRenderer(Class<T> entityClass, RenderLivingBase<T> renderer)
 	{
-		AnimatedEntity ae = AnimatedEntityRegistry.getForEntityClass(entityClass);
+		AnimatedEntity<?> ae = AnimatedEntityRegistry.getForEntityClass(entityClass);
 		if (ae == null)
 			return null;
-		
-		return ae.mutationContainer.getForRenderer(renderer);
+		return ae.mutatorMap.get(renderer);
 	}
 }

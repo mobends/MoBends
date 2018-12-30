@@ -3,7 +3,6 @@ package net.gobbob.mobends.standard.data;
 import java.util.Random;
 
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.standard.animation.controller.ZombieController;
 import net.minecraft.entity.monster.EntityZombie;
 
 public abstract class ZombieDataBase<E extends EntityZombie> extends BipedEntityData<E>
@@ -16,6 +15,7 @@ public abstract class ZombieDataBase<E extends EntityZombie> extends BipedEntity
 	protected int animationSet = 0;
 	protected int currentWalkingState = 0;
 	protected float ticksBeforeStateChange = 0;
+	private final Random random = new Random();
 	
 	public ZombieDataBase(E entity)
 	{
@@ -45,7 +45,6 @@ public abstract class ZombieDataBase<E extends EntityZombie> extends BipedEntity
 
 		if (this.ticksBeforeStateChange <= 0)
 		{
-			Random random = new Random();
 			this.currentWalkingState = random.nextInt(2);
 			this.ticksBeforeStateChange = 80 + random.nextInt(20);
 		}

@@ -45,7 +45,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	protected LayerCustomHead 			layerCustomHeadVanilla;
 	
 
-	public BipedMutator(IEntityDataFactory dataFactory)
+	public BipedMutator(IEntityDataFactory<E> dataFactory)
 	{
 		super(dataFactory);
 	}
@@ -235,7 +235,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	}
 	
 	@Override
-	protected void syncUpWithData(D data)
+	public void syncUpWithData(D data)
 	{
 		head.syncUp(data.head);
 		body.syncUp(data.body);
