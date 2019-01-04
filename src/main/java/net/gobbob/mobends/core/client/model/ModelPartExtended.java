@@ -1,13 +1,8 @@
 package net.gobbob.mobends.core.client.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModelPartExtended extends ModelPart {
 	protected IModelPart extension;

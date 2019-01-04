@@ -2,38 +2,31 @@ package net.gobbob.mobends.core.animatedentity;
 
 import java.util.HashMap;
 
-import net.gobbob.mobends.core.client.MutatedRenderer;
-import net.gobbob.mobends.core.mutators.IMutatorFactory;
 import net.gobbob.mobends.core.util.BendsLogger;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.common.config.Configuration;
 
 public class AnimatedEntityRegistry
 {
-	public static final AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
+	static final AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
 	
-	private HashMap<String, AnimatedEntity<?>> nameToInstanceMap = new HashMap<String, AnimatedEntity<?>>();
-	private HashMap<Class<? extends Entity>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<Class<? extends Entity>, AnimatedEntity<?>>();
+	private final HashMap<Class<? extends EntityLivingBase>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<>();
 	
 	
 	public void registerEntity(AnimatedEntity<?> animatedEntity)
 	{
-		BendsLogger.LOGGER.info("Registering " + animatedEntity.key);
-		
-		if (animatedEntity.onRegistraton())
+		if (animatedEntity.onRegister())
 		{
-			nameToInstanceMap.put(animatedEntity.key, animatedEntity);
+			BendsLogger.LOG.info("Registering " + animatedEntity.getKey());
 			entityClassToInstanceMap.put(animatedEntity.entityClass, animatedEntity);
 		}
 	}
 	
 	public static void applyConfiguration(Configuration config)
 	{
-		for (AnimatedEntity<?> e : INSTANCE.nameToInstanceMap.values())
+		for (AnimatedEntity<?> e : INSTANCE.entityClassToInstanceMap.values())
 		{
-			for (AlterEntry alterEntry : e.alterEntries)
+			for (AlterEntry<?> alterEntry : e.getAlterEntries())
 			{
 				alterEntry.setAnimate(config.get("Animated", alterEntry.getKey(), true).getBoolean());
 			}
@@ -42,38 +35,34 @@ public class AnimatedEntityRegistry
 	
 	public static Iterable<AnimatedEntity<?>> getRegistered()
 	{
-		return INSTANCE.nameToInstanceMap.values();
+		return INSTANCE.entityClassToInstanceMap.values();
 	}
 	
-	public static AnimatedEntity<?> get(String name)
-	{
-		return INSTANCE.nameToInstanceMap.get(name);
-	}
-	
-	public static AnimatedEntity getForEntityClass(Class<? extends Entity> c)
+	public static AnimatedEntity<?> getForEntityClass(Class<? extends EntityLivingBase> c)
 	{
 		return INSTANCE.entityClassToInstanceMap.get(c);
 	}
 	
-	public static AnimatedEntity getForEntity(Entity entity)
+	@SuppressWarnings("unchecked")
+	public static <E extends EntityLivingBase> AnimatedEntity<E> getForEntity(E entity)
 	{
 		// Checking direct registration
-		Class<? extends Entity> entityClass = entity.getClass();
-		for (AnimatedEntity animatedEntity : INSTANCE.nameToInstanceMap.values())
+		Class<? extends EntityLivingBase> entityClass = entity.getClass();
+		for (AnimatedEntity<?> animatedEntity : INSTANCE.entityClassToInstanceMap.values())
 			if (animatedEntity.entityClass.equals(entityClass))
-				return animatedEntity;
+				return (AnimatedEntity<E>) animatedEntity;
 
 		// Checking indirect inheritance
-		for (AnimatedEntity animatedEntity : INSTANCE.nameToInstanceMap.values())
+		for (AnimatedEntity<?> animatedEntity : INSTANCE.entityClassToInstanceMap.values())
 			if (animatedEntity.entityClass.isInstance(entity))
-				return animatedEntity;
+				return (AnimatedEntity<E>) animatedEntity;
 
 		return null;
 	}
 	
 	public static void refreshMutators()
 	{
-		for (AnimatedEntity animatedEntity : INSTANCE.nameToInstanceMap.values())
+		for (AnimatedEntity<?> animatedEntity : INSTANCE.entityClassToInstanceMap.values())
 			animatedEntity.refreshMutation();
 	}
 }

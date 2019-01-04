@@ -3,16 +3,11 @@ package net.gobbob.mobends.core.client.gui.elements;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.gui.CustomFont;
 import net.gobbob.mobends.core.client.gui.CustomFontRenderer;
-import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
@@ -34,7 +29,6 @@ public class GuiSectionButton
 	private boolean hasLeftIcon, hasRightIcon;
 	private int leftIconU, leftIconV, leftIconWidth, leftIconHeight;
 	private int rightIconU, rightIconV, rightIconWidth, rightIconHeight;
-	private int zLevel;
 	private CustomFontRenderer fontRenderer;
 	
 	private boolean hover, pressed;
@@ -52,7 +46,6 @@ public class GuiSectionButton
 		this.neutralColor = Color.fromHex(0xFF777777);
 		this.bgColor = bgColor;
 		this.hasLeftIcon = this.hasRightIcon = false;
-		this.zLevel = 0;
 		this.hover = false;
 		this.pressed = false;
 		

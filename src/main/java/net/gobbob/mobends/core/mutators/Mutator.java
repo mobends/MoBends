@@ -1,18 +1,12 @@
 package net.gobbob.mobends.core.mutators;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 import net.gobbob.mobends.core.animation.controller.Controller;
-import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.GUtil;
-import net.gobbob.mobends.standard.data.ZombieData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
@@ -69,7 +63,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 	 */
 	public abstract boolean createParts(M original, float scaleFactor);
 	
-	public boolean mutate(E entity, RenderLivingBase<? extends E> renderer)
+	public boolean mutate(RenderLivingBase<? extends E> renderer)
 	{
 		if (renderer.getMainModel() == null || !this.isModelEligible(renderer.getMainModel()))
 			return false;
@@ -82,8 +76,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 		boolean isModelVanilla = this.isModelVanilla(model);
 		if (isModelVanilla)
 		{
-			// If this model wasn't mutated before, save it
-			// as the vanilla model.
+			// If this model wasn't mutated before, save it as the vanilla model.
 			this.storeVanillaModel(model);
 		}
 		
@@ -104,7 +97,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 	/*
 	 * Performs the steps needed to demutate the model.
 	 */
-	public void demutate(E entity, RenderLivingBase<? extends E> renderer)
+	public void demutate(RenderLivingBase<? extends E> renderer)
 	{
 		if (!this.isModelEligible(renderer.getMainModel()))
 			return;
@@ -173,23 +166,21 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 		this.limbSwingAmount = f5;
 	}
 	
-	protected void performAnimations(D data, RenderLivingBase<? extends E> renderer, float partialTicks)
+	public void performAnimations(D data, RenderLivingBase<? extends E> renderer, float partialTicks)
 	{
 		data.headYaw.set(this.headYaw);
 		data.headPitch.set(this.headPitch);
 		data.limbSwing.set(this.limbSwing);
 		data.limbSwingAmount.set(this.limbSwingAmount);
 
-		Controller controller = data.getController();
-		if (controller != null && data.canBeUpdated())
-		{
-			controller.perform(data);
-		}
+		@SuppressWarnings("unchecked")
+		Controller<D> controller = (Controller<D>) data.getController();
+		controller.perform(data);
 	}
 	
-	protected abstract void syncUpWithData(D data);
+	public abstract void syncUpWithData(D data);
 	
-	protected D getOrMakeData(E entity)
+	public D getOrMakeData(E entity)
 	{
 		return EntityDatabase.instance.getOrMake(dataFactory, entity);
 	}
@@ -207,5 +198,5 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 	/*
 	 * Called right after this mutator has been refreshed.
 	 */
-	protected void postRefresh() {}
+	public void postRefresh() {}
 }

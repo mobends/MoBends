@@ -4,7 +4,6 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 
 public class ModelBox extends net.minecraft.client.model.ModelBox
 {

@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.client.model.IBendsModel;
 
 public class BendsTarget
@@ -21,19 +19,19 @@ public class BendsTarget
 	public void applyToModel(Object object, String anim, String model)
 	{
 		if (this.conditions.containsKey(anim))
-			((BendsCondition) this.conditions.get(anim)).applyToModel(object, anim, model);
+			this.conditions.get(anim).applyToModel(object, anim, model);
 
 		if (this.conditions.containsKey("all"))
-			((BendsCondition) this.conditions.get("all")).applyToModel(object, anim, model);
+			this.conditions.get("all").applyToModel(object, anim, model);
 	}
 
 	public void applyToModel(IBendsModel model, String anim)
 	{
 		if (this.conditions.containsKey(anim))
-			((BendsCondition) this.conditions.get(anim)).applyToModel(model);
+			this.conditions.get(anim).applyToModel(model);
 
 		if (this.conditions.containsKey("all"))
-			((BendsCondition) this.conditions.get("all")).applyToModel(model);
+			this.conditions.get("all").applyToModel(model);
 	}
 	
 	public void applyToModel(IBendsModel model, Collection<String> animations)
@@ -49,11 +47,6 @@ public class BendsTarget
 	
 	public BendsCondition getCondition(String anim)
 	{
-		return (BendsCondition) this.conditions.get(anim);
-	}
-
-	public AnimatedEntity getAnimatedEntity()
-	{
-		return AnimatedEntityRegistry.get(name);
+		return this.conditions.get(anim);
 	}
 }

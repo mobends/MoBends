@@ -9,7 +9,6 @@ import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
 import net.gobbob.mobends.standard.DefaultAddon;
-import net.gobbob.mobends.standard.data.ZombieData;
 import net.gobbob.mobends.standard.data.ZombieVillagerData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.monster.EntityZombie;
@@ -26,7 +25,7 @@ import net.minecraft.util.EnumHandSide;
  */
 public class ZombieVillagerController extends Controller<ZombieVillagerData>
 {
-	protected String animationTarget;
+	protected final String animationTarget;
 	protected HardAnimationLayer<ZombieVillagerData> layerBase;
 	protected HardAnimationLayer<ZombieVillagerData> layerSet;
 	protected AnimationBit<ZombieVillagerData> bitStand, bitWalk, bitJump;
@@ -34,7 +33,7 @@ public class ZombieVillagerController extends Controller<ZombieVillagerData>
 	
 	public ZombieVillagerController()
 	{
-		animationTarget = DefaultAddon.ZOMBIE_VILLAGER.getKey();
+		animationTarget = DefaultAddon.zombieVillagerKey;
 		
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerSet = new HardAnimationLayer<>();

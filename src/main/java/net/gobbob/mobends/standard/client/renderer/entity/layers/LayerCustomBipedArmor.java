@@ -63,7 +63,7 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
     @Override
     protected ModelBiped getArmorModelHook(net.minecraft.entity.EntityLivingBase entity, net.minecraft.item.ItemStack itemStack, EntityEquipmentSlot slot, ModelBiped model)
     {
-    	EntityData entityData = EntityDatabase.instance.get(entity);
+    	EntityData<?> entityData = EntityDatabase.instance.get(entity);
     	
     	ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model);
     	if (entityData instanceof BipedEntityData)

@@ -1,9 +1,7 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.GlStateManager;
 
 public class GuiCustomButton extends GuiButton{
 	public GuiCustomButton(int width, int height) {

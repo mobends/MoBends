@@ -10,7 +10,7 @@ import net.minecraft.entity.EntityLivingBase;
 
 public abstract class BendsVariable
 {
-	public static EntityData tempData;
+	public static EntityData<?> tempData;
 	public static HashMap<String, BendsVariable> variables;
 
 	public static void init()
@@ -65,7 +65,7 @@ public abstract class BendsVariable
 		public float getValue()
 		{
 			if (tempData instanceof LivingEntityData)
-				return ((LivingEntityData) tempData).getTicksAfterAttack();
+				return ((LivingEntityData<?>) tempData).getTicksAfterAttack();
 			else
 				return 0F;
 		}

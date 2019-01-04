@@ -13,7 +13,7 @@ public class PigZombieMutator extends BipedMutator<PigZombieData, EntityPigZombi
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
 	
-	public PigZombieMutator(IEntityDataFactory dataFactory)
+	public PigZombieMutator(IEntityDataFactory<EntityPigZombie> dataFactory)
 	{
 		super(dataFactory);
 	}

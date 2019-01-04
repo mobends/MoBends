@@ -4,7 +4,6 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.core.util.GLHelper;
 import net.gobbob.mobends.core.util.SmoothOrientation;
-import net.gobbob.mobends.core.util.SmoothVector3f;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.BufferBuilder;

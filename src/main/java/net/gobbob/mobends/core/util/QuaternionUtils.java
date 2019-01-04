@@ -2,11 +2,6 @@ package net.gobbob.mobends.core.util;
 
 import java.nio.FloatBuffer;
 
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
-
-import net.minecraft.client.renderer.GlStateManager;
-
 public class QuaternionUtils
 {
 	public static final float PI = (float) Math.PI;

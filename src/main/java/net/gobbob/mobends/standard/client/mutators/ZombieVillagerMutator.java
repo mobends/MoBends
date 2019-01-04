@@ -10,7 +10,7 @@ import net.minecraft.entity.monster.EntityZombieVillager;
 public class ZombieVillagerMutator extends ZombieMutatorBase<ZombieVillagerData, EntityZombieVillager, ModelZombieVillager>
 {
 
-	public ZombieVillagerMutator(IEntityDataFactory dataFactory)
+	public ZombieVillagerMutator(IEntityDataFactory<EntityZombieVillager> dataFactory)
 	{
 		super(dataFactory);
 	}

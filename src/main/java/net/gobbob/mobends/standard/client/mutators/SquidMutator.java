@@ -17,7 +17,7 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 	public ModelPart squidBody;
 	public ModelPart[][] squidTentacles = new ModelPart[8][SquidData.TENTACLE_SECTIONS];
 
-	public SquidMutator(IEntityDataFactory dataFactory)
+	public SquidMutator(IEntityDataFactory<EntitySquid> dataFactory)
 	{
 		super(dataFactory);
 	}
@@ -81,7 +81,7 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 	}
 	
 	@Override
-	protected void syncUpWithData(SquidData data)
+	public void syncUpWithData(SquidData data)
 	{
 		this.squidBody.syncUp(data.squidBody);
 		for (int i = 0; i < this.squidTentacles.length; ++i)

@@ -1,19 +1,18 @@
 package net.gobbob.mobends.standard.animation.bit.zombie_base;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
-import net.gobbob.mobends.standard.data.ZombieData;
 import net.gobbob.mobends.standard.data.ZombieDataBase;
 
-public class ZombieLeanAnimationBit extends AnimationBit<ZombieDataBase>
+public class ZombieLeanAnimationBit extends AnimationBit<ZombieDataBase<?>>
 {
 	@Override
-	public String[] getActions(ZombieDataBase entityData)
+	public String[] getActions(ZombieDataBase<?> entityData)
 	{
 		return new String[] { "lean" };
 	}
 	
 	@Override
-	public void perform(ZombieDataBase data)
+	public void perform(ZombieDataBase<?> data)
 	{
 		data.renderOffset.slideY(-3F);
 		

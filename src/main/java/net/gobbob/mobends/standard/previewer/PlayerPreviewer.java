@@ -1,10 +1,7 @@
 package net.gobbob.mobends.standard.previewer;
 
-import net.gobbob.mobends.core.animatedentity.Previewer;
-import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 
 public class PlayerPreviewer extends BipedPreviewer<PlayerData>
 {

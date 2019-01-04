@@ -4,7 +4,6 @@ import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.GLHelper;
-import net.gobbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -35,9 +34,10 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 		GlStateManager.translate(entityX - viewX, entityY - viewY, entityZ - viewZ);
 		GlStateManager.rotate(-interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
 		
-		this.renderLocalAccessories(entity, partialTicks);
-		
 		EntityData<?> data = EntityDatabase.instance.get(entity);
+		this.renderLocalAccessories(entity, data, partialTicks);
+		
+		
 		if (data != null && data instanceof LivingEntityData)
 		{
 			LivingEntityData<?> livingData = (LivingEntityData<?>) data;
@@ -51,7 +51,7 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 			GLHelper.rotate(livingData.renderRotation.getSmooth());
 		}
 		
-		this.transformLocally(entity, partialTicks);
+		this.transformLocally(entity, data, partialTicks);
 		
 		GlStateManager.rotate(interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
 		GlStateManager.translate(viewX - entityX, viewY - entityY, viewZ - entityZ);
@@ -66,8 +66,8 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 	 * Used to render accessories for that entity, e.g. Sword trails.
 	 * Also used to transform the entity, like offset or rotate it.
 	 */
-	protected void renderLocalAccessories(T entity, float partialTicks) {}
-	protected void transformLocally(T entity, float partialTicks) {}
+	protected void renderLocalAccessories(T entity, EntityData<?> data, float partialTicks) {}
+	protected void transformLocally(T entity, EntityData<?> data, float partialTicks) {}
 	
 	protected static float interpolateRotation(float prevYawOffset, float yawOffset, float partialTicks)
     {

@@ -33,7 +33,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 
 	protected boolean smallArms;
 
-	public PlayerMutator(IEntityDataFactory dataFactory)
+	public PlayerMutator(IEntityDataFactory<AbstractClientPlayer> dataFactory)
 	{
 		super(dataFactory);
 	}
@@ -205,7 +205,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	}
 
 	@Override
-	protected void performAnimations(PlayerData data, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
+	public void performAnimations(PlayerData data, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
 	{
 		leftForeArmwear.setVisible(leftArmwear.isShowing());
 		rightForeArmwear.setVisible(rightArmwear.isShowing());
@@ -248,7 +248,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	}
 	
 	@Override
-	protected PlayerData getOrMakeData(AbstractClientPlayer entity)
+	public PlayerData getOrMakeData(AbstractClientPlayer entity)
 	{
 		return PlayerPreviewer.isPreviewInProgress() ? PlayerPreviewer.getPreviewData() : super.getOrMakeData(entity);
 	}

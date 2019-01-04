@@ -1,8 +1,5 @@
 package net.gobbob.mobends.core.client.gui.packeditor;
 
-import org.lwjgl.opengl.GL11;
-
-import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.util.Draw;

@@ -3,10 +3,8 @@ package net.gobbob.mobends.core.client.gui.elements;
 import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.Previewer;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
-import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
@@ -24,7 +22,7 @@ public class GuiPortraitDisplay
 	private boolean value = false;
 	private double rotation;
 	private float animationValue;
-	private AlterEntry alterEntryToView;
+	private AlterEntry<?> alterEntryToView;
 	private String animationToPreview = "";
 	protected long time, lastTime;
 
@@ -97,7 +95,7 @@ public class GuiPortraitDisplay
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 	}
 
-	public void renderLivingEntity(int argX, int argY, float scale, AlterEntry alterEntry)
+	public void renderLivingEntity(int argX, int argY, float scale, AlterEntry<?> alterEntry)
 	{
 		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 		GL11.glPushMatrix();
@@ -114,7 +112,7 @@ public class GuiPortraitDisplay
 		RenderHelper.enableStandardItemLighting();
 		GL11.glRotatef(-lightAngle, 0.0F, 1.0F, 0.0F);
 		
-		LivingEntityData data = alterEntry.getDataForPreview();
+		LivingEntityData<?> data = alterEntry.getDataForPreview();
 		EntityLivingBase living = data.getEntity();
 		
 		float f2 = living.renderYawOffset;
@@ -130,7 +128,8 @@ public class GuiPortraitDisplay
 		
 		Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
 		
-		Previewer previewer = alterEntry.getPreviewer();
+		@SuppressWarnings("unchecked")
+		Previewer<LivingEntityData<?>> previewer = (Previewer<LivingEntityData<?>>) alterEntry.getPreviewer();
 		
 		if (previewer != null)
 			previewer.prePreview(data, this.animationToPreview);
@@ -169,7 +168,7 @@ public class GuiPortraitDisplay
 		value = !value;
 	}
 
-	public void showAlterEntry(AlterEntry alterEntry)
+	public void showAlterEntry(AlterEntry<?> alterEntry)
 	{
 		this.alterEntryToView = alterEntry;
 		this.value = alterEntry.isAnimated();

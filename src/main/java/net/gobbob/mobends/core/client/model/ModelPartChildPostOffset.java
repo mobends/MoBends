@@ -4,8 +4,6 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /*
  * This part is used, when accessories are rendered using it's postRender() method.

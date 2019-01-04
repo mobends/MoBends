@@ -12,7 +12,6 @@ import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.core.animatedentity.DefaultAlterEntry;
 import net.gobbob.mobends.core.client.gui.addonswindow.GuiAddonsWindow;
 import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
 import net.gobbob.mobends.core.client.gui.elements.GuiSectionButton;
@@ -25,7 +24,6 @@ import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.util.Draw;
-import net.gobbob.mobends.core.util.Lang;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -63,7 +61,7 @@ public class GuiBendsMenu extends GuiScreen
 	 */
 	protected static int lastAlterEntryViewed = 0;
 	
-	public List<AlterEntry> alterEntries = new ArrayList<>();
+	public List<AlterEntry<?>> alterEntries = new ArrayList<>();
 	public int currentAlterEntry = 0;
 
 	private GuiSectionButton customizeButton;
@@ -82,16 +80,16 @@ public class GuiBendsMenu extends GuiScreen
 	{
 		Keyboard.enableRepeatEvents(true);
 
-		for (AnimatedEntity animatedEntity : AnimatedEntityRegistry.getRegistered())
+		for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.getRegistered())
 		{
 			this.alterEntries.addAll(animatedEntity.getAlterEntries());
 		}
 
-		this.customizeButton = new GuiSectionButton(Lang.format("mobends.gui.section.customize"), 0xFFDA3A00)
+		this.customizeButton = new GuiSectionButton(I18n.format("mobends.gui.section.customize"), 0xFFDA3A00)
 				.setLeftIcon(0, 43, 19, 19).setRightIcon(19, 43, 19, 19);
-		this.packsButton = new GuiSectionButton(Lang.format("mobends.gui.section.packs"), 0xFF4577DE)
+		this.packsButton = new GuiSectionButton(I18n.format("mobends.gui.section.packs"), 0xFF4577DE)
 				.setLeftIcon(38, 43, 23, 20).setRightIcon(38, 43, 23, 20);
-		this.addonsButton = new GuiSectionButton(Lang.format("mobends.gui.section.addons"), 0xFFFFE565)
+		this.addonsButton = new GuiSectionButton(I18n.format("mobends.gui.section.addons"), 0xFFFFE565)
 				.setLeftIcon(61, 43, 19, 18).setRightIcon(61, 43, 19, 18);
 		
 		this.customizeWindow = new GuiCustomizeWindow(this);
@@ -488,7 +486,7 @@ public class GuiBendsMenu extends GuiScreen
 		return false;
 	}
 
-	public AlterEntry getCurrentAlterEntry()
+	public AlterEntry<?> getCurrentAlterEntry()
 	{
 		return this.alterEntries.get(this.currentAlterEntry);
 	}
@@ -501,7 +499,7 @@ public class GuiBendsMenu extends GuiScreen
 	public void selectAlterEntry(int id)
 	{
 		this.currentAlterEntry = id;
-		this.lastAlterEntryViewed = id;
+		GuiBendsMenu.lastAlterEntryViewed = id;
 		openTab(TAB_CUSTOMIZE);
 	}
 

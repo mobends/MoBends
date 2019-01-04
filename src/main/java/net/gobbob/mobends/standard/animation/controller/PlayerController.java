@@ -36,7 +36,7 @@ import net.minecraft.util.EnumHandSide;
  */
 public class PlayerController extends Controller<PlayerData>
 {
-	protected String animationTarget;
+	protected final String animationTarget;
 	protected HardAnimationLayer<BipedEntityData<?>> layerBase;
 	protected HardAnimationLayer<BipedEntityData<?>> layerTorch;
 	protected HardAnimationLayer<BipedEntityData<?>> layerSneak;
@@ -57,7 +57,7 @@ public class PlayerController extends Controller<PlayerData>
 
 	public PlayerController()
 	{
-		animationTarget = DefaultAddon.PLAYER.getKey();
+		animationTarget = DefaultAddon.playerKey;
 		
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerTorch = new HardAnimationLayer<>();

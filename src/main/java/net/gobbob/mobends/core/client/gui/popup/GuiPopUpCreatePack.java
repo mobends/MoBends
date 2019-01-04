@@ -1,7 +1,6 @@
 package net.gobbob.mobends.core.client.gui.popup;
 
 import net.gobbob.mobends.core.client.gui.elements.GuiCompactTextField;
-import net.gobbob.mobends.core.pack.BendsPack;
 import net.minecraft.client.resources.I18n;
 
 public class GuiPopUpCreatePack extends GuiPopUp {

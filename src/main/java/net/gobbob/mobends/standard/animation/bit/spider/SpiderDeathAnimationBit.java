@@ -2,8 +2,6 @@ package net.gobbob.mobends.standard.animation.bit.spider;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.client.event.EntityRenderHandler;
-import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 

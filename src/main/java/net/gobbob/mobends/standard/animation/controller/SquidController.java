@@ -3,7 +3,6 @@ package net.gobbob.mobends.standard.animation.controller;
 import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.SquidData;
 import net.minecraft.entity.passive.EntitySquid;

@@ -1,7 +1,6 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.lwjgl.input.Mouse;
@@ -67,14 +66,14 @@ public class GuiDropDownList extends Observable
 
 	public GuiDropDownList addEntry(String displayName)
 	{
-		this.entries.add(new Entry(this.entries.size(), displayName, entries.size()));
+		this.entries.add(new Entry(displayName, entries.size()));
 		updateDimensions();
 		return this;
 	}
 
 	public GuiDropDownList addEntry(String displayName, Object value)
 	{
-		this.entries.add(new Entry(this.entries.size(), displayName, value));
+		this.entries.add(new Entry(displayName, value));
 		updateDimensions();
 		return this;
 	}
@@ -243,8 +242,8 @@ public class GuiDropDownList extends Observable
 
 		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiBendsMenu.ICONS_TEXTURE);
 
-		Draw.rectangle(this.x, this.y, this.width, this.HEIGHT, -6250336);
-		Draw.rectangle(this.x + 1, this.y + 1, this.width - 2, this.HEIGHT - 2,
+		Draw.rectangle(this.x, this.y, this.width, HEIGHT, -6250336);
+		Draw.rectangle(this.x + 1, this.y + 1, this.width - 2, HEIGHT - 2,
 				hovered || dropped ? 0xff222222 : -16777216);
 		GlStateManager.color(1, 1, 1, 1);
 
@@ -306,16 +305,8 @@ public class GuiDropDownList extends Observable
 	{
 		private String displayName;
 		private Object value;
-		private int ordinal;
 
-		public Entry(int ordinal)
-		{
-			this.displayName = "";
-			this.value = ordinal;
-			this.ordinal = ordinal;
-		}
-
-		public Entry(int ordinal, String displayName, Object value)
+		public Entry(String displayName, Object value)
 		{
 			this.displayName = displayName;
 			this.value = value;

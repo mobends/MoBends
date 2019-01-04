@@ -1,11 +1,8 @@
 package net.gobbob.mobends.core.client.model.entity.armor;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.model.ModelBiped;
 
 public class ArmorModelFactory

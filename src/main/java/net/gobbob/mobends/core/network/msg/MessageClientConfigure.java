@@ -2,7 +2,6 @@ package net.gobbob.mobends.core.network.msg;
 
 import io.netty.buffer.ByteBuf;
 import net.gobbob.mobends.core.network.NetworkConfiguration;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;

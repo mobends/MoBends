@@ -1,11 +1,7 @@
 package net.gobbob.mobends.standard.animation.bit.player;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
-import net.gobbob.mobends.core.data.EntityData;
-import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.standard.data.PlayerData;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.entity.EntityLivingBase;
 
 public class PunchAnimationBit extends AnimationBit<PlayerData>
 {

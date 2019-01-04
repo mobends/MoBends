@@ -5,10 +5,10 @@ import java.util.List;
 
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.pack.BendsAction;
-import net.gobbob.mobends.core.pack.BendsCondition;
-import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.core.pack.BendsAction.EnumModifier;
+import net.gobbob.mobends.core.pack.BendsCondition;
+import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.EnumAxis;
 import net.minecraft.client.Minecraft;

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.client.model.ModelBox;
 import net.gobbob.mobends.core.client.model.ModelPart;
@@ -57,33 +58,29 @@ public class ModelBipedArmorCustom extends ModelBiped
 	protected ModelPartTransform mainBodyTransform;
 	protected List<ModelPartContainer> bodyParts;
 	protected List<ModelPartContainer> headParts;
-	protected List<ModelPartContainer> leftArmParts;
-	protected List<ModelPartContainer> rightArmParts;
-	protected List<ModelPartContainer> leftLegParts;
-	protected List<ModelPartContainer> rightLegParts;
-	protected List<ModelPartContainer> leftForeArmParts;
-	protected List<ModelPartContainer> rightForeArmParts;
-	protected List<ModelPartContainer> leftForeLegParts;
-	protected List<ModelPartContainer> rightForeLegParts;
+	protected List<ModelPartContainer> leftArmParts, rightArmParts;
+	protected List<ModelPartContainer> leftLegParts, rightLegParts;
+	protected List<ModelPartContainer> leftForeArmParts, rightForeArmParts;
+	protected List<ModelPartContainer> leftForeLegParts, rightForeLegParts;
 
 	public ModelBipedArmorCustom(ModelBiped original)
 	{
 		this.original = original;
-		this.gatheredFields = new ArrayList<Field>();
-		this.fieldToOriginalMap = new HashMap<Field, ModelRenderer>();
-		this.modelToBoxMap = new HashMap<ModelRenderer, net.minecraft.client.model.ModelBox>();
-		this.originalToCustomMap = new HashMap<ModelRenderer, IModelPart>();
+		this.gatheredFields = new ArrayList<>();
+		this.fieldToOriginalMap = new HashMap<>();
+		this.modelToBoxMap = new HashMap<>();
+		this.originalToCustomMap = new HashMap<>();
 		this.mainBodyTransform = new ModelPartTransform();
-		this.bodyParts = new ArrayList<ModelPartContainer>();
-		this.headParts = new ArrayList<ModelPartContainer>();
-		this.leftArmParts = new ArrayList<ModelPartContainer>();
-		this.rightArmParts = new ArrayList<ModelPartContainer>();
-		this.leftLegParts = new ArrayList<ModelPartContainer>();
-		this.rightLegParts = new ArrayList<ModelPartContainer>();
-		this.leftForeArmParts = new ArrayList<ModelPartContainer>();
-		this.rightForeArmParts = new ArrayList<ModelPartContainer>();
-		this.leftForeLegParts = new ArrayList<ModelPartContainer>();
-		this.rightForeLegParts = new ArrayList<ModelPartContainer>();
+		this.bodyParts = new ArrayList<>();
+		this.headParts = new ArrayList<>();
+		this.leftArmParts = new ArrayList<>();
+		this.rightArmParts = new ArrayList<>();
+		this.leftLegParts = new ArrayList<>();
+		this.rightLegParts = new ArrayList<>();
+		this.leftForeArmParts = new ArrayList<>();
+		this.rightForeArmParts = new ArrayList<>();
+		this.leftForeLegParts = new ArrayList<>();
+		this.rightForeLegParts = new ArrayList<>();
 	}
 
 	@Override
@@ -96,10 +93,10 @@ public class ModelBipedArmorCustom extends ModelBiped
 			return;
 		EntityLivingBase entityLiving = (EntityLivingBase) entityIn;
 		
-		AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntity.getForEntity(entityLiving);
+		AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.getForEntity(entityLiving);
 		if (animatedEntity == null)
 			return;
-		EntityData<?> entityData = EntityDatabase.instance.get(entityIn.getEntityId());
+		EntityData<?> entityData = EntityDatabase.instance.get(entityIn);
 		if (entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 
@@ -177,8 +174,8 @@ public class ModelBipedArmorCustom extends ModelBiped
 	{
 		original.setModelAttributes(this);
 
-		EntityData<?> entityData = EntityDatabase.instance.get(entityIn.getEntityId());
-		if (entityData == null || !(entityData instanceof BipedEntityData))
+		EntityData<?> entityData = EntityDatabase.instance.get(entityIn);
+		if (!(entityData instanceof BipedEntityData))
 			return;
 
 		BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
