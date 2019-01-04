@@ -32,7 +32,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 	private final IMutatorFactory<T> mutatorFactory;
 	public final Previewer<?> previewer;
 
-	AnimatedEntity(String modId, String key, String unlocalizedName, Class<T> entityClass,
+	public AnimatedEntity(String modId, String key, String unlocalizedName, Class<T> entityClass,
 			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
 			MutatedRenderer<T> renderer, Previewer<?> previwer, List<AlterEntry<T>> alterEntries, String... alterableParts)
 	{
@@ -41,7 +41,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		if (entityClass == null)
 			throw new NullPointerException("The entity class cannot be null.");
 		if (modId == null)
-			throw new NullPointerException("The mod ID cannot be null.");
+			throw new NullPointerException("The Mod ID cannot be null.");
 		
 		
 		if (key == null)

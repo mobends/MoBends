@@ -20,16 +20,16 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 	 * should refrain from removing an entity's data, since they aren't a part of the world
 	 * and the system will think of them as dead.
 	 */
-	private static final Set<Entity> PREVIEW_ENTITIES = new HashSet<>();
+	private static final Set<Entity> previewEntities = new HashSet<>();
 	
 	public static void registerPreviewEntity(Entity entity)
 	{
-		PREVIEW_ENTITIES.add(entity);
+		previewEntities.add(entity);
 	}
 	
 	public static boolean isPreviewEntity(Entity entity)
 	{
-		return PREVIEW_ENTITIES.contains(entity);
+		return previewEntities.contains(entity);
 	}
 	
 	private String key;

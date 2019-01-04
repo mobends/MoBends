@@ -31,6 +31,15 @@ public class AddonAnimationRegistry
 			MutatedRenderer<T> renderer, Previewer<?> previewer, List<AlterEntry<T>> alterEntries, String... alterableParts)
 	{
 		AnimatedEntity<T> animatedEntity = new AnimatedEntity<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, previewer, alterEntries, alterableParts);
+		return registerEntity(animatedEntity);
+	}
+	
+	public <T extends EntityLivingBase> String registerEntity(AnimatedEntity<T> animatedEntity) {
+		String key = animatedEntity.getKey();
+		if (!key.startsWith(this.modId))
+		{
+			throw new IllegalArgumentException("The AnimatedEntity's ModID does not match that of the AddonAnimationRegistry.");
+		}
 		AnimatedEntityRegistry.INSTANCE.registerEntity(animatedEntity);
 		return animatedEntity.getKey();
 	}
