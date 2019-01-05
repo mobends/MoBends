@@ -1,9 +1,8 @@
 package net.gobbob.mobends.core.client.model;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.core.util.GLHelper;
 import net.gobbob.mobends.core.util.SmoothOrientation;
+import net.gobbob.mobends.core.util.Vector3;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -15,8 +14,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModelPart extends ModelRenderer implements IModelPart
 {
-	public Vector3f position;
-	public Vector3f scale;
+	public Vector3 position;
+	public Vector3 scale;
 	public SmoothOrientation rotation;
 	public int texOffsetX, texOffsetY;
 	
@@ -26,8 +25,8 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public ModelPart(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
 	{
 		super(model, texOffsetY, texOffsetY);
-		this.position = new Vector3f();
-		this.scale = new Vector3f(1, 1, 1);
+		this.position = new Vector3();
+		this.scale = new Vector3(1, 1, 1);
 		this.rotation = new SmoothOrientation();
 		this.texOffsetX = texOffsetX;
         this.texOffsetY = texOffsetY;
@@ -247,9 +246,9 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	}
 	
 	@Override
-	public Vector3f getPosition() { return this.position; }
+	public Vector3 getPosition() { return this.position; }
 	@Override
-	public Vector3f getScale() { return this.scale; }
+	public Vector3 getScale() { return this.scale; }
 	@Override
 	public SmoothOrientation getRotation() { return this.rotation; }
 	@Override

@@ -37,18 +37,19 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 	private String postfix;
 	private boolean animate;
 	
-	protected Previewer<?> previewer;
+	protected final Previewer<?> previewer;
 	protected AnimatedEntity<T> owner;
 	
-	public AlterEntry(String postfix, String unlocalizedName)
+	public AlterEntry(String postfix, String unlocalizedName, Previewer<?> previewer)
 	{
 		this.postfix = postfix;
 		this.unlocalizedName = unlocalizedName;
+		this.previewer = previewer;
 	}
 	
-	public AlterEntry()
+	public AlterEntry(Previewer<?> previewer)
 	{
-		this("", null);
+		this("", null, previewer);
 	}
 	
 	void onRegister(AnimatedEntity<T> owner)
@@ -86,12 +87,6 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 	{
 		this.animate = animate;
 		ArmorModelFactory.updateMutation();
-	}
-	
-	public AlterEntry<T> setPreviewer(Previewer<?> previewer)
-	{
-		this.previewer = previewer;
-		return this;
 	}
 	
 	public boolean isAnimated()

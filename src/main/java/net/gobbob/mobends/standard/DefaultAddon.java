@@ -42,32 +42,31 @@ public class DefaultAddon implements IAddon
 	public void registerAnimatedEntities(AddonAnimationRegistry registry)
 	{
 		playerKey = registry.registerNewEntity("player", "mobends.player", AbstractClientPlayer.class, PlayerData::new, PlayerMutator::new, new PlayerRenderer(),
-				new PlayerPreviewer(), Arrays.asList(new PlayerAlterEntry()),
+				Arrays.asList(new PlayerAlterEntry(new PlayerPreviewer())),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg", "rightLeg",
 				"leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation", "rightItemRotation");
 		
 		zombieKey = registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>(),
-				new ZombiePreviewer(), null,
+				new ZombiePreviewer(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 		
 		zombieVillagerKey = registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>(),
-				new BipedPreviewer<>(), null,
+				new BipedPreviewer<>(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 		
 		registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>(),
-				new BipedPreviewer<>(), null,
+				new BipedPreviewer<>(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 
 		registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>(),
-				new SpiderPreviewer(), null,
+				new SpiderPreviewer(),
 				"head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6", "leg7", "leg8",
 				"foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5", "foreLeg6", "foreLeg7", "foreLeg8");
 
 		registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>(),
-				null, null,
 				"body", "tentacle1", "tentacle2", "tentacle3", "tentacle4", "tentacle5", "tentacle6", "tentacle7", "tentacle8");
 		
 //		registry.registerEntity(new AnimatedEntity(EntityHusk.class,

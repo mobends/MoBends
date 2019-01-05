@@ -4,6 +4,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.core.util.GLHelper;
 import net.gobbob.mobends.core.util.SmoothOrientation;
+import net.gobbob.mobends.core.util.Vector3;
 import net.minecraft.client.renderer.GlStateManager;
 
 /*
@@ -12,14 +13,14 @@ import net.minecraft.client.renderer.GlStateManager;
  */
 public class ModelPartTransform implements IModelPart
 {
-	public Vector3f position;
-	public Vector3f scale;
+	public Vector3 position;
+	public Vector3 scale;
 	public SmoothOrientation rotation;
 	
 	public ModelPartTransform()
 	{
-		this.position = new Vector3f();
-		this.scale = new Vector3f(1, 1, 1);
+		this.position = new Vector3();
+		this.scale = new Vector3(1, 1, 1);
 		this.rotation = new SmoothOrientation();
 	}
 	
@@ -47,9 +48,9 @@ public class ModelPartTransform implements IModelPart
 	}
 
 	@Override
-	public Vector3f getPosition() { return this.position; }
+	public Vector3 getPosition() { return this.position; }
 	@Override
-	public Vector3f getScale() { return this.scale; }
+	public Vector3 getScale() { return this.scale; }
 	@Override
 	public SmoothOrientation getRotation() { return this.rotation; }
 

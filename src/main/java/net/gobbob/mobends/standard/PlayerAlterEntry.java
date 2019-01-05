@@ -8,9 +8,9 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 public class PlayerAlterEntry extends AlterEntry<AbstractClientPlayer>
 {
 
-	public PlayerAlterEntry()
+	public PlayerAlterEntry(PlayerPreviewer previewer)
 	{
-		super();
+		super(previewer);
 	}
 	
 	@Override

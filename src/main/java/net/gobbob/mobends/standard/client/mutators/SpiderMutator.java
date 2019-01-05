@@ -80,7 +80,7 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 	public boolean createParts(ModelSpider original, float scaleFactor)
 	{
 		float legLength = 12F;
-		float foreLegLength = 15F;
+		float foreLegLength = 12F;
 		
 		original.spiderHead = this.spiderHead = new ModelPart(original, 32, 4)
 		        .setBox(-4.0F, -4.0F, -8.0F, 8, 8, 8, 0.0F)

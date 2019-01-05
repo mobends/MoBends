@@ -1,9 +1,8 @@
 package net.gobbob.mobends.core.pack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.client.model.IModelPart;
@@ -11,6 +10,7 @@ import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.core.util.SmoothOrientation;
 import net.gobbob.mobends.core.util.SmoothVector3f;
+import net.gobbob.mobends.core.util.Vector3;
 
 public class BendsCondition
 {
@@ -27,7 +27,7 @@ public class BendsCondition
 	{
 		for (BendsAction action : this.actions)
 		{
-			if (!action.model.equalsIgnoreCase(model))
+			if (!action.part.equalsIgnoreCase(model))
 			{
 				continue;
 			}
@@ -40,7 +40,7 @@ public class BendsCondition
 	{
 		for (BendsAction action : this.actions)
 		{
-			Object object = model.getPartForName(action.model);
+			Object object = model.getPartForName(action.part);
 			
 			if(object != null)
 			{
@@ -83,7 +83,7 @@ public class BendsCondition
 			}
 			else if (action.property == EnumBoxProperty.SCALE)
 			{
-				Vector3f scale = box.getScale();
+				Vector3 scale = box.getScale();
 				
 				if (action.axis == null || action.axis == EnumAxis.X)
 					box.getScale().setX(action.getNumber(scale.x));
@@ -113,5 +113,10 @@ public class BendsCondition
 	public BendsAction getAction(int a)
 	{
 		return this.actions.get(a);
+	}
+	
+	public List<BendsAction> getActions()
+	{
+		return Collections.unmodifiableList(this.actions);
 	}
 }

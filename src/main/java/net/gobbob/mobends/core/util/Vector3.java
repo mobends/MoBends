@@ -23,6 +23,21 @@ public class Vector3
 		this.z = z;
 	}
 	
+	public void setX(float x)
+	{
+		this.x = x;
+	}
+	
+	public void setY(float y)
+	{
+		this.y = y;
+	}
+	
+	public void setZ(float z)
+	{
+		this.z = z;
+	}
+	
 	public void set(Vector3 vector)
 	{
 		this.set(vector.x, vector.y, vector.z);
@@ -74,5 +89,13 @@ public class Vector3
 		);
 
 		return dest;
+	}
+	
+	public static float distance(Vector3 left, Vector3 right)
+	{
+		float dx = left.x - right.x;
+		float dy = left.y - right.y;
+		float dz = left.z - right.z;
+		return (float) Math.sqrt(dx*dx + dy*dy + dz*dz);
 	}
 }

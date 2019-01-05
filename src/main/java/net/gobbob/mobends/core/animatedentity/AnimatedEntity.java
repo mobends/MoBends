@@ -1,5 +1,6 @@
 package net.gobbob.mobends.core.animatedentity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,11 +31,10 @@ public class AnimatedEntity<T extends EntityLivingBase>
 	
 	private final IEntityDataFactory<T> entityDataFactory;
 	private final IMutatorFactory<T> mutatorFactory;
-	public final Previewer<?> previewer;
 
 	public AnimatedEntity(String modId, String key, String unlocalizedName, Class<T> entityClass,
 			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-			MutatedRenderer<T> renderer, Previewer<?> previwer, List<AlterEntry<T>> alterEntries, String... alterableParts)
+			MutatedRenderer<T> renderer, String... alterableParts)
 	{
 		if (renderer == null)
 			throw new NullPointerException("The mutated renderer cannot be null.");
@@ -42,7 +42,6 @@ public class AnimatedEntity<T extends EntityLivingBase>
 			throw new NullPointerException("The entity class cannot be null.");
 		if (modId == null)
 			throw new NullPointerException("The Mod ID cannot be null.");
-		
 		
 		if (key == null)
 		{
@@ -53,23 +52,39 @@ public class AnimatedEntity<T extends EntityLivingBase>
 			unlocalizedName = "entity." + EntityList.getTranslationName(resourceLocation) + ".name";
 		}
 		
-		if (alterEntries == null || alterEntries.isEmpty())
-			this.alterEntries = Arrays.asList(new DefaultAlterEntry<T>());
-		else
-			this.alterEntries = Collections.unmodifiableList(alterEntries);
-		
+		this.alterEntries = new ArrayList<>();
 		this.key = modId + "-" + key;
 		this.unlocalizedName = unlocalizedName;
 		this.entityClass = entityClass;
 		this.entityDataFactory = entityDataFactory;
 		this.mutatorFactory = mutatorFactory;
 		this.renderer = renderer;
-		this.previewer = previwer;
 		this.alterableParts = alterableParts;
+	}
+	
+	public AnimatedEntity(String modId, String key, String unlocalizedName, Class<T> entityClass,
+			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
+			MutatedRenderer<T> renderer, Previewer<?> previewer, String... alterableParts)
+	{
+		this(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
+		this.alterEntries.add(new DefaultAlterEntry<T>(previewer));
+	}
+	
+	public AnimatedEntity(String modId, String key, String unlocalizedName, Class<T> entityClass,
+			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
+			MutatedRenderer<T> renderer, List<AlterEntry<T>> alterEntries, String... alterableParts)
+	{
+		this(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
+		this.alterEntries.addAll(alterEntries);
 	}
 	
 	public boolean onRegister()
 	{
+		if (this.alterEntries.size() == 0)
+		{
+			this.alterEntries.add(new DefaultAlterEntry<T>(null));
+		}
+		
 		for (AlterEntry<T> entry : this.alterEntries)
 		{
 			entry.onRegister(this);

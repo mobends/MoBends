@@ -48,7 +48,7 @@ public class GuiAnimationNode {
 		for(int i = 0; i < action.calculations.size(); i++) {
 			this.calculations.add(new GuiCalculation(this, action.calculations.get(i)));
 		}
-		this.setModel(action.model);
+		this.setModel(action.part);
 		this.setModifier(action.modifier);
 	}
 

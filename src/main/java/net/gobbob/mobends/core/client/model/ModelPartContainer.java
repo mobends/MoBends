@@ -1,9 +1,8 @@
 package net.gobbob.mobends.core.client.model;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.core.util.GLHelper;
 import net.gobbob.mobends.core.util.SmoothOrientation;
+import net.gobbob.mobends.core.util.Vector3;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -12,19 +11,19 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModelPartContainer extends ModelRenderer implements IModelPart
 {
-	public Vector3f position;
+	public Vector3 position;
 	/*
 	 * A secondary position variable is used to offset
 	 * the model relative to the first position, which may
 	 * be overridden by animation.
 	 * */
-	public Vector3f offset;
+	public Vector3 offset;
 	/*
 	 * Used to offset the container item relative to
 	 * the rotation point
 	 * */
-	public Vector3f innerOffset;
-	public Vector3f scale;
+	public Vector3 innerOffset;
+	public Vector3 scale;
 	public SmoothOrientation rotation;
 	
 	ModelRenderer model;
@@ -35,10 +34,10 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	{
 		super(modelBase, 0, 0);
 		this.model = model;
-		this.position = new Vector3f();
-		this.offset = new Vector3f();
-		this.innerOffset = new Vector3f();
-		this.scale = new Vector3f(1, 1, 1);
+		this.position = new Vector3();
+		this.offset = new Vector3();
+		this.innerOffset = new Vector3();
+		this.scale = new Vector3(1, 1, 1);
 		this.rotation = new SmoothOrientation();
 	}
 
@@ -173,9 +172,9 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	}
 
 	@Override
-	public Vector3f getPosition() { return this.position; }
+	public Vector3 getPosition() { return this.position; }
 	@Override
-	public Vector3f getScale() { return this.scale; }
+	public Vector3 getScale() { return this.scale; }
 	@Override
 	public SmoothOrientation getRotation() { return this.rotation; }
 

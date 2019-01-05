@@ -223,7 +223,8 @@ public class GuiBendsMenu extends GuiScreen
 					try
 					{
 						PackManager.getCurrentPack().save();
-					} catch (IOException e)
+					}
+					catch (IOException e)
 					{
 						e.printStackTrace();
 					}

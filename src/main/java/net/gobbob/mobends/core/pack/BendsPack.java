@@ -19,6 +19,7 @@ import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.pack.BendsAction.Calculation;
 import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.core.pack.BendsAction.EnumModifier;
+import net.gobbob.mobends.core.util.BendsLogger;
 import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.main.ModStatics;
@@ -150,6 +151,7 @@ public class BendsPack
 		{
 			lines = GUtil.readLines(reader);
 		}
+		
 		if (cachePack)
 		{
 			GUtil.writeLines(new File(PackManager.cacheDirectory, filename), lines);
@@ -230,32 +232,36 @@ public class BendsPack
 			for (BendsCondition condition : target.conditions.values())
 			{
 				sb.append("\tanim ").append(condition.getAnimationName()).append(" {\n");
-				for (int a = 0; a < condition.getActionAmount(); a++)
+				for (BendsAction action : condition.getActions())
 				{
-					BendsAction action = condition.getAction(a);
-					sb.append("\t\t@").append(action.model).append(':');
-					switch (action.property) {
-					case ROT:
-						sb.append("rot");
-						break;
-					case SCALE:
-						sb.append("scale");
-						break;
-					case PREROT:
-						sb.append("prerot");
-						break;
+					sb.append("\t\t@").append(action.part).append(':');
+					switch (action.property)
+					{
+						case ROT:
+							sb.append("rot");
+							break;
+						case SCALE:
+							sb.append("scale");
+							break;
+						case PREROT:
+							sb.append("prerot");
+							break;
 					}
 					sb.append(':');
-					switch (action.axis) {
-					case X:
-						sb.append('x');
-						break;
-					case Y:
-						sb.append('y');
-						break;
-					case Z:
-						sb.append('z');
-						break;
+					// The axis is allowed to be null.
+					if (action.axis != null)
+					{
+						switch (action.axis) {
+							case X:
+								sb.append('x');
+								break;
+							case Y:
+								sb.append('y');
+								break;
+							case Z:
+								sb.append('z');
+								break;
+						}
 					}
 					sb.append(' ');
 
@@ -297,7 +303,8 @@ public class BendsPack
 			sb.append("}\n\n");
 		}
 		
-		try(BufferedWriter writer = new BufferedWriter(new FileWriter(packFile))) {
+		try(BufferedWriter writer = new BufferedWriter(new FileWriter(packFile)))
+		{
 			writer.write(sb.toString());
 		}
 	}
@@ -319,7 +326,9 @@ public class BendsPack
 			animationInfo = GUtil.readFile(packFile);
 			int index = animationInfo.indexOf("\ntarget");
 			if (index >= 0)
+			{
 				animationInfo = animationInfo.substring(index);
+			}
 			else
 			{
 				animationInfo = "";
@@ -327,9 +336,12 @@ public class BendsPack
 		}
 		else
 		{
-			try {
+			try
+			{
 				packFile.createNewFile();
-			} catch (IOException e) {
+			}
+			catch (IOException e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -341,9 +353,12 @@ public class BendsPack
 		sb.append("description: \"").append(this.description).append("\"\n");
 		sb.append(animationInfo);
 
-		try (BufferedWriter os = new BufferedWriter(new FileWriter(packFile))) {
+		try (BufferedWriter os = new BufferedWriter(new FileWriter(packFile)))
+		{
 			os.write(sb.toString());
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 	}
@@ -460,134 +475,77 @@ public class BendsPack
 		String globalVar = null;
 	}
 
+	/**
+	 * Format: @part:property:axis? operator value(OperatorValue)* #smoothness
+	 * Examples:
+	 *     @body:rot:x == 1.0*=5.0 #1.0
+	 *     @rightArm:scale *= 2.0 #0.5
+	 *     @leftArm:rot:z == 
+	 * @param line
+	 * @return
+	 */
 	public static BendsAction getActionFromLine(String line)
 	{
-		BendsAction action = new BendsAction();
-		action.model = "";
+		String trimmedLine = line.trim();
+		
+		if (!trimmedLine.startsWith("@"))
+			throw new IllegalArgumentException("An action line should always start with a @ character.");
+		
+		BendsLogger.LOG.info("Line: " + trimmedLine);
+		
+		String part = trimmedLine.substring(1, trimmedLine.indexOf(':'));
+		trimmedLine = trimmedLine.substring(trimmedLine.indexOf(':') + 1);
+		
+		String propertyStr = trimmedLine.substring(0, trimmedLine.indexOf(':'));
+		trimmedLine = trimmedLine.substring(trimmedLine.indexOf(':') + 1);
+		EnumBoxProperty property = propertyStr.contentEquals("rot") ? EnumBoxProperty.ROT :
+								   propertyStr.contentEquals("prerot") ? EnumBoxProperty.PREROT :
+								   propertyStr.contentEquals("scale") ? EnumBoxProperty.SCALE : null;
+		
+		EnumAxis axis = trimmedLine.startsWith("x") ? EnumAxis.X :
+						trimmedLine.startsWith("y") ? EnumAxis.Y :
+						trimmedLine.startsWith("z") ? EnumAxis.Z : null;
+		trimmedLine = trimmedLine.substring(1).trim(); // Getting rid of the possible axis
+		
+		String smoothStr = trimmedLine.substring(trimmedLine.lastIndexOf('#') + 1);
+		float smooth = Float.parseFloat(smoothStr);
+		trimmedLine = trimmedLine.substring(0, trimmedLine.lastIndexOf('#'));
+		
+		int calc = 0;
 
 		List<Operation> calcs = new ArrayList<Operation>();
 		calcs.add(new Operation());
-		int calc = 0;
-		String smooth = "";
 
-		int stage = 0;
-		for (int i = 0; i < line.length(); i++)
+		/*for (Operation op : calcs)
 		{
-			if (stage == 0)
-			{
-				if (line.charAt(i) == '@')
-					stage = 1;
-			}
-			else
-			{
-				if (stage == 1)
-				{
-					if (line.charAt(i) == ':')
-					{
-						stage++;
-					}
-					else
-					{
-						action.model += line.charAt(i);
-					}
-				}
-				else if (stage == 2)
-				{
-					if (line.charAt(i) == ' ')
-						stage++;
-				}
-				else if (stage == 3)
-				{
-					if (line.charAt(i) == ' ')
-						stage++;
-					else
-						calcs.get(calc).operator += line.charAt(i);
-				}
-				else if (stage == 4)
-				{
-					if (line.charAt(i) == ' ')
-					{
-						stage++;
-					}
-					else
-					{
-						if (line.charAt(i) == '+' | line.charAt(i) == '-' | line.charAt(i) == '='
-								| line.charAt(i) == '*' | line.charAt(i) == '/')
-						{
-							if (line.charAt(i + 1) == '=')
-							{
-								calcs.add(new Operation());
-								calc++;
-								calcs.get(calc).operator = line.charAt(i) + "=";
-								i++;
-							}
-							else
-							{
-								calcs.get(calc).num += line.charAt(i);
-							}
-						}
-						else
-						{
-							calcs.get(calc).num += line.charAt(i);
-						}
-					}
-				}
-				else if (stage == 5)
-				{
-					if (line.charAt(i) == ' ')
-						stage++;
-					else
-						smooth += line.charAt(i) == '#' ? "" : line.charAt(i);
-				}
-			}
-		}
-
-		for (int i = 0; i < calcs.size(); i++)
-		{
-			calcs.get(i).num = calcs.get(i).num.trim();
+			op.num = op.num.trim();
 
 			for (EnumModifier modifier : EnumModifier.values())
 			{
-				if (calcs.get(i).num.contains(":" + modifier.name().toLowerCase() + ":"))
+				if (op.num.contains(":" + modifier.name().toLowerCase() + ":"))
 				{
 					action.modifier = modifier;
-					calcs.get(i).num = calcs.get(i).num.replaceAll(":" + modifier.name().toLowerCase() + ":", "");
-					calcs.get(i).num = calcs.get(i).num.trim();
+					op.num = op.num.replaceAll(":" + modifier.name().toLowerCase() + ":", "");
+					op.num = op.num.trim();
 					break;
 				}
 			}
 
-			if (calcs.get(i).num.contains("$"))
+			if (op.num.contains("$"))
 			{
-				calcs.get(i).num = calcs.get(i).num.replace("$", " ");
-				calcs.get(i).num = calcs.get(i).num.trim();
-				calcs.get(i).globalVar = calcs.get(i).num;
-				calcs.get(i).num = "0";
+				op.num = op.num.replace("$", " ");
+				op.num = op.num.trim();
+				op.globalVar = op.num;
+				op.num = "0";
 			}
-			calcs.get(i).operator = calcs.get(i).operator.trim();
+			op.operator = op.operator.trim();
 
-			if (!calcs.get(i).num.startsWith("#"))
-				action.calculations.add(new Calculation(BendsAction.getOperatorFromSymbol(calcs.get(i).operator),
-						Float.parseFloat(calcs.get(i).num)).setGlobalVar(calcs.get(i).globalVar));
-		}
+			if (!op.num.startsWith("#"))
+				action.calculations.add(new Calculation(BendsAction.getOperatorFromSymbol(op.operator),
+						Float.parseFloat(op.num)).setGlobalVar(op.globalVar));
+		}*/
 
-		if (line.contains(":rot:"))
-			action.property = EnumBoxProperty.ROT;
-		else if (line.contains(":scale:"))
-			action.property = EnumBoxProperty.SCALE;
-		else if (line.contains(":prerot:"))
-			action.property = EnumBoxProperty.PREROT;
-
-		if (line.contains(":x"))
-			action.axis = EnumAxis.X;
-		else if (line.contains(":y"))
-			action.axis = EnumAxis.Y;
-		else if (line.contains(":z"))
-			action.axis = EnumAxis.Z;
-
-		action.smooth = smooth.isEmpty() ? 1 : Float.parseFloat(smooth);
-
-		return action;
+		return new BendsAction(part, property, axis, smooth);
 	}
 
 	public static BendsTarget getTarget(String id)

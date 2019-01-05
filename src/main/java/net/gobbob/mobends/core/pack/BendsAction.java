@@ -10,18 +10,16 @@ import net.minecraft.util.math.MathHelper;
 
 public class BendsAction
 {
-	public String model;
+	public String part;
 	public List<Calculation> calculations = new ArrayList<Calculation>();
 	public EnumBoxProperty property;
 	public EnumAxis axis;
 	public float smooth;
 	public EnumModifier modifier;
-
-	public BendsAction() {}
 	
 	public BendsAction(String model, EnumBoxProperty property, EnumAxis axis, float smooth)
 	{
-		this.model = model;
+		this.part = model;
 		this.property = property;
 		this.axis = axis;
 		this.smooth = smooth;

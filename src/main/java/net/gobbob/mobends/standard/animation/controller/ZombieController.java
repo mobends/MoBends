@@ -99,7 +99,6 @@ public class ZombieController extends Controller<ZombieData>
 		if (!zombieData.isOnGround() || zombieData.getTicksAfterTouchdown() < 1)
 		{
 			this.layerBase.playOrContinueBit(bitJump, zombieData);
-			System.out.println("Airborne");
 		}
 		else
 		{
