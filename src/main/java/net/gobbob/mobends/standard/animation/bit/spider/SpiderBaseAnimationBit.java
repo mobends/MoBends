@@ -24,74 +24,30 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
 	@Override
 	public void onPlay(SpiderData data)
 	{
-		float legBend = 33.3F;
-		for (int i = 0; i < data.upperLimbs.length; ++i)
-		{
-			data.upperLimbs[i].part.rotation.orientInstantZ(i%2 == 0 ? legBend : -legBend);
-			data.upperLimbs[i].part.rotation.rotateX(0.0F);
-		}
-        
-        data.upperLimbs[0].part.rotation.rotateY(65F);
-        data.upperLimbs[1].part.rotation.rotateY(-65F);
-        data.upperLimbs[2].part.rotation.rotateY(40F);
-        data.upperLimbs[3].part.rotation.rotateY(-40F);
-        data.upperLimbs[4].part.rotation.rotateY(-40F);
-        data.upperLimbs[5].part.rotation.rotateY(40F);
-        data.upperLimbs[6].part.rotation.rotateY(-65F);
-        data.upperLimbs[7].part.rotation.rotateY(65F);
-        
-        final float foreBend = 89;
-        for (int i = 0; i < data.lowerLimbs.length; ++i)
-		{
-			data.lowerLimbs[i].part.rotation.orientInstantZ(i%2 == 0 ? -foreBend : foreBend);
-		}
 	}
 	
 	@Override
 	public void perform(SpiderData data)
 	{
+		final float pt = DataUpdateHandler.partialTicks;
 		EntitySpider spider = data.getEntity();
 		
 		float headYaw = data.headYaw.get();
 		float headPitch = data.headPitch.get();
 		float ticks = DataUpdateHandler.getTicks();
-		float bodyHeight = 0.0F;
 		
+		double groundLevel = Math.sin(ticks * 0.1F) * 0.5;
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
 		
 		if (touchdown < 1.0F)
 		{
 			float touchdownInv = 1.0F - touchdown;
-			bodyHeight = touchdownInv * -15.0F;
+			groundLevel += Math.sin((touchdown * 1.2F - 0.2F) * Math.PI * 2) * 7.0F * touchdownInv;
 		}
-		
-		data.renderOffset.setY(bodyHeight * 0.2F + -2F);
 		
 		data.spiderHead.rotation.orientInstantX(headPitch);
-		data.spiderHead.rotation.rotateY(headYaw);
-        //float legBend = 33.3F - bodyHeight;
-        float legBend = 0F;
+		data.spiderHead.rotation.rotateY(headYaw).finish();
 		
-        for (int i = 0; i < data.upperLimbs.length; ++i)
-		{
-			data.upperLimbs[i].part.rotation.orientZ(i%2 == 0 ? legBend : -legBend);
-		}
-        
-        data.upperLimbs[0].part.rotation.rotateY(65F);
-        data.upperLimbs[1].part.rotation.rotateY(-65F);
-        data.upperLimbs[2].part.rotation.rotateY(20F);
-        data.upperLimbs[3].part.rotation.rotateY(-20F);
-        data.upperLimbs[4].part.rotation.rotateY(-20F);
-        data.upperLimbs[5].part.rotation.rotateY(20F);
-        data.upperLimbs[6].part.rotation.rotateY(-65F);
-        data.upperLimbs[7].part.rotation.rotateY(65F);
-        
-        float foreBend = 89 - bodyHeight * 0.5F;
-        for (int i = 0; i < data.lowerLimbs.length; ++i)
-		{
-			data.lowerLimbs[i].part.rotation.orientZ(i%2 == 0 ? -foreBend : foreBend);
-		}
-        
         float limbSwing = data.limbSwing.get() * 0.8662F;
 		float limbSwingAmount = data.limbSwingAmount.get();
 		float forwardBackSwing = limbSwingAmount * 16;
@@ -108,79 +64,48 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
         float f9 =  upDownSwing * Math.max(0F, MathHelper.sin(limbSwing + (GUtil.PI / 2F)));
         float f10 = upDownSwing * Math.max(0F, MathHelper.sin(limbSwing + (GUtil.PI * 3F / 2F)));
         
-        /*data.upperLimbs[0].part.rotation.rotateY(f3);
-        data.upperLimbs[1].part.rotation.rotateY(-f4);
-        data.upperLimbs[2].part.rotation.rotateY(f4);
-        data.upperLimbs[3].part.rotation.rotateY(-f3);
-        data.upperLimbs[4].part.rotation.rotateY(f5);
-        data.upperLimbs[5].part.rotation.rotateY(-f6);
-        data.upperLimbs[6].part.rotation.rotateY(f6);
-        data.upperLimbs[7].part.rotation.rotateY(-f5);
-        
-        data.upperLimbs[0].part.rotation.localRotateZ(f7);
-        data.upperLimbs[1].part.rotation.localRotateZ(-f8);
-        data.upperLimbs[2].part.rotation.localRotateZ(f8);
-        data.upperLimbs[3].part.rotation.localRotateZ(-f7);
-        data.upperLimbs[4].part.rotation.localRotateZ(f9);
-        data.upperLimbs[5].part.rotation.localRotateZ(-f10);
-        data.upperLimbs[6].part.rotation.localRotateZ(f10);
-        data.upperLimbs[7].part.rotation.localRotateZ(-f9);*/
-        
-        
-        float beta = MathHelper.sin(ticks * 0.3F) * 1F;
-        beta = Math.max(-0.2F, beta);
-        
-        final double groundLevel = 0;
-    	final double bodyX = Math.sin(ticks * 0.3F) * 4;
-    	final double bodyZ = Math.cos(ticks * 0.3F) * 4;
-    	final double renderYawOffset = (spider.prevRenderYawOffset + (spider.renderYawOffset - spider.prevRenderYawOffset) * DataUpdateHandler.partialTicks ) / 180 * Math.PI;
-    	final double ryo = renderYawOffset - Math.PI;
-    	//final double worldBodyX = bodyX * Math.cos(ryo) - bodyZ * Math.sin(ryo);
-    	//final double worldBodyZ = bodyX * Math.sin(ryo) + bodyZ * Math.cos(ryo);
+    	final double bodyX = Math.sin(ticks * 0.2F) * 0.4;
+    	final double bodyZ = Math.cos(ticks * 0.2F) * 0.4;
+    	final double renderYawOffset = (spider.prevRenderYawOffset + (spider.renderYawOffset - spider.prevRenderYawOffset) * pt ) / 180 * Math.PI;
+    	final double ryo = renderYawOffset;
+    	final double worldX = spider.prevPosX + (spider.posX - spider.prevPosX) * pt;
+    	final double worldZ = spider.prevPosZ + (spider.posZ - spider.prevPosZ) * pt;
     	
-        for (int i = 0; i < data.upperLimbs.length; ++i)
+        for (int i = 0; i < data.limbs.length; ++i)
         {
-//        	float angle = getLowerLimbAngle(beta);
-//	        data.upperLimbs[i].part.rotation.localRotateZ((i%2 == 0 ? beta : -beta) / GUtil.PI * 180F);
-//	        data.lowerLimbs[i].part.rotation.orientZ((i%2 == 0 ? -angle : angle) / GUtil.PI * 180F);
+        	SpiderData.Limb limb = data.limbs[i];
         	boolean odd = i % 2 == 1;
         	
-        	double t = (double) i / (data.upperLimbs.length-1) * 2 - 1;
+        	double t = (double) i / (data.limbs.length-1) * 2 - 1;
         	t = odd ? (-t*1.3) : (Math.PI + t*1.3);
         	
-        	double worldX = Math.cos(t) * 20 + data.getPositionX();
-        	double worldZ = Math.sin(t) * 20 + data.getPositionZ();
-        	double localX = worldX - data.getPositionX();
-        	double localZ = worldZ - data.getPositionZ();
+        	double worldLimbX = (limb.getPrevWorldX() + (limb.getWorldX() - limb.getPrevWorldX()) * pt);
+        	double worldLimbZ = (limb.getPrevWorldZ() + (limb.getWorldZ() - limb.getPrevWorldZ()) * pt);
+        	double localX = (worldLimbX - worldX) / 0.0625;
+        	double localZ = -(worldLimbZ - worldZ) / 0.0625;
         	double x = localX * Math.cos(ryo) - localZ * Math.sin(ryo) - bodyX;
         	double z = localX * Math.sin(ryo) + localZ * Math.cos(ryo) - bodyZ;
-        	double partX = data.upperLimbs[i].part.position.x;
-        	double partZ = data.upperLimbs[i].part.position.z;
+        	double partX = data.limbs[i].upperPart.position.x;
+        	double partZ = data.limbs[i].upperPart.position.z;
         	double dX = (partX - x);
         	double dZ = (partZ - z);
         	double xzDistance = Math.sqrt(dX * dX + dZ * dZ);
         	double xzAngle = Math.atan2(dX, dZ);
+        	double diff = GUtil.getRadianDifference(limb.getNaturalYaw(), xzAngle + Math.PI/2);
         	
         	xzAngle = odd ? (Math.PI/2 + xzAngle) : (-Math.PI/2 + xzAngle);
+        	limb.upperPart.rotation.orientY((float)(xzAngle / Math.PI * 180F));
         	
-        	data.upperLimbs[i].part.rotation.orientY((float)(xzAngle / Math.PI * 180F));
+        	if (diff > 0.9 || xzDistance*0.0625 > 1.2)
+        	{
+        		limb.adjustToNeutralPosition();
+        	}
         	
-        	putLimbOnGround(data.upperLimbs[i].part.rotation, data.lowerLimbs[i].part.rotation, odd, xzDistance, groundLevel - 7);
+        	putLimbOnGround(limb.upperPart.rotation, limb.lowerPart.rotation, odd, xzDistance, groundLevel - 7 + Math.sin(limb.getAdjustingProgress() * Math.PI) * 4);
         }
         
         data.renderOffset.set((float) bodyX, (float) -groundLevel, (float) -bodyZ);
         data.renderRotation.orientZero();
-        //data.renderRotation.orientY((float) (spider.renderYawOffset));
-        
-        /*final float foreArmBend = 2F;
-        data.spiderForeLeg1.rotation.localRotateZ(-f7 * foreArmBend);
-        data.spiderForeLeg1.rotation.localRotateZ(f7 * foreArmBend);
-        data.spiderForeLeg1.rotation.localRotateZ(-f8 * foreArmBend);
-        data.spiderForeLeg1.rotation.localRotateZ(f8 * foreArmBend);
-        data.spiderForeLeg1.rotation.localRotateZ(-f9 * foreArmBend);
-        data.spiderForeLeg1.rotation.localRotateZ(f9 * foreArmBend);
-        data.spiderForeLeg1.rotation.localRotateZ(-f10 * foreArmBend);
-        data.spiderForeLeg1.rotation.localRotateZ(f10 * foreArmBend);*/
 	}
 	
 	public static float getLowerLimbAngle(float upperLimbAngle)
@@ -194,7 +119,12 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
         return alpha;
 	}
 	
-	static void putLimbOnGround(SmoothOrientation upperLimb, SmoothOrientation lowerLimb, boolean odd, double stretchDistance, double groundLevel)
+	public static void putLimbInPlace(SpiderData.Limb limb, boolean odd, double groundLevel)
+	{
+		
+	}
+	
+	public static void putLimbOnGround(SmoothOrientation upperLimb, SmoothOrientation lowerLimb, boolean odd, double stretchDistance, double groundLevel)
 	{
 		final float limbSegmentLength = 12F;
 		final float maxStretch = limbSegmentLength * 2;
@@ -203,8 +133,10 @@ public class SpiderBaseAnimationBit extends AnimationBit<SpiderData>
 		
 		final double alpha = c > maxStretch ? 0 : Math.acos((c/2)/limbSegmentLength);
 		final double beta = Math.atan2(stretchDistance, -groundLevel);
-		final double gamma = -2 * alpha;
-		upperLimb.localRotateZ((float) ((alpha + beta - Math.PI/2) / Math.PI * 180) * (odd ? -1 : 1)).finish();
-		lowerLimb.orientInstantZ((float) (gamma / Math.PI * 180) * (odd ? -1 : 1));
+		
+		double lowerAngle = Math.max(-2.3, -2 * alpha);
+		double upperAngle = Math.min(1, alpha + beta - Math.PI/2);
+		upperLimb.localRotateZ((float) (upperAngle / Math.PI * 180) * (odd ? -1 : 1)).finish();
+		lowerLimb.orientInstantZ((float) (lowerAngle / Math.PI * 180) * (odd ? -1 : 1));
 	}
 }

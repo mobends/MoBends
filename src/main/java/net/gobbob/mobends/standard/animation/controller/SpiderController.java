@@ -52,7 +52,16 @@ public class SpiderController extends Controller<SpiderData>
 		{
 			this.layerBase.playOrContinueBit(bitBase, spiderData);
 			
-			if (!spiderData.isOnGround() || spiderData.getTicksAfterTouchdown() < 1)
+			if (spiderData.isStillHorizontally())
+			{
+				this.layerAction.playOrContinueBit(bitIdle, spiderData);
+			}
+			else
+			{
+				this.layerAction.playOrContinueBit(bitMove, spiderData);
+			}
+			
+			/*if (!spiderData.isOnGround() || spiderData.getTicksAfterTouchdown() < 1)
 			{
 				this.layerAction.playOrContinueBit(bitJump, spiderData);
 			}
@@ -66,7 +75,7 @@ public class SpiderController extends Controller<SpiderData>
 				{
 					this.layerAction.playOrContinueBit(bitMove, spiderData);
 				}
-			}
+			}*/
 		}
 		
 		List<String> actions = new ArrayList<String>();

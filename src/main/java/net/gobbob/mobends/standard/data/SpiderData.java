@@ -13,8 +13,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public ModelPartTransform spiderNeck;
     public ModelPartTransform spiderBody;
     
-    public Limb[] upperLimbs;
-    public Limb[] lowerLimbs;
+    public Limb[] limbs;
     
     private final SpiderController controller = new SpiderController();
     
@@ -43,20 +42,13 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 		this.spiderBody = new ModelPartTransform();
 		this.spiderNeck = new ModelPartTransform();
 		this.spiderHead = new ModelPartTransform();
-		this.upperLimbs = new Limb[8];
-		this.lowerLimbs = new Limb[8];
+		this.limbs = new Limb[8];
 		
-		for (int i = 0; i < upperLimbs.length; ++i)
+		for (int i = 0; i < limbs.length; ++i)
 		{
-			int z = 2 - (i/2);
-			upperLimbs[i] = new Limb(entity, i%2 == 0 ? -4F : 4F, 15.0F, z);
-			nameToPartMap.put("leg" + (i+1), upperLimbs[i].part);
-		}
-		
-		for (int i = 0; i < lowerLimbs.length; ++i)
-		{
-			lowerLimbs[i] = new Limb(entity, i%2 == 0 ? -11F : 11F, -1F, 0F);
-			nameToPartMap.put("foreLeg" + (i+1), lowerLimbs[i].part);
+			limbs[i] = new Limb(this, i);
+			nameToPartMap.put("leg" + (i+1), limbs[i].upperPart);
+			nameToPartMap.put("foreLeg" + (i+1), limbs[i].lowerPart);
 		}
 		
         nameToPartMap.put("body", spiderBody);
@@ -77,36 +69,160 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 		this.spiderNeck.update(ticksPerFrame);;
 		this.spiderHead.update(ticksPerFrame);
 		
-		for (Limb limb : upperLimbs)
+		for (Limb limb : limbs)
 		{
-			limb.part.update(ticksPerFrame);
+			limb.upperPart.update(ticksPerFrame);
+			limb.lowerPart.update(ticksPerFrame);
 		}
+	}
+	
+	@Override
+	public void updateClient()
+	{
+		super.updateClient();
 		
-		for (Limb part : lowerLimbs)
+		for (Limb limb : limbs)
 		{
-			part.part.update(ticksPerFrame);
+			limb.updateClient();
 		}
 	}
 	
 	public static class Limb
 	{
-		public ModelPartTransform part;
-		double worldX;
-		double worldZ;
+		final SpiderData data;
+		final public ModelPartTransform upperPart;
+		final public ModelPartTransform lowerPart;
+		final int index;
+		final boolean odd;
+		final double naturalYaw;
 		
-		public Limb(EntitySpider entity, float x, float y, float z)
+		double worldX, worldZ, prevWorldX, prevWorldZ;
+		double adjustTargetX = 0;
+		double adjustTargetZ = 0;
+		float adjustingProgress = 1F;
+		
+		public Limb(SpiderData data, int index)
 		{
-			this.part = new ModelPartTransform();
-			this.part.position.set(x, y, z);
-			this.resetPosition(entity);
+			this.data = data;
+			this.upperPart = new ModelPartTransform();
+			this.lowerPart = new ModelPartTransform();
+			this.index = index;
+			this.odd = index % 2 == 1;
+			
+			double naturalYaw = (double) this.index / (data.limbs.length-1) * 2 - 1;
+			this.naturalYaw = this.odd ? (naturalYaw*1.3) : (Math.PI - naturalYaw*1.3);
+			
+			int z = 2 - (index / 2);
+			this.upperPart.position.set(odd ? 4F : -4F, 15F, z);
+			this.lowerPart.position.set(odd ? 11F : -11F, -1F, 0F);
+			this.resetPosition();
 		}
 		
-		public void resetPosition(EntitySpider entity)
+		void resetPosition()
 		{
-			final float distance = 2;
-			float bodyYaw = entity.renderYawOffset / 180F * GUtil.PI;
-			this.worldX = entity.posX + Math.cos(bodyYaw) * distance;
-			this.worldZ = entity.posZ + Math.sin(bodyYaw) * distance;
+			final float distance = 1;
+			final float bodyYaw = data.entity.renderYawOffset / 180F * GUtil.PI;
+			
+        	this.worldX = Math.cos(this.naturalYaw + bodyYaw) * distance + data.getPositionX();
+        	this.worldZ = Math.sin(this.naturalYaw + bodyYaw) * distance + data.getPositionZ();
+        	this.prevWorldX = this.worldX;
+        	this.prevWorldZ = this.worldZ;
+		}
+		
+		void updateClient()
+		{
+			this.prevWorldX = this.worldX;
+			this.prevWorldZ = this.worldZ;
+			
+			if (adjustingProgress < 1)
+			{
+				adjustingProgress += 0.2;
+				if (adjustingProgress >= 1)
+				{
+					this.worldX = this.adjustTargetX;
+					this.worldZ = this.adjustTargetZ;
+					adjustingProgress = 1;
+				}
+				else
+				{
+					this.worldX += (this.adjustTargetX - this.worldX) * 0.2;
+					this.worldZ += (this.adjustTargetZ - this.worldZ) * 0.2;
+				}
+			}
+		}
+		
+		public void adjustToNeutralPosition()
+		{
+			if (adjustingProgress != 1)
+				return;
+			
+			adjustingProgress = 0;
+			
+			final float distance = 1.2F;
+			final float bodyYaw = data.entity.renderYawOffset / 180F * GUtil.PI;
+			this.adjustTargetX = Math.cos(this.naturalYaw + bodyYaw) * distance + data.getPositionX();
+			this.adjustTargetZ = Math.sin(this.naturalYaw + bodyYaw) * distance + data.getPositionZ();
+		}
+		
+		public void adjustToWorldPosition(double x, double z)
+		{
+			if (adjustingProgress != 1)
+				return;
+			
+			adjustingProgress = 0;
+			this.adjustTargetX = x;
+			this.adjustTargetZ = z;
+		}
+		
+		/*
+		public void applyIK(double bodyX, double bodyZ, double groundLevel, float pt)
+		{
+			final double renderYawOffset = (data.entity.prevRenderYawOffset + (data.entity.renderYawOffset - data.entity.prevRenderYawOffset) * pt ) / 180 * Math.PI;
+			
+			double worldLimbX = (this.prevWorldX + (this.worldX - this.prevWorldX) * pt);
+        	double worldLimbZ = (this.prevWorldZ + (this.worldZ - this.prevWorldZ) * pt);
+        	double localX = (worldLimbX - worldX) / 0.0625;
+        	double localZ = -(worldLimbZ - worldZ) / 0.0625;
+        	double x = localX * Math.cos(renderYawOffset) - localZ * Math.sin(renderYawOffset) - bodyX;
+        	double z = localX * Math.sin(renderYawOffset) + localZ * Math.cos(renderYawOffset) - bodyZ;
+        	double partX = this.upperPart.position.x;
+        	double partZ = this.upperPart.position.z;
+        	double dX = (partX - x);
+        	double dZ = (partZ - z);
+        	double xzDistance = Math.sqrt(dX * dX + dZ * dZ);
+        	double xzAngle = Math.atan2(dX, dZ);
+        	double deviation = GUtil.getRadianDifference(this.naturalYaw, xzAngle + Math.PI/2);
+		}
+		*/
+		
+		public double getNaturalYaw()
+		{
+			return this.naturalYaw;
+		}
+		
+		public double getPrevWorldX()
+		{
+			return this.prevWorldX;
+		}
+		
+		public double getPrevWorldZ()
+		{
+			return this.prevWorldZ;
+		}
+		
+		public double getWorldX()
+		{
+			return this.worldX;
+		}
+		
+		public double getWorldZ()
+		{
+			return this.worldZ;
+		}
+		
+		public float getAdjustingProgress()
+		{
+			return this.adjustingProgress;
 		}
 	}
 	

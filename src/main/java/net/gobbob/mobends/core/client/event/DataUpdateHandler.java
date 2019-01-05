@@ -52,7 +52,7 @@ public class DataUpdateHandler
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event)
 	{
-		if (event.phase == Phase.END || Minecraft.getMinecraft().player == null)
+		if (event.phase == Phase.END || Minecraft.getMinecraft().player == null || Minecraft.getMinecraft().isGamePaused())
 			return;
 		
 		lastNotedClientTick = Minecraft.getMinecraft().player.ticksExisted;

@@ -33,6 +33,31 @@ public class GUtil
 		return Math.atan2(x, z) / Math.PI * 180.0;
 	}
 	
+	public static double getRadianDifference(double a, double b)
+	{
+		a = wrapRadians(a);
+		b = wrapRadians(b);
+		double d = Math.abs(a - b);
+		d = d > Math.PI ? Math.PI*2-d : d;
+		return d;
+	}
+	
+	public static double wrapRadians(double a)
+	{
+		a = a % Math.PI;
+
+        if (a >= Math.PI)
+        {
+            a -= Math.PI*2;
+        }
+        else if (a < -Math.PI)
+        {
+            a += Math.PI*2;
+        }
+        
+        return a;
+	}
+	
 	public static Vector3 translate(Vector3 vector, float x, float y, float z)
 	{
 		vector.x += x;
