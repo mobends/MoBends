@@ -9,7 +9,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class SpiderMoveAnimationBit extends AnimationBit<SpiderData>
 {
-	protected static final float KNEEL_DURATION = 0.15F;
+	protected static final float KNEEL_DURATION = 10F;
 	protected char limbFlags = 0x00;
 	
 	@Override
@@ -42,7 +42,7 @@ public class SpiderMoveAnimationBit extends AnimationBit<SpiderData>
 		if (touchdown < 1.0F)
 		{
 			float touchdownInv = 1.0F - touchdown;
-			groundLevel += Math.sin((touchdown * 1.2F - 0.2F) * Math.PI * 2) * 7.0F * touchdownInv;
+			groundLevel += Math.sin((touchdown * 1.2F - 0.2F) * Math.PI * 2) * 3.0F * touchdownInv;
 		}
 		
 		data.spiderHead.rotation.orientInstantX(headPitch);
@@ -51,31 +51,24 @@ public class SpiderMoveAnimationBit extends AnimationBit<SpiderData>
     	final double bodyX = Math.sin(ticks * 0.2F) * 0.4;
     	final double bodyZ = Math.cos(ticks * 0.2F) * 0.4;
     	
+    	final double advanceX = -data.getSidewaysMomentum() * 10;
+    	final double advanceZ = data.getForwardMomentum() * 11;
+    	final double xSpread = 4*0.0625;
+    	final double zSpread = -9*0.0625;
+    	
         for (int i = 0; i < data.limbs.length; ++i)
         {
-        	int set = (int)(i/2);
+        	final int set = (int)(i/2);
         	
         	SpiderData.Limb limb = data.limbs[i];
         	SpiderData.IKResult ikResult = limb.solveIK(bodyX, bodyZ, pt);
         	
-        	
-        	float cycle = MathHelper.sin(limbSwing + (int)((i+1)/2)*GUtil.PI );
-        	double x = 0 + Math.sin((double)set/4*Math.PI*0.7F) * 0.8;
-        	
-        	/*if (cycle > 0.5)
-        		data.limbs[i].adjustToLocalPosition(limb.isOdd() ? x : -x, (float) set * 1F + 0.5F + advance * 2.0F, 0.1F);
-        	*/
-        	
-        	double advanceX = -data.getSidewaysMomentum() * 10;
-        	double advanceZ = data.getForwardMomentum() * 10;
-        	double xSpread = 4*0.0625;
-        	double zSpread = -9*0.0625;
-        	
-        	double maxDistance = 1.5 + set*0.5;
+        	final double cycle = Math.sin(limbSwing + (int)((i+1)/2)*GUtil.PI );
+        	final double maxDistance = 1.5 + set*0.5;
         	
         	if ((cycle > 0.5 && (limbFlags & (1 << i)) == 0) || ikResult.xzDistance*0.0625 > maxDistance || ikResult.xzDistance*0.0625 < 0.1)
     		{
-        		limb.adjustToLocalPosition(limb.upperPart.position.x*xSpread + advanceX, limb.upperPart.position.z*zSpread + advanceZ + 1, 0.2F);
+        		limb.adjustToLocalPosition(limb.upperPart.position.x*xSpread + advanceX, limb.upperPart.position.z*zSpread + advanceZ + 0.8, 0.2F);
         		// Setting the flag
         		limbFlags |= 1 << i;
     		}
@@ -83,11 +76,6 @@ public class SpiderMoveAnimationBit extends AnimationBit<SpiderData>
         	
         	if (cycle <= 0.5)
         	{
-        		/*if (ikResult.xzDistance*0.0625 > 1.5)
-            	{
-            		limb.adjustToNeutralPosition();
-            	}*/
-        		
         		// Removing the flag
         		limbFlags &= ~(1 << i);
         	}
@@ -96,26 +84,6 @@ public class SpiderMoveAnimationBit extends AnimationBit<SpiderData>
         }
         
         double advance = data.getForwardMomentum();
-        
-        /*if (MathHelper.cos(limbSwing + 0.0F) <= -0.5)
-        	data.limbs[0].adjustToLocalPosition(-0.6, advance, 0.1F);
-        if (MathHelper.cos(limbSwing + 0.0F) > 0.5)
-        	data.limbs[1].adjustToLocalPosition(0.6, advance, 0.1F);
-        
-        if (MathHelper.cos(limbSwing + 0.0F) > 0.5)
-        	data.limbs[2].adjustToLocalPosition(-0.8, advance, 0.1F);
-        if (MathHelper.cos(limbSwing + 0.0F) <= -0.5)
-        	data.limbs[3].adjustToLocalPosition(0.8, advance, 0.1F);
-        
-        if (MathHelper.cos(limbSwing + 0.0F) <= -0.5)
-        	data.limbs[4].adjustToLocalPosition(-1.2, 1.5 + advance, 0.1F);
-        if (MathHelper.cos(limbSwing + 0.0F) > 0.5)
-        	data.limbs[5].adjustToLocalPosition(1.2, 1.5 + advance, 0.1F);
-        
-        if (MathHelper.cos(limbSwing + 0.0F) > 0.5)
-        	data.limbs[6].adjustToLocalPosition(-0.6, 2.2 + advance, 0.1F);
-        if (MathHelper.cos(limbSwing + 0.0F) <= -0.5)
-        	data.limbs[7].adjustToLocalPosition(0.6, 2.2 + advance, 0.1F);*/
         
         data.renderOffset.set((float) bodyX, (float) -groundLevel, (float) -bodyZ);
         data.renderRotation.orientZero();

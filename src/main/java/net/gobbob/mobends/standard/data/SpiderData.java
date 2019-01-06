@@ -119,7 +119,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 			this.resetPosition();
 		}
 		
-		void resetPosition()
+		public void resetPosition()
 		{
 			final float distance = 1;
 			final float bodyYaw = data.entity.renderYawOffset / 180F * GUtil.PI;

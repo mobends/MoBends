@@ -9,7 +9,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class SpiderIdleAnimationBit extends AnimationBit<SpiderData>
 {
-	protected final float kneelDuration = 10F;
+	protected static final float KNEEL_DURATION = 10F;
 	
 	@Override
 	public String[] getActions(SpiderData entityData)
@@ -28,13 +28,13 @@ public class SpiderIdleAnimationBit extends AnimationBit<SpiderData>
 		final float headPitch = data.headPitch.get();
 		
 		double groundLevel = Math.sin(ticks * 0.1F) * 0.5;
-		final float touchdown = Math.min(data.getTicksAfterTouchdown() / kneelDuration, 1.0F);
+		final float touchdown = Math.min(data.getTicksAfterTouchdown() / KNEEL_DURATION, 1.0F);
 		
 		if (touchdown < 1.0F)
 		{
 			final float preBounce = 0.0F;
 			float touchdownInv = 1.0F - touchdown;
-			groundLevel += Math.sin((touchdown * (1+preBounce) - preBounce) * Math.PI * 2) * 7.0F * touchdownInv;
+			groundLevel += Math.sin((touchdown * (1+preBounce) - preBounce) * Math.PI * 2) * 4.0F * touchdownInv;
 		}
 		
 		data.spiderHead.rotation.orientInstantX(headPitch);

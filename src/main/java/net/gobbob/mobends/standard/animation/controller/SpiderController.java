@@ -22,16 +22,15 @@ import net.minecraft.entity.monster.EntitySpider;
 public class SpiderController extends Controller<SpiderData>
 {
 	final String animationTarget = "spider";
-	protected HardAnimationLayer<SpiderData> layerBase, layerAction;
-	protected AnimationBit<SpiderData> bitBase;
+	protected HardAnimationLayer<SpiderData> layerBase;
 	protected AnimationBit<SpiderData> bitIdle, bitMove, bitJump;
 	protected AnimationBit<SpiderData> bitDeath;
+	
+	protected boolean resetAfterJumped = false;
 	
 	public SpiderController()
 	{
 		this.layerBase = new HardAnimationLayer<>();
-		this.layerAction = new HardAnimationLayer<>();
-		this.bitBase = new net.gobbob.mobends.standard.animation.bit.spider.SpiderBaseAnimationBit();
 		this.bitIdle = new net.gobbob.mobends.standard.animation.bit.spider.SpiderIdleAnimationBit();
 		this.bitMove = new net.gobbob.mobends.standard.animation.bit.spider.SpiderMoveAnimationBit();
 		this.bitJump = new net.gobbob.mobends.standard.animation.bit.spider.SpiderJumpAnimationBit();
@@ -46,42 +45,39 @@ public class SpiderController extends Controller<SpiderData>
 		
 		if (spider.getHealth() <= 0F)
 		{
-			this.layerAction.clearAnimation();
 			this.layerBase.playOrContinueBit(this.bitDeath, spiderData);
 		}
 		else
 		{
-			//this.layerBase.playOrContinueBit(bitBase, spiderData);
-			
-			if (spiderData.isStillHorizontally())
+			if (!spiderData.isOnGround() || spiderData.getTicksAfterTouchdown() < 1)
 			{
-				this.layerAction.playOrContinueBit(bitIdle, spiderData);
+				this.layerBase.playOrContinueBit(bitJump, spiderData);
+				
+				if (resetAfterJumped)
+					resetAfterJumped = false;
 			}
 			else
 			{
-				this.layerAction.playOrContinueBit(bitMove, spiderData);
-			}
-			
-			/*if (!spiderData.isOnGround() || spiderData.getTicksAfterTouchdown() < 1)
-			{
-				this.layerAction.playOrContinueBit(bitJump, spiderData);
-			}
-			else
-			{
+				if (!resetAfterJumped)
+				{
+					for (SpiderData.Limb limb : spiderData.limbs)
+						limb.resetPosition();
+					resetAfterJumped = true;
+				}
+				
 				if (spiderData.isStillHorizontally())
 				{
-					this.layerAction.playOrContinueBit(bitIdle, spiderData);
+					this.layerBase.playOrContinueBit(bitIdle, spiderData);
 				}
 				else
 				{
-					this.layerAction.playOrContinueBit(bitMove, spiderData);
+					this.layerBase.playOrContinueBit(bitMove, spiderData);
 				}
-			}*/
+			}
 		}
 		
 		List<String> actions = new ArrayList<String>();
-		//this.layerBase.perform(spiderData, actions);
-		this.layerAction.perform(spiderData, actions);
+		this.layerBase.perform(spiderData, actions);
 		
 		BendsPack.animate(spiderData, this.animationTarget, actions);
 	}
