@@ -100,6 +100,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 		double adjustTargetX = 0;
 		double adjustTargetZ = 0;
 		float adjustingProgress = 1F;
+		float adjustingSpeed = 0.2F;
 		
 		public Limb(SpiderData data, int index)
 		{
@@ -136,7 +137,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 			
 			if (adjustingProgress < 1)
 			{
-				adjustingProgress += 0.2;
+				adjustingProgress += this.adjustingSpeed;
 				if (adjustingProgress >= 1)
 				{
 					this.worldX = this.adjustTargetX;
@@ -156,7 +157,8 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 			if (adjustingProgress != 1)
 				return;
 			
-			adjustingProgress = 0;
+			this.adjustingSpeed = 0.2F;
+			this.adjustingProgress = 0;
 			
 			final float distance = 1.2F;
 			final float bodyYaw = data.entity.renderYawOffset / 180F * GUtil.PI;
@@ -164,36 +166,61 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 			this.adjustTargetZ = Math.sin(this.naturalYaw + bodyYaw) * distance + data.getPositionZ();
 		}
 		
-		public void adjustToWorldPosition(double x, double z)
+		public void adjustToWorldPosition(double x, double z, float adjustingSpeed)
 		{
-			if (adjustingProgress != 1)
+			if (this.adjustingProgress != 1)
 				return;
 			
-			adjustingProgress = 0;
+			this.adjustingSpeed = adjustingSpeed;
+			this.adjustingProgress = 0;
 			this.adjustTargetX = x;
 			this.adjustTargetZ = z;
 		}
 		
-		/*
-		public void applyIK(double bodyX, double bodyZ, double groundLevel, float pt)
+		public void adjustToLocalPosition(double x, double z, float adjustingSpeed)
 		{
-			final double renderYawOffset = (data.entity.prevRenderYawOffset + (data.entity.renderYawOffset - data.entity.prevRenderYawOffset) * pt ) / 180 * Math.PI;
+			if (this.adjustingProgress != 1)
+				return;
 			
-			double worldLimbX = (this.prevWorldX + (this.worldX - this.prevWorldX) * pt);
-        	double worldLimbZ = (this.prevWorldZ + (this.worldZ - this.prevWorldZ) * pt);
-        	double localX = (worldLimbX - worldX) / 0.0625;
-        	double localZ = -(worldLimbZ - worldZ) / 0.0625;
-        	double x = localX * Math.cos(renderYawOffset) - localZ * Math.sin(renderYawOffset) - bodyX;
-        	double z = localX * Math.sin(renderYawOffset) + localZ * Math.cos(renderYawOffset) - bodyZ;
-        	double partX = this.upperPart.position.x;
-        	double partZ = this.upperPart.position.z;
-        	double dX = (partX - x);
-        	double dZ = (partZ - z);
-        	double xzDistance = Math.sqrt(dX * dX + dZ * dZ);
-        	double xzAngle = Math.atan2(dX, dZ);
-        	double deviation = GUtil.getRadianDifference(this.naturalYaw, xzAngle + Math.PI/2);
+			this.adjustingSpeed = adjustingSpeed;
+			this.adjustingProgress = 0;
+			final float distance = 1.2F;
+			final float bodyYaw = data.entity.renderYawOffset / 180F * GUtil.PI;
+			this.adjustTargetX = x * Math.cos(bodyYaw) - z * Math.sin(bodyYaw) + data.getPositionX();
+			this.adjustTargetZ = x * Math.sin(bodyYaw) + z * Math.cos(bodyYaw) + data.getPositionZ();
 		}
-		*/
+		
+		public IKResult solveIK(double bodyX, double bodyZ, float pt)
+		{
+			final double renderYawOffset = (data.entity.prevRenderYawOffset + (data.entity.renderYawOffset - data.entity.prevRenderYawOffset) * pt ) / 180F * Math.PI;
+			final double spiderX = data.entity.prevPosX + (data.entity.posX - data.entity.prevPosX) * pt;
+	    	final double spiderZ = data.entity.prevPosZ + (data.entity.posZ - data.entity.prevPosZ) * pt;
+			final double worldLimbX = this.prevWorldX + (this.worldX - this.prevWorldX) * pt;
+			final double worldLimbZ = this.prevWorldZ + (this.worldZ - this.prevWorldZ) * pt;
+			final double x = (worldLimbX - spiderX) / 0.0625;
+        	final double z = -(worldLimbZ - spiderZ) / 0.0625;
+        	final double localX = x * Math.cos(renderYawOffset) - z * Math.sin(renderYawOffset) - bodyX;
+        	final double localZ = x * Math.sin(renderYawOffset) + z * Math.cos(renderYawOffset) - bodyZ;
+        	final double deltaX = (this.upperPart.position.x - localX);
+        	final double deltaZ = (this.upperPart.position.z - localZ);
+        	final double xzDistance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        	final double xzAngle = Math.atan2(deltaX, deltaZ);
+        	
+			return new IKResult(
+				worldLimbX, worldLimbZ,
+				localX, localZ,
+				deltaX, deltaZ,
+				xzDistance, xzAngle
+			);
+		}
+		
+		public void applyIK(IKResult result, double groundLevel, double liftHeight, float pt)
+		{
+        	double xzAngle = odd ? (Math.PI/2 + result.xzAngle) : (-Math.PI/2 + result.xzAngle);
+        	this.upperPart.rotation.orientY((float)(xzAngle / Math.PI * 180F));
+        	this.lowerPart.rotation.orientZero();
+        	SpiderController.putLimbOnGround(this.upperPart.rotation, this.lowerPart.rotation, this.odd, result.xzDistance, groundLevel - 7 + Math.sin(this.adjustingProgress * Math.PI) * liftHeight);
+		}
 		
 		public double getNaturalYaw()
 		{
@@ -224,6 +251,31 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 		{
 			return this.adjustingProgress;
 		}
+
+		public boolean isOdd()
+		{
+			return this.odd;
+		}
 	}
 	
+	public static class IKResult
+	{
+		IKResult(double worldX, double worldZ, double localX, double localZ, double deltaX, double deltaZ, double xzDistance, double xzAngle)
+		{
+			this.worldX = worldX;
+			this.worldZ = worldZ;
+			this.localX = localX;
+			this.localZ = localZ;
+			this.deltaX = deltaX;
+			this.deltaZ = deltaZ;
+			this.xzDistance = xzDistance;
+			this.xzAngle = xzAngle;
+		}
+		
+		public final double worldX, worldZ;
+		public final double localX, localZ;
+		public final double deltaX, deltaZ;
+		public final double xzDistance;
+		public final double xzAngle;
+	}
 }

@@ -8,6 +8,7 @@ import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.core.util.SmoothOrientation;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.monster.EntitySpider;
 
@@ -50,7 +51,7 @@ public class SpiderController extends Controller<SpiderData>
 		}
 		else
 		{
-			this.layerBase.playOrContinueBit(bitBase, spiderData);
+			//this.layerBase.playOrContinueBit(bitBase, spiderData);
 			
 			if (spiderData.isStillHorizontally())
 			{
@@ -79,9 +80,29 @@ public class SpiderController extends Controller<SpiderData>
 		}
 		
 		List<String> actions = new ArrayList<String>();
-		this.layerBase.perform(spiderData, actions);
+		//this.layerBase.perform(spiderData, actions);
 		this.layerAction.perform(spiderData, actions);
 		
 		BendsPack.animate(spiderData, this.animationTarget, actions);
+	}
+	
+	public static void putLimbOnGround(SmoothOrientation upperLimb, SmoothOrientation lowerLimb, boolean odd, double stretchDistance, double groundLevel)
+	{
+		final float limbSegmentLength = 12F;
+		final float maxStretch = limbSegmentLength * 2;
+		
+		double c = groundLevel == 0F ? stretchDistance : Math.sqrt(stretchDistance * stretchDistance + groundLevel * groundLevel);
+		if (c > maxStretch)
+		{
+			c = maxStretch;
+		}
+		
+		final double alpha = c > maxStretch ? 0 : Math.acos((c/2)/limbSegmentLength);
+		final double beta = Math.atan2(stretchDistance, -groundLevel);
+		
+		double lowerAngle = Math.max(-2.3, -2 * alpha);
+		double upperAngle = Math.min(1, alpha + beta - Math.PI/2);
+		upperLimb.localRotateZ((float) (upperAngle / Math.PI * 180) * (odd ? -1 : 1)).finish();
+		lowerLimb.orientInstantZ((float) (lowerAngle / Math.PI * 180) * (odd ? -1 : 1));
 	}
 }

@@ -4,6 +4,7 @@ import net.gobbob.mobends.core.animatedentity.Previewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.MoverType;
 
 public class SpiderPreviewer extends Previewer<SpiderData>
 {
@@ -42,9 +43,13 @@ public class SpiderPreviewer extends Previewer<SpiderData>
 					data.overrideStillness(true);
 				}
 				break;
-			case "walk":
+			case "move":
 				final float ticks = DataUpdateHandler.getTicks();
 				
+				data.getEntity().posZ += DataUpdateHandler.ticksPerFrame * 0.1F;
+				data.getEntity().prevPosZ = data.getEntity().posZ;
+				data.getEntity().noClip = true;
+				//System.out.println(data.getEntity().posZ);
 				data.limbSwing.override(ticks * 0.6F);
 				data.overrideOnGroundState(true);
 				data.limbSwingAmount.override(1F);
@@ -52,6 +57,7 @@ public class SpiderPreviewer extends Previewer<SpiderData>
 				break;
 			default:
 				data.overrideOnGroundState(true);
+				data.overrideStillness(true);
 		}
 	}
 
