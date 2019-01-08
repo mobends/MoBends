@@ -53,15 +53,8 @@ public class GuiBendsMenu extends GuiScreen
 	public static final int POPUP_HELP = 2;
 	public static final int POPUP_EXIT = 3;
 	public static final int POPUP_CREATEPACK = 4;
-
-	/*
-	 * Used to remember which AlterEntry was used last, so
-	 * the GUI can show that as default the next time it
-	 * opens up.
-	 */
-	protected static int lastAlterEntryViewed = 0;
 	
-	public List<AlterEntry<?>> alterEntries = new ArrayList<>();
+	
 	public int currentAlterEntry = 0;
 
 	private GuiSectionButton customizeButton;
@@ -80,11 +73,6 @@ public class GuiBendsMenu extends GuiScreen
 	{
 		Keyboard.enableRepeatEvents(true);
 
-		for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.getRegistered())
-		{
-			this.alterEntries.addAll(animatedEntity.getAlterEntries());
-		}
-
 		this.customizeButton = new GuiSectionButton(I18n.format("mobends.gui.section.customize"), 0xFFDA3A00)
 				.setLeftIcon(0, 43, 19, 19).setRightIcon(19, 43, 19, 19);
 		this.packsButton = new GuiSectionButton(I18n.format("mobends.gui.section.packs"), 0xFF4577DE)
@@ -96,10 +84,6 @@ public class GuiBendsMenu extends GuiScreen
 		this.packEditor = new GuiPackEditor();
 		this.addonsWindow = new GuiAddonsWindow();
 		this.popUp = null;
-		
-		// Showing the AlterEntry viewed the last time
-		// this gui was open.
-		this.currentAlterEntry = lastAlterEntryViewed;
 	}
 
 	public void initGui()
@@ -108,7 +92,7 @@ public class GuiBendsMenu extends GuiScreen
 		this.guiLeft = (this.width - this.xSize) / 2;
 		this.guiTop = (this.height - this.ySize) / 2;
 		this.buttonList.clear();
-		this.customizeWindow.initGui(this.guiLeft, this.guiTop, this.guiLeft + this.xSize, this.guiTop + 70);
+		this.customizeWindow.initGui(this.guiLeft, this.guiTop);
 		this.packEditor.initGui(this.width / 2, this.height / 2);
 		this.addonsWindow.initGui(this.width / 2, this.height / 2);
 		
@@ -130,7 +114,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		if (this.guiTab == TAB_CUSTOMIZE)
 		{
-			if (PackManager.isCurrentPackLocal())
+			/*if (PackManager.isCurrentPackLocal())
 			{
 				GuiButton applyButton = new GuiButton(4, guiLeft + xSize - 50 - 7, guiTop + 77 - 4, 50, 20,
 						I18n.format("mobends.gui.apply", new Object[0]));
@@ -142,7 +126,7 @@ public class GuiBendsMenu extends GuiScreen
 				String buttonTitle = I18n.format("mobends.gui.selectpack", new Object[0]);
 				this.buttonList.add(new GuiButton(5, (width - fontRenderer.getStringWidth(buttonTitle) - 20) / 2,
 						guiTop + 150, fontRenderer.getStringWidth(buttonTitle) + 20, 20, buttonTitle));
-			}
+			}*/
 		}
 	}
 
@@ -152,9 +136,7 @@ public class GuiBendsMenu extends GuiScreen
 		switch (this.guiTab)
 		{
 			case TAB_CUSTOMIZE:
-				this.customizeWindow.initGui(this.guiLeft + 7, this.guiTop + 97, this.guiLeft + this.xSize,
-						this.guiTop + 70);
-				this.customizeWindow.populate(getCurrentAlterEntry());
+				this.customizeWindow.initGui(this.guiLeft + 7, this.guiTop + 97);
 				break;
 			case TAB_PACKS:
 				this.packEditor.onOpened();
@@ -177,7 +159,7 @@ public class GuiBendsMenu extends GuiScreen
 		switch (keyCode)
 		{
 			case 1:
-				if (guiTab == TAB_CUSTOMIZE && customizeWindow.areChangesUnapplied())
+				/*if (guiTab == TAB_CUSTOMIZE && customizeWindow.areChangesUnapplied())
 					popUpDiscardChanges(POPUP_EXIT);
 				else if (guiTab == TAB_PACKS)
 				{
@@ -185,9 +167,9 @@ public class GuiBendsMenu extends GuiScreen
 					close();
 				}
 				else
-				{
+				{*/
 					close();
-				}
+				//}
 				break;
 		}
 
@@ -276,10 +258,9 @@ public class GuiBendsMenu extends GuiScreen
 					switch (button)
 					{
 						case 0: // Yes
-							selectAlterEntry((Integer) customizeWindow.getTargetList().getSelectedValue());
+							//selectAlterEntry((Integer) customizeWindow.getTargetList().getSelectedValue());
 							break;
 						case 1: // No
-							customizeWindow.getTargetList().selectValue(currentAlterEntry);
 							break;
 					}
 					break;
@@ -290,7 +271,6 @@ public class GuiBendsMenu extends GuiScreen
 							this.openTab(TAB_MAIN);
 							break;
 						case 1: // No
-							customizeWindow.getTargetList().selectValue(currentAlterEntry);
 							break;
 					}
 					break;
@@ -305,7 +285,6 @@ public class GuiBendsMenu extends GuiScreen
 							close();
 							break;
 						case 1: // No
-							customizeWindow.getTargetList().selectValue(currentAlterEntry);
 							break;
 					}
 					break;
@@ -406,9 +385,9 @@ public class GuiBendsMenu extends GuiScreen
 		switch (par1GuiButton.id)
 		{
 			case 0: // Back
-				if (guiTab == TAB_CUSTOMIZE && customizeWindow.areChangesUnapplied())
+				/*if (guiTab == TAB_CUSTOMIZE && customizeWindow.areChangesUnapplied())
 					this.popUpDiscardChanges(POPUP_GOBACK);
-				else if (guiTab == TAB_PACKS)
+				else */if (guiTab == TAB_PACKS)
 				{
 					packEditor.apply();
 					this.openTab(TAB_MAIN);
@@ -417,10 +396,10 @@ public class GuiBendsMenu extends GuiScreen
 					this.openTab(TAB_MAIN);
 				break;
 			case 4: // Apply
-				BendsTarget target = BendsPack.getTarget(getCurrentAlterEntry().getKey());
+				/*BendsTarget target = BendsPack.getTarget(getCurrentAlterEntry().getKey());
 				if (target == null)
-					target = BendsPack.createTarget(getCurrentAlterEntry().getKey());
-				this.customizeWindow.applyChanges(target);
+					target = BendsPack.createTarget(getCurrentAlterEntry().getKey());*/
+				//this.customizeWindow.applyChanges(target);
 				try
 				{
 					PackManager.getCurrentPack().save();
@@ -485,23 +464,6 @@ public class GuiBendsMenu extends GuiScreen
 	public boolean doesGuiPauseGame()
 	{
 		return false;
-	}
-
-	public AlterEntry<?> getCurrentAlterEntry()
-	{
-		return this.alterEntries.get(this.currentAlterEntry);
-	}
-
-	public void onNodeEditorChange()
-	{
-		initGui();
-	}
-
-	public void selectAlterEntry(int id)
-	{
-		this.currentAlterEntry = id;
-		GuiBendsMenu.lastAlterEntryViewed = id;
-		openTab(TAB_CUSTOMIZE);
 	}
 
 	public void popUpDiscardChanges(int afterAction)

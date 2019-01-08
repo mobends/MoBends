@@ -1,6 +1,7 @@
 package net.gobbob.mobends.core.client.gui;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Makes whatever implements it potentially observable, if properly implemented
@@ -8,28 +9,28 @@ import java.util.LinkedList;
  * 
  * @author Iwo Plaza
  */
-public class Observable
+public interface IObservable
 {
 	/**
-	 * These listeners will respond, when a change has occured in this object.
+	 * These listeners will respond, when a change has occurred in this object.
 	 */
-	private LinkedList<IChangeListener> changeListeners = new LinkedList<IChangeListener>();
+	List<IChangeListener> getChangeListeners();
 	
 	/**
 	 * Adds a listener to the list of listeners.
 	 * @param listener The listener to add.
 	 */
-	public void addListener(IChangeListener listener)
+	default void addListener(IChangeListener listener)
 	{
-		this.changeListeners.add(listener);
+		getChangeListeners().add(listener);
 	}
 	
 	/**
 	 * This method notifies all listeners that a change 
 	 */
-	protected void notifyChanged()
+	default void notifyChanged()
 	{
-		for (IChangeListener listener : this.changeListeners)
+		for (IChangeListener listener : getChangeListeners())
 		{
 			listener.handleChange(this);
 		}

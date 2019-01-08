@@ -1,12 +1,18 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.IChangeListener;
-import net.gobbob.mobends.core.client.gui.Observable;
+import net.gobbob.mobends.core.client.gui.IObservable;
 import net.gobbob.mobends.core.client.gui.elements.GuiDropDownList;
 import net.gobbob.mobends.core.client.gui.elements.GuiIconButton;
 import net.gobbob.mobends.core.client.gui.elements.GuiPortraitDisplay;
+import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.standard.main.ModStatics;
@@ -15,69 +21,83 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import scala.actors.threadpool.Arrays;
 
-public class GuiCustomizeWindow extends Gui implements IChangeListener
+public class GuiCustomizeWindow extends Gui
 {
 	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/node_editor.png");
 	static final int WIDTH = 230;
 	static final int HEIGHT = 232;
 	
-	private int x, y;
-	private FontRenderer fontRenderer;
+	/*
+	 * Used to remember which AlterEntry was used last, so
+	 * the GUI can show that as default the next time it
+	 * opens up.
+	 */
+	protected static AlterEntry lastAlterEntryViewed = null;
 	
-	private GuiNodeEditor nodeEditor;
-	private GuiIconButton helpButton;
-	private GuiIconButton bigModeButton;
-	private GuiParameterEditor parameterEditor;
-	private GuiPortraitDisplay portraitDisplay;
-	private GuiBendsMenu mainMenu;
-	private GuiDropDownList targetList;
-	private AlterEntry currentAlterEntry;
+	private int x, y;
+	private final FontRenderer fontRenderer;
+	
+	private final GuiBendsMenu mainMenu;
+	final List<AlterEntry<?>> alterEntries = new ArrayList<>();
+	AlterEntry currentAlterEntry;
 
+	private final ViewportLayer viewportLayer;
+	private final HeaderLayer headerLayer;
+	private final List<IGuiLayer> layers = new ArrayList<>();
+	private final List<IEditorAction> actionHistory = new ArrayList<>();
+	private int actionHistoryPointer = 0;
+	private boolean changesMade = false;
+	
 	public GuiCustomizeWindow(GuiBendsMenu mainMenu)
 	{
-		this.x = 0;
-		this.y = 0;
-		this.nodeEditor = new GuiNodeEditor(this, mainMenu);
-		this.helpButton = new GuiIconButton(247, 0, 9, 13);
-		this.bigModeButton = new GuiIconButton(234, 0, 13, 13);
-		this.parameterEditor = new GuiParameterEditor();
-		this.parameterEditor.addListener(this);
-		this.portraitDisplay = new GuiPortraitDisplay();
 		this.mainMenu = mainMenu;
 		
-		this.targetList = new GuiDropDownList().forbidNoValue();
-		this.targetList.addListener(this);
-		for (AlterEntry alterEntry : mainMenu.alterEntries)
+		for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.getRegistered())
 		{
-			this.targetList.addEntry(alterEntry.getLocalizedName());
+			this.alterEntries.addAll(animatedEntity.getAlterEntries());
 		}
+		
+		// Showing the AlterEntry viewed the last time
+		// this gui was open.
+		this.currentAlterEntry = lastAlterEntryViewed;
+		if (this.currentAlterEntry == null)
+			this.currentAlterEntry = this.alterEntries.get(0);
+
+		this.viewportLayer = new ViewportLayer();
+		this.headerLayer = new HeaderLayer(this);
+		this.layers.add(this.viewportLayer);
+		this.layers.add(this.headerLayer);
+		
+		this.viewportLayer.showAlterEntry(this.currentAlterEntry);
+		
+		this.x = 0;
+		this.y = 0;
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 	}
 
-	public void initGui(int x, int y, int pX, int pY)
+	public void initGui(int x, int y)
 	{
 		this.x = x;
 		this.y = y;
-		this.nodeEditor.initGui(x + 7, y + 97);
-		this.helpButton.initGui(x + 203, y + 20);
-		this.bigModeButton.initGui(x + 151, y + 73);
-		this.parameterEditor.initGui(pX, pY);
-		this.portraitDisplay.initGui(x + 8, y + 21);
-		this.targetList.setPosition(x + 63, y + 20);
+		this.viewportLayer.initGui(x, y);
+		this.headerLayer.initGui(x, y);
 	}
 
 	public void display(int mouseX, int mouseY, float partialTicks)
 	{
-		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomizeWindow.BACKGROUND_TEXTURE);
-		this.drawTexturedModalRect(this.x, this.y, 0, 0, WIDTH, HEIGHT);
+		//Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomizeWindow.BACKGROUND_TEXTURE);
+		//this.drawTexturedModalRect(this.x, this.y, 0, 0, WIDTH, HEIGHT);
 
 		this.drawCenteredString(this.fontRenderer, I18n.format("mobends.gui.customize"),
 				(int) (this.x + WIDTH/2), this.y + 4, 0xFFFFFF);
 		
-		this.targetList.display();
-		this.portraitDisplay.display(partialTicks);
+		for (IGuiLayer layer : this.layers)
+		{
+			layer.draw();
+		}
 
 		if (!PackManager.isCurrentPackLocal())
 		{
@@ -86,155 +106,58 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 			
 			return;
 		}
-		
-		this.nodeEditor.display(mouseX, mouseY, partialTicks);
-		this.parameterEditor.display(mouseX, mouseY, partialTicks);
-		this.helpButton.display();
-		this.bigModeButton.display();
-	}
-
-	public void populate(AlterEntry alterEntry)
-	{
-		this.currentAlterEntry = alterEntry;
-		this.nodeEditor.populate(alterEntry);
-		this.parameterEditor.populate(alterEntry); 
-		this.parameterEditor.deselect();
-		this.targetList.selectValue(mainMenu.currentAlterEntry);
-		
-		this.portraitDisplay.showAlterEntry(alterEntry);
 	}
 
 	public void update(int mouseX, int mouseY)
 	{
-		this.nodeEditor.update(mouseX, mouseY);
-		this.parameterEditor.update(mouseX, mouseY);
-		this.portraitDisplay.update(mouseX, mouseY);
-		this.targetList.update(mouseX, mouseY);
-		this.helpButton.update(mouseX, mouseY);
-		this.bigModeButton.update(mouseX, mouseY);
-	}
-
-	public void mouseClicked(int mouseX, int mouseY, int state)
-	{
-		if (state != 0)
-			return;
-
-		boolean lastUnappliedChanged = this.nodeEditor.areChangesUnapplied();
-
-		boolean pressed = false;
-
-		if (this.targetList.mouseClicked(mouseX, mouseY, state))
+		for (IGuiLayer layer : this.layers)
 		{
-			applyTargetListChanges(lastUnappliedChanged);
-			pressed = true;
-		}
-
-		if (this.portraitDisplay.mouseClicked(mouseX, mouseY, state))
-		{
-			this.mainMenu.getCurrentAlterEntry().setAnimate(this.portraitDisplay.getValue());
-		}
-		
-		if (!PackManager.isCurrentPackLocal())
-			return;
-
-		if (!pressed && this.parameterEditor.mouseClicked(mouseX, mouseY, state))
-			pressed = true;
-		else
-		{
-			if (this.nodeEditor.mouseClicked(mouseX, mouseY, state))
-			{
-				pressed = true;
-				GuiConditionSection section = this.parameterEditor.selectedSection;
-				if (section != null)
-				{
-					this.portraitDisplay.setAnimationToPreview(section.getAnimationName());
-				}
-			}
-		}
-
-		if (this.helpButton.mouseClicked(mouseX, mouseY, state))
-		{
-			mainMenu.popUpHelp();
-		}
-
-		if (!pressed)
-		{
-			this.parameterEditor.deselect();
+			layer.update(mouseX, mouseY);
 		}
 	}
 
-	public void mouseReleased(int mouseX, int mouseY, int event)
+	public void mouseClicked(int mouseX, int mouseY, int button)
 	{
-		this.nodeEditor.mouseReleased(mouseX, mouseY, event);
-		this.parameterEditor.mouseReleased(mouseX, mouseY, event);
+		for (int i = this.layers.size() - 1; i >= 0; --i)
+		{
+			if (this.layers.get(i).handleMouseClicked(mouseX, mouseY, button))
+				break;
+		}
+	}
+
+	public void mouseReleased(int mouseX, int mouseY, int button)
+	{
+		for (int i = this.layers.size() - 1; i >= 0; --i)
+		{
+			if (this.layers.get(i).handleMouseReleased(mouseX, mouseY, button))
+				break;
+		}
 	}
 
 	public void handleMouseInput()
 	{
-		if (targetList.handleMouseInput())
+		for (int i = this.layers.size() - 1; i >= 0; --i)
 		{
-			this.applyTargetListChanges(this.nodeEditor.areChangesUnapplied());
-			return;
+			if (this.layers.get(i).handleMouseInput())
+				break;
 		}
-
-		if (!this.parameterEditor.handleMouseInput())
-		{
-			this.nodeEditor.handleMouseInput();
-		}
-	}
-
-	public void applyTargetListChanges(boolean unappliedChanged)
-	{
-		if (targetList.areChangedUnhandled())
-		{
-			if (unappliedChanged)
-			{
-				mainMenu.popUpDiscardChanges(GuiBendsMenu.POPUP_CHANGETARGET);
-			}
-			else
-			{
-				mainMenu.selectAlterEntry((Integer) targetList.getSelectedValue());
-			}
-			targetList.setChangesHandled();
-		}
-	}
-
-	public void onNodesChange()
-	{
-		this.nodeEditor.onChange();
-	}
-	
-	public void applyChanges(BendsTarget target)
-	{
-		this.nodeEditor.applyChanges(target);
 	}
 	
 	public void keyTyped(char typedChar, int keyCode)
 	{
-		if (!PackManager.isCurrentPackLocal())
-			return;
-
-		this.parameterEditor.keyTyped(typedChar, keyCode);
+		for (int i = this.layers.size() - 1; i >= 0; --i)
+		{
+			if (this.layers.get(i).handleKeyTyped(typedChar, keyCode))
+				break;
+		}
+		
+		/*if (!PackManager.isCurrentPackLocal())
+			return;*/
 	}
 
 	public boolean areChangesUnapplied()
 	{
-		return this.nodeEditor.areChangesUnapplied();
-	}
-	
-	public GuiNodeEditor getNodeEditor()
-	{
-		return this.nodeEditor;
-	}
-	
-	public GuiParameterEditor getParameterEditor()
-	{
-		return this.parameterEditor;
-	}
-
-	public GuiDropDownList getTargetList()
-	{
-		return targetList;
+		return this.changesMade;
 	}
 	
 	public String[] getAlterableParts()
@@ -245,9 +168,26 @@ public class GuiCustomizeWindow extends Gui implements IChangeListener
 			return null;
 	}
 	
-	@Override
-	public void handleChange(Observable changedObject)
+	public void showAlterEntry(AlterEntry alterEntry)
 	{
-		this.onNodesChange();
+		if (this.currentAlterEntry == alterEntry)
+			return;
+		
+		if (areChangesUnapplied())
+		{
+			mainMenu.popUpDiscardChanges(GuiBendsMenu.POPUP_CHANGETARGET);
+		}
+		else
+		{
+			this.currentAlterEntry = alterEntry;
+			this.viewportLayer.showAlterEntry(this.currentAlterEntry);
+			lastAlterEntryViewed = alterEntry;
+		}
+	}
+	
+	public void performAction(IEditorAction<GuiCustomizeWindow> action)
+	{
+		action.perform(this);
+		this.actionHistory.add(action);
 	}
 }

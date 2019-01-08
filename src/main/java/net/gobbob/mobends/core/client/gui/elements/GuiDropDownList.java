@@ -1,33 +1,38 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.lwjgl.input.Mouse;
 
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.core.client.gui.Observable;
+import net.gobbob.mobends.core.client.gui.IChangeListener;
+import net.gobbob.mobends.core.client.gui.IObservable;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class GuiDropDownList extends Observable
+public class GuiDropDownList<T> implements IObservable
 {
 	public static final int HEIGHT = 16;
 	public static final int LIST_HEIGHT = 90;
 	public static final int ELEMENT_HEIGHT = 11;
 	public static final int SCROLLBAR_WIDTH = 5;
 
+	private final FontRenderer fontRenderer;
+	protected final List<Entry<T>> entries;
 	private int x, y;
 	private int width;
-	private List<Entry> entries;
-	private int selectedId = 0;
-	private boolean valueChangeUnhandled = false;
-	private int entryAmount = 0;
+	private int selectedIndex = 0;
+	/**
+	 * The amount of entries that will be shown at a time.
+	 * If the list exceeds that amount, a scroll bar will appear.
+	 */
+	private int amountOfEntriesShown = 5;
 	private boolean noValueAllowed = true;
-	private final FontRenderer fontRenderer;
 	private boolean enabled = true;
 	private boolean hovered = false;
 	private boolean listHovered = false;
@@ -40,18 +45,29 @@ public class GuiDropDownList extends Observable
 	private int scrollBarHeight;
 	private int scrollBarGrabY;
 
+	/**
+	 * These listeners will respond, when a change has occurred in this object.
+	 */
+	private List<IChangeListener> changeListeners = new LinkedList<>();
+	
+	public List<IChangeListener> getChangeListeners()
+	{
+		return this.changeListeners;
+	}
+	
 	public GuiDropDownList()
 	{
-		this.entries = new ArrayList<Entry>();
-		this.width = 94;
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
+		this.entries = new ArrayList<>();
+		this.selectedIndex = 0;
+		this.width = 94;
 		this.scrollAmount = 0;
 	}
 
 	public GuiDropDownList init()
 	{
-		this.entries = new ArrayList<Entry>();
-		this.selectedId = 0;
+		this.entries.clear();
+		this.selectedIndex = 0;
 		this.scrollAmount = 0;
 		this.enabled = true;
 		return this;
@@ -64,23 +80,16 @@ public class GuiDropDownList extends Observable
 		return this;
 	}
 
-	public GuiDropDownList addEntry(String displayName)
+	public GuiDropDownList addEntry(String label, T value)
 	{
-		this.entries.add(new Entry(displayName, entries.size()));
+		this.entries.add(new Entry<T>(label, value));
 		updateDimensions();
 		return this;
 	}
 
-	public GuiDropDownList addEntry(String displayName, Object value)
+	public GuiDropDownList setAmountOfEntriesShown(int amount)
 	{
-		this.entries.add(new Entry(displayName, value));
-		updateDimensions();
-		return this;
-	}
-
-	public GuiDropDownList setEntryAmount(int entryAmount)
-	{
-		this.entryAmount = entryAmount;
+		this.amountOfEntriesShown = amount;
 		updateDimensions();
 		return this;
 	}
@@ -125,7 +134,9 @@ public class GuiDropDownList extends Observable
 		scrollBarGrabbed = false;
 
 		if (hovered)
+		{
 			dropped = !dropped;
+		}
 		else if (dropped)
 		{
 			if (mouseX >= x + getWidth() - SCROLLBAR_WIDTH - 1)
@@ -144,11 +155,10 @@ public class GuiDropDownList extends Observable
 			{
 				if (hoveredEntryId >= 0 && hoveredEntryId < entries.size() + (noValueAllowed ? 1 : 0))
 				{
-					if (hoveredEntryId != selectedId)
+					if (hoveredEntryId != selectedIndex)
 					{
-						selectedId = hoveredEntryId;
+						selectedIndex = hoveredEntryId;
 						this.notifyChanged();
-						valueChangeUnhandled = true;
 					}
 				}
 				dropped = false;
@@ -205,8 +215,7 @@ public class GuiDropDownList extends Observable
 				{
 					i2 = 1;
 				}
-				selectedId = (int) GUtil.clamp(selectedId + i2, 0, entries.size() + (noValueAllowed ? 0 : -1));
-				valueChangeUnhandled = true;
+				selectedIndex = (int) GUtil.clamp(selectedIndex + i2, 0, entries.size() + (noValueAllowed ? 0 : -1));
 			}
 			return true;
 		}
@@ -247,9 +256,9 @@ public class GuiDropDownList extends Observable
 				hovered || dropped ? 0xff222222 : -16777216);
 		GlStateManager.color(1, 1, 1, 1);
 
-		boolean noValue = noValueAllowed && selectedId == 0;
+		boolean noValue = noValueAllowed && selectedIndex == 0;
 		String text = noValue ? "None"
-				: this.fontRenderer.trimStringToWidth(getSelectedEntry().getDisplayName(), this.getWidth() - 20);
+				: this.fontRenderer.trimStringToWidth(getSelectedEntry().getLabel(), this.getWidth() - 20);
 		this.fontRenderer.drawStringWithShadow(text, x + 5, y + 4, noValue ? 0x999999 : 0xe2e2e2);
 
 		Draw.rectangle_xgradient(x + width - 40, y + 1, 27, HEIGHT - 2, 0x00000000,
@@ -273,15 +282,15 @@ public class GuiDropDownList extends Observable
 
 				if (hoveredEntryId == getScrollInEntries() + i)
 					Draw.rectangle(x + 1, y + HEIGHT + i * ELEMENT_HEIGHT, width - 2, ELEMENT_HEIGHT, 0xff22333f);
-				else if (selectedId == getScrollInEntries() + i)
+				else if (selectedIndex == getScrollInEntries() + i)
 					Draw.rectangle(x + 1, y + HEIGHT + i * ELEMENT_HEIGHT, width - 2, ELEMENT_HEIGHT, 0xff151525);
 				String name = noValue ? "None"
-						: this.fontRenderer.trimStringToWidth(entries.get(entryID).getDisplayName(), getWidth());
+						: this.fontRenderer.trimStringToWidth(entries.get(entryID).getLabel(), getWidth());
 				this.fontRenderer.drawStringWithShadow(name, x + 3, y + HEIGHT + i * ELEMENT_HEIGHT + 2,
 						noValue ? 0x999999 : 0xe2e2e2);
 			}
 
-			if (showScrollBar())
+			if (shouldShowScrollBar())
 			{
 				Draw.rectangle(x + width - SCROLLBAR_WIDTH - 1, y + HEIGHT, SCROLLBAR_WIDTH,
 						elements * ELEMENT_HEIGHT + 2, 0xff222222);
@@ -301,42 +310,42 @@ public class GuiDropDownList extends Observable
 		return dropped ? HEIGHT + getNumberOfElements() * ELEMENT_HEIGHT + 3 : HEIGHT;
 	}
 
-	public class Entry
+	public static class Entry<T>
 	{
-		private String displayName;
-		private Object value;
+		private String label;
+		private T value;
 
-		public Entry(String displayName, Object value)
+		public Entry(String label, T value)
 		{
-			this.displayName = displayName;
+			this.label = label;
 			this.value = value;
 		}
 
-		public String getDisplayName()
+		public String getLabel()
 		{
-			return displayName;
+			return label;
 		}
 
-		public Object getValue()
+		public T getValue()
 		{
 			return value;
 		}
 	}
 
-	public Entry getSelectedEntry()
+	public Entry<T> getSelectedEntry()
 	{
-		if (selectedId < 0 || selectedId >= entries.size() + (noValueAllowed ? 1 : 0))
+		if (selectedIndex < 0 || selectedIndex >= entries.size() + (noValueAllowed ? 1 : 0))
 			return null;
-		if (noValueAllowed && selectedId == 0)
+		if (noValueAllowed && selectedIndex == 0)
 			return null;
-		return entries.get(selectedId - (noValueAllowed ? 1 : 0));
+		return entries.get(selectedIndex - (noValueAllowed ? 1 : 0));
 	}
 
 	public int getNumberOfElements()
 	{
 		int elements = entries.size() + (noValueAllowed ? 1 : 0);
-		if (entryAmount > 0)
-			elements = Math.min(elements, entryAmount);
+		if (amountOfEntriesShown > 0)
+			elements = Math.min(elements, amountOfEntriesShown);
 		return elements;
 	}
 
@@ -352,7 +361,7 @@ public class GuiDropDownList extends Observable
 		return this;
 	}
 
-	public boolean showScrollBar()
+	public boolean shouldShowScrollBar()
 	{
 		return entries.size() > getNumberOfElements();
 	}
@@ -373,20 +382,20 @@ public class GuiDropDownList extends Observable
 		scrollBarY = (int) (getScrollPercentage() * (getNumberOfElements() * ELEMENT_HEIGHT + 2 - scrollBarHeight));
 	}
 
-	public void selectValue(Object value)
+	public void selectValue(T value)
 	{
 		for (int i = 0; i < entries.size(); i++)
 		{
 			if (entries.get(i).value.equals(value))
 			{
-				selectedId = i + (noValueAllowed ? 1 : 0);
+				selectedIndex = i + (noValueAllowed ? 1 : 0);
 				return;
 			}
 		}
-		selectedId = 0;
+		selectedIndex = 0;
 	}
 
-	public Object getSelectedValue()
+	public T getSelectedValue()
 	{
 		if (getSelectedEntry() == null)
 			return null;
@@ -398,15 +407,5 @@ public class GuiDropDownList extends Observable
 		scrollBarHeight = (int) ((float) getNumberOfElements() / entries.size()
 				* (getNumberOfElements() * ELEMENT_HEIGHT + 2));
 		scrollBarY = (int) (getScrollPercentage() * (getNumberOfElements() * ELEMENT_HEIGHT + 2 - scrollBarHeight));
-	}
-
-	public void setChangesHandled()
-	{
-		valueChangeUnhandled = false;
-	}
-
-	public boolean areChangedUnhandled()
-	{
-		return valueChangeUnhandled;
 	}
 }

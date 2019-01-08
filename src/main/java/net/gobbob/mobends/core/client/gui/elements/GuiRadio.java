@@ -1,11 +1,15 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.core.client.gui.Observable;
+import net.gobbob.mobends.core.client.gui.IChangeListener;
+import net.gobbob.mobends.core.client.gui.IObservable;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 
-public class GuiRadio extends Observable
+public class GuiRadio implements IObservable
 {
 	private int x, y;
 	private int buttonX, buttonY, buttonWidth, buttonHeight;
@@ -23,6 +27,13 @@ public class GuiRadio extends Observable
 	public int hoveredId;
 	public boolean enabled;
 
+	private List<IChangeListener> changeListeners = new LinkedList<>();
+	
+	public List<IChangeListener> getChangeListeners()
+	{
+		return this.changeListeners;
+	}
+	
 	public GuiRadio()
 	{
 		this.x = this.y = 0;

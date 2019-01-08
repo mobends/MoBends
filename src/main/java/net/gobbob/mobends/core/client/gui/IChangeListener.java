@@ -12,5 +12,5 @@ public interface IChangeListener
 	 * was bound to.
 	 * @param objectChanged The object that was changed.
 	 */
-	void handleChange(Observable objectChanged);
+	void handleChange(IObservable objectChanged);
 }
