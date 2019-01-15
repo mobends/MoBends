@@ -155,9 +155,9 @@ public class GuiDropDownList<T> implements IObservable
 			{
 				if (hoveredEntryId >= 0 && hoveredEntryId < entries.size() + (noValueAllowed ? 1 : 0))
 				{
-					if (hoveredEntryId != selectedIndex)
+					if (hoveredEntryId != this.selectedIndex)
 					{
-						selectedIndex = hoveredEntryId;
+						this.selectedIndex = hoveredEntryId;
 						this.notifyChanged();
 					}
 				}
@@ -182,40 +182,23 @@ public class GuiDropDownList<T> implements IObservable
 		if (!isEnabled())
 			return false;
 
+		int mouseWheelRoll = Mouse.getEventDWheel();
 		if (dropped && listHovered)
 		{
-			int i2 = Mouse.getEventDWheel();
-
-			if (i2 != 0)
+			if (mouseWheelRoll != 0)
 			{
-				if (i2 > 0)
-				{
-					i2 = -1;
-				}
-				else if (i2 < 0)
-				{
-					i2 = 1;
-				}
-
-				scroll((float) (i2 * 0.5));
+				mouseWheelRoll = mouseWheelRoll > 0 ? 1 : -1;
+				scroll(mouseWheelRoll * 0.5F);
 			}
 			return true;
 		}
 		else if (hovered)
 		{
-			int i2 = Mouse.getEventDWheel();
-
-			if (i2 != 0)
+			if (mouseWheelRoll != 0)
 			{
-				if (i2 > 0)
-				{
-					i2 = -1;
-				}
-				else if (i2 < 0)
-				{
-					i2 = 1;
-				}
-				selectedIndex = (int) GUtil.clamp(selectedIndex + i2, 0, entries.size() + (noValueAllowed ? 0 : -1));
+				mouseWheelRoll = mouseWheelRoll > 0 ? 1 : -1;
+				selectedIndex = (int) GUtil.clamp(selectedIndex + mouseWheelRoll, 0, entries.size() + (noValueAllowed ? 0 : -1));
+				this.notifyChanged();
 			}
 			return true;
 		}
@@ -384,15 +367,21 @@ public class GuiDropDownList<T> implements IObservable
 
 	public void selectValue(T value)
 	{
+		int previouslySelected = this.selectedIndex;
 		for (int i = 0; i < entries.size(); i++)
 		{
 			if (entries.get(i).value.equals(value))
 			{
-				selectedIndex = i + (noValueAllowed ? 1 : 0);
+				this.selectedIndex = i + (noValueAllowed ? 1 : 0);
+				if (previouslySelected != this.selectedIndex)
+					this.notifyChanged();
 				return;
 			}
 		}
-		selectedIndex = 0;
+		this.selectedIndex = 0;
+		
+		if (previouslySelected != this.selectedIndex)
+			this.notifyChanged();
 	}
 
 	public T getSelectedValue()

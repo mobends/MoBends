@@ -9,12 +9,12 @@ public class DefaultAlterEntry<T extends EntityLivingBase> extends AlterEntry<T>
 	
 	T previewEntity;
 	
-	public DefaultAlterEntry(String postfix, String unlocalizedName, Previewer previewer)
+	public DefaultAlterEntry(String postfix, String unlocalizedName, IPreviewer previewer)
 	{
 		super(postfix, unlocalizedName, previewer);
 	}
 	
-	public DefaultAlterEntry(Previewer previewer)
+	public DefaultAlterEntry(IPreviewer previewer)
 	{
 		this("", null, previewer);
 	}

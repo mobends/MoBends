@@ -132,7 +132,7 @@ public class Draw {
 	{
 		Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuffer();
-        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         // NEG_X
         vertexbuffer.pos(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
         vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();

@@ -1,12 +1,12 @@
 package net.gobbob.mobends.standard.previewer;
 
-import net.gobbob.mobends.core.animatedentity.Previewer;
+import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.MoverType;
 
-public class SpiderPreviewer extends Previewer<SpiderData>
+public class SpiderPreviewer implements IPreviewer<SpiderData>
 {
 
 	/*

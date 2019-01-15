@@ -64,7 +64,7 @@ public class AnimatedEntity<T extends EntityLivingBase>
 	
 	public AnimatedEntity(String modId, String key, String unlocalizedName, Class<T> entityClass,
 			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-			MutatedRenderer<T> renderer, Previewer<?> previewer, String... alterableParts)
+			MutatedRenderer<T> renderer, IPreviewer<?> previewer, String... alterableParts)
 	{
 		this(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
 		this.alterEntries.add(new DefaultAlterEntry<T>(previewer));

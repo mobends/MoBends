@@ -39,11 +39,11 @@ public class CustomFont
 		put('-', new Symbol(10, 12, 9, 11));
 	}});
 	
-	protected String textureName;
-	public int atlasWidth;
-	public int atlasHeight;
-	protected ResourceLocation resourceLocation;
-	protected HashMap<Character, Symbol> symbolMap;
+	protected final String textureName;
+	public final int atlasWidth;
+	public final int atlasHeight;
+	protected final ResourceLocation resourceLocation;
+	protected final HashMap<Character, Symbol> symbolMap;
 	
 	public CustomFont(String textureName, int atlasWidth, int atlasHeight, HashMap<Character, Symbol> symbolMap)
 	{

@@ -37,17 +37,17 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 	private String postfix;
 	private boolean animate;
 	
-	protected final Previewer<?> previewer;
+	protected final IPreviewer<?> previewer;
 	protected AnimatedEntity<T> owner;
 	
-	public AlterEntry(String postfix, String unlocalizedName, Previewer<?> previewer)
+	public AlterEntry(String postfix, String unlocalizedName, IPreviewer<?> previewer)
 	{
 		this.postfix = postfix;
 		this.unlocalizedName = unlocalizedName;
 		this.previewer = previewer;
 	}
 	
-	public AlterEntry(Previewer<?> previewer)
+	public AlterEntry(IPreviewer<?> previewer)
 	{
 		this("", null, previewer);
 	}
@@ -109,13 +109,13 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 		return owner;
 	}
 	
-	public Previewer<?> getPreviewer()
+	public IPreviewer<?> getPreviewer()
 	{
 		return this.previewer;
 	}
-	
-	public abstract LivingEntityData<T> getDataForPreview();
 
+	public abstract LivingEntityData<?> getDataForPreview();
+	
 	public String getLocalizedName()
 	{
 		return I18n.format(this.unlocalizedName);

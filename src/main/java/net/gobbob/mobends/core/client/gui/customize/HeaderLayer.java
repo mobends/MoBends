@@ -47,6 +47,12 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		
 		return eventHandled;
 	}
+	
+	@Override
+	public boolean handleMouseInput()
+	{
+		return this.targetList.handleMouseInput();
+	}
 
 	@Override
 	public void handleChange(IObservable objectChanged)
@@ -64,7 +70,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 
 	public void initGui(int x, int y)
 	{
-		this.targetList.setPosition(x, y);
+		this.targetList.setPosition(10, 10);
 	}
 	
 }

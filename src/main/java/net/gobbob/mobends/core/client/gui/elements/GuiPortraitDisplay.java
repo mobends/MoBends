@@ -3,7 +3,7 @@ package net.gobbob.mobends.core.client.gui.elements;
 import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
-import net.gobbob.mobends.core.animatedentity.Previewer;
+import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.Draw;
@@ -129,7 +129,7 @@ public class GuiPortraitDisplay
 		Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
 		
 		@SuppressWarnings("unchecked")
-		Previewer<LivingEntityData<?>> previewer = (Previewer<LivingEntityData<?>>) alterEntry.getPreviewer();
+		IPreviewer<LivingEntityData<?>> previewer = (IPreviewer<LivingEntityData<?>>) alterEntry.getPreviewer();
 		
 		if (previewer != null)
 			previewer.prePreview(data, this.animationToPreview);

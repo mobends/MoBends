@@ -29,12 +29,12 @@ public class AddonAnimationRegistry
 	}
 	
 	/**
-	 * Works like {@link #registerNewEntity(Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer, Previewer, String...)},
+	 * Works like {@link #registerNewEntity(Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer, IPreviewer, String...)},
 	 * but the key and unlocalizedName are decided based on how the entity was registered.
 	 */
 	public <T extends EntityLivingBase> String registerNewEntity(Class<T> entityClass,
 			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-			MutatedRenderer<T> renderer, Previewer<?> previewer, String... alterableParts)
+			MutatedRenderer<T> renderer, IPreviewer<?> previewer, String... alterableParts)
 	{
 		return registerNewEntity(null, null, entityClass, entityDataFactory, mutatorFactory, renderer, previewer, alterableParts);
 	}
@@ -77,7 +77,7 @@ public class AddonAnimationRegistry
 	 */
 	public <T extends EntityLivingBase> String registerNewEntity(String key, String unlocalizedName, Class<T> entityClass,
 			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-			MutatedRenderer<T> renderer, Previewer<?> previewer, String... alterableParts)
+			MutatedRenderer<T> renderer, IPreviewer<?> previewer, String... alterableParts)
 	{
 		AnimatedEntity<T> animatedEntity = new AnimatedEntity<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, previewer, alterableParts);
 		return registerEntity(animatedEntity);

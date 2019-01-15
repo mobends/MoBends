@@ -1,30 +1,74 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.Project;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
-import net.gobbob.mobends.core.animatedentity.Previewer;
+import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
+import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.core.util.MeshBuilder;
+import net.gobbob.mobends.core.util.Vector3;
+import net.gobbob.mobends.standard.main.ModStatics;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 
 public class ViewportLayer extends Gui implements IGuiLayer
 {
+	private final ResourceLocation STAND_BLOCK_TEXTURE = new ResourceLocation(ModStatics.MODID, "textures/stand_block.png");
+	private final Minecraft mc;
+	private final ViewportCamera camera;
 	private int x, y;
 	private int width, height;
 	private AlterEntry<?> alterEntryToView;
 	
+	private VertexBuffer buffer;
+	
+	public ViewportLayer()
+	{
+		this.mc = Minecraft.getMinecraft();
+		this.camera = new ViewportCamera(0, 0, 0, -45F, 45F);
+		this.camera.anchorTo(0, 0, 0, 1);
+		
+		IBlockState state = Blocks.GRASS.getDefaultState();
+		IBakedModel model = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
+		
+		BufferBuilder bufferBuilder = new BufferBuilder(16);
+		bufferBuilder.begin(7, DefaultVertexFormats.BLOCK);
+		System.out.println(mc.getBlockRendererDispatcher().getBlockModelRenderer().renderModelFlat(mc.world, model, state, BlockPos.ORIGIN, bufferBuilder, false, 0));
+		bufferBuilder.finishDrawing();
+		
+		buffer = new VertexBuffer(bufferBuilder.getVertexFormat());
+		buffer.bufferData(bufferBuilder.getByteBuffer());
+	}
+	
 	public void showAlterEntry(AlterEntry<?> alterEntry)
 	{
 		this.alterEntryToView = alterEntry;
+		Vector3 anchorPoint = Vector3.ZERO;
+		IPreviewer previewer = alterEntry.getPreviewer();
+		if (previewer != null)
+			anchorPoint = previewer.getAnchorPoint();
+		this.camera.anchorTo(anchorPoint.x, anchorPoint.y, anchorPoint.z, 5);
 	}
 	
 	public void initGui(int x, int y)
@@ -39,6 +83,34 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	}
 	
 	@Override
+	public boolean handleMouseInput()
+	{
+		boolean eventHandled = false;
+		
+		float dx = Mouse.getEventDX();
+		float dy = Mouse.getEventDY();
+		
+		if (Mouse.isButtonDown(2))
+		{
+			this.camera.rotateYaw(dx * 1F);
+			this.camera.rotatePitch(dy * -1F);
+			eventHandled |= true;
+		}
+		
+		int mouseWheelRoll = Mouse.getEventDWheel();
+
+		if (mouseWheelRoll != 0)
+		{
+			mouseWheelRoll = mouseWheelRoll > 0 ? 1 : -1;
+			
+			this.camera.zoomInOrOut(-mouseWheelRoll);
+			eventHandled |= true;
+		}
+		
+		return eventHandled;
+	}
+	
+	@Override
 	public void draw()
 	{
 		int[] position = GuiHelper.getDeScaledCoords(x, y + height + 1);
@@ -46,57 +118,52 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		//GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		//GL11.glScissor(position[0], position[1], size[0], size[1]);
 
-//		if (hovered)
-//			animationValue = Math.min(animationValue + delta * 0.01f, 1);
-//		else
-//			animationValue = Math.max(animationValue - delta * 0.01f, 0);
-//
-//		if (hovered)
-//		{
-//			Draw.rectangle(x, y, width, height, 0x22ffffff);
-//		}
-		
-		//Draw.rectangle_ygradient(x, y, width, height, 0x00000000, 0xff114444);
-		Draw.rectangle(x, y, 250, 250, 0xff0a182a);
-		
-//		float smoothAnimation = animationValue * animationValue * 4;
-//		if (smoothAnimation >= 1)
-//			smoothAnimation = 2 - (1 - animationValue) * (1 - animationValue) * 4;
-//		smoothAnimation /= 2;
-
+		GlStateManager.matrixMode(GL11.GL_PROJECTION);
+		GlStateManager.pushMatrix();
+		GlStateManager.loadIdentity();
+		float ratio = (float)mc.displayWidth / (float)mc.displayHeight;
+		Project.gluPerspective(60.0F, ratio, 0.05F, 1000);
+		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+		GlStateManager.clearColor(0.1F, 0.17F, 0.2F, 1F);
+		GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		if (alterEntryToView != null)
 		{
-			float scale = 4.0F;
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(x + 124, y + height / 2 + 120, 0);
-			GlStateManager.scale(scale, scale, scale);
-			renderLivingEntity(0, 24, 24, alterEntryToView);
+			GlStateManager.loadIdentity();
+			this.camera.applyTransform();
+			
+			RenderHelper.enableStandardItemLighting();
+			GlStateManager.color(1, 1, 1);
+			mc.getTextureManager().bindTexture(STAND_BLOCK_TEXTURE);
+			Tessellator tess = Tessellator.getInstance();
+			tess.getBuffer().begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+			MeshBuilder.texturedSimpleCube(tess.getBuffer(), -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
+			tess.draw();
+			
+			//Draw.cube(0, 0, 0, 1, 1, 1, Color.BLUE);
+			
+			renderLivingEntity(alterEntryToView);
+			
+			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
 		}
-
-//		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-//		String displayText = value ? "Animated" : "Vanilla";
-//		fontRenderer.drawString(displayText, x + width / 2 - fontRenderer.getStringWidth(displayText) / 2,
-//				(int) (y + height - smoothAnimation * 10), 0xffffff);
+		
+		GlStateManager.matrixMode(GL11.GL_PROJECTION);
+		GlStateManager.popMatrix();
+		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
 
 		//GL11.glDisable(GL11.GL_SCISSOR_TEST);
 	}
 	
-	private static void renderLivingEntity(int x, int y, float scale, AlterEntry<?> alterEntry)
+	private static void renderLivingEntity(AlterEntry<?> alterEntry)
 	{
 		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 		GL11.glPushMatrix();
-		GL11.glTranslatef((float) x, (float) y, 50.0F);
-		GL11.glScalef((float) (-scale), (float) scale, (float) scale);
-		GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
-		//GL11.glRotated(rotation, 0.0, 1.0, 0.0);
-		GL11.glRotatef(20.0F, 1.0F, 0.0F, 0.0F);
-		GL11.glRotatef(-45.0F, 0.0F, 1.0F, 0.0F);
 		
-		float lightAngle = 135.0F;
+		float lightAngle = 45.0F;
 		GL11.glRotatef(lightAngle, 0.0F, 1.0F, 0.0F);
 		GL11.glColor3f(1, 1, 1);
-		RenderHelper.enableStandardItemLighting();
+		
 		GL11.glRotatef(-lightAngle, 0.0F, 1.0F, 0.0F);
 		
 		LivingEntityData<?> data = alterEntry.getDataForPreview();
@@ -116,7 +183,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
 		
 		@SuppressWarnings("unchecked")
-		Previewer<LivingEntityData<?>> previewer = (Previewer<LivingEntityData<?>>) alterEntry.getPreviewer();
+		IPreviewer<LivingEntityData<?>> previewer = (IPreviewer<LivingEntityData<?>>) alterEntry.getPreviewer();
 		
 //		if (previewer != null)
 //			previewer.prePreview(data, this.animationToPreview);
@@ -133,7 +200,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		living.prevRotationYawHead = f5;
 		living.rotationYawHead = f6;
 		GL11.glPopMatrix();
-		RenderHelper.disableStandardItemLighting();
+		
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
 		GlStateManager.disableTexture2D();

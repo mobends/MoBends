@@ -34,7 +34,7 @@ public class SpiderJumpAnimationBit extends AnimationBit<SpiderData>
 		}
 		float motionY = (float) -data.getInterpolatedMotionY() * 5;
 		motionY = MathHelper.clamp(motionY, -1, 1);
-		System.out.println(motionY);
+		
 		float legAngle = -20.0F + motionY * 25.0F;
 		float smoothness = 1F;
 		data.limbs[0].upperPart.rotation.setSmoothness(smoothness).localRotateZ(legAngle);
