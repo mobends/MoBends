@@ -1,5 +1,8 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
@@ -52,9 +55,9 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		IBlockState state = Blocks.GRASS.getDefaultState();
 		IBakedModel model = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
 		
-		BufferBuilder bufferBuilder = new BufferBuilder(16);
-		bufferBuilder.begin(7, DefaultVertexFormats.BLOCK);
-		System.out.println(mc.getBlockRendererDispatcher().getBlockModelRenderer().renderModelFlat(mc.world, model, state, BlockPos.ORIGIN, bufferBuilder, false, 0));
+		BufferBuilder bufferBuilder = new BufferBuilder(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.getSize() * 24);
+		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+		MeshBuilder.texturedSimpleCube(bufferBuilder, -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
 		bufferBuilder.finishDrawing();
 		
 		buffer = new VertexBuffer(bufferBuilder.getVertexFormat());
@@ -136,13 +139,24 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			GlStateManager.color(1, 1, 1);
 			mc.getTextureManager().bindTexture(STAND_BLOCK_TEXTURE);
 			Tessellator tess = Tessellator.getInstance();
-			tess.getBuffer().begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+			tess.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
 			MeshBuilder.texturedSimpleCube(tess.getBuffer(), -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
 			tess.draw();
 			
 			//Draw.cube(0, 0, 0, 1, 1, 1, Color.BLUE);
+			final int BUF_SIZE = 128;
+			ByteBuffer buffer = ByteBuffer.allocateDirect(BUF_SIZE);
+			IntBuffer intBuffer = buffer.asIntBuffer();
+			
+			GL11.glSelectBuffer(intBuffer);
+			Project.gluPickMatrix(Mouse.getX(), Mouse.getY(), 4, 4, intBuffer);
+			GL11.glRenderMode(GL11.GL_SELECT);
 			
 			renderLivingEntity(alterEntryToView);
+			
+			int hits = GL11.glRenderMode(GL11.GL_RENDER);
+			
+			//System.out.println(hits);
 			
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();
