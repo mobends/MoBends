@@ -12,6 +12,9 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import net.gobbob.mobends.core.math.Quaternion;
+import net.gobbob.mobends.core.math.QuaternionUtils;
+import net.gobbob.mobends.core.math.vector.IVec3f;
 import net.minecraft.client.gui.FontRenderer;
 
 public class GUtil
@@ -70,67 +73,6 @@ public class GUtil
 		return vector;
 	}
 	
-	public static Vector3f rotateX(Vector3f num, float rotation)
-	{
-		Vector3f y = new Vector3f();
-		Vector3f z = new Vector3f();
-		
-		y.y = (float) Math.cos((180F+rotation)/180F*PI);
-		y.z = (float) Math.sin((180F+rotation)/180F*PI);
-		y.normalise();
-		y.y*=-num.y;
-		y.z*=num.y;
-		
-		z.y = (float) Math.sin((180.0f+rotation)/180.0f*PI);
-		z.z = (float) Math.cos((180.0f+rotation)/180.0f*PI);
-		z.normalise();
-		z.y*=-num.z;
-		z.z*=-num.z;
-		
-		num = new Vector3f(num.x,y.y+z.y,y.z+z.z);
-		return num;
-	}
-	
-	public static Vector3f rotateY(Vector3f num, float rotation){
-		Vector3f x = new Vector3f();
-		Vector3f z = new Vector3f();
-		
-		x.x = (float) Math.cos((-rotation)/180.0f*Math.PI);
-		x.z = (float) Math.sin((-rotation)/180.0f*Math.PI);
-		x.normalise();
-		x.x*=-num.x;
-		x.z*=num.x;
-		
-		z.x = (float) Math.sin((-rotation)/180.0f*Math.PI);
-		z.z = (float) Math.cos((-rotation)/180.0f*Math.PI);
-		z.normalise();
-		z.x*=num.z;
-		z.z*=num.z;
-		
-		num = new Vector3f(x.x+z.x,num.y,x.z+z.z);
-		return num;
-	}
-	
-	public static Vector3f rotateZ(Vector3f num, float rotation){
-		Vector3f x = new Vector3f();
-		Vector3f y = new Vector3f();
-		
-		x.x = (float) Math.sin((rotation-90.0f)/180.0f*Math.PI);
-		x.y = (float) Math.cos((rotation-90.0f)/180.0f*Math.PI);
-		x.normalise();
-		x.x*=-num.x;
-		x.y*=num.x;
-		
-		y.x = (float) Math.cos((rotation-90.0f)/180.0f*Math.PI);
-		y.y = (float) Math.sin((rotation-90.0f)/180.0f*Math.PI);
-		y.normalise();
-		y.x*=-num.y;
-		y.y*=-num.y;
-		
-		num = new Vector3f(y.x+x.x,y.y+x.y,num.z);
-		return num;
-	}
-	
 	public static void rotate(IVec3f[] points, Quaternion rotation)
 	{
 		for (IVec3f point : points)
@@ -168,27 +110,6 @@ public class GUtil
 			scale(vector, x, y, z);
 		}
 		return vectors;
-	}
-	
-	public static Vector3f[] rotateX(Vector3f[] nums, float move){
-		for(int i = 0;i < nums.length;i++){
-			nums[i] = rotateX(nums[i],move);
-		}
-		return nums;
-	}
-	
-	public static Vector3f[] rotateY(Vector3f[] nums, float move){
-		for(int i = 0;i < nums.length;i++){
-			nums[i] = rotateY(nums[i],move);
-		}
-		return nums;
-	}
-	
-	public static Vector3f[] rotateZ(Vector3f[] nums, float move){
-		for(int i = 0;i < nums.length;i++){
-			nums[i] = rotateZ(nums[i],move);
-		}
-		return nums;
 	}
 	
 	public static String[] squashText(FontRenderer fontRenderer, String text, int maxWidth) {

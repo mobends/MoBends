@@ -249,14 +249,14 @@ public class Draw
 		/* Inside		*/ Draw.texturedModalRect(x, y, width, height, textureX+border, textureY+border, 1, 1);
 	}
 	
-	public static void line(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, Color color)
+	public static void line(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, IColorRead color)
 	{
 		Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuffer();
         vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
         
-        vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).color(color.getR(), color.getG(), color.getB(), color.getA()).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).color(color.getR(), color.getG(), color.getB(), color.getA()).endVertex();
         
         tessellator.draw();
 	}

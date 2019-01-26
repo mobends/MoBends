@@ -1,6 +1,8 @@
-package net.gobbob.mobends.core.util;
+package net.gobbob.mobends.core.math.vector;
 
 import org.lwjgl.util.vector.Vector3f;
+
+import net.gobbob.mobends.core.util.EnumAxis;
 
 public class SmoothVector3f
 {

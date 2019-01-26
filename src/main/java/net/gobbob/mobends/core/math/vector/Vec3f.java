@@ -1,8 +1,9 @@
-package net.gobbob.mobends.core.util;
+package net.gobbob.mobends.core.math.vector;
 
 public class Vec3f implements IVec3f
 {
-	public static final Vec3fReadOnly ZERO = new Vec3fReadOnly(0, 0, 0);
+	
+	public static final Vec3fReadonly ZERO = new Vec3fReadonly(0, 0, 0);
 	
 	public float x, y, z;
 	
@@ -13,11 +14,19 @@ public class Vec3f implements IVec3f
 		this.z = z;
 	}
 	
+	public Vec3f(IVec3fRead other)
+	{
+		this.x = other.getX();
+		this.y = other.getY();
+		this.z = other.getZ();
+	}
+	
 	public Vec3f()
 	{
 		this(0, 0, 0);
 	}
 	
+	@Override
 	public void set(float x, float y, float z)
 	{
 		this.x = x;
@@ -25,21 +34,25 @@ public class Vec3f implements IVec3f
 		this.z = z;
 	}
 	
+	@Override
 	public void setX(float x)
 	{
 		this.x = x;
 	}
 	
+	@Override
 	public void setY(float y)
 	{
 		this.y = y;
 	}
 	
+	@Override
 	public void setZ(float z)
 	{
 		this.z = z;
 	}
 	
+	@Override
 	public void add(float x, float y, float z)
 	{
 		this.x += x;
@@ -64,4 +77,11 @@ public class Vec3f implements IVec3f
 	{
 		return z;
 	}
+	
+	@Override
+	public float lengthSq()
+	{
+		return x*x + y*y + z*z;
+	}
+	
 }

@@ -1,13 +1,13 @@
-package net.gobbob.mobends.core.util;
+package net.gobbob.mobends.core.math.vector;
 
-public interface IVec3f extends IVec3fRead
+public interface IVec3d extends IVec3dRead
 {
 	
-	void set(float x, float y, float z);
-	void setX(float x);
-	void setY(float y);
-	void setZ(float z);
-	void add(float x, float y, float z);
+	void set(double x, double y, double z);
+	void setX(double x);
+	void setY(double y);
+	void setZ(double z);
+	void add(double x, double y, double z);
 	
 	default void set(IVec3fRead vector)
 	{
@@ -19,12 +19,12 @@ public interface IVec3f extends IVec3fRead
 		this.add(vector.getX(), vector.getY(), vector.getZ());
 	}
 	
-	default void scale(float x, float y, float z)
+	default void scale(double x, double y, double z)
 	{
 		this.set(this.getX() * x, this.getY() * y, this.getZ() * z);
 	}
 	
-	default void scale(float a)
+	default void scale(double a)
 	{
 		this.set(this.getX() * a, this.getY() * a, this.getZ() * a);
 	}

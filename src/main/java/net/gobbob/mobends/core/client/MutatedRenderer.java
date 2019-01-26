@@ -3,7 +3,7 @@ package net.gobbob.mobends.core.client;
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.data.LivingEntityData;
-import net.gobbob.mobends.core.util.GLHelper;
+import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -46,9 +46,9 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 									 livingData.renderOffset.getY() * scale,
 									 livingData.renderOffset.getZ() * scale);
 			GlStateManager.translate(0, entity.height / 2, 0);
-			GLHelper.rotate(livingData.centerRotation.getSmooth());
+			GlHelper.rotate(livingData.centerRotation.getSmooth());
 			GlStateManager.translate(0, -entity.height / 2, 0);
-			GLHelper.rotate(livingData.renderRotation.getSmooth());
+			GlHelper.rotate(livingData.renderRotation.getSmooth());
 		}
 		
 		this.transformLocally(entity, data, partialTicks);

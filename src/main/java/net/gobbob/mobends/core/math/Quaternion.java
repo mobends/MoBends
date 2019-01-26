@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.util;
+package net.gobbob.mobends.core.math;
 
 public class Quaternion
 {

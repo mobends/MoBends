@@ -2,7 +2,7 @@ package net.gobbob.mobends.standard.data;
 
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.data.LivingEntityData;
-import net.gobbob.mobends.core.util.SmoothOrientation;
+import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.entity.EntityLivingBase;
 

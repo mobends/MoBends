@@ -2,7 +2,7 @@ package net.gobbob.mobends.standard.previewer;
 
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.util.Vec3f;
+import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.renderer.GlStateManager;
 

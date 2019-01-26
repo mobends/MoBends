@@ -6,10 +6,10 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
+import net.gobbob.mobends.core.math.Quaternion;
+import net.gobbob.mobends.core.math.QuaternionUtils;
+import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.GUtil;
-import net.gobbob.mobends.core.util.Quaternion;
-import net.gobbob.mobends.core.util.QuaternionUtils;
-import net.gobbob.mobends.core.util.Vec3f;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
@@ -83,8 +83,8 @@ public class SwordTrail
 			GlStateManager.color(1, 1, 1, alpha);
 
 			Vec3f[] points = new Vec3f[] {
-					new Vec3f(0, 0, -8 + 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)),
-					new Vec3f(0, 0, -8 - 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0))
+				new Vec3f(0, 0, -8 + 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)),
+				new Vec3f(0, 0, -8 - 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0))
 			};
 			 
 			/*

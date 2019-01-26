@@ -2,7 +2,7 @@ package net.gobbob.mobends.core.animatedentity;
 
 import java.util.HashMap;
 
-import net.gobbob.mobends.core.util.BendsLogger;
+import net.gobbob.mobends.core.Core;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.common.config.Configuration;
 
@@ -12,12 +12,11 @@ public class AnimatedEntityRegistry
 	
 	private final HashMap<Class<? extends EntityLivingBase>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<>();
 	
-	
 	public void registerEntity(AnimatedEntity<?> animatedEntity)
 	{
 		if (animatedEntity.onRegister())
 		{
-			BendsLogger.LOG.info("Registering " + animatedEntity.getKey());
+			Core.LOG.info("Registering " + animatedEntity.getKey());
 			entityClassToInstanceMap.put(animatedEntity.entityClass, animatedEntity);
 		}
 	}

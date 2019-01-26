@@ -15,11 +15,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.pack.BendsAction.Calculation;
 import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
-import net.gobbob.mobends.core.pack.BendsAction.EnumModifier;
-import net.gobbob.mobends.core.util.BendsLogger;
 import net.gobbob.mobends.core.util.EnumAxis;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.main.ModStatics;
@@ -490,8 +489,6 @@ public class BendsPack
 		
 		if (!trimmedLine.startsWith("@"))
 			throw new IllegalArgumentException("An action line should always start with a @ character.");
-		
-		BendsLogger.LOG.info("Line: " + trimmedLine);
 		
 		String part = trimmedLine.substring(1, trimmedLine.indexOf(':'));
 		trimmedLine = trimmedLine.substring(trimmedLine.indexOf(':') + 1);

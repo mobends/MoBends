@@ -1,5 +1,7 @@
 package net.gobbob.mobends.core;
 
+import java.util.logging.Logger;
+
 import net.gobbob.mobends.core.configuration.ModConfiguration;
 import net.gobbob.mobends.core.network.msg.MessageClientConfigure;
 import net.gobbob.mobends.standard.main.ModStatics;
@@ -13,6 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 public class Core
 {
 	public static Core INSTANCE;
+	public static final Logger LOG = Logger.getLogger("mobends-core");
 	
 	public SimpleNetworkWrapper networkWrapper;
 	public ModConfiguration configuration;

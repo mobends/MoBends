@@ -3,6 +3,7 @@ package net.gobbob.mobends.core.client.gui.customize;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
@@ -10,15 +11,17 @@ import org.lwjgl.util.glu.Project;
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.Mesh;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
+import net.gobbob.mobends.core.math.Ray;
+import net.gobbob.mobends.core.math.vector.IVec3fRead;
+import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
-import net.gobbob.mobends.core.util.IVec3fRead;
 import net.gobbob.mobends.core.util.MeshBuilder;
-import net.gobbob.mobends.core.util.Vec3f;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -48,11 +51,12 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	
 	private VertexBuffer buffer;
 	private Mesh standBlockMesh;
+	private Ray ray;
 	
 	public ViewportLayer()
 	{
 		this.mc = Minecraft.getMinecraft();
-		this.camera = new ViewportCamera(0, 0, 0, -45F, 45F);
+		this.camera = new ViewportCamera(0, 0, 0, -45F / 180.0F * GUtil.PI, 45F / 180.0F * GUtil.PI);
 		this.camera.anchorTo(0, 0, 0, 1);
 		
 		IBlockState state = Blocks.GRASS.getDefaultState();
@@ -60,7 +64,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		
 		this.standBlockMesh = new Mesh(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL, 24);
 		this.standBlockMesh.beginDrawing(GL11.GL_QUADS);
-		MeshBuilder.texturedSimpleCube(this.standBlockMesh.getBufferBuilder(), -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
+		MeshBuilder.texturedSimpleCube(this.standBlockMesh, -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
 		this.standBlockMesh.finishDrawing();
 	}
 	
@@ -83,6 +87,36 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	@Override
 	public void update(int mouseX, int mouseY)
 	{
+		final float moveSpeed = 0.5F;
+		
+		if (Keyboard.isKeyDown(Keyboard.KEY_W) || Keyboard.isKeyDown(Keyboard.KEY_UP))
+			this.camera.moveForward(moveSpeed);
+		if (Keyboard.isKeyDown(Keyboard.KEY_S) || Keyboard.isKeyDown(Keyboard.KEY_DOWN))
+			this.camera.moveForward(-moveSpeed);
+		if (Keyboard.isKeyDown(Keyboard.KEY_D) || Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
+			this.camera.moveSideways(moveSpeed);
+		if (Keyboard.isKeyDown(Keyboard.KEY_A) || Keyboard.isKeyDown(Keyboard.KEY_LEFT))
+			this.camera.moveSideways(-moveSpeed);
+	}
+	
+	@Override
+	public boolean handleKeyTyped(char typedChar, int keyCode)
+	{
+		// Assuming that it will be handled.
+		boolean eventHandled = true;
+		
+		final float moveSpeed = 1;
+		
+		switch(keyCode)
+		{
+			default:
+				// No case met, event was actually not handled.
+				eventHandled = false;
+		}
+		
+		System.out.println(keyCode);
+		
+		return eventHandled;
 	}
 	
 	@Override
@@ -97,8 +131,19 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		
 		if (Mouse.isButtonDown(2))
 		{
-			this.camera.rotateYaw(dx * 1F);
-			this.camera.rotatePitch(dy * -1F);
+			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+			{
+				final float speed = 0.02F;
+				this.camera.moveSideways(-dx * speed);
+				this.camera.moveUp(-dy * speed);
+			}
+			else
+			{
+				final float speed = 1 / 180.0F * GUtil.PI;
+				this.camera.rotateYaw(dx * speed);
+				this.camera.rotatePitch(-dy * speed);
+			}
+			
 			eventHandled |= true;
 		}
 
@@ -112,6 +157,19 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			
 			this.camera.zoomInOrOut(-mouseWheelRoll);
 			eventHandled |= true;
+		}
+		
+		return eventHandled;
+	}
+	
+	@Override
+	public boolean handleMouseClicked(int mouseX, int mouseY, int button)
+	{
+		boolean eventHandled = false;
+		
+		if (button == 0)
+		{
+			this.ray = new Ray(this.camera.getPosition(), this.camera.getForward());
 		}
 		
 		return eventHandled;
@@ -145,9 +203,18 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			//this.standBlockMesh.display();
 			
 			GlStateManager.disableTexture2D();
-			IVec3fRead up = this.camera.getRight();
-			final float scale = 2;
-			Draw.line(0, 0, 0, up.getX() * scale, up.getY() * scale, up.getZ() * scale, Color.RED);
+			
+			if (this.ray != null)
+			{
+				final float scale = 5;
+				IVec3fRead pos = this.ray.getPosition();
+				IVec3fRead dir = this.ray.getDirection();
+				
+				Draw.line(pos.getX(), pos.getY(), pos.getZ(),
+						  pos.getX() + dir.getX() * scale, pos.getY() + dir.getY() * scale, pos.getZ() + dir.getZ() * scale,
+						  Color.RED);
+			}
+			
 			GlStateManager.enableTexture2D();
 			
 			renderLivingEntity(alterEntryToView);

@@ -6,6 +6,7 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import net.gobbob.mobends.core.util.Color;
+import net.gobbob.mobends.core.util.IColorRead;
 import net.gobbob.mobends.core.util.MeshBuilder;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -37,6 +38,35 @@ public class Mesh
 		this.bufferBuilder.finishDrawing();
 		this.buffer = new VertexBuffer(this.vertexFormat);
 		this.buffer.bufferData(this.bufferBuilder.getByteBuffer());
+	}
+	
+	public Mesh pos(double x, double y, double z)
+	{
+		this.bufferBuilder.pos(x, y, z);
+		return this;
+	}
+	
+	public Mesh normal(float x, float y, float z)
+	{
+		this.bufferBuilder.normal(x, y, z);
+		return this;
+	}
+	
+	public Mesh tex(double u, double v)
+	{
+		this.bufferBuilder.tex(u, v);
+		return this;
+	}
+	
+	public Mesh color(IColorRead color)
+	{
+		this.bufferBuilder.color(color.getR(), color.getG(), color.getB(), color.getA());
+		return this;
+	}
+	
+	public void endVertex()
+	{
+		this.bufferBuilder.endVertex();
 	}
 	
 	public void display()

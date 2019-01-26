@@ -6,12 +6,12 @@ import java.util.List;
 
 import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.client.model.IModelPart;
+import net.gobbob.mobends.core.math.SmoothOrientation;
+import net.gobbob.mobends.core.math.vector.IVec3f;
+import net.gobbob.mobends.core.math.vector.SmoothVector3f;
+import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.core.util.EnumAxis;
-import net.gobbob.mobends.core.util.IVec3f;
-import net.gobbob.mobends.core.util.SmoothOrientation;
-import net.gobbob.mobends.core.util.SmoothVector3f;
-import net.gobbob.mobends.core.util.Vec3f;
 
 public class BendsCondition
 {

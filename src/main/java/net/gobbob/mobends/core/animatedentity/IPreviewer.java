@@ -1,8 +1,8 @@
 package net.gobbob.mobends.core.animatedentity;
 
 import net.gobbob.mobends.core.data.EntityData;
-import net.gobbob.mobends.core.util.IVec3fRead;
-import net.gobbob.mobends.core.util.Vec3f;
+import net.gobbob.mobends.core.math.vector.IVec3fRead;
+import net.gobbob.mobends.core.math.vector.Vec3f;
 
 public interface IPreviewer<D extends EntityData<?>>
 {

@@ -1,8 +1,8 @@
 package net.gobbob.mobends.core.client.model;
 
-import net.gobbob.mobends.core.util.GLHelper;
-import net.gobbob.mobends.core.util.SmoothOrientation;
-import net.gobbob.mobends.core.util.Vec3f;
+import net.gobbob.mobends.core.math.SmoothOrientation;
+import net.gobbob.mobends.core.math.vector.Vec3f;
+import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -106,7 +106,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
         GlStateManager.pushMatrix();
         GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
 
-        GLHelper.rotate(rotation.getSmooth());
+        GlHelper.rotate(rotation.getSmooth());
 
         GlStateManager.callList(this.displayList);
         GlStateManager.popMatrix();
@@ -135,7 +135,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
         	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
         
-		GLHelper.rotate(rotation.getSmooth());
+		GlHelper.rotate(rotation.getSmooth());
         
         if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
         	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);

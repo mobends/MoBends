@@ -5,6 +5,7 @@ import net.gobbob.mobends.core.client.gui.CustomFont;
 import net.gobbob.mobends.core.client.gui.CustomFontRenderer;
 import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.IColorRead;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -34,7 +35,7 @@ public class GuiSectionButton
 	private boolean hover, pressed;
 	private float ticksAfterHovered = 0.0F;
 
-	public GuiSectionButton(int x, int y, String label, Color bgColor)
+	public GuiSectionButton(int x, int y, String label, IColorRead bgColor)
 	{
 		this.label = label;
 		this.x = x;
@@ -43,8 +44,8 @@ public class GuiSectionButton
 		this.height = 43;
 		this.bgTextureU = 0;
 		this.bgTextureV = 0;
-		this.neutralColor = Color.fromHex(0xFF777777);
-		this.bgColor = bgColor;
+		this.neutralColor = new Color(0xFF777777);
+		this.bgColor = new Color(bgColor);
 		this.hasLeftIcon = this.hasRightIcon = false;
 		this.hover = false;
 		this.pressed = false;
@@ -53,7 +54,7 @@ public class GuiSectionButton
 		this.fontRenderer.setFont(CustomFont.BOLD);
 	}
 
-	public GuiSectionButton(String label, Color bgColor)
+	public GuiSectionButton(String label, IColorRead bgColor)
 	{
 		this(0, 0, label, bgColor);
 	}

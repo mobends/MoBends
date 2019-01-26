@@ -1,4 +1,6 @@
-package net.gobbob.mobends.core.util;
+package net.gobbob.mobends.core.math;
+
+import net.gobbob.mobends.core.util.EnumAxis;
 
 public class SmoothOrientation
 {
