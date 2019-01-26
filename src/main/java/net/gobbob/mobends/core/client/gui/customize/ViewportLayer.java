@@ -1,22 +1,22 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.Project;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.Mesh;
-import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.math.Ray;
+import net.gobbob.mobends.core.math.TransformUtils;
+import net.gobbob.mobends.core.math.matrix.IMat4x4d;
+import net.gobbob.mobends.core.math.matrix.Mat4x4d;
+import net.gobbob.mobends.core.math.matrix.MatrixUtils;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
+import net.gobbob.mobends.core.math.vector.Vec3d;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
@@ -26,22 +26,18 @@ import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 
 public class ViewportLayer extends Gui implements IGuiLayer
 {
+	
 	private final ResourceLocation STAND_BLOCK_TEXTURE = new ResourceLocation(ModStatics.MODID, "textures/stand_block.png");
 	private final Minecraft mc;
 	private final ViewportCamera camera;
@@ -49,7 +45,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private int width, height;
 	private AlterEntry<?> alterEntryToView;
 	
-	private VertexBuffer buffer;
 	private Mesh standBlockMesh;
 	private Ray ray;
 	
@@ -78,10 +73,13 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		this.camera.anchorTo(anchorPoint.getX(), anchorPoint.getY(), anchorPoint.getZ(), 5);
 	}
 	
-	public void initGui(int x, int y)
+	@Override
+	public void handleResize(int width, int height)
 	{
-		this.x = x;
-		this.y = y;
+		this.width = width;
+		this.height = height;
+		float ratio = (float) mc.displayWidth / (float) mc.displayHeight;
+		this.camera.setupProjection(60.0F, ratio, 0.05F, 1000);
 	}
 
 	@Override
@@ -169,7 +167,8 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		
 		if (button == 0)
 		{
-			this.ray = new Ray(this.camera.getPosition(), this.camera.getForward());
+			//this.ray = new Ray(this.camera.getPosition(), this.camera.getForward());
+			this.ray = this.camera.getRayFromMouse(mouseX, mouseY, this.width, this.height);
 		}
 		
 		return eventHandled;
@@ -186,8 +185,9 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		GlStateManager.matrixMode(GL11.GL_PROJECTION);
 		GlStateManager.pushMatrix();
 		GlStateManager.loadIdentity();
-		float ratio = (float)mc.displayWidth / (float)mc.displayHeight;
-		Project.gluPerspective(60.0F, ratio, 0.05F, 1000);
+		//float ratio = (float)mc.displayWidth / (float)mc.displayHeight;
+		//Project.gluPerspective(60.0F, ratio, 0.05F, 1000);
+		this.camera.applyProjection();
 		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
 		GlStateManager.clearColor(0.1F, 0.17F, 0.2F, 1F);
 		GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -195,12 +195,12 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.loadIdentity();
-			this.camera.applyTransform();
+			this.camera.applyViewTransform();
 			
 			RenderHelper.enableStandardItemLighting();
 			GlStateManager.color(1, 1, 1);
 			mc.getTextureManager().bindTexture(STAND_BLOCK_TEXTURE);
-			//this.standBlockMesh.display();
+			this.standBlockMesh.display();
 			
 			GlStateManager.disableTexture2D();
 			
@@ -220,6 +220,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			renderLivingEntity(alterEntryToView);
 			
 			RenderHelper.disableStandardItemLighting();
+			
 			GlStateManager.popMatrix();
 		}
 		

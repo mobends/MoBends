@@ -1,19 +1,16 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
-import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
-
 import net.gobbob.mobends.core.math.Ray;
 import net.gobbob.mobends.core.math.TransformUtils;
+import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
+import net.gobbob.mobends.core.math.matrix.Mat4x4dBuffered;
 import net.gobbob.mobends.core.math.matrix.MatrixUtils;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3d;
 import net.gobbob.mobends.core.math.vector.Vec3f;
-import net.gobbob.mobends.core.math.vector.Vec4f;
+import net.gobbob.mobends.core.math.vector.Vec4d;
 import net.gobbob.mobends.core.util.GUtil;
-import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
@@ -40,8 +37,8 @@ public class ViewportCamera
 	private float anchorDistance = 0;
 	private boolean anchored = false;
 	
-	private Mat4x4d rotationMatrix;
-	private FloatBuffer rotationMatrixBuffer;
+	private Mat4x4dBuffered viewMatrix;
+	private Mat4x4dBuffered projectionMatrix;
 	
 	public ViewportCamera(float posX, float posY, float posZ, float angleYaw, float anglePitch)
 	{
@@ -53,12 +50,36 @@ public class ViewportCamera
 		this.forward = new Vec3f();
 		this.up = new Vec3f();
 		this.right = new Vec3f();
-		this.rotationMatrix = new Mat4x4d();
-		this.rotationMatrixBuffer = BufferUtils.createFloatBuffer(16);
+		this.viewMatrix = new Mat4x4dBuffered();
+		this.projectionMatrix = new Mat4x4dBuffered();
 		this.updateLocalSpace();
 		this.updateViewMatrix();
 	}
 
+	public void setupProjection(float fovy, float aspect, float zNear, float zFar)
+	{
+		float sine, cotangent, deltaZ;
+		float radians = fovy / 2 * GUtil.PI / 180;
+
+		deltaZ = zFar - zNear;
+		sine = (float) Math.sin(radians);
+
+		if ((deltaZ == 0) || (sine == 0) || (aspect == 0)) {
+			return;
+		}
+
+		cotangent = (float) Math.cos(radians) / sine;
+
+		MatrixUtils.identity(this.projectionMatrix);
+		this.projectionMatrix.set(0, 0, cotangent / aspect);
+		this.projectionMatrix.set(1, 1, cotangent);
+		this.projectionMatrix.set(2, 2, - (zFar + zNear) / deltaZ);
+		this.projectionMatrix.set(2, 3, -1);
+		this.projectionMatrix.set(3, 2, -2 * zNear * zFar / deltaZ);
+		this.projectionMatrix.set(3, 3, 0);
+		this.projectionMatrix.updateBuffer();
+	}
+	
 	public void setPosition(float x, float y, float z)
 	{
 		this.position.set(x, y, z);
@@ -131,10 +152,10 @@ public class ViewportCamera
 	public void rotatePitch(float angle)
 	{
 		this.anglePitch += angle;
-		if (this.anglePitch < -90.0F)
-			this.anglePitch = -90.0F;
-		if (this.anglePitch > 90.0F)
-			this.anglePitch = 90.0F;
+		if (this.anglePitch < -GUtil.PI/2)
+			this.anglePitch = -GUtil.PI/2;
+		if (this.anglePitch > GUtil.PI/2)
+			this.anglePitch = GUtil.PI/2;
 		
 		if (this.anchored)
 		{
@@ -144,10 +165,14 @@ public class ViewportCamera
 		this.updateLocalSpace();
 	}
 	
-	public void applyTransform()
+	public void applyProjection()
 	{
-		GlStateManager.multMatrix(this.rotationMatrixBuffer);
-		//GlStateManager.translate(-this.position.x, -this.position.y, -this.position.z);
+		GlStateManager.multMatrix(this.projectionMatrix.getBuffer());
+	}
+	
+	public void applyViewTransform()
+	{
+		GlStateManager.multMatrix(this.viewMatrix.getBuffer());
 	}
 
 	public void anchorTo(float x, float y, float z, float distance)
@@ -205,11 +230,11 @@ public class ViewportCamera
 	
 	private void updateViewMatrix()
 	{
-		MatrixUtils.identity(this.rotationMatrix);
-		TransformUtils.rotate(this.rotationMatrix, this.anglePitch, 1.0, 0.0, 0.0, this.rotationMatrix);
-		TransformUtils.rotate(this.rotationMatrix, this.angleYaw, 0.0, 1.0, 0.0, this.rotationMatrix);
-		TransformUtils.translate(this.rotationMatrix, -this.position.x, -this.position.y, -this.position.z, this.rotationMatrix);
-		MatrixUtils.matToGlMatrix(this.rotationMatrix, this.rotationMatrixBuffer);
+		MatrixUtils.identity(this.viewMatrix);
+		TransformUtils.rotate(this.viewMatrix, this.anglePitch, 1.0, 0.0, 0.0, this.viewMatrix);
+		TransformUtils.rotate(this.viewMatrix, this.angleYaw, 0.0, 1.0, 0.0, this.viewMatrix);
+		TransformUtils.translate(this.viewMatrix, -this.position.x, -this.position.y, -this.position.z, this.viewMatrix);
+		this.viewMatrix.updateBuffer();
 	}
 	
 	public void lookAt(float x, float y, float z)
@@ -250,15 +275,44 @@ public class ViewportCamera
 		return this.right;
 	}
 	
+	public IMat4x4d getViewMatrix()
+	{
+		return this.viewMatrix;
+	}
+	
+	public IMat4x4d getProjectionMatrix()
+	{
+		return this.projectionMatrix;
+	}
+	
 	public Ray getRayFromMouse(int mx, int my, int width, int height)
 	{
-		float nx = (float)mx / (float)width * 2 - 1;
-		float ny = 1 - (float)my / (float)height * 2;
+		float nx = ((float)mx / (float)width) * 2 - 1;
+		float ny = 1 - ((float)my / (float)height) * 2;
 		
-		// Z needs to go forward. W is 1 by default
-		Vec4f clip = new Vec4f(nx, ny, -1, 1);
+		// Z needs to go forward, W is by default
+		Vec4d clip = new Vec4d(nx, ny, -1, 1);
+		Vec4d eye = new Vec4d(0, 0, 0, 0);
 		
-		return new Ray(0, 0, 0, 0, 0, 0);
+		Mat4x4d inverseProj = new Mat4x4d();
+		MatrixUtils.inverse(this.projectionMatrix, inverseProj);
+		TransformUtils.transform(clip, inverseProj, eye);
+		eye.z = -1; // Pointing out from the camera
+		eye.w = 0; // It's not a point
+		
+		Mat4x4d inverseView = new Mat4x4d();
+		MatrixUtils.inverse(this.viewMatrix, inverseView);
+		Vec4d world = new Vec4d();
+		TransformUtils.transform(eye, inverseView, world);
+		
+		double length = Math.sqrt(world.x*world.x +
+								  world.y*world.y +
+								  world.z*world.z);
+		
+		return new Ray(this.position.x, this.position.y, this.position.z,
+					   (float)(world.x / length),
+					   (float)(world.y / length),
+					   (float)(world.z / length));
 	}
 	
 }

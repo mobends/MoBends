@@ -4,9 +4,8 @@ import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
 import net.gobbob.mobends.core.math.vector.IVec3d;
 import net.gobbob.mobends.core.math.vector.IVec3dRead;
-import net.gobbob.mobends.core.math.vector.Vec3d;
-import net.gobbob.mobends.core.math.vector.Vec3f;
-import net.gobbob.mobends.core.math.vector.VectorUtils;
+import net.gobbob.mobends.core.math.vector.IVec4d;
+import net.gobbob.mobends.core.math.vector.IVec4dRead;
 
 public class TransformUtils
 {
@@ -127,6 +126,34 @@ public class TransformUtils
 	public static void rotate(double angle, IVec3dRead axis, IMat4x4d dest)
 	{
 		rotate(Mat4x4d.ONE, angle, axis, dest);
+	}
+
+	public static void transform(IVec3dRead src, IMat4x4d mat, IVec3d dest)
+	{
+		double[] fields = mat.getFields();
+
+		final double x = src.getX();
+		final double y = src.getY();
+		final double z = src.getZ();
+		
+		dest.setX(x * fields[0] + y * fields[4] + z * fields[8] + fields[12]);
+		dest.setY(x * fields[1] + y * fields[5] + z * fields[9] + fields[13]);
+		dest.setZ(x * fields[2] + y * fields[6] + z * fields[10] + fields[14]);
+	}
+	
+	public static void transform(IVec4dRead src, IMat4x4d mat, IVec4d dest)
+	{
+		double[] fields = mat.getFields();
+
+		final double x = src.getX();
+		final double y = src.getY();
+		final double z = src.getZ();
+		final double w = src.getW();
+		
+		dest.setX(x * fields[0] + y * fields[4] + z * fields[8] + w * fields[12]);
+		dest.setY(x * fields[1] + y * fields[5] + z * fields[9] + w * fields[13]);
+		dest.setZ(x * fields[2] + y * fields[6] + z * fields[10] + w * fields[14]);
+		dest.setW(x * fields[3] + y * fields[7] + z * fields[11] + w * fields[15]);
 	}
 	
 }

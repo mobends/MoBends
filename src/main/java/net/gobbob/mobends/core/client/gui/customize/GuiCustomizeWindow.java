@@ -1,34 +1,27 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.core.client.gui.IChangeListener;
-import net.gobbob.mobends.core.client.gui.IObservable;
-import net.gobbob.mobends.core.client.gui.elements.GuiDropDownList;
-import net.gobbob.mobends.core.client.gui.elements.GuiIconButton;
-import net.gobbob.mobends.core.client.gui.elements.GuiPortraitDisplay;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
-import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import scala.actors.threadpool.Arrays;
 
-public class GuiCustomizeWindow extends Gui
+public class GuiCustomizeWindow extends GuiScreen
 {
-	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
-			"textures/gui/node_editor.png");
-	static final int WIDTH = 230;
-	static final int HEIGHT = 232;
 	
 	/*
 	 * Used to remember which AlterEntry was used last, so
@@ -37,10 +30,8 @@ public class GuiCustomizeWindow extends Gui
 	 */
 	protected static AlterEntry lastAlterEntryViewed = null;
 	
-	private int x, y;
-	private final FontRenderer fontRenderer;
+	private GuiScreen previousScreen;
 	
-	private final GuiBendsMenu mainMenu;
 	final List<AlterEntry<?>> alterEntries = new ArrayList<>();
 	AlterEntry currentAlterEntry;
 
@@ -51,9 +42,9 @@ public class GuiCustomizeWindow extends Gui
 	private int actionHistoryPointer = 0;
 	private boolean changesMade = false;
 	
-	public GuiCustomizeWindow(GuiBendsMenu mainMenu)
+	public GuiCustomizeWindow(GuiScreen previousScreen)
 	{
-		this.mainMenu = mainMenu;
+		this.previousScreen = previousScreen;
 		
 		for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.getRegistered())
 		{
@@ -72,50 +63,58 @@ public class GuiCustomizeWindow extends Gui
 		this.layers.add(this.headerLayer);
 		
 		this.viewportLayer.showAlterEntry(this.currentAlterEntry);
-		
-		this.x = 0;
-		this.y = 0;
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 	}
 
-	public void initGui(int x, int y)
+	@Override
+	public void initGui()
 	{
-		this.x = x;
-		this.y = y;
-		this.viewportLayer.initGui(x, y);
-		this.headerLayer.initGui(x, y);
+		super.initGui();
+		
+		this.headerLayer.initGui(0, 0);
+		
+		for (IGuiLayer layer : this.layers)
+		{
+			layer.handleResize(this.width, this.height);
+		}
 	}
 
-	public void display(int mouseX, int mouseY, float partialTicks)
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
 	{
 		//Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomizeWindow.BACKGROUND_TEXTURE);
 		//this.drawTexturedModalRect(this.x, this.y, 0, 0, WIDTH, HEIGHT);
 
-		this.drawCenteredString(this.fontRenderer, I18n.format("mobends.gui.customize"),
-				(int) (this.x + WIDTH/2), this.y + 4, 0xFFFFFF);
+		/*this.drawCenteredString(this.fontRenderer, I18n.format("mobends.gui.customize"),
+				(int) (this.x + WIDTH/2), this.y + 4, 0xFFFFFF);*/
 		
 		for (IGuiLayer layer : this.layers)
 		{
 			layer.draw();
 		}
 
-		if (!PackManager.isCurrentPackLocal())
+		/*if (!PackManager.isCurrentPackLocal())
 		{
 			this.drawCenteredString(fontRenderer, I18n.format("mobends.gui.chooseapacktoedit"),
 					this.x + WIDTH / 2, this.y + 135, 0xffffff);
 			
 			return;
-		}
+		}*/
 	}
 
-	public void update(int mouseX, int mouseY)
+	@Override
+	public void updateScreen()
 	{
+		int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+		int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+		
 		for (IGuiLayer layer : this.layers)
 		{
 			layer.update(mouseX, mouseY);
 		}
 	}
 
+	@Override
 	public void mouseClicked(int mouseX, int mouseY, int button)
 	{
 		for (int i = this.layers.size() - 1; i >= 0; --i)
@@ -125,6 +124,7 @@ public class GuiCustomizeWindow extends Gui
 		}
 	}
 
+	@Override
 	public void mouseReleased(int mouseX, int mouseY, int button)
 	{
 		for (int i = this.layers.size() - 1; i >= 0; --i)
@@ -134,8 +134,10 @@ public class GuiCustomizeWindow extends Gui
 		}
 	}
 
-	public void handleMouseInput()
+	@Override
+	public void handleMouseInput() throws IOException
 	{
+		super.handleMouseInput();
 		for (int i = this.layers.size() - 1; i >= 0; --i)
 		{
 			if (this.layers.get(i).handleMouseInput())
@@ -143,12 +145,24 @@ public class GuiCustomizeWindow extends Gui
 		}
 	}
 	
+	@Override
 	public void keyTyped(char typedChar, int keyCode)
 	{
+		boolean eventHandled = false;
+		
 		for (int i = this.layers.size() - 1; i >= 0; --i)
 		{
 			if (this.layers.get(i).handleKeyTyped(typedChar, keyCode))
+			{
+				eventHandled |= true;
 				break;
+			}
+		}
+		
+		if (!eventHandled && keyCode == Keyboard.KEY_ESCAPE)
+		{
+			goBack();
+			eventHandled = true;
 		}
 		
 		/*if (!PackManager.isCurrentPackLocal())
@@ -175,7 +189,7 @@ public class GuiCustomizeWindow extends Gui
 		
 		if (areChangesUnapplied())
 		{
-			mainMenu.popUpDiscardChanges(GuiBendsMenu.POPUP_CHANGETARGET);
+			//mainMenu.popUpDiscardChanges(GuiBendsMenu.POPUP_CHANGETARGET);
 		}
 		else
 		{
@@ -185,9 +199,27 @@ public class GuiCustomizeWindow extends Gui
 		}
 	}
 	
+	public void goBack()
+	{
+		if (PackManager.getCurrentPack() != null)
+		{
+			try
+			{
+				PackManager.getCurrentPack().save();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		this.mc.displayGuiScreen(this.previousScreen);
+	}
+	
 	public void performAction(IEditorAction<GuiCustomizeWindow> action)
 	{
 		action.perform(this);
 		this.actionHistory.add(action);
 	}
+
 }

@@ -44,7 +44,6 @@ public class GuiBendsMenu extends GuiScreen
 	int guiTab = 0;
 	static final int TAB_MAIN = 0;
 	static final int TAB_SETTINGS = 1;
-	static final int TAB_CUSTOMIZE = 2;
 	static final int TAB_PACKS = 3;
 	static final int TAB_ADDONS = 4;
 
@@ -54,13 +53,11 @@ public class GuiBendsMenu extends GuiScreen
 	public static final int POPUP_EXIT = 3;
 	public static final int POPUP_CREATEPACK = 4;
 	
-	
 	public int currentAlterEntry = 0;
 
 	private GuiSectionButton customizeButton;
 	private GuiSectionButton packsButton;
 	private GuiSectionButton addonsButton;
-	private GuiCustomizeWindow customizeWindow;
 	private GuiPopUp popUp;
 	private GuiPackEditor packEditor;
 	private GuiAddonsWindow addonsWindow;
@@ -80,7 +77,6 @@ public class GuiBendsMenu extends GuiScreen
 		this.addonsButton = new GuiSectionButton(I18n.format("mobends.gui.section.addons"), 0xFFFFE565)
 				.setLeftIcon(61, 43, 19, 18).setRightIcon(61, 43, 19, 18);
 		
-		this.customizeWindow = new GuiCustomizeWindow(this);
 		this.packEditor = new GuiPackEditor();
 		this.addonsWindow = new GuiAddonsWindow();
 		this.popUp = null;
@@ -92,7 +88,6 @@ public class GuiBendsMenu extends GuiScreen
 		this.guiLeft = (this.width - this.xSize) / 2;
 		this.guiTop = (this.height - this.ySize) / 2;
 		this.buttonList.clear();
-		this.customizeWindow.initGui(this.guiLeft, this.guiTop);
 		this.packEditor.initGui(this.width / 2, this.height / 2);
 		this.addonsWindow.initGui(this.width / 2, this.height / 2);
 		
@@ -112,22 +107,22 @@ public class GuiBendsMenu extends GuiScreen
 			this.buttonList.add(new GuiButton(0, 10, height - 30, 60, 20, "Back"));
 		}
 
-		if (this.guiTab == TAB_CUSTOMIZE)
-		{
-			/*if (PackManager.isCurrentPackLocal())
-			{
-				GuiButton applyButton = new GuiButton(4, guiLeft + xSize - 50 - 7, guiTop + 77 - 4, 50, 20,
-						I18n.format("mobends.gui.apply", new Object[0]));
-				applyButton.enabled = customizeWindow.areChangesUnapplied();
-				this.buttonList.add(applyButton);
-			}
-			else
-			{
-				String buttonTitle = I18n.format("mobends.gui.selectpack", new Object[0]);
-				this.buttonList.add(new GuiButton(5, (width - fontRenderer.getStringWidth(buttonTitle) - 20) / 2,
-						guiTop + 150, fontRenderer.getStringWidth(buttonTitle) + 20, 20, buttonTitle));
-			}*/
-		}
+//		if (this.guiTab == TAB_CUSTOMIZE)
+//		{
+//			if (PackManager.isCurrentPackLocal())
+//			{
+//				GuiButton applyButton = new GuiButton(4, guiLeft + xSize - 50 - 7, guiTop + 77 - 4, 50, 20,
+//						I18n.format("mobends.gui.apply", new Object[0]));
+//				applyButton.enabled = customizeWindow.areChangesUnapplied();
+//				this.buttonList.add(applyButton);
+//			}
+//			else
+//			{
+//				String buttonTitle = I18n.format("mobends.gui.selectpack", new Object[0]);
+//				this.buttonList.add(new GuiButton(5, (width - fontRenderer.getStringWidth(buttonTitle) - 20) / 2,
+//						guiTop + 150, fontRenderer.getStringWidth(buttonTitle) + 20, 20, buttonTitle));
+//			}
+//		}
 	}
 
 	public void openTab(int tab)
@@ -135,9 +130,6 @@ public class GuiBendsMenu extends GuiScreen
 		this.guiTab = tab;
 		switch (this.guiTab)
 		{
-			case TAB_CUSTOMIZE:
-				this.customizeWindow.initGui(this.guiLeft + 7, this.guiTop + 97);
-				break;
 			case TAB_PACKS:
 				this.packEditor.onOpened();
 				break;
@@ -175,9 +167,6 @@ public class GuiBendsMenu extends GuiScreen
 
 		switch (guiTab)
 		{
-			case TAB_CUSTOMIZE:
-				this.customizeWindow.keyTyped(typedChar, keyCode);
-				break;
 			case TAB_PACKS:
 				this.packEditor.keyTyped(typedChar, keyCode);
 				break;
@@ -197,22 +186,6 @@ public class GuiBendsMenu extends GuiScreen
 	{
 		Keyboard.enableRepeatEvents(false);
 		Core.saveConfiguration();
-		switch (guiTab)
-		{
-			case TAB_CUSTOMIZE:
-				if (PackManager.getCurrentPack() != null)
-				{
-					try
-					{
-						PackManager.getCurrentPack().save();
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-				}
-				break;
-		}
 	}
 
 	@Override
@@ -233,9 +206,6 @@ public class GuiBendsMenu extends GuiScreen
 				this.customizeButton.update(mouseX, mouseY);
 				this.packsButton.update(mouseX, mouseY);
 				this.addonsButton.update(mouseX, mouseY);
-				break;
-			case TAB_CUSTOMIZE:
-				this.customizeWindow.update(mouseX, mouseY);
 				break;
 			case TAB_PACKS:
 				this.packEditor.update(mouseX, mouseY);
@@ -301,7 +271,7 @@ public class GuiBendsMenu extends GuiScreen
 			case TAB_MAIN:
 				if (this.customizeButton.mouseClicked(x, y, state))
 				{
-					this.openTab(TAB_CUSTOMIZE);
+					this.mc.displayGuiScreen(new GuiCustomizeWindow(this));
 				}
 				else if (this.packsButton.mouseClicked(x, y, state))
 				{
@@ -312,9 +282,6 @@ public class GuiBendsMenu extends GuiScreen
 					this.openTab(TAB_ADDONS);
 				}
 				
-				break;
-			case TAB_CUSTOMIZE:
-				this.customizeWindow.mouseClicked(x, y, state);
 				break;
 			case TAB_PACKS:
 				this.packEditor.mouseClicked(x, y, state);
@@ -338,7 +305,6 @@ public class GuiBendsMenu extends GuiScreen
 		super.mouseReleased(mouseX, mouseY, state);
 		this.customizeButton.mouseReleased(mouseX, mouseY, state);
 		this.packsButton.mouseReleased(mouseX, mouseY, state);
-		this.customizeWindow.mouseReleased(mouseX, mouseY, state);
 		this.addonsWindow.mouseReleased(mouseX, mouseY, state);
 	}
 
@@ -353,9 +319,6 @@ public class GuiBendsMenu extends GuiScreen
 
 		switch (guiTab)
 		{
-			case TAB_CUSTOMIZE:
-				customizeWindow.handleMouseInput();
-				break;
 			case TAB_PACKS:
 				packEditor.handleMouseInput();
 				break;
@@ -372,16 +335,6 @@ public class GuiBendsMenu extends GuiScreen
 
 	protected void actionPerformed(GuiButton par1GuiButton)
 	{
-		if (par1GuiButton.id >= 100)
-		{
-			this.currentAlterEntry = par1GuiButton.id - 100;
-			this.openTab(TAB_CUSTOMIZE);
-		}
-		else if (par1GuiButton.id >= 10)
-		{
-			initGui();
-		}
-
 		switch (par1GuiButton.id)
 		{
 			case 0: // Back
@@ -438,9 +391,6 @@ public class GuiBendsMenu extends GuiScreen
 				this.customizeButton.display();
 				this.packsButton.display();
 				this.addonsButton.display();
-				break;
-			case TAB_CUSTOMIZE:
-				this.customizeWindow.display(mouseX, mouseY, partialTicks);
 				break;
 			case TAB_PACKS:
 				this.packEditor.display(mouseX, mouseY, partialTicks);

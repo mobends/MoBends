@@ -10,5 +10,6 @@ public interface IMatd
 	
 	void set(int c, int r, double value);
 	void setFields(double... values);
+	void scale(double scalar);
 	
 }

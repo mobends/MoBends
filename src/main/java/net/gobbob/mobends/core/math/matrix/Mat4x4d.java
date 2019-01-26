@@ -84,4 +84,13 @@ public class Mat4x4d implements IMat4x4d
 		}
 	}
 
+	@Override
+	public void scale(double scalar)
+	{
+		for (int i = 0; i < this.fields.length; ++i)
+		{
+			this.fields[i] *= scalar;
+		}
+	}
+
 }
