@@ -1,35 +1,49 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
 import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.core.util.IVec3fRead;
+import net.gobbob.mobends.core.util.Vec3f;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 
 public class ViewportCamera
 {
-	private float posX, posY, posZ;
+	
+	/**
+	 * The camera's origin relative to the viewport's origin.
+	 */
+	private Vec3f position;
+	
+	/**
+	 * These are calculated based on the current orientation of the camera.
+	 * Should be updated any time the orientation changes.
+	 */
+	private Vec3f forward;
+	private Vec3f up;
+	private Vec3f right;
+	
 	private float angleYaw, 	// around the Y axis
 				  anglePitch; 	// around the X axis
 	
-	private float anchorPointX,
-				  anchorPointY,
-				  anchorPointZ;
+	private Vec3f anchorPoint;
 	private float anchorDistance = 0;
 	private boolean anchored = false;
 	
 	public ViewportCamera(float posX, float posY, float posZ, float angleYaw, float anglePitch)
 	{
-		this.posX = posX;
-		this.posY = posY;
-		this.posZ = posZ;
+		this.position = new Vec3f(posX, posY, posZ);
+		this.anchorPoint = new Vec3f();
 		this.angleYaw = angleYaw;
 		this.anglePitch = anglePitch;
+		
+		this.forward = new Vec3f();
+		this.up = new Vec3f();
+		this.right = new Vec3f();
 	}
 	
 	public void setPosition(float x, float y, float z)
 	{
-		this.posX = x;
-		this.posY = y;
-		this.posZ = z;
+		this.position.set(x, y, z);
 	}
 	
 	/**
@@ -40,13 +54,16 @@ public class ViewportCamera
 	 */
 	public void moveGlobal(float x, float y, float z)
 	{
-		this.posX += x;
-		this.posY += y;
-		this.posZ += z;
+		this.position.add(x, y, z);
 	}
 	
 	public void moveForward(float amount)
 	{
+		if (this.anchored)
+		{
+			this.anchorPoint.add(this.forward.x * amount, this.forward.y * amount, this.forward.z * amount);
+			this.updateAsAnchored();
+		}
 		// TODO Implement
 	}
 	
@@ -80,6 +97,8 @@ public class ViewportCamera
 		{
 			this.updateAsAnchored();
 		}
+		
+		this.updateLocalSpace();
 	}
 	
 	public void rotatePitch(float angle)
@@ -94,20 +113,20 @@ public class ViewportCamera
 		{
 			this.updateAsAnchored();
 		}
+		
+		this.updateLocalSpace();
 	}
 	
 	public void applyTransform()
 	{
 		GlStateManager.rotate(this.anglePitch, 1.0F, 0.0F, 0.0F);
 		GlStateManager.rotate(this.angleYaw, 0.0F, 1.0F, 0.0F);
-		GlStateManager.translate(-this.posX, -this.posY, -this.posZ);
+		GlStateManager.translate(-this.position.x, -this.position.y, -this.position.z);
 	}
 
 	public void anchorTo(float x, float y, float z, float distance)
 	{
-		this.anchorPointX = x;
-		this.anchorPointY = y;
-		this.anchorPointZ = z;
+		this.anchorPoint.set(x, y, z);
 		this.anchorDistance = distance;
 		this.anchored = true;
 		this.updateAsAnchored();
@@ -120,24 +139,52 @@ public class ViewportCamera
 	
 	public void updateAsAnchored()
 	{
-		float yaw = this.angleYaw / 180F * GUtil.PI;
-		float pitch = this.anglePitch / 180F * GUtil.PI;
+		final float yaw = this.angleYaw / 180F * GUtil.PI;
+		final float pitch = this.anglePitch / 180F * GUtil.PI;
 		
-		float cosPitch = MathHelper.cos(pitch);
-		float dX = MathHelper.sin(yaw) * cosPitch;
-		float dZ = -MathHelper.cos(yaw) * cosPitch;
-		float dY = -MathHelper.sin(pitch);
+		final float cosPitch = MathHelper.cos(pitch);
+		final float dX = MathHelper.sin(yaw) * cosPitch;
+		final float dZ = -MathHelper.cos(yaw) * cosPitch;
+		final float dY = -MathHelper.sin(pitch);
 		
-		this.posX = this.anchorPointX - dX * this.anchorDistance;
-		this.posZ = this.anchorPointZ - dZ * this.anchorDistance;
-		this.posY = this.anchorPointY - dY * this.anchorDistance;
+		this.position.set(
+			this.anchorPoint.x - dX * this.anchorDistance,
+			this.anchorPoint.y - dY * this.anchorDistance,
+			this.anchorPoint.z - dZ * this.anchorDistance
+		);
+	}
+	
+	private void updateLocalSpace()
+	{
+		final float yaw = this.angleYaw / 180F * GUtil.PI;
+		final float pitch = this.anglePitch / 180F * GUtil.PI;
+		final float sinPitch = MathHelper.sin(pitch);
+		final float cosPitch = MathHelper.cos(pitch);
+		
+		this.forward.set(
+			MathHelper.sin(yaw) * cosPitch,
+			-MathHelper.sin(pitch),
+			-MathHelper.cos(yaw) * cosPitch
+		);
+		
+		this.up.set(
+			MathHelper.sin(yaw) * sinPitch,
+			MathHelper.cos(pitch),
+			-MathHelper.cos(yaw) * sinPitch
+		);
+		
+		this.right.set(
+			MathHelper.cos(yaw),
+			0,
+			MathHelper.sin(yaw)
+		);
 	}
 	
 	public void lookAt(float x, float y, float z)
 	{
-		float dX = this.anchorPointX - this.posX;
-		float dY = this.anchorPointY - this.posY;
-		float dZ = this.anchorPointZ - this.posZ;
+		float dX = this.anchorPoint.x - this.position.x;
+		float dY = this.anchorPoint.y - this.position.y;
+		float dZ = this.anchorPoint.z - this.position.z;
 		
 		this.lookInDirection(dX, dY, dZ);
 	}
@@ -147,5 +194,23 @@ public class ViewportCamera
 		this.angleYaw = (float) MathHelper.atan2(x, z) / GUtil.PI * 180F;
 		float xzLen = MathHelper.sqrt(x * x + z * z);
 		this.anglePitch = (float) MathHelper.atan2(xzLen, y) / GUtil.PI * 180F;
+		
+		this.updateLocalSpace();
 	}
+	
+	public IVec3fRead getForward()
+	{
+		return this.forward;
+	}
+	
+	public IVec3fRead getUp()
+	{
+		return this.up;
+	}
+	
+	public IVec3fRead getRight()
+	{
+		return this.right;
+	}
+	
 }

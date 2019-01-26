@@ -4,13 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.Quaternion;
 import net.gobbob.mobends.core.util.QuaternionUtils;
-import net.gobbob.mobends.core.util.Vector3;
+import net.gobbob.mobends.core.util.Vec3f;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
@@ -32,9 +31,9 @@ public class SwordTrail
 	{
 		public ModelPartTransform body, arm, foreArm;
 		public Quaternion renderRotation = new Quaternion();
-		public Vector3f renderOffset = new Vector3f();
+		public Vec3f renderOffset = new Vec3f();
 		public Quaternion itemRotation = new Quaternion();
-		public Vector3f position = new Vector3f();
+		public Vec3f position = new Vec3f();
 		
 		EnumHandSide primaryHand;
 		float velocityX, velocityY, velocityZ;
@@ -83,9 +82,9 @@ public class SwordTrail
 
 			GlStateManager.color(1, 1, 1, alpha);
 
-			Vector3[] points = new Vector3[] {
-					new Vector3(0, 0, -8 + 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)),
-					new Vector3(0, 0, -8 - 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0))
+			Vec3f[] points = new Vec3f[] {
+					new Vec3f(0, 0, -8 + 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0)),
+					new Vec3f(0, 0, -8 - 8 * alpha + (part.primaryHand == EnumHandSide.LEFT ? -8 : 0))
 			};
 			 
 			/*
@@ -113,7 +112,7 @@ public class SwordTrail
 			GUtil.rotate(points, part.renderRotation);
 			GUtil.translate(points, part.renderOffset.x, part.renderOffset.y, part.renderOffset.z);
 
-			for (Vector3 point : points)
+			for (Vec3f point : points)
 			{
 				point.x += part.position.x;
 				point.y += part.position.y;

@@ -8,9 +8,10 @@ import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.pack.BendsAction.EnumBoxProperty;
 import net.gobbob.mobends.core.util.EnumAxis;
+import net.gobbob.mobends.core.util.IVec3f;
 import net.gobbob.mobends.core.util.SmoothOrientation;
 import net.gobbob.mobends.core.util.SmoothVector3f;
-import net.gobbob.mobends.core.util.Vector3;
+import net.gobbob.mobends.core.util.Vec3f;
 
 public class BendsCondition
 {
@@ -83,14 +84,14 @@ public class BendsCondition
 			}
 			else if (action.property == EnumBoxProperty.SCALE)
 			{
-				Vector3 scale = box.getScale();
+				IVec3f scale = box.getScale();
 				
 				if (action.axis == null || action.axis == EnumAxis.X)
-					box.getScale().setX(action.getNumber(scale.x));
+					scale.setX(action.getNumber(scale.getX()));
 				if (action.axis == null || action.axis == EnumAxis.Y)
-					box.getScale().setY(action.getNumber(scale.y));
+					scale.setY(action.getNumber(scale.getY()));
 				if (action.axis == null || action.axis == EnumAxis.Z)
-					box.getScale().setZ(action.getNumber(scale.z));
+					scale.setZ(action.getNumber(scale.getZ()));
 			}
 		}
 	}

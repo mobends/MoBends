@@ -9,14 +9,16 @@ import org.lwjgl.util.glu.Project;
 
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
+import net.gobbob.mobends.core.client.Mesh;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.core.util.IVec3fRead;
 import net.gobbob.mobends.core.util.MeshBuilder;
-import net.gobbob.mobends.core.util.Vector3;
+import net.gobbob.mobends.core.util.Vec3f;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -45,6 +47,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private AlterEntry<?> alterEntryToView;
 	
 	private VertexBuffer buffer;
+	private Mesh standBlockMesh;
 	
 	public ViewportLayer()
 	{
@@ -55,23 +58,20 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		IBlockState state = Blocks.GRASS.getDefaultState();
 		IBakedModel model = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
 		
-		BufferBuilder bufferBuilder = new BufferBuilder(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL.getSize() * 24);
-		bufferBuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-		MeshBuilder.texturedSimpleCube(bufferBuilder, -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
-		bufferBuilder.finishDrawing();
-		
-		buffer = new VertexBuffer(bufferBuilder.getVertexFormat());
-		buffer.bufferData(bufferBuilder.getByteBuffer());
+		this.standBlockMesh = new Mesh(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL, 24);
+		this.standBlockMesh.beginDrawing(GL11.GL_QUADS);
+		MeshBuilder.texturedSimpleCube(this.standBlockMesh.getBufferBuilder(), -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
+		this.standBlockMesh.finishDrawing();
 	}
 	
 	public void showAlterEntry(AlterEntry<?> alterEntry)
 	{
 		this.alterEntryToView = alterEntry;
-		Vector3 anchorPoint = Vector3.ZERO;
+		IVec3fRead anchorPoint = Vec3f.ZERO;
 		IPreviewer previewer = alterEntry.getPreviewer();
 		if (previewer != null)
 			anchorPoint = previewer.getAnchorPoint();
-		this.camera.anchorTo(anchorPoint.x, anchorPoint.y, anchorPoint.z, 5);
+		this.camera.anchorTo(anchorPoint.getX(), anchorPoint.getY(), anchorPoint.getZ(), 5);
 	}
 	
 	public void initGui(int x, int y)
@@ -90,6 +90,8 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	{
 		boolean eventHandled = false;
 		
+		// Camera rotation
+		
 		float dx = Mouse.getEventDX();
 		float dy = Mouse.getEventDY();
 		
@@ -99,9 +101,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			this.camera.rotatePitch(dy * -1F);
 			eventHandled |= true;
 		}
+
+		// Mouse wheel
 		
 		int mouseWheelRoll = Mouse.getEventDWheel();
-
+		
 		if (mouseWheelRoll != 0)
 		{
 			mouseWheelRoll = mouseWheelRoll > 0 ? 1 : -1;
@@ -138,25 +142,15 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			RenderHelper.enableStandardItemLighting();
 			GlStateManager.color(1, 1, 1);
 			mc.getTextureManager().bindTexture(STAND_BLOCK_TEXTURE);
-			Tessellator tess = Tessellator.getInstance();
-			tess.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-			MeshBuilder.texturedSimpleCube(tess.getBuffer(), -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
-			tess.draw();
+			//this.standBlockMesh.display();
 			
-			//Draw.cube(0, 0, 0, 1, 1, 1, Color.BLUE);
-			final int BUF_SIZE = 128;
-			ByteBuffer buffer = ByteBuffer.allocateDirect(BUF_SIZE);
-			IntBuffer intBuffer = buffer.asIntBuffer();
-			
-			GL11.glSelectBuffer(intBuffer);
-			Project.gluPickMatrix(Mouse.getX(), Mouse.getY(), 4, 4, intBuffer);
-			GL11.glRenderMode(GL11.GL_SELECT);
+			GlStateManager.disableTexture2D();
+			IVec3fRead up = this.camera.getRight();
+			final float scale = 2;
+			Draw.line(0, 0, 0, up.getX() * scale, up.getY() * scale, up.getZ() * scale, Color.RED);
+			GlStateManager.enableTexture2D();
 			
 			renderLivingEntity(alterEntryToView);
-			
-			int hits = GL11.glRenderMode(GL11.GL_RENDER);
-			
-			//System.out.println(hits);
 			
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.popMatrix();

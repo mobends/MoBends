@@ -8,7 +8,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
-public class Draw {
+public class Draw
+{
+	
 	public static void rectangle(float x, float y, float w, float h){
 		GL11.glBegin(GL11.GL_QUADS);
 	        GL11.glTexCoord2f(0,0); GL11.glVertex3f((float)(x + 0), (float)(y + 0), (float)0);
@@ -245,5 +247,17 @@ public class Draw {
 		/* Bottom-Left	*/ Draw.texturedModalRect(x-border, y+height, textureX, textureY+border+1, border, border);
 		/* Left 		*/ Draw.texturedModalRect(x-border, y, border, height, textureX, textureY+border, border, 1);
 		/* Inside		*/ Draw.texturedModalRect(x, y, width, height, textureX+border, textureY+border, 1, 1);
+	}
+	
+	public static void line(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, Color color)
+	{
+		Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
+        vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+        
+        vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        
+        tessellator.draw();
 	}
 }

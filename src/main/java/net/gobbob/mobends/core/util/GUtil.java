@@ -58,19 +58,15 @@ public class GUtil
         return a;
 	}
 	
-	public static Vector3 translate(Vector3 vector, float x, float y, float z)
+	public static IVec3f translate(IVec3f vector, float x, float y, float z)
 	{
-		vector.x += x;
-		vector.y += y;
-		vector.z += z;
+		vector.add(x, y, z);
 		return vector;
 	}
 	
-	public static Vector3 scale(Vector3 vector, float x, float y, float z)
+	public static IVec3f scale(IVec3f vector, float x, float y, float z)
 	{
-		vector.x *= x;
-		vector.y *= y;
-		vector.z *= z;
+		vector.scale(x, y, z);
 		return vector;
 	}
 	
@@ -135,9 +131,9 @@ public class GUtil
 		return num;
 	}
 	
-	public static void rotate(Vector3[] points, Quaternion rotation)
+	public static void rotate(IVec3f[] points, Quaternion rotation)
 	{
-		for (Vector3 point : points)
+		for (IVec3f point : points)
 		{
 			QuaternionUtils.multiply(point, rotation, point);
 		}
@@ -156,18 +152,18 @@ public class GUtil
         return a + partialTicks * f;
     }
 	
-	public static Vector3[] translate(Vector3[] vectors, float x, float y, float z)
+	public static IVec3f[] translate(IVec3f[] vectors, float x, float y, float z)
 	{
-		for(Vector3 vector : vectors)
+		for(IVec3f vector : vectors)
 		{
 			translate(vector, x, y, z);
 		}
 		return vectors;
 	}
 	
-	public static Vector3[] scale(Vector3[] vectors, float x, float y, float z)
+	public static IVec3f[] scale(IVec3f[] vectors, float x, float y, float z)
 	{
-		for(Vector3 vector : vectors)
+		for(IVec3f vector : vectors)
 		{
 			scale(vector, x, y, z);
 		}

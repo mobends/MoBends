@@ -10,12 +10,12 @@ public class GLHelper
 {
 	private static final FloatBuffer BUF_FLOAT_16 = BufferUtils.createFloatBuffer(16);
 	
-	public static void vertex(final Vector3 vector)
+	public static void vertex(Vec3f vector)
 	{
 		GlStateManager.glVertex3f(vector.x, vector.y, vector.z);
 	}
 	
-	public static void rotate(Quaternion quaternionIn)
+	public static void rotate(final Quaternion quaternionIn)
     {
         GlStateManager.multMatrix(QuaternionUtils.quatToGlMatrix(BUF_FLOAT_16, quaternionIn));
     }

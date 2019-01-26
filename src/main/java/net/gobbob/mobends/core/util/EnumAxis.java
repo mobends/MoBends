@@ -1,5 +1,6 @@
 package net.gobbob.mobends.core.util;
 
-public enum EnumAxis {
+public enum EnumAxis
+{
 	X, Y, Z
 }

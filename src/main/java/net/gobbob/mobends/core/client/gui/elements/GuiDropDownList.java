@@ -182,7 +182,7 @@ public class GuiDropDownList<T> implements IObservable
 		if (!isEnabled())
 			return false;
 
-		int mouseWheelRoll = Mouse.getEventDWheel();
+		int mouseWheelRoll = -Mouse.getEventDWheel();
 		if (dropped && listHovered)
 		{
 			if (mouseWheelRoll != 0)
