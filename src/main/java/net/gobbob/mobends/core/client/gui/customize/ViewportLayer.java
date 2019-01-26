@@ -14,6 +14,7 @@ import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
 import net.gobbob.mobends.core.math.matrix.MatrixUtils;
+import net.gobbob.mobends.core.math.physics.AABBox;
 import net.gobbob.mobends.core.math.physics.Physics;
 import net.gobbob.mobends.core.math.physics.Plane;
 import net.gobbob.mobends.core.math.physics.Ray;
@@ -51,6 +52,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private Mesh standBlockMesh;
 	private Ray ray;
 	private Plane groundPlane;
+	private AABBox aabBox;
 	private Vec3f contactPoint;
 	
 	public ViewportLayer()
@@ -68,6 +70,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		this.standBlockMesh.finishDrawing();
 		
 		this.groundPlane = new Plane(0, 0, 0, 0, 1, 0);
+		this.aabBox = new AABBox(-1, -1, -1, 1, 1, 1);
 		this.contactPoint = new Vec3f();
 	}
 	
@@ -177,7 +180,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		{
 			//this.ray = new Ray(this.camera.getPosition(), this.camera.getForward());
 			this.ray = this.camera.getRayFromMouse(mouseX, mouseY, this.width, this.height);
-			RayHitInfo hit = Physics.castRay(this.ray, this.groundPlane);
+			RayHitInfo hit = Physics.intersect(this.ray, 1000, this.aabBox);
 			if (hit != null)
 			{
 				this.contactPoint.set(hit.hitPoint);
@@ -228,10 +231,16 @@ public class ViewportLayer extends Gui implements IGuiLayer
 						  Color.RED);
 			}
 			
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(this.contactPoint.x, this.contactPoint.y, this.contactPoint.z);
-			Draw.cube(-0.1, -0.1, -0.1, 0.1, 0.1, 0.1, Color.RED);
-			GlStateManager.popMatrix();
+			if (this.contactPoint != null)
+			{
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(this.contactPoint.x, this.contactPoint.y, this.contactPoint.z);
+				Draw.cube(-0.1, -0.1, -0.1, 0.1, 0.1, 0.1, Color.RED);
+				GlStateManager.popMatrix();
+			}
+			
+			Draw.cube(this.aabBox.min.getX(), this.aabBox.min.getY(), this.aabBox.min.getZ(),
+					  this.aabBox.max.getX(), this.aabBox.max.getY(), this.aabBox.max.getZ(), new Color(0, 0, 0, 0.5F));
 			
 			GlStateManager.enableTexture2D();
 			

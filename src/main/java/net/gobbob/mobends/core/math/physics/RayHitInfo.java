@@ -6,7 +6,7 @@ import net.gobbob.mobends.core.math.vector.Vec3fReadonly;
 public class RayHitInfo
 {
 	
-	public Vec3fReadonly hitPoint;
+	public final Vec3fReadonly hitPoint;
 	
 	public RayHitInfo(IVec3fRead hitPoint)
 	{

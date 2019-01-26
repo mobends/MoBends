@@ -6,8 +6,8 @@ import net.gobbob.mobends.core.math.vector.Vec3fReadonly;
 public class Ray
 {
 	
-	private Vec3fReadonly position;
-	private Vec3fReadonly direction;
+	public final Vec3fReadonly position;
+	public final Vec3fReadonly direction;
 	
 	public Ray(IVec3fRead position, IVec3fRead direction)
 	{

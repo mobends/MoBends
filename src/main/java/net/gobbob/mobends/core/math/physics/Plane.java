@@ -6,8 +6,8 @@ import net.gobbob.mobends.core.math.vector.Vec3fReadonly;
 public class Plane
 {
 	
-	private Vec3fReadonly position;
-	private Vec3fReadonly normal;
+	public final Vec3fReadonly position;
+	public final Vec3fReadonly normal;
 	
 	public Plane(IVec3fRead position, IVec3fRead normal)
 	{
