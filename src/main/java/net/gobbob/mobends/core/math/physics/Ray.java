@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.math;
+package net.gobbob.mobends.core.math.physics;
 
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3fReadonly;

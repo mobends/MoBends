@@ -10,11 +10,14 @@ import net.gobbob.mobends.core.client.Mesh;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
-import net.gobbob.mobends.core.math.Ray;
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
 import net.gobbob.mobends.core.math.matrix.MatrixUtils;
+import net.gobbob.mobends.core.math.physics.Physics;
+import net.gobbob.mobends.core.math.physics.Plane;
+import net.gobbob.mobends.core.math.physics.Ray;
+import net.gobbob.mobends.core.math.physics.RayHitInfo;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3d;
 import net.gobbob.mobends.core.math.vector.Vec3f;
@@ -47,6 +50,8 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	
 	private Mesh standBlockMesh;
 	private Ray ray;
+	private Plane groundPlane;
+	private Vec3f contactPoint;
 	
 	public ViewportLayer()
 	{
@@ -61,6 +66,9 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		this.standBlockMesh.beginDrawing(GL11.GL_QUADS);
 		MeshBuilder.texturedSimpleCube(this.standBlockMesh, -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
 		this.standBlockMesh.finishDrawing();
+		
+		this.groundPlane = new Plane(0, 0, 0, 0, 1, 0);
+		this.contactPoint = new Vec3f();
 	}
 	
 	public void showAlterEntry(AlterEntry<?> alterEntry)
@@ -169,6 +177,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		{
 			//this.ray = new Ray(this.camera.getPosition(), this.camera.getForward());
 			this.ray = this.camera.getRayFromMouse(mouseX, mouseY, this.width, this.height);
+			RayHitInfo hit = Physics.castRay(this.ray, this.groundPlane);
+			if (hit != null)
+			{
+				this.contactPoint.set(hit.hitPoint);
+			}
 		}
 		
 		return eventHandled;
@@ -200,7 +213,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			RenderHelper.enableStandardItemLighting();
 			GlStateManager.color(1, 1, 1);
 			mc.getTextureManager().bindTexture(STAND_BLOCK_TEXTURE);
-			this.standBlockMesh.display();
+			//this.standBlockMesh.display();
 			
 			GlStateManager.disableTexture2D();
 			
@@ -214,6 +227,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 						  pos.getX() + dir.getX() * scale, pos.getY() + dir.getY() * scale, pos.getZ() + dir.getZ() * scale,
 						  Color.RED);
 			}
+			
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(this.contactPoint.x, this.contactPoint.y, this.contactPoint.z);
+			Draw.cube(-0.1, -0.1, -0.1, 0.1, 0.1, 0.1, Color.RED);
+			GlStateManager.popMatrix();
 			
 			GlStateManager.enableTexture2D();
 			

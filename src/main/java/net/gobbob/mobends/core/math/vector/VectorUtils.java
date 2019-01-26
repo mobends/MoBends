@@ -45,7 +45,12 @@ public class VectorUtils
 		return vec;
 	}
 	
-	public static Vec3d getScaled(Vec3d vec, double a)
+	public static Vec3f getScaled(IVec3fRead vec, float a)
+	{
+		return new Vec3f(vec.getX() * a, vec.getY() * a, vec.getZ() * a);
+	}
+	
+	public static Vec3d getScaled(IVec3dRead vec, double a)
 	{
 		return new Vec3d(vec.getX() * a, vec.getY() * a, vec.getZ() * a);
 	}

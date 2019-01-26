@@ -130,41 +130,46 @@ public class Draw
 		GL11.glEnd();
 	}
 	
-	public static void cube(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, Color color)
+	public static void cube(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, IColorRead color)
 	{
+		final float r = color.getR();
+		final float g = color.getG();
+		final float b = color.getB();
+		final float a = color.getA();
+		
 		Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuffer();
         vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         // NEG_X
-        vertexbuffer.pos(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, maxY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, minY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, maxY, maxZ).color(r, g, b, a).endVertex();
         // POS_X
-        vertexbuffer.pos(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(maxX, maxY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).color(r, g, b, a).endVertex();
         // NEG_Z
-        vertexbuffer.pos(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, maxY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, maxY, minZ).color(r, g, b, a).endVertex();
         // POS_Z
-        vertexbuffer.pos(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, maxY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, minY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).color(r, g, b, a).endVertex();
         // NEG_Y
-        vertexbuffer.pos(minX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(minX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, minY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, minY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, minY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).color(r, g, b, a).endVertex();
         // POS_Y
-        vertexbuffer.pos(minX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(minX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, maxY, minZ).color(color.r, color.g, color.b, color.a).endVertex();
-        vertexbuffer.pos(maxX, maxY, maxZ).color(color.r, color.g, color.b, color.a).endVertex();
+        vertexbuffer.pos(minX, maxY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, maxY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, maxY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).color(r, g, b, a).endVertex();
         tessellator.draw();
 	}
 	
