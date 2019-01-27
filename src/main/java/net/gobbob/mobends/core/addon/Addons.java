@@ -5,6 +5,15 @@ import java.util.List;
 
 import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
 
+/**
+ * The class responsible for managing the registered addons.
+ * 
+ * -- FOR ADDON DEVELOPERS: --
+ * Don't use this class directly. Use the AddonHelper class instead.
+ * 
+ * @author Iwo Plaza
+ *
+ */
 public class Addons
 {
 
@@ -37,6 +46,11 @@ public class Addons
 	public static void onClientTick()
 	{
 		INSTANCE.addons.forEach( addon -> addon.onClientTick() );
+	}
+	
+	public static void onRefresh()
+	{
+		INSTANCE.addons.forEach( addon -> addon.onRefresh() );
 	}
 	
 }

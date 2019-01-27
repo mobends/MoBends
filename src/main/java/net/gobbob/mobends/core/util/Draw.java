@@ -11,7 +11,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 public class Draw
 {
 	
-	public static void rectangle(float x, float y, float w, float h){
+	public static void rectangle(float x, float y, float w, float h)
+	{
 		GL11.glBegin(GL11.GL_QUADS);
 	        GL11.glTexCoord2f(0,0); GL11.glVertex3f((float)(x + 0), (float)(y + 0), (float)0);
 	        GL11.glTexCoord2f(0,1); GL11.glVertex3f((float)(x + 0), (float)(y + h), (float)0);
@@ -20,7 +21,8 @@ public class Draw
 	    GL11.glEnd();
 	}
 	
-	public static void rectangle_xgradient(float x, float y, float w, float h,Color color0,Color color1){
+	public static void rectangle_xgradient(float x, float y, float w, float h,Color color0,Color color1)
+	{
 		GL11.glEnable(GL11.GL_BLEND);
     	GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE_MINUS_SRC_ALPHA);
     	GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);
@@ -139,37 +141,37 @@ public class Draw
 		
 		Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuffer();
-        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
         // NEG_X
-        vertexbuffer.pos(minX, maxY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, minY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, minY, maxZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, maxY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, maxY, minZ).tex(0, 0).color(r, g, b, a).normal(-1, 0, 0).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).tex(0, 0).color(r, g, b, a).normal(-1, 0, 0).endVertex();
+        vertexbuffer.pos(minX, minY, maxZ).tex(0, 0).color(r, g, b, a).normal(-1, 0, 0).endVertex();
+        vertexbuffer.pos(minX, maxY, maxZ).tex(0, 0).color(r, g, b, a).normal(-1, 0, 0).endVertex();
         // POS_X
-        vertexbuffer.pos(maxX, maxY, maxZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, minY, maxZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, minY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, maxY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).tex(0, 0).color(r, g, b, a).normal(1, 0, 0).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).tex(0, 0).color(r, g, b, a).normal(1, 0, 0).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).tex(0, 0).color(r, g, b, a).normal(1, 0, 0).endVertex();
+        vertexbuffer.pos(maxX, maxY, minZ).tex(0, 0).color(r, g, b, a).normal(1, 0, 0).endVertex();
         // NEG_Z
-        vertexbuffer.pos(maxX, maxY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, minY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, minY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, maxY, minZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, maxY, minZ).tex(0, 0).color(r, g, b, a).normal(0, 0, -1).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).tex(0, 0).color(r, g, b, a).normal(0, 0, -1).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).tex(0, 0).color(r, g, b, a).normal(0, 0, -1).endVertex();
+        vertexbuffer.pos(minX, maxY, minZ).tex(0, 0).color(r, g, b, a).normal(0, 0, -1).endVertex();
         // POS_Z
-        vertexbuffer.pos(minX, maxY, maxZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, minY, maxZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, minY, maxZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, maxY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, maxY, maxZ).tex(0, 0).color(r, g, b, a).normal(0, 0, 1).endVertex();
+        vertexbuffer.pos(minX, minY, maxZ).tex(0, 0).color(r, g, b, a).normal(0, 0, 1).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).tex(0, 0).color(r, g, b, a).normal(0, 0, 1).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).tex(0, 0).color(r, g, b, a).normal(0, 0, 1).endVertex();
         // NEG_Y
-        vertexbuffer.pos(minX, minY, maxZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, minY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, minY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, minY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(minX, minY, maxZ).tex(0, 0).color(r, g, b, a).normal(0, -1, 0).endVertex();
+        vertexbuffer.pos(minX, minY, minZ).tex(0, 0).color(r, g, b, a).normal(0, -1, 0).endVertex();
+        vertexbuffer.pos(maxX, minY, minZ).tex(0, 0).color(r, g, b, a).normal(0, -1, 0).endVertex();
+        vertexbuffer.pos(maxX, minY, maxZ).tex(0, 0).color(r, g, b, a).normal(0, -1, 0).endVertex();
         // POS_Y
-        vertexbuffer.pos(maxX, maxY, maxZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(maxX, maxY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, maxY, minZ).color(r, g, b, a).endVertex();
-        vertexbuffer.pos(minX, maxY, maxZ).color(r, g, b, a).endVertex();
+        vertexbuffer.pos(maxX, maxY, maxZ).tex(0, 0).color(r, g, b, a).normal(0, 1, 0).endVertex();
+        vertexbuffer.pos(maxX, maxY, minZ).tex(0, 0).color(r, g, b, a).normal(0, 1, 0).endVertex();
+        vertexbuffer.pos(minX, maxY, minZ).tex(0, 0).color(r, g, b, a).normal(0, 1, 0).endVertex();
+        vertexbuffer.pos(minX, maxY, maxZ).tex(0, 0).color(r, g, b, a).normal(0, 1, 0).endVertex();
         tessellator.draw();
 	}
 	

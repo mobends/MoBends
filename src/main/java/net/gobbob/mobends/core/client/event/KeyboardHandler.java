@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
+import net.gobbob.mobends.core.addon.Addons;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.minecraft.client.Minecraft;
@@ -17,6 +17,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 
 public class KeyboardHandler
 {
+	
 	private static final KeyBinding KEY_MENU = new KeyBinding("Mo'Bends Menu", Keyboard.KEY_G, "GobBob's Mods");
 	private static final KeyBinding KEY_REFRESH = new KeyBinding("Mo'Bends Refresh", Keyboard.KEY_F10, "GobBob's Mods");
 
@@ -38,7 +39,8 @@ public class KeyboardHandler
 		{
 			EntityDatabase.instance.refresh();
 			AnimatedEntityRegistry.refreshMutators();
-			ArmorModelFactory.refresh();
+			Addons.onRefresh();
 		}
 	}
+	
 }

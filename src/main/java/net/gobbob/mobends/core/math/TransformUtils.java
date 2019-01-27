@@ -11,6 +11,15 @@ import net.gobbob.mobends.core.math.vector.IVec4dRead;
 public class TransformUtils
 {
 	
+	/**
+	 * This translates the src matrix by (x, y, z) and stores the result in dest.
+	 * This method works well even if src and dest point to the same matrix.
+	 * @param src The matrix to translate
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @param dest The matrix to store the result in.
+	 */
 	public static void translate(IMat4x4d src, double x, double y, double z, IMat4x4d dest)
 	{
 		double[] srcFields = src.getFields();
@@ -19,6 +28,18 @@ public class TransformUtils
 		dest.set(3, 1, srcFields[1] * x + srcFields[5] * y + srcFields[9] * z + srcFields[13]);
 		dest.set(3, 2, srcFields[2] * x + srcFields[6] * y + srcFields[10] * z + srcFields[14]);
 		dest.set(3, 3, srcFields[3] * x + srcFields[7] * y + srcFields[11] * z + srcFields[15]);
+	}
+	
+	/**
+	 * @see #translate(IMat4x4d, double, double, double, IMat4x4d)
+	 * @param src The matrix to translate and store the result in.
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	public static void translate(IMat4x4d src, double x, double y, double z)
+	{
+		translate(src, x, y, z, src);
 	}
 	
 	public static void rotateX(IVec3dRead src, double angle, IVec3d dest)
@@ -159,10 +180,15 @@ public class TransformUtils
 
 	public static void rotate(IMat4x4d src, Quaternion quat, IMat4x4d dest)
 	{
-		Mat4x4d rotation = new Mat4x4d();
+		Mat4x4d rotation = new Mat4x4d(Mat4x4d.IDENTITY);
 		QuaternionUtils.quatToMat(quat, rotation);
 		
 		MatrixUtils.multiply(src, rotation, dest);
+	}
+	
+	public static void rotate(IMat4x4d src, Quaternion quat)
+	{
+		rotate(src, quat, src);
 	}
 
 	public static void scale(IMat4x4d src, double x, double y, double z, IMat4x4d dest)
@@ -175,12 +201,16 @@ public class TransformUtils
 		});
 		
 		MatrixUtils.multiply(src, scaleMat, dest);
-		
 	}
 	
 	public static void scale(IMat4x4d src, IVec3dRead scale, IMat4x4d dest)
 	{
 		scale(src, scale.getX(), scale.getY(), scale.getZ(), dest);
+	}
+	
+	public static void scale(IMat4x4d src, double x, double y, double z)
+	{
+		scale(src, x, y, z, src);
 	}
 	
 }

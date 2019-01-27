@@ -1,8 +1,8 @@
 package net.gobbob.mobends.standard.client.renderer.entity.layers;
 
-import net.gobbob.mobends.core.client.model.entity.armor.ArmorModelFactory;
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
+import net.gobbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
 {
+	
     public LayerCustomBipedArmor(RenderLivingBase<?> rendererIn)
     {
         super(rendererIn);
@@ -22,8 +23,6 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
     @Override
     public void initArmor()
     {
-        //this.modelLeggings = new ModelBipedArmorM(0.5F);
-        //this.modelArmor = new ModelBipedArmorM(1.0F);
     	this.modelLeggings = new ModelBiped(0.5F);
         this.modelArmor = new ModelBiped(1.0F);
     }
@@ -75,4 +74,5 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
     		return suggestedModel;
     	}
     }
+    
 }

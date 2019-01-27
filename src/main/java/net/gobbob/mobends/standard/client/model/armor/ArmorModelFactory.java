@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.client.model.entity.armor;
+package net.gobbob.mobends.standard.client.model.armor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,8 @@ import net.minecraft.client.model.ModelBiped;
 
 public class ArmorModelFactory
 {
-	protected static Map<ModelBiped, ModelBipedArmorCustom> customArchive = new HashMap<ModelBiped, ModelBipedArmorCustom>();
+	
+	protected static Map<ModelBiped, MutatedArmorModel> customArchive = new HashMap<ModelBiped, MutatedArmorModel>();
 
 	public static ModelBiped getArmorModel(ModelBiped suggested)
 	{
@@ -20,19 +21,19 @@ public class ArmorModelFactory
 		else
 		{
 			System.out.println("Creating a custom armor model from " + suggested);
-			custom = ModelBipedArmorCustom.createFrom(suggested);
-			customArchive.put(suggested, (ModelBipedArmorCustom) custom);
+			custom = MutatedArmorModel.createFrom(suggested);
+			customArchive.put(suggested, (MutatedArmorModel) custom);
 		}
 		return custom;
 	}
 
-	/*
+	/**
 	 * This ensures that each armor's mutation state is
 	 * in sync with it's AnimatedEntity counterpart.
 	 */
 	public static void updateMutation()
 	{
-		for (ModelBipedArmorCustom model : customArchive.values())
+		for (MutatedArmorModel model : customArchive.values())
 		{
 			model.updateMutation();
 		}
@@ -40,10 +41,11 @@ public class ArmorModelFactory
 	
 	public static void refresh()
 	{
-		for (ModelBipedArmorCustom model : customArchive.values())
+		for (MutatedArmorModel model : customArchive.values())
 		{
 			model.demutate();
 		}
 		customArchive.clear();
 	}
+
 }

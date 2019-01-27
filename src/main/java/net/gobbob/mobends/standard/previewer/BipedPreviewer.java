@@ -2,13 +2,15 @@ package net.gobbob.mobends.standard.previewer;
 
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.math.vector.Vec3f;
+import net.gobbob.mobends.core.math.vector.IVec3fRead;
+import net.gobbob.mobends.core.math.vector.Vec3fReadonly;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.renderer.GlStateManager;
 
 public class BipedPreviewer<D extends BipedEntityData<?>> implements IPreviewer<D>
 {
-	private static final Vec3f viewportAnchor = new Vec3f(0, 1.3F, 0);
+	
+	private static final Vec3fReadonly VIEWPORT_ANCHOR = new Vec3fReadonly(0, 1.3F, 0);
 	
 	@Override
 	public void prePreview(D data, String animationToPreview)
@@ -74,5 +76,6 @@ public class BipedPreviewer<D extends BipedEntityData<?>> implements IPreviewer<
 	public void postPreview(D data, String animationToPreview) {}
 	
 	@Override
-	public Vec3f getAnchorPoint() { return viewportAnchor; }
+	public IVec3fRead getAnchorPoint() { return VIEWPORT_ANCHOR; }
+	
 }

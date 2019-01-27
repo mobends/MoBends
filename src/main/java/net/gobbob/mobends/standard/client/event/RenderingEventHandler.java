@@ -2,7 +2,7 @@ package net.gobbob.mobends.standard.client.event;
 
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
+import net.gobbob.mobends.standard.mutators.PlayerMutator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderPlayer;

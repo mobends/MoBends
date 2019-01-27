@@ -34,4 +34,5 @@ public class ClientProxy extends CommonProxy
 	{
 		Core.createAsClient();
 	}
+	
 }

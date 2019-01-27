@@ -11,8 +11,9 @@ import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.math.TransformUtils;
+import net.gobbob.mobends.core.math.matrix.Mat3x3d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
-import net.gobbob.mobends.core.math.physics.AABBox;
+import net.gobbob.mobends.core.math.matrix.MatrixUtils;
 import net.gobbob.mobends.core.math.physics.OBBox;
 import net.gobbob.mobends.core.math.physics.Physics;
 import net.gobbob.mobends.core.math.physics.Plane;
@@ -74,7 +75,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		Mat4x4d mat = new Mat4x4d(Mat4x4d.IDENTITY);
 		TransformUtils.translate(mat, 0, 0, -4, mat);
 		TransformUtils.rotate(mat, Math.PI/4, 0, 1, 0, mat);
-		this.obBox = new OBBox(-1, -1, -1, 1, 1, 1, mat);
+		this.obBox = new OBBox(-0.2F, -0.2F, -0.2F, 0.2F, 0.2F, 0.2F, mat);
 		this.contactPoint = new Vec3f();
 	}
 	
@@ -189,6 +190,26 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			{
 				this.contactPoint.set(hit.hitPoint);
 			}
+			
+			Mat4x4d matA = new Mat4x4d(new double[] {
+				1, 0, 0, 0, // First column
+				0, 1, 0, 0, // Second column
+				0, 0, 1, 0, // Third column
+				0, 0.75, 0, 1
+			});
+			Mat4x4d matB = new Mat4x4d(new double[] {
+				0.7071067811865476, 0, -0.7071067811865475, 0,
+				0, 1, 0, 0,
+				0.7071067811865475, 0, 	0.7071067811865476, 0,
+				0, 0, 0, 1
+			});
+			
+			Mat4x4d res = new Mat4x4d();
+			MatrixUtils.multiply(matA, matB, res);
+			System.out.println("\n" + MatrixUtils.toString(matA));
+			System.out.println("\n" + MatrixUtils.toString(matB));
+			System.out.println("\n" + MatrixUtils.toString(res));
+			System.out.println("\n\n\n");
 		}
 		
 		return eventHandled;
@@ -250,23 +271,32 @@ public class ViewportLayer extends Gui implements IGuiLayer
 					  this.obBox.max.getX(), this.obBox.max.getY(), this.obBox.max.getZ(), new Color(0, 0, 0, 0.5F));
 			GlStateManager.popMatrix();
 			
+			GlStateManager.enableTexture2D();
+			
+			renderLivingEntity(this.alterEntryToView);
+			
+			GlStateManager.disableTexture2D();
+			
 			if (alterEntryToView instanceof PlayerAlterEntry)
 			{
 				GlStateManager.pushMatrix();
 				
+				Mat4x4d mat = new Mat4x4d(Mat4x4d.IDENTITY);
+				TransformUtils.scale(mat, -1, 1, -1);
+				alterEntryToView.transformModelToCharacterSpace(mat);
+				
 				PlayerData data = (PlayerData) alterEntryToView.getDataForPreview();
-				Mat4x4d mat = new Mat4x4d();
-				data.head.getWorldTransform(0.625F, mat);
+				
+				data.leftForeArm.applyCharacterSpaceTransform(0.0625F, mat);
 				GlHelper.transform(mat);
+				//GlStateManager.translate(0, -0.5F, 0);
 				Draw.cube(this.obBox.min.getX(), this.obBox.min.getY(), this.obBox.min.getZ(),
 						  this.obBox.max.getX(), this.obBox.max.getY(), this.obBox.max.getZ(), Color.GREEN);
 				
 				GlStateManager.popMatrix();
 			}
 			
-			GlStateManager.enableTexture2D();
 			
-			renderLivingEntity(alterEntryToView);
 			
 			RenderHelper.disableStandardItemLighting();
 			
@@ -310,14 +340,14 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		@SuppressWarnings("unchecked")
 		IPreviewer<LivingEntityData<?>> previewer = (IPreviewer<LivingEntityData<?>>) alterEntry.getPreviewer();
 		
-//		if (previewer != null)
-//			previewer.prePreview(data, this.animationToPreview);
+		if (previewer != null)
+			previewer.prePreview(data, "walk");
 		
 		Minecraft.getMinecraft().getRenderManager().renderEntity(living, 0.0D, 0.0D, 0.0D, 0.0F, 1.0f,
 				false);
 		
-//		if (previewer != null)
-//			previewer.postPreview(data, this.animationToPreview);
+		if (previewer != null)
+			previewer.postPreview(data, "walk");
 		
 		living.renderYawOffset = f2;
 		living.rotationYaw = f3;

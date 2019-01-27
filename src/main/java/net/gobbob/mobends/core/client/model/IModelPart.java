@@ -26,25 +26,23 @@ public interface IModelPart
 	IVec3f getScale();
 	SmoothOrientation getRotation();
 	IModelPart getParent();
-	void getLocalTransform(float scale, IMat4x4d dest);
+	void applyLocalSpaceTransform(float scale, IMat4x4d dest);
 	
 	boolean isShowing();
 	void setVisible(boolean showModel);
 	
 	void syncUp(IModelPart part);
 	
-	default void getWorldTransform(float scale, IMat4x4d dest)
+	default void applyCharacterSpaceTransform(float scale, IMat4x4d matrix)
 	{
 		if (this.getParent() != null)
 		{
-			this.getParent().getWorldTransform(scale, dest);
-			Mat4x4d local = new Mat4x4d();
-			this.getLocalTransform(scale, local);
-			MatrixUtils.multiply(dest, local, dest);
+			this.getParent().applyCharacterSpaceTransform(scale, matrix);
+			this.applyLocalSpaceTransform(scale, matrix);
 		}
 		else
 		{
-			this.getLocalTransform(scale, dest);
+			this.applyLocalSpaceTransform(scale, matrix);
 		}
 	}
 	

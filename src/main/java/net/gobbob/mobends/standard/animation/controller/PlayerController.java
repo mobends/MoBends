@@ -272,7 +272,7 @@ public class PlayerController extends Controller<PlayerData>
 			}
 		}
 
-		data.body.rotation.orientInstantX(DataUpdateHandler.getTicks() * 10);
+		//data.body.rotation.orientInstantZ(-45);
 		
 		List<String> actions = new ArrayList<String>();
 		layerBase.perform(data, actions);

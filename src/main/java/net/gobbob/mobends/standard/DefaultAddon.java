@@ -4,12 +4,7 @@ import java.util.Arrays;
 
 import net.gobbob.mobends.core.addon.IAddon;
 import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
-import net.gobbob.mobends.standard.client.mutators.PigZombieMutator;
-import net.gobbob.mobends.standard.client.mutators.PlayerMutator;
-import net.gobbob.mobends.standard.client.mutators.SpiderMutator;
-import net.gobbob.mobends.standard.client.mutators.SquidMutator;
-import net.gobbob.mobends.standard.client.mutators.ZombieMutator;
-import net.gobbob.mobends.standard.client.mutators.ZombieVillagerMutator;
+import net.gobbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import net.gobbob.mobends.standard.client.renderer.entity.ArrowTrail;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.PlayerRenderer;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.SpiderRenderer;
@@ -22,6 +17,12 @@ import net.gobbob.mobends.standard.data.SquidData;
 import net.gobbob.mobends.standard.data.ZombieData;
 import net.gobbob.mobends.standard.data.ZombieVillagerData;
 import net.gobbob.mobends.standard.main.ModConfig;
+import net.gobbob.mobends.standard.mutators.PigZombieMutator;
+import net.gobbob.mobends.standard.mutators.PlayerMutator;
+import net.gobbob.mobends.standard.mutators.SpiderMutator;
+import net.gobbob.mobends.standard.mutators.SquidMutator;
+import net.gobbob.mobends.standard.mutators.ZombieMutator;
+import net.gobbob.mobends.standard.mutators.ZombieVillagerMutator;
 import net.gobbob.mobends.standard.previewer.BipedPreviewer;
 import net.gobbob.mobends.standard.previewer.PlayerPreviewer;
 import net.gobbob.mobends.standard.previewer.SpiderPreviewer;
@@ -104,6 +105,12 @@ public class DefaultAddon implements IAddon
 	public void onClientTick()
 	{
 		PlayerPreviewer.updatePreviewDataClient();
+	}
+	
+	@Override
+	public void onRefresh()
+	{
+		ArmorModelFactory.refresh();
 	}
 	
 	@Override

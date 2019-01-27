@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.client.model.entity.armor;
+package net.gobbob.mobends.standard.client.model.armor;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -20,6 +20,8 @@ import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.mutators.BoxMutator;
 import net.gobbob.mobends.core.util.ModelUtils;
 import net.gobbob.mobends.standard.data.BipedEntityData;
+import net.gobbob.mobends.standard.data.PlayerData;
+import net.gobbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -27,8 +29,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
 
-public class ModelBipedArmorCustom extends ModelBiped
+public class MutatedArmorModel extends ModelBiped
 {
+	
 	protected ModelBiped original;
 	protected List<Field> gatheredFields;
 	/*
@@ -63,7 +66,7 @@ public class ModelBipedArmorCustom extends ModelBiped
 	protected List<ModelPartContainer> leftForeArmParts, rightForeArmParts;
 	protected List<ModelPartContainer> leftForeLegParts, rightForeLegParts;
 
-	public ModelBipedArmorCustom(ModelBiped original)
+	public MutatedArmorModel(ModelBiped original)
 	{
 		this.original = original;
 		this.gatheredFields = new ArrayList<>();
@@ -177,6 +180,11 @@ public class ModelBipedArmorCustom extends ModelBiped
 		EntityData<?> entityData = EntityDatabase.instance.get(entityIn);
 		if (!(entityData instanceof BipedEntityData))
 			return;
+		
+		if (entityData instanceof PlayerData && PlayerPreviewer.isPreviewInProgress())
+		{
+			entityData = PlayerPreviewer.getPreviewData();
+		}
 
 		BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
 
@@ -618,11 +626,12 @@ public class ModelBipedArmorCustom extends ModelBiped
 		}
 	}
 	
-	public static ModelBipedArmorCustom createFrom(ModelBiped src)
+	public static MutatedArmorModel createFrom(ModelBiped src)
 	{
-		ModelBipedArmorCustom customModel = new ModelBipedArmorCustom(src);
+		MutatedArmorModel customModel = new MutatedArmorModel(src);
 		customModel.mutate();
 
 		return customModel;
 	}
+	
 }

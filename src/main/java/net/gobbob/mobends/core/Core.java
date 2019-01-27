@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class Core
 {
+	
 	public static Core INSTANCE;
 	public static final Logger LOG = Logger.getLogger("mobends-core");
 	
@@ -60,4 +61,5 @@ public class Core
 	{
 		INSTANCE.configuration.save();
 	}
+	
 }

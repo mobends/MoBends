@@ -1,4 +1,4 @@
-package net.gobbob.mobends.standard.client.mutators;
+package net.gobbob.mobends.standard.mutators;
 
 import net.gobbob.mobends.core.client.model.ModelPartChild;
 import net.gobbob.mobends.core.data.IEntityDataFactory;

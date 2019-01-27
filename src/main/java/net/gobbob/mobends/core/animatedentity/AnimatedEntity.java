@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class AnimatedEntity<T extends EntityLivingBase>
 {
+	
 	private final String key;
 	private final String unlocalizedName;
 	private final List<AlterEntry<T>> alterEntries;
@@ -206,4 +207,5 @@ public class AnimatedEntity<T extends EntityLivingBase>
 			return null;
 		return ae.mutatorMap.get(renderer);
 	}
+	
 }

@@ -135,18 +135,61 @@ public class MatrixUtils
 		if (aCols != bRows)
 			return;
 		
-		int dim  = aCols > aRows ? aRows : aCols;
+		double[] newFields = new double[bCols * aRows];
 		
 		for (int i = 0; i < bCols; ++i) // Columns
 		{
 			for (int j = 0; j < aRows; ++j) // Rows
 			{
 				double dot = 0;
+				newFields[i * aRows + j] = 0;
 				for (int k = 0; k < aCols; k++)
-					dot += aFields[k * aRows + j] * bFields[i * bRows + k];
-				dest.set(i, j, dot);
+					newFields[i * aRows + j] += aFields[k * aRows + j] * bFields[i * bRows + k];
 			}
 		}
+		
+		dest.setFields(newFields);
+	}
+	
+	public static String toString(IMatd a)
+	{
+		final double[] fields = a.getFields();
+		final int cols = a.getCols();
+		final int rows = a.getRows();
+		StringBuilder builder = new StringBuilder();
+		
+		int maxRowLength = 0;
+		
+		for (int r = 0; r < rows; ++r)
+		{
+			int rowLength = 4; // Starts at 4, the combined length of the borders
+			builder.append("[ ");
+			for (int c = 0; c < cols; ++c)
+			{
+				double cell = fields[c * rows + r];
+				String cellString = String.valueOf(cell);
+				builder.append(cellString);
+				rowLength += cellString.length();
+				if (c < cols-1)
+				{
+					builder.append(", ");
+					rowLength += 2;
+				}
+			}
+			builder.append(" ]\n");
+			
+			if (rowLength > maxRowLength)
+				maxRowLength = rowLength;
+		}
+		
+		builder.insert(0, '\n');
+		for (int i = 0; i < maxRowLength; i++)
+		{
+			builder.insert(0, '-');
+			builder.append('-');
+		}
+		
+		return builder.toString();
 	}
 	
 }

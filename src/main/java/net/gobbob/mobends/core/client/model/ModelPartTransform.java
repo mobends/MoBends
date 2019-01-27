@@ -1,5 +1,6 @@
 package net.gobbob.mobends.core.client.model;
 
+import net.gobbob.mobends.core.math.Quaternion;
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
@@ -111,13 +112,15 @@ public class ModelPartTransform implements IModelPart
 	}
 
 	@Override
-	public void getLocalTransform(float scale, IMat4x4d dest)
+	public void applyLocalSpaceTransform(float scale, IMat4x4d matrix)
 	{
-    	TransformUtils.translate(Mat4x4d.IDENTITY, this.position.x * scale, this.position.y * scale, this.position.z * scale, dest);
-    	TransformUtils.rotate(dest, rotation.getSmooth(), dest);
+		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
+			TransformUtils.translate(matrix, this.position.x * scale, this.position.y * scale, this.position.z * scale);
     	
-    	if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
-    		TransformUtils.scale(dest, this.scale.x, this.scale.y, this.scale.z, dest);
+		TransformUtils.rotate(matrix, this.rotation.getSmooth());
+		
+    	/*if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
+    		TransformUtils.scale(dest, this.scale.x, this.scale.y, this.scale.z, dest);*/
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public class CoreServer extends Core
 {
+	
 	@Override
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -19,4 +20,5 @@ public class CoreServer extends Core
 		NetworkConfiguration.instance.allowModelScaling = config.getBoolean("AllowModelScaling", "Server", false,
 				"Does the server allow scaling of the player model more than the normal size?");
 	}
+	
 }

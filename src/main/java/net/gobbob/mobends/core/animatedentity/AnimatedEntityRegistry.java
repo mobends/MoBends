@@ -8,6 +8,7 @@ import net.minecraftforge.common.config.Configuration;
 
 public class AnimatedEntityRegistry
 {
+	
 	static final AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
 	
 	private final HashMap<Class<? extends EntityLivingBase>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<>();
@@ -64,4 +65,5 @@ public class AnimatedEntityRegistry
 		for (AnimatedEntity<?> animatedEntity : INSTANCE.entityClassToInstanceMap.values())
 			animatedEntity.refreshMutation();
 	}
+	
 }
