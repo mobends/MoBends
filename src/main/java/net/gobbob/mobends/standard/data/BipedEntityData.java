@@ -41,17 +41,17 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	{
 		super.initModelPose();
 		
-		this.head = new ModelPartTransform();
-		this.headwear = new ModelPartTransform();
 		this.body = new ModelPartTransform();
-		this.rightArm = new ModelPartTransform();
-		this.leftArm = new ModelPartTransform();
+		this.head = new ModelPartTransform(this.body);
+		this.headwear = new ModelPartTransform(this.head);
+		this.rightArm = new ModelPartTransform(this.body);
+		this.leftArm = new ModelPartTransform(this.body);
 		this.rightLeg = new ModelPartTransform();
 		this.leftLeg = new ModelPartTransform();
-		this.rightForeArm = new ModelPartTransform();
-		this.leftForeArm = new ModelPartTransform();
-		this.rightForeLeg = new ModelPartTransform();
-		this.leftForeLeg = new ModelPartTransform();
+		this.rightForeArm = new ModelPartTransform(this.rightArm);
+		this.leftForeArm = new ModelPartTransform(this.leftArm);
+		this.rightForeLeg = new ModelPartTransform(this.rightLeg);
+		this.leftForeLeg = new ModelPartTransform(this.leftLeg);
 		this.renderRightItemRotation = new SmoothOrientation();
 		this.renderLeftItemRotation = new SmoothOrientation();
 		

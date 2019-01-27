@@ -92,8 +92,8 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		float armY = this.smallArms ? -9.5F : -10F;
 		
 		original.bipedLeftArm = leftArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 32, 48)
-				.setParent(body)
 				.setHideLikeParent(false)
+				.setParent(body)
 				.setPosition(5.0F, armY, 0.0F)
 				.setBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
 				.offsetBoxBy(-0.01f, 0, -0.01f)
@@ -101,8 +101,8 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 				.updateVertices()
 				.setVisibility(ModelBox.BOTTOM, false);
 		original.bipedRightArm = rightArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16)
-				.setParent(body)
 				.setHideLikeParent(false)
+				.setParent(body)
 				.setPosition(-5.0F, armY, 0.0F)
 				.setBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
 				.offsetBoxBy(-0.01f, 0, -0.01f)
@@ -128,7 +128,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		rightArm.setExtension(rightForeArm);
 		
 		// Wear
-		original.bipedBodyWear = bodywear = new ModelPartChild(original, 16, 32).setParent(body);
+		original.bipedBodyWear = bodywear = (ModelPartChild) new ModelPartChild(original, 16, 32).setParent(body);
 		bodywear.addBox(-4F, -12F, -2F, 8, 12, 4, scaleFactor + 0.25F);
 		
 		original.bipedLeftArmwear = leftArmwear = (ModelPartChild) new ModelPartChild(original, 48, 48)

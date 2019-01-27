@@ -11,21 +11,22 @@ import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.math.TransformUtils;
-import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
-import net.gobbob.mobends.core.math.matrix.MatrixUtils;
 import net.gobbob.mobends.core.math.physics.AABBox;
+import net.gobbob.mobends.core.math.physics.OBBox;
 import net.gobbob.mobends.core.math.physics.Physics;
 import net.gobbob.mobends.core.math.physics.Plane;
 import net.gobbob.mobends.core.math.physics.Ray;
 import net.gobbob.mobends.core.math.physics.RayHitInfo;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
-import net.gobbob.mobends.core.math.vector.Vec3d;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.core.util.GlHelper;
 import net.gobbob.mobends.core.util.MeshBuilder;
+import net.gobbob.mobends.standard.PlayerAlterEntry;
+import net.gobbob.mobends.standard.data.PlayerData;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -52,7 +53,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private Mesh standBlockMesh;
 	private Ray ray;
 	private Plane groundPlane;
-	private AABBox aabBox;
+	private OBBox obBox;
 	private Vec3f contactPoint;
 	
 	public ViewportLayer()
@@ -70,7 +71,10 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		this.standBlockMesh.finishDrawing();
 		
 		this.groundPlane = new Plane(0, 0, 0, 0, 1, 0);
-		this.aabBox = new AABBox(-1, -1, -1, 1, 1, 1);
+		Mat4x4d mat = new Mat4x4d(Mat4x4d.IDENTITY);
+		TransformUtils.translate(mat, 0, 0, -4, mat);
+		TransformUtils.rotate(mat, Math.PI/4, 0, 1, 0, mat);
+		this.obBox = new OBBox(-1, -1, -1, 1, 1, 1, mat);
 		this.contactPoint = new Vec3f();
 	}
 	
@@ -180,7 +184,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		{
 			//this.ray = new Ray(this.camera.getPosition(), this.camera.getForward());
 			this.ray = this.camera.getRayFromMouse(mouseX, mouseY, this.width, this.height);
-			RayHitInfo hit = Physics.intersect(this.ray, 1000, this.aabBox);
+			RayHitInfo hit = Physics.intersect(this.ray, 1000, this.obBox);
 			if (hit != null)
 			{
 				this.contactPoint.set(hit.hitPoint);
@@ -239,8 +243,26 @@ public class ViewportLayer extends Gui implements IGuiLayer
 				GlStateManager.popMatrix();
 			}
 			
-			Draw.cube(this.aabBox.min.getX(), this.aabBox.min.getY(), this.aabBox.min.getZ(),
-					  this.aabBox.max.getX(), this.aabBox.max.getY(), this.aabBox.max.getZ(), new Color(0, 0, 0, 0.5F));
+			GlStateManager.pushMatrix();
+			GlHelper.transform(this.obBox.transform);
+			double[] fields = this.obBox.transform.getFields();
+			Draw.cube(this.obBox.min.getX(), this.obBox.min.getY(), this.obBox.min.getZ(),
+					  this.obBox.max.getX(), this.obBox.max.getY(), this.obBox.max.getZ(), new Color(0, 0, 0, 0.5F));
+			GlStateManager.popMatrix();
+			
+			if (alterEntryToView instanceof PlayerAlterEntry)
+			{
+				GlStateManager.pushMatrix();
+				
+				PlayerData data = (PlayerData) alterEntryToView.getDataForPreview();
+				Mat4x4d mat = new Mat4x4d();
+				data.head.getWorldTransform(0.625F, mat);
+				GlHelper.transform(mat);
+				Draw.cube(this.obBox.min.getX(), this.obBox.min.getY(), this.obBox.min.getZ(),
+						  this.obBox.max.getX(), this.obBox.max.getY(), this.obBox.max.getZ(), Color.GREEN);
+				
+				GlStateManager.popMatrix();
+			}
 			
 			GlStateManager.enableTexture2D();
 			

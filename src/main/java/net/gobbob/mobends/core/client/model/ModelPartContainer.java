@@ -1,6 +1,10 @@
 package net.gobbob.mobends.core.client.model;
 
 import net.gobbob.mobends.core.math.SmoothOrientation;
+import net.gobbob.mobends.core.math.TransformUtils;
+import net.gobbob.mobends.core.math.matrix.IMat4x4d;
+import net.gobbob.mobends.core.math.matrix.Mat4x4d;
+import net.gobbob.mobends.core.math.matrix.MatrixUtils;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
@@ -199,4 +203,18 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	{
 		this.showModel = showModel;
 	}
+
+	@Override
+	public void getLocalTransform(float scale, IMat4x4d dest)
+	{
+		TransformUtils.translate(Mat4x4d.IDENTITY, this.position.x * scale, this.position.y * scale, this.position.z * scale, dest);
+		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
+			TransformUtils.translate(dest, this.offset.x * scale, this.offset.y * scale, this.offset.z * scale, dest);
+		
+    	TransformUtils.rotate(dest, rotation.getSmooth(), dest);
+    	
+    	if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
+    		TransformUtils.scale(dest, this.scale.x, this.scale.y, this.scale.z, dest);
+	}
+	
 }

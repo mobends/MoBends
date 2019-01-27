@@ -2,8 +2,10 @@ package net.gobbob.mobends.core.math.physics;
 
 import javax.annotation.Nullable;
 
+import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.vector.IVec3f;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
+import net.gobbob.mobends.core.math.vector.Vec3d;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.math.vector.VectorUtils;
 
@@ -52,11 +54,6 @@ public class Physics
 		final float dirInvZ = 1 / dirZ;
 		
 		float tMin, min, tMax, max;
-		float[] b = new float[] {
-			dirInvX < 0 ? 1 : 0,
-			dirInvY < 0 ? 1 : 0,
-			dirInvZ < 0 ? 1 : 0,
-		};
 		
 		// X Axis
 		tMin = ((dirInvX < 0 ? box.max.getX() : box.min.getX()) - rayX) * dirInvX;
@@ -78,10 +75,108 @@ public class Physics
 		if (min > tMin) tMin = min;
 		if (max < tMax) tMax = max;
 		
-		//float txMin = (box.min.getX() - ray.position.getX()) / dirX;
-		//float txMax = (box.max.getX() - ray.position.getX()) / dirX;
-		
 		return new RayHitInfo(rayX + dirX * tMin, rayY + dirY * tMin, rayZ + dirZ * tMin);
+	}
+	
+	public static RayHitInfo intersect(Ray ray, float maxDistance, OBBox box)
+	{
+		final double[] fields = box.transform.getFields();
+		final float rayX = ray.position.getX();
+		final float rayY = ray.position.getY();
+		final float rayZ = ray.position.getZ();
+		final float boxX = (float) fields[12];
+		final float boxY = (float) fields[13];
+		final float boxZ = (float) fields[14];
+		final Vec3f right = new Vec3f((float) fields[0], (float) fields[1], (float) fields[2]);
+		final Vec3f up = new Vec3f((float) fields[4], (float) fields[5], (float) fields[6]);
+		final Vec3f forward = new Vec3f((float) fields[8], (float) fields[9], (float) fields[10]);
+		
+		Vec3f rayToBox = new Vec3f(boxX - rayX, boxY - rayY, boxZ - rayZ);
+		float nomLen, denomLen;
+		float tMin = 0F, tMax = Float.POSITIVE_INFINITY;
+		
+		// X Axis
+		nomLen = VectorUtils.dot(right,  rayToBox);
+		denomLen = VectorUtils.dot(ray.direction, right);
+		
+		if (Math.abs(denomLen) > 0.00001)
+		{
+			float min = (nomLen + box.min.getX()) / denomLen;
+			float max = (nomLen + box.max.getX()) / denomLen;
+			
+			if (min > max)
+			{
+				float t = min;
+				min = max;
+				max = t;
+			}
+			
+			if (max < tMax) tMax = max;
+			if (min > tMin) tMin = min;
+			
+			if (tMax < tMin) return null;
+		}
+		else
+		{
+			if (-nomLen + box.min.getX() > 0 || -nomLen + box.max.getX() < 0)
+				return null;
+		}
+		
+		// Y Axis
+		nomLen = VectorUtils.dot(up, rayToBox);
+		denomLen = VectorUtils.dot(ray.direction, up);
+		
+		if (Math.abs(denomLen) > 0.00001)
+		{
+			float min = (nomLen + box.min.getY()) / denomLen;
+			float max = (nomLen + box.max.getY()) / denomLen;
+			
+			if (min > max)
+			{
+				float t = min;
+				min = max;
+				max = t;
+			}
+			
+			if (max < tMax) tMax = max;
+			if (min > tMin) tMin = min;
+			
+			if (tMax < tMin) return null;
+		}
+		else
+		{
+			if (-nomLen + box.min.getY() > 0 || -nomLen + box.max.getY() < 0)
+				return null;
+		}
+		
+		// Z Axis
+		nomLen = VectorUtils.dot(forward, rayToBox);
+		denomLen = VectorUtils.dot(ray.direction, forward);
+		
+		if (Math.abs(denomLen) > 0.00001)
+		{
+			float min = (nomLen + box.min.getZ()) / denomLen;
+			float max = (nomLen + box.max.getZ()) / denomLen;
+			
+			if (min > max)
+			{
+				float t = min;
+				min = max;
+				max = t;
+			}
+			
+			if (max < tMax) tMax = max;
+			if (min > tMin) tMin = min;
+			
+			if (tMax < tMin) return null;
+		}
+		else
+		{
+			if (-nomLen + box.min.getZ() > 0 || -nomLen + box.max.getZ() < 0)
+				return null;
+		}
+		
+		return new RayHitInfo(rayX + ray.direction.getX() * tMin, rayY + ray.direction.getY() * tMin, rayZ + ray.direction.getZ() * tMin);
 	}
 	
 }

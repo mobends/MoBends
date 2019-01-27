@@ -2,6 +2,7 @@ package net.gobbob.mobends.core.math;
 
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
+import net.gobbob.mobends.core.math.matrix.MatrixUtils;
 import net.gobbob.mobends.core.math.vector.IVec3d;
 import net.gobbob.mobends.core.math.vector.IVec3dRead;
 import net.gobbob.mobends.core.math.vector.IVec4d;
@@ -154,6 +155,32 @@ public class TransformUtils
 		dest.setY(x * fields[1] + y * fields[5] + z * fields[9] + w * fields[13]);
 		dest.setZ(x * fields[2] + y * fields[6] + z * fields[10] + w * fields[14]);
 		dest.setW(x * fields[3] + y * fields[7] + z * fields[11] + w * fields[15]);
+	}
+
+	public static void rotate(IMat4x4d src, Quaternion quat, IMat4x4d dest)
+	{
+		Mat4x4d rotation = new Mat4x4d();
+		QuaternionUtils.quatToMat(quat, rotation);
+		
+		MatrixUtils.multiply(src, rotation, dest);
+	}
+
+	public static void scale(IMat4x4d src, double x, double y, double z, IMat4x4d dest)
+	{
+		Mat4x4d scaleMat = new Mat4x4d(new double[] {
+			x, 0, 0, 0,
+			0, y, 0, 0,
+			0, 0, z, 0,
+			0, 0, 0, 1
+		});
+		
+		MatrixUtils.multiply(src, scaleMat, dest);
+		
+	}
+	
+	public static void scale(IMat4x4d src, IVec3dRead scale, IMat4x4d dest)
+	{
+		scale(src, scale.getX(), scale.getY(), scale.getZ(), dest);
 	}
 	
 }

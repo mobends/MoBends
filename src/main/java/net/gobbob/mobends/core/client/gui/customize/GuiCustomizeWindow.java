@@ -169,6 +169,12 @@ public class GuiCustomizeWindow extends GuiScreen
 			return;*/
 	}
 
+	@Override
+	public boolean doesGuiPauseGame()
+    {
+        return false;
+    }
+	
 	public boolean areChangesUnapplied()
 	{
 		return this.changesMade;

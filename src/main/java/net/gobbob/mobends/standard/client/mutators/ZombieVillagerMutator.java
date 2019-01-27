@@ -33,8 +33,8 @@ public class ZombieVillagerMutator extends ZombieMutatorBase<ZombieVillagerData,
 		boolean success = super.createParts(original, scaleFactor);
 		
 		original.bipedHead = this.head = (ModelPartChild) new ModelPartChild(original, 0, 0)
-				.setParent(body)
 				.setHideLikeParent(false)
+				.setParent(body)
 				.setPosition(0.0F, -12.0F, 0.0F)
 				.setBox(-4.0F, -10.0F, -4.0F, 8, 10, 8, scaleFactor);
 

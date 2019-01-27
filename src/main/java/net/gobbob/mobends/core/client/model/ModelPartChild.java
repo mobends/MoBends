@@ -4,10 +4,11 @@ import net.minecraft.client.model.ModelBase;
 
 public class ModelPartChild extends ModelPart
 {
-	protected IModelPart parent;
+	
 	protected boolean hideLikeParent = false;
 	
-	public ModelPartChild(ModelBase model, boolean register, int texOffsetX, int texOffsetY) {
+	public ModelPartChild(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
+	{
 		super(model, register, texOffsetX, texOffsetY);
 	}
 	
@@ -20,14 +21,9 @@ public class ModelPartChild extends ModelPart
     {
 		this(model, true, texOffsetX, texOffsetY);
     }
-    
-	public ModelPartChild setParent(IModelPart parent)
-	{
-		this.parent = parent;
-		return this;
-	}
 	
-	public ModelPartChild setHideLikeParent(boolean flag){
+	public ModelPartChild setHideLikeParent(boolean flag)
+	{
 		this.hideLikeParent = flag;
 		return this;
 	}
@@ -40,4 +36,5 @@ public class ModelPartChild extends ModelPart
 		
 		super.applyStandaloneTransform(scale);
     }
+	
 }

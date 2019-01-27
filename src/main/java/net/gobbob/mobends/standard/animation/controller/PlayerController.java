@@ -9,6 +9,7 @@ import net.gobbob.mobends.core.animation.controller.Controller;
 import net.gobbob.mobends.core.animation.keyframe.ArmatureMask;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.animation.layer.KeyframeAnimationLayer;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
 import net.gobbob.mobends.standard.DefaultAddon;
@@ -271,6 +272,8 @@ public class PlayerController extends Controller<PlayerData>
 			}
 		}
 
+		data.body.rotation.orientInstantX(DataUpdateHandler.getTicks() * 10);
+		
 		List<String> actions = new ArrayList<String>();
 		layerBase.perform(data, actions);
 		layerSneak.perform(data, actions);
