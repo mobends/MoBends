@@ -1,9 +1,11 @@
 package net.gobbob.mobends.core.math.physics;
 
+import java.util.Collections;
+
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3fReadonly;
 
-public class AABBox
+public class AABBox implements IAABBox
 {
 	
 	public final Vec3fReadonly min;
@@ -19,6 +21,18 @@ public class AABBox
 	{
 		this.min = new Vec3fReadonly(x0, y0, z0);
 		this.max = new Vec3fReadonly(z1, y1, z1);
+	}
+
+	@Override
+	public IVec3fRead getMin()
+	{
+		return this.min;
+	}
+
+	@Override
+	public IVec3fRead getMax()
+	{
+		return this.max;
 	}
 	
 }

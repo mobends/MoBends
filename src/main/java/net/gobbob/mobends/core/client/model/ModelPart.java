@@ -1,14 +1,18 @@
 package net.gobbob.mobends.core.client.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
-import net.gobbob.mobends.core.math.matrix.Mat4x4d;
-import net.gobbob.mobends.core.math.matrix.MatrixUtils;
+import net.gobbob.mobends.core.math.physics.AABBox;
+import net.gobbob.mobends.core.math.physics.IAABBox;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.model.TextureOffset;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
@@ -22,25 +26,24 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	public Vec3f position;
 	public Vec3f scale;
 	public SmoothOrientation rotation;
-	public int texOffsetX, texOffsetY;
-	
-	public boolean compiled;
-	protected int displayList;
+	protected List<MutatedBox> mutatedBoxes;
 	
 	/**
-	 * This parts parent, if it has one.
+	 * This part's parent, if it has one.
 	 */
 	protected IModelPart parent;
+	protected AABBox bounds;
 	
 	public ModelPart(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
 	{
-		super(model, texOffsetY, texOffsetY);
+		super(model, texOffsetX, texOffsetY);
 		this.position = new Vec3f();
 		this.scale = new Vec3f(1, 1, 1);
 		this.rotation = new SmoothOrientation();
-		this.texOffsetX = texOffsetX;
-        this.texOffsetY = texOffsetY;
-        if(!register)
+        
+		this.mutatedBoxes = new ArrayList<MutatedBox>();
+		
+        if (!register)
         	model.boxList.remove(model.boxList.size() - 1);
 	}
 	
@@ -80,6 +83,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
                 ((ModelRenderer)this.childModels.get(k)).render(scale);
             }
         }
+        
         GlStateManager.popMatrix();
 	}
 	
@@ -152,12 +156,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	}
 	
 	@Override
-	public void propagateTransform(float scale)
-	{
-		this.applyOwnTransform(scale);
-	}
-	
-	@Override
 	public void applyPostTransform(float scale)
 	{
 	}
@@ -174,7 +172,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 
         for (int i = 0; i < this.cubeList.size(); ++i)
         {
-            ((ModelBox)this.cubeList.get(i)).render(bufferbuilder, scale);
+            ((MutatedBox)this.cubeList.get(i)).render(bufferbuilder, scale);
         }
 
         GlStateManager.glEndList();
@@ -221,38 +219,59 @@ public class ModelPart extends ModelRenderer implements IModelPart
 		return this;
 	}
 	
-	public ModelPart setBox(float x, float y, float z, int width, int height, int length, float scaleFactor)
+	public BoxFactory developBox(float x, float y, float z, int dx, int dy, int dz, float scaleFactor)
+	{
+		return new BoxFactory(x, y, z, dx, dy, dz, scaleFactor).setTarget(this);
+	}
+	
+	public ModelPart addBox(MutatedBox box)
+	{
+		this.mutatedBoxes.add(box);
+		this.cubeList.add(box);
+		this.compiled = false;
+		return this;
+	}
+	
+	public ModelPart addModelBox(float x, float y, float z, int width, int height, int length, float scaleFactor)
+	{
+		return this.addBox(new MutatedBox(this, this.textureOffsetX, this.textureOffsetY, x, y, z, width, height, length, scaleFactor));
+	}
+	
+	@Override
+	public ModelPart addBox(String partName, float offX, float offY, float offZ, int width, int height, int depth)
     {
-        this.addBox(x, y, z, width, height, length, scaleFactor);
-        return this;
+        partName = this.boxName + "." + partName;
+        TextureOffset textureoffset = this.baseModel.getTextureOffset(partName);
+        this.setTextureOffset(textureoffset.textureOffsetX, textureoffset.textureOffsetY);
+        return this.addBox((MutatedBox) new MutatedBox(this, this.textureOffsetX, this.textureOffsetY, offX, offY, offZ, width, height, depth, 0.0F).setBoxName(partName));
+    }
+
+	@Override
+    public ModelPart addBox(float offX, float offY, float offZ, int width, int height, int depth)
+    {
+		return this.addBox(new MutatedBox(this, this.textureOffsetX, this.textureOffsetY, offX, offY, offZ, width, height, depth, 0.0F));
+    }
+
+	@Override
+    public ModelPart addBox(float offX, float offY, float offZ, int width, int height, int depth, boolean mirrored)
+    {
+		return this.addBox(new MutatedBox(this, this.textureOffsetX, this.textureOffsetY, offX, offY, offZ, width, height, depth, 0.0F, mirrored));
     }
 	
-	public ModelPart setBox(float x, float y, float z, int width, int height, int length)
-    {
-        return this.setBox(x, y, z, width, height, length, 0.0F);
-    }
-	
+	@Override
 	public void addBox(float x, float y, float z, int width, int height, int length, float scaleFactor)
     {
         this.addModelBox(x, y, z, width, height, length, scaleFactor);
     }
 	
-	public ModelBox addModelBox(float x, float y, float z, int width, int height, int length, float scaleFactor)
-	{
-		ModelBox box = new ModelBox(this, this.texOffsetX, this.texOffsetY, x, y, z, width, height, length, scaleFactor);
-		this.cubeList.add(box);
-		this.compiled = false;
-		return box;
-	}
-	
-	public ModelBox getBox()
+	public MutatedBox getBox()
 	{
 		return getBox(0);
 	}
 	
-	public ModelBox getBox(int idx)
+	public MutatedBox getBox(int idx)
 	{
-		return ((ModelBox)this.cubeList.get(idx));
+		return ((MutatedBox)this.cubeList.get(idx));
 	}
 	
 	@Override
@@ -271,57 +290,12 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	@Override
 	public boolean isShowing() { return this.showModel && !this.isHidden; }
 	
-	public ModelPart setBoxPosition(float x, float y, float z)
+	protected void updateBounds()
 	{
-		this.getBox().setPosition(x, y, z);
-		return this;
-	}
-	
-	public ModelPart offsetBoxBy(float x, float y, float z)
-	{
-		this.getBox().offset(x, y, z);
-		return this;
-	}
-	
-	public ModelPart resizeBox(float width, float height, float length)
-	{
-		this.getBox().resize(width, height, length);
-		return this;
-	}
-	
-	public ModelPart setWidth(float width) {
-		this.getBox().width = width;
-		return this;
-	}
-	
-	public ModelPart setHeight(float height) {
-		this.getBox().height = height;
-		return this;
-	}
-	
-	public ModelPart setLength(float length) {
-		this.getBox().length = length;
-		return this;
-	}
-	
-	public ModelPart updateVertices()
-	{
-		this.getBox().updateVertices(this);
-		this.compiled = false;
-		return this;
-	}
-	
-	public ModelPart setTextureOffset(int x, int y)
-    {
-        this.texOffsetX = x;
-        this.texOffsetY = y;
-        return this;
-    }
-	
-	public ModelPart setVisibility(int faceIndex, boolean visible)
-	{
-		this.getBox().setVisibility(faceIndex, visible);
-		return this;
+		for (MutatedBox box : this.mutatedBoxes)
+		{
+			
+		}
 	}
 	
 	public ModelPart setMirror(boolean mirror)
@@ -369,4 +343,21 @@ public class ModelPart extends ModelRenderer implements IModelPart
     		TransformUtils.scale(matrix, this.scale.x, this.scale.y, this.scale.z, matrix);
 	}
 
+	@Override
+	public IAABBox getBounds()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public int getTextureOffsetX()
+	{
+		return this.textureOffsetX;
+	}
+
+	public int getTextureOffsetY()
+	{
+		return this.textureOffsetY;
+	}
+	
 }

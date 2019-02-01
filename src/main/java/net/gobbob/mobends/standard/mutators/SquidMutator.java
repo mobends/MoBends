@@ -55,8 +55,9 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 		float legLength = 12F;
 		float foreLegLength = 15F;
 
-		original.squidBody = this.squidBody = new ModelPart(original, 0, 0).setBox(-6.0F, -8.0F, -6.0F, 12, 16, 12)
-				.setPosition(0.0F, 8.0F, 0.0F);
+		original.squidBody = this.squidBody = new ModelPart(original, 0, 0);
+		this.squidBody.setPosition(0.0F, 8.0F, 0.0F);
+		this.squidBody.addBox(-6.0F, -8.0F, -6.0F, 12, 16, 12);
 
 		original.squidTentacles = new ModelRenderer[8];
 		for (int i = 0; i < this.squidTentacles.length; ++i)
@@ -65,14 +66,16 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 			double d0 = (double) i * Math.PI * 2.0D / (double) this.squidTentacles.length;
 			float f = (float) Math.cos(d0) * 4.0F;
 			float f1 = (float) Math.sin(d0) * 4.0F;
-			this.squidTentacles[i][0].setBox(-1.0F, 0.0F, 0.0F, 2, SquidData.SECTION_HEIGHT, 2).setPosition(f, 16.0F, f1);
 			d0 = (double) i * -360.0D / (double) this.squidTentacles.length + 90.0D;
+			this.squidTentacles[i][0].setPosition(f, 16.0F, f1);
+			this.squidTentacles[i][0].addBox(-1.0F, 0.0F, 0.0F, 2, SquidData.SECTION_HEIGHT, 2);
 			this.squidTentacles[i][0].rotation.rotateY((float) d0);
 
 			for (int j = 1; j < SquidData.TENTACLE_SECTIONS; ++j)
 			{
 				this.squidTentacles[i][j] = new ModelPart(original, 48, 0);
-				this.squidTentacles[i][j].setBox(-1.0F, 0.0F, -2.0F, 2, SquidData.SECTION_HEIGHT, 2).setPosition(0, SquidData.SECTION_HEIGHT, 0);
+				this.squidTentacles[i][j].setPosition(0, SquidData.SECTION_HEIGHT, 0);
+				this.squidTentacles[i][j].addBox(-1.0F, 0.0F, -2.0F, 2, SquidData.SECTION_HEIGHT, 2);
 				this.squidTentacles[i][j - 1].addChild(this.squidTentacles[i][j]);
 			}
 		}

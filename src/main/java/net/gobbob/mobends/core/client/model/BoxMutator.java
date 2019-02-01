@@ -1,41 +1,44 @@
-package net.gobbob.mobends.core.mutators;
+package net.gobbob.mobends.core.client.model;
 
 import java.util.Collection;
 
-import net.gobbob.mobends.core.client.model.ModelBox;
+import net.gobbob.mobends.core.client.model.BoxFactory.TextureFace;
+import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.client.model.ModelBase;
+import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.util.math.MathHelper;
 
 public class BoxMutator
 {
+	
 	protected ModelBase targetModel;
 	protected ModelRenderer targetRenderer;
-	protected ModelBox targetBox;
+	protected BoxFactory factory;
 	
 	protected int textureOffsetX;
 	protected int textureOffsetY;
 	protected float globalBoxX, globalBoxY, globalBoxZ;
 	
-	public BoxMutator(ModelBase targetModel, ModelRenderer targetRenderer, ModelBox target, int textureOffsetX, int textureOffsetY)
+	public BoxMutator(ModelBase targetModel, ModelRenderer targetRenderer, BoxFactory factory, int textureOffsetX, int textureOffsetY)
 	{
 		this.targetModel = targetModel;
 		this.targetRenderer = targetRenderer;
-		this.targetBox = target;
+		this.factory = factory;
 		this.textureOffsetX = textureOffsetX;
 		this.textureOffsetY = textureOffsetY;
 		
-		this.globalBoxX = this.targetRenderer.rotationPointX + this.targetBox.posX1;
-		this.globalBoxY = this.targetRenderer.rotationPointY + this.targetBox.posY1;
-		this.globalBoxZ = this.targetRenderer.rotationPointZ + this.targetBox.posZ1;
+		this.globalBoxX = this.targetRenderer.rotationPointX + this.factory.min.x;
+		this.globalBoxY = this.targetRenderer.rotationPointY + this.factory.min.y;
+		this.globalBoxZ = this.targetRenderer.rotationPointZ + this.factory.min.z;
 	}
 	
 	/*
 	 * It creates a BoxMutator with a copy of the original model, that can be mutated.
 	 * The original stays in it's original state.
 	 */
-	public static BoxMutator createFrom(final ModelBase modelBase, final ModelRenderer modelRenderer, final net.minecraft.client.model.ModelBox original)
+	public static BoxMutator createFrom(final ModelBase modelBase, final ModelRenderer modelRenderer, final ModelBox original)
 	{		
 		TexturedQuad[] quadList = original.quadList;
 		if (quadList == null)
@@ -52,24 +55,24 @@ public class BoxMutator
 		
 		float textureWidth = modelRenderer.textureWidth;
 		float textureHeight = modelRenderer.textureHeight;
-		int texU = (int)(quadList[ModelBox.RIGHT].vertexPositions[1].texturePositionX * textureWidth);
+		int texU = (int)(quadList[MutatedBox.RIGHT].vertexPositions[1].texturePositionX * textureWidth);
 		int texV = 0;
 		if (modelRenderer.mirror)
-			texV = (int)(quadList[ModelBox.BOTTOM].vertexPositions[1].texturePositionY * textureHeight);
+			texV = (int)(quadList[MutatedBox.BOTTOM].vertexPositions[1].texturePositionY * textureHeight);
 		else
-			texV = (int)(quadList[ModelBox.TOP].vertexPositions[1].texturePositionY * textureHeight);
+			texV = (int)(quadList[MutatedBox.TOP].vertexPositions[1].texturePositionY * textureHeight);
 		
 		float inflation1 = Math.abs((float)(original.posX1 - quadList[1].vertexPositions[0].vector3D.x));
 		float inflation2 = Math.abs((float)(original.posX2 - quadList[1].vertexPositions[0].vector3D.x));
 		float inflation = Math.min(inflation1, inflation2);
 		
-		ModelBox target = new ModelBox(modelRenderer, texU, texV, x, y, z, width, height, length, inflation);
+		BoxFactory target = new BoxFactory(modelRenderer, original);
 		return new BoxMutator(modelBase, modelRenderer, target, texU, texV);
 	}
 
-	public ModelBox getTargetBox()
+	public BoxFactory getFactory()
 	{
-		return this.targetBox;
+		return this.factory;
 	}
 	
 	public int getTextureOffsetX()
@@ -130,7 +133,7 @@ public class BoxMutator
 		float offsetY = originY - this.globalBoxY;
 		float offsetZ = originZ - this.globalBoxZ;
 		
-		this.targetBox.offset(-offsetX, -offsetY, -offsetZ);
+		this.factory.offset(-offsetX, -offsetY, -offsetZ);
 	}
 	
 	/*
@@ -144,31 +147,41 @@ public class BoxMutator
 		float offsetY = originY - this.globalBoxY;
 		float offsetZ = originZ - this.globalBoxZ;
 		
-		this.targetBox.offset(offsetX, offsetY, offsetZ);
+		this.factory.offset(offsetX, offsetY, offsetZ);
 	}
 	
-	public ModelBox sliceFromBottom(float sliceY, boolean preservePositions)
+	public BoxFactory sliceFromBottom(float sliceY, boolean preservePositions)
 	{
-		float height = targetBox.height;
+		final float height = this.factory.max.y - this.factory.min.y;
+		final float localSliceY = sliceY - this.globalBoxY;
 		
-		float localY = sliceY - this.globalBoxY;
 		// If slicing is necessarry (if the cut plane intersects the box)
-		if (localY > 0 && localY < height)
+		if (localSliceY > this.factory.min.getY() && localSliceY < this.factory.max.getY())
 		{
-			targetBox.height = localY - targetBox.inflation;
-			// Changing the original height to alter the texture
-			// to not stretch it.
-			targetBox.originalHeight = MathHelper.floor(localY);
-			targetBox.updateVertices(this.targetRenderer);
-			targetBox.setVisibility(ModelBox.BOTTOM, false);
+			final float newHeight = localSliceY - this.factory.min.getY();
 			
-			float slicedY = preservePositions ? (this.targetBox.posY1 + localY) : 0;
-			ModelBox sliced = new ModelBox(targetRenderer, this.textureOffsetX, this.textureOffsetY + (int)localY, this.targetBox.posX1, slicedY + targetBox.inflation, this.targetBox.posZ1,
-														   (int)targetBox.width, (int)(height - localY), (int)targetBox.length, targetBox.inflation);
-			sliced.height -= targetBox.inflation;
-			sliced.updateVertices(this.targetRenderer);
-			sliced.offsetTextureQuad(targetRenderer, ModelBox.BOTTOM, 0, -(int)localY);
-			sliced.setVisibility(ModelBox.TOP, false);
+			factory.max.setY(localSliceY);
+			factory.hideFace(BoxSide.BOTTOM);
+			
+			TextureFace[] slidesFaces = new TextureFace[6];
+			BoxSide[] faces = { BoxSide.BACK, BoxSide.FRONT, BoxSide.LEFT, BoxSide.RIGHT };
+			for (BoxSide faceEnum : faces)
+			{
+				float textureOffset = newHeight / height;
+				
+				TextureFace face = this.factory.faces[faceEnum.faceIndex];
+				int sliceV = (int) (face.v0 + (face.v1 - face.v0) * textureOffset);
+				slidesFaces[faceEnum.faceIndex] = new TextureFace(face.u0, sliceV, face.u1, face.v1);
+				face.v1 = sliceV;
+			}
+			slidesFaces[BoxSide.TOP.faceIndex] = new TextureFace(this.factory.faces[BoxSide.TOP.faceIndex]);
+			slidesFaces[BoxSide.BOTTOM.faceIndex] = new TextureFace(this.factory.faces[BoxSide.BOTTOM.faceIndex]);
+			
+			float slicedY = preservePositions ? localSliceY : 0;
+			BoxFactory sliced = new BoxFactory(factory.min.x, localSliceY, factory.min.z, factory.max.x, factory.max.y, factory.max.z, slidesFaces);
+			
+			sliced.offsetTextureQuad(BoxSide.BOTTOM, 0, -(int)newHeight);
+			sliced.hideFace(BoxSide.TOP);
 			
 			return sliced;
 		}
@@ -176,4 +189,5 @@ public class BoxMutator
 		// Nothing was cut
 		return null;
 	}
+	
 }

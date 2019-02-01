@@ -10,14 +10,15 @@ import org.lwjgl.util.vector.Vector3f;
 
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.client.model.BoxFactory;
+import net.gobbob.mobends.core.client.model.BoxMutator;
 import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.client.model.ModelBox;
+import net.gobbob.mobends.core.client.model.MutatedBox;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.client.model.ModelPartContainer;
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
-import net.gobbob.mobends.core.mutators.BoxMutator;
 import net.gobbob.mobends.core.util.ModelUtils;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.gobbob.mobends.standard.data.PlayerData;
@@ -520,14 +521,16 @@ public class MutatedArmorModel extends ModelBiped
 				if (mutator.getGlobalBoxY() < cutPlane)
 				{
 					// Upper leg, try to cut the bottom
-					ModelBox lowerPart = mutator.sliceFromBottom(cutPlane, true);
-					ModelBox topPart = mutator.getTargetBox();
+					BoxFactory lowerPartFactory = mutator.sliceFromBottom(cutPlane, true);
+					
+					MutatedBox topPart = mutator.getFactory().create(part);
 					part.getModel().cubeList.add(topPart);
-	
-					if (lowerPart != null)
+					
+					if (lowerPartFactory != null)
 					{
 						ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
 						modelPart.mirror = part.mirror;
+						MutatedBox lowerPart = lowerPartFactory.create(modelPart);
 						modelPart.cubeList.add(lowerPart);
 						ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
 						partContainer.setInnerOffset(0, -6F, 2F);
@@ -538,9 +541,9 @@ public class MutatedArmorModel extends ModelBiped
 				else
 				{
 					// Lower leg
-					ModelBox lowerBox = mutator.getTargetBox();
 					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
 					modelPart.mirror = part.mirror;
+					MutatedBox lowerBox = mutator.getFactory().create(modelPart);
 					modelPart.cubeList.add(lowerBox);
 					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
 					partContainer.setInnerOffset(0F, -6.0F, 2F);
@@ -568,14 +571,15 @@ public class MutatedArmorModel extends ModelBiped
 				if (mutator.getGlobalBoxY() < cutPlane)
 				{
 					// Upper arm, try to cut the bottom
-					ModelBox lowerPart = mutator.sliceFromBottom(cutPlane, true);
-					ModelBox topPart = mutator.getTargetBox();
+					BoxFactory lowerPartFactory = mutator.sliceFromBottom(cutPlane, true);
+					MutatedBox topPart = mutator.getFactory().create(part);
 					part.getModel().cubeList.add(topPart);
 
-					if (lowerPart != null)
+					if (lowerPartFactory != null)
 					{
 						ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
 						modelPart.mirror = part.mirror;
+						MutatedBox lowerPart = lowerPartFactory.create(modelPart);
 						modelPart.cubeList.add(lowerPart);
 						ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
 						partContainer.setInnerOffset(0F, -4.0F, -2F);
@@ -586,8 +590,8 @@ public class MutatedArmorModel extends ModelBiped
 				else
 				{
 					// Lower arm
-					ModelBox lowerBox = mutator.getTargetBox();
 					ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
+					MutatedBox lowerBox = mutator.getFactory().create(modelPart);
 					modelPart.mirror = part.mirror;
 					modelPart.cubeList.add(lowerBox);
 					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);

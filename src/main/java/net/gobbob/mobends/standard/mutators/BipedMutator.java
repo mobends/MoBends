@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard.mutators;
 
+import net.gobbob.mobends.core.client.model.BoxSide;
 import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.client.model.ModelBox;
 import net.gobbob.mobends.core.client.model.ModelPartChild;
 import net.gobbob.mobends.core.client.model.ModelPartChildExtended;
 import net.gobbob.mobends.core.client.model.ModelPartChildPostOffset;
@@ -145,17 +145,17 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	public boolean createParts(M original, float scaleFactor)
 	{
 		// Body
-		original.bipedBody = body = (ModelPartPostOffset) new ModelPartPostOffset(original, 16, 16)
+		original.bipedBody = this.body = (ModelPartPostOffset) new ModelPartPostOffset(original, 16, 16)
 				.setPostOffset(0.0F, -12.0F, 0.0F)
-				.setPosition(0.0F, 12.0F, 0.0F)
-				.setBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, scaleFactor);
-
+				.setPosition(0.0F, 12.0F, 0.0F);
+		this.body.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, scaleFactor);
+		
 		// Head
-		original.bipedHead = head = (ModelPartChild) new ModelPartChild(original, 0, 0)
+		original.bipedHead = this.head = (ModelPartChild) new ModelPartChild(original, 0, 0)
 				.setHideLikeParent(false)
 				.setParent(body)
-				.setPosition(0.0F, -12.0F, 0.0F)
-				.setBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor);
+				.setPosition(0.0F, -12.0F, 0.0F);
+		this.head.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor);
 
 		// Arms
 		int armWidth = 4;
@@ -165,66 +165,68 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setHideLikeParent(false)
 				.setParent(body)
 				.setPosition(5.0F, armY, 0.0F)
-				.setMirror(true)
-				.setBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
-				.offsetBoxBy(-0.01f, 0, -0.01f)
-				.resizeBox(armWidth + 0.02f, 6.0f, 4.02f)
-				.updateVertices()
-				.setVisibility(ModelBox.BOTTOM, false);
+				.setMirror(true);
+		this.leftArm.developBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
+				.inflate(0.01F, 0, 0.01F)
+				.hideFace(BoxSide.BOTTOM)
+				.create();
+		
 		original.bipedRightArm = rightArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16)
 				.setHideLikeParent(false)
 				.setParent(body)
-				.setPosition(-5.0F, armY, 0.0F)
-				.setBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
-				.offsetBoxBy(-0.01f, 0, -0.01f)
-				.resizeBox(armWidth + 0.02f, 6.0f, 4.02f)
-				.updateVertices()
-				.setVisibility(ModelBox.BOTTOM, false);
+				.setPosition(-5.0F, armY, 0.0F);
+		this.rightArm.developBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
+				.inflate(0.01F, 0, 0.1F)
+				.hideFace(BoxSide.BOTTOM)
+				.create();
 
-		leftForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
+		this.leftForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
 				.setPostOffset(0, -4F, -2F)
 				.setParent(leftArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
-				.setMirror(true)
-				.setBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
-				.setVisibility(ModelBox.TOP, false);
-		leftForeArm.getBox().offsetTextureQuad(leftForeArm, ModelBox.BOTTOM, 0, -6.0f);
-		leftArm.setExtension(leftForeArm);
-		rightForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
+				.setMirror(true);
+		this.leftForeArm.developBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
+				.hideFace(BoxSide.TOP)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		
+		this.leftArm.setExtension(this.leftForeArm);
+		this.rightForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
 				.setPostOffset(0, -4F, -2F)
 				.setParent(rightArm)
-				.setPosition(0.0F, 4.0F, 2.0F)
-				.setBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
-				.setVisibility(ModelBox.TOP, false);
-		rightForeArm.getBox().offsetTextureQuad(rightForeArm, ModelBox.BOTTOM, 0, -6.0f);
-		rightArm.setExtension(rightForeArm);
+				.setPosition(0.0F, 4.0F, 2.0F);
+		this.rightForeArm.developBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
+				.hideFace(BoxSide.TOP)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		this.rightArm.setExtension(this.rightForeArm);
 
 		// Legs
 		original.bipedRightLeg = rightLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
-				.setPosition(0.0F, 12F, 0F)
-				.setBox(-3.9F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+				.setPosition(0.0F, 12F, 0F);
+		this.rightLeg.addBox(-3.9F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
 		original.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
 				.setPosition(0.0F, 12.0F, 0.0F)
-				.setMirror(true)
-				.setBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+				.setMirror(true);
+		this.leftLeg.addBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
 		leftForeLeg = (ModelPartChild) new ModelPartChild(original, 0, 16 + 6)
 				.setParent(leftLeg)
 				.setPosition(0, 6.0F, -2.0F)
-				.setMirror(true)
-				.setBox(-0.1F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
-				.offsetBoxBy(-0.005F, 0F, -0.005F)
-				.resizeBox(4.01F, 6.0F, 4.01F)
-				.updateVertices();
-		leftForeLeg.getBox().offsetTextureQuad(leftForeLeg, ModelBox.BOTTOM, 0, -6.0f);
-		leftLeg.setExtension(leftForeLeg);
+				.setMirror(true);
+		
+		this.leftForeLeg.developBox(-0.1F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
+				.inflate(0.01F, 0, 0.01F)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		this.leftLeg.setExtension(this.leftForeLeg);
 		rightForeLeg = (ModelPartChild) new ModelPartChild(original, 0, 16 + 6)
 				.setParent(rightLeg)
-				.setPosition(0, 6.0F, -2.0F)
-				.setBox(-3.9F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
-				.offsetBoxBy(-0.005F, 0F, -0.005F)
-				.resizeBox(4.01F, 6.0F, 4.01F)
-				.updateVertices();
-		rightForeLeg.getBox().offsetTextureQuad(rightForeLeg, ModelBox.BOTTOM, 0, -6.0f);
+				.setPosition(0, 6.0F, -2.0F);
+		
+		rightForeLeg.developBox(-3.9F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
+				.inflate(0.01F, 0, 0.01F)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
 		rightLeg.setExtension(rightForeLeg);
 
 		// Wear

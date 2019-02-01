@@ -1,7 +1,8 @@
 package net.gobbob.mobends.standard.mutators;
 
+import net.gobbob.mobends.core.client.model.BoxSide;
 import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.client.model.ModelBox;
+import net.gobbob.mobends.core.client.model.MutatedBox;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.client.model.ModelPartChild;
 import net.gobbob.mobends.core.client.model.ModelPartChildExtended;
@@ -91,115 +92,126 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		int armWidth = this.smallArms ? 3 : 4;
 		float armY = this.smallArms ? -9.5F : -10F;
 		
-		original.bipedLeftArm = leftArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 32, 48)
+		original.bipedLeftArm = this.leftArm = new ModelPartChildExtended(original, 32, 48);
+		this.leftArm
 				.setHideLikeParent(false)
 				.setParent(body)
 				.setPosition(5.0F, armY, 0.0F)
-				.setBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
-				.offsetBoxBy(-0.01f, 0, -0.01f)
-				.resizeBox(armWidth + 0.02f, 6.0f, 4.02f)
-				.updateVertices()
-				.setVisibility(ModelBox.BOTTOM, false);
-		original.bipedRightArm = rightArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16)
+				.developBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
+				.inflate(0.01F, 0F, 0.01F)
+				.hideFace(BoxSide.BOTTOM)
+				.create();
+		
+		original.bipedRightArm = this.rightArm = new ModelPartChildExtended(original, 40, 16);
+		this.rightArm
 				.setHideLikeParent(false)
 				.setParent(body)
 				.setPosition(-5.0F, armY, 0.0F)
-				.setBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
-				.offsetBoxBy(-0.01f, 0, -0.01f)
-				.resizeBox(armWidth + 0.02f, 6.0f, 4.02f)
-				.updateVertices()
-				.setVisibility(ModelBox.BOTTOM, false);
+				.developBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
+				.inflate(0.01F, 0F, 0.01F)
+				.hideFace(BoxSide.BOTTOM)
+				.create();
 		
-		leftForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 32, 48 + 6)
-				.setPostOffset(0, -4F, -2F)
+		this.leftForeArm = new ModelPartChildPostOffset(original, 32, 48 + 6)
+				.setPostOffset(0, -4F, -2F);
+		this.leftForeArm
+				.setPosition(0.0F, 4.0F, 2.0F)
 				.setParent(leftArm)
+				.developBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
+				.hideFace(BoxSide.TOP)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		this.leftArm.setExtension(this.leftForeArm);
+		
+		this.rightForeArm = new ModelPartChildPostOffset(original, 40, 16 + 6)
+				.setPostOffset(0, -4F, -2F);
+		this.rightForeArm
 				.setPosition(0.0F, 4.0F, 2.0F)
-				.setBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
-				.setVisibility(ModelBox.TOP, false);
-		leftForeArm.getBox().offsetTextureQuad(leftForeArm, ModelBox.BOTTOM, 0, -6.0f);
-		leftArm.setExtension(leftForeArm);
-		rightForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
-				.setPostOffset(0, -4F, -2F)
 				.setParent(rightArm)
-				.setPosition(0.0F, 4.0F, 2.0F)
-				.setBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
-				.setVisibility(ModelBox.TOP, false);
-		rightForeArm.getBox().offsetTextureQuad(rightForeArm, ModelBox.BOTTOM, 0, -6.0f);
-		rightArm.setExtension(rightForeArm);
+				.developBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
+				.hideFace(BoxSide.TOP)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		this.rightArm.setExtension(this.rightForeArm);
 		
 		// Wear
-		original.bipedBodyWear = bodywear = (ModelPartChild) new ModelPartChild(original, 16, 32).setParent(body);
-		bodywear.addBox(-4F, -12F, -2F, 8, 12, 4, scaleFactor + 0.25F);
+		original.bipedBodyWear = bodywear = new ModelPartChild(original, 16, 32);
+		this.bodywear.setParent(body);
+		this.bodywear.addBox(-4F, -12F, -2F, 8, 12, 4, scaleFactor + 0.25F);
 		
-		original.bipedLeftArmwear = leftArmwear = (ModelPartChild) new ModelPartChild(original, 48, 48)
+		original.bipedLeftArmwear = leftArmwear = new ModelPartChild(original, 48, 48);
+		this.leftArmwear
 				.setParent(leftArm)
-				.setBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F)
+				.developBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
-				.offsetBoxBy(-0.0025F, 0F, -0.0025F)
-				.resizeBox(armWidth + 0.005F, 5.75F, 4.005F)
-				.updateVertices()
-				.setVisibility(ModelBox.BOTTOM, false);
-		original.bipedRightArmwear = rightArmwear = (ModelPartChild) new ModelPartChild(original, 40, 32)
+				.inflate(0.0025F, 0F, 0.0025F)
+				.hideFace(BoxSide.BOTTOM)
+				.create();
+		
+		original.bipedRightArmwear = rightArmwear = new ModelPartChild(original, 40, 32);
+		this.rightArmwear
 				.setParent(rightArm)
-				.setBox(-armWidth + 1, -2F, -2F, armWidth, 6, 4, scaleFactor + 0.25F)
+				.developBox(-armWidth + 1, -2F, -2F, armWidth, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
-				.offsetBoxBy(-0.0025F, 0F, -0.0025F)
-				.resizeBox(armWidth + 0.005F, 5.75F, 4.005F)
-				.updateVertices()
-				.setVisibility(ModelBox.BOTTOM, false);
+				.inflate(0.0025F, 0F, 0.0025F)
+				.hideFace(BoxSide.BOTTOM)
+				.create();
 
-		leftForeArmwear = new ModelPart(original, 48, 48 + 6)
-				.setBox(-1F, 0F, -4F, armWidth, 6, 4, scaleFactor + 0.25F)
+		this.leftForeArmwear = new ModelPart(original, 48, 48 + 6);
+		this.leftForeArmwear
+				.developBox(-1F, 0F, -4F, armWidth, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
-				.offsetBoxBy(-0.005F, 0.25F, -0.005F)
-				.resizeBox(armWidth + 0.01F, 5.75F, 4.01F)
-				.updateVertices()
-				.setVisibility(ModelBox.TOP, false);
-		leftForeArmwear.getBox().offsetTextureQuad(leftForeArmwear, ModelBox.BOTTOM, 0, -6F);
-		leftForeArm.addChild(leftForeArmwear);
+				.inflate(0.005F, 0F, 0.005F)
+				.hideFace(BoxSide.TOP)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		this.leftForeArm.addChild(this.leftForeArmwear);
 		
-		rightForeArmwear = new ModelPart(original, 40, 32 + 6)
-				.setBox(-armWidth + 1, 0F, -4F, armWidth, 6, 4, scaleFactor + 0.25F)
+		this.rightForeArmwear = new ModelPart(original, 40, 32 + 6);
+		this.rightForeArmwear
+				.developBox(-armWidth + 1, 0F, -4F, armWidth, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
-				.offsetBoxBy(-0.005F, 0.25F, -0.005F)
-				.resizeBox(armWidth + 0.01F, 5.75F, 4.01F)
-				.updateVertices()
-				.setVisibility(ModelBox.TOP, false);
-		rightForeArmwear.getBox().offsetTextureQuad(rightForeArmwear, ModelBox.BOTTOM, 0, -6F);
-		rightForeArm.addChild(rightForeArmwear);
+				.inflate(0.005F, 0F, 0.005F)
+				.hideFace(BoxSide.TOP)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		this.rightForeArm.addChild(this.rightForeArmwear);
 
-		original.bipedLeftLegwear = leftLegwear = (ModelPartChild) new ModelPartChild(original, 0, 48)
-				.setParent(leftLeg)
-				.setBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
+		original.bipedLeftLegwear = leftLegwear = new ModelPartChild(original, 0, 48);
+		this.leftLegwear.setParent(leftLeg)
+				.developBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
-				.updateVertices()
-				.setVisibility(ModelBox.BOTTOM, false);
-		original.bipedRightLegwear = rightLegwear = (ModelPartChild) new ModelPartChild(original, 0, 32)
+				.hideFace(BoxSide.BOTTOM)
+				.create();
+		original.bipedRightLegwear = rightLegwear = new ModelPartChild(original, 0, 32);
+		this.rightLegwear
 				.setParent(rightLeg)
-				.setBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
+				.developBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
-				.updateVertices()
-				.setVisibility(ModelBox.BOTTOM, false);
+				.hideFace(BoxSide.BOTTOM)
+				.create();
 
-		leftForeLegwear = new ModelPart(original, 0, 48 + 6)
-				.setBox(-2F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
+		this.leftForeLegwear = new ModelPart(original, 0, 48 + 6);
+		this.leftForeLegwear
+				.developBox(-2F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
-				.offsetBoxBy(-0.005F, 0.25F, -0.005F)
-				.resizeBox(4.01F, 5.75F, 4.01F)
-				.updateVertices()
-				.setVisibility(ModelBox.TOP, false);
-		leftForeLegwear.getBox().offsetTextureQuad(leftForeLegwear, ModelBox.BOTTOM, 0, -6F);
-		leftForeLeg.addChild(leftForeLegwear);
+				.inflate(0.005F, 0F, 0.005F)
+				.offset(0F, 0.25F, 0F)
+				.hideFace(BoxSide.TOP)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		this.leftForeLeg.addChild(this.leftForeLegwear);
 		
-		rightForeLegwear = new ModelPart(original, 0, 32 + 6)
-				.setBox(-2F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
+		this.rightForeLegwear = new ModelPart(original, 0, 32 + 6);
+		this.rightForeLegwear
+				.developBox(-2F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
-				.offsetBoxBy(-0.005F, 0.25F, -0.005F)
-				.resizeBox(4.01F, 5.75F, 4.01F)
-				.updateVertices()
-				.setVisibility(ModelBox.TOP, false);
-		rightForeLegwear.getBox().offsetTextureQuad(rightForeLegwear, ModelBox.BOTTOM, 0, -6F);
-		rightForeLeg.addChild(rightForeLegwear);
+				.inflate(0.005F, 0, 0.005F)
+				.offset(0F, 0.25F, 0F)
+				.hideFace(BoxSide.TOP)
+				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
+				.create();
+		this.rightForeLeg.addChild(this.rightForeLegwear);
 		
 		return true;
 	}

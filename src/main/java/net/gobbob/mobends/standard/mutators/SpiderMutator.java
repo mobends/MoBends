@@ -68,15 +68,17 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 		float legLength = 12F;
 		float foreLegLength = 12F;
 		
-		original.spiderHead = this.spiderHead = new ModelPart(original, 32, 4)
-		        .setBox(-4.0F, -4.0F, -8.0F, 8, 8, 8, 0.0F)
-		        .setPosition(0.0F, 15.0F, -3.0F);
-		original.spiderNeck = this.spiderNeck = new ModelPart(original, 0, 0)
-		        .setBox(-3.0F, -3.0F, -3.0F, 6, 6, 6, 0.0F)
-		        .setPosition(0.0F, 15.0F, 0.0F);
-		original.spiderBody = this.spiderBody = new ModelPart(original, 0, 12)
-		        .setBox(-5.0F, -4.0F, -6.0F, 10, 8, 12, 0.0F)
-		        .setPosition(0.0F, 15.0F, 9.0F);
+		original.spiderHead = this.spiderHead = new ModelPart(original, 32, 4);
+		this.spiderHead.setPosition(0.0F, 15.0F, -3.0F);
+		this.spiderHead.addBox(-4.0F, -4.0F, -8.0F, 8, 8, 8, 0.0F);
+		
+		original.spiderNeck = this.spiderNeck = new ModelPart(original, 0, 0);
+		this.spiderNeck.setPosition(0.0F, 15.0F, 0.0F);
+		this.spiderNeck.addBox(-3.0F, -3.0F, -3.0F, 6, 6, 6, 0.0F);
+		
+		original.spiderBody = this.spiderBody = new ModelPart(original, 0, 12);
+        this.spiderBody.setPosition(0.0F, 15.0F, 9.0F);;
+        this.spiderBody.addBox(-5.0F, -4.0F, -6.0F, 10, 8, 12, 0.0F);
         
 		this.spiderUpperLimbs = new ModelPart[8];
 		this.spiderLowerLimbs = new ModelPart[8];
@@ -86,16 +88,16 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 			boolean odd = i%2 == 1;
 			int z = 2 - (i/2);
 			
-			this.spiderUpperLimbs[i] = new ModelPart(original, odd ? 18 : 26, 0)
-			        .setBox(odd ? -1F : (-legLength + 1F), -1.0F, -1.0F, 8, 2, 2, 0.0F)
-			        .setPosition(odd ? 4F : -4F, 15F, z)
-			        .resizeBox(legLength, 2, 2).updateVertices();
+			this.spiderUpperLimbs[i] = new ModelPart(original, odd ? 18 : 26, 0);
+			this.spiderUpperLimbs[i].setPosition(odd ? 4F : -4F, 15F, z);
+			this.spiderUpperLimbs[i].developBox(odd ? -1F : (-legLength + 1F), -1.0F, -1.0F, 8, 2, 2, 0.0F)
+				.setWidth(legLength).create();
 			
-			this.spiderLowerLimbs[i] = new ModelPart(original, odd ? 26 : 18, 0)
-	        		.setBox(odd ? 0F : -foreLegLength, 0F, -1F, 8, 2, 2, 0F)
-	        		.setPosition(odd ? foreLegLength : -foreLegLength, 0F, 0F)
-	        		.offsetBoxBy(0F, 0F, 0.005F)
-			        .resizeBox(foreLegLength, 1.99F, 1.99F).updateVertices();
+			this.spiderLowerLimbs[i] = new ModelPart(original, odd ? 26 : 18, 0);
+			this.spiderLowerLimbs[i].setPosition(odd ? foreLegLength : -foreLegLength, 0F, 0F);
+			this.spiderLowerLimbs[i].developBox(odd ? 0F : -foreLegLength, 0F, -1F, 8, 2, 2, 0F)
+				.offset(0F, 0F, 0.005F)
+				.resize(foreLegLength, 1.99F, 1.99F).create();
 			
 			this.spiderUpperLimbs[i].addChild(this.spiderLowerLimbs[i]);
 		}

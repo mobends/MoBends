@@ -112,4 +112,5 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	{
 		return this.entity;
 	}
+	
 }

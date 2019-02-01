@@ -6,6 +6,7 @@ import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
 import net.gobbob.mobends.core.math.matrix.MatrixUtils;
+import net.gobbob.mobends.core.math.physics.IAABBox;
 import net.gobbob.mobends.core.math.vector.IVec3f;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.GlHelper;
@@ -127,6 +128,13 @@ public class ModelPartTransform implements IModelPart
 	public IModelPart getParent()
 	{
 		return this.parent;
+	}
+
+	@Override
+	public IAABBox getBounds()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

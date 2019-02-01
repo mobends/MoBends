@@ -4,10 +4,13 @@ import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class ModelPartChildExtended extends ModelPartChild{
+public class ModelPartChildExtended extends ModelPartChild
+{
+	
 	protected IModelPart extension;
 	
-	public ModelPartChildExtended(ModelBase model, boolean register, int texOffsetX, int texOffsetY) {
+	public ModelPartChildExtended(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
+	{
 		super(model, register, texOffsetX, texOffsetY);
 	}
 	
@@ -21,8 +24,9 @@ public class ModelPartChildExtended extends ModelPartChild{
 		this(model, true, texOffsetX, texOffsetY);
     }
 	
-	public ModelPartChildExtended setExtension(IModelPart modelPart) {
-		extension = modelPart;
+	public ModelPartChildExtended setExtension(IModelPart modelPart)
+	{
+		this.extension = modelPart;
 		return this;
 	}
 	
@@ -81,10 +85,4 @@ public class ModelPartChildExtended extends ModelPartChild{
 			extension.propagateTransform(scale);
 	}
 	
-	@Override
-	public void propagateTransform(float scale)
-	{
-		super.propagateTransform(scale);
-		this.applyPostTransform(scale);
-	}
 }

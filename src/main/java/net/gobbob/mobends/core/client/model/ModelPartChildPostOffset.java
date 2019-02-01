@@ -11,10 +11,11 @@ import net.minecraft.client.renderer.GlStateManager;
  */
 public class ModelPartChildPostOffset extends ModelPartChild
 {
+	
 	/*
 	 * The amount to offset whatever is using the postRender method.
 	 */
-	public Vector3f postOffset = new Vector3f(0.0F, 0.0F, 0.0F);
+	protected Vector3f postOffset = new Vector3f(0.0F, 0.0F, 0.0F);
 
 	public ModelPartChildPostOffset(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
 	{
@@ -38,15 +39,9 @@ public class ModelPartChildPostOffset extends ModelPartChild
 	}
 	
 	@Override
-	public void propagateTransform(float scale)
-	{
-		super.propagateTransform(scale);
-		this.applyPostTransform(scale);
-	}
-	
-	@Override
 	public void applyPostTransform(float scale)
 	{
 		GlStateManager.translate(this.postOffset.x * scale, this.postOffset.y * scale, this.postOffset.z * scale);
 	}
+	
 }

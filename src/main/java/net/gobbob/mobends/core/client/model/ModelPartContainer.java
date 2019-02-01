@@ -5,6 +5,7 @@ import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
 import net.gobbob.mobends.core.math.matrix.MatrixUtils;
+import net.gobbob.mobends.core.math.physics.IAABBox;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModelPartContainer extends ModelRenderer implements IModelPart
 {
+	
 	public Vec3f position;
 	/*
 	 * A secondary position variable is used to offset
@@ -159,12 +161,6 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	}
 
 	@Override
-	public void propagateTransform(float scale)
-	{
-		this.applyOwnTransform(scale);
-	}
-
-	@Override
 	public void applyPostTransform(float scale)
 	{
 	}
@@ -216,6 +212,12 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
     	
     	if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
     		TransformUtils.scale(matrix, this.scale.x, this.scale.y, this.scale.z);
+	}
+
+	@Override
+	public IAABBox getBounds()
+	{
+		return null;
 	}
 	
 }

@@ -10,6 +10,7 @@ import org.lwjgl.input.Mouse;
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.client.gui.customize.viewport.ViewportLayer;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.standard.main.ModStatics;

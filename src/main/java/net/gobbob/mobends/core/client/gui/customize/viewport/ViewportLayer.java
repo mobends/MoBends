@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.client.gui.customize;
+package net.gobbob.mobends.core.client.gui.customize.viewport;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -226,12 +226,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		GlStateManager.matrixMode(GL11.GL_PROJECTION);
 		GlStateManager.pushMatrix();
 		GlStateManager.loadIdentity();
-		//float ratio = (float)mc.displayWidth / (float)mc.displayHeight;
-		//Project.gluPerspective(60.0F, ratio, 0.05F, 1000);
 		this.camera.applyProjection();
 		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
 		GlStateManager.clearColor(0.1F, 0.17F, 0.2F, 1F);
 		GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+		
 		if (alterEntryToView != null)
 		{
 			GlStateManager.pushMatrix();
@@ -295,8 +294,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 				
 				GlStateManager.popMatrix();
 			}
-			
-			
 			
 			RenderHelper.disableStandardItemLighting();
 			
