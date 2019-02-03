@@ -3,7 +3,7 @@ package net.gobbob.mobends.core.math.physics;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3fReadonly;
 
-public class Plane
+public class Plane implements ICollider
 {
 	
 	public final Vec3fReadonly position;
@@ -29,6 +29,12 @@ public class Plane
 	public IVec3fRead getNormal()
 	{
 		return this.normal;
+	}
+
+	@Override
+	public RayHitInfo intersect(Ray ray)
+	{
+		return Physics.intersect(ray, this);
 	}
 	
 }

@@ -1,5 +1,9 @@
 package net.gobbob.mobends.standard.previewer;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import net.gobbob.mobends.core.animatedentity.BoneMetadata;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
@@ -11,6 +15,16 @@ public class BipedPreviewer<D extends BipedEntityData<?>> implements IPreviewer<
 {
 	
 	private static final Vec3fReadonly VIEWPORT_ANCHOR = new Vec3fReadonly(0, 1.3F, 0);
+	
+	private static final Map<String, BoneMetadata> BONE_METADATA = new HashMap<String, BoneMetadata>() {{
+		put("head", new BoneMetadata(-4F, -8F, -4F, 4F, 0F, 4F));
+		put("body", new BoneMetadata(-4.0F, -12.0F, -2.0F, 4F, 0, 2F));
+		put("leftArm", new BoneMetadata(-1.0F, -2.0F, -2.0F, 3F, 5F, 2F));
+		put("rightArm", new BoneMetadata(-4F + 1F, -2.0F, -2.0F, 1F, 4F, 2F));
+		
+//		"body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg", "rightLeg",
+//		"leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation", "rightItemRotation"
+	}};
 	
 	@Override
 	public void prePreview(D data, String animationToPreview)
@@ -77,5 +91,12 @@ public class BipedPreviewer<D extends BipedEntityData<?>> implements IPreviewer<
 	
 	@Override
 	public IVec3fRead getAnchorPoint() { return VIEWPORT_ANCHOR; }
+
+	@Override
+	public Map<String, BoneMetadata> getBoneMetadata()
+	{
+		
+		return BONE_METADATA;
+	}
 	
 }

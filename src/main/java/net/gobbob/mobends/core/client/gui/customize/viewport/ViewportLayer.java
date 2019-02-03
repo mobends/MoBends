@@ -11,9 +11,7 @@ import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.math.TransformUtils;
-import net.gobbob.mobends.core.math.matrix.Mat3x3d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
-import net.gobbob.mobends.core.math.matrix.MatrixUtils;
 import net.gobbob.mobends.core.math.physics.OBBox;
 import net.gobbob.mobends.core.math.physics.Physics;
 import net.gobbob.mobends.core.math.physics.Plane;
@@ -26,8 +24,6 @@ import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.GlHelper;
 import net.gobbob.mobends.core.util.MeshBuilder;
-import net.gobbob.mobends.standard.PlayerAlterEntry;
-import net.gobbob.mobends.standard.data.PlayerData;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -50,6 +46,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private int x, y;
 	private int width, height;
 	private AlterEntry<?> alterEntryToView;
+	private AlterEntryRig rig;
 	
 	private Mesh standBlockMesh;
 	private Ray ray;
@@ -75,6 +72,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		Mat4x4d mat = new Mat4x4d(Mat4x4d.IDENTITY);
 		TransformUtils.translate(mat, 0, 0, -4, mat);
 		TransformUtils.rotate(mat, Math.PI/4, 0, 1, 0, mat);
+		TransformUtils.scale(mat, 2F, 2F, 2F);
 		this.obBox = new OBBox(-0.2F, -0.2F, -0.2F, 0.2F, 0.2F, 0.2F, mat);
 		this.contactPoint = new Vec3f();
 	}
@@ -85,7 +83,14 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		IVec3fRead anchorPoint = Vec3f.ZERO;
 		IPreviewer previewer = alterEntry.getPreviewer();
 		if (previewer != null)
+		{
 			anchorPoint = previewer.getAnchorPoint();
+			this.rig = new AlterEntryRig(alterEntry);
+		}
+		else
+		{
+			this.rig = null;
+		}
 		this.camera.anchorTo(anchorPoint.getX(), anchorPoint.getY(), anchorPoint.getZ(), 5);
 	}
 	
@@ -111,6 +116,24 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			this.camera.moveSideways(moveSpeed);
 		if (Keyboard.isKeyDown(Keyboard.KEY_A) || Keyboard.isKeyDown(Keyboard.KEY_LEFT))
 			this.camera.moveSideways(-moveSpeed);
+		
+		this.ray = this.camera.getRayFromMouse(mouseX, mouseY, this.width, this.height);
+		if (this.rig != null)
+		{
+			for (AlterEntryRig.Bone bone : this.rig.nameToBoneMap.values())
+			{
+				RayHitInfo hit = Physics.intersect(this.ray, bone.collider);
+				if (hit != null)
+				{
+					this.contactPoint.set(hit.hitPoint);
+					bone.onHover();
+				}
+				else
+				{
+					bone.onHoverLeave();
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -183,33 +206,29 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		
 		if (button == 0)
 		{
-			//this.ray = new Ray(this.camera.getPosition(), this.camera.getForward());
 			this.ray = this.camera.getRayFromMouse(mouseX, mouseY, this.width, this.height);
-			RayHitInfo hit = Physics.intersect(this.ray, 1000, this.obBox);
+			if (this.rig != null)
+			{
+				for (AlterEntryRig.Bone bone : this.rig.nameToBoneMap.values())
+				{
+					RayHitInfo hit = Physics.intersect(this.ray, bone.collider);
+					if (hit != null)
+					{
+						this.contactPoint.set(hit.hitPoint);
+						bone.onHover();
+					}
+					else
+					{
+						bone.onHoverLeave();
+					}
+				}
+			}
+			
+			RayHitInfo hit = Physics.intersect(this.ray, this.obBox);
 			if (hit != null)
 			{
 				this.contactPoint.set(hit.hitPoint);
 			}
-			
-			Mat4x4d matA = new Mat4x4d(new double[] {
-				1, 0, 0, 0, // First column
-				0, 1, 0, 0, // Second column
-				0, 0, 1, 0, // Third column
-				0, 0.75, 0, 1
-			});
-			Mat4x4d matB = new Mat4x4d(new double[] {
-				0.7071067811865476, 0, -0.7071067811865475, 0,
-				0, 1, 0, 0,
-				0.7071067811865475, 0, 	0.7071067811865476, 0,
-				0, 0, 0, 1
-			});
-			
-			Mat4x4d res = new Mat4x4d();
-			MatrixUtils.multiply(matA, matB, res);
-			System.out.println("\n" + MatrixUtils.toString(matA));
-			System.out.println("\n" + MatrixUtils.toString(matB));
-			System.out.println("\n" + MatrixUtils.toString(res));
-			System.out.println("\n\n\n");
 		}
 		
 		return eventHandled;
@@ -255,13 +274,14 @@ public class ViewportLayer extends Gui implements IGuiLayer
 						  Color.RED);
 			}
 			
-			if (this.contactPoint != null)
+			/*if (this.contactPoint != null)
 			{
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(this.contactPoint.x, this.contactPoint.y, this.contactPoint.z);
-				Draw.cube(-0.1, -0.1, -0.1, 0.1, 0.1, 0.1, Color.RED);
+				float s = 0.03F;
+				Draw.cube(-s, -s, -s, s, s, s, Color.RED);
 				GlStateManager.popMatrix();
-			}
+			}*/
 			
 			GlStateManager.pushMatrix();
 			GlHelper.transform(this.obBox.transform);
@@ -275,8 +295,29 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			renderLivingEntity(this.alterEntryToView);
 			
 			GlStateManager.disableTexture2D();
+			GlStateManager.enableBlend();
+			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			
-			if (alterEntryToView instanceof PlayerAlterEntry)
+			if (this.rig != null)
+			{
+				this.rig.updateTransform();
+				this.rig.nameToBoneMap.forEach((key, bone) -> {
+					
+					if (bone.isHoveredOver())
+					{
+						GlStateManager.pushMatrix();
+						GlHelper.transform(bone.collider.transform);
+						final double p = 0.03;
+						Draw.cube(bone.collider.min.getX() - p, bone.collider.min.getY() - p, bone.collider.min.getZ() - p,
+								  bone.collider.max.getX() + p, bone.collider.max.getY() + p, bone.collider.max.getZ() + p, new Color(1, 1, 1, 0.8F));
+						GlStateManager.popMatrix();
+					}
+				});
+			}
+			
+			RenderHelper.disableStandardItemLighting();
+			
+			/*if (alterEntryToView instanceof PlayerAlterEntry)
 			{
 				GlStateManager.pushMatrix();
 				
@@ -293,9 +334,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 						  this.obBox.max.getX(), this.obBox.max.getY(), this.obBox.max.getZ(), Color.GREEN);
 				
 				GlStateManager.popMatrix();
-			}
-			
-			RenderHelper.disableStandardItemLighting();
+			}*/
 			
 			GlStateManager.popMatrix();
 		}

@@ -1,5 +1,8 @@
 package net.gobbob.mobends.standard.previewer;
 
+import java.util.Map;
+
+import net.gobbob.mobends.core.animatedentity.BoneMetadata;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.data.SpiderData;
@@ -64,6 +67,12 @@ public class SpiderPreviewer implements IPreviewer<SpiderData>
 	@Override
 	public void postPreview(SpiderData data, String animationToPreview)
 	{
+	}
+
+	@Override
+	public Map<String, BoneMetadata> getBoneMetadata()
+	{
+		return null;
 	}
 	
 }

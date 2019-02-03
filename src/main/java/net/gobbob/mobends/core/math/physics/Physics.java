@@ -41,14 +41,14 @@ public class Physics
 		return null;
 	}
 	
-	public static RayHitInfo intersect(Ray ray, float maxDistance, AABBox box)
+	public static RayHitInfo intersect(Ray ray, AABBox box)
 	{
 		final float rayX = ray.position.getX();
 		final float rayY = ray.position.getY();
 		final float rayZ = ray.position.getZ();
-		final float dirX = ray.direction.getX() * maxDistance;
-		final float dirY = ray.direction.getY() * maxDistance;
-		final float dirZ = ray.direction.getZ() * maxDistance;
+		final float dirX = ray.direction.getX();
+		final float dirY = ray.direction.getY();
+		final float dirZ = ray.direction.getZ();
 		final float dirInvX = 1 / dirX;
 		final float dirInvY = 1 / dirY;
 		final float dirInvZ = 1 / dirZ;
@@ -78,7 +78,7 @@ public class Physics
 		return new RayHitInfo(rayX + dirX * tMin, rayY + dirY * tMin, rayZ + dirZ * tMin);
 	}
 	
-	public static RayHitInfo intersect(Ray ray, float maxDistance, OBBox box)
+	public static RayHitInfo intersect(Ray ray, OBBox box)
 	{
 		final double[] fields = box.transform.getFields();
 		final float rayX = ray.position.getX();
@@ -90,6 +90,12 @@ public class Physics
 		final Vec3f right = new Vec3f((float) fields[0], (float) fields[1], (float) fields[2]);
 		final Vec3f up = new Vec3f((float) fields[4], (float) fields[5], (float) fields[6]);
 		final Vec3f forward = new Vec3f((float) fields[8], (float) fields[9], (float) fields[10]);
+		float scaleX = right.length();
+		float scaleY = up.length();
+		float scaleZ = forward.length();
+		VectorUtils.normalize(right);
+		VectorUtils.normalize(up);
+		VectorUtils.normalize(forward);
 		
 		Vec3f rayToBox = new Vec3f(boxX - rayX, boxY - rayY, boxZ - rayZ);
 		float nomLen, denomLen;
@@ -101,8 +107,8 @@ public class Physics
 		
 		if (Math.abs(denomLen) > 0.00001)
 		{
-			float min = (nomLen + box.min.getX()) / denomLen;
-			float max = (nomLen + box.max.getX()) / denomLen;
+			float min = (nomLen + box.min.getX() * scaleX) / denomLen;
+			float max = (nomLen + box.max.getX() * scaleX) / denomLen;
 			
 			if (min > max)
 			{
@@ -128,8 +134,8 @@ public class Physics
 		
 		if (Math.abs(denomLen) > 0.00001)
 		{
-			float min = (nomLen + box.min.getY()) / denomLen;
-			float max = (nomLen + box.max.getY()) / denomLen;
+			float min = (nomLen + box.min.getY() * scaleY) / denomLen;
+			float max = (nomLen + box.max.getY() * scaleY) / denomLen;
 			
 			if (min > max)
 			{
@@ -155,8 +161,8 @@ public class Physics
 		
 		if (Math.abs(denomLen) > 0.00001)
 		{
-			float min = (nomLen + box.min.getZ()) / denomLen;
-			float max = (nomLen + box.max.getZ()) / denomLen;
+			float min = (nomLen + box.min.getZ() * scaleZ) / denomLen;
+			float max = (nomLen + box.max.getZ() * scaleZ) / denomLen;
 			
 			if (min > max)
 			{

@@ -3,9 +3,7 @@ package net.gobbob.mobends.core.client.model;
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
-import net.gobbob.mobends.core.math.matrix.Mat4x4d;
-import net.gobbob.mobends.core.math.matrix.MatrixUtils;
-import net.gobbob.mobends.core.math.physics.IAABBox;
+import net.gobbob.mobends.core.math.physics.ICollider;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
@@ -35,6 +33,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	ModelRenderer model;
 	
 	protected IModelPart parent;
+	protected ICollider collider;
 	
 	public ModelPartContainer(ModelBase modelBase, ModelRenderer model)
 	{
@@ -212,12 +211,6 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
     	
     	if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
     		TransformUtils.scale(matrix, this.scale.x, this.scale.y, this.scale.z);
-	}
-
-	@Override
-	public IAABBox getBounds()
-	{
-		return null;
 	}
 	
 }

@@ -1,7 +1,9 @@
 package net.gobbob.mobends.core.animatedentity;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import net.gobbob.mobends.core.data.LivingEntityData;
@@ -9,15 +11,10 @@ import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EnumPlayerModelParts;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 public abstract class AlterEntry<T extends EntityLivingBase>
@@ -47,12 +44,14 @@ public abstract class AlterEntry<T extends EntityLivingBase>
 	
 	protected final IPreviewer<?> previewer;
 	protected AnimatedEntity<T> owner;
+	protected Map<String, BoneMetadata> boneMetadataMap;
 	
 	public AlterEntry(String postfix, String unlocalizedName, IPreviewer<?> previewer)
 	{
 		this.postfix = postfix;
 		this.unlocalizedName = unlocalizedName;
 		this.previewer = previewer;
+		this.boneMetadataMap = new HashMap<>();
 	}
 	
 	public AlterEntry(IPreviewer<?> previewer)

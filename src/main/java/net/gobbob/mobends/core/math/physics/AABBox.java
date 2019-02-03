@@ -5,7 +5,7 @@ import java.util.Collections;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3fReadonly;
 
-public class AABBox implements IAABBox
+public class AABBox implements IAABBox, ICollider
 {
 	
 	public final Vec3fReadonly min;
@@ -20,7 +20,13 @@ public class AABBox implements IAABBox
 	public AABBox(float x0, float y0, float z0, float x1, float y1, float z1)
 	{
 		this.min = new Vec3fReadonly(x0, y0, z0);
-		this.max = new Vec3fReadonly(z1, y1, z1);
+		this.max = new Vec3fReadonly(x1, y1, z1);
+	}
+	
+	public AABBox(IAABBox src)
+	{
+		this.min = new Vec3fReadonly(src.getMin());
+		this.max = new Vec3fReadonly(src.getMax());
 	}
 
 	@Override
@@ -33,6 +39,12 @@ public class AABBox implements IAABBox
 	public IVec3fRead getMax()
 	{
 		return this.max;
+	}
+
+	@Override
+	public RayHitInfo intersect(Ray ray)
+	{
+		return Physics.intersect(ray, this);
 	}
 	
 }

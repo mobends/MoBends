@@ -1,13 +1,16 @@
 package net.gobbob.mobends.core.client.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import akka.util.Collections;
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
-import net.gobbob.mobends.core.math.physics.AABBox;
+import net.gobbob.mobends.core.math.physics.AABBoxGroup;
 import net.gobbob.mobends.core.math.physics.IAABBox;
+import net.gobbob.mobends.core.math.physics.ICollider;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
@@ -32,7 +35,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	 * This part's parent, if it has one.
 	 */
 	protected IModelPart parent;
-	protected AABBox bounds;
+	protected ICollider collider;
 	
 	public ModelPart(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
 	{
@@ -292,9 +295,19 @@ public class ModelPart extends ModelRenderer implements IModelPart
 	
 	protected void updateBounds()
 	{
-		for (MutatedBox box : this.mutatedBoxes)
+		if (this.mutatedBoxes.size() == 1)
 		{
+			this.collider = this.mutatedBoxes.get(0).createAABB();
+		}
+		else
+		{
+			IAABBox[] bounds = new IAABBox[this.mutatedBoxes.size()];
+			for (int i = 0; i < bounds.length; ++i)
+			{
+				bounds[i] = this.mutatedBoxes.get(i).createAABB();
+			}
 			
+			this.collider = new AABBoxGroup(bounds);
 		}
 	}
 	
@@ -343,12 +356,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
     		TransformUtils.scale(matrix, this.scale.x, this.scale.y, this.scale.z, matrix);
 	}
 
-	@Override
-	public IAABBox getBounds()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 	public int getTextureOffsetX()
 	{

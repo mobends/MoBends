@@ -2,9 +2,7 @@ package net.gobbob.mobends.core.client.model;
 
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
-import net.gobbob.mobends.core.math.matrix.Mat4x4d;
-import net.gobbob.mobends.core.math.matrix.MatrixUtils;
-import net.gobbob.mobends.core.math.physics.IAABBox;
+import net.gobbob.mobends.core.math.physics.ICollider;
 import net.gobbob.mobends.core.math.vector.IVec3f;
 
 public interface IModelPart
@@ -29,14 +27,12 @@ public interface IModelPart
 	void update(float ticksPerFrame);
 	void applyLocalSpaceTransform(float scale, IMat4x4d dest);
 	void syncUp(IModelPart part);
+	void setVisible(boolean showModel);
 	IVec3f getPosition();
 	IVec3f getScale();
 	SmoothOrientation getRotation();
 	IModelPart getParent();
-	IAABBox getBounds();
-	
 	boolean isShowing();
-	void setVisible(boolean showModel);
 	
 	default void applyCharacterSpaceTransform(float scale, IMat4x4d matrix)
 	{

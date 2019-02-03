@@ -129,12 +129,5 @@ public class ModelPartTransform implements IModelPart
 	{
 		return this.parent;
 	}
-
-	@Override
-	public IAABBox getBounds()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 }

@@ -1,5 +1,6 @@
 package net.gobbob.mobends.core.client.model;
 
+import net.gobbob.mobends.core.math.physics.AABBox;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;
@@ -148,6 +149,11 @@ public class MutatedBox extends net.minecraft.client.model.ModelBox
 	public boolean isFaceVisible(int faceIndex)
 	{
 		return ((faceVisibilityFlag >> faceIndex) & 1) == 1;
+	}
+	
+	public AABBox createAABB()
+	{
+		return new AABBox(this.posX1, this.posY1, this.posZ1, this.posX2, this.posY2, this.posZ2);
 	}
 	
 }
