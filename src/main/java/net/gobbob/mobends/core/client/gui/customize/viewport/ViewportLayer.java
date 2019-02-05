@@ -19,6 +19,7 @@ import net.gobbob.mobends.core.math.physics.Ray;
 import net.gobbob.mobends.core.math.physics.RayHitInfo;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3f;
+import net.gobbob.mobends.core.math.vector.VectorUtils;
 import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
@@ -49,7 +50,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private AlterEntryRig rig;
 	
 	private Mesh standBlockMesh;
-	private Ray ray;
 	private Plane groundPlane;
 	private OBBox obBox;
 	private Vec3f contactPoint;
@@ -117,23 +117,36 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		if (Keyboard.isKeyDown(Keyboard.KEY_A) || Keyboard.isKeyDown(Keyboard.KEY_LEFT))
 			this.camera.moveSideways(-moveSpeed);
 		
-		this.ray = this.camera.getRayFromMouse(mouseX, mouseY, this.width, this.height);
+		AlterEntryRig.Bone boneAtMouse = this.getBoneAtScreenCoords(mouseX, mouseY);
 		if (this.rig != null)
 		{
+			this.rig.hoverOver(boneAtMouse);
+		}
+	}
+	
+	public AlterEntryRig.Bone getBoneAtScreenCoords(int screenX, int screenY)
+	{
+		AlterEntryRig.Bone closestBone = null;
+		Ray ray = this.camera.getRayFromScreen(screenX, screenY, this.width, this.height);
+		if (this.rig != null)
+		{
+			float smallestDistanceSq = 0;
 			for (AlterEntryRig.Bone bone : this.rig.nameToBoneMap.values())
 			{
-				RayHitInfo hit = Physics.intersect(this.ray, bone.collider);
+				RayHitInfo hit = Physics.intersect(ray, bone.collider);
 				if (hit != null)
 				{
-					this.contactPoint.set(hit.hitPoint);
-					bone.onHover();
-				}
-				else
-				{
-					bone.onHoverLeave();
+					float distanceSq = VectorUtils.distanceSq(hit.hitPoint, camera.getPosition());
+					if (closestBone == null || distanceSq < smallestDistanceSq)
+					{
+						closestBone = bone;
+						smallestDistanceSq = distanceSq;
+					}
 				}
 			}
 		}
+		
+		return closestBone;
 	}
 	
 	@Override
@@ -206,28 +219,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		
 		if (button == 0)
 		{
-			this.ray = this.camera.getRayFromMouse(mouseX, mouseY, this.width, this.height);
-			if (this.rig != null)
-			{
-				for (AlterEntryRig.Bone bone : this.rig.nameToBoneMap.values())
-				{
-					RayHitInfo hit = Physics.intersect(this.ray, bone.collider);
-					if (hit != null)
-					{
-						this.contactPoint.set(hit.hitPoint);
-						bone.onHover();
-					}
-					else
-					{
-						bone.onHoverLeave();
-					}
-				}
-			}
+			AlterEntryRig.Bone boneAtMouse = this.getBoneAtScreenCoords(mouseX, mouseY);
 			
-			RayHitInfo hit = Physics.intersect(this.ray, this.obBox);
-			if (hit != null)
+			if (boneAtMouse != null)
 			{
-				this.contactPoint.set(hit.hitPoint);
+				rig.select(boneAtMouse);
 			}
 		}
 		
@@ -259,11 +255,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			RenderHelper.enableStandardItemLighting();
 			GlStateManager.color(1, 1, 1);
 			mc.getTextureManager().bindTexture(STAND_BLOCK_TEXTURE);
-			//this.standBlockMesh.display();
+			this.standBlockMesh.display();
 			
 			GlStateManager.disableTexture2D();
 			
-			if (this.ray != null)
+			/*if (this.ray != null)
 			{
 				final float scale = 5;
 				IVec3fRead pos = this.ray.getPosition();
@@ -272,7 +268,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 				Draw.line(pos.getX(), pos.getY(), pos.getZ(),
 						  pos.getX() + dir.getX() * scale, pos.getY() + dir.getY() * scale, pos.getZ() + dir.getZ() * scale,
 						  Color.RED);
-			}
+			}*/
 			
 			/*if (this.contactPoint != null)
 			{
@@ -297,44 +293,27 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			GlStateManager.disableTexture2D();
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			RenderHelper.disableStandardItemLighting();
 			
 			if (this.rig != null)
 			{
 				this.rig.updateTransform();
 				this.rig.nameToBoneMap.forEach((key, bone) -> {
 					
-					if (bone.isHoveredOver())
+					if (this.rig.isBoneHoveredOver(bone) || this.rig.isBoneSelected(bone))
 					{
+						Color color = this.rig.isBoneHoveredOver(bone) ? new Color(1, 1, 1, 0.6F) : new Color(1, 1, 0.9F, 0.7F);
+						
 						GlStateManager.pushMatrix();
 						GlHelper.transform(bone.collider.transform);
 						final double p = 0.03;
 						Draw.cube(bone.collider.min.getX() - p, bone.collider.min.getY() - p, bone.collider.min.getZ() - p,
-								  bone.collider.max.getX() + p, bone.collider.max.getY() + p, bone.collider.max.getZ() + p, new Color(1, 1, 1, 0.8F));
+								  bone.collider.max.getX() + p, bone.collider.max.getY() + p, bone.collider.max.getZ() + p, color);
 						GlStateManager.popMatrix();
 					}
+					
 				});
 			}
-			
-			RenderHelper.disableStandardItemLighting();
-			
-			/*if (alterEntryToView instanceof PlayerAlterEntry)
-			{
-				GlStateManager.pushMatrix();
-				
-				Mat4x4d mat = new Mat4x4d(Mat4x4d.IDENTITY);
-				TransformUtils.scale(mat, -1, 1, -1);
-				alterEntryToView.transformModelToCharacterSpace(mat);
-				
-				PlayerData data = (PlayerData) alterEntryToView.getDataForPreview();
-				
-				data.leftForeArm.applyCharacterSpaceTransform(0.0625F, mat);
-				GlHelper.transform(mat);
-				//GlStateManager.translate(0, -0.5F, 0);
-				Draw.cube(this.obBox.min.getX(), this.obBox.min.getY(), this.obBox.min.getZ(),
-						  this.obBox.max.getX(), this.obBox.max.getY(), this.obBox.max.getZ(), Color.GREEN);
-				
-				GlStateManager.popMatrix();
-			}*/
 			
 			GlStateManager.popMatrix();
 		}

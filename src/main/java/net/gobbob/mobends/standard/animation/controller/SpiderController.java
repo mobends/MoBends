@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
-import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.standard.DefaultAddon;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.monster.EntitySpider;
 
@@ -19,9 +20,9 @@ import net.minecraft.entity.monster.EntitySpider;
  * @author Iwo Plaza
  * 
  */
-public class SpiderController extends Controller<SpiderData>
+public class SpiderController implements IAnimationController<SpiderData>
 {
-	final String animationTarget = "spider";
+	
 	protected HardAnimationLayer<SpiderData> layerBase;
 	protected AnimationBit<SpiderData> bitIdle, bitMove, bitJump;
 	protected AnimationBit<SpiderData> bitDeath;
@@ -79,7 +80,7 @@ public class SpiderController extends Controller<SpiderData>
 		List<String> actions = new ArrayList<String>();
 		this.layerBase.perform(spiderData, actions);
 		
-		BendsPack.animate(spiderData, this.animationTarget, actions);
+		BendsPack.animate(spiderData, DefaultAddon.spiderKey, actions);
 	}
 	
 	public static void putLimbOnGround(SmoothOrientation upperLimb, SmoothOrientation lowerLimb, boolean odd, double stretchDistance, double groundLevel)
@@ -101,4 +102,5 @@ public class SpiderController extends Controller<SpiderData>
 		upperLimb.localRotateZ((float) (upperAngle / Math.PI * 180) * (odd ? -1 : 1)).finish();
 		lowerLimb.orientInstantZ((float) (lowerAngle / Math.PI * 180) * (odd ? -1 : 1));
 	}
+	
 }

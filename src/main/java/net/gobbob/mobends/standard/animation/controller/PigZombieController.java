@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
-import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.standard.DefaultAddon;
 import net.gobbob.mobends.standard.animation.bit.biped.AttackSlashUpAnimationBit;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.gobbob.mobends.standard.data.PigZombieData;
@@ -20,9 +21,9 @@ import net.minecraft.entity.monster.EntityPigZombie;
  * @author Iwo Plaza
  *
  */
-public class PigZombieController extends Controller<PigZombieData>
+public class PigZombieController implements IAnimationController<PigZombieData>
 {
-	final String animationTarget = "pig_zombie";
+	
 	protected HardAnimationLayer<BipedEntityData<EntityPigZombie>> layerBase;
 	protected HardAnimationLayer<BipedEntityData<?>> layerAction;
 	protected AnimationBit<? extends BipedEntityData<EntityPigZombie>> bitStand, bitWalk, bitJump;
@@ -73,7 +74,7 @@ public class PigZombieController extends Controller<PigZombieData>
 		this.layerBase.perform(pigZombieData, actions);
 		this.layerAction.perform(pigZombieData, actions);
 		
-		BendsPack.animate(pigZombieData, this.animationTarget, actions);
+		BendsPack.animate(pigZombieData, DefaultAddon.pigZombieKey, actions);
 	}
 
 }

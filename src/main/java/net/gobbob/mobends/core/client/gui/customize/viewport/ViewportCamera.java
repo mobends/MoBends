@@ -285,7 +285,7 @@ public class ViewportCamera
 		return this.projectionMatrix;
 	}
 	
-	public Ray getRayFromMouse(int mx, int my, int width, int height)
+	public Ray getRayFromScreen(int mx, int my, int width, int height)
 	{
 		float nx = ((float)mx / (float)width) * 2 - 1;
 		float ny = 1 - ((float)my / (float)height) * 2;

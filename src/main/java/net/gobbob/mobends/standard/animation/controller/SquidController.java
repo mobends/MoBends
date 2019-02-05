@@ -1,6 +1,6 @@
 package net.gobbob.mobends.standard.animation.controller;
 
-import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.util.GUtil;
@@ -15,9 +15,9 @@ import net.minecraft.util.math.MathHelper;
  * @author Iwo Plaza
  *
  */
-public class SquidController extends Controller<SquidData>
+public class SquidController implements IAnimationController<SquidData>
 {
-	final String animationTarget = "squid";
+	
 	protected HardAnimationLayer<SquidData> layerBase;
 
 	@Override
@@ -61,4 +61,5 @@ public class SquidController extends Controller<SquidData>
 			}
         }*/
 	}
+	
 }

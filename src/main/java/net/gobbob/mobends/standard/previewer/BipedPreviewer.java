@@ -19,7 +19,7 @@ public class BipedPreviewer<D extends BipedEntityData<?>> implements IPreviewer<
 	private static final Map<String, BoneMetadata> BONE_METADATA = new HashMap<String, BoneMetadata>() {{
 		put("head", new BoneMetadata(-4F, -8F, -4F, 4F, 0F, 4F));
 		put("body", new BoneMetadata(-4.0F, -12.0F, -2.0F, 4F, 0, 2F));
-		put("leftArm", new BoneMetadata(-1.0F, -2.0F, -2.0F, 3F, 5F, 2F));
+		put("leftArm", new BoneMetadata(-1.0F, -2.0F, -2.0F, 3F, 4F, 2F));
 		put("rightArm", new BoneMetadata(-4F + 1F, -2.0F, -2.0F, 1F, 4F, 2F));
 		
 //		"body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg", "rightLeg",

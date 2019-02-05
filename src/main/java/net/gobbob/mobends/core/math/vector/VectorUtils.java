@@ -87,12 +87,17 @@ public class VectorUtils
 		return dest;
 	}
 	
-	public static float distance(IVec3fRead left, IVec3fRead right)
+	public static float distanceSq(IVec3fRead left, IVec3fRead right)
 	{
 		float dx = left.getX() - right.getX();
 		float dy = left.getY() - right.getY();
 		float dz = left.getZ() - right.getZ();
-		return (float) Math.sqrt(dx*dx + dy*dy + dz*dz);
+		return dx*dx + dy*dy + dz*dz;
+	}
+	
+	public static float distance(IVec3fRead left, IVec3fRead right)
+	{
+		return (float) Math.sqrt(distanceSq(left, right));
 	}
 
 	public static void subtract(IVec3fRead a, IVec3fRead b, IVec3f dest)

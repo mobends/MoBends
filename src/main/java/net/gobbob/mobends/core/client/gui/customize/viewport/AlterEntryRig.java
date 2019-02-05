@@ -21,6 +21,8 @@ public class AlterEntryRig
 	
 	private final AlterEntry alterEntry;
 	final Map<String, Bone> nameToBoneMap = new HashMap<>();
+	private Bone hoveredOverBone = null;
+	private Bone selectedBone = null;
 	
 	public AlterEntryRig(AlterEntry alterEntry)
 	{
@@ -57,42 +59,45 @@ public class AlterEntryRig
 		});
 	}
 	
+	public void hoverOver(Bone bone)
+	{
+		this.hoveredOverBone = bone;
+	}
+	
+	public void select(Bone bone)
+	{
+		this.selectedBone = bone;
+	}
+
+	public boolean isBoneHoveredOver(Bone bone)
+	{
+		return bone == this.hoveredOverBone;
+	}
+	
+	public boolean isBoneSelected(Bone bone)
+	{
+		return bone == this.selectedBone;
+	}
+	
 	public static class Bone
 	{
 		
 		final IModelPart part;
 		final OBBox collider;
-		private boolean hover;
 		
 		public Bone(IModelPart part, IAABBox bounds)
 		{
 			this.part = part;
 			this.collider = new OBBox(bounds);
-			this.hover = false;
 		}
 		
 		public void updateTransform(IMat4x4d parentMat)
 		{
 			this.collider.transform.copyFrom(parentMat);
 			this.part.applyCharacterSpaceTransform(0.0625F, this.collider.transform);
-			//TransformUtils.scale(this.collider.transform, 0.5F, 0.5F, 0.5F);
 			TransformUtils.scale(this.collider.transform, 0.0625F, 0.0625F, 0.0625F);
 		}
 		
-		public void onHover()
-		{
-			this.hover = true;
-		}
-		
-		public void onHoverLeave()
-		{
-			this.hover = false;
-		}
-		
-		public boolean isHoveredOver()
-		{
-			return this.hover;
-		}
 	}
 	
 }

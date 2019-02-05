@@ -3,7 +3,7 @@ package net.gobbob.mobends.core.data;
 import java.util.HashMap;
 import java.util.List;
 
-import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.math.SmoothOrientation;
@@ -141,7 +141,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 				(Math.abs(motionX) < 1e-9 && Math.abs(motionZ) < 1e-9);
 	}
 
-	public abstract Controller<?> getController();
+	public abstract IAnimationController<?> getController();
 	
 	/*
 	 * Called during the render tick in EntityDatabase.updateRender()

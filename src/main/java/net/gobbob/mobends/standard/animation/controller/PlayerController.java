@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.bit.KeyframeAnimationBit;
-import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.keyframe.ArmatureMask;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.animation.layer.KeyframeAnimationLayer;
@@ -35,9 +35,9 @@ import net.minecraft.util.EnumHandSide;
  * This is an animation controller for a player instance.
  * It's a part of the EntityData structure.
  */
-public class PlayerController extends Controller<PlayerData>
+public class PlayerController implements IAnimationController<PlayerData>
 {
-	protected final String animationTarget;
+	
 	protected HardAnimationLayer<BipedEntityData<?>> layerBase;
 	protected HardAnimationLayer<BipedEntityData<?>> layerTorch;
 	protected HardAnimationLayer<BipedEntityData<?>> layerSneak;
@@ -58,8 +58,6 @@ public class PlayerController extends Controller<PlayerData>
 
 	public PlayerController()
 	{
-		animationTarget = DefaultAddon.playerKey;
-		
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerTorch = new HardAnimationLayer<>();
 		this.layerSneak = new HardAnimationLayer<>();
@@ -281,6 +279,7 @@ public class PlayerController extends Controller<PlayerData>
 		layerAction.perform(data, actions);
 		layerKeyframe.perform(data, actions);
 
-		BendsPack.animate(data, this.animationTarget, actions);
+		BendsPack.animate(data, DefaultAddon.playerKey, actions);
 	}
+	
 }

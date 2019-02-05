@@ -37,7 +37,12 @@ import net.minecraft.entity.passive.EntitySquid;
 public class DefaultAddon implements IAddon
 {
 
-	public static String playerKey, zombieKey, zombieVillagerKey;
+	public static String playerKey,
+						 zombieKey,
+						 zombieVillagerKey,
+						 pigZombieKey,
+						 spiderKey,
+						 squidKey;
 	
 	@Override
 	public void registerAnimatedEntities(AddonAnimationRegistry registry)
@@ -57,17 +62,17 @@ public class DefaultAddon implements IAddon
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 		
-		registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>(),
+		pigZombieKey = registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>(),
 				new BipedPreviewer<>(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 
-		registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>(),
+		spiderKey = registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>(),
 				new SpiderPreviewer(),
 				"head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6", "leg7", "leg8",
 				"foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5", "foreLeg6", "foreLeg7", "foreLeg8");
 
-		registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>(),
+		squidKey = registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>(),
 				"body", "tentacle1", "tentacle2", "tentacle3", "tentacle4", "tentacle5", "tentacle6", "tentacle7", "tentacle8");
 		
 //		registry.registerEntity(new AnimatedEntity(EntityHusk.class,

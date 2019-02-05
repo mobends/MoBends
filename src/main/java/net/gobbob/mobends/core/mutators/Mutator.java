@@ -2,7 +2,7 @@ package net.gobbob.mobends.core.mutators;
 
 import java.util.List;
 
-import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.data.LivingEntityData;
@@ -15,6 +15,7 @@ import net.minecraft.util.math.MathHelper;
 
 public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLivingBase, M extends ModelBase>
 {
+	
 	protected M vanillaModel;
 	protected float headYaw, headPitch, limbSwing, limbSwingAmount;
 	
@@ -174,7 +175,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 		data.limbSwingAmount.set(this.limbSwingAmount);
 
 		@SuppressWarnings("unchecked")
-		Controller<D> controller = (Controller<D>) data.getController();
+		IAnimationController<D> controller = (IAnimationController<D>) data.getController();
 		controller.perform(data);
 	}
 	
@@ -199,4 +200,5 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 	 * Called right after this mutator has been refreshed.
 	 */
 	public void postRefresh() {}
+	
 }

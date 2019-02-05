@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
-import net.gobbob.mobends.core.animation.controller.Controller;
+import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.variable.BendsVariable;
@@ -23,9 +23,9 @@ import net.minecraft.util.EnumHandSide;
  * @author Iwo Plaza
  *
  */
-public class ZombieController extends Controller<ZombieData>
+public class ZombieController implements IAnimationController<ZombieData>
 {
-	protected String animationTarget;
+	
 	protected HardAnimationLayer<ZombieData> layerBase;
 	protected HardAnimationLayer<ZombieData> layerSet;
 	protected AnimationBit<ZombieData> bitStand, bitWalk, bitJump;
@@ -33,8 +33,6 @@ public class ZombieController extends Controller<ZombieData>
 	
 	public ZombieController()
 	{
-		animationTarget = DefaultAddon.zombieKey;
-		
 		this.layerBase = new HardAnimationLayer<>();
 		this.layerSet = new HardAnimationLayer<>();
 		this.bitStand = new net.gobbob.mobends.standard.animation.bit.biped.StandAnimationBit<>();
@@ -119,6 +117,7 @@ public class ZombieController extends Controller<ZombieData>
 		this.layerBase.perform(zombieData, actions);
 		this.layerSet.perform(zombieData, actions);
 		
-		BendsPack.animate(zombieData, this.animationTarget, actions);
+		BendsPack.animate(zombieData, DefaultAddon.zombieKey, actions);
 	}
+	
 }
