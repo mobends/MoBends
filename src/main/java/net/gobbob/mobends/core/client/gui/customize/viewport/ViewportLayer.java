@@ -1,5 +1,7 @@
 package net.gobbob.mobends.core.client.gui.customize.viewport;
 
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.client.gui.elements.GuiToggleButton;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -48,7 +50,8 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private int width, height;
 	private AlterEntry<?> alterEntryToView;
 	private AlterEntryRig rig;
-	
+	private GuiToggleButton toggleButton;
+
 	private Mesh standBlockMesh;
 	private Plane groundPlane;
 	private OBBox obBox;
@@ -59,7 +62,9 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		this.mc = Minecraft.getMinecraft();
 		this.camera = new ViewportCamera(0, 0, 0, -45F / 180.0F * GUtil.PI, 45F / 180.0F * GUtil.PI);
 		this.camera.anchorTo(0, 0, 0, 1);
-		
+
+		this.toggleButton = new GuiToggleButton();
+
 		IBlockState state = Blocks.GRASS.getDefaultState();
 		IBakedModel model = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
 		
@@ -107,7 +112,9 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	public void update(int mouseX, int mouseY)
 	{
 		final float moveSpeed = 0.5F;
-		
+
+		this.camera.update();
+
 		if (Keyboard.isKeyDown(Keyboard.KEY_W) || Keyboard.isKeyDown(Keyboard.KEY_UP))
 			this.camera.moveForward(moveSpeed);
 		if (Keyboard.isKeyDown(Keyboard.KEY_S) || Keyboard.isKeyDown(Keyboard.KEY_DOWN))
@@ -198,7 +205,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		}
 
 		// Mouse wheel
-		
+
 		int mouseWheelRoll = Mouse.getEventDWheel();
 		
 		if (mouseWheelRoll != 0)
@@ -250,7 +257,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.loadIdentity();
-			this.camera.applyViewTransform();
+			this.camera.applyViewTransform(DataUpdateHandler.partialTicks);
 			
 			RenderHelper.enableStandardItemLighting();
 			GlStateManager.color(1, 1, 1);

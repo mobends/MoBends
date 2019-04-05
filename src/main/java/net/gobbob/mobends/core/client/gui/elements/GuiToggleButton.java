@@ -5,16 +5,16 @@ import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class GuiHelpButton
+public class GuiToggleButton
 {
 
     public static final int WIDTH = 20;
-    public static final int HEIGHT = 20;
+    public static final int HEIGHT = 16;
 
     protected int x, y;
     protected boolean hovered;
 
-    public GuiHelpButton()
+    public GuiToggleButton()
     {
         this.x = 0;
         this.y = 0;
@@ -29,7 +29,7 @@ public class GuiHelpButton
 
     public void update(int mouseX, int mouseY)
     {
-        hovered = mouseX >= x && mouseX <= x + WIDTH &&
+        this.hovered = mouseX >= x && mouseX <= x + WIDTH &&
                 mouseY >= y && mouseY <= y + HEIGHT;
     }
 
