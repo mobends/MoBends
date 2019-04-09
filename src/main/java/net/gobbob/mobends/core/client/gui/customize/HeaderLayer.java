@@ -6,6 +6,7 @@ import net.gobbob.mobends.core.client.gui.IChangeListener;
 import net.gobbob.mobends.core.client.gui.IObservable;
 import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.elements.GuiDropDownList;
+import net.gobbob.mobends.core.client.gui.elements.GuiPartHierarchy;
 import net.gobbob.mobends.core.client.gui.elements.GuiToggleButton;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
@@ -18,6 +19,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 	private final GuiCustomizeWindow customizeWindow;
 	private final GuiDropDownList<AlterEntry<?>> targetList;
 	private final GuiToggleButton toggleButton;
+	private final GuiPartHierarchy hierarchy;
 	
 	private AlterEntry<?> alterEntryToView;
 	
@@ -27,6 +29,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		this.targetList = new GuiDropDownList().forbidNoValue();
 		this.targetList.addListener(this);
 		this.toggleButton = new GuiToggleButton("Animated", 64);
+		this.hierarchy = new GuiPartHierarchy();
 		
 		for (AlterEntry alterEntry : customizeWindow.alterEntries)
 		{
@@ -49,6 +52,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		if (this.alterEntryToView != alterEntry)
 		{
 			this.toggleButton.setToggleState(alterEntry.isAnimated());
+			this.hierarchy.setParts(alterEntry.getOwner().getAlterableParts());
 		}
 		
 		this.alterEntryToView = alterEntry;
@@ -67,6 +71,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		GlStateManager.enableTexture2D();
 		this.toggleButton.draw();
 		this.targetList.display();
+		this.hierarchy.draw();
 	}
 	
 	@Override
