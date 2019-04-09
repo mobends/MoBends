@@ -73,6 +73,7 @@ public class GuiCustomizeWindow extends GuiScreen
 		super.initGui();
 		
 		this.headerLayer.initGui(0, 0);
+		this.viewportLayer.initGui();
 		
 		for (IGuiLayer layer : this.layers)
 		{

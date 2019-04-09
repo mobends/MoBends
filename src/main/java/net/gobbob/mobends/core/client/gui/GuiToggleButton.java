@@ -23,10 +23,10 @@ public class GuiToggleButton extends GuiButton{
 		this.displayString = state ? "ON" : "OFF";
 	}
 	
-	public GuiToggleButton setTitle(String argTitle,int argWidth){
+	public GuiToggleButton setTitle(String argTitle, int argWidth){
 		this.title = argTitle;
 		this.titleWidth = argWidth;
-		this.x+=argWidth;
+		this.x += argWidth;
 		return this;
 	}
 	
