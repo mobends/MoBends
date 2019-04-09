@@ -53,6 +53,11 @@ public class AlterEntryRig
 		Mat4x4d mat = new Mat4x4d(Mat4x4d.IDENTITY);
 		TransformUtils.scale(mat, -1, 1, -1);
 		alterEntry.transformModelToCharacterSpace(mat);
+		TransformUtils.scale(mat, 0.0625F, 0.0625F, 0.0625F);
+		
+		LivingEntityData data = alterEntry.getDataForPreview();
+		
+		TransformUtils.translate(mat, data.renderOffset.getX(), -data.renderOffset.getY(), data.renderOffset.getZ());
 		
 		this.nameToBoneMap.forEach((key, bone) -> {
 			bone.updateTransform(mat);
@@ -94,8 +99,7 @@ public class AlterEntryRig
 		public void updateTransform(IMat4x4d parentMat)
 		{
 			this.collider.transform.copyFrom(parentMat);
-			this.part.applyCharacterSpaceTransform(0.0625F, this.collider.transform);
-			TransformUtils.scale(this.collider.transform, 0.0625F, 0.0625F, 0.0625F);
+			this.part.applyCharacterSpaceTransform(1, this.collider.transform);
 		}
 		
 	}

@@ -64,6 +64,7 @@ public class GuiCustomizeWindow extends GuiScreen
 		this.layers.add(this.headerLayer);
 		
 		this.viewportLayer.showAlterEntry(this.currentAlterEntry);
+		this.headerLayer.showAlterEntry(this.currentAlterEntry);
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
 	}
 
@@ -203,6 +204,7 @@ public class GuiCustomizeWindow extends GuiScreen
 		{
 			this.currentAlterEntry = alterEntry;
 			this.viewportLayer.showAlterEntry(this.currentAlterEntry);
+			this.headerLayer.showAlterEntry(this.currentAlterEntry);
 			lastAlterEntryViewed = alterEntry;
 		}
 	}

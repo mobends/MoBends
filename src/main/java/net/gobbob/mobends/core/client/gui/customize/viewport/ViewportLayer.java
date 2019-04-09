@@ -50,7 +50,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private int width, height;
 	private AlterEntry<?> alterEntryToView;
 	private AlterEntryRig rig;
-	private GuiToggleButton toggleButton;
 
 	private Mesh standBlockMesh;
 	private Plane groundPlane;
@@ -62,8 +61,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		this.mc = Minecraft.getMinecraft();
 		this.camera = new ViewportCamera(0, 0, 0, -45F / 180.0F * GUtil.PI, 45F / 180.0F * GUtil.PI);
 		this.camera.anchorTo(0, 0, 0, 1);
-
-		this.toggleButton = new GuiToggleButton("Animated", 50);
 
 		IBlockState state = Blocks.GRASS.getDefaultState();
 		IBakedModel model = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
@@ -84,7 +81,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 
 	public void initGui()
 	{
-		this.toggleButton.initGui(10, 80);
 	}
 
 	public void showAlterEntry(AlterEntry<?> alterEntry)
@@ -191,7 +187,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		float dx = Mouse.getEventDX();
 		float dy = Mouse.getEventDY();
 
-		if (Mouse.isButtonDown(2))
+		if (Mouse.isButtonDown(2) || Mouse.isButtonDown(1))
 		{
 			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 			{
@@ -228,7 +224,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	public boolean handleMouseClicked(int mouseX, int mouseY, int button)
 	{
 		boolean eventHandled = false;
-
+		
 		if (button == 0)
 		{
 			AlterEntryRig.Bone boneAtMouse = this.getBoneAtScreenCoords(mouseX, mouseY);
@@ -291,13 +287,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 				GlStateManager.popMatrix();
 			}*/
 
-			GlStateManager.pushMatrix();
-			GlHelper.transform(this.obBox.transform);
-			double[] fields = this.obBox.transform.getFields();
-			Draw.cube(this.obBox.min.getX(), this.obBox.min.getY(), this.obBox.min.getZ(),
-					  this.obBox.max.getX(), this.obBox.max.getY(), this.obBox.max.getZ(), new Color(0, 0, 0, 0.5F));
-			GlStateManager.popMatrix();
-
 			GlStateManager.enableTexture2D();
 
 			renderLivingEntity(this.alterEntryToView);
@@ -307,7 +296,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			RenderHelper.disableStandardItemLighting();
 
-			if (this.rig != null)
+			if (this.rig != null && this.alterEntryToView.isAnimated())
 			{
 				this.rig.updateTransform();
 				this.rig.nameToBoneMap.forEach((key, bone) -> {
@@ -333,9 +322,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		GlStateManager.matrixMode(GL11.GL_PROJECTION);
 		GlStateManager.popMatrix();
 		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-
-		GlStateManager.enableTexture2D();
-		this.toggleButton.draw();
 
 		//GL11.glDisable(GL11.GL_SCISSOR_TEST);
 	}
