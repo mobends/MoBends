@@ -180,7 +180,12 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 	}
 	
 	public abstract void syncUpWithData(D data);
-	
+
+	public D getData(E entity)
+	{
+		return EntityDatabase.instance.get(entity);
+	}
+
 	public D getOrMakeData(E entity)
 	{
 		return EntityDatabase.instance.getOrMake(dataFactory, entity);

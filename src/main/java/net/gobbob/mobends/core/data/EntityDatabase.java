@@ -20,9 +20,9 @@ public class EntityDatabase
 		return entryMap.get(identifier);
 	}
 
-	public EntityData<?> get(Entity entity)
+	public <T extends EntityData<E>, E extends Entity> T get(E entity)
 	{
-		return this.get(entity.getEntityId());
+		return (T) this.get(entity.getEntityId());
 	}
 
 	/**

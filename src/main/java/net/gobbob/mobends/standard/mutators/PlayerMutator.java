@@ -258,10 +258,17 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	{
 		return model instanceof ModelPlayer;
 	}
-	
+
+	@Override
+	public PlayerData getData(AbstractClientPlayer entity)
+	{
+		return PlayerPreviewer.isPreviewInProgress() ? PlayerPreviewer.getPreviewData() : super.getData(entity);
+	}
+
 	@Override
 	public PlayerData getOrMakeData(AbstractClientPlayer entity)
 	{
 		return PlayerPreviewer.isPreviewInProgress() ? PlayerPreviewer.getPreviewData() : super.getOrMakeData(entity);
 	}
+
 }

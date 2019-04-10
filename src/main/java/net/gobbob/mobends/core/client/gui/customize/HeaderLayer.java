@@ -70,8 +70,8 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 	{
 		GlStateManager.enableTexture2D();
 		this.toggleButton.draw();
-		this.targetList.display();
 		this.hierarchy.draw();
+		this.targetList.display();
 	}
 	
 	@Override

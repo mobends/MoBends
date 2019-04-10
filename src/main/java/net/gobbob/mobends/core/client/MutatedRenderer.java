@@ -1,11 +1,13 @@
 package net.gobbob.mobends.core.client;
 
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.GlHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -16,7 +18,7 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 	/*
 	 * Called right before the entity is rendered
 	 */
-	public void beforeRender(T entity, float partialTicks)
+	public void beforeRender(EntityData<T> data, T entity, float partialTicks)
 	{
 		double entityX = entity.prevPosX + (entity.posX - entity.prevPosX) * partialTicks;
 		double entityY = entity.prevPosY + (entity.posY - entity.prevPosY) * partialTicks;
@@ -33,10 +35,8 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 		}
 		GlStateManager.translate(entityX - viewX, entityY - viewY, entityZ - viewZ);
 		GlStateManager.rotate(-interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
-		
-		EntityData<?> data = EntityDatabase.instance.get(entity);
+
 		this.renderLocalAccessories(entity, data, partialTicks);
-		
 		
 		if (data != null && data instanceof LivingEntityData)
 		{

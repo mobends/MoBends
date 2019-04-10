@@ -259,4 +259,5 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	{
 		return !(model.bipedBody instanceof IModelPart);
 	}
+
 }

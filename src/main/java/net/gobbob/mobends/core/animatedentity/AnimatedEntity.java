@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import net.gobbob.mobends.core.client.MutatedRenderer;
+import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.mutators.IMutatorFactory;
@@ -136,9 +137,9 @@ public class AnimatedEntity<T extends EntityLivingBase>
 		return false;
 	}
 
-	public void beforeRender(T entity, float partialTicks)
+	public void beforeRender(EntityData<T> data, T entity, float partialTicks)
 	{
-		this.renderer.beforeRender(entity, partialTicks);
+		this.renderer.beforeRender(data, entity, partialTicks);
 	}
 
 	public void afterRender(T entity, float partialTicks)
@@ -198,6 +199,11 @@ public class AnimatedEntity<T extends EntityLivingBase>
 			mutator.mutate(entry.getKey());
 			mutator.postRefresh();
 		}
+	}
+
+	public Mutator<?, ?, ?> getMutator(RenderLivingBase<? extends EntityLivingBase> renderer)
+	{
+		return this.mutatorMap.get(renderer);
 	}
 	
 	public static <T extends EntityLivingBase> Mutator<?, ?, ?> getMutatorForRenderer(Class<T> entityClass, RenderLivingBase<T> renderer)

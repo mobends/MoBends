@@ -59,4 +59,5 @@ public class DataUpdateHandler
 		EntityDatabase.instance.updateClient();
 		Addons.onClientTick();
 	}
+
 }
