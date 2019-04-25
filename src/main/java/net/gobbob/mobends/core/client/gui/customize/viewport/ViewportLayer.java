@@ -165,14 +165,14 @@ public class ViewportLayer extends Gui implements IGuiLayer
 
 		final float moveSpeed = 1;
 
-		switch(keyCode)
-		{
-			default:
-				// No case met, event was actually not handled.
-				eventHandled = false;
-		}
+        switch (keyCode)
+        {
+            default:
+                // No case met, event was actually not handled.
+                eventHandled = false;
+        }
 
-		System.out.println(keyCode);
+        System.out.println(keyCode);
 
 		return eventHandled;
 	}
@@ -209,13 +209,13 @@ public class ViewportLayer extends Gui implements IGuiLayer
 
 		int mouseWheelRoll = Mouse.getEventDWheel();
 
-		if (mouseWheelRoll != 0)
-		{
-			mouseWheelRoll = mouseWheelRoll > 0 ? 1 : -1;
+        if (mouseWheelRoll != 0)
+        {
+            mouseWheelRoll = mouseWheelRoll > 0 ? 1 : -1;
 
-			this.camera.zoomInOrOut(-mouseWheelRoll);
-			eventHandled |= true;
-		}
+            this.camera.zoomInOrOut(-mouseWheelRoll);
+            eventHandled |= true;
+        }
 
 		return eventHandled;
 	}
@@ -238,6 +238,18 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		return eventHandled;
 	}
 
+	public void drawBackground()
+	{
+		GlStateManager.clearColor(0F, 0.58F, 0.89F, 1F);
+		GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+		GlStateManager.color(1, 0, 0, 1);
+		GlStateManager.disableTexture2D();
+        GlStateManager.disableDepth();
+		Draw.rectangle_ygradient(0, 0, width, height, 0xff0096e3, 0xff135e8b);
+        GlStateManager.enableDepth();
+	}
+
 	@Override
 	public void draw()
 	{
@@ -246,13 +258,13 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		//GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		//GL11.glScissor(position[0], position[1], size[0], size[1]);
 
+        drawBackground();
+
 		GlStateManager.matrixMode(GL11.GL_PROJECTION);
 		GlStateManager.pushMatrix();
 		GlStateManager.loadIdentity();
 		this.camera.applyProjection();
 		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
-		GlStateManager.clearColor(0.1F, 0.17F, 0.2F, 1F);
-		GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
 		if (alterEntryToView != null)
 		{

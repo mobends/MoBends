@@ -14,6 +14,7 @@ import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.opengl.GL11;
 
 public class GuiDropDownList<T> implements IObservable
 {
@@ -90,24 +91,24 @@ public class GuiDropDownList<T> implements IObservable
 	public GuiDropDownList setAmountOfEntriesShown(int amount)
 	{
 		this.amountOfEntriesShown = amount;
-		updateDimensions();
+		this.updateDimensions();
 		return this;
 	}
 
 	public void update(int mouseX, int mouseY)
 	{
-		if (!isEnabled())
+		if (!this.enabled)
 			return;
 
-		hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + HEIGHT;
+		this.hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + HEIGHT;
 
-		listHovered = false;
-		hoveredEntryId = -1;
-		scrollBarHovered = false;
+		this.listHovered = false;
+		this.hoveredEntryId = -1;
+		this.scrollBarHovered = false;
 
-		if (scrollBarGrabbed)
+		if (this.scrollBarGrabbed)
 		{
-			scroll(((float) (mouseY - y - HEIGHT - scrollBarY - scrollBarGrabY)) / ELEMENT_HEIGHT);
+			this.scroll(((float) (mouseY - y - HEIGHT - scrollBarY - scrollBarGrabY)) / ELEMENT_HEIGHT);
 		}
 		else if (mouseX >= x && mouseX <= x + getWidth() && mouseY >= y + HEIGHT && mouseY <= y + getVisualHeight())
 		{
@@ -169,7 +170,7 @@ public class GuiDropDownList<T> implements IObservable
 		return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + getVisualHeight();
 	}
 
-	public void onMouseReleased(int mouseX, int mouseY, int event)
+	public void mouseReleased(int mouseX, int mouseY, int event)
 	{
 		if (!isEnabled())
 			return;
@@ -232,22 +233,23 @@ public class GuiDropDownList<T> implements IObservable
 		if (!isEnabled())
 			return;
 
-		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiBendsMenu.ICONS_TEXTURE);
-
+		// Background outline
 		Draw.rectangle(this.x, this.y, this.width, HEIGHT, -6250336);
+		// Background fill
 		Draw.rectangle(this.x + 1, this.y + 1, this.width - 2, HEIGHT - 2,
 				hovered || dropped ? 0xff222222 : -16777216);
-		GlStateManager.color(1, 1, 1, 1);
 
+		// Current value label
 		boolean noValue = noValueAllowed && selectedIndex == 0;
 		String text = noValue ? "None"
 				: this.fontRenderer.trimStringToWidth(getSelectedEntry().getLabel(), this.getWidth() - 20);
 		this.fontRenderer.drawStringWithShadow(text, x + 5, y + 4, noValue ? 0x999999 : 0xe2e2e2);
 
+		// Label gradient overlay
 		Draw.rectangle_xgradient(x + width - 40, y + 1, 27, HEIGHT - 2, 0x00000000,
-				hovered || dropped ? 0xff222222 : -16777216);
+				hovered || dropped ? 0xff222222 : 0xff000000);
 
-		GlStateManager.color(1, 1, 1, 1);
+		// Arrow icon
 		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiBendsMenu.ICONS_TEXTURE);
 		Draw.texturedModalRect(x + width - 12, y + 3, 94, 24 + (hovered || dropped ? 10 : 0), 10, 10);
 
@@ -397,4 +399,5 @@ public class GuiDropDownList<T> implements IObservable
 				* (getNumberOfElements() * ELEMENT_HEIGHT + 2));
 		scrollBarY = (int) (getScrollPercentage() * (getNumberOfElements() * ELEMENT_HEIGHT + 2 - scrollBarHeight));
 	}
+
 }

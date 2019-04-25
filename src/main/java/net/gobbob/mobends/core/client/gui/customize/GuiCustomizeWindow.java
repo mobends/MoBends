@@ -85,12 +85,6 @@ public class GuiCustomizeWindow extends GuiScreen
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks)
 	{
-		//Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomizeWindow.BACKGROUND_TEXTURE);
-		//this.drawTexturedModalRect(this.x, this.y, 0, 0, WIDTH, HEIGHT);
-
-		/*this.drawCenteredString(this.fontRenderer, I18n.format("mobends.gui.customize"),
-				(int) (this.x + WIDTH/2), this.y + 4, 0xFFFFFF);*/
-		
 		for (IGuiLayer layer : this.layers)
 		{
 			layer.draw();

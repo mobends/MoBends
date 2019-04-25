@@ -55,8 +55,14 @@ public class SpiderMoveAnimationBit extends AnimationBit<SpiderData>
     	final double advanceZ = data.getForwardMomentum() * 11;
     	final double xSpread = 4*0.0625;
     	final double zSpread = -9*0.0625;
-    	
-        for (int i = 0; i < data.limbs.length; ++i)
+
+		for (int i = 0; i < data.limbs.length; ++i)
+		{
+			SpiderData.Limb limb = data.limbs[i];
+			limb.adjustToLocalPosition(limb.upperPart.position.x*xSpread + advanceX, limb.upperPart.position.z*zSpread, 0.2F);
+		}
+
+        /*for (int i = 0; i < data.limbs.length; ++i)
         {
         	final int set = (int)(i/2);
         	
@@ -79,9 +85,9 @@ public class SpiderMoveAnimationBit extends AnimationBit<SpiderData>
         		// Removing the flag
         		limbFlags &= ~(1 << i);
         	}
-        	
-        	limb.applyIK(ikResult, groundLevel/* + Math.max(0, cycle) * 7*/, 7, pt);
-        }
+
+        	//limb.applyIK(ikResult, groundLevel// + Math.max(0, cycle) * 7//, 7, pt);
+        }*/
         
         double advance = data.getForwardMomentum();
         

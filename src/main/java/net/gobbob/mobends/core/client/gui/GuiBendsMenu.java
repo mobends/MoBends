@@ -386,7 +386,8 @@ public class GuiBendsMenu extends GuiScreen
 				this.mc.renderEngine.bindTexture(MENU_TITLE_TEXTURE);
 				int titleWidth = 167 * 2;
 				int titleHeight = 37 * 2;
-				Draw.rectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 70, titleWidth, titleHeight);
+
+				Draw.texturedRectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 70, titleWidth, titleHeight, 0, 0, 1, 1);
 
 				this.customizeButton.display();
 				this.packsButton.display();
