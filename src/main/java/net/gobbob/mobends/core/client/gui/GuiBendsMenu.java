@@ -34,6 +34,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiBendsMenu extends GuiScreen
 {
+	
 	/*--VISUAL--*/
 	public static final ResourceLocation MENU_TITLE_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/title.png");

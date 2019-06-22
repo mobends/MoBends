@@ -135,14 +135,16 @@ public class MutatedBox extends net.minecraft.client.model.ModelBox
     }
 
     @Override
-    public void render(BufferBuilder p_178780_1_, float p_78245_2_)
+    public void render(BufferBuilder bufferBuilder, float scale)
     {
-        for (int i = 0; i < this.quadList.length; ++i)
+    	byte tempFlag = this.faceVisibilityFlag;
+        for (TexturedQuad quad : quadList)
         {
             // This check is done to not draw hidden
             // faces.
-            if (this.isFaceVisible(i))
-                this.quadList[i].draw(p_178780_1_, p_78245_2_);
+            if ((tempFlag & 1) == 1)
+            	quad.draw(bufferBuilder, scale);
+            tempFlag >>= 1;
         }
     }
 

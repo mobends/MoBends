@@ -1,70 +1,59 @@
 package net.gobbob.mobends.core.client.gui.customize.viewport;
 
-import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.client.gui.elements.GuiToggleButton;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.Mesh;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
+import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
-import net.gobbob.mobends.core.math.physics.OBBox;
-import net.gobbob.mobends.core.math.physics.Physics;
-import net.gobbob.mobends.core.math.physics.Plane;
-import net.gobbob.mobends.core.math.physics.Ray;
-import net.gobbob.mobends.core.math.physics.RayHitInfo;
+import net.gobbob.mobends.core.math.physics.*;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.math.vector.VectorUtils;
-import net.gobbob.mobends.core.util.Color;
-import net.gobbob.mobends.core.util.Draw;
-import net.gobbob.mobends.core.util.GUtil;
-import net.gobbob.mobends.core.util.GlHelper;
-import net.gobbob.mobends.core.util.MeshBuilder;
+import net.gobbob.mobends.core.util.*;
 import net.gobbob.mobends.standard.main.ModStatics;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
+import javax.annotation.Nullable;
 
 public class ViewportLayer extends Gui implements IGuiLayer
 {
-	
+
 	private final ResourceLocation STAND_BLOCK_TEXTURE = new ResourceLocation(ModStatics.MODID, "textures/stand_block.png");
+	private final GuiCustomizeWindow customizeWindow;
 	private final Minecraft mc;
 	private final ViewportCamera camera;
 	private int x, y;
 	private int width, height;
 	private AlterEntry<?> alterEntryToView;
-	private AlterEntryRig rig;
+	private AlterEntryRig alterEntryRig;
 
 	private Mesh standBlockMesh;
 	private Plane groundPlane;
 	private OBBox obBox;
 	private Vec3f contactPoint;
 	
-	public ViewportLayer()
+	public ViewportLayer(GuiCustomizeWindow customizeWindow)
 	{
+		this.customizeWindow = customizeWindow;
 		this.mc = Minecraft.getMinecraft();
 		this.camera = new ViewportCamera(0, 0, 0, -45F / 180.0F * GUtil.PI, 45F / 180.0F * GUtil.PI);
 		this.camera.anchorTo(0, 0, 0, 1);
 
-		IBlockState state = Blocks.GRASS.getDefaultState();
-		IBakedModel model = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
-		
 		this.standBlockMesh = new Mesh(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL, 24);
 		this.standBlockMesh.beginDrawing(GL11.GL_QUADS);
 		MeshBuilder.texturedSimpleCube(this.standBlockMesh, -0.5, -1, -0.5, 0.5, 0, 0.5, Color.WHITE, new int[] {16, 0, 16, 0, 16, 0, 16, 0, 0, 0, 32, 0}, 64, 16, 16);
@@ -83,19 +72,15 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	{
 	}
 
-	public void showAlterEntry(AlterEntry<?> alterEntry)
+	public void showAlterEntry(AlterEntry<?> alterEntry, AlterEntryRig rig)
 	{
 		this.alterEntryToView = alterEntry;
+		this.alterEntryRig = rig;
 		IVec3fRead anchorPoint = Vec3f.ZERO;
 		IPreviewer previewer = alterEntry.getPreviewer();
 		if (previewer != null)
 		{
 			anchorPoint = previewer.getAnchorPoint();
-			this.rig = new AlterEntryRig(alterEntry);
-		}
-		else
-		{
-			this.rig = null;
 		}
 		this.camera.anchorTo(anchorPoint.getX(), anchorPoint.getY(), anchorPoint.getZ(), 5);
 	}
@@ -126,20 +111,28 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			this.camera.moveSideways(-moveSpeed);
 
 		AlterEntryRig.Bone boneAtMouse = this.getBoneAtScreenCoords(mouseX, mouseY);
-		if (this.rig != null)
+		if (this.alterEntryRig != null)
 		{
-			this.rig.hoverOver(boneAtMouse);
+			this.alterEntryRig.hoverOver(boneAtMouse);
 		}
 	}
 
+	/**
+	 * Returns the closest bone to the camera that is shown at the specified screen coordinates.
+	 * If there is no bone at those coordinates, it returns null.
+	 * @param screenX
+	 * @param screenY
+	 * @return The bone
+	 */
+	@Nullable
 	public AlterEntryRig.Bone getBoneAtScreenCoords(int screenX, int screenY)
 	{
 		AlterEntryRig.Bone closestBone = null;
 		Ray ray = this.camera.getRayFromScreen(screenX, screenY, this.width, this.height);
-		if (this.rig != null)
+		if (this.alterEntryRig != null)
 		{
 			float smallestDistanceSq = 0;
-			for (AlterEntryRig.Bone bone : this.rig.nameToBoneMap.values())
+			for (AlterEntryRig.Bone bone : this.alterEntryRig.nameToBoneMap.values())
 			{
 				RayHitInfo hit = Physics.intersect(ray, bone.collider);
 				if (hit != null)
@@ -167,12 +160,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 
         switch (keyCode)
         {
-            default:
+			default:
                 // No case met, event was actually not handled.
                 eventHandled = false;
+                break;
         }
-
-        System.out.println(keyCode);
 
 		return eventHandled;
 	}
@@ -224,15 +216,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	public boolean handleMouseClicked(int mouseX, int mouseY, int button)
 	{
 		boolean eventHandled = false;
-		
+
 		if (button == 0)
 		{
-			AlterEntryRig.Bone boneAtMouse = this.getBoneAtScreenCoords(mouseX, mouseY);
-
-			if (boneAtMouse != null)
-			{
-				rig.select(boneAtMouse);
-			}
+			this.customizeWindow.selectBone(this.getBoneAtScreenCoords(mouseX, mouseY));
+			eventHandled = true;
 		}
 
 		return eventHandled;
@@ -308,23 +296,24 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			RenderHelper.disableStandardItemLighting();
 
-			if (this.rig != null && this.alterEntryToView.isAnimated())
+			if (this.alterEntryRig != null && this.alterEntryToView.isAnimated())
 			{
-				this.rig.updateTransform();
-				this.rig.nameToBoneMap.forEach((key, bone) -> {
-
-					if (this.rig.isBoneHoveredOver(bone) || this.rig.isBoneSelected(bone))
+				this.alterEntryRig.updateTransform();
+				this.alterEntryRig.nameToBoneMap.forEach((key, bone) -> {
+					if (bone.collider != null)
 					{
-						Color color = this.rig.isBoneHoveredOver(bone) ? new Color(1, 1, 1, 0.6F) : new Color(1, 1, 0.9F, 0.7F);
+						if (this.alterEntryRig.isBoneHoveredOver(bone) || this.alterEntryRig.isBoneSelected(bone))
+						{
+							Color color = this.alterEntryRig.isBoneHoveredOver(bone) ? new Color(1, 1, 1, 0.6F) : new Color(1, 1, 0.9F, 0.7F);
 
-						GlStateManager.pushMatrix();
-						GlHelper.transform(bone.collider.transform);
-						final double p = 0.03;
-						Draw.cube(bone.collider.min.getX() - p, bone.collider.min.getY() - p, bone.collider.min.getZ() - p,
-								  bone.collider.max.getX() + p, bone.collider.max.getY() + p, bone.collider.max.getZ() + p, color);
-						GlStateManager.popMatrix();
+							GlStateManager.pushMatrix();
+							GlHelper.transform(bone.collider.transform);
+							final double p = 0.03;
+							Draw.cube(bone.collider.min.getX() - p, bone.collider.min.getY() - p, bone.collider.min.getZ() - p,
+									bone.collider.max.getX() + p, bone.collider.max.getY() + p, bone.collider.max.getZ() + p, color);
+							GlStateManager.popMatrix();
+						}
 					}
-
 				});
 			}
 

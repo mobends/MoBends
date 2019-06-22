@@ -1,8 +1,5 @@
 package net.gobbob.mobends.core.client.gui.customize.viewport;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.BoneMetadata;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
@@ -11,10 +8,12 @@ import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.matrix.Mat4x4d;
-import net.gobbob.mobends.core.math.matrix.MatrixUtils;
 import net.gobbob.mobends.core.math.physics.IAABBox;
-import net.gobbob.mobends.core.math.physics.IOBBox;
 import net.gobbob.mobends.core.math.physics.OBBox;
+
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AlterEntryRig
 {
@@ -64,12 +63,12 @@ public class AlterEntryRig
 		});
 	}
 	
-	public void hoverOver(Bone bone)
+	public void hoverOver(@Nullable Bone bone)
 	{
 		this.hoveredOverBone = bone;
 	}
 	
-	public void select(Bone bone)
+	public void select(@Nullable Bone bone)
 	{
 		this.selectedBone = bone;
 	}
@@ -83,13 +82,28 @@ public class AlterEntryRig
 	{
 		return bone == this.selectedBone;
 	}
-	
+
+	@Nullable
+	public Bone getBone(String name)
+	{
+		return this.nameToBoneMap.get(name);
+	}
+
 	public static class Bone
 	{
 		
 		final IModelPart part;
+		/**
+		 * Can be null in case the bone represents something like item rotation.
+		 */
 		final OBBox collider;
-		
+
+		public Bone(IModelPart part)
+		{
+			this.part = part;
+			this.collider = null;
+		}
+
 		public Bone(IModelPart part, IAABBox bounds)
 		{
 			this.part = part;

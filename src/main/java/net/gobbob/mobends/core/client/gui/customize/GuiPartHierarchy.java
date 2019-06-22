@@ -1,22 +1,18 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
+import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.elements.GuiPanel;
 import net.gobbob.mobends.core.util.Draw;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GuiPartHierarchy extends GuiPanel
 {
 
     private GuiPartList partList;
 
-    public GuiPartHierarchy()
+    public GuiPartHierarchy(GuiPartList.IPartListListener listener)
     {
         super(null, 0, 60, 100, 300, Direction.RIGHT);
-        this.partList = new GuiPartList(this, 2, 2, 96, 90);
+        this.partList = new GuiPartList(this, 2, 2, 96, 90, listener);
     }
 
     @Override
@@ -56,14 +52,24 @@ public class GuiPartHierarchy extends GuiPanel
 
     }
 
-    public void addPart(String part)
+    public void addPart(String name, AlterEntryRig.Bone bone)
     {
-        partList.addPart(part);
+        this.partList.addPart(name, bone);
     }
 
-    public void setParts(String[] parts)
+    public void setParts(String[] names, AlterEntryRig rig)
     {
-        this.partList.setParts(parts);
+        this.partList.setParts(names, rig);
+    }
+
+    public void clearParts()
+    {
+        this.partList.clearParts();
+    }
+
+    public void selectBone(AlterEntryRig.Bone bone)
+    {
+        this.partList.selectBone(bone);
     }
 
 }

@@ -1,29 +1,35 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
+import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.elements.GuiElement;
 import net.gobbob.mobends.core.client.gui.elements.GuiScrollPanel;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GuiPartList extends GuiScrollPanel
 {
 
-    private List<String> partNames;
+    private IPartListListener changeListener = null;
+    private List<Entry> parts;
     protected int elementHeight;
     protected int elementMargin;
-    protected int hoveredElementId;
+    protected int hoveredElementIndex;
+    protected int selectedEntryIndex;
 
-    public GuiPartList(GuiElement parent, int x, int y, int width, int height)
+    public GuiPartList(GuiElement parent, int x, int y, int width, int height, @Nullable IPartListListener listener)
     {
         super(parent, x, y, width, height);
-        this.partNames = new ArrayList<>();
+        this.parts = new ArrayList<>();
         this.elementHeight = 11;
         this.elementMargin = 1;
-        this.hoveredElementId = -1;
+        this.hoveredElementIndex = -1;
+        this.selectedEntryIndex = -1;
+        this.changeListener = listener;
     }
 
     @Override
@@ -33,18 +39,35 @@ public class GuiPartList extends GuiScrollPanel
 
         if (!this.hovered || this.scrollBarHovered)
         {
-            this.hoveredElementId = -1;
+            this.hoveredElementIndex = -1;
         }
         else
         {
-            this.hoveredElementId = (mouseY - y + scrollAmount) / (elementHeight + elementMargin);
-            if (this.hoveredElementId < 0)
-                this.hoveredElementId = -1;
-            if (this.hoveredElementId >= this.partNames.size())
+            this.hoveredElementIndex = (mouseY - y + scrollAmount) / (elementHeight + elementMargin);
+            if (this.hoveredElementIndex < 0)
+                this.hoveredElementIndex = -1;
+            if (this.hoveredElementIndex >= this.parts.size())
             {
-                this.hoveredElementId = this.partNames.size() - 1;
+                this.hoveredElementIndex = this.parts.size() - 1;
             }
         }
+    }
+
+    @Override
+    public boolean mouseClicked(int mouseX, int mouseY, int event)
+    {
+        boolean eventHandled = super.mouseClicked(mouseX, mouseY, event);
+
+        if (!eventHandled)
+        {
+            if (this.hoveredElementIndex != -1)
+            {
+                this.selectEntry(this.hoveredElementIndex);
+                eventHandled = true;
+            }
+        }
+
+        return eventHandled;
     }
 
     @Override
@@ -58,36 +81,95 @@ public class GuiPartList extends GuiScrollPanel
     {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 
-        if (this.hoveredElementId != -1)
-            Draw.rectangle(0, this.hoveredElementId * (this.elementHeight + this.elementMargin), width - scrollBarWidth, this.elementHeight, 0xff000000);
-        for (int i = 0; i < this.partNames.size(); ++i)
+        if (this.selectedEntryIndex != -1)
+            Draw.rectangle(0, this.selectedEntryIndex * (this.elementHeight + this.elementMargin), width - scrollBarWidth, this.elementHeight, 0xffff0000);
+        if (this.hoveredElementIndex != -1)
+            Draw.rectangle(0, this.hoveredElementIndex * (this.elementHeight + this.elementMargin), width - scrollBarWidth, this.elementHeight, 0xff000000);
+        for (int i = 0; i < this.parts.size(); ++i)
         {
-            fontRenderer.drawString(this.partNames.get(i), this.x, this.y + i * (this.elementHeight + this.elementMargin), 0xffffffff);
+            fontRenderer.drawString(this.parts.get(i).name, this.x, this.y + i * (this.elementHeight + this.elementMargin), 0xffffffff);
+        }
+    }
+
+    public void selectEntry(int index)
+    {
+        if (index < 0 || index >= this.parts.size())
+            return;
+
+        this.selectedEntryIndex = index;
+        Entry entry = this.parts.get(index);
+        if (this.changeListener != null)
+            this.changeListener.onPartSelectedFromList(entry.name, entry.bone);
+    }
+
+    public void selectBone(AlterEntryRig.Bone bone)
+    {
+        for (int i = 0; i < this.parts.size(); ++i)
+        {
+            if (this.parts.get(i).bone == bone)
+            {
+                this.selectEntry(i);
+                return;
+            }
         }
     }
 
     protected void updateContentSize()
     {
-        this.contentSize = this.partNames.size() * (this.elementHeight + this.elementMargin);
+        this.contentSize = this.parts.size() * (this.elementHeight + this.elementMargin);
     }
 
-    public void addPart(String part)
+    public void clearParts()
     {
-        this.partNames.add(part);
-
+        this.parts.clear();
+        this.hoveredElementIndex = -1;
+        this.selectedEntryIndex = -1;
         this.updateContentSize();
     }
 
-    public void setParts(String[] parts)
+    public void addPart(String name, AlterEntryRig.Bone bone)
     {
-        this.partNames.clear();
+        this.parts.add(new Entry(name, bone));
+        this.updateContentSize();
+    }
 
-        for (String part : parts)
+    public void setParts(String[] names, AlterEntryRig rig)
+    {
+        this.parts.clear();
+        this.hoveredElementIndex = -1;
+        this.selectedEntryIndex = -1;
+
+        for (String name : names)
         {
-            this.partNames.add(part);
+            AlterEntryRig.Bone bone = rig.getBone(name);
+            if (bone != null)
+            {
+                this.parts.add(new Entry(name, bone));
+            }
         }
 
         this.updateContentSize();
+    }
+
+    private class Entry
+    {
+
+        protected String name;
+        protected AlterEntryRig.Bone bone;
+
+        public Entry(String name, AlterEntryRig.Bone bone)
+        {
+            this.name = name;
+            this.bone = bone;
+        }
+
+    }
+
+    public interface IPartListListener
+    {
+
+        void onPartSelectedFromList(String name, AlterEntryRig.Bone bone);
+
     }
 
 }

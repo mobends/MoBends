@@ -1,27 +1,23 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
+import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.animatedentity.IPreviewer;
+import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
+import net.gobbob.mobends.core.client.gui.customize.viewport.ViewportLayer;
+import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
+import net.gobbob.mobends.core.pack.PackManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.core.client.gui.customize.viewport.ViewportLayer;
-import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
-import net.gobbob.mobends.core.pack.PackManager;
-import net.gobbob.mobends.standard.main.ModStatics;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.ResourceLocation;
-
-public class GuiCustomizeWindow extends GuiScreen
+public class GuiCustomizeWindow extends GuiScreen implements GuiPartList.IPartListListener
 {
 	
 	/*
@@ -35,6 +31,7 @@ public class GuiCustomizeWindow extends GuiScreen
 	
 	final List<AlterEntry<?>> alterEntries = new ArrayList<>();
 	AlterEntry currentAlterEntry;
+	private AlterEntryRig rig;
 
 	private final ViewportLayer viewportLayer;
 	private final HeaderLayer headerLayer;
@@ -51,21 +48,24 @@ public class GuiCustomizeWindow extends GuiScreen
 		{
 			this.alterEntries.addAll(animatedEntity.getAlterEntries());
 		}
-		
-		// Showing the AlterEntry viewed the last time
-		// this gui was open.
-		this.currentAlterEntry = lastAlterEntryViewed;
-		if (this.currentAlterEntry == null)
-			this.currentAlterEntry = this.alterEntries.get(0);
 
-		this.viewportLayer = new ViewportLayer();
+		this.viewportLayer = new ViewportLayer(this);
 		this.headerLayer = new HeaderLayer(this);
 		this.layers.add(this.viewportLayer);
 		this.layers.add(this.headerLayer);
-		
-		this.viewportLayer.showAlterEntry(this.currentAlterEntry);
-		this.headerLayer.showAlterEntry(this.currentAlterEntry);
+
 		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
+
+		// Showing the AlterEntry viewed the last time
+		// this gui was open.
+		if (lastAlterEntryViewed != null)
+		{
+			this.showAlterEntry(lastAlterEntryViewed);
+		}
+		else
+		{
+			this.showAlterEntry(this.alterEntries.get(0));
+		}
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class GuiCustomizeWindow extends GuiScreen
 	{
 		super.initGui();
 		
-		this.headerLayer.initGui(0, 0);
+		this.headerLayer.initGui();
 		this.viewportLayer.initGui();
 		
 		for (IGuiLayer layer : this.layers)
@@ -171,12 +171,24 @@ public class GuiCustomizeWindow extends GuiScreen
     {
         return false;
     }
-	
+
+	@Override
+	public void onPartSelectedFromList(String name, AlterEntryRig.Bone bone)
+	{
+		this.rig.select(bone);
+	}
+
 	public boolean areChangesUnapplied()
 	{
 		return this.changesMade;
 	}
-	
+
+	public void selectBone(AlterEntryRig.Bone bone)
+	{
+		this.headerLayer.hierarchy.selectBone(bone);
+		this.rig.select(bone);
+	}
+
 	public String[] getAlterableParts()
 	{
 		if (this.currentAlterEntry != null)
@@ -189,7 +201,17 @@ public class GuiCustomizeWindow extends GuiScreen
 	{
 		if (this.currentAlterEntry == alterEntry)
 			return;
-		
+
+		IPreviewer previewer = alterEntry.getPreviewer();
+		if (previewer != null)
+		{
+			this.rig = new AlterEntryRig(alterEntry);
+		}
+		else
+		{
+			this.rig = null;
+		}
+
 		if (areChangesUnapplied())
 		{
 			//mainMenu.popUpDiscardChanges(GuiBendsMenu.POPUP_CHANGETARGET);
@@ -197,8 +219,8 @@ public class GuiCustomizeWindow extends GuiScreen
 		else
 		{
 			this.currentAlterEntry = alterEntry;
-			this.viewportLayer.showAlterEntry(this.currentAlterEntry);
-			this.headerLayer.showAlterEntry(this.currentAlterEntry);
+			this.viewportLayer.showAlterEntry(this.currentAlterEntry, this.rig);
+			this.headerLayer.showAlterEntry(this.currentAlterEntry, this.rig);
 			lastAlterEntryViewed = alterEntry;
 		}
 	}

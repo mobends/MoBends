@@ -3,6 +3,7 @@ package net.gobbob.mobends.core.client.gui.customize;
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.client.gui.IChangeListener;
 import net.gobbob.mobends.core.client.gui.IObservable;
+import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.elements.GuiDropDownList;
 import net.gobbob.mobends.core.client.gui.elements.GuiToggleButton;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
@@ -17,7 +18,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 	private int screenHeight;
 	private final GuiDropDownList<AlterEntry<?>> targetList;
 	private final GuiToggleButton toggleButton;
-	private final GuiPartHierarchy hierarchy;
+	final GuiPartHierarchy hierarchy;
 	
 	private AlterEntry<?> alterEntryToView;
 	
@@ -29,7 +30,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		this.targetList = new GuiDropDownList().forbidNoValue();
 		this.targetList.addListener(this);
 		this.toggleButton = new GuiToggleButton("Animated", 64);
-		this.hierarchy = new GuiPartHierarchy();
+		this.hierarchy = new GuiPartHierarchy(customizeWindow);
 		
 		for (AlterEntry alterEntry : customizeWindow.alterEntries)
 		{
@@ -39,7 +40,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		this.targetList.selectValue(customizeWindow.currentAlterEntry);
 	}
 	
-	public void initGui(int x, int y)
+	public void initGui()
 	{
 		this.targetList.setPosition(2, 2);
 		this.toggleButton.initGui(10, 30);
@@ -55,12 +56,19 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		this.screenHeight = height;
 	}
 
-	public void showAlterEntry(AlterEntry<?> alterEntry)
+	public void showAlterEntry(AlterEntry<?> alterEntry, AlterEntryRig rig)
 	{
 		if (this.alterEntryToView != alterEntry)
 		{
 			this.toggleButton.setToggleState(alterEntry.isAnimated());
-			this.hierarchy.setParts(alterEntry.getOwner().getAlterableParts());
+			if (rig != null)
+			{
+				this.hierarchy.setParts(alterEntry.getOwner().getAlterableParts(), rig);
+			}
+			else
+			{
+				this.hierarchy.clearParts();
+			}
 		}
 		
 		this.alterEntryToView = alterEntry;

@@ -242,15 +242,13 @@ public class ViewportCamera
     private void updateViewMatrix(float partialTicks)
     {
         MatrixUtils.identity(this.viewMatrix);
-        float yaw = GUtil.interpolateRadians(this.angleYaw, this.prevAngleYaw, partialTicks);
-        float pitch = GUtil.interpolateRadians(this.anglePitch, this.prevAnglePitch, partialTicks);
 
         float x = this.prevPosition.x + (this.position.x - this.prevPosition.x) * partialTicks;
         float y = this.prevPosition.y + (this.position.y - this.prevPosition.y) * partialTicks;
         float z = this.prevPosition.z + (this.position.z - this.prevPosition.z) * partialTicks;
 
-        TransformUtils.rotate(this.viewMatrix, pitch, 1.0, 0.0, 0.0, this.viewMatrix);
-        TransformUtils.rotate(this.viewMatrix, yaw, 0.0, 1.0, 0.0, this.viewMatrix);
+        TransformUtils.rotate(this.viewMatrix, this.anglePitch, 1.0, 0.0, 0.0, this.viewMatrix);
+        TransformUtils.rotate(this.viewMatrix, this.angleYaw, 0.0, 1.0, 0.0, this.viewMatrix);
         TransformUtils.translate(this.viewMatrix, -x, -y, -z, this.viewMatrix);
         this.viewMatrix.updateBuffer();
     }
