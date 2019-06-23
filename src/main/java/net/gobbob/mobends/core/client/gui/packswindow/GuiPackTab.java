@@ -1,10 +1,10 @@
-package net.gobbob.mobends.core.client.gui.packeditor;
-
-import java.util.ArrayList;
-import java.util.List;
+package net.gobbob.mobends.core.client.gui.packswindow;
 
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiPackTab {
 	public static final int WIDTH = 18;
@@ -42,7 +42,7 @@ public class GuiPackTab {
 	public void display(int mouseX, int mouseY, boolean selected) {
 		update(mouseX, mouseY);
 		
-		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiPackEditor.BACKGROUND_TEXTURE);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiPacksWindow.BACKGROUND_TEXTURE);
 		int textureY = selected ? 149 : hover ? 133 : 117;
 		Draw.texturedModalRect(x, y + (selected ? 0 : 1), index*WIDTH, textureY, WIDTH, HEIGHT);
 	}

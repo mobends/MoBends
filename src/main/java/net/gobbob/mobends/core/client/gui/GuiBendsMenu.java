@@ -1,29 +1,17 @@
 package net.gobbob.mobends.core.client.gui;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
 import net.gobbob.mobends.core.Core;
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.client.gui.addonswindow.GuiAddonsWindow;
 import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
 import net.gobbob.mobends.core.client.gui.elements.GuiSectionButton;
-import net.gobbob.mobends.core.client.gui.packeditor.GuiPackEditor;
-import net.gobbob.mobends.core.client.gui.packeditor.GuiPackList;
+import net.gobbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUp;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUpCreatePack;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUpHelp;
 import net.gobbob.mobends.core.pack.BendsPack;
-import net.gobbob.mobends.core.pack.BendsTarget;
 import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.GuiHelper;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -31,6 +19,11 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
+import java.io.IOException;
 
 public class GuiBendsMenu extends GuiScreen
 {
@@ -42,30 +35,17 @@ public class GuiBendsMenu extends GuiScreen
 			"textures/gui/icons.png");
 
 	/*--TECHNICAL--*/
-	int guiTab = 0;
-	static final int TAB_MAIN = 0;
-	static final int TAB_SETTINGS = 1;
-	static final int TAB_PACKS = 3;
-	static final int TAB_ADDONS = 4;
-
 	public static final int POPUP_CHANGETARGET = 0;
 	public static final int POPUP_GOBACK = 1;
 	public static final int POPUP_HELP = 2;
 	public static final int POPUP_EXIT = 3;
 	public static final int POPUP_CREATEPACK = 4;
-	
-	public int currentAlterEntry = 0;
 
 	private GuiSectionButton customizeButton;
 	private GuiSectionButton packsButton;
 	private GuiSectionButton addonsButton;
 	private GuiPopUp popUp;
-	private GuiPackEditor packEditor;
 	private GuiAddonsWindow addonsWindow;
-	private int guiLeft;
-	private int guiTop;
-	protected int xSize = 230;
-	protected int ySize = 232;
 
 	public GuiBendsMenu()
 	{
@@ -77,8 +57,7 @@ public class GuiBendsMenu extends GuiScreen
 				.setLeftIcon(38, 43, 23, 20).setRightIcon(38, 43, 23, 20);
 		this.addonsButton = new GuiSectionButton(I18n.format("mobends.gui.section.addons"), 0xFFFFE565)
 				.setLeftIcon(61, 43, 19, 18).setRightIcon(61, 43, 19, 18);
-		
-		this.packEditor = new GuiPackEditor();
+
 		this.addonsWindow = new GuiAddonsWindow();
 		this.popUp = null;
 	}
@@ -86,27 +65,17 @@ public class GuiBendsMenu extends GuiScreen
 	public void initGui()
 	{
 		super.initGui();
-		this.guiLeft = (this.width - this.xSize) / 2;
-		this.guiTop = (this.height - this.ySize) / 2;
 		this.buttonList.clear();
-		this.packEditor.initGui(this.width / 2, this.height / 2);
 		this.addonsWindow.initGui(this.width / 2, this.height / 2);
 		
 		if (this.popUp != null)
 			this.popUp.initGui(this.width / 2, this.height / 2);
 
-		if (this.guiTab == TAB_MAIN)
-		{
-			int startY = height / 2 - 32;
-			int distance = 49;
-			this.customizeButton.initGui((this.width - 318) / 2, startY);
-			this.packsButton.initGui((this.width - 318) / 2, startY + distance);
-			this.addonsButton.initGui((this.width - 318) / 2, startY + distance*2);
-		}
-		else
-		{
-			this.buttonList.add(new GuiButton(0, 10, height - 30, 60, 20, "Back"));
-		}
+		int startY = height / 2 - 32;
+		int distance = 49;
+		this.customizeButton.initGui((this.width - 318) / 2, startY);
+		this.packsButton.initGui((this.width - 318) / 2, startY + distance);
+		this.addonsButton.initGui((this.width - 318) / 2, startY + distance*2);
 
 //		if (this.guiTab == TAB_CUSTOMIZE)
 //		{
@@ -126,21 +95,6 @@ public class GuiBendsMenu extends GuiScreen
 //		}
 	}
 
-	public void openTab(int tab)
-	{
-		this.guiTab = tab;
-		switch (this.guiTab)
-		{
-			case TAB_PACKS:
-				this.packEditor.onOpened();
-				break;
-			case TAB_ADDONS:
-				this.addonsWindow.onOpened();
-				break;
-		}
-		this.initGui();
-	}
-
 	protected void keyTyped(char typedChar, int keyCode)
 	{
 		if (popUp != null)
@@ -152,34 +106,9 @@ public class GuiBendsMenu extends GuiScreen
 		switch (keyCode)
 		{
 			case 1:
-				/*if (guiTab == TAB_CUSTOMIZE && customizeWindow.areChangesUnapplied())
-					popUpDiscardChanges(POPUP_EXIT);
-				else if (guiTab == TAB_PACKS)
-				{
-					packEditor.apply();
-					close();
-				}
-				else
-				{*/
-					close();
-				//}
+				GuiHelper.closeGui();
 				break;
 		}
-
-		switch (guiTab)
-		{
-			case TAB_PACKS:
-				this.packEditor.keyTyped(typedChar, keyCode);
-				break;
-			/*case TAB_ADDONS:
-				this.addonsWindow.keyTyped(typedChar, keyCode);
-				break;*/
-		}
-	}
-
-	public void close()
-	{
-		Minecraft.getMinecraft().displayGuiScreen(null);
 	}
 
 	@Override
@@ -201,20 +130,9 @@ public class GuiBendsMenu extends GuiScreen
 			return;
 		}
 
-		switch (guiTab)
-		{
-			case TAB_MAIN:
-				this.customizeButton.update(mouseX, mouseY);
-				this.packsButton.update(mouseX, mouseY);
-				this.addonsButton.update(mouseX, mouseY);
-				break;
-			case TAB_PACKS:
-				this.packEditor.update(mouseX, mouseY);
-				break;
-			case TAB_ADDONS:
-				this.addonsWindow.update(mouseX, mouseY);
-				break;
-		}
+		this.customizeButton.update(mouseX, mouseY);
+		this.packsButton.update(mouseX, mouseY);
+		this.addonsButton.update(mouseX, mouseY);
 	}
 
 	@Override
@@ -235,16 +153,6 @@ public class GuiBendsMenu extends GuiScreen
 							break;
 					}
 					break;
-				case POPUP_GOBACK:
-					switch (button)
-					{
-						case 0: // Yes
-							this.openTab(TAB_MAIN);
-							break;
-						case 1: // No
-							break;
-					}
-					break;
 				case POPUP_HELP:
 					if (button == 0)
 						popUp = null;
@@ -253,7 +161,7 @@ public class GuiBendsMenu extends GuiScreen
 					switch (button)
 					{
 						case 0: // Yes
-							close();
+							GuiHelper.closeGui();
 							break;
 						case 1: // No
 							break;
@@ -267,35 +175,24 @@ public class GuiBendsMenu extends GuiScreen
 			return;
 		}
 
-		switch (guiTab)
+		if (this.customizeButton.mouseClicked(x, y, state))
 		{
-			case TAB_MAIN:
-				if (this.customizeButton.mouseClicked(x, y, state))
-				{
-					this.mc.displayGuiScreen(new GuiCustomizeWindow(this));
-				}
-				else if (this.packsButton.mouseClicked(x, y, state))
-				{
-					this.openTab(TAB_PACKS);
-				}
-				else if (this.addonsButton.mouseClicked(x, y, state))
-				{
-					this.openTab(TAB_ADDONS);
-				}
-				
-				break;
-			case TAB_PACKS:
-				this.packEditor.mouseClicked(x, y, state);
-				break;
-			case TAB_ADDONS:
-				this.addonsWindow.mouseClicked(x, y, state);
-				break;
+			this.mc.displayGuiScreen(new GuiCustomizeWindow(this));
+		}
+		else if (this.packsButton.mouseClicked(x, y, state))
+		{
+			this.mc.displayGuiScreen(new GuiPacksWindow(this));
+		}
+		else if (this.addonsButton.mouseClicked(x, y, state))
+		{
+			this.mc.displayGuiScreen(new GuiCustomizeWindow(this));
 		}
 
 		try
 		{
 			super.mouseClicked(x, y, state);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -317,13 +214,6 @@ public class GuiBendsMenu extends GuiScreen
 		{
 			return;
 		}
-
-		switch (guiTab)
-		{
-			case TAB_PACKS:
-				packEditor.handleMouseInput();
-				break;
-		}
 	}
 
 	public void createANewPack(String string)
@@ -338,17 +228,6 @@ public class GuiBendsMenu extends GuiScreen
 	{
 		switch (par1GuiButton.id)
 		{
-			case 0: // Back
-				/*if (guiTab == TAB_CUSTOMIZE && customizeWindow.areChangesUnapplied())
-					this.popUpDiscardChanges(POPUP_GOBACK);
-				else */if (guiTab == TAB_PACKS)
-				{
-					packEditor.apply();
-					this.openTab(TAB_MAIN);
-				}
-				else
-					this.openTab(TAB_MAIN);
-				break;
 			case 4: // Apply
 				/*BendsTarget target = BendsPack.getTarget(getCurrentAlterEntry().getKey());
 				if (target == null)
@@ -363,10 +242,6 @@ public class GuiBendsMenu extends GuiScreen
 				}
 				initGui();
 				break;
-			case 5:
-				this.openTab(TAB_PACKS);
-				packEditor.getPackList().selectTab(GuiPackList.TAB_LOCAL, true);
-				break;
 		}
 	}
 
@@ -380,27 +255,16 @@ public class GuiBendsMenu extends GuiScreen
 		GL11.glDisable(GL11.GL_LIGHTING);
 		GL11.glEnable(GL11.GL_BLEND);
 
-		switch (guiTab)
-		{
-			case TAB_MAIN:
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				this.mc.renderEngine.bindTexture(MENU_TITLE_TEXTURE);
-				int titleWidth = 167 * 2;
-				int titleHeight = 37 * 2;
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		this.mc.renderEngine.bindTexture(MENU_TITLE_TEXTURE);
+		int titleWidth = 167 * 2;
+		int titleHeight = 37 * 2;
 
-				Draw.texturedRectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 70, titleWidth, titleHeight, 0, 0, 1, 1);
+		Draw.texturedRectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 70, titleWidth, titleHeight, 0, 0, 1, 1);
 
-				this.customizeButton.display();
-				this.packsButton.display();
-				this.addonsButton.display();
-				break;
-			case TAB_PACKS:
-				this.packEditor.display(mouseX, mouseY, partialTicks);
-				break;
-			case TAB_ADDONS:
-				this.addonsWindow.display(mouseX, mouseY, partialTicks);
-				break;
-		}
+		this.customizeButton.display();
+		this.packsButton.display();
+		this.addonsButton.display();
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 

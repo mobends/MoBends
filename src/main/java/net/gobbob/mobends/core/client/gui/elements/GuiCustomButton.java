@@ -6,9 +6,9 @@ import net.minecraft.client.gui.GuiButton;
 public class GuiCustomButton extends GuiButton
 {
 
-    public GuiCustomButton(int width, int height)
+    public GuiCustomButton(int buttonId, int width, int height)
     {
-        super(0, 0, 0, width, height, "");
+        super(buttonId, 0, 0, width, height, "");
     }
 
     public GuiCustomButton(int width, int height, String text)
