@@ -18,7 +18,7 @@ public abstract class GuiPanel extends GuiElement
     }
 
     @Override
-    public void drawElements()
+    public void drawChildren()
     {
         float t = this.shown ? 0F : 1F;
 //        float xOffset = 0F;
@@ -34,7 +34,7 @@ public abstract class GuiPanel extends GuiElement
 //            xOffset = t * width;
 
         if (t != 1F)
-            super.drawElements();
+            super.drawChildren();
     }
 
     public void setShown(boolean shown)

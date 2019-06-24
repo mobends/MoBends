@@ -46,7 +46,7 @@ public class GuiAddPackButton extends GuiElement
         Minecraft.getMinecraft().getTextureManager().bindTexture(GuiPacksWindow.BACKGROUND_TEXTURE);
         GlStateManager.color(1, 1, 1, 1);
         int textureY = hover ? 105 : 93;
-        Draw.texturedModalRect(x, y, 0, textureY, WIDTH, HEIGHT);
+        Draw.texturedModalRect(0, 0, 0, textureY, WIDTH, HEIGHT);
     }
 
     @Override

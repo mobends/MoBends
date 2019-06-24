@@ -1,5 +1,6 @@
 package net.gobbob.mobends.core.client.gui.packswindow;
 
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.elements.GuiCompactTextField;
 import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
 import net.gobbob.mobends.core.pack.BendsPack;
@@ -28,8 +29,6 @@ public class GuiPacksWindow extends GuiScreen
     private static final int EDITOR_HEIGHT = 177;
     private static final String publicInfoText = "Want your creation to be featured? Contact me at:";
 
-    private GuiScreen previousScreen;
-
     private static final int BUTTON_BACK = 0;
     private static final int BUTTON_USE = 1;
     private static final int BUTTON_EDIT = 2;
@@ -49,10 +48,8 @@ public class GuiPacksWindow extends GuiScreen
     private float publicJumbotronTransition = 1;
     private long time, lastTime;
 
-    public GuiPacksWindow(GuiScreen previousScreen)
+    public GuiPacksWindow()
     {
-        this.previousScreen = previousScreen;
-
         this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
         this.titleTextField = new GuiCompactTextField(this.fontRenderer, 120, 14);
         this.titleTextField.setVisible(false);
@@ -94,7 +91,7 @@ public class GuiPacksWindow extends GuiScreen
         this.buttonList.add(this.openFolderButton);
     }
 
-    public void updateButtonLabels()
+    private void updateButtonLabels()
     {
         String useButtonTitle = "mobends.gui.use";
         if (packList.getSelectedEntry() != null && packList.getSelectedEntry().isApplied())
@@ -109,6 +106,8 @@ public class GuiPacksWindow extends GuiScreen
     @Override
     public void updateScreen()
     {
+        super.updateScreen();
+
         int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
         int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 
@@ -126,23 +125,25 @@ public class GuiPacksWindow extends GuiScreen
     }
 
     @Override
-    public void handleMouseInput()
+    public void handleMouseInput() throws IOException
     {
+        super.handleMouseInput();
+
         packList.handleMouseInput();
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        super.drawScreen(mouseX, mouseY, partialTicks);
+
         this.time = System.nanoTime() / 1000;
         float delta = (time - lastTime) / 1000;
         this.lastTime = time;
 
         if (this.publicJumbotronTransition > 0)
-        {
-            this.publicJumbotronTransition = publicJumbotronTransition - delta * 0.001f;
-        }
-        if (publicJumbotronTransition < 0)
+            this.publicJumbotronTransition = this.publicJumbotronTransition - delta * 0.001f;
+        if (this.publicJumbotronTransition < 0)
             this.publicJumbotronTransition = 0;
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(BACKGROUND_TEXTURE);
@@ -256,6 +257,9 @@ public class GuiPacksWindow extends GuiScreen
 
         switch (button.id)
         {
+            case BUTTON_BACK:
+                goBack();
+                break;
             case BUTTON_OPEN_FOLDER:
                 OpenGlHelper.openFile(PackManager.localDirectory);
                 break;
@@ -277,12 +281,12 @@ public class GuiPacksWindow extends GuiScreen
         }
     }
 
-    public void goBack()
+    private void goBack()
     {
-        this.mc.displayGuiScreen(this.previousScreen);
+        this.mc.displayGuiScreen(new GuiBendsMenu());
     }
 
-    public void populate()
+    private void populate()
     {
         if (!PackManager.arePublicPacksLoaded())
             PackManager.updatePublicDatabase();
@@ -315,7 +319,7 @@ public class GuiPacksWindow extends GuiScreen
         this.packList.getSelectedEntry().updateName(this.titleTextField.getText());
     }
 
-    public void onEntrySelected(GuiPackEntry entry, boolean update)
+    public void onEntrySelected(GuiPackEntry entry)
     {
         if (entry != null)
         {
@@ -339,9 +343,7 @@ public class GuiPacksWindow extends GuiScreen
         }
 
         applyChangesToName();
-
-        if (update)
-            updateButtonLabels();
+        updateButtonLabels();
     }
 
     public void apply()

@@ -4,6 +4,7 @@ import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
+import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.customize.viewport.ViewportLayer;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
@@ -27,8 +28,6 @@ public class GuiCustomizeWindow extends GuiScreen implements GuiPartList.IPartLi
 	 */
 	protected static AlterEntry lastAlterEntryViewed = null;
 	
-	private GuiScreen previousScreen;
-	
 	final List<AlterEntry<?>> alterEntries = new ArrayList<>();
 	AlterEntry currentAlterEntry;
 	private AlterEntryRig rig;
@@ -40,10 +39,8 @@ public class GuiCustomizeWindow extends GuiScreen implements GuiPartList.IPartLi
 	private int actionHistoryPointer = 0;
 	private boolean changesMade = false;
 	
-	public GuiCustomizeWindow(GuiScreen previousScreen)
+	public GuiCustomizeWindow()
 	{
-		this.previousScreen = previousScreen;
-		
 		for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.getRegistered())
 		{
 			this.alterEntries.addAll(animatedEntity.getAlterEntries());
@@ -238,8 +235,8 @@ public class GuiCustomizeWindow extends GuiScreen implements GuiPartList.IPartLi
 				e.printStackTrace();
 			}
 		}
-		
-		this.mc.displayGuiScreen(this.previousScreen);
+
+		this.mc.displayGuiScreen(new GuiBendsMenu());
 	}
 	
 	public void performAction(IEditorAction<GuiCustomizeWindow> action)

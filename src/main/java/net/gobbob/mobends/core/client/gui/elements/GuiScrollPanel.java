@@ -140,7 +140,7 @@ public abstract class GuiScrollPanel extends GuiElement
         UIScissorHelper.INSTANCE.setUIBounds((int) this.getAbsoluteX(), (int) this.getAbsoluteY(), this.width - this.scrollBarWidth, this.height);
         UIScissorHelper.INSTANCE.enable();
 
-        this.drawElements();
+        this.drawChildren();
         this.drawContent();
 
         UIScissorHelper.INSTANCE.disable();

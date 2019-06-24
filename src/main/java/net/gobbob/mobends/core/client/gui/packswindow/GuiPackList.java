@@ -65,8 +65,8 @@ public class GuiPackList
             tab.initGui(x, y + OFFSET_Y + 1);
         }
         this.addPackButton.setPosition(x + 5, y + 5 + getSelectedTab().getEntries().size() * (GuiPackEntry.HEIGHT + GuiPackEntry.MARGIN));
-        maxScrollAmount = getSelectedTab().getEntries().size() * (GuiPackEntry.HEIGHT + GuiPackEntry.MARGIN) + 20 - HEIGHT;
-        scroll(0);
+        this.maxScrollAmount = getSelectedTab().getEntries().size() * (GuiPackEntry.HEIGHT + GuiPackEntry.MARGIN) + 20 - HEIGHT;
+        this.scroll(0);
     }
 
     public void update(int mouseX, int mouseY)
@@ -112,7 +112,7 @@ public class GuiPackList
         {
             if (tab.mouseClicked(mouseX, mouseY, button))
             {
-                selectTab(tab.index, true);
+                selectTab(tab.index);
             }
         }
 
@@ -122,7 +122,7 @@ public class GuiPackList
             {
                 if (entry.mouseClicked(mouseX, mouseY + scrollAmount, button))
                 {
-                    select(entry, true);
+                    select(entry);
                 }
             }
 
@@ -134,7 +134,7 @@ public class GuiPackList
         }
     }
 
-    public void select(GuiPackEntry selected, boolean update)
+    public void select(GuiPackEntry selected)
     {
         for (GuiPackTab tab : tabs)
         {
@@ -145,7 +145,7 @@ public class GuiPackList
         }
 
         selectedEntry = selected;
-        packEditor.onEntrySelected(selectedEntry, update);
+        packEditor.onEntrySelected(selectedEntry);
 
         if (selectedEntry != null)
         {
@@ -153,11 +153,13 @@ public class GuiPackList
         }
     }
 
-    public void selectTab(int index, boolean update)
+    public void selectTab(int index)
     {
         tabId = index;
-        if (update) updatePositions();
-        select(null, update);
+        updatePositions();
+
+        select(null);
+
         switch (tabId)
         {
             case TAB_PUBLIC:

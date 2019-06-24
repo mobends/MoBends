@@ -177,15 +177,15 @@ public class GuiBendsMenu extends GuiScreen
 
 		if (this.customizeButton.mouseClicked(x, y, state))
 		{
-			this.mc.displayGuiScreen(new GuiCustomizeWindow(this));
+			this.mc.displayGuiScreen(new GuiCustomizeWindow());
 		}
 		else if (this.packsButton.mouseClicked(x, y, state))
 		{
-			this.mc.displayGuiScreen(new GuiPacksWindow(this));
+			this.mc.displayGuiScreen(new GuiPacksWindow());
 		}
 		else if (this.addonsButton.mouseClicked(x, y, state))
 		{
-			this.mc.displayGuiScreen(new GuiCustomizeWindow(this));
+			this.mc.displayGuiScreen(new GuiCustomizeWindow());
 		}
 
 		try
@@ -284,7 +284,7 @@ public class GuiBendsMenu extends GuiScreen
 
 	public void popUpDiscardChanges(int afterAction)
 	{
-		this.popUp = new GuiPopUp(I18n.format("mobends.gui.discardchanges", new Object[0]), afterAction,
+		this.popUp = new GuiPopUp(I18n.format("mobends.gui.discardchanges"), afterAction,
 				new String[] { "Yes", "No" });
 		initGui();
 	}
