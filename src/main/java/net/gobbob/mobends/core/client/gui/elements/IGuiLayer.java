@@ -2,6 +2,7 @@ package net.gobbob.mobends.core.client.gui.elements;
 
 public interface IGuiLayer
 {
+	void cleanUp();
 	void draw();
 	void update(int mouseX, int mouseY);
 	default void handleResize(int width, int height) {}

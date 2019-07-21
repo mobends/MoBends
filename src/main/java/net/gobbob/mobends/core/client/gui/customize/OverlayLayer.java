@@ -3,50 +3,77 @@ package net.gobbob.mobends.core.client.gui.customize;
 import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.client.gui.IChangeListener;
 import net.gobbob.mobends.core.client.gui.IObservable;
-import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
+import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
 import net.gobbob.mobends.core.client.gui.elements.GuiDropDownList;
 import net.gobbob.mobends.core.client.gui.elements.GuiToggleButton;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
+import net.gobbob.mobends.core.store.ISubscriber;
+import net.gobbob.mobends.core.store.Subscription;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.renderer.GlStateManager;
 
-public class HeaderLayer implements IGuiLayer, IChangeListener
+import java.util.LinkedList;
+import java.util.List;
+
+import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SHOW_ALTER_ENTRY;
+
+public class OverlayLayer implements IGuiLayer, IChangeListener, ISubscriber
 {
 
-	private final GuiCustomizeWindow customizeWindow;
 	private int screenWidth;
 	private int screenHeight;
 	private final GuiDropDownList<AlterEntry<?>> targetList;
 	private final GuiToggleButton toggleButton;
-	final GuiPartHierarchy hierarchy;
-	
-	private AlterEntry<?> alterEntryToView;
-	
-	public HeaderLayer(GuiCustomizeWindow customizeWindow)
+	private final GuiPartHierarchy hierarchy;
+	private final GuiPartProperties properties;
+
+	public OverlayLayer(GuiCustomizeWindow customizeWindow)
 	{
-		this.customizeWindow = customizeWindow;
-		this.screenWidth = this.customizeWindow.width;
-		this.screenHeight = this.customizeWindow.height;
+		this.screenWidth = customizeWindow.width;
+		this.screenHeight = customizeWindow.height;
 		this.targetList = new GuiDropDownList().forbidNoValue();
-		this.targetList.addListener(this);
 		this.toggleButton = new GuiToggleButton("Animated", 64);
-		this.hierarchy = new GuiPartHierarchy(customizeWindow);
-		
+		this.hierarchy = new GuiPartHierarchy();
+		this.properties = new GuiPartProperties();
+
 		for (AlterEntry alterEntry : customizeWindow.alterEntries)
 		{
 			this.targetList.addEntry(alterEntry.getLocalizedName(), alterEntry);
 		}
-		
-		this.targetList.selectValue(customizeWindow.currentAlterEntry);
+
+		this.targetList.addListener(this);
+		this.targetList.selectValue(CustomizeStore.getCurrentAlterEntry());
+
+		this.trackSubscription(CustomizeStore.observeAlterEntry((AlterEntry<?> alterEntry) ->
+		{
+			this.targetList.selectValue(alterEntry);
+			this.toggleButton.setToggleState(alterEntry.isAnimated());
+		}));
 	}
-	
+
+	private List<Subscription<?>> subscriptions = new LinkedList<>();
+
+	@Override
+	public List<Subscription<?>> getSubscriptions() { return this.subscriptions; }
+
+	@Override
+	public void cleanUp()
+	{
+		this.hierarchy.cleanUp();
+		this.properties.cleanUp();
+		this.removeSubscriptions();
+	}
+
 	public void initGui()
 	{
 		this.targetList.setPosition(2, 2);
 		this.toggleButton.initGui(10, 30);
 		this.hierarchy.initGui();
-		if (this.alterEntryToView != null)
-			this.toggleButton.setToggleState(this.alterEntryToView.isAnimated());
+		this.properties.initGui();
+
+		AlterEntry<?> alterEntry = CustomizeStore.getCurrentAlterEntry();
+		if (alterEntry != null)
+			this.toggleButton.setToggleState(alterEntry.isAnimated());
 	}
 
 	@Override
@@ -55,30 +82,13 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		this.screenWidth = width;
 		this.screenHeight = height;
 	}
-
-	public void showAlterEntry(AlterEntry<?> alterEntry, AlterEntryRig rig)
-	{
-		if (this.alterEntryToView != alterEntry)
-		{
-			this.toggleButton.setToggleState(alterEntry.isAnimated());
-			if (rig != null)
-			{
-				this.hierarchy.setParts(alterEntry.getOwner().getAlterableParts(), rig);
-			}
-			else
-			{
-				this.hierarchy.clearParts();
-			}
-		}
-		
-		this.alterEntryToView = alterEntry;
-	}
 	
 	@Override
 	public void update(int mouseX, int mouseY)
 	{
 		this.targetList.update(mouseX, mouseY);
 		this.hierarchy.update(mouseX, mouseY);
+		this.properties.update(mouseX, mouseY);
 		this.toggleButton.update(mouseX, mouseY);
 	}
 	
@@ -92,6 +102,7 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		GlStateManager.enableTexture2D();
 		this.toggleButton.draw();
 		this.hierarchy.draw();
+		this.properties.draw();
 		this.targetList.display();
 	}
 	
@@ -101,11 +112,12 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 		boolean eventHandled = false;
 		
 		eventHandled |= this.targetList.mouseClicked(mouseX, mouseY, button);
-		
+
 		if (!eventHandled && this.toggleButton.mouseClicked(mouseX, mouseY, button))
 		{
-			if (this.alterEntryToView != null)
-				this.alterEntryToView.setAnimate(this.toggleButton.getToggleState());
+			AlterEntry<?> alterEntry = CustomizeStore.getCurrentAlterEntry();
+			if (alterEntry != null)
+				alterEntry.setAnimate(this.toggleButton.getToggleState());
 			
 			eventHandled = true;
 		}
@@ -134,7 +146,9 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 
 		eventHandled |= this.targetList.handleMouseInput();
 		if (!eventHandled)
+		{
 			eventHandled |= this.hierarchy.handleMouseInput();
+		}
 
 		return eventHandled;
 	}
@@ -144,13 +158,8 @@ public class HeaderLayer implements IGuiLayer, IChangeListener
 	{
 		if (objectChanged == this.targetList)
 		{
-			this.customizeWindow.showAlterEntry(this.targetList.getSelectedValue());
+			CustomizeStore.instance.commit(SHOW_ALTER_ENTRY, this.targetList.getSelectedValue());
 		}
-	}
-	
-	public GuiDropDownList<AlterEntry<?>> getTargetList()
-	{
-		return targetList;
 	}
 	
 }

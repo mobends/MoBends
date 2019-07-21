@@ -6,6 +6,7 @@ import net.gobbob.mobends.core.client.Mesh;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
 import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
+import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.math.TransformUtils;
@@ -14,6 +15,8 @@ import net.gobbob.mobends.core.math.physics.*;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.math.vector.VectorUtils;
+import net.gobbob.mobends.core.store.ISubscriber;
+import net.gobbob.mobends.core.store.Subscription;
 import net.gobbob.mobends.core.util.*;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
@@ -27,10 +30,15 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-
 import javax.annotation.Nullable;
 
-public class ViewportLayer extends Gui implements IGuiLayer
+import java.util.LinkedList;
+import java.util.List;
+
+import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.HOVER_OVER_BONE;
+import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SELECT_PART;
+
+public class ViewportLayer extends Gui implements IGuiLayer, ISubscriber
 {
 
 	private final ResourceLocation STAND_BLOCK_TEXTURE = new ResourceLocation(ModStatics.MODID, "textures/stand_block.png");
@@ -39,8 +47,6 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	private final ViewportCamera camera;
 	private int x, y;
 	private int width, height;
-	private AlterEntry<?> alterEntryToView;
-	private AlterEntryRig alterEntryRig;
 
 	private Mesh standBlockMesh;
 	private Plane groundPlane;
@@ -66,23 +72,35 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		TransformUtils.scale(mat, 2F, 2F, 2F);
 		this.obBox = new OBBox(-0.2F, -0.2F, -0.2F, 0.2F, 0.2F, 0.2F, mat);
 		this.contactPoint = new Vec3f();
+
+		this.trackSubscription(CustomizeStore.observeAlterEntry(alterEntry ->
+		{
+			IVec3fRead anchorPoint = Vec3f.ZERO;
+			IPreviewer previewer = alterEntry.getPreviewer();
+			if (previewer != null)
+			{
+				anchorPoint = previewer.getAnchorPoint();
+			}
+			this.camera.anchorTo(anchorPoint.getX(), anchorPoint.getY(), anchorPoint.getZ(), 5);
+		}));
+	}
+
+	/**
+	 * Subscriber implementation
+	 */
+	private final List<Subscription<?>> subscriptions = new LinkedList<>();
+
+	@Override
+	public List<Subscription<?>> getSubscriptions() { return this.subscriptions; }
+
+	@Override
+	public void cleanUp()
+	{
+		this.removeSubscriptions();
 	}
 
 	public void initGui()
 	{
-	}
-
-	public void showAlterEntry(AlterEntry<?> alterEntry, AlterEntryRig rig)
-	{
-		this.alterEntryToView = alterEntry;
-		this.alterEntryRig = rig;
-		IVec3fRead anchorPoint = Vec3f.ZERO;
-		IPreviewer previewer = alterEntry.getPreviewer();
-		if (previewer != null)
-		{
-			anchorPoint = previewer.getAnchorPoint();
-		}
-		this.camera.anchorTo(anchorPoint.getX(), anchorPoint.getY(), anchorPoint.getZ(), 5);
 	}
 
 	@Override
@@ -111,10 +129,7 @@ public class ViewportLayer extends Gui implements IGuiLayer
 			this.camera.moveSideways(-moveSpeed);
 
 		AlterEntryRig.Bone boneAtMouse = this.getBoneAtScreenCoords(mouseX, mouseY);
-		if (this.alterEntryRig != null)
-		{
-			this.alterEntryRig.hoverOver(boneAtMouse);
-		}
+		CustomizeStore.instance.commit(HOVER_OVER_BONE, boneAtMouse);
 	}
 
 	/**
@@ -129,10 +144,11 @@ public class ViewportLayer extends Gui implements IGuiLayer
 	{
 		AlterEntryRig.Bone closestBone = null;
 		Ray ray = this.camera.getRayFromScreen(screenX, screenY, this.width, this.height);
-		if (this.alterEntryRig != null)
+		AlterEntryRig rig = CustomizeStore.getRig();
+		if (rig != null)
 		{
 			float smallestDistanceSq = 0;
-			for (AlterEntryRig.Bone bone : this.alterEntryRig.nameToBoneMap.values())
+			for (AlterEntryRig.Bone bone : rig.nameToBoneMap.values())
 			{
 				RayHitInfo hit = Physics.intersect(ray, bone.collider);
 				if (hit != null)
@@ -219,7 +235,8 @@ public class ViewportLayer extends Gui implements IGuiLayer
 
 		if (button == 0)
 		{
-			this.customizeWindow.selectBone(this.getBoneAtScreenCoords(mouseX, mouseY));
+			AlterEntryRig.Bone bone = this.getBoneAtScreenCoords(mouseX, mouseY);
+			CustomizeStore.instance.commit(SELECT_PART, bone);
 			eventHandled = true;
 		}
 
@@ -254,7 +271,9 @@ public class ViewportLayer extends Gui implements IGuiLayer
 		this.camera.applyProjection();
 		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
 
-		if (alterEntryToView != null)
+		AlterEntry<?> alterEntry = CustomizeStore.getCurrentAlterEntry();
+		AlterEntryRig rig = CustomizeStore.getRig();
+		if (alterEntry != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.loadIdentity();
@@ -289,22 +308,23 @@ public class ViewportLayer extends Gui implements IGuiLayer
 
 			GlStateManager.enableTexture2D();
 
-			renderLivingEntity(this.alterEntryToView);
+			renderLivingEntity(alterEntry);
 
 			GlStateManager.disableTexture2D();
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			RenderHelper.disableStandardItemLighting();
 
-			if (this.alterEntryRig != null && this.alterEntryToView.isAnimated())
+			if (rig != null && alterEntry.isAnimated())
 			{
-				this.alterEntryRig.updateTransform();
-				this.alterEntryRig.nameToBoneMap.forEach((key, bone) -> {
+				rig.updateTransform();
+				rig.nameToBoneMap.forEach((key, bone) ->
+				{
 					if (bone.collider != null)
 					{
-						if (this.alterEntryRig.isBoneHoveredOver(bone) || this.alterEntryRig.isBoneSelected(bone))
+						if (rig.isBoneHoveredOver(bone) || rig.isBoneSelected(bone))
 						{
-							Color color = this.alterEntryRig.isBoneHoveredOver(bone) ? new Color(1, 1, 1, 0.6F) : new Color(1, 1, 0.9F, 0.7F);
+							Color color = rig.isBoneHoveredOver(bone) ? new Color(1, 1, 1, 0.6F) : new Color(1, 1, 0.9F, 0.7F);
 
 							GlStateManager.pushMatrix();
 							GlHelper.transform(bone.collider.transform);

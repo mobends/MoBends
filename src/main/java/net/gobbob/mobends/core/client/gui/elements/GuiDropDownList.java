@@ -1,11 +1,5 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.lwjgl.input.Mouse;
-
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.IChangeListener;
 import net.gobbob.mobends.core.client.gui.IObservable;
@@ -13,8 +7,11 @@ import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.opengl.GL11;
+import org.lwjgl.input.Mouse;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GuiDropDownList<T> implements IObservable
 {
@@ -334,13 +331,13 @@ public class GuiDropDownList<T> implements IObservable
 		return elements;
 	}
 
-	public GuiDropDownList allowNoValue()
+	public GuiDropDownList<T> allowNoValue()
 	{
 		noValueAllowed = true;
 		return this;
 	}
 
-	public GuiDropDownList forbidNoValue()
+	public GuiDropDownList<T> forbidNoValue()
 	{
 		noValueAllowed = false;
 		return this;

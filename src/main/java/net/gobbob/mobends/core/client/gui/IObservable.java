@@ -1,6 +1,5 @@
 package net.gobbob.mobends.core.client.gui;
 
-import java.util.LinkedList;
 import java.util.List;
 
 /**

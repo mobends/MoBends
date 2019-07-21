@@ -1,6 +1,5 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
-import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.elements.GuiPanel;
 import net.gobbob.mobends.core.util.Draw;
 
@@ -9,10 +8,10 @@ public class GuiPartHierarchy extends GuiPanel
 
     private GuiPartList partList;
 
-    public GuiPartHierarchy(GuiPartList.IPartListListener listener)
+    public GuiPartHierarchy()
     {
         super(null, 0, 60, 100, 300, Direction.RIGHT);
-        this.partList = new GuiPartList(this, 2, 2, 96, 90, listener);
+        this.partList = new GuiPartList(this, 2, 2, 96, 90);
     }
 
     @Override
@@ -20,6 +19,11 @@ public class GuiPartHierarchy extends GuiPanel
     {
         super.initGui();
         this.addElement(this.partList);
+    }
+
+    public void cleanUp()
+    {
+        this.partList.cleanUp();
     }
 
     public boolean mouseClicked(int mouseX, int mouseY, int event)
@@ -50,26 +54,6 @@ public class GuiPartHierarchy extends GuiPanel
     protected void drawForeground()
     {
 
-    }
-
-    public void addPart(String name, AlterEntryRig.Bone bone)
-    {
-        this.partList.addPart(name, bone);
-    }
-
-    public void setParts(String[] names, AlterEntryRig rig)
-    {
-        this.partList.setParts(names, rig);
-    }
-
-    public void clearParts()
-    {
-        this.partList.clearParts();
-    }
-
-    public void selectBone(AlterEntryRig.Bone bone)
-    {
-        this.partList.selectBone(bone);
     }
 
 }

@@ -209,11 +209,6 @@ public class GuiBendsMenu extends GuiScreen
 	public void handleMouseInput() throws IOException
 	{
 		super.handleMouseInput();
-
-		if (this.popUp != null)
-		{
-			return;
-		}
 	}
 
 	public void createANewPack(String string)

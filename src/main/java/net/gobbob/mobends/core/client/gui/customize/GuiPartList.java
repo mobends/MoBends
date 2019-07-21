@@ -1,27 +1,31 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
+import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
 import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.elements.GuiElement;
 import net.gobbob.mobends.core.client.gui.elements.GuiScrollPanel;
+import net.gobbob.mobends.core.store.ISubscriber;
+import net.gobbob.mobends.core.store.Subscription;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-public class GuiPartList extends GuiScrollPanel
+import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SELECT_PART;
+
+public class GuiPartList extends GuiScrollPanel implements ISubscriber
 {
 
-    private IPartListListener changeListener = null;
     private List<Entry> parts;
-    protected int elementHeight;
-    protected int elementMargin;
-    protected int hoveredElementIndex;
-    protected int selectedEntryIndex;
+    private int elementHeight;
+    private int elementMargin;
+    private int hoveredElementIndex;
+    private int selectedEntryIndex;
 
-    public GuiPartList(GuiElement parent, int x, int y, int width, int height, @Nullable IPartListListener listener)
+    public GuiPartList(GuiElement parent, int x, int y, int width, int height)
     {
         super(parent, x, y, width, height);
         this.parts = new ArrayList<>();
@@ -29,7 +33,52 @@ public class GuiPartList extends GuiScrollPanel
         this.elementMargin = 1;
         this.hoveredElementIndex = -1;
         this.selectedEntryIndex = -1;
-        this.changeListener = listener;
+
+        this.trackSubscription(CustomizeStore.observeAlterEntryRig((AlterEntryRig rig) ->
+        {
+            this.parts.clear();
+            this.hoveredElementIndex = -1;
+            this.selectedEntryIndex = -1;
+
+            if (rig != null)
+            {
+                for (String name : rig.getAlterEntry().getOwner().getAlterableParts())
+                {
+                    AlterEntryRig.Bone bone = rig.getBone(name);
+                    if (bone != null)
+                    {
+                        this.parts.add(new Entry(name, bone));
+                    }
+                }
+            }
+
+            this.updateContentSize();
+        }));
+
+        this.trackSubscription(CustomizeStore.observeSelectedPart((AlterEntryRig.Bone bone) ->
+        {
+            for (int i = 0; i < this.parts.size(); ++i)
+            {
+                if (this.parts.get(i).bone == bone)
+                {
+                    this.selectedEntryIndex = i;
+                    return;
+                }
+            }
+        }));
+    }
+
+    /**
+     * Subscriber implementation
+     */
+    private final List<Subscription<?>> subscriptions = new LinkedList<>();
+
+    @Override
+    public List<Subscription<?>> getSubscriptions() { return this.subscriptions; }
+
+    public void cleanUp()
+    {
+        this.removeSubscriptions();
     }
 
     @Override
@@ -62,7 +111,8 @@ public class GuiPartList extends GuiScrollPanel
         {
             if (this.hoveredElementIndex != -1)
             {
-                this.selectEntry(this.hoveredElementIndex);
+                AlterEntryRig.Bone bone = this.parts.get(this.hoveredElementIndex).bone;
+                CustomizeStore.instance.commit(SELECT_PART, bone);
                 eventHandled = true;
             }
         }
@@ -85,70 +135,16 @@ public class GuiPartList extends GuiScrollPanel
             Draw.rectangle(0, this.selectedEntryIndex * (this.elementHeight + this.elementMargin), width - scrollBarWidth, this.elementHeight, 0xffff0000);
         if (this.hoveredElementIndex != -1)
             Draw.rectangle(0, this.hoveredElementIndex * (this.elementHeight + this.elementMargin), width - scrollBarWidth, this.elementHeight, 0xff000000);
+
         for (int i = 0; i < this.parts.size(); ++i)
         {
             fontRenderer.drawString(this.parts.get(i).name, this.x, this.y + i * (this.elementHeight + this.elementMargin), 0xffffffff);
         }
     }
 
-    public void selectEntry(int index)
-    {
-        if (index < 0 || index >= this.parts.size())
-            return;
-
-        this.selectedEntryIndex = index;
-        Entry entry = this.parts.get(index);
-        if (this.changeListener != null)
-            this.changeListener.onPartSelectedFromList(entry.name, entry.bone);
-    }
-
-    public void selectBone(AlterEntryRig.Bone bone)
-    {
-        for (int i = 0; i < this.parts.size(); ++i)
-        {
-            if (this.parts.get(i).bone == bone)
-            {
-                this.selectEntry(i);
-                return;
-            }
-        }
-    }
-
     protected void updateContentSize()
     {
         this.contentSize = this.parts.size() * (this.elementHeight + this.elementMargin);
-    }
-
-    public void clearParts()
-    {
-        this.parts.clear();
-        this.hoveredElementIndex = -1;
-        this.selectedEntryIndex = -1;
-        this.updateContentSize();
-    }
-
-    public void addPart(String name, AlterEntryRig.Bone bone)
-    {
-        this.parts.add(new Entry(name, bone));
-        this.updateContentSize();
-    }
-
-    public void setParts(String[] names, AlterEntryRig rig)
-    {
-        this.parts.clear();
-        this.hoveredElementIndex = -1;
-        this.selectedEntryIndex = -1;
-
-        for (String name : names)
-        {
-            AlterEntryRig.Bone bone = rig.getBone(name);
-            if (bone != null)
-            {
-                this.parts.add(new Entry(name, bone));
-            }
-        }
-
-        this.updateContentSize();
     }
 
     private class Entry
@@ -162,13 +158,6 @@ public class GuiPartList extends GuiScrollPanel
             this.name = name;
             this.bone = bone;
         }
-
-    }
-
-    public interface IPartListListener
-    {
-
-        void onPartSelectedFromList(String name, AlterEntryRig.Bone bone);
 
     }
 
