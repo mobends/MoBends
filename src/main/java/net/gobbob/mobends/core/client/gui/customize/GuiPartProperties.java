@@ -40,7 +40,7 @@ public class GuiPartProperties extends GuiPanel
 
         AlterEntryRig.Bone selectedPart = CustomizeStore.getSelectedPart();
         if (selectedPart != null)
-            fontRenderer.drawString("A", 0, 0, 0xffffffff);
+            fontRenderer.drawString(selectedPart.getName(), 0, 0, 0xffffffff);
     }
 
 }

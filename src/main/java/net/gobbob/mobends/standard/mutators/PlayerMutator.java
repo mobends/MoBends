@@ -2,7 +2,6 @@ package net.gobbob.mobends.standard.mutators;
 
 import net.gobbob.mobends.core.client.model.BoxSide;
 import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.client.model.MutatedBox;
 import net.gobbob.mobends.core.client.model.ModelPart;
 import net.gobbob.mobends.core.client.model.ModelPartChild;
 import net.gobbob.mobends.core.client.model.ModelPartChildExtended;
@@ -254,9 +253,9 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	}
 
 	@Override
-	public boolean isModelEligible(ModelBase model)
+	public boolean shouldModelBeSkipped(ModelBase model)
 	{
-		return model instanceof ModelPlayer;
+		return !(model instanceof ModelPlayer);
 	}
 
 	@Override

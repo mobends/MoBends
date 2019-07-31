@@ -1,13 +1,42 @@
-PACK
-    name: "funatparties";
-    displayName: "Fun at Parties";
-    author: "GoblinBob";
-    description: "Are you fun at parties?! I am... ;)";
-    uploadedDate: "19.04.2017";
-    downloadLink: "";
-PACK
-    name: "dogewalk";
-    displayName: "Doge Walk";
-    author: "GoblinBob";
-    description: "Walking like a doge wasn't as easy as it is now";
-    uploadedDate: "19.04.2017";
+{
+    "packs": [
+        {
+            "name": "funatparties",
+            "displayName": "Fun at Parties",
+            "author": "GoblinBob",
+            "description": "Are you fun at parties?! I am... ;)",
+            "uploadedDate": "19.04.2017",
+            "updatedDate": "21.04.2017",
+            "downloadLink": "https://www.dropbox.com/s/tayekc8s6m8qve9/funatparties.bends?dl=1",
+            "thumbnail": "https://www.dropbox.com/s/hg039ho655nruay/funatparties.png?dl=1"
+        },
+        {
+            "name": "dogewalk",
+            "displayName": "Doge Walk",
+            "author": "xXOreoPuppyXx",
+            "description": "Walking like a doge wasn't as easy as it is now",
+            "uploadedDate": "19.04.2017",
+            "updatedDate": "21.04.2017",
+            "downloadLink": "https://www.dropbox.com/s/f8ftuqhaw8rcqgd/dogewalk.bends?dl=1"
+        },
+        {
+            "name": "acrobatics",
+            "displayName": "Acrobatics!",
+            "author": "JakeBlack2003",
+            "description": "Makes you look very athletic :P.",
+            "uploadedDate": "19.05.2017",
+            "updatedDate": "19.05.2017",
+            "downloadLink": "https://www.dropbox.com/s/sc2s8av7jkgsm8r/acrobatics.bends?dl=1"
+        },
+        {
+            "name": "levitation",
+            "displayName": "Levitation",
+            "author": "JakeBlack2003",
+            "description": "Levitate off the ground!",
+            "uploadedDate": "15.07.2017",
+            "updatedDate": "15.07.2017",
+            "downloadLink": "https://www.dropbox.com/s/8wja4fcjuhd2sb0/levitation.bends?dl=1",
+            "thumbnail": "https://www.dropbox.com/s/07dn6mj0nz9l2qt/levitation.png?dl=1"
+        }
+    ]
+}

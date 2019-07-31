@@ -127,6 +127,11 @@ public class AlterEntryRig
             }
         }
 
+        public String getName()
+        {
+            return this.name;
+        }
+
     }
 
 }

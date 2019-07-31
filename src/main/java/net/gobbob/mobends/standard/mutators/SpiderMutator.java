@@ -135,9 +135,9 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 	}
 	
 	@Override
-	public boolean isModelEligible(ModelBase model)
+	public boolean shouldModelBeSkipped(ModelBase model)
 	{
-		return model instanceof ModelSpider;
+		return !(model instanceof ModelSpider);
 	}
 	
 }

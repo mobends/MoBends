@@ -6,9 +6,8 @@ import net.gobbob.mobends.core.client.event.EntityRenderHandler;
 import net.gobbob.mobends.core.client.event.KeyboardHandler;
 import net.gobbob.mobends.core.modcomp.RFPR;
 import net.gobbob.mobends.core.pack.PackManager;
-import net.gobbob.mobends.core.pack.variable.BendsVariable;
+import net.gobbob.mobends.core.pack.variable.BendsVariableEntry;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 
@@ -20,10 +19,8 @@ public class CoreClient extends Core
 	{
 		super.init(event);
 		
-		Configuration config = configuration.getConfiguration();
-		
-		PackManager.initialize(config);
-		BendsVariable.init();
+		PackManager.instance.initialize(configuration);
+		BendsVariableEntry.init();
 		KeyboardHandler.initKeyBindings();
 
 		MinecraftForge.EVENT_BUS.register(new EntityRenderHandler());
@@ -36,9 +33,7 @@ public class CoreClient extends Core
 	{
 		super.postInit(event);
 		
-		Configuration config = configuration.getConfiguration();
-		
-		AnimatedEntityRegistry.applyConfiguration(config);
+		AnimatedEntityRegistry.applyConfiguration(configuration);
 		RFPR.init();
 	}
 	

@@ -1,11 +1,11 @@
 package net.gobbob.mobends.core.pack;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import net.gobbob.mobends.core.configuration.CoreConfig;
+import net.gobbob.mobends.core.util.GUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
+
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,241 +13,231 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import net.gobbob.mobends.core.util.GUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.common.config.Configuration;
-
 public class PackManager
 {
-	public static File localDirectory;
-	public static File cacheDirectory;
-	public static File databaseCacheFile;
-	public static URL publicDirectoryURL;
-	public static BPDFile cachedDatabase;
-	public static BPDFile publicDatabase;
-	private static HashMap<String, BendsPack> localPacks = new HashMap<String, BendsPack>();
-	private static HashMap<String, BendsPack> publicPacks = new HashMap<String, BendsPack>();
-	public static final int NOT_LOADED = 0;
-	public static final int LOADED = 1;
-	public static final int ERROR = 2;
-	private static int publicPackLoadState;
-	private static BendsPack currentPack;
 
-	public static void initialize(Configuration config)
-	{
-		localDirectory = new File(Minecraft.getMinecraft().mcDataDir, "bendspacks");
-		localDirectory.mkdir();
-		cacheDirectory = new File(localDirectory, "public_cache");
-		cacheDirectory.mkdir();
+    public static final PackManager instance = new PackManager();
+    private static final String PUBLIC_DATABASE_URL = "https://www.dropbox.com/s/d8v028x6mjk6xh3/packDatabase.json?dl=1";
 
-		publicDatabase = BPDFile.parse(downloadPublicDatabase());
-		parsePublicDatabase(publicDatabase);
-		databaseCacheFile = new File(cacheDirectory, "database");
-		if (databaseCacheFile.exists())
-		{
-			cachedDatabase = BPDFile.parse(GUtil.readLines(databaseCacheFile));
-		}
-		else
-		{
-			try
-			{
-				cachedDatabase = new BPDFile();
-				databaseCacheFile.createNewFile();
-				cachedDatabase.saveToFile(databaseCacheFile);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
+    private File localDirectory;
+    private ThumbnailProvider thumbnailProvider;
 
-		try
-		{
-			initPacks();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+    private HashMap<String, LocalBendsPack> localPacks = new HashMap<>();
+    private HashMap<String, PublicBendsPack> publicPacks = new HashMap<>();
 
-		String savedPackName = config.get("General", "Current Pack", "none").getString();
-		if (localPacks.containsKey(savedPackName))
-			PackManager.choose(localPacks.get(savedPackName));
-		else if (publicPacks.containsKey(savedPackName))
-			PackManager.choose(publicPacks.get(savedPackName));
-	}
+    enum LoadState
+    {
+        NOT_LOADED,
+        LOADED,
+        ERROR,
+    }
 
-	public static void initPacks() throws IOException
-	{
-		File[] files = localDirectory.listFiles();
-		localPacks.clear();
-		for (File file : files)
-		{
-			if (file.getAbsolutePath().endsWith(".bends"))
-			{
-				BendsPack pack = new BendsPack();
-				pack.readBasicInfo(file);
-				if (pack.getFilename() != null && pack.getDisplayName() != null)
-					localPacks.put(pack.getFilename(), pack);
-			}
-		}
-	}
+    private LoadState publicDatabaseLoadState;
+    private IBendsPack appliedPack;
 
-	public static boolean addLocal(BendsPack newPack)
-	{
-		if (!PackManager.localPacks.containsKey(newPack.getFilename()))
-		{
-			PackManager.localPacks.put(newPack.getFilename(), newPack);
-			return true;
-		}
-		return false;
-	}
+    public void initialize(CoreConfig config)
+    {
+        this.localDirectory = new File(Minecraft.getMinecraft().mcDataDir, "bendspacks");
+        this.localDirectory.mkdir();
 
-	public static boolean addPublic(BendsPack newPack)
-	{
-		if (!PackManager.publicPacks.containsKey(newPack.getFilename()))
-		{
-			PackManager.publicPacks.put(newPack.getFilename(), newPack);
-			return true;
-		}
-		return false;
-	}
+        File cacheDirectory = new File(localDirectory, "public_cache");
+        cacheDirectory.mkdir();
+        this.thumbnailProvider = new ThumbnailProvider(cacheDirectory);
 
-	public static void choose(BendsPack newPack)
-	{
-		currentPack = newPack;
-		if (currentPack != null)
-			currentPack.apply();
-		else
-			BendsPack.targets.clear();
-	}
+        this.updatePublicDatabase();
 
-	public static String[] downloadPublicDatabase()
-	{
-		publicPacks.clear();
-		try
-		{
-			publicDirectoryURL = new URL("https://www.dropbox.com/s/s6pra0y76aslcyg/packDatabase.bpd?dl=1");
-			BufferedReader in = new BufferedReader(new InputStreamReader(publicDirectoryURL.openStream()));
+        try
+        {
+            initLocalPacks();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
 
-			List<String> lines = new ArrayList<String>();
-			String inputLine;
-			while ((inputLine = in.readLine()) != null)
-				lines.add(inputLine);
-			in.close();
+        String savedPackName = config.getCurrentPack();
+        if (localPacks.containsKey(savedPackName))
+            choose(localPacks.get(savedPackName));
+        else if (publicPacks.containsKey(savedPackName))
+            choose(publicPacks.get(savedPackName));
+    }
 
-			return lines.toArray(new String[0]);
-		}
-		catch (MalformedURLException e1)
-		{
-			e1.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		return null;
-	}
+    public void initLocalPacks() throws IOException
+    {
+        localPacks.clear();
 
-	public static void parsePublicDatabase(BPDFile parser)
-	{
-		publicPackLoadState = NOT_LOADED;
-		if (parser == null || parser.getPackEntries() == null)
-		{
-			publicPackLoadState = ERROR;
-		}
-		else
-		{
-			for (BPDFile.Entry entry : parser.getPackEntries().values())
-			{
-				addPublic(new BendsPack(entry.get("name"), entry.get("displayName"), entry.get("author"),
-						entry.get("description")).setThumbnailURL(entry.get("thumbnail"))
-								.setDownloadURL(entry.get("downloadLink")));
-			}
-			publicPackLoadState = LOADED;
-		}
-	}
+        File[] files = localDirectory.listFiles();
+        if (files != null)
+        {
+            for (File file : files)
+            {
+                if (file.getAbsolutePath().endsWith(".bends"))
+                {
+                    LocalBendsPack bendsPack = LocalBendsPack.readFromFile(file);
+                    if (bendsPack != null)
+                    {
+                        this.localPacks.put(bendsPack.getName(), bendsPack);
+                    }
+                }
+            }
+        }
+    }
 
-	public static void updatePublicDatabase()
-	{
-		BPDFile parser = BPDFile.parse(downloadPublicDatabase());
-		parsePublicDatabase(parser);
-	}
+    public boolean addLocal(LocalBendsPack newPack)
+    {
+        if (!localPacks.containsKey(newPack.getName()))
+        {
+            localPacks.put(newPack.getName(), newPack);
+            return true;
+        }
+        return false;
+    }
 
-	public static void renamePack(String originalName, String name)
-	{
-		if (!localPacks.containsKey(originalName))
-			return;
-		BendsPack pack = localPacks.get(originalName);
+    private boolean addPublic(PublicBendsPack newPack)
+    {
+        if (!publicPacks.containsKey(newPack.getName()))
+        {
+            publicPacks.put(newPack.getName(), newPack);
+            return true;
+        }
+        return false;
+    }
 
-		if (pack.getFilename().equalsIgnoreCase(name) || pack.isPublic())
-			return;
+    public void choose(IBendsPack newPack)
+    {
+        appliedPack = newPack;
+        if (appliedPack != null)
+            appliedPack.apply();
+    }
 
-		pack.rename(name);
+    private String[] downloadPublicDatabase()
+    {
+        try
+        {
+            URL publicDirectoryUrl = new URL(PUBLIC_DATABASE_URL);
+            BufferedReader in = new BufferedReader(new InputStreamReader(publicDirectoryUrl.openStream()));
 
-		File packFile = new File(PackManager.localDirectory, originalName);
-		if (packFile.exists())
-		{
-			// Renaming the file.
-			File newPackFile = new File(PackManager.localDirectory, name);
-			try
-			{
-				final BufferedWriter os = new BufferedWriter(new FileWriter(newPackFile));
-				os.write(GUtil.readFile(packFile));
-				os.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
+            List<String> lines = new ArrayList<>();
+            String inputLine;
+            while ((inputLine = in.readLine()) != null)
+                lines.add(inputLine);
+            in.close();
 
-		localPacks.remove(originalName);
-		localPacks.put(name, pack);
-	}
+            return lines.toArray(new String[0]);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	public static BendsPack getCurrentPack()
-	{
-		return currentPack;
-	}
+    private void parsePublicDatabase(PublicDatabase database)
+    {
+        publicPacks.clear();
+        publicDatabaseLoadState = LoadState.NOT_LOADED;
 
-	public static boolean isCurrentPackPublic()
-	{
-		return getCurrentPack() != null && getCurrentPack().isPublic();
-	}
+        for (PublicDatabase.PackEntry entry : database.packs)
+        {
+            try
+            {
+                addPublic(PublicBendsPack.createPublicPack(entry));
+            }
+            catch(MalformedURLException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        publicDatabaseLoadState = LoadState.LOADED;
+    }
 
-	public static boolean isCurrentPackLocal()
-	{
-		return getCurrentPack() != null && !getCurrentPack().isPublic();
-	}
+    public void updatePublicDatabase()
+    {
+        PublicDatabase database = PublicDatabase.downloadPublicDatabase(PUBLIC_DATABASE_URL);
+        if (database != null)
+        {
+            parsePublicDatabase(database);
+        }
+    }
 
-	public static boolean arePublicPacksLoaded()
-	{
-		return publicPackLoadState == LOADED;
-	}
+    public void renamePack(String originalName, String name)
+    {
+        if (!localPacks.containsKey(originalName))
+            return;
 
-	public static int getPublicPackLoadState()
-	{
-		return publicPackLoadState;
-	}
+        LocalBendsPack pack = localPacks.get(originalName);
 
-	public static BendsPack getPublic(String name)
-	{
-		return publicPacks.get(name);
-	}
+        if (pack.getName().equalsIgnoreCase(name) || !pack.canPackBeEdited())
+            return;
 
-	public static BendsPack getLocal(String name)
-	{
-		return localPacks.get(name);
-	}
+        pack.rename(name);
 
-	public static Collection<BendsPack> getPublicPacks()
-	{
-		return publicPacks.values();
-	}
+        File packFile = new File(localDirectory, originalName);
+        if (packFile.exists())
+        {
+            // Renaming the file.
+            File newPackFile = new File(localDirectory, name);
+            try
+            {
+                final BufferedWriter os = new BufferedWriter(new FileWriter(newPackFile));
+                os.write(GUtil.readFile(packFile));
+                os.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
 
-	public static Collection<BendsPack> getLocalPacks()
-	{
-		return localPacks.values();
-	}
+        localPacks.remove(originalName);
+        localPacks.put(name, pack);
+    }
+
+    public IBendsPack getAppliedPack()
+    {
+        return appliedPack;
+    }
+
+    public boolean arePublicPacksLoaded()
+    {
+        return publicDatabaseLoadState == LoadState.LOADED;
+    }
+
+    public PublicBendsPack getPublic(String name)
+    {
+        return publicPacks.get(name);
+    }
+
+    public LocalBendsPack getLocal(String name)
+    {
+        return localPacks.get(name);
+    }
+
+    public Collection<PublicBendsPack> getPublicPacks()
+    {
+        return publicPacks.values();
+    }
+
+    public Collection<LocalBendsPack> getLocalPacks()
+    {
+        return localPacks.values();
+    }
+
+    public ResourceLocation getThumbnailLocation(String packName, String thumbnailUrl)
+    {
+        return this.thumbnailProvider.getThumbnailLocation(packName, thumbnailUrl);
+    }
+
+    public File getLocalDirectory()
+    {
+        return localDirectory;
+    }
+
+    public File getFileForPack(String filename) throws IOException
+    {
+        File packFile = new File(localDirectory, filename);
+        packFile.createNewFile();
+        return packFile;
+    }
+
 }

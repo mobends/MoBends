@@ -3,8 +3,8 @@ package net.gobbob.mobends.core.client.gui.packswindow;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.elements.GuiCompactTextField;
 import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
-import net.gobbob.mobends.core.pack.BendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.core.util.BendsPackHelper;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.GuiHelper;
@@ -246,7 +246,7 @@ public class GuiPacksWindow extends GuiScreen
 
         if (this.titleTextField.textboxKeyTyped(typedChar, keyCode))
         {
-            this.generatedName = BendsPack.constructName(this.titleTextField.getText()) + ".bends";
+            this.generatedName = BendsPackHelper.constructPackName(this.titleTextField.getText()) + ".bends";
         }
     }
 
@@ -261,7 +261,7 @@ public class GuiPacksWindow extends GuiScreen
                 goBack();
                 break;
             case BUTTON_OPEN_FOLDER:
-                OpenGlHelper.openFile(PackManager.localDirectory);
+                OpenGlHelper.openFile(PackManager.instance.getLocalDirectory());
                 break;
             case BUTTON_USE:
                 if (this.packList.getSelectedEntry().isApplied())
@@ -288,8 +288,8 @@ public class GuiPacksWindow extends GuiScreen
 
     private void populate()
     {
-        if (!PackManager.arePublicPacksLoaded())
-            PackManager.updatePublicDatabase();
+        if (!PackManager.instance.arePublicPacksLoaded())
+            PackManager.instance.updatePublicDatabase();
         this.packList.populate();
     }
 
@@ -344,11 +344,6 @@ public class GuiPacksWindow extends GuiScreen
 
         applyChangesToName();
         updateButtonLabels();
-    }
-
-    public void apply()
-    {
-        packList.apply();
     }
 
     public GuiPackList getPackList()

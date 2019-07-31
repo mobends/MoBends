@@ -1,8 +1,9 @@
 package net.gobbob.mobends.core.client.gui.packswindow;
 
 import net.gobbob.mobends.core.client.gui.GuiHelper;
-import net.gobbob.mobends.core.pack.BendsPack;
+import net.gobbob.mobends.core.pack.LocalBendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.core.pack.PublicBendsPack;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
@@ -185,12 +186,12 @@ public class GuiPackList
 
     public void populate()
     {
-        for (BendsPack pack : PackManager.getPublicPacks())
+        for (PublicBendsPack pack : PackManager.instance.getPublicPacks())
         {
             getTab(0).addEntry(new GuiPackEntry(this, pack));
         }
 
-        for (BendsPack pack : PackManager.getLocalPacks())
+        for (LocalBendsPack pack : PackManager.instance.getLocalPacks())
         {
             getTab(1).addEntry(new GuiPackEntry(this, pack));
         }
@@ -241,39 +242,6 @@ public class GuiPackList
     {
         int maxValue = Math.max(0, maxScrollAmount);
         this.scrollAmount = GUtil.clamp(this.scrollAmount + (int) amount, 0, maxValue);
-    }
-
-    public void apply()
-    {
-        PackManager.choose(null);
-
-        for (GuiPackEntry entry : tabs.get(TAB_LOCAL).getEntries())
-        {
-            if (PackManager.getLocal(entry.getOriginalName()) == null)
-            {
-                PackManager.addLocal(new BendsPack(entry.getOriginalName(), entry.getDisplayName(), entry.author, entry.description));
-            }
-            BendsPack pack = PackManager.getLocal(entry.getOriginalName());
-            pack.setDisplayName(entry.getDisplayName());
-            pack.setAuthor(entry.author);
-            pack.setDescription(entry.description);
-            if (!entry.getOriginalName().equals(entry.name))
-            {
-                PackManager.renamePack(entry.getOriginalName(), entry.name);
-            }
-            if (entry.isApplied())
-                PackManager.choose(pack);
-            pack.saveBasicInfo();
-        }
-
-        for (GuiPackEntry entry : tabs.get(TAB_PUBLIC).getEntries())
-        {
-            if (entry.isApplied())
-            {
-                PackManager.choose(PackManager.getPublic(entry.name));
-                break;
-            }
-        }
     }
 
 }

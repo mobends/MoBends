@@ -1,17 +1,15 @@
 package net.gobbob.mobends.standard.animation.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.math.SmoothOrientation;
-import net.gobbob.mobends.core.pack.BendsPack;
-import net.gobbob.mobends.core.pack.variable.BendsVariable;
-import net.gobbob.mobends.standard.DefaultAddon;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.monster.EntitySpider;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /*
  * This is an animation controller for a spider instance.
@@ -39,9 +37,8 @@ public class SpiderController implements IAnimationController<SpiderData>
 	}
 	
 	@Override
-	public void perform(SpiderData spiderData)
+	public Collection<String> perform(SpiderData spiderData)
 	{
-		BendsVariable.tempData = spiderData;
 		EntitySpider spider = spiderData.getEntity();
 		
 		if (spider.getHealth() <= 0F)
@@ -77,10 +74,9 @@ public class SpiderController implements IAnimationController<SpiderData>
 			}
 		}
 		
-		List<String> actions = new ArrayList<String>();
+		List<String> actions = new ArrayList<>();
 		this.layerBase.perform(spiderData, actions);
-		
-		BendsPack.animate(spiderData, DefaultAddon.spiderKey, actions);
+		return actions;
 	}
 	
 	public static void putLimbOnGround(SmoothOrientation upperLimb, SmoothOrientation lowerLimb, boolean odd, double stretchDistance, double groundLevel)

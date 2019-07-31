@@ -103,9 +103,9 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 	}
 
 	@Override
-	public boolean isModelEligible(ModelBase model)
+	public boolean shouldModelBeSkipped(ModelBase model)
 	{
-		return model instanceof ModelSquid;
+		return !(model instanceof ModelSquid);
 	}
 
 }

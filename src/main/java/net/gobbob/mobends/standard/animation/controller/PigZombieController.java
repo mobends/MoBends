@@ -1,18 +1,16 @@
 package net.gobbob.mobends.standard.animation.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
-import net.gobbob.mobends.core.pack.BendsPack;
-import net.gobbob.mobends.core.pack.variable.BendsVariable;
-import net.gobbob.mobends.standard.DefaultAddon;
 import net.gobbob.mobends.standard.animation.bit.biped.AttackSlashUpAnimationBit;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.gobbob.mobends.standard.data.PigZombieData;
 import net.minecraft.entity.monster.EntityPigZombie;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * This is an animation controller for a zombie instance.
@@ -40,9 +38,8 @@ public class PigZombieController implements IAnimationController<PigZombieData>
 	}
 	
 	@Override
-	public void perform(PigZombieData pigZombieData)
+	public Collection<String> perform(PigZombieData pigZombieData)
 	{
-		BendsVariable.tempData = pigZombieData;
 		EntityPigZombie pigZombie =  pigZombieData.getEntity();
 		
 		if (!pigZombieData.isOnGround() || pigZombieData.getTicksAfterTouchdown() < 1)
@@ -70,11 +67,10 @@ public class PigZombieController implements IAnimationController<PigZombieData>
 			this.layerAction.clearAnimation();
 		}
 		
-		List<String> actions = new ArrayList<String>();
+		List<String> actions = new ArrayList<>();
 		this.layerBase.perform(pigZombieData, actions);
 		this.layerAction.perform(pigZombieData, actions);
-		
-		BendsPack.animate(pigZombieData, DefaultAddon.pigZombieKey, actions);
+		return actions;
 	}
 
 }

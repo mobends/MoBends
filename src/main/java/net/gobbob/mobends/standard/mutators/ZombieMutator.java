@@ -27,8 +27,8 @@ public class ZombieMutator extends ZombieMutatorBase<ZombieData, EntityZombie, M
 	}
 	
 	@Override
-	public boolean isModelEligible(ModelBase model)
+	public boolean shouldModelBeSkipped(ModelBase model)
 	{
-		return model instanceof ModelZombie;
+		return !(model instanceof ModelZombie);
 	}
 }

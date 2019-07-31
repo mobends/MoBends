@@ -1,18 +1,11 @@
 package net.gobbob.mobends.standard.animation.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.bit.KeyframeAnimationBit;
 import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.keyframe.ArmatureMask;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.animation.layer.KeyframeAnimationLayer;
-import net.gobbob.mobends.core.client.event.DataUpdateHandler;
-import net.gobbob.mobends.core.pack.BendsPack;
-import net.gobbob.mobends.core.pack.variable.BendsVariable;
-import net.gobbob.mobends.standard.DefaultAddon;
 import net.gobbob.mobends.standard.animation.bit.biped.BowAnimationBit;
 import net.gobbob.mobends.standard.animation.bit.biped.EatingAnimationBit;
 import net.gobbob.mobends.standard.animation.bit.biped.FallingAnimationBit;
@@ -23,13 +16,13 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemFood;
-import net.minecraft.item.ItemPickaxe;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /*
  * This is an animation controller for a player instance.
@@ -93,7 +86,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 
 	public static boolean shouldPerformBreaking(PlayerData data)
 	{
-		AbstractClientPlayer player = (AbstractClientPlayer) data.getEntity();
+		AbstractClientPlayer player = data.getEntity();
 		ItemStack itemstack = player.getHeldItemMainhand();
 
 		if (itemstack != null)
@@ -104,27 +97,26 @@ public class PlayerController implements IAnimationController<PlayerData>
 	}
 
 	@Override
-	public void perform(PlayerData data)
+	public Collection<String> perform(PlayerData data)
 	{
-		BendsVariable.tempData = data;
 		AbstractClientPlayer player = data.getEntity();
 		EnumHandSide primaryHand = player.getPrimaryHand();
 		EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
-		ItemStack itemstack = player.getHeldItemMainhand();
-		ItemStack itemstack1 = player.getHeldItemOffhand();
+		ItemStack heldItemMainhand = player.getHeldItemMainhand();
+		ItemStack heldItemOffhand = player.getHeldItemOffhand();
 		ItemStack activeStack = player.getActiveItemStack();
 		ModelBiped.ArmPose armPoseMain = ModelBiped.ArmPose.EMPTY;
 		ModelBiped.ArmPose armPoseOff = ModelBiped.ArmPose.EMPTY;
 		EnumHand activeHand = player.getActiveHand();
 		EnumHandSide activeHandSide = activeHand == EnumHand.MAIN_HAND ? primaryHand : offHand;
 
-		if (!itemstack.isEmpty())
+		if (!heldItemMainhand.isEmpty())
 		{
 			armPoseMain = ModelBiped.ArmPose.ITEM;
 
 			if (player.getItemInUseCount() > 0)
 			{
-				EnumAction enumaction = itemstack.getItemUseAction();
+				EnumAction enumaction = heldItemMainhand.getItemUseAction();
 
 				if (enumaction == EnumAction.BLOCK)
 				{
@@ -137,13 +129,13 @@ public class PlayerController implements IAnimationController<PlayerData>
 			}
 		}
 
-		if (!itemstack1.isEmpty())
+		if (!heldItemOffhand.isEmpty())
 		{
 			armPoseOff = ModelBiped.ArmPose.ITEM;
 
 			if (player.getItemInUseCount() > 0)
 			{
-				EnumAction enumaction1 = itemstack1.getItemUseAction();
+				EnumAction enumaction1 = heldItemOffhand.getItemUseAction();
 
 				if (enumaction1 == EnumAction.BLOCK)
 				{
@@ -256,8 +248,8 @@ public class PlayerController implements IAnimationController<PlayerData>
 				this.bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
 				this.layerAction.playOrContinueBit(this.bitBow, data);
 			}
-			else if (itemstack != null
-					&& (itemstack.getItem() instanceof ItemPickaxe || itemstack.getItem() instanceof ItemAxe))
+			else if (heldItemMainhand != null
+					&& (heldItemMainhand.getItem() instanceof ItemPickaxe || heldItemMainhand.getItem() instanceof ItemAxe))
 			{
 				if (player.isSwingInProgress)
 					this.layerAction.playOrContinueBit(this.bitBreaking, data);
@@ -270,16 +262,13 @@ public class PlayerController implements IAnimationController<PlayerData>
 			}
 		}
 
-		//data.body.rotation.orientInstantZ(-45);
-		
 		List<String> actions = new ArrayList<String>();
 		layerBase.perform(data, actions);
 		layerSneak.perform(data, actions);
 		layerTorch.perform(data, actions);
 		layerAction.perform(data, actions);
 		layerKeyframe.perform(data, actions);
-
-		BendsPack.animate(data, DefaultAddon.playerKey, actions);
+		return actions;
 	}
 	
 }

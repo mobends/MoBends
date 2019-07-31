@@ -1,9 +1,5 @@
 package net.gobbob.mobends.core.client.event;
 
-import java.io.IOException;
-
-import org.lwjgl.input.Keyboard;
-
 import net.gobbob.mobends.core.addon.Addons;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
@@ -14,6 +10,9 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
+import org.lwjgl.input.Keyboard;
+
+import java.io.IOException;
 
 public class KeyboardHandler
 {
@@ -33,7 +32,7 @@ public class KeyboardHandler
 		if (KEY_MENU.isPressed())
 		{
 			Minecraft.getMinecraft().displayGuiScreen(new GuiBendsMenu());
-			PackManager.initPacks();
+			PackManager.instance.initLocalPacks();
 		}
 		else if (KEY_REFRESH.isPressed())
 		{

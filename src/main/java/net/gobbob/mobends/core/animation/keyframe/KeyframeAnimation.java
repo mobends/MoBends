@@ -1,23 +1,22 @@
 package net.gobbob.mobends.core.animation.keyframe;
 
-import java.util.List;
+import java.util.Map;
 
 public class KeyframeAnimation
 {
-	public List<KeyframeArmature> armatures;
 
-	public void mirrorRotationYZ(String boneName)
-	{
-		for (KeyframeArmature armature : armatures)
-		{
-			Bone bone = armature.bones.get(boneName);
-			if (bone != null)
-			{
-				for (Keyframe keyframe : bone.keyframes)
-				{
-					keyframe.mirrorRotationYZ();
-				}
-			}
-		}
-	}
+    public Map<String, Bone> bones;
+
+    public void mirrorRotationYZ(String boneName)
+    {
+        Bone bone = bones.get(boneName);
+        if (bone != null)
+        {
+            for (Keyframe keyframe : bone.keyframes)
+            {
+                keyframe.mirrorRotationYZ();
+            }
+        }
+    }
+
 }

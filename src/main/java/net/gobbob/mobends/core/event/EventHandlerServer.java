@@ -9,14 +9,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EventHandlerServer
 {
-	@SubscribeEvent
-	public void onEntityJoinWorld(EntityJoinWorldEvent event)
-	{
-		if (event.getEntity() == null || !(event.getEntity() instanceof EntityPlayerMP))
-			return;
 
-		Core.getNetworkWrapper().sendTo(
-				new MessageClientConfigure(NetworkConfiguration.instance.allowModelScaling),
-				(EntityPlayerMP) event.getEntity());
-	}
+    @SubscribeEvent
+    public void onEntityJoinWorld(EntityJoinWorldEvent event)
+    {
+        if (event.getEntity() == null || !(event.getEntity() instanceof EntityPlayerMP))
+            return;
+
+        Core.getNetworkWrapper().sendTo(
+                new MessageClientConfigure(NetworkConfiguration.instance.allowModelScaling),
+                (EntityPlayerMP) event.getEntity());
+    }
+
 }

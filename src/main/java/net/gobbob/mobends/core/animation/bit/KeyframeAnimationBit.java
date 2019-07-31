@@ -6,7 +6,6 @@ import net.gobbob.mobends.core.animation.keyframe.ArmatureMask;
 import net.gobbob.mobends.core.animation.keyframe.Bone;
 import net.gobbob.mobends.core.animation.keyframe.Keyframe;
 import net.gobbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import net.gobbob.mobends.core.animation.keyframe.KeyframeArmature;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.data.EntityData;

@@ -1,7 +1,9 @@
 package net.gobbob.mobends.core.client.gui.packswindow;
 
-import net.gobbob.mobends.core.pack.BendsPack;
+import net.gobbob.mobends.core.pack.IBendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.core.pack.ThumbnailProvider;
+import net.gobbob.mobends.core.util.BendsPackHelper;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -10,6 +12,8 @@ import net.minecraft.util.ResourceLocation;
 
 public class GuiPackEntry
 {
+
+
 
     public static final int HEIGHT = 31;
     public static final int MARGIN = 2;
@@ -36,7 +40,7 @@ public class GuiPackEntry
         this.displayName = "Unnamed";
         this.author = Minecraft.getMinecraft().player.getName();
         this.description = "A custom pack made by " + this.author + ".";
-        this.thumbnailLocation = BendsPack.DEFAULT_THUMBNAIL_TEXTURE;
+        this.thumbnailLocation = ThumbnailProvider.DEFAULT_THUMBNAIL_LOCATION;
         this.applied = false;
         this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
     }
@@ -47,16 +51,16 @@ public class GuiPackEntry
         this.packList = packList;
     }
 
-    public GuiPackEntry(GuiPackList packList, BendsPack pack)
+    public GuiPackEntry(GuiPackList packList, IBendsPack pack)
     {
         this(packList);
-        this.name = pack.getFilename();
-        this.originalName = pack.getFilename();
+        this.name = pack.getName();
+        this.originalName = pack.getName();
         this.displayName = pack.getDisplayName();
         this.author = pack.getAuthor();
         this.description = pack.getDescription();
         this.thumbnailLocation = pack.getThumbnail();
-        this.applied = PackManager.getCurrentPack() != null && PackManager.getCurrentPack() == pack;
+        this.applied = PackManager.instance.getAppliedPack() != null && PackManager.instance.getAppliedPack() == pack;
     }
 
     public void initGui(int x, int y)
@@ -122,7 +126,7 @@ public class GuiPackEntry
     public void updateName(String displayName)
     {
         this.displayName = displayName;
-        this.name = BendsPack.constructName(displayName) + ".bends";
+        this.name = BendsPackHelper.constructPackName(displayName) + ".bends";
     }
 
     void markSelected()

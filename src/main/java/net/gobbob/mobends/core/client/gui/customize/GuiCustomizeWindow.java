@@ -7,7 +7,6 @@ import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
 import net.gobbob.mobends.core.client.gui.customize.viewport.ViewportLayer;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
-import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.store.ISubscriber;
 import net.gobbob.mobends.core.store.Subscription;
 import net.minecraft.client.gui.GuiScreen;
@@ -176,9 +175,6 @@ public class GuiCustomizeWindow extends GuiScreen implements ISubscriber
             goBack();
             eventHandled = true;
         }
-		
-		/*if (!PackManager.isCurrentPackLocal())
-			return;*/
     }
 
     @Override
@@ -189,17 +185,6 @@ public class GuiCustomizeWindow extends GuiScreen implements ISubscriber
 
     public void goBack()
     {
-        if (PackManager.getCurrentPack() != null)
-        {
-            try
-            {
-                PackManager.getCurrentPack().save();
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
         this.mc.displayGuiScreen(new GuiBendsMenu());
     }
 

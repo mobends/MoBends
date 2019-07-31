@@ -8,6 +8,9 @@ import net.gobbob.mobends.standard.data.SquidData;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
+
 /**
  * This is an animation controller for a squid instance. It's a part of the
  * EntityData structure.
@@ -21,7 +24,8 @@ public class SquidController implements IAnimationController<SquidData>
 	protected HardAnimationLayer<SquidData> layerBase;
 
 	@Override
-	public void perform(SquidData data)
+	@Nullable
+	public Collection<String> perform(SquidData data)
 	{
 		EntitySquid squid = data.getEntity();
 
@@ -32,7 +36,6 @@ public class SquidController implements IAnimationController<SquidData>
         if (squid.prevSquidRotation < GUtil.PI) {
         	baseTentacleAngle = MathHelper.sin(f * f * (float)Math.PI) * 60.0f;
         }
-		
 		
 		for (int i = 0; i < data.squidTentacles.length; ++i)
 		{
@@ -51,8 +54,7 @@ public class SquidController implements IAnimationController<SquidData>
 				data.squidTentacles[i][j].rotation.setSmoothness(0.1F).orientX(-tentacleAngle);
 			}
 		}
-		
-		
+
 		/*if (squid.prevSquidRotation < GUtil.PI)
         {
 			for (int i = 0; i < data.squidTentacles.length; ++i)
@@ -60,6 +62,8 @@ public class SquidController implements IAnimationController<SquidData>
 				data.squidTentacles[i][0].rotation.localRotateX(squidRotation / GUtil.PI * 180.0F);
 			}
         }*/
+
+		return null;
 	}
 	
 }

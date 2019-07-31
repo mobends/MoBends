@@ -1,20 +1,18 @@
 package net.gobbob.mobends.standard.animation.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
-import net.gobbob.mobends.core.pack.BendsPack;
-import net.gobbob.mobends.core.pack.variable.BendsVariable;
-import net.gobbob.mobends.standard.DefaultAddon;
 import net.gobbob.mobends.standard.data.ZombieVillagerData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHandSide;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * This is an animation controller for a zombie villager instance.
@@ -45,9 +43,8 @@ public class ZombieVillagerController implements IAnimationController<ZombieVill
 	}
 	
 	@Override
-	public void perform(ZombieVillagerData zombieData)
+	public Collection<String> perform(ZombieVillagerData zombieData)
 	{
-		BendsVariable.tempData = zombieData;
 		EntityZombie zombie = zombieData.getEntity();
 		EnumHandSide primaryHand = zombie.getPrimaryHand();
 		EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
@@ -115,8 +112,7 @@ public class ZombieVillagerController implements IAnimationController<ZombieVill
 		List<String> actions = new ArrayList<String>();
 		this.layerBase.perform(zombieData, actions);
 		this.layerSet.perform(zombieData, actions);
-		
-		BendsPack.animate(zombieData, DefaultAddon.zombieVillagerKey, actions);
+		return actions;
 	}
 	
 }

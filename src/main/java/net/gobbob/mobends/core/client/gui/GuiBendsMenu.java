@@ -8,13 +8,9 @@ import net.gobbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUp;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUpCreatePack;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUpHelp;
-import net.gobbob.mobends.core.pack.BendsPack;
-import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GuiHelper;
 import net.gobbob.mobends.standard.main.ModStatics;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -204,40 +200,6 @@ public class GuiBendsMenu extends GuiScreen
 		this.customizeButton.mouseReleased(mouseX, mouseY, state);
 		this.packsButton.mouseReleased(mouseX, mouseY, state);
 		this.addonsWindow.mouseReleased(mouseX, mouseY, state);
-	}
-
-	public void handleMouseInput() throws IOException
-	{
-		super.handleMouseInput();
-	}
-
-	public void createANewPack(String string)
-	{
-		BendsPack newPack = new BendsPack(null, string, Minecraft.getMinecraft().player.getName(),
-				"A custom pack made by " + Minecraft.getMinecraft().player.getName() + ".");
-		PackManager.addLocal(newPack);
-		PackManager.choose(newPack);
-	}
-
-	protected void actionPerformed(GuiButton par1GuiButton)
-	{
-		switch (par1GuiButton.id)
-		{
-			case 4: // Apply
-				/*BendsTarget target = BendsPack.getTarget(getCurrentAlterEntry().getKey());
-				if (target == null)
-					target = BendsPack.createTarget(getCurrentAlterEntry().getKey());*/
-				//this.customizeWindow.applyChanges(target);
-				try
-				{
-					PackManager.getCurrentPack().save();
-				} catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				initGui();
-				break;
-		}
 	}
 
 	/**

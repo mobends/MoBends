@@ -14,8 +14,8 @@ public class GuiAddonsWindow extends Gui
 	public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/addons_window.png");
 	
-	static final int WIDTH = 210;
-	static final int HEIGHT = 122;
+	private static final int WIDTH = 210;
+	private static final int HEIGHT = 122;
 	static final int SCROLLBAR_WIDTH = 5;
 	
 	private int x, y;

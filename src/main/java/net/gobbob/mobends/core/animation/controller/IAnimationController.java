@@ -2,6 +2,9 @@ package net.gobbob.mobends.core.animation.controller;
 
 import net.gobbob.mobends.core.data.EntityData;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
+
 /*
  * This interface is responsible for updating animation for each
  * instance of an AnimatedEntity.
@@ -11,7 +14,8 @@ import net.gobbob.mobends.core.data.EntityData;
  * */
 public interface IAnimationController<T extends EntityData<?>>
 {
-	
-	void perform(T entityData);
+
+	@Nullable
+	Collection<String> perform(T entityData);
 	
 }
