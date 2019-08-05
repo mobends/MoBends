@@ -25,7 +25,7 @@ public class PublicBendsPack implements IBendsPack
     }
 
     @Override
-    public String getName()
+    public String getKey()
     {
         return name;
     }

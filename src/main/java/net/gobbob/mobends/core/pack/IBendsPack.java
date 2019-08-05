@@ -5,7 +5,7 @@ import net.minecraft.util.ResourceLocation;
 public interface IBendsPack
 {
 
-    String getName();
+    String getKey();
 
     String getDisplayName();
 

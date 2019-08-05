@@ -1,95 +1,70 @@
 package net.gobbob.mobends.core.pack;
 
-import net.gobbob.mobends.core.Core;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import net.gobbob.mobends.core.util.BendsPackHelper;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class LocalBendsPack implements IBendsPack
 {
 
-	private String filename;
-	private String displayName;
-	private String author;
-	private String description;
-	private ResourceLocation thumbnailLocation = null;
+	private BendsPackMeta metadata;
+	private ResourceLocation thumbnailLocation = ThumbnailProvider.DEFAULT_THUMBNAIL_LOCATION;
 
-	public LocalBendsPack(String filename, String displayName, String author, String description)
-	{
-		this.filename = filename;
-		this.displayName = displayName;
-		this.author = author;
-		this.description = description;
-		if (this.filename == null)
-			this.filename = BendsPackHelper.constructPackName(displayName);
+	public LocalBendsPack(String displayName, String author, String description) {
+		this.metadata = new BendsPackMeta();
+		this.metadata.key = BendsPackHelper.constructPackName(displayName);
+		this.metadata.displayName = displayName;
+		this.metadata.author = author;
+		this.metadata.description = description;
 	}
 
-	public void save() throws IOException
+	public LocalBendsPack(BendsPackMeta metadata)
 	{
-		if (this.filename == null)
-		{
-			this.filename = BendsPackHelper.constructPackName(this.displayName);
-		}
-
-		Core.LOG.info(String.format("Saving the '%s' bends pack.", this.filename));
-
-		File packFile = PackManager.instance.getFileForPack(this.filename);
+		this.metadata = metadata;
 	}
 
 	public void rename(String newName)
 	{
-		if (this.filename.equalsIgnoreCase(newName))
+		if (this.metadata.key.equals(newName))
 			return;
 
-		this.filename = newName;
+		this.metadata.key = newName;
 	}
 
 	public LocalBendsPack setThumbnailURL(String thumbnailURL)
 	{
-		this.thumbnailLocation = PackManager.instance.getThumbnailLocation(this.filename, thumbnailURL);
+		this.thumbnailLocation = PackManager.instance.getThumbnailLocation(this.metadata.key, thumbnailURL);
 		return this;
 	}
 
-	public void setDisplayName(String displayName)
-	{
-		this.displayName = displayName;
-	}
-
-	public void setAuthor(String author)
-	{
-		this.author = author;
-	}
-
-	public void setDescription(String description)
-	{
-		this.description = description;
-	}
-
 	@Override
-	public String getName()
+	public String getKey()
 	{
-		return filename;
+		return metadata.key;
 	}
 
 	@Override
 	public String getDisplayName()
 	{
-		return displayName;
+		return metadata.displayName;
 	}
 
 	@Override
 	public String getAuthor()
 	{
-		return author;
+		return metadata.author;
 	}
 
 	@Override
 	public String getDescription()
 	{
-		return description;
+		return metadata.description;
 	}
 
 	@Override
@@ -105,10 +80,11 @@ public class LocalBendsPack implements IBendsPack
 		return true;
 	}
 
-	public static LocalBendsPack readFromFile(File file)
+	public static LocalBendsPack readFromFile(File file) throws IOException
 	{
-		LocalBendsPack pack = new LocalBendsPack("pack", "Pack", "Gobbob", "The best pack");
-		return pack;
+		JsonReader fileReader = new JsonReader(new FileReader(file));
+		BendsPackMeta meta = (new Gson()).fromJson(fileReader, BendsPackMeta.class);
+		return new LocalBendsPack(meta);
 	}
 
 }

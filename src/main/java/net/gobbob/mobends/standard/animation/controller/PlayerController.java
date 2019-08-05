@@ -262,7 +262,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 			}
 		}
 
-		List<String> actions = new ArrayList<String>();
+		List<String> actions = new ArrayList<>();
 		layerBase.perform(data, actions);
 		layerSneak.perform(data, actions);
 		layerTorch.perform(data, actions);

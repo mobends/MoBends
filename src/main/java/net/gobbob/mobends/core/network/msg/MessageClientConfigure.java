@@ -14,8 +14,11 @@ public class MessageClientConfigure implements IMessage
 
     private static final String ALLOW_MODEL_SCALING_KEY = "allowModelScaling";
 
-    private boolean allowModelScaling;
+    public boolean allowModelScaling;
 
+    /**
+     * Necessary empty constructor, because of dynamic instancing.
+     */
     public MessageClientConfigure() {}
 
     public MessageClientConfigure(boolean allowModelScaling)
@@ -52,7 +55,8 @@ public class MessageClientConfigure implements IMessage
         {
             Core.LOG.info("Received Mo' Bends server configuration.");
             Core.LOG.info(String.format(" - allowModelScaling: %b", message.allowModelScaling));
-            NetworkConfiguration.instance.allowModelScaling = message.allowModelScaling;
+
+            NetworkConfiguration.instance.provideServerConfig(message);
             return null;
         }
 

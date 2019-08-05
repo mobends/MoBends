@@ -183,7 +183,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         IAnimationController<D> controller = (IAnimationController<D>) data.getController();
         Collection<String> actions = controller.perform(data);
 
-        BendsPackPerformer.instance.applyCurrentPack(data, actions);
+        BendsPackPerformer.instance.performCurrentPack(data, actions);
     }
 
     public abstract void syncUpWithData(D data);

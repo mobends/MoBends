@@ -267,7 +267,10 @@ public class GuiPacksWindow extends GuiScreen
                 if (this.packList.getSelectedEntry().isApplied())
                     this.packList.getSelectedEntry().setApplied(false);
                 else
+                {
                     this.packList.applySelectedEntry();
+                    PackManager.instance.choose(PackManager.instance.getLocal(this.packList.getSelectedEntry().name));
+                }
 
                 this.updateButtonLabels();
 

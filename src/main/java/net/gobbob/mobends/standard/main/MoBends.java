@@ -14,35 +14,37 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 @Mod(modid = ModStatics.MODID, name = ModStatics.MODNAME, version = ModStatics.VERSION)
 public class MoBends
 {
-	@SidedProxy(serverSide = "net.gobbob.mobends.standard.main.CommonProxy",
-				clientSide = "net.gobbob.mobends.standard.client.ClientProxy")
-	public static CommonProxy proxy;
 
-	@Instance(value = ModStatics.MODID)
-	public static MoBends instance;
-	
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent event)
-	{
-		proxy.createCore();
-		Core.INSTANCE.preInit(event);
-		proxy.preInit();
-	}
+    @SidedProxy(serverSide = "net.gobbob.mobends.standard.main.CommonProxy",
+                clientSide = "net.gobbob.mobends.standard.client.ClientProxy")
+    public static CommonProxy proxy;
 
-	@EventHandler
-	public void init(FMLInitializationEvent event)
-	{
-		Core.INSTANCE.init(event);
-		proxy.init();
-		
-		// Registering the standard set of animations.
-		AddonHelper.registerAddon(ModStatics.MODID, new DefaultAddon());
-	}
+    @Instance(value = ModStatics.MODID)
+    public static MoBends instance;
 
-	@EventHandler
-	public void postInit(FMLPostInitializationEvent event)
-	{
-		Core.INSTANCE.postInit(event);
-		proxy.postInit();
-	}
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event)
+    {
+        proxy.createCore();
+        Core.INSTANCE.preInit(event);
+        proxy.preInit();
+    }
+
+    @EventHandler
+    public void init(FMLInitializationEvent event)
+    {
+        Core.INSTANCE.init(event);
+        proxy.init();
+
+        // Registering the standard set of animations.
+        AddonHelper.registerAddon(ModStatics.MODID, new DefaultAddon());
+    }
+
+    @EventHandler
+    public void postInit(FMLPostInitializationEvent event)
+    {
+        Core.INSTANCE.postInit(event);
+        proxy.postInit();
+    }
+
 }

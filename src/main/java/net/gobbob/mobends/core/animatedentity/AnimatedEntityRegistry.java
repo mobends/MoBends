@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.animatedentity;
 
 import net.gobbob.mobends.core.Core;
-import net.gobbob.mobends.core.configuration.CoreConfig;
+import net.gobbob.mobends.core.configuration.CoreClientConfig;
 import net.minecraft.entity.EntityLivingBase;
 
 import java.util.HashMap;
@@ -17,12 +17,12 @@ public class AnimatedEntityRegistry
     {
         if (animatedEntity.onRegister())
         {
-            Core.LOG.info("Registering " + animatedEntity.getKey());
+            Core.LOG.info(String.format("Registering %s", animatedEntity.getKey()));
             entityClassToInstanceMap.put(animatedEntity.entityClass, animatedEntity);
         }
     }
 
-    public static void applyConfiguration(CoreConfig config)
+    public static void applyConfiguration(CoreClientConfig config)
     {
         for (AnimatedEntity<?> e : INSTANCE.entityClassToInstanceMap.values())
         {

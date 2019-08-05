@@ -1,9 +1,11 @@
 package net.gobbob.mobends.core.addon;
 
+import net.gobbob.mobends.core.Core;
+import net.gobbob.mobends.core.CoreClient;
+import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
 
 /**
  * The class responsible for managing the registered addons.
@@ -21,7 +23,7 @@ public class Addons
 	
 	private Addons() {}
 	
-	private List<IAddon> addons = new ArrayList<IAddon>();
+	private List<IAddon> addons = new ArrayList<>();
 	
 	static void registerAddon(String modid, IAddon addon)
 	{
@@ -29,8 +31,11 @@ public class Addons
 			return;
 		
 		INSTANCE.addons.add(addon);
-		AddonAnimationRegistry registry = new AddonAnimationRegistry(modid);
-		addon.registerAnimatedEntities(registry);
+
+		if (Core.INSTANCE instanceof CoreClient)
+		{
+			addon.registerAnimatedEntities(new AddonAnimationRegistry(modid));
+		}
 	}
 	
 	public static Iterable<IAddon> getRegistered()

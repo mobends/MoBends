@@ -1,13 +1,11 @@
 package net.gobbob.mobends.core.data;
 
-import java.util.HashMap;
-import java.util.List;
-
 import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.IBendsModel;
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.math.vector.SmoothVector3f;
+import net.gobbob.mobends.core.pack.state.PackAnimationState;
 import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.block.state.IBlockState;
@@ -17,6 +15,9 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.HashMap;
+import java.util.List;
 
 public abstract class EntityData<E extends Entity> implements IBendsModel
 {
@@ -35,7 +36,9 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
     public boolean onGround = true;
     public Boolean onGroundOverride = null;
     public Boolean stillnessOverride = null;
-    
+
+    public final PackAnimationState packAnimationState;
+
 	public EntityData(E entity)
 	{
 		this.entity = entity;
@@ -46,7 +49,9 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 		this.motionX = this.prevMotionX = 0.0D;
 		this.motionY = this.prevMotionY = 1.0D;
 		this.motionZ = this.prevMotionZ = 0.0D;
-		
+
+		this.packAnimationState = new PackAnimationState();
+
 		this.initModelPose();
 	}
 	
@@ -115,7 +120,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 		return list.size() > 0;
 	}
 
-	
 	public double getPositionX() { return this.positionX; }
 	public double getPositionY() { return this.positionY; }
 	public double getPositionZ() { return this.positionZ; }
@@ -133,7 +137,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 	{
 		return this.onGround;
 	}
-	
+
 	public boolean isStillHorizontally()
 	{
 		return this.stillnessOverride != null ?

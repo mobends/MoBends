@@ -12,19 +12,18 @@ import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.logging.Logger;
 
-public class Core
+public abstract class Core<T extends CoreConfig>
 {
 
     public static Core INSTANCE;
     public static final Logger LOG = Logger.getLogger("mobends-core");
 
     private SimpleNetworkWrapper networkWrapper;
-    public CoreConfig configuration;
+
+    public abstract T getConfiguration();
 
     public void preInit(FMLPreInitializationEvent event)
     {
-        configuration = new CoreConfig(event.getSuggestedConfigurationFile());
-
         networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(ModStatics.MODID);
         networkWrapper.registerMessage(MessageClientConfigure.Handler.class, MessageClientConfigure.class, 0, Side.CLIENT);
     }
@@ -60,7 +59,7 @@ public class Core
 
     public static void saveConfiguration()
     {
-        INSTANCE.configuration.save();
+        INSTANCE.getConfiguration().save();
     }
 
 }

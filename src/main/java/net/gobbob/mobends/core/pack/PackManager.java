@@ -1,10 +1,11 @@
 package net.gobbob.mobends.core.pack;
 
-import net.gobbob.mobends.core.configuration.CoreConfig;
+import net.gobbob.mobends.core.configuration.CoreClientConfig;
 import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -35,7 +36,7 @@ public class PackManager
     private LoadState publicDatabaseLoadState;
     private IBendsPack appliedPack;
 
-    public void initialize(CoreConfig config)
+    public void initialize(CoreClientConfig config)
     {
         this.localDirectory = new File(Minecraft.getMinecraft().mcDataDir, "bendspacks");
         this.localDirectory.mkdir();
@@ -71,43 +72,21 @@ public class PackManager
         {
             for (File file : files)
             {
-                if (file.getAbsolutePath().endsWith(".bends"))
+                if (file.getAbsolutePath().endsWith(".bendsmeta"))
                 {
                     LocalBendsPack bendsPack = LocalBendsPack.readFromFile(file);
                     if (bendsPack != null)
                     {
-                        this.localPacks.put(bendsPack.getName(), bendsPack);
+                        this.localPacks.put(bendsPack.getKey(), bendsPack);
                     }
                 }
             }
         }
     }
 
-    public boolean addLocal(LocalBendsPack newPack)
-    {
-        if (!localPacks.containsKey(newPack.getName()))
-        {
-            localPacks.put(newPack.getName(), newPack);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean addPublic(PublicBendsPack newPack)
-    {
-        if (!publicPacks.containsKey(newPack.getName()))
-        {
-            publicPacks.put(newPack.getName(), newPack);
-            return true;
-        }
-        return false;
-    }
-
     public void choose(IBendsPack newPack)
     {
         appliedPack = newPack;
-        if (appliedPack != null)
-            appliedPack.apply();
     }
 
     private String[] downloadPublicDatabase()
@@ -141,7 +120,8 @@ public class PackManager
         {
             try
             {
-                addPublic(PublicBendsPack.createPublicPack(entry));
+                PublicBendsPack pack = PublicBendsPack.createPublicPack(entry);
+                publicPacks.put(pack.getKey(), pack);
             }
             catch(MalformedURLException e)
             {
@@ -167,7 +147,7 @@ public class PackManager
 
         LocalBendsPack pack = localPacks.get(originalName);
 
-        if (pack.getName().equalsIgnoreCase(name) || !pack.canPackBeEdited())
+        if (pack.getKey().equalsIgnoreCase(name) || !pack.canPackBeEdited())
             return;
 
         pack.rename(name);
@@ -193,6 +173,7 @@ public class PackManager
         localPacks.put(name, pack);
     }
 
+    @Nullable
     public IBendsPack getAppliedPack()
     {
         return appliedPack;
@@ -233,9 +214,16 @@ public class PackManager
         return localDirectory;
     }
 
-    public File getFileForPack(String filename) throws IOException
+    public File getMetaFileForPack(String filename) throws IOException
     {
-        File packFile = new File(localDirectory, filename);
+        File packFile = new File(localDirectory, filename + ".bendsmeta");
+        packFile.createNewFile();
+        return packFile;
+    }
+
+    public File getDataFileForPack(String filename) throws IOException
+    {
+        File packFile = new File(localDirectory, filename + ".bends");
         packFile.createNewFile();
         return packFile;
     }

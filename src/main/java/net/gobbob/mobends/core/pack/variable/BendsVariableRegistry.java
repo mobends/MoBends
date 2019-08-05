@@ -14,7 +14,7 @@ public class BendsVariableRegistry
     public static final BendsVariableRegistry instance = new BendsVariableRegistry();
 
     private EntityData<?> tempData;
-    private HashMap<String, BendsVariableEntry> variables;
+    private HashMap<String, BendsVariableEntry> variables = new HashMap<>();
 
     public void provideTemporaryData(EntityData<?> tempData)
     {

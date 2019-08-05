@@ -33,10 +33,13 @@ public class ThumbnailProvider
 
             ThreadDownloadImageData threaddownloadimagedata = new ThreadDownloadImageData(file, thumbnailUrl,
                     DEFAULT_THUMBNAIL_LOCATION, null);
-            Minecraft.getMinecraft().getTextureManager().loadTexture(resourceLocation, threaddownloadimagedata);
+            if (Minecraft.getMinecraft().getTextureManager().loadTexture(resourceLocation, threaddownloadimagedata))
+            {
+                return resourceLocation;
+            }
         }
 
-        return resourceLocation;
+        return DEFAULT_THUMBNAIL_LOCATION;
     }
 
 }

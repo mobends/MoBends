@@ -54,8 +54,8 @@ public class GuiPackEntry
     public GuiPackEntry(GuiPackList packList, IBendsPack pack)
     {
         this(packList);
-        this.name = pack.getName();
-        this.originalName = pack.getName();
+        this.name = pack.getKey();
+        this.originalName = pack.getKey();
         this.displayName = pack.getDisplayName();
         this.author = pack.getAuthor();
         this.description = pack.getDescription();
