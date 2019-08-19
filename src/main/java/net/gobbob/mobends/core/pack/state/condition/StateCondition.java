@@ -1,20 +1,56 @@
 package net.gobbob.mobends.core.pack.state.condition;
 
 import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.pack.state.template.MalformedPackTemplateException;
 import net.gobbob.mobends.core.pack.state.template.TriggerConditionTemplate;
 
-public class GroundedCondition implements ITriggerCondition
+public class StateCondition implements ITriggerCondition
 {
 
-    public GroundedCondition(TriggerConditionTemplate template)
-    {
+    private final State state;
 
+    public StateCondition(Template template) throws MalformedPackTemplateException
+    {
+        if (template.state == null)
+        {
+            throw new MalformedPackTemplateException("No 'state' property given for trigger condition.");
+        }
+
+        this.state = template.state;
     }
 
     @Override
     public boolean isConditionMet(EntityData<?> entityData)
     {
-        return entityData.isOnGround();
+        switch (this.state)
+        {
+            case ON_GROUND:
+                return entityData.isOnGround();
+            case AIRBORNE:
+                return !entityData.isOnGround();
+            case SPRINTING:
+                return entityData.getEntity().isSprinting();
+            case STANDING_STILL:
+                return entityData.isStillHorizontally();
+            default:
+                return false;
+        }
     }
+
+    public static class Template extends TriggerConditionTemplate
+    {
+
+        public State state;
+
+    }
+
+    public enum State
+    {
+        ON_GROUND,
+        AIRBORNE,
+        SPRINTING,
+        STANDING_STILL,
+    }
+
 
 }

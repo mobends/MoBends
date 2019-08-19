@@ -3,10 +3,10 @@ package net.gobbob.mobends.core.pack.state.condition;
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.pack.state.template.TriggerConditionTemplate;
 
-public class AirborneCondition implements ITriggerCondition
+public class GroundedCondition implements ITriggerCondition
 {
 
-    public AirborneCondition(TriggerConditionTemplate template)
+    public GroundedCondition(TriggerConditionTemplate template)
     {
 
     }
@@ -14,7 +14,7 @@ public class AirborneCondition implements ITriggerCondition
     @Override
     public boolean isConditionMet(EntityData<?> entityData)
     {
-        return !entityData.isOnGround();
+        return entityData.isOnGround();
     }
 
 }

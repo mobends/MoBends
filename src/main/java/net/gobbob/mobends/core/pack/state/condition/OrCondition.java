@@ -1,25 +1,46 @@
 package net.gobbob.mobends.core.pack.state.condition;
 
+import net.gobbob.mobends.core.data.EntityData;
+import net.gobbob.mobends.core.pack.state.template.MalformedPackTemplateException;
 import net.gobbob.mobends.core.pack.state.template.TriggerConditionTemplate;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class OrCondition implements ITriggerCondition
 {
 
-    public OrCondition(Template template)
-    {
+    private List<ITriggerCondition> conditions;
 
+    public OrCondition(Template template) throws MalformedPackTemplateException
+    {
+        this.conditions = new LinkedList<>();
+        for (TriggerConditionTemplate conditionTemplate : template.conditions)
+        {
+            if (conditionTemplate != null)
+            {
+                this.conditions.add(TriggerConditionRegistry.instance.createFromTemplate(conditionTemplate));
+            }
+        }
     }
 
     @Override
-    public boolean isConditionMet()
+    public boolean isConditionMet(EntityData<?> entityData)
     {
+        for (ITriggerCondition condition : this.conditions)
+        {
+            if (condition.isConditionMet(entityData))
+            {
+                return true;
+            }
+        }
         return false;
     }
 
     public static class Template extends TriggerConditionTemplate
     {
 
-
+        public List<TriggerConditionTemplate> conditions;
 
     }
 
