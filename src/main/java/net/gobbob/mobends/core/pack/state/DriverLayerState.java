@@ -11,6 +11,18 @@ public class DriverLayerState implements ILayerState
     }
 
     @Override
+    public void start()
+    {
+
+    }
+
+    @Override
+    public boolean isAnimationFinished()
+    {
+        return false;
+    }
+
+    @Override
     public void update(float deltaTime)
     {
 

@@ -216,14 +216,14 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	}
 
 	@Override
-	public void performAnimations(PlayerData data, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
+	public void performAnimations(PlayerData data, String animatedEntityKey, RenderLivingBase<? extends AbstractClientPlayer> renderer, float partialTicks)
 	{
 		leftForeArmwear.setVisible(leftArmwear.isShowing());
 		rightForeArmwear.setVisible(rightArmwear.isShowing());
 		leftForeLegwear.setVisible(leftLegwear.isShowing());
 		rightForeLegwear.setVisible(rightLegwear.isShowing());
 		
-		super.performAnimations(data, renderer, partialTicks);
+		super.performAnimations(data, animatedEntityKey, renderer, partialTicks);
 	}
 	
 	@Override

@@ -1,6 +1,6 @@
 package net.gobbob.mobends.core.client.gui.customize.viewport;
 
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.Mesh;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
@@ -30,8 +30,8 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -73,7 +73,7 @@ public class ViewportLayer extends Gui implements IGuiLayer, ISubscriber
 		this.obBox = new OBBox(-0.2F, -0.2F, -0.2F, 0.2F, 0.2F, 0.2F, mat);
 		this.contactPoint = new Vec3f();
 
-		this.trackSubscription(CustomizeStore.observeAlterEntry(alterEntry ->
+		this.trackSubscription(CustomizeStore.observeAnimatedEntity(alterEntry ->
 		{
 			IVec3fRead anchorPoint = Vec3f.ZERO;
 			IPreviewer previewer = alterEntry.getPreviewer();
@@ -271,9 +271,9 @@ public class ViewportLayer extends Gui implements IGuiLayer, ISubscriber
 		this.camera.applyProjection();
 		GlStateManager.matrixMode(GL11.GL_MODELVIEW);
 
-		AlterEntry<?> alterEntry = CustomizeStore.getCurrentAlterEntry();
+		AnimatedEntity<?> animatedEntity = CustomizeStore.getCurrentAnimatedEntity();
 		AlterEntryRig rig = CustomizeStore.getRig();
-		if (alterEntry != null)
+		if (animatedEntity != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.loadIdentity();
@@ -308,14 +308,14 @@ public class ViewportLayer extends Gui implements IGuiLayer, ISubscriber
 
 			GlStateManager.enableTexture2D();
 
-			renderLivingEntity(alterEntry);
+			renderLivingEntity(animatedEntity);
 
 			GlStateManager.disableTexture2D();
 			GlStateManager.enableBlend();
 			GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			RenderHelper.disableStandardItemLighting();
 
-			if (rig != null && alterEntry.isAnimated())
+			if (rig != null && animatedEntity.isAnimated())
 			{
 				rig.updateTransform();
 				rig.nameToBoneMap.forEach((key, bone) ->
@@ -347,7 +347,7 @@ public class ViewportLayer extends Gui implements IGuiLayer, ISubscriber
 		//GL11.glDisable(GL11.GL_SCISSOR_TEST);
 	}
 
-	private static void renderLivingEntity(AlterEntry<?> alterEntry)
+	private static void renderLivingEntity(AnimatedEntity<?> animatedEntity)
 	{
 		GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 		GL11.glPushMatrix();
@@ -358,7 +358,7 @@ public class ViewportLayer extends Gui implements IGuiLayer, ISubscriber
 
 		GL11.glRotatef(-lightAngle, 0.0F, 1.0F, 0.0F);
 
-		LivingEntityData<?> data = alterEntry.getDataForPreview();
+		LivingEntityData<?> data = animatedEntity.getDataForPreview();
 		EntityLivingBase living = data.getEntity();
 
 		float f2 = living.renderYawOffset;
@@ -375,7 +375,7 @@ public class ViewportLayer extends Gui implements IGuiLayer, ISubscriber
 		Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
 
 		@SuppressWarnings("unchecked")
-		IPreviewer<LivingEntityData<?>> previewer = (IPreviewer<LivingEntityData<?>>) alterEntry.getPreviewer();
+		IPreviewer<LivingEntityData<?>> previewer = (IPreviewer<LivingEntityData<?>>) animatedEntity.getPreviewer();
 
 		if (previewer != null)
 			previewer.prePreview(data, "walk");

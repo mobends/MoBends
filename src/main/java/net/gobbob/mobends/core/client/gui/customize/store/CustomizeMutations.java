@@ -1,6 +1,6 @@
 package net.gobbob.mobends.core.client.gui.customize.store;
 
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
 import net.gobbob.mobends.core.client.gui.customize.IEditorAction;
@@ -21,22 +21,22 @@ public class CustomizeMutations
         return state;
     };
 
-    public static Mutation<AlterEntry<?>> SHOW_ALTER_ENTRY = (CustomizeState state, AlterEntry<?> alterEntry) ->
+    public static Mutation<AnimatedEntity<?>> SHOW_ANIMATED_ENTITY = (CustomizeState state, AnimatedEntity<?> animatedEntity) ->
     {
-        if (state.currentAlterEntry.getValue() == alterEntry)
+        if (state.currentAnimatedEntity.getValue() == animatedEntity)
             return state;
 
-        IPreviewer previewer = alterEntry.getPreviewer();
+        IPreviewer previewer = animatedEntity.getPreviewer();
         if (previewer != null)
         {
-            state.rig.next(new AlterEntryRig(alterEntry));
+            state.rig.next(new AlterEntryRig(animatedEntity));
         }
         else
         {
             state.rig.next(null);
         }
 
-        state.currentAlterEntry.next(alterEntry);
+        state.currentAnimatedEntity.next(animatedEntity);
 
         return state;
     };

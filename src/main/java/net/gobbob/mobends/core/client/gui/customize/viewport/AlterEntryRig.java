@@ -1,6 +1,6 @@
 package net.gobbob.mobends.core.client.gui.customize.viewport;
 
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.BoneMetadata;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.model.IModelPart;
@@ -18,16 +18,16 @@ import java.util.Map;
 public class AlterEntryRig
 {
 
-    private final AlterEntry alterEntry;
+    private final AnimatedEntity<?> animatedEntity;
     final Map<String, Bone> nameToBoneMap = new HashMap<>();
     private Bone hoveredOverBone = null;
     private Bone selectedBone = null;
 
-    public AlterEntryRig(AlterEntry alterEntry)
+    public AlterEntryRig(AnimatedEntity<?> animatedEntity)
     {
-        this.alterEntry = alterEntry;
-        IPreviewer<?> previewer = alterEntry.getPreviewer();
-        LivingEntityData data = alterEntry.getDataForPreview();
+        this.animatedEntity = animatedEntity;
+        IPreviewer<?> previewer = animatedEntity.getPreviewer();
+        LivingEntityData data = animatedEntity.getDataForPreview();
 
         if (previewer == null || data == null)
             return;
@@ -51,10 +51,10 @@ public class AlterEntryRig
     {
         Mat4x4d mat = new Mat4x4d(Mat4x4d.IDENTITY);
         TransformUtils.scale(mat, -1, 1, -1);
-        alterEntry.transformModelToCharacterSpace(mat);
+        animatedEntity.transformModelToCharacterSpace(mat);
         TransformUtils.scale(mat, 0.0625F, 0.0625F, 0.0625F);
 
-        LivingEntityData data = alterEntry.getDataForPreview();
+        LivingEntityData data = animatedEntity.getDataForPreview();
 
         TransformUtils.translate(mat, data.renderOffset.getX(), -data.renderOffset.getY(), data.renderOffset.getZ());
 
@@ -89,9 +89,9 @@ public class AlterEntryRig
         return this.nameToBoneMap.get(name);
     }
 
-    public AlterEntry getAlterEntry()
+    public AnimatedEntity<?> getAnimatedEntity()
     {
-        return this.alterEntry;
+        return this.animatedEntity;
     }
 
     public static class Bone

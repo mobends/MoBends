@@ -1,6 +1,6 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.client.gui.IChangeListener;
 import net.gobbob.mobends.core.client.gui.IObservable;
 import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
@@ -15,14 +15,14 @@ import net.minecraft.client.renderer.GlStateManager;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SHOW_ALTER_ENTRY;
+import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SHOW_ANIMATED_ENTITY;
 
 public class OverlayLayer implements IGuiLayer, IChangeListener, ISubscriber
 {
 
 	private int screenWidth;
 	private int screenHeight;
-	private final GuiDropDownList<AlterEntry<?>> targetList;
+	private final GuiDropDownList<AnimatedEntity<?>> targetList;
 	private final GuiToggleButton toggleButton;
 	private final GuiPartHierarchy hierarchy;
 	private final GuiPartProperties properties;
@@ -36,18 +36,18 @@ public class OverlayLayer implements IGuiLayer, IChangeListener, ISubscriber
 		this.hierarchy = new GuiPartHierarchy();
 		this.properties = new GuiPartProperties();
 
-		for (AlterEntry alterEntry : customizeWindow.alterEntries)
+		for (AnimatedEntity animatedEntity : customizeWindow.animatedEntities)
 		{
-			this.targetList.addEntry(alterEntry.getLocalizedName(), alterEntry);
+			this.targetList.addEntry(animatedEntity.getLocalizedName(), animatedEntity);
 		}
 
 		this.targetList.addListener(this);
-		this.targetList.selectValue(CustomizeStore.getCurrentAlterEntry());
+		this.targetList.selectValue(CustomizeStore.getCurrentAnimatedEntity());
 
-		this.trackSubscription(CustomizeStore.observeAlterEntry((AlterEntry<?> alterEntry) ->
+		this.trackSubscription(CustomizeStore.observeAnimatedEntity((AnimatedEntity<?> animatedEntity) ->
 		{
-			this.targetList.selectValue(alterEntry);
-			this.toggleButton.setToggleState(alterEntry.isAnimated());
+			this.targetList.selectValue(animatedEntity);
+			this.toggleButton.setToggleState(animatedEntity.isAnimated());
 		}));
 	}
 
@@ -71,9 +71,9 @@ public class OverlayLayer implements IGuiLayer, IChangeListener, ISubscriber
 		this.hierarchy.initGui();
 		this.properties.initGui();
 
-		AlterEntry<?> alterEntry = CustomizeStore.getCurrentAlterEntry();
-		if (alterEntry != null)
-			this.toggleButton.setToggleState(alterEntry.isAnimated());
+		AnimatedEntity<?> animatedEntity = CustomizeStore.getCurrentAnimatedEntity();
+		if (animatedEntity != null)
+			this.toggleButton.setToggleState(animatedEntity.isAnimated());
 	}
 
 	@Override
@@ -115,9 +115,9 @@ public class OverlayLayer implements IGuiLayer, IChangeListener, ISubscriber
 
 		if (!eventHandled && this.toggleButton.mouseClicked(mouseX, mouseY, button))
 		{
-			AlterEntry<?> alterEntry = CustomizeStore.getCurrentAlterEntry();
-			if (alterEntry != null)
-				alterEntry.setAnimate(this.toggleButton.getToggleState());
+			AnimatedEntity<?> animatedEntity = CustomizeStore.getCurrentAnimatedEntity();
+			if (animatedEntity != null)
+				animatedEntity.setAnimate(this.toggleButton.getToggleState());
 			
 			eventHandled = true;
 		}
@@ -158,7 +158,7 @@ public class OverlayLayer implements IGuiLayer, IChangeListener, ISubscriber
 	{
 		if (objectChanged == this.targetList)
 		{
-			CustomizeStore.instance.commit(SHOW_ALTER_ENTRY, this.targetList.getSelectedValue());
+			CustomizeStore.instance.commit(SHOW_ANIMATED_ENTITY, this.targetList.getSelectedValue());
 		}
 	}
 	

@@ -27,8 +27,10 @@ public class DataUpdateHandler
 		if (Minecraft.getMinecraft().world == null || Minecraft.getMinecraft().player == null)
 			return;
 
-		float totalTicks = Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime;
 		partialTicks = event.renderTickTime;
+
+		float totalTicks = Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime;
+
 		if (ticks > totalTicks)
 		{
 			onTicksRestart();

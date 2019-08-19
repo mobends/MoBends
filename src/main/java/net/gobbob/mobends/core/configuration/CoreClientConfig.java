@@ -1,6 +1,5 @@
 package net.gobbob.mobends.core.configuration;
 
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.pack.PackManager;
@@ -25,12 +24,9 @@ public class CoreClientConfig extends CoreConfig
 
     public void save()
     {
-        for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.getRegistered())
+        for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.instance.getRegistered())
         {
-            for (AlterEntry<?> alterEntry : animatedEntity.getAlterEntries())
-            {
-                configuration.get(CATEGORY_ANIMATED, alterEntry.getKey(), true).setValue(alterEntry.isAnimated());
-            }
+            configuration.get(CATEGORY_ANIMATED, animatedEntity.getKey(), true).setValue(animatedEntity.isAnimated());
         }
 
         if (PackManager.instance.getAppliedPack() != null)

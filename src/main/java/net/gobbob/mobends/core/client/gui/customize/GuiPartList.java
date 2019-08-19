@@ -42,7 +42,7 @@ public class GuiPartList extends GuiScrollPanel implements ISubscriber
 
             if (rig != null)
             {
-                for (String name : rig.getAlterEntry().getOwner().getAlterableParts())
+                for (String name : rig.getAnimatedEntity().getAlterableParts())
                 {
                     AlterEntryRig.Bone bone = rig.getBone(name);
                     if (bone != null)

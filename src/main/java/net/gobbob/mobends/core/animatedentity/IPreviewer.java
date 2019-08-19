@@ -1,14 +1,14 @@
 package net.gobbob.mobends.core.animatedentity;
 
-import java.util.Map;
-
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 
+import java.util.Map;
+
 public interface IPreviewer<D extends EntityData<?>>
 {
-	
+
 	/**
 	 * Gets called right before the entity that the data belongs
 	 * to is being previewed.

@@ -1,6 +1,6 @@
 package net.gobbob.mobends.core.client.gui.customize.store;
 
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
+import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.store.IObserver;
 import net.gobbob.mobends.core.store.Store;
@@ -16,16 +16,16 @@ public class CustomizeStore extends Store<CustomizeState>
         super(new CustomizeState()
         {
             {
-                currentAlterEntry.next(null);
+                currentAnimatedEntity.next(null);
                 rig.next(null);
                 selectedPart.next(null);
             }
         });
     }
 
-    public static Subscription observeAlterEntry(IObserver<AlterEntry<?>> observer)
+    public static Subscription observeAnimatedEntity(IObserver<AnimatedEntity<?>> observer)
     {
-        return instance.state.currentAlterEntry.subscribe(observer);
+        return instance.state.currentAnimatedEntity.subscribe(observer);
     }
 
     public static Subscription observeAlterEntryRig(IObserver<AlterEntryRig> observer)
@@ -38,9 +38,9 @@ public class CustomizeStore extends Store<CustomizeState>
         return instance.state.selectedPart.subscribe(observer);
     }
 
-    public static AlterEntry getCurrentAlterEntry()
+    public static AnimatedEntity<?> getCurrentAnimatedEntity()
     {
-        return instance.state.currentAlterEntry.getValue();
+        return instance.state.currentAnimatedEntity.getValue();
     }
 
     public static AlterEntryRig getRig() { return instance.state.rig.getValue(); }
@@ -52,9 +52,9 @@ public class CustomizeStore extends Store<CustomizeState>
 
     public static String[] getAlterableParts()
     {
-        AlterEntry alterEntry = instance.state.currentAlterEntry.getValue();
-        if (alterEntry != null)
-            return alterEntry.getOwner().getAlterableParts();
+        AnimatedEntity animatedEntity = instance.state.currentAnimatedEntity.getValue();
+        if (animatedEntity != null)
+            return animatedEntity.getAlterableParts();
         else
             return null;
     }

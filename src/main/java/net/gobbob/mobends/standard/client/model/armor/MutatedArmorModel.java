@@ -1,22 +1,8 @@
 package net.gobbob.mobends.standard.client.model.armor;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.core.client.model.BoxFactory;
-import net.gobbob.mobends.core.client.model.BoxMutator;
-import net.gobbob.mobends.core.client.model.IModelPart;
-import net.gobbob.mobends.core.client.model.MutatedBox;
-import net.gobbob.mobends.core.client.model.ModelPart;
-import net.gobbob.mobends.core.client.model.ModelPartContainer;
-import net.gobbob.mobends.core.client.model.ModelPartTransform;
+import net.gobbob.mobends.core.client.model.*;
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.util.ModelUtils;
@@ -29,6 +15,13 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
+import org.lwjgl.util.vector.Vector3f;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MutatedArmorModel extends ModelBiped
 {
@@ -97,10 +90,11 @@ public class MutatedArmorModel extends ModelBiped
 			return;
 		EntityLivingBase entityLiving = (EntityLivingBase) entityIn;
 		
-		AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.getForEntity(entityLiving);
+		AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.instance.getForEntity(entityLiving);
 		if (animatedEntity == null)
 			return;
-		EntityData<?> entityData = EntityDatabase.instance.get(entityIn);
+
+		EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
 		if (entityData == null || !(entityData instanceof BipedEntityData))
 			return;
 
@@ -178,7 +172,11 @@ public class MutatedArmorModel extends ModelBiped
 	{
 		original.setModelAttributes(this);
 
-		EntityData<?> entityData = EntityDatabase.instance.get(entityIn);
+		if (!(entityIn instanceof EntityLivingBase))
+			return;
+		EntityLivingBase entityLiving = (EntityLivingBase) entityIn;
+
+		EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
 		if (!(entityData instanceof BipedEntityData))
 			return;
 		

@@ -1,7 +1,5 @@
 package net.gobbob.mobends.core.animatedentity;
 
-import java.util.List;
-
 import net.gobbob.mobends.core.client.MutatedRenderer;
 import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.mutators.IMutatorFactory;
@@ -40,17 +38,6 @@ public class AddonAnimationRegistry
 	}
 	
 	/**
-	 * Works like {@link #registerNewEntity(String, String, Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer, List, String...)},
-	 * but the key and unlocalizedName are decided based on how the entity was registered.
-	 */
-	public <T extends EntityLivingBase> String registerNewEntity(Class<T> entityClass,
-			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-			MutatedRenderer<T> renderer, List<AlterEntry<T>> alterEntries,  String... alterableParts)
-	{
-		return registerNewEntity(null, null, entityClass, entityDataFactory, mutatorFactory, renderer, alterEntries, alterableParts);
-	}
-	
-	/**
 	 * Registers the entity as an animated one. The system will then mutate all entities
 	 * belonging to the specified EntityClass, and apply custom animations.
 	 * 
@@ -67,7 +54,7 @@ public class AddonAnimationRegistry
 			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
 			MutatedRenderer<T> renderer, String... alterableParts)
 	{
-		AnimatedEntity<T> animatedEntity = new AnimatedEntity<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
+		AnimatedEntity<T> animatedEntity = new DefaultAnimatedEntity<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, null, alterableParts);
 		return registerEntity(animatedEntity);
 	}
 	
@@ -79,19 +66,7 @@ public class AddonAnimationRegistry
 			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
 			MutatedRenderer<T> renderer, IPreviewer<?> previewer, String... alterableParts)
 	{
-		AnimatedEntity<T> animatedEntity = new AnimatedEntity<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, previewer, alterableParts);
-		return registerEntity(animatedEntity);
-	}
-	
-	/**
-	 * Works like {@link #registerNewEntity(String, String, Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer, String...)},
-	 * but you can specify a custom list of alter entries.
-	 */
-	public <T extends EntityLivingBase> String registerNewEntity(String key, String unlocalizedName, Class<T> entityClass,
-			IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-			MutatedRenderer<T> renderer, List<AlterEntry<T>> alterEntries, String... alterableParts)
-	{
-		AnimatedEntity<T> animatedEntity = new AnimatedEntity<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, alterEntries, alterableParts);
+		AnimatedEntity<T> animatedEntity = new DefaultAnimatedEntity<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, previewer, alterableParts);
 		return registerEntity(animatedEntity);
 	}
 	
@@ -108,7 +83,7 @@ public class AddonAnimationRegistry
 		{
 			throw new IllegalArgumentException("The AnimatedEntity's ModID does not match that of the AddonAnimationRegistry.");
 		}
-		AnimatedEntityRegistry.INSTANCE.registerEntity(animatedEntity);
+		AnimatedEntityRegistry.instance.registerEntity(animatedEntity);
 		return animatedEntity.getKey();
 	}
 	

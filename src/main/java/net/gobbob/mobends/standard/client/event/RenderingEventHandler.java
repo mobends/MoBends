@@ -23,7 +23,7 @@ public class RenderingEventHandler
 			return;
 		
 		AbstractClientPlayer player = (AbstractClientPlayer) viewEntity;
-		AnimatedEntity<EntityLivingBase> animatedPlayer = AnimatedEntityRegistry.getForEntity(player);
+		AnimatedEntity<EntityLivingBase> animatedPlayer = AnimatedEntityRegistry.instance.getForEntity(player);
 		if (animatedPlayer == null || !animatedPlayer.isAnimated())
 			return;
 		

@@ -51,7 +51,7 @@ public class CoreClient extends Core<CoreClientConfig>
 	{
 		super.postInit(event);
 		
-		AnimatedEntityRegistry.applyConfiguration(configuration);
+		AnimatedEntityRegistry.instance.applyConfiguration(configuration);
 		RFPR.init();
 	}
 	

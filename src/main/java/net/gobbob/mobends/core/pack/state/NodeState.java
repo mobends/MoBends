@@ -2,8 +2,7 @@ package net.gobbob.mobends.core.pack.state;
 
 import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.pack.BendsPackData;
-import net.gobbob.mobends.core.pack.state.template.ConnectionTemplate;
-import net.gobbob.mobends.core.pack.state.template.NodeTemplate;
+import net.gobbob.mobends.core.pack.state.template.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,46 +16,47 @@ public class NodeState implements INodeState
 
     public NodeState(BendsPackData data, NodeTemplate nodeTemplate)
     {
-        for (NodeTemplate.LayerTemplateEntry entry : nodeTemplate.layers)
+        if (nodeTemplate.layers == null)
+            return;
+
+        for (LayerTemplate template : nodeTemplate.layers)
         {
-            try
+            switch (template.getLayerType())
             {
-                switch (entry.type)
-                {
-                    case KEYFRAME:
-                        this.layerStates.add(KeyframeLayerState.createFromTemplate(data, data.stateTemplate.keyframeLayers.get(entry.index)));
-                        break;
-                    case DRIVER:
-                        this.layerStates.add(new DriverLayerState(data.stateTemplate.driverLayers.get(entry.index)));
-                        break;
-                    default:
-                        Core.LOG.warning(String.format("Unknown layer type was specified in state template: %d",
-                                entry.type.ordinal()));
-                }
-            }
-            catch (IndexOutOfBoundsException ex)
-            {
-                Core.LOG.warning(String.format("Malformed BendsPack state template!" +
-                        "Node specified layer (%s) of index: %d, which doesn't exist.", entry.type.name(), entry.index));
+                case KEYFRAME:
+                    this.layerStates.add(KeyframeLayerState.createFromTemplate(data, (KeyframeLayerTemplate) template));
+                    break;
+                case DRIVER:
+                    this.layerStates.add(new DriverLayerState((DriverLayerTemplate) template));
+                    break;
+                default:
+                    Core.LOG.warning(String.format("Unknown layer type was specified in state template: %d",
+                            template.getLayerType().ordinal()));
             }
         }
     }
 
-    public void parseConnections(List<INodeState> nodeStates, NodeTemplate template)
+    public void parseConnections(List<INodeState> nodeStates, NodeTemplate template) throws MalformedPackTemplateException
     {
         for (ConnectionTemplate connectionTemplate : template.connections)
         {
-            try
-            {
-                this.connections.add(new ConnectionState(nodeStates.get(connectionTemplate.targetNodeIndex)));
-            }
-            catch (IndexOutOfBoundsException ex)
-            {
-                Core.LOG.warning(String.format("Malformed BendsPack state template!" +
-                                "A connection to node at index: %d was specified, which doesn't exist.",
-                        connectionTemplate.targetNodeIndex));
-            }
+            this.connections.add(ConnectionState.createFromTemplate(nodeStates, connectionTemplate));
         }
+    }
+
+    @Override
+    public void start()
+    {
+        for (ILayerState state : layerStates)
+        {
+            state.start();
+        }
+    }
+
+    @Override
+    public Iterable<ConnectionState> getConnections()
+    {
+        return connections;
     }
 
     @Override

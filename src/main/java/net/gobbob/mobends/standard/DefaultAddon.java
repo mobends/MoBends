@@ -1,33 +1,19 @@
 package net.gobbob.mobends.standard;
 
-import java.util.Arrays;
-
 import net.gobbob.mobends.core.addon.IAddon;
 import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
 import net.gobbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import net.gobbob.mobends.standard.client.renderer.entity.ArrowTrail;
-import net.gobbob.mobends.standard.client.renderer.entity.mutated.PlayerRenderer;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.SpiderRenderer;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.SquidRenderer;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.ZombieRenderer;
-import net.gobbob.mobends.standard.data.PigZombieData;
-import net.gobbob.mobends.standard.data.PlayerData;
-import net.gobbob.mobends.standard.data.SpiderData;
-import net.gobbob.mobends.standard.data.SquidData;
-import net.gobbob.mobends.standard.data.ZombieData;
-import net.gobbob.mobends.standard.data.ZombieVillagerData;
+import net.gobbob.mobends.standard.data.*;
 import net.gobbob.mobends.standard.main.ModConfig;
-import net.gobbob.mobends.standard.mutators.PigZombieMutator;
-import net.gobbob.mobends.standard.mutators.PlayerMutator;
-import net.gobbob.mobends.standard.mutators.SpiderMutator;
-import net.gobbob.mobends.standard.mutators.SquidMutator;
-import net.gobbob.mobends.standard.mutators.ZombieMutator;
-import net.gobbob.mobends.standard.mutators.ZombieVillagerMutator;
+import net.gobbob.mobends.standard.mutators.*;
 import net.gobbob.mobends.standard.previewer.BipedPreviewer;
 import net.gobbob.mobends.standard.previewer.PlayerPreviewer;
 import net.gobbob.mobends.standard.previewer.SpiderPreviewer;
 import net.gobbob.mobends.standard.previewer.ZombiePreviewer;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
@@ -37,42 +23,32 @@ import net.minecraft.entity.passive.EntitySquid;
 public class DefaultAddon implements IAddon
 {
 
-	public static String playerKey,
-						 zombieKey,
-						 zombieVillagerKey,
-						 pigZombieKey,
-						 spiderKey,
-						 squidKey;
-	
 	@Override
 	public void registerAnimatedEntities(AddonAnimationRegistry registry)
 	{
-		playerKey = registry.registerNewEntity("player", "mobends.player", AbstractClientPlayer.class, PlayerData::new, PlayerMutator::new, new PlayerRenderer(),
-				Arrays.asList(new PlayerAlterEntry(new PlayerPreviewer())),
-				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg", "rightLeg",
-				"leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation", "rightItemRotation");
+		registry.registerEntity(new AnimatedPlayer());
 		
-		zombieKey = registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>(),
+		registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>(),
 				new ZombiePreviewer(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 		
-		zombieVillagerKey = registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>(),
+		registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>(),
 				new BipedPreviewer<>(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 		
-		pigZombieKey = registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>(),
+		registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>(),
 				new BipedPreviewer<>(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 
-		spiderKey = registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>(),
+		registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>(),
 				new SpiderPreviewer(),
 				"head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6", "leg7", "leg8",
 				"foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5", "foreLeg6", "foreLeg7", "foreLeg8");
 
-		squidKey = registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>(),
+		registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>(),
 				"body", "tentacle1", "tentacle2", "tentacle3", "tentacle4", "tentacle5", "tentacle6", "tentacle7", "tentacle8");
 		
 //		registry.registerEntity(new AnimatedEntity(EntityHusk.class,

@@ -1,6 +1,5 @@
 package net.gobbob.mobends.core.client.gui.customize;
 
-import net.gobbob.mobends.core.animatedentity.AlterEntry;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
@@ -19,20 +18,20 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SHOW_ALTER_ENTRY;
+import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SHOW_ANIMATED_ENTITY;
 import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.TRACK_EDITOR_ACTION;
 
 public class GuiCustomizeWindow extends GuiScreen implements ISubscriber
 {
 
     /*
-     * Used to remember which AlterEntry was used last, so
+     * Used to remember which AnimatedEntity was used last, so
      * the GUI can show that as default the next time it
      * opens up.
      */
-    protected static AlterEntry lastAlterEntryViewed = null;
+    protected static AnimatedEntity lastAnimatedEntityViewed = null;
 
-    final List<AlterEntry<?>> alterEntries = new ArrayList<>();
+    final List<AnimatedEntity<?>> animatedEntities = new ArrayList<>();
 
     private final ViewportLayer viewportLayer;
     private final OverlayLayer overlayLayer;
@@ -40,23 +39,20 @@ public class GuiCustomizeWindow extends GuiScreen implements ISubscriber
 
     public GuiCustomizeWindow()
     {
-        for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.getRegistered())
-        {
-            this.alterEntries.addAll(animatedEntity.getAlterEntries());
-        }
+        this.animatedEntities.addAll(AnimatedEntityRegistry.instance.getRegistered());
 
         this.viewportLayer = new ViewportLayer(this);
         this.overlayLayer = new OverlayLayer(this);
         this.layers.add(this.viewportLayer);
         this.layers.add(this.overlayLayer);
 
-        this.trackSubscription(CustomizeStore.observeAlterEntry((AlterEntry<?> alterEntry) -> {
-            lastAlterEntryViewed = alterEntry;
+        this.trackSubscription(CustomizeStore.observeAnimatedEntity((AnimatedEntity<?> animatedEntity) -> {
+            lastAnimatedEntityViewed = animatedEntity;
         }));
 
-        // Showing the AlterEntry viewed the last time
+        // Showing the AnimatedEntity viewed the last time
         // this gui was open.
-        CustomizeStore.instance.commit(SHOW_ALTER_ENTRY, lastAlterEntryViewed != null ? lastAlterEntryViewed : this.alterEntries.get(0));
+        CustomizeStore.instance.commit(SHOW_ANIMATED_ENTITY, lastAnimatedEntityViewed != null ? lastAnimatedEntityViewed : this.animatedEntities.get(0));
     }
 
     /**

@@ -17,7 +17,7 @@ public class EntityRenderHandler
     public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
     {
         EntityLivingBase living = event.getEntity();
-        AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.getForEntity(living);
+        AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.instance.getForEntity(living);
         if (animatedEntity == null)
             return;
 
@@ -43,7 +43,7 @@ public class EntityRenderHandler
     @SubscribeEvent
     public void afterLivingRender(RenderLivingEvent.Post<? extends EntityLivingBase> event)
     {
-        AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.getForEntity(event.getEntity());
+        AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.instance.getForEntity(event.getEntity());
         if (animatedEntity == null)
             return;
 

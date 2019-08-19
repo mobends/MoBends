@@ -19,7 +19,7 @@ public class BendsPackPerformer
 
     public static final BendsPackPerformer instance = new BendsPackPerformer();
 
-    public void performCurrentPack(EntityData<?> entityData, @Nullable Collection<String> actions)
+    public void performCurrentPack(EntityData<?> entityData, String animatedEntityKey, @Nullable Collection<String> actions)
     {
         IBendsPack pack = PackManager.instance.getAppliedPack();
         if (pack == null)
@@ -33,7 +33,7 @@ public class BendsPackPerformer
             return;
         }
 
-        INodeState nodeState = entityData.packAnimationState.update(packData, DataUpdateHandler.ticksPerFrame);
+        INodeState nodeState = entityData.packAnimationState.update(entityData, packData, animatedEntityKey, DataUpdateHandler.ticksPerFrame);
         if (nodeState != null)
         {
             Iterable<ILayerState> layers = nodeState.getLayers();
@@ -54,7 +54,7 @@ public class BendsPackPerformer
         int frameB = (int) keyframeIndex + 1;
         float tween = keyframeIndex - frameA;
 
-        if (animation.bones.containsKey("root") && shouldPartBeAffected("root"))
+        if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
         {
             Bone rootBone = animation.bones.get("root");
             Keyframe keyframe = rootBone.keyframes.get(frameA);
@@ -67,34 +67,65 @@ public class BendsPackPerformer
             entityData.renderOffset.set(z, x, y);
         }
 
+        if (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation"))
+        {
+            Bone rootBone = animation.bones.get("centerRotation");
+            Keyframe keyframe = rootBone.keyframes.get(frameA);
+            Keyframe nextFrame = rootBone.keyframes.get(frameB);
+
+            float x0 = keyframe.rotation[0];
+            float y0 = keyframe.rotation[1];
+            float z0 = keyframe.rotation[2];
+            float w0 = keyframe.rotation[3];
+            float x1 = nextFrame.rotation[0];
+            float y1 = nextFrame.rotation[1];
+            float z1 = nextFrame.rotation[2];
+            float w1 = nextFrame.rotation[3];
+
+            entityData.centerRotation.set(x0 + (x1 - x0) * tween,
+                    y0 + (y1 - y0) * tween,
+                    z0 + (z1 - z0) * tween,
+                    w0 + (w1 - w0) * tween);
+
+            float x = keyframe.position[0] + (nextFrame.position[0] - keyframe.position[0]) * tween;
+            float y = keyframe.position[1] + (nextFrame.position[1] - keyframe.position[1]) * tween;
+            float z = keyframe.position[2] + (nextFrame.position[2] - keyframe.position[2]) * tween;
+
+            entityData.renderOffset.set(x, y, z);
+        }
+
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
         {
-            Bone bone = entry.getValue();
-            Object part = entityData.getPartForName(entry.getKey());
-
-            if (part != null && shouldPartBeAffected(entry.getKey()))
+            final String key = entry.getKey();
+            if (shouldPartBeAffected(key))
             {
-                Keyframe keyframe = bone.keyframes.get(frameA);
-                Keyframe nextFrame = bone.keyframes.get(frameB);
+                Bone bone = entry.getValue();
+                Object part = entityData.getPartForName(key);
 
-                if (keyframe != null && nextFrame != null)
+                if (part != null)
                 {
-                    if (part instanceof IModelPart)
-                    {
-                        IModelPart box = (IModelPart) part;
-                        float x0 = keyframe.rotation[0];
-                        float y0 = keyframe.rotation[1];
-                        float z0 = keyframe.rotation[2];
-                        float w0 = keyframe.rotation[3];
-                        float x1 = nextFrame.rotation[0];
-                        float y1 = nextFrame.rotation[1];
-                        float z1 = nextFrame.rotation[2];
-                        float w1 = nextFrame.rotation[3];
+                    Keyframe keyframe = bone.keyframes.get(frameA);
+                    Keyframe nextFrame = bone.keyframes.get(frameB);
 
-                        box.getRotation().set(x0 + (x1 - x0) * tween,
-                                y0 + (y1 - y0) * tween,
-                                z0 + (z1 - z0) * tween,
-                                w0 + (w1 - w0) * tween);
+                    if (keyframe != null && nextFrame != null)
+                    {
+                        if (part instanceof IModelPart)
+                        {
+                            IModelPart box = (IModelPart) part;
+                            float x0 = keyframe.rotation[0];
+                            float y0 = keyframe.rotation[1];
+                            float z0 = keyframe.rotation[2];
+                            float w0 = keyframe.rotation[3];
+                            float x1 = nextFrame.rotation[0];
+                            float y1 = nextFrame.rotation[1];
+                            float z1 = nextFrame.rotation[2];
+                            float w1 = nextFrame.rotation[3];
+
+                            box.getRotation().set(x0 + (x1 - x0) * tween,
+                                    y0 + (y1 - y0) * tween,
+                                    z0 + (z1 - z0) * tween,
+                                    w0 + (w1 - w0) * tween);
+                        }
                     }
                 }
             }

@@ -170,7 +170,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         this.limbSwingAmount = f5;
     }
 
-    public void performAnimations(D data, RenderLivingBase<? extends E> renderer, float partialTicks)
+    public void performAnimations(D data, String animatedEntityKey, RenderLivingBase<? extends E> renderer, float partialTicks)
     {
         data.headYaw.set(this.headYaw);
         data.headPitch.set(this.headPitch);
@@ -183,7 +183,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         IAnimationController<D> controller = (IAnimationController<D>) data.getController();
         Collection<String> actions = controller.perform(data);
 
-        BendsPackPerformer.instance.performCurrentPack(data, actions);
+        BendsPackPerformer.instance.performCurrentPack(data, animatedEntityKey, actions);
     }
 
     public abstract void syncUpWithData(D data);

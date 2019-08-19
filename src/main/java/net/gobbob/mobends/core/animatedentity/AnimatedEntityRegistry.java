@@ -4,65 +4,88 @@ import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.configuration.CoreClientConfig;
 import net.minecraft.entity.EntityLivingBase;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AnimatedEntityRegistry
 {
 
-    static final AnimatedEntityRegistry INSTANCE = new AnimatedEntityRegistry();
+    public static final AnimatedEntityRegistry instance = new AnimatedEntityRegistry();
 
-    private final HashMap<Class<? extends EntityLivingBase>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<>();
+    private final Map<Class<? extends EntityLivingBase>, AnimatedEntity<?>> entityClassToInstanceMap = new HashMap<>();
+    private final Map<EntityLivingBase, AnimatedEntity<?>> entityToAnimationEntityMap = new HashMap<>();
 
     public void registerEntity(AnimatedEntity<?> animatedEntity)
     {
-        if (animatedEntity.onRegister())
+        Core.LOG.info(String.format("Registering %s", animatedEntity.getKey()));
+        entityClassToInstanceMap.put(animatedEntity.entityClass, animatedEntity);
+    }
+
+    public void applyConfiguration(CoreClientConfig config)
+    {
+        for (AnimatedEntity<?> animatedEntity : entityClassToInstanceMap.values())
         {
-            Core.LOG.info(String.format("Registering %s", animatedEntity.getKey()));
-            entityClassToInstanceMap.put(animatedEntity.entityClass, animatedEntity);
+            animatedEntity.setAnimate(config.isEntityAnimated(animatedEntity.getKey()));
         }
     }
 
-    public static void applyConfiguration(CoreClientConfig config)
+    public Collection<AnimatedEntity<?>> getRegistered()
     {
-        for (AnimatedEntity<?> e : INSTANCE.entityClassToInstanceMap.values())
-        {
-            for (AlterEntry<?> alterEntry : e.getAlterEntries())
-            {
-                alterEntry.setAnimate(config.isEntityAnimated(alterEntry.getKey()));
-            }
-        }
+        return entityClassToInstanceMap.values();
     }
 
-    public static Iterable<AnimatedEntity<?>> getRegistered()
+    public AnimatedEntity<?> getForEntityClass(Class<? extends EntityLivingBase> c)
     {
-        return INSTANCE.entityClassToInstanceMap.values();
+        return entityClassToInstanceMap.get(c);
     }
 
-    public static AnimatedEntity<?> getForEntityClass(Class<? extends EntityLivingBase> c)
+    public <E extends EntityLivingBase> AnimatedEntity<E> getForEntity(E entity)
     {
-        return INSTANCE.entityClassToInstanceMap.get(c);
-    }
+        if (entityToAnimationEntityMap.containsKey(entity))
+            return (AnimatedEntity<E>) entityToAnimationEntityMap.get(entity);
 
-    @SuppressWarnings("unchecked")
-    public static <E extends EntityLivingBase> AnimatedEntity<E> getForEntity(E entity)
-    {
         // Checking direct registration
         Class<? extends EntityLivingBase> entityClass = entity.getClass();
-        for (AnimatedEntity<?> animatedEntity : INSTANCE.entityClassToInstanceMap.values())
+        for (AnimatedEntity<?> animatedEntity : entityClassToInstanceMap.values())
+        {
             if (animatedEntity.entityClass.equals(entityClass))
+            {
+                entityToAnimationEntityMap.put(entity, animatedEntity);
                 return (AnimatedEntity<E>) animatedEntity;
+            }
+        }
 
         // Checking indirect inheritance
-        for (AnimatedEntity<?> animatedEntity : INSTANCE.entityClassToInstanceMap.values())
+        for (AnimatedEntity<?> animatedEntity : entityClassToInstanceMap.values())
+        {
             if (animatedEntity.entityClass.isInstance(entity))
+            {
+                entityToAnimationEntityMap.put(entity, animatedEntity);
                 return (AnimatedEntity<E>) animatedEntity;
+            }
+        }
 
         return null;
     }
 
-    public static void refreshMutators()
+    public void clearCache(EntityLivingBase entity)
     {
-        for (AnimatedEntity<?> animatedEntity : INSTANCE.entityClassToInstanceMap.values())
+        entityClassToInstanceMap.remove(entity);
+    }
+
+    /**
+     * Will clear any associations between entities and AnimatedEntities.
+     * This is usually called whenever the player joins a new world.
+     */
+    public void clearCache()
+    {
+        entityClassToInstanceMap.clear();
+    }
+
+    public void refreshMutators()
+    {
+        for (AnimatedEntity<?> animatedEntity : entityClassToInstanceMap.values())
             animatedEntity.refreshMutation();
     }
 
