@@ -1,11 +1,12 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
-import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public interface IGuiElementsContainer extends IGuiPositioned
 {
 
-    Collection<IGuiElement> getElements();
+    LinkedList<IGuiElement> getElements();
 
     default void addElement(IGuiElement element)
     {
@@ -27,6 +28,18 @@ public interface IGuiElementsContainer extends IGuiPositioned
         {
             element.update(mouseX - getX(), mouseY - getY());
         }
+    }
+
+    default boolean handleMouseClickedChildren(int mouseX, int mouseY, int button)
+    {
+        Iterator<IGuiElement> it = this.getElements().descendingIterator();
+        while (it.hasNext())
+        {
+            if (it.next().handleMouseClicked(mouseX, mouseY, button))
+                return true;
+        }
+
+        return false;
     }
 
 }

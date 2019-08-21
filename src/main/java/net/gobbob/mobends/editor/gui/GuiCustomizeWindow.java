@@ -1,10 +1,12 @@
-package net.gobbob.mobends.core.client.gui.customize;
+package net.gobbob.mobends.editor.gui;
 
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
-import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
-import net.gobbob.mobends.core.client.gui.customize.viewport.ViewportLayer;
+import net.gobbob.mobends.editor.IEditorAction;
+import net.gobbob.mobends.editor.OverlayLayer;
+import net.gobbob.mobends.editor.store.CustomizeStore;
+import net.gobbob.mobends.editor.viewport.ViewportLayer;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.store.ISubscriber;
 import net.gobbob.mobends.core.store.Subscription;
@@ -18,8 +20,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SHOW_ANIMATED_ENTITY;
-import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.TRACK_EDITOR_ACTION;
+import static net.gobbob.mobends.editor.store.CustomizeMutations.SHOW_ANIMATED_ENTITY;
+import static net.gobbob.mobends.editor.store.CustomizeMutations.TRACK_EDITOR_ACTION;
 
 public class GuiCustomizeWindow extends GuiScreen implements ISubscriber
 {
@@ -31,7 +33,7 @@ public class GuiCustomizeWindow extends GuiScreen implements ISubscriber
      */
     protected static AnimatedEntity lastAnimatedEntityViewed = null;
 
-    final List<AnimatedEntity<?>> animatedEntities = new ArrayList<>();
+    public final List<AnimatedEntity<?>> animatedEntities = new ArrayList<>();
 
     private final ViewportLayer viewportLayer;
     private final OverlayLayer overlayLayer;
@@ -169,7 +171,7 @@ public class GuiCustomizeWindow extends GuiScreen implements ISubscriber
         if (!eventHandled && keyCode == Keyboard.KEY_ESCAPE)
         {
             goBack();
-            eventHandled = true;
+            eventHandled |= true;
         }
     }
 

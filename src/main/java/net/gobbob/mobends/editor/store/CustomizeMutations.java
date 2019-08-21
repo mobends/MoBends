@@ -1,10 +1,10 @@
-package net.gobbob.mobends.core.client.gui.customize.store;
+package net.gobbob.mobends.editor.store;
 
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
-import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
-import net.gobbob.mobends.core.client.gui.customize.IEditorAction;
-import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
+import net.gobbob.mobends.editor.gui.GuiCustomizeWindow;
+import net.gobbob.mobends.editor.IEditorAction;
+import net.gobbob.mobends.editor.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.store.IMutation;
 
 public class CustomizeMutations

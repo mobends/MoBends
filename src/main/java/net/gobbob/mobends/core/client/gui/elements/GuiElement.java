@@ -2,9 +2,7 @@ package net.gobbob.mobends.core.client.gui.elements;
 
 import net.minecraft.client.renderer.GlStateManager;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.LinkedList;
 
 public abstract class GuiElement implements IGuiElement, IGuiElementsContainer
 {
@@ -13,14 +11,14 @@ public abstract class GuiElement implements IGuiElement, IGuiElementsContainer
     protected int y;
 
     protected IGuiElement parent;
-    protected List<IGuiElement> children;
+    protected LinkedList<IGuiElement> children;
 
     public GuiElement(IGuiElement parent, int x, int y)
     {
         this.parent = parent;
         this.x = x;
         this.y = y;
-        this.children = new ArrayList<>();
+        this.children = new LinkedList<>();
     }
 
     @Override
@@ -35,7 +33,7 @@ public abstract class GuiElement implements IGuiElement, IGuiElementsContainer
     }
 
     @Override
-    public Collection<IGuiElement> getElements() {
+    public LinkedList<IGuiElement> getElements() {
         return this.children;
     }
 
@@ -43,6 +41,12 @@ public abstract class GuiElement implements IGuiElement, IGuiElementsContainer
     public void update(int mouseX, int mouseY)
     {
         this.updateChildren(mouseX, mouseY);
+    }
+
+    @Override
+    public boolean handleMouseClicked(int mouseX, int mouseY, int button)
+    {
+        return this.handleMouseClickedChildren(mouseX, mouseY, button);
     }
 
     @Override

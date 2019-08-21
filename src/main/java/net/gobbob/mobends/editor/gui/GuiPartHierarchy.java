@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.client.gui.customize;
+package net.gobbob.mobends.editor.gui;
 
 import net.gobbob.mobends.core.client.gui.elements.GuiPanel;
 import net.gobbob.mobends.core.util.Draw;

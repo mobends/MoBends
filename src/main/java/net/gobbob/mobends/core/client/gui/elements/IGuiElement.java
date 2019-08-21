@@ -10,6 +10,14 @@ public interface IGuiElement extends IGuiPositioned
      */
     void update(int mouseX, int mouseY);
 
+    /**
+     * This method gets called on mouse click. It passes mouse coordinates relative to the parent.
+     * @param mouseX x coordinate relative to the parent
+     * @param mouseY y coordinate relative to the parent
+     * @param button The button clicked
+     */
+    boolean handleMouseClicked(int mouseX, int mouseY, int button);
+
     void initGui();
     void draw();
     IGuiElement getParent();

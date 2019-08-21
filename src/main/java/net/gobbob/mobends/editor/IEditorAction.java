@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.client.gui.customize;
+package net.gobbob.mobends.editor;
 
 public interface IEditorAction<T>
 {

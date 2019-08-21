@@ -2,7 +2,7 @@ package net.gobbob.mobends.core.client.gui;
 
 import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.client.gui.addonswindow.GuiAddonsWindow;
-import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
+import net.gobbob.mobends.editor.gui.GuiCustomizeWindow;
 import net.gobbob.mobends.core.client.gui.elements.GuiSectionButton;
 import net.gobbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUp;
@@ -71,24 +71,7 @@ public class GuiBendsMenu extends GuiScreen
 		int distance = 49;
 		this.customizeButton.initGui((this.width - 318) / 2, startY);
 		this.packsButton.initGui((this.width - 318) / 2, startY + distance);
-		this.addonsButton.initGui((this.width - 318) / 2, startY + distance*2);
-
-//		if (this.guiTab == TAB_CUSTOMIZE)
-//		{
-//			if (PackManager.isCurrentPackLocal())
-//			{
-//				GuiButton applyButton = new GuiButton(4, guiLeft + xSize - 50 - 7, guiTop + 77 - 4, 50, 20,
-//						I18n.format("mobends.gui.apply", new Object[0]));
-//				applyButton.enabled = customizeWindow.areChangesUnapplied();
-//				this.buttonList.add(applyButton);
-//			}
-//			else
-//			{
-//				String buttonTitle = I18n.format("mobends.gui.selectpack", new Object[0]);
-//				this.buttonList.add(new GuiButton(5, (width - fontRenderer.getStringWidth(buttonTitle) - 20) / 2,
-//						guiTop + 150, fontRenderer.getStringWidth(buttonTitle) + 20, 20, buttonTitle));
-//			}
-//		}
+		this.addonsButton.initGui((this.width - 318) / 2, startY + distance * 2);
 	}
 
 	protected void keyTyped(char typedChar, int keyCode)

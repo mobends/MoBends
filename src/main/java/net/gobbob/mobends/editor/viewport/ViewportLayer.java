@@ -1,12 +1,12 @@
-package net.gobbob.mobends.core.client.gui.customize.viewport;
+package net.gobbob.mobends.editor.viewport;
 
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.Mesh;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.gui.GuiHelper;
-import net.gobbob.mobends.core.client.gui.customize.GuiCustomizeWindow;
-import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
+import net.gobbob.mobends.editor.gui.GuiCustomizeWindow;
+import net.gobbob.mobends.editor.store.CustomizeStore;
 import net.gobbob.mobends.core.client.gui.elements.IGuiLayer;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.math.TransformUtils;
@@ -35,8 +35,8 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.HOVER_OVER_BONE;
-import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SELECT_PART;
+import static net.gobbob.mobends.editor.store.CustomizeMutations.HOVER_OVER_BONE;
+import static net.gobbob.mobends.editor.store.CustomizeMutations.SELECT_PART;
 
 public class ViewportLayer extends Gui implements IGuiLayer, ISubscriber
 {

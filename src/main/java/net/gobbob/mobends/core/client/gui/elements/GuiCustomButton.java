@@ -30,7 +30,15 @@ public class GuiCustomButton extends GuiButton
 
     public boolean mousePressed(int mouseX, int mouseY)
     {
-        return this.mousePressed(Minecraft.getMinecraft(), mouseX, mouseY);
+        Minecraft mc = Minecraft.getMinecraft();
+        boolean clicked = this.mousePressed(mc, mouseX, mouseY);
+
+        if (clicked)
+        {
+            this.playPressSound(mc.getSoundHandler());
+        }
+
+        return clicked;
     }
 
     public GuiCustomButton setText(String text)

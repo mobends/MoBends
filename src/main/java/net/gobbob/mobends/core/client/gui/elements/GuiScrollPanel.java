@@ -12,7 +12,7 @@ public abstract class GuiScrollPanel extends GuiElement
     protected int height;
     protected int scrollBarWidth;
 
-    protected int contentSize; // width/height of the full content
+    protected int contentSize; // height of the full content
     protected int scrollAmount;
     protected boolean hovered;
     protected boolean scrollBarHovered;
@@ -167,10 +167,13 @@ public abstract class GuiScrollPanel extends GuiElement
         final int scrollBarHeight = this.getScrollHandleHeight();
 
         // Background
-        Draw.rectangle(width - scrollBarWidth, 0, scrollBarWidth, height, 0xff00406b);
+        Draw.rectangle(width - scrollBarWidth, 0, scrollBarWidth, height, this.getBackgroundColor());
 
+        final int barColor = this.scrollBarGrabbed
+                ? getScrollBarGrabbedColor()
+                : (this.scrollHandleHovered ? this.getScrollBarHoveredColor() : this.getScrollBarColor());
         // Handle
-        Draw.rectangle(width - scrollBarWidth, this.getScrollHandleY(), scrollBarWidth, scrollBarHeight, this.scrollBarGrabbed ? 0xffff00ff : (this.scrollHandleHovered ? 0xff2288cc : 0xff0061a4));
+        Draw.rectangle(width - scrollBarWidth, this.getScrollHandleY(), scrollBarWidth, scrollBarHeight, barColor);
     }
 
     protected int getScrollHandleY()
@@ -178,7 +181,7 @@ public abstract class GuiScrollPanel extends GuiElement
         if (this.contentSize <= this.height)
             return 0;
 
-        return this.scrollAmount * (this.height+2) / this.contentSize;
+        return this.scrollAmount * (this.height + 2) / this.contentSize;
     }
 
     protected int getScrollHandleHeight()
@@ -217,6 +220,26 @@ public abstract class GuiScrollPanel extends GuiElement
     public void setHeight(int height)
     {
         this.height = height;
+    }
+
+    protected int getBackgroundColor()
+    {
+        return 0xff00406b;
+    }
+
+    protected int getScrollBarColor()
+    {
+        return 0xff0061a4;
+    }
+
+    protected int getScrollBarHoveredColor()
+    {
+        return 0xff2288cc;
+    }
+
+    protected int getScrollBarGrabbedColor()
+    {
+        return 0xffff00ff;
     }
 
 }

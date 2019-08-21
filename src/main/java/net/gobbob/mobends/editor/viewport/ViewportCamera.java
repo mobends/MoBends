@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.client.gui.customize.viewport;
+package net.gobbob.mobends.editor.viewport;
 
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;

@@ -1,7 +1,7 @@
-package net.gobbob.mobends.core.client.gui.customize;
+package net.gobbob.mobends.editor.gui;
 
-import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
-import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
+import net.gobbob.mobends.editor.store.CustomizeStore;
+import net.gobbob.mobends.editor.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.elements.GuiPanel;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;

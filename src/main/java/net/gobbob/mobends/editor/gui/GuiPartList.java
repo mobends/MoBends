@@ -1,7 +1,7 @@
-package net.gobbob.mobends.core.client.gui.customize;
+package net.gobbob.mobends.editor.gui;
 
-import net.gobbob.mobends.core.client.gui.customize.store.CustomizeStore;
-import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
+import net.gobbob.mobends.editor.store.CustomizeStore;
+import net.gobbob.mobends.editor.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.client.gui.elements.GuiElement;
 import net.gobbob.mobends.core.client.gui.elements.GuiScrollPanel;
 import net.gobbob.mobends.core.store.ISubscriber;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static net.gobbob.mobends.core.client.gui.customize.store.CustomizeMutations.SELECT_PART;
+import static net.gobbob.mobends.editor.store.CustomizeMutations.SELECT_PART;
 
 public class GuiPartList extends GuiScrollPanel implements ISubscriber
 {

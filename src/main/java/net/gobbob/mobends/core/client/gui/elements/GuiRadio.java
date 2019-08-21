@@ -1,188 +1,191 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.client.gui.IChangeListener;
 import net.gobbob.mobends.core.client.gui.IObservable;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class GuiRadio implements IObservable
 {
-	private int x, y;
-	private int buttonX, buttonY, buttonWidth, buttonHeight;
-	public int elementX, elementY, elementWidth, elementHeight;
-	public int offsetX, offsetY;
-	public int padding, elementOffset;
-	public int bgX, bgY, bgWidth, bgHeight;
-	public int numberOfElements = 5;
-	/*
-	 * Used to indicate which operator is selected/hovered over. The value of -1
-	 * represents that nothing is hovered over. Values between 0 and (n-1) represent
-	 * different operators
-	 */
-	public int selectedId;
-	public int hoveredId;
-	public boolean enabled;
 
-	private List<IChangeListener> changeListeners = new LinkedList<>();
-	
-	public List<IChangeListener> getChangeListeners()
-	{
-		return this.changeListeners;
-	}
-	
-	public GuiRadio()
-	{
-		this.x = this.y = 0;
-		this.enabled = true;
-	}
+    private int x, y;
+    private int buttonX, buttonY, buttonWidth, buttonHeight;
+    public int elementX, elementY, elementWidth, elementHeight;
+    public int offsetX, offsetY;
+    public int padding, elementOffset;
+    public int bgX, bgY, bgWidth, bgHeight;
+    public int numberOfElements = 5;
 
-	public void initGui(int x, int y)
-	{
-		this.x = x;
-		this.y = y;
-	}
+    /*
+     * Used to indicate which operator is selected/hovered over. The value of -1
+     * represents that nothing is hovered over. Values between 0 and (n-1) represent
+     * different operators
+     */
+    public int selectedId;
+    public int hoveredId;
+    public boolean enabled;
 
-	public void display()
-	{
-		if (!isEnabled())
-			return;
+    private List<IChangeListener> changeListeners = new LinkedList<>();
 
-		Minecraft.getMinecraft().getTextureManager().bindTexture(GuiBendsMenu.ICONS_TEXTURE);
-		Draw.texturedModalRect(x, y, bgX, bgY, bgWidth, bgHeight);
+    public List<IChangeListener> getChangeListeners()
+    {
+        return this.changeListeners;
+    }
 
-		for (int i = 0; i < numberOfElements; i++)
-		{
-			if (i == selectedId)
-			{
-				Draw.texturedModalRect(x + offsetX + i * buttonWidth, y + offsetY, buttonX + buttonWidth * 2, buttonY,
-						buttonWidth, buttonHeight);
-			}
-			else if (i == hoveredId)
-			{
-				Draw.texturedModalRect(x + offsetX + i * buttonWidth, y + offsetY, buttonX + buttonWidth, buttonY,
-						buttonWidth, buttonHeight);
-			}
-			else
-			{
-				Draw.texturedModalRect(x + offsetX + i * buttonWidth, y + offsetY, buttonX, buttonY, buttonWidth,
-						buttonHeight);
-			}
+    public GuiRadio()
+    {
+        this.x = this.y = 0;
+        this.enabled = true;
+    }
 
-			Draw.texturedModalRect(x + i * buttonWidth + elementOffset, y + elementOffset, elementX + i * elementWidth,
-					elementY, elementWidth, elementHeight);
-		}
-	}
+    public void initGui(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+    }
 
-	public void update(int mouseX, int mouseY)
-	{
-		if (!isEnabled())
-			return;
+    public void display()
+    {
+        if (!isEnabled())
+            return;
 
-		if (areCoordinatesInBounds(mouseX, mouseY))
-		{
-			hoveredId = Math.min((mouseX - (x + 2)) / buttonWidth, numberOfElements - 1);
-		}
-		else
-		{
-			hoveredId = -1;
-		}
-	}
+        Minecraft.getMinecraft().getTextureManager().bindTexture(GuiBendsMenu.ICONS_TEXTURE);
+        Draw.texturedModalRect(x, y, bgX, bgY, bgWidth, bgHeight);
 
-	public boolean onMousePressed(int mouseX, int mouseY, int event)
-	{
-		if (!isEnabled())
-			return false;
+        for (int i = 0; i < numberOfElements; i++)
+        {
+            if (i == selectedId)
+            {
+                Draw.texturedModalRect(x + offsetX + i * buttonWidth, y + offsetY, buttonX + buttonWidth * 2, buttonY,
+                        buttonWidth, buttonHeight);
+            }
+            else if (i == hoveredId)
+            {
+                Draw.texturedModalRect(x + offsetX + i * buttonWidth, y + offsetY, buttonX + buttonWidth, buttonY,
+                        buttonWidth, buttonHeight);
+            }
+            else
+            {
+                Draw.texturedModalRect(x + offsetX + i * buttonWidth, y + offsetY, buttonX, buttonY, buttonWidth,
+                        buttonHeight);
+            }
 
-		int newSelectedId = selectedId;
+            Draw.texturedModalRect(x + i * buttonWidth + elementOffset, y + elementOffset, elementX + i * elementWidth,
+                    elementY, elementWidth, elementHeight);
+        }
+    }
 
-		if (hoveredId != -1)
-		{
-			newSelectedId = hoveredId;
-		}
+    public void update(int mouseX, int mouseY)
+    {
+        if (!isEnabled())
+            return;
 
-		if (newSelectedId != selectedId)
-		{
-			selectedId = newSelectedId;
-			this.notifyChanged();
-			return true;
-		}
+        if (areCoordinatesInBounds(mouseX, mouseY))
+        {
+            hoveredId = Math.min((mouseX - (x + 2)) / buttonWidth, numberOfElements - 1);
+        }
+        else
+        {
+            hoveredId = -1;
+        }
+    }
 
-		return false;
-	}
+    public boolean onMousePressed(int mouseX, int mouseY, int event)
+    {
+        if (!isEnabled())
+            return false;
 
-	public boolean areCoordinatesInBounds(int cX, int cY)
-	{
-		return cX >= x + offsetX && cX < x + bgWidth && cY >= y + offsetY && cY < y + bgHeight;
-	}
+        int newSelectedId = selectedId;
 
-	public void choose(int id)
-	{
-		this.selectedId = id;
-	}
+        if (hoveredId != -1)
+        {
+            newSelectedId = hoveredId;
+        }
 
-	public void enable()
-	{
-		this.enabled = true;
-	}
+        if (newSelectedId != selectedId)
+        {
+            selectedId = newSelectedId;
+            this.notifyChanged();
+            return true;
+        }
 
-	public void disable()
-	{
-		this.enabled = false;
-	}
+        return false;
+    }
 
-	public boolean isEnabled()
-	{
-		return enabled;
-	}
+    public boolean areCoordinatesInBounds(int cX, int cY)
+    {
+        return cX >= x + offsetX && cX < x + bgWidth && cY >= y + offsetY && cY < y + bgHeight;
+    }
 
-	public GuiRadio setButton(int x, int y, int width, int height)
-	{
-		buttonX = x;
-		buttonY = y;
-		buttonWidth = width;
-		buttonHeight = height;
-		return this;
-	}
+    public void choose(int id)
+    {
+        this.selectedId = id;
+    }
 
-	public GuiRadio setElement(int x, int y, int width, int height)
-	{
-		elementX = x;
-		elementY = y;
-		elementWidth = width;
-		elementHeight = height;
-		return this;
-	}
+    public void enable()
+    {
+        this.enabled = true;
+    }
 
-	public GuiRadio setNumberOfElements(int a)
-	{
-		numberOfElements = a;
-		return this;
-	}
+    public void disable()
+    {
+        this.enabled = false;
+    }
 
-	public GuiRadio setBackground(int x, int y, int width, int height)
-	{
-		bgX = x;
-		bgY = y;
-		bgWidth = width;
-		bgHeight = height;
-		return this;
-	}
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
 
-	public GuiRadio setOffset(int x, int y)
-	{
-		offsetX = x;
-		offsetY = y;
-		return this;
-	}
+    public GuiRadio setButton(int x, int y, int width, int height)
+    {
+        buttonX = x;
+        buttonY = y;
+        buttonWidth = width;
+        buttonHeight = height;
+        return this;
+    }
 
-	public GuiRadio setPadding(int padding, int offset)
-	{
-		this.padding = padding;
-		this.elementOffset = offset;
-		return this;
-	}
+    public GuiRadio setElement(int x, int y, int width, int height)
+    {
+        elementX = x;
+        elementY = y;
+        elementWidth = width;
+        elementHeight = height;
+        return this;
+    }
+
+    public GuiRadio setNumberOfElements(int a)
+    {
+        numberOfElements = a;
+        return this;
+    }
+
+    public GuiRadio setBackground(int x, int y, int width, int height)
+    {
+        bgX = x;
+        bgY = y;
+        bgWidth = width;
+        bgHeight = height;
+        return this;
+    }
+
+    public GuiRadio setOffset(int x, int y)
+    {
+        offsetX = x;
+        offsetY = y;
+        return this;
+    }
+
+    public GuiRadio setPadding(int padding, int offset)
+    {
+        this.padding = padding;
+        this.elementOffset = offset;
+        return this;
+    }
+
 }

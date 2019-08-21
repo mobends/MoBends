@@ -1,7 +1,7 @@
-package net.gobbob.mobends.core.client.gui.customize.store;
+package net.gobbob.mobends.editor.store;
 
 import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.client.gui.customize.viewport.AlterEntryRig;
+import net.gobbob.mobends.editor.viewport.AlterEntryRig;
 import net.gobbob.mobends.core.store.IObserver;
 import net.gobbob.mobends.core.store.Store;
 import net.gobbob.mobends.core.store.Subscription;
