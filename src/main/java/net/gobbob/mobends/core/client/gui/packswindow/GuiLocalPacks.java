@@ -3,16 +3,17 @@ package net.gobbob.mobends.core.client.gui.packswindow;
 import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
 import net.gobbob.mobends.core.pack.LocalBendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.resources.I18n;
 
 import java.util.Collection;
 
-public class GuiLocalPacks
+public class GuiLocalPacks extends Gui
 {
-
-    private static final int BUTTON_OPEN_FOLDER = 2;
 
     private int x, y;
     private GuiPackList availablePacksList;
@@ -20,8 +21,11 @@ public class GuiLocalPacks
 
     private final GuiCustomButton openFolderButton;
 
+    private final FontRenderer fontRenderer;
+
     public GuiLocalPacks()
     {
+        this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
         this.availablePacksList = new GuiPackList();
         this.appliedPacksList = new GuiPackList();
 
@@ -30,7 +34,7 @@ public class GuiLocalPacks
             this.availablePacksList.addElement(new GuiPackEntry(pack));
         }
 
-        this.openFolderButton = new GuiCustomButton(BUTTON_OPEN_FOLDER, GuiPacksWindow.EDITOR_WIDTH - 2, 20);
+        this.openFolderButton = new GuiCustomButton(-1, GuiPacksWindow.EDITOR_WIDTH - 2, 20);
         this.openFolderButton.setText(I18n.format("mobends.gui.openpacksfolder"));
     }
 
@@ -57,8 +61,8 @@ public class GuiLocalPacks
             eventHandled = true;
         }
 
-        this.availablePacksList.mouseClicked(mouseX, mouseY, button);
-        this.appliedPacksList.mouseClicked(mouseX, mouseY, button);
+        this.availablePacksList.handleMouseClicked(mouseX, mouseY, button);
+        this.appliedPacksList.handleMouseClicked(mouseX, mouseY, button);
 
         return eventHandled;
     }
@@ -67,8 +71,16 @@ public class GuiLocalPacks
     {
         this.openFolderButton.mouseReleased(mouseX, mouseY);
 
-        this.availablePacksList.mouseReleased(mouseX, mouseY, button);
-        this.appliedPacksList.mouseReleased(mouseX, mouseY, button);
+        this.availablePacksList.handleMouseReleased(mouseX, mouseY, button);
+        this.appliedPacksList.handleMouseReleased(mouseX, mouseY, button);
+    }
+
+    public boolean handleMouseInput()
+    {
+        boolean handled = false;
+        handled |= this.availablePacksList.handleMouseInput();
+        handled |= this.appliedPacksList.handleMouseInput();
+        return handled;
     }
 
     public void update(int mouseX, int mouseY)
@@ -79,8 +91,11 @@ public class GuiLocalPacks
 
     public void draw()
     {
-        this.availablePacksList.draw();
-        this.appliedPacksList.draw();
+        availablePacksList.draw();
+        appliedPacksList.draw();
+
+        drawCenteredString(fontRenderer, I18n.format("mobends.gui.unusedpacks"), x + GuiPacksWindow.EDITOR_WIDTH / 4, y + 8, 0xffffff);
+        drawCenteredString(fontRenderer, I18n.format("mobends.gui.appliedpacks"), x + GuiPacksWindow.EDITOR_WIDTH * 3 / 4 + 6, y + 8, 0xffffff);
     }
 
 }

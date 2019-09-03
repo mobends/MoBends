@@ -12,8 +12,13 @@ public abstract class GuiScrollPanel extends GuiElement
     protected int height;
     protected int scrollBarWidth;
 
-    protected int contentSize; // height of the full content
+    /**
+     * Height of the full content
+     */
+    protected int contentSize;
+    protected int scrollAmountTarget;
     protected int scrollAmount;
+    protected float scrollTweenProgress;
     protected boolean hovered;
     protected boolean scrollBarHovered;
     protected boolean scrollHandleHovered;
@@ -27,6 +32,7 @@ public abstract class GuiScrollPanel extends GuiElement
         this.height = height;
         this.scrollBarWidth = 6;
         this.contentSize = 0;
+        this.scrollAmountTarget = 0;
         this.scrollAmount = 0;
         this.hovered = false;
         this.scrollBarHovered = false;
@@ -44,7 +50,7 @@ public abstract class GuiScrollPanel extends GuiElement
 
         if (this.scrollBarGrabbed)
         {
-            this.scrollTo((int) (mouseY - y - scrollBarGrabY) * (contentSize) / height );
+            this.scrollTo((int) (mouseY - y - scrollBarGrabY) * (contentSize) / height);
         }
 
         if (this.hovered)
@@ -61,10 +67,15 @@ public abstract class GuiScrollPanel extends GuiElement
                 }
             }
         }
+
+        this.scrollAmount += (this.scrollAmountTarget - this.scrollAmount) * .5F;
     }
 
-    public boolean mouseClicked(int mouseX, int mouseY, int event)
+    @Override
+    public boolean handleMouseClicked(int mouseX, int mouseY, int button)
     {
+        super.handleMouseClicked(mouseX, mouseY, button);
+
         this.scrollBarGrabbed = false;
 
         if (scrollBarHovered)
@@ -85,9 +96,12 @@ public abstract class GuiScrollPanel extends GuiElement
         return false;
     }
 
-    public void mouseReleased(int mouseX, int mouseY, int event)
+    @Override
+    public boolean handleMouseReleased(int mouseX, int mouseY, int button)
     {
         this.scrollBarGrabbed = false;
+
+        return false;
     }
 
     public boolean handleMouseInput()
@@ -110,21 +124,21 @@ public abstract class GuiScrollPanel extends GuiElement
     {
         if (contentSize <= height)
         {
-            this.scrollAmount = 0;
+            this.scrollAmountTarget = 0;
             return;
         }
 
-        this.scrollAmount = value;
+        this.scrollAmountTarget = value;
 
-        if (this.scrollAmount < 0)
-            this.scrollAmount = 0;
-        else if (this.scrollAmount > contentSize - height)
-            this.scrollAmount = contentSize - height;
+        if (this.scrollAmountTarget < 0)
+            this.scrollAmountTarget = 0;
+        else if (this.scrollAmountTarget > contentSize - height)
+            this.scrollAmountTarget = contentSize - height;
     }
 
     protected void scroll(int amount)
     {
-        scrollTo(this.scrollAmount + amount);
+        scrollTo(this.scrollAmountTarget + amount);
     }
 
     @Override
@@ -172,8 +186,11 @@ public abstract class GuiScrollPanel extends GuiElement
         final int barColor = this.scrollBarGrabbed
                 ? getScrollBarGrabbedColor()
                 : (this.scrollHandleHovered ? this.getScrollBarHoveredColor() : this.getScrollBarColor());
+
         // Handle
         Draw.rectangle(width - scrollBarWidth, this.getScrollHandleY(), scrollBarWidth, scrollBarHeight, barColor);
+
+        GlStateManager.color(1, 1, 1, 1);
     }
 
     protected int getScrollHandleY()
@@ -222,24 +239,29 @@ public abstract class GuiScrollPanel extends GuiElement
         this.height = height;
     }
 
+    protected float getScrollTweenSpeed()
+    {
+        return 0.1F;
+    }
+
     protected int getBackgroundColor()
     {
-        return 0xff00406b;
+        return 0xff111111;
     }
 
     protected int getScrollBarColor()
     {
-        return 0xff0061a4;
+        return 0xff888888;
     }
 
     protected int getScrollBarHoveredColor()
     {
-        return 0xff2288cc;
+        return 0xff999999;
     }
 
     protected int getScrollBarGrabbedColor()
     {
-        return 0xffff00ff;
+        return 0xffbbbbbb;
     }
 
 }

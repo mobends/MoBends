@@ -2,12 +2,9 @@ package net.gobbob.mobends.core.client.gui;
 
 import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.client.gui.addonswindow.GuiAddonsWindow;
-import net.gobbob.mobends.editor.gui.GuiCustomizeWindow;
 import net.gobbob.mobends.core.client.gui.elements.GuiSectionButton;
 import net.gobbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUp;
-import net.gobbob.mobends.core.client.gui.popup.GuiPopUpCreatePack;
-import net.gobbob.mobends.core.client.gui.popup.GuiPopUpHelp;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GuiHelper;
 import net.gobbob.mobends.standard.main.ModStatics;
@@ -24,18 +21,10 @@ import java.io.IOException;
 public class GuiBendsMenu extends GuiScreen
 {
 	
-	/*--VISUAL--*/
-	public static final ResourceLocation MENU_TITLE_TEXTURE = new ResourceLocation(ModStatics.MODID,
+	private static final ResourceLocation MENU_TITLE_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/title.png");
 	public static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/icons.png");
-
-	/*--TECHNICAL--*/
-	public static final int POPUP_CHANGETARGET = 0;
-	public static final int POPUP_GOBACK = 1;
-	public static final int POPUP_HELP = 2;
-	public static final int POPUP_EXIT = 3;
-	public static final int POPUP_CREATEPACK = 4;
 
 	private GuiSectionButton customizeButton;
 	private GuiSectionButton packsButton;
@@ -120,33 +109,7 @@ public class GuiBendsMenu extends GuiScreen
 		if (this.popUp != null)
 		{
 			int button = popUp.mouseClicked(x, y, state);
-			switch (popUp.getAfterAction())
-			{
-				case POPUP_CHANGETARGET:
-					switch (button)
-					{
-						case 0: // Yes
-							//selectAlterEntry((Integer) customizeWindow.getTargetList().getSelectedValue());
-							break;
-						case 1: // No
-							break;
-					}
-					break;
-				case POPUP_HELP:
-					if (button == 0)
-						popUp = null;
-					break;
-				case POPUP_EXIT:
-					switch (button)
-					{
-						case 0: // Yes
-							GuiHelper.closeGui();
-							break;
-						case 1: // No
-							break;
-					}
-					break;
-			}
+
 			if (button != -1)
 			{
 				popUp = null;
@@ -156,7 +119,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		if (this.customizeButton.mouseClicked(x, y, state))
 		{
-			this.mc.displayGuiScreen(new GuiCustomizeWindow());
+			// Open the bends pack editor.
 		}
 		else if (this.packsButton.mouseClicked(x, y, state))
 		{
@@ -164,7 +127,7 @@ public class GuiBendsMenu extends GuiScreen
 		}
 		else if (this.addonsButton.mouseClicked(x, y, state))
 		{
-			this.mc.displayGuiScreen(new GuiCustomizeWindow());
+			// Opens the addons window.
 		}
 
 		try
@@ -222,22 +185,4 @@ public class GuiBendsMenu extends GuiScreen
 		return false;
 	}
 
-	public void popUpDiscardChanges(int afterAction)
-	{
-		this.popUp = new GuiPopUp(I18n.format("mobends.gui.discardchanges"), afterAction,
-				new String[] { "Yes", "No" });
-		initGui();
-	}
-
-	public void popUpHelp()
-	{
-		this.popUp = new GuiPopUpHelp(POPUP_HELP);
-		initGui();
-	}
-
-	public void popUpCreatePack()
-	{
-		this.popUp = new GuiPopUpCreatePack(POPUP_CREATEPACK);
-		initGui();
-	}
 }

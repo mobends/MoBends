@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 public class GuiList<T extends IGuiListElement> extends GuiScrollPanel
 {
@@ -10,7 +10,7 @@ public class GuiList<T extends IGuiListElement> extends GuiScrollPanel
     protected int paddingLeft;
     protected int paddingTop;
     protected int paddingBottom;
-    protected List<T> elements;
+    protected LinkedList<T> elements;
 
     public GuiList(int x, int y, int width, int height, int spacing, int paddingLeft, int paddingTop, int paddingBottom)
     {
@@ -49,6 +49,29 @@ public class GuiList<T extends IGuiListElement> extends GuiScrollPanel
         this.initGui(this.x, this.y);
     }
 
+    protected boolean handleMouseClickedElements(int mouseX, int mouseY, int button)
+    {
+        Iterator<T> it = this.elements.descendingIterator();
+        while (it.hasNext())
+        {
+            if (it.next().handleMouseClicked(mouseX, mouseY, button))
+                return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void update(int mouseX, int mouseY)
+    {
+        super.update(mouseX, mouseY);
+
+        for (T element : this.elements)
+        {
+            element.update(mouseX - x, mouseY - y + scrollAmount);
+        }
+    }
+
     @Override
     protected void drawContent()
     {
@@ -62,6 +85,17 @@ public class GuiList<T extends IGuiListElement> extends GuiScrollPanel
     protected void drawBackground()
     {
 
+    }
+
+    @Override
+    public boolean handleMouseClicked(int mouseX, int mouseY, int button)
+    {
+        if (this.hovered && handleMouseClickedElements(mouseX - x, mouseY - y + scrollAmount, button))
+        {
+            return true;
+        }
+
+        return super.handleMouseClicked(mouseX, mouseY, button);
     }
 
 }

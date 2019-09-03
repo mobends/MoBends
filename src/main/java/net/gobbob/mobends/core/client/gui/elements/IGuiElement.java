@@ -18,6 +18,14 @@ public interface IGuiElement extends IGuiPositioned
      */
     boolean handleMouseClicked(int mouseX, int mouseY, int button);
 
+    /**
+     * This method gets called on mouse release. It passes mouse coordinates relative to the parent.
+     * @param mouseX x coordinate relative to the parent
+     * @param mouseY y coordinate relative to the parent
+     * @param button The button clicked
+     */
+    boolean handleMouseReleased(int mouseX, int mouseY, int button);
+
     void initGui();
     void draw();
     IGuiElement getParent();

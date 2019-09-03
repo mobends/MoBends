@@ -27,13 +27,15 @@ public class GuiTabNavigation
 
         for (int i = 0; i < this.tabs.size(); ++i)
         {
-            this.tabs.get(i).initGui(x + i * (GuiPackTab.WIDTH - 2), y);
+            this.tabs.get(i).initGui(x + i * (GuiPackTab.WIDTH - 1), y);
         }
     }
 
-    public void addTab(String tabName, int textureIndex)
+    public GuiPackTab addTab(String tabName, int textureIndex)
     {
-        this.tabs.add(new GuiPackTab(tabName, textureIndex));
+        final GuiPackTab tab = new GuiPackTab(tabName, textureIndex);
+        this.tabs.add(tab);
+        return tab;
     }
 
     public void draw(int mouseX, int mouseY)
@@ -42,16 +44,19 @@ public class GuiTabNavigation
 
         for (GuiPackTab tab : tabs)
         {
-            tab.draw(mouseX, mouseY, tab == this.selectedTab);
+            if (selectedTab != tab)
+            {
+                tab.draw(mouseX, mouseY);
+            }
         }
 
         GuiPackTab selectedTab = this.getSelectedTab();
         if (selectedTab != null)
         {
-            // Drawing the selected tab again, so it's on top.
-            selectedTab.draw(mouseX, mouseY, true);
+            // Drawing the selected tab after others, so it's on top.
+            selectedTab.draw(mouseX, mouseY);
 
-            mc.fontRenderer.drawStringWithShadow(I18n.format(selectedTab.titleKey), x + (GuiPackTab.WIDTH - 2) * this.tabs.size() + 10, y - 13, 0xffffff);
+            mc.fontRenderer.drawStringWithShadow(I18n.format(selectedTab.titleKey), x + (GuiPackTab.WIDTH - 2) * this.tabs.size() + 10, y - 10, 0xffffff);
         }
 
     }
@@ -77,6 +82,8 @@ public class GuiTabNavigation
     public void selectTab(GuiPackTab tab)
     {
         this.selectedTab = tab;
+        this.tabs.forEach(t -> t.setSelected(false));
+        this.selectedTab.setSelected(true);
     }
 
     public GuiPackTab getSelectedTab()

@@ -42,4 +42,16 @@ public interface IGuiElementsContainer extends IGuiPositioned
         return false;
     }
 
+    default boolean handleMouseReleasedChildren(int mouseX, int mouseY, int button)
+    {
+        Iterator<IGuiElement> it = this.getElements().descendingIterator();
+        while (it.hasNext())
+        {
+            if (it.next().handleMouseClicked(mouseX, mouseY, button))
+                return true;
+        }
+
+        return false;
+    }
+
 }

@@ -2,7 +2,6 @@ package net.gobbob.mobends.core.client.gui.packswindow;
 
 import net.gobbob.mobends.core.client.gui.elements.IGuiListElement;
 import net.gobbob.mobends.core.pack.IBendsPack;
-import net.gobbob.mobends.core.pack.PackManager;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -24,7 +23,6 @@ public class GuiPackEntry implements IGuiListElement
 
     private int x, y;
     private boolean hover, selected;
-    private boolean applied;
 
     public GuiPackEntry(IBendsPack pack)
     {
@@ -35,41 +33,40 @@ public class GuiPackEntry implements IGuiListElement
         this.author = pack.getAuthor();
         this.description = pack.getDescription();
         this.thumbnailLocation = pack.getThumbnail();
-        this.applied = PackManager.instance.getAppliedPack() != null && PackManager.instance.getAppliedPack() == pack;
+
+        this.hover = false;
+        this.selected = false;
     }
 
+    @Override
     public void initGui(int x, int y)
     {
         this.x = x;
         this.y = y;
     }
 
+    @Override
     public void update(int mouseX, int mouseY)
     {
         this.hover = mouseX >= x && mouseX <= x + 102 &&
                      mouseY >= y && mouseY <= y + HEIGHT;
     }
 
-    public boolean mouseClicked(int mouseX, int mouseY, int state)
+    @Override
+    public boolean handleMouseClicked(int mouseX, int mouseY, int state)
     {
         this.update(mouseX, mouseY);
         return this.hover;
     }
 
+    public void setSelected(boolean selected)
+    {
+        this.selected = selected;
+    }
+
     public String getDisplayName()
     {
         return displayName;
-    }
-
-    public GuiPackEntry setApplied(boolean value)
-    {
-        this.applied = value;
-        return this;
-    }
-
-    public boolean isApplied()
-    {
-        return applied;
     }
 
     @Override
@@ -98,7 +95,10 @@ public class GuiPackEntry implements IGuiListElement
 
         textureManager.bindTexture(GuiPacksWindow.BACKGROUND_TEXTURE);
         GlStateManager.color(1, 1, 1, 1);
-        int textureY = this.selected ? 62 : this.hover ? 31 : 0;
+        final int SELECTED_TEXTURE_Y = 62;
+        final int HOVER_TEXTURE_Y = 31;
+        final int NEUTRAL_TEXTURE_Y = 0;
+        int textureY = this.selected ? SELECTED_TEXTURE_Y : this.hover ? HOVER_TEXTURE_Y : NEUTRAL_TEXTURE_Y;
         Draw.texturedModalRect(x - 1, y - (this.selected ? 1 : 0), 0, textureY, 102, HEIGHT);
 
         textureManager.bindTexture(thumbnailLocation);
@@ -107,13 +107,6 @@ public class GuiPackEntry implements IGuiListElement
 
         fontRenderer.drawStringWithShadow(fontRenderer.trimStringToWidth(this.displayName, 70), x + 32, y + 1, 0xffffff);
         Draw.rectangle_xgradient(x + 101 - 40, y + 1, 39, 9, 0x004e4e4e, 0xff4e4e4e);
-
-        if (applied)
-        {
-            textureManager.bindTexture(GuiPacksWindow.BACKGROUND_TEXTURE);
-            GlStateManager.color(1, 1, 1, 1);
-            Draw.texturedModalRect(x + 1, y + 1, 45, 117, 27, 27);
-        }
     }
 
 }

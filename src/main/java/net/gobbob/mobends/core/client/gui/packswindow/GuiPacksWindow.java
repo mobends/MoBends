@@ -8,7 +8,6 @@ import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 
@@ -18,16 +17,16 @@ public class GuiPacksWindow extends GuiScreen
 {
 
     public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
-            "textures/gui/pack_editor.png");
+            "textures/gui/pack_window.png");
     public static final int EDITOR_WIDTH = 280;
     public static final int EDITOR_HEIGHT = 177;
-    private static final String publicInfoText = "Want your creation to be featured? Contact me at:";
-
     private static final int BUTTON_BACK = 0;
 
     private int x, y;
 
-    private GuiTabNavigation tabNavigation;
+    private final GuiTabNavigation tabNavigation;
+    private final GuiPackTab localPacksTab;
+    private final GuiPackTab publicPacksTab;
 
     private GuiLocalPacks localPacks;
 
@@ -40,8 +39,8 @@ public class GuiPacksWindow extends GuiScreen
 
         this.localPacks = new GuiLocalPacks();
         this.tabNavigation = new GuiTabNavigation();
-        this.tabNavigation.addTab("mobends.gui.localpacks", 1);
-        this.tabNavigation.addTab("mobends.gui.publicpacks", 0);
+        this.localPacksTab = this.tabNavigation.addTab("mobends.gui.localpacks", 0);
+        this.publicPacksTab = this.tabNavigation.addTab("mobends.gui.publicpacks", 1);
         this.tabNavigation.selectTab(0);
 
         this.timer = new Timer();
@@ -55,7 +54,7 @@ public class GuiPacksWindow extends GuiScreen
         this.x = (this.width - EDITOR_WIDTH) / 2;
         this.y = (this.height - EDITOR_HEIGHT) / 2;
 
-        this.tabNavigation.initGui(this.x + 5, this.y + 21);
+        this.tabNavigation.initGui(this.x + 5, this.y);
 
         this.buttonList.clear();
         this.buttonList.add(new GuiButton(BUTTON_BACK, 10, height - 30, 60, 20, "Back"));
@@ -94,6 +93,8 @@ public class GuiPacksWindow extends GuiScreen
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
+
+        this.localPacks.handleMouseInput();
     }
 
     @Override
@@ -110,15 +111,17 @@ public class GuiPacksWindow extends GuiScreen
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(BACKGROUND_TEXTURE);
         // Container
-        Draw.borderBox(x + 4, y + 4, EDITOR_WIDTH, EDITOR_HEIGHT, 4, 102, 13);
+        Draw.borderBox(x + 4, y + 4, EDITOR_WIDTH, EDITOR_HEIGHT, 4, 36, 126);
         // Title background
-        Draw.texturedModalRect(x + 4 + EDITOR_WIDTH / 2 - 75, y - 13, 106, 0, 150, 13);
-        // Title
-        this.drawCenteredString(fontRenderer, I18n.format("mobends.gui.packs"),
-                (int) this.x + 4 + EDITOR_WIDTH / 2, y - 9, 0xffffff);
+        Draw.texturedModalRect(x, y - 13, 101, 0, 4, 16);
+        Draw.texturedModalRect(x + 4, y - 13, EDITOR_WIDTH - 16, 16, 105, 0, 1, 16);
+        Draw.texturedModalRect(x + EDITOR_WIDTH - 17, y - 13, 106, 0, 19, 16);
 
         this.tabNavigation.draw(mouseX, mouseY);
-        this.localPacks.draw();
+        if (this.tabNavigation.getSelectedTab() == this.localPacksTab)
+        {
+            this.localPacks.draw();
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 

@@ -50,6 +50,12 @@ public abstract class GuiElement implements IGuiElement, IGuiElementsContainer
     }
 
     @Override
+    public boolean handleMouseReleased(int mouseX, int mouseY, int button)
+    {
+        return this.handleMouseReleasedChildren(mouseX, mouseY, button);
+    }
+
+    @Override
     public void draw()
     {
         GlStateManager.pushMatrix();
