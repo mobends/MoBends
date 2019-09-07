@@ -5,16 +5,20 @@ public interface IGuiListElement
 
     void initGui(int x, int y);
 
+    boolean handleMouseClicked(int mouseX, int mouseY, int state);
+
+    void update(int mouseX, int mouseY);
+
+    void draw();
+
     int getX();
 
     int getY();
 
     int getHeight();
 
-    boolean handleMouseClicked(int mouseX, int mouseY, int state);
+    int getOrder();
 
-    void update(int mouseX, int mouseY);
-
-    void draw();
+    void setOrder(int order);
 
 }

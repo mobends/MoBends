@@ -68,7 +68,7 @@ public abstract class GuiScrollPanel extends GuiElement
             }
         }
 
-        this.scrollAmount += (this.scrollAmountTarget - this.scrollAmount) * .5F;
+        this.scrollAmount += (this.scrollAmountTarget - this.scrollAmount) * getScrollTweenSpeed();
     }
 
     @Override
@@ -193,6 +193,11 @@ public abstract class GuiScrollPanel extends GuiElement
         GlStateManager.color(1, 1, 1, 1);
     }
 
+    public int getScrollAmount()
+    {
+        return scrollAmount;
+    }
+
     protected int getScrollHandleY()
     {
         if (this.contentSize <= this.height)
@@ -241,7 +246,7 @@ public abstract class GuiScrollPanel extends GuiElement
 
     protected float getScrollTweenSpeed()
     {
-        return 0.1F;
+        return .5F;
     }
 
     protected int getBackgroundColor()

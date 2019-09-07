@@ -1,8 +1,12 @@
 package net.gobbob.mobends.core.client.gui.packswindow;
 
+import net.gobbob.mobends.core.client.gui.GuiDragger;
 import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
 import net.gobbob.mobends.core.pack.LocalBendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
+import net.gobbob.mobends.core.store.ISubscriber;
+import net.gobbob.mobends.core.store.Subscription;
+import net.gobbob.mobends.core.util.IDisposable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -11,31 +15,64 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.resources.I18n;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
-public class GuiLocalPacks extends Gui
+public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
 {
 
-    private int x, y;
-    private GuiPackList availablePacksList;
-    private GuiPackList appliedPacksList;
+    private final GuiPackList availablePacksList;
+    private final GuiPackList appliedPacksList;
+    private final LinkedList<GuiPackEntry> availablePacks;
+    private final LinkedList<GuiPackEntry> appliedPacks;
 
+    private final GuiDragger<GuiPackEntry> dragger;
     private final GuiCustomButton openFolderButton;
-
     private final FontRenderer fontRenderer;
+    private int x, y;
+
+    private List<Subscription<?>> subscriptions = new LinkedList<>();
 
     public GuiLocalPacks()
     {
         this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        this.availablePacksList = new GuiPackList();
-        this.appliedPacksList = new GuiPackList();
+        this.availablePacks = new LinkedList<>();
+        this.appliedPacks = new LinkedList<>();
+        this.availablePacksList = new GuiPackList(this.availablePacks);
+        this.appliedPacksList = new GuiPackList(this.appliedPacks);
+        this.dragger = new GuiDragger<>();
 
         for (LocalBendsPack pack : PackManager.instance.getLocalPacks())
         {
-            this.availablePacksList.addElement(new GuiPackEntry(pack));
+            final GuiPackEntry entry = new GuiPackEntry(pack);
+            entry.setParentList(availablePacksList);
+            availablePacksList.addElement(entry);
         }
 
         this.openFolderButton = new GuiCustomButton(-1, GuiPacksWindow.EDITOR_WIDTH - 2, 20);
         this.openFolderButton.setText(I18n.format("mobends.gui.openpacksfolder"));
+
+        trackSubscription(availablePacksList.elementClickedObservable.subscribe(element -> {
+            appliedPacksList.getListElements().forEach(e -> e.setSelected(false));
+            dragger.setDraggedElement(element);
+        }));
+
+        trackSubscription(appliedPacksList.elementClickedObservable.subscribe(element -> {
+            availablePacksList.getListElements().forEach(e -> e.setSelected(false));
+            dragger.setDraggedElement(element);
+        }));
+    }
+
+    @Override
+    public void dispose()
+    {
+        removeSubscriptions();
+    }
+
+    @Override
+    public List<Subscription<?>> getSubscriptions()
+    {
+        return subscriptions;
     }
 
     public void initGui(int x, int y, Collection<GuiButton> buttons)
@@ -43,50 +80,68 @@ public class GuiLocalPacks extends Gui
         this.x = x;
         this.y = y;
 
-        this.availablePacksList.initGui(x + 9, y + 23);
-        this.appliedPacksList.initGui(x + GuiPacksWindow.EDITOR_WIDTH - GuiPackList.WIDTH - 1, y + 23);
+        availablePacksList.initGui(x + 9, y + 23);
+        appliedPacksList.initGui(x + GuiPacksWindow.EDITOR_WIDTH - GuiPackList.WIDTH - 1, y + 23);
 
-        this.openFolderButton.setPosition(this.x + 5, this.y + GuiPacksWindow.EDITOR_HEIGHT - 17);
+        openFolderButton.setPosition(x + 5, y + GuiPacksWindow.EDITOR_HEIGHT - 17);
 
-        buttons.add(this.openFolderButton);
+        buttons.add(openFolderButton);
     }
 
     public boolean mouseClicked(int mouseX, int mouseY, int button)
     {
         boolean eventHandled = false;
 
-        if (this.openFolderButton.mousePressed(mouseX, mouseY))
+        if (openFolderButton.mousePressed(mouseX, mouseY))
         {
             OpenGlHelper.openFile(PackManager.instance.getLocalDirectory());
             eventHandled = true;
         }
 
-        this.availablePacksList.handleMouseClicked(mouseX, mouseY, button);
-        this.appliedPacksList.handleMouseClicked(mouseX, mouseY, button);
+        availablePacksList.handleMouseClicked(mouseX, mouseY, button);
+        appliedPacksList.handleMouseClicked(mouseX, mouseY, button);
 
         return eventHandled;
     }
 
     public void mouseReleased(int mouseX, int mouseY, int button)
     {
-        this.openFolderButton.mouseReleased(mouseX, mouseY);
-
-        this.availablePacksList.handleMouseReleased(mouseX, mouseY, button);
-        this.appliedPacksList.handleMouseReleased(mouseX, mouseY, button);
+        openFolderButton.mouseReleased(mouseX, mouseY);
+        availablePacksList.handleMouseReleased(mouseX, mouseY, button);
+        appliedPacksList.handleMouseReleased(mouseX, mouseY, button);
+        dragger.stopDragging();
     }
 
     public boolean handleMouseInput()
     {
-        boolean handled = false;
-        handled |= this.availablePacksList.handleMouseInput();
-        handled |= this.appliedPacksList.handleMouseInput();
+        boolean handled = availablePacksList.handleMouseInput();
+        handled |= appliedPacksList.handleMouseInput();
         return handled;
     }
 
     public void update(int mouseX, int mouseY)
     {
-        this.availablePacksList.update(mouseX, mouseY);
-        this.appliedPacksList.update(mouseX, mouseY);
+        availablePacksList.update(mouseX, mouseY);
+        appliedPacksList.update(mouseX, mouseY);
+        dragger.update(mouseX, mouseY);
+
+        final GuiPackEntry element = dragger.getDraggedElement();
+        if (element != null)
+        {
+            final GuiPackList list = mouseX < x + GuiPacksWindow.EDITOR_WIDTH / 2 ? availablePacksList : appliedPacksList;
+            final int y = element.getDragY() - element.getDragPivotY() - list.getY() + list.getScrollAmount() + element.getHeight() / 2;
+            final int order = y / (element.getHeight() + list.getSpacing());
+            if (list != element.getParentList())
+            {
+                element.getParentList().removeElement(element);
+                list.insertOrMoveElement(element, order);
+                element.setParentList(list);
+            }
+            else if (order != element.getOrder())
+            {
+                list.insertOrMoveElement(element, order);
+            }
+        }
     }
 
     public void draw()
@@ -96,6 +151,12 @@ public class GuiLocalPacks extends Gui
 
         drawCenteredString(fontRenderer, I18n.format("mobends.gui.unusedpacks"), x + GuiPacksWindow.EDITOR_WIDTH / 4, y + 8, 0xffffff);
         drawCenteredString(fontRenderer, I18n.format("mobends.gui.appliedpacks"), x + GuiPacksWindow.EDITOR_WIDTH * 3 / 4 + 6, y + 8, 0xffffff);
+
+        final GuiPackEntry element = dragger.getDraggedElement();
+        if (element != null)
+        {
+            element.draw();
+        }
     }
 
 }
