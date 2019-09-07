@@ -26,14 +26,14 @@ public class MoBends
     public void preInit(FMLPreInitializationEvent event)
     {
         proxy.createCore();
-        Core.INSTANCE.preInit(event);
+        Core.getInstance().preInit(event);
         proxy.preInit();
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
-        Core.INSTANCE.init(event);
+        Core.getInstance().init(event);
         proxy.init();
 
         // Registering the standard set of animations.
@@ -43,7 +43,7 @@ public class MoBends
     @EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-        Core.INSTANCE.postInit(event);
+        Core.getInstance().postInit(event);
         proxy.postInit();
     }
 

@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public abstract class Core<T extends CoreConfig>
 {
 
-    public static Core INSTANCE;
+    private static Core INSTANCE;
     public static final Logger LOG = Logger.getLogger("mobends-core");
 
     private SimpleNetworkWrapper networkWrapper;
@@ -39,6 +39,11 @@ public abstract class Core<T extends CoreConfig>
     }
 
     // Static methods
+
+    public static Core getInstance()
+    {
+        return INSTANCE;
+    }
 
     public static void createAsClient()
     {

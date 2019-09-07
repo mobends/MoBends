@@ -38,9 +38,12 @@ public class NodeState implements INodeState
 
     public void parseConnections(List<INodeState> nodeStates, NodeTemplate template) throws MalformedPackTemplateException
     {
-        for (ConnectionTemplate connectionTemplate : template.connections)
+        if (template.connections != null)
         {
-            this.connections.add(ConnectionState.createFromTemplate(nodeStates, connectionTemplate));
+            for (ConnectionTemplate connectionTemplate : template.connections)
+            {
+                this.connections.add(ConnectionState.createFromTemplate(nodeStates, connectionTemplate));
+            }
         }
     }
 

@@ -5,10 +5,19 @@ import net.gobbob.mobends.core.event.EventHandlerServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+import javax.annotation.Nullable;
+
 public class CoreServer extends Core<CoreServerConfig>
 {
 
+	private static CoreServer INSTANCE;
+
 	CoreServerConfig configuration;
+
+	CoreServer()
+	{
+		INSTANCE = this;
+	}
 
 	@Override
 	public CoreServerConfig getConfiguration()
@@ -24,6 +33,12 @@ public class CoreServer extends Core<CoreServerConfig>
 		configuration = new CoreServerConfig(event.getSuggestedConfigurationFile());
 
 		MinecraftForge.EVENT_BUS.register(new EventHandlerServer());
+	}
+
+	@Nullable
+	public static CoreServer getInstance()
+	{
+		return INSTANCE;
 	}
 	
 }

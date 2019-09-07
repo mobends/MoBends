@@ -5,7 +5,7 @@ import java.util.List;
 public class BendsTargetTemplate
 {
 
-    public List<ConnectionTemplate> entryConnections;
+    public int entryNode;
     public List<NodeTemplate> nodes;
 
 }

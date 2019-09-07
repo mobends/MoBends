@@ -1,12 +1,12 @@
-package net.gobbob.mobends.core.store;
+package net.gobbob.mobends.core.flux;
 
 public class Subscription<T>
 {
 
-    private Observable<T> observable;
+    private IObservable<T> observable;
     private IObserver observer;
 
-    public Subscription(Observable<T> observable, IObserver observer) {
+    public Subscription(IObservable<T> observable, IObserver observer) {
         this.observable = observable;
         this.observer = observer;
     }

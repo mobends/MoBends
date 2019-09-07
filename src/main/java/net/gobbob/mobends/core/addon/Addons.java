@@ -1,6 +1,5 @@
 package net.gobbob.mobends.core.addon;
 
-import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.CoreClient;
 import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
 
@@ -32,7 +31,7 @@ public class Addons
 		
 		INSTANCE.addons.add(addon);
 
-		if (Core.INSTANCE instanceof CoreClient)
+		if (CoreClient.getInstance() != null)
 		{
 			addon.registerAnimatedEntities(new AddonAnimationRegistry(modid));
 		}

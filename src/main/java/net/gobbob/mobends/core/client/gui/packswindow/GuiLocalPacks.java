@@ -1,19 +1,19 @@
 package net.gobbob.mobends.core.client.gui.packswindow;
 
+import net.gobbob.mobends.core.CoreClient;
 import net.gobbob.mobends.core.client.gui.GuiDragger;
-import net.gobbob.mobends.core.client.gui.elements.GuiCustomButton;
+import net.gobbob.mobends.core.flux.ISubscriber;
+import net.gobbob.mobends.core.flux.Subscription;
+import net.gobbob.mobends.core.pack.IBendsPack;
 import net.gobbob.mobends.core.pack.LocalBendsPack;
 import net.gobbob.mobends.core.pack.PackManager;
-import net.gobbob.mobends.core.store.ISubscriber;
-import net.gobbob.mobends.core.store.Subscription;
 import net.gobbob.mobends.core.util.IDisposable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.resources.I18n;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +27,6 @@ public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
     private final LinkedList<GuiPackEntry> appliedPacks;
 
     private final GuiDragger<GuiPackEntry> dragger;
-    private final GuiCustomButton openFolderButton;
     private final FontRenderer fontRenderer;
     private int x, y;
 
@@ -42,15 +41,26 @@ public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
         this.appliedPacksList = new GuiPackList(this.appliedPacks);
         this.dragger = new GuiDragger<>();
 
-        for (LocalBendsPack pack : PackManager.instance.getLocalPacks())
+        final Collection<IBendsPack> appliedPacks = PackManager.INSTANCE.getAppliedPacks();
+
+        for (LocalBendsPack pack : PackManager.INSTANCE.getLocalPacks())
         {
+            if (appliedPacks.contains(pack))
+            {
+                continue;
+            }
+
             final GuiPackEntry entry = new GuiPackEntry(pack);
             entry.setParentList(availablePacksList);
             availablePacksList.addElement(entry);
         }
 
-        this.openFolderButton = new GuiCustomButton(-1, GuiPacksWindow.EDITOR_WIDTH - 2, 20);
-        this.openFolderButton.setText(I18n.format("mobends.gui.openpacksfolder"));
+        for (IBendsPack pack : appliedPacks)
+        {
+            final GuiPackEntry entry = new GuiPackEntry(pack);
+            entry.setParentList(appliedPacksList);
+            appliedPacksList.addElement(entry);
+        }
 
         trackSubscription(availablePacksList.elementClickedObservable.subscribe(element -> {
             appliedPacksList.getListElements().forEach(e -> e.setSelected(false));
@@ -75,41 +85,32 @@ public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
         return subscriptions;
     }
 
-    public void initGui(int x, int y, Collection<GuiButton> buttons)
+    public void initGui(int x, int y)
     {
         this.x = x;
         this.y = y;
 
         availablePacksList.initGui(x + 9, y + 23);
         appliedPacksList.initGui(x + GuiPacksWindow.EDITOR_WIDTH - GuiPackList.WIDTH - 1, y + 23);
-
-        openFolderButton.setPosition(x + 5, y + GuiPacksWindow.EDITOR_HEIGHT - 17);
-
-        buttons.add(openFolderButton);
     }
 
     public boolean mouseClicked(int mouseX, int mouseY, int button)
     {
         boolean eventHandled = false;
 
-        if (openFolderButton.mousePressed(mouseX, mouseY))
-        {
-            OpenGlHelper.openFile(PackManager.instance.getLocalDirectory());
-            eventHandled = true;
-        }
-
-        availablePacksList.handleMouseClicked(mouseX, mouseY, button);
-        appliedPacksList.handleMouseClicked(mouseX, mouseY, button);
+        eventHandled |= availablePacksList.handleMouseClicked(mouseX, mouseY, button);
+        eventHandled |= appliedPacksList.handleMouseClicked(mouseX, mouseY, button);
 
         return eventHandled;
     }
 
     public void mouseReleased(int mouseX, int mouseY, int button)
     {
-        openFolderButton.mouseReleased(mouseX, mouseY);
         availablePacksList.handleMouseReleased(mouseX, mouseY, button);
         appliedPacksList.handleMouseReleased(mouseX, mouseY, button);
         dragger.stopDragging();
+
+        resolveAppliedPacks();
     }
 
     public boolean handleMouseInput()
@@ -157,6 +158,17 @@ public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
         {
             element.draw();
         }
+    }
+
+    private void resolveAppliedPacks()
+    {
+        List<String> packNames = new ArrayList<>();
+        for (GuiPackEntry entry : appliedPacks)
+        {
+            packNames.add(entry.name);
+        }
+
+        CoreClient.getInstance().getConfiguration().setAppliedPacks(packNames);
     }
 
 }

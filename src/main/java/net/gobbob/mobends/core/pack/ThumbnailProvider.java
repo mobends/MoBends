@@ -6,19 +6,17 @@ import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.util.ResourceLocation;
 
-import java.io.File;
-
 public class ThumbnailProvider
 {
 
     public static final ResourceLocation DEFAULT_THUMBNAIL_LOCATION = new ResourceLocation(ModStatics.MODID,
             "textures/gui/default_pack_thumbnail.png");
 
-    private File cacheDirectory;
+    private final PackCache packCache;
 
-    public ThumbnailProvider(File cacheDirectory)
+    public ThumbnailProvider(PackCache packCache)
     {
-        this.cacheDirectory = cacheDirectory;
+        this.packCache = packCache;
     }
 
     public ResourceLocation getThumbnailLocation(String packName, String thumbnailUrl)
@@ -29,10 +27,9 @@ public class ThumbnailProvider
 
         if (itextureobject == null)
         {
-            File file = new File(cacheDirectory, packName + ".png");
-
-            ThreadDownloadImageData threaddownloadimagedata = new ThreadDownloadImageData(file, thumbnailUrl,
+            ThreadDownloadImageData threaddownloadimagedata = new ThreadDownloadImageData(packCache.getThumbnailFile(packName), thumbnailUrl,
                     DEFAULT_THUMBNAIL_LOCATION, null);
+
             if (Minecraft.getMinecraft().getTextureManager().loadTexture(resourceLocation, threaddownloadimagedata))
             {
                 return resourceLocation;

@@ -25,10 +25,7 @@ public class ConnectionState
 
         try
         {
-            if (template.targetNodeIndex != -1)
-            {
-                node = nodes.get(template.targetNodeIndex);
-            }
+            node = nodes.get(template.targetNodeIndex);
         }
         catch (IndexOutOfBoundsException ex)
         {

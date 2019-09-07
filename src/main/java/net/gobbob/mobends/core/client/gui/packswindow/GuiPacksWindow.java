@@ -64,7 +64,7 @@ public class GuiPacksWindow extends GuiScreen
 
         this.buttonList.clear();
         this.buttonList.add(new GuiButton(BUTTON_BACK, 10, height - 30, 60, 20, "Back"));
-        this.localPacks.initGui(this.x, this.y, this.buttonList);
+        this.localPacks.initGui(this.x, this.y);
     }
 
     @Override

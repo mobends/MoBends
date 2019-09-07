@@ -1,202 +1,103 @@
 package net.gobbob.mobends.core.pack;
 
+import net.gobbob.mobends.core.Core;
 import net.gobbob.mobends.core.configuration.CoreClientConfig;
-import net.gobbob.mobends.core.util.GUtil;
+import net.gobbob.mobends.core.flux.Computed;
+import net.gobbob.mobends.core.flux.Observable;
+import net.gobbob.mobends.core.flux.ObservableMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
-import javax.annotation.Nullable;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PackManager
 {
 
-    public static final PackManager instance = new PackManager();
+    public static final PackManager INSTANCE = new PackManager();
     private static final String PUBLIC_DATABASE_URL = "https://www.dropbox.com/s/d8v028x6mjk6xh3/packDatabase.json?dl=1";
 
     private File localDirectory;
+    private PackCache cache;
     private ThumbnailProvider thumbnailProvider;
 
-    private HashMap<String, LocalBendsPack> localPacks = new HashMap<>();
-    private HashMap<String, PublicBendsPack> publicPacks = new HashMap<>();
+    private ObservableMap<String, LocalBendsPack> localPacks = new ObservableMap<>();
+    private final Observable<CoreClientConfig> config;
+    public final Computed<Collection<IBendsPack>> appliedPacks;
 
-    enum LoadState
+    public PackManager()
     {
-        NOT_LOADED,
-        LOADED,
-        ERROR,
-    }
+        config = new Observable<>();
 
-    private LoadState publicDatabaseLoadState;
-    private IBendsPack appliedPack;
+        appliedPacks = new Computed<>(() -> {
+            List<IBendsPack> packs = new LinkedList<>();
+
+            CoreClientConfig config = this.config.getValue();
+            if (config == null)
+            {
+                return packs;
+            }
+
+            String[] keys = config.appliedPackKeys.getValue();
+            for (String key : keys)
+            {
+                IBendsPack pack = localPacks.get(key);
+                if (pack != null)
+                {
+                    packs.add(pack);
+                }
+            }
+
+            return packs;
+        });
+    }
 
     public void initialize(CoreClientConfig config)
     {
-        this.localDirectory = new File(Minecraft.getMinecraft().mcDataDir, "bendspacks");
-        this.localDirectory.mkdir();
+        localDirectory = new File(Minecraft.getMinecraft().mcDataDir, "bendspacks");
+        localDirectory.mkdir();
 
-        File cacheDirectory = new File(localDirectory, "public_cache");
-        cacheDirectory.mkdir();
-        this.thumbnailProvider = new ThumbnailProvider(cacheDirectory);
+        cache = new PackCache(new File(localDirectory, "public_cache"));
+        thumbnailProvider = new ThumbnailProvider(cache);
 
-        this.updatePublicDatabase();
+        initLocalPacks();
 
-        try
-        {
-            initLocalPacks();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-        String savedPackName = config.getCurrentPack();
-        if (localPacks.containsKey(savedPackName))
-            choose(localPacks.get(savedPackName));
-        else if (publicPacks.containsKey(savedPackName))
-            choose(publicPacks.get(savedPackName));
+        this.config.next(config);
     }
 
-    public void initLocalPacks() throws IOException
+    public void initLocalPacks()
     {
         localPacks.clear();
 
         File[] files = localDirectory.listFiles();
-        if (files != null)
+        if (files == null)
         {
-            for (File file : files)
+            return;
+        }
+
+        for (File file : files)
+        {
+            if (file.getAbsolutePath().endsWith(".bendsmeta"))
             {
-                if (file.getAbsolutePath().endsWith(".bendsmeta"))
+                try
                 {
                     LocalBendsPack bendsPack = LocalBendsPack.readFromFile(file);
-                    if (bendsPack != null)
-                    {
-                        this.localPacks.put(bendsPack.getKey(), bendsPack);
-                    }
+                    localPacks.put(bendsPack.getKey(), bendsPack);
+                }
+                catch(IOException ex)
+                {
+                    Core.LOG.severe(String.format("Couldn't load local bends pack: '%s'", file.getName()));
                 }
             }
         }
     }
 
-    public void choose(IBendsPack newPack)
+    public Collection<IBendsPack> getAppliedPacks()
     {
-        appliedPack = newPack;
-    }
-
-    private String[] downloadPublicDatabase()
-    {
-        try
-        {
-            URL publicDirectoryUrl = new URL(PUBLIC_DATABASE_URL);
-            BufferedReader in = new BufferedReader(new InputStreamReader(publicDirectoryUrl.openStream()));
-
-            List<String> lines = new ArrayList<>();
-            String inputLine;
-            while ((inputLine = in.readLine()) != null)
-                lines.add(inputLine);
-            in.close();
-
-            return lines.toArray(new String[0]);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private void parsePublicDatabase(PublicDatabase database)
-    {
-        publicPacks.clear();
-        publicDatabaseLoadState = LoadState.NOT_LOADED;
-
-        for (PublicDatabase.PackEntry entry : database.packs)
-        {
-            try
-            {
-                PublicBendsPack pack = PublicBendsPack.createPublicPack(entry);
-                publicPacks.put(pack.getKey(), pack);
-            }
-            catch(MalformedURLException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        publicDatabaseLoadState = LoadState.LOADED;
-    }
-
-    public void updatePublicDatabase()
-    {
-        PublicDatabase database = PublicDatabase.downloadPublicDatabase(PUBLIC_DATABASE_URL);
-        if (database != null)
-        {
-            parsePublicDatabase(database);
-        }
-    }
-
-    public void renamePack(String originalName, String name)
-    {
-        if (!localPacks.containsKey(originalName))
-            return;
-
-        LocalBendsPack pack = localPacks.get(originalName);
-
-        if (pack.getKey().equalsIgnoreCase(name) || !pack.canPackBeEdited())
-            return;
-
-        pack.rename(name);
-
-        File packFile = new File(localDirectory, originalName);
-        if (packFile.exists())
-        {
-            // Renaming the file.
-            File newPackFile = new File(localDirectory, name);
-            try
-            {
-                final BufferedWriter os = new BufferedWriter(new FileWriter(newPackFile));
-                os.write(GUtil.readFile(packFile));
-                os.close();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        localPacks.remove(originalName);
-        localPacks.put(name, pack);
-    }
-
-    @Nullable
-    public IBendsPack getAppliedPack()
-    {
-        return appliedPack;
-    }
-
-    public boolean arePublicPacksLoaded()
-    {
-        return publicDatabaseLoadState == LoadState.LOADED;
-    }
-
-    public PublicBendsPack getPublic(String name)
-    {
-        return publicPacks.get(name);
-    }
-
-    public LocalBendsPack getLocal(String name)
-    {
-        return localPacks.get(name);
-    }
-
-    public Collection<PublicBendsPack> getPublicPacks()
-    {
-        return publicPacks.values();
+        return appliedPacks.getValue();
     }
 
     public Collection<LocalBendsPack> getLocalPacks()

@@ -17,17 +17,11 @@ import java.util.Map;
 public class BendsPackPerformer
 {
 
-    public static final BendsPackPerformer instance = new BendsPackPerformer();
+    public static final BendsPackPerformer INSTANCE = new BendsPackPerformer();
 
     public void performCurrentPack(EntityData<?> entityData, String animatedEntityKey, @Nullable Collection<String> actions)
     {
-        IBendsPack pack = PackManager.instance.getAppliedPack();
-        if (pack == null)
-        {
-            return;
-        }
-
-        BendsPackData packData = PackProvider.instance.getDataForPack(PackManager.instance.getAppliedPack());
+        BendsPackData packData = PackDataProvider.INSTANCE.getAppliedData();
         if (packData == null)
         {
             return;

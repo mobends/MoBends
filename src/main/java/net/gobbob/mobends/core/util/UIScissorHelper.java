@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL11;
 public class UIScissorHelper
 {
 
-    public static UIScissorHelper INSTANCE = new UIScissorHelper();
+    public static final UIScissorHelper INSTANCE = new UIScissorHelper();
 
     private int x;
     private int y;

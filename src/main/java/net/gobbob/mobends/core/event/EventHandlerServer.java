@@ -18,9 +18,9 @@ public class EventHandlerServer
             return;
         }
 
-        if (Core.INSTANCE instanceof CoreServer)
+        if (CoreServer.getInstance() != null)
         {
-            CoreServer core = (CoreServer) Core.INSTANCE;
+            CoreServer core = CoreServer.getInstance();
             Core.getNetworkWrapper().sendTo(
                     new MessageClientConfigure(core.getConfiguration().isModelScalingAllowed()),
                     (EntityPlayerMP) event.getEntity());

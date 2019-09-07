@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.pack.state.template;
 
 import com.google.gson.*;
-import net.gobbob.mobends.core.pack.PackProvider;
+import net.gobbob.mobends.core.pack.PackDataProvider;
 import net.gobbob.mobends.core.pack.state.condition.TriggerConditionRegistry;
 
 import java.lang.reflect.Type;
@@ -16,7 +16,7 @@ public class TriggerConditionTemplateSerializer implements JsonSerializer<Trigge
     @Override
     public JsonElement serialize(TriggerConditionTemplate src, Type typeOfSrc, JsonSerializationContext context)
     {
-        return PackProvider.instance.gson.toJsonTree(src);
+        return PackDataProvider.INSTANCE.gson.toJsonTree(src);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class TriggerConditionTemplateSerializer implements JsonSerializer<Trigge
 
         toDeserialize.put(json, templateType);
 
-        return PackProvider.instance.gson.fromJson(json, templateType);
+        return PackDataProvider.INSTANCE.gson.fromJson(json, templateType);
     }
 
 }

@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.client.gui.packswindow;
 
 import net.gobbob.mobends.core.client.gui.elements.GuiList;
-import net.gobbob.mobends.core.store.Observable;
+import net.gobbob.mobends.core.flux.Observable;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 
