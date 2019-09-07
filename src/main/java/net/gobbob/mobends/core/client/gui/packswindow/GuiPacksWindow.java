@@ -47,6 +47,12 @@ public class GuiPacksWindow extends GuiScreen
     }
 
     @Override
+    public void onGuiClosed()
+    {
+        this.localPacks.dispose();
+    }
+
+    @Override
     public void initGui()
     {
         super.initGui();

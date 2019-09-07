@@ -47,6 +47,11 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel
         {
             this.scrollAmountTarget = 0;
         }
+        else if (this.scrollAmountTarget + this.height >  contentSize)
+        {
+            this.scrollAmountTarget = contentSize - this.height;
+            this.scrollAmount = contentSize - this.height;
+        }
     }
 
     public void addElement(T element)
