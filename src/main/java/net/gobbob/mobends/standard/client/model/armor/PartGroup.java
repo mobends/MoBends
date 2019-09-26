@@ -5,18 +5,20 @@ import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.data.EntityData;
 import net.minecraft.client.model.ModelRenderer;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class PartGroup<T extends EntityData>
+public class PartGroup<T extends EntityData> implements Iterable<ModelPartContainer>
 {
 
     private List<ModelPartContainer> parts;
     private DataPartSelector<T> dataPartSelector;
     private ModelPartSelector modelPartSelector;
 
-    public PartGroup(List<ModelPartContainer> parts, DataPartSelector<T> dataPartSelector, ModelPartSelector modelPartSelector)
+    public PartGroup(DataPartSelector<T> dataPartSelector, ModelPartSelector modelPartSelector)
     {
-        this.parts = parts;
+        this.parts = new ArrayList<>();
         this.dataPartSelector = dataPartSelector;
         this.modelPartSelector = modelPartSelector;
     }
@@ -39,6 +41,12 @@ public class PartGroup<T extends EntityData>
     public void clear()
     {
         parts.clear();
+    }
+
+    @Override
+    public Iterator<ModelPartContainer> iterator()
+    {
+        return parts.iterator();
     }
 
     public List<ModelPartContainer> getParts()
