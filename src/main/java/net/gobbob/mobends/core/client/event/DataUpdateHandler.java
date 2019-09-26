@@ -9,57 +9,60 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 public class DataUpdateHandler
 {
-	public static int lastNotedClientTick = 0;
-	public static float partialTicks = 0.0f;
-	protected static float ticks = 0.0f;
-	public static float ticksPerFrame = 0.0f;
 
-	public static float getTicks()
-	{
-		return ticks;
-	}
+    public static float partialTicks = 0.0f;
+    protected static float ticks = 0.0f;
+    public static float ticksPerFrame = 0.0f;
 
-	@SubscribeEvent
-	public void updateAnimations(TickEvent.RenderTickEvent event)
-	{
-		if (event.phase == Phase.END)
-			return;
-		if (Minecraft.getMinecraft().world == null || Minecraft.getMinecraft().player == null)
-			return;
+    public static float getTicks()
+    {
+        return ticks;
+    }
 
-		partialTicks = event.renderTickTime;
+    @SubscribeEvent
+    public void updateAnimations(TickEvent.RenderTickEvent event)
+    {
+        if (event.phase == Phase.END)
+            return;
+        if (Minecraft.getMinecraft().world == null || Minecraft.getMinecraft().player == null)
+            return;
 
-		float totalTicks = Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime;
+        DataUpdateHandler.partialTicks = event.renderTickTime;
 
-		if (ticks > totalTicks)
-		{
-			onTicksRestart();
-		}
+        final float newTicks = Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime;
 
-		ticksPerFrame = Math.min(Math.max(0F, totalTicks - ticks), 1.0F);
-		ticks = totalTicks;
-		
-		if (!(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused()))
-		{
-			EntityDatabase.instance.updateRender(event.renderTickTime);
-			Addons.onRenderTick(event.renderTickTime);
-		}
-	}
+        if (DataUpdateHandler.ticks > newTicks)
+        {
+            onTicksRestart();
+        }
 
-	public static void onTicksRestart()
-	{
-		EntityDatabase.instance.onTicksRestart();
-	}
+        if (!(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused()))
+        {
+            DataUpdateHandler.ticksPerFrame = Math.min(Math.max(0F, newTicks - DataUpdateHandler.ticks), 1F);
+            DataUpdateHandler.ticks = newTicks;
 
-	@SubscribeEvent
-	public void onClientTick(TickEvent.ClientTickEvent event)
-	{
-		if (event.phase == Phase.END || Minecraft.getMinecraft().player == null || Minecraft.getMinecraft().isGamePaused())
-			return;
-		
-		lastNotedClientTick = Minecraft.getMinecraft().player.ticksExisted;
-		EntityDatabase.instance.updateClient();
-		Addons.onClientTick();
-	}
+            EntityDatabase.instance.updateRender(event.renderTickTime);
+            Addons.onRenderTick(event.renderTickTime);
+        }
+        else
+        {
+            DataUpdateHandler.ticksPerFrame = 0F;
+        }
+    }
+
+    public static void onTicksRestart()
+    {
+        EntityDatabase.instance.onTicksRestart();
+    }
+
+    @SubscribeEvent
+    public void onClientTick(TickEvent.ClientTickEvent event)
+    {
+        if (event.phase == Phase.END || Minecraft.getMinecraft().player == null || Minecraft.getMinecraft().isGamePaused())
+            return;
+
+        EntityDatabase.instance.updateClient();
+        Addons.onClientTick();
+    }
 
 }

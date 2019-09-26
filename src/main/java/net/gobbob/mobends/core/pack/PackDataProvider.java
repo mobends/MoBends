@@ -33,9 +33,9 @@ public class PackDataProvider
         gson = gsonBuilder.create();
 
         appliedData = new Computed<>(() -> {
-            Collection<IBendsPack> packs = PackManager.INSTANCE.appliedPacks.getValue();
+            final Collection<IBendsPack> packs = PackManager.INSTANCE.appliedPacks.getValue();
 
-            List<BendsPackData> dataList = new LinkedList<>();
+            final List<BendsPackData> dataList = new LinkedList<>();
             for (IBendsPack pack : packs)
             {
                 BendsPackData data = getDataForPack(pack);

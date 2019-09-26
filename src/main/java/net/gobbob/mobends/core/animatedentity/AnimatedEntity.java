@@ -87,10 +87,11 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 	{
 		return I18n.format(this.unlocalizedName);
 	}
-	/*
-	 * Returns true if this animated entity should be applied.
-	 */
 
+	/**
+	 * Returns true if entities assigned to this AnimatedEntity
+	 * should be animated.
+	 */
 	public boolean isAnimated()
 	{
 		return this.animate;
@@ -111,11 +112,11 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 	{
 		this.renderer.afterRender(entity, partialTicks);
 	}
-	/*
+
+	/**
 	 * Used to apply the effect of the mutation, or just to update the model if it was already mutated.
 	 * Called from AnimatedEntity.
 	 */
-
 	@SuppressWarnings("unchecked")
 	public boolean applyMutation(RenderLivingBase<? extends T> renderer, T entity, float partialTicks)
 	{
@@ -138,11 +139,11 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 
 		return true;
 	}
-	/*
+
+	/**
 	 * Used to reverse the effect of the mutation.
 	 * Called from AnimatedEntity.
 	 */
-
 	public void deapplyMutation(RenderLivingBase<? extends T> renderer, EntityLivingBase entity)
 	{
 		if (mutatorMap.containsKey(renderer))
@@ -152,10 +153,10 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 			mutatorMap.remove(renderer);
 		}
 	}
-	/*
+
+	/**
 	 * Used to refresh the mutators in case of real-time changes during development.
 	 */
-
 	public void refreshMutation()
 	{
 		for (Entry<RenderLivingBase<? extends T>, Mutator<LivingEntityData<T>, T, ?>> entry : mutatorMap.entrySet())
