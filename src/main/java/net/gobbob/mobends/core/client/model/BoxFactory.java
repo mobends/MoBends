@@ -1,7 +1,5 @@
 package net.gobbob.mobends.core.client.model;
 
-import javax.annotation.Nullable;
-
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.client.model.ModelBox;
@@ -14,7 +12,6 @@ public class BoxFactory
 	 * The optional ModelPart the box created by this factory should be added
 	 * to.
 	 */
-	@Nullable
 	ModelPart target;
 	final Vec3f min;
 	final Vec3f max;
@@ -25,7 +22,7 @@ public class BoxFactory
 	
 	int textureU, textureV;
 	boolean textureUVSet = false;
-	
+
 	public BoxFactory(ModelRenderer renderer, ModelBox source)
 	{
 		this.min = new Vec3f(source.posX1, source.posY1, source.posZ1);
@@ -35,25 +32,37 @@ public class BoxFactory
 		this.faceVisibilityFlag = 0b111111;
 		this.textureU = 0;
 		this.textureV = 0;
-		
+
 		TexturedQuad[] quadList = source.quadList;
 		if (quadList == null)
 		{
 			return;
 		}
-		
+
 		float textureWidth = renderer.textureWidth;
 		float textureHeight = renderer.textureHeight;
 		this.textureUVSet = true;
-		
+
 		for (int i = 0; i < 6; ++i)
 		{
-			this.faces[i] = new TextureFace(
-				(int) (quadList[i].vertexPositions[1].texturePositionX * textureWidth),
-				(int) (quadList[i].vertexPositions[1].texturePositionY * textureHeight),
-				(int) (quadList[i].vertexPositions[3].texturePositionX * textureWidth),
-				(int) (quadList[i].vertexPositions[3].texturePositionY * textureHeight)
-			);
+			if (mirrored)
+			{
+				this.faces[i] = new TextureFace(
+					(int) (quadList[i].vertexPositions[2].texturePositionX * textureWidth),
+					(int) (quadList[i].vertexPositions[2].texturePositionY * textureHeight),
+					(int) (quadList[i].vertexPositions[0].texturePositionX * textureWidth),
+					(int) (quadList[i].vertexPositions[0].texturePositionY * textureHeight)
+				);
+			}
+			else
+			{
+				this.faces[i] = new TextureFace(
+					(int) (quadList[i].vertexPositions[1].texturePositionX * textureWidth),
+					(int) (quadList[i].vertexPositions[1].texturePositionY * textureHeight),
+					(int) (quadList[i].vertexPositions[3].texturePositionX * textureWidth),
+					(int) (quadList[i].vertexPositions[3].texturePositionY * textureHeight)
+				);
+			}
 		}
 	}
 	
@@ -86,6 +95,7 @@ public class BoxFactory
 		this.faceVisibilityFlag = 0b111111;
 		this.textureU = 0;
 		this.textureV = 0;
+		this.textureUVSet = true;
 	}
 	
 	public BoxFactory(IVec3fRead min, IVec3fRead max, TextureFace[] faces)

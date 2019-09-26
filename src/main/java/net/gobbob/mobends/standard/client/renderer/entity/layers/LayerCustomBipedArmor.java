@@ -28,9 +28,10 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
     }
 
     @SuppressWarnings("incomplete-switch")
+    @Override
     protected void setModelSlotVisible(ModelBiped model, EntityEquipmentSlot slotIn)
     {
-        this.setModelVisible(model);
+        this.hideModelParts(model);
 
         switch (slotIn)
         {
@@ -54,7 +55,7 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
         }
     }
 
-    protected void setModelVisible(ModelBiped model)
+    protected void hideModelParts(ModelBiped model)
     {
         model.setVisible(false);
     }
@@ -64,7 +65,7 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
     {
     	EntityData<?> entityData = EntityDatabase.instance.get(entity);
     	
-    	ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model);
+    	final ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model);
     	if (entityData instanceof BipedEntityData)
     	{
     		return ArmorModelFactory.getArmorModel(suggestedModel);

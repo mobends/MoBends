@@ -28,37 +28,41 @@ public class MutatedArmorModel extends ModelBiped
 	
 	protected ModelBiped original;
 	protected List<Field> gatheredFields;
-	/*
+
+	/**
 	 * Used to demutate the armor back into it's vanilla state.
 	 */
 	protected HashMap<Field, ModelRenderer> fieldToOriginalMap;
-	/*
+
+	/**
 	 * Used to demutate the armor back into it's vanilla state.
 	 * Both key and value are the of the original vanilla model.
 	 */
 	protected HashMap<ModelRenderer, net.minecraft.client.model.ModelBox> modelToBoxMap;
 	protected HashMap<ModelRenderer, IModelPart> originalToCustomMap;
 
-	/*
+	/**
 	 * Keeps track of whether the model is mutated or not.
 	 */
 	protected boolean mutated = false;
 	
-	/*
+	/**
 	 * The lastest AnimatedEntity that rendered this armor.
 	 */
 	protected AnimatedEntity<EntityLivingBase> lastAnimatedEntity;
 	
-	/*
+	/**
 	 * This is used as a parent for other parts, like the arms and head.
 	 */
 	protected ModelPartTransform mainBodyTransform;
-	protected List<ModelPartContainer> bodyParts;
-	protected List<ModelPartContainer> headParts;
-	protected List<ModelPartContainer> leftArmParts, rightArmParts;
-	protected List<ModelPartContainer> leftLegParts, rightLegParts;
-	protected List<ModelPartContainer> leftForeArmParts, rightForeArmParts;
-	protected List<ModelPartContainer> leftForeLegParts, rightForeLegParts;
+	protected List<PartGroup<BipedEntityData>> partGroups;
+
+	protected PartGroup<BipedEntityData> bodyParts;
+	protected PartGroup<BipedEntityData> headParts;
+	protected PartGroup<BipedEntityData> leftArmParts, rightArmParts;
+	protected PartGroup<BipedEntityData> leftLegParts, rightLegParts;
+	protected PartGroup<BipedEntityData> leftForeArmParts, rightForeArmParts;
+	protected PartGroup<BipedEntityData> leftForeLegParts, rightForeLegParts;
 
 	public MutatedArmorModel(ModelBiped original)
 	{
@@ -68,16 +72,18 @@ public class MutatedArmorModel extends ModelBiped
 		this.modelToBoxMap = new HashMap<>();
 		this.originalToCustomMap = new HashMap<>();
 		this.mainBodyTransform = new ModelPartTransform();
-		this.bodyParts = new ArrayList<>();
-		this.headParts = new ArrayList<>();
-		this.leftArmParts = new ArrayList<>();
-		this.rightArmParts = new ArrayList<>();
-		this.leftLegParts = new ArrayList<>();
-		this.rightLegParts = new ArrayList<>();
-		this.leftForeArmParts = new ArrayList<>();
-		this.rightForeArmParts = new ArrayList<>();
-		this.leftForeLegParts = new ArrayList<>();
-		this.rightForeLegParts = new ArrayList<>();
+
+		this.partGroups = new ArrayList<>();
+		this.partGroups.add(this.bodyParts = new PartGroup<>(new ArrayList<>(), data -> data.body, model -> model.bipedBody));
+		this.partGroups.add(this.headParts = new PartGroup<>(new ArrayList<>(), data -> data.head, model -> model.bipedHead));
+		this.partGroups.add(this.leftArmParts = new PartGroup<>(new ArrayList<>(), data -> data.leftArm, model -> model.bipedLeftArm));
+		this.partGroups.add(this.rightArmParts = new PartGroup<>(new ArrayList<>(), data -> data.rightArm, model -> model.bipedRightArm));
+		this.partGroups.add(this.leftLegParts = new PartGroup<>(new ArrayList<>(), data -> data.leftLeg, model -> model.bipedLeftLeg));
+		this.partGroups.add(this.rightLegParts = new PartGroup<>(new ArrayList<>(), data -> data.rightLeg, model -> model.bipedRightLeg));
+		this.partGroups.add(this.leftForeArmParts = new PartGroup<>(new ArrayList<>(), data -> data.leftForeArm, model -> model.bipedLeftArm));
+		this.partGroups.add(this.rightForeArmParts = new PartGroup<>(new ArrayList<>(), data -> data.rightForeArm, model -> model.bipedRightArm));
+		this.partGroups.add(this.leftForeLegParts = new PartGroup<>(new ArrayList<>(), data -> data.leftForeLeg, model -> model.bipedLeftLeg));
+		this.partGroups.add(this.rightForeLegParts = new PartGroup<>(new ArrayList<>(), data -> data.rightForeLeg, model -> model.bipedRightLeg));
 	}
 
 	@Override
@@ -95,7 +101,7 @@ public class MutatedArmorModel extends ModelBiped
 			return;
 
 		EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
-		if (entityData == null || !(entityData instanceof BipedEntityData))
+		if (!(entityData instanceof BipedEntityData))
 			return;
 
 		lastAnimatedEntity = animatedEntity;
@@ -108,14 +114,15 @@ public class MutatedArmorModel extends ModelBiped
 			this.demutate();
 		}
 		
-		BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
-		
+		final BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
+
+		// Updating the visibility of children parts, so that they
+		// match their original counterparts.
+		this.updateVisibility();
+
 		GlStateManager.pushMatrix();
 		original.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-		// The visibility is based on whatever is visible in the original, so it has to be called
-		// after rendering the original.
-		this.updateVisibility();
-		
+
 		if (entityIn.isSneaking())
 		{
 			// This value was fine-tuned to counteract the vanilla
@@ -128,12 +135,12 @@ public class MutatedArmorModel extends ModelBiped
             GlStateManager.scale(0.5F, 0.5F, 0.5F);
             GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
         }
-		
-		
+
 		GlStateManager.pushMatrix();
 		dataBiped.body.applyOwnTransform(scale);
 		dataBiped.leftArm.applyOwnTransform(scale);
-		for (IModelPart part : this.leftForeArmParts)
+		final List<ModelPartContainer> list = this.leftForeArmParts.getParts();
+		for (IModelPart part : this.leftForeArmParts.getParts())
 		{
 			part.renderPart(scale);
 		}
@@ -142,7 +149,7 @@ public class MutatedArmorModel extends ModelBiped
 		GlStateManager.pushMatrix();
 		dataBiped.body.applyOwnTransform(scale);
 		dataBiped.rightArm.applyOwnTransform(scale);
-		for (IModelPart part : this.rightForeArmParts)
+		for (IModelPart part : this.rightForeArmParts.getParts())
 		{
 			part.renderPart(scale);
 		}
@@ -150,7 +157,7 @@ public class MutatedArmorModel extends ModelBiped
 
 		GlStateManager.pushMatrix();
 		dataBiped.leftLeg.applyOwnTransform(scale);
-		for (IModelPart part : this.leftForeLegParts)
+		for (IModelPart part : this.leftForeLegParts.getParts())
 		{
 			part.renderPart(scale);
 		}
@@ -158,7 +165,7 @@ public class MutatedArmorModel extends ModelBiped
 
 		GlStateManager.pushMatrix();
 		dataBiped.rightLeg.applyOwnTransform(scale);
-		for (IModelPart part : this.rightForeLegParts)
+		for (IModelPart part : this.rightForeLegParts.getParts())
 		{
 			part.renderPart(scale);
 		}
@@ -174,7 +181,8 @@ public class MutatedArmorModel extends ModelBiped
 
 		if (!(entityIn instanceof EntityLivingBase))
 			return;
-		EntityLivingBase entityLiving = (EntityLivingBase) entityIn;
+
+		final EntityLivingBase entityLiving = (EntityLivingBase) entityIn;
 
 		EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
 		if (!(entityData instanceof BipedEntityData))
@@ -188,79 +196,19 @@ public class MutatedArmorModel extends ModelBiped
 		BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
 
 		this.mainBodyTransform.syncUp(dataBiped.body);
-		
-		for (IModelPart part : this.headParts)
-			part.syncUp(dataBiped.head);
 
-		for (IModelPart part : this.bodyParts)
-			part.syncUp(dataBiped.body);
-
-		for (IModelPart part : this.leftArmParts)
-			part.syncUp(dataBiped.leftArm);
-
-		for (IModelPart part : this.rightArmParts)
-			part.syncUp(dataBiped.rightArm);
-
-		for (IModelPart part : this.leftLegParts)
-			part.syncUp(dataBiped.leftLeg);
-
-		for (IModelPart part : this.rightLegParts)
-			part.syncUp(dataBiped.rightLeg);
-
-		for (IModelPart part : this.leftForeArmParts)
-			part.syncUp(dataBiped.leftForeArm);
-
-		for (IModelPart part : this.rightForeArmParts)
-			part.syncUp(dataBiped.rightForeArm);
-
-		for (IModelPart part : this.leftForeLegParts)
-			part.syncUp(dataBiped.leftForeLeg);
-			
-		for (IModelPart part : this.rightForeLegParts)
-			part.syncUp(dataBiped.rightForeLeg);
+		for (PartGroup<BipedEntityData> group : this.partGroups)
+		{
+			group.syncUp(dataBiped);
+		}
 	}
 	
 	protected void updateVisibility()
 	{
-		if(original.bipedHead != null)
-			for (IModelPart part : this.headParts)
-				part.setVisible(this.bipedHead.showModel);
-		
-		if(original.bipedBody != null)
-			for (IModelPart part : this.bodyParts)
-				part.setVisible(this.bipedBody.showModel);
-		
-		if(original.bipedLeftArm != null)
-			for (IModelPart part : this.leftArmParts)
-				part.setVisible(this.bipedLeftArm.showModel);
-
-		if(original.bipedRightArm != null)
-			for (IModelPart part : this.rightArmParts)
-				part.setVisible(this.bipedRightArm.showModel);
-		
-		if(original.bipedLeftLeg != null)
-			for (IModelPart part : this.leftLegParts)
-				part.setVisible(this.bipedLeftLeg.showModel);
-		
-		if(original.bipedRightLeg != null)
-			for (IModelPart part : this.rightLegParts)
-				part.setVisible(this.bipedRightLeg.showModel);
-		
-		if(original.bipedLeftArm != null)
-			for (IModelPart part : this.leftForeArmParts)
-				part.setVisible(this.bipedLeftArm.showModel);
-		
-		if(original.bipedRightArm != null)
-			for (IModelPart part : this.rightForeArmParts)
-				part.setVisible(this.bipedRightArm.showModel);
-
-		if(original.bipedLeftLeg != null)
-			for (IModelPart part : this.leftForeLegParts)
-				part.setVisible(this.bipedLeftLeg.showModel);
-
-		if(original.bipedRightLeg != null)
-			for (IModelPart part : this.rightForeLegParts)
-				part.setVisible(this.bipedRightLeg.showModel);
+		for (PartGroup<BipedEntityData> group : this.partGroups)
+		{
+			group.updateVisibility(this);
+		}
 		
 		for (Map.Entry<ModelRenderer, IModelPart> entry : this.originalToCustomMap.entrySet())
 			if (entry.getValue().isShowing())
@@ -274,18 +222,8 @@ public class MutatedArmorModel extends ModelBiped
 		{
 			this.demutate();
 		}
-		
-		this.headParts.clear();
-		this.bodyParts.clear();
-		this.leftArmParts.clear();
-		this.rightArmParts.clear();
-		this.leftLegParts.clear();
-		this.rightLegParts.clear();
-		this.leftForeArmParts.clear();
-		this.rightForeArmParts.clear();
-		this.leftForeLegParts.clear();
-		this.rightForeLegParts.clear();
 
+		this.partGroups.forEach(PartGroup::clear);
 		this.gatheredFields.clear();
 		this.fieldToOriginalMap.clear();
 		this.modelToBoxMap.clear();
@@ -324,9 +262,9 @@ public class MutatedArmorModel extends ModelBiped
 			}
 		}
 
-		this.positionParts();
 		this.sliceParts();
-		
+		this.positionParts();
+
 		this.mutated = true;
 	}
 	
@@ -365,17 +303,7 @@ public class MutatedArmorModel extends ModelBiped
 		this.fieldToOriginalMap.clear();
 		this.modelToBoxMap.clear();
 		this.originalToCustomMap.clear();
-		
-		this.headParts.clear();
-		this.bodyParts.clear();
-		this.leftArmParts.clear();
-		this.rightArmParts.clear();
-		this.leftLegParts.clear();
-		this.rightLegParts.clear();
-		this.leftForeArmParts.clear();
-		this.rightForeArmParts.clear();
-		this.leftForeLegParts.clear();
-		this.rightForeLegParts.clear();
+		this.partGroups.forEach(PartGroup::clear);
 		
 		this.mutated = false;
 	}
@@ -474,32 +402,47 @@ public class MutatedArmorModel extends ModelBiped
 
 	protected void positionParts()
 	{
-		for (ModelPartContainer part : headParts)
+		for (ModelPartContainer part : headParts.getParts())
 		{
 			part.setParent(this.mainBodyTransform);
 		}
 
-		for (ModelPartContainer part : bodyParts)
+		for (ModelPartContainer part : bodyParts.getParts())
 		{
 			part.setInnerOffset(0, -12F, 0);
 		}
 
-		for (ModelPartContainer part : leftArmParts)
+		for (ModelPartContainer part : leftArmParts.getParts())
 		{
 			part.setInnerOffset(-5F, -2F, 0F);
 			part.setParent(this.mainBodyTransform);
 		}
 
-		for (ModelPartContainer part : rightArmParts)
+		for (ModelPartContainer part : rightArmParts.getParts())
 		{
 			part.setInnerOffset(5F, -2F, 0F);
 			part.setParent(this.mainBodyTransform);
 		}
 
-		for (ModelPartContainer part : leftLegParts)
-			part.setInnerOffset(-1.9F, -12F, 0F);
-		for (ModelPartContainer part : rightLegParts)
-			part.setInnerOffset(1.9F, -12F, 0F);
+		for (ModelPartContainer part : leftLegParts.getParts())
+		{
+			part.setInnerOffset(0F, -12F, 0F);
+		}
+
+		for (ModelPartContainer part : rightLegParts.getParts())
+		{
+			part.setInnerOffset(0F, -12F, 0F);
+		}
+
+		for (ModelPartContainer part : leftForeLegParts.getParts())
+		{
+			part.setInnerOffset(2F, -6F, 2F);
+		}
+
+		for (ModelPartContainer part : rightForeLegParts.getParts())
+		{
+			part.setInnerOffset(-2F, -6F, 2F);
+		}
 	}
 
 	protected void sliceLeg(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
@@ -531,7 +474,7 @@ public class MutatedArmorModel extends ModelBiped
 						MutatedBox lowerPart = lowerPartFactory.create(modelPart);
 						modelPart.cubeList.add(lowerPart);
 						ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-						partContainer.setInnerOffset(0, -6F, 2F);
+						partContainer.setInnerOffset(0F, -6F, 2F);
 						listToAddTo.add(partContainer);
 						this.originalToCustomMap.put(originalPart, partContainer);
 					}
@@ -544,7 +487,7 @@ public class MutatedArmorModel extends ModelBiped
 					MutatedBox lowerBox = mutator.getFactory().create(modelPart);
 					modelPart.cubeList.add(lowerBox);
 					ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-					partContainer.setInnerOffset(0F, -6.0F, 2F);
+					partContainer.setInnerOffset(0F, -6F, 2F);
 					listToAddTo.add(partContainer);
 					this.originalToCustomMap.put(originalPart, partContainer);
 				}
@@ -554,7 +497,8 @@ public class MutatedArmorModel extends ModelBiped
 
 	protected void sliceArm(ModelPartContainer part, List<ModelPartContainer> listToAddTo)
 	{
-		float cutPlane = 6F;
+		final float cutPlane = 6F;
+
 		for (int i = part.getModel().cubeList.size() - 1; i >= 0; i--)
 		{
 			ModelRenderer originalPart = part.getModel();
@@ -607,30 +551,31 @@ public class MutatedArmorModel extends ModelBiped
 	 */
 	protected void sliceParts()
 	{
-		for (ModelPartContainer part : leftLegParts)
+
+		for (ModelPartContainer part : leftLegParts.getParts())
 		{
-			sliceLeg(part, leftForeLegParts);
+			sliceLeg(part, leftForeLegParts.getParts());
 		}
 
-		for (ModelPartContainer part : rightLegParts)
+		for (ModelPartContainer part : rightLegParts.getParts())
 		{
-			sliceLeg(part, rightForeLegParts);
+			sliceLeg(part, rightForeLegParts.getParts());
 		}
 
-		for (ModelPartContainer part : leftArmParts)
+		for (ModelPartContainer part : leftArmParts.getParts())
 		{
-			sliceArm(part, leftForeArmParts);
+			sliceArm(part, leftForeArmParts.getParts());
 		}
 
-		for (ModelPartContainer part : rightArmParts)
+		for (ModelPartContainer part : rightArmParts.getParts())
 		{
-			sliceArm(part, rightForeArmParts);
+			sliceArm(part, rightForeArmParts.getParts());
 		}
 	}
 	
 	public static MutatedArmorModel createFrom(ModelBiped src)
 	{
-		MutatedArmorModel customModel = new MutatedArmorModel(src);
+		final MutatedArmorModel customModel = new MutatedArmorModel(src);
 		customModel.mutate();
 
 		return customModel;

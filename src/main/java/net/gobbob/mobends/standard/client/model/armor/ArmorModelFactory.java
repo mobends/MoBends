@@ -1,30 +1,31 @@
 package net.gobbob.mobends.standard.client.model.armor;
 
+import net.minecraft.client.model.ModelBiped;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import net.minecraft.client.model.ModelBiped;
 
 public class ArmorModelFactory
 {
 	
-	protected static Map<ModelBiped, MutatedArmorModel> customArchive = new HashMap<ModelBiped, MutatedArmorModel>();
+	protected static Map<ModelBiped, MutatedArmorModel> customArchive = new HashMap<>();
 
 	public static ModelBiped getArmorModel(ModelBiped suggested)
 	{
-		ModelBiped custom = suggested;
-
 		if (customArchive.containsKey(suggested))
 		{
-			custom = customArchive.get(suggested);
+			return customArchive.get(suggested);
 		}
 		else
 		{
+			final MutatedArmorModel custom = MutatedArmorModel.createFrom(suggested);
+
 			System.out.println("Creating a custom armor model from " + suggested);
-			custom = MutatedArmorModel.createFrom(suggested);
-			customArchive.put(suggested, (MutatedArmorModel) custom);
+
+			customArchive.put(suggested, custom);
+
+			return custom;
 		}
-		return custom;
 	}
 
 	/**
