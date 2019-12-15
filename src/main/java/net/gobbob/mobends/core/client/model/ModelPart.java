@@ -1,10 +1,5 @@
 package net.gobbob.mobends.core.client.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import akka.util.Collections;
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.math.TransformUtils;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
@@ -22,6 +17,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModelPart extends ModelRenderer implements IModelPart
 {

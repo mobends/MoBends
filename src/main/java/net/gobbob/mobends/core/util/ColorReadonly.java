@@ -1,7 +1,5 @@
 package net.gobbob.mobends.core.util;
 
-import net.gobbob.mobends.core.math.vector.IVec4fRead;
-
 public class ColorReadonly implements IColorRead
 {
 

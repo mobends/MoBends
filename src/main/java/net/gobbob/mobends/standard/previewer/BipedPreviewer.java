@@ -1,8 +1,5 @@
 package net.gobbob.mobends.standard.previewer;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.gobbob.mobends.core.animatedentity.BoneMetadata;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
@@ -10,6 +7,9 @@ import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3fReadonly;
 import net.gobbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.renderer.GlStateManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BipedPreviewer<D extends BipedEntityData<?>> implements IPreviewer<D>
 {

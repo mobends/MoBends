@@ -2,7 +2,6 @@ package net.gobbob.mobends.core.client.model;
 
 import net.gobbob.mobends.core.math.SmoothOrientation;
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
-import net.gobbob.mobends.core.math.physics.ICollider;
 import net.gobbob.mobends.core.math.vector.IVec3f;
 
 public interface IModelPart

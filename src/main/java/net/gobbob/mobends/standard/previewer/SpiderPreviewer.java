@@ -1,13 +1,12 @@
 package net.gobbob.mobends.standard.previewer;
 
-import java.util.Map;
-
 import net.gobbob.mobends.core.animatedentity.BoneMetadata;
 import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.MoverType;
+
+import java.util.Map;
 
 public class SpiderPreviewer implements IPreviewer<SpiderData>
 {

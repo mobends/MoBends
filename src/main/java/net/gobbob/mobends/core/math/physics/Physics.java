@@ -1,13 +1,10 @@
 package net.gobbob.mobends.core.math.physics;
 
-import javax.annotation.Nullable;
-
-import net.gobbob.mobends.core.math.matrix.IMat4x4d;
-import net.gobbob.mobends.core.math.vector.IVec3f;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
-import net.gobbob.mobends.core.math.vector.Vec3d;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.math.vector.VectorUtils;
+
+import javax.annotation.Nullable;
 
 public class Physics
 {

@@ -1,7 +1,5 @@
 package net.gobbob.mobends.standard.animation.bit.biped;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.client.model.IModelPart;
 import net.gobbob.mobends.core.math.SmoothOrientation;
@@ -12,6 +10,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
+import org.lwjgl.util.vector.Vector3f;
 
 public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?>>
 {

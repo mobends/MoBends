@@ -1,9 +1,5 @@
 package net.gobbob.mobends.standard.client.renderer.entity;
 
-import java.util.HashMap;
-
-import org.lwjgl.opengl.GL11;
-
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -13,6 +9,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
+
+import java.util.HashMap;
 
 public class ArrowTrail
 {

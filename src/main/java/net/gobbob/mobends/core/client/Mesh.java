@@ -1,19 +1,14 @@
 package net.gobbob.mobends.core.client;
 
-import java.nio.ByteBuffer;
-import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
-import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.IColorRead;
-import net.gobbob.mobends.core.util.MeshBuilder;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+
+import java.nio.ByteBuffer;
+import java.util.List;
 
 public class Mesh
 {

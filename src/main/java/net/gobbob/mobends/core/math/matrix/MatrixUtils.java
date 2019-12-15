@@ -1,9 +1,8 @@
 package net.gobbob.mobends.core.math.matrix;
 
-import java.nio.FloatBuffer;
-
-import net.gobbob.mobends.core.math.Quaternion;
 import net.gobbob.mobends.core.math.vector.Vec4d;
+
+import java.nio.FloatBuffer;
 
 public class MatrixUtils
 {

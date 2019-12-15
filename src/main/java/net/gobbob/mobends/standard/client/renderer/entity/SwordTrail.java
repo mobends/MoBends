@@ -1,10 +1,5 @@
 package net.gobbob.mobends.standard.client.renderer.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.math.Quaternion;
 import net.gobbob.mobends.core.math.QuaternionUtils;
@@ -17,6 +12,10 @@ import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
+import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SwordTrail
 {

@@ -30,7 +30,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         this.dataFactory = dataFactory;
     }
 
-    /*Ł
+    /**
      * Used to fetch private data from the original
      * renderer.
      */
@@ -42,26 +42,26 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 
     public abstract void storeVanillaModel(M model);
 
-    /*
+    /**
      * Sets the model parameter back to it's vanilla
      * state. Used to demutate the model.
      */
     public abstract void applyVanillaModel(M model);
 
-    /*
+    /**
      * Swaps out the vanilla layers for their custom counterparts,
      * and if it's a vanilla model, it stores the vanilla layers
      * for future mutation reversal.
      */
     public abstract void swapLayer(RenderLivingBase<? extends E> renderer, int index, boolean isModelVanilla);
 
-    /*
+    /**
      * Swaps the custom layers back with the vanilla layers.
      * Used to demutate the model.
      */
     public abstract void deswapLayer(RenderLivingBase<? extends E> renderer, int index);
 
-    /*
+    /**
      * Creates all the custom parts you need! It swaps all the
      * original parts with newly created custom parts.
      */
@@ -98,7 +98,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         return true;
     }
 
-    /*
+    /**
      * Performs the steps needed to demutate the model.
      */
     public void demutate(RenderLivingBase<? extends E> renderer)
@@ -198,17 +198,17 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         return EntityDatabase.instance.getOrMake(dataFactory, entity);
     }
 
-    /*
+    /**
      * True, if this renderer wasn't mutated before.
      */
     public abstract boolean isModelVanilla(M model);
 
-    /*
+    /**
      * Returns true, if this model should skip the mutation process.
      */
     public abstract boolean shouldModelBeSkipped(ModelBase model);
 
-    /*
+    /**
      * Called right after this mutator has been refreshed.
      */
     public void postRefresh() {}

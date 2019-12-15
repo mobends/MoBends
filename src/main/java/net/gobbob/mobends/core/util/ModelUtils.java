@@ -1,13 +1,12 @@
 package net.gobbob.mobends.core.util;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.lwjgl.util.vector.Vector3f;
-
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.util.math.AxisAlignedBB;
+import org.lwjgl.util.vector.Vector3f;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class ModelUtils
 {

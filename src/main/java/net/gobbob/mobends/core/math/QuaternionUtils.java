@@ -1,11 +1,11 @@
 package net.gobbob.mobends.core.math;
 
-import java.nio.FloatBuffer;
-
 import net.gobbob.mobends.core.math.matrix.IMat4x4d;
 import net.gobbob.mobends.core.math.vector.IVec3f;
 import net.gobbob.mobends.core.math.vector.Vec3f;
 import net.gobbob.mobends.core.math.vector.VectorUtils;
+
+import java.nio.FloatBuffer;
 
 public class QuaternionUtils
 {

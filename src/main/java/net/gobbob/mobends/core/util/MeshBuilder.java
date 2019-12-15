@@ -1,9 +1,6 @@
 package net.gobbob.mobends.core.util;
 
 import net.gobbob.mobends.core.client.Mesh;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 public class MeshBuilder
 {

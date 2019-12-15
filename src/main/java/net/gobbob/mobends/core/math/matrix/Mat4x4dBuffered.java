@@ -1,8 +1,8 @@
 package net.gobbob.mobends.core.math.matrix;
 
-import java.nio.FloatBuffer;
-
 import org.lwjgl.BufferUtils;
+
+import java.nio.FloatBuffer;
 
 public class Mat4x4dBuffered extends Mat4x4d
 {

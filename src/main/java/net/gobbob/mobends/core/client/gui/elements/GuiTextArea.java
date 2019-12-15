@@ -2,7 +2,6 @@ package net.gobbob.mobends.core.client.gui.elements;
 
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;

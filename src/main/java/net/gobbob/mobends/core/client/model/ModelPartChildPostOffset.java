@@ -1,9 +1,8 @@
 package net.gobbob.mobends.core.client.model;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.util.vector.Vector3f;
 
 /*
  * This part is used, when accessories are rendered using it's postRender() method.

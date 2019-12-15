@@ -1,21 +1,13 @@
 package net.gobbob.mobends.core.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.lwjgl.util.vector.Vector3f;
-
 import net.gobbob.mobends.core.math.Quaternion;
 import net.gobbob.mobends.core.math.QuaternionUtils;
 import net.gobbob.mobends.core.math.vector.IVec3f;
 import net.minecraft.client.gui.FontRenderer;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GUtil
 {

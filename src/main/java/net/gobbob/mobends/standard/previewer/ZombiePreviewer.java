@@ -1,6 +1,5 @@
 package net.gobbob.mobends.standard.previewer;
 
-import net.gobbob.mobends.core.animatedentity.IPreviewer;
 import net.gobbob.mobends.standard.data.ZombieData;
 
 public class ZombiePreviewer extends BipedPreviewer<ZombieData>

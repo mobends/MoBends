@@ -5,7 +5,6 @@ import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.monster.EntitySpider;
-import net.minecraft.util.math.MathHelper;
 
 public class SpiderIdleAnimationBit extends AnimationBit<SpiderData>
 {
