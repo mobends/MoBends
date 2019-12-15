@@ -15,7 +15,13 @@ public class SpiderIdleAnimationBit extends AnimationBit<SpiderData>
 	{
 		return new String[] { "idle" };
 	}
-	
+
+	@Override
+	public void onPlay(SpiderData data)
+	{
+		super.onPlay(data);
+	}
+
 	@Override
 	public void perform(SpiderData data)
 	{
@@ -38,26 +44,31 @@ public class SpiderIdleAnimationBit extends AnimationBit<SpiderData>
 		
 		data.spiderHead.rotation.orientInstantX(headPitch);
 		data.spiderHead.rotation.rotateY(headYaw).finish();
-        
+
     	final double bodyX = Math.sin(ticks * 0.2F) * 0.4;
     	final double bodyZ = Math.cos(ticks * 0.2F) * 0.4;
     	
         for (SpiderData.Limb limb : data.limbs)
         {
         	SpiderData.IKResult ikResult = limb.solveIK(bodyX, bodyZ, pt);
-        	double deviation = GUtil.getRadianDifference(limb.getNaturalYaw(), ikResult.xzAngle + Math.PI/2);
+        	double deviation = GUtil.getRadianDifference(limb.getNeutralYaw(), ikResult.xzAngle + Math.PI/2);
         	
-        	if (deviation > 0.9 || ikResult.xzDistance*0.0625 > 1.2)
+        	if (deviation > 0.9 || ikResult.xzDistance * 0.0625 > 1.2)
         	{
         		limb.adjustToNeutralPosition();
         	}
         	
         	limb.applyIK(ikResult, groundLevel, 4, pt);
         }
-        
-        //data.limbs[6].adjustToLocalPosition(0, 1.5, 0.2F);
-        //data.limbs[7].adjustToLocalPosition(0, 1.5, 0.2F);
-        
+
+		// Makes the spider move it's front limbs to resemble
+		// 'feeling' the ground.
+		if (spider.ticksExisted % 100 < 10)
+		{
+			data.limbs[6].adjustToLocalPosition(0, 1.5, 0.2F);
+			data.limbs[7].adjustToLocalPosition(0, 1.5, 0.2F);
+		}
+
         data.renderOffset.set((float) bodyX, (float) -groundLevel, (float) -bodyZ);
         data.renderRotation.orientZero();
 	}

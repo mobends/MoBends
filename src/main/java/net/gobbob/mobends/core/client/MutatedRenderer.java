@@ -13,7 +13,7 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 
     protected final float scale = 0.0625F;
 
-    /*
+    /**
      * Called right before the entity is rendered
      */
     public void beforeRender(EntityData<T> data, T entity, float partialTicks)
@@ -55,12 +55,12 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
         GlStateManager.translate(viewX - entityX, viewY - entityY, viewZ - entityZ);
     }
 
-    /*
+    /**
      * Called right after the entity is rendered.
      */
     public void afterRender(T entity, float partialTicks) {}
 
-    /*
+    /**
      * Used to render accessories for that entity, e.g. Sword trails.
      * Also used to transform the entity, like offset or rotate it.
      */

@@ -45,7 +45,11 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 		if (this.entity != null)
 		{
 			this.entityID = entity.getEntityId();
+			this.positionX = this.entity.posX;
+			this.positionY = this.entity.posY;
+			this.positionZ = this.entity.posZ;
 		}
+
 		this.motionX = this.prevMotionX = 0.0D;
 		this.motionY = this.prevMotionY = 1.0D;
 		this.motionZ = this.prevMotionZ = 0.0D;

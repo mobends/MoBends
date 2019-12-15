@@ -95,7 +95,6 @@ public class BipedPreviewer<D extends BipedEntityData<?>> implements IPreviewer<
 	@Override
 	public Map<String, BoneMetadata> getBoneMetadata()
 	{
-		
 		return BONE_METADATA;
 	}
 	
