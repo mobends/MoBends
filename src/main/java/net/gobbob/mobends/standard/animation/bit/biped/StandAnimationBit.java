@@ -34,7 +34,7 @@ public class StandAnimationBit<T extends BipedEntityData<?>> extends AnimationBi
 	@Override
 	public void perform(T data)
 	{
-		data.renderOffset.slideToZero(0.3F);
+		data.globalOffset.slideToZero(0.3F);
 		data.renderRotation.setSmoothness(.3F).orientZero();
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
@@ -67,7 +67,7 @@ public class StandAnimationBit<T extends BipedEntityData<?>> extends AnimationBi
 		{
 			data.body.rotation.setSmoothness(1F);
 			data.body.rotation.orient(20.0F * (1 - touchdown), 1F, 0F, 0F);
-			data.renderOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
+			data.globalOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
 		}
 	}
 }

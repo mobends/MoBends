@@ -74,7 +74,7 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 				data.head.rotation.rotateX(-bodyRotation);
 				data.leftArm.rotation.rotateX(-bodyRotation);
 				data.rightArm.rotation.rotateX(-bodyRotation);
-				data.renderOffset.slideY(MathHelper.sin(ticks) * 0.3F);
+				data.globalOffset.slideY(MathHelper.sin(ticks) * 0.3F);
 			}
 			else
 			{

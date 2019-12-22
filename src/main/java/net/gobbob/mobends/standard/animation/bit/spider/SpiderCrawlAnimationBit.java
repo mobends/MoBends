@@ -5,14 +5,13 @@ import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.util.math.MathHelper;
 
-public class SpiderMoveAnimationBit extends SpiderAnimationBitBase
+public class SpiderCrawlAnimationBit extends SpiderAnimationBitBase
 {
 
-    protected static final String[] ACTIONS = new String[] { "move" };
-    protected static final float KNEEL_DURATION = 10F;
+    protected static final String[] ACTIONS = new String[] { "crawl" };
 
     @Override
-    public String[] getActions(SpiderData data)
+    public String[] getActions(SpiderData entityData)
     {
         return ACTIONS;
     }
@@ -26,19 +25,12 @@ public class SpiderMoveAnimationBit extends SpiderAnimationBitBase
 
         final float headYaw = data.headYaw.get();
         final float headPitch = data.headPitch.get();
-        final float limbSwing = data.limbSwing.get() * 0.6662F;
+        final float limbSwing = data.getCrawlProgress() * 5.0F;
 
-        float groundLevel = MathHelper.sin(ticks * 0.6F) * 1.2F;
-        final float touchdown = Math.min(data.getTicksAfterTouchdown() / KNEEL_DURATION, 1.0F);
+        float groundLevel = MathHelper.sin(limbSwing * 0.6F) * 1.2F;
 
         if (startTransition < 1.0F)
             startTransition += DataUpdateHandler.ticksPerFrame * 0.1F;
-
-        if (touchdown < 1.0F)
-        {
-            float touchdownInv = 1.0F - touchdown;
-            groundLevel += Math.sin((touchdown * 1.2F - 0.2F) * Math.PI * 2) * 3.0F * touchdownInv;
-        }
 
         data.spiderHead.rotation.orientInstantX(headPitch);
         data.spiderHead.rotation.rotateY(headYaw).finish();
@@ -62,9 +54,13 @@ public class SpiderMoveAnimationBit extends SpiderAnimationBitBase
         animateMovingLimb(data, groundLevel, limbSwing + .7F, 6, 10F, 20.0F, 60, 80.0F);
         animateMovingLimb(data, groundLevel, limbSwing + .4F, 7, 10F, 20.0F, 60, 80.0F);
 
-        data.localOffset.slideToZero();
-        data.globalOffset.set((float) bodyX, -groundLevel, (float) -bodyZ);
-        data.renderRotation.orientZero();
+        final float climbingRotation = data.getCrawlingRotation();
+        final float yaw = spider.prevRotationYaw + (spider.rotationYaw - spider.prevRotationYaw) * pt;
+        final float renderRotationY = MathHelper.wrapDegrees(yaw - climbingRotation);
+        data.renderRotation.orientX(-90F);
+        data.renderRotation.setSmoothness(.6F).rotateY(renderRotationY);
+
+        data.localOffset.slideTo((float) 0, -10.0F, (float) 0, 0.5F);
         data.centerRotation.orientZero();
     }
 

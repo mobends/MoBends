@@ -4,6 +4,7 @@ import net.gobbob.mobends.core.animation.bit.AnimationBit;
 import net.gobbob.mobends.core.animation.controller.IAnimationController;
 import net.gobbob.mobends.core.animation.layer.HardAnimationLayer;
 import net.gobbob.mobends.core.math.SmoothOrientation;
+import net.gobbob.mobends.standard.animation.bit.spider.SpiderCrawlAnimationBit;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.monster.EntitySpider;
 
@@ -24,6 +25,7 @@ public class SpiderController implements IAnimationController<SpiderData>
 	protected HardAnimationLayer<SpiderData> layerBase;
 	protected AnimationBit<SpiderData> bitIdle, bitMove, bitJump;
 	protected AnimationBit<SpiderData> bitDeath;
+	protected AnimationBit<SpiderData> bitClimb;
 
 	protected boolean resetAfterJumped = false;
 
@@ -34,12 +36,13 @@ public class SpiderController implements IAnimationController<SpiderData>
 		this.bitMove = new net.gobbob.mobends.standard.animation.bit.spider.SpiderMoveAnimationBit();
 		this.bitJump = new net.gobbob.mobends.standard.animation.bit.spider.SpiderJumpAnimationBit();
 		this.bitDeath = new net.gobbob.mobends.standard.animation.bit.spider.SpiderDeathAnimationBit();
+		this.bitClimb = new SpiderCrawlAnimationBit();
 	}
 
 	@Override
 	public Collection<String> perform(SpiderData spiderData)
 	{
-		EntitySpider spider = spiderData.getEntity();
+		final EntitySpider spider = spiderData.getEntity();
 
 		if (spider.getHealth() <= 0F)
 		{
@@ -47,9 +50,17 @@ public class SpiderController implements IAnimationController<SpiderData>
 		}
 		else
 		{
+			System.out.println(spiderData.isOnGround() + " " + spiderData.getTicksAfterTouchdown());
 			if (!spiderData.isOnGround() || spiderData.getTicksAfterTouchdown() < 1)
 			{
-				this.layerBase.playOrContinueBit(bitJump, spiderData);
+				if (spider.isBesideClimbableBlock())
+				{
+					this.layerBase.playOrContinueBit(bitClimb, spiderData);
+				}
+				else
+				{
+					this.layerBase.playOrContinueBit(bitJump, spiderData);
+				}
 
 				if (resetAfterJumped)
 					resetAfterJumped = false;
@@ -74,7 +85,7 @@ public class SpiderController implements IAnimationController<SpiderData>
 			}
 		}
 
-		List<String> actions = new ArrayList<>();
+		final List<String> actions = new ArrayList<>();
 		this.layerBase.perform(spiderData, actions);
 		return actions;
 	}
@@ -105,5 +116,7 @@ public class SpiderController implements IAnimationController<SpiderData>
 		upperLimb.setSmoothness(smoothness).localRotateZ((float) (upperAngle / Math.PI * 180) * (odd ? -1 : 1));
 		lowerLimb.setSmoothness(smoothness).orientZ((float) (lowerAngle / Math.PI * 180) * (odd ? -1 : 1));
 	}
+
+
 
 }

@@ -36,18 +36,17 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 
         this.renderLocalAccessories(entity, data, partialTicks);
 
-        if (data != null && data instanceof LivingEntityData)
-        {
-            LivingEntityData<?> livingData = (LivingEntityData<?>) data;
+        GlStateManager.translate(data.globalOffset.getX() * scale,
+                data.globalOffset.getY() * scale,
+                data.globalOffset.getZ() * scale);
+        GlStateManager.translate(0, entity.height / 2, 0);
+        GlHelper.rotate(data.centerRotation.getSmooth());
+        GlStateManager.translate(0, -entity.height / 2, 0);
+        GlHelper.rotate(data.renderRotation.getSmooth());
 
-            GlStateManager.translate(livingData.renderOffset.getX() * scale,
-                    livingData.renderOffset.getY() * scale,
-                    livingData.renderOffset.getZ() * scale);
-            GlStateManager.translate(0, entity.height / 2, 0);
-            GlHelper.rotate(livingData.centerRotation.getSmooth());
-            GlStateManager.translate(0, -entity.height / 2, 0);
-            GlHelper.rotate(livingData.renderRotation.getSmooth());
-        }
+        GlStateManager.translate(data.localOffset.getX() * scale,
+                data.localOffset.getY() * scale,
+                data.localOffset.getZ() * scale);
 
         this.transformLocally(entity, data, partialTicks);
 
@@ -61,8 +60,8 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
     public void afterRender(T entity, float partialTicks) {}
 
     /**
-     * Used to render accessories for that entity, e.g. Sword trails.
-     * Also used to transform the entity, like offset or rotate it.
+     * Used to render accessories for that entity, e.g. Sword trails. Also used to transform the entity, like offset or
+     * rotate it.
      */
     protected void renderLocalAccessories(T entity, EntityData<?> data, float partialTicks) {}
 

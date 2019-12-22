@@ -55,5 +55,10 @@ public class SpiderJumpAnimationBit extends AnimationBit<SpiderData>
 		data.limbs[5].lowerPart.rotation.setSmoothness(smoothness).orientZ(-foreLegAngle);
 		data.limbs[6].lowerPart.rotation.setSmoothness(smoothness).orientZ(foreLegAngle);
 		data.limbs[7].lowerPart.rotation.setSmoothness(smoothness).orientZ(-foreLegAngle);
+
+		data.localOffset.slideToZero();
+		data.globalOffset.set(0, 0,  0);
+		data.centerRotation.orientZero();
+		data.renderRotation.orientZero();
 	}
 }

@@ -88,7 +88,7 @@ public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
 			data.rightForeLeg.rotation.orientX(25F);
 			
 			data.renderRotation.setSmoothness(.3F).orientY(0 * handDirMtp);
-			data.renderOffset.slideY(-1.0F);
+			data.globalOffset.slideY(-1.0F);
 		}
 
 		mainItemRotation.setSmoothness(.9F).orientInstantX(180);

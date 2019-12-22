@@ -103,7 +103,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		  				  .rotateX(-80F * t);
 		
 		data.renderRotation.setSmoothness(.7F).orientX(t * 80F);
-		data.renderOffset.slideZ(-20 * t, .7F);
-		data.renderOffset.slideY(14 * t, .7F);
+		data.globalOffset.slideZ(-20 * t, .7F);
+		data.globalOffset.slideY(14 * t, .7F);
 	}
 }

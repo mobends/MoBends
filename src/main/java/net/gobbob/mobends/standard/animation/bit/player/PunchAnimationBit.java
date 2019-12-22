@@ -26,7 +26,7 @@ public class PunchAnimationBit extends AnimationBit<PlayerData>
 		if (data.isStillHorizontally())
 		{
 			renderRotationY = -20F;
-			data.renderOffset.slideY(-2.0f);
+			data.globalOffset.slideY(-2.0f);
 
 			data.rightLeg.rotation.setSmoothness(.3F).orientX(-30F).rotateZ(10);
 			data.leftLeg.rotation.setSmoothness(.3F).orientX(-30F).rotateY(-25F).rotateZ(-10);

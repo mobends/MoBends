@@ -19,7 +19,7 @@ public class WalkAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 	@Override
 	public void perform(T data)
 	{
-		data.renderOffset.slideToZero(0.3F);
+		data.globalOffset.slideToZero(0.3F);
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.renderRotation.setSmoothness(.3F).orientZero();
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
@@ -56,14 +56,14 @@ public class WalkAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 		data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRotationX)
 										  	  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRotationY);
 
-		data.renderOffset.slideY(MathHelper.cos(limbSwing * 2) * 0.6F);
+		data.globalOffset.slideY(MathHelper.cos(limbSwing * 2) * 0.6F);
 		
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * KNEEL_DURATION, 1.0F);
 		if (touchdown < 1.0F)
 		{
 			data.body.rotation.setSmoothness(1F);
 			data.body.rotation.orient(20.0F * (1 - touchdown), 1F, 0F, 0F);
-			data.renderOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
+			data.globalOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
 		}
 	}
 }

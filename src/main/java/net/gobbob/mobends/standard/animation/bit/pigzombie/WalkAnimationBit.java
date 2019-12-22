@@ -10,7 +10,7 @@ public class WalkAnimationBit extends net.gobbob.mobends.standard.animation.bit.
 	{
 		super.perform(data);
 		
-		data.renderOffset.slideY(-3F);
+		data.globalOffset.slideY(-3F);
 		
 		data.body.rotation.localRotateX(20F)
 						  .rotateZ(-10F);
@@ -32,6 +32,6 @@ public class WalkAnimationBit extends net.gobbob.mobends.standard.animation.bit.
 		data.leftForeLeg.rotation.rotateX(25);
 		
 		float limbSwing = data.limbSwing.get() * 0.6662F;
-		data.renderOffset.slideY(Math.abs(MathHelper.sin(limbSwing)) * -1.4F - 3F);
+		data.globalOffset.slideY(Math.abs(MathHelper.sin(limbSwing)) * -1.4F - 3F);
 	}
 }

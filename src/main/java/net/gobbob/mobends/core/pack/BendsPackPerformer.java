@@ -58,7 +58,7 @@ public class BendsPackPerformer
             float y = keyframe.position[1] + (nextFrame.position[1] - keyframe.position[1]) * tween;
             float z = keyframe.position[2] + (nextFrame.position[2] - keyframe.position[2]) * tween;
 
-            entityData.renderOffset.set(z, x, y);
+            entityData.globalOffset.set(z, x, y);
         }
 
         if (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation"))
@@ -85,7 +85,7 @@ public class BendsPackPerformer
             float y = keyframe.position[1] + (nextFrame.position[1] - keyframe.position[1]) * tween;
             float z = keyframe.position[2] + (nextFrame.position[2] - keyframe.position[2]) * tween;
 
-            entityData.renderOffset.set(x, y, z);
+            entityData.globalOffset.set(x, y, z);
         }
 
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())

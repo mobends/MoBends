@@ -79,7 +79,7 @@ public class AttackStanceAnimationBit extends AnimationBit<PlayerData>
 		offForeArm.getRotation().setSmoothness(0.3F).orientX(-60);
 
 		mainItemRotation.setSmoothness(.3F).orientX(65);
-		data.renderOffset.slideY(-2.0F);
+		data.globalOffset.slideY(-2.0F);
 		
 		if (this.legSpreadAnimation < 1.0F)
 		{
@@ -98,7 +98,7 @@ public class AttackStanceAnimationBit extends AnimationBit<PlayerData>
 		{
 			data.body.rotation.setSmoothness(1F);
 			data.body.rotation.orientX(5F * (1 - touchdown) + 15F);
-			data.renderOffset.setY(-MathHelper.sin(touchdown * PI) * 2F - 2F);
+			data.globalOffset.setY(-MathHelper.sin(touchdown * PI) * 2F - 2F);
 		}
 	}
 

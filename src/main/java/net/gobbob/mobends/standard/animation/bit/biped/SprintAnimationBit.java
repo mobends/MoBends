@@ -17,7 +17,7 @@ public class SprintAnimationBit<T extends BipedEntityData<?>> extends AnimationB
 	@Override
 	public void perform(T data)
 	{
-		data.renderOffset.slideToZero(0.1F);
+		data.globalOffset.slideToZero(0.1F);
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.renderRotation.setSmoothness(.3F).orientZero();
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
@@ -55,7 +55,7 @@ public class SprintAnimationBit<T extends BipedEntityData<?>> extends AnimationB
 											 .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRotationY);
 		
 
-		data.renderOffset.slideY(MathHelper.cos(limbSwing * 2F + 0.6F) * 1.5f, .9f);
+		data.globalOffset.slideY(MathHelper.cos(limbSwing * 2F + 0.6F) * 1.5f, .9f);
 	}
 
 }

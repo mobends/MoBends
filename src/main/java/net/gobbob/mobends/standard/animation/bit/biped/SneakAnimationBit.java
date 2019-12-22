@@ -17,7 +17,7 @@ public class SneakAnimationBit extends AnimationBit<BipedEntityData<?>>
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		data.renderOffset.slideY(-1.3F);
+		data.globalOffset.slideY(-1.3F);
 	
 		final float PI = (float) Math.PI;
 		float limbSwing = data.limbSwing.get() * 0.6662F;

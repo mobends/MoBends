@@ -26,7 +26,7 @@ public class FistGuardAnimationBit extends AnimationBit<BipedEntityData<?>>
 		// what is your main hand.
 		float handDirMtp = mainHandSwitch ? 1 : -1;
 		
-		data.renderOffset.slideY(-2.0F);
+		data.globalOffset.slideY(-2.0F);
 		data.renderRotation.setSmoothness(.3F).orientY(-20 * handDirMtp);
 		
 		data.rightArm.rotation.setSmoothness(.3F).orientX(-90F)

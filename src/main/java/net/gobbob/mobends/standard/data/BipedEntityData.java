@@ -99,7 +99,7 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		this.rightForeLeg.update(ticksPerFrame);
 		this.leftForeLeg.update(ticksPerFrame);
 		
-		this.renderOffset.update(ticksPerFrame);
+		this.globalOffset.update(ticksPerFrame);
 		this.renderRotation.update(ticksPerFrame);
 		this.renderRightItemRotation.update(ticksPerFrame);
 		this.renderLeftItemRotation.update(ticksPerFrame);

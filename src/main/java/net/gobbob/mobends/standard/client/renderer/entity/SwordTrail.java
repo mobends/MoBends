@@ -176,9 +176,9 @@ public class SwordTrail
 				newPart.itemRotation.set(entityData.renderLeftItemRotation.getSmooth());
 				newPart.itemRotation = QuaternionUtils.rotate(newPart.itemRotation, 90F, 0F, 1F, 0F);
 			}
-			newPart.renderOffset.set(entityData.renderOffset.getX(),
-									 entityData.renderOffset.getY(),
-									 entityData.renderOffset.getZ());
+			newPart.renderOffset.set(entityData.globalOffset.getX(),
+									 entityData.globalOffset.getY(),
+									 entityData.globalOffset.getZ());
 			newPart.renderRotation.set(entityData.renderRotation.getSmooth());
 			newPart.renderRotation.negate();
 			this.trailPartList.add(newPart);

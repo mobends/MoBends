@@ -5,4 +5,5 @@ import net.minecraft.entity.monster.EntitySpider;
 
 public class SpiderRenderer<T extends EntitySpider> extends MutatedRenderer<T>
 {
+
 }

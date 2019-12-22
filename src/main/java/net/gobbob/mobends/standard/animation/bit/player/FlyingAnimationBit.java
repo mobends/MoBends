@@ -127,6 +127,6 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 		
 		
 		data.renderRotation.setSmoothness(.7F).orientX(0);
-		data.renderOffset.slideToZero(.7F);
+		data.globalOffset.slideToZero(.7F);
 	}
 }

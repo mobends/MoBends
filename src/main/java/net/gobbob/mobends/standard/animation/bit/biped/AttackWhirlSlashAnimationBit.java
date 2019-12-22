@@ -88,7 +88,7 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?
 			data.leftForeLeg.rotation.setSmoothness(.3F).orientX(30F);
 		}
 		
-		data.renderOffset.slideY(-2F);
+		data.globalOffset.slideY(-2F);
 		mainItemRotation.setSmoothness(.9F).orientX(90 * attackState);
 		float renderRotationY = 30 + 360 * var5;
 		data.renderRotation.orientInstantY(MathHelper.wrapDegrees(-renderRotationY * handDirMtp));

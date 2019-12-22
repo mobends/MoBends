@@ -44,7 +44,7 @@ public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 
 		EntityLivingBase biped = data.getEntity();
 
-		data.renderOffset.slideToZero(0.3F);
+		data.globalOffset.slideToZero(0.3F);
 		data.renderRotation.setSmoothness(.3F).orientZero();
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
 		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();

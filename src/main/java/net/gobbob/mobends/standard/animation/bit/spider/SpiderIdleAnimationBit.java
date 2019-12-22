@@ -5,6 +5,7 @@ import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.standard.data.SpiderData;
 import net.minecraft.entity.monster.EntitySpider;
+import net.minecraft.util.math.MathHelper;
 
 public class SpiderIdleAnimationBit extends AnimationBit<SpiderData>
 {
@@ -69,7 +70,12 @@ public class SpiderIdleAnimationBit extends AnimationBit<SpiderData>
 			data.limbs[7].adjustToLocalPosition(0, 1.5, 0.2F);
 		}
 
-        data.renderOffset.set((float) bodyX, (float) -groundLevel, (float) -bodyZ);
-        data.renderRotation.orientZero();
+		float climbingRotation = 0;
+		float renderRotationY = MathHelper.wrapDegrees(spider.rotationYaw - data.headYaw.get() - climbingRotation);
+
+		data.localOffset.slideToZero();
+		data.globalOffset.set((float) bodyX, (float) -groundLevel, (float) -bodyZ);
+		data.centerRotation.orientZero();
+		data.renderRotation.orientZero();
 	}
 }

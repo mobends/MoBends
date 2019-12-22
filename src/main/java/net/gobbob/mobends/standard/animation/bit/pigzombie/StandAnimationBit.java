@@ -9,7 +9,7 @@ public class StandAnimationBit extends net.gobbob.mobends.standard.animation.bit
 	{
 		super.perform(data);
 		
-		data.renderOffset.slideY(-3F);
+		data.globalOffset.slideY(-3F);
 		
 		data.body.rotation.localRotateX(20F)
 						  .rotateZ(-10F);
