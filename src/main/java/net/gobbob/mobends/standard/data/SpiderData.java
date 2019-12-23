@@ -1,6 +1,7 @@
 package net.gobbob.mobends.standard.data;
 
 import jline.internal.Nullable;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.model.ModelPartTransform;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.util.GUtil;
@@ -21,8 +22,10 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 
     public Limb[] limbs;
 
-    private final SpiderController controller = new SpiderController();
-    private float crawlProgress = 0;
+    protected final SpiderController controller = new SpiderController();
+    protected float prevCrawlProgress = 0;
+    protected float crawlProgress = 0;
+    protected EnumFacing wallFacing = null;
 
     public SpiderData(EntitySpider entity)
     {
@@ -38,6 +41,11 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public float getCrawlProgress()
     {
         return crawlProgress;
+    }
+
+    public float getInterpolatedCrawlProgress()
+    {
+        return GUtil.lerp(prevCrawlProgress, crawlProgress, DataUpdateHandler.partialTicks);
     }
 
     @Override
@@ -98,23 +106,25 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             limb.updateClient();
         }
 
+        prevCrawlProgress = crawlProgress;
         crawlProgress += MathHelper.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
+        wallFacing = calcWallFacing();
     }
 
     @Nullable
-    public EnumFacing getWallFacing()
+    public EnumFacing calcWallFacing()
     {
+        if (!entity.isOnLadder())
+        {
+            return null;
+        }
+
         final BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 
         final IBlockState blockN = entity.world.getBlockState(position.add(EnumFacing.NORTH.getDirectionVec()));
         final IBlockState blockS = entity.world.getBlockState(position.add(EnumFacing.SOUTH.getDirectionVec()));
         final IBlockState blockW = entity.world.getBlockState(position.add(EnumFacing.WEST.getDirectionVec()));
         final IBlockState blockE = entity.world.getBlockState(position.add(EnumFacing.EAST.getDirectionVec()));
-
-        if (!entity.isOnLadder())
-        {
-            return null;
-        }
 
         if (blockN.getBlock() != Blocks.AIR) return EnumFacing.NORTH;
         if (blockS.getBlock() != Blocks.AIR) return EnumFacing.SOUTH;
@@ -123,14 +133,17 @@ public class SpiderData extends LivingEntityData<EntitySpider>
         return null;
     }
 
+    public EnumFacing getWallFacing()
+    {
+        return wallFacing;
+    }
+
     public float getCrawlingRotation()
     {
-        final EnumFacing facing = getWallFacing();
-
-        if (facing == null)
+        if (wallFacing == null)
             return 0.0F;
 
-        return facing.getHorizontalAngle();
+        return wallFacing.getHorizontalAngle();
     }
 
     public static class Limb

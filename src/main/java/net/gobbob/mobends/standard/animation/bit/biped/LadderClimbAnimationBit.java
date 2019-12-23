@@ -17,8 +17,6 @@ public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData<?>>
         return ACTIONS;
     }
 
-
-
     @Override
     public void perform(BipedEntityData<?> data)
     {

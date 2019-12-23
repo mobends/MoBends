@@ -29,7 +29,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     {
         super(entity);
 
-        // Setting high values for ticksAfter* variables
+        // Setting high values for ticks* variables
         // to avoid premature animation triggers.
         // (like the automatic attack stance on creation)
         this.ticksInAir = 100F;

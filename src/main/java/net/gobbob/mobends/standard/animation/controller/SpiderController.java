@@ -51,36 +51,37 @@ public class SpiderController implements IAnimationController<SpiderData>
 		else
 		{
 			System.out.println(spiderData.isOnGround() + " " + spiderData.getTicksAfterTouchdown());
-			if (!spiderData.isOnGround() || spiderData.getTicksAfterTouchdown() < 1)
-			{
-				if (spider.isBesideClimbableBlock())
-				{
-					this.layerBase.playOrContinueBit(bitClimb, spiderData);
-				}
-				else
-				{
-					this.layerBase.playOrContinueBit(bitJump, spiderData);
-				}
 
-				if (resetAfterJumped)
-					resetAfterJumped = false;
+			if (spider.isBesideClimbableBlock())
+			{
+				this.layerBase.playOrContinueBit(bitClimb, spiderData);
 			}
 			else
 			{
-				if (!resetAfterJumped)
+				if (!spiderData.isOnGround() || spiderData.getTicksAfterTouchdown() < 1)
 				{
-					for (SpiderData.Limb limb : spiderData.limbs)
-						limb.resetPosition();
-					resetAfterJumped = true;
-				}
+					this.layerBase.playOrContinueBit(bitJump, spiderData);
 
-				if (spiderData.isStillHorizontally())
-				{
-					this.layerBase.playOrContinueBit(bitIdle, spiderData);
+					if (resetAfterJumped)
+						resetAfterJumped = false;
 				}
 				else
 				{
-					this.layerBase.playOrContinueBit(bitMove, spiderData);
+					if (!resetAfterJumped)
+					{
+						for (SpiderData.Limb limb : spiderData.limbs)
+							limb.resetPosition();
+						resetAfterJumped = true;
+					}
+
+					if (spiderData.isStillHorizontally())
+					{
+						this.layerBase.playOrContinueBit(bitIdle, spiderData);
+					}
+					else
+					{
+						this.layerBase.playOrContinueBit(bitMove, spiderData);
+					}
 				}
 			}
 		}

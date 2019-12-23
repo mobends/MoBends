@@ -21,9 +21,6 @@ public class SpiderMoveAnimationBit extends SpiderAnimationBitBase
     public void perform(SpiderData data)
     {
         final float ticks = DataUpdateHandler.getTicks();
-        final float pt = DataUpdateHandler.partialTicks;
-        final EntitySpider spider = data.getEntity();
-
         final float headYaw = data.headYaw.get();
         final float headPitch = data.headPitch.get();
         final float limbSwing = data.limbSwing.get() * 0.6662F;
@@ -43,8 +40,8 @@ public class SpiderMoveAnimationBit extends SpiderAnimationBitBase
         data.spiderHead.rotation.orientInstantX(headPitch);
         data.spiderHead.rotation.rotateY(headYaw).finish();
 
-        final double bodyX = Math.sin(ticks * 0.2F) * 0.4;
-        final double bodyZ = Math.cos(ticks * 0.2F) * 0.4;
+        final float bodyX = MathHelper.sin(ticks * 0.2F) * 0.4F;
+        final float bodyZ = MathHelper.cos(ticks * 0.2F) * 0.4F;
 
         // Back limbs
         animateMovingLimb(data, groundLevel, limbSwing + .0F, 0, 20.0F, 10F, -80, -50);
@@ -63,7 +60,7 @@ public class SpiderMoveAnimationBit extends SpiderAnimationBitBase
         animateMovingLimb(data, groundLevel, limbSwing + .4F, 7, 10F, 20.0F, 60, 80.0F);
 
         data.localOffset.slideToZero();
-        data.globalOffset.set((float) bodyX, -groundLevel, (float) -bodyZ);
+        data.globalOffset.set(bodyX, -groundLevel, -bodyZ);
         data.renderRotation.orientZero();
         data.centerRotation.orientZero();
     }

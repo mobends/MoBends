@@ -75,6 +75,11 @@ public class GUtil
         }
     }
 
+    public static float lerp(float a, float b, float slide)
+    {
+        return a + (b - a) * slide;
+    }
+
     public static float interpolateRotation(float a, float b, float partialTicks)
     {
         float f;
