@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.client.event;
 
 import net.gobbob.mobends.core.addon.Addons;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.bender.EntityBenderRegistry;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
 import net.gobbob.mobends.core.data.EntityDatabase;
 import net.gobbob.mobends.core.pack.PackDataProvider;
@@ -38,7 +38,7 @@ public class KeyboardHandler
         {
             PackDataProvider.INSTANCE.clearCache();
             EntityDatabase.instance.refresh();
-            AnimatedEntityRegistry.instance.refreshMutators();
+            EntityBenderRegistry.instance.refreshMutators();
             Addons.onRefresh();
         }
     }

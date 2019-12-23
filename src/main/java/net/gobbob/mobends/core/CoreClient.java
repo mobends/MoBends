@@ -1,6 +1,6 @@
 package net.gobbob.mobends.core;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.bender.EntityBenderRegistry;
 import net.gobbob.mobends.core.client.event.*;
 import net.gobbob.mobends.core.configuration.CoreClientConfig;
 import net.gobbob.mobends.core.pack.PackManager;
@@ -57,7 +57,7 @@ public class CoreClient extends Core<CoreClientConfig>
     {
         super.postInit(event);
 
-        AnimatedEntityRegistry.instance.applyConfiguration(configuration);
+        EntityBenderRegistry.instance.applyConfiguration(configuration);
     }
 
     @Nullable

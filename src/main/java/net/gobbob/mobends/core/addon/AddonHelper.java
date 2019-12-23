@@ -9,9 +9,9 @@ package net.gobbob.mobends.core.addon;
 public class AddonHelper
 {
 	
-	public static void registerAddon(String modid, IAddon addon)
+	public static void registerAddon(String modId, IAddon addon)
 	{
-		Addons.registerAddon(modid, addon);
+		Addons.registerAddon(modId, addon);
 	}
 	
 }

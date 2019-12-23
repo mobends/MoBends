@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard.previewer;
 
-import net.gobbob.mobends.core.animatedentity.BoneMetadata;
-import net.gobbob.mobends.core.animatedentity.IPreviewer;
+import net.gobbob.mobends.core.bender.BoneMetadata;
+import net.gobbob.mobends.core.bender.IPreviewer;
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;
 import net.gobbob.mobends.core.math.vector.Vec3fReadonly;

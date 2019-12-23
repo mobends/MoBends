@@ -29,7 +29,7 @@ public class GuiPopUp
         this.width = 120;
         this.height = 60;
         this.title = GUtil.squashText(fontRenderer, title, width - 40);
-        this.buttons = new ArrayList<GuiCustomButton>();
+        this.buttons = new ArrayList<>();
         for (String label : buttons)
         {
             this.buttons.add(new GuiCustomButton(50, 20, label));

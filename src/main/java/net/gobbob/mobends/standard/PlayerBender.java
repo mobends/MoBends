@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.animatedentity.IPreviewer;
+import net.gobbob.mobends.core.bender.EntityBender;
+import net.gobbob.mobends.core.bender.IPreviewer;
 import net.gobbob.mobends.core.data.IEntityDataFactory;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.mutators.IMutatorFactory;
@@ -12,7 +12,7 @@ import net.gobbob.mobends.standard.mutators.PlayerMutator;
 import net.gobbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.entity.AbstractClientPlayer;
 
-public class AnimatedPlayer extends AnimatedEntity<AbstractClientPlayer>
+public class PlayerBender extends EntityBender<AbstractClientPlayer>
 {
 
     private PlayerPreviewer previewer;
@@ -21,7 +21,7 @@ public class AnimatedPlayer extends AnimatedEntity<AbstractClientPlayer>
         "leftForeLeg", "rightForeLeg", "totalRotation", "leftItemRotation", "rightItemRotation"
     };
 
-    public AnimatedPlayer()
+    public PlayerBender()
     {
         super(ModStatics.MODID, "player", "mobends.player", AbstractClientPlayer.class, new PlayerRenderer());
         this.previewer = new PlayerPreviewer();

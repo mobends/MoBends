@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.animatedentity;
+package net.gobbob.mobends.core.bender;
 
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.math.vector.IVec3fRead;

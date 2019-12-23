@@ -1,6 +1,6 @@
 package net.gobbob.mobends.core.addon;
 
-import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
+import net.gobbob.mobends.core.bender.AddonAnimationRegistry;
 
 /**
  * Classes that implement this interface can be

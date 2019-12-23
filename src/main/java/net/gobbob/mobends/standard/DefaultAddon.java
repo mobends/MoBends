@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard;
 
 import net.gobbob.mobends.core.addon.IAddon;
-import net.gobbob.mobends.core.animatedentity.AddonAnimationRegistry;
+import net.gobbob.mobends.core.bender.AddonAnimationRegistry;
 import net.gobbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import net.gobbob.mobends.standard.client.renderer.entity.ArrowTrail;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.SpiderRenderer;
@@ -26,7 +26,7 @@ public class DefaultAddon implements IAddon
 	@Override
 	public void registerAnimatedEntities(AddonAnimationRegistry registry)
 	{
-		registry.registerEntity(new AnimatedPlayer());
+		registry.registerEntity(new PlayerBender());
 		
 		registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>(),
 				new ZombiePreviewer(),

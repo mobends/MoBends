@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.configuration;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.bender.EntityBender;
+import net.gobbob.mobends.core.bender.EntityBenderRegistry;
 import net.gobbob.mobends.core.flux.Observable;
 
 import java.io.File;
@@ -30,9 +30,9 @@ public class CoreClientConfig extends CoreConfig
 
     public void save()
     {
-        for (AnimatedEntity<?> animatedEntity : AnimatedEntityRegistry.instance.getRegistered())
+        for (EntityBender<?> entityBender : EntityBenderRegistry.instance.getRegistered())
         {
-            configuration.get(CATEGORY_ANIMATED, animatedEntity.getKey(), true).setValue(animatedEntity.isAnimated());
+            configuration.get(CATEGORY_ANIMATED, entityBender.getKey(), true).setValue(entityBender.isAnimated());
         }
 
         configuration.save();

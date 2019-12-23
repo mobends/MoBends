@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.animatedentity;
+package net.gobbob.mobends.core.bender;
 
 import net.gobbob.mobends.core.client.MutatedRenderer;
 import net.gobbob.mobends.core.data.EntityDatabase;
@@ -7,7 +7,7 @@ import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.mutators.IMutatorFactory;
 import net.minecraft.entity.EntityLivingBase;
 
-public class DefaultAnimatedEntity<T extends EntityLivingBase> extends AnimatedEntity<T>
+public class DefaultEntityBender<T extends EntityLivingBase> extends EntityBender<T>
 {
 
     private final IEntityDataFactory<T> entityDataFactory;
@@ -17,9 +17,9 @@ public class DefaultAnimatedEntity<T extends EntityLivingBase> extends AnimatedE
 
     private T previewEntity;
 
-    public DefaultAnimatedEntity(String modId, String key, String unlocalizedName, Class<T> entityClass,
-                          IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-                          MutatedRenderer<T> renderer, IPreviewer<?> previewer, String... alterableParts)
+    public DefaultEntityBender(String modId, String key, String unlocalizedName, Class<T> entityClass,
+                               IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
+                               MutatedRenderer<T> renderer, IPreviewer<?> previewer, String... alterableParts)
     {
         super(modId, key, unlocalizedName, entityClass, renderer);
 

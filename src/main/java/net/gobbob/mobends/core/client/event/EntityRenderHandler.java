@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.client.event;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.bender.EntityBender;
+import net.gobbob.mobends.core.bender.EntityBenderRegistry;
 import net.gobbob.mobends.core.data.LivingEntityData;
 import net.gobbob.mobends.core.mutators.Mutator;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,9 +17,9 @@ public class EntityRenderHandler
     public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
     {
         final EntityLivingBase living = event.getEntity();
-        final AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.instance.getForEntity(living);
+        final EntityBender<EntityLivingBase> entityBender = EntityBenderRegistry.instance.getForEntity(living);
 
-        if (animatedEntity == null)
+        if (entityBender == null)
             return;
 
         final RenderLivingBase<?> renderer = event.getRenderer();
@@ -27,30 +27,30 @@ public class EntityRenderHandler
 
         GlStateManager.pushMatrix();
 
-        if (animatedEntity.isAnimated())
+        if (entityBender.isAnimated())
         {
-            if (animatedEntity.applyMutation(renderer, living, pt))
+            if (entityBender.applyMutation(renderer, living, pt))
             {
-                Mutator mutator = animatedEntity.getMutator(renderer);
+                Mutator mutator = entityBender.getMutator(renderer);
                 LivingEntityData<EntityLivingBase> data = mutator.getData(living);
-                animatedEntity.beforeRender(data, living, pt);
+                entityBender.beforeRender(data, living, pt);
             }
         }
         else
         {
-            animatedEntity.deapplyMutation(event.getRenderer(), living);
+            entityBender.deapplyMutation(event.getRenderer(), living);
         }
     }
 
     @SubscribeEvent
     public void afterLivingRender(RenderLivingEvent.Post<? extends EntityLivingBase> event)
     {
-        final AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.instance.getForEntity(event.getEntity());
+        final EntityBender<EntityLivingBase> entityBender = EntityBenderRegistry.instance.getForEntity(event.getEntity());
 
-        if (animatedEntity == null)
+        if (entityBender == null)
             return;
 
-        animatedEntity.afterRender(event.getEntity(), event.getPartialRenderTick());
+        entityBender.afterRender(event.getEntity(), event.getPartialRenderTick());
 
         GlStateManager.popMatrix();
     }

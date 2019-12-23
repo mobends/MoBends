@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard.client.model.armor;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.bender.EntityBender;
+import net.gobbob.mobends.core.bender.EntityBenderRegistry;
 import net.gobbob.mobends.core.client.model.*;
 import net.gobbob.mobends.core.data.EntityData;
 import net.gobbob.mobends.core.data.EntityDatabase;
@@ -49,7 +49,7 @@ public class MutatedArmorModel extends ModelBiped
     /**
      * The lastest AnimatedEntity that rendered this armor.
      */
-    protected AnimatedEntity<EntityLivingBase> lastAnimatedEntity;
+    protected EntityBender<EntityLivingBase> lastEntityBender;
 
     /**
      * This is used as a parent for other parts, like the arms and head.
@@ -96,20 +96,20 @@ public class MutatedArmorModel extends ModelBiped
             return;
         EntityLivingBase entityLiving = (EntityLivingBase) entityIn;
 
-        AnimatedEntity<EntityLivingBase> animatedEntity = AnimatedEntityRegistry.instance.getForEntity(entityLiving);
-        if (animatedEntity == null)
+        EntityBender<EntityLivingBase> entityBender = EntityBenderRegistry.instance.getForEntity(entityLiving);
+        if (entityBender == null)
             return;
 
         EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
         if (!(entityData instanceof BipedEntityData))
             return;
 
-        lastAnimatedEntity = animatedEntity;
-        if (animatedEntity.isAnimated() && !this.mutated)
+        lastEntityBender = entityBender;
+        if (entityBender.isAnimated() && !this.mutated)
         {
             this.mutate();
         }
-        else if (!animatedEntity.isAnimated() && this.mutated)
+        else if (!entityBender.isAnimated() && this.mutated)
         {
             this.demutate();
         }
@@ -292,14 +292,14 @@ public class MutatedArmorModel extends ModelBiped
      */
     public void updateMutation()
     {
-        if (lastAnimatedEntity == null)
+        if (lastEntityBender == null)
             return;
 
-        if (lastAnimatedEntity.isAnimated() && !this.mutated)
+        if (lastEntityBender.isAnimated() && !this.mutated)
         {
             this.mutate();
         }
-        else if (!lastAnimatedEntity.isAnimated() && this.mutated)
+        else if (!lastEntityBender.isAnimated() && this.mutated)
         {
             this.demutate();
         }

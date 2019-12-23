@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.animatedentity;
+package net.gobbob.mobends.core.bender;
 
 import net.gobbob.mobends.core.client.MutatedRenderer;
 import net.gobbob.mobends.core.data.EntityData;
@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public abstract class AnimatedEntity<T extends EntityLivingBase>
+public abstract class EntityBender<T extends EntityLivingBase>
 {
 
 	protected final String key;
@@ -38,8 +38,8 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 	private boolean animate;
 	protected Map<String, BoneMetadata> boneMetadataMap;
 
-	public AnimatedEntity(String modId, @Nullable String key, String unlocalizedName, Class<T> entityClass,
-						  MutatedRenderer<T> renderer)
+	public EntityBender(String modId, @Nullable String key, String unlocalizedName, Class<T> entityClass,
+						MutatedRenderer<T> renderer)
 	{
 		if (renderer == null)
 			throw new NullPointerException("The mutated renderer cannot be null.");
@@ -89,7 +89,7 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 	}
 
 	/**
-	 * Returns true if entities assigned to this AnimatedEntity
+	 * Returns true if entities assigned to this EntityBender
 	 * should be animated.
 	 */
 	public boolean isAnimated()
@@ -115,7 +115,7 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 
 	/**
 	 * Used to apply the effect of the mutation, or just to update the model if it was already mutated.
-	 * Called from AnimatedEntity.
+	 * Called from EntityBender.
 	 */
 	@SuppressWarnings("unchecked")
 	public boolean applyMutation(RenderLivingBase<? extends T> renderer, T entity, float partialTicks)
@@ -142,7 +142,7 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 
 	/**
 	 * Used to reverse the effect of the mutation.
-	 * Called from AnimatedEntity.
+	 * Called from EntityBender.
 	 */
 	public void deapplyMutation(RenderLivingBase<? extends T> renderer, EntityLivingBase entity)
 	{
@@ -203,7 +203,7 @@ public abstract class AnimatedEntity<T extends EntityLivingBase>
 	
 	public static <T extends EntityLivingBase> Mutator<?, ?, ?> getMutatorForRenderer(Class<T> entityClass, RenderLivingBase<T> renderer)
 	{
-		AnimatedEntity<?> ae = AnimatedEntityRegistry.instance.getForEntityClass(entityClass);
+		EntityBender<?> ae = EntityBenderRegistry.instance.getForEntityClass(entityClass);
 		return ae != null ? ae.mutatorMap.get(renderer) : null;
 	}
 	

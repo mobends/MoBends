@@ -1,4 +1,4 @@
-package net.gobbob.mobends.core.animatedentity;
+package net.gobbob.mobends.core.bender;
 
 import net.minecraft.entity.Entity;
 

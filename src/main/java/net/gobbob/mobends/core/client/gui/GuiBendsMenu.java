@@ -5,6 +5,7 @@ import net.gobbob.mobends.core.client.gui.addonswindow.GuiAddonsWindow;
 import net.gobbob.mobends.core.client.gui.elements.GuiSectionButton;
 import net.gobbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
 import net.gobbob.mobends.core.client.gui.popup.GuiPopUp;
+import net.gobbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GuiHelper;
 import net.gobbob.mobends.standard.main.ModStatics;
@@ -26,7 +27,7 @@ public class GuiBendsMenu extends GuiScreen
 	public static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/icons.png");
 
-	private GuiSectionButton customizeButton;
+	private GuiSectionButton settingsButton;
 	private GuiSectionButton packsButton;
 	private GuiSectionButton addonsButton;
 	private GuiPopUp popUp;
@@ -36,7 +37,7 @@ public class GuiBendsMenu extends GuiScreen
 	{
 		Keyboard.enableRepeatEvents(true);
 
-		this.customizeButton = new GuiSectionButton(I18n.format("mobends.gui.section.customize"), 0xFFDA3A00)
+		this.settingsButton = new GuiSectionButton(I18n.format("mobends.gui.section.settings"), 0xFFDA3A00)
 				.setLeftIcon(0, 43, 19, 19).setRightIcon(19, 43, 19, 19);
 		this.packsButton = new GuiSectionButton(I18n.format("mobends.gui.section.packs"), 0xFF4577DE)
 				.setLeftIcon(38, 43, 23, 20).setRightIcon(38, 43, 23, 20);
@@ -58,7 +59,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		int startY = height / 2 - 32;
 		int distance = 49;
-		this.customizeButton.initGui((this.width - 318) / 2, startY);
+		this.settingsButton.initGui((this.width - 318) / 2, startY);
 		this.packsButton.initGui((this.width - 318) / 2, startY + distance);
 		this.addonsButton.initGui((this.width - 318) / 2, startY + distance * 2);
 	}
@@ -98,7 +99,7 @@ public class GuiBendsMenu extends GuiScreen
 			return;
 		}
 
-		this.customizeButton.update(mouseX, mouseY);
+		this.settingsButton.update(mouseX, mouseY);
 		this.packsButton.update(mouseX, mouseY);
 		this.addonsButton.update(mouseX, mouseY);
 	}
@@ -106,7 +107,7 @@ public class GuiBendsMenu extends GuiScreen
 	@Override
 	protected void mouseClicked(int x, int y, int state)
 	{
-		if (this.popUp != null)
+		if (popUp != null)
 		{
 			int button = popUp.mouseClicked(x, y, state);
 
@@ -117,15 +118,15 @@ public class GuiBendsMenu extends GuiScreen
 			return;
 		}
 
-		if (this.customizeButton.mouseClicked(x, y, state))
+		if (settingsButton.mouseClicked(x, y, state))
 		{
-			// Open the bends pack editor.
+			mc.displayGuiScreen(new GuiSettingsWindow());
 		}
-		else if (this.packsButton.mouseClicked(x, y, state))
+		else if (packsButton.mouseClicked(x, y, state))
 		{
-			this.mc.displayGuiScreen(new GuiPacksWindow());
+			mc.displayGuiScreen(new GuiPacksWindow());
 		}
-		else if (this.addonsButton.mouseClicked(x, y, state))
+		else if (addonsButton.mouseClicked(x, y, state))
 		{
 			// Opens the addons window.
 		}
@@ -143,7 +144,7 @@ public class GuiBendsMenu extends GuiScreen
 	protected void mouseReleased(int mouseX, int mouseY, int state)
 	{
 		super.mouseReleased(mouseX, mouseY, state);
-		this.customizeButton.mouseReleased(mouseX, mouseY, state);
+		this.settingsButton.mouseReleased(mouseX, mouseY, state);
 		this.packsButton.mouseReleased(mouseX, mouseY, state);
 		this.addonsWindow.mouseReleased(mouseX, mouseY, state);
 	}
@@ -165,7 +166,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		Draw.texturedRectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 70, titleWidth, titleHeight, 0, 0, 1, 1);
 
-		this.customizeButton.display();
+		this.settingsButton.display();
 		this.packsButton.display();
 		this.addonsButton.display();
 

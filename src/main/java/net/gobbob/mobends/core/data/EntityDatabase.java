@@ -1,7 +1,7 @@
 package net.gobbob.mobends.core.data;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
-import net.gobbob.mobends.core.animatedentity.PreviewHelper;
+import net.gobbob.mobends.core.bender.EntityBenderRegistry;
+import net.gobbob.mobends.core.bender.PreviewHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -78,7 +78,7 @@ public class EntityDatabase
             Entity entity = Minecraft.getMinecraft().world.getEntityByID(entry.getKey());
             if (!PreviewHelper.isPreviewEntity(entityInData) && (entity == null || entityInData != entity))
             {
-                AnimatedEntityRegistry.instance.clearCache(entityInData);
+                EntityBenderRegistry.instance.clearCache(entityInData);
                 it.remove();
             }
             else

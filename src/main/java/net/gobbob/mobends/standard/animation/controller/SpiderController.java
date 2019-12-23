@@ -50,8 +50,6 @@ public class SpiderController implements IAnimationController<SpiderData>
 		}
 		else
 		{
-			System.out.println(spiderData.isOnGround() + " " + spiderData.getTicksAfterTouchdown());
-
 			if (spider.isBesideClimbableBlock())
 			{
 				this.layerBase.playOrContinueBit(bitClimb, spiderData);

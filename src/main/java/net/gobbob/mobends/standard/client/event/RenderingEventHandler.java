@@ -1,7 +1,7 @@
 package net.gobbob.mobends.standard.client.event;
 
-import net.gobbob.mobends.core.animatedentity.AnimatedEntity;
-import net.gobbob.mobends.core.animatedentity.AnimatedEntityRegistry;
+import net.gobbob.mobends.core.bender.EntityBender;
+import net.gobbob.mobends.core.bender.EntityBenderRegistry;
 import net.gobbob.mobends.standard.mutators.PlayerMutator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -23,12 +23,12 @@ public class RenderingEventHandler
 			return;
 		
 		AbstractClientPlayer player = (AbstractClientPlayer) viewEntity;
-		AnimatedEntity<EntityLivingBase> animatedPlayer = AnimatedEntityRegistry.instance.getForEntity(player);
+		EntityBender<EntityLivingBase> animatedPlayer = EntityBenderRegistry.instance.getForEntity(player);
 		if (animatedPlayer == null || !animatedPlayer.isAnimated())
 			return;
 		
 		RenderPlayer renderPlayer = (RenderPlayer) mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
-		PlayerMutator mutator = (PlayerMutator) AnimatedEntity.getMutatorForRenderer(AbstractClientPlayer.class, renderPlayer);
+		PlayerMutator mutator = (PlayerMutator) EntityBender.getMutatorForRenderer(AbstractClientPlayer.class, renderPlayer);
 		if (mutator != null)
 			mutator.poseForFirstPersonView();
 	}
