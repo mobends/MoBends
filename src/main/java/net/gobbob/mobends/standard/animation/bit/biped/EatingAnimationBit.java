@@ -35,7 +35,7 @@ public class EatingAnimationBit extends AnimationBit<BipedEntityData<?>>
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		float ticks = DataUpdateHandler.getTicks();
+		final float ticks = DataUpdateHandler.getTicks();
 		
 		boolean mainHandSwitch = this.actionHand == EnumHandSide.RIGHT;
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on

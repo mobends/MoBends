@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/*
+/**
  * This is an animation controller for a player instance.
  * It's a part of the EntityData structure.
  */

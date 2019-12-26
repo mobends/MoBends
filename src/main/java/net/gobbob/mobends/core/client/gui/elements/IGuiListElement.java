@@ -9,7 +9,7 @@ public interface IGuiListElement
 
     void update(int mouseX, int mouseY);
 
-    void draw();
+    void draw(float partialTicks);
 
     int getX();
 

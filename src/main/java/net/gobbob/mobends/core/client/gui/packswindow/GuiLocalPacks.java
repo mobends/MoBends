@@ -145,10 +145,10 @@ public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
         }
     }
 
-    public void draw()
+    public void draw(float partialTicks)
     {
-        availablePacksList.draw();
-        appliedPacksList.draw();
+        availablePacksList.draw(partialTicks);
+        appliedPacksList.draw(partialTicks);
 
         drawCenteredString(fontRenderer, I18n.format("mobends.gui.unusedpacks"), x + GuiPacksWindow.EDITOR_WIDTH / 4, y + 8, 0xffffff);
         drawCenteredString(fontRenderer, I18n.format("mobends.gui.appliedpacks"), x + GuiPacksWindow.EDITOR_WIDTH * 3 / 4 + 6, y + 8, 0xffffff);
@@ -156,7 +156,7 @@ public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
         final GuiPackEntry element = dragger.getDraggedElement();
         if (element != null)
         {
-            element.draw();
+            element.draw(partialTicks);
         }
     }
 

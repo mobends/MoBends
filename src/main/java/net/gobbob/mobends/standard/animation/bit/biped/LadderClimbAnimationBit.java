@@ -43,7 +43,7 @@ public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData<?>>
 		final float climbingRotation = data.getClimbingRotation();
 		final float renderRotationY = MathHelper.wrapDegrees(living.rotationYaw - data.headYaw.get() - climbingRotation);
         data.renderRotation.setSmoothness(.6F).orientY(renderRotationY);
-        data.globalOffset.slideZ(armSwingDouble2, .6F);
+        data.localOffset.slideZ(armSwingDouble2, .6F);
 
         data.body.rotation.setSmoothness(.5F).orientX(armSwingDouble * 10F);
         data.rightArm.rotation.setSmoothness(.5F).orientX(-90F + armOrientX + armSwingRight * 70F);

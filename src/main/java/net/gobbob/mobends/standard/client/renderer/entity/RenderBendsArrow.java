@@ -19,7 +19,8 @@ public abstract class RenderBendsArrow<T extends EntityArrow> extends RenderArro
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
     	if(ModConfig.showArrowTrails)
-    		ArrowTrail.renderTrail(entity, x, y, z, partialTicks);
+    		ArrowTrailManager.renderTrail(entity, x, y, z, partialTicks);
+
     	super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
     

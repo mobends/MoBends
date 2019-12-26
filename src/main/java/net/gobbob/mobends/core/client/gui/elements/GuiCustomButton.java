@@ -6,14 +6,18 @@ import net.minecraft.client.gui.GuiButton;
 public class GuiCustomButton extends GuiButton
 {
 
+    private final Minecraft mc;
+
     public GuiCustomButton(int buttonId, int width, int height)
     {
         super(buttonId, 0, 0, width, height, "");
+        mc = Minecraft.getMinecraft();
     }
 
     public GuiCustomButton(int width, int height, String text)
     {
         super(0, 0, 0, width, height, text);
+        mc = Minecraft.getMinecraft();
     }
 
     public GuiCustomButton setPosition(int x, int y)
@@ -25,13 +29,12 @@ public class GuiCustomButton extends GuiButton
 
     public void drawButton(int mouseX, int mouseY, float partialTicks)
     {
-        super.drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
+        super.drawButton(mc, mouseX, mouseY, partialTicks);
     }
 
     public boolean mousePressed(int mouseX, int mouseY)
     {
-        Minecraft mc = Minecraft.getMinecraft();
-        boolean clicked = this.mousePressed(mc, mouseX, mouseY);
+        final boolean clicked = this.mousePressed(mc, mouseX, mouseY);
 
         if (clicked)
         {

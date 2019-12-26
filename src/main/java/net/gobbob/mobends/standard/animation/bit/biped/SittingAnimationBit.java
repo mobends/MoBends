@@ -18,8 +18,6 @@ public class SittingAnimationBit extends AnimationBit<BipedEntityData<?>>
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		EntityLivingBase living = data.getEntity();
-		
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		
 		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()))

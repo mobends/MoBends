@@ -126,7 +126,7 @@ public class GuiPacksWindow extends GuiScreen
         this.tabNavigation.draw(mouseX, mouseY);
         if (this.tabNavigation.getSelectedTab() == this.localPacksTab)
         {
-            this.localPacks.draw();
+            this.localPacks.draw(partialTicks);
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);

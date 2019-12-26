@@ -27,7 +27,7 @@ public interface IGuiElement extends IGuiPositioned
     boolean handleMouseReleased(int mouseX, int mouseY, int button);
 
     void initGui();
-    void draw();
+    void draw(float partialTicks);
     IGuiElement getParent();
 
     /**

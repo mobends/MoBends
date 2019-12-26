@@ -22,8 +22,9 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		EntityLivingBase living = data.getEntity();
-		
+		final EntityLivingBase living = data.getEntity();
+
+		data.localOffset.slideToZero(0.3F);
 		data.renderRotation.orientZero();
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.renderLeftItemRotation.orientZero();
@@ -42,8 +43,6 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		data.leftForeArm.rotation.orientX(-10.0F);
 		data.rightArm.rotation.orientX(0.0F).rotateZ(10F);
 		data.rightForeArm.rotation.orientX(-10.0F);
-		
-		
 		
 		Entity ridden = living.getRidingEntity();
 		if (ridden != null && ridden instanceof EntityLivingBase)

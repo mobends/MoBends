@@ -4,6 +4,7 @@ import net.gobbob.mobends.core.addon.IAddon;
 import net.gobbob.mobends.core.bender.AddonAnimationRegistry;
 import net.gobbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import net.gobbob.mobends.standard.client.renderer.entity.ArrowTrail;
+import net.gobbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.SpiderRenderer;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.SquidRenderer;
 import net.gobbob.mobends.standard.client.renderer.entity.mutated.ZombieRenderer;
@@ -78,7 +79,7 @@ public class DefaultAddon implements IAddon
 	public void onRenderTick(float partialTicks)
 	{
 		if (ModConfig.showArrowTrails)
-			ArrowTrail.onRenderTick();
+			ArrowTrailManager.onRenderTick();
 		PlayerPreviewer.updatePreviewData(partialTicks);
 	}
 	

@@ -27,7 +27,9 @@ public class BowAnimationBit extends AnimationBit<BipedEntityData<?>>
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		EntityLivingBase living = data.getEntity();
+		data.localOffset.slideToZero(0.3F);
+
+		final EntityLivingBase living = data.getEntity();
 
 		boolean mainHandSwitch = this.actionHand == EnumHandSide.RIGHT;
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on

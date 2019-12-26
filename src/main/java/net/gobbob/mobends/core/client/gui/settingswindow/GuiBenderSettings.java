@@ -1,15 +1,13 @@
 package net.gobbob.mobends.core.client.gui.settingswindow;
 
 import net.gobbob.mobends.core.bender.EntityBender;
-import net.gobbob.mobends.core.bender.EntityBenderRegistry;
 import net.gobbob.mobends.core.client.gui.elements.GuiToggleButton;
+import net.gobbob.mobends.core.client.gui.elements.IGuiListElement;
 import net.gobbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 
-import java.io.IOException;
-
-public class GuiBenderSettings
+public class GuiBenderSettings implements IGuiListElement
 {
 
     private final EntityBender<?> bender;
@@ -17,6 +15,7 @@ public class GuiBenderSettings
     private final GuiToggleButton toggleButton;
 
     private int x, y;
+    private int listOrder;
 
     public GuiBenderSettings(EntityBender<?> bender)
     {
@@ -33,12 +32,16 @@ public class GuiBenderSettings
         this.toggleButton.initGui(x + 4, y + 14);
     }
 
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    @Override
+    public boolean handleMouseClicked(int mouseX, int mouseY, int mouseButton)
     {
         if (toggleButton.mouseClicked(mouseX, mouseY, mouseButton))
         {
             bender.setAnimate(toggleButton.getToggleState());
+            return true;
         }
+
+        return false;
     }
 
     public void update(int mouseX, int mouseY)
@@ -46,7 +49,7 @@ public class GuiBenderSettings
         toggleButton.update(mouseX, mouseY);
     }
 
-    public void draw()
+    public void draw(float partialTicks)
     {
         GlStateManager.color(1F, 1F, 1F);
 
@@ -58,6 +61,36 @@ public class GuiBenderSettings
         mc.fontRenderer.drawStringWithShadow(bender.getLocalizedName(), this.x + 6, this.y + 4, 0xffffff);
 
         toggleButton.draw();
+    }
+
+    @Override
+    public int getX()
+    {
+        return x;
+    }
+
+    @Override
+    public int getY()
+    {
+        return y;
+    }
+
+    @Override
+    public int getHeight()
+    {
+        return 30;
+    }
+
+    @Override
+    public int getOrder()
+    {
+        return listOrder;
+    }
+
+    @Override
+    public void setOrder(int order)
+    {
+        listOrder = order;
     }
 
 }

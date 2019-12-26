@@ -170,7 +170,7 @@ public class GuiPackEntry implements IGuiListElement, IGuiDraggable
     }
 
     @Override
-    public void draw()
+    public void draw(float partialTicks)
     {
         final int viewX = dragged ? dragX - dragPivotX : smoothX;
         final int viewY = dragged ? dragY - dragPivotY : smoothY;

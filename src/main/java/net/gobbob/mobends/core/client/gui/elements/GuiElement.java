@@ -56,14 +56,14 @@ public abstract class GuiElement implements IGuiElement, IGuiElementsContainer
     }
 
     @Override
-    public void draw()
+    public void draw(float partialTicks)
     {
         GlStateManager.pushMatrix();
         GlStateManager.translate(this.getViewX(), this.getViewY(), 0);
 
-        this.drawBackground();
-        this.drawChildren();
-        this.drawForeground();
+        this.drawBackground(partialTicks);
+        this.drawChildren(partialTicks);
+        this.drawForeground(partialTicks);
 
         GlStateManager.popMatrix();
     }
@@ -80,8 +80,8 @@ public abstract class GuiElement implements IGuiElement, IGuiElementsContainer
         return y;
     }
 
-    protected abstract void drawBackground();
+    protected abstract void drawBackground(float partialTicks);
 
-    protected abstract void drawForeground();
+    protected abstract void drawForeground(float partialTicks);
 
 }

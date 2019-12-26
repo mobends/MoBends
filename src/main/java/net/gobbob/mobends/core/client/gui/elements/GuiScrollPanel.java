@@ -1,6 +1,8 @@
 package net.gobbob.mobends.core.client.gui.elements;
 
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.GUtil;
 import net.gobbob.mobends.core.util.UIScissorHelper;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Mouse;
@@ -17,8 +19,8 @@ public abstract class GuiScrollPanel extends GuiElement
      */
     protected int contentSize;
     protected int scrollAmountTarget;
+    protected int prevScrollAmount;
     protected int scrollAmount;
-    protected float scrollTweenProgress;
     protected boolean hovered;
     protected boolean scrollBarHovered;
     protected boolean scrollHandleHovered;
@@ -68,6 +70,7 @@ public abstract class GuiScrollPanel extends GuiElement
             }
         }
 
+        this.prevScrollAmount = this.scrollAmount;
         this.scrollAmount += (this.scrollAmountTarget - this.scrollAmount) * getScrollTweenSpeed();
     }
 
@@ -112,7 +115,7 @@ public abstract class GuiScrollPanel extends GuiElement
             if (mouseWheelRoll != 0)
             {
                 mouseWheelRoll = mouseWheelRoll > 0 ? 1 : -1;
-                this.scroll(mouseWheelRoll * 10);
+                this.scroll(mouseWheelRoll * getScrollSpeed());
             }
             return true;
         }
@@ -142,38 +145,40 @@ public abstract class GuiScrollPanel extends GuiElement
     }
 
     @Override
-    public void draw()
+    public void draw(float partialTicks)
     {
+        final float scroll = GUtil.lerp(this.prevScrollAmount, this.scrollAmount, partialTicks);
+
         GlStateManager.pushMatrix();
         GlStateManager.translate(this.getViewX(), this.getViewY(), 0);
 
-        this.drawBackground();
+        this.drawBackground(partialTicks);
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate(0, -this.scrollAmount, 0);
+        GlStateManager.translate(0, -scroll, 0);
         UIScissorHelper.INSTANCE.setUIBounds((int) this.getAbsoluteX(), (int) this.getAbsoluteY(), this.width - this.scrollBarWidth, this.height);
         UIScissorHelper.INSTANCE.enable();
 
-        this.drawChildren();
-        this.drawContent();
+        this.drawChildren(partialTicks);
+        this.drawContent(partialTicks);
 
         UIScissorHelper.INSTANCE.disable();
         GlStateManager.popMatrix();
 
-        this.drawForeground();
+        this.drawForeground(partialTicks);
 
         GlStateManager.popMatrix();
     }
 
-    protected abstract void drawContent();
+    protected abstract void drawContent(float partialTicks);
 
     @Override
-    protected void drawForeground()
+    protected void drawForeground(float partialTicks)
     {
-        this.drawScrollBar();
+        this.drawScrollBar(partialTicks);
     }
 
-    protected void drawScrollBar()
+    protected void drawScrollBar(float partialTicks)
     {
         if (contentSize <= height)
             return;
@@ -188,7 +193,7 @@ public abstract class GuiScrollPanel extends GuiElement
                 : (this.scrollHandleHovered ? this.getScrollBarHoveredColor() : this.getScrollBarColor());
 
         // Handle
-        Draw.rectangle(width - scrollBarWidth, this.getScrollHandleY(), scrollBarWidth, scrollBarHeight, barColor);
+        Draw.rectangle(width - scrollBarWidth, this.getScrollHandleY(partialTicks), scrollBarWidth, scrollBarHeight, barColor);
 
         GlStateManager.color(1, 1, 1, 1);
     }
@@ -200,10 +205,16 @@ public abstract class GuiScrollPanel extends GuiElement
 
     protected int getScrollHandleY()
     {
+        return getScrollHandleY(1);
+    }
+
+    protected int getScrollHandleY(float partialTicks)
+    {
         if (this.contentSize <= this.height)
             return 0;
 
-        return this.scrollAmount * (this.height + 2) / this.contentSize;
+        final int scroll = (int) GUtil.lerp(this.prevScrollAmount, this.scrollAmount, partialTicks);
+        return scroll * (this.height + 2) / this.contentSize;
     }
 
     protected int getScrollHandleHeight()
@@ -243,6 +254,8 @@ public abstract class GuiScrollPanel extends GuiElement
     {
         this.height = height;
     }
+
+    protected int getScrollSpeed() { return 10; }
 
     protected float getScrollTweenSpeed()
     {

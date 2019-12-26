@@ -19,6 +19,7 @@ public class WalkAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 	@Override
 	public void perform(T data)
 	{
+		data.localOffset.slideToZero(0.3F);
 		data.globalOffset.slideToZero(0.3F);
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.renderRotation.setSmoothness(.3F).orientZero();

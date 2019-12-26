@@ -37,23 +37,23 @@ public class GuiPackList extends GuiList<GuiPackEntry>
     }
 
     @Override
-    protected void drawBackground()
+    protected void drawBackground(float partialTicks)
     {
-        super.drawBackground();
+        super.drawBackground(partialTicks);
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(GuiPacksWindow.BACKGROUND_TEXTURE);
         Draw.borderBox(0, 0, this.width, this.height, 4, 36, 117);
     }
 
     @Override
-    protected void drawContent()
+    protected void drawContent(float partialTicks)
     {
         for (GuiPackEntry element : this.getListElements())
         {
             // Dragged elements are drawn separately.
             if (!element.isDragged())
             {
-                element.draw();
+                element.draw(partialTicks);
             }
         }
     }

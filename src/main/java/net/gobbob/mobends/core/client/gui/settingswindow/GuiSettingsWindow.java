@@ -2,7 +2,9 @@ package net.gobbob.mobends.core.client.gui.settingswindow;
 
 import net.gobbob.mobends.core.bender.EntityBender;
 import net.gobbob.mobends.core.bender.EntityBenderRegistry;
+import net.gobbob.mobends.core.client.event.DataUpdateHandler;
 import net.gobbob.mobends.core.client.gui.GuiBendsMenu;
+import net.gobbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
 import net.gobbob.mobends.core.util.Draw;
 import net.gobbob.mobends.core.util.GuiHelper;
 import net.gobbob.mobends.standard.main.ModStatics;
@@ -13,8 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class GuiSettingsWindow extends GuiScreen
 {
@@ -27,7 +27,7 @@ public class GuiSettingsWindow extends GuiScreen
 
     private int x, y;
 
-    private final List<GuiBenderSettings> benderSettingsList = new ArrayList<>();
+    private final GuiBenderList bendsSettingsListUI = new GuiBenderList(0, 0, EDITOR_WIDTH - 10, EDITOR_HEIGHT - 10);
 
     public GuiSettingsWindow()
     {
@@ -35,7 +35,7 @@ public class GuiSettingsWindow extends GuiScreen
 
         for (final EntityBender<?> bender : EntityBenderRegistry.instance.getRegistered())
         {
-            benderSettingsList.add(new GuiBenderSettings(bender));
+            bendsSettingsListUI.addElement(new GuiBenderSettings(bender));
         }
     }
 
@@ -49,13 +49,7 @@ public class GuiSettingsWindow extends GuiScreen
 
         buttonList.clear();
         buttonList.add(new GuiButton(BUTTON_BACK, 10, height - 30, 60, 20, "Back"));
-
-        int yOffset = y + 6;
-        for (final GuiBenderSettings gui : benderSettingsList)
-        {
-            gui.initGui(x + 6, yOffset);
-            yOffset += 40;
-        }
+        bendsSettingsListUI.initGui(this.x + 9, this.y + 9);
     }
 
     @Override
@@ -71,10 +65,7 @@ public class GuiSettingsWindow extends GuiScreen
         Draw.texturedModalRect(x + 4, y - 13, EDITOR_WIDTH - 16, 16, 105, 0, 1, 16);
         Draw.texturedModalRect(x + EDITOR_WIDTH - 17, y - 13, 106, 0, 19, 16);
 
-        for (final GuiBenderSettings gui : benderSettingsList)
-        {
-            gui.draw();
-        }
+        bendsSettingsListUI.draw(DataUpdateHandler.partialTicks);
 
         mc.fontRenderer.drawStringWithShadow("Settings", this.x + 6, this.y - 9, 0xffffff);
 
@@ -86,13 +77,10 @@ public class GuiSettingsWindow extends GuiScreen
     {
         super.updateScreen();
 
-        int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+        final int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
+        final int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 
-        for (final GuiBenderSettings gui : benderSettingsList)
-        {
-            gui.update(mouseX, mouseY);
-        }
+        bendsSettingsListUI.update(mouseX, mouseY);
     }
 
     @Override
@@ -100,10 +88,23 @@ public class GuiSettingsWindow extends GuiScreen
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
-        for (final GuiBenderSettings gui : benderSettingsList)
-        {
-            gui.mouseClicked(mouseX, mouseY, mouseButton);
-        }
+        bendsSettingsListUI.handleMouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int mouseButton)
+    {
+        super.mouseReleased(mouseX, mouseY, mouseButton);
+
+        bendsSettingsListUI.handleMouseReleased(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
+    public void handleMouseInput() throws IOException
+    {
+        super.handleMouseInput();
+
+        bendsSettingsListUI.handleMouseInput();
     }
 
     @Override

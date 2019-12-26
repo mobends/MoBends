@@ -5,10 +5,13 @@ import net.gobbob.mobends.core.client.gui.CustomFont;
 import net.gobbob.mobends.core.client.gui.CustomFontRenderer;
 import net.gobbob.mobends.core.util.Color;
 import net.gobbob.mobends.core.util.Draw;
+import net.gobbob.mobends.core.util.GuiHelper;
 import net.gobbob.mobends.core.util.IColorRead;
 import net.gobbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
@@ -22,6 +25,7 @@ public class GuiSectionButton
     public static final float HOVER_ICON_ANIMATION_DURATION = 2.0F;
     public static final float HOVER_BG_ANIMATION_DURATION = 2.0F;
 
+    protected final Minecraft mc;
     private String label;
     private int x, y;
     private int width, height;
@@ -38,6 +42,7 @@ public class GuiSectionButton
 
     public GuiSectionButton(int x, int y, String label, IColorRead bgColor)
     {
+        this.mc = Minecraft.getMinecraft();
         this.label = label;
         this.x = x;
         this.y = y;
@@ -107,7 +112,11 @@ public class GuiSectionButton
     public boolean mouseClicked(int mouseX, int mouseY, int event)
     {
         if (this.hover)
+        {
+            GuiHelper.playButtonSound(mc.getSoundHandler());
             this.pressed = true;
+        }
+
         return this.pressed;
     }
 

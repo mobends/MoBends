@@ -17,6 +17,7 @@ public class SprintAnimationBit<T extends BipedEntityData<?>> extends AnimationB
 	@Override
 	public void perform(T data)
 	{
+		data.localOffset.slideToZero(0.3F);
 		data.globalOffset.slideToZero(0.1F);
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		data.renderRotation.setSmoothness(.3F).orientZero();

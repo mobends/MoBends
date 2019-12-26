@@ -38,7 +38,7 @@ public class GuiAddPackButton extends GuiElement
     }
 
     @Override
-    protected void drawBackground()
+    protected void drawBackground(float partialTicks)
     {
         if (!this.enabled)
             return;
@@ -50,7 +50,7 @@ public class GuiAddPackButton extends GuiElement
     }
 
     @Override
-    protected void drawForeground() {}
+    protected void drawForeground(float partialTicks) {}
 
     public boolean mouseClicked(int mouseX, int mouseY, int button)
     {

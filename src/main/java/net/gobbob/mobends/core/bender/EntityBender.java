@@ -203,8 +203,8 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	
 	public static <T extends EntityLivingBase> Mutator<?, ?, ?> getMutatorForRenderer(Class<T> entityClass, RenderLivingBase<T> renderer)
 	{
-		EntityBender<?> ae = EntityBenderRegistry.instance.getForEntityClass(entityClass);
-		return ae != null ? ae.mutatorMap.get(renderer) : null;
+		EntityBender<?> bender = EntityBenderRegistry.instance.getForEntityClass(entityClass);
+		return bender != null ? bender.mutatorMap.get(renderer) : null;
 	}
 	
 }

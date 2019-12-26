@@ -21,8 +21,10 @@ public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		EntityLivingBase living = data.getEntity();
-		EnumHandSide primaryHand = living.getPrimaryHand();
+		data.localOffset.slideToZero(0.3F);
+
+		final EntityLivingBase living = data.getEntity();
+		final EnumHandSide primaryHand = living.getPrimaryHand();
 
 		boolean mainHandSwitch = primaryHand == EnumHandSide.RIGHT;
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on

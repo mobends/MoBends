@@ -120,16 +120,16 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel
     }
 
     @Override
-    protected void drawContent()
+    protected void drawContent(float partialTicks)
     {
         for (T element : this.getListElements())
         {
-            element.draw();
+            element.draw(partialTicks);
         }
     }
 
     @Override
-    protected void drawBackground()
+    protected void drawBackground(float partialTicks)
     {
 
     }

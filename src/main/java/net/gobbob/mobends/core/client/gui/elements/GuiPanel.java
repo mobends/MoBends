@@ -18,7 +18,7 @@ public abstract class GuiPanel extends GuiElement
     }
 
     @Override
-    public void drawChildren()
+    public void drawChildren(float partialTicks)
     {
         float t = this.shown ? 0F : 1F;
 //        float xOffset = 0F;
@@ -34,7 +34,7 @@ public abstract class GuiPanel extends GuiElement
 //            xOffset = t * width;
 
         if (t != 1F)
-            super.drawChildren();
+            super.drawChildren(partialTicks);
     }
 
     public void setShown(boolean shown)

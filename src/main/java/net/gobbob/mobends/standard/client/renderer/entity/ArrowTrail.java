@@ -1,6 +1,9 @@
 package net.gobbob.mobends.standard.client.renderer.entity;
 
 import net.gobbob.mobends.core.client.event.DataUpdateHandler;
+import net.gobbob.mobends.core.math.vector.Vec3f;
+import net.gobbob.mobends.core.math.vector.VectorUtils;
+import net.gobbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -8,255 +11,223 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
-import java.util.HashMap;
-
 public class ArrowTrail
 {
-	int id;
-	TrailNode[] nodes;
 
-	float spawnCooldown = 0;
+    public static final int MAX_LENGTH = 10;
+    public static final float SPAWN_INTERVAL = 1;
 
-	public ArrowTrail(int id)
-	{
-		this.id = id;
-		this.spawnCooldown = MAX_SPAWN_COOLDOWN;
-	}
+    private final Minecraft mc;
+    private EntityArrow trackedArrow;
+    private TrailNode[] nodes;
+    private float spawnCooldown = 0;
 
-	public void doRender(EntityArrow entity, double x, double y, double z, float partialTicks)
-	{
-		Vec3d forward = entity.getForward();
-		forward = new Vec3d(-forward.x, -forward.y, forward.z);
-		Vec3d up = Vec3d.fromPitchYaw(entity.rotationPitch + 90.0f, entity.rotationYaw);
-		up = new Vec3d(-up.x, -up.y, up.z);
-		Vec3d right = forward.crossProduct(up);
+    public ArrowTrail(EntityArrow arrow)
+    {
+        this.mc = Minecraft.getMinecraft();
+        this.trackedArrow = arrow;
+        this.spawnCooldown = SPAWN_INTERVAL;
+        this.nodes = new TrailNode[MAX_LENGTH];
 
-		if (nodes == null)
-		{
-			this.nodes = new TrailNode[MAX_LENGTH];
-			resetNodes(entity.posX, entity.posY, entity.posZ, up, right);
-		}
+        resetNodes();
+    }
 
-		if (this.spawnCooldown > 40)
-		{
-			this.spawnCooldown = 0;
-			resetNodes(entity.posX, entity.posY, entity.posZ, up, right);
-		}
+    public void onRenderTick()
+    {
+        spawnCooldown += DataUpdateHandler.ticksPerFrame;
+    }
 
-		while (this.spawnCooldown >= MAX_SPAWN_COOLDOWN)
-		{
-			for (int i = MAX_LENGTH - 1; i > 0; i--)
-			{
-				nodes[i].moveTo(nodes[i - 1]);
-			}
-			nodes[0].moveTo(entity.posX, entity.posY, entity.posZ, up, right);
-			this.spawnCooldown -= MAX_SPAWN_COOLDOWN;
-		}
+    public void render(double x, double y, double z, float partialTicks)
+    {
+        if (this.spawnCooldown > 40)
+        {
+            this.spawnCooldown = 0;
+            resetNodes();
+        }
 
-		renderNodes(entity, partialTicks);
-	}
+        while (this.spawnCooldown >= SPAWN_INTERVAL)
+        {
+            for (int i = MAX_LENGTH - 1; i > 0; i--)
+            {
+                nodes[i].moveTo(nodes[i - 1]);
+            }
+            nodes[0].moveTo(trackedArrow);
+            this.spawnCooldown -= SPAWN_INTERVAL;
+        }
 
-	public void resetNodes(double x, double y, double z, Vec3d up, Vec3d right)
-	{
-		for (int i = 0; i < MAX_LENGTH; i++)
-			this.nodes[i] = new TrailNode(x, y, z, up, right);
-	}
+        renderNodes(partialTicks);
+    }
 
-	public void renderNodes(EntityArrow entity, float partialTicks)
-	{
-		Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-		if (viewEntity == null)
-			return;
-		Vec3d viewPos = new Vec3d(viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * partialTicks,
-				viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * partialTicks,
-				viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * partialTicks);
+    public void resetNodes()
+    {
+        for (int i = 0; i < MAX_LENGTH; i++)
+            this.nodes[i] = new TrailNode(trackedArrow);
+    }
 
-		float r = 1;
-		float g = 1;
-		float b = 1;
-		float a = 0.5f;
-		GlStateManager.color(r, g, b, a);
+    public void renderNodes(float partialTicks)
+    {
+        final Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
 
-		GlStateManager.pushMatrix();
-		GlStateManager.disableTexture2D();
-		GlStateManager.disableLighting();
-		GlStateManager.disableCull();
-		GlStateManager.enableBlend();
-		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        if (viewEntity == null)
+            return;
+        Vec3d viewPos = new Vec3d(viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * partialTicks,
+                viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * partialTicks,
+                viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * partialTicks);
 
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder vertexbuffer = tessellator.getBuffer();
-		vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		for (int i = 1; i < MAX_LENGTH; i++)
-		{
-			TrailNode node0 = nodes[i - 1];
-			TrailNode node1 = nodes[i];
+        float r = 1;
+        float g = 1;
+        float b = 1;
+        float a = 0.5F;
+        GlStateManager.color(r, g, b, a);
 
-			Vec3d pos0 = new Vec3d(node0.x - viewPos.x, node0.y - viewPos.y, node0.z - viewPos.z);
-			Vec3d pos1 = new Vec3d(node1.x - viewPos.x, node1.y - viewPos.y, node1.z - viewPos.z);
-			float scale0 = ((float) (MAX_LENGTH - i)) / MAX_LENGTH * 0.1f;
-			float scale1 = ((float) MAX_LENGTH - i - 1.0f) / MAX_LENGTH * 0.1f;
-			if (i == 1)
-			{
-				scale1 = 0;
-			}
-			Vec3d up0 = node0.up, right0 = node0.right, up1 = node1.up, right1 = node1.right;
+        GlStateManager.pushMatrix();
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-			vertexbuffer
-					.pos(pos0.x + (-right0.x) * scale0, pos0.y + (-right0.y) * scale0, pos0.z + (-right0.z) * scale0)
-					.tex(0.0D, 0.15625D).endVertex();
-			vertexbuffer.pos(pos0.x + (right0.x) * scale0, pos0.y + (right0.y) * scale0, pos0.z + (right0.z) * scale0)
-					.tex(0.0D, 0.15625D).endVertex();
-			vertexbuffer.pos(pos1.x + (right1.x) * scale1, pos1.y + (right1.y) * scale1, pos1.z + (right1.z) * scale1)
-					.tex(0.0D, 0.15625D).endVertex();
-			vertexbuffer
-					.pos(pos1.x + (-right1.x) * scale1, pos1.y + (-right1.y) * scale1, pos1.z + (-right1.z) * scale1)
-					.tex(0.0D, 0.15625D).endVertex();
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
+        vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        for (int i = 1; i < MAX_LENGTH; i++)
+        {
+            TrailNode node0 = nodes[i - 1];
+            TrailNode node1 = nodes[i];
 
-			vertexbuffer.pos(pos0.x + (-up0.x) * scale0, pos0.y + (-up0.y) * scale0, pos0.z + (-up0.z) * scale0)
-					.tex(0.0D, 0.15625D).endVertex();
-			vertexbuffer.pos(pos0.x + (up0.x) * scale0, pos0.y + (up0.y) * scale0, pos0.z + (up0.z) * scale0)
-					.tex(0.0D, 0.15625D).endVertex();
-			vertexbuffer.pos(pos1.x + (up1.x) * scale1, pos1.y + (up1.y) * scale1, pos1.z + (up1.z) * scale1)
-					.tex(0.0D, 0.15625D).endVertex();
-			vertexbuffer.pos(pos1.x + (-up1.x) * scale1, pos1.y + (-up1.y) * scale1, pos1.z + (-up1.z) * scale1)
-					.tex(0.0D, 0.15625D).endVertex();
-		}
-		tessellator.draw();
+            Vec3d pos0 = new Vec3d(node0.x - viewPos.x, node0.y - viewPos.y, node0.z - viewPos.z);
+            Vec3d pos1 = new Vec3d(node1.x - viewPos.x, node1.y - viewPos.y, node1.z - viewPos.z);
+            float scale0 = ((float) (MAX_LENGTH - i)) / MAX_LENGTH * .1F;
+            float scale1 = ((float) MAX_LENGTH - i - 1.0f) / MAX_LENGTH * .1F;
+            if (i == 1)
+            {
+                scale1 = 0;
+            }
+            Vec3f up0 = node0.up, right0 = node0.right, up1 = node1.up, right1 = node1.right;
 
-		GlStateManager.enableCull();
-		GlStateManager.enableTexture2D();
-		GlStateManager.enableLighting();
-		GlStateManager.popMatrix();
-	}
+            vertexbuffer
+                    .pos(pos0.x + (-right0.x) * scale0, pos0.y + (-right0.y) * scale0, pos0.z + (-right0.z) * scale0)
+                    .tex(0.0D, 0.15625D).endVertex();
+            vertexbuffer.pos(pos0.x + (right0.x) * scale0, pos0.y + (right0.y) * scale0, pos0.z + (right0.z) * scale0)
+                    .tex(0.0D, 0.15625D).endVertex();
+            vertexbuffer.pos(pos1.x + (right1.x) * scale1, pos1.y + (right1.y) * scale1, pos1.z + (right1.z) * scale1)
+                    .tex(0.0D, 0.15625D).endVertex();
+            vertexbuffer
+                    .pos(pos1.x + (-right1.x) * scale1, pos1.y + (-right1.y) * scale1, pos1.z + (-right1.z) * scale1)
+                    .tex(0.0D, 0.15625D).endVertex();
 
-	public void renderAxis(EntityArrow entity, double x, double y, double z)
-	{
-		Vec3d forward = entity.getForward();
-		forward = new Vec3d(-forward.x, -forward.y, forward.z);
-		Vec3d up = Vec3d.fromPitchYaw(entity.rotationPitch + 90.0f, entity.rotationYaw);
-		up = new Vec3d(-up.x, -up.y, up.z);
-		Vec3d right = forward.crossProduct(up);
+            vertexbuffer.pos(pos0.x + (-up0.x) * scale0, pos0.y + (-up0.y) * scale0, pos0.z + (-up0.z) * scale0)
+                    .tex(0.0D, 0.15625D).endVertex();
+            vertexbuffer.pos(pos0.x + (up0.x) * scale0, pos0.y + (up0.y) * scale0, pos0.z + (up0.z) * scale0)
+                    .tex(0.0D, 0.15625D).endVertex();
+            vertexbuffer.pos(pos1.x + (up1.x) * scale1, pos1.y + (up1.y) * scale1, pos1.z + (up1.z) * scale1)
+                    .tex(0.0D, 0.15625D).endVertex();
+            vertexbuffer.pos(pos1.x + (-up1.x) * scale1, pos1.y + (-up1.y) * scale1, pos1.z + (-up1.z) * scale1)
+                    .tex(0.0D, 0.15625D).endVertex();
+        }
+        tessellator.draw();
 
-		GlStateManager.pushMatrix();
-		GlStateManager.disableTexture2D();
-		GlStateManager.disableLighting();
-		GlStateManager.disableCull();
-		GlStateManager.depthFunc(GL11.GL_ALWAYS);
-		GlStateManager.translate(x, y, z);
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder vertexbuffer = tessellator.getBuffer();
-		GlStateManager.color(1, 0, 0, 1);
-		vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
-		vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
-		vertexbuffer.pos(right.x, right.y, right.z).tex(0.15625D, 0.15625D).endVertex();
-		tessellator.draw();
-		GlStateManager.color(0, 1, 0, 1);
-		vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
-		vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
-		vertexbuffer.pos(up.x, up.y, up.z).tex(0.15625D, 0.15625D).endVertex();
-		tessellator.draw();
-		GlStateManager.color(0, 0, 1, 1);
-		vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
-		vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
-		vertexbuffer.pos(forward.x, forward.y, forward.z).tex(0.15625D, 0.15625D).endVertex();
-		tessellator.draw();
-		GlStateManager.depthFunc(GL11.GL_LEQUAL);
-		GlStateManager.enableCull();
-		GlStateManager.enableTexture2D();
-		GlStateManager.enableLighting();
-		GlStateManager.popMatrix();
-	}
+        GlStateManager.enableCull();
+        GlStateManager.enableTexture2D();
+        GlStateManager.enableLighting();
+        GlStateManager.popMatrix();
+    }
 
-	private boolean shouldBeRemoved()
-	{
-		if (Minecraft.getMinecraft().world == null)
-			return true;
-		if (Minecraft.getMinecraft().world.getEntityByID(id) == null)
-			return true;
-		return false;
-	}
+    /**
+     * Used for debugging.
+     * @param x
+     * @param y
+     * @param z
+     */
+    public void renderAxis(double x, double y, double z)
+    {
+        Vec3d forward = trackedArrow.getForward();
+        forward = new Vec3d(-forward.x, -forward.y, forward.z);
+        Vec3d up = Vec3d.fromPitchYaw(trackedArrow.rotationPitch + 90.0f, trackedArrow.rotationYaw);
+        up = new Vec3d(-up.x, -up.y, up.z);
+        Vec3d right = forward.crossProduct(up);
 
-	static class TrailNode
-	{
-		double x;
-		double y;
-		double z;
+        GlStateManager.pushMatrix();
+        GlStateManager.disableTexture2D();
+        GlStateManager.disableLighting();
+        GlStateManager.disableCull();
+        GlStateManager.depthFunc(GL11.GL_ALWAYS);
+        GlStateManager.translate(x, y, z);
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder vertexbuffer = tessellator.getBuffer();
+        GlStateManager.color(1, 0, 0, 1);
+        vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
+        vertexbuffer.pos(right.x, right.y, right.z).tex(0.15625D, 0.15625D).endVertex();
+        tessellator.draw();
+        GlStateManager.color(0, 1, 0, 1);
+        vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
+        vertexbuffer.pos(up.x, up.y, up.z).tex(0.15625D, 0.15625D).endVertex();
+        tessellator.draw();
+        GlStateManager.color(0, 0, 1, 1);
+        vertexbuffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(0.0D, 0.0D, 0.0D).tex(0.0D, 0.15625D).endVertex();
+        vertexbuffer.pos(forward.x, forward.y, forward.z).tex(0.15625D, 0.15625D).endVertex();
+        tessellator.draw();
+        GlStateManager.depthFunc(GL11.GL_LEQUAL);
+        GlStateManager.enableCull();
+        GlStateManager.enableTexture2D();
+        GlStateManager.enableLighting();
+        GlStateManager.popMatrix();
+    }
 
-		Vec3d up, right;
+    public boolean shouldBeRemoved()
+    {
+        return mc.world == null || trackedArrow.isDead;
+    }
 
-		TrailNode(double x, double y, double z, Vec3d up, Vec3d right)
-		{
-			this.moveTo(x, y, z, up, right);
-		}
+    static class TrailNode
+    {
 
-		public void moveTo(TrailNode trailNode)
-		{
-			this.moveTo(trailNode.x, trailNode.y, trailNode.z, trailNode.up, trailNode.right);
-		}
+        double x;
+        double y;
+        double z;
 
-		public void moveTo(double x, double y, double z, Vec3d up, Vec3d right)
-		{
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.up = up;
-			this.right = right;
-		}
-	}
+        final Vec3f up, right;
 
-	static HashMap<Integer, ArrowTrail> trailMap = new HashMap<Integer, ArrowTrail>();
-	public static final int MAX_LENGTH = 10;
-	public static final float MAX_SPAWN_COOLDOWN = 1;
-	public static long time, lastTime;
+        TrailNode(EntityArrow arrow)
+        {
+            this.up = new Vec3f();
+            this.right = new Vec3f();
 
-	static
-	{
-		time = System.nanoTime() / 1000;
-		lastTime = System.nanoTime() / 1000;
-	}
+            this.moveTo(arrow);
+        }
 
-	public static ArrowTrail get(int id)
-	{
-		ArrowTrail trail;
-		if (!trailMap.containsKey(id))
-		{
-			trail = new ArrowTrail(id);
-			trailMap.put(id, trail);
-		} else
-		{
-			trail = trailMap.get(id);
-		}
+        public void moveTo(TrailNode trailNode)
+        {
+            this.x = trailNode.x;
+            this.y = trailNode.y;
+            this.z = trailNode.z;
+            this.up.set(trailNode.up);
+            this.right.set(trailNode.right);
+        }
 
-		return trail;
-	}
+        public void moveTo(EntityArrow arrow)
+        {
+            this.x = arrow.posX;
+            this.y = arrow.posY;
+            this.z = arrow.posZ;
 
-	public static void renderTrail(EntityArrow entity, double x, double y, double z, float partialTicks)
-	{
-		ArrowTrail trail = get(entity.getEntityId());
-		trail.doRender(entity, x, y, z, partialTicks);
-	}
+            final Vec3d forward = arrow.getForward();
+            final Vec3d up = Vec3d.fromPitchYaw(arrow.rotationPitch + 90F, arrow.rotationYaw);
 
-	public static void cleanup()
-	{
-		Integer[] keySet = trailMap.keySet().toArray(new Integer[0]);
-		for (int i = keySet.length - 1; i >= 0; i--)
-		{
-			if (trailMap.get(keySet[i]).shouldBeRemoved())
-			{
-				trailMap.remove(keySet[i]);
-			}
-		}
-	}
+            this.up.set((float) -up.x, (float) -up.y, (float) up.z);
 
-	public static void onRenderTick()
-	{
-		for (ArrowTrail trail : trailMap.values())
-		{
-			trail.spawnCooldown += DataUpdateHandler.ticksPerFrame;
-		}
-	}
+            VectorUtils.cross(
+                    (float) -forward.x, (float) -forward.y, (float) forward.z,
+                    this.up.x, this.up.y, this.up.z, this.right);
+        }
+
+    }
+
 }
