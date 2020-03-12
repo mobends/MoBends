@@ -128,6 +128,11 @@ public class GuiPacksWindow extends GuiScreen
         {
             this.localPacks.draw(partialTicks);
         }
+        else if (this.tabNavigation.getSelectedTab() == this.publicPacksTab)
+        {
+            fontRenderer.drawStringWithShadow("Coming soon...", x + EDITOR_WIDTH / 2 - fontRenderer.getStringWidth("Coming soon...") / 2, y + EDITOR_HEIGHT / 2 - 10,
+                    0xffffff);
+        }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
@@ -136,6 +141,7 @@ public class GuiPacksWindow extends GuiScreen
 //        {
 //            if (entry != null)
 //            {
+
 //                String packName = entry.getDisplayName();
 //                String packAuthor = "by " + entry.author;
 //                fontRenderer.drawStringWithShadow(packName, x + 184 - fontRenderer.getStringWidth(packName) / 2, y + 7,

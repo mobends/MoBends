@@ -34,11 +34,11 @@ public class DefaultAddon implements IAddon
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 		
-		registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>(),
-				new BipedPreviewer<>(),
-				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
-				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
-		
+//		registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>(),
+//				new BipedPreviewer<>(),
+//				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
+//				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
+//
 		registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>(),
 				new BipedPreviewer<>(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
