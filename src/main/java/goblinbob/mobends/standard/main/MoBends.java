@@ -11,17 +11,12 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(
-    modid = ModStatics.MODID,
-    name = ModStatics.MODNAME,
-    version = ModStatics.VERSION,
-    updateJSON = "https://mobends.github.io/mod-update.json"
-)
+@Mod(modid = ModStatics.MODID)
 public class MoBends
 {
 
-    @SidedProxy(serverSide = "net.gobbob.mobends.standard.main.CommonProxy",
-                clientSide = "net.gobbob.mobends.standard.client.ClientProxy")
+    @SidedProxy(serverSide = "goblinbob.mobends.standard.main.CommonProxy",
+                clientSide = "goblinbob.mobends.standard.client.ClientProxy")
     public static CommonProxy proxy;
 
     @Instance(value = ModStatics.MODID)

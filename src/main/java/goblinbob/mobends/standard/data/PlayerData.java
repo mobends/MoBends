@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.data;
 
+import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.animation.controller.PlayerController;
 import net.minecraft.client.Minecraft;
@@ -16,6 +17,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	boolean sprintJumpLegSwitched = false;
 	boolean fistPunchArm = false;
 	int currentAttack = 0;
+	public ModelPartTransform cape;
 	
 	public PlayerData(AbstractClientPlayer entity)
 	{
@@ -48,11 +50,15 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		super.initModelPose();
 		
 		Render<AbstractClientPlayer> render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
-		
+
+		cape = new ModelPartTransform(body);
+		nameToPartMap.put("cape", cape);
+		cape.position.set(0F, 0F, 0F);
+
 		if (((RenderPlayer) render).smallArms)
 		{
-			this.rightArm.position.set(-5F, -9.5F, 0F);
-			this.leftArm.position.set(5F, -9.5F, 0F);
+			rightArm.position.set(-5F, -9.5F, 0F);
+			leftArm.position.set(5F, -9.5F, 0F);
 		}
 	}
 
@@ -90,39 +96,36 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	}
 
 	@Override
-	public void onPunch()
+	public void onAttack()
 	{
-		if (this.entity.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR)
-		{
-			if (this.getTicksAfterAttack() > 6.0f)
-			{
-				if (this.currentAttack == 0)
-				{
-					this.currentAttack = 1;
-					this.ticksAfterAttack = 0;
-				}
-				else
-				{
-					if (this.getTicksAfterAttack() < 15.0f)
-					{
-						if (this.currentAttack == 1)
-							this.currentAttack = 2;
-						else if (this.currentAttack == 2)
-						{
-							this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 3;
-						}
-						else if (this.currentAttack == 3)
-							this.currentAttack = 1;
-						this.ticksAfterAttack = 0;
-					}
-				}
-			}
-		}
-		else
+		if (this.entity.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.AIR)
 		{
 			this.fistPunchArm = !this.fistPunchArm;
 			this.ticksAfterAttack = 0;
+			return;
 		}
+
+		if (this.ticksAfterAttack <= 6.0F)
+		{
+			// Sword swing cooldown
+			return;
+		}
+
+		switch (this.currentAttack)
+		{
+			case 0:
+			case 3:
+				this.currentAttack = 1;
+				break;
+			case 1:
+				this.currentAttack = 2;
+				break;
+			case 2:
+				this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 3;
+				break;
+		}
+
+		this.ticksAfterAttack = 0;
 	}
 
 	public int getCurrentAttack()
@@ -145,11 +148,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		return this.flyingStateOverride != null ?
 				this.flyingStateOverride :
 				this.entity.capabilities.isFlying;
-	}
-	
-	public void setMotionY(double motionY)
-	{
-		this.motionY = motionY;
 	}
 	
 }

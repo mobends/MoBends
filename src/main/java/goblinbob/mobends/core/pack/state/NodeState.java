@@ -3,7 +3,6 @@ package goblinbob.mobends.core.pack.state;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.pack.state.template.*;
 import goblinbob.mobends.core.pack.BendsPackData;
-import net.gobbob.mobends.core.pack.state.template.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

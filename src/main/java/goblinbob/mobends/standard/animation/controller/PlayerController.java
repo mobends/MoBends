@@ -109,48 +109,10 @@ public class PlayerController implements IAnimationController<PlayerData>
 		final ItemStack heldItemMainhand = player.getHeldItemMainhand();
 		final ItemStack heldItemOffhand = player.getHeldItemOffhand();
 		final ItemStack activeStack = player.getActiveItemStack();
-		ModelBiped.ArmPose armPoseMain = ModelBiped.ArmPose.EMPTY;
-		ModelBiped.ArmPose armPoseOff = ModelBiped.ArmPose.EMPTY;
+		ModelBiped.ArmPose armPoseMain = getAction(player, heldItemMainhand);
+		ModelBiped.ArmPose armPoseOff = getAction(player, heldItemOffhand);
 		final EnumHand activeHand = player.getActiveHand();
 		final EnumHandSide activeHandSide = activeHand == EnumHand.MAIN_HAND ? primaryHand : offHand;
-
-		if (!heldItemMainhand.isEmpty())
-		{
-			armPoseMain = ModelBiped.ArmPose.ITEM;
-
-			if (player.getItemInUseCount() > 0)
-			{
-				EnumAction enumaction = heldItemMainhand.getItemUseAction();
-
-				if (enumaction == EnumAction.BLOCK)
-				{
-					armPoseMain = ModelBiped.ArmPose.BLOCK;
-				}
-				else if (enumaction == EnumAction.BOW)
-				{
-					armPoseMain = ModelBiped.ArmPose.BOW_AND_ARROW;
-				}
-			}
-		}
-
-		if (!heldItemOffhand.isEmpty())
-		{
-			armPoseOff = ModelBiped.ArmPose.ITEM;
-
-			if (player.getItemInUseCount() > 0)
-			{
-				EnumAction enumaction1 = heldItemOffhand.getItemUseAction();
-
-				if (enumaction1 == EnumAction.BLOCK)
-				{
-					armPoseOff = ModelBiped.ArmPose.BLOCK;
-				}
-				else if (enumaction1 == EnumAction.BOW)
-				{
-					armPoseOff = ModelBiped.ArmPose.BOW_AND_ARROW;
-				}
-			}
-		}
 
 		if (player.isRiding())
 		{
@@ -240,7 +202,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 		/**
 		 * ACTIONS
 		 */
-		if (activeStack != null && activeStack.getItem() instanceof ItemFood)
+		if (activeStack.getItem() instanceof ItemFood)
 		{
 			this.bitEating.setActionHand(activeHandSide);
 			this.layerAction.playOrContinueBit(bitEating, data);
@@ -252,8 +214,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 				this.bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
 				this.layerAction.playOrContinueBit(this.bitBow, data);
 			}
-			else if (heldItemMainhand != null
-					&& (heldItemMainhand.getItem() instanceof ItemPickaxe || heldItemMainhand.getItem() instanceof ItemAxe))
+			else if (heldItemMainhand.getItem() instanceof ItemPickaxe || heldItemMainhand.getItem() instanceof ItemAxe)
 			{
 				if (player.isSwingInProgress)
 					this.layerAction.playOrContinueBit(this.bitBreaking, data);
@@ -273,6 +234,26 @@ public class PlayerController implements IAnimationController<PlayerData>
 		layerAction.perform(data, actions);
 		layerKeyframe.perform(data, actions);
 		return actions;
+	}
+
+	private ArmPose getAction(AbstractClientPlayer player, ItemStack heldItem)
+	{
+		if (!heldItem.isEmpty())
+		{
+			if (player.getItemInUseCount() > 0)
+			{
+				EnumAction enumaction = heldItem.getItemUseAction();
+
+				if (enumaction == EnumAction.BLOCK)
+					return ArmPose.BLOCK;
+				else if (enumaction == EnumAction.BOW)
+					return ArmPose.BOW_AND_ARROW;
+			}
+
+			return ArmPose.ITEM;
+		}
+
+		return ArmPose.EMPTY;
 	}
 	
 }

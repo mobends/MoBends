@@ -4,7 +4,6 @@ import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.event.*;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.pack.PackManager;
-import net.gobbob.mobends.core.client.event.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;

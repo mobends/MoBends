@@ -8,7 +8,6 @@ import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.util.ModelUtils;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.PlayerData;
-import net.gobbob.mobends.core.client.model.*;
 import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;

@@ -8,7 +8,7 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.renderer.GlStateManager;
 
-/*
+/**
  * Used for manipulating the transform of things that are
  * going to postRender this part.
  */
@@ -42,7 +42,7 @@ public class ModelPartTransform implements IModelPart
 	@Override
 	public void renderPart(float scale)
 	{
-		//Since this is just a transform, do nothing.
+		// Since this is just a transform, do nothing.
 	}
 	
 	@Override

@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.animation.bit;
 
 import goblinbob.mobends.core.animation.keyframe.*;
-import net.gobbob.mobends.core.animation.keyframe.*;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.data.EntityData;

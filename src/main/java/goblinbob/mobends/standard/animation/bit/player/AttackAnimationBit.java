@@ -5,7 +5,6 @@ import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
 import goblinbob.mobends.standard.animation.bit.biped.*;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.PlayerData;
-import net.gobbob.mobends.standard.animation.bit.biped.*;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;

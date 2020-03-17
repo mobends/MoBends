@@ -17,7 +17,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     protected float ticksAfterAttack;
     protected float ticksFalling;
     protected float climbingCycle = 0F;
-    protected boolean alreadyPunched = false;
+    protected boolean alreadyAttacked = false;
     protected boolean climbing = false;
 
     public OverridableProperty<Float> limbSwing = new OverridableProperty<>(0F);
@@ -85,15 +85,15 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
         if (this.entity.swingProgress > 0)
         {
-            if (!this.alreadyPunched)
+            if (!this.alreadyAttacked)
             {
-                this.onPunch();
-                this.alreadyPunched = true;
+                this.onAttack();
+                this.alreadyAttacked = true;
             }
         }
         else
         {
-            this.alreadyPunched = false;
+            this.alreadyAttacked = false;
         }
     }
 
@@ -134,7 +134,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         this.ticksInAir = 0.0F;
     }
 
-    public void onPunch()
+    public void onAttack()
     {
         this.ticksAfterAttack = 0.0F;
     }

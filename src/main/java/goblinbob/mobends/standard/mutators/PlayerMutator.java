@@ -1,7 +1,6 @@
 package goblinbob.mobends.standard.mutators;
 
 import goblinbob.mobends.core.client.model.*;
-import net.gobbob.mobends.core.client.model.*;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomCape;
 import goblinbob.mobends.standard.data.PlayerData;
