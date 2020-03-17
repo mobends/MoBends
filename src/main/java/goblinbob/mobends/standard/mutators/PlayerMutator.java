@@ -19,13 +19,13 @@ import net.minecraft.entity.EntityLivingBase;
 public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer, ModelPlayer>
 {
 
-	protected ModelPartChild bodywear;
-	protected ModelPartChild leftArmwear;
-	protected ModelPartChild rightArmwear;
+	protected ModelPart bodywear;
+	protected ModelPart leftArmwear;
+	protected ModelPart rightArmwear;
 	protected ModelPart leftForeArmwear;
 	protected ModelPart rightForeArmwear;
-	protected ModelPartChild leftLegwear;
-	protected ModelPartChild rightLegwear;
+	protected ModelPart leftLegwear;
+	protected ModelPart rightLegwear;
 	protected ModelPart leftForeLegwear;
 	protected ModelPart rightForeLegwear;
 
@@ -119,9 +119,8 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		int armWidth = this.smallArms ? 3 : 4;
 		float armY = this.smallArms ? -9.5F : -10F;
 		
-		original.bipedLeftArm = this.leftArm = new ModelPartChildExtended(original, 32, 48);
+		original.bipedLeftArm = this.leftArm = new ModelPartExtended(original, 32, 48);
 		this.leftArm
-				.setHideLikeParent(false)
 				.setParent(body)
 				.setPosition(5.0F, armY, 0.0F)
 				.developBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
@@ -129,9 +128,8 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 				.hideFace(BoxSide.BOTTOM)
 				.create();
 		
-		original.bipedRightArm = this.rightArm = new ModelPartChildExtended(original, 40, 16);
+		original.bipedRightArm = this.rightArm = new ModelPartExtended(original, 40, 16);
 		this.rightArm
-				.setHideLikeParent(false)
 				.setParent(body)
 				.setPosition(-5.0F, armY, 0.0F)
 				.developBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
@@ -139,7 +137,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 				.hideFace(BoxSide.BOTTOM)
 				.create();
 		
-		this.leftForeArm = new ModelPartChildPostOffset(original, 32, 48 + 6)
+		this.leftForeArm = new ModelPartPostOffset(original, 32, 48 + 6)
 				.setPostOffset(0, -4F, -2F);
 		this.leftForeArm
 				.setPosition(0.0F, 4.0F, 2.0F)
@@ -150,7 +148,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 				.create();
 		this.leftArm.setExtension(this.leftForeArm);
 		
-		this.rightForeArm = new ModelPartChildPostOffset(original, 40, 16 + 6)
+		this.rightForeArm = new ModelPartPostOffset(original, 40, 16 + 6)
 				.setPostOffset(0, -4F, -2F);
 		this.rightForeArm
 				.setPosition(0.0F, 4.0F, 2.0F)
@@ -162,11 +160,11 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		this.rightArm.setExtension(this.rightForeArm);
 		
 		// Wear
-		original.bipedBodyWear = bodywear = new ModelPartChild(original, 16, 32);
+		original.bipedBodyWear = bodywear = new ModelPart(original, 16, 32);
 		this.bodywear.setParent(body);
 		this.bodywear.addBox(-4F, -12F, -2F, 8, 12, 4, scaleFactor + 0.25F);
 		
-		original.bipedLeftArmwear = leftArmwear = new ModelPartChild(original, 48, 48);
+		original.bipedLeftArmwear = leftArmwear = new ModelPart(original, 48, 48);
 		this.leftArmwear
 				.setParent(leftArm)
 				.developBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor + 0.25F)
@@ -175,7 +173,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 				.hideFace(BoxSide.BOTTOM)
 				.create();
 		
-		original.bipedRightArmwear = rightArmwear = new ModelPartChild(original, 40, 32);
+		original.bipedRightArmwear = rightArmwear = new ModelPart(original, 40, 32);
 		this.rightArmwear
 				.setParent(rightArm)
 				.developBox(-armWidth + 1, -2F, -2F, armWidth, 6, 4, scaleFactor + 0.25F)
@@ -204,13 +202,13 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 				.create();
 		this.rightForeArm.addChild(this.rightForeArmwear);
 
-		original.bipedLeftLegwear = leftLegwear = new ModelPartChild(original, 0, 48);
+		original.bipedLeftLegwear = leftLegwear = new ModelPart(original, 0, 48);
 		this.leftLegwear.setParent(leftLeg)
 				.developBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
 				.hideFace(BoxSide.BOTTOM)
 				.create();
-		original.bipedRightLegwear = rightLegwear = new ModelPartChild(original, 0, 32);
+		original.bipedRightLegwear = rightLegwear = new ModelPart(original, 0, 32);
 		this.rightLegwear
 				.setParent(rightLeg)
 				.developBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)

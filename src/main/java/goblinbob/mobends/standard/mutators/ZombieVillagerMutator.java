@@ -1,6 +1,6 @@
 package goblinbob.mobends.standard.mutators;
 
-import goblinbob.mobends.core.client.model.ModelPartChild;
+import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.data.ZombieVillagerData;
 import net.minecraft.client.model.ModelBase;
@@ -32,8 +32,7 @@ public class ZombieVillagerMutator extends ZombieMutatorBase<ZombieVillagerData,
 	{
 		boolean success = super.createParts(original, scaleFactor);
 		
-		original.bipedHead = this.head = (ModelPartChild) new ModelPartChild(original, 0, 0)
-				.setHideLikeParent(false)
+		original.bipedHead = this.head = new ModelPart(original, 0, 0)
 				.setParent(body)
 				.setPosition(0.0F, -12.0F, 0.0F);
 		

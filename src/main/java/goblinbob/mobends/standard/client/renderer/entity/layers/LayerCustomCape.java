@@ -58,8 +58,9 @@ public class LayerCustomCape implements LayerRenderer<AbstractClientPlayer>
                 }
 
                 this.playerRenderer.getMainModel().bipedBody.postRender(0.0625F);
-                GlStateManager.translate(0.0F, 0.0F, 0.125F);
-                GlStateManager.translate(0.0F, 0.0F, 0.325F);
+                data.cape.applyCharacterTransform(0.0625F);
+
+                GlStateManager.translate(0.0F, 0.0F, 0.225F);
                 double d0 = player.prevChasingPosX + (player.chasingPosX - player.prevChasingPosX) * (double)partialTicks - (player.prevPosX + (player.posX - player.prevPosX) * (double)partialTicks);
                 double d1 = player.prevChasingPosY + (player.chasingPosY - player.prevChasingPosY) * (double)partialTicks - (player.prevPosY + (player.posY - player.prevPosY) * (double)partialTicks);
                 double d2 = player.prevChasingPosZ + (player.chasingPosZ - player.prevChasingPosZ) * (double)partialTicks - (player.prevPosZ + (player.posZ - player.prevPosZ) * (double)partialTicks);

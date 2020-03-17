@@ -90,14 +90,9 @@ public class PlayerController implements IAnimationController<PlayerData>
 
 	public static boolean shouldPerformBreaking(PlayerData data)
 	{
-		AbstractClientPlayer player = data.getEntity();
-		ItemStack itemstack = player.getHeldItemMainhand();
+		final Item item = data.getEntity().getHeldItemMainhand().getItem();
 
-		if (itemstack != null)
-		{
-			return itemstack.getItem() instanceof ItemPickaxe || (itemstack.getItem() instanceof ItemAxe);
-		}
-		return false;
+		return item instanceof ItemPickaxe || item instanceof ItemAxe;
 	}
 
 	@Override
@@ -199,7 +194,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 			}
 		}
 
-		/**
+		/*
 		 * ACTIONS
 		 */
 		if (activeStack.getItem() instanceof ItemFood)

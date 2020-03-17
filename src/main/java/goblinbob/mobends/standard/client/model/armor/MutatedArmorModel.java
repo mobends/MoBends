@@ -150,7 +150,7 @@ public class MutatedArmorModel extends ModelBiped
 
         for (ModelPartTransform dependency : dependencies)
         {
-            dependency.applyOwnTransform(scale);
+            dependency.applyLocalTransform(scale);
         }
 
         group.getParts().forEach(part -> part.renderPart(scale));

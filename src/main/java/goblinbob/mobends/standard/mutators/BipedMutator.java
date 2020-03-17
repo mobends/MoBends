@@ -20,16 +20,16 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 								  extends Mutator<D, E, M>
 {
 	protected ModelPartPostOffset body;
-	protected ModelPartChild head;
-	protected ModelPartChild headwear;
-	protected ModelPartChildExtended leftArm;
-	protected ModelPartChildExtended rightArm;
-	protected ModelPartChildPostOffset leftForeArm;
-	protected ModelPartChildPostOffset rightForeArm;
+	protected ModelPart head;
+	protected ModelPart headwear;
+	protected ModelPartExtended leftArm;
+	protected ModelPartExtended rightArm;
+	protected ModelPartPostOffset leftForeArm;
+	protected ModelPartPostOffset rightForeArm;
 	protected ModelPartExtended leftLeg;
 	protected ModelPartExtended rightLeg;
-	protected ModelPartChild leftForeLeg;
-	protected ModelPartChild rightForeLeg;
+	protected ModelPart leftForeLeg;
+	protected ModelPart rightForeLeg;
 
 	protected LayerCustomBipedArmor 	layerArmor;
 	protected LayerBipedArmor 			layerArmorVanilla;
@@ -145,8 +145,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		body.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, scaleFactor);
 		
 		// Head
-		original.bipedHead = head = (ModelPartChild) new ModelPartChild(original, 0, 0)
-				.setHideLikeParent(false)
+		original.bipedHead = head = new ModelPart(original, 0, 0)
 				.setParent(body)
 				.setPosition(0.0F, -12.0F, 0.0F);
 		head.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor);
@@ -155,8 +154,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		int armWidth = 4;
 		float armY = -10F;
 
-		original.bipedLeftArm = leftArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16)
-				.setHideLikeParent(false)
+		original.bipedLeftArm = leftArm = (ModelPartExtended) new ModelPartExtended(original, 40, 16)
 				.setParent(body)
 				.setPosition(5.0F, armY, 0.0F)
 				.setMirror(true);
@@ -165,8 +163,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.hideFace(BoxSide.BOTTOM)
 				.create();
 		
-		original.bipedRightArm = rightArm = (ModelPartChildExtended) new ModelPartChildExtended(original, 40, 16)
-				.setHideLikeParent(false)
+		original.bipedRightArm = rightArm = (ModelPartExtended) new ModelPartExtended(original, 40, 16)
 				.setParent(body)
 				.setPosition(-5.0F, armY, 0.0F);
 		rightArm.developBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
@@ -174,7 +171,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.hideFace(BoxSide.BOTTOM)
 				.create();
 
-		leftForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
+		leftForeArm = (ModelPartPostOffset) new ModelPartPostOffset(original, 40, 16 + 6)
 				.setPostOffset(0, -4F, -2F)
 				.setParent(leftArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
@@ -185,7 +182,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.create();
 		
 		leftArm.setExtension(leftForeArm);
-		rightForeArm = (ModelPartChildPostOffset) new ModelPartChildPostOffset(original, 40, 16 + 6)
+		rightForeArm = (ModelPartPostOffset) new ModelPartPostOffset(original, 40, 16 + 6)
 				.setPostOffset(0, -4F, -2F)
 				.setParent(rightArm)
 				.setPosition(0.0F, 4.0F, 2.0F);
@@ -203,7 +200,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setPosition(0.0F, 12.0F, 0.0F)
 				.setMirror(true);
 		leftLeg.addBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
-		leftForeLeg = (ModelPartChild) new ModelPartChild(original, 0, 16 + 6)
+		leftForeLeg = new ModelPart(original, 0, 16 + 6)
 				.setParent(leftLeg)
 				.setPosition(0, 6.0F, -2.0F)
 				.setMirror(true);
@@ -213,7 +210,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 				.create();
 		leftLeg.setExtension(leftForeLeg);
-		rightForeLeg = (ModelPartChild) new ModelPartChild(original, 0, 16 + 6)
+		rightForeLeg = new ModelPart(original, 0, 16 + 6)
 				.setParent(rightLeg)
 				.setPosition(0, 6.0F, -2.0F);
 
@@ -224,7 +221,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		rightLeg.setExtension(rightForeLeg);
 
 		// Wear
-		original.bipedHeadwear = headwear = (ModelPartChild) new ModelPartChild(original, 32, 0).setParent(head);
+		original.bipedHeadwear = headwear = (ModelPart) new ModelPart(original, 32, 0).setParent(head);
 		headwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor + 0.5F);
 		
 		return true;

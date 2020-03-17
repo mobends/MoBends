@@ -16,13 +16,13 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 {
 	
 	public Vec3f position;
-	/*
+	/**
 	 * A secondary position variable is used to offset
 	 * the model relative to the first position, which may
 	 * be overridden by animation.
 	 * */
 	public Vec3f offset;
-	/*
+	/**
 	 * Used to offset the container item relative to
 	 * the rotation point
 	 * */
@@ -86,7 +86,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		if (!(this.isShowing())) return;
 		
         GlStateManager.pushMatrix();
-        this.applyStandaloneTransform(scale);
+        this.applyCharacterTransform(scale);
         this.model.rotateAngleX = this.model.rotateAngleY = this.model.rotateAngleZ = 0;
         
         // This is applied outside the standalone transform method, so that children aren't affected.
@@ -111,7 +111,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		if (!(this.isShowing())) return;
 		
         GlStateManager.pushMatrix();
-        this.applyOwnTransform(scale);
+        this.applyLocalTransform(scale);
         
         // This is applied outside the standalone transform method, so that children aren't affected.
         if (this.innerOffset.x != 0.0F || this.innerOffset.y != 0.0F || this.innerOffset.z != 0.0F)
@@ -133,20 +133,20 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
     @SideOnly(Side.CLIENT)
     public void postRender(float scale)
     {
-        this.applyStandaloneTransform(scale);
+        this.applyCharacterTransform(scale);
         this.applyPostTransform(scale);
     }
 	
 	@Override
-	public void applyStandaloneTransform(float scale)
+	public void applyCharacterTransform(float scale)
 	{
-		if(this.parent != null)
-			this.parent.applyStandaloneTransform(scale);
-		this.applyOwnTransform(scale);
+		if (this.parent != null)
+			this.parent.applyCharacterTransform(scale);
+		this.applyLocalTransform(scale);
 	}
 
 	@Override
-	public void applyOwnTransform(float scale)
+	public void applyLocalTransform(float scale)
 	{
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
         	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
@@ -155,7 +155,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		
 		GlHelper.rotate(this.rotation.getSmooth());
         
-        if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
+        if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
         	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
 	}
 
@@ -200,7 +200,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	}
 
 	@Override
-	public void applyLocalSpaceTransform(float scale, IMat4x4d matrix)
+	public void applyLocalTransform(float scale, IMat4x4d matrix)
 	{
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
 			TransformUtils.translate(matrix, this.position.x * scale, this.position.y * scale, this.position.z * scale, matrix);

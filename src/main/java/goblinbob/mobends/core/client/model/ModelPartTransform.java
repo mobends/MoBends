@@ -34,9 +34,9 @@ public class ModelPartTransform implements IModelPart
 	}
 	
 	@Override
-	public void applyStandaloneTransform(float scale)
+	public void applyCharacterTransform(float scale)
 	{
-		this.applyOwnTransform(scale);
+		this.applyLocalTransform(scale);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class ModelPartTransform implements IModelPart
 	}
 
 	@Override
-	public void applyOwnTransform(float scale)
+	public void applyLocalTransform(float scale)
 	{
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
         	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
@@ -94,7 +94,7 @@ public class ModelPartTransform implements IModelPart
 	@Override
 	public void propagateTransform(float scale)
 	{
-		this.applyOwnTransform(scale);
+		this.applyLocalTransform(scale);
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class ModelPartTransform implements IModelPart
 	}
 
 	@Override
-	public void applyLocalSpaceTransform(float scale, IMat4x4d matrix)
+	public void applyLocalTransform(float scale, IMat4x4d matrix)
 	{
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
 			TransformUtils.translate(matrix, this.position.x * scale, this.position.y * scale, this.position.z * scale);

@@ -46,14 +46,14 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 
 	public boolean shouldPerformAttack(AbstractClientPlayer player)
 	{
-		ItemStack heldItemStack = player.getHeldItem(EnumHand.MAIN_HAND);
-		return heldItemStack != null && heldItemStack.getItem() != Items.AIR;
+		final ItemStack heldItemStack = player.getHeldItem(EnumHand.MAIN_HAND);
+		return heldItemStack.getItem() != Items.AIR;
 	}
 
 	@Override
 	public void perform(PlayerData playerData)
 	{
-		AbstractClientPlayer player = playerData.getEntity();
+		final AbstractClientPlayer player = playerData.getEntity();
 		
 		if (this.shouldPerformAttack(player))
 		{
