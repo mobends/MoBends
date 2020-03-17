@@ -91,6 +91,12 @@ processResources {
     rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
+
 def getDate() {
     return new Date().format('dd.MM.yyyy')
 }
