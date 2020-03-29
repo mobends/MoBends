@@ -12,13 +12,15 @@ public class BoxFactory
 	 * The optional ModelPart the box created by this factory should be added
 	 * to.
 	 */
-	ModelPart target;
-	final Vec3f min;
-	final Vec3f max;
-	final TextureFace[] faces;
-	int uvWidth, uvHeight, uvLength;
-	boolean mirrored;
-	byte faceVisibilityFlag;
+	public ModelPart target;
+	public final Vec3f min;
+	public final Vec3f max;
+	public final TextureFace[] faces;
+	public int uvWidth;
+	public int uvHeight;
+	public int uvLength;
+	public boolean mirrored;
+	public byte faceVisibilityFlag;
 	
 	int textureU, textureV;
 	boolean textureUVSet = false;
@@ -244,8 +246,10 @@ public class BoxFactory
 	static class TextureFace
 	{
 		
-		int u0, v0;
-		int u1, v1;
+		int u0;
+		int v0;
+		int u1;
+		int v1;
 		
 		public TextureFace(int u0, int v0, int u1, int v1)
 		{

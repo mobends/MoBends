@@ -77,7 +77,7 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 		this.spiderNeck.addBox(-3.0F, -3.0F, -3.0F, 6, 6, 6, 0.0F);
 		
 		original.spiderBody = this.spiderBody = new ModelPart(original, 0, 12);
-        this.spiderBody.setPosition(0.0F, 15.0F, 9.0F);;
+        this.spiderBody.setPosition(0.0F, 15.0F, 9.0F);
         this.spiderBody.addBox(-5.0F, -4.0F, -6.0F, 10, 8, 12, 0.0F);
         
 		this.spiderUpperLimbs = new ModelPart[8];

@@ -22,14 +22,20 @@ public class GuiPackEntry implements IGuiListElement, IGuiDraggable
     private String displayName;
     private ResourceLocation thumbnailLocation;
 
-    private int x, y;
-    private int smoothX, smoothY;
-    private int dragX, dragY;
-    private int dragPivotX, dragPivotY;
+    private int x;
+    private int y;
+    private int smoothX;
+    private int smoothY;
+    private int dragX;
+    private int dragY;
+    private int dragPivotX;
+    private int dragPivotY;
     private int order;
     private GuiPackList parentList;
     private boolean firstInit = false;
-    private boolean hover, selected, dragged;
+    private boolean hover;
+    private boolean selected;
+    private boolean dragged;
 
     public GuiPackEntry(IBendsPack pack)
     {

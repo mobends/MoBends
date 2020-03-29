@@ -1,14 +1,14 @@
 package goblinbob.mobends.core.client.gui;
 
+import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.gui.addonswindow.GuiAddonsWindow;
 import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
-import goblinbob.mobends.core.client.gui.popup.GuiPopUp;
-import goblinbob.mobends.core.util.GuiHelper;
-import goblinbob.mobends.standard.main.ModStatics;
-import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
+import goblinbob.mobends.core.client.gui.popup.GuiPopUp;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
 import goblinbob.mobends.core.util.Draw;
+import goblinbob.mobends.core.util.GuiHelper;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;

@@ -155,18 +155,18 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public static class Limb
     {
 
-        final SpiderData data;
-        final public ModelPartTransform upperPart;
-        final public ModelPartTransform lowerPart;
-        final int index;
-        final boolean odd;
-        final double neutralYaw;
+        private final SpiderData data;
+        public final ModelPartTransform upperPart;
+        public final ModelPartTransform lowerPart;
+        private final int index;
+        private final boolean odd;
+        private final double neutralYaw;
 
-        double worldX, worldZ, prevWorldX, prevWorldZ;
-        double adjustTargetX = 0;
-        double adjustTargetZ = 0;
-        float adjustingProgress = 1F;
-        float adjustingSpeed = 0.2F;
+        private double worldX, worldZ, prevWorldX, prevWorldZ;
+        private  double adjustTargetX = 0;
+        private double adjustTargetZ = 0;
+        private float adjustingProgress = 1F;
+        private float adjustingSpeed = 0.2F;
 
         public Limb(SpiderData data, int index)
         {
@@ -341,9 +341,12 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public static class IKResult
     {
 
-        public final double worldX, worldZ;
-        public final double localX, localZ;
-        public final double deltaX, deltaZ;
+        public final double worldX;
+        public final double worldZ;
+        public final double localX;
+        public final double localZ;
+        public final double deltaX;
+        public final double deltaZ;
         public final double xzDistance;
         public final double xzAngle;
 

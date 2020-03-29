@@ -7,7 +7,6 @@ import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;

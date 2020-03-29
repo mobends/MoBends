@@ -9,11 +9,6 @@ import goblinbob.mobends.standard.animation.bit.biped.WalkAnimationBit;
 import goblinbob.mobends.standard.animation.bit.zombie_base.ZombieLeanAnimationBit;
 import goblinbob.mobends.standard.animation.bit.zombie_base.ZombieStumblingAnimationBit;
 import goblinbob.mobends.standard.data.ZombieVillagerData;
-import net.minecraft.client.model.ModelBiped;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHandSide;
 
 import java.util.ArrayList;
 import java.util.Collection;

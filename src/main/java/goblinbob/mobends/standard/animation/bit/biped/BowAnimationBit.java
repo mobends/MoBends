@@ -1,7 +1,6 @@
 package goblinbob.mobends.standard.animation.bit.biped;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
-import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.data.BipedEntityData;

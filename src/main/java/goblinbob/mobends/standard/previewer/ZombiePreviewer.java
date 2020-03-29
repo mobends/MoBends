@@ -5,7 +5,7 @@ import goblinbob.mobends.standard.data.ZombieData;
 public class ZombiePreviewer extends BipedPreviewer<ZombieData>
 {
 
-	/*
+	/**
 	 * The Entity is generated specifically just for preview, so
 	 * it can be manipulated in any way.
 	 */
@@ -18,6 +18,7 @@ public class ZombiePreviewer extends BipedPreviewer<ZombieData>
 	@Override
 	public void postPreview(ZombieData data, String animationToPreview)
 	{
+		// No behaviour
 	}
 
 }

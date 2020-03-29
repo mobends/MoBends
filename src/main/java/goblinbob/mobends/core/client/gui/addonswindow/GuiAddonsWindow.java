@@ -58,9 +58,6 @@ public class GuiAddonsWindow extends Gui
 	
 	public boolean mouseClicked(int mouseX, int mouseY, int state)
 	{
-		if (state != 0)
-			return false;
-		
 		return false;
 	}
 	

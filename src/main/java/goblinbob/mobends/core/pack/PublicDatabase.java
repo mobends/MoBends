@@ -36,14 +36,14 @@ public class PublicDatabase
 
     public class PackEntry
     {
-        String name;
-        String displayName;
-        String author;
-        String description;
-        String uploadedDate;
-        String updatedDate;
-        String downloadLink;
-        String thumbnail;
+        public String name;
+        public String displayName;
+        public String author;
+        public String description;
+        public String uploadedDate;
+        public String updatedDate;
+        public String downloadLink;
+        public String thumbnail;
     }
 
 }

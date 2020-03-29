@@ -11,7 +11,7 @@ import java.util.Map;
 public class SpiderPreviewer implements IPreviewer<SpiderData>
 {
 
-	/*
+	/**
 	 * The Entity is generated specifically just for preview, so
 	 * it can be manipulated in any way.
 	 */
@@ -66,6 +66,7 @@ public class SpiderPreviewer implements IPreviewer<SpiderData>
 	@Override
 	public void postPreview(SpiderData data, String animationToPreview)
 	{
+		// No behaviour
 	}
 
 	@Override

@@ -31,8 +31,6 @@ public class SpiderController implements IAnimationController<SpiderData>
 
 	protected boolean resetAfterJumped = false;
 
-	public SpiderController() {}
-
 	@Override
 	public Collection<String> perform(SpiderData spiderData)
 	{
