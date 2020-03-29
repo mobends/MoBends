@@ -27,6 +27,12 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	}
 
 	@Override
+	public void onTicksRestart()
+	{
+		// No behaviour
+	}
+
+	@Override
 	public void initModelPose()
 	{
 		super.initModelPose();

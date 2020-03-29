@@ -91,7 +91,6 @@ public class Mesh
             {
                 VertexFormatElement vertexformatelement1 = list.get(i1);
                 VertexFormatElement.EnumUsage vertexformatelement$enumusage1 = vertexformatelement1.getUsage();
-                int k1 = vertexformatelement1.getIndex();
 
                 // moved to VertexFormatElement.postDraw
                 vertexformatelement1.getUsage().postDraw(this.vertexFormat, i1, i, bytebuffer);

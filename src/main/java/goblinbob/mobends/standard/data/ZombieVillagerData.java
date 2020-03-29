@@ -18,5 +18,11 @@ public class ZombieVillagerData extends ZombieDataBase<EntityZombieVillager>
 	{
 		return controller;
 	}
-	
+
+	@Override
+	public void onTicksRestart()
+	{
+		// No behaviour
+	}
+
 }

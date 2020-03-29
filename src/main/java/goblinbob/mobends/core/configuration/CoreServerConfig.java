@@ -13,8 +13,7 @@ public class CoreServerConfig extends CoreConfig
     @Override
     public void save()
     {
+        // No config to save.
     }
-
-
 
 }

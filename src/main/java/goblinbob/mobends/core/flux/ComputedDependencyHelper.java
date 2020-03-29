@@ -8,10 +8,10 @@ import java.util.Stack;
 public class ComputedDependencyHelper
 {
 
-    static final Stack<Computed<?>> evaluatedStack = new Stack<>();
-    static final Set<Computed<?>> dirtyComputedSet = new HashSet<>();
+    public static final Stack<Computed<?>> evaluatedStack = new Stack<>();
+    public static final Set<Computed<?>> dirtyComputedSet = new HashSet<>();
 
-    static void linkDependency(IObservable<?> observable)
+    public static void linkDependency(IObservable<?> observable)
     {
         try {
             Computed top = ComputedDependencyHelper.evaluatedStack.peek();

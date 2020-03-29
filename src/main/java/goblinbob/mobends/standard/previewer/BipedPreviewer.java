@@ -87,7 +87,10 @@ public class BipedPreviewer<D extends BipedEntityData<?>> implements IPreviewer<
 	}
 	
 	@Override
-	public void postPreview(D data, String animationToPreview) {}
+	public void postPreview(D data, String animationToPreview)
+	{
+		// No behaviour
+	}
 	
 	@Override
 	public IVec3fRead getAnchorPoint() { return VIEWPORT_ANCHOR; }

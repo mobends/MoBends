@@ -36,9 +36,9 @@ public class GuiTextArea extends Gui
     private boolean visible = true;
     private Predicate<String> validator = Predicates.<String>alwaysTrue();
 
-    public GuiTextArea(FontRenderer fontrendererObj, int width, int height)
+    public GuiTextArea(FontRenderer fontRenderer, int width, int height)
     {
-        this.fontRendererInstance = fontrendererObj;
+        this.fontRendererInstance = fontRenderer;
         this.xPosition = 0;
         this.yPosition = 0;
         this.width = width;
@@ -564,13 +564,18 @@ public class GuiTextArea extends Gui
     /**
      * Draws the blue selection box.
      */
-    private void drawSelectionBox(int startX, int startY, int endX, int endY)
+    private void drawSelectionBox(int _startX, int _startY, int _endX, int _endY)
     {
+        int startX = _startX;
+        int startY = _startY;
+        int endX = _endX;
+        int endY = _endY;
+
         if (startX < endX)
         {
-            int i = startX;
+            int temp = startX;
             startX = endX;
-            endX = i;
+            endX = temp;
         }
 
         if (startY < endY)

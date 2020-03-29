@@ -1,11 +1,11 @@
 package goblinbob.mobends.standard.data;
 
-import jline.internal.Nullable;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.animation.controller.SpiderController;
+import jline.internal.Nullable;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.init.Blocks;
@@ -46,6 +46,12 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public float getInterpolatedCrawlProgress()
     {
         return GUtil.lerp(prevCrawlProgress, crawlProgress, DataUpdateHandler.partialTicks);
+    }
+
+    @Override
+    public void onTicksRestart()
+    {
+        // No behaviour
     }
 
     @Override
@@ -335,6 +341,12 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public static class IKResult
     {
 
+        public final double worldX, worldZ;
+        public final double localX, localZ;
+        public final double deltaX, deltaZ;
+        public final double xzDistance;
+        public final double xzAngle;
+
         IKResult(double worldX, double worldZ, double localX, double localZ, double deltaX, double deltaZ, double xzDistance, double xzAngle)
         {
             this.worldX = worldX;
@@ -346,12 +358,6 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             this.xzDistance = xzDistance;
             this.xzAngle = xzAngle;
         }
-
-        public final double worldX, worldZ;
-        public final double localX, localZ;
-        public final double deltaX, deltaZ;
-        public final double xzDistance;
-        public final double xzAngle;
 
     }
 

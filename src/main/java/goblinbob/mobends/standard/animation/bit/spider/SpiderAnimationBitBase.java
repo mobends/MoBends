@@ -1,9 +1,9 @@
 package goblinbob.mobends.standard.animation.bit.spider;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
-import goblinbob.mobends.standard.data.SpiderData;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.animation.controller.SpiderController;
+import goblinbob.mobends.standard.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
 public abstract class SpiderAnimationBitBase extends AnimationBit<SpiderData>

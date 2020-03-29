@@ -129,12 +129,6 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel
     }
 
     @Override
-    protected void drawBackground(float partialTicks)
-    {
-
-    }
-
-    @Override
     public boolean handleMouseClicked(int mouseX, int mouseY, int button)
     {
         if (this.hovered && handleMouseClickedElements(mouseX - x, mouseY - y + scrollAmount, button))

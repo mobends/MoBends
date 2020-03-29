@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.client.gui.popup;
 
-import goblinbob.mobends.core.client.gui.elements.GuiCustomButton;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
+import goblinbob.mobends.core.client.gui.elements.GuiCustomButton;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
@@ -51,6 +51,7 @@ public class GuiPopUp
 
     public void update(int mouseX, int mouseY)
     {
+        // No default functionality.
     }
 
     public void display(int mouseX, int mouseY, float partialTicks)
@@ -101,7 +102,10 @@ public class GuiPopUp
         return -1;
     }
 
-    public void keyTyped(char typedChar, int keyCode) {}
+    public void keyTyped(char typedChar, int keyCode)
+    {
+        // No default functionality.
+    }
 
     public int getAfterAction()
     {

@@ -6,7 +6,6 @@ import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.standard.animation.bit.spider.*;
 import goblinbob.mobends.standard.data.SpiderData;
-import goblinbob.mobends.standard.animation.bit.spider.SpiderCrawlAnimationBit;
 import net.minecraft.entity.monster.EntitySpider;
 
 import java.util.ArrayList;
@@ -23,22 +22,16 @@ import java.util.List;
 public class SpiderController implements IAnimationController<SpiderData>
 {
 
-	protected HardAnimationLayer<SpiderData> layerBase;
-	protected AnimationBit<SpiderData> bitIdle, bitMove, bitJump;
-	protected AnimationBit<SpiderData> bitDeath;
-	protected AnimationBit<SpiderData> bitClimb;
+	protected HardAnimationLayer<SpiderData> layerBase = new HardAnimationLayer<>();
+	protected AnimationBit<SpiderData> bitIdle = new SpiderIdleAnimationBit();
+	protected AnimationBit<SpiderData> bitMove = new SpiderMoveAnimationBit();
+	protected AnimationBit<SpiderData> bitJump = new SpiderJumpAnimationBit();
+	protected AnimationBit<SpiderData> bitDeath = new SpiderDeathAnimationBit();
+	protected AnimationBit<SpiderData> bitClimb = new SpiderCrawlAnimationBit();
 
 	protected boolean resetAfterJumped = false;
 
-	public SpiderController()
-	{
-		this.layerBase = new HardAnimationLayer<>();
-		this.bitIdle = new SpiderIdleAnimationBit();
-		this.bitMove = new SpiderMoveAnimationBit();
-		this.bitJump = new SpiderJumpAnimationBit();
-		this.bitDeath = new SpiderDeathAnimationBit();
-		this.bitClimb = new SpiderCrawlAnimationBit();
-	}
+	public SpiderController() {}
 
 	@Override
 	public Collection<String> perform(SpiderData spiderData)

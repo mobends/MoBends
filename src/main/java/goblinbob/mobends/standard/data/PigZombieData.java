@@ -18,4 +18,11 @@ public class PigZombieData extends BipedEntityData<EntityPigZombie>
 	{
 		return controller;
 	}
+
+	@Override
+	public void onTicksRestart()
+	{
+		// No behaviour
+	}
+
 }

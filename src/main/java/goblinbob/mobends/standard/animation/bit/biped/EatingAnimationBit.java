@@ -42,10 +42,8 @@ public class EatingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		// what is your main hand.
 		float handDirMtp = mainHandSwitch ? 1 : -1;
 		IModelPart mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
-		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
 		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
-		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
-		
+
 		if (bringUpAnimation < 1F)
 		{
 			bringUpAnimation += DataUpdateHandler.ticksPerFrame * 0.15F;

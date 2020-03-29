@@ -12,15 +12,27 @@ import java.util.List;
 public class GuiRadio implements IObservable
 {
 
-    private int x, y;
-    private int buttonX, buttonY, buttonWidth, buttonHeight;
-    public int elementX, elementY, elementWidth, elementHeight;
-    public int offsetX, offsetY;
-    public int padding, elementOffset;
-    public int bgX, bgY, bgWidth, bgHeight;
+    private int x;
+    private int y;
+    private int buttonX;
+    private int buttonY;
+    private int buttonWidth;
+    private int buttonHeight;
+    public int elementX;
+    public int elementY;
+    public int elementWidth;
+    public int elementHeight;
+    public int offsetX;
+    public int offsetY;
+    public int padding;
+    public int elementOffset;
+    public int bgX;
+    public int bgY;
+    public int bgWidth;
+    public int bgHeight;
     public int numberOfElements = 5;
 
-    /*
+    /**
      * Used to indicate which operator is selected/hovered over. The value of -1
      * represents that nothing is hovered over. Values between 0 and (n-1) represent
      * different operators

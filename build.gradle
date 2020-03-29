@@ -1,6 +1,16 @@
-plugins {
-  id "net.minecraftforge.gradle.forge" version "2.0.2"
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
+    }
 }
+
+apply plugin: "net.minecraftforge.gradle.forge"
 
 version = "1.0.0-beta-${getDate()}"
 group = "goblinbob.mobends" // http://maven.apache.org/guides/mini/guide-naming-conventions.html

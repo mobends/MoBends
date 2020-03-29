@@ -1,12 +1,12 @@
 package goblinbob.mobends.core.data;
 
+import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IBendsModel;
-import goblinbob.mobends.core.util.GUtil;
-import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.pack.state.PackAnimationState;
+import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -291,6 +291,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
         return nameToPartMap.get(name);
     }
 
-    public void onTicksRestart() {}
+    public abstract void onTicksRestart();
 
 }

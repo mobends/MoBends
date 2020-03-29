@@ -1,13 +1,13 @@
 package goblinbob.mobends.core.client.gui.packswindow;
 
 import goblinbob.mobends.core.CoreClient;
-import goblinbob.mobends.core.pack.PackManager;
-import goblinbob.mobends.core.util.IDisposable;
 import goblinbob.mobends.core.client.gui.GuiDragger;
 import goblinbob.mobends.core.flux.ISubscriber;
 import goblinbob.mobends.core.flux.Subscription;
 import goblinbob.mobends.core.pack.IBendsPack;
 import goblinbob.mobends.core.pack.LocalBendsPack;
+import goblinbob.mobends.core.pack.PackManager;
+import goblinbob.mobends.core.util.IDisposable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;

@@ -1,9 +1,9 @@
 package goblinbob.mobends.core.client.gui.packswindow;
 
-import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.client.gui.IGuiDraggable;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
 import goblinbob.mobends.core.pack.IBendsPack;
+import goblinbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -191,7 +191,7 @@ public class GuiPackEntry implements IGuiListElement, IGuiDraggable
         Draw.texturedRectangle(viewX + 2, viewY + 2, 25, 25, 0, 0, 25F / 32F, 25F / 32F);
 
         fontRenderer.drawStringWithShadow(fontRenderer.trimStringToWidth(this.displayName, 70), viewX + 32, viewY + 1, 0xffffff);
-        Draw.rectangle_xgradient(viewX + 101 - 40, viewY + 1, 39, 9, 0x004e4e4e, 0xff4e4e4e);
+        Draw.rectangleHorizontalGradient(viewX + 101 - 40, viewY + 1, 39, 9, 0x004e4e4e, 0xff4e4e4e);
     }
 
 }

@@ -2,6 +2,8 @@ package goblinbob.mobends.standard.animation.bit.biped;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.client.model.IModelPart;
+import goblinbob.mobends.core.client.model.ModelPartTransform;
+import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
@@ -23,82 +25,57 @@ public class BowAnimationBit extends AnimationBit<BipedEntityData<?>>
 	{
 		this.actionHand = handSide;
 	}
-	
+
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
 		data.localOffset.slideToZero(0.3F);
 
 		final EntityLivingBase living = data.getEntity();
+		final float headPitch = data.headPitch.get();
+		final float headYaw = data.headYaw.get();
 
 		boolean mainHandSwitch = this.actionHand == EnumHandSide.RIGHT;
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on
 		// what is your main hand.
 		float handDirMtp = mainHandSwitch ? 1 : -1;
-		IModelPart mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
-		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
-		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
-		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
+		ModelPartTransform mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
+		ModelPartTransform offArm = mainHandSwitch ? data.leftArm : data.rightArm;
+		ModelPartTransform mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
+		ModelPartTransform offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
 
-		float aimedBowDuration = 0;
+		int aimedBowDuration = living != null ? Math.min(living.getItemInUseMaxCount(), 15) : 0;
 
-		if (living != null)
+		float bodyTwistY = (((aimedBowDuration - 10) / 5.0f) * -25) * handDirMtp;
+		float var2 = (aimedBowDuration / 10.0f);
+		float var5 = headPitch - 90F;
+		var5 = Math.max(var5, -160);
+
+		float bodyRotationY = -bodyTwistY + headYaw;
+		if (data.isClimbing())
 		{
-			aimedBowDuration = living.getItemInUseMaxCount();
-		}
+			float climbingRotation = data.getClimbingRotation();
+			float renderRotationY = MathHelper.wrapDegrees(living.rotationYaw - headYaw - climbingRotation);
+			bodyRotationY = MathHelper.wrapDegrees(headYaw + renderRotationY);
 
-		if (aimedBowDuration > 15)
-		{
-			aimedBowDuration = 15;
-		}
-
-		if (aimedBowDuration < 10)
-		{
-			data.body.getRotation().setSmoothness(.3F).orientX(30);
-
-			mainArm.getRotation().setSmoothness(.3F).orientX(-30);
-			offArm.getRotation().setSmoothness(.3F).orientX(-30)
-					.rotateY(80F * handDirMtp);
-
-			float var = (aimedBowDuration / 10.0f);
-			offForeArm.getRotation().orientX(var * -50F);
-
-			data.head.rotation.setSmoothness(.3F).rotateX(-30);
+			data.head.rotation.setSmoothness(0.5F).orientX(headPitch);
 		}
 		else
 		{
-			float bodyTwistY = (((aimedBowDuration - 10) / 5.0f) * -25) * handDirMtp;
-			float var2 = (aimedBowDuration / 10.0f);
-			float var5 = data.headPitch.get() - 90F;
-			var5 = Math.max(var5, -160);
-			
-			float bodyRotationX = 20 - (((aimedBowDuration - 10)) / 5.0f) * 20;
-			float bodyRotationY = -bodyTwistY + data.headYaw.get();
-			if (data.isClimbing())
-			{
-				float climbingRotation = data.getClimbingRotation();
-				float renderRotationY = MathHelper.wrapDegrees(living.rotationYaw-data.headYaw.get() - climbingRotation);
-				bodyRotationY = MathHelper.wrapDegrees(data.headYaw.get() + renderRotationY);
-				
-				data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.headPitch.get() - bodyRotationX));
-			}
-			else
-			{
-				data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.headPitch.get() - bodyRotationX))
-				  									  .rotateY(MathHelper.wrapDegrees(data.headYaw.get() - bodyRotationY));
-			}
-			
-			data.body.rotation.setSmoothness(.3F).orientX(bodyRotationX)
-			.rotateY(bodyRotationY);
-
-			mainArm.getRotation().setSmoothness(.8F).orientX(data.headPitch.get() - 90F)
-					.rotateY(bodyTwistY);
-			offArm.getRotation().setSmoothness(1F).orientY(80F * handDirMtp)
-					.rotateZ(-MathHelper.cos(data.headPitch.get()/180F*3.14F)*40.0F + 40.0F) //Keeping it close to the arm no matter the head pitch
-					.rotateX(var5);
-
-			mainForeArm.getRotation().setSmoothness(1F).orientX(0);
-			offForeArm.getRotation().orientX(var2 * -30F);
+			data.head.rotation.setSmoothness(0.5F).orientX(headPitch)
+												  .rotateY(headYaw - bodyRotationY);
 		}
+
+		data.body.rotation.setSmoothness(.8F).orientY(bodyRotationY);
+
+		mainArm.rotation.setSmoothness(.8F).orientX(headPitch - 90F)
+				.rotateY(bodyTwistY);
+		offArm.rotation.setSmoothness(1F).orientY(80F * handDirMtp)
+				// Keeping it close to the arm no matter the head pitch
+				.rotateZ((-MathHelper.cos(headPitch/180F * GUtil.PI) * 40F + 40F) * handDirMtp)
+				.rotateX(var5);
+
+		mainForeArm.rotation.setSmoothness(1F).orientX(0);
+		offForeArm.rotation.orientX(var2 * -30F);
 	}
 }

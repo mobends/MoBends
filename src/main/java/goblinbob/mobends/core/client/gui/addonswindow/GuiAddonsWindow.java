@@ -1,8 +1,8 @@
 package goblinbob.mobends.core.client.gui.addonswindow;
 
-import goblinbob.mobends.standard.main.ModStatics;
 import goblinbob.mobends.core.addon.Addons;
 import goblinbob.mobends.core.addon.IAddon;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;

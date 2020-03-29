@@ -2,8 +2,8 @@ package goblinbob.mobends.core.client.event;
 
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.mutators.Mutator;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.EntityLivingBase;

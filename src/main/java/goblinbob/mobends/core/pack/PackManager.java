@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.pack;
 
-import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.flux.Computed;
 import goblinbob.mobends.core.flux.Observable;
 import goblinbob.mobends.core.flux.ObservableMap;
@@ -18,7 +18,6 @@ public class PackManager
 {
 
     public static final PackManager INSTANCE = new PackManager();
-    private static final String PUBLIC_DATABASE_URL = "https://www.dropbox.com/s/d8v028x6mjk6xh3/packDatabase.json?dl=1";
 
     private File localDirectory;
     private PackCache cache;

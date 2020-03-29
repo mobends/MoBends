@@ -2,8 +2,8 @@ package goblinbob.mobends.core.pack.state;
 
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.pack.state.template.KeyframeLayerTemplate;
 import goblinbob.mobends.core.pack.BendsPackData;
+import goblinbob.mobends.core.pack.state.template.KeyframeLayerTemplate;
 
 public class KeyframeLayerState implements ILayerState
 {

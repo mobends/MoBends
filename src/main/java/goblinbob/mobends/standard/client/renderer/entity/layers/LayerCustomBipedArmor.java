@@ -52,6 +52,9 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
             case FEET:
                 model.bipedRightLeg.showModel = true;
                 model.bipedLeftLeg.showModel = true;
+                break;
+            default:
+                break;
         }
     }
 

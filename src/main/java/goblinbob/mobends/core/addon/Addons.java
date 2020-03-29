@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.addon;
 
-import goblinbob.mobends.core.bender.AddonAnimationRegistry;
 import goblinbob.mobends.core.CoreClient;
+import goblinbob.mobends.core.bender.AddonAnimationRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class Addons
 
     private final List<IAddon> addons = new ArrayList<>();
 
-    static void registerAddon(String modId, IAddon addon)
+    public static void registerAddon(String modId, IAddon addon)
     {
         if (INSTANCE.addons.contains(addon))
             return;

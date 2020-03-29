@@ -2,8 +2,8 @@ package goblinbob.mobends.standard.data;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
-import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.animation.controller.PlayerController;
+import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
@@ -56,6 +56,12 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	public float getCapeWavePhase()
 	{
 		return capeWavePhase;
+	}
+
+	@Override
+	public void onTicksRestart()
+	{
+		// No behaviour
 	}
 
 	@Override

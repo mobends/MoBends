@@ -1,8 +1,8 @@
 package goblinbob.mobends.core.event;
 
-import goblinbob.mobends.core.network.msg.MessageClientConfigure;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.CoreServer;
+import goblinbob.mobends.core.network.msg.MessageClientConfigure;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

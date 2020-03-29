@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.bender;
 
-import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.configuration.CoreClientConfig;
 import net.minecraft.entity.EntityLivingBase;
 
 import java.util.Collection;

@@ -1,6 +1,5 @@
 package goblinbob.mobends.standard;
 
-import goblinbob.mobends.standard.mutators.PlayerMutator;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.IPreviewer;
 import goblinbob.mobends.core.data.IEntityDataFactory;
@@ -9,6 +8,7 @@ import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.PlayerRenderer;
 import goblinbob.mobends.standard.data.PlayerData;
 import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.standard.mutators.PlayerMutator;
 import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.entity.AbstractClientPlayer;
 

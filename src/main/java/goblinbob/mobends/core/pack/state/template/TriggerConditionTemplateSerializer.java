@@ -1,8 +1,8 @@
 package goblinbob.mobends.core.pack.state.template;
 
 import com.google.gson.*;
-import goblinbob.mobends.core.pack.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.pack.PackDataProvider;
+import goblinbob.mobends.core.pack.state.condition.TriggerConditionRegistry;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;

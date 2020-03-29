@@ -1,9 +1,9 @@
 package goblinbob.mobends.standard.client;
 
+import goblinbob.mobends.core.Core;
 import goblinbob.mobends.standard.client.event.RenderingEventHandler;
 import goblinbob.mobends.standard.client.renderer.entity.RenderBendsSpectralArrow;
 import goblinbob.mobends.standard.client.renderer.entity.RenderBendsTippedArrow;
-import goblinbob.mobends.core.Core;
 import goblinbob.mobends.standard.main.CommonProxy;
 import net.minecraft.entity.projectile.EntitySpectralArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;

@@ -15,6 +15,7 @@ import java.util.List;
 
 public class GuiDropDownList<T> implements IObservable
 {
+
 	public static final int HEIGHT = 16;
 	public static final int LIST_HEIGHT = 90;
 	public static final int ELEMENT_HEIGHT = 11;
@@ -243,7 +244,7 @@ public class GuiDropDownList<T> implements IObservable
 		this.fontRenderer.drawStringWithShadow(text, x + 5, y + 4, noValue ? 0x999999 : 0xe2e2e2);
 
 		// Label gradient overlay
-		Draw.rectangle_xgradient(x + width - 40, y + 1, 27, HEIGHT - 2, 0x00000000,
+		Draw.rectangleHorizontalGradient(x + width - 40, y + 1, 27, HEIGHT - 2, 0x00000000,
 				hovered || dropped ? 0xff222222 : 0xff000000);
 
 		// Arrow icon

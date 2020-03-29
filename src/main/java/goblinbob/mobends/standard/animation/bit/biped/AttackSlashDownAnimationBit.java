@@ -50,15 +50,11 @@ public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?>
 		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
 		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
 		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
-		ItemStack offHandItemStack = living.getHeldItemOffhand();
 
-		if (living.getHeldItem(EnumHand.MAIN_HAND) != null)
+		if (data.getTicksAfterAttack() < 4F &&
+			living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
 		{
-			if (data.getTicksAfterAttack() < 4F &&
-				living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
-			{
-				data.swordTrail.add(data);
-			}
+			data.swordTrail.add(data);
 		}
 
 		float attackState = this.ticksPlayed / 10F;

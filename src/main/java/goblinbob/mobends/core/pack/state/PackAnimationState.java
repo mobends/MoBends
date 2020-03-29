@@ -1,10 +1,10 @@
 package goblinbob.mobends.core.pack.state;
 
 import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.pack.BendsPackData;
 import goblinbob.mobends.core.pack.state.template.BendsTargetTemplate;
 import goblinbob.mobends.core.pack.state.template.MalformedPackTemplateException;
 import goblinbob.mobends.core.pack.state.template.NodeTemplate;
-import goblinbob.mobends.core.pack.BendsPackData;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

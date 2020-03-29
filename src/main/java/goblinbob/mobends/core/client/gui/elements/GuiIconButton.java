@@ -9,11 +9,16 @@ import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 
 public class GuiIconButton
 {
+
 	public static final int WIDTH = 20;
 	public static final int HEIGHT = 20;
 	
 	protected int x, y;
-	protected int iconU, iconV, iconWidth, iconHeight;
+	protected int iconU;
+	protected int iconV;
+	protected int iconWidth;
+	protected int iconHeight;
+
 	protected boolean hovered;
 	
 	public GuiIconButton(int iconU, int iconV, int iconWidth, int iconHeight)
@@ -55,4 +60,5 @@ public class GuiIconButton
 	{
 		return hovered;
 	}
+
 }

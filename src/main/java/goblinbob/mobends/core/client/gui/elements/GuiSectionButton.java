@@ -1,13 +1,13 @@
 package goblinbob.mobends.core.client.gui.elements;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
-import goblinbob.mobends.core.util.GuiHelper;
-import goblinbob.mobends.core.util.IColorRead;
-import goblinbob.mobends.standard.main.ModStatics;
 import goblinbob.mobends.core.client.gui.CustomFont;
 import goblinbob.mobends.core.client.gui.CustomFontRenderer;
 import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.util.Draw;
+import goblinbob.mobends.core.util.GuiHelper;
+import goblinbob.mobends.core.util.IColorRead;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
@@ -168,7 +168,6 @@ public class GuiSectionButton
         }
 
         int mountainOffsetY = (int) (bgt * 10);
-        int mountainScrollX = (int) this.ticksAfterHovered;
 
         Draw.texturedRectangle(x, y + mountainOffsetY, width, height - 2 - mountainOffsetY, tX * uScale, tY * vScale, (tX + width) * uScale, (tY + height - 2 - mountainOffsetY) * vScale);
         // Bottom bar

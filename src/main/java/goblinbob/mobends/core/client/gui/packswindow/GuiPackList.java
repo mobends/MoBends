@@ -1,8 +1,8 @@
 package goblinbob.mobends.core.client.gui.packswindow;
 
-import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.client.gui.elements.GuiList;
 import goblinbob.mobends.core.flux.Observable;
+import goblinbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 
 import java.util.Iterator;
@@ -39,8 +39,6 @@ public class GuiPackList extends GuiList<GuiPackEntry>
     @Override
     protected void drawBackground(float partialTicks)
     {
-        super.drawBackground(partialTicks);
-
         Minecraft.getMinecraft().getTextureManager().bindTexture(GuiPacksWindow.BACKGROUND_TEXTURE);
         Draw.borderBox(0, 0, this.width, this.height, 4, 36, 117);
     }

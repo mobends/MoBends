@@ -1,8 +1,8 @@
 package goblinbob.mobends.core.network.msg;
 
-import io.netty.buffer.ByteBuf;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.network.NetworkConfiguration;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;

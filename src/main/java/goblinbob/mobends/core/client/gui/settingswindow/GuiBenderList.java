@@ -21,8 +21,6 @@ public class GuiBenderList extends GuiList<GuiBenderSettings>
     @Override
     protected void drawBackground(float partialTicks)
     {
-        super.drawBackground(partialTicks);
-
         Minecraft.getMinecraft().getTextureManager().bindTexture(GuiPacksWindow.BACKGROUND_TEXTURE);
         Draw.borderBox(0, 0, this.width, this.height, 4, 36, 117);
     }

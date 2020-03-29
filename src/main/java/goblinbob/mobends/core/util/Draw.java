@@ -60,7 +60,7 @@ public class Draw
         rectangle(x, y, w, h);
     }
 
-    public static void rectangle_xgradient(float x, float y, float w, float h, IColorRead color0, IColorRead color1)
+    public static void rectangleHorizontalGradient(float x, float y, float w, float h, IColorRead color0, IColorRead color1)
     {
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -80,7 +80,7 @@ public class Draw
         GlStateManager.enableTexture2D();
     }
 
-    public static void rectangle_ygradient(float x, float y, float w, float h, IColorRead color0, IColorRead color1)
+    public static void rectangleVerticalGradient(float x, float y, float w, float h, IColorRead color0, IColorRead color1)
     {
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -100,7 +100,7 @@ public class Draw
         GlStateManager.enableTexture2D();
     }
 
-    public static void rectangle_xgradient(float x, float y, float width, float height, int color0, int color1)
+    public static void rectangleHorizontalGradient(float x, float y, float width, float height, int color0, int color1)
     {
         GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);
         GlStateManager.shadeModel(GL11.GL_SMOOTH);
@@ -129,7 +129,7 @@ public class Draw
         GlStateManager.disableBlend();
     }
 
-    public static void rectangle_ygradient(float x, float y, float w, float h, int color0, int color1)
+    public static void rectangleVerticalGradient(float x, float y, float w, float h, int color0, int color1)
     {
         GlStateManager.enableBlend();
         GL11.glHint(GL11.GL_PERSPECTIVE_CORRECTION_HINT, GL11.GL_NICEST);

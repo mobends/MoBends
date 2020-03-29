@@ -43,10 +43,6 @@ public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
 		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
 		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
 		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
-		IModelPart mainLeg = mainHandSwitch ? data.rightLeg : data.leftLeg;
-		IModelPart offLeg = mainHandSwitch ? data.leftLeg : data.rightLeg;
-		IModelPart mainForeLeg = mainHandSwitch ? data.rightForeLeg : data.leftForeLeg;
-		IModelPart offForeLeg = mainHandSwitch ? data.leftForeLeg : data.rightForeLeg;
 		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
 		
 		if (living.getHeldItem(EnumHand.MAIN_HAND) != null)

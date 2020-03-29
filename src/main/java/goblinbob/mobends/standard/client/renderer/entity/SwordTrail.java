@@ -13,7 +13,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 import org.lwjgl.opengl.GL11;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class SwordTrail
 {
@@ -28,7 +29,10 @@ public class SwordTrail
     protected static class TrailPart
     {
 
-        protected ModelPartTransform body, arm, foreArm;
+        protected ModelPartTransform body;
+        protected ModelPartTransform arm;
+        protected ModelPartTransform foreArm;
+
         protected Quaternion renderRotation = new Quaternion();
         protected Vec3f renderOffset = new Vec3f();
         protected Quaternion itemRotation = new Quaternion();

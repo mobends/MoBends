@@ -1,5 +1,9 @@
 package goblinbob.mobends.standard;
 
+import goblinbob.mobends.core.addon.IAddon;
+import goblinbob.mobends.core.bender.AddonAnimationRegistry;
+import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
+import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.SpiderRenderer;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.SquidRenderer;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.ZombieRenderer;
@@ -11,10 +15,6 @@ import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.mutators.PigZombieMutator;
 import goblinbob.mobends.standard.mutators.SpiderMutator;
 import goblinbob.mobends.standard.mutators.SquidMutator;
-import goblinbob.mobends.core.addon.IAddon;
-import goblinbob.mobends.core.bender.AddonAnimationRegistry;
-import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
-import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.mutators.ZombieMutator;
 import goblinbob.mobends.standard.previewer.BipedPreviewer;
 import goblinbob.mobends.standard.previewer.PlayerPreviewer;
