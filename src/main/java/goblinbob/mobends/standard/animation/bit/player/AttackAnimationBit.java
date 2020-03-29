@@ -12,6 +12,7 @@ import net.minecraft.util.EnumHand;
 
 public class AttackAnimationBit extends AnimationBit<PlayerData>
 {
+
 	protected HardAnimationLayer<BipedEntityData<?>> layerBase;
 	protected AttackStanceAnimationBit bitAttackStance;
 	protected AttackStanceSprintAnimationBit bitAttackStanceSprint;
@@ -114,4 +115,5 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 
 		this.layerBase.perform(playerData);
 	}
+
 }

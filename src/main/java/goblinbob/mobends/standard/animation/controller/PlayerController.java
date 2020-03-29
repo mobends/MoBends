@@ -35,50 +35,36 @@ import java.util.List;
 public class PlayerController implements IAnimationController<PlayerData>
 {
 	
-	protected HardAnimationLayer<BipedEntityData<?>> layerBase;
-	protected HardAnimationLayer<BipedEntityData<?>> layerTorch;
-	protected HardAnimationLayer<BipedEntityData<?>> layerSneak;
-	protected HardAnimationLayer<BipedEntityData<?>> layerAction;
-	protected KeyframeAnimationLayer<PlayerData> layerKeyframe;
+	protected HardAnimationLayer<BipedEntityData<?>> layerBase = new HardAnimationLayer<>();
+	protected HardAnimationLayer<BipedEntityData<?>> layerTorch = new HardAnimationLayer<>();
+	protected HardAnimationLayer<BipedEntityData<?>> layerSneak = new HardAnimationLayer<>();
+	protected HardAnimationLayer<BipedEntityData<?>> layerAction = new HardAnimationLayer<>();
+	protected HardAnimationLayer<BipedEntityData<?>> layerCape = new HardAnimationLayer<>();
+	protected KeyframeAnimationLayer<PlayerData> layerKeyframe = new KeyframeAnimationLayer<>();
 
-	protected AnimationBit<BipedEntityData<?>> bitStand, bitJump, bitSneak, bitLadderClimb,
-			bitSwimming, bitRiding, bitSitting, bitFalling;
-	protected AnimationBit<PlayerData> bitWalk, bitSprint, bitSprintJump;
-	protected AnimationBit<BipedEntityData<?>> bitTorchHolding;
-	protected AnimationBit<PlayerData> bitAttack;
-	protected FlyingAnimationBit bitFlying;
-	protected BowAnimationBit bitBow;
-	protected EatingAnimationBit bitEating;
-	protected KeyframeAnimationBit<BipedEntityData<?>> bitBreaking;
+	protected AnimationBit<BipedEntityData<?>> bitStand = new StandAnimationBit<>();
+	protected AnimationBit<BipedEntityData<?>> bitJump = new JumpAnimationBit<>();
+	protected AnimationBit<BipedEntityData<?>> bitSneak = new SneakAnimationBit();
+	protected AnimationBit<BipedEntityData<?>> bitLadderClimb = new LadderClimbAnimationBit();
+	protected AnimationBit<BipedEntityData<?>> bitSwimming = new SwimmingAnimationBit();
+	protected AnimationBit<BipedEntityData<?>> bitRiding = new RidingAnimationBit();
+	protected AnimationBit<BipedEntityData<?>> bitSitting = new SittingAnimationBit();
+	protected AnimationBit<BipedEntityData<?>> bitFalling = new FallingAnimationBit();
+	protected AnimationBit<PlayerData> bitWalk = new WalkAnimationBit();
+	protected AnimationBit<PlayerData> bitSprint = new SprintAnimationBit();
+	protected AnimationBit<PlayerData> bitSprintJump = new SprintJumpAnimationBit();
+	protected AnimationBit<BipedEntityData<?>> bitTorchHolding = new TorchHoldingAnimationBit();
+	protected AnimationBit<PlayerData> bitAttack = new AttackAnimationBit();
+	protected FlyingAnimationBit bitFlying = new FlyingAnimationBit();
+	protected BowAnimationBit bitBow = new BowAnimationBit();
+	protected EatingAnimationBit bitEating = new EatingAnimationBit();
+	protected KeyframeAnimationBit<BipedEntityData<?>> bitBreaking = new BreakingAnimationBit(1.2F);
+	protected CapeAnimationBit bitCape = new CapeAnimationBit();
 
 	protected ArmatureMask upperBodyOnlyMask;
 
 	public PlayerController()
 	{
-		this.layerBase = new HardAnimationLayer<>();
-		this.layerTorch = new HardAnimationLayer<>();
-		this.layerSneak = new HardAnimationLayer<>();
-		this.layerAction = new HardAnimationLayer<>();
-		this.layerKeyframe = new KeyframeAnimationLayer<>();
-
-		this.bitStand = new StandAnimationBit<>();
-		this.bitJump = new JumpAnimationBit<>();
-		this.bitSneak = new SneakAnimationBit();
-		this.bitLadderClimb = new LadderClimbAnimationBit();
-		this.bitSwimming = new SwimmingAnimationBit();
-		this.bitWalk = new WalkAnimationBit();
-		this.bitSprint = new SprintAnimationBit();
-		this.bitSprintJump = new SprintJumpAnimationBit();
-		this.bitRiding = new RidingAnimationBit();
-		this.bitSitting = new SittingAnimationBit();
-		this.bitFalling = new FallingAnimationBit();
-		this.bitFlying = new FlyingAnimationBit();
-		this.bitTorchHolding = new TorchHoldingAnimationBit();
-		this.bitAttack = new AttackAnimationBit();
-		this.bitBow = new BowAnimationBit();
-		this.bitEating = new EatingAnimationBit();
-		this.bitBreaking = new BreakingAnimationBit(1.2F);
-
 		this.upperBodyOnlyMask = new ArmatureMask(ArmatureMask.Mode.EXCLUDE_ONLY);
 		this.upperBodyOnlyMask.exclude("root");
 		this.upperBodyOnlyMask.exclude("head");
@@ -109,34 +95,36 @@ public class PlayerController implements IAnimationController<PlayerData>
 		final EnumHand activeHand = player.getActiveHand();
 		final EnumHandSide activeHandSide = activeHand == EnumHand.MAIN_HAND ? primaryHand : offHand;
 
+		layerCape.playOrContinueBit(bitCape, data);
+
 		if (player.isRiding())
 		{
 			if (player.getRidingEntity() instanceof EntityLivingBase)
 			{
-				this.layerBase.playOrContinueBit(bitRiding, data);
+				layerBase.playOrContinueBit(bitRiding, data);
 			}
 			else
 			{
-				this.layerBase.playOrContinueBit(bitSitting, data);
+				layerBase.playOrContinueBit(bitSitting, data);
 			}
-			this.layerSneak.clearAnimation();
-			this.bitBreaking.setMask(this.upperBodyOnlyMask);
+			layerSneak.clearAnimation();
+			bitBreaking.setMask(upperBodyOnlyMask);
 		}
 		else
 		{
 			if (data.isClimbing())
 			{
-				this.layerBase.playOrContinueBit(bitLadderClimb, data);
-				this.layerSneak.clearAnimation();
-				this.layerTorch.clearAnimation();
-				this.bitBreaking.setMask(this.upperBodyOnlyMask);
+				layerBase.playOrContinueBit(bitLadderClimb, data);
+				layerSneak.clearAnimation();
+				layerTorch.clearAnimation();
+				bitBreaking.setMask(upperBodyOnlyMask);
 			}
 			else if (player.isInWater())
 			{
-				this.layerBase.playOrContinueBit(bitSwimming, data);
-				this.layerSneak.clearAnimation();
-				this.layerTorch.clearAnimation();
-				this.bitBreaking.setMask(this.upperBodyOnlyMask);
+				layerBase.playOrContinueBit(bitSwimming, data);
+				layerSneak.clearAnimation();
+				layerTorch.clearAnimation();
+				bitBreaking.setMask(upperBodyOnlyMask);
 			}
 			else if (!data.isOnGround() || data.getTicksAfterTouchdown() < 1)
 			{
@@ -144,53 +132,53 @@ public class PlayerController implements IAnimationController<PlayerData>
 				if (data.isFlying())
 				{
 					// Flying
-					this.layerBase.playOrContinueBit(bitFlying, data);
+					layerBase.playOrContinueBit(bitFlying, data);
 				}
 				else
 				{
 					if (data.getTicksFalling() > FallingAnimationBit.TICKS_BEFORE_FALLING)
 					{
-						this.layerBase.playOrContinueBit(bitFalling, data);
+						layerBase.playOrContinueBit(bitFalling, data);
 					}
 					else
 					{
 						if (player.isSprinting())
-							this.layerBase.playOrContinueBit(bitSprintJump, data);
+							layerBase.playOrContinueBit(bitSprintJump, data);
 						else
-							this.layerBase.playOrContinueBit(bitJump, data);
+							layerBase.playOrContinueBit(bitJump, data);
 					}
 				}
-				this.layerSneak.clearAnimation();
-				this.layerTorch.clearAnimation();
-				this.bitBreaking.setMask(this.upperBodyOnlyMask);
+				layerSneak.clearAnimation();
+				layerTorch.clearAnimation();
+				bitBreaking.setMask(upperBodyOnlyMask);
 			}
 			else
 			{
 				if (data.isStillHorizontally())
 				{
-					this.layerBase.playOrContinueBit(bitStand, data);
-					this.layerTorch.playOrContinueBit(bitTorchHolding, data);
-					this.bitBreaking.setMask(null);
+					layerBase.playOrContinueBit(bitStand, data);
+					layerTorch.playOrContinueBit(bitTorchHolding, data);
+					bitBreaking.setMask(null);
 				}
 				else
 				{
 					if (player.isSprinting())
 					{
-						this.layerBase.playOrContinueBit(bitSprint, data);
-						this.layerTorch.clearAnimation();
+						layerBase.playOrContinueBit(bitSprint, data);
+						layerTorch.clearAnimation();
 					}
 					else
 					{
-						this.layerBase.playOrContinueBit(bitWalk, data);
-						this.layerTorch.playOrContinueBit(bitTorchHolding, data);
+						layerBase.playOrContinueBit(bitWalk, data);
+						layerTorch.playOrContinueBit(bitTorchHolding, data);
 					}
-					this.bitBreaking.setMask(this.upperBodyOnlyMask);
+					bitBreaking.setMask(upperBodyOnlyMask);
 				}
 
 				if (player.isSneaking())
-					this.layerSneak.playOrContinueBit(bitSneak, data);
+					layerSneak.playOrContinueBit(bitSneak, data);
 				else
-					this.layerSneak.clearAnimation();
+					layerSneak.clearAnimation();
 			}
 		}
 
@@ -199,26 +187,26 @@ public class PlayerController implements IAnimationController<PlayerData>
 		 */
 		if (activeStack.getItem() instanceof ItemFood)
 		{
-			this.bitEating.setActionHand(activeHandSide);
-			this.layerAction.playOrContinueBit(bitEating, data);
+			bitEating.setActionHand(activeHandSide);
+			layerAction.playOrContinueBit(bitEating, data);
 		}
 		else
 		{
 			if (armPoseMain == ArmPose.BOW_AND_ARROW || armPoseOff == ArmPose.BOW_AND_ARROW)
 			{
-				this.bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
-				this.layerAction.playOrContinueBit(this.bitBow, data);
+				bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
+				layerAction.playOrContinueBit(bitBow, data);
 			}
 			else if (heldItemMainhand.getItem() instanceof ItemPickaxe || heldItemMainhand.getItem() instanceof ItemAxe)
 			{
 				if (player.isSwingInProgress)
-					this.layerAction.playOrContinueBit(this.bitBreaking, data);
+					layerAction.playOrContinueBit(bitBreaking, data);
 				else
-					this.layerAction.clearAnimation();
+					layerAction.clearAnimation();
 			}
 			else
 			{
-				this.layerAction.playOrContinueBit(this.bitAttack, data);
+				layerAction.playOrContinueBit(bitAttack, data);
 			}
 		}
 
@@ -227,6 +215,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 		layerSneak.perform(data, actions);
 		layerTorch.perform(data, actions);
 		layerAction.perform(data, actions);
+		layerCape.perform(data, actions);
 		layerKeyframe.perform(data, actions);
 		return actions;
 	}

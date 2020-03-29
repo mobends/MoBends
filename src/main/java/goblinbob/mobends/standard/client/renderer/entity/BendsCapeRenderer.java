@@ -38,7 +38,7 @@ public class BendsCapeRenderer
 
     public void applyAnimation(PlayerData playerData)
     {
-    	double phase = playerData.getPositionX();
+    	double phase = playerData.getCapeWavePhase();
 
         for (int i = 0; i < SLAB_AMOUNT; i++)
         {

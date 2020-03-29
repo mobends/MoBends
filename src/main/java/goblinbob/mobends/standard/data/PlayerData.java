@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.data;
 
+import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.animation.controller.PlayerController;
@@ -13,10 +14,13 @@ import net.minecraft.util.EnumHand;
 public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 {
 
-	boolean sprintJumpLeg = false;
-	boolean sprintJumpLegSwitched = false;
-	boolean fistPunchArm = false;
-	int currentAttack = 0;
+	protected boolean sprintJumpLeg = false;
+	protected boolean sprintJumpLegSwitched = false;
+	protected boolean fistPunchArm = false;
+	protected int currentAttack = 0;
+	protected float capeWavePhase = 0;
+	protected float capeWaveSpeed = 0;
+
 	public ModelPartTransform cape;
 	
 	public PlayerData(AbstractClientPlayer entity)
@@ -43,7 +47,17 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	{
 		this.flyingStateOverride = null;
 	}
-	
+
+	public void setCapeWaveSpeed(float value)
+	{
+		capeWaveSpeed = value;
+	}
+
+	public float getCapeWavePhase()
+	{
+		return capeWavePhase;
+	}
+
 	@Override
 	public void initModelPose()
 	{
@@ -60,6 +74,14 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 			rightArm.position.set(-5F, -9.5F, 0F);
 			leftArm.position.set(5F, -9.5F, 0F);
 		}
+	}
+
+	@Override
+	public void updateParts(float ticksPerFrame)
+	{
+		super.updateParts(ticksPerFrame);
+
+		cape.update(ticksPerFrame);
 	}
 
 	@Override
@@ -82,6 +104,10 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 			sprintJumpLeg = !sprintJumpLeg;
 			sprintJumpLegSwitched = true;
 		}
+
+		this.capeWavePhase += this.capeWaveSpeed * DataUpdateHandler.ticksPerFrame;
+		if (this.capeWavePhase > 380.0F)
+			this.capeWavePhase -= 380.0F;
 	}
 
 	@Override

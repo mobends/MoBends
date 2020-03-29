@@ -19,6 +19,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 								   M extends ModelBiped>
 								  extends Mutator<D, E, M>
 {
+
 	protected ModelPartPostOffset body;
 	protected ModelPart head;
 	protected ModelPart headwear;
@@ -37,7 +38,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	protected LayerHeldItem 			layerHeldItemVanilla;
 	protected LayerCustomHead 			layerCustomHead;
 	protected LayerCustomHead 			layerCustomHeadVanilla;
-	
+
 
 	public BipedMutator(IEntityDataFactory<E> dataFactory)
 	{
@@ -60,7 +61,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		this.vanillaModel.bipedRightArm = model.bipedRightArm;
 		this.vanillaModel.bipedRightLeg = model.bipedRightLeg;
 	}
-	
+
 	/**
 	 * Sets the model parameter back to it's vanilla
 	 * state. Used to demutate the model.
@@ -76,7 +77,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		model.bipedRightArm = this.vanillaModel.bipedRightArm;
 		model.bipedRightLeg = this.vanillaModel.bipedRightLeg;
 	}
-	
+
 	/**
 	 * Swaps out the vanilla layers for their custom counterparts,
 	 * and if it's a vanilla model, it stores the vanilla layers
@@ -108,7 +109,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 			layerRenderers.set(index, this.layerCustomHead);
 		}
 	}
-	
+
 	/**
 	 * Swaps the custom layers back with the vanilla layers.
 	 * Used to demutate the model.
@@ -130,7 +131,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 			layerRenderers.set(index, this.layerCustomHeadVanilla);
 		}
 	}
-	
+
 	/**
 	 * Creates all the custom parts you need! It swaps all the
 	 * original parts with newly created custom parts.
@@ -143,7 +144,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setPostOffset(0.0F, -12.0F, 0.0F)
 				.setPosition(0.0F, 12.0F, 0.0F);
 		body.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, scaleFactor);
-		
+
 		// Head
 		original.bipedHead = head = new ModelPart(original, 0, 0)
 				.setParent(body)
@@ -162,7 +163,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.inflate(0.01F, 0, 0.01F)
 				.hideFace(BoxSide.BOTTOM)
 				.create();
-		
+
 		original.bipedRightArm = rightArm = (ModelPartExtended) new ModelPartExtended(original, 40, 16)
 				.setParent(body)
 				.setPosition(-5.0F, armY, 0.0F);
@@ -180,7 +181,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.hideFace(BoxSide.TOP)
 				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 				.create();
-		
+
 		leftArm.setExtension(leftForeArm);
 		rightForeArm = (ModelPartPostOffset) new ModelPartPostOffset(original, 40, 16 + 6)
 				.setPostOffset(0, -4F, -2F)
@@ -204,7 +205,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setParent(leftLeg)
 				.setPosition(0, 6.0F, -2.0F)
 				.setMirror(true);
-		
+
 		leftForeLeg.developBox(-0.1F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
 				.inflate(0.01F, 0, 0.01F)
 				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
@@ -223,10 +224,10 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		// Wear
 		original.bipedHeadwear = headwear = (ModelPart) new ModelPart(original, 32, 0).setParent(head);
 		headwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor + 0.5F);
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public void syncUpWithData(D data)
 	{
@@ -241,7 +242,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		leftForeLeg.syncUp(data.leftForeLeg);
 		rightForeLeg.syncUp(data.rightForeLeg);
 	}
-	
+
 	/**
 	 * True, if this renderer wasn't mutated before.
 	 */

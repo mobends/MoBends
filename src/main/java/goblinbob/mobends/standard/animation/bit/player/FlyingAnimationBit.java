@@ -9,6 +9,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class FlyingAnimationBit extends AnimationBit<PlayerData>
 {
+
 	private static final String[] ACTIONS = new String[] { "flying" };
 	private static final float PI = (float) Math.PI;
 	private static final float PI_2 = PI * 2;
@@ -33,7 +34,7 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 	@Override
 	public void perform(PlayerData data)
 	{
-		AbstractClientPlayer player = data.getEntity();
+		final AbstractClientPlayer player = data.getEntity();
 		
 		final double motionX = data.getInterpolatedMotionX();
 		final double motionY = data.getInterpolatedMotionY();
@@ -41,7 +42,6 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 		final double magnitude = data.getInterpolatedMotionMagnitude();
 
 		float ticks = DataUpdateHandler.getTicks();
-		
 		
 		float t = (float) GUtil.easeInOut(this.transformTransition, 3F);
 		
@@ -104,7 +104,7 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 		else
 		{
 			// Moving
-			
+
 			data.centerRotation.orientZero();
 			data.centerRotation.rotateX(forwardMomentum * 50.0F);
 			data.body.rotation.orientZero();
@@ -120,13 +120,14 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 			
 			data.head.rotation.setSmoothness(1.0F).orientX(headPitch).rotateX(-forwardMomentum * 50.0F);
 			
-			if (!data.isDrawingBow()) {
+			if (!data.isDrawingBow())
+			{
 				data.centerRotation.localRotateY(-headYaw);
 			}
 		}
 		
-		
 		data.renderRotation.setSmoothness(.7F).orientX(0);
 		data.globalOffset.slideToZero(.7F);
 	}
+
 }
