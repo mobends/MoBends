@@ -17,3 +17,8 @@ The development of version **1.0.0** is in progress right now! If you'd like to 
 [![Discord](https://img.shields.io/discord/386940930739011584.svg)](https://discord.gg/Epf7atm)
 
 Say you came from GitHub if you decide to come by! Hope to see you there ;)
+
+## Creating addons
+If you'd like to extend the functionality of the Mo' Bends mod, here's what you can do:
+1. Check out an example addon for Mo' Bends: [CustomNPCs Support Addon](https://github.com/mobends/mobends-addon-customnpcs)
+2. That's it for now <3
