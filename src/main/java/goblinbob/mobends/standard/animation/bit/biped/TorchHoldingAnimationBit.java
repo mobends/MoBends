@@ -29,9 +29,9 @@ public class TorchHoldingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		final Item offItem = living.getHeldItem(EnumHand.OFF_HAND).getItem();
 		final Item torch = Item.getItemFromBlock(Blocks.TORCH);
 
-		if (mainItem == torch)
+		if (mainItem.equals(torch))
 			return mainHand;
-		else if (offItem == torch)
+		else if (offItem.equals(torch))
 			return offHand;
 		else
 			return null;

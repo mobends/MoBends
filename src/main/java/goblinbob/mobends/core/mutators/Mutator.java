@@ -20,7 +20,10 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 {
 
     protected M vanillaModel;
-    protected float headYaw, headPitch, limbSwing, limbSwingAmount;
+    protected float headYaw;
+    protected float headPitch;
+    protected float limbSwing;
+    protected float limbSwingAmount;
 
     private IEntityDataFactory<E> dataFactory;
     protected List<LayerRenderer<?>> layerRenderers;
@@ -211,6 +214,9 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
     /**
      * Called right after this mutator has been refreshed.
      */
-    public void postRefresh() {}
+    public void postRefresh()
+    {
+        // No default behaviour
+    }
 
 }

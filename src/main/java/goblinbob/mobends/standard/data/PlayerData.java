@@ -24,14 +24,14 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	private Boolean flyingStateOverride = null;
 
 	public ModelPartTransform cape;
-	
+
+	private final PlayerController controller = new PlayerController();
+
 	public PlayerData(AbstractClientPlayer entity)
 	{
 		super(entity);
 	}
-	
-	private final PlayerController controller = new PlayerController();
-	
+
 	@Override
 	public PlayerController getController()
 	{
@@ -154,6 +154,9 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 				break;
 			case 2:
 				this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 3;
+				break;
+			default:
+				this.currentAttack = 1;
 				break;
 		}
 

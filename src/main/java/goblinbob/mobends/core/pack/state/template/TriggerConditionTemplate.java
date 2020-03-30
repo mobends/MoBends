@@ -5,8 +5,6 @@ public class TriggerConditionTemplate
 
     private String type;
 
-    public TriggerConditionTemplate() {}
-
     public String getType()
     {
         return type;

@@ -30,7 +30,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	public Vec3f scale;
 	public SmoothOrientation rotation;
 	
-	ModelRenderer model;
+	private ModelRenderer model;
 	
 	protected IModelPart parent;
 	protected ICollider collider;

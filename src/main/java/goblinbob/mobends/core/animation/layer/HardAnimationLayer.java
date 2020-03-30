@@ -5,7 +5,8 @@ import goblinbob.mobends.core.data.EntityData;
 
 public class HardAnimationLayer<T extends EntityData<?>> extends AnimationLayer<T>
 {
-	protected AnimationBit<T> performedBit, previousBit;
+	protected AnimationBit<T> performedBit;
+	protected AnimationBit<T> previousBit;
 	
 	@SuppressWarnings("unchecked")
 	public void playBit(AnimationBit<? extends T> bit, T entityData)

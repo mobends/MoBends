@@ -12,7 +12,7 @@ public class CoreServer extends Core<CoreServerConfig>
 
 	private static CoreServer INSTANCE;
 
-	CoreServerConfig configuration;
+	private CoreServerConfig configuration;
 
 	CoreServer()
 	{

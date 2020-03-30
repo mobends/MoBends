@@ -105,7 +105,10 @@ public class ArrowTrail
             {
                 scale1 = 0;
             }
-            Vec3f up0 = node0.up, right0 = node0.right, up1 = node1.up, right1 = node1.right;
+            final Vec3f up0 = node0.up;
+            final Vec3f right0 = node0.right;
+            final Vec3f up1 = node1.up;
+            final Vec3f right1 = node1.right;
 
             vertexbuffer
                     .pos(pos0.x + (-right0.x) * scale0, pos0.y + (-right0.y) * scale0, pos0.z + (-right0.z) * scale0)
@@ -187,11 +190,12 @@ public class ArrowTrail
     static class TrailNode
     {
 
-        double x;
-        double y;
-        double z;
+        public double x;
+        public double y;
+        public double z;
 
-        final Vec3f up, right;
+        public final Vec3f up;
+        public final Vec3f right;
 
         TrailNode(EntityArrow arrow)
         {

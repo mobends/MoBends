@@ -15,7 +15,8 @@ public class GuiToggleButton
     private static final int FLIPPER_WIDTH = 30;
     private static final int HEIGHT = 20;
 
-    protected int x, y;
+    protected int x;
+    protected int y;
     protected boolean hovered;
     protected boolean enabled;
     protected boolean toggleState;
