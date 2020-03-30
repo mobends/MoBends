@@ -127,6 +127,8 @@ public class GuiSettingsWindow extends GuiScreen
             case BUTTON_BACK:
                 goBack();
                 break;
+            default:
+                break;
         }
     }
 

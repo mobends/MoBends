@@ -3,7 +3,6 @@ package goblinbob.mobends.standard.animation.bit.biped;
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.standard.data.BipedEntityData;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
 public class FallingAnimationBit extends AnimationBit<BipedEntityData<?>>
@@ -21,8 +20,6 @@ public class FallingAnimationBit extends AnimationBit<BipedEntityData<?>>
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		EntityLivingBase living = data.getEntity();
-
 		data.centerRotation.setSmoothness(.3F).orientZero();
 		
 		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()))

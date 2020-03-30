@@ -72,6 +72,8 @@ public class PlayerPreviewer extends BipedPreviewer<PlayerData>
 
                 data.overrideStillness(true);
                 break;
+            default:
+                break;
         }
     }
 

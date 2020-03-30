@@ -6,7 +6,9 @@ public class Vec3d implements IVec3d
 	public static final Vec3dReadonly ZERO = new Vec3dReadonly(0, 0, 0);
 	public static final Vec3dReadonly ONE = new Vec3dReadonly(1, 1, 1);
 	
-	public double x, y, z;
+	public double x;
+	public double y;
+	public double z;
 	
 	public Vec3d(double x, double y, double z)
 	{

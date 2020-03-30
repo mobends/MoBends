@@ -8,7 +8,8 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 public class OBBox implements IOBBox, ICollider
 {
 	
-	public Vec3f min, max;
+	public Vec3f min;
+	public Vec3f max;
 	public Mat4x4d transform;
 	
 	public OBBox(IVec3fRead min, IVec3fRead max, IMat4x4d transform)
@@ -21,7 +22,7 @@ public class OBBox implements IOBBox, ICollider
 	public OBBox(float x0, float y0, float z0, float x1, float y1, float z1, IMat4x4d transform)
 	{
 		this.min = new Vec3f(x0, y0, z0);
-		this.max = new Vec3f(z1, y1, z1);
+		this.max = new Vec3f(x1, y1, z1);
 		this.transform = new Mat4x4d(transform);
 	}
 	

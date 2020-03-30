@@ -3,7 +3,10 @@ package goblinbob.mobends.core.math.vector;
 public class Vec4d implements IVec4d
 {
 
-	public double x, y, z, w;
+	public double x;
+	public double y;
+	public double z;
+	public double w;
 	
 	public Vec4d(double x, double y, double z, double w)
 	{

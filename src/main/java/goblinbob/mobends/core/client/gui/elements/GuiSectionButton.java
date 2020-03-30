@@ -25,17 +25,20 @@ public class GuiSectionButton
 
     protected final Minecraft mc;
     private String label;
-    private int x, y;
-    private int width, height;
-    private int bgTextureU, bgTextureV;
+    private int x,
+                y;
+    private int width,
+                height;
+    private int bgTextureU,
+                bgTextureV;
     private Color neutralColor;
     private Color bgColor;
-    private boolean hasLeftIcon, hasRightIcon;
-    private int leftIconU, leftIconV, leftIconWidth, leftIconHeight;
-    private int rightIconU, rightIconV, rightIconWidth, rightIconHeight;
+    private SectionIcon leftIcon = null;
+    private SectionIcon rightIcon = null;
     private CustomFontRenderer fontRenderer;
 
-    private boolean hover, pressed;
+    private boolean hover;
+    private boolean pressed;
     private float ticksAfterHovered = 0.0F;
 
     public GuiSectionButton(int x, int y, String label, IColorRead bgColor)
@@ -50,7 +53,6 @@ public class GuiSectionButton
         this.bgTextureV = 0;
         this.neutralColor = new Color(0xFF777777);
         this.bgColor = new Color(bgColor);
-        this.hasLeftIcon = this.hasRightIcon = false;
         this.hover = false;
         this.pressed = false;
 
@@ -70,21 +72,13 @@ public class GuiSectionButton
 
     public GuiSectionButton setLeftIcon(int u, int v, int width, int height)
     {
-        this.hasLeftIcon = true;
-        this.leftIconU = u;
-        this.leftIconV = v;
-        this.leftIconWidth = width;
-        this.leftIconHeight = height;
+        this.leftIcon = new SectionIcon(u, v, width, height);
         return this;
     }
 
     public GuiSectionButton setRightIcon(int u, int v, int width, int height)
     {
-        this.hasRightIcon = true;
-        this.rightIconU = u;
-        this.rightIconV = v;
-        this.rightIconWidth = width;
-        this.rightIconHeight = height;
+        this.rightIcon = new SectionIcon(u, v, width, height);
         return this;
     }
 
@@ -186,28 +180,22 @@ public class GuiSectionButton
 
             int iconSpacing = 30;
 
-            if (this.hasLeftIcon)
+            if (leftIcon != null)
             {
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 GlStateManager.pushMatrix();
-                GlStateManager.translate(x + iconSpacing, y + height / 2, 0);
+                GlStateManager.translate(x + iconSpacing, y + height / 2F, 0);
                 GlStateManager.scale(scale, scale, 1);
-                Draw.texturedRectangle(-leftIconWidth / 2, -leftIconHeight / 2,
-                        leftIconWidth, leftIconHeight,
-                        leftIconU * uScale, leftIconV * vScale,
-                        leftIconWidth * uScale, leftIconHeight * vScale);
+                leftIcon.draw(uScale, vScale);
                 GlStateManager.popMatrix();
             }
 
-            if (this.hasRightIcon)
+            if (rightIcon != null)
             {
                 GlStateManager.pushMatrix();
-                GlStateManager.translate(x + width - iconSpacing, y + height / 2, 0);
+                GlStateManager.translate(x + width - iconSpacing, y + height / 2F, 0);
                 GlStateManager.scale(scale, scale, 1);
-                Draw.texturedRectangle(-rightIconWidth / 2, -rightIconHeight / 2,
-                        rightIconWidth, rightIconHeight,
-                        rightIconU * uScale, rightIconV * vScale,
-                        rightIconWidth * uScale, rightIconHeight * vScale);
+                rightIcon.draw(uScale, vScale);
                 GlStateManager.popMatrix();
             }
         }
@@ -222,6 +210,32 @@ public class GuiSectionButton
     {
         this.x = i;
         this.y = j;
+    }
+
+    private static class SectionIcon
+    {
+
+        private int texU;
+        private int texV;
+        private int texWidth;
+        private int texHeight;
+
+        public SectionIcon(int u, int v, int width, int height)
+        {
+            this.texU = u;
+            this.texV = v;
+            this.texWidth = width;
+            this.texHeight = height;
+        }
+
+        public void draw(float uScale, float vScale)
+        {
+            Draw.texturedRectangle(-texWidth / 2, -texHeight / 2,
+                    texWidth, texHeight,
+                    texU * uScale, texV * vScale,
+                    texWidth * uScale, texHeight * vScale);
+        }
+
     }
 
 }

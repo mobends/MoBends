@@ -5,7 +5,9 @@ public class Vec3f implements IVec3f
 	
 	public static final Vec3fReadonly ZERO = new Vec3fReadonly(0, 0, 0);
 	
-	public float x, y, z;
+	public float x;
+	public float y;
+	public float z;
 	
 	public Vec3f(float x, float y, float z)
 	{

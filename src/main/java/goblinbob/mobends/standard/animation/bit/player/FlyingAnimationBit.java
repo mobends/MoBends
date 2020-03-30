@@ -16,7 +16,6 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 	private static final double STILL_MOTION_THRESHOLD = 0.1F;
 
 	private float transformTransition = 0F;
-	private float transitionSpeed = 0.1F;
 
 	@Override
 	public String[] getActions(PlayerData entityData)
@@ -25,26 +24,14 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 	}
 
 	@Override
-	public void onPlay(PlayerData data)
-	{
-		transformTransition = 0F;
-		transitionSpeed = .1F;
-	}
-
-	@Override
 	public void perform(PlayerData data)
 	{
 		final AbstractClientPlayer player = data.getEntity();
 		
-		final double motionX = data.getInterpolatedMotionX();
-		final double motionY = data.getInterpolatedMotionY();
-		final double motionZ = data.getInterpolatedMotionZ();
 		final double magnitude = data.getInterpolatedMotionMagnitude();
 
 		float ticks = DataUpdateHandler.getTicks();
-		
-		float t = (float) GUtil.easeInOut(this.transformTransition, 3F);
-		
+
 		float forwardMomentum = MathHelper.clamp((float) data.getForwardMomentum(), -1F, 1F);
 		float sideMomentum = MathHelper.clamp((float) data.getSidewaysMomentum(), -1F, 1F);
 		double xzMomentum = data.getInterpolatedXZMotionMagnitude();
@@ -99,7 +86,7 @@ public class FlyingAnimationBit extends AnimationBit<PlayerData>
 			data.centerRotation.orientZero();
 			
 			data.head.rotation.setSmoothness(1.0F).orientX(headPitch)
-					.rotateY(headYaw).rotateX(-80F * t);
+					.rotateY(headYaw);
 		}
 		else
 		{

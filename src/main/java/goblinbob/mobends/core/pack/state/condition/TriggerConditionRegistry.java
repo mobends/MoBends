@@ -100,8 +100,8 @@ public class TriggerConditionRegistry
     private static class RegistryEntry<T extends TriggerConditionTemplate>
     {
 
-        ITriggerConditionFactory<?, T> factory;
-        Class<T> templateType;
+        public ITriggerConditionFactory<?, T> factory;
+        public Class<T> templateType;
 
         RegistryEntry(ITriggerConditionFactory<?, T> factory, Class<T> templateType)
         {

@@ -56,15 +56,24 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
     /**
      * Called right after the entity is rendered.
      */
-    public void afterRender(T entity, float partialTicks) {}
+    public void afterRender(T entity, float partialTicks)
+    {
+        // No default behaviour
+    }
 
     /**
      * Used to render accessories for that entity, e.g. Sword trails. Also used to transform the entity, like offset or
      * rotate it.
      */
-    protected void renderLocalAccessories(T entity, EntityData<?> data, float partialTicks) {}
+    protected void renderLocalAccessories(T entity, EntityData<?> data, float partialTicks)
+    {
+        // No default behaviour
+    }
 
-    protected void transformLocally(T entity, EntityData<?> data, float partialTicks) {}
+    protected void transformLocally(T entity, EntityData<?> data, float partialTicks)
+    {
+        // No default behaviour
+    }
 
     protected static float interpolateRotation(float prevYawOffset, float yawOffset, float partialTicks)
     {

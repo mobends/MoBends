@@ -76,8 +76,6 @@ public class Mesh
             {
                 VertexFormatElement vertexformatelement = list.get(j);
                 VertexFormatElement.EnumUsage usage = vertexformatelement.getUsage();
-                int k = vertexformatelement.getType().getGlConstant();
-                int l = vertexformatelement.getIndex();
                 bytebuffer.position(this.vertexFormat.getOffset(j));
 
                 // moved to VertexFormatElement.preDraw
@@ -90,9 +88,8 @@ public class Mesh
             for (int j1 = list.size(); i1 < j1; ++i1)
             {
                 VertexFormatElement vertexformatelement1 = list.get(i1);
-                VertexFormatElement.EnumUsage vertexformatelement$enumusage1 = vertexformatelement1.getUsage();
 
-                // moved to VertexFormatElement.postDraw
+                // moved to VertexFormatElement.postDraws
                 vertexformatelement1.getUsage().postDraw(this.vertexFormat, i1, i, bytebuffer);
             }
         }

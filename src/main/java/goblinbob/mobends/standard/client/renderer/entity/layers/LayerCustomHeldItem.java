@@ -20,6 +20,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
 {
+
     protected final RenderLivingBase<?> livingEntityRenderer;
 
     public LayerCustomHeldItem(RenderLivingBase<?> livingEntityRendererIn)
@@ -39,7 +40,6 @@ public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
 
             if (this.livingEntityRenderer.getMainModel().isChild)
             {
-                float f = 0.5F;
                 GlStateManager.translate(0.0F, 0.75F, 0.0F);
                 GlStateManager.scale(0.5F, 0.5F, 0.5F);
             }
@@ -71,7 +71,7 @@ public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
         }
     }
 
-    /*
+    /**
      * MO BENDS
      * This is the only function that had it's code changed
      */
@@ -79,10 +79,10 @@ public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
     {
     	((ModelBiped)this.livingEntityRenderer.getMainModel()).postRenderArm(0.0625F, handSide);
     	
-    	EntityData entityData = EntityDatabase.instance.get(entity);
+    	EntityData<?> entityData = EntityDatabase.instance.get(entity);
     	if (entityData instanceof BipedEntityData)
     	{
-    		BipedEntityData bipedData = (BipedEntityData) entityData;
+    		BipedEntityData<?> bipedData = (BipedEntityData<?>) entityData;
     		SmoothOrientation itemRotation = handSide == EnumHandSide.RIGHT ? bipedData.renderRightItemRotation : bipedData.renderLeftItemRotation;
     		
     		GlStateManager.translate(0, 8F * 0.0625F, 0);
@@ -95,4 +95,5 @@ public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
     {
         return false;
     }
+
 }

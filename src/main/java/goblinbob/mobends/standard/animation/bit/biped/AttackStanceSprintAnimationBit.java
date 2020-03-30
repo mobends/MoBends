@@ -10,6 +10,7 @@ import net.minecraft.util.EnumHandSide;
 
 public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
+
 	private static final String[] ACTIONS = new String[] { "attack_stance_sprint" };
 	
 	@Override
@@ -35,14 +36,11 @@ public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData
 		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
 		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
 
-		if (living.getHeldItem(EnumHand.MAIN_HAND) != null)
+		if (living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
 		{
-			if (living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
-			{
-				data.swordTrail.add(data, 0.0F, 0.0F, -10.0F);
-			}
+			data.swordTrail.add(data, 0.0F, 0.0F, -10.0F);
 		}
-		
+
 		data.body.rotation.rotateY(20 * handDirMtp);
 		data.head.rotation.rotateY(-20 * handDirMtp);
 		mainArm.getRotation().orientZ(60.0F * handDirMtp);
@@ -58,4 +56,5 @@ public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData
 			data.renderLeftItemRotation.setSmoothness(.3F).orientX(45);
 		}
 	}
+
 }

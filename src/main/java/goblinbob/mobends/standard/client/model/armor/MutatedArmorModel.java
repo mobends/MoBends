@@ -55,14 +55,18 @@ public class MutatedArmorModel extends ModelBiped
      * This is used as a parent for other parts, like the arms and head.
      */
     protected ModelPartTransform mainBodyTransform;
-    protected List<PartGroup<BipedEntityData>> partGroups;
+    protected List<PartGroup<BipedEntityData<?>>> partGroups;
 
-    protected PartGroup<BipedEntityData> bodyParts;
-    protected PartGroup<BipedEntityData> headParts;
-    protected PartGroup<BipedEntityData> leftArmParts, rightArmParts;
-    protected PartGroup<BipedEntityData> leftLegParts, rightLegParts;
-    protected PartGroup<BipedEntityData> leftForeArmParts, rightForeArmParts;
-    protected PartGroup<BipedEntityData> leftForeLegParts, rightForeLegParts;
+    protected PartGroup<BipedEntityData<?>> bodyParts;
+    protected PartGroup<BipedEntityData<?>> headParts;
+    protected PartGroup<BipedEntityData<?>> leftArmParts,
+                                            rightArmParts;
+    protected PartGroup<BipedEntityData<?>> leftLegParts,
+                                            rightLegParts;
+    protected PartGroup<BipedEntityData<?>> leftForeArmParts,
+                                            rightForeArmParts;
+    protected PartGroup<BipedEntityData<?>> leftForeLegParts,
+                                            rightForeLegParts;
 
     public MutatedArmorModel(ModelBiped original)
     {
@@ -144,7 +148,7 @@ public class MutatedArmorModel extends ModelBiped
         GlStateManager.popMatrix();
     }
 
-    private void renderPartGroups(PartGroup<BipedEntityData> group, float scale, ModelPartTransform ...dependencies)
+    private void renderPartGroups(PartGroup<BipedEntityData<?>> group, float scale, ModelPartTransform ...dependencies)
     {
         GlStateManager.pushMatrix();
 

@@ -5,11 +5,20 @@ import goblinbob.mobends.core.Core;
 public class CommonProxy
 {
 
-    public void preInit() {}
+    public void preInit()
+    {
+        // No behaviour.
+    }
 
-    public void init() {}
+    public void init()
+    {
+        // No behaviour.
+    }
 
-    public void postInit() {}
+    public void postInit()
+    {
+        // No behaviour.
+    }
 
     public void createCore()
     {

@@ -18,8 +18,6 @@ public class Addons
 
     private static final Addons INSTANCE = new Addons();
 
-    private Addons() {}
-
     private final List<IAddon> addons = new ArrayList<>();
 
     public static void registerAddon(String modId, IAddon addon)

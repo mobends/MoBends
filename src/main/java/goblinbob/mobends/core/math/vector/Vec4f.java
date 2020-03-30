@@ -5,7 +5,10 @@ public class Vec4f implements IVec4f
 	
 	public static final Vec4fReadOnly ZERO = new Vec4fReadOnly(0, 0, 0, 0);
 	
-	public float x, y, z, w;
+	public float x;
+	public float y;
+	public float z;
+	public float w;
 	
 	public Vec4f(float x, float y, float z, float w)
 	{

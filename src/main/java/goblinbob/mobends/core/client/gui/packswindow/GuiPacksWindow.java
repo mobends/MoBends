@@ -22,7 +22,8 @@ public class GuiPacksWindow extends GuiScreen
     public static final int EDITOR_HEIGHT = 177;
     private static final int BUTTON_BACK = 0;
 
-    private int x, y;
+    private int x;
+    private int y;
 
     private final GuiTabNavigation tabNavigation;
     private final GuiPackTab localPacksTab;

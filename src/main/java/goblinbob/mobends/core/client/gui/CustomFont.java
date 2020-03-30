@@ -65,9 +65,12 @@ public class CustomFont
     public static class Symbol
     {
 
-        int u, v;
-        int width, height;
-        int offsetX, offsetY;
+        public int u;
+        public int v;
+        public int width;
+        public int height;
+        public int offsetX;
+        public int offsetY;
 
         public Symbol(int u, int v, int width, int height, int offsetX, int offsetY)
         {

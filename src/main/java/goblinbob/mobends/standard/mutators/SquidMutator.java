@@ -40,11 +40,13 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 	@Override
 	public void swapLayer(RenderLivingBase<? extends EntitySquid> renderer, int index, boolean isModelVanilla)
 	{
+		// No behaviour
 	}
 
 	@Override
 	public void deswapLayer(RenderLivingBase<? extends EntitySquid> renderer, int index)
 	{
+		// No behaviour
 	}
 
 	@Override

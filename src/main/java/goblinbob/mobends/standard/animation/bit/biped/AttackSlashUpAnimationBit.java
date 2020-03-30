@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
+
 	private static final String[] ACTIONS = new String[] { "attack", "attack_0" };
 	
 	@Override
@@ -45,13 +46,10 @@ public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
 		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
 		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
 		
-		if (living.getHeldItem(EnumHand.MAIN_HAND) != null)
+		if (data.getTicksAfterAttack() < 4F
+				&& living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
 		{
-			if (data.getTicksAfterAttack() < 4F
-					&& living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
-			{
-				data.swordTrail.add(data);
-			}
+			data.swordTrail.add(data);
 		}
 
 		float attackState = data.getTicksAfterAttack() / 10F;
@@ -91,4 +89,5 @@ public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
 
 		mainItemRotation.setSmoothness(.9F).orientInstantX(180);
 	}
+
 }

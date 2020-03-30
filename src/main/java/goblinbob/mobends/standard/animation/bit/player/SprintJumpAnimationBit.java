@@ -44,8 +44,6 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		float legSwitchMtp = sprintLegSwitch ? 1 : -1;
 		IModelPart mainArm = sprintLegSwitch ? data.rightArm : data.leftArm;
 		IModelPart offArm = sprintLegSwitch ? data.leftArm : data.rightArm;
-		IModelPart mainForeArm = sprintLegSwitch ? data.rightForeArm : data.leftForeArm;
-		IModelPart offForeArm = sprintLegSwitch ? data.leftForeArm : data.rightForeArm;
 		IModelPart mainLeg = sprintLegSwitch ? data.rightLeg : data.leftLeg;
 		IModelPart offLeg = sprintLegSwitch ? data.leftLeg : data.rightLeg;
 		IModelPart mainForeLeg = sprintLegSwitch ? data.rightForeLeg : data.leftForeLeg;
