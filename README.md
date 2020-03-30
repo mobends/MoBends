@@ -1,4 +1,4 @@
-# Mo-Bends
+# Mo' Bends
 [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/made-with-java.svg)](https://forthebadge.com)
 [![forthebadge](https://forthebadge.com/images/badges/powered-by-oxygen.svg)](https://forthebadge.com)
@@ -13,6 +13,8 @@ A Minecraft mod that adds more realistic looking animations to the inhabitants o
 
 ## Discord server
 The development of version **1.0.0** is in progress right now! If you'd like to be a part of it, see the progress, or just hang out, join our Discord server!
+
+[![Discord Invite](https://raw.githubusercontent.com/mobends/MoBends/master-1.12.2/misc/promo/DiscordInviteSmall.png)](https://discord.gg/Epf7atm)
 
 [![Discord](https://img.shields.io/discord/386940930739011584.svg)](https://discord.gg/Epf7atm)
 
