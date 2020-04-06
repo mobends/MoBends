@@ -55,6 +55,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 	protected BowAnimationBit bitBow = new BowAnimationBit();
 	protected EatingAnimationBit bitEating = new EatingAnimationBit();
 	protected KeyframeAnimationBit<BipedEntityData<?>> bitBreaking = new BreakingAnimationBit(1.2F);
+	protected ShieldAnimationBit bitShield = new ShieldAnimationBit();
 	protected CapeAnimationBit bitCape = new CapeAnimationBit();
 
 	protected ArmatureMask upperBodyOnlyMask;
@@ -77,19 +78,69 @@ public class PlayerController implements IAnimationController<PlayerData>
 		return item instanceof ItemPickaxe || item instanceof ItemAxe;
 	}
 
-	@Override
-	public Collection<String> perform(PlayerData data)
+	public static boolean isHoldingFood(Item activeItem)
 	{
-		final AbstractClientPlayer player = data.getEntity();
+		return activeItem instanceof ItemFood;
+	}
+
+	public static boolean isHoldingBow(ModelBiped.ArmPose mainArmPose, ModelBiped.ArmPose offArmPose)
+	{
+		return mainArmPose == ArmPose.BOW_AND_ARROW || offArmPose == ArmPose.BOW_AND_ARROW;
+	}
+
+	public static boolean isHoldingTool(Item heldItemMainhand)
+	{
+		return heldItemMainhand instanceof ItemPickaxe || heldItemMainhand instanceof ItemAxe;
+	}
+
+	public static boolean isShielding(ModelBiped.ArmPose mainArmPose, ModelBiped.ArmPose offArmPose)
+	{
+		return mainArmPose == ArmPose.BLOCK || offArmPose == ArmPose.BLOCK;
+	}
+
+	public void performActionAnimations(PlayerData data, AbstractClientPlayer player)
+	{
 		final EnumHandSide primaryHand = player.getPrimaryHand();
 		final EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
 		final ItemStack heldItemMainhand = player.getHeldItemMainhand();
 		final ItemStack heldItemOffhand = player.getHeldItemOffhand();
-		final ItemStack activeStack = player.getActiveItemStack();
-		ModelBiped.ArmPose armPoseMain = getAction(player, heldItemMainhand);
-		ModelBiped.ArmPose armPoseOff = getAction(player, heldItemOffhand);
-		final EnumHand activeHand = player.getActiveHand();
-		final EnumHandSide activeHandSide = activeHand == EnumHand.MAIN_HAND ? primaryHand : offHand;
+		final Item activeItem = player.getActiveItemStack().getItem();
+		final ModelBiped.ArmPose armPoseMain = getAction(player, heldItemMainhand);
+		final ModelBiped.ArmPose armPoseOff = getAction(player, heldItemOffhand);
+		final EnumHandSide activeHandSide = player.getActiveHand() == EnumHand.MAIN_HAND ? primaryHand : offHand;
+
+		if (isShielding(armPoseMain, armPoseOff))
+		{
+			bitShield.setActionHand(armPoseMain == ArmPose.BLOCK ? primaryHand : offHand);
+			layerAction.playOrContinueBit(bitShield, data);
+		}
+		else if (isHoldingFood(activeItem))
+		{
+			bitEating.setActionHand(activeHandSide);
+			layerAction.playOrContinueBit(bitEating, data);
+		}
+		else if (isHoldingBow(armPoseMain, armPoseOff))
+		{
+			bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
+			layerAction.playOrContinueBit(bitBow, data);
+		}
+		else if (isHoldingTool(heldItemMainhand.getItem()))
+		{
+			if (player.isSwingInProgress)
+				layerAction.playOrContinueBit(bitBreaking, data);
+			else
+				layerAction.clearAnimation();
+		}
+		else
+		{
+			layerAction.playOrContinueBit(bitAttack, data);
+		}
+	}
+
+	@Override
+	public Collection<String> perform(PlayerData data)
+	{
+		final AbstractClientPlayer player = data.getEntity();
 
 		layerCape.playOrContinueBit(bitCape, data);
 
@@ -178,33 +229,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 			}
 		}
 
-		/*
-		 * ACTIONS
-		 */
-		if (activeStack.getItem() instanceof ItemFood)
-		{
-			bitEating.setActionHand(activeHandSide);
-			layerAction.playOrContinueBit(bitEating, data);
-		}
-		else
-		{
-			if (armPoseMain == ArmPose.BOW_AND_ARROW || armPoseOff == ArmPose.BOW_AND_ARROW)
-			{
-				bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
-				layerAction.playOrContinueBit(bitBow, data);
-			}
-			else if (heldItemMainhand.getItem() instanceof ItemPickaxe || heldItemMainhand.getItem() instanceof ItemAxe)
-			{
-				if (player.isSwingInProgress)
-					layerAction.playOrContinueBit(bitBreaking, data);
-				else
-					layerAction.clearAnimation();
-			}
-			else
-			{
-				layerAction.playOrContinueBit(bitAttack, data);
-			}
-		}
+		this.performActionAnimations(data, player);
 
 		final List<String> actions = new ArrayList<>();
 		layerBase.perform(data, actions);

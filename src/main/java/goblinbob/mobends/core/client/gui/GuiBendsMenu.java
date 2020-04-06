@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.client.gui;
 
-import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.gui.addonswindow.GuiAddonsWindow;
 import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
 import goblinbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
@@ -84,7 +83,6 @@ public class GuiBendsMenu extends GuiScreen
 	public void onGuiClosed()
 	{
 		Keyboard.enableRepeatEvents(false);
-		Core.saveConfiguration();
 	}
 
 	@Override

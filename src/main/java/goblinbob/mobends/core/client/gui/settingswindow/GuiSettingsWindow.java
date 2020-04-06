@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
+import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
@@ -112,6 +113,7 @@ public class GuiSettingsWindow extends GuiScreen
         switch (keyCode)
         {
             case 1:
+                Core.saveConfiguration();
                 GuiHelper.closeGui();
                 break;
         }
@@ -134,6 +136,7 @@ public class GuiSettingsWindow extends GuiScreen
 
     private void goBack()
     {
+        Core.saveConfiguration();
         this.mc.displayGuiScreen(new GuiBendsMenu());
     }
 
