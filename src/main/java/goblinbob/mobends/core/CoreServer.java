@@ -1,8 +1,6 @@
 package goblinbob.mobends.core;
 
 import goblinbob.mobends.core.configuration.CoreServerConfig;
-import goblinbob.mobends.core.event.EventHandlerServer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import javax.annotation.Nullable;
@@ -31,8 +29,8 @@ public class CoreServer extends Core<CoreServerConfig>
 		super.preInit(event);
 
 		configuration = new CoreServerConfig(event.getSuggestedConfigurationFile());
-
-		MinecraftForge.EVENT_BUS.register(new EventHandlerServer());
+		configuration.createDefaultConfig();
+		Core.LOG.severe(String.format("CONFIG FILE %s", event.getSuggestedConfigurationFile().getAbsolutePath()));
 	}
 
 	@Nullable

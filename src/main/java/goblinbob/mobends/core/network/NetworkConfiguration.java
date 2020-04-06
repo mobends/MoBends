@@ -1,6 +1,6 @@
 package goblinbob.mobends.core.network;
 
-import goblinbob.mobends.core.network.msg.MessageClientConfigure;
+import goblinbob.mobends.core.network.msg.MessageConfigResponse;
 import net.minecraft.client.Minecraft;
 
 /**
@@ -19,7 +19,7 @@ public class NetworkConfiguration
         this.allowModelScaling = false;
     }
 
-    public void provideServerConfig(MessageClientConfigure message)
+    public void provideServerConfig(MessageConfigResponse message)
     {
         this.allowModelScaling = message.allowModelScaling;
     }

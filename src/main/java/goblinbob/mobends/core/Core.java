@@ -1,7 +1,8 @@
 package goblinbob.mobends.core;
 
 import goblinbob.mobends.core.configuration.CoreConfig;
-import goblinbob.mobends.core.network.msg.MessageClientConfigure;
+import goblinbob.mobends.core.network.msg.MessageConfigRequest;
+import goblinbob.mobends.core.network.msg.MessageConfigResponse;
 import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -19,13 +20,16 @@ public abstract class Core<T extends CoreConfig>
     public static final Logger LOG = Logger.getLogger("mobends-core");
 
     private SimpleNetworkWrapper networkWrapper;
+    private static final int MESSAGE_CONFIG_REQUEST = 0;
+    private static final int MESSAGE_CONFIG_RESPONSE = 1;
 
     public abstract T getConfiguration();
 
     public void preInit(FMLPreInitializationEvent event)
     {
         networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(ModStatics.MODID);
-        networkWrapper.registerMessage(MessageClientConfigure.Handler.class, MessageClientConfigure.class, 0, Side.CLIENT);
+        networkWrapper.registerMessage(MessageConfigRequest.Handler.class, MessageConfigRequest.class, MESSAGE_CONFIG_REQUEST, Side.SERVER);
+        networkWrapper.registerMessage(MessageConfigResponse.Handler.class, MessageConfigResponse.class, MESSAGE_CONFIG_RESPONSE, Side.CLIENT);
     }
 
     public void init(FMLInitializationEvent event)

@@ -9,7 +9,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class MessageClientConfigure implements IMessage
+/**
+ * This message is sent by the server to a client as a response
+ * to a {@link MessageConfigRequest} message.
+ */
+public class MessageConfigResponse implements IMessage
 {
 
     private static final String ALLOW_MODEL_SCALING_KEY = "allowModelScaling";
@@ -19,9 +23,9 @@ public class MessageClientConfigure implements IMessage
     /**
      * Necessary empty constructor, because of dynamic instancing.
      */
-    public MessageClientConfigure() {}
+    public MessageConfigResponse() {}
 
-    public MessageClientConfigure(boolean allowModelScaling)
+    public MessageConfigResponse(boolean allowModelScaling)
     {
         this.allowModelScaling = allowModelScaling;
     }
@@ -47,11 +51,11 @@ public class MessageClientConfigure implements IMessage
         ByteBufUtils.writeTag(buf, tag);
     }
 
-    public static class Handler implements IMessageHandler<MessageClientConfigure, IMessage>
+    public static class Handler implements IMessageHandler<MessageConfigResponse, IMessage>
     {
 
         @Override
-        public IMessage onMessage(MessageClientConfigure message, MessageContext ctx)
+        public IMessage onMessage(MessageConfigResponse message, MessageContext ctx)
         {
             Core.LOG.info("Received Mo' Bends server configuration.");
             Core.LOG.info(String.format(" - allowModelScaling: %b", message.allowModelScaling));
