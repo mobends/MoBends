@@ -43,6 +43,9 @@ public class TorchHoldingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		final EntityLivingBase living = data.getEntity();
 		final EnumHandSide torchHand = getTorchHand(living);
 
+		if (torchHand == null)
+			return;
+
 		final IModelPart mainArm = torchHand == EnumHandSide.RIGHT ? data.rightArm : data.leftArm;
 		final IModelPart mainForeArm = torchHand == EnumHandSide.RIGHT ? data.rightForeArm : data.leftForeArm;
 		
