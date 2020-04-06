@@ -41,7 +41,6 @@ public class ModelPartPostOffset extends ModelPart
     public void propagateTransform(float scale)
     {
         super.propagateTransform(scale);
-        this.applyPostTransform(scale);
     }
 
     @Override
