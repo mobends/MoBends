@@ -12,21 +12,41 @@ public class NetworkConfiguration
 
 	public static NetworkConfiguration instance = new NetworkConfiguration();
 
-	private boolean allowModelScaling = false;
+	private SharedConfig<Boolean> props = new SharedBooleanProp("prop", false);
+	private boolean modelScalingAllowed = false;
+    private boolean bendsPacksAllowed = true;
+    private boolean movementLimited = true;
 
+    /**
+     * Sets up the default permissions before receiving the server's config.
+     */
 	public void onWorldJoin()
     {
-        this.allowModelScaling = false;
+        this.modelScalingAllowed = Minecraft.getMinecraft().isSingleplayer();
+        this.bendsPacksAllowed = true;
+        this.movementLimited = !Minecraft.getMinecraft().isSingleplayer();
     }
 
     public void provideServerConfig(MessageConfigResponse message)
     {
-        this.allowModelScaling = message.allowModelScaling;
+        this.modelScalingAllowed = message.allowModelScaling;
+        this.bendsPacksAllowed = message.allowBendsPacks;
+        this.movementLimited = message.movementLimited;
     }
 
 	public boolean isModelScalingAllowed()
 	{
-		return allowModelScaling || Minecraft.getMinecraft().isSingleplayer();
+		return modelScalingAllowed;
 	}
+
+	public boolean areBendsPacksAllowed()
+    {
+	    return bendsPacksAllowed;
+    }
+
+    public boolean isMovementLimited()
+    {
+        return movementLimited;
+    }
 
 }

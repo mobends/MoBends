@@ -4,6 +4,7 @@ import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.network.NetworkConfiguration;
 import goblinbob.mobends.core.pack.BendsPackPerformer;
 import goblinbob.mobends.core.pack.variable.BendsVariableRegistry;
 import goblinbob.mobends.core.util.GUtil;
@@ -183,10 +184,13 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         BendsVariableRegistry.instance.provideTemporaryData(data);
 
         // noinspection unchecked
-        IAnimationController<D> controller = (IAnimationController<D>) data.getController();
-        Collection<String> actions = controller.perform(data);
+        final IAnimationController<D> controller = (IAnimationController<D>) data.getController();
+        final Collection<String> actions = controller.perform(data);
 
-        BendsPackPerformer.INSTANCE.performCurrentPack(data, animatedEntityKey, actions);
+        if (NetworkConfiguration.instance.areBendsPacksAllowed())
+        {
+            BendsPackPerformer.INSTANCE.performCurrentPack(data, animatedEntityKey, actions);
+        }
     }
 
     public abstract void syncUpWithData(D data);

@@ -5,6 +5,7 @@ import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
 import goblinbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
 import goblinbob.mobends.core.client.gui.popup.GuiPopUp;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
+import goblinbob.mobends.core.network.NetworkConfiguration;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.standard.main.ModStatics;
@@ -58,9 +59,18 @@ public class GuiBendsMenu extends GuiScreen
 
 		int startY = height / 2 - 32;
 		int distance = 49;
-		this.settingsButton.initGui((this.width - 318) / 2, startY);
-		this.packsButton.initGui((this.width - 318) / 2, startY + distance);
-		this.addonsButton.initGui((this.width - 318) / 2, startY + distance * 2);
+
+		if (NetworkConfiguration.instance.areBendsPacksAllowed())
+		{
+			this.settingsButton.initGui((this.width - 318) / 2, startY);
+			this.packsButton.initGui((this.width - 318) / 2, startY + distance);
+			this.addonsButton.initGui((this.width - 318) / 2, startY + distance * 2);
+		}
+		else
+		{
+			this.settingsButton.initGui((this.width - 318) / 2, startY);
+			this.addonsButton.initGui((this.width - 318) / 2, startY + distance);
+		}
 	}
 
 	protected void keyTyped(char typedChar, int keyCode)
@@ -164,8 +174,12 @@ public class GuiBendsMenu extends GuiScreen
 
 		Draw.texturedRectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 70, titleWidth, titleHeight, 0, 0, 1, 1);
 
+
 		this.settingsButton.display();
-		this.packsButton.display();
+		if (NetworkConfiguration.instance.areBendsPacksAllowed())
+		{
+			this.packsButton.display();
+		}
 		this.addonsButton.display();
 
 		super.drawScreen(mouseX, mouseY, partialTicks);

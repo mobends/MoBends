@@ -2,6 +2,7 @@ package goblinbob.mobends.core.network.msg;
 
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.CoreServer;
+import goblinbob.mobends.core.configuration.CoreServerConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -44,7 +45,12 @@ public class MessageConfigRequest implements IMessage
             }
 
             final CoreServer core = CoreServer.getInstance();
-            return new MessageConfigResponse(core.getConfiguration().isModelScalingAllowed());
+            final CoreServerConfig config = core.getConfiguration();
+            return new MessageConfigResponse(
+                config.isModelScalingAllowed(),
+                config.areBendsPacksAllowed(),
+                config.isMovementLimited()
+            );
         }
 
     }

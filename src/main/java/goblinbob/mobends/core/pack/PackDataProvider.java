@@ -38,7 +38,7 @@ public class PackDataProvider
             final List<BendsPackData> dataList = new LinkedList<>();
             for (IBendsPack pack : packs)
             {
-                BendsPackData data = getDataForPack(pack);
+                final BendsPackData data = getDataForPack(pack);
                 if (data != null)
                 {
                     dataList.add(data);

@@ -21,7 +21,7 @@ public class BendsPackPerformer
 
     public void performCurrentPack(EntityData<?> entityData, String animatedEntityKey, @Nullable Collection<String> actions)
     {
-        BendsPackData packData = PackDataProvider.INSTANCE.getAppliedData();
+        final BendsPackData packData = PackDataProvider.INSTANCE.getAppliedData();
         if (packData == null)
         {
             return;

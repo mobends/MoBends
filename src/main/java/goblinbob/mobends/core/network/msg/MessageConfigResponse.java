@@ -17,17 +17,23 @@ public class MessageConfigResponse implements IMessage
 {
 
     private static final String ALLOW_MODEL_SCALING_KEY = "allowModelScaling";
+    private static final String ALLOW_BENDS_PACKS_KEY = "allowBendsPacks";
+    private static final String MOVEMENT_LIMITED_KEY = "movementLimited";
 
     public boolean allowModelScaling;
+    public boolean allowBendsPacks;
+    public boolean movementLimited;
 
     /**
      * Necessary empty constructor, because of dynamic instancing.
      */
     public MessageConfigResponse() {}
 
-    public MessageConfigResponse(boolean allowModelScaling)
+    public MessageConfigResponse(boolean allowModelScaling, boolean allowBendsPacks, boolean movementLimited)
     {
         this.allowModelScaling = allowModelScaling;
+        this.allowBendsPacks = allowBendsPacks;
+        this.movementLimited = movementLimited;
     }
 
     @Override
@@ -38,9 +44,13 @@ public class MessageConfigResponse implements IMessage
         {
             Core.LOG.severe("An error occurred while receiving server configuration.");
             this.allowModelScaling = false;
+            this.allowBendsPacks = true;
+            this.movementLimited = true;
             return;
         }
         this.allowModelScaling = tag.getBoolean(ALLOW_MODEL_SCALING_KEY);
+        this.allowBendsPacks = tag.getBoolean(ALLOW_BENDS_PACKS_KEY);
+        this.movementLimited = tag.getBoolean(MOVEMENT_LIMITED_KEY);
     }
 
     @Override
@@ -48,6 +58,8 @@ public class MessageConfigResponse implements IMessage
     {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setBoolean(ALLOW_MODEL_SCALING_KEY, this.allowModelScaling);
+        tag.setBoolean(ALLOW_BENDS_PACKS_KEY, this.allowBendsPacks);
+        tag.setBoolean(MOVEMENT_LIMITED_KEY, this.movementLimited);
         ByteBufUtils.writeTag(buf, tag);
     }
 
@@ -59,6 +71,8 @@ public class MessageConfigResponse implements IMessage
         {
             Core.LOG.info("Received Mo' Bends server configuration.");
             Core.LOG.info(String.format(" - allowModelScaling: %b", message.allowModelScaling));
+            Core.LOG.info(String.format(" - allowBendsPacks: %b", message.allowBendsPacks));
+            Core.LOG.info(String.format(" - movementLimited: %b", message.movementLimited));
 
             NetworkConfiguration.instance.provideServerConfig(message);
             return null;
