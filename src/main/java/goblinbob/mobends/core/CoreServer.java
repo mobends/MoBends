@@ -29,8 +29,6 @@ public class CoreServer extends Core<CoreServerConfig>
 		super.preInit(event);
 
 		configuration = new CoreServerConfig(event.getSuggestedConfigurationFile());
-		configuration.createDefaultConfig();
-		Core.LOG.severe(String.format("CONFIG FILE %s", event.getSuggestedConfigurationFile().getAbsolutePath()));
 	}
 
 	@Nullable

@@ -12,41 +12,55 @@ public class NetworkConfiguration
 
 	public static NetworkConfiguration instance = new NetworkConfiguration();
 
-	private SharedConfig<Boolean> props = new SharedBooleanProp("prop", false);
-	private boolean modelScalingAllowed = false;
-    private boolean bendsPacksAllowed = true;
-    private boolean movementLimited = true;
+	private final SharedConfig sharedConfig = new SharedConfig();
+	private final SharedProperty<Boolean> modelScalingAllowed;
+    private final SharedProperty<Boolean> bendsPacksAllowed;
+    private final SharedProperty<Boolean> movementLimited;
+
+    public NetworkConfiguration()
+    {
+        sharedConfig.addProperty(modelScalingAllowed = new SharedBooleanProp(
+                "modelScalingAllowed",
+                false,
+                "Does the server allow scaling of the player model more than the normal size?"));
+        sharedConfig.addProperty(bendsPacksAllowed = new SharedBooleanProp(
+                "bendsPacksAllowed",
+                true,
+                "Does the server allow the use of bends packs?"));
+        sharedConfig.addProperty(movementLimited = new SharedBooleanProp(
+                "movementLimited",
+                true,
+                "Does the server limit excessive bends pack transformation?"));
+    }
 
     /**
      * Sets up the default permissions before receiving the server's config.
      */
 	public void onWorldJoin()
     {
-        this.modelScalingAllowed = Minecraft.getMinecraft().isSingleplayer();
-        this.bendsPacksAllowed = true;
-        this.movementLimited = !Minecraft.getMinecraft().isSingleplayer();
+        this.modelScalingAllowed.setValue(Minecraft.getMinecraft().isSingleplayer());
+        this.bendsPacksAllowed.setValue(true);
+        this.movementLimited.setValue(Minecraft.getMinecraft().isSingleplayer());
     }
 
-    public void provideServerConfig(MessageConfigResponse message)
+    public SharedConfig getSharedConfig()
     {
-        this.modelScalingAllowed = message.allowModelScaling;
-        this.bendsPacksAllowed = message.allowBendsPacks;
-        this.movementLimited = message.movementLimited;
+        return sharedConfig;
     }
 
 	public boolean isModelScalingAllowed()
 	{
-		return modelScalingAllowed;
+		return modelScalingAllowed.getValue();
 	}
 
 	public boolean areBendsPacksAllowed()
     {
-	    return bendsPacksAllowed;
+	    return bendsPacksAllowed.getValue();
     }
 
     public boolean isMovementLimited()
     {
-        return movementLimited;
+        return movementLimited.getValue();
     }
 
 }

@@ -1,8 +1,5 @@
 package goblinbob.mobends.core.network.msg;
 
-import goblinbob.mobends.core.Core;
-import goblinbob.mobends.core.CoreServer;
-import goblinbob.mobends.core.configuration.CoreServerConfig;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -38,19 +35,7 @@ public class MessageConfigRequest implements IMessage
         @Override
         public MessageConfigResponse onMessage(MessageConfigRequest message, MessageContext ctx)
         {
-            if (CoreServer.getInstance() == null)
-            {
-                Core.LOG.severe("The CORE isn't a server core, something is wrong...");
-                return null;
-            }
-
-            final CoreServer core = CoreServer.getInstance();
-            final CoreServerConfig config = core.getConfiguration();
-            return new MessageConfigResponse(
-                config.isModelScalingAllowed(),
-                config.areBendsPacksAllowed(),
-                config.isMovementLimited()
-            );
+            return new MessageConfigResponse();
         }
 
     }
