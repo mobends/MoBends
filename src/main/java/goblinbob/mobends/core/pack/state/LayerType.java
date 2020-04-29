@@ -23,5 +23,4 @@ public enum LayerType
         return templateType;
     }
 
-
 }

@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.network;
 
-import goblinbob.mobends.core.network.msg.MessageConfigResponse;
 import net.minecraft.client.Minecraft;
 
 /**
@@ -40,7 +39,7 @@ public class NetworkConfiguration
     {
         this.modelScalingAllowed.setValue(Minecraft.getMinecraft().isSingleplayer());
         this.bendsPacksAllowed.setValue(true);
-        this.movementLimited.setValue(Minecraft.getMinecraft().isSingleplayer());
+        this.movementLimited.setValue(!Minecraft.getMinecraft().isSingleplayer());
     }
 
     public SharedConfig getSharedConfig()

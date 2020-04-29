@@ -2,7 +2,9 @@ package goblinbob.mobends.core.pack;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.MalformedJsonException;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.flux.Computed;
 import goblinbob.mobends.core.pack.state.template.LayerTemplate;
@@ -77,8 +79,9 @@ public class PackDataProvider
                 dataMap.put(bendsPack, data);
                 return data;
             }
-            catch (IOException ex)
+            catch (IOException | JsonSyntaxException ex)
             {
+                ex.printStackTrace();
                 Core.LOG.severe(String.format("Data for pack '%s' couldn't be fetched", bendsPack.getKey()));
             }
         }

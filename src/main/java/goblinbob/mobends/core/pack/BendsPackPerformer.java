@@ -27,15 +27,15 @@ public class BendsPackPerformer
             return;
         }
 
-        INodeState nodeState = entityData.packAnimationState.update(entityData, packData, animatedEntityKey, DataUpdateHandler.ticksPerFrame);
+        final INodeState nodeState = entityData.packAnimationState.update(entityData, packData, animatedEntityKey, DataUpdateHandler.ticksPerFrame);
         if (nodeState != null)
         {
-            Iterable<ILayerState> layers = nodeState.getLayers();
+            final Iterable<ILayerState> layers = nodeState.getLayers();
             for (ILayerState layer : layers)
             {
                 if (layer instanceof KeyframeLayerState)
                 {
-                    KeyframeLayerState keyframeLayer = (KeyframeLayerState) layer;
+                    final KeyframeLayerState keyframeLayer = (KeyframeLayerState) layer;
                     applyKeyframeAnimation(entityData, keyframeLayer.animation, keyframeLayer.getProgress());
                 }
             }

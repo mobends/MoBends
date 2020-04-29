@@ -4,6 +4,7 @@ import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.network.NetworkConfiguration;
 import goblinbob.mobends.core.pack.BendsPackPerformer;
 import goblinbob.mobends.core.pack.variable.BendsVariableRegistry;
@@ -187,9 +188,18 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         final IAnimationController<D> controller = (IAnimationController<D>) data.getController();
         final Collection<String> actions = controller.perform(data);
 
+        SmoothVector3f lastGlobalOffset = new SmoothVector3f(data.globalOffset);
+        SmoothVector3f lastLocalOffset = new SmoothVector3f(data.localOffset);
         if (NetworkConfiguration.instance.areBendsPacksAllowed())
         {
             BendsPackPerformer.INSTANCE.performCurrentPack(data, animatedEntityKey, actions);
+
+            if (NetworkConfiguration.instance.isMovementLimited())
+            {
+                // Limit movement
+                data.globalOffset.limitDistanceTo(lastGlobalOffset, 10F);
+                data.localOffset.limitDistanceTo(lastLocalOffset, 10F);
+            }
         }
     }
 

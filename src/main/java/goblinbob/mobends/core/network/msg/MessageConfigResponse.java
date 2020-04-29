@@ -52,9 +52,15 @@ public class MessageConfigResponse implements IMessage
         public IMessage onMessage(MessageConfigResponse message, MessageContext ctx)
         {
             Core.LOG.info("Received Mo' Bends server configuration.");
-            Core.LOG.info(String.format(" - allowModelScaling: %b", NetworkConfiguration.instance.isModelScalingAllowed()));
-            Core.LOG.info(String.format(" - allowBendsPacks: %b", NetworkConfiguration.instance.areBendsPacksAllowed()));
-            Core.LOG.info(String.format(" - movementLimited: %b", NetworkConfiguration.instance.isMovementLimited()));
+
+            final StringBuilder builder = new StringBuilder();
+            final Iterable<SharedProperty<?>> properties = NetworkConfiguration.instance.getSharedConfig().getProperties();
+            for (SharedProperty<?> property : properties)
+            {
+                builder.append(String.format(" - %s: %b\n", property.getKey(), property.getValue()));
+            }
+            Core.LOG.info(builder.toString());
+
             return null;
         }
 

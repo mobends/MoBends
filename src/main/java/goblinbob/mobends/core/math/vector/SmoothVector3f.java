@@ -1,14 +1,36 @@
 package goblinbob.mobends.core.math.vector;
 
 import goblinbob.mobends.core.util.EnumAxis;
-import org.lwjgl.util.vector.Vector3f;
 
 public class SmoothVector3f
 {
-	public Vector3f start = new Vector3f(0, 0, 0);
-	public Vector3f end = new Vector3f(0, 0, 0);
-	public Vector3f smoothness = new Vector3f(1, 1, 1);
-	public Vector3f completion = new Vector3f(0, 0, 0); // <0.0F, 1.0F>
+
+	/**
+	 * Holds the interpolation start.
+	 */
+	public Vec3f start = new Vec3f(0, 0, 0);
+
+	/**
+	 * Holds the interpolation target.
+	 */
+	public Vec3f end = new Vec3f(0, 0, 0);
+
+	/**
+	 * Holds the interpolation speed for each axis separately.
+	 */
+	public Vec3f smoothness = new Vec3f(1, 1, 1);
+
+	/**
+	 * Holds the interpolation tween value for each axis separately.
+	 */
+	public Vec3f completion = new Vec3f(0, 0, 0); // <0.0F, 1.0F>
+
+	public SmoothVector3f() {}
+
+	public SmoothVector3f(SmoothVector3f src)
+	{
+		this.set(src);
+	}
 
 	public void slideTo(float x, float y, float z, float smoothness)
 	{
@@ -21,12 +43,12 @@ public class SmoothVector3f
 		}
 	}
 	
-	public void slideTo(Vector3f orientation, float smoothness)
+	public void slideTo(Vec3f orientation, float smoothness)
 	{
 		this.slideTo(orientation.x, orientation.y, orientation.z, smoothness);
 	}
 	
-	public void slideTo(Vector3f orientation)
+	public void slideTo(Vec3f orientation)
 	{
 		this.slideTo(orientation, 1.0F);
 	}
@@ -170,7 +192,7 @@ public class SmoothVector3f
 
 	public void set(float x, float y, float z)
 	{
-		this.start = new Vector3f(x, y, z);
+		this.start.set(x, y, z);
 		this.end.set(start);
 		this.completion.set(1.0F, 1.0F, 1.0F);
 	}
@@ -181,6 +203,22 @@ public class SmoothVector3f
 		this.smoothness.set(other.smoothness);
 		this.end.set(other.end);
 		this.start.set(other.start);
+	}
+
+	public void limitDistanceTo(SmoothVector3f other, float maxDistance)
+	{
+		final Vec3f diff = new Vec3f(end.x - other.end.x, end.y - other.end.y, end.z - other.end.z);
+		final float sqDist = diff.lengthSq();
+
+		if (sqDist > maxDistance * maxDistance)
+		{
+			VectorUtils.normalize(diff);
+			end.set(
+				other.end.x + diff.x * maxDistance,
+				other.end.y + diff.y * maxDistance,
+				other.end.z + diff.z * maxDistance
+			);
+		}
 	}
 
 	public float getX()
@@ -198,9 +236,9 @@ public class SmoothVector3f
 		return this.start.z + (this.end.z - this.start.z) * this.completion.z;
 	}
 	
-	public Vector3f getSmooth()
+	public Vec3f getSmooth()
 	{
-		return new Vector3f(this.getX(), this.getY(), this.getZ());
+		return new Vec3f(this.getX(), this.getY(), this.getZ());
 	}
 
 	public void update(float ticksPerFrame)
@@ -240,11 +278,19 @@ public class SmoothVector3f
 		return v;
 	}
 
+	/**
+	 * Finished the interpolation by snapping the smooth vector straight to the end.
+	 */
 	public void finish()
 	{
 		this.set(this.end.x, this.end.y, this.end.z);
 	}
 
+	/**
+	 * Get's a component from the interpolation target based on the axis.
+	 * @param axis
+	 * @return
+	 */
 	public float getEnd(EnumAxis axis)
 	{
 		return axis == EnumAxis.X ? this.end.x : axis == EnumAxis.Y ? this.end.y : this.end.z;
