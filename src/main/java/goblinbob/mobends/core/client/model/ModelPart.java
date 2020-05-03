@@ -115,14 +115,13 @@ public class ModelPart extends ModelRenderer implements IModelPart
     @SideOnly(Side.CLIENT)
     public void renderWithRotation(float scale)
     {
-        if (this.isHidden || !this.showModel) return;
+        if (!this.isShowing()) return;
         if (!this.compiled)
             this.compileDisplayList(scale);
 
         GlStateManager.pushMatrix();
 
-        GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
-        GlHelper.rotate(rotation.getSmooth());
+        this.applyCharacterTransform(scale);
         GlStateManager.callList(this.displayList);
 
         GlStateManager.popMatrix();

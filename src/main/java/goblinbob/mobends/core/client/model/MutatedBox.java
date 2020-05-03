@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.model;
 
 import goblinbob.mobends.core.math.physics.AABBox;
 import goblinbob.mobends.core.math.vector.IVec3fRead;
+import goblinbob.mobends.core.util.ModelUtils;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
@@ -55,12 +56,12 @@ public class MutatedBox extends net.minecraft.client.model.ModelBox
         this.vertexPositions[5] = positiontexturevertex4;
         this.vertexPositions[6] = positiontexturevertex5;
         this.vertexPositions[7] = positiontexturevertex6;
-        this.quadList[0] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, faces[0].u0, faces[0].v0, faces[0].u1, faces[0].v1, renderer.textureWidth, renderer.textureHeight);
-        this.quadList[1] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, faces[1].u0, faces[1].v0, faces[1].u1, faces[1].v1, renderer.textureWidth, renderer.textureHeight);
-        this.quadList[2] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, faces[2].u0, faces[2].v0, faces[2].u1, faces[2].v1, renderer.textureWidth, renderer.textureHeight);
-        this.quadList[3] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, faces[3].u0, faces[3].v0, faces[3].u1, faces[3].v1, renderer.textureWidth, renderer.textureHeight);
-        this.quadList[4] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, faces[4].u0, faces[4].v0, faces[4].u1, faces[4].v1, renderer.textureWidth, renderer.textureHeight);
-        this.quadList[5] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, faces[5].u0, faces[5].v0, faces[5].u1, faces[5].v1, renderer.textureWidth, renderer.textureHeight);
+        this.quadList[0] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, faces[0], renderer.textureWidth, renderer.textureHeight);
+        this.quadList[1] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, faces[1], renderer.textureWidth, renderer.textureHeight);
+        this.quadList[2] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, faces[2], renderer.textureWidth, renderer.textureHeight);
+        this.quadList[3] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, faces[3], renderer.textureWidth, renderer.textureHeight);
+        this.quadList[4] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, faces[4], renderer.textureWidth, renderer.textureHeight);
+        this.quadList[5] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, faces[5], renderer.textureWidth, renderer.textureHeight);
 
         if (renderer.mirror)
         {

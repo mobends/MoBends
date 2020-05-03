@@ -165,9 +165,9 @@ public class BoxMutator
 				final float textureOffset = newHeight / height;
 
 				final TextureFace face = this.factory.faces[faceEnum.faceIndex];
-				int sliceV = (int) (face.v0 + (face.v1 - face.v0) * textureOffset);
-				slidesFaces[faceEnum.faceIndex] = new TextureFace(face.u0, sliceV, face.u1, face.v1);
-				face.v1 = sliceV;
+				int sliceV = (int) (face.vPos + (face.vSize) * textureOffset);
+				slidesFaces[faceEnum.faceIndex] = new TextureFace(face.uPos, sliceV, face.uSize, face.vPos + face.vSize - sliceV);
+				face.vSize = sliceV - face.vPos;
 			}
 			slidesFaces[BoxSide.TOP.faceIndex] = new TextureFace(this.factory.faces[BoxSide.TOP.faceIndex]);
 			slidesFaces[BoxSide.BOTTOM.faceIndex] = new TextureFace(this.factory.faces[BoxSide.BOTTOM.faceIndex]);

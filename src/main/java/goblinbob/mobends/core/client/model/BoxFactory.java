@@ -4,6 +4,7 @@ import goblinbob.mobends.core.math.vector.IVec3fRead;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
 
 public class BoxFactory
@@ -49,20 +50,24 @@ public class BoxFactory
 		{
 			if (mirrored)
 			{
+				final PositionTextureVertex startVertex = quadList[i].vertexPositions[2];
+				final PositionTextureVertex endVertex = quadList[i].vertexPositions[0];
 				this.faces[i] = new TextureFace(
-					(int) (quadList[i].vertexPositions[2].texturePositionX * textureWidth),
-					(int) (quadList[i].vertexPositions[2].texturePositionY * textureHeight),
-					(int) (quadList[i].vertexPositions[0].texturePositionX * textureWidth),
-					(int) (quadList[i].vertexPositions[0].texturePositionY * textureHeight)
+					(int) (startVertex.texturePositionX * textureWidth),
+					(int) (startVertex.texturePositionY * textureHeight),
+					(int) ((endVertex.texturePositionX - startVertex.texturePositionX) * textureWidth),
+					(int) ((endVertex.texturePositionY - startVertex.texturePositionY) * textureHeight)
 				);
 			}
 			else
 			{
+				final PositionTextureVertex startVertex = quadList[i].vertexPositions[1];
+				final PositionTextureVertex endVertex = quadList[i].vertexPositions[3];
 				this.faces[i] = new TextureFace(
-					(int) (quadList[i].vertexPositions[1].texturePositionX * textureWidth),
-					(int) (quadList[i].vertexPositions[1].texturePositionY * textureHeight),
-					(int) (quadList[i].vertexPositions[3].texturePositionX * textureWidth),
-					(int) (quadList[i].vertexPositions[3].texturePositionY * textureHeight)
+					(int) (startVertex.texturePositionX * textureWidth),
+					(int) (startVertex.texturePositionY * textureHeight),
+					(int) ((endVertex.texturePositionX - startVertex.texturePositionX) * textureWidth),
+					(int) ((endVertex.texturePositionY - startVertex.texturePositionY) * textureHeight)
 				);
 			}
 		}
@@ -204,10 +209,21 @@ public class BoxFactory
 			this.generateTextureFaces();
 		}
 		
-		this.faces[face.faceIndex].u0 += x;
-		this.faces[face.faceIndex].u1 += x;
-		this.faces[face.faceIndex].v0 += y;
-		this.faces[face.faceIndex].v1 += y;
+		this.faces[face.faceIndex].uPos += x;
+		this.faces[face.faceIndex].vPos += y;
+		return this;
+	}
+
+	public BoxFactory rotateTextureQuad(BoxSide face, FaceRotation rotation)
+	{
+		if (!this.textureUVSet)
+		{
+			this.textureUVSet = true;
+			this.generateTextureFaces();
+		}
+
+		this.faces[face.faceIndex].faceRotation = rotation;
+
 		return this;
 	}
 	
@@ -235,36 +251,38 @@ public class BoxFactory
 	{
 		int u = this.textureU;
 		int v = this.textureV;
-		this.faces[0] = new TextureFace(u + uvLength + uvWidth, v + uvLength, u + uvLength + uvWidth + uvLength, v + uvLength + uvHeight);
-        this.faces[1] = new TextureFace(u, v + uvLength, u + uvLength, v + uvLength + uvHeight);
-        this.faces[2] = new TextureFace(u + uvLength, v, u + uvLength + uvWidth, v + uvLength);
-        this.faces[3] = new TextureFace(u + uvLength + uvWidth, v + uvLength, u + uvLength + uvWidth + uvWidth, v);
-        this.faces[4] = new TextureFace(u + uvLength, v + uvLength, u + uvLength + uvWidth, v + uvLength + uvHeight);
-        this.faces[5] = new TextureFace(u + uvLength + uvWidth + uvLength, v + uvLength, u + uvLength + uvWidth + uvLength + uvWidth, v + uvLength + uvHeight);
+
+		this.faces[0] = new TextureFace(u + uvLength + uvWidth, v + uvLength, uvLength, uvHeight);
+        this.faces[1] = new TextureFace(u, v + uvLength, uvLength, uvHeight);
+        this.faces[2] = new TextureFace(u + uvLength, v, uvWidth, uvLength);
+        this.faces[3] = new TextureFace(u + uvLength + uvWidth, v + uvLength, uvWidth, -uvLength);
+        this.faces[4] = new TextureFace(u + uvLength, v + uvLength, uvWidth, uvHeight);
+        this.faces[5] = new TextureFace(u + uvLength + uvWidth + uvLength, v + uvLength, uvWidth, uvHeight);
 	}
 	
-	static class TextureFace
+	public static class TextureFace
 	{
 		
-		int u0;
-		int v0;
-		int u1;
-		int v1;
+		public int uPos;
+		public int vPos;
+		public int uSize;
+		public int vSize;
+		public FaceRotation faceRotation = FaceRotation.IDENTITY;
 		
-		public TextureFace(int u0, int v0, int u1, int v1)
+		public TextureFace(int uPos, int vPos, int uSize, int vSize)
 		{
-			this.u0 = u0;
-			this.v0 = v0;
-			this.u1 = u1;
-			this.v1 = v1;
+			this.uPos = uPos;
+			this.vPos = vPos;
+			this.uSize = uSize;
+			this.vSize = vSize;
 		}
 		
 		public TextureFace(TextureFace face)
 		{
-			this.u0 = face.u0;
-			this.v0 = face.v0;
-			this.u1 = face.u1;
-			this.v1 = face.v1;
+			this.uPos = face.uPos;
+			this.vPos = face.vPos;
+			this.uSize = face.uSize;
+			this.vSize = face.vSize;
 		}
 		
 	}

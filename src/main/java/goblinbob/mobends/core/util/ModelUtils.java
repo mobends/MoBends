@@ -1,7 +1,11 @@
 package goblinbob.mobends.core.util;
 
+import goblinbob.mobends.core.client.model.BoxFactory;
+import goblinbob.mobends.core.client.model.FaceRotation;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.model.PositionTextureVertex;
+import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.util.math.AxisAlignedBB;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -111,6 +115,56 @@ public class ModelUtils
         }
 
         return origin;
+    }
+
+    public static TexturedQuad createQuad(PositionTextureVertex[] positions, BoxFactory.TextureFace face, float textureWidth, float textureHeight)
+    {
+        int uSize = face.uSize;
+        int vSize = face.vSize;
+
+        if (face.faceRotation == FaceRotation.CLOCKWISE || face.faceRotation == FaceRotation.COUNTER_CLOCKWISE)
+        {
+            uSize = face.vSize;
+            vSize = face.uSize;
+        }
+
+        TexturedQuad quad = new TexturedQuad(positions, face.uPos, face.vPos, face.uPos + uSize, face.vPos + vSize, textureWidth, textureHeight);
+
+        applyFaceRotation(quad, face.faceRotation);
+
+        return quad;
+    }
+
+    public static void applyFaceRotation(TexturedQuad quad, FaceRotation rotation)
+    {
+        if (rotation == FaceRotation.IDENTITY)
+            return;
+
+        float[] uCoords = new float[] {
+            quad.vertexPositions[0].texturePositionX,
+            quad.vertexPositions[1].texturePositionX,
+            quad.vertexPositions[2].texturePositionX,
+            quad.vertexPositions[3].texturePositionX,
+        };
+
+        float[] vCoords = new float[] {
+            quad.vertexPositions[0].texturePositionY,
+            quad.vertexPositions[1].texturePositionY,
+            quad.vertexPositions[2].texturePositionY,
+            quad.vertexPositions[3].texturePositionY,
+        };
+
+        int offset = 2;
+        if (rotation == FaceRotation.CLOCKWISE)
+            offset = 3;
+        else if (rotation == FaceRotation.COUNTER_CLOCKWISE)
+            offset = 1;
+
+        for (int i = 0; i < 4; ++i)
+        {
+            quad.vertexPositions[i].texturePositionX = uCoords[(i + offset) % 4];
+            quad.vertexPositions[i].texturePositionY = vCoords[(i + offset) % 4];
+        }
     }
 
 }

@@ -29,7 +29,7 @@ public class WolfController implements IAnimationController<WolfData>
     {
         EntityWolf wolf = data.getEntity();
 
-        data.wolfBody.rotation.setSmoothness(1.0f).orientX(90.0F);
+        data.body.rotation.setSmoothness(1.0f).orientX(90.0F);
 
         final float limbSwing = data.limbSwing.get();
         final float limbSwingAmount = data.limbSwingAmount.get();
@@ -39,24 +39,29 @@ public class WolfController implements IAnimationController<WolfData>
         if (wolf.isSitting())
         {
             //wolfMane.setRotationPoint(-1.0F, 16.0F, -3.0F);
-            data.wolfBody.rotation.orientX(45.0F);
-            data.wolfMane.rotation.orientX(72.0F);
+            data.body.rotation.orientX(45.0F);
+            data.mane.rotation.orientX(72.0F);
             //data.wolfLeg1.rotation.orientX(270.0F);
             //data.wolfLeg2.rotation.orientX(270.0F);
-            data.wolfLeg3.rotation.orientX(-0.468F * TO_DEG);
-            data.wolfLeg4.rotation.orientX(-0.468F * TO_DEG);
+            data.leg3.rotation.orientX(-0.468F * TO_DEG);
+            data.leg4.rotation.orientX(-0.468F * TO_DEG);
         }
         else
         {
-            data.wolfBody.rotation.orientX(90.0F);
-            data.wolfMane.rotation.orientX(90.0F);
-            data.wolfLeg1.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount * TO_DEG);
-            data.wolfLeg2.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * TO_DEG);
+            data.body.rotation.orientX(90.0F);
+            data.mane.rotation.orientX(90.0F);
+            data.leg1.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount * TO_DEG);
+            data.leg2.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * TO_DEG);
             //data.wolfLeg3.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * TO_DEG);
             //data.wolfLeg4.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount * TO_DEG);
-            data.wolfLeg3.rotation.orientX(0 * TO_DEG);
-            data.wolfLeg4.rotation.orientX(0 * TO_DEG);
+            data.leg3.rotation.orientX(0 * TO_DEG);
+            data.leg4.rotation.orientX(0 * TO_DEG);
         }
+
+        data.mane.rotation.orientX(0.0F);
+        data.body.rotation.orientX(0);
+        data.tail.rotation.orientX(180.0F);
+        //data.wolfBody.rotation.orientX(DataUpdateHandler.getTicks() * 10.0F);
 
         return null;
     }
