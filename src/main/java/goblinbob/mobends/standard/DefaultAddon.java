@@ -6,16 +6,11 @@ import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.SpiderRenderer;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.SquidRenderer;
+import goblinbob.mobends.standard.client.renderer.entity.mutated.WolfRenderer;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.ZombieRenderer;
-import goblinbob.mobends.standard.data.PigZombieData;
-import goblinbob.mobends.standard.data.SpiderData;
-import goblinbob.mobends.standard.data.SquidData;
-import goblinbob.mobends.standard.data.ZombieData;
+import goblinbob.mobends.standard.data.*;
 import goblinbob.mobends.standard.main.ModConfig;
-import goblinbob.mobends.standard.mutators.PigZombieMutator;
-import goblinbob.mobends.standard.mutators.SpiderMutator;
-import goblinbob.mobends.standard.mutators.SquidMutator;
-import goblinbob.mobends.standard.mutators.ZombieMutator;
+import goblinbob.mobends.standard.mutators.*;
 import goblinbob.mobends.standard.previewer.BipedPreviewer;
 import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import goblinbob.mobends.standard.previewer.SpiderPreviewer;
@@ -24,6 +19,7 @@ import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.passive.EntitySquid;
+import net.minecraft.entity.passive.EntityWolf;
 
 public class DefaultAddon implements IAddon
 {
@@ -55,7 +51,10 @@ public class DefaultAddon implements IAddon
 
 		registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>(),
 				"body", "tentacle1", "tentacle2", "tentacle3", "tentacle4", "tentacle5", "tentacle6", "tentacle7", "tentacle8");
-		
+
+		registry.registerNewEntity(EntityWolf.class, WolfData::new, WolfMutator::new, new WolfRenderer<>(),
+				"wolfHeadMain", "wolfBody", "wolfLeg1", "wolfLeg2", "wolfLeg3", "wolfLeg4", "wolfTail", "wolfMane");
+
 //		registry.registerEntity(new AnimatedEntity(EntityHusk.class,
 //						new RenderBendsHusk(Minecraft.getMinecraft().getRenderManager()),
 //						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",

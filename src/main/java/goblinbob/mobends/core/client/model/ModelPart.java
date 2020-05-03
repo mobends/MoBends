@@ -107,6 +107,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 				childModel.render(scale);
 			}
         }
+
         GlStateManager.popMatrix();
     }
 
@@ -119,11 +120,11 @@ public class ModelPart extends ModelRenderer implements IModelPart
             this.compileDisplayList(scale);
 
         GlStateManager.pushMatrix();
+
         GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
-
         GlHelper.rotate(rotation.getSmooth());
-
         GlStateManager.callList(this.displayList);
+
         GlStateManager.popMatrix();
     }
 
@@ -192,12 +193,13 @@ public class ModelPart extends ModelRenderer implements IModelPart
     @Override
     public void setRotationPoint(float x, float y, float z)
     {
-        this.position.set(x, y, z);
+        // Ignoring vanilla transformations.
+        // The rotation point is often being changed during vanilla animation.
     }
 
     public ModelPart setPosition(float x, float y, float z)
     {
-        this.setRotationPoint(x, y, z);
+        this.position.set(x, y, z);
         return this;
     }
 
