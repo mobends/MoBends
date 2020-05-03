@@ -1,15 +1,18 @@
 package goblinbob.mobends.standard.animation.controller;
 
+import goblinbob.mobends.core.animation.bit.KeyframeAnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
 import goblinbob.mobends.core.util.GUtil;
-import goblinbob.mobends.standard.data.SquidData;
+import goblinbob.mobends.standard.animation.bit.wolf.WolfSittingAnimationBit;
 import goblinbob.mobends.standard.data.WolfData;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This is an animation controller for a wolf instance. It's a part of the
@@ -21,12 +24,21 @@ import java.util.Collection;
 public class WolfController implements IAnimationController<WolfData>
 {
 
-    protected HardAnimationLayer<SquidData> layerBase;
+    protected HardAnimationLayer<WolfData> layerBase = new HardAnimationLayer<>();
+
+    protected KeyframeAnimationBit<WolfData> bitSitting = new WolfSittingAnimationBit(1.2F);
+
+    public WolfController()
+    {
+
+    }
 
     @Override
     @Nullable
     public Collection<String> perform(WolfData data)
     {
+        layerBase.playOrContinueBit(bitSitting, data);
+
         EntityWolf wolf = data.getEntity();
 
         data.body.rotation.setSmoothness(1.0f).orientX(90.0F);
@@ -52,8 +64,8 @@ public class WolfController implements IAnimationController<WolfData>
             data.mane.rotation.orientX(90.0F);
             data.leg1.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount * TO_DEG);
             data.leg2.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * TO_DEG);
-            //data.wolfLeg3.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * TO_DEG);
-            //data.wolfLeg4.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount * TO_DEG);
+            data.leg3.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount * TO_DEG);
+            data.leg4.rotation.orientX(MathHelper.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount * TO_DEG);
             data.leg3.rotation.orientX(0 * TO_DEG);
             data.leg4.rotation.orientX(0 * TO_DEG);
         }
@@ -61,9 +73,11 @@ public class WolfController implements IAnimationController<WolfData>
         data.mane.rotation.orientX(0.0F);
         data.body.rotation.orientX(0);
         data.tail.rotation.orientX(180.0F);
-        //data.wolfBody.rotation.orientX(DataUpdateHandler.getTicks() * 10.0F);
+        data.foreLeg3.rotation.orientX(-20F);
 
-        return null;
+        final List<String> actions = new ArrayList<>();
+        layerBase.perform(data, actions);
+        return actions;
     }
 
 }

@@ -76,10 +76,10 @@ public class WolfData extends LivingEntityData<EntityWolf>
 
         nose.position.set(0.0F, 0.0F, 0.0F);
         mouth.position.set(0.0F, 0.0F, 0.0F);
-        foreLeg1.position.set(0.0F, 0.0F, 0.0F);
-        foreLeg2.position.set(0.0F, 0.0F, 0.0F);
-        foreLeg3.position.set(0.0F, 0.0F, 0.0F);
-        foreLeg4.position.set(0.0F, 0.0F, 0.0F);
+        foreLeg1.position.set(0.0F, 4.0F, -1.0F);
+        foreLeg2.position.set(0.0F, 4.0F, -1.0F);
+        foreLeg3.position.set(0.0F, 4.0F, 1.0F);
+        foreLeg4.position.set(0.0F, 4.0F, 1.0F);
     }
 
     @Override
