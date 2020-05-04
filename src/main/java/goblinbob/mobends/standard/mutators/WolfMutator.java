@@ -89,8 +89,8 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
 
         // Body
         original.wolfBody = wolfBody = new ModelPart(original, 18, 14)
-                .setPosition(-1.0F, 13.0F, 2.0F);
-        wolfBody.developBox(-3.0F, -1.0F, -3.0F, 6, 6, 9, scaleFactor)
+                .setPosition(0.0F, 13.0F, 8.0F);
+        wolfBody.developBox(-3.0F, -3.0F, -8.0F, 6, 6, 9, scaleFactor)
                 .offsetTextureQuad(BoxSide.TOP, 9.0F, 6.0F)
                 .rotateTextureQuad(BoxSide.TOP, FaceRotation.HALF_TURN)
                 .offsetTextureQuad(BoxSide.BACK, -12F, -9F)
@@ -105,8 +105,8 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         // Head
         original.wolfHeadMain = wolfHeadMain = new ModelPart(original, 0, 0)
                 .setParent(wolfBody)
-                .setPosition(-1.0F, 0.5F, -7.0F);
-        wolfHeadMain.addBox(-2.0F, -3.0F, -2.0F, 6, 6, 4, scaleFactor);
+                .setPosition(0.0F, 0F, -7.0F);
+        wolfHeadMain.addBox(-3.0F, -3.0F, -2.0F, 6, 6, 4, scaleFactor);
 
         // Mane
         original.wolfMane = wolfMane = new ModelPart(original, 21, 0)
@@ -127,56 +127,60 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
 
         // Leg1
         original.wolfLeg1 = wolfLeg1 = (ModelPartExtended) new ModelPartExtended(original, 0, 18)
+                .setParent(wolfBody)
                 .setPosition(-2.5F, 16.0F, 7.0F);
-        wolfLeg1.addBox(0.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
+        wolfLeg1.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
 
         // Leg2
         original.wolfLeg2 = wolfLeg2 = (ModelPartExtended) new ModelPartExtended(original, 0, 18)
+                .setParent(wolfBody)
                 .setPosition(0.5F, 16.0F, 7.0F);
-        wolfLeg2.addBox(0.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
+        wolfLeg2.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
 
         // Leg3
         original.wolfLeg3 = wolfLeg3 = (ModelPartExtended) new ModelPartExtended(original, 0, 18)
-                .setPosition(-2.5F, 16.0F, -4.0F);
-        wolfLeg3.addBox(0.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
+                .setParent(wolfBody)
+                .setPosition(-2.5F, 0.0F, -4.0F);
+        wolfLeg3.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
 
         // Leg4
         original.wolfLeg4 = wolfLeg4 = (ModelPartExtended) new ModelPartExtended(original, 0, 18)
-                .setPosition(0.5F, 16.0F, -4.0F);
-        wolfLeg4.addBox(0.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
+                .setParent(wolfBody)
+                .setPosition(0.5F, 0.0F, -4.0F);
+        wolfLeg4.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
 
         // Tail
         original.wolfTail = wolfTail = new ModelPart(original, 9, 18)
                 .setParent(wolfBody)
-                .setPosition(-1.0F, 12.0F, 8.0F);
-        wolfTail.addBox(0.0F, 0.0F, -2.0F, 2, 8, 2, scaleFactor);
+                .setPosition(-1.0F, 0.0F, 8.0F);
+        wolfTail.addBox(-1.0F, 0.0F, -2.0F, 2, 8, 2, scaleFactor);
 
-        wolfHeadMain.setTextureOffset(16, 14).addBox(-2.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
-        wolfHeadMain.setTextureOffset(16, 14).addBox(2.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
-        wolfHeadMain.setTextureOffset(0, 10).addBox(-0.5F, 0.0F, -5.0F, 3, 3, 4, 0.0F);
+        wolfHeadMain.setTextureOffset(16, 14).addBox(-3.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
+        wolfHeadMain.setTextureOffset(16, 14).addBox(1.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
+        wolfHeadMain.setTextureOffset(0, 10).addBox(-1.5F, 0.0F, -5.0F, 3, 3, 4, 0.0F);
 
         foreLeg1 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg1)
                 .setPosition(0.0F, -4.0F, -1.0F);
-        foreLeg1.addBox(0, 0, 0, 2, 4, 2, scaleFactor);
+        foreLeg1.addBox(-1.0F, 0, 0, 2, 4, 2, scaleFactor);
         wolfLeg1.setExtension(foreLeg1);
 
         foreLeg2 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg2)
                 .setPosition(0.0F, -4.0F, -1.0F);
-        foreLeg2.addBox(0, 0, 0, 2, 4, 2, scaleFactor);
+        foreLeg2.addBox(-1.0F, 0, 0, 2, 4, 2, scaleFactor);
         wolfLeg2.setExtension(foreLeg2);
 
         foreLeg3 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg3)
                 .setPosition(0.0F, -4.0F, 1.0F);
-        foreLeg3.addBox(0, 0, -2, 2, 4, 2, scaleFactor);
+        foreLeg3.addBox(-1.0F, 0, -2, 2, 4, 2, scaleFactor);
         wolfLeg3.setExtension(foreLeg3);
 
         foreLeg4 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg4)
                 .setPosition(0.0F, -4.0F, 1.0F);
-        foreLeg4.addBox(0, 0, -2, 2, 4, 2, scaleFactor);
+        foreLeg4.addBox(-1.0F, 0, -2, 2, 4, 2, scaleFactor);
         wolfLeg4.setExtension(foreLeg4);
 
         return false;

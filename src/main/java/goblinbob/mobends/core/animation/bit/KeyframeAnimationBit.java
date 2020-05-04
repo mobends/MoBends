@@ -88,7 +88,21 @@ public class KeyframeAnimationBit<T extends EntityData<?>> extends AnimationBit<
 				float y = keyframe.position[1] + (nextFrame.position[1] - keyframe.position[1]) * progress;
 				float z = keyframe.position[2] + (nextFrame.position[2] - keyframe.position[2]) * progress;
 
-				entityData.globalOffset.set(z, x, y);
+				float x0 = keyframe.rotation[0];
+				float y0 = keyframe.rotation[1];
+				float z0 = keyframe.rotation[2];
+				float w0 = keyframe.rotation[3];
+				float x1 = nextFrame.rotation[0];
+				float y1 = nextFrame.rotation[1];
+				float z1 = nextFrame.rotation[2];
+				float w1 = nextFrame.rotation[3];
+
+				entityData.renderRotation.set(x0 + (x1 - x0) * progress,
+						y0 + (y1 - y0) * progress,
+						z0 + (z1 - z0) * progress,
+						w0 + (w1 - w0) * progress);
+
+				entityData.globalOffset.set(x, y, z);
 			}
 
 			for (Map.Entry<String, Bone> entry : this.performedAnimation.bones.entrySet())

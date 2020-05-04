@@ -65,14 +65,14 @@ public class WolfData extends LivingEntityData<EntityWolf>
         nameToPartMap.put("foreLeg3", foreLeg3 = new ModelPartTransform());
         nameToPartMap.put("foreLeg4", foreLeg4 = new ModelPartTransform());
 
-        head.position.set(-1.0F, 2.0F, -10.0F);
-        body.position.set(0.0F, 11.0F, 3.0F);
-        mane.position.set(0.0F, 2.0F, -7.0F);
-        leg1.position.set(-2.5F, 16.0F, 7.0F);
-        leg2.position.set(0.5F, 16.0F, 7.0F);
-        leg3.position.set(-2.5F, 16.0F, -4.0F);
-        leg4.position.set(0.5F, 16.0F, -4.0F);
-        tail.position.set(-1.0F, 0.0F, 5.0F);
+        head.position.set(0.0F, -0.5F, -15.0F);
+        body.position.set(0.0F, 14.0F, 8.0F);
+        mane.position.set(0.0F, -0.5F, -12.0F);
+        leg1.position.set(-2F, 3.0F, -1.0F);
+        leg2.position.set(2F, 3.0F, -1.0F);
+        leg3.position.set(-2F, 3.0F, -12.0F);
+        leg4.position.set(2F, 3.0F, -12.0F);
+        tail.position.set(0.0F, -3.0F, 0.0F);
 
         nose.position.set(0.0F, 0.0F, 0.0F);
         mouth.position.set(0.0F, 0.0F, 0.0F);
