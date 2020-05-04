@@ -66,6 +66,13 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void renderWithRotation(float scale)
+    {
+        this.renderPart(scale);
+    }
+
+    @Override
     public void renderPart(float scale)
     {
         if (!(this.isShowing())) return;
@@ -107,22 +114,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
 				childModel.render(scale);
 			}
         }
-
-        GlStateManager.popMatrix();
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void renderWithRotation(float scale)
-    {
-        if (!this.isShowing()) return;
-        if (!this.compiled)
-            this.compileDisplayList(scale);
-
-        GlStateManager.pushMatrix();
-
-        this.applyCharacterTransform(scale);
-        GlStateManager.callList(this.displayList);
 
         GlStateManager.popMatrix();
     }

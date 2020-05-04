@@ -4,6 +4,7 @@ import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -11,6 +12,12 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 {
 
     protected final float scale = 0.0625F;
+    protected final TextureManager textureManager;
+
+    public MutatedRenderer()
+    {
+        textureManager = Minecraft.getMinecraft().getTextureManager();
+    }
 
     /**
      * Called right before the entity is rendered

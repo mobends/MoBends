@@ -3,6 +3,7 @@ package goblinbob.mobends.standard.mutators;
 import goblinbob.mobends.core.client.model.*;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.mutators.Mutator;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerWolfMisc;
 import goblinbob.mobends.standard.data.WolfData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelWolf;
@@ -31,10 +32,14 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
 
     public ModelPart nose;
     public ModelPart mouth;
+    public ModelPart leftEar;
+    public ModelPart rightEar;
     public ModelPart foreLeg1;
     public ModelPart foreLeg2;
     public ModelPart foreLeg3;
     public ModelPart foreLeg4;
+
+    protected LayerWolfMisc layerMisc;
 
     public WolfMutator(IEntityDataFactory<EntityWolf> dataFactory)
     {
@@ -67,6 +72,8 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         model.wolfLeg4 = this.vanillaModel.wolfLeg4;
         model.wolfTail = this.vanillaModel.wolfTail;
         model.wolfMane = this.vanillaModel.wolfMane;
+
+        layerRenderers.remove(layerMisc);
     }
 
     @Override
@@ -78,7 +85,6 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
     @Override
     public void deswapLayer(RenderLivingBase<? extends EntityWolf> renderer, int index)
     {
-
     }
 
     @Override
@@ -86,6 +92,9 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
     {
         float f = 0.0F;
         float f1 = 13.5F;
+
+        layerRenderers.remove(layerMisc);
+        layerRenderers.add(layerMisc = new LayerWolfMisc());
 
         // Body
         original.wolfBody = wolfBody = new ModelPart(original, 18, 14)
@@ -106,7 +115,7 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         original.wolfHeadMain = wolfHeadMain = new ModelPart(original, 0, 0)
                 .setParent(wolfBody)
                 .setPosition(0.0F, 0F, -7.0F);
-        wolfHeadMain.addBox(-3.0F, -3.0F, -2.0F, 6, 6, 4, scaleFactor);
+        wolfHeadMain.addBox(-3.0F, -3.0F, -4.0F, 6, 6, 4, scaleFactor);
 
         // Mane
         original.wolfMane = wolfMane = new ModelPart(original, 21, 0)
@@ -155,9 +164,33 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
                 .setPosition(-1.0F, 0.0F, 8.0F);
         wolfTail.addBox(-1.0F, 0.0F, -2.0F, 2, 8, 2, scaleFactor);
 
-        wolfHeadMain.setTextureOffset(16, 14).addBox(-3.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
-        wolfHeadMain.setTextureOffset(16, 14).addBox(1.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
-        wolfHeadMain.setTextureOffset(0, 10).addBox(-1.5F, 0.0F, -5.0F, 3, 3, 4, 0.0F);
+        // wolfHeadMain.setTextureOffset(16, 14).addBox(-3.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
+        // wolfHeadMain.setTextureOffset(16, 14).addBox(1.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
+        // Nose wolfHeadMain.setTextureOffset(0, 10).addBox(-1.5F, 0.0F, -5.0F, 3, 3, 4, 0.0F);
+
+        nose = new ModelPart(original, 0, 10)
+                .setPosition(0, 1F, -4F);
+        nose.developBox(-1.5F, -1.0F, -4.0F, 3, 2, 4, 0.0F)
+                .hideFace(BoxSide.BOTTOM)
+                .create();
+        wolfHeadMain.addChild(nose);
+
+        mouth = new ModelPart(original, 0, 12)
+                .setPosition(0, 2F, -4F);
+        mouth.developBox(-1.5F, 0.0F, -4.0F, 3, 1, 4, 0.0F)
+                .hideFace(BoxSide.TOP)
+                .create();
+        wolfHeadMain.addChild(mouth);
+
+        leftEar = new ModelPart(original, 16, 14)
+                .setPosition(0, 1F, -4F);
+        leftEar.addBox(-1.0F, -2.0F, -1.0F, 2, 2, 1, 0.0F);
+        wolfHeadMain.addChild(leftEar);
+
+        rightEar = new ModelPart(original, 16, 14)
+                .setPosition(0, 1F, -4F);
+        rightEar.addBox(-1.0F, -2.0F, -1.0F, 2, 2, 1, 0.0F);
+        wolfHeadMain.addChild(rightEar);
 
         foreLeg1 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg1)
@@ -183,7 +216,7 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         foreLeg4.addBox(-1.0F, 0, -2, 2, 4, 2, scaleFactor);
         wolfLeg4.setExtension(foreLeg4);
 
-        return false;
+        return true;
     }
 
     @Override
@@ -198,6 +231,10 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         wolfTail.syncUp(data.tail);
         wolfMane.syncUp(data.mane);
 
+        nose.syncUp(data.nose);
+        mouth.syncUp(data.mouth);
+        leftEar.syncUp(data.leftEar);
+        rightEar.syncUp(data.rightEar);
         foreLeg1.syncUp(data.foreLeg1);
         foreLeg2.syncUp(data.foreLeg2);
         foreLeg3.syncUp(data.foreLeg3);
