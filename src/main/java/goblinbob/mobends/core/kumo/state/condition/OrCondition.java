@@ -1,8 +1,8 @@
-package goblinbob.mobends.core.pack.state.condition;
+package goblinbob.mobends.core.kumo.state.condition;
 
 import goblinbob.mobends.core.data.EntityData;
-import goblinbob.mobends.core.pack.state.template.MalformedPackTemplateException;
-import goblinbob.mobends.core.pack.state.template.TriggerConditionTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +12,7 @@ public class OrCondition implements ITriggerCondition
 
     private List<ITriggerCondition> conditions;
 
-    public OrCondition(Template template) throws MalformedPackTemplateException
+    public OrCondition(Template template) throws MalformedKumoTemplateException
     {
         this.conditions = new LinkedList<>();
         for (TriggerConditionTemplate conditionTemplate : template.conditions)

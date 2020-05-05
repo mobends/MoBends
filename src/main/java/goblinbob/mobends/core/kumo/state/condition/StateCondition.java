@@ -1,19 +1,19 @@
-package goblinbob.mobends.core.pack.state.condition;
+package goblinbob.mobends.core.kumo.state.condition;
 
 import goblinbob.mobends.core.data.EntityData;
-import goblinbob.mobends.core.pack.state.template.MalformedPackTemplateException;
-import goblinbob.mobends.core.pack.state.template.TriggerConditionTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 public class StateCondition implements ITriggerCondition
 {
 
     private final State state;
 
-    public StateCondition(Template template) throws MalformedPackTemplateException
+    public StateCondition(Template template) throws MalformedKumoTemplateException
     {
         if (template.state == null)
         {
-            throw new MalformedPackTemplateException("No 'state' property given for trigger condition.");
+            throw new MalformedKumoTemplateException("No 'state' property given for trigger condition.");
         }
 
         this.state = template.state;
@@ -32,6 +32,8 @@ public class StateCondition implements ITriggerCondition
                 return entityData.getEntity().isSprinting();
             case STANDING_STILL:
                 return entityData.isStillHorizontally();
+            case MOVING_HORIZONTALLY:
+                return !entityData.isStillHorizontally();
             default:
                 return false;
         }
@@ -50,6 +52,7 @@ public class StateCondition implements ITriggerCondition
         AIRBORNE,
         SPRINTING,
         STANDING_STILL,
+        MOVING_HORIZONTALLY,
     }
 
 

@@ -1,4 +1,4 @@
-package goblinbob.mobends.core.pack.state.condition;
+package goblinbob.mobends.core.kumo.state.condition;
 
 import goblinbob.mobends.core.data.EntityData;
 

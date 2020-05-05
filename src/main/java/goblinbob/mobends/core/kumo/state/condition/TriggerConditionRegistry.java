@@ -1,9 +1,9 @@
-package goblinbob.mobends.core.pack.state.condition;
+package goblinbob.mobends.core.kumo.state.condition;
 
-import goblinbob.mobends.core.pack.state.ILayerState;
-import goblinbob.mobends.core.pack.state.INodeState;
-import goblinbob.mobends.core.pack.state.template.MalformedPackTemplateException;
-import goblinbob.mobends.core.pack.state.template.TriggerConditionTemplate;
+import goblinbob.mobends.core.kumo.state.ILayerState;
+import goblinbob.mobends.core.kumo.state.INodeState;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
@@ -63,13 +63,13 @@ public class TriggerConditionRegistry
         return null;
     }
 
-    public <T extends TriggerConditionTemplate> ITriggerCondition createFromTemplate(T template) throws MalformedPackTemplateException
+    public <T extends TriggerConditionTemplate> ITriggerCondition createFromTemplate(T template) throws MalformedKumoTemplateException
     {
         final String type = template.getType();
 
         if (type == null)
         {
-            throw new MalformedPackTemplateException("No type was specified for trigger condition.");
+            throw new MalformedKumoTemplateException("No type was specified for trigger condition.");
         }
 
         if (registry.containsKey(type))
@@ -83,15 +83,15 @@ public class TriggerConditionRegistry
         }
         else
         {
-            throw new MalformedPackTemplateException(String.format("A non-existent trigger condition type was specified: %s", type));
+            throw new MalformedKumoTemplateException(String.format("A non-existent trigger condition type was specified: %s", type));
         }
     }
 
-    private <T extends TriggerConditionTemplate> ITriggerCondition createFromTemplate(RegistryEntry<T> entry, T template) throws MalformedPackTemplateException
+    private <T extends TriggerConditionTemplate> ITriggerCondition createFromTemplate(RegistryEntry<T> entry, T template) throws MalformedKumoTemplateException
     {
         if (!entry.templateType.equals(template.getClass()))
         {
-            throw new MalformedPackTemplateException(String.format("The trigger condition registry holds a wrong entry for '%s'", template.getType()));
+            throw new MalformedKumoTemplateException(String.format("The trigger condition registry holds a wrong entry for '%s'", template.getType()));
         }
 
         return entry.factory.createTriggerCondition(template);
