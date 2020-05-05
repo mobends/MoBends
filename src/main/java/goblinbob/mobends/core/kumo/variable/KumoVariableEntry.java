@@ -1,14 +1,14 @@
-package goblinbob.mobends.core.pack.variable;
+package goblinbob.mobends.core.kumo.variable;
 
 import net.minecraft.client.resources.I18n;
 
-public class BendsVariableEntry
+public class KumoVariableEntry
 {
 
-    private IBendsVariable variable;
+    private IKumoVariable variable;
     private String key;
 
-    public BendsVariableEntry(IBendsVariable variable, String key)
+    public KumoVariableEntry(IKumoVariable variable, String key)
     {
         this.variable = variable;
         this.key = key;

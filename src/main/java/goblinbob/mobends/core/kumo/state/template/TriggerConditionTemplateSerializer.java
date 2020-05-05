@@ -1,8 +1,8 @@
-package goblinbob.mobends.core.pack.state.template;
+package goblinbob.mobends.core.kumo.state.template;
 
 import com.google.gson.*;
-import goblinbob.mobends.core.pack.PackDataProvider;
-import goblinbob.mobends.core.pack.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.KumoSerializer;
+import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ public class TriggerConditionTemplateSerializer implements JsonSerializer<Trigge
     @Override
     public JsonElement serialize(TriggerConditionTemplate src, Type typeOfSrc, JsonSerializationContext context)
     {
-        return PackDataProvider.INSTANCE.gson.toJsonTree(src);
+        return KumoSerializer.INSTANCE.gson.toJsonTree(src);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class TriggerConditionTemplateSerializer implements JsonSerializer<Trigge
 
         toDeserialize.put(json, templateType);
 
-        return PackDataProvider.INSTANCE.gson.fromJson(json, templateType);
+        return KumoSerializer.INSTANCE.gson.fromJson(json, templateType);
     }
 
 }

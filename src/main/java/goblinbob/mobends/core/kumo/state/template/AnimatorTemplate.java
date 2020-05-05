@@ -1,8 +1,8 @@
-package goblinbob.mobends.core.pack.state.template;
+package goblinbob.mobends.core.kumo.state.template;
 
 import java.util.List;
 
-public class BendsTargetTemplate
+public class AnimatorTemplate
 {
 
     public int entryNode;

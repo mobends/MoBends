@@ -1,4 +1,4 @@
-package goblinbob.mobends.core.pack.state;
+package goblinbob.mobends.core.kumo.state;
 
 public interface ILayerState
 {

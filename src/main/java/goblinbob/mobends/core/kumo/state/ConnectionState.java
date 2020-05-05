@@ -1,9 +1,9 @@
-package goblinbob.mobends.core.pack.state;
+package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.pack.state.condition.ITriggerCondition;
-import goblinbob.mobends.core.pack.state.condition.TriggerConditionRegistry;
-import goblinbob.mobends.core.pack.state.template.ConnectionTemplate;
-import goblinbob.mobends.core.pack.state.template.MalformedPackTemplateException;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
+import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class ConnectionState
         this.triggerCondition = triggerCondition;
     }
 
-    public static ConnectionState createFromTemplate(List<INodeState> nodes, ConnectionTemplate template) throws MalformedPackTemplateException
+    public static ConnectionState createFromTemplate(List<INodeState> nodes, ConnectionTemplate template) throws MalformedKumoTemplateException
     {
         INodeState node = null;
 
@@ -29,13 +29,13 @@ public class ConnectionState
         }
         catch (IndexOutOfBoundsException ex)
         {
-            throw new MalformedPackTemplateException(String.format("A connection to node at index: %d was specified, which doesn't exist.",
+            throw new MalformedKumoTemplateException(String.format("A connection to node at index: %d was specified, which doesn't exist.",
                     template.targetNodeIndex));
         }
 
         if (template.triggerCondition == null)
         {
-            throw new MalformedPackTemplateException("No trigger condition was specified for a connection.");
+            throw new MalformedKumoTemplateException("No trigger condition was specified for a connection.");
         }
 
         return new ConnectionState(node, TriggerConditionRegistry.instance.createFromTemplate(template.triggerCondition));

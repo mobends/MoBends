@@ -1,6 +1,6 @@
-package goblinbob.mobends.core.pack.state;
+package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.pack.state.template.DriverLayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.DriverLayerTemplate;
 
 public class DriverLayerState implements ILayerState
 {

@@ -1,45 +1,82 @@
-package goblinbob.mobends.core.pack;
+package goblinbob.mobends.core.kumo;
 
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.Keyframe;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.data.EntityData;
-import goblinbob.mobends.core.kumo.state.ILayerState;
-import goblinbob.mobends.core.kumo.state.INodeState;
-import goblinbob.mobends.core.kumo.state.KeyframeLayerState;
+import goblinbob.mobends.core.kumo.state.*;
+import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class BendsPackPerformer
+public class KumoAnimator<D extends EntityData<?>>
 {
 
-    public static final BendsPackPerformer INSTANCE = new BendsPackPerformer();
+    private final List<INodeState> nodeStates = new ArrayList<>();
+    private INodeState currentNode;
 
-    public void performCurrentPack(EntityData<?> entityData, String animatedEntityKey, @Nullable Collection<String> actions)
+    public KumoAnimator(AnimatorTemplate animatorTemplate, IKumoDataProvider dataProvider) throws MalformedKumoTemplateException
     {
-        final BendsPackData packData = PackDataProvider.INSTANCE.getAppliedData();
-        if (packData == null)
+        if (animatorTemplate.nodes == null)
         {
-            return;
+            throw new MalformedKumoTemplateException("No nodes were specified");
         }
 
-        final INodeState nodeState = entityData.packAnimationState.update(entityData, packData, animatedEntityKey, DataUpdateHandler.ticksPerFrame);
-        if (nodeState != null)
+        for (NodeTemplate template : animatorTemplate.nodes)
         {
-            final Iterable<ILayerState> layers = nodeState.getLayers();
-            for (ILayerState layer : layers)
+            nodeStates.add(new NodeState(dataProvider, template));
+        }
+
+        for (int i = 0; i < this.nodeStates.size(); ++i)
+        {
+            nodeStates.get(i).parseConnections(nodeStates, animatorTemplate.nodes.get(i));
+        }
+
+        try
+        {
+            currentNode = nodeStates.get(animatorTemplate.entryNode);
+        }
+        catch(IndexOutOfBoundsException ex)
+        {
+            throw new MalformedKumoTemplateException("Entry node index is out of bounds");
+        }
+    }
+
+    public INodeState getCurrentNode()
+    {
+        return currentNode;
+    }
+
+    @Nullable
+    public INodeState update(D entityData, float deltaTime)
+    {
+        if (currentNode == null)
+        {
+            return null;
+        }
+
+        for (ConnectionState connection : currentNode.getConnections())
+        {
+            if (connection.triggerCondition.isConditionMet(entityData))
             {
-                if (layer instanceof KeyframeLayerState)
-                {
-                    final KeyframeLayerState keyframeLayer = (KeyframeLayerState) layer;
-                    applyKeyframeAnimation(entityData, keyframeLayer.animation, keyframeLayer.getProgress());
-                }
+                currentNode = connection.targetNode;
+                currentNode.start();
+                break;
             }
         }
+
+        for (ILayerState layer : currentNode.getLayers())
+        {
+            layer.update(deltaTime);
+        }
+
+        return currentNode;
     }
 
     public void applyKeyframeAnimation(EntityData<?> entityData, KeyframeAnimation animation, float keyframeIndex)

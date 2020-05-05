@@ -3,13 +3,27 @@ package goblinbob.mobends.standard.animation.controller;
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.bit.KeyframeAnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
+import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
+import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
+import goblinbob.mobends.core.client.event.DataUpdateHandler;
+import goblinbob.mobends.core.kumo.KumoAnimator;
+import goblinbob.mobends.core.kumo.state.IKumoDataProvider;
+import goblinbob.mobends.core.kumo.state.ILayerState;
+import goblinbob.mobends.core.kumo.state.INodeState;
+import goblinbob.mobends.core.kumo.state.KeyframeLayerState;
+import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.standard.animation.bit.wolf.WolfIdleAnimationBit;
 import goblinbob.mobends.standard.animation.bit.wolf.WolfSittingAnimationBit;
 import goblinbob.mobends.standard.data.WolfData;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,9 +43,31 @@ public class WolfController implements IAnimationController<WolfData>
     protected KeyframeAnimationBit<WolfData> bitSitting = new WolfSittingAnimationBit(1.2F);
     protected AnimationBit<WolfData> bitIdle = new WolfIdleAnimationBit();
 
+    protected static final ResourceLocation WOLF_ANIMATOR = new ResourceLocation(ModStatics.MODID, "animators/wolf.json");
+    protected AnimatorTemplate animatorTemplate;
+    protected KumoAnimator<WolfData> kumoAnimator;
+
     public WolfController()
     {
-
+        try
+        {
+            animatorTemplate = GsonResources.get(WOLF_ANIMATOR, AnimatorTemplate.class);
+            kumoAnimator = new KumoAnimator<>(animatorTemplate, key -> {
+                try
+                {
+                    return AnimationLoader.loadFromPath(key);
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                    return null;
+                }
+            });
+        }
+        catch (IOException | MalformedKumoTemplateException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -50,11 +86,25 @@ public class WolfController implements IAnimationController<WolfData>
         }
 
         final List<String> actions = new ArrayList<>();
-        layerBase.perform(data, actions);
+        //layerBase.perform(data, actions);
 
         // Head rotation
-        data.head.rotation.localRotateY(data.headYaw.get()).finish();
-        data.head.rotation.localRotateX(data.headPitch.get()).finish();
+        //data.head.rotation.localRotateY(data.headYaw.get()).finish();
+        //data.head.rotation.localRotateX(data.headPitch.get()).finish();
+
+        final INodeState nodeState = kumoAnimator.update(data, DataUpdateHandler.ticksPerFrame);
+        if (nodeState != null)
+        {
+            final Iterable<ILayerState> layers = nodeState.getLayers();
+            for (ILayerState layer : layers)
+            {
+                if (layer instanceof KeyframeLayerState)
+                {
+                    final KeyframeLayerState keyframeLayer = (KeyframeLayerState) layer;
+                    kumoAnimator.applyKeyframeAnimation(data, keyframeLayer.animation, keyframeLayer.getProgress());
+                }
+            }
+        }
 
         return actions;
     }

@@ -9,7 +9,7 @@ public class WolfSittingAnimationBit extends KeyframeAnimationBit<WolfData>
 {
 
     private static final String[] ACTIONS = new String[] { "sitting" };
-    private static final ResourceLocation SITTING_ANIMATION = new ResourceLocation(ModStatics.MODID, "animations/wolf_anim_sit.json");
+    private static final ResourceLocation SITTING_ANIMATION = new ResourceLocation(ModStatics.MODID, "animations/wolf_sitting_down.json");
 
     public WolfSittingAnimationBit(float animationSpeed)
     {

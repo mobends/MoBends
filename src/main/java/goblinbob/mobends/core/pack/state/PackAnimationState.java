@@ -1,10 +1,14 @@
 package goblinbob.mobends.core.pack.state;
 
 import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.kumo.state.ConnectionState;
+import goblinbob.mobends.core.kumo.state.ILayerState;
+import goblinbob.mobends.core.kumo.state.INodeState;
+import goblinbob.mobends.core.kumo.state.NodeState;
 import goblinbob.mobends.core.pack.BendsPackData;
-import goblinbob.mobends.core.pack.state.template.BendsTargetTemplate;
-import goblinbob.mobends.core.pack.state.template.MalformedPackTemplateException;
-import goblinbob.mobends.core.pack.state.template.NodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -17,17 +21,17 @@ public class PackAnimationState
     private final List<INodeState> nodeStates = new ArrayList<>();
     private INodeState currentNode;
 
-    private void initFor(BendsPackData data, String animatedEntityKey) throws MalformedPackTemplateException
+    private void initFor(BendsPackData data, String animatedEntityKey) throws MalformedKumoTemplateException
     {
         bendsPackData = data;
         nodeStates.clear();
 
         if (data.targets == null)
         {
-            throw new MalformedPackTemplateException("No targets were specified!");
+            throw new MalformedKumoTemplateException("No targets were specified!");
         }
 
-        BendsTargetTemplate targetTemplate = data.targets.get(animatedEntityKey);
+        AnimatorTemplate targetTemplate = data.targets.get(animatedEntityKey);
         if (targetTemplate == null)
         {
             return;
@@ -35,7 +39,7 @@ public class PackAnimationState
 
         if (targetTemplate.nodes == null)
         {
-            throw new MalformedPackTemplateException(String.format("No nodes were specified for '%s'", animatedEntityKey));
+            throw new MalformedKumoTemplateException(String.format("No nodes were specified for '%s'", animatedEntityKey));
         }
 
         for (NodeTemplate template : targetTemplate.nodes)
@@ -54,7 +58,7 @@ public class PackAnimationState
         }
         catch(IndexOutOfBoundsException ex)
         {
-            throw new MalformedPackTemplateException("Entry node index is out of bounds");
+            throw new MalformedKumoTemplateException("Entry node index is out of bounds");
         }
     }
 
@@ -73,7 +77,7 @@ public class PackAnimationState
             {
                 initFor(data, animatedEntityKey);
             }
-            catch (MalformedPackTemplateException ex)
+            catch (MalformedKumoTemplateException ex)
             {
                 ex.printStackTrace();
             }

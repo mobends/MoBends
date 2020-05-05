@@ -1,0 +1,55 @@
+{
+  "entryNode": 0,
+  "nodes": [
+    {
+      "connections": [
+        {
+          "targetNodeIndex": 1,
+          "triggerCondition": {
+            "type": "core:state",
+            "state": "AIRBORNE"
+          }
+        }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "targetNodeIndex": 2,
+          "triggerCondition": {
+            "type": "core:state",
+            "state": "ON_GROUND"
+          }
+        }
+      ]
+    },
+    {
+      "connections": [
+        {
+          "targetNodeIndex": 0,
+          "triggerCondition": {
+            "type": "core:animation_finished",
+            "state": "ON_GROUND"
+          }
+        },
+        {
+          "targetNodeIndex": 0,
+          "triggerCondition": {
+            "type": "core:not",
+            "condition": {
+              "type": "core:state",
+              "state": "ON_GROUND"
+            }
+          }
+        }
+      ],
+      "layers": [
+        {
+          "type": "KEYFRAME",
+          "animationKey": "mobends:animations/wolf_sitting_down.json",
+          "playbackSpeed": 3.5
+        }
+      ]
+    }
+  ]
+}

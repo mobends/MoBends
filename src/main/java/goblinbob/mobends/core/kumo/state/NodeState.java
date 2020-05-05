@@ -1,8 +1,7 @@
-package goblinbob.mobends.core.pack.state;
+package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.Core;
-import goblinbob.mobends.core.pack.BendsPackData;
-import goblinbob.mobends.core.pack.state.template.*;
+import goblinbob.mobends.core.kumo.state.template.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -14,7 +13,7 @@ public class NodeState implements INodeState
     List<ConnectionState> connections = new ArrayList<>();
     List<ILayerState> layerStates = new LinkedList<>();
 
-    public NodeState(BendsPackData data, NodeTemplate nodeTemplate)
+    public NodeState(IKumoDataProvider data, NodeTemplate nodeTemplate)
     {
         if (nodeTemplate.layers == null)
             return;
@@ -36,7 +35,7 @@ public class NodeState implements INodeState
         }
     }
 
-    public void parseConnections(List<INodeState> nodeStates, NodeTemplate template) throws MalformedPackTemplateException
+    public void parseConnections(List<INodeState> nodeStates, NodeTemplate template) throws MalformedKumoTemplateException
     {
         if (template.connections != null)
         {

@@ -7,7 +7,7 @@ import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.network.NetworkConfiguration;
 import goblinbob.mobends.core.pack.BendsPackPerformer;
-import goblinbob.mobends.core.pack.variable.BendsVariableRegistry;
+import goblinbob.mobends.core.kumo.variable.KumoVariableRegistry;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -182,7 +182,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         data.limbSwing.set(this.limbSwing);
         data.limbSwingAmount.set(this.limbSwingAmount);
 
-        BendsVariableRegistry.instance.provideTemporaryData(data);
+        KumoVariableRegistry.instance.provideTemporaryData(data);
 
         // noinspection unchecked
         final IAnimationController<D> controller = (IAnimationController<D>) data.getController();

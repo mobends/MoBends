@@ -1,4 +1,4 @@
-package goblinbob.mobends.core.pack.state.template;
+package goblinbob.mobends.core.kumo.state.template;
 
 public class TriggerConditionTemplate
 {

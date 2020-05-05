@@ -1,7 +1,7 @@
-package goblinbob.mobends.core.pack.state;
+package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.pack.state.template.DriverLayerTemplate;
-import goblinbob.mobends.core.pack.state.template.KeyframeLayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.DriverLayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.KeyframeLayerTemplate;
 
 import java.lang.reflect.Type;
 

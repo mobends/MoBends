@@ -4,13 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.MalformedJsonException;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.flux.Computed;
-import goblinbob.mobends.core.pack.state.template.LayerTemplate;
-import goblinbob.mobends.core.pack.state.template.LayerTemplateSerializer;
-import goblinbob.mobends.core.pack.state.template.TriggerConditionTemplate;
-import goblinbob.mobends.core.pack.state.template.TriggerConditionTemplateSerializer;
+import goblinbob.mobends.core.kumo.KumoSerializer;
+import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.LayerTemplateSerializer;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplateSerializer;
 
 import java.io.File;
 import java.io.FileReader;
@@ -23,17 +23,11 @@ public class PackDataProvider
     public static final PackDataProvider INSTANCE = new PackDataProvider();
 
     private Map<IBendsPack, BendsPackData> dataMap = new HashMap<>();
-    public final Gson gson;
 
     private Computed<BendsPackData> appliedData;
 
     private PackDataProvider()
     {
-        final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(LayerTemplate.class, new LayerTemplateSerializer());
-        gsonBuilder.registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer());
-        gson = gsonBuilder.create();
-
         appliedData = new Computed<>(() -> {
             final Collection<IBendsPack> packs = PackManager.INSTANCE.appliedPacks.getValue();
 
@@ -74,7 +68,7 @@ public class PackDataProvider
             {
                 File file = PackManager.INSTANCE.getDataFileForPack(bendsPack.getKey());
                 JsonReader fileReader = new JsonReader(new FileReader(file));
-                BendsPackData data = gson.fromJson(fileReader, BendsPackData.class);
+                BendsPackData data = KumoSerializer.INSTANCE.gson.fromJson(fileReader, BendsPackData.class);
                 fileReader.close();
                 dataMap.put(bendsPack, data);
                 return data;

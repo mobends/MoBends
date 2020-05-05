@@ -51,9 +51,7 @@ public class MessageConfigResponse implements IMessage
         @Override
         public IMessage onMessage(MessageConfigResponse message, MessageContext ctx)
         {
-            Core.LOG.info("Received Mo' Bends server configuration.");
-
-            final StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder("Received Mo' Bends server configuration.\n");
             final Iterable<SharedProperty<?>> properties = NetworkConfiguration.instance.getSharedConfig().getProperties();
             for (SharedProperty<?> property : properties)
             {

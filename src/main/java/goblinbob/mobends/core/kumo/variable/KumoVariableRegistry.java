@@ -1,4 +1,4 @@
-package goblinbob.mobends.core.pack.variable;
+package goblinbob.mobends.core.kumo.variable;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.data.EntityData;
@@ -8,13 +8,13 @@ import net.minecraft.entity.EntityLivingBase;
 
 import java.util.HashMap;
 
-public class BendsVariableRegistry
+public class KumoVariableRegistry
 {
 
-    public static final BendsVariableRegistry instance = new BendsVariableRegistry();
+    public static final KumoVariableRegistry instance = new KumoVariableRegistry();
 
     private EntityData<?> tempData;
-    private HashMap<String, BendsVariableEntry> variables = new HashMap<>();
+    private HashMap<String, KumoVariableEntry> variables = new HashMap<>();
 
     public void provideTemporaryData(EntityData<?> tempData)
     {
@@ -40,9 +40,9 @@ public class BendsVariableRegistry
         });
     }
 
-    private static void registerVariable(String key, IBendsVariable variable)
+    private static void registerVariable(String key, IKumoVariable variable)
     {
-        instance.variables.put(key, new BendsVariableEntry(variable, key));
+        instance.variables.put(key, new KumoVariableEntry(variable, key));
     }
 
 }

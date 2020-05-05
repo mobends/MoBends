@@ -1,9 +1,8 @@
-package goblinbob.mobends.core.pack.state;
+package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.pack.BendsPackData;
-import goblinbob.mobends.core.pack.state.template.KeyframeLayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.KeyframeLayerTemplate;
 
 public class KeyframeLayerState implements ILayerState
 {
@@ -74,10 +73,10 @@ public class KeyframeLayerState implements ILayerState
         return progress;
     }
 
-    public static KeyframeLayerState createFromTemplate(BendsPackData data, KeyframeLayerTemplate layerTemplate)
+    public static KeyframeLayerState createFromTemplate(IKumoDataProvider data, KeyframeLayerTemplate layerTemplate)
     {
         return new KeyframeLayerState(
-                data.keyframeAnimations.get(layerTemplate.animationKey),
+                data.getAnimation(layerTemplate.animationKey),
                 layerTemplate.startFrame,
                 layerTemplate.playbackSpeed,
                 layerTemplate.looping);
