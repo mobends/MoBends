@@ -23,17 +23,11 @@ public class TriggerConditionRegistry
         register("core:or", OrCondition::new, OrCondition.Template.class);
         register("core:not", NotCondition::new, NotCondition.Template.class);
         register("core:state", StateCondition::new, StateCondition.Template.class);
-        register("core:animation_finished", (entityData) -> {
-            INodeState node = entityData.packAnimationState.getCurrentNode();
+        register("core:animation_finished", (context) -> {
+            INodeState node = context.getCurrentNode();
             if (node != null)
             {
-                for (ILayerState layer : node.getLayers())
-                {
-                    if (layer.isAnimationFinished())
-                    {
-                        return true;
-                    }
-                }
+                return node.isAnimationFinished();
             }
             return false;
         });

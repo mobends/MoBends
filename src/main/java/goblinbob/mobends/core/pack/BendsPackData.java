@@ -1,12 +1,12 @@
 package goblinbob.mobends.core.pack;
 
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.kumo.state.IKumoDataProvider;
+import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 
 import java.util.Map;
 
-public class BendsPackData implements IKumoDataProvider
+public class BendsPackData implements IKumoInstancingContext
 {
 
     public Map<String, AnimatorTemplate> targets;

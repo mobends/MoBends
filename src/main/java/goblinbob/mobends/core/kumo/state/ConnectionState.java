@@ -2,7 +2,7 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
-import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import java.util.List;

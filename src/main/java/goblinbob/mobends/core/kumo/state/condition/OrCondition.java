@@ -1,12 +1,16 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
-import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This condition is met if either of the nested conditions are met.
+ *
+ * @author Iwo Plaza
+ */
 public class OrCondition implements ITriggerCondition
 {
 
@@ -25,11 +29,11 @@ public class OrCondition implements ITriggerCondition
     }
 
     @Override
-    public boolean isConditionMet(EntityData<?> entityData)
+    public boolean isConditionMet(ITriggerConditionContext context)
     {
         for (ITriggerCondition condition : this.conditions)
         {
-            if (condition.isConditionMet(entityData))
+            if (condition.isConditionMet(context))
             {
                 return true;
             }

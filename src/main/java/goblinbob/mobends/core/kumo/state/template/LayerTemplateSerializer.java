@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.kumo.state.template;
 
 import com.google.gson.*;
+import goblinbob.mobends.core.kumo.KumoSerializer;
 
 import java.lang.reflect.Type;
 
@@ -18,7 +19,7 @@ public class LayerTemplateSerializer implements JsonSerializer<LayerTemplate>, J
     {
         Gson gson = new Gson();
         LayerTemplate abstractLayer = gson.fromJson(json, LayerTemplate.class);
-        return gson.fromJson(json, abstractLayer.getLayerType().getTemplateType());
+        return KumoSerializer.INSTANCE.layerTemplateGson.fromJson(json, abstractLayer.getLayerType().getTemplateType());
     }
 
 }

@@ -5,7 +5,6 @@ import java.util.List;
 public class AnimatorTemplate
 {
 
-    public int entryNode;
-    public List<NodeTemplate> nodes;
+    public List<LayerTemplate> layers;
 
 }

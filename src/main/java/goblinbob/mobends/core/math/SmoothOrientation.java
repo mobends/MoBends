@@ -56,6 +56,11 @@ public class SmoothOrientation
         return this;
     }
 
+    public void setTweened()
+    {
+
+    }
+
     public SmoothOrientation orient(float angle, float x, float y, float z)
     {
         this.start.set(this.smooth);

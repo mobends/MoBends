@@ -1,85 +1,145 @@
 package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.animation.keyframe.Bone;
+import goblinbob.mobends.core.animation.keyframe.Keyframe;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.kumo.state.template.KeyframeLayerTemplate;
+import goblinbob.mobends.core.client.model.IModelPart;
+import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.NodeTemplate;
+import goblinbob.mobends.core.util.KeyframeUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class KeyframeLayerState implements ILayerState
 {
 
-    public final KeyframeAnimation animation;
-    private int animationDuration;
-    private final int startFrame;
-    private final float playbackSpeed;
-    private final boolean looping;
+    private List<INodeState> nodeStates = new ArrayList<>();
+    private INodeState currentNode;
 
-    /**
-     * Progress counted in keyframes.
-     */
-    private float progress;
-
-    public KeyframeLayerState(KeyframeAnimation animation, int startFrame, float playbackSpeed, boolean looping)
+    public KeyframeLayerState(IKumoInstancingContext data, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
-        this.animation = animation;
-        this.animationDuration = 0;
-        this.startFrame = startFrame;
-        this.playbackSpeed = playbackSpeed;
-        this.looping = looping;
-
-        for (Bone bone : this.animation.bones.values())
+        for (NodeTemplate nodeTemplate : layerTemplate.nodes)
         {
-            if (bone.keyframes.size() > this.animationDuration)
-                this.animationDuration = bone.keyframes.size();
+            nodeStates.add(NodeState.createFromTemplate(data, nodeTemplate));
         }
 
-        this.progress = this.startFrame;
+        for (int i = 0; i < nodeStates.size(); ++i)
+        {
+            nodeStates.get(i).parseConnections(nodeStates, layerTemplate.nodes.get(i));
+        }
+
+        try
+        {
+            currentNode = nodeStates.get(layerTemplate.entryNode);
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            throw new MalformedKumoTemplateException("Entry node index is out of bounds.");
+        }
     }
 
     @Override
     public void start()
     {
-        this.progress = this.startFrame;
     }
 
     @Override
-    public void update(float deltaTime)
+    public void update(IKumoContext context, float deltaTime)
     {
-        if (this.looping)
+        if (currentNode != null)
         {
-            this.progress += this.playbackSpeed * deltaTime;
+            KeyframeAnimation animation = currentNode.getAnimation();
 
-            while (this.progress >= this.animationDuration - 1)
+            if (animation != null)
             {
-                this.progress -= this.animationDuration - 1;
+                applyKeyframeAnimation(context.getEntityData(), animation, currentNode.getProgress());
             }
         }
-        else
+
+        // Updating node states.
+        for (INodeState node : nodeStates)
         {
-            if (this.progress < this.animationDuration - 2)
+            node.update(deltaTime);
+        }
+
+        // Populating the context.
+        context.setCurrentNode(currentNode);
+
+        // Evaluating connection trigger conditions.
+        for (ConnectionState connection : currentNode.getConnections())
+        {
+            if (connection.triggerCondition.isConditionMet(context))
             {
-                this.progress = Math.min(this.progress + this.playbackSpeed * deltaTime, animationDuration - 2);
+                currentNode = connection.targetNode;
+                currentNode.start();
+                break;
             }
         }
     }
 
-    @Override
-    public boolean isAnimationFinished()
+    public void applyKeyframeAnimation(EntityData<?> entityData, KeyframeAnimation animation, float keyframeIndex)
     {
-        return !this.looping && this.progress >= animationDuration - 2;
+        final int frameA = (int) keyframeIndex;
+        final int frameB = (int) keyframeIndex + 1;
+        final float tween = keyframeIndex - frameA;
+
+        if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
+        {
+            final Bone rootBone = animation.bones.get("root");
+            final Keyframe keyframe = rootBone.keyframes.get(frameA);
+            final Keyframe nextFrame = rootBone.keyframes.get(frameB);
+
+            KeyframeUtils.tweenVector(entityData.globalOffset, keyframe.position, nextFrame.position, tween);
+        }
+
+        if (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation"))
+        {
+            final Bone rootBone = animation.bones.get("centerRotation");
+            final Keyframe keyframe = rootBone.keyframes.get(frameA);
+            final Keyframe nextFrame = rootBone.keyframes.get(frameB);
+
+            KeyframeUtils.tweenOrientation(entityData.centerRotation, keyframe.rotation, nextFrame.rotation, tween);
+            KeyframeUtils.tweenVector(entityData.globalOffset, keyframe.position, nextFrame.position, tween);
+        }
+
+        for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
+        {
+            final String key = entry.getKey();
+
+            if (shouldPartBeAffected(key))
+            {
+                Bone bone = entry.getValue();
+                Object part = entityData.getPartForName(key);
+
+                if (part != null)
+                {
+                    Keyframe keyframe = bone.keyframes.get(frameA);
+                    Keyframe nextFrame = bone.keyframes.get(frameB);
+
+                    if (keyframe != null && nextFrame != null)
+                    {
+                        if (part instanceof IModelPart)
+                        {
+                            KeyframeUtils.tweenOrientation(((IModelPart) part).getRotation(), keyframe.rotation, nextFrame.rotation, tween);
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    public float getProgress()
+    private boolean shouldPartBeAffected(String partName)
     {
-        return progress;
+        return true;
     }
 
-    public static KeyframeLayerState createFromTemplate(IKumoDataProvider data, KeyframeLayerTemplate layerTemplate)
+    public static KeyframeLayerState createFromTemplate(IKumoInstancingContext data, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
-        return new KeyframeLayerState(
-                data.getAnimation(layerTemplate.animationKey),
-                layerTemplate.startFrame,
-                layerTemplate.playbackSpeed,
-                layerTemplate.looping);
+        return new KeyframeLayerState(data, layerTemplate);
     }
 
 }

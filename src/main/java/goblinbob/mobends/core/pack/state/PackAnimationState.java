@@ -1,14 +1,12 @@
 package goblinbob.mobends.core.pack.state;
 
 import goblinbob.mobends.core.data.EntityData;
-import goblinbob.mobends.core.kumo.state.ConnectionState;
-import goblinbob.mobends.core.kumo.state.ILayerState;
-import goblinbob.mobends.core.kumo.state.INodeState;
-import goblinbob.mobends.core.kumo.state.NodeState;
+import goblinbob.mobends.core.kumo.state.*;
+import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.pack.BendsPackData;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.NodeTemplate;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -17,14 +15,12 @@ import java.util.List;
 public class PackAnimationState
 {
 
+    private KumoAnimatorState<EntityData<?>> kumoAnimatorState;
     private BendsPackData bendsPackData;
-    private final List<INodeState> nodeStates = new ArrayList<>();
-    private INodeState currentNode;
 
     private void initFor(BendsPackData data, String animatedEntityKey) throws MalformedKumoTemplateException
     {
         bendsPackData = data;
-        nodeStates.clear();
 
         if (data.targets == null)
         {
@@ -34,42 +30,15 @@ public class PackAnimationState
         AnimatorTemplate targetTemplate = data.targets.get(animatedEntityKey);
         if (targetTemplate == null)
         {
-            return;
+            throw new MalformedKumoTemplateException("No targets were specified!");
         }
 
-        if (targetTemplate.nodes == null)
-        {
-            throw new MalformedKumoTemplateException(String.format("No nodes were specified for '%s'", animatedEntityKey));
-        }
-
-        for (NodeTemplate template : targetTemplate.nodes)
-        {
-            nodeStates.add(new NodeState(data, template));
-        }
-
-        for (int i = 0; i < this.nodeStates.size(); ++i)
-        {
-            nodeStates.get(i).parseConnections(nodeStates, targetTemplate.nodes.get(i));
-        }
-
-        try
-        {
-            currentNode = nodeStates.get(targetTemplate.entryNode);
-        }
-        catch(IndexOutOfBoundsException ex)
-        {
-            throw new MalformedKumoTemplateException("Entry node index is out of bounds");
-        }
+        kumoAnimatorState = new KumoAnimatorState<>(targetTemplate, data);
     }
 
-    public INodeState getCurrentNode()
+    public void update(EntityData<?> entityData, BendsPackData data, String animatedEntityKey, float deltaTime) throws MalformedKumoTemplateException
     {
-        return currentNode;
-    }
-
-    @Nullable
-    public INodeState update(EntityData<?> entityData, BendsPackData data, String animatedEntityKey, float deltaTime)
-    {
+        // If a new BendsPack has been equipped, reinitialize the state.
         if (bendsPackData != data)
         {
             bendsPackData = data;
@@ -77,33 +46,14 @@ public class PackAnimationState
             {
                 initFor(data, animatedEntityKey);
             }
-            catch (MalformedKumoTemplateException ex)
+            catch(MalformedKumoTemplateException e)
             {
-                ex.printStackTrace();
+                bendsPackData = null;
+                throw e;
             }
         }
 
-        if (currentNode == null)
-        {
-            return null;
-        }
-
-        for (ConnectionState connection : currentNode.getConnections())
-        {
-            if (connection.triggerCondition.isConditionMet(entityData))
-            {
-                currentNode = connection.targetNode;
-                currentNode.start();
-                break;
-            }
-        }
-
-        for (ILayerState layer : currentNode.getLayers())
-        {
-            layer.update(deltaTime);
-        }
-
-        return currentNode;
+        kumoAnimatorState.update(entityData, deltaTime);
     }
 
 }

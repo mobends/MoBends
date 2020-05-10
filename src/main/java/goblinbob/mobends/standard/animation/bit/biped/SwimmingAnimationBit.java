@@ -3,6 +3,7 @@ package goblinbob.mobends.standard.animation.bit.biped;
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.util.GUtil;
+import goblinbob.mobends.core.util.Tween;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.util.math.MathHelper;
 
@@ -45,7 +46,7 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		foreArmStretch -= 1F;
 		foreArmStretch = Math.max(foreArmStretch, 0);
 		
-        float t = (float) GUtil.easeInOut(this.transformTransition, 3F);
+        float t = (float) Tween.easeInOut(this.transformTransition, 3F);
         
 		if(data.isStillHorizontally() || data.isDrawingBow() || data.getTicksAfterAttack() < 10 || !data.isUnderwater())
 		{

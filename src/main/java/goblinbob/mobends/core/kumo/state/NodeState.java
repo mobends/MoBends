@@ -1,38 +1,48 @@
 package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.animation.keyframe.Bone;
+import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.state.template.*;
+import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.NodeTemplate;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class NodeState implements INodeState
 {
 
+    public final KeyframeAnimation animation;
+    private int animationDuration;
+    private final int startFrame;
+    private final float playbackSpeed;
+    private final boolean looping;
     List<ConnectionState> connections = new ArrayList<>();
-    List<ILayerState> layerStates = new LinkedList<>();
 
-    public NodeState(IKumoDataProvider data, NodeTemplate nodeTemplate)
+    /**
+     * Progress counted in keyframes.
+     */
+    private float progress;
+
+    public NodeState(KeyframeAnimation animation, int startFrame, float playbackSpeed, boolean looping)
     {
-        if (nodeTemplate.layers == null)
-            return;
+        this.animation = animation;
+        this.startFrame = startFrame;
+        this.playbackSpeed = playbackSpeed;
+        this.looping = looping;
 
-        for (LayerTemplate template : nodeTemplate.layers)
+        if (animation != null)
         {
-            switch (template.getLayerType())
+            // Evaluating the animation duration.
+            this.animationDuration = 0;
+            for (Bone bone : this.animation.bones.values())
             {
-                case KEYFRAME:
-                    this.layerStates.add(KeyframeLayerState.createFromTemplate(data, (KeyframeLayerTemplate) template));
-                    break;
-                case DRIVER:
-                    this.layerStates.add(new DriverLayerState((DriverLayerTemplate) template));
-                    break;
-                default:
-                    Core.LOG.warning(String.format("Unknown layer type was specified in state template: %d",
-                            template.getLayerType().ordinal()));
+                if (bone.keyframes.size() > this.animationDuration)
+                    this.animationDuration = bone.keyframes.size();
             }
         }
+
+        this.progress = this.startFrame;
     }
 
     public void parseConnections(List<INodeState> nodeStates, NodeTemplate template) throws MalformedKumoTemplateException
@@ -49,10 +59,51 @@ public class NodeState implements INodeState
     @Override
     public void start()
     {
-        for (ILayerState state : layerStates)
+        this.progress = this.startFrame;
+    }
+
+    @Override
+    public void update(float deltaTime)
+    {
+        if (animation != null)
         {
-            state.start();
+            if (this.looping)
+            {
+                this.progress += this.playbackSpeed * deltaTime;
+
+                while (this.progress >= this.animationDuration - 1)
+                {
+                    this.progress -= this.animationDuration - 1;
+                }
+            }
+            else
+            {
+                if (this.progress < this.animationDuration - 2)
+                {
+                    this.progress = Math.min(this.progress + this.playbackSpeed * deltaTime, animationDuration - 2);
+                }
+            }
         }
+    }
+
+    @Override
+    public KeyframeAnimation getAnimation()
+    {
+        return animation;
+    }
+
+    @Override
+    public boolean isAnimationFinished()
+    {
+        return this.animation == null || !this.looping && this.progress >= animationDuration - 2;
+    }
+
+    /**
+     * Returns progress counted in keyframes including the in-betweens (not just whole number indices).
+     */
+    public float getProgress()
+    {
+        return progress;
     }
 
     @Override
@@ -61,10 +112,13 @@ public class NodeState implements INodeState
         return connections;
     }
 
-    @Override
-    public Iterable<ILayerState> getLayers()
+    public static NodeState createFromTemplate(IKumoInstancingContext data, NodeTemplate nodeTemplate)
     {
-        return layerStates;
+        return new NodeState(
+                nodeTemplate.animationKey != null ? data.getAnimation(nodeTemplate.animationKey) : null,
+                nodeTemplate.startFrame,
+                nodeTemplate.playbackSpeed,
+                nodeTemplate.looping);
     }
 
 }

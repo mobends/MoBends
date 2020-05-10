@@ -4,14 +4,9 @@ import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.bit.KeyframeAnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
-import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
-import goblinbob.mobends.core.kumo.KumoAnimator;
-import goblinbob.mobends.core.kumo.state.IKumoDataProvider;
-import goblinbob.mobends.core.kumo.state.ILayerState;
-import goblinbob.mobends.core.kumo.state.INodeState;
-import goblinbob.mobends.core.kumo.state.KeyframeLayerState;
+import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.GsonResources;
@@ -45,14 +40,14 @@ public class WolfController implements IAnimationController<WolfData>
 
     protected static final ResourceLocation WOLF_ANIMATOR = new ResourceLocation(ModStatics.MODID, "animators/wolf.json");
     protected AnimatorTemplate animatorTemplate;
-    protected KumoAnimator<WolfData> kumoAnimator;
+    protected KumoAnimatorState<WolfData> kumoAnimatorState;
 
     public WolfController()
     {
         try
         {
             animatorTemplate = GsonResources.get(WOLF_ANIMATOR, AnimatorTemplate.class);
-            kumoAnimator = new KumoAnimator<>(animatorTemplate, key -> {
+            kumoAnimatorState = new KumoAnimatorState<>(animatorTemplate, key -> {
                 try
                 {
                     return AnimationLoader.loadFromPath(key);
@@ -92,19 +87,7 @@ public class WolfController implements IAnimationController<WolfData>
         //data.head.rotation.localRotateY(data.headYaw.get()).finish();
         //data.head.rotation.localRotateX(data.headPitch.get()).finish();
 
-        final INodeState nodeState = kumoAnimator.update(data, DataUpdateHandler.ticksPerFrame);
-        if (nodeState != null)
-        {
-            final Iterable<ILayerState> layers = nodeState.getLayers();
-            for (ILayerState layer : layers)
-            {
-                if (layer instanceof KeyframeLayerState)
-                {
-                    final KeyframeLayerState keyframeLayer = (KeyframeLayerState) layer;
-                    kumoAnimator.applyKeyframeAnimation(data, keyframeLayer.animation, keyframeLayer.getProgress());
-                }
-            }
-        }
+        kumoAnimatorState.update(data, DataUpdateHandler.ticksPerFrame);
 
         return actions;
     }

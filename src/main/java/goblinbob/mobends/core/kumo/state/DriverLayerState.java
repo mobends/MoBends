@@ -17,13 +17,7 @@ public class DriverLayerState implements ILayerState
     }
 
     @Override
-    public boolean isAnimationFinished()
-    {
-        return false;
-    }
-
-    @Override
-    public void update(float deltaTime)
+    public void update(IKumoContext context, float deltaTime)
     {
         // TODO Implement this.
     }

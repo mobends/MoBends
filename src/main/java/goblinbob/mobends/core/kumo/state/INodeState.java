@@ -1,7 +1,8 @@
 package goblinbob.mobends.core.kumo.state;
 
+import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.NodeTemplate;
 
 import java.util.List;
 
@@ -12,8 +13,17 @@ public interface INodeState
 
     Iterable<ConnectionState> getConnections();
 
-    Iterable<ILayerState> getLayers();
+    KeyframeAnimation getAnimation();
+
+    /**
+     * Returns progress counted in keyframes including the in-betweens (not just whole number indices).
+     */
+    float getProgress();
+
+    boolean isAnimationFinished();
 
     void start();
+
+    void update(float deltaTime);
 
 }
