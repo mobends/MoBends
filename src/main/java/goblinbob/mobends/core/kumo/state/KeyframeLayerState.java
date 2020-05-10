@@ -48,7 +48,7 @@ public class KeyframeLayerState implements ILayerState
     }
 
     @Override
-    public void update(IKumoContext context, float deltaTime)
+    public void update(IKumoContext context, float deltaTime) throws MalformedKumoTemplateException
     {
         if (currentNode != null)
         {
@@ -93,7 +93,10 @@ public class KeyframeLayerState implements ILayerState
             final Keyframe keyframe = rootBone.keyframes.get(frameA);
             final Keyframe nextFrame = rootBone.keyframes.get(frameB);
 
-            KeyframeUtils.tweenVector(entityData.globalOffset, keyframe.position, nextFrame.position, tween);
+            if (keyframe != null && nextFrame != null)
+            {
+                KeyframeUtils.tweenVector(entityData.globalOffset, keyframe.position, nextFrame.position, tween);
+            }
         }
 
         if (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation"))
@@ -102,8 +105,11 @@ public class KeyframeLayerState implements ILayerState
             final Keyframe keyframe = rootBone.keyframes.get(frameA);
             final Keyframe nextFrame = rootBone.keyframes.get(frameB);
 
-            KeyframeUtils.tweenOrientation(entityData.centerRotation, keyframe.rotation, nextFrame.rotation, tween);
-            KeyframeUtils.tweenVector(entityData.globalOffset, keyframe.position, nextFrame.position, tween);
+            if (keyframe != null && nextFrame != null)
+            {
+                KeyframeUtils.tweenOrientation(entityData.centerRotation, keyframe.rotation, nextFrame.rotation, tween);
+                KeyframeUtils.tweenVector(entityData.globalOffset, keyframe.position, nextFrame.position, tween);
+            }
         }
 
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())

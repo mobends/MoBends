@@ -87,7 +87,14 @@ public class WolfController implements IAnimationController<WolfData>
         //data.head.rotation.localRotateY(data.headYaw.get()).finish();
         //data.head.rotation.localRotateX(data.headPitch.get()).finish();
 
-        kumoAnimatorState.update(data, DataUpdateHandler.ticksPerFrame);
+        try
+        {
+            kumoAnimatorState.update(data, DataUpdateHandler.ticksPerFrame);
+        }
+        catch (MalformedKumoTemplateException e)
+        {
+            e.printStackTrace();
+        }
 
         return actions;
     }

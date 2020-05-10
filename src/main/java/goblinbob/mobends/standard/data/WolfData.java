@@ -116,4 +116,9 @@ public class WolfData extends LivingEntityData<EntityWolf>
         foreLeg4.update(ticksPerFrame);
     }
 
+    public boolean isSitting()
+    {
+        return entity.isSitting();
+    }
+
 }

@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.addon;
 
 import goblinbob.mobends.core.CoreClient;
-import goblinbob.mobends.core.bender.AddonAnimationRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ public class Addons
 
         if (CoreClient.getInstance() != null)
         {
-            addon.registerAnimatedEntities(new AddonAnimationRegistry(modId));
+            addon.registerContent(new AddonAnimationRegistry(modId));
         }
     }
 

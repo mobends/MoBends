@@ -27,7 +27,7 @@ public class KumoAnimatorState<D extends EntityData<?>>
         }
     }
 
-    public void update(D entityData, float deltaTime)
+    public void update(D entityData, float deltaTime) throws MalformedKumoTemplateException
     {
         // Populating the context.
         context.entityData = entityData;

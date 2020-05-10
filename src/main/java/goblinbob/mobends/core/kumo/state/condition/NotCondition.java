@@ -17,7 +17,8 @@ public class NotCondition implements ITriggerCondition
         this.condition = TriggerConditionRegistry.instance.createFromTemplate(template.condition);
     }
 
-    public boolean isConditionMet(ITriggerConditionContext context)
+    @Override
+    public boolean isConditionMet(ITriggerConditionContext context) throws MalformedKumoTemplateException
     {
         return !this.condition.isConditionMet(context);
     }

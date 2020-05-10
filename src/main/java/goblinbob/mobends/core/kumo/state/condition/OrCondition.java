@@ -29,7 +29,7 @@ public class OrCondition implements ITriggerCondition
     }
 
     @Override
-    public boolean isConditionMet(ITriggerConditionContext context)
+    public boolean isConditionMet(ITriggerConditionContext context) throws MalformedKumoTemplateException
     {
         for (ITriggerCondition condition : this.conditions)
         {

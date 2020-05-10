@@ -18,7 +18,7 @@ public interface ILayerState
 
     void start();
 
-    void update(IKumoContext context, float deltaTime);
+    void update(IKumoContext context, float deltaTime) throws MalformedKumoTemplateException;
 
     static ILayerState createFromTemplate(IKumoInstancingContext context, LayerTemplate template) throws MalformedKumoTemplateException
     {

@@ -5,7 +5,9 @@
       "entryNode": 0,
       "nodes": [
         {
-          "comment": "NODE 0",
+          "comment": "NODE 0 - Idle",
+          "animationKey": "mobends:animations/wolf_idle.json",
+          "playbackSpeed": 1,
           "connections": [
             {
               "targetNodeIndex": 1,
@@ -13,19 +15,45 @@
                 "type": "core:state",
                 "state": "MOVING_HORIZONTALLY"
               }
+            },
+            {
+              "targetNodeIndex": 2,
+              "triggerCondition": {
+                "type": "mobends:wolf_state",
+                "state": "SITTING"
+              }
             }
           ]
         },
         {
-          "comment": "NODE 1",
-          "animationKey": "mobends:animations/wolf_sitting_down.json",
-          "playbackSpeed": 3.5,
+          "comment": "NODE 1 - Walking",
+          "animationKey": "mobends:animations/wolf_walking.json",
+          "playbackSpeed": 1,
+          "looping": true,
           "connections": [
             {
               "targetNodeIndex": 0,
               "triggerCondition": {
                 "type": "core:state",
                 "state": "STANDING_STILL"
+              }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 2 - Sitting",
+          "animationKey": "mobends:animations/wolf_sitting_down.json",
+          "playbackSpeed": 1.5,
+          "startFrame": 4,
+          "connections": [
+            {
+              "targetNodeIndex": 0,
+              "triggerCondition": {
+                "type": "core:not",
+                "condition": {
+                  "type": "mobends:wolf_state",
+                  "state": "SITTING"
+                }
               }
             }
           ]

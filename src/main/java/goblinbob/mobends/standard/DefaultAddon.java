@@ -1,7 +1,7 @@
 package goblinbob.mobends.standard;
 
 import goblinbob.mobends.core.addon.IAddon;
-import goblinbob.mobends.core.bender.AddonAnimationRegistry;
+import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.SpiderRenderer;
@@ -9,6 +9,7 @@ import goblinbob.mobends.standard.client.renderer.entity.mutated.SquidRenderer;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.WolfRenderer;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.ZombieRenderer;
 import goblinbob.mobends.standard.data.*;
+import goblinbob.mobends.standard.kumo.WolfStateCondition;
 import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.mutators.*;
 import goblinbob.mobends.standard.previewer.BipedPreviewer;
@@ -25,7 +26,7 @@ public class DefaultAddon implements IAddon
 {
 
 	@Override
-	public void registerAnimatedEntities(AddonAnimationRegistry registry)
+	public void registerContent(AddonAnimationRegistry registry)
 	{
 		registry.registerEntity(new PlayerBender());
 		
@@ -76,6 +77,8 @@ public class DefaultAddon implements IAddon
 //						new RenderBendsStray(Minecraft.getMinecraft().getRenderManager()),
 //						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 //								"rightLeg", "leftForeLeg", "rightForeLeg" }));
+
+		registry.registerTriggerCondition("wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
 	}
 
 	@Override

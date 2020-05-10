@@ -1,7 +1,5 @@
 package goblinbob.mobends.core.addon;
 
-import goblinbob.mobends.core.bender.AddonAnimationRegistry;
-
 /**
  * Classes that implement this interface can be
  * registered as an addon.
@@ -11,8 +9,8 @@ import goblinbob.mobends.core.bender.AddonAnimationRegistry;
 public interface IAddon
 {
 	
-	void registerAnimatedEntities(AddonAnimationRegistry registry);
-	
+	void registerContent(AddonAnimationRegistry registry);
+
 	String getDisplayName();
 	
 	/**

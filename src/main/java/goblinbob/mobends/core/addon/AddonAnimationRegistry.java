@@ -1,7 +1,15 @@
-package goblinbob.mobends.core.bender;
+package goblinbob.mobends.core.addon;
 
+import goblinbob.mobends.core.bender.DefaultEntityBender;
+import goblinbob.mobends.core.bender.EntityBender;
+import goblinbob.mobends.core.bender.EntityBenderRegistry;
+import goblinbob.mobends.core.bender.IPreviewer;
 import goblinbob.mobends.core.client.MutatedRenderer;
 import goblinbob.mobends.core.data.IEntityDataFactory;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionFactory;
+import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -87,6 +95,29 @@ public class AddonAnimationRegistry
         }
         EntityBenderRegistry.instance.registerBender(entityBender);
         return entityBender.getKey();
+    }
+
+    /**
+     * Registers a trigger condition that can be used in KUMO internal animators as well as BendsPacks.
+     * @param key The internal name of the trigger condition. (snake_case preferable)
+     *            This is going to be automatically prefixed with the modid like so "modid:key"
+     * @param factory The constructor of the trigger condition instance.
+     * @param templateType The type of the template that this condition is going to be serialized into.
+     */
+    public <T extends TriggerConditionTemplate> void registerTriggerCondition(String key, ITriggerConditionFactory<?, T> factory, Class<T> templateType)
+    {
+        TriggerConditionRegistry.instance.register(String.format("%s:%s", modId, key), factory, templateType);
+    }
+
+    /**
+     * Registers a trigger condition that can be used in KUMO internal animators as well as BendsPacks.
+     * @param key The internal name of the trigger condition. (snake_case preferable)
+     *            This is going to be automatically prefixed with the modid like so "modid:key"
+     * @param condition The trigger condition instance.
+     */
+    public void registerTriggerCondition(String key, ITriggerCondition condition)
+    {
+        TriggerConditionRegistry.instance.register(String.format("%s:%s", modId, key), condition);
     }
 
 }

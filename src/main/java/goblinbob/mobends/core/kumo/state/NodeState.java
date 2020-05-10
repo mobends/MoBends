@@ -35,7 +35,7 @@ public class NodeState implements INodeState
         {
             // Evaluating the animation duration.
             this.animationDuration = 0;
-            for (Bone bone : this.animation.bones.values())
+            for (Bone bone : animation.bones.values())
             {
                 if (bone.keyframes.size() > this.animationDuration)
                     this.animationDuration = bone.keyframes.size();

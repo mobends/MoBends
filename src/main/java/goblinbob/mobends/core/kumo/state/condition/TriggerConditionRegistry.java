@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
-import goblinbob.mobends.core.kumo.state.ILayerState;
 import goblinbob.mobends.core.kumo.state.INodeState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
