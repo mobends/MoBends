@@ -2,15 +2,9 @@ package goblinbob.mobends.core.pack.state;
 
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.kumo.state.*;
-import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.pack.BendsPackData;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.keyframe.NodeTemplate;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PackAnimationState
 {

@@ -1,16 +1,10 @@
 package goblinbob.mobends.core.pack;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.flux.Computed;
 import goblinbob.mobends.core.kumo.KumoSerializer;
-import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.LayerTemplateSerializer;
-import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
-import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplateSerializer;
 
 import java.io.File;
 import java.io.FileReader;

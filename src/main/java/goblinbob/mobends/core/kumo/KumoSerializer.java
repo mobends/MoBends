@@ -2,10 +2,12 @@ package goblinbob.mobends.core.kumo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import goblinbob.mobends.core.kumo.state.serializer.KeyframeNodeSerializer;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.LayerTemplateSerializer;
+import goblinbob.mobends.core.kumo.state.serializer.LayerTemplateSerializer;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
-import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplateSerializer;
+import goblinbob.mobends.core.kumo.state.serializer.TriggerConditionTemplateSerializer;
+import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 
 public class KumoSerializer
 {
@@ -17,7 +19,12 @@ public class KumoSerializer
     /**
      * This is the gson to use when deserializing templates on the LayerTemplate level and downwards.
      */
-    public final Gson layerTemplateGson;
+    public final Gson layerGson;
+
+    /**
+     * This is the gson to use when deserializing templates on the KeyframeNode level and downwards.
+     */
+    public final Gson keyframeNodeGson;
 
     private KumoSerializer()
     {
@@ -25,6 +32,7 @@ public class KumoSerializer
         {
             final GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.registerTypeAdapter(LayerTemplate.class, new LayerTemplateSerializer());
+            gsonBuilder.registerTypeAdapter(KeyframeNodeTemplate.class, new KeyframeNodeSerializer());
             gsonBuilder.registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer());
             gson = gsonBuilder.create();
         }
@@ -32,8 +40,16 @@ public class KumoSerializer
         // Creating the LayerTemplate level gson instance.
         {
             final GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(KeyframeNodeTemplate.class, new KeyframeNodeSerializer());
             gsonBuilder.registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer());
-            layerTemplateGson = gsonBuilder.create();
+            layerGson = gsonBuilder.create();
+        }
+
+        // Creating the KeyframeNode level gson instance.
+        {
+            final GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer());
+            keyframeNodeGson = gsonBuilder.create();
         }
     }
 

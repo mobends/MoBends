@@ -4,7 +4,8 @@ import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.state.template.*;
 import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.NodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.StandardKeyframeNodeTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,14 @@ public class NodeState implements INodeState
      * Progress counted in keyframes.
      */
     private float progress;
+
+    public NodeState(IKumoInstancingContext context, StandardKeyframeNodeTemplate nodeTemplate)
+    {
+        this(nodeTemplate.animationKey != null ? context.getAnimation(nodeTemplate.animationKey) : null,
+                nodeTemplate.startFrame,
+                nodeTemplate.playbackSpeed,
+                nodeTemplate.looping);
+    }
 
     public NodeState(KeyframeAnimation animation, int startFrame, float playbackSpeed, boolean looping)
     {
@@ -45,7 +54,7 @@ public class NodeState implements INodeState
         this.progress = this.startFrame;
     }
 
-    public void parseConnections(List<INodeState> nodeStates, NodeTemplate template) throws MalformedKumoTemplateException
+    public void parseConnections(List<INodeState> nodeStates, KeyframeNodeTemplate template) throws MalformedKumoTemplateException
     {
         if (template.connections != null)
         {
@@ -110,15 +119,6 @@ public class NodeState implements INodeState
     public Iterable<ConnectionState> getConnections()
     {
         return connections;
-    }
-
-    public static NodeState createFromTemplate(IKumoInstancingContext data, NodeTemplate nodeTemplate)
-    {
-        return new NodeState(
-                nodeTemplate.animationKey != null ? data.getAnimation(nodeTemplate.animationKey) : null,
-                nodeTemplate.startFrame,
-                nodeTemplate.playbackSpeed,
-                nodeTemplate.looping);
     }
 
 }

@@ -5,9 +5,10 @@ import goblinbob.mobends.core.animation.keyframe.Keyframe;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.kumo.state.keyframe.KeyframeNodeRegistry;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.NodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 import goblinbob.mobends.core.util.KeyframeUtils;
 
 import java.util.ArrayList;
@@ -20,11 +21,11 @@ public class KeyframeLayerState implements ILayerState
     private List<INodeState> nodeStates = new ArrayList<>();
     private INodeState currentNode;
 
-    public KeyframeLayerState(IKumoInstancingContext data, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
+    public KeyframeLayerState(IKumoInstancingContext context, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
-        for (NodeTemplate nodeTemplate : layerTemplate.nodes)
+        for (KeyframeNodeTemplate nodeTemplate : layerTemplate.nodes)
         {
-            nodeStates.add(NodeState.createFromTemplate(data, nodeTemplate));
+            nodeStates.add(KeyframeNodeRegistry.INSTANCE.createFromTemplate(context, nodeTemplate));
         }
 
         for (int i = 0; i < nodeStates.size(); ++i)

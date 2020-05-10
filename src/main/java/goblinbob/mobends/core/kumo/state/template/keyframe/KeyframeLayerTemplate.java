@@ -8,6 +8,6 @@ public class KeyframeLayerTemplate extends LayerTemplate
 {
 
     public int entryNode;
-    public List<NodeTemplate> nodes;
+    public List<KeyframeNodeTemplate> nodes;
 
 }

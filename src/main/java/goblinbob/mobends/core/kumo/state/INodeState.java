@@ -2,14 +2,12 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.keyframe.NodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 
 import java.util.List;
 
 public interface INodeState
 {
-
-    void parseConnections(List<INodeState> nodeStates, NodeTemplate template) throws MalformedKumoTemplateException;
 
     Iterable<ConnectionState> getConnections();
 
@@ -21,6 +19,8 @@ public interface INodeState
     float getProgress();
 
     boolean isAnimationFinished();
+
+    void parseConnections(List<INodeState> nodeStates, KeyframeNodeTemplate template) throws MalformedKumoTemplateException;
 
     void start();
 

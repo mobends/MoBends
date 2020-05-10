@@ -1,8 +1,9 @@
-package goblinbob.mobends.core.kumo.state.template;
+package goblinbob.mobends.core.kumo.state.serializer;
 
 import com.google.gson.*;
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
