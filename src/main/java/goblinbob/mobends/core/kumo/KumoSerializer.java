@@ -3,10 +3,10 @@ package goblinbob.mobends.core.kumo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import goblinbob.mobends.core.kumo.state.serializer.KeyframeNodeSerializer;
-import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.serializer.LayerTemplateSerializer;
-import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 import goblinbob.mobends.core.kumo.state.serializer.TriggerConditionTemplateSerializer;
+import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 
 public class KumoSerializer

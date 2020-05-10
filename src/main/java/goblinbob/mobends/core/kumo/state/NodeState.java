@@ -2,7 +2,7 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.kumo.state.template.*;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.StandardKeyframeNodeTemplate;

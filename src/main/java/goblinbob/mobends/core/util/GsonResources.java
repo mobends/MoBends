@@ -1,8 +1,6 @@
 package goblinbob.mobends.core.util;
 
-import com.google.gson.Gson;
 import goblinbob.mobends.core.kumo.KumoSerializer;
-import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 

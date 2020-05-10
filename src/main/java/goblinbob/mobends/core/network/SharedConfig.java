@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.network;
 
 import net.minecraft.nbt.NBTTagCompound;
+
 import java.util.LinkedList;
 
 /**
