@@ -10,6 +10,7 @@ import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.standard.data.WolfData;
 import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.annotation.Nullable;
 import java.io.IOException;

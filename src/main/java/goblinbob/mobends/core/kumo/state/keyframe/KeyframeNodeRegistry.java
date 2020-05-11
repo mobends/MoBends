@@ -2,7 +2,7 @@ package goblinbob.mobends.core.kumo.state.keyframe;
 
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
-import goblinbob.mobends.core.kumo.state.NodeState;
+import goblinbob.mobends.core.kumo.state.StandardKeyframeNodeState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.StandardKeyframeNodeTemplate;
@@ -21,7 +21,7 @@ public class KeyframeNodeRegistry
 
     private KeyframeNodeRegistry()
     {
-        register("core:standard", NodeState::new, StandardKeyframeNodeTemplate.class);
+        register("core:standard", StandardKeyframeNodeState::new, StandardKeyframeNodeTemplate.class);
     }
 
     public <T extends KeyframeNodeTemplate> void register(String key, IKeyframeNodeFactory<?, T> factory, Class<T> templateType)

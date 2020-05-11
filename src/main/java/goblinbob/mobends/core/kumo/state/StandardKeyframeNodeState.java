@@ -10,7 +10,7 @@ import goblinbob.mobends.core.kumo.state.template.keyframe.StandardKeyframeNodeT
 import java.util.ArrayList;
 import java.util.List;
 
-public class NodeState implements INodeState
+public class StandardKeyframeNodeState implements INodeState
 {
 
     public final KeyframeAnimation animation;
@@ -25,7 +25,7 @@ public class NodeState implements INodeState
      */
     private float progress;
 
-    public NodeState(IKumoInstancingContext context, StandardKeyframeNodeTemplate nodeTemplate)
+    public StandardKeyframeNodeState(IKumoInstancingContext context, StandardKeyframeNodeTemplate nodeTemplate)
     {
         this(nodeTemplate.animationKey != null ? context.getAnimation(nodeTemplate.animationKey) : null,
                 nodeTemplate.startFrame,
@@ -33,7 +33,7 @@ public class NodeState implements INodeState
                 nodeTemplate.looping);
     }
 
-    public NodeState(KeyframeAnimation animation, int startFrame, float playbackSpeed, boolean looping)
+    public StandardKeyframeNodeState(KeyframeAnimation animation, int startFrame, float playbackSpeed, boolean looping)
     {
         this.animation = animation;
         this.startFrame = startFrame;

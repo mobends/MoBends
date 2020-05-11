@@ -43,7 +43,7 @@
             {
               "targetNodeIndex": 2,
               "triggerCondition": {
-                "type": "core:wolf_state",
+                "type": "mobends:wolf_state",
                 "state": "SITTING"
               }
             }
@@ -52,7 +52,7 @@
         {
           "comment": "NODE 2 - Sitting",
           "type": "core:standard",
-          "animationKey": "mobends:animations/wolf_sitting_down.json",
+          "animationKey": "mobends:animations/wolf_sitting_down.bendsanim",
           "playbackSpeed": 2,
           "startFrame": 6,
           "connections": [

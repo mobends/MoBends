@@ -22,10 +22,17 @@ public class AnimationLoader
      */
     private static Map<ResourceLocation, KeyframeAnimation> cachedAnimations = new HashMap<>();
 
-    public static KeyframeAnimation loadFromFile(File file) throws FileNotFoundException
+    public static KeyframeAnimation loadFromFile(File file) throws IOException
     {
-        JsonReader fileReader = new JsonReader(new FileReader(file));
-        return (new Gson()).fromJson(fileReader, KeyframeAnimation.class);
+        if (file.getName().endsWith(".json"))
+        {
+            JsonReader fileReader = new JsonReader(new FileReader(file));
+            return (new Gson()).fromJson(fileReader, KeyframeAnimation.class);
+        }
+        else
+        {
+            return BinaryAnimationLoader.loadFromBinaryInputStream(new BufferedInputStream(new FileInputStream(file)));
+        }
     }
 
     public static KeyframeAnimation loadFromString(String animationJson)
@@ -43,8 +50,20 @@ public class AnimationLoader
         }
         else
         {
-            KeyframeAnimation animation = (new Gson()).fromJson(new InputStreamReader(stream), KeyframeAnimation.class);
-            cachedAnimations.put(location, animation);
+            KeyframeAnimation animation = null;
+            if (location.getResourcePath().endsWith(".json"))
+            {
+                animation = (new Gson()).fromJson(new InputStreamReader(stream), KeyframeAnimation.class);
+            }
+            else
+            {
+                animation = BinaryAnimationLoader.loadFromBinaryInputStream(stream);
+            }
+
+            if (animation != null)
+            {
+                cachedAnimations.put(location, animation);
+            }
             return animation;
         }
     }
