@@ -1,11 +1,11 @@
-package goblinbob.mobends.core.kumo.state;
+package goblinbob.mobends.core.kumo.state.keyframe;
 
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.Keyframe;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.data.EntityData;
-import goblinbob.mobends.core.kumo.state.keyframe.KeyframeNodeRegistry;
+import goblinbob.mobends.core.kumo.state.*;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
@@ -19,6 +19,7 @@ public class KeyframeLayerState implements ILayerState
 {
 
     private List<INodeState> nodeStates = new ArrayList<>();
+    private INodeState previousNode;
     private INodeState currentNode;
 
     public KeyframeLayerState(IKumoInstancingContext context, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException

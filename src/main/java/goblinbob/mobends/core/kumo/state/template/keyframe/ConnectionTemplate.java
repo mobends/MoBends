@@ -7,5 +7,6 @@ public class ConnectionTemplate
 
     public int targetNodeIndex;
     public TriggerConditionTemplate triggerCondition;
+    public float transitionDuration = 1;
 
 }

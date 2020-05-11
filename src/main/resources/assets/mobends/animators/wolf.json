@@ -7,7 +7,7 @@
         {
           "comment": "NODE 0 - Idle",
           "type": "core:standard",
-          "animationKey": "mobends:animations/wolf_idle.json",
+          "animationKey": "mobends:animations/wolf_idle.bendsanim",
           "playbackSpeed": 1,
           "connections": [
             {
@@ -28,10 +28,9 @@
         },
         {
           "comment": "NODE 1 - Walking",
-          "type": "core:standard",
-          "animationKey": "mobends:animations/wolf_walking.json",
+          "type": "core:movement",
+          "animationKey": "mobends:animations/wolf_walking.bendsanim",
           "playbackSpeed": 1,
-          "looping": true,
           "connections": [
             {
               "targetNodeIndex": 0,

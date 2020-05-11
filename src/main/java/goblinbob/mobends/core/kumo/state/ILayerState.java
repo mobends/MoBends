@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.kumo.state.keyframe.KeyframeLayerState;
 import goblinbob.mobends.core.kumo.state.template.DriverLayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;

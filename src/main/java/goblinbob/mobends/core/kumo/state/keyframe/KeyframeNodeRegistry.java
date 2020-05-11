@@ -2,9 +2,9 @@ package goblinbob.mobends.core.kumo.state.keyframe;
 
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
-import goblinbob.mobends.core.kumo.state.StandardKeyframeNodeState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.MovementKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.StandardKeyframeNodeTemplate;
 
 import javax.annotation.Nullable;
@@ -21,7 +21,8 @@ public class KeyframeNodeRegistry
 
     private KeyframeNodeRegistry()
     {
-        register("core:standard", StandardKeyframeNodeState::new, StandardKeyframeNodeTemplate.class);
+        register("core:standard", StandardKeyframeNode::new, StandardKeyframeNodeTemplate.class);
+        register("core:movement", MovementKeyframeNode::new, MovementKeyframeNodeTemplate.class);
     }
 
     public <T extends KeyframeNodeTemplate> void register(String key, IKeyframeNodeFactory<?, T> factory, Class<T> templateType)
