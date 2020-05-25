@@ -12,11 +12,13 @@ public class ConnectionState
 
     public final INodeState targetNode;
     public final ITriggerCondition triggerCondition;
+    public final float transitionDuration;
 
-    public ConnectionState(INodeState targetNode, ITriggerCondition triggerCondition)
+    public ConnectionState(INodeState targetNode, ITriggerCondition triggerCondition, float transitionDuration)
     {
         this.targetNode = targetNode;
         this.triggerCondition = triggerCondition;
+        this.transitionDuration = transitionDuration;
     }
 
     public static ConnectionState createFromTemplate(List<INodeState> nodes, ConnectionTemplate template) throws MalformedKumoTemplateException
@@ -38,7 +40,7 @@ public class ConnectionState
             throw new MalformedKumoTemplateException("No trigger condition was specified for a connection.");
         }
 
-        return new ConnectionState(node, TriggerConditionRegistry.instance.createFromTemplate(template.triggerCondition));
+        return new ConnectionState(node, TriggerConditionRegistry.instance.createFromTemplate(template.triggerCondition), template.transitionDuration);
     }
 
 }

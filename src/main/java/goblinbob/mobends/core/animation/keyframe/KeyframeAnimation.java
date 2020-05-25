@@ -11,12 +11,16 @@ public class KeyframeAnimation
     {
         Bone bone = bones.get(boneName);
         if (bone != null)
-        {
             for (Keyframe keyframe : bone.keyframes)
-            {
                 keyframe.mirrorRotationYZ();
-            }
-        }
+    }
+
+    public void swapRotationYZ(String boneName)
+    {
+        Bone bone = bones.get(boneName);
+        if (bone != null)
+            for (Keyframe keyframe : bone.keyframes)
+                keyframe.swapRotationYZ();
     }
 
 }

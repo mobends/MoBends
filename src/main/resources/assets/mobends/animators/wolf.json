@@ -9,9 +9,11 @@
           "type": "core:standard",
           "animationKey": "mobends:animations/wolf_idle.bendsanim",
           "playbackSpeed": 1,
+          "looping": true,
           "connections": [
             {
               "targetNodeIndex": 1,
+              "transitionDuration": 4,
               "triggerCondition": {
                 "type": "core:state",
                 "state": "MOVING_HORIZONTALLY"
@@ -19,6 +21,7 @@
             },
             {
               "targetNodeIndex": 2,
+              "transitionDuration": 3,
               "triggerCondition": {
                 "type": "mobends:wolf_state",
                 "state": "SITTING"
@@ -30,10 +33,11 @@
           "comment": "NODE 1 - Walking",
           "type": "core:movement",
           "animationKey": "mobends:animations/wolf_walking.bendsanim",
-          "playbackSpeed": 1,
+          "playbackSpeed": 1.7,
           "connections": [
             {
               "targetNodeIndex": 0,
+              "transitionDuration": 4,
               "triggerCondition": {
                 "type": "core:state",
                 "state": "STANDING_STILL"
@@ -41,6 +45,7 @@
             },
             {
               "targetNodeIndex": 2,
+              "transitionDuration": 1,
               "triggerCondition": {
                 "type": "mobends:wolf_state",
                 "state": "SITTING"
@@ -57,6 +62,7 @@
           "connections": [
             {
               "targetNodeIndex": 0,
+              "transitionDuration": 4,
               "triggerCondition": {
                 "type": "core:not",
                 "condition": {

@@ -22,6 +22,12 @@ public class AnimationLoader
      */
     private static Map<ResourceLocation, KeyframeAnimation> cachedAnimations = new HashMap<>();
 
+    public static void clearCache()
+    {
+        internalRegistry.clear();
+        cachedAnimations.clear();
+    }
+
     public static KeyframeAnimation loadFromFile(File file) throws IOException
     {
         if (file.getName().endsWith(".json"))

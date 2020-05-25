@@ -7,6 +7,10 @@ public class ConnectionTemplate
 
     public int targetNodeIndex;
     public TriggerConditionTemplate triggerCondition;
-    public float transitionDuration = 1;
+
+    /**
+     * The duration of the transition in ticks.
+     */
+    public float transitionDuration = 0;
 
 }

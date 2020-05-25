@@ -56,9 +56,16 @@ public class SmoothOrientation
         return this;
     }
 
-    public void setTweened()
+    public SmoothOrientation add(float x, float y, float z, float w)
     {
-
+        this.start.x += x;
+        this.start.y += y;
+        this.start.z += z;
+        this.start.w += w;
+        this.end.set(this.start);
+        this.smooth.set(this.start);
+        this.progress = 0F;
+        return this;
     }
 
     public SmoothOrientation orient(float angle, float x, float y, float z)

@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.client.event;
 
 import goblinbob.mobends.core.addon.Addons;
+import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
 import goblinbob.mobends.core.data.EntityDatabase;
@@ -36,6 +37,7 @@ public class KeyboardHandler
         }
         else if (KEY_REFRESH.isPressed())
         {
+            AnimationLoader.clearCache();
             PackDataProvider.INSTANCE.clearCache();
             EntityDatabase.instance.refresh();
             EntityBenderRegistry.instance.refreshMutators();

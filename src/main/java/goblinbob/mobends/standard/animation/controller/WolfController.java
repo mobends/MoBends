@@ -2,6 +2,7 @@ package goblinbob.mobends.standard.animation.controller;
 
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
+import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
@@ -36,7 +37,10 @@ public class WolfController implements IAnimationController<WolfData>
             kumoAnimatorState = new KumoAnimatorState<>(animatorTemplate, key -> {
                 try
                 {
-                    return AnimationLoader.loadFromPath(key);
+                    KeyframeAnimation animation = AnimationLoader.loadFromPath(key);
+                    animation.mirrorRotationYZ("body");
+                    animation.mirrorRotationYZ("head");
+                    return animation;
                 }
                 catch (IOException e)
                 {
@@ -65,8 +69,10 @@ public class WolfController implements IAnimationController<WolfData>
         }
 
         // Head rotation
-        data.head.rotation.localRotateY(data.headYaw.get()).finish();
-        data.head.rotation.localRotateX(data.headPitch.get()).finish();
+        //data.head.rotation.localRotateY(data.headYaw.get()).finish();
+        //data.head.rotation.localRotateX(data.headPitch.get()).finish();
+
+        //data.body.rotation.rotateZ(DataUpdateHandler.getTicks()).finish();
 
         return null;
     }

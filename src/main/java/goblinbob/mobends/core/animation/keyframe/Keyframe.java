@@ -13,4 +13,12 @@ public class Keyframe
 		rotation[1] *= -1;
 		rotation[2] *= -1;
 	}
+
+	public void swapRotationYZ()
+	{
+		float y = rotation[1];
+		rotation[1] = rotation[2];
+		rotation[2] = y;
+	}
+
 }
