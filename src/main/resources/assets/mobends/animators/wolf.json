@@ -119,9 +119,36 @@
         {
           "comment": "NODE 0 - Idle",
           "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_idle.bendsanim",
+          "playbackSpeed": 1,
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 1,
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:ticks_passed",
+                "ticksToPass": "20"
+              }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 1 - Breathing",
+          "type": "core:standard",
           "animationKey": "mobends:animations/wolf_breathing.bendsanim",
           "playbackSpeed": 1,
-          "looping": true
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 0,
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:ticks_passed",
+                "ticksToPass": "20"
+              }
+            }
+          ]
         }
       ]
     }

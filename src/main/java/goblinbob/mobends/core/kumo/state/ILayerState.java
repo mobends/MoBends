@@ -16,7 +16,7 @@ import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate
 public interface ILayerState
 {
 
-    void start();
+    void start(IKumoContext context);
 
     void update(IKumoContext context, float deltaTime) throws MalformedKumoTemplateException;
 

@@ -70,9 +70,13 @@ public class StandardKeyframeNode implements INodeState
     }
 
     @Override
-    public void start()
+    public void start(IKumoContext context)
     {
         this.progress = this.startFrame;
+        for (ConnectionState connection : connections)
+        {
+            connection.triggerCondition.onNodeStarted(context);
+        }
     }
 
     @Override

@@ -2,7 +2,6 @@ package goblinbob.mobends.standard.animation.controller;
 
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
-import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
@@ -86,9 +85,7 @@ public class WolfController implements IAnimationController<WolfData>
         // Tail rotating based on health
         data.tail.rotation.localRotateX(wolf.getTailRotation() * GUtil.RAD_TO_DEG - 90.0F).finish();
 
-        //data.tongue.offset.set(0, 0, (MathHelper.sin(ticks) + 1.0F) / 2.0F * 4.0F);
-
-        //data.body.rotation.rotateZ(DataUpdateHandler.getTicks()).finish();
+        data.head.offset.setY(-5.0F);
 
         return null;
     }

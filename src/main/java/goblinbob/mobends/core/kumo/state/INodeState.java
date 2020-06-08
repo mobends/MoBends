@@ -22,7 +22,7 @@ public interface INodeState
 
     void parseConnections(List<INodeState> nodeStates, KeyframeNodeTemplate template) throws MalformedKumoTemplateException;
 
-    void start();
+    void start(IKumoContext context);
 
     void update(IKumoContext context, float deltaTime);
 

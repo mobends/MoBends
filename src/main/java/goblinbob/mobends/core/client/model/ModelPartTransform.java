@@ -75,6 +75,7 @@ public class ModelPartTransform implements IModelPart
 			return;
 		this.position.set(part.getPosition());
 		this.rotation.set(part.getRotation());
+		this.offset.set(part.getOffset());
 		this.scale.set(part.getScale());
 	}
 

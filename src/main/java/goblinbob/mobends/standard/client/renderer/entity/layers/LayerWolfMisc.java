@@ -47,7 +47,7 @@ public class LayerWolfMisc implements LayerRenderer<EntityWolf>
 
         tongue = new Mesh(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL, 6);
         tongue.beginDrawing(GL11.GL_TRIANGLES);
-        MeshBuilder.texturedXZPlane(tongue, -1.5F, 0F, -6F, 3, 6, true, Color.WHITE,
+        MeshBuilder.texturedXZPlane(tongue, -1.5F, 0F, -4F, 3, 6, true, Color.WHITE,
                 new int[] { 3, 0, 6, 6 }, textureWidth, textureHeight);
         tongue.finishDrawing();
     }

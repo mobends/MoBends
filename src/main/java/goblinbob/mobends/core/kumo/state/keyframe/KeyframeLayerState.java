@@ -54,8 +54,9 @@ public class KeyframeLayerState implements ILayerState
     }
 
     @Override
-    public void start()
+    public void start(IKumoContext context)
     {
+        currentNode.start(context);
     }
 
     @Override
@@ -135,7 +136,7 @@ public class KeyframeLayerState implements ILayerState
                 }
 
                 currentNode = connection.targetNode;
-                currentNode.start();
+                currentNode.start(context);
 
                 break;
             }
@@ -186,6 +187,7 @@ public class KeyframeLayerState implements ILayerState
 
             if (keyframe != null && nextFrame != null)
             {
+                // Note that the amount is negated.
                 KeyframeUtils.tweenVectorAdditive(entityData.globalOffset, keyframe.position, nextFrame.position, tween, amount);
             }
         }
@@ -222,7 +224,7 @@ public class KeyframeLayerState implements ILayerState
                         if (part instanceof IModelPart)
                         {
                             KeyframeUtils.tweenOrientationAdditive(((IModelPart) part).getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
-                            KeyframeUtils.tweenVectorAdditive(((IModelPart) part).getOffset(), keyframe.position, nextFrame.position, tween, amount);
+                            KeyframeUtils.tweenVectorAdditive(((IModelPart) part).getOffset(), keyframe.position, nextFrame.position, tween, -amount);
                         }
                     }
                 }

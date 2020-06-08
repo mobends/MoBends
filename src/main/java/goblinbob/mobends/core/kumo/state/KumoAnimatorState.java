@@ -13,6 +13,7 @@ public class KumoAnimatorState<D extends EntityData<?>>
 
     private List<ILayerState> layerStates = new ArrayList<>();
     private KumoContext context = new KumoContext();
+    private boolean started = false;
 
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
@@ -37,9 +38,16 @@ public class KumoAnimatorState<D extends EntityData<?>>
             // Populating the context.
             context.layerState = layer;
 
+            if (!started)
+            {
+                layer.start(context);
+            }
+
             // Updating the layer.
             layer.update(context, deltaTime);
         }
+
+        started = true;
     }
 
 }
