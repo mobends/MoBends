@@ -26,6 +26,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 
     public Vec3f position;
     public Vec3f scale;
+    public Vec3f offset;
     public SmoothOrientation rotation;
     protected List<MutatedBox> mutatedBoxes;
 
@@ -40,6 +41,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
         super(model, texOffsetX, texOffsetY);
         this.position = new Vec3f();
         this.scale = new Vec3f(1, 1, 1);
+        this.offset = new Vec3f();
         this.rotation = new SmoothOrientation();
 
         this.mutatedBoxes = new ArrayList<MutatedBox>();
@@ -134,6 +136,9 @@ public class ModelPart extends ModelRenderer implements IModelPart
 
         GlHelper.rotate(rotation.getSmooth());
 
+        if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
+            GlStateManager.translate(this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
+
         if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
             GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
     }
@@ -143,6 +148,9 @@ public class ModelPart extends ModelRenderer implements IModelPart
     {
         if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
             TransformUtils.translate(matrix, this.position.x * scale, this.position.y * scale, this.position.z * scale);
+
+        if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
+            TransformUtils.translate(matrix, this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
 
         TransformUtils.rotate(matrix, rotation.getSmooth());
 
@@ -283,6 +291,12 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
+    public Vec3f getOffset()
+    {
+        return this.offset;
+    }
+
+    @Override
     public SmoothOrientation getRotation()
     {
         return this.rotation;
@@ -336,6 +350,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
             return;
 
         this.position.set(part.getPosition());
+        this.offset.set(part.getOffset());
         this.rotation.set(part.getRotation());
         this.scale.set(part.getScale());
     }

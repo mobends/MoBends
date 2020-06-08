@@ -60,6 +60,7 @@ public class WolfController implements IAnimationController<WolfData>
     public Collection<String> perform(WolfData data)
     {
         EntityWolf wolf = data.getEntity();
+        final float ticks = wolf.ticksExisted + DataUpdateHandler.partialTicks;
 
         try
         {
@@ -74,10 +75,18 @@ public class WolfController implements IAnimationController<WolfData>
         data.head.rotation.localRotateY(data.headYaw.get()).finish();
         data.head.rotation.localRotateX(data.headPitch.get()).finish();
 
-        data.head.rotation.rotateInstantZ((wolf.getInterestedAngle(DataUpdateHandler.partialTicks)
-                + wolf.getShakeAngle(DataUpdateHandler.partialTicks, 0.0F)) * GUtil.RAD_TO_DEG);
-        data.mane.rotation.rotateInstantZ(wolf.getShakeAngle(DataUpdateHandler.partialTicks, -0.08F) * GUtil.RAD_TO_DEG);
-        data.tail.rotation.rotateInstantZ(wolf.getShakeAngle(DataUpdateHandler.partialTicks, -0.2F) * GUtil.RAD_TO_DEG);
+        data.head.rotation.localRotateZ((wolf.getInterestedAngle(DataUpdateHandler.partialTicks)
+                + wolf.getShakeAngle(DataUpdateHandler.partialTicks, 0.0F)) * GUtil.RAD_TO_DEG).finish();
+        data.mane.rotation.localRotateZ(wolf.getShakeAngle(DataUpdateHandler.partialTicks, -0.08F) * GUtil.RAD_TO_DEG).finish();
+        data.tail.rotation.localRotateZ(wolf.getShakeAngle(DataUpdateHandler.partialTicks, -0.2F) * GUtil.RAD_TO_DEG).finish();
+
+        // Tail wagging on interest
+        data.tail.rotation.localRotateZ(wolf.getInterestedAngle(DataUpdateHandler.partialTicks) * MathHelper.sin(ticks) * 20.0F).finish();
+
+        // Tail rotating based on health
+        data.tail.rotation.localRotateX(wolf.getTailRotation() * GUtil.RAD_TO_DEG - 90.0F).finish();
+
+        //data.tongue.offset.set(0, 0, (MathHelper.sin(ticks) + 1.0F) / 2.0F * 4.0F);
 
         //data.body.rotation.rotateZ(DataUpdateHandler.getTicks()).finish();
 

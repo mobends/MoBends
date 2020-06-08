@@ -17,13 +17,16 @@ public class ModelPartTransform implements IModelPart
 	
 	public Vec3f position;
 	public Vec3f scale;
+	public Vec3f offset;
 	public SmoothOrientation rotation;
+
 	public final ModelPartTransform parent;
 	
 	public ModelPartTransform(ModelPartTransform parent)
 	{
 		this.position = new Vec3f();
 		this.scale = new Vec3f(1, 1, 1);
+		this.offset = new Vec3f();
 		this.rotation = new SmoothOrientation();
 		this.parent = parent;
 	}
@@ -61,6 +64,8 @@ public class ModelPartTransform implements IModelPart
 	@Override
 	public IVec3f getScale() { return this.scale; }
 	@Override
+	public IVec3f getOffset() { return this.offset; }
+	@Override
 	public SmoothOrientation getRotation() { return this.rotation; }
 
 	@Override
@@ -84,10 +89,13 @@ public class ModelPartTransform implements IModelPart
 	{
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
         	GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
-        
+
+		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
+			GlStateManager.translate(this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
+
 		GlHelper.rotate(this.rotation.getSmooth());
-        
-        if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
+
+		if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
         	GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
 	}
 
@@ -113,7 +121,10 @@ public class ModelPartTransform implements IModelPart
 	{
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
 			TransformUtils.translate(matrix, this.position.x * scale, this.position.y * scale, this.position.z * scale);
-    	
+
+		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
+			TransformUtils.translate(matrix, this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
+
 		TransformUtils.rotate(matrix, this.rotation.getSmooth());
 		
     	/*if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)

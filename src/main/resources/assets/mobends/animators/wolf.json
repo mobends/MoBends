@@ -54,7 +54,7 @@
           ]
         },
         {
-          "comment": "NODE 2 - Sitting",
+          "comment": "NODE 2 - Sitting Down",
           "type": "core:standard",
           "animationKey": "mobends:animations/wolf_sitting_down.bendsanim",
           "playbackSpeed": 2,
@@ -62,6 +62,21 @@
           "connections": [
             {
               "targetNodeIndex": 3,
+              "transitionDuration": 1,
+              "triggerCondition": { "type": "core:animation_finished" }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 3 - Sitting",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_sitting.bendsanim",
+          "playbackSpeed": 1,
+          "startFrame": 0,
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 4,
               "transitionDuration": 1,
               "triggerCondition": {
                 "type": "core:not",
@@ -74,7 +89,7 @@
           ]
         },
         {
-          "comment": "NODE 3 - Standing Up",
+          "comment": "NODE 4 - Standing Up",
           "type": "core:standard",
           "animationKey": "mobends:animations/wolf_standing_up.bendsanim",
           "playbackSpeed": 2,
@@ -86,6 +101,27 @@
               "triggerCondition": { "type": "core:animation_finished" }
             }
           ]
+        }
+      ]
+    },
+    {
+      "type": "KEYFRAME",
+      "entryNode": 0,
+      "additive": true,
+      "mask": {
+        "mode": "INCLUDE_ONLY",
+        "includedParts": [
+          "tongue",
+          "mouth"
+        ]
+      },
+      "nodes": [
+        {
+          "comment": "NODE 0 - Idle",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_breathing.bendsanim",
+          "playbackSpeed": 1,
+          "looping": true
         }
       ]
     }

@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.util;
 
 import goblinbob.mobends.core.math.SmoothOrientation;
+import goblinbob.mobends.core.math.vector.IVec3f;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
 
 public class KeyframeUtils
@@ -16,7 +17,25 @@ public class KeyframeUtils
         target.finish();
     }
 
+    public static void tweenVectorAdditive(IVec3f target, float[] positionA, float[] positionB, float tween, float amount)
+    {
+        float x = positionA[0] + (positionB[0] - positionA[0]) * tween;
+        float y = positionA[1] + (positionB[1] - positionA[1]) * tween;
+        float z = positionA[2] + (positionB[2] - positionA[2]) * tween;
+
+        target.add(x * amount, y * amount, z * amount);
+    }
+
     public static void tweenVector(SmoothVector3f target, float[] positionA, float[] positionB, float tween)
+    {
+        float x = positionA[0] + (positionB[0] - positionA[0]) * tween;
+        float y = positionA[1] + (positionB[1] - positionA[1]) * tween;
+        float z = positionA[2] + (positionB[2] - positionA[2]) * tween;
+
+        target.set(x, y, z);
+    }
+
+    public static void tweenVector(IVec3f target, float[] positionA, float[] positionB, float tween)
     {
         float x = positionA[0] + (positionB[0] - positionA[0]) * tween;
         float y = positionA[1] + (positionB[1] - positionA[1]) * tween;

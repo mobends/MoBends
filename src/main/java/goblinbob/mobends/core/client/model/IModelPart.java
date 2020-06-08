@@ -70,6 +70,7 @@ public interface IModelPart
 	void setVisible(boolean showModel);
 	IVec3f getPosition();
 	IVec3f getScale();
+	IVec3f getOffset();
 	SmoothOrientation getRotation();
 	IModelPart getParent();
 	boolean isShowing();
