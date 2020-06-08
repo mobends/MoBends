@@ -7,10 +7,13 @@ import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.standard.data.WolfData;
 import goblinbob.mobends.standard.main.ModStatics;
+import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -37,10 +40,7 @@ public class WolfController implements IAnimationController<WolfData>
             kumoAnimatorState = new KumoAnimatorState<>(animatorTemplate, key -> {
                 try
                 {
-                    KeyframeAnimation animation = AnimationLoader.loadFromPath(key);
-                    animation.mirrorRotationYZ("body");
-                    animation.mirrorRotationYZ("head");
-                    return animation;
+                    return AnimationLoader.loadFromPath(key);
                 }
                 catch (IOException e)
                 {
@@ -59,6 +59,8 @@ public class WolfController implements IAnimationController<WolfData>
     @Nullable
     public Collection<String> perform(WolfData data)
     {
+        EntityWolf wolf = data.getEntity();
+
         try
         {
             kumoAnimatorState.update(data, DataUpdateHandler.ticksPerFrame);
@@ -69,8 +71,13 @@ public class WolfController implements IAnimationController<WolfData>
         }
 
         // Head rotation
-        //data.head.rotation.localRotateY(data.headYaw.get()).finish();
-        //data.head.rotation.localRotateX(data.headPitch.get()).finish();
+        data.head.rotation.localRotateY(data.headYaw.get()).finish();
+        data.head.rotation.localRotateX(data.headPitch.get()).finish();
+
+        data.head.rotation.rotateInstantZ((wolf.getInterestedAngle(DataUpdateHandler.partialTicks)
+                + wolf.getShakeAngle(DataUpdateHandler.partialTicks, 0.0F)) * GUtil.RAD_TO_DEG);
+        data.mane.rotation.rotateInstantZ(wolf.getShakeAngle(DataUpdateHandler.partialTicks, -0.08F) * GUtil.RAD_TO_DEG);
+        data.tail.rotation.rotateInstantZ(wolf.getShakeAngle(DataUpdateHandler.partialTicks, -0.2F) * GUtil.RAD_TO_DEG);
 
         //data.body.rotation.rotateZ(DataUpdateHandler.getTicks()).finish();
 

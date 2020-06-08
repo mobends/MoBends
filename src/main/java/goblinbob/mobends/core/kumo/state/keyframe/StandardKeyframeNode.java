@@ -3,6 +3,7 @@ package goblinbob.mobends.core.kumo.state.keyframe;
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.state.ConnectionState;
+import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -75,7 +76,7 @@ public class StandardKeyframeNode implements INodeState
     }
 
     @Override
-    public void update(float deltaTime)
+    public void update(IKumoContext context, float deltaTime)
     {
         if (animation != null)
         {

@@ -24,6 +24,6 @@ public interface INodeState
 
     void start();
 
-    void update(float deltaTime);
+    void update(IKumoContext context, float deltaTime);
 
 }

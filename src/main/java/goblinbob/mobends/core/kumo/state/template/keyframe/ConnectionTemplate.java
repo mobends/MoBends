@@ -13,4 +13,14 @@ public class ConnectionTemplate
      */
     public float transitionDuration = 0;
 
+    public Easing transitionEasing = Easing.EASE_IN_OUT;
+
+    public enum Easing
+    {
+        LINEAR,
+        EASE_IN,
+        EASE_OUT,
+        EASE_IN_OUT,
+    }
+
 }

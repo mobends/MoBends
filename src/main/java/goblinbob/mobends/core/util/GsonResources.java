@@ -15,6 +15,11 @@ public class GsonResources
 
     private static Map<ResourceLocation, Object> cache = new HashMap<>();
 
+    public static void clearCache()
+    {
+        cache.clear();
+    }
+
     public static <T> T get(ResourceLocation location, Class<T> classOfT) throws IOException
     {
         final InputStream stream = Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream();
@@ -26,9 +31,9 @@ public class GsonResources
         }
         else
         {
-            T animation = KumoSerializer.INSTANCE.gson.fromJson(new InputStreamReader(stream), classOfT);
-            cache.put(location, animation);
-            return animation;
+            T resource = KumoSerializer.INSTANCE.gson.fromJson(new InputStreamReader(stream), classOfT);
+            cache.put(location, resource);
+            return resource;
         }
     }
 

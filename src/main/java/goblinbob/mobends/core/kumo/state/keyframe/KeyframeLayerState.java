@@ -7,9 +7,11 @@ import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.kumo.state.*;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 import goblinbob.mobends.core.util.KeyframeUtils;
+import goblinbob.mobends.core.util.Tween;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,7 @@ public class KeyframeLayerState implements ILayerState
     private INodeState currentNode;
     private float transitionProgress = 0.0F;
     private float transitionDuration = 0.0F;
+    private ConnectionTemplate.Easing transitionEasing = ConnectionTemplate.Easing.EASE_IN_OUT;
 
     public KeyframeLayerState(IKumoInstancingContext context, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
@@ -64,10 +67,26 @@ public class KeyframeLayerState implements ILayerState
 
                 if (previousNode != null)
                 {
+                    float t = transitionProgress / transitionDuration;
+                    switch (transitionEasing)
+                    {
+                        case EASE_IN:
+                            t = (float) Tween.easeIn(t, 2.0);
+                            break;
+                        case EASE_OUT:
+                            t = (float) Tween.easeOut(t, 2.0);
+                            break;
+                        case EASE_IN_OUT:
+                            t = (float) Tween.easeInOut(t, 2.0);
+                            break;
+                        case LINEAR:
+                            break;
+                    }
+
                     // Transition is in progress
                     KeyframeAnimation previousAnimation = previousNode.getAnimation();
-                    applyKeyframeAnimation(context.getEntityData(), previousAnimation, previousNode.getProgress(), 1 - transitionProgress / transitionDuration);
-                    applyKeyframeAnimation(context.getEntityData(), animation, currentNode.getProgress(), transitionProgress / transitionDuration);
+                    applyKeyframeAnimation(context.getEntityData(), previousAnimation, previousNode.getProgress(), 1 - t);
+                    applyKeyframeAnimation(context.getEntityData(), animation, currentNode.getProgress(), t);
 
                     transitionProgress += deltaTime;
                     if (transitionProgress >= transitionDuration)
@@ -82,14 +101,14 @@ public class KeyframeLayerState implements ILayerState
             }
         }
 
+        // Populating the context.
+        context.setCurrentNode(currentNode);
+
         // Updating node states.
         for (INodeState node : nodeStates)
         {
-            node.update(deltaTime);
+            node.update(context, deltaTime);
         }
-
-        // Populating the context.
-        context.setCurrentNode(currentNode);
 
         // Evaluating connection trigger conditions.
         for (ConnectionState connection : currentNode.getConnections())
@@ -98,6 +117,7 @@ public class KeyframeLayerState implements ILayerState
             {
                 // Transition setup
                 transitionDuration = connection.transitionDuration;
+                transitionEasing = connection.transitionEasing;
                 if (transitionDuration == 0.0F)
                 {
                     previousNode = null;

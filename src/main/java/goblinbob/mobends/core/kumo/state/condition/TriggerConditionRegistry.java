@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
+import com.google.gson.JsonDeserializer;
 import goblinbob.mobends.core.kumo.state.INodeState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
@@ -20,6 +21,7 @@ public class TriggerConditionRegistry
     private TriggerConditionRegistry()
     {
         register("core:or", OrCondition::new, OrCondition.Template.class);
+        register("core:and", AndCondition::new, AndCondition.Template.class);
         register("core:not", NotCondition::new, NotCondition.Template.class);
         register("core:state", StateCondition::new, StateCondition.Template.class);
         register("core:animation_finished", (context) -> {
@@ -37,6 +39,11 @@ public class TriggerConditionRegistry
         registry.put(key, new RegistryEntry<T>(factory, templateType));
     }
 
+    public <T extends TriggerConditionTemplate> void register(String key, ITriggerConditionFactory<?, T> factory, Class<T> templateType, JsonDeserializer<T> deserializer)
+    {
+        registry.put(key, new RegistryEntry<T>(factory, templateType, deserializer));
+    }
+
     public void register(String key, ITriggerCondition condition)
     {
         pureRegistry.put(key, condition);
@@ -52,6 +59,15 @@ public class TriggerConditionRegistry
         if (pureRegistry.containsKey(key))
         {
             return TriggerConditionTemplate.class;
+        }
+        return null;
+    }
+
+    public JsonDeserializer<TriggerConditionTemplate> getDeserializer(String key)
+    {
+        if (registry.containsKey(key))
+        {
+            return (JsonDeserializer<TriggerConditionTemplate>) registry.get(key).deserializer;
         }
         return null;
     }
@@ -95,11 +111,18 @@ public class TriggerConditionRegistry
 
         public ITriggerConditionFactory<?, T> factory;
         public Class<T> templateType;
+        public JsonDeserializer<T> deserializer;
 
-        RegistryEntry(ITriggerConditionFactory<?, T> factory, Class<T> templateType)
+        RegistryEntry(ITriggerConditionFactory<?, T> factory, Class<T> templateType, JsonDeserializer<T> deserializer)
         {
             this.factory = factory;
             this.templateType = templateType;
+            this.deserializer = deserializer;
+        }
+
+        RegistryEntry(ITriggerConditionFactory<?, T> factory, Class<T> templateType)
+        {
+            this(factory, templateType, null);
         }
 
     }

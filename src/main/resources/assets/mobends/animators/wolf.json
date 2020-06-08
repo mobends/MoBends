@@ -33,7 +33,7 @@
           "comment": "NODE 1 - Walking",
           "type": "core:movement",
           "animationKey": "mobends:animations/wolf_walking.bendsanim",
-          "playbackSpeed": 1.7,
+          "playbackSpeed": 4,
           "connections": [
             {
               "targetNodeIndex": 0,
@@ -61,8 +61,8 @@
           "startFrame": 6,
           "connections": [
             {
-              "targetNodeIndex": 0,
-              "transitionDuration": 4,
+              "targetNodeIndex": 3,
+              "transitionDuration": 1,
               "triggerCondition": {
                 "type": "core:not",
                 "condition": {
@@ -70,6 +70,20 @@
                   "state": "SITTING"
                 }
               }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 3 - Standing Up",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_standing_up.bendsanim",
+          "playbackSpeed": 2,
+          "startFrame": 4,
+          "connections": [
+            {
+              "targetNodeIndex": 0,
+              "transitionDuration": 1,
+              "triggerCondition": { "type": "core:animation_finished" }
             }
           ]
         }

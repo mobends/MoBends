@@ -25,11 +25,6 @@ public class TriggerConditionTemplateSerializer implements JsonSerializer<Trigge
     {
         final Gson gson = new Gson();
 
-        if (toDeserialize.containsKey(json))
-        {
-            return gson.fromJson(json, toDeserialize.remove(json));
-        }
-
         TriggerConditionTemplate abstractTriggerCondition = gson.fromJson(json, TriggerConditionTemplate.class);
         String typeName = abstractTriggerCondition.getType();
 
@@ -37,10 +32,15 @@ public class TriggerConditionTemplateSerializer implements JsonSerializer<Trigge
             return null;
 
         Type templateType = TriggerConditionRegistry.instance.getTemplateClass(typeName);
+
         if (templateType == null)
             return null;
 
-        toDeserialize.put(json, templateType);
+        if (templateType.equals(typeOfT))
+        {
+            // If the template type of this condition is the base class.
+            return abstractTriggerCondition;
+        }
 
         return KumoSerializer.INSTANCE.gson.fromJson(json, templateType);
     }
