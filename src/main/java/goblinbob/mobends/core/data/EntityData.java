@@ -151,9 +151,10 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 
     public boolean isStillHorizontally()
     {
-        return this.stillnessOverride != null ?
-                this.stillnessOverride :
-                (Math.abs(motionX) < 1e-9 && Math.abs(motionZ) < 1e-9);
+        // The motion value that is the threshold for determining movement.
+        final double deadZone = 0.0025;
+        final double horizontalSqMagnitude = this.motionX * this.motionX + this.motionZ * this.motionZ;
+        return this.stillnessOverride != null ? this.stillnessOverride : horizontalSqMagnitude < deadZone;
     }
 
     public abstract IAnimationController<?> getController();
