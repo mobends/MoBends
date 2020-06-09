@@ -134,10 +134,10 @@ public class ModelPart extends ModelRenderer implements IModelPart
         if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
             GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
 
-        GlHelper.rotate(rotation.getSmooth());
-
         if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
             GlStateManager.translate(this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
+
+        GlHelper.rotate(rotation.getSmooth());
 
         if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
             GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);

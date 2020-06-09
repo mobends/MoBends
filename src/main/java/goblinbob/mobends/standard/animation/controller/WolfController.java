@@ -85,8 +85,6 @@ public class WolfController implements IAnimationController<WolfData>
         // Tail rotating based on health
         data.tail.rotation.localRotateX(wolf.getTailRotation() * GUtil.RAD_TO_DEG - 90.0F).finish();
 
-        data.head.offset.setY(-5.0F);
-
         return null;
     }
 

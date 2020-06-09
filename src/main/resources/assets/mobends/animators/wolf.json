@@ -128,7 +128,7 @@
               "transitionDuration": 4,
               "triggerCondition": {
                 "type": "core:ticks_passed",
-                "ticksToPass": "20"
+                "ticksToPass": "80"
               }
             }
           ]
@@ -137,7 +137,7 @@
           "comment": "NODE 1 - Breathing",
           "type": "core:standard",
           "animationKey": "mobends:animations/wolf_breathing.bendsanim",
-          "playbackSpeed": 1,
+          "playbackSpeed": 1.2,
           "looping": true,
           "connections": [
             {
@@ -145,7 +145,7 @@
               "transitionDuration": 4,
               "triggerCondition": {
                 "type": "core:ticks_passed",
-                "ticksToPass": "20"
+                "ticksToPass": "50"
               }
             }
           ]
