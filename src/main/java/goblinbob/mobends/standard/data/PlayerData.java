@@ -146,15 +146,22 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		switch (this.currentAttack)
 		{
 			case 0:
-			case 3:
+			case 4:
 				this.currentAttack = 1;
 				break;
 			case 1:
 				this.currentAttack = 2;
 				break;
 			case 2:
-				this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 3;
+				this.currentAttack = 3;
 				break;
+			case 3:
+				this.currentAttack = 4;
+				break;
+// Spin Slash Attack
+//			case 5:
+//				this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 3;
+//				break;
 			default:
 				this.currentAttack = 1;
 				break;

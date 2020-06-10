@@ -81,18 +81,6 @@ public class AttackStanceAnimationBit extends AnimationBit<PlayerData>
 		mainItemRotation.setSmoothness(.3F).orientX(65);
 		data.globalOffset.slideY(-2.0F);
 		
-		if (this.legSpreadAnimation < 1.0F)
-		{
-			this.legSpreadAnimation += this.legSpreadSpeed * DataUpdateHandler.ticksPerFrame;
-			if (this.legSpreadAnimation > 1.0F)
-				this.legSpreadAnimation = 1.0F;
-			
-			mainLeg.getRotation().orientInstantX(MathHelper.sin(this.legSpreadAnimation * PI) * -20.0F - 40.0F)
-					.rotateInstantZ(10)
-					.rotateInstantY((this.legSpreadAnimation * 25.0F) * handDirMtp);
-			mainForeLeg.getRotation().orientX(MathHelper.sin(this.legSpreadAnimation * PI + 0.5F) * 70.0F + 50.0F);
-		}
-		
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * kneelDuration, 1.0F);
 		if (touchdown < 1.0F)
 		{

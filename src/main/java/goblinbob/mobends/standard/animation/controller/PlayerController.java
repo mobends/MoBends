@@ -38,7 +38,6 @@ public class PlayerController implements IAnimationController<PlayerData>
     protected HardAnimationLayer<BipedEntityData<?>> layerSneak = new HardAnimationLayer<>();
     protected HardAnimationLayer<BipedEntityData<?>> layerAction = new HardAnimationLayer<>();
     protected HardAnimationLayer<BipedEntityData<?>> layerCape = new HardAnimationLayer<>();
-    protected KeyframeAnimationLayer<PlayerData> layerKeyframe = new KeyframeAnimationLayer<>();
 
     protected AnimationBit<BipedEntityData<?>> bitStand = new StandAnimationBit<>();
     protected AnimationBit<BipedEntityData<?>> bitJump = new JumpAnimationBit<>();
@@ -120,7 +119,7 @@ public class PlayerController implements IAnimationController<PlayerData>
             bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
             layerAction.playOrContinueBit(bitBow, data);
         }
-        else if (isHoldingWeapon(heldItemMainhand.getItem()))
+        else if (isHoldingWeapon(heldItemMainhand.getItem()) || heldItemMainhand.isEmpty())
         {
             layerAction.playOrContinueBit(bitAttack, data);
         }
@@ -235,7 +234,6 @@ public class PlayerController implements IAnimationController<PlayerData>
         layerTorch.perform(data, actions);
         layerAction.perform(data, actions);
         layerCape.perform(data, actions);
-        layerKeyframe.perform(data, actions);
         return actions;
     }
 

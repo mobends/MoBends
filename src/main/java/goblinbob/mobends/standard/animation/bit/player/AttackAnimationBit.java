@@ -18,6 +18,8 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 	protected AttackStanceSprintAnimationBit bitAttackStanceSprint;
 	protected AttackSlashUpAnimationBit bitAttackSlashUp;
 	protected AttackSlashDownAnimationBit bitAttackSlashDown;
+	protected AttackSlashInwardAnimationBit bitAttackSlashInward;
+	protected AttackSlashOutwardAnimationBit bitAttackSlashOutward;
 	protected AttackWhirlSlashAnimationBit bitAttackWhirlSlash;
 	protected FistGuardAnimationBit bitFistGuard;
 	protected PunchAnimationBit bitPunch;
@@ -29,6 +31,8 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 		this.bitAttackStanceSprint = new AttackStanceSprintAnimationBit();
 		this.bitAttackSlashUp = new AttackSlashUpAnimationBit();
 		this.bitAttackSlashDown = new AttackSlashDownAnimationBit();
+		this.bitAttackSlashInward = new AttackSlashInwardAnimationBit();
+		this.bitAttackSlashOutward = new AttackSlashOutwardAnimationBit();
 		this.bitAttackWhirlSlash = new AttackWhirlSlashAnimationBit();
 		this.bitFistGuard = new FistGuardAnimationBit();
 		this.bitPunch = new PunchAnimationBit();
@@ -70,7 +74,11 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 				}
 				else if (playerData.getCurrentAttack() == 3)
 				{
-					this.layerBase.playOrContinueBit(this.bitAttackWhirlSlash, playerData);
+					this.layerBase.playOrContinueBit(this.bitAttackSlashInward, playerData);
+				}
+				else if (playerData.getCurrentAttack() == 4)
+				{
+					this.layerBase.playOrContinueBit(this.bitAttackSlashOutward, playerData);
 				}
 				else
 				{

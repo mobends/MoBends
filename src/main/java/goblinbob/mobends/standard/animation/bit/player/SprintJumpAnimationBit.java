@@ -37,7 +37,6 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		}
 		
 		AbstractClientPlayer player = data.getEntity();
-		EnumHandSide primaryHand = player.getPrimaryHand();
 
 		boolean sprintLegSwitch = data.getSprintJumpLeg();
 		
@@ -78,7 +77,7 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		mainForeLeg.getRotation().orientX(80F - relaxAngle * 80F);
 		offForeLeg.getRotation().orientX(relaxAngle * 70F);
 		
-		data.head.rotation.orientInstantX(data.headPitch.get() - 20);
+		data.head.rotation.orientX(data.headPitch.get() - 20);
 		data.head.rotation.rotateY(data.headYaw.get() - bodyRotationY);
 	}
 }

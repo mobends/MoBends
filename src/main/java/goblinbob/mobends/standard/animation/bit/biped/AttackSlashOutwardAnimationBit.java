@@ -12,7 +12,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?>>
+public class AttackSlashOutwardAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	private static final String[] ACTIONS = new String[] { "attack", "attack_slash_down" };
 	
@@ -67,7 +67,7 @@ public class AttackSlashDownAnimationBit extends AnimationBit<BipedEntityData<?>
 		data.head.rotation.setSmoothness(.9F).orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRotationX)
 						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRotationY);
 		
-		mainArm.getRotation().setSmoothness(.3F).orientZ(60F * handDirMtp)
+		mainArm.getRotation().setSmoothness(.3F).orientZ((70F + armSwing * 40F) * handDirMtp)
 												.rotateInstantY((-20F + armSwing * 70F) * handDirMtp);
 		offArm.getRotation().setSmoothness(.3F).orientZ(-80 * handDirMtp);
 

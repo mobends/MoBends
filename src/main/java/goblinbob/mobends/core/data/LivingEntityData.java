@@ -84,9 +84,9 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
             this.climbing = false;
         }
 
-        if (this.entity.swingProgress > 0)
+        if (this.entity.isSwingInProgress)
         {
-            if (!this.alreadyAttacked)
+            if (!this.alreadyAttacked || this.ticksAfterAttack > 5.0F)
             {
                 this.onAttack();
                 this.alreadyAttacked = true;

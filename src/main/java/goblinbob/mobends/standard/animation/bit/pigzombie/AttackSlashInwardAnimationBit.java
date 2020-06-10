@@ -1,4 +1,4 @@
-package goblinbob.mobends.standard.animation.bit.biped;
+package goblinbob.mobends.standard.animation.bit.pigzombie;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.client.model.IModelPart;
@@ -11,10 +11,10 @@ import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.util.vector.Vector3f;
 
-public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
+public class AttackSlashInwardAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 
-	private static final String[] ACTIONS = new String[] { "attack", "attack_slash_up" };
+	private static final String[] ACTIONS = new String[] { "attack", "attack_slash_inward" };
 	
 	@Override
 	public String[] getActions(BipedEntityData<?> entityData)
@@ -65,12 +65,12 @@ public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
 		data.head.rotation.setSmoothness(.9F).orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRot.x)
 						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRot.y);
 
-		mainArm.getRotation().setSmoothness(.9F).orientZ(110F * armSwing * handDirMtp)
+		mainArm.getRotation().setSmoothness(.9F).orientZ(90F * handDirMtp)
 				.rotateY((60F - armSwing * 180F) * handDirMtp);
 		
 		offArm.getRotation().setSmoothness(.3F).orientZ(-20 * handDirMtp);
 
-		mainForeArm.getRotation().setSmoothness(.3F).orientX(-20);
+		mainForeArm.getRotation().setSmoothness(.3F).orientX(-10);
 		offForeArm.getRotation().setSmoothness(.3F).orientX(-60);
 
 		if (data.isStillHorizontally() && !living.isRiding())
@@ -87,7 +87,7 @@ public class AttackSlashUpAnimationBit extends AnimationBit<BipedEntityData<?>>
 			data.globalOffset.slideY(-1.0F);
 		}
 
-		mainItemRotation.setSmoothness(.9F).orientInstantX(180);
+		mainItemRotation.setSmoothness(.9F).orientInstantX(50.0F);
 	}
 
 }
