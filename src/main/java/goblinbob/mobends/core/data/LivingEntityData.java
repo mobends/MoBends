@@ -22,6 +22,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
     public OverridableProperty<Float> limbSwing = new OverridableProperty<>(0F);
     public OverridableProperty<Float> limbSwingAmount = new OverridableProperty<>(0F);
+    public OverridableProperty<Float> swingProgress = new OverridableProperty<>(0F);
     public OverridableProperty<Float> headYaw = new OverridableProperty<>(0F);
     public OverridableProperty<Float> headPitch = new OverridableProperty<>(0F);
 

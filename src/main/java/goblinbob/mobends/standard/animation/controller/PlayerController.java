@@ -12,6 +12,7 @@ import goblinbob.mobends.standard.animation.bit.player.WalkAnimationBit;
 import goblinbob.mobends.standard.animation.bit.player.*;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.PlayerData;
+import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
@@ -56,7 +57,7 @@ public class PlayerController implements IAnimationController<PlayerData>
     protected ElytraAnimationBit bitElytra = new ElytraAnimationBit();
     protected BowAnimationBit bitBow = new BowAnimationBit();
     protected EatingAnimationBit bitEating = new EatingAnimationBit();
-    protected KeyframeAnimationBit<BipedEntityData<?>> bitBreaking = new BreakingAnimationBit(1.2F);
+    protected HarvestAnimationBit bitHarvest = new HarvestAnimationBit();
     protected ShieldAnimationBit bitShield = new ShieldAnimationBit();
     protected CapeAnimationBit bitCape = new CapeAnimationBit();
 
@@ -73,13 +74,6 @@ public class PlayerController implements IAnimationController<PlayerData>
         this.upperBodyOnlyMask.exclude("rightForeLeg");
     }
 
-    public static boolean shouldPerformBreaking(PlayerData data)
-    {
-        final Item item = data.getEntity().getHeldItemMainhand().getItem();
-
-        return item instanceof ItemPickaxe || item instanceof ItemAxe;
-    }
-
     public static boolean isHoldingFood(Item activeItem)
     {
         return activeItem instanceof ItemFood;
@@ -90,14 +84,14 @@ public class PlayerController implements IAnimationController<PlayerData>
         return mainArmPose == ArmPose.BOW_AND_ARROW || offArmPose == ArmPose.BOW_AND_ARROW;
     }
 
-    public static boolean isHoldingTool(Item heldItemMainhand)
-    {
-        return heldItemMainhand instanceof ItemPickaxe || heldItemMainhand instanceof ItemAxe;
-    }
-
     public static boolean isShielding(ModelBiped.ArmPose mainArmPose, ModelBiped.ArmPose offArmPose)
     {
         return mainArmPose == ArmPose.BLOCK || offArmPose == ArmPose.BLOCK;
+    }
+
+    public static boolean isHoldingWeapon(Item heldItemMainhand)
+    {
+        return heldItemMainhand instanceof ItemSword || ModConfig.isItemWeapon(heldItemMainhand);
     }
 
     public void performActionAnimations(PlayerData data, AbstractClientPlayer player)
@@ -126,16 +120,17 @@ public class PlayerController implements IAnimationController<PlayerData>
             bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
             layerAction.playOrContinueBit(bitBow, data);
         }
-        else if (isHoldingTool(heldItemMainhand.getItem()))
+        else if (isHoldingWeapon(heldItemMainhand.getItem()))
         {
-            if (player.isSwingInProgress)
-                layerAction.playOrContinueBit(bitBreaking, data);
-            else
-                layerAction.clearAnimation();
+            layerAction.playOrContinueBit(bitAttack, data);
         }
         else
         {
-            layerAction.playOrContinueBit(bitAttack, data);
+            bitHarvest.setActionHand(primaryHand);
+            if (player.isSwingInProgress)
+                layerAction.playOrContinueBit(bitHarvest, data);
+            else
+                layerAction.clearAnimation();
         }
     }
 
@@ -157,7 +152,6 @@ public class PlayerController implements IAnimationController<PlayerData>
                 layerBase.playOrContinueBit(bitSitting, data);
             }
             layerSneak.clearAnimation();
-            bitBreaking.setMask(upperBodyOnlyMask);
         }
         else
         {
@@ -166,21 +160,18 @@ public class PlayerController implements IAnimationController<PlayerData>
                 layerBase.playOrContinueBit(bitElytra, data);
                 layerSneak.clearAnimation();
                 layerTorch.clearAnimation();
-                bitBreaking.setMask(upperBodyOnlyMask);
             }
             else if (data.isClimbing())
             {
                 layerBase.playOrContinueBit(bitLadderClimb, data);
                 layerSneak.clearAnimation();
                 layerTorch.clearAnimation();
-                bitBreaking.setMask(upperBodyOnlyMask);
             }
             else if (player.isInWater())
             {
                 layerBase.playOrContinueBit(bitSwimming, data);
                 layerSneak.clearAnimation();
                 layerTorch.clearAnimation();
-                bitBreaking.setMask(upperBodyOnlyMask);
             }
             else if (!data.isOnGround() || data.getTicksAfterTouchdown() < 1)
             {
@@ -207,7 +198,6 @@ public class PlayerController implements IAnimationController<PlayerData>
 
                 layerSneak.clearAnimation();
                 layerTorch.clearAnimation();
-                bitBreaking.setMask(upperBodyOnlyMask);
             }
             else
             {
@@ -215,7 +205,6 @@ public class PlayerController implements IAnimationController<PlayerData>
                 {
                     layerBase.playOrContinueBit(bitStand, data);
                     layerTorch.playOrContinueBit(bitTorchHolding, data);
-                    bitBreaking.setMask(null);
                 }
                 else
                 {
@@ -229,7 +218,6 @@ public class PlayerController implements IAnimationController<PlayerData>
                         layerBase.playOrContinueBit(bitWalk, data);
                         layerTorch.playOrContinueBit(bitTorchHolding, data);
                     }
-                    bitBreaking.setMask(upperBodyOnlyMask);
                 }
 
                 if (player.isSneaking())

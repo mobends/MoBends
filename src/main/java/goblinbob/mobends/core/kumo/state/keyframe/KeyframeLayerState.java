@@ -187,7 +187,6 @@ public class KeyframeLayerState implements ILayerState
 
             if (keyframe != null && nextFrame != null)
             {
-                // Note that the amount is negated.
                 KeyframeUtils.tweenVectorAdditive(entityData.globalOffset, keyframe.position, nextFrame.position, tween, amount);
             }
         }
@@ -224,6 +223,7 @@ public class KeyframeLayerState implements ILayerState
                         if (part instanceof IModelPart)
                         {
                             KeyframeUtils.tweenOrientationAdditive(((IModelPart) part).getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
+                            // Note that the amount is negated.
                             KeyframeUtils.tweenVectorAdditive(((IModelPart) part).getOffset(), keyframe.position, nextFrame.position, tween, -amount);
                         }
                     }

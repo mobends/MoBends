@@ -26,6 +26,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
     protected float headPitch;
     protected float limbSwing;
     protected float limbSwingAmount;
+    protected float swingProgress;
 
     private IEntityDataFactory<E> dataFactory;
     protected List<LayerRenderer<?>> layerRenderers;
@@ -173,6 +174,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         this.headPitch = pitch;
         this.limbSwing = f6;
         this.limbSwingAmount = f5;
+        this.swingProgress = entity.getSwingProgress(partialTicks);
     }
 
     public void performAnimations(D data, String animatedEntityKey, RenderLivingBase<? extends E> renderer, float partialTicks)
@@ -181,6 +183,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         data.headPitch.set(this.headPitch);
         data.limbSwing.set(this.limbSwing);
         data.limbSwingAmount.set(this.limbSwingAmount);
+        data.swingProgress.set(this.swingProgress);
 
         KumoVariableRegistry.instance.provideTemporaryData(data);
 
