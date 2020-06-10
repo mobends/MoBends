@@ -3,6 +3,7 @@ package goblinbob.mobends.standard.mutators;
 import goblinbob.mobends.core.client.model.*;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomCape;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomElytra;
 import goblinbob.mobends.standard.data.PlayerData;
 import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -11,6 +12,7 @@ import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
+import net.minecraft.client.renderer.entity.layers.LayerElytra;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -34,6 +36,8 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 
 	protected LayerCustomCape layerCape;
 	protected LayerCape layerCapeVanilla;
+	protected LayerCustomElytra layerElytra;
+	protected LayerElytra layerElytraVanilla;
 
 	public PlayerMutator(IEntityDataFactory<AbstractClientPlayer> dataFactory)
 	{
@@ -97,6 +101,14 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 				this.layerCapeVanilla = (LayerCape) layer;
 			layerRenderers.set(index, this.layerCape);
 		}
+
+		if (layer instanceof LayerElytra)
+		{
+			this.layerElytra = new LayerCustomElytra((RenderPlayer) renderer);
+			if (isModelVanilla)
+				this.layerElytraVanilla = (LayerElytra) layer;
+			layerRenderers.set(index, this.layerElytra);
+		}
 	}
 
 	@Override
@@ -108,6 +120,11 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		if (layer instanceof LayerCustomCape)
 		{
 			layerRenderers.set(index, this.layerCapeVanilla);
+		}
+
+		if (layer instanceof LayerCustomElytra)
+		{
+			layerRenderers.set(index, this.layerElytraVanilla);
 		}
 	}
 

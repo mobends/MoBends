@@ -53,6 +53,7 @@ public class PlayerController implements IAnimationController<PlayerData>
     protected AnimationBit<BipedEntityData<?>> bitTorchHolding = new TorchHoldingAnimationBit();
     protected AnimationBit<PlayerData> bitAttack = new AttackAnimationBit();
     protected FlyingAnimationBit bitFlying = new FlyingAnimationBit();
+    protected ElytraAnimationBit bitElytra = new ElytraAnimationBit();
     protected BowAnimationBit bitBow = new BowAnimationBit();
     protected EatingAnimationBit bitEating = new EatingAnimationBit();
     protected KeyframeAnimationBit<BipedEntityData<?>> bitBreaking = new BreakingAnimationBit(1.2F);
@@ -160,7 +161,14 @@ public class PlayerController implements IAnimationController<PlayerData>
         }
         else
         {
-            if (data.isClimbing())
+            if (player.getTicksElytraFlying() > 4)
+            {
+                layerBase.playOrContinueBit(bitElytra, data);
+                layerSneak.clearAnimation();
+                layerTorch.clearAnimation();
+                bitBreaking.setMask(upperBodyOnlyMask);
+            }
+            else if (data.isClimbing())
             {
                 layerBase.playOrContinueBit(bitLadderClimb, data);
                 layerSneak.clearAnimation();
@@ -196,6 +204,7 @@ public class PlayerController implements IAnimationController<PlayerData>
                             layerBase.playOrContinueBit(bitJump, data);
                     }
                 }
+
                 layerSneak.clearAnimation();
                 layerTorch.clearAnimation();
                 bitBreaking.setMask(upperBodyOnlyMask);

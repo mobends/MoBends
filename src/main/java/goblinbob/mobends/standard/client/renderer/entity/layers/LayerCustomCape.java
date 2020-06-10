@@ -1,15 +1,12 @@
 package goblinbob.mobends.standard.client.renderer.entity.layers;
 
-import goblinbob.mobends.core.bender.EntityBender;
-import goblinbob.mobends.core.bender.EntityBenderRegistry;
+import goblinbob.mobends.core.util.BenderHelper;
 import goblinbob.mobends.standard.client.renderer.entity.BendsCapeRenderer;
 import goblinbob.mobends.standard.data.PlayerData;
-import goblinbob.mobends.standard.mutators.PlayerMutator;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -32,9 +29,8 @@ public class LayerCustomCape implements LayerRenderer<AbstractClientPlayer>
 
     public void doRenderLayer(AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
-        final EntityBender<EntityLivingBase> entityBender = EntityBenderRegistry.instance.getForEntity(player);
-        final PlayerMutator mutator = (PlayerMutator) entityBender.getMutator(playerRenderer);
-        final PlayerData data = mutator.getData(player);
+        final PlayerData data = BenderHelper.getData(player, playerRenderer);
+        assert data != null;
 
         if (player.hasPlayerInfo() && !player.isInvisible() && player.isWearing(EnumPlayerModelParts.CAPE) && player.getLocationCape() != null)
         {
