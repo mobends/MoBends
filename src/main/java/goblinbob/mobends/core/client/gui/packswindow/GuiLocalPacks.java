@@ -1,12 +1,13 @@
 package goblinbob.mobends.core.client.gui.packswindow;
 
-import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.client.gui.GuiDragger;
 import goblinbob.mobends.core.flux.ISubscriber;
 import goblinbob.mobends.core.flux.Subscription;
 import goblinbob.mobends.core.pack.IBendsPack;
+import goblinbob.mobends.core.pack.InvalidPackFormatException;
 import goblinbob.mobends.core.pack.LocalBendsPack;
 import goblinbob.mobends.core.pack.PackManager;
+import goblinbob.mobends.core.util.ErrorReporter;
 import goblinbob.mobends.core.util.IDisposable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -41,26 +42,7 @@ public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
         this.appliedPacksList = new GuiPackList(this.appliedPacks);
         this.dragger = new GuiDragger<>();
 
-        final Collection<IBendsPack> appliedPacks = PackManager.INSTANCE.getAppliedPacks();
-
-        for (LocalBendsPack pack : PackManager.INSTANCE.getLocalPacks())
-        {
-            if (appliedPacks.contains(pack))
-            {
-                continue;
-            }
-
-            final GuiPackEntry entry = new GuiPackEntry(pack);
-            entry.setParentList(availablePacksList);
-            availablePacksList.addElement(entry);
-        }
-
-        for (IBendsPack pack : appliedPacks)
-        {
-            final GuiPackEntry entry = new GuiPackEntry(pack);
-            entry.setParentList(appliedPacksList);
-            appliedPacksList.addElement(entry);
-        }
+        resetPackLists();
 
         trackSubscription(availablePacksList.elementClickedObservable.subscribe(element -> {
             appliedPacksList.getListElements().forEach(e -> e.setSelected(false));
@@ -160,15 +142,51 @@ public class GuiLocalPacks extends Gui implements ISubscriber, IDisposable
         }
     }
 
+    private void resetPackLists()
+    {
+        availablePacksList.clearElements();
+        appliedPacksList.clearElements();
+
+        final Collection<IBendsPack> appliedPacks = PackManager.INSTANCE.getAppliedPacks();
+
+        for (LocalBendsPack pack : PackManager.INSTANCE.getLocalPacks())
+        {
+            if (appliedPacks.stream().anyMatch(p -> p.getKey().equals(pack.getKey())))
+            {
+                continue;
+            }
+
+            final GuiPackEntry entry = new GuiPackEntry(pack);
+            entry.setParentList(availablePacksList);
+            availablePacksList.addElement(entry);
+        }
+
+        for (IBendsPack pack : appliedPacks)
+        {
+            final GuiPackEntry entry = new GuiPackEntry(pack);
+            entry.setParentList(appliedPacksList);
+            appliedPacksList.addElement(entry);
+        }
+    }
+
     private void resolveAppliedPacks()
     {
-        List<String> packNames = new ArrayList<>();
+        final List<String> packNames = new ArrayList<>();
         for (GuiPackEntry entry : appliedPacks)
         {
             packNames.add(entry.name);
         }
 
-        CoreClient.getInstance().getConfiguration().setAppliedPacks(packNames);
+        try
+        {
+            PackManager.INSTANCE.setAppliedPacks(packNames, true);
+        }
+        catch (InvalidPackFormatException e)
+        {
+            e.printStackTrace();
+            resetPackLists();
+            ErrorReporter.showErrorToPlayer(e);
+        }
     }
 
 }

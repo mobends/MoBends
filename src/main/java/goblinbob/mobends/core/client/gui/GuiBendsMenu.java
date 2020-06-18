@@ -29,9 +29,8 @@ public class GuiBendsMenu extends GuiScreen
 
 	private GuiSectionButton settingsButton;
 	private GuiSectionButton packsButton;
-	private GuiSectionButton addonsButton;
+	//private GuiSectionButton addonsButton;
 	private GuiPopUp popUp;
-	private GuiAddonsWindow addonsWindow;
 
 	public GuiBendsMenu()
 	{
@@ -41,10 +40,9 @@ public class GuiBendsMenu extends GuiScreen
 				.setLeftIcon(0, 43, 19, 19).setRightIcon(19, 43, 19, 19);
 		this.packsButton = new GuiSectionButton(I18n.format("mobends.gui.section.packs"), 0xFF4577DE)
 				.setLeftIcon(38, 43, 23, 20).setRightIcon(38, 43, 23, 20);
-		this.addonsButton = new GuiSectionButton(I18n.format("mobends.gui.section.addons"), 0xFFFFE565)
-				.setLeftIcon(61, 43, 19, 18).setRightIcon(61, 43, 19, 18);
+//		this.addonsButton = new GuiSectionButton(I18n.format("mobends.gui.section.addons"), 0xFFFFE565)
+//				.setLeftIcon(61, 43, 19, 18).setRightIcon(61, 43, 19, 18);
 
-		this.addonsWindow = new GuiAddonsWindow();
 		this.popUp = null;
 	}
 
@@ -52,8 +50,7 @@ public class GuiBendsMenu extends GuiScreen
 	{
 		super.initGui();
 		this.buttonList.clear();
-		this.addonsWindow.initGui(this.width / 2, this.height / 2);
-		
+
 		if (this.popUp != null)
 			this.popUp.initGui(this.width / 2, this.height / 2);
 
@@ -64,12 +61,12 @@ public class GuiBendsMenu extends GuiScreen
 		{
 			this.settingsButton.initGui((this.width - 318) / 2, startY);
 			this.packsButton.initGui((this.width - 318) / 2, startY + distance);
-			this.addonsButton.initGui((this.width - 318) / 2, startY + distance * 2);
+//			this.addonsButton.initGui((this.width - 318) / 2, startY + distance * 2);
 		}
 		else
 		{
 			this.settingsButton.initGui((this.width - 318) / 2, startY);
-			this.addonsButton.initGui((this.width - 318) / 2, startY + distance);
+//			this.addonsButton.initGui((this.width - 318) / 2, startY + distance);
 		}
 	}
 
@@ -109,7 +106,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		this.settingsButton.update(mouseX, mouseY);
 		this.packsButton.update(mouseX, mouseY);
-		this.addonsButton.update(mouseX, mouseY);
+//		this.addonsButton.update(mouseX, mouseY);
 	}
 
 	@Override
@@ -134,10 +131,10 @@ public class GuiBendsMenu extends GuiScreen
 		{
 			mc.displayGuiScreen(new GuiPacksWindow());
 		}
-		else if (addonsButton.mouseClicked(x, y, state))
-		{
-			// Opens the addons window.
-		}
+//		else if (addonsButton.mouseClicked(x, y, state))
+//		{
+//			// Opens the addons window.
+//		}
 
 		try
 		{
@@ -154,7 +151,7 @@ public class GuiBendsMenu extends GuiScreen
 		super.mouseReleased(mouseX, mouseY, state);
 		this.settingsButton.mouseReleased(mouseX, mouseY, state);
 		this.packsButton.mouseReleased(mouseX, mouseY, state);
-		this.addonsWindow.mouseReleased(mouseX, mouseY, state);
+//		this.addonsWindow.mouseReleased(mouseX, mouseY, state);
 	}
 
 	/**
@@ -180,7 +177,7 @@ public class GuiBendsMenu extends GuiScreen
 		{
 			this.packsButton.display();
 		}
-		this.addonsButton.display();
+//		this.addonsButton.display();
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 

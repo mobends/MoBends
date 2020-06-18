@@ -1,7 +1,10 @@
 package goblinbob.mobends.core.client.gui.packswindow;
 
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
+import goblinbob.mobends.core.pack.InvalidPackFormatException;
+import goblinbob.mobends.core.pack.PackManager;
 import goblinbob.mobends.core.util.Draw;
+import goblinbob.mobends.core.util.ErrorReporter;
 import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.core.util.Timer;
 import goblinbob.mobends.standard.main.ModStatics;
@@ -45,6 +48,18 @@ public class GuiPacksWindow extends GuiScreen
         this.tabNavigation.selectTab(0);
 
         this.timer = new Timer();
+
+        // Initializing local packs from disk.
+        try
+        {
+            PackManager.INSTANCE.initLocalPacks();
+        }
+        catch (InvalidPackFormatException e)
+        {
+            // Some of the packs were in an invalid format.
+            e.printStackTrace();
+            ErrorReporter.showErrorToPlayer(e);
+        }
     }
 
     @Override

@@ -5,13 +5,18 @@ import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
+import goblinbob.mobends.core.client.gui.elements.GuiCompactTextField;
+import goblinbob.mobends.core.client.gui.packswindow.GuiPackTab;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import java.io.IOException;
@@ -23,20 +28,21 @@ public class GuiSettingsWindow extends GuiScreen
             "textures/gui/pack_window.png");
     public static final int EDITOR_WIDTH = 280;
     public static final int EDITOR_HEIGHT = 177;
-    private static final int BUTTON_BACK = 0;
+    private static final int COMPONENT_BUTTON_BACK = 0;
+    private static final int COMPONENT_QUERY_INPUT = 1;
 
     private int x, y;
 
-    private final GuiBenderList bendsSettingsListUI = new GuiBenderList(0, 0, EDITOR_WIDTH - 10, EDITOR_HEIGHT - 10);
+    private GuiCompactTextField filterQueryInput;
+    private final GuiBenderList bendsSettingsListUI = new GuiBenderList(0, 0, EDITOR_WIDTH - 10, EDITOR_HEIGHT - 10 - 20);
+
+    private final EntityBenderRegistry.Filter filter = new EntityBenderRegistry.Filter();
 
     public GuiSettingsWindow()
     {
         super();
 
-        for (final EntityBender<?> bender : EntityBenderRegistry.instance.getRegistered())
-        {
-            bendsSettingsListUI.addElement(new GuiBenderSettings(bender));
-        }
+        fetchBenders();
     }
 
     @Override
@@ -44,12 +50,17 @@ public class GuiSettingsWindow extends GuiScreen
     {
         super.initGui();
 
+        Keyboard.enableRepeatEvents(true);
+
         this.x = (this.width - EDITOR_WIDTH) / 2;
         this.y = (this.height - EDITOR_HEIGHT) / 2;
 
         buttonList.clear();
-        buttonList.add(new GuiButton(BUTTON_BACK, 10, height - 30, 60, 20, "Back"));
-        bendsSettingsListUI.initGui(this.x + 9, this.y + 9);
+        buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, "Back"));
+        filterQueryInput = new GuiCompactTextField(COMPONENT_QUERY_INPUT, this.fontRenderer, x + 6, y + 6, 150, 16);
+        filterQueryInput.setFocused(true);
+        filterQueryInput.setPlaceholderText(I18n.format("mobends.gui.search"));
+        bendsSettingsListUI.initGui(this.x + 9, this.y + 9 + 20);
     }
 
     @Override
@@ -57,7 +68,7 @@ public class GuiSettingsWindow extends GuiScreen
     {
         this.drawDefaultBackground();
 
-        Minecraft.getMinecraft().getTextureManager().bindTexture(BACKGROUND_TEXTURE);
+        mc.getTextureManager().bindTexture(BACKGROUND_TEXTURE);
         // Container
         Draw.borderBox(x + 4, y + 4, EDITOR_WIDTH, EDITOR_HEIGHT, 4, 36, 126);
         // Title background
@@ -67,7 +78,8 @@ public class GuiSettingsWindow extends GuiScreen
 
         bendsSettingsListUI.draw(DataUpdateHandler.partialTicks);
 
-        mc.fontRenderer.drawStringWithShadow("Settings", this.x + 6, this.y - 9, 0xffffff);
+        fontRenderer.drawStringWithShadow(I18n.format("mobends.gui.settings"), this.x + 6, this.y - 9, 0xffffff);
+        filterQueryInput.drawTextBox();
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
@@ -81,6 +93,7 @@ public class GuiSettingsWindow extends GuiScreen
         final int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 
         bendsSettingsListUI.update(mouseX, mouseY);
+        filterQueryInput.updateCursorCounter();
     }
 
     @Override
@@ -89,6 +102,7 @@ public class GuiSettingsWindow extends GuiScreen
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
         bendsSettingsListUI.handleMouseClicked(mouseX, mouseY, mouseButton);
+        filterQueryInput.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override
@@ -110,6 +124,13 @@ public class GuiSettingsWindow extends GuiScreen
     @Override
     public void keyTyped(char typedChar, int keyCode)
     {
+        filterQueryInput.textboxKeyTyped(typedChar, keyCode);
+        if (!filterQueryInput.getText().equals(filter.query))
+        {
+            filter.query = filterQueryInput.getText();
+            fetchBenders();
+        }
+
         switch (keyCode)
         {
             case 1:
@@ -126,7 +147,7 @@ public class GuiSettingsWindow extends GuiScreen
 
         switch (button.id)
         {
-            case BUTTON_BACK:
+            case COMPONENT_BUTTON_BACK:
                 goBack();
                 break;
             default:
@@ -143,6 +164,15 @@ public class GuiSettingsWindow extends GuiScreen
     public boolean doesGuiPauseGame()
     {
         return false;
+    }
+
+    public void fetchBenders()
+    {
+        bendsSettingsListUI.clearElements();
+        for (final EntityBender<?> bender : EntityBenderRegistry.instance.getRegistered(filter))
+        {
+            bendsSettingsListUI.addElement(new GuiBenderSettings(bender));
+        }
     }
 
 }

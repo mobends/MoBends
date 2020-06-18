@@ -18,6 +18,7 @@ public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 	@Override
 	public void onPlay(T data)
 	{
+		data.renderRotation.identity();
 		data.centerRotation.identity();
 		data.body.rotation.orientInstantX(20F);
 		data.rightLeg.rotation.orientInstantX(0F);
@@ -46,6 +47,7 @@ public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 
 		data.globalOffset.slideToZero(0.3F);
 		data.renderRotation.setSmoothness(.3F).orientZero();
+		data.centerRotation.setSmoothness(.7F).orientZero();
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
 		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
 

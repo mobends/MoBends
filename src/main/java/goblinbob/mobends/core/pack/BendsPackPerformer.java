@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.pack;
 
-import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -28,7 +27,8 @@ public class BendsPackPerformer
         catch (MalformedKumoTemplateException e)
         {
             // Resetting the applied packs due to malformed templates.
-            CoreClient.getInstance().getConfiguration().setAppliedPacks(new String[] {});
+            e.printStackTrace();
+            PackManager.INSTANCE.resetAppliedPacks(true);
         }
     }
 

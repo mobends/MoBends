@@ -5,7 +5,9 @@ import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.flux.Observable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class CoreClientConfig extends CoreConfig
 {
@@ -19,13 +21,13 @@ public class CoreClientConfig extends CoreConfig
     // Animated
     private static final String CATEGORY_ANIMATED = "Animated";
 
-    public final Observable<String[]> appliedPackKeys;
+    public String[] appliedPackKeys;
 
     public CoreClientConfig(File file)
     {
         super(file);
-        this.appliedPackKeys = new Observable<>();
-        this.load();
+        appliedPackKeys = new String[] {};
+        load();
     }
 
     public void save()
@@ -40,17 +42,17 @@ public class CoreClientConfig extends CoreConfig
 
     public void load()
     {
-        appliedPackKeys.next(configuration.get(CATEGORY_GENERAL, PROP_APPLIED_PACKS, emptyStringList).getStringList());
+        appliedPackKeys = configuration.get(CATEGORY_GENERAL, PROP_APPLIED_PACKS, emptyStringList).getStringList();
     }
 
     public String[] getAppliedPacks()
     {
-        return appliedPackKeys.getValue();
+        return appliedPackKeys;
     }
 
     public void setAppliedPacks(String[] packNames)
     {
-        appliedPackKeys.next(packNames);
+        appliedPackKeys = packNames;
         configuration.get(CATEGORY_GENERAL, PROP_APPLIED_PACKS, emptyStringList).set(packNames);
     }
 

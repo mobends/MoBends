@@ -92,7 +92,12 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel
     public void removeElement(T element)
     {
         this.getListElements().remove(element);
+        this.initGui(this.x, this.y);
+    }
 
+    public void clearElements()
+    {
+        this.getListElements().clear();
         this.initGui(this.x, this.y);
     }
 

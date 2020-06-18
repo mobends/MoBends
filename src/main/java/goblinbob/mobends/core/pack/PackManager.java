@@ -2,17 +2,15 @@ package goblinbob.mobends.core.pack;
 
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
-import goblinbob.mobends.core.flux.Computed;
-import goblinbob.mobends.core.flux.Observable;
 import goblinbob.mobends.core.flux.ObservableMap;
+import goblinbob.mobends.core.util.ErrorReporter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PackManager
 {
@@ -24,34 +22,13 @@ public class PackManager
     private ThumbnailProvider thumbnailProvider;
 
     private ObservableMap<String, LocalBendsPack> localPacks = new ObservableMap<>();
-    private final Observable<CoreClientConfig> config;
-    public final Computed<Collection<IBendsPack>> appliedPacks;
+
+    private CoreClientConfig config;
+    private final List<IBendsPack> appliedPacks;
 
     public PackManager()
     {
-        config = new Observable<>();
-
-        appliedPacks = new Computed<>(() -> {
-            List<IBendsPack> packs = new LinkedList<>();
-
-            CoreClientConfig config = this.config.getValue();
-            if (config == null)
-            {
-                return packs;
-            }
-
-            String[] keys = config.appliedPackKeys.getValue();
-            for (String key : keys)
-            {
-                IBendsPack pack = localPacks.get(key);
-                if (pack != null)
-                {
-                    packs.add(pack);
-                }
-            }
-
-            return packs;
-        });
+        appliedPacks = new LinkedList<>();
     }
 
     public void initialize(CoreClientConfig config)
@@ -62,14 +39,23 @@ public class PackManager
         cache = new PackCache(new File(localDirectory, "public_cache"));
         thumbnailProvider = new ThumbnailProvider(cache);
 
-        initLocalPacks();
-
-        this.config.next(config);
+        this.config = config;
+        try
+        {
+            initLocalPacks();
+        }
+        catch (InvalidPackFormatException e)
+        {
+            // Some of the packs were in an invalid format.
+            e.printStackTrace();
+            ErrorReporter.showErrorToPlayer(e);
+        }
     }
 
-    public void initLocalPacks()
+    public void initLocalPacks() throws InvalidPackFormatException
     {
         localPacks.clear();
+        appliedPacks.clear();
 
         File[] files = localDirectory.listFiles();
         if (files == null)
@@ -92,11 +78,74 @@ public class PackManager
                 }
             }
         }
+
+        // Re-adding the applied packs.
+        for (String key : config.appliedPackKeys)
+        {
+            IBendsPack pack = localPacks.get(key);
+            if (pack != null)
+            {
+                appliedPacks.add(pack);
+            }
+        }
+
+        try
+        {
+            PackDataProvider.INSTANCE.createBendsPackData(appliedPacks);
+        }
+        catch(InvalidPackFormatException ex)
+        {
+            resetAppliedPacks(true);
+            throw ex;
+        }
+    }
+
+    public void setAppliedPacks(Collection<String> packKeys, boolean saveToConfig) throws InvalidPackFormatException
+    {
+        List<IBendsPack> newAppliedPacks = new LinkedList<>();
+
+        for (String key : packKeys)
+        {
+            IBendsPack pack = localPacks.get(key);
+            if (pack != null)
+            {
+                newAppliedPacks.add(pack);
+            }
+        }
+
+        PackDataProvider.INSTANCE.createBendsPackData(newAppliedPacks);
+
+        this.appliedPacks.clear();
+        this.appliedPacks.addAll(newAppliedPacks);
+
+        if (saveToConfig)
+        {
+            config.setAppliedPacks(packKeys);
+        }
+    }
+
+    public void resetAppliedPacks(boolean saveToConfig)
+    {
+        appliedPacks.clear();
+
+        if (saveToConfig)
+        {
+            config.setAppliedPacks(new String[] {});
+        }
+
+        try
+        {
+            PackDataProvider.INSTANCE.createBendsPackData(appliedPacks);
+        }
+        catch(InvalidPackFormatException ignored)
+        {
+            // Never should happen.
+        }
     }
 
     public Collection<IBendsPack> getAppliedPacks()
     {
-        return appliedPacks.getValue();
+        return appliedPacks;
     }
 
     public Collection<LocalBendsPack> getLocalPacks()

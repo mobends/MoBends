@@ -4,9 +4,8 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import net.minecraft.entity.EntityLivingBase;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class is responsible for keeping track of all entity benders.
@@ -40,6 +39,20 @@ public class EntityBenderRegistry
     public Collection<EntityBender<?>> getRegistered()
     {
         return entityClassToBenderMap.values();
+    }
+
+    public Collection<EntityBender<?>> getRegistered(Filter filter)
+    {
+        List<EntityBender<?>> benderList = new ArrayList<>(entityClassToBenderMap.values());
+
+        if (filter.query != null)
+        {
+            benderList.removeIf(bender -> !bender.getUnlocalizedName().toLowerCase().contains(filter.query.toLowerCase()));
+        }
+
+        benderList.sort(Comparator.comparing(EntityBender::getKey));
+
+        return benderList;
     }
 
     public <E extends EntityLivingBase> EntityBender<E> getForEntityClass(Class<E> c)
@@ -98,6 +111,18 @@ public class EntityBenderRegistry
     {
         for (EntityBender<?> entityBender : entityClassToBenderMap.values())
             entityBender.refreshMutation();
+    }
+
+    public static class Filter
+    {
+        public boolean ascending = false;
+        public SortingKey sortingKey = SortingKey.NAME;
+        public String query = null;
+
+        public enum SortingKey
+        {
+            NAME,
+        }
     }
 
 }

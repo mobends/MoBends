@@ -24,7 +24,8 @@ public class PackAnimationState
         AnimatorTemplate targetTemplate = data.targets.get(animatedEntityKey);
         if (targetTemplate == null)
         {
-            throw new MalformedKumoTemplateException("No targets were specified!");
+            kumoAnimatorState = null;
+            return;
         }
 
         kumoAnimatorState = new KumoAnimatorState<>(targetTemplate, data);
@@ -47,7 +48,10 @@ public class PackAnimationState
             }
         }
 
-        kumoAnimatorState.update(entityData, deltaTime);
+        if (kumoAnimatorState != null)
+        {
+            kumoAnimatorState.update(entityData, deltaTime);
+        }
     }
 
 }

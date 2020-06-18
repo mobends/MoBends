@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
 import goblinbob.mobends.core.bender.EntityBender;
+import goblinbob.mobends.core.client.gui.elements.GuiSmallToggleButton;
 import goblinbob.mobends.core.client.gui.elements.GuiToggleButton;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
 import goblinbob.mobends.core.util.Draw;
@@ -12,7 +13,7 @@ public class GuiBenderSettings implements IGuiListElement
 
     private final EntityBender<?> bender;
     private final Minecraft mc;
-    private final GuiToggleButton toggleButton;
+    private final GuiSmallToggleButton toggleButton;
 
     private int x, y;
     private int listOrder;
@@ -21,7 +22,7 @@ public class GuiBenderSettings implements IGuiListElement
     {
         this.bender = bender;
         this.mc = Minecraft.getMinecraft();
-        this.toggleButton = new GuiToggleButton("Animated", 32);
+        this.toggleButton = new GuiSmallToggleButton();
         this.toggleButton.setToggleState(bender.isAnimated());
     }
 
@@ -29,7 +30,7 @@ public class GuiBenderSettings implements IGuiListElement
     {
         this.x = x;
         this.y = y;
-        this.toggleButton.initGui(x + 4, y + 14);
+        this.toggleButton.initGui(x + 4, y + 4);
     }
 
     @Override
@@ -53,12 +54,12 @@ public class GuiBenderSettings implements IGuiListElement
     {
         GlStateManager.color(1F, 1F, 1F);
 
-        Minecraft.getMinecraft().getTextureManager().bindTexture(GuiSettingsWindow.BACKGROUND_TEXTURE);
+//        Minecraft.getMinecraft().getTextureManager().bindTexture(GuiSettingsWindow.BACKGROUND_TEXTURE);
+//
+//        // Container
+//        Draw.borderBox(x + 4, y + 4, 100, getHeight(), 4, 36, 126);
 
-        // Container
-        Draw.borderBox(x + 4, y + 4, 100, 30, 4, 36, 126);
-
-        mc.fontRenderer.drawStringWithShadow(bender.getLocalizedName(), this.x + 6, this.y + 4, 0xffffff);
+        mc.fontRenderer.drawStringWithShadow(bender.getLocalizedName(), this.x + 38, this.y + 10, 0xffffff);
 
         toggleButton.draw();
     }
@@ -78,7 +79,7 @@ public class GuiBenderSettings implements IGuiListElement
     @Override
     public int getHeight()
     {
-        return 30;
+        return 20;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state.template;
 
+import goblinbob.mobends.core.kumo.state.IKumoValidationContext;
 import goblinbob.mobends.core.kumo.state.LayerType;
 
 /**
@@ -13,6 +14,11 @@ public class LayerTemplate
     public LayerType getLayerType()
     {
         return type;
+    }
+
+    public void validate(IKumoValidationContext context) throws MalformedKumoTemplateException
+    {
+        // Does nothing by default.
     }
 
 }

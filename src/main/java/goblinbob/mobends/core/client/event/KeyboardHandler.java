@@ -34,7 +34,6 @@ public class KeyboardHandler
         if (KEY_MENU.isPressed())
         {
             Minecraft.getMinecraft().displayGuiScreen(new GuiBendsMenu());
-            PackManager.INSTANCE.initLocalPacks();
         }
         else if (KEY_REFRESH.isPressed())
         {

@@ -36,8 +36,6 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 			this.onPlay(data);
 		}
 		
-		AbstractClientPlayer player = data.getEntity();
-
 		boolean sprintLegSwitch = data.getSprintJumpLeg();
 		
 		float legSwitchMtp = sprintLegSwitch ? 1 : -1;
@@ -59,9 +57,10 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		}
 		
 		float relaxAngle = MathHelper.sqrt(MathHelper.sqrt(this.relax));
-		
+
 		data.centerRotation.setSmoothness(.3F).orientZero();
-		
+		data.globalOffset.slideToZero(0.5F);
+
 		data.body.rotation.setSmoothness(.3F).orientX(bodyLean)
 				.rotateY(bodyRotationY);
 		data.rightLeg.rotation.setSmoothness(.8F).orientZ(5);

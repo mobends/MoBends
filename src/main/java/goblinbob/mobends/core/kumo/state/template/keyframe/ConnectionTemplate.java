@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.state.template.keyframe;
 
+import goblinbob.mobends.core.kumo.state.IKumoValidationContext;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 public class ConnectionTemplate
@@ -21,6 +23,16 @@ public class ConnectionTemplate
         EASE_IN,
         EASE_OUT,
         EASE_IN_OUT,
+    }
+
+    public void validate(IKumoValidationContext context) throws MalformedKumoTemplateException
+    {
+        if (triggerCondition == null)
+        {
+            throw new MalformedKumoTemplateException("No trigger condition has been specified.");
+        }
+
+        triggerCondition.validate(context);
     }
 
 }

@@ -14,7 +14,7 @@ public class GuiBenderList extends GuiList<GuiBenderSettings>
 
     public GuiBenderList(int x, int y, int width, int height)
     {
-        super(x, y, width, height, 10, 3, 3, 15);
+        super(x, y, width, height, 5, 3, 3, 15);
         this.elements = new LinkedList<>();
     }
 
