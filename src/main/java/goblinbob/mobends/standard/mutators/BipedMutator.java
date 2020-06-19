@@ -247,7 +247,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	 * True, if this renderer wasn't mutated before.
 	 */
 	@Override
-	public boolean isModelVanilla(ModelBiped model)
+	public boolean isModelVanilla(M model)
 	{
 		return !(model.bipedBody instanceof IModelPart);
 	}

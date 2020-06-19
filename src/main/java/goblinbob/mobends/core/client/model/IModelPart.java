@@ -8,6 +8,21 @@ public interface IModelPart
 {
 
 	/**
+	 * Applies the transform in global space (relative to the entity).
+	 * This is being applied before the parent transform.
+	 * @param scale Controls the scale of the translation.
+	 */
+	void applyPreTransform(float scale);
+
+	/**
+	 * Applies the transform in global space (relative to the entity).
+	 * This is being applied before the parent transform.
+	 * @param scale Controls the scale of the translation.
+	 * @param dest The matrix to be transformed.
+	 */
+	void applyPreTransform(float scale, IMat4x4d dest);
+
+	/**
 	 * Applies the transform in local space (relative to the parent).
 	 * @param scale Controls the scale of the translation.
 	 */
@@ -26,9 +41,10 @@ public interface IModelPart
 	 */
 	default void applyCharacterTransform(float scale)
 	{
+		this.applyPreTransform(scale);
 		if (this.getParent() != null)
 		{
-			this.getParent().applyCharacterTransform(scale);
+			this.getParent().applyCharacterTransform(scale * getOffsetScale());
 		}
 		this.applyLocalTransform(scale);
 	}
@@ -40,9 +56,10 @@ public interface IModelPart
 	 */
 	default void applyCharacterTransform(float scale, IMat4x4d dest)
 	{
+		this.applyPreTransform(scale, dest);
 		if (this.getParent() != null)
 		{
-			this.getParent().applyCharacterTransform(scale, dest);
+			this.getParent().applyCharacterTransform(scale * getOffsetScale(), dest);
 		}
 		this.applyLocalTransform(scale, dest);
 	}
@@ -72,6 +89,8 @@ public interface IModelPart
 	IVec3f getScale();
 	IVec3f getOffset();
 	SmoothOrientation getRotation();
+	float getOffsetScale();
+	IVec3f getGlobalOffset();
 	IModelPart getParent();
 	boolean isShowing();
 

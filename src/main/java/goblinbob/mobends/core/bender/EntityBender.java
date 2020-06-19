@@ -162,6 +162,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		for (Entry<RenderLivingBase<? extends T>, Mutator<LivingEntityData<T>, T, ?>> entry : mutatorMap.entrySet())
 		{
 			Mutator<?, T, ?> mutator = entry.getValue();
+			mutator.demutate(entry.getKey());
 			mutator.mutate(entry.getKey());
 			mutator.postRefresh();
 		}

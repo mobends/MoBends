@@ -61,8 +61,18 @@ public class LayerWolfMisc implements LayerRenderer<EntityWolf>
 
             textureManager.bindTexture(WOLF_MISC_TEXTURE);
 
+            boolean isChild = wolf.isChild();
+
             GlStateManager.pushMatrix();
-            data.body.applyLocalTransform(scale);
+            if (isChild)
+            {
+                GlStateManager.translate(0.0F, 10.0F * scale, 0.0F * scale);
+                data.body.applyLocalTransform(scale * 0.5F);
+            }
+            else
+            {
+                data.body.applyLocalTransform(scale);
+            }
             data.head.applyLocalTransform(scale);
 
             // Mouth bottom

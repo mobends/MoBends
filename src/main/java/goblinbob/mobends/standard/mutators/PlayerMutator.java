@@ -176,7 +176,12 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 				.create();
 		this.rightArm.setExtension(this.rightForeArm);
-		
+
+		original.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(original, 16, 48)
+				.setPosition(0.0F, 12.0F, 0.0F);
+		leftLeg.addBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+		leftLeg.setExtension(leftForeLeg);
+
 		// Wear
 		original.bipedBodyWear = bodywear = new ModelPart(original, 16, 32);
 		this.bodywear.setParent(body);
@@ -222,21 +227,21 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 
 		original.bipedLeftLegwear = leftLegwear = new ModelPart(original, 0, 48);
 		this.leftLegwear.setParent(leftLeg)
-				.developBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
+				.developBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
 				.hideFace(BoxSide.BOTTOM)
 				.create();
 		original.bipedRightLegwear = rightLegwear = new ModelPart(original, 0, 32);
 		this.rightLegwear
 				.setParent(rightLeg)
-				.developBox(-2.0F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
+				.developBox(-3.9F, 0.0F, -2.0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
 				.hideFace(BoxSide.BOTTOM)
 				.create();
 
 		this.leftForeLegwear = new ModelPart(original, 0, 48 + 6);
 		this.leftForeLegwear
-				.developBox(-2F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
+				.developBox(-0.1F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
 				.inflate(0.005F, 0F, 0.005F)
 				.offset(0F, 0.25F, 0F)
@@ -247,7 +252,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		
 		this.rightForeLegwear = new ModelPart(original, 0, 32 + 6);
 		this.rightForeLegwear
-				.developBox(-2F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
+				.developBox(-3.9F, 0F, 0F, 4, 6, 4, scaleFactor + 0.25F)
 				.setHeight(5.75F)
 				.inflate(0.005F, 0, 0.005F)
 				.offset(0F, 0.25F, 0F)

@@ -42,17 +42,19 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 
         this.renderLocalAccessories(entity, data, partialTicks);
 
-        GlStateManager.translate(data.globalOffset.getX() * scale,
-                data.globalOffset.getY() * scale,
-                data.globalOffset.getZ() * scale);
+        float globalScale = entity.isChild() ? getChildScale() : 1;
+
+        GlStateManager.translate(data.globalOffset.getX() * scale * globalScale,
+                data.globalOffset.getY() * scale * globalScale,
+                data.globalOffset.getZ() * scale * globalScale);
         GlStateManager.translate(0, entity.height / 2, 0);
         GlHelper.rotate(data.centerRotation.getSmooth());
         GlStateManager.translate(0, -entity.height / 2, 0);
         GlHelper.rotate(data.renderRotation.getSmooth());
 
-        GlStateManager.translate(data.localOffset.getX() * scale,
-                data.localOffset.getY() * scale,
-                data.localOffset.getZ() * scale);
+        GlStateManager.translate(data.localOffset.getX() * scale * globalScale,
+                data.localOffset.getY() * scale * globalScale,
+                data.localOffset.getZ() * scale * globalScale);
 
         this.transformLocally(entity, data, partialTicks);
 
@@ -91,6 +93,11 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
             f -= 360.0F;
 
         return prevYawOffset + partialTicks * f;
+    }
+
+    protected float getChildScale()
+    {
+        return 0.5F;
     }
 
 }

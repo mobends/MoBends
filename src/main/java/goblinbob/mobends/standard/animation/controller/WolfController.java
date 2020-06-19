@@ -10,6 +10,7 @@ import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.standard.data.WolfData;
 import goblinbob.mobends.standard.main.ModStatics;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -70,6 +71,18 @@ public class WolfController implements IAnimationController<WolfData>
             e.printStackTrace();
         }
 
+        if (wolf.isChild())
+        {
+            data.head.offsetScale = 0.5F;
+            data.head.globalOffset.set(0.0F, 5.0F, -2.0F);
+        }
+        else
+        {
+            data.head.offsetScale = 1.0F;
+            data.head.globalOffset.set(0.0F, 0.0F, 0.0F);
+        }
+        data.head.position.set(0.0F, -0.5F, -13.0F);
+
         // Head rotation
         data.head.rotation.localRotateY(data.headYaw.get()).finish();
         data.head.rotation.localRotateX(data.headPitch.get()).finish();
@@ -84,6 +97,8 @@ public class WolfController implements IAnimationController<WolfData>
 
         // Tail rotating based on health
         data.tail.rotation.localRotateX(wolf.getTailRotation() * GUtil.RAD_TO_DEG - 90.0F).finish();
+
+        data.head.offset.set(0, 0, 0);
 
         return null;
     }

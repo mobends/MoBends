@@ -6,6 +6,7 @@ import goblinbob.mobends.core.math.matrix.IMat4x4d;
 import goblinbob.mobends.core.math.physics.AABBoxGroup;
 import goblinbob.mobends.core.math.physics.IAABBox;
 import goblinbob.mobends.core.math.physics.ICollider;
+import goblinbob.mobends.core.math.vector.IVec3f;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
@@ -24,10 +25,18 @@ import java.util.List;
 public class ModelPart extends ModelRenderer implements IModelPart
 {
 
-    public Vec3f position;
-    public Vec3f scale;
-    public Vec3f offset;
-    public SmoothOrientation rotation;
+    public Vec3f position = new Vec3f();
+    public Vec3f scale = new Vec3f(1, 1, 1);
+    public Vec3f offset = new Vec3f();
+    public SmoothOrientation rotation = new SmoothOrientation();
+    /**
+     * The scale at which animation position offset is applied, used for child models.
+     */
+    public float offsetScale = 1.0F;
+    /**
+     * Offset applied before the parent transformation.
+     */
+    public Vec3f globalOffset = new Vec3f();
     protected List<MutatedBox> mutatedBoxes;
 
     /**
@@ -39,10 +48,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
     public ModelPart(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
     {
         super(model, texOffsetX, texOffsetY);
-        this.position = new Vec3f();
-        this.scale = new Vec3f(1, 1, 1);
-        this.offset = new Vec3f();
-        this.rotation = new SmoothOrientation();
 
         this.mutatedBoxes = new ArrayList<MutatedBox>();
 
@@ -129,13 +134,27 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
+    public void applyPreTransform(float scale)
+    {
+        if (this.globalOffset.x != 0.0F || this.globalOffset.y != 0.0F || this.globalOffset.z != 0.0F)
+            GlStateManager.translate(this.globalOffset.x * scale, this.globalOffset.y * scale, this.globalOffset.z * scale);
+    }
+
+    @Override
+    public void applyPreTransform(float scale, IMat4x4d dest)
+    {
+        if (this.globalOffset.x != 0.0F || this.globalOffset.y != 0.0F || this.globalOffset.z != 0.0F)
+            TransformUtils.translate(dest, this.globalOffset.x * scale, this.globalOffset.y * scale, this.globalOffset.z * scale);
+    }
+
+    @Override
     public void applyLocalTransform(float scale)
     {
         if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
-            GlStateManager.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
+            GlStateManager.translate(this.position.x * scale * offsetScale, this.position.y * scale * offsetScale, this.position.z * scale * offsetScale);
 
         if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
-            GlStateManager.translate(this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
+            GlStateManager.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
 
         GlHelper.rotate(rotation.getSmooth());
 
@@ -147,10 +166,10 @@ public class ModelPart extends ModelRenderer implements IModelPart
     public void applyLocalTransform(float scale, IMat4x4d matrix)
     {
         if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
-            TransformUtils.translate(matrix, this.position.x * scale, this.position.y * scale, this.position.z * scale);
+            TransformUtils.translate(matrix, this.position.x * scale * offsetScale, this.position.y * scale * offsetScale, this.position.z * scale * offsetScale);
 
         if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
-            TransformUtils.translate(matrix, this.offset.x * scale, this.offset.y * scale, this.offset.z * scale);
+            TransformUtils.translate(matrix, this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
 
         TransformUtils.rotate(matrix, rotation.getSmooth());
 
@@ -303,6 +322,18 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
+    public float getOffsetScale()
+    {
+        return this.offsetScale;
+    }
+
+    @Override
+    public IVec3f getGlobalOffset()
+    {
+        return globalOffset;
+    }
+
+    @Override
     public IModelPart getParent()
     {
         return this.parent;
@@ -353,6 +384,8 @@ public class ModelPart extends ModelRenderer implements IModelPart
         this.offset.set(part.getOffset());
         this.rotation.set(part.getRotation());
         this.scale.set(part.getScale());
+        this.offsetScale = part.getOffsetScale();
+        this.globalOffset.set(part.getGlobalOffset());
     }
 
     @Override

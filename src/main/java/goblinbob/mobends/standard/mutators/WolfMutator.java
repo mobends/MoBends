@@ -90,9 +90,6 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
     @Override
     public boolean createParts(ModelWolf original, float scaleFactor)
     {
-        float f = 0.0F;
-        float f1 = 13.5F;
-
         layerRenderers.remove(layerMisc);
         layerRenderers.add(layerMisc = new LayerWolfMisc());
 
