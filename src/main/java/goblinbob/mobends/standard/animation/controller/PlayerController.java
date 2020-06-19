@@ -59,6 +59,7 @@ public class PlayerController implements IAnimationController<PlayerData>
     protected HarvestAnimationBit bitHarvest = new HarvestAnimationBit();
     protected ShieldAnimationBit bitShield = new ShieldAnimationBit();
     protected CapeAnimationBit bitCape = new CapeAnimationBit();
+    protected SleepingAnimationBit bitSleeping = new SleepingAnimationBit();
 
     protected ArmatureMask upperBodyOnlyMask;
 
@@ -95,6 +96,12 @@ public class PlayerController implements IAnimationController<PlayerData>
 
     public void performActionAnimations(PlayerData data, AbstractClientPlayer player)
     {
+        if (player.isEntityAlive() && player.isPlayerSleeping())
+        {
+            layerAction.clearAnimation();
+            return;
+        }
+
         final EnumHandSide primaryHand = player.getPrimaryHand();
         final EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
         final ItemStack heldItemMainhand = player.getHeldItemMainhand();
@@ -140,7 +147,12 @@ public class PlayerController implements IAnimationController<PlayerData>
 
         layerCape.playOrContinueBit(bitCape, data);
 
-        if (player.isRiding())
+        if (player.isEntityAlive() && player.isPlayerSleeping())
+        {
+            layerBase.playOrContinueBit(bitSleeping, data);
+            layerSneak.clearAnimation();
+        }
+        else if (player.isRiding())
         {
             if (player.getRidingEntity() instanceof EntityLivingBase)
             {
