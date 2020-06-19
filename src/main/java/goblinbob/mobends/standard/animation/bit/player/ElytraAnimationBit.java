@@ -26,22 +26,18 @@ public class ElytraAnimationBit extends AnimationBit<PlayerData>
 
         final double magnitude = data.getInterpolatedMotionMagnitude();
 
-        double xzMomentum = data.getInterpolatedXZMotionMagnitude();
-
         float headPitch = MathHelper.wrapDegrees(data.headPitch.get());
         float headYaw = MathHelper.wrapDegrees(data.headYaw.get());
         float headYawAbs = MathHelper.abs(headYaw);
-        float yMomentumAngle = (float) MathHelper.atan2(xzMomentum,  data.getMotionY()) * 180.0F / GUtil.PI;
 
         float speedFactor = MathHelper.clamp((float) magnitude, 0.0F, 0.2F) / 0.2F;
 
         // Full Speed
 
-        float bodyRotationX = MathHelper.clamp(headPitch * 0.8F, -60.0F, 0.0F);
-        data.head.rotation.setSmoothness(1.0F).orientY(headYaw).rotateX(headPitch - bodyRotationX - yMomentumAngle * speedFactor);
-        data.body.rotation.setSmoothness(0.7F).orientX(bodyRotationX);
-        data.leftArm.rotation.setSmoothness(0.7F).orientX(-bodyRotationX).rotateZ(-60F + 55F * speedFactor - headYawAbs * 0.5F);
-        data.rightArm.rotation.setSmoothness(0.7F).orientX(-bodyRotationX).rotateZ(60F - 55F * speedFactor + headYawAbs * 0.5F);
+        data.head.rotation.setSmoothness(1.0F).orientY(headYaw).rotateX(-90.0F);
+        data.body.rotation.setSmoothness(0.7F).orientX(0);
+        data.leftArm.rotation.setSmoothness(0.7F).orientX(0).rotateZ(-60F + 55F * speedFactor - headYawAbs * 0.5F);
+        data.rightArm.rotation.setSmoothness(0.7F).orientX(0).rotateZ(60F - 55F * speedFactor + headYawAbs * 0.5F);
         data.leftForeArm.rotation.setSmoothness(.7F).orientZero();
         data.rightForeArm.rotation.setSmoothness(.7F).orientZero();
         data.leftLeg.rotation.setSmoothness(0.7F).orientZ(-5.0F);

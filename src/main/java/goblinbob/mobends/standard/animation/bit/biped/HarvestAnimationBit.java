@@ -46,9 +46,17 @@ public class HarvestAnimationBit extends AnimationBit<BipedEntityData<?>>
 
         float swingProgress = data.swingProgress.get();
         final float bodyYaw = MathHelper.sin(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F)) * 30.0F * sideMultiplier;
-        data.body.rotation.orientInstantY(bodyYaw);
-        data.head.rotation.setSmoothness(0.5F).orientX(headPitch)
-                .rotateInstantY(headYaw - bodyYaw);
+        data.body.rotation.setSmoothness(0.8F).orientY(bodyYaw);
+
+        float bodyPitch = 0;
+        if (data.getEntity().isSneaking())
+        {
+            data.body.rotation.rotateX(20.0F);
+            bodyPitch = 20.0F;
+        }
+
+        data.head.rotation.setSmoothness(0.8F).orientX(headPitch - bodyPitch)
+                .rotateY(headYaw - bodyYaw);
 
         mainArm.rotation.orientInstantX(MathHelper.sin(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F)) * 50.0F - 30.0F);
         mainArm.rotation.localRotateZ(MathHelper.cos(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F)) * -20.0F + 10.0F).finish();

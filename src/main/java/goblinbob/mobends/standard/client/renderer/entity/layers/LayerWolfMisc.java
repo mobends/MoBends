@@ -27,6 +27,7 @@ public class LayerWolfMisc implements LayerRenderer<EntityWolf>
     protected final TextureManager textureManager;
     private Mesh mouthBottom;
     private Mesh mouthTop;
+    private Mesh mouthInside;
     private Mesh tongue;
 
     public LayerWolfMisc()
@@ -44,6 +45,12 @@ public class LayerWolfMisc implements LayerRenderer<EntityWolf>
         MeshBuilder.texturedXZPlane(mouthTop, -1.5F, 1F, -4F, 3, 4, false, Color.WHITE,
                 new int[] { 0, 0, 3, 4 }, textureWidth, textureHeight);
         mouthTop.finishDrawing();
+
+        mouthInside = new Mesh(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL, 6);
+        mouthInside.beginDrawing(GL11.GL_TRIANGLES);
+        MeshBuilder.texturedXZPlane(mouthInside, -1.5F, -4.1F, -3.0F, 3, 1, true, Color.WHITE,
+                new int[] { 0, 0, 3, 4 }, textureWidth, textureHeight);
+        mouthInside.finishDrawing();
 
         tongue = new Mesh(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL, 6);
         tongue.beginDrawing(GL11.GL_TRIANGLES);
@@ -74,6 +81,14 @@ public class LayerWolfMisc implements LayerRenderer<EntityWolf>
                 data.body.applyLocalTransform(scale);
             }
             data.head.applyLocalTransform(scale);
+
+            GlStateManager.enableCull();
+            // Mouth inside
+            GlStateManager.pushMatrix();
+            GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.scale(scale, scale, scale);
+            mouthInside.display();
+            GlStateManager.popMatrix();
 
             // Mouth bottom
             GlStateManager.pushMatrix();
