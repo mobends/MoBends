@@ -4,6 +4,7 @@ import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import goblinbob.mobends.standard.data.BipedEntityData;
+import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerArmorBase;
@@ -69,7 +70,8 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
     	EntityData<?> entityData = EntityDatabase.instance.get(entity);
     	
     	final ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model);
-    	if (entityData instanceof BipedEntityData)
+
+    	if (entityData instanceof BipedEntityData && !ModConfig.shouldKeepArmorAsVanilla(itemStack.getItem()))
     	{
     		return ArmorModelFactory.getArmorModel(suggestedModel);
     	}

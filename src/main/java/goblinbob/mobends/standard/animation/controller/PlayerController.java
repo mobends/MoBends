@@ -91,7 +91,7 @@ public class PlayerController implements IAnimationController<PlayerData>
 
     public static boolean isHoldingWeapon(Item heldItemMainhand)
     {
-        return heldItemMainhand instanceof ItemSword || ModConfig.isItemWeapon(heldItemMainhand);
+        return heldItemMainhand instanceof ItemSword || ModConfig.getItemClassification(heldItemMainhand) == ModConfig.ItemClassification.WEAPON;
     }
 
     public void performActionAnimations(PlayerData data, AbstractClientPlayer player)

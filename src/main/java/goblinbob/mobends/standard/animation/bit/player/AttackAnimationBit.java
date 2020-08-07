@@ -80,6 +80,10 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 				{
 					this.layerBase.playOrContinueBit(this.bitAttackSlashOutward, playerData);
 				}
+				else if (playerData.getCurrentAttack() == 5)
+				{
+					this.layerBase.playOrContinueBit(this.bitAttackWhirlSlash, playerData);
+				}
 				else
 				{
 					this.layerBase.clearAnimation();
