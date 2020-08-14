@@ -4,9 +4,9 @@ import net.minecraft.client.gui.GuiScreen;
 
 public interface IAnimationEditor
 {
-    IAnimationEditorGui createGui(GuiBendsMenu menu);
+    EditorGuiBase createGui(GuiBendsMenu menu);
 
-    class IAnimationEditorGui extends GuiScreen
+    class EditorGuiBase extends GuiScreen
     {
 
     }

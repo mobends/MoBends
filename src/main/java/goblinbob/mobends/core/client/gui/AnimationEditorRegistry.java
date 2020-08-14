@@ -1,12 +1,13 @@
 package goblinbob.mobends.core.client.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AnimationEditorRegistry
 {
     public static AnimationEditorRegistry INSTANCE = new AnimationEditorRegistry();
 
-    private List<IAnimationEditor> registeredEditors;
+    private List<IAnimationEditor> registeredEditors = new ArrayList<>();
 
     public AnimationEditorRegistry()
     {
