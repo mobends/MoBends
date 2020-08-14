@@ -56,7 +56,7 @@ public class GuiSettingsWindow extends GuiScreen
         this.y = (this.height - EDITOR_HEIGHT) / 2;
 
         buttonList.clear();
-        buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, "Back"));
+        buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
         filterQueryInput = new GuiCompactTextField(COMPONENT_QUERY_INPUT, this.fontRenderer, x + 6, y + 6, 150, 16);
         filterQueryInput.setFocused(true);
         filterQueryInput.setPlaceholderText(I18n.format("mobends.gui.search"));

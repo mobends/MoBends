@@ -20,21 +20,25 @@ public class GuiPopUp
     protected int height;
     private String[] title;
     protected FontRenderer fontRenderer;
-    private List<GuiCustomButton> buttons;
-    private int afterAction = 0;
+    private List<Button> buttons;
 
-    public GuiPopUp(String title, int action, String[] buttons)
+    public GuiPopUp(String title, ButtonProps[] buttonProps)
+    {
+        this(title, 120, 60, buttonProps);
+    }
+
+    public GuiPopUp(String title, int width, int height, ButtonProps[] buttonProps)
     {
         this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        this.width = 120;
-        this.height = 60;
-        this.title = GUtil.squashText(fontRenderer, title, width - 40);
+        this.width = width;
+        this.height = height;
+        this.title = GUtil.wrapText(fontRenderer, title, width - 20);
         this.buttons = new ArrayList<>();
-        for (String label : buttons)
+
+        for (ButtonProps buttonProp : buttonProps)
         {
-            this.buttons.add(new GuiCustomButton(50, 20, label));
+            this.buttons.add(new Button(fontRenderer, buttonProp));
         }
-        this.afterAction = action;
     }
 
     public void initGui(int x, int y)
@@ -42,10 +46,11 @@ public class GuiPopUp
         this.x = x - width / 2;
         this.y = y - height / 2;
 
-        for (int index = 0; index < buttons.size(); index++)
+        int offset = this.x + width - 5;
+        for (Button button : buttons)
         {
-            GuiCustomButton button = buttons.get(index);
-            button.setPosition(this.x + 5 + index * 60, this.y + height - 25);
+            button.buttonUI.setPosition(offset - button.buttonUI.width, this.y + height - 25);
+            offset -= button.buttonUI.width + 5;
         }
     }
 
@@ -76,40 +81,62 @@ public class GuiPopUp
         Draw.texturedModalRect(x - 4, y, 4, height, 60, 68, 4, 1);
         /* Inside		*/
         Draw.texturedModalRect(x, y, width, height, 64, 68, 1, 1);
-        int yOffset = 0;
+
+        int yOffset = 6;
         for (String line : title)
         {
-            fontRenderer.drawStringWithShadow(line, x + (width - fontRenderer.getStringWidth(line)) / 2, y + 3 + yOffset, 0xffffff);
+            fontRenderer.drawStringWithShadow(line, x + (width - fontRenderer.getStringWidth(line)) / 2, y + yOffset, 0xffffff);
             yOffset += 9;
         }
 
-        for (GuiCustomButton button : buttons)
+        for (Button button : buttons)
         {
-            button.drawButton(mouseX, mouseY, partialTicks);
+            button.buttonUI.drawButton(mouseX, mouseY, partialTicks);
         }
     }
 
-    public int mouseClicked(int mouseX, int mouseY, int state)
+    public void mouseClicked(int mouseX, int mouseY, int state)
     {
-        for (int index = 0; index < buttons.size(); index++)
+        for (Button button : buttons)
         {
-            GuiButton button = buttons.get(index);
-            if (button.mousePressed(Minecraft.getMinecraft(), mouseX, mouseY))
+            if (button.buttonUI.mousePressed(Minecraft.getMinecraft(), mouseX, mouseY))
             {
-                return index;
+                // Performing the button action.
+                button.props.action.performAction();
+                return;
             }
         }
-        return -1;
     }
 
-    public void keyTyped(char typedChar, int keyCode)
+    @FunctionalInterface
+    public interface ButtonAction
     {
-        // No default functionality.
+        void performAction();
     }
 
-    public int getAfterAction()
+    public static class ButtonProps
     {
-        return afterAction;
+        private String label;
+        private ButtonAction action;
+
+        public ButtonProps(String label, ButtonAction action)
+        {
+            this.label = label;
+            this.action = action;
+        }
+    }
+
+    public static class Button
+    {
+        public ButtonProps props;
+        public GuiCustomButton buttonUI;
+
+        public Button(FontRenderer fontRenderer, ButtonProps props)
+        {
+            this.props = props;
+            int labelWidth = fontRenderer.getStringWidth(props.label);
+            this.buttonUI = new GuiCustomButton(Math.max(labelWidth + 10, 50), 20, props.label);
+        }
     }
 
 }

@@ -11,6 +11,7 @@ import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
 
@@ -34,7 +35,6 @@ public class GuiPacksWindow extends GuiScreen
 
     private GuiLocalPacks localPacks;
 
-    private float publicJumbotronTransition = 1F;
     private Timer timer;
 
     public GuiPacksWindow()
@@ -79,7 +79,7 @@ public class GuiPacksWindow extends GuiScreen
         this.tabNavigation.initGui(this.x + 5, this.y);
 
         this.buttonList.clear();
-        this.buttonList.add(new GuiButton(BUTTON_BACK, 10, height - 30, 60, 20, "Back"));
+        this.buttonList.add(new GuiButton(BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
         this.localPacks.initGui(this.x, this.y);
     }
 
@@ -126,11 +126,6 @@ public class GuiPacksWindow extends GuiScreen
 
         float delta = this.timer.tick();
 
-        if (this.publicJumbotronTransition > 0)
-            this.publicJumbotronTransition = this.publicJumbotronTransition - delta * 0.001F;
-        if (this.publicJumbotronTransition < 0)
-            this.publicJumbotronTransition = 0;
-
         Minecraft.getMinecraft().getTextureManager().bindTexture(BACKGROUND_TEXTURE);
         // Container
         Draw.borderBox(x + 4, y + 4, EDITOR_WIDTH, EDITOR_HEIGHT, 4, 36, 126);
@@ -151,68 +146,6 @@ public class GuiPacksWindow extends GuiScreen
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
-
-//        GuiPackEntry entry = packList.getSelectedEntry();
-//        if (true)
-//        {
-//            if (entry != null)
-//            {
-
-//                String packName = entry.getDisplayName();
-//                String packAuthor = "by " + entry.author;
-//                fontRenderer.drawStringWithShadow(packName, x + 184 - fontRenderer.getStringWidth(packName) / 2, y + 7,
-//                        0xffffff);
-//                fontRenderer.drawString(packAuthor, x + 184 - fontRenderer.getStringWidth(packAuthor) / 2, y + 17,
-//                        0x444444);
-//                int yOffset = y + 29;
-//                for (String line : GUtil.squashText(fontRenderer, entry.description, 130))
-//                {
-//                    fontRenderer.drawStringWithShadow(line, x + 120, yOffset, 0xffffff);
-//                    yOffset += 12;
-//                }
-//            }
-//            else
-//            {
-//                GlStateManager.color(1, 1, 1, 1);
-//                Minecraft.getMinecraft().getTextureManager().bindTexture(BACKGROUND_TEXTURE);
-//                Draw.texturedModalRect(x + EDITOR_WIDTH / 2 - 4, y + 6, 0, 195, 130, 61);
-//
-//                float alpha = GUtil.clamp(this.publicJumbotronTransition * 2, 0, 1);
-//                int color = 0x00ffffff;
-//                color |= (((int) (alpha * 255) & 255) << 24);
-//                Draw.rectangle(x + EDITOR_WIDTH / 2 - 4, y + 6, 130, 61, color);
-//
-//                int yOffset = y + 77;
-//                for (String line : GUtil.squashText(fontRenderer, publicInfoText, 130))
-//                {
-//                    fontRenderer.drawString(line, x + 121, yOffset, 0x444444);
-//                    yOffset += 12;
-//                }
-//                fontRenderer.drawStringWithShadow("gobbobminecraft@gmail.com", x + 118, y + 110, 0xffffff);
-//            }
-//        }
-//        else
-//        {
-//            this.openFolderButton.drawButton(mouseX, mouseY, partialTicks);
-//            if (entry != null)
-//            {
-//                String text = entry.getDisplayName();
-//                fontRenderer.drawStringWithShadow(text, x + 184 - fontRenderer.getStringWidth(text) / 2, y + 7,
-//                        0xffffff);
-//                int yOffset = y + 27;
-//                for (String line : GUtil.squashText(fontRenderer, entry.description, 80))
-//                {
-//                    fontRenderer.drawStringWithShadow(line, x + 120, yOffset, 0xffffff);
-//                    yOffset += 12;
-//                }
-//            }
-//            else
-//            {
-//                String text = I18n.format("mobends.gui.selectpack");
-//                fontRenderer.drawStringWithShadow(text, x + 184 - fontRenderer.getStringWidth(text) / 2,
-//                        y + EDITOR_HEIGHT / 2, 0xffffff);
-//            }
-//        }
     }
 
     @Override

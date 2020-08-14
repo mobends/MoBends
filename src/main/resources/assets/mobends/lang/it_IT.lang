@@ -1,3 +1,6 @@
+mobends.gui.section.settings=settings
+mobends.gui.section.packs=pacchetti
+mobends.gui.section.customize=personalizza
 mobends.gui.customize=Personalizza
 mobends.gui.packs=Pacchetti
 mobends.gui.publicpacks=Pacchetti Publici
@@ -20,6 +23,6 @@ mobends.gui.node=Nodo
 mobends.gui.calculation=Calcolo
 mobends.gui.noscaleallowed=Attenzione: Questo Server Non Dispone Della Funzione Di Body Scaling
 
-mobends.setting.sword_trail=Scia Della Spada
-mobends.setting.arrow_trails=Scia Delle Freccie
-mobends.setting.spin_attack=Attacco Rotante
+mobends.config.show_sword_trails=Scia Della Spada
+mobends.config.show_arrow_trails=Scia Delle Freccie
+mobends.config.perform_spin_attack=Attacco Rotante

@@ -125,33 +125,48 @@ public class GUtil
         return vectors;
     }
 
-    public static String[] squashText(FontRenderer fontRenderer, String text, int maxWidth)
+    public static String[] wrapText(FontRenderer fontRenderer, String text, int maxWidth)
     {
         if (maxWidth <= 0) return new String[] {};
-        if (text.indexOf(" ") == -1)
-            return new String[] {text};
+        if (!text.contains(" "))
+            return new String[] { text };
 
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
         String leftover = text + "";
         String line = "";
+
+        boolean endOfString = false;
         do
         {
-            int currentWidth = fontRenderer.getStringWidth(line + " " + leftover.substring(0, leftover.indexOf(" ")));
-            if (currentWidth > maxWidth)
+            String leftoverToNextSpace;
+
+            if (leftover.contains(" "))
             {
-                lines.add(line.trim());
-                line = leftover.substring(0, leftover.indexOf(" "));
+                leftoverToNextSpace = leftover.substring(0, leftover.indexOf(" "));
             }
             else
             {
-                line += " " + leftover.substring(0, leftover.indexOf(" "));
+                leftoverToNextSpace = leftover;
+                endOfString = true;
             }
 
-            leftover = leftover.substring(leftover.indexOf(" ") + 1);
-        } while (fontRenderer.getStringWidth(leftover) > maxWidth && leftover.indexOf(" ") != -1);
-        lines.add(line.trim());
-        line = leftover;
-        lines.add(line.trim());
+            int currentWidth = fontRenderer.getStringWidth(line + leftoverToNextSpace);
+            if (currentWidth > maxWidth)
+            {
+                lines.add(line.trim());
+                line = leftoverToNextSpace + " ";
+            }
+            else
+            {
+                line += leftoverToNextSpace + " ";
+            }
+
+            if (!endOfString)
+                leftover = leftover.substring(leftover.indexOf(" ") + 1);
+            else
+                lines.add(line.trim());
+        } while (!endOfString);
+
         return lines.toArray(new String[] {});
     }
 

@@ -8,9 +8,12 @@ public class GuiPopUpCreatePack extends GuiPopUp
 
     protected GuiCompactTextField titleTextField;
 
-    public GuiPopUpCreatePack(int action)
+    public GuiPopUpCreatePack()
     {
-        super(I18n.format("mobends.gui.createpack"), action, new String[]{ "Cancel", "Create" });
+        super(I18n.format("mobends.gui.createpack"), new ButtonProps[] {
+            new ButtonProps("Cancel", () -> {}),
+            new ButtonProps("Create", () -> {})
+        });
     }
 
     public void initGui(int x, int y)
@@ -32,10 +35,10 @@ public class GuiPopUpCreatePack extends GuiPopUp
             titleTextField.updateCursorCounter();
     }
 
-    public int mouseClicked(int mouseX, int mouseY, int button)
+    public void mouseClicked(int mouseX, int mouseY, int button)
     {
         titleTextField.mouseClicked(mouseX, mouseY, button);
-        return super.mouseClicked(mouseX, mouseY, button);
+        super.mouseClicked(mouseX, mouseY, button);
     }
 
     public void keyTyped(char typedChar, int keyCode)

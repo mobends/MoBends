@@ -4,6 +4,8 @@ import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.bender.IPreviewer;
+import goblinbob.mobends.core.client.gui.AnimationEditorRegistry;
+import goblinbob.mobends.core.client.gui.IAnimationEditor;
 import goblinbob.mobends.core.client.MutatedRenderer;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
@@ -118,6 +120,11 @@ public class AddonAnimationRegistry
     public void registerTriggerCondition(String key, ITriggerCondition condition)
     {
         TriggerConditionRegistry.instance.register(String.format("%s:%s", modId, key), condition);
+    }
+
+    public void registerAnimationEditor(IAnimationEditor editor)
+    {
+        AnimationEditorRegistry.INSTANCE.registerEditor(editor);
     }
 
 }

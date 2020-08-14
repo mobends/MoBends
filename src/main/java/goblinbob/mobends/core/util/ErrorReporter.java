@@ -8,14 +8,15 @@ import net.minecraft.util.text.TextFormatting;
 public class ErrorReporter
 {
 
-    public static void showErrorToPlayer(String error)
+    public static TextComponentString createErrorHeader()
     {
-        TextComponentString textComponent = new TextComponentString(error);
-        textComponent.getStyle().setColor(TextFormatting.YELLOW);
-        Minecraft.getMinecraft().player.sendMessage(textComponent);
+        TextComponentString header = new TextComponentString("[Mo' Bends] ");
+        header.getStyle().setColor(TextFormatting.YELLOW);
+
+        return header;
     }
 
-    public static void showErrorToPlayer(InvalidPackFormatException ex)
+    public static void showErrorToPlayer(TextComponentString textComponent)
     {
         if (Minecraft.getMinecraft().player == null)
         {
@@ -23,22 +24,29 @@ public class ErrorReporter
         }
 
         TextComponentString base = new TextComponentString("");
+        base.getStyle().setColor(TextFormatting.WHITE);
+        base.appendSibling(createErrorHeader());
+        base.appendSibling(textComponent);
 
-        TextComponentString header = new TextComponentString("[Mo' Bends] ");
-        header.getStyle().setColor(TextFormatting.YELLOW);
-        base.appendSibling(header);
+        Minecraft.getMinecraft().player.sendMessage(base);
+    }
 
+    public static void showErrorToPlayer(String error)
+    {
+        showErrorToPlayer(new TextComponentString(error));
+    }
+
+    public static void showErrorToPlayer(InvalidPackFormatException ex)
+    {
         TextComponentString textComponent = new TextComponentString("A pack has been disabled due to it's wrong format: ");
-        textComponent.getStyle().setColor(TextFormatting.WHITE);
-        header.appendSibling(textComponent);
 
         TextComponentString packName = new TextComponentString(ex.getPackName());
         packName.getStyle().setBold(true);
-        base.appendSibling(packName);
+        textComponent.appendSibling(packName);
 
-        base.appendText(". Check the logs for more details...");
+        textComponent.appendText(". Check the logs for more details...");
 
-        Minecraft.getMinecraft().player.sendMessage(base);
+        showErrorToPlayer(textComponent);
     }
 
 }

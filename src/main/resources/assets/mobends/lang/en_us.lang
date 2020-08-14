@@ -1,14 +1,13 @@
 mobends.gui.section.settings=settings
 mobends.gui.section.packs=packs
-mobends.gui.section.addons=add-ons
-mobends.gui.customize=Customize
+mobends.gui.section.customize=customize
 mobends.gui.settings=Settings
 mobends.gui.packs=Packs
-mobends.gui.addons=Add-ons
 mobends.gui.publicpacks=Public Packs
 mobends.gui.localpacks=Local Packs
 mobends.gui.unusedpacks=Unused Packs
 mobends.gui.appliedpacks=Applied Packs
+mobends.gui.back=Back
 mobends.gui.use=Use
 mobends.gui.disable=Disable
 mobends.gui.edit=Edit
@@ -21,6 +20,9 @@ mobends.gui.discardchanges=Do you want to discard changes?
 mobends.gui.createpack=Create a pack
 mobends.gui.noscaleallowed=Warning: This server doesn't allow body scaling.
 mobends.gui.search=Search...
+mobends.gui.editornotfound=Animation editor not found
+mobends.gui.geteditor=Get Editor
+
 mobends.player=Player
 
 mobends.config.show_arrow_trails=Show Arrow Trails
