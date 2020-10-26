@@ -24,6 +24,7 @@ public class TriggerConditionRegistry
         register("core:not", NotCondition::new, NotCondition.Template.class);
         register("core:state", StateCondition::new, StateCondition.Template.class);
         register("core:ticks_passed", TicksPassedCondition::new, TicksPassedCondition.Template.class);
+        register("core:equipment_name", EquipmentNameCondition::new, EquipmentNameCondition.Template.class);
         register("core:animation_finished", (context) -> {
             INodeState node = context.getCurrentNode();
             if (node != null)

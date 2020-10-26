@@ -42,6 +42,15 @@ public class OBBox implements IOBBox, ICollider
 	{
 		return this.max;
 	}
+
+	public Vec3f getCenter()
+	{
+		return new Vec3f(
+			(this.min.x + this.max.x) / 2,
+			(this.min.y + this.max.y) / 2,
+			(this.min.z + this.max.z) / 2
+		);
+	}
 	
 	public IMat4x4d getTransform()
 	{

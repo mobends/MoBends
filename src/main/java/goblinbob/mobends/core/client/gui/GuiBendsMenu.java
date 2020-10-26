@@ -154,7 +154,7 @@ public class GuiBendsMenu extends GuiScreen
 			else
 			{
 				// Opens the animation editor.
-				Minecraft.getMinecraft().displayGuiScreen(editor.createGui(this));
+				editor.openEditorGui();
 			}
 		}
 
