@@ -3,7 +3,6 @@ package goblinbob.mobends.core.client.gui.settingswindow;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.client.gui.elements.GuiSmallToggleButton;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
-import goblinbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 

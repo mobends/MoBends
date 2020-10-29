@@ -1,11 +1,9 @@
 package goblinbob.mobends.standard.animation.controller;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
-import goblinbob.mobends.core.animation.bit.KeyframeAnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.keyframe.ArmatureMask;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
-import goblinbob.mobends.core.animation.layer.KeyframeAnimationLayer;
 import goblinbob.mobends.standard.animation.bit.biped.*;
 import goblinbob.mobends.standard.animation.bit.player.SprintAnimationBit;
 import goblinbob.mobends.standard.animation.bit.player.WalkAnimationBit;

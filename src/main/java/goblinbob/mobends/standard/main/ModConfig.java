@@ -8,7 +8,8 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Config(modid = ModStatics.MODID)
 public class ModConfig

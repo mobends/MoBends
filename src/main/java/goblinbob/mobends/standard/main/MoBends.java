@@ -11,6 +11,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+import java.util.logging.Logger;
+
 @Mod(modid = ModStatics.MODID)
 public class MoBends
 {
@@ -21,6 +23,8 @@ public class MoBends
 
     @Instance(value = ModStatics.MODID)
     public static MoBends instance;
+
+    public static final Logger LOG = Logger.getLogger(ModStatics.MODID);
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)

@@ -1,9 +1,13 @@
 package goblinbob.mobends.standard.mutators;
 
-import goblinbob.mobends.core.client.model.*;
+import goblinbob.mobends.core.client.model.BoxSide;
+import goblinbob.mobends.core.client.model.ModelPart;
+import goblinbob.mobends.core.client.model.ModelPartExtended;
+import goblinbob.mobends.core.client.model.ModelPartPostOffset;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.data.SkeletonData;
-import net.minecraft.client.model.*;
+import net.minecraft.client.model.ModelBase;
+import net.minecraft.client.model.ModelSkeleton;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.monster.EntitySkeleton;
 

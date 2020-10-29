@@ -27,18 +27,6 @@ public class ArmorModelFactory
 			return custom;
 		}
 	}
-
-	/**
-	 * This ensures that each armor's mutation state is
-	 * in sync with it's AnimatedEntity counterpart.
-	 */
-	public static void updateMutation()
-	{
-		for (MutatedArmorModel model : customArchive.values())
-		{
-			model.updateMutation();
-		}
-	}
 	
 	public static void refresh()
 	{

@@ -4,7 +4,6 @@ import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
 import goblinbob.mobends.standard.animation.bit.biped.AttackSlashInwardAnimationBit;
-import goblinbob.mobends.standard.animation.bit.biped.AttackSlashUpAnimationBit;
 import goblinbob.mobends.standard.animation.bit.biped.JumpAnimationBit;
 import goblinbob.mobends.standard.animation.bit.pigzombie.StandAnimationBit;
 import goblinbob.mobends.standard.animation.bit.pigzombie.WalkAnimationBit;

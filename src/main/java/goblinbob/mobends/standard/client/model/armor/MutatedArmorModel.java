@@ -2,7 +2,8 @@ package goblinbob.mobends.standard.client.model.armor;
 
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.client.model.*;
+import goblinbob.mobends.core.client.model.ModelPartContainer;
+import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.util.ModelUtils;
@@ -27,19 +28,17 @@ public class MutatedArmorModel extends ModelBiped
 {
 
     protected ModelBiped original;
-    protected List<Field> gatheredFields;
+    protected List<Field> gatheredFields = new ArrayList<>();
+
+    /**
+     * Used to deapply the mutation of the armor.
+     */
+    protected HashMap<Field, ModelRenderer> fieldToOriginalMap = new HashMap<>();
 
     /**
      * Used to demutate the armor back into it's vanilla state.
      */
-    protected HashMap<Field, ModelRenderer> fieldToOriginalMap;
-
-    /**
-     * Used to demutate the armor back into it's vanilla state.
-     * Both key and value are the of the original vanilla model.
-     */
-    protected HashMap<ModelRenderer, net.minecraft.client.model.ModelBox> modelToBoxMap;
-    protected HashMap<ModelRenderer, IModelPart> originalToCustomMap;
+    protected HashMap<Field, ModelPartContainer> fieldToMutatedMap = new HashMap<>();
 
     /**
      * Keeps track of whether the model is mutated or not.
@@ -47,9 +46,12 @@ public class MutatedArmorModel extends ModelBiped
     protected boolean mutated = false;
 
     /**
-     * The lastest AnimatedEntity that rendered this armor.
+     * True if this armor model should be shown in the mutated form rather than the vanilla form.
+     * This is useful if for example the Player wears an armor and is animated, but a skeleton who
+     * is wearing the same armor isn't. In one instance the armor has to be shown as mutated, in the
+     * other one as vanilla.
      */
-    protected EntityBender<EntityLivingBase> lastEntityBender;
+    protected boolean applied = false;
 
     /**
      * This is used as a parent for other parts, like the arms and head.
@@ -68,13 +70,11 @@ public class MutatedArmorModel extends ModelBiped
     protected PartGroup<BipedEntityData<?>> leftForeLegParts,
                                             rightForeLegParts;
 
+    protected AppendageSlicer appendageSlicer = new AppendageSlicer();
+
     public MutatedArmorModel(ModelBiped original)
     {
         this.original = original;
-        this.gatheredFields = new ArrayList<>();
-        this.fieldToOriginalMap = new HashMap<>();
-        this.modelToBoxMap = new HashMap<>();
-        this.originalToCustomMap = new HashMap<>();
         this.mainBodyTransform = new ModelPartTransform();
 
         this.partGroups = new ArrayList<>();
@@ -94,6 +94,8 @@ public class MutatedArmorModel extends ModelBiped
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
                        float headPitch, float scale)
     {
+        this.apply();
+
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
         if (!(entityIn instanceof EntityLivingBase))
@@ -107,16 +109,6 @@ public class MutatedArmorModel extends ModelBiped
         EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
         if (!(entityData instanceof BipedEntityData))
             return;
-
-        lastEntityBender = entityBender;
-        if (entityBender.isAnimated() && !this.mutated)
-        {
-            this.mutate();
-        }
-        else if (!entityBender.isAnimated() && this.mutated)
-        {
-            this.demutate();
-        }
 
         final BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
 
@@ -146,6 +138,8 @@ public class MutatedArmorModel extends ModelBiped
         renderPartGroups(rightForeLegParts, scale, dataBiped.rightLeg);
 
         GlStateManager.popMatrix();
+
+        this.deapply();
     }
 
     private void renderPartGroups(PartGroup<BipedEntityData<?>> group, float scale, ModelPartTransform ...dependencies)
@@ -191,10 +185,6 @@ public class MutatedArmorModel extends ModelBiped
     protected void updateVisibility()
     {
         this.partGroups.forEach(group -> group.updateVisibility(this));
-
-        for (Map.Entry<ModelRenderer, IModelPart> entry : this.originalToCustomMap.entrySet())
-            if (entry.getValue().isShowing())
-                entry.getValue().setVisible(entry.getKey().showModel && !entry.getKey().isHidden);
     }
 
     protected void mutate()
@@ -207,8 +197,7 @@ public class MutatedArmorModel extends ModelBiped
         this.partGroups.forEach(PartGroup::clear);
         this.gatheredFields.clear();
         this.fieldToOriginalMap.clear();
-        this.modelToBoxMap.clear();
-        this.originalToCustomMap.clear();
+        this.fieldToMutatedMap.clear();
         gatherFields(original.getClass());
 
         for (Field f : this.gatheredFields)
@@ -229,12 +218,12 @@ public class MutatedArmorModel extends ModelBiped
                     else
                     {
                         System.out.println("Added to fieldToOriginalMap " + modelRenderer);
-                        fieldToOriginalMap.put(f, modelRenderer);
+                        this.fieldToOriginalMap.put(f, modelRenderer);
+                        this.appendageSlicer.registerOriginalModelRenderer(modelRenderer);
                         container = this.mutatePart(modelRenderer);
-                        container.mirror = modelRenderer.mirror;
                     }
                     this.assignPart(container);
-                    f.set(original, container);
+                    this.fieldToMutatedMap.put(f, container);
                 }
             }
             catch (IllegalArgumentException | IllegalAccessException e)
@@ -247,69 +236,71 @@ public class MutatedArmorModel extends ModelBiped
         this.positionParts();
 
         this.mutated = true;
+
+        this.apply();
     }
 
-    /*
+    /**
      * Brings the original model back to it's vanilla state.
      */
     public void demutate()
     {
-        for (Field f : this.gatheredFields)
-        {
-            if (fieldToOriginalMap.containsKey(f))
-            {
-                System.out.println("Retrieved from fieldToOriginalMap " + fieldToOriginalMap.get(f));
-                try
-                {
-                    f.set(original, fieldToOriginalMap.get(f));
-                }
-                catch (IllegalArgumentException | IllegalAccessException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        for (ModelRenderer renderer : this.modelToBoxMap.keySet())
-        {
-            renderer.cubeList.clear();
-        }
-
-        for (Map.Entry<ModelRenderer, net.minecraft.client.model.ModelBox> entry : this.modelToBoxMap.entrySet())
-        {
-            entry.getKey().cubeList.add(entry.getValue());
-        }
+        this.deapply();
 
         this.gatheredFields.clear();
         this.fieldToOriginalMap.clear();
-        this.modelToBoxMap.clear();
-        this.originalToCustomMap.clear();
         this.partGroups.forEach(PartGroup::clear);
 
         this.mutated = false;
     }
 
-    /*
-     * Ensures that this armor's mutation state is in sync
-     * with it's AnimatedEntity counterpart.
-     * Called from ArmorModelFactory.updateMutation()
-     */
-    public void updateMutation()
+    public void apply()
     {
-        if (lastEntityBender == null)
+        if (this.applied)
             return;
 
-        if (lastEntityBender.isAnimated() && !this.mutated)
+        // Assigning mutated models to fields in the armor model.
+        for (Map.Entry<Field, ModelPartContainer> entry : fieldToMutatedMap.entrySet())
         {
-            this.mutate();
+            try
+            {
+                entry.getKey().set(original, entry.getValue());
+            }
+            catch (IllegalArgumentException | IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
         }
-        else if (!lastEntityBender.isAnimated() && this.mutated)
-        {
-            this.demutate();
-        }
+
+        this.appendageSlicer.apply();
+
+        this.applied = true;
     }
 
-    /*
+    public void deapply()
+    {
+        if (!this.applied)
+            return;
+
+        // Assigning vanilla models to fields in the armor model.
+        for (Map.Entry<Field, ModelRenderer> entry : fieldToOriginalMap.entrySet())
+        {
+            try
+            {
+                entry.getKey().set(original, entry.getValue());
+            }
+            catch (IllegalArgumentException | IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        this.appendageSlicer.deapply();
+
+        this.applied = false;
+    }
+
+    /**
      * Used to get all the Fields from the modelClass and it's
      * superClasses that are an instance of ModelRenderer.
      */
@@ -330,7 +321,10 @@ public class MutatedArmorModel extends ModelBiped
 
     protected ModelPartContainer mutatePart(ModelRenderer modelRenderer)
     {
-        return new ModelPartContainer(this, modelRenderer);
+        ModelPartContainer container = new ModelPartContainer(this, modelRenderer);
+        container.mirror = modelRenderer.mirror;
+
+        return container;
     }
 
     protected void assignPart(ModelPartContainer container)
@@ -406,67 +400,16 @@ public class MutatedArmorModel extends ModelBiped
         rightForeLegParts.forEach(part -> part.setInnerOffset(-2F, -6F, 2F));
     }
 
-    protected void sliceAppendage(ModelPartContainer part, PartGroup targetGroup, float cutPlane)
-    {
-        final ModelRenderer originalPart = part.getModel();
-
-        for (int i = originalPart.cubeList.size() - 1; i >= 0; i--)
-        {
-            final net.minecraft.client.model.ModelBox box = originalPart.cubeList.get(i);
-            final BoxMutator mutator = BoxMutator.createFrom(this, originalPart, box);
-
-            if (mutator == null)
-            {
-                continue;
-            }
-
-            mutator.includeParentTransform(ModelUtils.getParentsList(originalPart, fieldToOriginalMap.values()));
-            modelToBoxMap.put(originalPart, box);
-            part.getModel().cubeList.remove(box);
-
-            if (mutator.getGlobalBoxY() < cutPlane)
-            {
-                // Upper leg, try to cut the bottom
-                BoxFactory lowerPartFactory = mutator.sliceFromBottom(cutPlane, true);
-
-                MutatedBox topPart = mutator.getFactory().create(part);
-                part.getModel().cubeList.add(topPart);
-
-                if (lowerPartFactory != null)
-                {
-                    ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
-                    modelPart.mirror = part.mirror;
-                    MutatedBox lowerPart = lowerPartFactory.create(modelPart);
-                    modelPart.cubeList.add(lowerPart);
-                    ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-                    targetGroup.add(partContainer);
-                    this.originalToCustomMap.put(originalPart, partContainer);
-                }
-            }
-            else
-            {
-                // Lower leg
-                ModelPart modelPart = new ModelPart(this, mutator.getTextureOffsetX(), mutator.getTextureOffsetY());
-                modelPart.mirror = part.mirror;
-                MutatedBox lowerBox = mutator.getFactory().create(modelPart);
-                modelPart.cubeList.add(lowerBox);
-                ModelPartContainer partContainer = new ModelPartContainer(this, modelPart);
-                targetGroup.add(partContainer);
-                this.originalToCustomMap.put(originalPart, partContainer);
-            }
-        }
-    }
-
-    /*
+    /**
      * This function takes groups of models, and divides them up into sub-groups,
      * like the upper arm and lower arm.
      */
     protected void sliceParts()
     {
-        leftLegParts.forEach(part -> sliceAppendage(part, leftForeLegParts, 18F));
-        rightLegParts.forEach(part -> sliceAppendage(part, rightForeLegParts, 18F));
-        leftArmParts.forEach(part -> sliceAppendage(part, leftForeArmParts, 6F));
-        rightArmParts.forEach(part -> sliceAppendage(part, rightForeArmParts, 6F));
+        leftLegParts.forEach(part -> appendageSlicer.slice(this, part, leftForeLegParts, 18F));
+        rightLegParts.forEach(part -> appendageSlicer.slice(this, part, rightForeLegParts, 18F));
+        leftArmParts.forEach(part -> appendageSlicer.slice(this, part, leftForeArmParts, 6F));
+        rightArmParts.forEach(part -> appendageSlicer.slice(this, part, rightForeArmParts, 6F));
     }
 
     public static MutatedArmorModel createFrom(ModelBiped src)

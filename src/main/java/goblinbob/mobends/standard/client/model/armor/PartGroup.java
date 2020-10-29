@@ -30,7 +30,8 @@ public class PartGroup<T extends EntityData> implements Iterable<ModelPartContai
 
     public void updateVisibility(MutatedArmorModel model)
     {
-        parts.forEach(part -> part.setVisible(modelPartSelector.selectPart(model).showModel));
+        ModelRenderer originalPart = modelPartSelector.selectPart(model);
+        parts.forEach(part -> part.setVisible(originalPart.showModel && !originalPart.isHidden));
     }
 
     public void add(ModelPartContainer part)

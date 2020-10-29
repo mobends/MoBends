@@ -6,7 +6,6 @@ import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 
 import java.util.ArrayList;

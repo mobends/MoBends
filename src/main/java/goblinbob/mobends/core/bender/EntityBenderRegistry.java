@@ -5,7 +5,6 @@ import goblinbob.mobends.core.configuration.CoreClientConfig;
 import net.minecraft.entity.EntityLivingBase;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This class is responsible for keeping track of all entity benders.

@@ -6,7 +6,6 @@ import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.pack.PackDataProvider;
-import goblinbob.mobends.core.pack.PackManager;
 import goblinbob.mobends.core.util.GsonResources;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;

@@ -10,7 +10,6 @@ import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.standard.data.WolfData;
 import goblinbob.mobends.standard.main.ModStatics;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;

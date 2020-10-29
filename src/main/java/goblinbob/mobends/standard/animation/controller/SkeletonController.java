@@ -10,17 +10,14 @@ import goblinbob.mobends.standard.animation.bit.biped.JumpAnimationBit;
 import goblinbob.mobends.standard.animation.bit.skeleton.StandAnimationBit;
 import goblinbob.mobends.standard.animation.bit.skeleton.WalkAnimationBit;
 import goblinbob.mobends.standard.data.BipedEntityData;
-import goblinbob.mobends.standard.data.PlayerData;
 import goblinbob.mobends.standard.data.SkeletonData;
 import goblinbob.mobends.standard.main.ModConfig;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 
 import java.util.ArrayList;

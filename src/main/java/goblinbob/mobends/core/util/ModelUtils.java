@@ -9,8 +9,8 @@ import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.util.math.AxisAlignedBB;
 import org.lwjgl.util.vector.Vector3f;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 public class ModelUtils
 {
@@ -99,7 +99,7 @@ public class ModelUtils
 
     public static Collection<ModelRenderer> getParentsList(ModelRenderer partIn, Collection<ModelRenderer> possibleParents)
     {
-        return getParentsList(partIn, possibleParents, new ArrayList<ModelRenderer>());
+        return getParentsList(partIn, possibleParents, new LinkedList<>());
     }
 
     public static Vector3f getGlobalOrigin(ModelRenderer partIn, Collection<ModelRenderer> possibleParents)

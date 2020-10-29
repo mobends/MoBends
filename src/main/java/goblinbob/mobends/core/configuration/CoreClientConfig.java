@@ -2,12 +2,9 @@ package goblinbob.mobends.core.configuration;
 
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.flux.Observable;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class CoreClientConfig extends CoreConfig
 {

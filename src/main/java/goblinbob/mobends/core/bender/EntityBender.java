@@ -100,7 +100,6 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	public void setAnimate(boolean animate)
 	{
 		this.animate = animate;
-		ArmorModelFactory.updateMutation();
 	}
 
 	public void beforeRender(EntityData<T> data, T entity, float partialTicks)

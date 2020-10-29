@@ -9,8 +9,9 @@ import net.minecraft.util.ResourceLocation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 public class PackManager
 {
