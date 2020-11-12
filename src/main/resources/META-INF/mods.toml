@@ -1,0 +1,46 @@
+# Find more information on toml format here:  https://github.com/toml-lang/toml
+modLoader="javafml"
+# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
+loaderVersion="[34,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+license="MIT License"
+issueTrackerURL="https://github.com/mobends/MoBends/issues"
+# A list of mods - how many allowed here is determined by the individual mod loader
+[[mods]] #mandatory
+# The modid of the mod
+modId="mobends" #mandatory
+# The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
+version="${file.jarVersion}" #mandatory
+ # A display name for the mod
+displayName="Mo' Bends" #mandatory
+# A URL to query for updates for this mod. See the JSON update specification <here>
+updateJSONURL="https://mobends.github.io/mod-update.json" #optional
+# A URL for the "homepage" for this mod, displayed in the mod UI
+# displayURL="http://example.com/" #optional
+# A file name (in the root of the mod JAR) containing a logo for display
+logoFile="examplemod.png" #optional
+credits="GoblinBob - original creator, Tommsy64 - coding support"
+authors="GoblinBob"
+# The description text for the mod (multi line!) (#mandatory)
+description='''
+If you think that Minecraft characters could be more realistic, instead of steady and rigid animations, this mod is just for you!
+It makes players seem alive, and adds epic sword animations!
+'''
+# A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
+[[dependencies.mobends]] #optional
+    # the modid of the dependency
+    modId="forge" #mandatory
+    # Does this dependency have to exist - if not, ordering below must be specified
+    mandatory=true #mandatory
+    # The version range of the dependency
+    versionRange="[34,)" #mandatory
+    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
+    ordering="NONE"
+    # Side this dependency is applied on - BOTH, CLIENT or SERVER
+    side="BOTH"
+# Here's another dependency
+[[dependencies.mobends]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.3]"
+    ordering="NONE"
+    side="BOTH"
