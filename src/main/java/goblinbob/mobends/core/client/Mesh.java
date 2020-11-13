@@ -20,7 +20,7 @@ public class Mesh
 	public Mesh(VertexFormat vertexFormat, int maxVertices)
 	{
 		this.vertexFormat = vertexFormat;
-		this.bufferBuilder = new BufferBuilder(vertexFormat.getSize() * maxVertices);
+		this.bufferBuilder = new BufferBuilder(vertexFormat.getElementCount() * maxVertices);
 	}
 	
 	public void beginDrawing(int drawMode)
@@ -40,7 +40,7 @@ public class Mesh
 		this.bufferBuilder.pos(x, y, z);
 		return this;
 	}
-	
+
 	public Mesh normal(float x, float y, float z)
 	{
 		this.bufferBuilder.normal(x, y, z);
@@ -68,7 +68,7 @@ public class Mesh
 	{
 		if (this.bufferBuilder.getVertexCount() > 0)
         {
-            int i = this.vertexFormat.getSize();
+            int i = this.vertexFormat.getElementCount();
             ByteBuffer bytebuffer = this.bufferBuilder.getByteBuffer();
             List<VertexFormatElement> list = this.vertexFormat.getElements();
 

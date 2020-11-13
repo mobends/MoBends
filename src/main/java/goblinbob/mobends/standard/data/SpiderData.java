@@ -5,13 +5,14 @@ import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.animation.controller.SpiderController;
-import jline.internal.Nullable;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+
+import javax.annotation.Nullable;
 
 public class SpiderData extends LivingEntityData<EntitySpider>
 {
