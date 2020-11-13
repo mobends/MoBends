@@ -1,0 +1,186 @@
+{
+    "vanillaParts": {
+        "body":     { "fieldName": "wolfBody",      "obfuscated": "" },
+        "head":     { "fieldName": "wolfHeadMain",  "obfuscated": "" },
+        "mane":     { "fieldName": "wolfMane",      "obfuscated": "" },
+        "leg1":     { "fieldName": "wolfLeg1",      "obfuscated": "" },
+        "leg2":     { "fieldName": "wolfLeg2",      "obfuscated": "" },
+        "leg3":     { "fieldName": "wolfLeg3",      "obfuscated": "" },
+        "leg4":     { "fieldName": "wolfLeg4",      "obfuscated": "" },
+        "tail":     { "fieldName": "wolfTail",      "obfuscated": "" }
+    },
+    "mutate": {
+        "body": {
+            "boxes": [
+                {
+                    "position":     [ -3, -3, -8 ],
+                    "dimensions":   [ 6, 6, 9 ],
+                    "faces": {
+                        "TOP":    { "offsetX": 9,   "offsetY": 6,  "rotate": "HALF_TURN" },
+                        "BACK":   { "offsetX": -12, "offsetY": -9 },
+                        "BOTTOM": { "offsetX": -8,  "offsetY": 6,  "rotate": "HALF_TURN" },
+                        "LEFT":   { "offsetX": -3,  "offsetY": -3, "rotate": "CLOCKWISE" },
+                        "RIGHT":  { "offsetX": 0,   "offsetY": -3, "rotate": "COUNTER_CLOCKWISE" }
+                    }
+                }
+            ]
+        },
+        "head": {
+            "parent": "body",
+            "boxes": [
+                {
+                    "position": [ -3, -3, -4 ],
+                    "dimensions": [ 6, 6, 4 ]
+                }
+            ]
+        },
+        "mane": {
+            "parent": "body",
+            "boxes": [
+                {
+                    "position": [ -4, -3.5, -2 ],
+                    "dimensions": [ 8, 7, 6 ],
+                    "faces": {
+                        "TOP":    { "offsetX": 1,   "offsetY": 7,   "rotate": "HALF_TURN" },
+                        "BACK":   { "offsetX": -5,  "offsetY": -6,  "rotate": "HALF_TURN" },
+                        "BOTTOM": { "offsetX": 8,   "offsetY": 7,   "rotate": "HALF_TURN" },
+                        "LEFT":   { "offsetX": -14, "offsetY": 1,   "rotate": "CLOCKWISE" },
+                        "RIGHT":  { "offsetX": 15,  "offsetY": 1,   "rotate": "COUNTER_CLOCKWISE" },
+                        "FRONT":  { "offsetX": 1,   "offsetY": -5 }
+                    }
+                }
+            ]
+        },
+        "leg1": {
+            "parent": "body",
+            "extendedBy": "foreLeg1",
+            "boxes": [
+                {
+                    "position": [ -1, 0, -1 ],
+                    "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        },
+        "leg2": {
+            "parent": "body",
+            "extendedBy": "foreLeg2",
+            "boxes": [
+                {
+                    "position": [ -1, 0, -1 ],
+                    "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        },
+        "leg3": {
+            "parent": "body",
+            "extendedBy": "foreLeg3",
+            "boxes": [
+                {
+                    "position": [ -1, 0, -1 ],
+                    "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        },
+        "leg4": {
+            "parent": "body",
+            "extendedBy": "foreLeg4",
+            "boxes": [
+                {
+                    "position": [ -1, 0, -1 ],
+                    "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        },
+        "tail": {
+            "parent": "body",
+            "boxes": [
+                {
+                    "position": [ -1, 0, -2 ],
+                    "dimensions": [ 2, 8, 2 ]
+                }
+            ]
+        },
+        "nose": {
+            "parent": "head",
+            "boxes": [
+                {
+                    "position": [ -1.5, -1, -4 ],
+                    "dimensions": [ 3, 2, 4 ],
+                    "scaleFactor": 0,
+                    "faces": {
+                        "BOTTOM": { "hidden": true }
+                    }
+                }
+            ]
+        },
+        "mouth": {
+            "parent": "head",
+            "boxes": [
+                {
+                    "position": [ -1.5, 0, -4 ],
+                    "dimensions": [ 3, 1, 4 ],
+                    "scaleFactor": 0,
+                    "faces": {
+                        "TOP": { "hidden": true }
+                    }
+                }
+            ]
+        },
+        "leftEar": {
+            "parent": "head",
+            "boxes": [
+                {
+                    "position": [ -1, -2, -1 ],
+                    "dimensions": [ 2, 2, 1 ],
+                    "scaleFactor": 0
+                }
+            ]
+        },
+        "rightEar": {
+            "parent": "head",
+            "boxes": [
+                {
+                    "position": [ -1, -2, -1 ],
+                    "dimensions": [ 2, 2, 1 ],
+                    "scaleFactor": 0
+                }
+            ]
+        },
+        "foreLeg1": {
+            "parent": "leg1",
+            "boxes": [
+                {
+                    "position": [ -1, 0, 0 ],
+                    "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        },
+        "foreLeg2": {
+            "parent": "leg2",
+            "boxes": [
+                {
+                    "position": [ -1, 0, 0 ],
+                    "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        },
+        "foreLeg3": {
+            "parent": "leg3",
+            "boxes": [
+                {
+                    "position": [ -1, 0, -2 ],
+                    "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        },
+        "foreLeg4": {
+            "parent": "leg4",
+            "boxes": [
+                {
+                    "position": [ -1, 0, -2 ],
+                    "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        }
+    }
+}
