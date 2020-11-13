@@ -4,9 +4,13 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
+import goblinbob.mobends.core.mutation.MutationInstructions;
 import goblinbob.mobends.forge.AnimationLoader;
+import goblinbob.mobends.forge.GsonResources;
 import goblinbob.mobends.forge.ReportOutput;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -32,6 +36,16 @@ public class KeyboardHandler
     {
         if (KEY_MENU.isPressed())
         {
+            MutationInstructions instructions = null;
+            try
+            {
+                instructions = GsonResources.get(new ResourceLocation(ModStatics.MODID, "mutators/wolf.json"), MutationInstructions.class);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            System.out.println(instructions);
         }
         else if (KEY_REFRESH.isPressed())
         {

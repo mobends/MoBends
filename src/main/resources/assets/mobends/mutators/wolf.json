@@ -1,13 +1,13 @@
 {
     "vanillaParts": {
-        "body":     { "fieldName": "wolfBody",      "obfuscated": "" },
-        "head":     { "fieldName": "wolfHeadMain",  "obfuscated": "" },
-        "mane":     { "fieldName": "wolfMane",      "obfuscated": "" },
-        "leg1":     { "fieldName": "wolfLeg1",      "obfuscated": "" },
-        "leg2":     { "fieldName": "wolfLeg2",      "obfuscated": "" },
-        "leg3":     { "fieldName": "wolfLeg3",      "obfuscated": "" },
-        "leg4":     { "fieldName": "wolfLeg4",      "obfuscated": "" },
-        "tail":     { "fieldName": "wolfTail",      "obfuscated": "" }
+        "body":     { "fieldName": "wolfBody",      "obfuscated": "wolfBody" },
+        "head":     { "fieldName": "wolfHeadMain",  "obfuscated": "wolfHeadMain" },
+        "mane":     { "fieldName": "wolfMane",      "obfuscated": "wolfMane" },
+        "leg1":     { "fieldName": "wolfLeg1",      "obfuscated": "wolfLeg1" },
+        "leg2":     { "fieldName": "wolfLeg2",      "obfuscated": "wolfLeg2" },
+        "leg3":     { "fieldName": "wolfLeg3",      "obfuscated": "wolfLeg3" },
+        "leg4":     { "fieldName": "wolfLeg4",      "obfuscated": "wolfLeg4" },
+        "tail":     { "fieldName": "wolfTail",      "obfuscated": "wolfTail" }
     },
     "mutate": {
         "body": {
