@@ -1,14 +1,18 @@
 package goblinbob.mobends.forge.client.event;
 
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
+import goblinbob.mobends.forge.AnimationLoader;
 import goblinbob.mobends.forge.ReportOutput;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
+
+import java.io.IOException;
 
 public class KeyboardHandler
 {
@@ -37,6 +41,16 @@ public class KeyboardHandler
 
             core.registerErrors(reportRegistry);
             reportRegistry.report(new InvalidPackFormatException("Bruh", "Waddup"));
+
+            try
+            {
+                KeyframeAnimation animation = AnimationLoader.loadFromPath("mobends:animations/wolf_walking.bendsanim");
+                System.out.println(animation);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 

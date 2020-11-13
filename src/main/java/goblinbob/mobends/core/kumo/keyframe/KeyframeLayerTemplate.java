@@ -9,6 +9,7 @@ import goblinbob.mobends.core.serial.ISerialInput;
 import goblinbob.mobends.core.serial.ISerialOutput;
 import goblinbob.mobends.core.serial.SerialHelper;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 public class KeyframeLayerTemplate extends LayerTemplate
@@ -46,7 +47,7 @@ public class KeyframeLayerTemplate extends LayerTemplate
         SerialHelper.serializeArray(this.nodes, out);
     }
 
-    public static LayerTemplate deserialize(ISerialInput in, ISerialContext context)
+    public static LayerTemplate deserialize(ISerialInput in, ISerialContext context) throws IOException
     {
         int entryNode = in.readInt();
         ArmatureMask mask = SerialHelper.deserializeNullable(ArmatureMask::deserialize, in);

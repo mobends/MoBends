@@ -1,11 +1,12 @@
 package goblinbob.mobends.core.animation.keyframe;
 
-import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.serial.ISerialInput;
 import goblinbob.mobends.core.serial.ISerialOutput;
 import goblinbob.mobends.core.serial.ISerializable;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Describes which bones of an armature should be affected, and which should not.
@@ -57,7 +58,7 @@ public class ArmatureMask implements ISerializable
 		out.writeByte((byte) this.mode.ordinal());
 	}
 
-	public static ArmatureMask deserialize(ISerialInput in)
+	public static ArmatureMask deserialize(ISerialInput in) throws IOException
 	{
 		Mode mode = Mode.values()[in.readByte()];
 

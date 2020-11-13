@@ -5,6 +5,7 @@ import goblinbob.mobends.core.serial.ISerialOutput;
 import goblinbob.mobends.core.serial.ISerializable;
 import goblinbob.mobends.core.serial.SerialHelper;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 public class AnimatorTemplate implements ISerializable
@@ -27,7 +28,7 @@ public class AnimatorTemplate implements ISerializable
         SerialHelper.serializeArray(layers, out);
     }
 
-    public static AnimatorTemplate deserialize(ISerialInput in, ISerialContext context)
+    public static AnimatorTemplate deserialize(ISerialInput in, ISerialContext context) throws IOException
     {
         AnimatorTemplate animatorTemplate = new AnimatorTemplate();
 

@@ -1,9 +1,7 @@
 package goblinbob.mobends.forge;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
-import goblinbob.mobends.core.animation.keyframe.BinaryAnimationLoader;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
+import goblinbob.mobends.core.serial.StreamSerialInput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
@@ -32,25 +30,14 @@ public class AnimationLoader
 
     public static KeyframeAnimation loadFromFile(File file) throws IOException
     {
-        if (file.getName().endsWith(".json"))
-        {
-            JsonReader fileReader = new JsonReader(new FileReader(file));
-            return (new Gson()).fromJson(fileReader, KeyframeAnimation.class);
-        }
-        else
-        {
-            return BinaryAnimationLoader.loadFromBinaryInputStream(new BufferedInputStream(new FileInputStream(file)));
-        }
-    }
-
-    public static KeyframeAnimation loadFromString(String animationJson)
-    {
-        return (new Gson()).fromJson(animationJson, KeyframeAnimation.class);
+        StreamSerialInput in = new StreamSerialInput(new BufferedInputStream(new FileInputStream(file)));
+        return KeyframeAnimation.deserialize(in);
     }
 
     public static KeyframeAnimation loadFromResource(ResourceLocation location) throws IOException
     {
         InputStream stream = Minecraft.getInstance().getResourceManager().getResource(location).getInputStream();
+        StreamSerialInput in = new StreamSerialInput(stream);
 
         if (cachedAnimations.containsKey(location))
         {
@@ -58,15 +45,7 @@ public class AnimationLoader
         }
         else
         {
-            KeyframeAnimation animation = null;
-            if (location.getPath().endsWith(".json"))
-            {
-                animation = (new Gson()).fromJson(new InputStreamReader(stream), KeyframeAnimation.class);
-            }
-            else
-            {
-                animation = BinaryAnimationLoader.loadFromBinaryInputStream(stream);
-            }
+            KeyframeAnimation animation = KeyframeAnimation.deserialize(in);
 
             if (animation != null)
             {

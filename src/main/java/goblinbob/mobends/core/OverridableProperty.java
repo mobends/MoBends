@@ -2,7 +2,6 @@ package goblinbob.mobends.core;
 
 public class OverridableProperty<T>
 {
-	
 	private T value;
 	private T override;
 	

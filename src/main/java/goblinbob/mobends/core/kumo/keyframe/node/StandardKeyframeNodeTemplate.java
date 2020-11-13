@@ -3,6 +3,8 @@ package goblinbob.mobends.core.kumo.keyframe.node;
 import goblinbob.mobends.core.serial.ISerialInput;
 import goblinbob.mobends.core.serial.ISerialOutput;
 
+import java.io.IOException;
+
 public class StandardKeyframeNodeTemplate extends KeyframeNodeTemplate
 {
     public static final String TYPE = "core:standard";
@@ -40,7 +42,7 @@ public class StandardKeyframeNodeTemplate extends KeyframeNodeTemplate
         return TYPE;
     }
 
-    public static StandardKeyframeNodeTemplate deserialize(ISerialInput in)
+    public static StandardKeyframeNodeTemplate deserialize(ISerialInput in) throws IOException
     {
         String animationKey =   in.readString();
         int startFrame =        in.readInt();

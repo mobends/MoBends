@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.serial;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class SubTypeRegistry<T> implements ISubTypeRegistry<T>, ISubTypeDeserial
     }
 
     @Override
-    public T deserialize(String type, ISerialInput in) throws InvalidSubTypeException
+    public T deserialize(String type, ISerialInput in) throws InvalidSubTypeException, IOException
     {
         if (keyToDeserializerMap.containsKey(type))
         {

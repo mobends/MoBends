@@ -7,6 +7,7 @@ import goblinbob.mobends.core.serial.ISerialOutput;
 import goblinbob.mobends.core.serial.ISerializable;
 import goblinbob.mobends.core.serial.ISubTypeDeserializer;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 public abstract class KeyframeNodeTemplate implements ISerializable
@@ -31,7 +32,7 @@ public abstract class KeyframeNodeTemplate implements ISerializable
 
     protected abstract String getType();
 
-    public static KeyframeNodeTemplate deserializeGeneral(ISerialInput in, ISerialContext context)
+    public static KeyframeNodeTemplate deserializeGeneral(ISerialInput in, ISerialContext context) throws IOException
     {
         String type = in.readString();
 

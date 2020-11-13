@@ -11,6 +11,7 @@ import mobends.mock.MockSerialQueue;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Random;
 
 import static org.junit.Assert.*;
@@ -70,9 +71,17 @@ public class KumoAnimatorSerializationTest
         KeyframeNodeTemplate original = createMockKeyframeNodeTemplate();
 
         original.serialize(queue);
-        KeyframeNodeTemplate deserialized = KeyframeNodeTemplate.deserializeGeneral(queue, context);
 
-        assertEquals(original, deserialized);
+        try
+        {
+            KeyframeNodeTemplate deserialized = KeyframeNodeTemplate.deserializeGeneral(queue, context);
+
+            assertEquals(original, deserialized);
+        }
+        catch (IOException e)
+        {
+            fail("An IOException has occurred during KeyframeNodeTemplate deserialization.");
+        }
     }
 
     @Test
@@ -82,9 +91,17 @@ public class KumoAnimatorSerializationTest
         LayerTemplate original = createMockLayerTemplate();
 
         original.serialize(queue);
-        LayerTemplate deserialized = LayerTemplate.deserializeGeneral(queue, context);
 
-        assertEquals(original, deserialized);
+        try
+        {
+            LayerTemplate deserialized = LayerTemplate.deserializeGeneral(queue, context);
+
+            assertEquals(original, deserialized);
+        }
+        catch (IOException e)
+        {
+            fail("An IOException has occurred during LayerTemplate deserialization.");
+        }
     }
 
     @Test
@@ -95,8 +112,16 @@ public class KumoAnimatorSerializationTest
         animatorTemplate.serialize(queue);
 
         ISerialContext context = createMockSerialContext();
-        AnimatorTemplate deserializedAnimatorTemplate = AnimatorTemplate.deserialize(queue, context);
 
-        assertEquals(animatorTemplate, deserializedAnimatorTemplate);
+        try
+        {
+            AnimatorTemplate deserializedAnimatorTemplate = AnimatorTemplate.deserialize(queue, context);
+
+            assertEquals(animatorTemplate, deserializedAnimatorTemplate);
+        }
+        catch (IOException e)
+        {
+            fail("An IOException has occurred during AnimatorTemplate deserialization.");
+        }
     }
 }

@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.serial;
 
+import java.io.IOException;
 import java.util.*;
 
 public class SerialHelper
@@ -47,7 +48,7 @@ public class SerialHelper
         }
     }
 
-    public static <T extends ISerializable> T deserializeNullable(IDeserializer<T> deserializer, ISerialInput in)
+    public static <T extends ISerializable> T deserializeNullable(IDeserializer<T> deserializer, ISerialInput in) throws IOException
     {
         boolean isItNull = in.readByte() == 0;
 
@@ -59,7 +60,7 @@ public class SerialHelper
         return deserializer.deserialize(in);
     }
 
-    public static <T> List<T> deserializeList(IDeserializer<T> deserializer, ISerialInput in)
+    public static <T> List<T> deserializeList(IDeserializer<T> deserializer, ISerialInput in) throws IOException
     {
         List<T> list = new ArrayList<>();
         int sizeOfTheList = in.readInt();
@@ -72,7 +73,7 @@ public class SerialHelper
         return list;
     }
 
-    public static <T> Set<T> deserializeSet(IDeserializer<T> deserializer, ISerialInput in)
+    public static <T> Set<T> deserializeSet(IDeserializer<T> deserializer, ISerialInput in) throws IOException
     {
         Set<T> set = new HashSet<>();
         int sizeOfTheList = in.readInt();
@@ -85,7 +86,7 @@ public class SerialHelper
         return set;
     }
 
-    public static <T> T[] deserializeArray(IDeserializer<T> deserializer, T[] emptyArray, ISerialInput in)
+    public static <T> T[] deserializeArray(IDeserializer<T> deserializer, T[] emptyArray, ISerialInput in) throws IOException
     {
         int sizeOfTheArray = in.readInt();
         T[] list = Arrays.copyOf(emptyArray, sizeOfTheArray);
@@ -96,5 +97,17 @@ public class SerialHelper
         }
 
         return list;
+    }
+
+    public static float[] deserializeFloats(int amountOfFloats, ISerialInput in) throws IOException
+    {
+        float[] floats = new float[amountOfFloats];
+
+        for (int i = 0; i < amountOfFloats; ++i)
+        {
+            floats[i] = in.readFloat();
+        }
+
+        return floats;
     }
 }

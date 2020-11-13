@@ -6,6 +6,7 @@ import goblinbob.mobends.core.serial.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +46,7 @@ public class SerialHelperTest
             out.writeString(this.value);
         }
 
-        public static SerializableMock deserialize(ISerialInput in)
+        public static SerializableMock deserialize(ISerialInput in) throws IOException
         {
             return new SerializableMock(in.readString());
         }
@@ -68,7 +69,15 @@ public class SerialHelperTest
 
         SerialHelper.serializeList(someList, this.queue);
 
-        List<SerializableMock> deserializedList = SerialHelper.deserializeList(SerializableMock::deserialize, this.queue);
+        List<SerializableMock> deserializedList = null;
+        try
+        {
+            deserializedList = SerialHelper.deserializeList(SerializableMock::deserialize, this.queue);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         assertEquals(someList, deserializedList);
     }
 
@@ -82,7 +91,15 @@ public class SerialHelperTest
 
         SerialHelper.serializeSet(someSet, this.queue);
 
-        Set<SerializableMock> deserializedSet = SerialHelper.deserializeSet(SerializableMock::deserialize, this.queue);
+        Set<SerializableMock> deserializedSet = null;
+        try
+        {
+            deserializedSet = SerialHelper.deserializeSet(SerializableMock::deserialize, this.queue);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         assertEquals(someSet, deserializedSet);
     }
 
@@ -96,7 +113,15 @@ public class SerialHelperTest
 
         SerialHelper.serializeArray(someArray, this.queue);
 
-        SerializableMock[] deserializedArray = SerialHelper.deserializeArray(SerializableMock::deserialize, new SerializableMock[0], this.queue);
+        SerializableMock[] deserializedArray = new SerializableMock[0];
+        try
+        {
+            deserializedArray = SerialHelper.deserializeArray(SerializableMock::deserialize, new SerializableMock[0], this.queue);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         assertArrayEquals(someArray, deserializedArray);
     }
 
@@ -104,7 +129,14 @@ public class SerialHelperTest
     public void storeNullableIsNull()
     {
         SerialHelper.serializeNullable(null, this.queue);
-        assertNull(SerialHelper.deserializeNullable(SerializableMock::deserialize, this.queue));
+        try
+        {
+            assertNull(SerialHelper.deserializeNullable(SerializableMock::deserialize, this.queue));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -113,7 +145,15 @@ public class SerialHelperTest
         SerializableMock object = new SerializableMock("Good morning Sunshine");
 
         SerialHelper.serializeNullable(object, this.queue);
-        SerializableMock deserialized = SerialHelper.deserializeNullable(SerializableMock::deserialize, this.queue);
+        SerializableMock deserialized = null;
+        try
+        {
+            deserialized = SerialHelper.deserializeNullable(SerializableMock::deserialize, this.queue);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
 
         assertEquals(object, deserialized);
     }
