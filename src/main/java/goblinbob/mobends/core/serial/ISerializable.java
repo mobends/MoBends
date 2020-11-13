@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.serial;
 
+@FunctionalInterface
 public interface ISerializable
 {
-    void serialize(ISerialOutput serialOutput);
+    void serialize(ISerialOutput out);
 }

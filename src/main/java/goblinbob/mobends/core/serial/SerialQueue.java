@@ -18,6 +18,12 @@ public class SerialQueue implements ISerialOutput, ISerialInput
     }
 
     @Override
+    public boolean readBoolean() throws BufferUnderflowException
+    {
+        return this.readByte() != 0;
+    }
+
+    @Override
     public byte readByte() throws BufferUnderflowException
     {
         return buffer.get(tail++);
@@ -52,6 +58,12 @@ public class SerialQueue implements ISerialOutput, ISerialInput
         }
 
         return new String(stringBuffer.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public void writeBoolean(boolean value)
+    {
+        buffer.put((byte) (value ? 1 : 0));
     }
 
     @Override

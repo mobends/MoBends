@@ -1,48 +1,43 @@
 package goblinbob.mobends.core.animation.keyframe;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
+import goblinbob.mobends.core.serial.ISerialInput;
+import goblinbob.mobends.core.serial.ISerialOutput;
+import goblinbob.mobends.core.serial.ISerializable;
+
+import java.util.*;
 
 /**
  * Describes which bones of an armature should be affected, and which should not.
  * 
- * @author Iwo Plaza
+ * @author GoblinBob
  *
  */
-public class ArmatureMask
+public class ArmatureMask implements ISerializable
 {
 	private Mode mode;
-	private List<String> includedParts;
-	private List<String> excludedParts;
-	
+	private Set<String> includedParts;
+	private Set<String> excludedParts;
+
 	public ArmatureMask(Mode mode)
 	{
 		this.mode = mode;
-		this.includedParts = new ArrayList<>();
-		this.excludedParts = new ArrayList<>();
+		this.includedParts = new HashSet<>();
+		this.excludedParts = new HashSet<>();
 	}
-	
-	public void include(String bone)
+
+	@Override
+	public boolean equals(Object obj)
 	{
-		this.includedParts.add(bone);
+		if (!(obj instanceof ArmatureMask))
+			return false;
+
+		ArmatureMask other = (ArmatureMask) obj;
+		return other.mode.equals(this.mode) &&
+				other.includedParts.equals(this.includedParts) &&
+				other.excludedParts.equals(this.excludedParts);
 	}
-	
-	public void includeAll(Collection<String> bones)
-	{
-		this.includedParts.addAll(bones);
-	}
-	
-	public void exclude(String bone)
-	{
-		this.excludedParts.add(bone);
-	}
-	
-	public void excludeAll(Collection<String> bones)
-	{
-		this.excludedParts.addAll(bones);
-	}
-	
+
 	public boolean doesAllow(String bone)
 	{
 		switch (this.mode)
@@ -55,7 +50,20 @@ public class ArmatureMask
 				return true;
 		}
 	}
-	
+
+	@Override
+	public void serialize(ISerialOutput out)
+	{
+		out.writeByte((byte) this.mode.ordinal());
+	}
+
+	public static ArmatureMask deserialize(ISerialInput in)
+	{
+		Mode mode = Mode.values()[in.readByte()];
+
+		return new ArmatureMask(mode);
+	}
+
 	public enum Mode
 	{
 		INCLUDE_ONLY, EXCLUDE_ONLY
