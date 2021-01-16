@@ -22,8 +22,10 @@ public class MoBends
 
     public MoBends()
     {
+        TestBenderProvider benderProvider = new TestBenderProvider();
+
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(new RenderHandler());
+        MinecraftForge.EVENT_BUS.register(new RenderHandler(benderProvider));
         MinecraftForge.EVENT_BUS.register(new KeyboardHandler());
     }
 
