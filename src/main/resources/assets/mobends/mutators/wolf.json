@@ -1,16 +1,17 @@
 {
     "vanillaParts": {
-        "body":     { "fieldName": "body",      "obfuscated": "wolfBody" },
-        "head":     { "fieldName": "head",  "obfuscated": "wolfHeadMain" },
-        "mane":     { "fieldName": "mane",      "obfuscated": "wolfMane" },
-        "legBackRight":     { "fieldName": "legBackRight",      "obfuscated": "legBackRight" },
-        "legBackLeft":     { "fieldName": "legBackLeft",      "obfuscated": "legBackLeft" },
-        "legFrontRight":     { "fieldName": "legFrontRight",      "obfuscated": "legFrontRight" },
-        "legFrontLeft":     { "fieldName": "legFrontLeft",      "obfuscated": "legFrontLeft" },
-        "tail":     { "fieldName": "tail",      "obfuscated": "tail" }
+        "body":          { "fieldName": "body",          "obfuscated": "wolfBody" },
+        "head":          { "fieldName": "head",          "obfuscated": "wolfHeadMain" },
+        "mane":          { "fieldName": "mane",          "obfuscated": "wolfMane" },
+        "legBackRight":  { "fieldName": "legBackRight",  "obfuscated": "legBackRight" },
+        "legBackLeft":   { "fieldName": "legBackLeft",   "obfuscated": "legBackLeft" },
+        "legFrontRight": { "fieldName": "legFrontRight", "obfuscated": "legFrontRight" },
+        "legFrontLeft":  { "fieldName": "legFrontLeft",  "obfuscated": "legFrontLeft" },
+        "tail":          { "fieldName": "tail",          "obfuscated": "tail" }
     },
     "mutate": {
         "body": {
+            "position": [0, 14, 8],
             "boxes": [
                 {
                     "position":     [ -3, -3, -8 ],
@@ -27,6 +28,7 @@
         },
         "head": {
             "parent": "body",
+            "position": [0, -0.5, -13],
             "boxes": [
                 {
                     "position": [ -3, -3, -4 ],
@@ -36,6 +38,7 @@
         },
         "mane": {
             "parent": "body",
+            "position": [0, -0.5, -12],
             "boxes": [
                 {
                     "position": [ -4, -3.5, -2 ],
@@ -54,6 +57,7 @@
         "legBackRight": {
             "parent": "body",
             "extendedBy": "foreLegBackRight",
+            "position": [-2, 3, -1],
             "boxes": [
                 {
                     "position": [ -1, 0, -1 ],
@@ -64,6 +68,7 @@
         "legBackLeft": {
             "parent": "body",
             "extendedBy": "foreLegBackLeft",
+            "position": [2, 3, -1],
             "boxes": [
                 {
                     "position": [ -1, 0, -1 ],
@@ -74,6 +79,7 @@
         "legFrontRight": {
             "parent": "body",
             "extendedBy": "foreLegFrontRight",
+            "position": [-2, 3, -12],
             "boxes": [
                 {
                     "position": [ -1, 0, -1 ],
@@ -84,6 +90,7 @@
         "legFrontLeft": {
             "parent": "body",
             "extendedBy": "foreLegFrontLeft",
+            "position": [2, 3, -12],
             "boxes": [
                 {
                     "position": [ -1, 0, -1 ],
@@ -93,70 +100,48 @@
         },
         "tail": {
             "parent": "body",
+            "position": [0, -3, 0],
             "boxes": [
                 {
                     "position": [ -1, 0, -2 ],
                     "dimensions": [ 2, 8, 2 ]
                 }
             ]
-        },
-        "nose": {
-            "parent": "head",
-            "boxes": [
-                {
-                    "position": [ -1.5, -1, -4 ],
-                    "dimensions": [ 3, 2, 4 ],
-                    "scaleFactor": 0,
-                    "faces": {
-                        "BOTTOM": { "hidden": true }
-                    }
-                }
-            ]
-        },
+        }
+    },
+    "add": {
         "mouth": {
+            "independent": false,
             "parent": "head",
+            "position": [0, 2, -4],
+            "textureOffset": [0, 12],
             "boxes": [
                 {
-                    "position": [ -1.5, 0, -4 ],
-                    "dimensions": [ 3, 1, 4 ],
-                    "scaleFactor": 0,
+                    "position": [-1.5, 0, -4],
+                    "dimensions": [3, 1, 4],
                     "faces": {
                         "TOP": { "hidden": true }
                     }
                 }
             ]
         },
-        "leftEar": {
-            "parent": "head",
-            "boxes": [
-                {
-                    "position": [ -1, -2, -1 ],
-                    "dimensions": [ 2, 2, 1 ],
-                    "scaleFactor": 0
-                }
-            ]
-        },
-        "rightEar": {
-            "parent": "head",
-            "boxes": [
-                {
-                    "position": [ -1, -2, -1 ],
-                    "dimensions": [ 2, 2, 1 ],
-                    "scaleFactor": 0
-                }
-            ]
-        },
         "foreLegBackRight": {
+            "independent": false,
             "parent": "legBackRight",
+            "position": [0, 4, -1],
+            "textureOffset": [0, 18],
             "boxes": [
                 {
-                    "position": [ -1, 0, 0 ],
-                    "dimensions": [ 2, 4, 2 ]
+                    "position": [-1, 0, 0],
+                    "dimensions": [2, 4, 2]
                 }
             ]
         },
         "foreLegBackLeft": {
+            "independent": false,
             "parent": "legBackLeft",
+            "position": [0, 4, -1],
+            "textureOffset": [0, 18],
             "boxes": [
                 {
                     "position": [ -1, 0, 0 ],
@@ -165,7 +150,10 @@
             ]
         },
         "foreLegFrontRight": {
+            "independent": false,
             "parent": "legFrontRight",
+            "position": [0, 4, 1],
+            "textureOffset": [0, 18],
             "boxes": [
                 {
                     "position": [ -1, 0, -2 ],
@@ -174,11 +162,53 @@
             ]
         },
         "foreLegFrontLeft": {
+            "independent": false,
             "parent": "legFrontLeft",
+            "position": [0, 4, 1],
+            "textureOffset": [0, 18],
             "boxes": [
                 {
                     "position": [ -1, 0, -2 ],
                     "dimensions": [ 2, 4, 2 ]
+                }
+            ]
+        },
+        "leftEar": {
+            "independent": false,
+            "parent": "head",
+            "position": [-2, -3, -1],
+            "textureOffset": [16, 14],
+            "boxes": [
+                {
+                    "position": [-1, -2, -1],
+                    "dimensions": [2, 2, 1]
+                }
+            ]
+        },
+        "rightEar": {
+            "independent": false,
+            "parent": "head",
+            "position": [2, -3, -1],
+            "textureOffset": [16, 14],
+            "boxes": [
+                {
+                    "position": [-1, -2, -1],
+                    "dimensions": [2, 2, 1]
+                }
+            ]
+        },
+        "nose": {
+            "independent": false,
+            "parent": "head",
+            "position": [0, 1, -4],
+            "textureOffset": [0, 10],
+            "boxes": [
+                {
+                    "position": [-1.5, -1, -4],
+                    "dimensions": [3, 2, 4],
+                    "faces": {
+                        "BOTTOM": { "hidden": true }
+                    }
                 }
             ]
         }
