@@ -1,13 +1,13 @@
 {
     "vanillaParts": {
-        "body":     { "fieldName": "wolfBody",      "obfuscated": "wolfBody" },
-        "head":     { "fieldName": "wolfHeadMain",  "obfuscated": "wolfHeadMain" },
-        "mane":     { "fieldName": "wolfMane",      "obfuscated": "wolfMane" },
-        "leg1":     { "fieldName": "wolfLeg1",      "obfuscated": "wolfLeg1" },
-        "leg2":     { "fieldName": "wolfLeg2",      "obfuscated": "wolfLeg2" },
-        "leg3":     { "fieldName": "wolfLeg3",      "obfuscated": "wolfLeg3" },
-        "leg4":     { "fieldName": "wolfLeg4",      "obfuscated": "wolfLeg4" },
-        "tail":     { "fieldName": "wolfTail",      "obfuscated": "wolfTail" }
+        "body":     { "fieldName": "body",      "obfuscated": "wolfBody" },
+        "head":     { "fieldName": "head",  "obfuscated": "wolfHeadMain" },
+        "mane":     { "fieldName": "mane",      "obfuscated": "wolfMane" },
+        "legBackRight":     { "fieldName": "legBackRight",      "obfuscated": "legBackRight" },
+        "legBackLeft":     { "fieldName": "legBackLeft",      "obfuscated": "legBackLeft" },
+        "legFrontRight":     { "fieldName": "legFrontRight",      "obfuscated": "legFrontRight" },
+        "legFrontLeft":     { "fieldName": "legFrontLeft",      "obfuscated": "legFrontLeft" },
+        "tail":     { "fieldName": "tail",      "obfuscated": "tail" }
     },
     "mutate": {
         "body": {
@@ -51,9 +51,9 @@
                 }
             ]
         },
-        "leg1": {
+        "legBackRight": {
             "parent": "body",
-            "extendedBy": "foreLeg1",
+            "extendedBy": "foreLegBackRight",
             "boxes": [
                 {
                     "position": [ -1, 0, -1 ],
@@ -61,9 +61,9 @@
                 }
             ]
         },
-        "leg2": {
+        "legBackLeft": {
             "parent": "body",
-            "extendedBy": "foreLeg2",
+            "extendedBy": "foreLegBackLeft",
             "boxes": [
                 {
                     "position": [ -1, 0, -1 ],
@@ -71,9 +71,9 @@
                 }
             ]
         },
-        "leg3": {
+        "legFrontRight": {
             "parent": "body",
-            "extendedBy": "foreLeg3",
+            "extendedBy": "foreLegFrontRight",
             "boxes": [
                 {
                     "position": [ -1, 0, -1 ],
@@ -81,9 +81,9 @@
                 }
             ]
         },
-        "leg4": {
+        "legFrontLeft": {
             "parent": "body",
-            "extendedBy": "foreLeg4",
+            "extendedBy": "foreLegFrontLeft",
             "boxes": [
                 {
                     "position": [ -1, 0, -1 ],
@@ -146,8 +146,8 @@
                 }
             ]
         },
-        "foreLeg1": {
-            "parent": "leg1",
+        "foreLegBackRight": {
+            "parent": "legBackRight",
             "boxes": [
                 {
                     "position": [ -1, 0, 0 ],
@@ -155,8 +155,8 @@
                 }
             ]
         },
-        "foreLeg2": {
-            "parent": "leg2",
+        "foreLegBackLeft": {
+            "parent": "legBackLeft",
             "boxes": [
                 {
                     "position": [ -1, 0, 0 ],
@@ -164,8 +164,8 @@
                 }
             ]
         },
-        "foreLeg3": {
-            "parent": "leg3",
+        "foreLegFrontRight": {
+            "parent": "legFrontRight",
             "boxes": [
                 {
                     "position": [ -1, 0, -2 ],
@@ -173,8 +173,8 @@
                 }
             ]
         },
-        "foreLeg4": {
-            "parent": "leg4",
+        "foreLegFrontLeft": {
+            "parent": "legFrontLeft",
             "boxes": [
                 {
                     "position": [ -1, 0, -2 ],

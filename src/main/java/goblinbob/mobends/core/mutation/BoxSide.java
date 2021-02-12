@@ -9,7 +9,7 @@ public enum BoxSide
     FRONT(4),
     BACK(5);
 
-    int faceIndex;
+    public final int faceIndex;
 
     BoxSide(int index)
     {

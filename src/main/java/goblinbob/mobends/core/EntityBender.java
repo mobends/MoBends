@@ -1,29 +1,32 @@
 package goblinbob.mobends.core;
 
+import goblinbob.mobends.core.exceptions.InvalidMutationException;
+import goblinbob.mobends.core.mutation.MutationInstructions;
+import goblinbob.mobends.core.mutation.PuppeteerException;
+
 public class EntityBender<C>
 {
-    private IMutatorRepository<C> mutatorRepository;
+    private IPuppeteerRepository<C> puppeteerRepository;
 
     protected final String key;
     protected final String unlocalizedName;
     public final Class<?> entityClass;
+    private MutationInstructions mutationInstructions;
 
     private boolean animate = true;
     private boolean targetMutated = false;
 
-    public EntityBender(IMutatorRepository<C> mutatorRepository, String key, String unlocalizedName, Class<?> entityClass)
+    public EntityBender(IPuppeteerRepository<C> puppeteerRepository, String key, String unlocalizedName, Class<?> entityClass, MutationInstructions mutationInstructions)
     {
-        this.mutatorRepository = mutatorRepository;
+        this.puppeteerRepository = puppeteerRepository;
 
-//        if (renderer == null)
-//            throw new NullPointerException("The mutated renderer cannot be null.");
         if (entityClass == null)
             throw new NullPointerException("The entity class cannot be null.");
 
         this.key = key;
         this.unlocalizedName = unlocalizedName;
         this.entityClass = entityClass;
-//        this.renderer = renderer;
+        this.mutationInstructions = mutationInstructions;
     }
 
     public boolean isAnimated()
@@ -31,20 +34,22 @@ public class EntityBender<C>
         return animate;
     }
 
-    public boolean applyMutation(C context)
+    public MutationInstructions getMutationInstructions()
     {
-        IMutator<C> mutator = mutatorRepository.getOrCreateMutatorForContext(context);
+        return mutationInstructions;
+    }
 
-        if (mutator == null)
+    /**
+     * This function is to be called every animation frame.
+     * It animates, and if it wasn't done prior, mutates the entity model.
+     */
+    public void performPuppeteering(C context) throws PuppeteerException, InvalidMutationException
+    {
+        IPuppeteer<C> puppeteer = puppeteerRepository.getOrCreatePuppeteer(context, this);
+
+        if (puppeteer != null)
         {
-            return false;
+            puppeteer.perform(context);
         }
-
-        if (!mutator.mutate(context))
-        {
-            return false;
-        }
-
-        return true;
     }
 }

@@ -14,6 +14,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
@@ -21,11 +22,12 @@ import java.io.IOException;
 public class KeyboardHandler
 {
 
-    private static final String MAIN_CATEGORY = "Mo' Bends";
-    private static final KeyBinding KEY_MENU = new KeyBinding("Mo' Bends Menu", GLFW.GLFW_KEY_G, MAIN_CATEGORY);
-    private static final KeyBinding KEY_REFRESH = new KeyBinding("Refresh Animations", GLFW.GLFW_KEY_F10, MAIN_CATEGORY);
+    private final String MAIN_CATEGORY = "Mo' Bends";
+    private final KeyBinding KEY_MENU = new KeyBinding("Mo' Bends Menu", GLFW.GLFW_KEY_G, MAIN_CATEGORY);
+    private final KeyBinding KEY_REFRESH = new KeyBinding("Refresh Animations", GLFW.GLFW_KEY_F10, MAIN_CATEGORY);
 
-    public static void initKeyBindings()
+    @SubscribeEvent
+    public void setup(final FMLClientSetupEvent event)
     {
         ClientRegistry.registerKeyBinding(KEY_MENU);
         ClientRegistry.registerKeyBinding(KEY_REFRESH);

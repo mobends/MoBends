@@ -1,5 +1,11 @@
 package goblinbob.mobends.standard.main;
 
+import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
+import goblinbob.mobends.core.error.ErrorReportRegistry;
+import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
+import goblinbob.mobends.forge.AnimationLoader;
+import goblinbob.mobends.forge.ReportOutput;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -10,9 +16,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
 @Mod(ModStatics.MODID)
@@ -20,13 +28,41 @@ public class MoBends
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
+    private final TestBenderProvider benderProvider;
+    private final KeyboardHandler keyboardHandler;
+
     public MoBends()
     {
-        TestBenderProvider benderProvider = new TestBenderProvider();
+        this.benderProvider = new TestBenderProvider();
+        this.keyboardHandler = new KeyboardHandler(this::onRefresh);
 
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(this.keyboardHandler);
         MinecraftForge.EVENT_BUS.register(new RenderHandler(benderProvider));
-        MinecraftForge.EVENT_BUS.register(new KeyboardHandler());
+
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
+    }
+
+    public void onRefresh()
+    {
+        this.benderProvider.refresh();
+
+        Core core = new Core();
+        ReportOutput reportOutput = new ReportOutput();
+        ErrorReportRegistry reportRegistry = new ErrorReportRegistry(reportOutput);
+
+        core.registerErrors(reportRegistry);
+        reportRegistry.report(new InvalidPackFormatException("Bruh", "Waddup"));
+
+        try
+        {
+            KeyframeAnimation animation = AnimationLoader.loadFromPath("mobends:animations/wolf_walking.bendsanim");
+            System.out.println(animation);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @SubscribeEvent
@@ -36,10 +72,21 @@ public class MoBends
     }
 
     @SubscribeEvent
-    public void doClientStuff(final FMLClientSetupEvent event)
+    public void setupClient(final FMLClientSetupEvent event)
     {
         // do something that can only be done on the client
         LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
+
+        this.keyboardHandler.setup();
+
+        try
+        {
+            this.benderProvider.init();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @SubscribeEvent

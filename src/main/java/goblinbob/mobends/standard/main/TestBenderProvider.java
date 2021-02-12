@@ -2,23 +2,54 @@ package goblinbob.mobends.standard.main;
 
 import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IEntityBenderProvider;
+import goblinbob.mobends.core.IRefreshable;
+import goblinbob.mobends.core.mutation.MutationInstructions;
 import goblinbob.mobends.forge.ForgeMutationContext;
+import goblinbob.mobends.forge.GsonResources;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.util.ResourceLocation;
 
-public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationContext>
+import java.io.IOException;
+
+public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationContext>, IRefreshable
 {
-
-    private final TestMutatorRepository mutatorRepository;
     private final TestDataRepository dataRepository;
+    private final TestPuppeteerRepository puppeteerRepository;
 
-    private final EntityBender<ForgeMutationContext> wolfBender;
+    private EntityBender<ForgeMutationContext> wolfBender;
 
     public TestBenderProvider()
     {
         this.dataRepository = new TestDataRepository();
-        this.mutatorRepository = new TestMutatorRepository(dataRepository);
-        this.wolfBender = new EntityBender<>(this.mutatorRepository, "mobends:wolf", "wolf", WolfEntity.class);
+        this.puppeteerRepository = new TestPuppeteerRepository(dataRepository);
+    }
+
+    public void init() throws IOException
+    {
+        MutationInstructions instructions = GsonResources.get(new ResourceLocation(ModStatics.MODID, "mutators/wolf.json"), MutationInstructions.class);
+
+        this.wolfBender = new EntityBender<>(
+                this.puppeteerRepository,
+                "mobends:wolf",
+                "wolf",
+                WolfEntity.class,
+                instructions
+        );
+    }
+
+    @Override
+    public void refresh()
+    {
+        try
+        {
+            this.init();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        this.puppeteerRepository.refresh();
     }
 
     @Override
@@ -31,5 +62,4 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
 
         return null;
     }
-
 }
