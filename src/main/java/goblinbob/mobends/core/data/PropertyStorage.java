@@ -1,16 +1,16 @@
 package goblinbob.mobends.core.data;
 
 import goblinbob.mobends.core.exceptions.UnknownPropertyException;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class EntityData
+public class PropertyStorage
 {
-    private Map<String, IProperty> propertyMap = new HashMap<>();
+    private final Map<String, IProperty> propertyMap = new HashMap<>();
 
-    public EntityData()
+    public PropertyStorage()
     {
-
     }
 
     public void registerProperty(String key, PropertyGetter getter)
@@ -66,8 +66,6 @@ public abstract class EntityData
     {
         return (double) this.getProperty(key);
     }
-
-    public abstract void update();
 
     /**
      * This is a container for a singular entity attribute.

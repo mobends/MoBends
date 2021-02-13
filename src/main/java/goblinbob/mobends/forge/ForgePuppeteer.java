@@ -4,7 +4,6 @@ import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IDisposable;
 import goblinbob.mobends.core.IEntityDataRepository;
 import goblinbob.mobends.core.IPuppeteer;
-import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.exceptions.UnknownPropertyException;
 import goblinbob.mobends.core.mutation.PuppeteerException;
@@ -125,6 +124,7 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
     private void performAnimations(D data, float partialTicks)
     {
         // TODO Perform animations!
+        
     }
 
     /**

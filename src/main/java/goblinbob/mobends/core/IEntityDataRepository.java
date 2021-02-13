@@ -1,6 +1,6 @@
 package goblinbob.mobends.core;
 
-import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.forge.EntityData;
 
 public interface IEntityDataRepository<C>
 {

@@ -1,0 +1,156 @@
+{
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": 0,
+      "nodes": [
+        {
+          "comment": "NODE 0 - Idle",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_idle.bendsanim",
+          "playbackSpeed": 1,
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 1,
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              }
+            },
+            {
+              "targetNodeIndex": 2,
+              "transitionDuration": 3,
+              "triggerCondition": {
+                "type": "mobends:wolf_state",
+                "state": "SITTING"
+              }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 1 - Walking",
+          "type": "core:movement",
+          "animationKey": "mobends:animations/wolf_walking.bendsanim",
+          "playbackSpeed": 4,
+          "connections": [
+            {
+              "targetNodeIndex": 0,
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "STANDING_STILL"
+              }
+            },
+            {
+              "targetNodeIndex": 2,
+              "transitionDuration": 1,
+              "triggerCondition": {
+                "type": "mobends:wolf_state",
+                "state": "SITTING"
+              }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 2 - Sitting Down",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_sitting_down.bendsanim",
+          "playbackSpeed": 2,
+          "startFrame": 6,
+          "connections": [
+            {
+              "targetNodeIndex": 3,
+              "transitionDuration": 1,
+              "triggerCondition": { "type": "core:animation_finished" }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 3 - Sitting",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_sitting.bendsanim",
+          "playbackSpeed": 1,
+          "startFrame": 0,
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 4,
+              "transitionDuration": 1,
+              "triggerCondition": {
+                "type": "core:not",
+                "condition": {
+                  "type": "mobends:wolf_state",
+                  "state": "SITTING"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 4 - Standing Up",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_standing_up.bendsanim",
+          "playbackSpeed": 2,
+          "startFrame": 4,
+          "connections": [
+            {
+              "targetNodeIndex": 0,
+              "transitionDuration": 1,
+              "triggerCondition": { "type": "core:animation_finished" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "KEYFRAME",
+      "entryNode": 0,
+      "additive": true,
+      "mask": {
+        "mode": "INCLUDE_ONLY",
+        "includedParts": [
+          "tongue",
+          "mouth"
+        ]
+      },
+      "nodes": [
+        {
+          "comment": "NODE 0 - Idle",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_idle.bendsanim",
+          "playbackSpeed": 1,
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 1,
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:ticks_passed",
+                "ticksToPass": "80"
+              }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 1 - Breathing",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/wolf_breathing.bendsanim",
+          "playbackSpeed": 1.2,
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 0,
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:ticks_passed",
+                "ticksToPass": "50"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

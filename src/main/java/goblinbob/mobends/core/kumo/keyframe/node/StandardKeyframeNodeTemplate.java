@@ -10,12 +10,9 @@ public class StandardKeyframeNodeTemplate extends KeyframeNodeTemplate
     public static final String TYPE = "core:standard";
 
     private String animationKey;
-
-    private int startFrame = 0;
-
-    private float playbackSpeed = 1;
-
-    private boolean looping = false;
+    private int startFrame;
+    private float playbackSpeed;
+    private boolean looping;
 
     public StandardKeyframeNodeTemplate(String animationKey, int startFrame, float playbackSpeed, boolean looping)
     {
@@ -49,8 +46,6 @@ public class StandardKeyframeNodeTemplate extends KeyframeNodeTemplate
         float playbackSpeed =   in.readFloat();
         boolean looping =       in.readBoolean();
 
-        StandardKeyframeNodeTemplate template = new StandardKeyframeNodeTemplate(animationKey, startFrame, playbackSpeed, looping);
-
-        return template;
+        return new StandardKeyframeNodeTemplate(animationKey, startFrame, playbackSpeed, looping);
     }
 }

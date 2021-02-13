@@ -7,14 +7,14 @@ public enum LayerType
 {
     KEYFRAME(KeyframeLayerTemplate::deserialize);
 
-    private IContexedDeserializer<LayerTemplate> deserializer;
+    private IContexedDeserializer<LayerTemplate<?>> deserializer;
 
-    LayerType(IContexedDeserializer<LayerTemplate> deserializer)
+    LayerType(IContexedDeserializer<LayerTemplate<?>> deserializer)
     {
         this.deserializer = deserializer;
     }
 
-    public IContexedDeserializer<LayerTemplate> getDeserializer()
+    public IContexedDeserializer<LayerTemplate<?>> getDeserializer()
     {
         return this.deserializer;
     }

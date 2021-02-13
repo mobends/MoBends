@@ -1,7 +1,7 @@
 package goblinbob.mobends.standard.main;
 
 import goblinbob.mobends.core.IEntityDataRepository;
-import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.forge.EntityData;
 import goblinbob.mobends.forge.ForgeEntityData;
 import goblinbob.mobends.forge.ForgeMutationContext;
 import net.minecraft.entity.LivingEntity;
