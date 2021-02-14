@@ -1,11 +1,9 @@
 package goblinbob.mobends.forge;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import goblinbob.mobends.core.math.SmoothOrientation;
-import goblinbob.mobends.core.math.vector.IVec3f;
-import net.minecraft.util.math.vector.Quaternion;
+import goblinbob.mobends.core.IModelPart;
 
-public interface IModelPart
+public interface IForgeModelPart extends IModelPart
 {
 	/**
 	 * Applies the transform in global space (relative to the entity).
@@ -53,16 +51,6 @@ public interface IModelPart
 	 * whatever is rendered after it (the children) gets that rotation.
 	 */
 	default void applyPostTransform(MatrixStack matrix, double scale) {}
-	
-	void syncUp(IModelPart part);
-	void setVisible(boolean showModel);
-	IVec3f getPosition();
-	IVec3f getScale();
-	IVec3f getOffset();
-	Quaternion getRotation();
-	float getOffsetScale();
-	IVec3f getGlobalOffset();
-	IModelPart getParent();
-	boolean isShowing();
 
+	IForgeModelPart getParent();
 }

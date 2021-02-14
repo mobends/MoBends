@@ -16,13 +16,13 @@ public interface INodeState<D extends IEntityData>
     /**
      * Returns progress counted in keyframes including the in-betweens (not just whole number indices).
      */
-    float getProgress();
+    float getProgress(IKumoReadContext<D> context);
 
-    boolean isAnimationFinished();
+    boolean isAnimationFinished(IKumoReadContext<D> context);
 
-    void parseConnections(List<INodeState<D>> nodeStates, KeyframeNodeTemplate template, IKumoInstancingContext<D> context) throws MalformedKumoTemplateException;
+    void parseConnections(List<INodeState<D>> nodeStates, KeyframeNodeTemplate template, IKumoInstancingContext<D> context);
 
     void start(IKumoContext<D> context);
 
-    void update(IKumoContext<D> context, float deltaTime);
+    void update(IKumoContext<D> context);
 }

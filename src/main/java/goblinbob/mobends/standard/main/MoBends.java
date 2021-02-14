@@ -4,9 +4,18 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
+import goblinbob.mobends.core.kumo.INodeState;
+import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
+import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
+import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
+import goblinbob.mobends.core.kumo.trigger.*;
 import goblinbob.mobends.forge.AnimationLoader;
+import goblinbob.mobends.forge.EntityData;
 import goblinbob.mobends.forge.ReportOutput;
+import goblinbob.mobends.forge.SerialContext;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
+import goblinbob.mobends.forge.trigger.EquipmentNameCondition;
+import goblinbob.mobends.standard.main.trigger.WolfStateCondition;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -28,13 +37,30 @@ public class MoBends
 {
     public static final Logger LOGGER = LogManager.getLogger();
 
+    private final SerialContext serialContext;
     private final TestBenderProvider benderProvider;
     private final KeyboardHandler keyboardHandler;
 
     public MoBends()
     {
-        this.benderProvider = new TestBenderProvider();
+        this.serialContext = new SerialContext();
+        this.benderProvider = new TestBenderProvider(this.serialContext);
         this.keyboardHandler = new KeyboardHandler(this::onRefresh);
+
+        this.serialContext.layerRegistry.register("core:keyframe", KeyframeLayerTemplate::deserialize);
+
+        this.serialContext.keyframeNodeRegistry.register("core:standard", StandardKeyframeNodeTemplate::deserialize);
+        this.serialContext.keyframeNodeRegistry.register("core:movement", MovementKeyframeNodeTemplate::deserialize);
+
+        this.serialContext.triggerConditionRegistry.register("core:or", OrCondition.Template::deserialize);
+        this.serialContext.triggerConditionRegistry.register("core:and", AndCondition.Template::deserialize);
+        this.serialContext.triggerConditionRegistry.register("core:not", NotCondition.Template::deserialize);
+        this.serialContext.triggerConditionRegistry.register("core:state", StateCondition.Template::deserialize);
+        this.serialContext.triggerConditionRegistry.register("core:ticks_passed", TicksPassedCondition.Template::deserialize);
+        this.serialContext.triggerConditionRegistry.register("core:equipment_name", EquipmentNameCondition.Template::deserialize);
+        this.serialContext.triggerConditionRegistry.register("core:animation_finished", AnimationFinishedCondition.Template::deserialize);
+
+        this.serialContext.triggerConditionRegistry.register("mobends:wolf_state", WolfStateCondition.Template::deserialize);
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(this.keyboardHandler);

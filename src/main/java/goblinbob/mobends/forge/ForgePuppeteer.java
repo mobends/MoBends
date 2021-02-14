@@ -1,9 +1,7 @@
 package goblinbob.mobends.forge;
 
-import goblinbob.mobends.core.EntityBender;
-import goblinbob.mobends.core.IDisposable;
-import goblinbob.mobends.core.IEntityDataRepository;
-import goblinbob.mobends.core.IPuppeteer;
+import goblinbob.mobends.core.*;
+import goblinbob.mobends.core.data.PropertyStorage;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.exceptions.UnknownPropertyException;
 import goblinbob.mobends.core.mutation.PuppeteerException;
@@ -15,6 +13,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.List;
+import java.util.Map;
 
 public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M extends EntityModel<E>> implements IPuppeteer<ForgeMutationContext>, IDisposable
 {
@@ -47,12 +46,13 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
     {
         LivingEntity entity = context.getEntity();
         float partialTicks = context.getPartialTicks();
+        float ticksPassed = context.getTicksPassed();
 
         //noinspection unchecked
-        D data = (D) this.dataRepository.getOrMakeData(context);
+        D data = (D) this.dataRepository.getOrMakeData(context, bender);
         //noinspection unchecked
         this.updateModel((E) entity, data, partialTicks);
-        this.performAnimations(data, partialTicks);
+        this.performAnimations(data, ticksPassed);
         this.syncUpWithData(data);
     }
 
@@ -104,11 +104,12 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
 
         try
         {
-            data.setProperty(BasePropertyKeys.HEAD_YAW, yaw);
-            data.setProperty(BasePropertyKeys.HEAD_PITCH, pitch);
-            data.setProperty(BasePropertyKeys.LIMB_SWING, f6);
-            data.setProperty(BasePropertyKeys.LIMB_SWING_AMOUNT, f5);
-            data.setProperty(BasePropertyKeys.SWING_PROGRESS, entity.getSwingProgress(partialTicks));
+            PropertyStorage storage = data.getPropertyStorage();
+            storage.setProperty(BasePropertyKeys.HEAD_YAW, yaw);
+            storage.setProperty(BasePropertyKeys.HEAD_PITCH, pitch);
+            storage.setProperty(BasePropertyKeys.LIMB_SWING, f6);
+            storage.setProperty(BasePropertyKeys.LIMB_SWING_AMOUNT, f5);
+            storage.setProperty(BasePropertyKeys.SWING_PROGRESS, entity.getSwingProgress(partialTicks));
         }
         catch (UnknownPropertyException e)
         {
@@ -121,10 +122,11 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
         this.mutator.mutate();
     }
 
-    private void performAnimations(D data, float partialTicks)
+    private void performAnimations(D data, float ticksPassed)
     {
         // TODO Perform animations!
-        
+
+        data.getAnimatorState().update(data, ticksPassed);
     }
 
     /**
@@ -135,6 +137,11 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
     private void syncUpWithData(EntityData data)
     {
         // TODO Implement this
+        for (Map.Entry<String, ModelPart> entry : mutator.getParts())
+        {
+            IModelPart src = data.getPartForName(entry.getKey());
+            entry.getValue().syncUp(src);
+        }
     }
 
     /**
@@ -159,5 +166,4 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
 
         return puppeteer;
     }
-
 }

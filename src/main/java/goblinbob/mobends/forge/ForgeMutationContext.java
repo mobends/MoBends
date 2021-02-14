@@ -8,12 +8,14 @@ public class ForgeMutationContext
     private LivingEntity entity;
     private LivingRenderer<?, ?> renderer;
     private float partialTicks = 0;
+    private float ticksPassed = 0;
 
-    public ForgeMutationContext(LivingEntity entity, LivingRenderer<?, ?> renderer, float partialTicks)
+    public ForgeMutationContext(LivingEntity entity, LivingRenderer<?, ?> renderer, float partialTicks, float ticksPassed)
     {
         this.entity = entity;
         this.renderer = renderer;
         this.partialTicks = partialTicks;
+        this.ticksPassed = ticksPassed;
     }
 
     public LivingEntity getEntity()
@@ -29,5 +31,10 @@ public class ForgeMutationContext
     public float getPartialTicks()
     {
         return partialTicks;
+    }
+
+    public float getTicksPassed()
+    {
+        return ticksPassed;
     }
 }

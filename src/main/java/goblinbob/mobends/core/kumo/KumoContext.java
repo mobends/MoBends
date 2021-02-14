@@ -7,16 +7,15 @@ import goblinbob.mobends.core.data.IEntityData;
  *
  * @author Iwo Plaza
  */
-public class KumoContext implements IKumoContext
+public class KumoContext<D extends IEntityData> implements IKumoContext<D>
 {
-
     public float ticksPassed;
 
-    public IEntityData entityData;
+    public D entityData;
 
-    public ILayerState layerState;
+    public ILayerState<D> layerState;
 
-    public INodeState currentNode;
+    public INodeState<D> currentNode;
 
     @Override
     public float getTicksPassed()
@@ -25,27 +24,26 @@ public class KumoContext implements IKumoContext
     }
 
     @Override
-    public IEntityData getEntityData()
+    public D getEntityData()
     {
         return entityData;
     }
 
     @Override
-    public ILayerState getLayerState()
+    public ILayerState<D> getLayerState()
     {
         return layerState;
     }
 
     @Override
-    public INodeState getCurrentNode()
+    public INodeState<D> getCurrentNode()
     {
         return currentNode;
     }
 
     @Override
-    public void setCurrentNode(INodeState node)
+    public void setCurrentNode(INodeState<D> node)
     {
         currentNode = node;
     }
-
 }

@@ -1,19 +1,40 @@
 package goblinbob.mobends.core.kumo;
 
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
 import goblinbob.mobends.core.serial.ISerialInput;
+import goblinbob.mobends.core.serial.ISerialOutput;
 import goblinbob.mobends.core.serial.ISerializable;
+import goblinbob.mobends.core.serial.ISubTypeDeserializer;
 
 import java.io.IOException;
 
-public abstract class LayerTemplate<D extends IEntityData> implements ISerializable
+public abstract class LayerTemplate implements ISerializable
 {
-    public abstract ILayerState<D> produceInstance(IKumoInstancingContext<D> context) throws MalformedKumoTemplateException;
+    private final String type;
 
-    public static LayerTemplate<?> deserializeGeneral(ISerialInput in, ISerialContext context) throws IOException
+    public LayerTemplate(String type)
     {
-        LayerType layerType = LayerType.values()[in.readByte()];
-        return layerType.getDeserializer().deserialize(in, context);
+        this.type = type;
+    }
+
+    public String getType()
+    {
+        return type;
+    }
+
+    public abstract <D extends IEntityData> ILayerState<D> instantiate(IKumoInstancingContext<D> context);
+
+    @Override
+    public void serialize(ISerialOutput out)
+    {
+        out.writeString(type);
+    }
+
+    public static <D extends IEntityData> LayerTemplate deserializeGeneral(ISerialContext<D> context, ISerialInput in) throws IOException
+    {
+        String type = in.readString();
+
+        ISubTypeDeserializer<LayerTemplate, D> deserializer = context.getLayerDeserializer();
+        return deserializer.deserialize(context, type, in);
     }
 }

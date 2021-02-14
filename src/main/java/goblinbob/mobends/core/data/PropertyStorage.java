@@ -67,6 +67,11 @@ public class PropertyStorage
         return (double) this.getProperty(key);
     }
 
+    public float getFloatProperty(String key) throws UnknownPropertyException
+    {
+        return (float) this.getProperty(key);
+    }
+
     /**
      * This is a container for a singular entity attribute.
      * For example, the animations can use these as variables.

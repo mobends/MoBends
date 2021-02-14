@@ -6,6 +6,7 @@ import goblinbob.mobends.core.kumo.LayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
+import goblinbob.mobends.forge.EntityData;
 import mobends.mock.MockSerialContext;
 import mobends.mock.MockSerialQueue;
 import org.junit.Before;
@@ -14,12 +15,13 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class KumoAnimatorSerializationTest
 {
 
-    ISerialContext createMockSerialContext()
+    ISerialContext<EntityData> createMockSerialContext()
     {
         MockSerialContext context = new MockSerialContext();
         context.keyframeNodeRegistry.register("core:standard", StandardKeyframeNodeTemplate::deserialize);
@@ -29,12 +31,12 @@ public class KumoAnimatorSerializationTest
 
     KeyframeNodeTemplate createMockKeyframeNodeTemplate()
     {
-        return new StandardKeyframeNodeTemplate("animation", rand.nextInt(), rand.nextFloat(), rand.nextBoolean());
+        return new StandardKeyframeNodeTemplate("core:standard", "animation", rand.nextInt(), rand.nextFloat(), rand.nextBoolean());
     }
 
     LayerTemplate createMockLayerTemplate()
     {
-        return new KeyframeLayerTemplate(0, null, new KeyframeNodeTemplate[] {
+        return new KeyframeLayerTemplate("core:keyframe", 0, null, new KeyframeNodeTemplate[] {
                 createMockKeyframeNodeTemplate(),
         });
     }
@@ -43,9 +45,9 @@ public class KumoAnimatorSerializationTest
     {
         AnimatorTemplate animatorTemplate = new AnimatorTemplate();
 
-        StandardKeyframeNodeTemplate nodeOne = new StandardKeyframeNodeTemplate("hello:there", 0, 1, false);
+        StandardKeyframeNodeTemplate nodeOne = new StandardKeyframeNodeTemplate("core:standard", "hello:there", 0, 1, false);
 
-        KeyframeLayerTemplate sampleLayer = new KeyframeLayerTemplate(0, null, new KeyframeNodeTemplate[] {
+        KeyframeLayerTemplate sampleLayer = new KeyframeLayerTemplate("core:keyframe", 0, null, new KeyframeNodeTemplate[] {
                 nodeOne
         });
 
@@ -67,14 +69,14 @@ public class KumoAnimatorSerializationTest
     @Test
     public void keyframeNodeTemplate()
     {
-        ISerialContext context = createMockSerialContext();
+        ISerialContext<EntityData> context = createMockSerialContext();
         KeyframeNodeTemplate original = createMockKeyframeNodeTemplate();
 
         original.serialize(queue);
 
         try
         {
-            KeyframeNodeTemplate deserialized = KeyframeNodeTemplate.deserializeGeneral(queue, context);
+            KeyframeNodeTemplate deserialized = KeyframeNodeTemplate.deserializeGeneral(context, queue);
 
             assertEquals(original, deserialized);
         }
@@ -87,14 +89,14 @@ public class KumoAnimatorSerializationTest
     @Test
     public void keyframeLayerTemplate()
     {
-        ISerialContext context = createMockSerialContext();
+        ISerialContext<EntityData> context = createMockSerialContext();
         LayerTemplate original = createMockLayerTemplate();
 
         original.serialize(queue);
 
         try
         {
-            LayerTemplate deserialized = LayerTemplate.deserializeGeneral(queue, context);
+            LayerTemplate deserialized = LayerTemplate.deserializeGeneral(context, queue);
 
             assertEquals(original, deserialized);
         }
@@ -111,11 +113,11 @@ public class KumoAnimatorSerializationTest
 
         animatorTemplate.serialize(queue);
 
-        ISerialContext context = createMockSerialContext();
+        ISerialContext<EntityData> context = createMockSerialContext();
 
         try
         {
-            AnimatorTemplate deserializedAnimatorTemplate = AnimatorTemplate.deserialize(queue, context);
+            AnimatorTemplate deserializedAnimatorTemplate = AnimatorTemplate.deserialize(context, queue);
 
             assertEquals(animatorTemplate, deserializedAnimatorTemplate);
         }

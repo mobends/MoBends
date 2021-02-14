@@ -26,6 +26,11 @@ public class Mutator
         this.model = model;
     }
 
+    public Iterable<Map.Entry<String, ModelPart>> getParts()
+    {
+        return partMap.entrySet();
+    }
+
     public void demutate() throws InvalidMutationException
     {
         MutatedModels.markVanilla(model);

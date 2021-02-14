@@ -1,16 +1,16 @@
 package goblinbob.mobends.core.kumo.keyframe;
 
+import goblinbob.mobends.core.IModelPart;
 import goblinbob.mobends.core.animation.keyframe.ArmatureMask;
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.Keyframe;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
+import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
 import goblinbob.mobends.core.kumo.*;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
-import goblinbob.mobends.core.util.KeyframeUtils;
 import goblinbob.mobends.core.util.Tween;
-import goblinbob.mobends.forge.IModelPart;
+import goblinbob.mobends.forge.KeyframeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,17 +22,17 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
     private ArmatureMask mask;
     private INodeState<D> previousNode;
     private INodeState<D> currentNode;
-    private float transitionProgress = 0.0F;
+    private float transitionStartTime = 0.0F;
     private float transitionDuration = 0.0F;
     private ConnectionTemplate.Easing transitionEasing = ConnectionTemplate.Easing.EASE_IN_OUT;
 
-    public KeyframeLayerState(KeyframeLayerTemplate layerTemplate, IKumoInstancingContext<D> context) throws MalformedKumoTemplateException
+    public KeyframeLayerState(KeyframeLayerTemplate layerTemplate, IKumoInstancingContext<D> context)
     {
         this.mask = layerTemplate.mask;
 
         for (KeyframeNodeTemplate nodeTemplate : layerTemplate.nodes)
         {
-            nodeStates.add(context.createNodeState(context, nodeTemplate));
+            nodeStates.add(nodeTemplate.instantiate(context));
         }
 
         for (int i = 0; i < nodeStates.size(); ++i)
@@ -46,7 +46,7 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
         }
         catch (IndexOutOfBoundsException e)
         {
-            throw new MalformedKumoTemplateException("Entry node index is out of bounds.");
+            throw new AnimationRuntimeException("Entry node index is out of bounds.");
         }
     }
 
@@ -57,9 +57,9 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
     }
 
     @Override
-    public void update(IKumoContext<D> context, float deltaTime) throws MalformedKumoTemplateException
+    public void update(IKumoContext<D> context)
     {
-        final IEntityData data = context.getEntityData();
+        final D data = context.getEntityData();
 
         if (currentNode != null)
         {
@@ -71,7 +71,7 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
 
                 if (previousNode != null)
                 {
-                    float t = transitionProgress / transitionDuration;
+                    float t = Math.min((context.getTicksPassed() - transitionStartTime) / transitionDuration, 1);
                     switch (transitionEasing)
                     {
                         case EASE_IN:
@@ -89,18 +89,17 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
 
                     // Transition is in progress
                     KeyframeAnimation previousAnimation = previousNode.getAnimation();
-                    applyKeyframeAnimation(data, previousAnimation, previousNode.getProgress(), 1 - t);
-                    applyKeyframeAnimation(data, animation, currentNode.getProgress(), t);
+                    applyKeyframeAnimation(data, previousAnimation, previousNode.getProgress(context), 1 - t);
+                    applyKeyframeAnimation(data, animation, currentNode.getProgress(context), t);
 
-                    transitionProgress += deltaTime;
-                    if (transitionProgress >= transitionDuration)
+                    if (t >= 1)
                     {
                         previousNode = null;
                     }
                 }
                 else
                 {
-                    applyKeyframeAnimation(data, animation, currentNode.getProgress(), 1.0F);
+                    applyKeyframeAnimation(data, animation, currentNode.getProgress(context), 1.0F);
                 }
             }
         }
@@ -111,7 +110,7 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
         // Updating node states.
         for (INodeState<D> node : nodeStates)
         {
-            node.update(context, deltaTime);
+            node.update(context);
         }
 
         // Evaluating connection trigger conditions.
@@ -129,7 +128,7 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
                 else
                 {
                     previousNode = currentNode;
-                    transitionProgress = 0;
+                    transitionStartTime = context.getTicksPassed();
                 }
 
                 currentNode = connection.targetNode;
@@ -140,17 +139,19 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
         }
     }
 
-    public void applyRestPose(IEntityData entityData, KeyframeAnimation animation)
+    public void applyRestPose(D entityData, KeyframeAnimation animation)
     {
+        IModelPart rootPart = entityData.getRootPart();
+
         if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
         {
-            entityData.globalOffset.set(0, 0, 0);
+            rootPart.getPosition().set(0, 0, 0);
         }
 
         if ((shouldPartBeAffected("root") && animation.bones.containsKey("root")) ||
             (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation")))
         {
-            entityData.centerRotation.set(0F, 0F, 0F, 0F);
+            rootPart.getRotation().set(0, 0, 0, 0);
         }
 
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
@@ -159,13 +160,9 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
 
             if (shouldPartBeAffected(key))
             {
-                Object part = entityData.getPartForName(key);
-
-                if (part instanceof IModelPart)
-                {
-                    ((IModelPart) part).getRotation().set(0F, 0F, 0F, 0F);
-                    ((IModelPart) part).getOffset().set(0F, 0F, 0F);
-                }
+                IModelPart part = entityData.getPartForName(key);
+                part.getRotation().set(0F, 0F, 0F, 0F);
+                part.getOffset().set(0F, 0F, 0F);
             }
         }
     }
@@ -176,28 +173,32 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
         final int frameB = (int) keyframeIndex + 1;
         final float tween = keyframeIndex - frameA;
 
+        IModelPart rootPart = entityData.getRootPart();
+
         if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
         {
             final Bone rootBone = animation.bones.get("root");
-            final Keyframe keyframe = rootBone.keyframes.get(frameA);
-            final Keyframe nextFrame = rootBone.keyframes.get(frameB);
+            Keyframe[] keyframes = rootBone.getKeyframes();
+            final Keyframe keyframe = keyframes[frameA];
+            final Keyframe nextFrame = keyframes[frameB];
 
             if (keyframe != null && nextFrame != null)
             {
-                KeyframeUtils.tweenVectorAdditive(entityData.globalOffset, keyframe.position, nextFrame.position, tween, amount);
+                KeyframeUtils.tweenVectorAdditive(rootPart.getPosition(), keyframe.position, nextFrame.position, tween, amount);
             }
         }
 
         if (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation"))
         {
             final Bone rootBone = animation.bones.get("centerRotation");
-            final Keyframe keyframe = rootBone.keyframes.get(frameA);
-            final Keyframe nextFrame = rootBone.keyframes.get(frameB);
+            Keyframe[] keyframes = rootBone.getKeyframes();
+            final Keyframe keyframe = keyframes[frameA];
+            final Keyframe nextFrame = keyframes[frameB];
 
             if (keyframe != null && nextFrame != null)
             {
-                KeyframeUtils.tweenOrientationAdditive(entityData.centerRotation, keyframe.rotation, nextFrame.rotation, tween, amount);
-                KeyframeUtils.tweenVectorAdditive(entityData.globalOffset, keyframe.position, nextFrame.position, tween, amount);
+                KeyframeUtils.tweenOrientationAdditive(rootPart.getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
+                KeyframeUtils.tweenVectorAdditive(rootPart.getPosition(), keyframe.position, nextFrame.position, tween, amount);
             }
         }
 
@@ -208,21 +209,19 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
             if (shouldPartBeAffected(key))
             {
                 Bone bone = entry.getValue();
-                Object part = entityData.getPartForName(key);
+                Keyframe[] keyframes = bone.getKeyframes();
+                IModelPart part = entityData.getPartForName(key);
 
                 if (part != null)
                 {
-                    Keyframe keyframe = bone.keyframes.get(frameA);
-                    Keyframe nextFrame = bone.keyframes.get(frameB);
+                    Keyframe keyframe = keyframes[frameA];
+                    Keyframe nextFrame = keyframes[frameB];
 
                     if (keyframe != null && nextFrame != null)
                     {
-                        if (part instanceof IModelPart)
-                        {
-                            KeyframeUtils.tweenOrientationAdditive(((IModelPart) part).getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
-                            // Note that the amount is negated.
-                            KeyframeUtils.tweenVectorAdditive(((IModelPart) part).getOffset(), keyframe.position, nextFrame.position, tween, -amount);
-                        }
+                        KeyframeUtils.tweenOrientationAdditive(part.getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
+                        // Note that the amount is negated.
+                        KeyframeUtils.tweenVectorAdditive(part.getOffset(), keyframe.position, nextFrame.position, tween, -amount);
                     }
                 }
             }
@@ -232,10 +231,5 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
     private boolean shouldPartBeAffected(String partName)
     {
         return mask == null || mask.doesAllow(partName);
-    }
-
-    public static <D extends IEntityData> KeyframeLayerState<D> createFromTemplate(IKumoInstancingContext<D> context, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
-    {
-        return new KeyframeLayerState<D>(layerTemplate, context);
     }
 }

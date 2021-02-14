@@ -1,6 +1,8 @@
 package goblinbob.mobends.core.kumo.keyframe.node;
 
-public interface IKeyframeNodeRegistry
+import goblinbob.mobends.core.data.IEntityData;
+
+public interface IKeyframeNodeRegistry<D extends IEntityData>
 {
-    void register(String key);
+    <T extends KeyframeNodeTemplate> void register(String key, IKeyframeNodeFactory<D, ?, T> factory, Class<T> templateType);
 }

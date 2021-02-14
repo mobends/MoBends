@@ -1,5 +1,9 @@
 package goblinbob.mobends.core.serial;
 
+import goblinbob.mobends.core.data.IEntityData;
+import goblinbob.mobends.core.kumo.ISerialContext;
+import net.minecraft.inventory.EquipmentSlotType;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -48,7 +52,7 @@ public class SerialHelper
         }
     }
 
-    public static <T extends ISerializable> T deserializeNullable(IDeserializer<T> deserializer, ISerialInput in) throws IOException
+    public static <T extends ISerializable, D extends IEntityData> T deserializeNullable(ISerialContext<D> context, IDeserializer<T, D> deserializer, ISerialInput in) throws IOException
     {
         boolean isItNull = in.readByte() == 0;
 
@@ -57,43 +61,43 @@ public class SerialHelper
             return null;
         }
 
-        return deserializer.deserialize(in);
+        return deserializer.deserialize(context, in);
     }
 
-    public static <T> List<T> deserializeList(IDeserializer<T> deserializer, ISerialInput in) throws IOException
+    public static <T, D extends IEntityData> List<T> deserializeList(ISerialContext<D> context, IDeserializer<T, D> deserializer, ISerialInput in) throws IOException
     {
         List<T> list = new ArrayList<>();
         int sizeOfTheList = in.readInt();
 
         for (int i = 0; i < sizeOfTheList; ++i)
         {
-            list.add(deserializer.deserialize(in));
+            list.add(deserializer.deserialize(context, in));
         }
 
         return list;
     }
 
-    public static <T> Set<T> deserializeSet(IDeserializer<T> deserializer, ISerialInput in) throws IOException
+    public static <T, D extends IEntityData> Set<T> deserializeSet(ISerialContext<D> context, IDeserializer<T, D> deserializer, ISerialInput in) throws IOException
     {
         Set<T> set = new HashSet<>();
         int sizeOfTheList = in.readInt();
 
         for (int i = 0; i < sizeOfTheList; ++i)
         {
-            set.add(deserializer.deserialize(in));
+            set.add(deserializer.deserialize(context, in));
         }
 
         return set;
     }
 
-    public static <T> T[] deserializeArray(IDeserializer<T> deserializer, T[] emptyArray, ISerialInput in) throws IOException
+    public static <T, D extends IEntityData> T[] deserializeArray(ISerialContext<D> context, IDeserializer<T, D> deserializer, T[] emptyArray, ISerialInput in) throws IOException
     {
         int sizeOfTheArray = in.readInt();
         T[] list = Arrays.copyOf(emptyArray, sizeOfTheArray);
 
         for (int i = 0; i < sizeOfTheArray; ++i)
         {
-            list[i] = deserializer.deserialize(in);
+            list[i] = deserializer.deserialize(context, in);
         }
 
         return list;

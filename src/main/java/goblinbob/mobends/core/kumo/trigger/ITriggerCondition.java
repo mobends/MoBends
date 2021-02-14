@@ -8,5 +8,5 @@ public interface ITriggerCondition<D extends IEntityData>
 {
     default void onNodeStarted(ITriggerConditionContext<D> context) {}
 
-    boolean isConditionMet(ITriggerConditionContext<D> context) throws MalformedKumoTemplateException, MalformedKumoTemplateException;
+    boolean isConditionMet(ITriggerConditionContext<D> context);
 }

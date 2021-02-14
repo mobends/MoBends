@@ -3,7 +3,6 @@ package goblinbob.mobends.core.kumo.keyframe.node;
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.*;
 
 import java.util.ArrayList;
@@ -19,9 +18,9 @@ public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D
     List<ConnectionState<D>> connections = new ArrayList<>();
 
     /**
-     * Progress counted in keyframes.
+     * Holds the time (in ticks) when the animation was started.
      */
-    private float progress;
+    private float animationStartTime;
 
     public StandardKeyframeNode(IKumoInstancingContext<D> context, StandardKeyframeNodeTemplate nodeTemplate)
     {
@@ -44,21 +43,19 @@ public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D
             this.animationDuration = 0;
             for (Bone bone : animation.bones.values())
             {
-                if (bone.keyframes.size() > this.animationDuration)
-                    this.animationDuration = bone.keyframes.size();
+                if (bone.getKeyframes().length > this.animationDuration)
+                    this.animationDuration = bone.getKeyframes().length;
             }
         }
-
-        this.progress = this.startFrame;
     }
 
-    public void parseConnections(List<INodeState<D>> nodeStates, KeyframeNodeTemplate template, IKumoInstancingContext<D> context) throws MalformedKumoTemplateException
+    public void parseConnections(List<INodeState<D>> nodeStates, KeyframeNodeTemplate template, IKumoInstancingContext<D> context)
     {
         if (template.connections != null)
         {
             for (ConnectionTemplate connectionTemplate : template.connections)
             {
-                this.connections.add(ConnectionState.createFromTemplate(nodeStates, connectionTemplate));
+                this.connections.add(connectionTemplate.instantiate(nodeStates, context));
             }
         }
     }
@@ -66,7 +63,9 @@ public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D
     @Override
     public void start(IKumoContext<D> context)
     {
-        this.progress = this.startFrame;
+        float ticksOffset = this.startFrame / this.playbackSpeed;
+        this.animationStartTime = context.getTicksPassed() - ticksOffset;
+
         for (ConnectionState<D> connection : connections)
         {
             connection.triggerCondition.onNodeStarted(context);
@@ -74,27 +73,8 @@ public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D
     }
 
     @Override
-    public void update(IKumoContext<D> context, float deltaTime)
+    public void update(IKumoContext<D> context)
     {
-        if (animation != null)
-        {
-            if (this.looping)
-            {
-                this.progress += this.playbackSpeed * deltaTime;
-
-                while (this.progress >= this.animationDuration - 1)
-                {
-                    this.progress -= this.animationDuration - 1;
-                }
-            }
-            else
-            {
-                if (this.progress < this.animationDuration - 2)
-                {
-                    this.progress = Math.min(this.progress + this.playbackSpeed * deltaTime, animationDuration - 2);
-                }
-            }
-        }
     }
 
     @Override
@@ -104,17 +84,37 @@ public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D
     }
 
     @Override
-    public boolean isAnimationFinished()
+    public boolean isAnimationFinished(IKumoReadContext<D> context)
     {
-        return this.animation == null || !this.looping && this.progress >= animationDuration - 2;
+        if (this.animation == null)
+        {
+            return true;
+        }
+
+        if (this.looping)
+        {
+            return false;
+        }
+
+        float ticksPlayed = (context.getTicksPassed() - animationStartTime);
+        return ticksPlayed * playbackSpeed >= animationDuration;
     }
 
     /**
      * Returns progress counted in keyframes including the in-betweens (not just whole number indices).
      */
-    public float getProgress()
+    @Override
+    public float getProgress(IKumoReadContext<D> context)
     {
-        return progress;
+        float progress = (context.getTicksPassed() - animationStartTime) / animationDuration;
+        if (looping)
+        {
+            return progress % 1.0F;
+        }
+        else
+        {
+            return Math.min(progress, 1.0F);
+        }
     }
 
     @Override

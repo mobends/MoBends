@@ -16,7 +16,6 @@ public class EntityBender<C>
     private AnimatorTemplate animatorTemplate;
 
     private boolean animate = true;
-    private boolean targetMutated = false;
 
     public EntityBender(IPuppeteerRepository<C> puppeteerRepository, String key, String unlocalizedName, Class<?> entityClass, MutationInstructions mutationInstructions, AnimatorTemplate animatorTemplate)
     {

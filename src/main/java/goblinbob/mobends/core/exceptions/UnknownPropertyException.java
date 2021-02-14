@@ -1,6 +1,6 @@
 package goblinbob.mobends.core.exceptions;
 
-public class UnknownPropertyException extends Exception
+public class UnknownPropertyException extends RuntimeException
 {
     private final String propertyKey;
 
@@ -14,5 +14,4 @@ public class UnknownPropertyException extends Exception
     {
         return propertyKey;
     }
-
 }

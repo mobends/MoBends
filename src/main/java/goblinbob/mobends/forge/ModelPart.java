@@ -2,6 +2,8 @@ package goblinbob.mobends.forge;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import goblinbob.mobends.core.IModelPart;
+import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.physics.AABBoxGroup;
 import goblinbob.mobends.core.math.physics.IAABBox;
 import goblinbob.mobends.core.math.physics.ICollider;
@@ -10,17 +12,20 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.vector.*;
+import net.minecraft.util.math.vector.Matrix3f;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModelPart extends ModelRenderer implements IModelPart
+public class ModelPart extends ModelRenderer implements IForgeModelPart
 {
     public Vec3f position = new Vec3f();
     public Vec3f scale = new Vec3f(1, 1, 1);
     public Vec3f offset = new Vec3f();
-    public Quaternion rotation = new Quaternion(Quaternion.ONE);
+    public Quaternion rotation = new Quaternion(Quaternion.IDENTITY);
     /**
      * The scale at which animation position offset is applied, used for child models.
      */
@@ -34,7 +39,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
     /**
      * An optional parent.
      */
-    protected IModelPart parent;
+    protected IForgeModelPart parent;
     protected ICollider collider;
 
     public ModelPart(Model model, int texOffsetX, int texOffsetY)
@@ -113,7 +118,8 @@ public class ModelPart extends ModelRenderer implements IModelPart
         if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
             matrix.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
 
-        matrix.rotate(this.rotation);
+        net.minecraft.util.math.vector.Quaternion quat = new net.minecraft.util.math.vector.Quaternion(this.rotation.x, this.rotation.y, this.rotation.z, this.rotation.w);
+        matrix.rotate(quat);
         matrix.scale(this.scale.x, this.scale.y, this.scale.z);
     }
 
@@ -208,7 +214,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
-    public IModelPart getParent()
+    public IForgeModelPart getParent()
     {
         return this.parent;
     }
@@ -249,9 +255,9 @@ public class ModelPart extends ModelRenderer implements IModelPart
         if (part == null)
             return;
 
-        this.position.set(part.getPosition());
+//        this.position.set(part.getPosition());
         this.offset.set(part.getOffset());
-        TransformUtils.copyFromTo(part.getRotation(), this.rotation);
+        this.rotation.set(part.getRotation());
         this.scale.set(part.getScale());
         this.offsetScale = part.getOffsetScale();
         this.globalOffset.set(part.getGlobalOffset());
@@ -263,7 +269,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
         this.showModel = showModel;
     }
 
-    public ModelPart setParent(IModelPart parent)
+    public ModelPart setParent(IForgeModelPart parent)
     {
         this.parent = parent;
         return this;

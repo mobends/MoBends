@@ -13,5 +13,5 @@ public interface ILayerState<D extends IEntityData>
 {
     void start(IKumoContext<D> context);
 
-    void update(IKumoContext<D> context, float deltaTime) throws MalformedKumoTemplateException;
+    void update(IKumoContext<D> context);
 }

@@ -13,7 +13,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class RenderHandler
 {
-
     IEntityBenderProvider<ForgeMutationContext> benderProvider;
 
     public RenderHandler(IEntityBenderProvider<ForgeMutationContext> benderProvider)
@@ -35,7 +34,8 @@ public class RenderHandler
 
         GlStateManager.pushMatrix();
 
-        ForgeMutationContext context = new ForgeMutationContext(living, renderer, pt);
+        float ticksPassed = living.ticksExisted + pt;
+        ForgeMutationContext context = new ForgeMutationContext(living, renderer, pt, ticksPassed);
         try
         {
             bender.performPuppeteering(context);
@@ -57,5 +57,4 @@ public class RenderHandler
 
         GlStateManager.popMatrix();
     }
-
 }

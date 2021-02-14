@@ -1,8 +1,14 @@
 package goblinbob.mobends.core.kumo.trigger;
 
-import goblinbob.mobends.forge.EntityData;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.TriggerConditionTemplate;
+import goblinbob.mobends.core.data.IEntityData;
+import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
+import goblinbob.mobends.core.kumo.IKumoInstancingContext;
+import goblinbob.mobends.core.kumo.ISerialContext;
+import goblinbob.mobends.core.serial.ISerialInput;
+import goblinbob.mobends.core.serial.ISerialOutput;
+import goblinbob.mobends.core.serial.SerialHelper;
+
+import java.io.IOException;
 
 /**
  * This condition is met once the entity is in the provided state.
@@ -10,24 +16,24 @@ import goblinbob.mobends.core.kumo.TriggerConditionTemplate;
  *
  * @author Iwo Plaza
  */
-public class StateCondition implements ITriggerCondition
+public class StateCondition<D extends IEntityData> implements ITriggerCondition<D>
 {
     private final State state;
 
-    public StateCondition(Template template) throws MalformedKumoTemplateException
+    public StateCondition(IKumoInstancingContext<D> context, Template template)
     {
         if (template.state == null)
         {
-            throw new MalformedKumoTemplateException("No 'state' property given for trigger condition.");
+            throw new AnimationRuntimeException("No 'state' property given for trigger condition.");
         }
 
         this.state = template.state;
     }
 
     @Override
-    public boolean isConditionMet(ITriggerConditionContext context)
+    public boolean isConditionMet(ITriggerConditionContext<D> context)
     {
-        EntityData entityData = context.getEntityData();
+        IEntityData entityData = context.getEntityData();
 
         switch (this.state)
         {
@@ -36,7 +42,7 @@ public class StateCondition implements ITriggerCondition
             case AIRBORNE:
                 return !entityData.isOnGround();
             case SPRINTING:
-                return entityData.getEntity().isSprinting();
+                return entityData.isSprinting();
             case STANDING_STILL:
                 return entityData.isStillHorizontally();
             case MOVING_HORIZONTALLY:
@@ -48,7 +54,32 @@ public class StateCondition implements ITriggerCondition
 
     public static class Template extends TriggerConditionTemplate
     {
-        public State state;
+        public final State state;
+
+        public Template(String type, State state)
+        {
+            super(type);
+            this.state = state;
+        }
+
+        @Override
+        public <D extends IEntityData> ITriggerCondition<D> instantiate(IKumoInstancingContext<D> context)
+        {
+            return new StateCondition<>(context, this);
+        }
+
+        @Override
+        public void serialize(ISerialOutput out)
+        {
+            super.serialize(out);
+
+            out.writeByte((byte) state.ordinal());
+        }
+
+        public static <D extends IEntityData> Template deserialize(ISerialContext<D> context, String type, ISerialInput in) throws IOException
+        {
+            return new Template(type, State.values()[in.readByte()]);
+        }
     }
 
     public enum State

@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo;
 
+import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.serial.ISerialInput;
 import goblinbob.mobends.core.serial.ISerialOutput;
 import goblinbob.mobends.core.serial.ISerializable;
@@ -28,11 +29,11 @@ public class AnimatorTemplate implements ISerializable
         SerialHelper.serializeArray(layers, out);
     }
 
-    public static AnimatorTemplate deserialize(ISerialInput in, ISerialContext context) throws IOException
+    public static <D extends IEntityData> AnimatorTemplate deserialize(ISerialContext<D> context, ISerialInput in) throws IOException
     {
         AnimatorTemplate animatorTemplate = new AnimatorTemplate();
 
-        animatorTemplate.layers = SerialHelper.deserializeArray((inIn) -> LayerTemplate.deserializeGeneral(inIn, context), new LayerTemplate[0], in);
+        animatorTemplate.layers = SerialHelper.deserializeArray(context, LayerTemplate::deserializeGeneral, new LayerTemplate[0], in);
 
         return animatorTemplate;
     }

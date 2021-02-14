@@ -2,37 +2,32 @@ package goblinbob.mobends.core.kumo.keyframe.node;
 
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.core.kumo.state.ConnectionState;
-import goblinbob.mobends.core.kumo.state.IKumoContext;
-import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
-import goblinbob.mobends.core.kumo.state.INodeState;
-import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.MovementKeyframeNodeTemplate;
+import goblinbob.mobends.core.data.IEntityData;
+import goblinbob.mobends.core.data.PropertyStorage;
+import goblinbob.mobends.core.kumo.*;
+import goblinbob.mobends.forge.BasePropertyKeys;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MovementKeyframeNode implements INodeState
+public class MovementKeyframeNode<D extends IEntityData> implements INodeState<D>
 {
-
     public final KeyframeAnimation animation;
     private int animationDuration;
     private final int startFrame;
     private final float playbackSpeed;
-    List<ConnectionState> connections = new ArrayList<>();
+    private List<ConnectionState<D>> connections = new ArrayList<>();
 
     /**
      * Progress counted in keyframes.
      */
     private float progress;
 
-    public MovementKeyframeNode(IKumoInstancingContext context, MovementKeyframeNodeTemplate nodeTemplate)
+    public MovementKeyframeNode(IKumoInstancingContext<D> context, MovementKeyframeNodeTemplate template)
     {
-        this(nodeTemplate.animationKey != null ? context.getAnimation(nodeTemplate.animationKey) : null,
-                nodeTemplate.startFrame,
-                nodeTemplate.playbackSpeed);
+        this(template.animationKey != null ? context.getAnimation(template.animationKey) : null,
+                template.startFrame,
+                template.playbackSpeed);
     }
 
     public MovementKeyframeNode(KeyframeAnimation animation, int startFrame, float playbackSpeed)
@@ -47,8 +42,8 @@ public class MovementKeyframeNode implements INodeState
             this.animationDuration = 0;
             for (Bone bone : animation.bones.values())
             {
-                if (bone.keyframes.size() > this.animationDuration)
-                    this.animationDuration = bone.keyframes.size();
+                if (bone.getKeyframes().length > this.animationDuration)
+                    this.animationDuration = bone.getKeyframes().length;
             }
         }
 
@@ -56,7 +51,7 @@ public class MovementKeyframeNode implements INodeState
     }
 
     @Override
-    public Iterable<ConnectionState> getConnections()
+    public Iterable<ConnectionState<D>> getConnections()
     {
         return connections;
     }
@@ -68,53 +63,51 @@ public class MovementKeyframeNode implements INodeState
     }
 
     @Override
-    public float getProgress()
+    public float getProgress(IKumoReadContext<D> context)
     {
         return progress;
     }
 
     @Override
-    public boolean isAnimationFinished()
+    public boolean isAnimationFinished(IKumoReadContext<D> context)
     {
         return false;
     }
 
     @Override
-    public void parseConnections(List<INodeState> nodeStates, KeyframeNodeTemplate template) throws MalformedKumoTemplateException
+    public void parseConnections(List<INodeState<D>> nodeStates, KeyframeNodeTemplate template, IKumoInstancingContext<D> context)
     {
         if (template.connections != null)
         {
             for (ConnectionTemplate connectionTemplate : template.connections)
             {
-                this.connections.add(ConnectionState.createFromTemplate(nodeStates, connectionTemplate));
+                this.connections.add(connectionTemplate.instantiate(nodeStates, context));
             }
         }
     }
 
     @Override
-    public void start(IKumoContext context)
+    public void start(IKumoContext<D> context)
     {
         this.progress = this.startFrame;
-        for (ConnectionState connection : connections)
+        for (ConnectionState<D> connection : connections)
         {
             connection.triggerCondition.onNodeStarted(context);
         }
     }
 
     @Override
-    public void update(IKumoContext context, float deltaTime)
+    public void update(IKumoContext<D> context)
     {
-        LivingEntityData<?> data = (LivingEntityData<?>) context.getEntityData();
+        D data = context.getEntityData();
+        PropertyStorage storage = data.getPropertyStorage();
 
         if (animation != null)
         {
-            final float PI = (float) Math.PI;
-            float limbSwing = data.limbSwing.get() * 0.6662F;
-            float limbSwingAmount = data.limbSwingAmount.get() * 0.5F / PI * 180F;
+            float limbSwing = storage.getFloatProperty(BasePropertyKeys.LIMB_SWING) * 0.6662F;
 
             this.progress = this.playbackSpeed * limbSwing;
             this.progress %= this.animationDuration - 1;
         }
     }
-
 }

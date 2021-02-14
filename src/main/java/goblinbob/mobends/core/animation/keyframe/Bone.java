@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Bone
 {
-	private Keyframe[] keyframes;
+	private final Keyframe[] keyframes;
 
 	public Bone(Keyframe[] keyframes)
 	{

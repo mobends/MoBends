@@ -12,7 +12,6 @@ import java.util.Map;
 
 public class GsonResources
 {
-
     private static Map<ResourceLocation, Object> cache = new HashMap<>();
 
     public static void clearCache()
@@ -37,5 +36,4 @@ public class GsonResources
             return resource;
         }
     }
-
 }

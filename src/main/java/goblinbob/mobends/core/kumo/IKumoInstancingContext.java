@@ -5,6 +5,7 @@ import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.ITriggerCondition;
+import goblinbob.mobends.forge.EntityData;
 
 /**
  * This is a context available during template instancing, which should provide all necessary instantiation data.
@@ -14,8 +15,4 @@ import goblinbob.mobends.core.kumo.trigger.ITriggerCondition;
 public interface IKumoInstancingContext<D extends IEntityData>
 {
     KeyframeAnimation getAnimation(String key);
-
-    INodeState<D> createNodeState(IKumoInstancingContext<D> context, KeyframeNodeTemplate nodeTemplate) throws MalformedKumoTemplateException;
-
-    ITriggerCondition<D> createTriggerCondition(TriggerConditionTemplate conditionTemplate, IKumoInstancingContext<D> context) throws MalformedKumoTemplateException;
 }

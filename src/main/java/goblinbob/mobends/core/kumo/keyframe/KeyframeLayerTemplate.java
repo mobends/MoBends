@@ -1,8 +1,11 @@
 package goblinbob.mobends.core.kumo.keyframe;
 
 import goblinbob.mobends.core.animation.keyframe.ArmatureMask;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.*;
+import goblinbob.mobends.core.data.IEntityData;
+import goblinbob.mobends.core.kumo.IKumoInstancingContext;
+import goblinbob.mobends.core.kumo.ILayerState;
+import goblinbob.mobends.core.kumo.ISerialContext;
+import goblinbob.mobends.core.kumo.LayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.serial.ISerialInput;
 import goblinbob.mobends.core.serial.ISerialOutput;
@@ -17,8 +20,9 @@ public class KeyframeLayerTemplate extends LayerTemplate
     public final ArmatureMask mask;
     public final KeyframeNodeTemplate[] nodes;
 
-    public KeyframeLayerTemplate(int entryNode, ArmatureMask mask, KeyframeNodeTemplate[] nodes)
+    public KeyframeLayerTemplate(String type, int entryNode, ArmatureMask mask, KeyframeNodeTemplate[] nodes)
     {
+        super(type);
         this.entryNode = entryNode;
         this.mask = mask;
         this.nodes = nodes;
@@ -41,7 +45,7 @@ public class KeyframeLayerTemplate extends LayerTemplate
     @Override
     public void serialize(ISerialOutput out)
     {
-        out.writeByte((byte) LayerType.KEYFRAME.ordinal());
+        super.serialize(out);
 
         out.writeInt(this.entryNode);
         SerialHelper.serializeNullable(this.mask, out);
@@ -49,17 +53,17 @@ public class KeyframeLayerTemplate extends LayerTemplate
     }
 
     @Override
-    public ILayerState produceInstance(IKumoInstancingContext context) throws MalformedKumoTemplateException
+    public <D extends IEntityData> ILayerState<D> instantiate(IKumoInstancingContext<D> context)
     {
-        return new KeyframeLayerState(context, this);
+        return new KeyframeLayerState<>(this, context);
     }
 
-    public static LayerTemplate deserialize(ISerialInput in, ISerialContext context) throws IOException
+    public static <D extends IEntityData> LayerTemplate deserialize(ISerialContext<D> context, String type, ISerialInput in) throws IOException
     {
         int entryNode = in.readInt();
-        ArmatureMask mask = SerialHelper.deserializeNullable(ArmatureMask::deserialize, in);
-        KeyframeNodeTemplate[] nodes = SerialHelper.deserializeArray((inIn) -> KeyframeNodeTemplate.deserializeGeneral(inIn, context), new KeyframeNodeTemplate[0], in);
+        ArmatureMask mask = SerialHelper.deserializeNullable(context, ArmatureMask::deserialize, in);
+        KeyframeNodeTemplate[] nodes = SerialHelper.deserializeArray(context, KeyframeNodeTemplate::deserializeGeneral, new KeyframeNodeTemplate[0], in);
 
-        return new KeyframeLayerTemplate(entryNode, mask, nodes);
+        return new KeyframeLayerTemplate(type, entryNode, mask, nodes);
     }
 }
