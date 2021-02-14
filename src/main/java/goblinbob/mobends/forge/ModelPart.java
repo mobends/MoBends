@@ -255,7 +255,6 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
         if (part == null)
             return;
 
-//        this.position.set(part.getPosition());
         this.offset.set(part.getOffset());
         this.rotation.set(part.getRotation());
         this.scale.set(part.getScale());

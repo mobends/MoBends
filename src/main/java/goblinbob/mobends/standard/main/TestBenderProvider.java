@@ -15,7 +15,6 @@ import goblinbob.mobends.core.kumo.trigger.AnimationFinishedCondition;
 import goblinbob.mobends.core.kumo.trigger.NotCondition;
 import goblinbob.mobends.core.kumo.trigger.StateCondition;
 import goblinbob.mobends.core.mutation.MutationInstructions;
-import goblinbob.mobends.forge.BinaryResources;
 import goblinbob.mobends.forge.EntityData;
 import goblinbob.mobends.forge.ForgeMutationContext;
 import goblinbob.mobends.forge.GsonResources;
@@ -25,9 +24,7 @@ import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationContext>, IRefreshable
 {
@@ -141,6 +138,11 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
                 instructions,
                 animatorTemplate
         );
+    }
+
+    public void updateDataOnClientTick()
+    {
+        this.dataRepository.updateDataOnClientTick();
     }
 
     @Override

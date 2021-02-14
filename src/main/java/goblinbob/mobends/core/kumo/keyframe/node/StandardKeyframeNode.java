@@ -106,14 +106,14 @@ public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D
     @Override
     public float getProgress(IKumoReadContext<D> context)
     {
-        float progress = (context.getTicksPassed() - animationStartTime) / animationDuration;
+        float frames = (context.getTicksPassed() - animationStartTime) * playbackSpeed;
         if (looping)
         {
-            return progress % 1.0F;
+            return frames % (animationDuration - 1);
         }
         else
         {
-            return Math.min(progress, 1.0F);
+            return Math.min(frames, animationDuration - 2);
         }
     }
 

@@ -1,11 +1,10 @@
-package goblinbob.mobends.standard.main;
+package goblinbob.mobends.forge;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IEntityBenderProvider;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.mutation.PuppeteerException;
-import goblinbob.mobends.forge.ForgeMutationContext;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.client.event.RenderLivingEvent;

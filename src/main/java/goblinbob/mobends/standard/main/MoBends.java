@@ -4,15 +4,11 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
-import goblinbob.mobends.core.kumo.INodeState;
 import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.*;
-import goblinbob.mobends.forge.AnimationLoader;
-import goblinbob.mobends.forge.EntityData;
-import goblinbob.mobends.forge.ReportOutput;
-import goblinbob.mobends.forge.SerialContext;
+import goblinbob.mobends.forge.*;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
 import goblinbob.mobends.forge.trigger.EquipmentNameCondition;
 import goblinbob.mobends.standard.main.trigger.WolfStateCondition;
@@ -65,6 +61,7 @@ public class MoBends
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(this.keyboardHandler);
         MinecraftForge.EVENT_BUS.register(new RenderHandler(benderProvider));
+        MinecraftForge.EVENT_BUS.register(new DataUpdateHandler(benderProvider::updateDataOnClientTick));
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
     }

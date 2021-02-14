@@ -13,12 +13,12 @@ public interface IVec3d extends IVec3dRead
 
     void add(double x, double y, double z);
 
-    default void set(IVec3fRead vector)
+    default void set(IVec3dRead vector)
     {
         this.set(vector.getX(), vector.getY(), vector.getZ());
     }
 
-    default void add(IVec3fRead vector)
+    default void add(IVec3dRead vector)
     {
         this.add(vector.getX(), vector.getY(), vector.getZ());
     }

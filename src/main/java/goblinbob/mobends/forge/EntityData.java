@@ -5,13 +5,10 @@ import goblinbob.mobends.core.ModelPartTransform;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.data.PropertyStorage;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.*;
-import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
-import goblinbob.mobends.core.kumo.trigger.ITriggerCondition;
-import goblinbob.mobends.core.math.Quaternion;
+import goblinbob.mobends.core.kumo.AnimatorTemplate;
+import goblinbob.mobends.core.kumo.IKumoInstancingContext;
+import goblinbob.mobends.core.kumo.KumoAnimatorState;
 import goblinbob.mobends.core.math.vector.Vec3d;
-import goblinbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.entity.Entity;
 
 import java.io.IOException;
@@ -64,6 +61,17 @@ public class EntityData implements IEntityData
         return true;
     }
 
+    public void updateClient()
+    {
+        this.prevMotion.set(this.motion);
+        this.motion.set(
+                this.entity.getPosX() - this.position.x,
+                this.entity.getPosY() - this.position.y,
+                this.entity.getPosZ() - this.position.z
+        );
+        this.position.set(entity.getPosX(), entity.getPosY(), entity.getPosZ());
+    }
+
     public void update()
     {
 
@@ -83,8 +91,10 @@ public class EntityData implements IEntityData
     @Override
     public boolean isStillHorizontally()
     {
-        // TODO Implement this
-        return false;
+        // The motion value that is the threshold for determining movement.
+        double deadZone = 0.0025;
+        double horizontalSqMagnitude = this.motion.x * this.motion.x + this.motion.z * this.motion.z;
+        return horizontalSqMagnitude < deadZone;
     }
 
     @Override

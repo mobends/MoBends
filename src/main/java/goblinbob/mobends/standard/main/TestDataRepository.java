@@ -4,9 +4,12 @@ import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IEntityDataRepository;
 import goblinbob.mobends.forge.EntityData;
 import goblinbob.mobends.forge.ForgeMutationContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class TestDataRepository implements IEntityDataRepository<ForgeMutationContext>
@@ -26,5 +29,25 @@ public class TestDataRepository implements IEntityDataRepository<ForgeMutationCo
         }
 
         return data;
+    }
+
+    public void updateDataOnClientTick()
+    {
+        Iterator<Map.Entry<Integer, EntityData>> it = entryMap.entrySet().iterator();
+        while (it.hasNext())
+        {
+            Map.Entry<Integer, EntityData> entry = it.next();
+            EntityData entityData = entry.getValue();
+            Entity entity = entityData.getEntity();
+
+            if (!entity.isAlive())
+            {
+                it.remove();
+            }
+            else
+            {
+                entityData.updateClient();
+            }
+        }
     }
 }
