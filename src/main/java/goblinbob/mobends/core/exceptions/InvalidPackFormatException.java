@@ -2,7 +2,6 @@ package goblinbob.mobends.core.exceptions;
 
 public class InvalidPackFormatException extends Exception
 {
-
     private final String packName;
 
     public InvalidPackFormatException(String packName, String message)
@@ -15,5 +14,4 @@ public class InvalidPackFormatException extends Exception
     {
         return packName;
     }
-
 }

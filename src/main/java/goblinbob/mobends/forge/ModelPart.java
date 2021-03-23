@@ -53,42 +53,42 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
     }
 
     @Override
-    public void doRender(MatrixStack.Entry p_228306_1_, IVertexBuilder p_228306_2_, int p_228306_3_, int p_228306_4_, float p_228306_5_, float p_228306_6_, float p_228306_7_, float p_228306_8_)
+    public void doRender(MatrixStack.Entry stackEntry, IVertexBuilder vertexBuilder, int lightmapUV, int overlayUV, float red, float green, float blue, float alpha)
     {
-        Matrix4f lvt_9_1_ = p_228306_1_.getMatrix();
-        Matrix3f lvt_10_1_ = p_228306_1_.getNormal();
+        Matrix4f matrix = stackEntry.getMatrix();
+        Matrix3f normalMatrix = stackEntry.getNormal();
         ObjectListIterator var11 = this.cubeList.iterator();
 
         while(var11.hasNext())
         {
             MutatedBox lvt_12_1_ = (MutatedBox) var11.next();
-            ModelRenderer.TexturedQuad[] var13 = lvt_12_1_.quads;
-            int var14 = var13.length;
+            ModelRenderer.TexturedQuad[] faces = lvt_12_1_.quads;
+            int facesCount = faces.length;
 
             byte tempFlag = lvt_12_1_.faceVisibilityFlag;
 
-            for(int var15 = 0; var15 < var14; ++var15)
+            for(int faceIndex = 0; faceIndex < facesCount; ++faceIndex)
             {
-                ModelRenderer.TexturedQuad lvt_16_1_ = var13[var15];
-                Vector3f lvt_17_1_ = lvt_16_1_.normal.copy();
-                lvt_17_1_.transform(lvt_10_1_);
-                float lvt_18_1_ = lvt_17_1_.getX();
-                float lvt_19_1_ = lvt_17_1_.getY();
-                float lvt_20_1_ = lvt_17_1_.getZ();
+                ModelRenderer.TexturedQuad face = faces[faceIndex];
+                Vector3f transformedNormal = face.normal.copy();
+                transformedNormal.transform(normalMatrix);
+                float normalX = transformedNormal.getX();
+                float normalY = transformedNormal.getY();
+                float normalZ = transformedNormal.getZ();
 
                 // This check is done to not draw hidden
                 // faces.
                 if ((tempFlag & 1) == 1)
                 {
-                    for (int lvt_21_1_ = 0; lvt_21_1_ < 4; ++lvt_21_1_)
+                    for (int vertexIndex = 0; vertexIndex < 4; ++vertexIndex)
                     {
-                        ModelRenderer.PositionTextureVertex lvt_22_1_ = lvt_16_1_.vertexPositions[lvt_21_1_];
-                        float lvt_23_1_ = lvt_22_1_.position.getX() / 16.0F;
-                        float lvt_24_1_ = lvt_22_1_.position.getY() / 16.0F;
-                        float lvt_25_1_ = lvt_22_1_.position.getZ() / 16.0F;
-                        Vector4f lvt_26_1_ = new Vector4f(lvt_23_1_, lvt_24_1_, lvt_25_1_, 1.0F);
-                        lvt_26_1_.transform(lvt_9_1_);
-                        p_228306_2_.addVertex(lvt_26_1_.getX(), lvt_26_1_.getY(), lvt_26_1_.getZ(), p_228306_5_, p_228306_6_, p_228306_7_, p_228306_8_, lvt_22_1_.textureU, lvt_22_1_.textureV, p_228306_4_, p_228306_3_, lvt_18_1_, lvt_19_1_, lvt_20_1_);
+                        ModelRenderer.PositionTextureVertex vertex = face.vertexPositions[vertexIndex];
+                        float posX = vertex.position.getX() / 16.0F;
+                        float posY = vertex.position.getY() / 16.0F;
+                        float posZ = vertex.position.getZ() / 16.0F;
+                        Vector4f position = new Vector4f(posX, posY, posZ, 1.0F);
+                        position.transform(matrix);
+                        vertexBuilder.addVertex(position.getX(), position.getY(), position.getZ(), red, green, blue, alpha, vertex.textureU, vertex.textureV, overlayUV, lightmapUV, normalX, normalY, normalZ);
                     }
                 }
 

@@ -62,11 +62,11 @@ public class MutatedBox extends ModelRenderer.ModelBox
         this.vertexPositions[5] = positiontexturevertex4;
         this.vertexPositions[6] = positiontexturevertex5;
         this.vertexPositions[7] = positiontexturevertex6;
-        this.quads[0] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, faces[0], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.DOWN);
-        this.quads[1] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, faces[1], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.UP);
-        this.quads[2] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, faces[2], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.WEST);
-        this.quads[3] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, faces[3], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.NORTH);
-        this.quads[4] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, faces[4], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.EAST);
+        this.quads[0] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, faces[0], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.EAST);
+        this.quads[1] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, faces[1], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.WEST);
+        this.quads[2] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, faces[2], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.DOWN);
+        this.quads[3] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, faces[3], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.UP);
+        this.quads[4] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, faces[4], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.NORTH);
         this.quads[5] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, faces[5], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.SOUTH);
     }
 

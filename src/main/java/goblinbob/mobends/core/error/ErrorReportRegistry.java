@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class ErrorReportRegistry implements IErrorReportRegistry, IErrorReporter
 {
-
     private IReportOutput reportOutput;
 
     private Map<Class<? extends Exception>, IErrorHandler<?>> handlers = new HashMap<>();
