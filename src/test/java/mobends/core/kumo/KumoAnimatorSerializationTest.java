@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -31,7 +32,7 @@ public class KumoAnimatorSerializationTest
 
     KeyframeNodeTemplate createMockKeyframeNodeTemplate()
     {
-        return new StandardKeyframeNodeTemplate("core:standard", "animation", rand.nextInt(), rand.nextFloat(), rand.nextBoolean());
+        return new StandardKeyframeNodeTemplate("core:standard", new ArrayList<>(), "animation", rand.nextInt(), rand.nextFloat(), rand.nextBoolean());
     }
 
     LayerTemplate createMockLayerTemplate()
@@ -45,13 +46,7 @@ public class KumoAnimatorSerializationTest
     {
         AnimatorTemplate animatorTemplate = new AnimatorTemplate();
 
-        StandardKeyframeNodeTemplate nodeOne = new StandardKeyframeNodeTemplate("core:standard", "hello:there", 0, 1, false);
-
-        KeyframeLayerTemplate sampleLayer = new KeyframeLayerTemplate("core:keyframe", 0, null, new KeyframeNodeTemplate[] {
-                nodeOne
-        });
-
-        animatorTemplate.layers = new LayerTemplate[] { sampleLayer };
+        animatorTemplate.layers = new LayerTemplate[] { createMockLayerTemplate() };
 
         return animatorTemplate;
     }

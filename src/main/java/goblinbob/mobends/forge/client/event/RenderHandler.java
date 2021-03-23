@@ -1,10 +1,11 @@
-package goblinbob.mobends.forge;
+package goblinbob.mobends.forge.client.event;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IEntityBenderProvider;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.mutation.PuppeteerException;
+import goblinbob.mobends.forge.ForgeMutationContext;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -28,16 +29,16 @@ public class RenderHandler
         if (bender == null)
             return;
 
-        final LivingRenderer<?, ?> renderer = event.getRenderer();
-        final float pt = event.getPartialRenderTick();
-
         GlStateManager.pushMatrix();
 
+        final LivingRenderer<?, ?> renderer = event.getRenderer();
+        final float pt = event.getPartialRenderTick();
         float ticksPassed = living.ticksExisted + pt;
         ForgeMutationContext context = new ForgeMutationContext(living, renderer, pt, ticksPassed);
+
         try
         {
-            bender.performPuppeteering(context);
+            bender.beforeRender(context);
         }
         catch (InvalidMutationException | PuppeteerException e)
         {

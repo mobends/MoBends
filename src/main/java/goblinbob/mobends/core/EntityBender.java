@@ -36,6 +36,11 @@ public class EntityBender<C>
         return animate;
     }
 
+    public void setAnimate(boolean animate)
+    {
+        this.animate = animate;
+    }
+
     public MutationInstructions getMutationInstructions()
     {
         return mutationInstructions;
@@ -47,16 +52,24 @@ public class EntityBender<C>
     }
 
     /**
-     * This function is to be called every animation frame.
+     * This function is to be called each time before rendering a mutated entity.
      * It animates, and if it wasn't done prior, mutates the entity model.
      */
-    public void performPuppeteering(C context) throws PuppeteerException, InvalidMutationException
+    public void beforeRender(C context) throws PuppeteerException, InvalidMutationException
     {
-        IPuppeteer<C> puppeteer = puppeteerRepository.getOrCreatePuppeteer(context, this);
-
-        if (puppeteer != null)
+        if (this.animate)
         {
-            puppeteer.perform(context);
+            IPuppeteer<C> puppeteer = puppeteerRepository.getOrCreatePuppeteer(context, this);
+
+            if (puppeteer != null)
+            {
+                puppeteer.perform(context);
+                puppeteer.beforeRender(context);
+            }
+        }
+        else
+        {
+            puppeteerRepository.disposePuppeteer(context, this);
         }
     }
 }

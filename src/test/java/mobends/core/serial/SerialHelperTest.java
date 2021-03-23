@@ -2,6 +2,7 @@ package mobends.core.serial;
 
 import static org.junit.Assert.*;
 
+import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.serial.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class SerialHelperTest
             out.writeString(this.value);
         }
 
-        public static SerializableMock deserialize(ISerialInput in) throws IOException
+        public static SerializableMock deserialize(ISerialContext<?> context, ISerialInput in) throws IOException
         {
             return new SerializableMock(in.readString());
         }
@@ -72,7 +73,7 @@ public class SerialHelperTest
         List<SerializableMock> deserializedList = null;
         try
         {
-            deserializedList = SerialHelper.deserializeList(SerializableMock::deserialize, this.queue);
+            deserializedList = SerialHelper.deserializeList(null, SerializableMock::deserialize, this.queue);
         }
         catch (IOException e)
         {
@@ -94,7 +95,7 @@ public class SerialHelperTest
         Set<SerializableMock> deserializedSet = null;
         try
         {
-            deserializedSet = SerialHelper.deserializeSet(SerializableMock::deserialize, this.queue);
+            deserializedSet = SerialHelper.deserializeSet(null, SerializableMock::deserialize, this.queue);
         }
         catch (IOException e)
         {
@@ -116,7 +117,7 @@ public class SerialHelperTest
         SerializableMock[] deserializedArray = new SerializableMock[0];
         try
         {
-            deserializedArray = SerialHelper.deserializeArray(SerializableMock::deserialize, new SerializableMock[0], this.queue);
+            deserializedArray = SerialHelper.deserializeArray(null, SerializableMock::deserialize, new SerializableMock[0], this.queue);
         }
         catch (IOException e)
         {
@@ -131,7 +132,7 @@ public class SerialHelperTest
         SerialHelper.serializeNullable(null, this.queue);
         try
         {
-            assertNull(SerialHelper.deserializeNullable(SerializableMock::deserialize, this.queue));
+            assertNull(SerialHelper.deserializeNullable(null, SerializableMock::deserialize, this.queue));
         }
         catch (IOException e)
         {
@@ -148,7 +149,7 @@ public class SerialHelperTest
         SerializableMock deserialized = null;
         try
         {
-            deserialized = SerialHelper.deserializeNullable(SerializableMock::deserialize, this.queue);
+            deserialized = SerialHelper.deserializeNullable(null, SerializableMock::deserialize, this.queue);
         }
         catch (IOException e)
         {

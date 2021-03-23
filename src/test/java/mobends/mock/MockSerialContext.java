@@ -25,7 +25,7 @@ public class MockSerialContext implements ISerialContext<EntityData>
     }
 
     @Override
-    public ISubTypeDeserializer<TriggerConditionTemplate<EntityData>, EntityData> getTriggerConditionDeserializer()
+    public ISubTypeDeserializer<TriggerConditionTemplate, EntityData> getTriggerConditionDeserializer()
     {
         return null;
     }

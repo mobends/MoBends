@@ -24,20 +24,12 @@ public class ModelPartTransform implements IModelPart
 	 */
 	public Vec3f globalOffset = new Vec3f();
 
-	public final ModelPartTransform parent;
-	
-	public ModelPartTransform(ModelPartTransform parent)
+	public ModelPartTransform()
 	{
 		this.position = new Vec3f();
 		this.scale = new Vec3f(1, 1, 1);
 		this.offset = new Vec3f();
 		this.rotation = new Quaternion(Quaternion.IDENTITY);
-		this.parent = parent;
-	}
-	
-	public ModelPartTransform()
-	{
-		this(null);
 	}
 
 	@Override
@@ -65,6 +57,7 @@ public class ModelPartTransform implements IModelPart
 	{
 		if(part == null)
 			return;
+
 		this.position.set(part.getPosition());
 		this.rotation.set(part.getRotation());
 		this.offset.set(part.getOffset());

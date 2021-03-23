@@ -6,8 +6,6 @@ public interface IEntityData
 {
     PropertyStorage getPropertyStorage();
 
-    IModelPart getRootPart();
-
     IModelPart getPartForName(String key);
 
     boolean isOnGround();

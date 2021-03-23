@@ -14,7 +14,7 @@ import java.util.Set;
 public class TestPuppeteerRepository implements IPuppeteerRepository<ForgeMutationContext>, IRefreshable
 {
     private final IEntityDataRepository<ForgeMutationContext> dataRepository;
-    private final Map<LivingRenderer<?, ?>, ForgePuppeteer<?, ?, ?>> mutatorMap = new HashMap<>();
+    private final Map<LivingRenderer<?, ?>, ForgePuppeteer<?, ?, ?>> puppeteerMap = new HashMap<>();
     private final Set<LivingRenderer<?, ?>> skippedRenderers = new HashSet<>();
 
     public TestPuppeteerRepository(IEntityDataRepository<ForgeMutationContext> dataRepository)
@@ -25,12 +25,12 @@ public class TestPuppeteerRepository implements IPuppeteerRepository<ForgeMutati
     @Override
     public void refresh()
     {
-        for (ForgePuppeteer<?, ?, ?> puppeteer : mutatorMap.values())
+        for (ForgePuppeteer<?, ?, ?> puppeteer : puppeteerMap.values())
         {
             puppeteer.dispose();
         }
 
-        this.mutatorMap.clear();
+        this.puppeteerMap.clear();
         this.skippedRenderers.clear();
     }
 
@@ -44,7 +44,7 @@ public class TestPuppeteerRepository implements IPuppeteerRepository<ForgeMutati
             return null;
         }
 
-        ForgePuppeteer<?, ?, ?> mutator = mutatorMap.get(renderer);
+        ForgePuppeteer<?, ?, ?> mutator = puppeteerMap.get(renderer);
 
         try
         {
@@ -53,7 +53,7 @@ public class TestPuppeteerRepository implements IPuppeteerRepository<ForgeMutati
                 mutator = ForgePuppeteer.create(context, bender, dataRepository);
                 if (mutator != null)
                 {
-                    mutatorMap.put(renderer, mutator);
+                    puppeteerMap.put(renderer, mutator);
                 }
             }
         }
@@ -74,5 +74,19 @@ public class TestPuppeteerRepository implements IPuppeteerRepository<ForgeMutati
         }
 
         return mutator;
+    }
+
+    @Override
+    public void disposePuppeteer(ForgeMutationContext context, EntityBender<ForgeMutationContext> bender)
+    {
+        LivingRenderer<?, ?> renderer = context.getRenderer();
+
+        ForgePuppeteer<?, ?, ?> puppeteer = puppeteerMap.get(renderer);
+
+        if (puppeteer != null)
+        {
+            puppeteer.dispose();
+            puppeteerMap.remove(renderer);
+        }
     }
 }

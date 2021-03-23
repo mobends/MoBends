@@ -1,6 +1,8 @@
 package goblinbob.mobends.forge;
 
 import goblinbob.mobends.core.EntityBender;
+import goblinbob.mobends.core.IModelPart;
+import goblinbob.mobends.core.ModelPartTransform;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.exceptions.MissingPartException;
 import goblinbob.mobends.core.exceptions.UnmappedPartException;
@@ -18,7 +20,7 @@ public class Mutator
     private final EntityModel<?> model;
 
     private final VanillaContainer vanillaContainer = new VanillaContainer();
-    private final Map<String, ModelPart> partMap = new HashMap<>();
+    private final Map<String, IForgeModelPart> partMap = new HashMap<>();
 
     public Mutator(EntityBender<ForgeMutationContext> bender, EntityModel<?> model)
     {
@@ -26,7 +28,7 @@ public class Mutator
         this.model = model;
     }
 
-    public Iterable<Map.Entry<String, ModelPart>> getParts()
+    public Iterable<Map.Entry<String, IForgeModelPart>> getParts()
     {
         return partMap.entrySet();
     }
@@ -160,12 +162,38 @@ public class Mutator
     {
         int[] textureOffset = partInstructions.getTextureOffset();
 
-        if (textureOffset == null || textureOffset.length != 2)
+        if (textureOffset != null)
         {
-            throw new InvalidMutationException(String.format("Invalid textureOffset for '%s'", partName), bender);
-        }
+            if (textureOffset.length != 2)
+            {
+                throw new InvalidMutationException(String.format("Invalid textureOffset for '%s'", partName), bender);
+            }
 
-        createPart(partName, partInstructions, textureOffset[0], textureOffset[1]);
+            createPart(partName, partInstructions, textureOffset[0], textureOffset[1]);
+        }
+        else
+        {
+            createVirtualPart(partName, partInstructions);
+        }
+    }
+
+    /**
+     * Creates a "virtual" part, which doesn't have boxes or a visual representation associated with it.
+     * Examples of parts like this could be root bones.
+     * @param partName
+     * @param instructions
+     * @return
+     */
+    private ModelPartTransform createVirtualPart(String partName, PartMutationInstructions instructions)
+    {
+        ForgeModelPartTransform modelPart = new ForgeModelPartTransform();
+
+        float[] positionValues = instructions.getPosition();
+        modelPart.position.set(positionValues[0], positionValues[1], positionValues[2]);
+
+        partMap.put(partName, modelPart);
+
+        return modelPart;
     }
 
     private ModelPart createPart(String partName, PartMutationInstructions partInstructions, int textureOffsetX, int textureOffsetY)
@@ -220,8 +248,8 @@ public class Mutator
             return;
         }
 
-        ModelPart part = getModelPart(partName);
-        ModelPart parent = getModelPart(parentName);
+        IForgeModelPart part = getModelPart(partName);
+        IForgeModelPart parent = getModelPart(parentName);
 
         if (partInstructions.isIndependent())
         {
@@ -229,13 +257,24 @@ public class Mutator
         }
         else
         {
-            parent.addChild(part);
+            try
+            {
+                parent.addChild((ModelPart) part);
+            }
+            catch(ClassCastException ex)
+            {
+                throw new InvalidMutationException(String.format("Cannot add a dependent virtual part '%s' as child of '%s'", partName, parentName), this.bender);
+            }
+            catch(IllegalStateException ex)
+            {
+                throw new InvalidMutationException(ex.getMessage(), this.bender);
+            }
         }
     }
 
-    private ModelPart getModelPart(String partName)
+    private IForgeModelPart getModelPart(String partName)
     {
-        ModelPart part = this.partMap.get(partName);
+        IForgeModelPart part = this.partMap.get(partName);
         if (part == null)
         {
             throw new InvalidMutationException(String.format("Couldn't find part '%s'", partName), bender);

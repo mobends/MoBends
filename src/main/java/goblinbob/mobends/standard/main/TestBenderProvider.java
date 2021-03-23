@@ -32,7 +32,7 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
     private final TestDataRepository dataRepository;
     private final TestPuppeteerRepository puppeteerRepository;
 
-    private EntityBender<ForgeMutationContext> wolfBender;
+    public EntityBender<ForgeMutationContext> wolfBender;
 
     public TestBenderProvider(ISerialContext<EntityData> serialContext)
     {
@@ -148,14 +148,6 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
     @Override
     public void refresh()
     {
-        try
-        {
-            this.init();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
         this.puppeteerRepository.refresh();
     }
 

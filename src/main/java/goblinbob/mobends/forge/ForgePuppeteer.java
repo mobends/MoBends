@@ -6,9 +6,11 @@ import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.exceptions.UnknownPropertyException;
 import goblinbob.mobends.core.mutation.PuppeteerException;
 import goblinbob.mobends.core.util.GUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 
@@ -54,6 +56,53 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
         this.updateModel((E) entity, data, partialTicks);
         this.performAnimations(data, ticksPassed);
         this.syncUpWithData(data);
+    }
+
+    @Override
+    public void beforeRender(ForgeMutationContext context)
+    {
+        //noinspection unchecked
+        D data = (D) this.dataRepository.getOrMakeData(context, bender);
+        Entity entity = context.getEntity();
+        float partialTicks = context.getPartialTicks();
+
+        double entityX = entity.prevPosX + (entity.getPosX() - entity.prevPosX) * partialTicks;
+        double entityY = entity.prevPosY + (entity.getPosY() - entity.prevPosY) * partialTicks;
+        double entityZ = entity.prevPosZ + (entity.getPosZ() - entity.prevPosZ) * partialTicks;
+
+        Entity viewEntity = Minecraft.getInstance().getRenderViewEntity();
+        double viewX = entityX, viewY = entityY, viewZ = entityZ;
+        if (viewEntity != null)
+        {
+            // Checking in case of Main Menu or GUI rendering.
+            viewX = viewEntity.prevPosX + (viewEntity.getPosX() - viewEntity.prevPosX) * partialTicks;
+            viewY = viewEntity.prevPosY + (viewEntity.getPosY() - viewEntity.prevPosY) * partialTicks;
+            viewZ = viewEntity.prevPosZ + (viewEntity.getPosZ() - viewEntity.prevPosZ) * partialTicks;
+        }
+
+//        GlStateManager.translated(entityX - viewX, entityY - viewY, entityZ - viewZ);
+//        GlStateManager.rotatef(-GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
+
+//        this.renderLocalAccessories(entity, data, partialTicks);
+
+//        float globalScale = entity.isChild() ? getChildScale() : 1;
+
+//        GlStateManager.translate(data.globalOffset.getX() * scale * globalScale,
+//                data.globalOffset.getY() * scale * globalScale,
+//                data.globalOffset.getZ() * scale * globalScale);
+//        GlStateManager.translate(0, entity.height / 2, 0);
+//        TransformUtils.rotate(data.centerRotation.getSmooth());
+//        GlStateManager.translate(0, -entity.height / 2, 0);
+//        TransformUtils.rotate(data.renderRotation.getSmooth());
+//
+//        GlStateManager.translate(data.localOffset.getX() * scale * globalScale,
+//                data.localOffset.getY() * scale * globalScale,
+//                data.localOffset.getZ() * scale * globalScale);
+
+//        this.transformLocally(entity, data, partialTicks);
+
+//        GlStateManager.rotatef(GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
+//        GlStateManager.translated(viewX - entityX, viewY - entityY, viewZ - entityZ);
     }
 
     private void updateModel(E entity, D data, float partialTicks) throws PuppeteerException
@@ -130,14 +179,13 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
     }
 
     /**
-     * Applying the virtual animation data to the actual entity.
+     * Applying the virtual animation data to the actual entity model.
      *
      * @param data
      */
     private void syncUpWithData(EntityData data)
     {
-        // TODO Implement this
-        for (Map.Entry<String, ModelPart> entry : mutator.getParts())
+        for (Map.Entry<String, IForgeModelPart> entry : mutator.getParts())
         {
             IModelPart src = data.getPartForName(entry.getKey());
             entry.getValue().syncUp(src);

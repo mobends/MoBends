@@ -1,7 +1,6 @@
 package goblinbob.mobends.standard.main;
 
 import goblinbob.mobends.core.Core;
-import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
 import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
@@ -10,6 +9,7 @@ import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.*;
 import goblinbob.mobends.forge.*;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
+import goblinbob.mobends.forge.client.event.RenderHandler;
 import goblinbob.mobends.forge.trigger.EquipmentNameCondition;
 import goblinbob.mobends.standard.main.trigger.WolfStateCondition;
 import net.minecraftforge.common.MinecraftForge;
@@ -36,6 +36,8 @@ public class MoBends
     private final SerialContext serialContext;
     private final TestBenderProvider benderProvider;
     private final KeyboardHandler keyboardHandler;
+
+    private boolean wolfAnimated = true;
 
     public MoBends()
     {
@@ -68,6 +70,19 @@ public class MoBends
 
     public void onRefresh()
     {
+        try
+        {
+            this.benderProvider.init();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        // Toggling the wolf bender ON/OFF
+        this.wolfAnimated = !this.wolfAnimated;
+        this.benderProvider.wolfBender.setAnimate(wolfAnimated);
+
         this.benderProvider.refresh();
 
         Core core = new Core();
@@ -76,16 +91,6 @@ public class MoBends
 
         core.registerErrors(reportRegistry);
         reportRegistry.report(new InvalidPackFormatException("Bruh", "Waddup"));
-
-        try
-        {
-            KeyframeAnimation animation = AnimationLoader.loadFromPath("mobends:animations/wolf_walking.bendsanim");
-            System.out.println(animation);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
     }
 
     @SubscribeEvent

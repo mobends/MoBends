@@ -52,5 +52,7 @@ public interface IForgeModelPart extends IModelPart
 	 */
 	default void applyPostTransform(MatrixStack matrix, double scale) {}
 
+	void setParent(IForgeModelPart parent);
+	void addChild(ModelPart child);
 	IForgeModelPart getParent();
 }

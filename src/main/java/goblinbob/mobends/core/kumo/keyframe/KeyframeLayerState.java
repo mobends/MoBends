@@ -141,19 +141,6 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
 
     public void applyRestPose(D entityData, KeyframeAnimation animation)
     {
-        IModelPart rootPart = entityData.getRootPart();
-
-        if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
-        {
-            rootPart.getPosition().set(0, 0, 0);
-        }
-
-        if ((shouldPartBeAffected("root") && animation.bones.containsKey("root")) ||
-            (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation")))
-        {
-            rootPart.getRotation().set(0, 0, 0, 0);
-        }
-
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
         {
             final String key = entry.getKey();
@@ -172,35 +159,6 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
         final int frameA = (int) keyframeIndex;
         final int frameB = (int) keyframeIndex + 1;
         final float tween = keyframeIndex - frameA;
-
-        IModelPart rootPart = entityData.getRootPart();
-
-        if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
-        {
-            final Bone rootBone = animation.bones.get("root");
-            Keyframe[] keyframes = rootBone.getKeyframes();
-            final Keyframe keyframe = keyframes[frameA];
-            final Keyframe nextFrame = keyframes[frameB];
-
-            if (keyframe != null && nextFrame != null)
-            {
-                KeyframeUtils.tweenVectorAdditive(rootPart.getPosition(), keyframe.position, nextFrame.position, tween, amount);
-            }
-        }
-
-        if (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation"))
-        {
-            final Bone rootBone = animation.bones.get("centerRotation");
-            Keyframe[] keyframes = rootBone.getKeyframes();
-            final Keyframe keyframe = keyframes[frameA];
-            final Keyframe nextFrame = keyframes[frameB];
-
-            if (keyframe != null && nextFrame != null)
-            {
-                KeyframeUtils.tweenOrientationAdditive(rootPart.getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
-                KeyframeUtils.tweenVectorAdditive(rootPart.getPosition(), keyframe.position, nextFrame.position, tween, amount);
-            }
-        }
 
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
         {

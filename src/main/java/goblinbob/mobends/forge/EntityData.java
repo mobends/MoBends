@@ -27,7 +27,6 @@ public class EntityData implements IEntityData
 
     protected boolean onGround = true;
 
-    private IModelPart rootPart = new ModelPartTransform();
     private Map<String, IModelPart> parts = new HashMap<>();
 
     public EntityData(Entity entity, AnimatorTemplate animatorTemplate)
@@ -106,12 +105,6 @@ public class EntityData implements IEntityData
     public KumoAnimatorState<EntityData> getAnimatorState()
     {
         return animatorState;
-    }
-
-    @Override
-    public IModelPart getRootPart()
-    {
-        return rootPart;
     }
 
     @Override

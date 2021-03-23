@@ -268,10 +268,15 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
         this.showModel = showModel;
     }
 
-    public ModelPart setParent(IForgeModelPart parent)
+    public void setParent(IForgeModelPart parent)
     {
         this.parent = parent;
-        return this;
+    }
+
+    @Override
+    public void addChild(ModelPart child)
+    {
+        this.childModels.add(child);
     }
 
     public int getTextureOffsetX()
