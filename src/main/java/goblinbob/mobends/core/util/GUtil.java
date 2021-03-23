@@ -15,6 +15,7 @@ public class GUtil
     public static final float PI = (float) Math.PI;
     public static final float TWO_PI = (float) Math.PI * 2;
     public static final float RAD_TO_DEG = 180.0F / PI;
+    public static final float DEG_TO_RAD = PI / 180.0F;
 
     public static float clamp(float value, float min, float max)
     {

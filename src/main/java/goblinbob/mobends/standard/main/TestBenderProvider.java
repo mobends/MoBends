@@ -7,6 +7,9 @@ import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
+import goblinbob.mobends.core.kumo.driver.DriverLayerTemplate;
+import goblinbob.mobends.core.kumo.driver.node.DriverNodeTemplate;
+import goblinbob.mobends.core.kumo.driver.node.LookAroundDriverNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
@@ -25,6 +28,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationContext>, IRefreshable
 {
@@ -127,6 +131,13 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
                                 4,
                                 2,
                                 false),
+                }),
+                new DriverLayerTemplate("core:driver", 0, new DriverNodeTemplate[] {
+                        new LookAroundDriverNodeTemplate( // Look Around
+                                "core:look_around",
+                                Collections.emptyList(),
+                                "head"
+                        )
                 })
         };
 

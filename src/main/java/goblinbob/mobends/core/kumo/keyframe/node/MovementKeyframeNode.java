@@ -7,16 +7,12 @@ import goblinbob.mobends.core.data.PropertyStorage;
 import goblinbob.mobends.core.kumo.*;
 import goblinbob.mobends.forge.BasePropertyKeys;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MovementKeyframeNode<D extends IEntityData> implements INodeState<D>
+public class MovementKeyframeNode<D extends IEntityData> extends NodeState<D> implements IKeyframeNodeState<D>
 {
     public final KeyframeAnimation animation;
     private int animationDuration;
     private final int startFrame;
     private final float playbackSpeed;
-    private List<ConnectionState<D>> connections = new ArrayList<>();
 
     /**
      * Progress counted in keyframes.
@@ -51,12 +47,6 @@ public class MovementKeyframeNode<D extends IEntityData> implements INodeState<D
     }
 
     @Override
-    public Iterable<ConnectionState<D>> getConnections()
-    {
-        return connections;
-    }
-
-    @Override
     public KeyframeAnimation getAnimation()
     {
         return animation;
@@ -72,18 +62,6 @@ public class MovementKeyframeNode<D extends IEntityData> implements INodeState<D
     public boolean isAnimationFinished(IKumoReadContext<D> context)
     {
         return false;
-    }
-
-    @Override
-    public void parseConnections(List<INodeState<D>> nodeStates, KeyframeNodeTemplate template, IKumoInstancingContext<D> context)
-    {
-        if (template.connections != null)
-        {
-            for (ConnectionTemplate connectionTemplate : template.connections)
-            {
-                this.connections.add(connectionTemplate.instantiate(nodeStates, context));
-            }
-        }
     }
 
     @Override

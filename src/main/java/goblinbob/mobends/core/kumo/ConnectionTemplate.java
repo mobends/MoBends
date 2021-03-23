@@ -43,7 +43,7 @@ public class ConnectionTemplate implements ISerializable
                 other.triggerCondition.equals(this.triggerCondition);
     }
 
-    public <D extends IEntityData> ConnectionState<D> instantiate(List<INodeState<D>> nodes, IKumoInstancingContext<D> context)
+    public <D extends IEntityData> ConnectionState<D> instantiate(List<? extends INodeState<D>> nodes, IKumoInstancingContext<D> context)
     {
         INodeState<D> node = null;
 

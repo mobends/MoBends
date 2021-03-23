@@ -8,6 +8,7 @@ import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
 import goblinbob.mobends.core.kumo.*;
+import goblinbob.mobends.core.kumo.keyframe.node.IKeyframeNodeState;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.util.Tween;
 import goblinbob.mobends.forge.KeyframeUtils;
@@ -18,10 +19,10 @@ import java.util.Map;
 
 public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
 {
-    private List<INodeState<D>> nodeStates = new ArrayList<>();
+    private List<IKeyframeNodeState<D>> nodeStates = new ArrayList<>();
     private ArmatureMask mask;
-    private INodeState<D> previousNode;
-    private INodeState<D> currentNode;
+    private IKeyframeNodeState<D> previousNode;
+    private IKeyframeNodeState<D> currentNode;
     private float transitionStartTime = 0.0F;
     private float transitionDuration = 0.0F;
     private ConnectionTemplate.Easing transitionEasing = ConnectionTemplate.Easing.EASE_IN_OUT;
@@ -30,9 +31,16 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
     {
         this.mask = layerTemplate.mask;
 
-        for (KeyframeNodeTemplate nodeTemplate : layerTemplate.nodes)
+        try
         {
-            nodeStates.add(nodeTemplate.instantiate(context));
+            for (KeyframeNodeTemplate nodeTemplate : layerTemplate.nodes)
+            {
+                nodeStates.add((IKeyframeNodeState<D>) nodeTemplate.instantiate(context));
+            }
+        }
+        catch(ClassCastException e)
+        {
+            throw new AnimationRuntimeException("Cannot use a non-KeyframeNode in a KeyframeLayer.");
         }
 
         for (int i = 0; i < nodeStates.size(); ++i)
@@ -131,7 +139,7 @@ public class KeyframeLayerState<D extends IEntityData> implements ILayerState<D>
                     transitionStartTime = context.getTicksPassed();
                 }
 
-                currentNode = connection.targetNode;
+                currentNode = (IKeyframeNodeState<D>) connection.targetNode;
                 currentNode.start(context);
 
                 break;

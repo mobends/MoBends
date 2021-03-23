@@ -2,6 +2,7 @@ package mobends.mock;
 
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
+import goblinbob.mobends.core.kumo.driver.node.DriverNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.TriggerConditionTemplate;
 import goblinbob.mobends.core.serial.ISubTypeDeserializer;
@@ -22,6 +23,12 @@ public class MockSerialContext implements ISerialContext<EntityData>
     public ISubTypeDeserializer<KeyframeNodeTemplate, EntityData> getKeyframeNodeDeserializer()
     {
         return keyframeNodeRegistry;
+    }
+
+    @Override
+    public ISubTypeDeserializer<DriverNodeTemplate, EntityData> getDriverNodeDeserializer()
+    {
+        return null;
     }
 
     @Override

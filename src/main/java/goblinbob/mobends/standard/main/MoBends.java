@@ -3,6 +3,10 @@ package goblinbob.mobends.standard.main;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
+import goblinbob.mobends.core.kumo.driver.DriverLayerTemplate;
+import goblinbob.mobends.core.kumo.driver.node.DriverNodeTemplate;
+import goblinbob.mobends.core.kumo.driver.node.LookAroundDriverNodeTemplate;
+import goblinbob.mobends.core.kumo.driver.node.StandardDriverNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
@@ -46,9 +50,13 @@ public class MoBends
         this.keyboardHandler = new KeyboardHandler(this::onRefresh);
 
         this.serialContext.layerRegistry.register("core:keyframe", KeyframeLayerTemplate::deserialize);
+        this.serialContext.layerRegistry.register("core:driver", DriverLayerTemplate::deserialize);
 
         this.serialContext.keyframeNodeRegistry.register("core:standard", StandardKeyframeNodeTemplate::deserialize);
         this.serialContext.keyframeNodeRegistry.register("core:movement", MovementKeyframeNodeTemplate::deserialize);
+
+        this.serialContext.driverNodeRegistry.register("core:standard", StandardDriverNodeTemplate::deserialize);
+        this.serialContext.driverNodeRegistry.register("core:look_around", LookAroundDriverNodeTemplate::deserialize);
 
         this.serialContext.triggerConditionRegistry.register("core:or", OrCondition.Template::deserialize);
         this.serialContext.triggerConditionRegistry.register("core:and", AndCondition.Template::deserialize);

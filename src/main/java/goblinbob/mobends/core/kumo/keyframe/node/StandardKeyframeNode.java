@@ -5,17 +5,13 @@ import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D>
+public class StandardKeyframeNode<D extends IEntityData> extends NodeState<D> implements IKeyframeNodeState<D>
 {
     public final KeyframeAnimation animation;
     private int animationDuration;
     private final int startFrame;
     private final float playbackSpeed;
     private final boolean looping;
-    List<ConnectionState<D>> connections = new ArrayList<>();
 
     /**
      * Holds the time (in ticks) when the animation was started.
@@ -45,17 +41,6 @@ public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D
             {
                 if (bone.getKeyframes().length > this.animationDuration)
                     this.animationDuration = bone.getKeyframes().length;
-            }
-        }
-    }
-
-    public void parseConnections(List<INodeState<D>> nodeStates, KeyframeNodeTemplate template, IKumoInstancingContext<D> context)
-    {
-        if (template.connections != null)
-        {
-            for (ConnectionTemplate connectionTemplate : template.connections)
-            {
-                this.connections.add(connectionTemplate.instantiate(nodeStates, context));
             }
         }
     }
@@ -115,11 +100,5 @@ public class StandardKeyframeNode<D extends IEntityData> implements INodeState<D
         {
             return Math.min(frames, animationDuration - 2);
         }
-    }
-
-    @Override
-    public Iterable<ConnectionState<D>> getConnections()
-    {
-        return connections;
     }
 }
