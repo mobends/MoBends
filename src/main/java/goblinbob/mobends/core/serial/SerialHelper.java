@@ -2,7 +2,6 @@ package goblinbob.mobends.core.serial;
 
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.ISerialContext;
-import net.minecraft.inventory.EquipmentSlotType;
 
 import java.io.IOException;
 import java.util.*;
@@ -50,6 +49,11 @@ public class SerialHelper
         {
             element.serialize(out);
         }
+    }
+
+    public static <E extends Enum<E>> void serializeEnum(E value, ISerialOutput out)
+    {
+        out.writeByte((byte) value.ordinal());
     }
 
     public static <T extends ISerializable, D extends IEntityData> T deserializeNullable(ISerialContext<D> context, IDeserializer<T, D> deserializer, ISerialInput in) throws IOException
@@ -113,5 +117,17 @@ public class SerialHelper
         }
 
         return floats;
+    }
+
+    public static <E extends Enum<E>> E deserializeEnum(E[] values, ISerialInput in) throws IOException
+    {
+        int index = in.readByte();
+
+        if (index < 0 || index >= values.length)
+        {
+            return null;
+        }
+
+        return values[index];
     }
 }

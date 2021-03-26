@@ -4,7 +4,8 @@ import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.NodeTemplate;
-import goblinbob.mobends.core.serial.*;
+import goblinbob.mobends.core.serial.ISerialInput;
+import goblinbob.mobends.core.serial.ISubTypeDeserializer;
 
 import java.io.IOException;
 import java.util.List;

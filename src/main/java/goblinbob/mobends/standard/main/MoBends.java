@@ -3,15 +3,18 @@ package goblinbob.mobends.standard.main;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
+import goblinbob.mobends.core.kumo.driver.DriverFunctionRegistry;
 import goblinbob.mobends.core.kumo.driver.DriverLayerTemplate;
-import goblinbob.mobends.core.kumo.driver.node.DriverNodeTemplate;
 import goblinbob.mobends.core.kumo.driver.node.LookAroundDriverNodeTemplate;
 import goblinbob.mobends.core.kumo.driver.node.StandardDriverNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.*;
-import goblinbob.mobends.forge.*;
+import goblinbob.mobends.forge.DataUpdateHandler;
+import goblinbob.mobends.forge.EntityData;
+import goblinbob.mobends.forge.ReportOutput;
+import goblinbob.mobends.forge.SerialContext;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
 import goblinbob.mobends.forge.client.event.RenderHandler;
 import goblinbob.mobends.forge.trigger.EquipmentNameCondition;
@@ -39,6 +42,7 @@ public class MoBends
 
     private final SerialContext serialContext;
     private final TestBenderProvider benderProvider;
+    private final DriverFunctionRegistry<EntityData> driverFunctionRegistry;
     private final KeyboardHandler keyboardHandler;
 
     private boolean wolfAnimated = true;
@@ -68,9 +72,12 @@ public class MoBends
 
         this.serialContext.triggerConditionRegistry.register("mobends:wolf_state", WolfStateCondition.Template::deserialize);
 
+        this.driverFunctionRegistry = new DriverFunctionRegistry<>();
+        StandardDriverFunctions.popualteRegistry(this.driverFunctionRegistry);
+
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(this.keyboardHandler);
-        MinecraftForge.EVENT_BUS.register(new RenderHandler(benderProvider));
+        MinecraftForge.EVENT_BUS.register(new RenderHandler(benderProvider, driverFunctionRegistry));
         MinecraftForge.EVENT_BUS.register(new DataUpdateHandler(benderProvider::updateDataOnClientTick));
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
@@ -78,20 +85,11 @@ public class MoBends
 
     public void onRefresh()
     {
-        try
-        {
-            this.benderProvider.init();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        this.benderProvider.refresh();
 
         // Toggling the wolf bender ON/OFF
         this.wolfAnimated = !this.wolfAnimated;
         this.benderProvider.wolfBender.setAnimate(wolfAnimated);
-
-        this.benderProvider.refresh();
 
         Core core = new Core();
         ReportOutput reportOutput = new ReportOutput();

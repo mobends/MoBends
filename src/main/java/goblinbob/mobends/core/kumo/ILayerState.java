@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.kumo;
 
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
 
 /**
  * Represent the state of a KUMO animation layer. This doesn't have to be keyframe animation,

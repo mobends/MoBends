@@ -4,7 +4,6 @@ import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IEntityDataRepository;
 import goblinbob.mobends.forge.EntityData;
 import goblinbob.mobends.forge.ForgeMutationContext;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 
@@ -24,7 +23,7 @@ public class TestDataRepository implements IEntityDataRepository<ForgeMutationCo
 
         if (data == null)
         {
-            data = new EntityData(entity, bender.getAnimatorTemplate());
+            data = new EntityData(entity, bender.getAnimatorTemplate(), context);
             entryMap.put(entity.getEntityId(), data);
         }
 

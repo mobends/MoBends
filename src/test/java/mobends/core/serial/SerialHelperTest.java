@@ -1,7 +1,5 @@
 package mobends.core.serial;
 
-import static org.junit.Assert.*;
-
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.serial.*;
 import org.junit.Before;
@@ -12,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.*;
 
 public class SerialHelperTest
 {

@@ -2,7 +2,6 @@ package goblinbob.mobends.forge;
 
 import goblinbob.mobends.core.IModelPart;
 import goblinbob.mobends.core.ModelPartTransform;
-import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.data.PropertyStorage;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
@@ -11,7 +10,6 @@ import goblinbob.mobends.core.kumo.KumoAnimatorState;
 import goblinbob.mobends.core.math.vector.Vec3d;
 import net.minecraft.entity.Entity;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,25 +27,10 @@ public class EntityData implements IEntityData
 
     private Map<String, IModelPart> parts = new HashMap<>();
 
-    public EntityData(Entity entity, AnimatorTemplate animatorTemplate)
+    public EntityData(Entity entity, AnimatorTemplate animatorTemplate, IKumoInstancingContext<EntityData> context)
     {
         this.entity = entity;
-        this.animatorState = new KumoAnimatorState<>(animatorTemplate, new IKumoInstancingContext<EntityData>()
-        {
-            @Override
-            public KeyframeAnimation getAnimation(String key)
-            {
-                try
-                {
-                    return AnimationLoader.loadFromPath(key);
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-        });
+        this.animatorState = new KumoAnimatorState<>(animatorTemplate, context);
 
         this.position.set(entity.getPosX(), entity.getPosY(), entity.getPosZ());
         this.prevMotion.set(0, 1, 0);

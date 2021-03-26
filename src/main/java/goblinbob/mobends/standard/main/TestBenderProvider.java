@@ -8,8 +8,12 @@ import goblinbob.mobends.core.kumo.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
 import goblinbob.mobends.core.kumo.driver.DriverLayerTemplate;
+import goblinbob.mobends.core.kumo.driver.expression.NumberFunctionCall;
+import goblinbob.mobends.core.kumo.driver.expression.NumberLiteral;
+import goblinbob.mobends.core.kumo.driver.instruction.SetPositionInstructionTemplate;
 import goblinbob.mobends.core.kumo.driver.node.DriverNodeTemplate;
 import goblinbob.mobends.core.kumo.driver.node.LookAroundDriverNodeTemplate;
+import goblinbob.mobends.core.kumo.driver.node.StandardDriverNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
@@ -138,6 +142,20 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
                                 Collections.emptyList(),
                                 "head"
                         )
+                }),
+                new DriverLayerTemplate("core:driver", 0, new DriverNodeTemplate[] {
+                        new StandardDriverNodeTemplate( // Testing
+                                "core:standard",
+                                Collections.emptyList(),
+                                Arrays.asList(new SetPositionInstructionTemplate(
+                                        "head",
+                                        new NumberLiteral<EntityData>(0.0F),
+                                        new NumberFunctionCall.Template("sin", Arrays.asList(
+                                                new NumberFunctionCall.Template("lifetime", Collections.emptyList())
+                                        )),
+                                        new NumberLiteral<EntityData>(0.0F)
+                                ))
+                        )
                 })
         };
 
@@ -160,6 +178,14 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
     public void refresh()
     {
         this.puppeteerRepository.refresh();
+        try
+        {
+            this.init();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.kumo;
 
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.kumo.*;
 
 import java.util.ArrayList;
 import java.util.List;

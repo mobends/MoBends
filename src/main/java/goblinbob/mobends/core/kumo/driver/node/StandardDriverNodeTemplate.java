@@ -5,6 +5,7 @@ import goblinbob.mobends.core.kumo.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.INodeState;
 import goblinbob.mobends.core.kumo.ISerialContext;
+import goblinbob.mobends.core.kumo.driver.instruction.InstructionTemplate;
 import goblinbob.mobends.core.serial.ISerialInput;
 import goblinbob.mobends.core.serial.SerialHelper;
 
@@ -13,9 +14,13 @@ import java.util.List;
 
 public class StandardDriverNodeTemplate extends DriverNodeTemplate
 {
-    public StandardDriverNodeTemplate(String type, List<ConnectionTemplate> connections)
+    public final List<InstructionTemplate> instructions;
+
+    public StandardDriverNodeTemplate(String type, List<ConnectionTemplate> connections, List<InstructionTemplate> instructions)
     {
         super(type, connections);
+
+        this.instructions = instructions;
     }
 
     @Override
@@ -28,6 +33,8 @@ public class StandardDriverNodeTemplate extends DriverNodeTemplate
     {
         List<ConnectionTemplate> connections = SerialHelper.deserializeList(context, ConnectionTemplate::deserialize, in);
 
-        return new StandardDriverNodeTemplate(type, connections);
+        List<InstructionTemplate> instructions = SerialHelper.deserializeList(context, InstructionTemplate::deserializeGeneral, in);
+
+        return new StandardDriverNodeTemplate(type, connections, instructions);
     }
 }

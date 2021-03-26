@@ -1,7 +1,6 @@
 package goblinbob.mobends.forge;
 
 import goblinbob.mobends.core.EntityBender;
-import goblinbob.mobends.core.IModelPart;
 import goblinbob.mobends.core.ModelPartTransform;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.exceptions.MissingPartException;

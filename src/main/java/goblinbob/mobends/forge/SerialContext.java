@@ -3,8 +3,8 @@ package goblinbob.mobends.forge;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
 import goblinbob.mobends.core.kumo.driver.node.DriverNodeTemplate;
-import goblinbob.mobends.core.kumo.trigger.TriggerConditionTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
+import goblinbob.mobends.core.kumo.trigger.TriggerConditionTemplate;
 import goblinbob.mobends.core.serial.ISubTypeDeserializer;
 import goblinbob.mobends.core.serial.SubTypeRegistry;
 

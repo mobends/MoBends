@@ -3,7 +3,6 @@ package goblinbob.mobends.core.kumo.trigger;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
-import goblinbob.mobends.core.kumo.INodeState;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.keyframe.node.IKeyframeNodeState;
 import goblinbob.mobends.core.serial.ISerialInput;

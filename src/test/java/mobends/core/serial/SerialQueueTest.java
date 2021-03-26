@@ -1,12 +1,12 @@
 package mobends.core.serial;
 
-import static org.junit.Assert.*;
-
 import goblinbob.mobends.core.serial.SerialQueue;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
 
 public class SerialQueueTest
 {

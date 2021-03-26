@@ -2,7 +2,6 @@ package goblinbob.mobends.core.serial;
 
 import org.apache.http.util.ByteArrayBuffer;
 
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 

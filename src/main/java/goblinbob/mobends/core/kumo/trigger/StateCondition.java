@@ -6,7 +6,6 @@ import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.serial.ISerialInput;
 import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.io.IOException;
 

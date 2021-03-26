@@ -116,7 +116,11 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
         if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
             matrix.translate(this.position.x * scale, this.position.y * scale, this.position.z * scale);
         if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
-            matrix.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
+            matrix.translate(
+                    this.offset.x * scale * offsetScale,
+                    this.offset.y * scale * offsetScale,
+                    this.offset.z * scale * offsetScale
+            );
 
         net.minecraft.util.math.vector.Quaternion quat = new net.minecraft.util.math.vector.Quaternion(this.rotation.x, this.rotation.y, this.rotation.z, this.rotation.w);
         matrix.rotate(quat);

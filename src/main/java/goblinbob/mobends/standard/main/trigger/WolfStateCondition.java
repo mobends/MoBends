@@ -6,7 +6,6 @@ import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.trigger.ITriggerCondition;
 import goblinbob.mobends.core.kumo.trigger.ITriggerConditionContext;
-import goblinbob.mobends.core.kumo.trigger.NotCondition;
 import goblinbob.mobends.core.kumo.trigger.TriggerConditionTemplate;
 import goblinbob.mobends.core.serial.ISerialInput;
 import goblinbob.mobends.core.serial.ISerialOutput;

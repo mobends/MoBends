@@ -154,6 +154,7 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
         try
         {
             PropertyStorage storage = data.getPropertyStorage();
+            storage.setProperty(BasePropertyKeys.LIFETIME, entity.ticksExisted + partialTicks);
             storage.setProperty(BasePropertyKeys.HEAD_YAW, yaw);
             storage.setProperty(BasePropertyKeys.HEAD_PITCH, pitch);
             storage.setProperty(BasePropertyKeys.LIMB_SWING, f6);
