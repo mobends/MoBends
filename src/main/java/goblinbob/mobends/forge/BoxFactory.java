@@ -27,46 +27,46 @@ public class BoxFactory
 
     public BoxFactory(ModelRenderer renderer, ModelRenderer.ModelBox source)
     {
-        this.min = new Vec3f(source.posX1, source.posY1, source.posZ1);
-        this.max = new Vec3f(source.posX2, source.posY2, source.posZ2);
+        this.min = new Vec3f(source.minX, source.minY, source.minZ);
+        this.max = new Vec3f(source.maxX, source.maxY, source.maxZ);
         this.faces = new TextureFace[6];
         this.mirrored = renderer.mirror;
         this.faceVisibilityFlag = 0b111111;
         this.textureU = 0;
         this.textureV = 0;
 
-        ModelRenderer.TexturedQuad[] quadList = source.quads;
+        ModelRenderer.TexturedQuad[] quadList = source.polygons;
         if (quadList == null)
         {
             return;
         }
 
-        float textureWidth = renderer.textureWidth;
-        float textureHeight = renderer.textureHeight;
+        float textureWidth = renderer.xTexSize;
+        float textureHeight = renderer.yTexSize;
         this.textureUVSet = true;
 
         for (int i = 0; i < 6; ++i)
         {
             if (mirrored)
             {
-                final ModelRenderer.PositionTextureVertex startVertex = quadList[i].vertexPositions[2];
-                final ModelRenderer.PositionTextureVertex endVertex = quadList[i].vertexPositions[0];
+                final ModelRenderer.PositionTextureVertex startVertex = quadList[i].vertices[2];
+                final ModelRenderer.PositionTextureVertex endVertex = quadList[i].vertices[0];
                 this.faces[i] = new TextureFace(
-                        (int) (startVertex.textureU * textureWidth),
-                        (int) (startVertex.textureV * textureHeight),
-                        (int) ((endVertex.textureU - startVertex.textureU) * textureWidth),
-                        (int) ((endVertex.textureV - startVertex.textureV) * textureHeight)
+                        (int) (startVertex.u * textureWidth),
+                        (int) (startVertex.v * textureHeight),
+                        (int) ((endVertex.u - startVertex.u) * textureWidth),
+                        (int) ((endVertex.v - startVertex.v) * textureHeight)
                 );
             }
             else
             {
-                final ModelRenderer.PositionTextureVertex startVertex = quadList[i].vertexPositions[1];
-                final ModelRenderer.PositionTextureVertex endVertex = quadList[i].vertexPositions[3];
+                final ModelRenderer.PositionTextureVertex startVertex = quadList[i].vertices[1];
+                final ModelRenderer.PositionTextureVertex endVertex = quadList[i].vertices[3];
                 this.faces[i] = new TextureFace(
-                        (int) (startVertex.textureU * textureWidth),
-                        (int) (startVertex.textureV * textureHeight),
-                        (int) ((endVertex.textureU - startVertex.textureU) * textureWidth),
-                        (int) ((endVertex.textureV - startVertex.textureV) * textureHeight)
+                        (int) (startVertex.u * textureWidth),
+                        (int) (startVertex.v * textureHeight),
+                        (int) ((endVertex.u - startVertex.u) * textureWidth),
+                        (int) ((endVertex.v - startVertex.v) * textureHeight)
                 );
             }
         }

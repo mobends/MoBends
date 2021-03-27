@@ -53,28 +53,28 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
     }
 
     @Override
-    public void doRender(MatrixStack.Entry stackEntry, IVertexBuilder vertexBuilder, int lightmapUV, int overlayUV, float red, float green, float blue, float alpha)
+    public void compile(MatrixStack.Entry stackEntry, IVertexBuilder vertexBuilder, int lightmapUV, int overlayUV, float red, float green, float blue, float alpha)
     {
-        Matrix4f matrix = stackEntry.getMatrix();
-        Matrix3f normalMatrix = stackEntry.getNormal();
-        ObjectListIterator var11 = this.cubeList.iterator();
+        Matrix4f matrix = stackEntry.pose();
+        Matrix3f normalMatrix = stackEntry.normal();
+        ObjectListIterator<ModelRenderer.ModelBox> var11 = this.cubes.iterator();
 
-        while(var11.hasNext())
+        while (var11.hasNext())
         {
             MutatedBox lvt_12_1_ = (MutatedBox) var11.next();
-            ModelRenderer.TexturedQuad[] faces = lvt_12_1_.quads;
+            ModelRenderer.TexturedQuad[] faces = lvt_12_1_.polygons;
             int facesCount = faces.length;
 
             byte tempFlag = lvt_12_1_.faceVisibilityFlag;
 
-            for(int faceIndex = 0; faceIndex < facesCount; ++faceIndex)
+            for (int faceIndex = 0; faceIndex < facesCount; ++faceIndex)
             {
                 ModelRenderer.TexturedQuad face = faces[faceIndex];
                 Vector3f transformedNormal = face.normal.copy();
                 transformedNormal.transform(normalMatrix);
-                float normalX = transformedNormal.getX();
-                float normalY = transformedNormal.getY();
-                float normalZ = transformedNormal.getZ();
+                float normalX = transformedNormal.x();
+                float normalY = transformedNormal.y();
+                float normalZ = transformedNormal.z();
 
                 // This check is done to not draw hidden
                 // faces.
@@ -82,13 +82,13 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
                 {
                     for (int vertexIndex = 0; vertexIndex < 4; ++vertexIndex)
                     {
-                        ModelRenderer.PositionTextureVertex vertex = face.vertexPositions[vertexIndex];
-                        float posX = vertex.position.getX() / 16.0F;
-                        float posY = vertex.position.getY() / 16.0F;
-                        float posZ = vertex.position.getZ() / 16.0F;
+                        ModelRenderer.PositionTextureVertex vertex = face.vertices[vertexIndex];
+                        float posX = vertex.pos.x() / 16.0F;
+                        float posY = vertex.pos.y() / 16.0F;
+                        float posZ = vertex.pos.z() / 16.0F;
                         Vector4f position = new Vector4f(posX, posY, posZ, 1.0F);
                         position.transform(matrix);
-                        vertexBuilder.addVertex(position.getX(), position.getY(), position.getZ(), red, green, blue, alpha, vertex.textureU, vertex.textureV, overlayUV, lightmapUV, normalX, normalY, normalZ);
+                        vertexBuilder.vertex(position.x(), position.y(), position.z(), red, green, blue, alpha, vertex.u, vertex.v, overlayUV, lightmapUV, normalX, normalY, normalZ);
                     }
                 }
 
@@ -98,7 +98,7 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
     }
 
     @Override
-    public void translateRotate(MatrixStack matrix)
+    public void translateAndRotate(MatrixStack matrix)
     {
         this.applyCharacterTransform(matrix, 0.0625);
     }
@@ -123,12 +123,12 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
             );
 
         net.minecraft.util.math.vector.Quaternion quat = new net.minecraft.util.math.vector.Quaternion(this.rotation.x, this.rotation.y, this.rotation.z, this.rotation.w);
-        matrix.rotate(quat);
+        matrix.mulPose(quat);
         matrix.scale(this.scale.x, this.scale.y, this.scale.z);
     }
 
     @Override
-    public void setRotationPoint(float x, float y, float z)
+    public void setPos(float x, float y, float z)
     {
         // Ignoring vanilla transformations.
         // The rotation point is often being changed during vanilla animation.
@@ -162,7 +162,7 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
     public ModelPart addBox(MutatedBox box)
     {
         this.mutatedBoxes.add(box);
-        this.cubeList.add(box);
+        this.cubes.add(box);
         return this;
     }
 
@@ -178,7 +178,7 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
 
     public MutatedBox getBox(int idx)
     {
-        return ((MutatedBox) this.cubeList.get(idx));
+        return ((MutatedBox) this.cubes.get(idx));
     }
 
     @Override
@@ -226,7 +226,7 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
     @Override
     public boolean isShowing()
     {
-        return this.showModel;
+        return this.visible;
     }
 
     protected void updateBounds()
@@ -269,7 +269,7 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
     @Override
     public void setVisible(boolean showModel)
     {
-        this.showModel = showModel;
+        this.visible = showModel;
     }
 
     public void setParent(IForgeModelPart parent)
@@ -280,17 +280,17 @@ public class ModelPart extends ModelRenderer implements IForgeModelPart
     @Override
     public void addChild(ModelPart child)
     {
-        this.childModels.add(child);
+        this.children.add(child);
     }
 
     public int getTextureOffsetX()
     {
-        return this.textureOffsetX;
+        return this.xTexOffs;
     }
 
     public int getTextureOffsetY()
     {
-        return this.textureOffsetY;
+        return this.yTexOffs;
     }
 
 }

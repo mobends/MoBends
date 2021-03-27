@@ -35,7 +35,7 @@ public class KeyboardHandler
     @SubscribeEvent
     public void onKeyPressed(InputEvent.KeyInputEvent event)
     {
-        if (KEY_MENU.isPressed())
+        if (KEY_MENU.isDown())
         {
             MutationInstructions instructions = null;
             try
@@ -48,7 +48,7 @@ public class KeyboardHandler
             }
             System.out.println(instructions);
         }
-        else if (KEY_REFRESH.isPressed())
+        else if (KEY_REFRESH.isDown())
         {
             this.refreshAction.onRefresh();
         }

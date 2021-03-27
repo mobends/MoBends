@@ -32,7 +32,7 @@ public class EntityData implements IEntityData
         this.entity = entity;
         this.animatorState = new KumoAnimatorState<>(animatorTemplate, context);
 
-        this.position.set(entity.getPosX(), entity.getPosY(), entity.getPosZ());
+        this.position.set(entity.getX(), entity.getY(), entity.getZ());
         this.prevMotion.set(0, 1, 0);
         this.motion.set(0, 1, 0);
     }
@@ -47,11 +47,11 @@ public class EntityData implements IEntityData
     {
         this.prevMotion.set(this.motion);
         this.motion.set(
-                this.entity.getPosX() - this.position.x,
-                this.entity.getPosY() - this.position.y,
-                this.entity.getPosZ() - this.position.z
+                this.entity.getX() - this.position.x,
+                this.entity.getY() - this.position.y,
+                this.entity.getZ() - this.position.z
         );
-        this.position.set(entity.getPosX(), entity.getPosY(), entity.getPosZ());
+        this.position.set(entity.getX(), entity.getY(), entity.getZ());
     }
 
     public void update()

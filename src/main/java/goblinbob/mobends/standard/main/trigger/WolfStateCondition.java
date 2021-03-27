@@ -51,7 +51,7 @@ public class WolfStateCondition implements ITriggerCondition<EntityData>
         switch (this.state)
         {
             case SITTING:
-                return wolf.func_233684_eK_();
+                return wolf.isInSittingPose();
             default:
                 return false;
         }

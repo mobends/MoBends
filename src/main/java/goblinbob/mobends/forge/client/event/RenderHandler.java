@@ -1,6 +1,5 @@
 package goblinbob.mobends.forge.client.event;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IEntityBenderProvider;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
@@ -33,11 +32,11 @@ public class RenderHandler
         if (bender == null)
             return;
 
-        GlStateManager.pushMatrix();
+        event.getMatrixStack().pushPose();
 
         final LivingRenderer<?, ?> renderer = event.getRenderer();
         final float pt = event.getPartialRenderTick();
-        float ticksPassed = living.ticksExisted + pt;
+        float ticksPassed = living.tickCount + pt;
         ForgeMutationContext context = new ForgeMutationContext(this.driverFunctionProvider, living, renderer, pt, ticksPassed);
 
         try
@@ -59,6 +58,6 @@ public class RenderHandler
         if (bender == null)
             return;
 
-        GlStateManager.popMatrix();
+        event.getMatrixStack().popPose();
     }
 }

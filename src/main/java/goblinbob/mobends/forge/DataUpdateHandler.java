@@ -16,7 +16,7 @@ public class DataUpdateHandler
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.END || Minecraft.getInstance().player == null || Minecraft.getInstance().isGamePaused())
+        if (event.phase == TickEvent.Phase.END || Minecraft.getInstance().player == null || Minecraft.getInstance().isPaused())
             return;
 
         this.callback.updateDataOnClientTick();

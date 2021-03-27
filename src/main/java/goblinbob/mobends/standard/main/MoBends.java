@@ -108,9 +108,6 @@ public class MoBends
     @SubscribeEvent
     public void setupClient(final FMLClientSetupEvent event)
     {
-        // do something that can only be done on the client
-        LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
-
         this.keyboardHandler.setup();
 
         try

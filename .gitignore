@@ -16,10 +16,8 @@ out
 # gradle
 build
 .gradle
-gradle
 logs
-gradlew
-gradlew.bat
+mcmodsrepo
 
 # other
 eclipse

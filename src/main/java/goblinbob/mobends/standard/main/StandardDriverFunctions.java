@@ -3,7 +3,7 @@ package goblinbob.mobends.standard.main;
 import goblinbob.mobends.core.kumo.IKumoContext;
 import goblinbob.mobends.core.kumo.driver.DriverFunctionRegistry;
 import goblinbob.mobends.core.kumo.driver.IParamStack;
-import goblinbob.mobends.forge.BasePropertyKeys;
+import goblinbob.mobends.core.BasePropertyKeys;
 import goblinbob.mobends.forge.EntityData;
 
 public class StandardDriverFunctions

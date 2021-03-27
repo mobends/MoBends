@@ -39,7 +39,7 @@ public class EquipmentNameCondition implements ITriggerCondition<EntityData>
         if (entity instanceof PlayerEntity)
         {
             PlayerEntity player = (PlayerEntity) entity;
-            ItemStack itemStack = player.getItemStackFromSlot(this.slot);
+            ItemStack itemStack = player.getItemBySlot(this.slot);
             return itemStack.getDisplayName().getString().matches(namePattern);
         }
 

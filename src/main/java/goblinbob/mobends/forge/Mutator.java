@@ -142,7 +142,7 @@ public class Mutator
         try
         {
             ModelRenderer originalRenderer = (ModelRenderer) field.get(model);
-            ModelPart modelPart = createPart(partName, partInstructions, originalRenderer.textureOffsetX, originalRenderer.textureOffsetY);
+            ModelPart modelPart = createPart(partName, partInstructions, originalRenderer.xTexOffs, originalRenderer.yTexOffs);
 
             field.set(model, modelPart);
             vanillaContainer.store(field, originalRenderer);

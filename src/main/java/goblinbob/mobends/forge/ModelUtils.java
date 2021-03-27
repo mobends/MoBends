@@ -27,34 +27,34 @@ public class ModelUtils
         double maxY = oldBounds.maxY;
         double maxZ = oldBounds.maxZ;
 
-        float x = modelRenderer.rotationPointX + position.getX();
-        float y = modelRenderer.rotationPointY + position.getY();
-        float z = modelRenderer.rotationPointZ + position.getZ();
+        float x = modelRenderer.x + position.x();
+        float y = modelRenderer.y + position.y();
+        float z = modelRenderer.z + position.z();
 
-        if (modelRenderer.cubeList != null)
+        if (modelRenderer.cubes != null)
         {
-            for (ModelRenderer.ModelBox box : modelRenderer.cubeList)
+            for (ModelRenderer.ModelBox box : modelRenderer.cubes)
             {
-                if (x + box.posX1 < minX)
-                    minX = x + box.posX1;
-                if (y + box.posY1 < minY)
-                    minY = y + box.posY1;
-                if (z + box.posZ1 < minZ)
-                    minZ = z + box.posZ1;
-                if (x + box.posX2 > maxX)
-                    maxX = x + box.posX2;
-                if (y + box.posY2 > maxY)
-                    maxY = y + box.posY2;
-                if (z + box.posZ2 > maxZ)
-                    maxZ = z + box.posZ2;
+                if (x + box.minX < minX)
+                    minX = x + box.minX;
+                if (y + box.minY < minY)
+                    minY = y + box.minY;
+                if (z + box.minZ < minZ)
+                    minZ = z + box.minZ;
+                if (x + box.maxX > maxX)
+                    maxX = x + box.maxX;
+                if (y + box.maxY > maxY)
+                    maxY = y + box.maxY;
+                if (z + box.maxZ > maxZ)
+                    maxZ = z + box.maxZ;
             }
         }
 
         AxisAlignedBB newBounds = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 
-        if (modelRenderer.childModels != null)
+        if (modelRenderer.children != null)
         {
-            for (ModelRenderer child : modelRenderer.childModels)
+            for (ModelRenderer child : modelRenderer.children)
             {
                 newBounds = getBounds(child, new Vector3f(x, y, z), newBounds);
             }
@@ -71,7 +71,7 @@ public class ModelUtils
     {
         for (ModelRenderer possibleParent : partsIn)
         {
-            if (possibleParent != null && possibleParent.childModels != null && possibleParent.childModels.contains(partIn))
+            if (possibleParent != null && possibleParent.children != null && possibleParent.children.contains(partIn))
             {
                 ModelRenderer nextParent = getRootParent(possibleParent, partsIn);
                 if (nextParent != null)
@@ -87,7 +87,7 @@ public class ModelUtils
     {
         for (ModelRenderer possibleParent : possibleParents)
         {
-            if (possibleParent != null && possibleParent.childModels != null && possibleParent.childModels.contains(partIn))
+            if (possibleParent != null && possibleParent.children != null && possibleParent.children.contains(partIn))
             {
                 parentsList.add(possibleParent);
                 getParentsList(possibleParent, possibleParents, parentsList);
@@ -104,12 +104,12 @@ public class ModelUtils
 
     public static Vector3f getGlobalOrigin(ModelRenderer partIn, Collection<ModelRenderer> possibleParents)
     {
-        Vector3f origin = new Vector3f(partIn.rotationPointX, partIn.rotationPointY, partIn.rotationPointZ);
+        Vector3f origin = new Vector3f(partIn.x, partIn.y, partIn.z);
 
         Collection<ModelRenderer> parentsList = getParentsList(partIn, possibleParents);
         for (ModelRenderer parent : parentsList)
         {
-            origin.add(parent.rotationPointX, parent.rotationPointY, parent.rotationPointZ);
+            origin.add(parent.x, parent.y, parent.z);
         }
 
         return origin;
@@ -144,17 +144,17 @@ public class ModelUtils
             return;
 
         float[] uCoords = new float[] {
-                quad.vertexPositions[0].textureU,
-                quad.vertexPositions[1].textureU,
-                quad.vertexPositions[2].textureU,
-                quad.vertexPositions[3].textureU,
+                quad.vertices[0].u,
+                quad.vertices[1].u,
+                quad.vertices[2].u,
+                quad.vertices[3].u,
         };
 
         float[] vCoords = new float[] {
-                quad.vertexPositions[0].textureV,
-                quad.vertexPositions[1].textureV,
-                quad.vertexPositions[2].textureV,
-                quad.vertexPositions[3].textureV,
+                quad.vertices[0].v,
+                quad.vertices[1].v,
+                quad.vertices[2].v,
+                quad.vertices[3].v,
         };
 
         int offset = 2;
@@ -165,8 +165,8 @@ public class ModelUtils
 
         for (int i = 0; i < 4; ++i)
         {
-            quad.vertexPositions[i].textureU = uCoords[(i + offset) % 4];
-            quad.vertexPositions[i].textureV = vCoords[(i + offset) % 4];
+            quad.vertices[i].u = uCoords[(i + offset) % 4];
+            quad.vertices[i].v = vCoords[(i + offset) % 4];
         }
     }
 

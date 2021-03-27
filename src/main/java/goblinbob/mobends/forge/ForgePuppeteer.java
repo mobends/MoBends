@@ -31,7 +31,7 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
     {
         this.bender = bender;
         this.renderer = renderer;
-        this.model = renderer.getEntityModel();
+        this.model = renderer.getModel();
         this.dataRepository = dataRepository;
 
         this.mutator = new Mutator(bender, model);
@@ -66,18 +66,18 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
         Entity entity = context.getEntity();
         float partialTicks = context.getPartialTicks();
 
-        double entityX = entity.prevPosX + (entity.getPosX() - entity.prevPosX) * partialTicks;
-        double entityY = entity.prevPosY + (entity.getPosY() - entity.prevPosY) * partialTicks;
-        double entityZ = entity.prevPosZ + (entity.getPosZ() - entity.prevPosZ) * partialTicks;
+        double entityX = entity.xOld + (entity.getX() - entity.xOld) * partialTicks;
+        double entityY = entity.yOld + (entity.getY() - entity.yOld) * partialTicks;
+        double entityZ = entity.zOld + (entity.getZ() - entity.zOld) * partialTicks;
 
-        Entity viewEntity = Minecraft.getInstance().getRenderViewEntity();
+        Entity viewEntity = Minecraft.getInstance().getCameraEntity();
         double viewX = entityX, viewY = entityY, viewZ = entityZ;
         if (viewEntity != null)
         {
             // Checking in case of Main Menu or GUI rendering.
-            viewX = viewEntity.prevPosX + (viewEntity.getPosX() - viewEntity.prevPosX) * partialTicks;
-            viewY = viewEntity.prevPosY + (viewEntity.getPosY() - viewEntity.prevPosY) * partialTicks;
-            viewZ = viewEntity.prevPosZ + (viewEntity.getPosZ() - viewEntity.prevPosZ) * partialTicks;
+            viewX = viewEntity.xOld + (viewEntity.getX() - viewEntity.xOld) * partialTicks;
+            viewY = viewEntity.yOld + (viewEntity.getY() - viewEntity.yOld) * partialTicks;
+            viewZ = viewEntity.zOld + (viewEntity.getZ() - viewEntity.zOld) * partialTicks;
         }
 
 //        GlStateManager.translated(entityX - viewX, entityY - viewY, entityZ - viewZ);
@@ -109,15 +109,15 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
     {
         // The code below is a mirror of what in the LivingRenderer's render method.
 
-        boolean shouldSit = entity.isPassenger() && (entity.getRidingEntity() != null && entity.getRidingEntity().shouldRiderSit());
-        float f = GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
-        float f1 = GUtil.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
+        boolean shouldSit = entity.isPassenger() && (entity.getVehicle() != null && entity.getVehicle().shouldRiderSit());
+        float f = MathHelper.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
+        float f1 = MathHelper.rotLerp(partialTicks, entity.yHeadRotO, entity.yHeadRot);
         float yaw = f1 - f;
 
-        if (shouldSit && entity.getRidingEntity() instanceof LivingEntity)
+        if (shouldSit && entity.getVehicle() instanceof LivingEntity)
         {
-            LivingEntity livingentity = (LivingEntity) entity.getRidingEntity();
-            f = GUtil.interpolateRotation(livingentity.prevRenderYawOffset, livingentity.renderYawOffset,
+            LivingEntity livingentity = (LivingEntity) entity.getVehicle();
+            f = GUtil.interpolateRotation(livingentity.yBodyRotO, livingentity.yBodyRot,
                     partialTicks);
             yaw = f1 - f;
             float f3 = MathHelper.wrapDegrees(yaw);
@@ -135,17 +135,17 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
             yaw = f1 - f;
         }
 
-        float pitch = MathHelper.lerp(partialTicks, entity.prevRotationPitch, entity.rotationPitch);
+        float pitch = MathHelper.lerp(partialTicks, entity.xRotO, entity.xRot);
 
         float f5 = 0.0F;
         float f6 = 0.0F;
 
         if (!shouldSit && entity.isAlive())
         {
-            f5 = MathHelper.lerp(partialTicks, entity.prevLimbSwingAmount, entity.limbSwingAmount);
-            f6 = entity.limbSwing - entity.limbSwingAmount * (1.0F - partialTicks);
+            f5 = MathHelper.lerp(partialTicks, entity.animationSpeedOld, entity.animationSpeed);
+            f6 = entity.animationPosition - entity.animationSpeed * (1.0F - partialTicks);
 
-            if (entity.isChild())
+            if (entity.isBaby())
                 f6 *= 3.0F;
             if (f5 > 1.0F)
                 f5 = 1.0F;
@@ -154,12 +154,12 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
         try
         {
             PropertyStorage storage = data.getPropertyStorage();
-            storage.setProperty(BasePropertyKeys.LIFETIME, entity.ticksExisted + partialTicks);
+            storage.setProperty(BasePropertyKeys.LIFETIME, entity.tickCount + partialTicks);
             storage.setProperty(BasePropertyKeys.HEAD_YAW, yaw);
             storage.setProperty(BasePropertyKeys.HEAD_PITCH, pitch);
             storage.setProperty(BasePropertyKeys.LIMB_SWING, f6);
             storage.setProperty(BasePropertyKeys.LIMB_SWING_AMOUNT, f5);
-            storage.setProperty(BasePropertyKeys.SWING_PROGRESS, entity.getSwingProgress(partialTicks));
+            storage.setProperty(BasePropertyKeys.SWING_PROGRESS, entity.getAttackAnim(partialTicks));
         }
         catch (UnknownPropertyException e)
         {

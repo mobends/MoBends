@@ -11,12 +11,13 @@ import goblinbob.mobends.forge.EntityData;
 
 public class MockSerialContext implements ISerialContext<EntityData>
 {
+    public final SubTypeRegistry<LayerTemplate, EntityData> layerRegistry = new SubTypeRegistry<>();
     public final SubTypeRegistry<KeyframeNodeTemplate, EntityData> keyframeNodeRegistry = new SubTypeRegistry<>();
 
     @Override
     public ISubTypeDeserializer<LayerTemplate, EntityData> getLayerDeserializer()
     {
-        return null;
+        return layerRegistry;
     }
 
     @Override

@@ -5,7 +5,7 @@ import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.data.PropertyStorage;
 import goblinbob.mobends.core.kumo.*;
-import goblinbob.mobends.forge.BasePropertyKeys;
+import goblinbob.mobends.core.BasePropertyKeys;
 
 public class MovementKeyframeNode<D extends IEntityData> extends NodeState<D> implements IKeyframeNodeState<D>
 {

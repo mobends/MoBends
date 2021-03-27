@@ -9,7 +9,7 @@ import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.NodeState;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.util.GUtil;
-import goblinbob.mobends.forge.BasePropertyKeys;
+import goblinbob.mobends.core.BasePropertyKeys;
 
 public class LookAroundDriverNode<D extends IEntityData> extends NodeState<D> implements IDriverNodeState<D>
 {

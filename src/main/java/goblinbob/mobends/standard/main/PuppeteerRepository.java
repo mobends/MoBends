@@ -11,13 +11,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class TestPuppeteerRepository implements IPuppeteerRepository<ForgeMutationContext>, IRefreshable
+public class PuppeteerRepository implements IPuppeteerRepository<ForgeMutationContext>, IRefreshable
 {
     private final IEntityDataRepository<ForgeMutationContext> dataRepository;
     private final Map<LivingRenderer<?, ?>, ForgePuppeteer<?, ?, ?>> puppeteerMap = new HashMap<>();
     private final Set<LivingRenderer<?, ?>> skippedRenderers = new HashSet<>();
 
-    public TestPuppeteerRepository(IEntityDataRepository<ForgeMutationContext> dataRepository)
+    public PuppeteerRepository(IEntityDataRepository<ForgeMutationContext> dataRepository)
     {
         this.dataRepository = dataRepository;
     }

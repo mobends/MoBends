@@ -16,7 +16,7 @@ public class ForgeModelPartTransform extends ModelPartTransform implements IForg
             matrix.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
 
         net.minecraft.util.math.vector.Quaternion quat = new net.minecraft.util.math.vector.Quaternion(this.rotation.x, this.rotation.y, this.rotation.z, this.rotation.w);
-        matrix.rotate(quat);
+        matrix.mulPose(quat);
         matrix.scale(this.scale.x, this.scale.y, this.scale.z);
     }
 

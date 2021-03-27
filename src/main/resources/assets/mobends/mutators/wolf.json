@@ -2,11 +2,11 @@
     "vanillaParts": {
         "body":          { "fieldName": "body",          "obfuscated": "wolfBody" },
         "head":          { "fieldName": "head",          "obfuscated": "wolfHeadMain" },
-        "mane":          { "fieldName": "mane",          "obfuscated": "wolfMane" },
-        "leg1":          { "fieldName": "legBackRight",  "obfuscated": "legBackRight" },
-        "leg2":          { "fieldName": "legBackLeft",   "obfuscated": "legBackLeft" },
-        "leg3":          { "fieldName": "legFrontRight", "obfuscated": "legFrontRight" },
-        "leg4":          { "fieldName": "legFrontLeft",  "obfuscated": "legFrontLeft" },
+        "mane":          { "fieldName": "upperBody",     "obfuscated": "wolfMane" },
+        "leg1":          { "fieldName": "leg0",  "obfuscated": "legBackRight" },
+        "leg2":          { "fieldName": "leg1",   "obfuscated": "legBackLeft" },
+        "leg3":          { "fieldName": "leg2", "obfuscated": "legFrontRight" },
+        "leg4":          { "fieldName": "leg3",  "obfuscated": "legFrontLeft" },
         "tail":          { "fieldName": "tail",          "obfuscated": "tail" }
     },
     "mutate": {

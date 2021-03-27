@@ -25,6 +25,7 @@ public class KumoAnimatorSerializationTest
     ISerialContext<EntityData> createMockSerialContext()
     {
         MockSerialContext context = new MockSerialContext();
+        context.layerRegistry.register("core:keyframe", KeyframeLayerTemplate::deserialize);
         context.keyframeNodeRegistry.register("core:standard", StandardKeyframeNodeTemplate::deserialize);
 
         return context;

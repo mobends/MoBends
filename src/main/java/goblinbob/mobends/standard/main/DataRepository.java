@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class TestDataRepository implements IEntityDataRepository<ForgeMutationContext>
+public class DataRepository implements IEntityDataRepository<ForgeMutationContext>
 {
     private final Map<Integer, EntityData> entryMap = new HashMap<>();
 
@@ -19,12 +19,12 @@ public class TestDataRepository implements IEntityDataRepository<ForgeMutationCo
     public EntityData getOrMakeData(ForgeMutationContext context, EntityBender<ForgeMutationContext> bender)
     {
         LivingEntity entity = context.getEntity();
-        EntityData data = entryMap.get(entity.getEntityId());
+        EntityData data = entryMap.get(entity.getId());
 
         if (data == null)
         {
             data = new EntityData(entity, bender.getAnimatorTemplate(), context);
-            entryMap.put(entity.getEntityId(), data);
+            entryMap.put(entity.getId(), data);
         }
 
         return data;

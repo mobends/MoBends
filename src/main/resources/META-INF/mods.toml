@@ -1,7 +1,7 @@
 # Find more information on toml format here:  https://github.com/toml-lang/toml
 modLoader="javafml"
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-loaderVersion="[34,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
+loaderVersion="[32,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
 license="MIT License"
 issueTrackerURL="https://github.com/mobends/MoBends/issues"
 # A list of mods - how many allowed here is determined by the individual mod loader
@@ -32,7 +32,7 @@ It makes players seem alive, and adds epic sword animations!
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[34,)" #mandatory
+    versionRange="[32,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -41,6 +41,6 @@ It makes players seem alive, and adds epic sword animations!
 [[dependencies.mobends]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.3]"
+    versionRange="[1.16.1,)"
     ordering="NONE"
     side="BOTH"

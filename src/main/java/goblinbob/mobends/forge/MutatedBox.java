@@ -28,7 +28,7 @@ public class MutatedBox extends ModelRenderer.ModelBox
         super(0, 0,
                 0, 0, 0,
                 0, 0, 0,
-                0, 0, 0, renderer.mirror, renderer.textureWidth, renderer.textureHeight);
+                0, 0, 0, renderer.mirror, renderer.xTexSize, renderer.yTexSize);
         this.faceVisibilityFlag = faceVisibilityFlag;
 
         float x0 = min.getX();
@@ -61,17 +61,17 @@ public class MutatedBox extends ModelRenderer.ModelBox
         this.vertexPositions[5] = positiontexturevertex4;
         this.vertexPositions[6] = positiontexturevertex5;
         this.vertexPositions[7] = positiontexturevertex6;
-        this.quads[0] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, faces[0], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.EAST);
-        this.quads[1] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, faces[1], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.WEST);
-        this.quads[2] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, faces[2], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.DOWN);
-        this.quads[3] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, faces[3], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.UP);
-        this.quads[4] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, faces[4], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.NORTH);
-        this.quads[5] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, faces[5], renderer.textureWidth, renderer.textureHeight, renderer.mirror, Direction.SOUTH);
+        this.polygons[0] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, faces[0], renderer.xTexSize, renderer.yTexSize, renderer.mirror, Direction.EAST);
+        this.polygons[1] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, faces[1], renderer.xTexSize, renderer.yTexSize, renderer.mirror, Direction.WEST);
+        this.polygons[2] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, faces[2], renderer.xTexSize, renderer.yTexSize, renderer.mirror, Direction.DOWN);
+        this.polygons[3] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, faces[3], renderer.xTexSize, renderer.yTexSize, renderer.mirror, Direction.UP);
+        this.polygons[4] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, faces[4], renderer.xTexSize, renderer.yTexSize, renderer.mirror, Direction.NORTH);
+        this.polygons[5] = ModelUtils.createQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, faces[5], renderer.xTexSize, renderer.yTexSize, renderer.mirror, Direction.SOUTH);
     }
 
     public MutatedBox(ModelRenderer modelRenderer, int texU, int texV, float x, float y, float z, int width, int height, int length, float inflationX, float inflationY, float inflationZ, boolean mirrored, byte faceVisibilityFlag)
     {
-        super(texU, texV, x, y, z, (int) width, (int) height, (int) length, inflationX, inflationY, inflationZ, mirrored, modelRenderer.textureWidth, modelRenderer.textureHeight);
+        super(texU, texV, x, y, z, (int) width, (int) height, (int) length, inflationX, inflationY, inflationZ, mirrored, modelRenderer.xTexSize, modelRenderer.yTexSize);
         this.faceVisibilityFlag = faceVisibilityFlag;
         float f4 = x + (float) width;
         float f5 = y + (float) height;
@@ -106,12 +106,12 @@ public class MutatedBox extends ModelRenderer.ModelBox
         this.vertexPositions[5] = positiontexturevertex4;
         this.vertexPositions[6] = positiontexturevertex5;
         this.vertexPositions[7] = positiontexturevertex6;
-        this.quads[0] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, texU + length + width, texV + length, texU + length + width + length, texV + length + height, modelRenderer.textureWidth, modelRenderer.textureHeight, mirrored, Direction.DOWN);
-        this.quads[1] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, texU, texV + length, texU + length, texV + length + height, modelRenderer.textureWidth, modelRenderer.textureHeight, mirrored, Direction.UP);
-        this.quads[2] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, texU + length, texV, texU + length + width, texV + length, modelRenderer.textureWidth, modelRenderer.textureHeight, mirrored, Direction.WEST);
-        this.quads[3] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, texU + length + width, texV + length, texU + length + width + width, texV, modelRenderer.textureWidth, modelRenderer.textureHeight, mirrored, Direction.NORTH);
-        this.quads[4] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, texU + length, texV + length, texU + length + width, texV + length + height, modelRenderer.textureWidth, modelRenderer.textureHeight, mirrored, Direction.EAST);
-        this.quads[5] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, texU + length + width + length, texV + length, texU + length + width + length + width, texV + length + height, modelRenderer.textureWidth, modelRenderer.textureHeight, mirrored, Direction.SOUTH);
+        this.polygons[0] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex, positiontexturevertex1, positiontexturevertex5}, texU + length + width, texV + length, texU + length + width + length, texV + length + height, modelRenderer.xTexSize, modelRenderer.yTexSize, mirrored, Direction.DOWN);
+        this.polygons[1] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex7, positiontexturevertex3, positiontexturevertex6, positiontexturevertex2}, texU, texV + length, texU + length, texV + length + height, modelRenderer.xTexSize, modelRenderer.yTexSize, mirrored, Direction.UP);
+        this.polygons[2] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex4, positiontexturevertex3, positiontexturevertex7, positiontexturevertex}, texU + length, texV, texU + length + width, texV + length, modelRenderer.xTexSize, modelRenderer.yTexSize, mirrored, Direction.WEST);
+        this.polygons[3] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex1, positiontexturevertex2, positiontexturevertex6, positiontexturevertex5}, texU + length + width, texV + length, texU + length + width + width, texV, modelRenderer.xTexSize, modelRenderer.yTexSize, mirrored, Direction.NORTH);
+        this.polygons[4] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex, positiontexturevertex7, positiontexturevertex2, positiontexturevertex1}, texU + length, texV + length, texU + length + width, texV + length + height, modelRenderer.xTexSize, modelRenderer.yTexSize, mirrored, Direction.EAST);
+        this.polygons[5] = new TexturedQuad(new PositionTextureVertex[] {positiontexturevertex3, positiontexturevertex4, positiontexturevertex5, positiontexturevertex6}, texU + length + width + length, texV + length, texU + length + width + length + width, texV + length + height, modelRenderer.xTexSize, modelRenderer.yTexSize, mirrored, Direction.SOUTH);
     }
 
     public MutatedBox(ModelRenderer modelRenderer, int texU, int texV, float x, float y, float z, int width, int height, int length, float inflation)
@@ -131,7 +131,7 @@ public class MutatedBox extends ModelRenderer.ModelBox
 
     public AABBox createAABB()
     {
-        return new AABBox(this.posX1, this.posY1, this.posZ1, this.posX2, this.posY2, this.posZ2);
+        return new AABBox(this.minX, this.minY, this.minZ, this.maxX, this.maxY, this.maxZ);
     }
 
 }

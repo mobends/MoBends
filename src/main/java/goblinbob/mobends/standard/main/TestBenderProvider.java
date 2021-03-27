@@ -37,16 +37,16 @@ import java.util.Collections;
 public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationContext>, IRefreshable
 {
     private final ISerialContext<EntityData> serialContext;
-    private final TestDataRepository dataRepository;
-    private final TestPuppeteerRepository puppeteerRepository;
+    private final DataRepository dataRepository;
+    private final PuppeteerRepository puppeteerRepository;
 
     public EntityBender<ForgeMutationContext> wolfBender;
 
     public TestBenderProvider(ISerialContext<EntityData> serialContext)
     {
         this.serialContext = serialContext;
-        this.dataRepository = new TestDataRepository();
-        this.puppeteerRepository = new TestPuppeteerRepository(dataRepository);
+        this.dataRepository = new DataRepository();
+        this.puppeteerRepository = new PuppeteerRepository(dataRepository);
     }
 
     public void init() throws IOException

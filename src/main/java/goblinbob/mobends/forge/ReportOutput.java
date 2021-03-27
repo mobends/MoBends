@@ -10,13 +10,12 @@ import net.minecraft.util.text.TextFormatting;
 
 public class ReportOutput implements IReportOutput
 {
-
     private StringTextComponent mainComponent = null;
 
     public ITextComponent createErrorHeader()
     {
         StringTextComponent header = new StringTextComponent("[Mo' Bends] ");
-        header.func_230530_a_(header.getStyle().func_240712_a_(TextFormatting.YELLOW));
+        header.withStyle(header.getStyle().withColor(TextFormatting.YELLOW));
 
         return header;
     }
@@ -24,8 +23,8 @@ public class ReportOutput implements IReportOutput
     public void beginMessage()
     {
         this.mainComponent = new StringTextComponent("");
-        this.mainComponent.func_230530_a_(this.mainComponent.getStyle().func_240712_a_(TextFormatting.WHITE));
-        this.mainComponent.func_230529_a_(createErrorHeader());
+        this.mainComponent.setStyle(this.mainComponent.getStyle().withColor(TextFormatting.WHITE));
+        this.mainComponent.append(createErrorHeader());
     }
 
     @Override
@@ -40,20 +39,19 @@ public class ReportOutput implements IReportOutput
         StringTextComponent textComponent = new StringTextComponent(text);
 
         if ((flags & TextStyle.BOLD) != 0)
-            textComponent.func_230530_a_(textComponent.getStyle().func_240713_a_(true));
+            textComponent.setStyle(textComponent.getStyle().withBold(true));
 
         if ((flags & TextStyle.ITALICS) != 0)
-            textComponent.func_230530_a_(textComponent.getStyle().func_240722_b_(true));
+            textComponent.setStyle(textComponent.getStyle().withItalic(true));
 
         if ((flags & TextStyle.UNDERLINED) != 0)
-            textComponent.func_230530_a_(textComponent.getStyle().func_244282_c(true));
+            textComponent.setStyle(textComponent.getStyle().withUnderlined(true));
 
-        this.mainComponent.func_230529_a_(textComponent);
+        this.mainComponent.append(textComponent);
     }
 
     public void finishMessage()
     {
-        Minecraft.getInstance().player.sendMessage(this.mainComponent, Util.field_240973_b_);
+        Minecraft.getInstance().player.sendMessage(this.mainComponent, Util.NIL_UUID);
     }
-
 }

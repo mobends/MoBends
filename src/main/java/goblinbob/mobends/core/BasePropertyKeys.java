@@ -1,4 +1,4 @@
-package goblinbob.mobends.forge;
+package goblinbob.mobends.core;
 
 public class BasePropertyKeys
 {
