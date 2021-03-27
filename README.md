@@ -1,4 +1,5 @@
-# Mo' Bends [![CurseForge Downloads](http://cf.way2muchnoise.eu/231347.svg)](https://www.curseforge.com/minecraft/mc-mods/mo-bends) [![Mod Versions](http://cf.way2muchnoise.eu/versions/231347.svg)](https://www.curseforge.com/minecraft/mc-mods/mo-bends) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/dc7fa82e8d904f65b33b948ed093c21f)](https://app.codacy.com/gh/mobends/MoBends?utm_source=github.com&utm_medium=referral&utm_content=mobends/MoBends&utm_campaign=Badge_Grade_Dashboard)
+# Mo' Bends
+[![CurseForge Downloads](http://cf.way2muchnoise.eu/231347.svg)](https://www.curseforge.com/minecraft/mc-mods/mo-bends) [![Mod Versions](http://cf.way2muchnoise.eu/versions/231347.svg)](https://www.curseforge.com/minecraft/mc-mods/mo-bends) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/dc7fa82e8d904f65b33b948ed093c21f)](https://app.codacy.com/gh/mobends/MoBends?utm_source=github.com&utm_medium=referral&utm_content=mobends/MoBends&utm_campaign=Badge_Grade_Dashboard)
 
 
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/mobends/MoBends.svg?style=for-the-badge)
