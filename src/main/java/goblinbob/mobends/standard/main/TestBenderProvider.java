@@ -5,7 +5,6 @@ import goblinbob.mobends.core.IEntityBenderProvider;
 import goblinbob.mobends.core.IRefreshable;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.ConnectionTemplate;
-import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
 import goblinbob.mobends.core.kumo.driver.DriverLayerTemplate;
 import goblinbob.mobends.core.kumo.driver.expression.NumberFunctionCall;
@@ -22,9 +21,7 @@ import goblinbob.mobends.core.kumo.trigger.AnimationFinishedCondition;
 import goblinbob.mobends.core.kumo.trigger.NotCondition;
 import goblinbob.mobends.core.kumo.trigger.StateCondition;
 import goblinbob.mobends.core.mutation.MutationInstructions;
-import goblinbob.mobends.forge.EntityData;
-import goblinbob.mobends.forge.ForgeMutationContext;
-import goblinbob.mobends.forge.GsonResources;
+import goblinbob.mobends.forge.*;
 import goblinbob.mobends.standard.main.trigger.WolfStateCondition;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.WolfEntity;
@@ -36,15 +33,13 @@ import java.util.Collections;
 
 public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationContext>, IRefreshable
 {
-    private final ISerialContext<EntityData> serialContext;
     private final DataRepository dataRepository;
     private final PuppeteerRepository puppeteerRepository;
 
     public EntityBender<ForgeMutationContext> wolfBender;
 
-    public TestBenderProvider(ISerialContext<EntityData> serialContext)
+    public TestBenderProvider()
     {
-        this.serialContext = serialContext;
         this.dataRepository = new DataRepository();
         this.puppeteerRepository = new PuppeteerRepository(dataRepository);
     }
@@ -159,14 +154,14 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
                 })
         };
 
-        this.wolfBender = new EntityBender<>(
-                this.puppeteerRepository,
-                "mobends:wolf",
-                "wolf",
-                WolfEntity.class,
-                instructions,
-                animatorTemplate
-        );
+//        this.wolfBender = new EntityBender<>(
+//                this.puppeteerRepository,
+//                "mobends:wolf",
+//                "wolf",
+//                WolfEntity.class,
+//                instructions,
+//                animatorTemplate
+//        );
     }
 
     public void updateDataOnClientTick()

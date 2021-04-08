@@ -80,7 +80,7 @@ public class Mutator
 
     private void createParts()
     {
-        MutationInstructions instructions = bender.getMutationInstructions();
+        MutationInstructions instructions = bender.getBenderResources().getMutationInstructions();
 
         for (Map.Entry<String, PartMutationInstructions> entry : instructions.getPartMutations())
         {
@@ -179,11 +179,10 @@ public class Mutator
     /**
      * Creates a "virtual" part, which doesn't have boxes or a visual representation associated with it.
      * Examples of parts like this could be root bones.
-     * @param partName
-     * @param instructions
-     * @return
+     * @param partName The name of the part
+     * @param instructions How the part should be constructed
      */
-    private ModelPartTransform createVirtualPart(String partName, PartMutationInstructions instructions)
+    private void createVirtualPart(String partName, PartMutationInstructions instructions)
     {
         ForgeModelPartTransform modelPart = new ForgeModelPartTransform();
 
@@ -191,8 +190,6 @@ public class Mutator
         modelPart.position.set(positionValues[0], positionValues[1], positionValues[2]);
 
         partMap.put(partName, modelPart);
-
-        return modelPart;
     }
 
     private ModelPart createPart(String partName, PartMutationInstructions partInstructions, int textureOffsetX, int textureOffsetY)

@@ -1,9 +1,7 @@
-package goblinbob.mobends.standard.main;
+package goblinbob.mobends.forge;
 
 import goblinbob.mobends.core.*;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
-import goblinbob.mobends.forge.ForgeMutationContext;
-import goblinbob.mobends.forge.ForgePuppeteer;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 
 import java.util.HashMap;

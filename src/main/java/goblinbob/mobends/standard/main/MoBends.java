@@ -1,6 +1,9 @@
 package goblinbob.mobends.standard.main;
 
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.forge.*;
+import goblinbob.mobends.forge.addon.AddonHelper;
+import goblinbob.mobends.forge.addon.Addons;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
 import goblinbob.mobends.core.kumo.driver.DriverFunctionRegistry;
@@ -11,14 +14,15 @@ import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.*;
-import goblinbob.mobends.forge.DataUpdateHandler;
-import goblinbob.mobends.forge.EntityData;
-import goblinbob.mobends.forge.ReportOutput;
-import goblinbob.mobends.forge.SerialContext;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
 import goblinbob.mobends.forge.client.event.RenderHandler;
 import goblinbob.mobends.forge.trigger.EquipmentNameCondition;
 import goblinbob.mobends.standard.main.trigger.WolfStateCondition;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.ReloadListener;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.InterModComms;
@@ -29,10 +33,10 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.util.stream.Collectors;
 
 @Mod(ModStatics.MODID)
@@ -41,7 +45,7 @@ public class MoBends
     public static final Logger LOGGER = LogManager.getLogger();
 
     private final SerialContext serialContext;
-    private final TestBenderProvider benderProvider;
+    private final BenderProvider benderProvider;
     private final DriverFunctionRegistry<EntityData> driverFunctionRegistry;
     private final KeyboardHandler keyboardHandler;
 
@@ -50,8 +54,11 @@ public class MoBends
     public MoBends()
     {
         this.serialContext = new SerialContext();
-        this.benderProvider = new TestBenderProvider(this.serialContext);
+        this.benderProvider = new BenderProvider(this.serialContext);
         this.keyboardHandler = new KeyboardHandler(this::onRefresh);
+
+        // Notifying the addons context about what bender container to use.
+        Addons.setBenderProvider(this.benderProvider);
 
         this.serialContext.layerRegistry.register("core:keyframe", KeyframeLayerTemplate::deserialize);
         this.serialContext.layerRegistry.register("core:driver", DriverLayerTemplate::deserialize);
@@ -89,7 +96,7 @@ public class MoBends
 
         // Toggling the wolf bender ON/OFF
         this.wolfAnimated = !this.wolfAnimated;
-        this.benderProvider.wolfBender.setAnimate(wolfAnimated);
+//        this.benderProvider.wolfBender.setAnimate(wolfAnimated);
 
         Core core = new Core();
         ReportOutput reportOutput = new ReportOutput();
@@ -110,14 +117,28 @@ public class MoBends
     {
         this.keyboardHandler.setup();
 
-        try
-        {
-            this.benderProvider.init();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        AddonHelper.registerAddon(ModStatics.MODID, new StandardAddon());
+
+        IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
+
+        BenderProvider benderProvider = this.benderProvider;
+
+        resourceManager.registerReloadListener(new BinaryResourceManager("bendsanimators", ".bends"));
+
+        resourceManager.registerReloadListener(new ReloadListener() {
+            @Override
+            protected Object prepare(IResourceManager innerManager, IProfiler profiler)
+            {
+                return null;
+            }
+
+            @Override
+            protected void apply(Object preparedObject, IResourceManager innerManager, IProfiler profiler)
+            {
+                benderProvider.refresh();
+                LOGGER.log(Level.ALL, "WADDUP");
+            }
+        });
     }
 
     @SubscribeEvent

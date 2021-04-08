@@ -1,9 +1,7 @@
-package goblinbob.mobends.standard.main;
+package goblinbob.mobends.forge;
 
 import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IEntityDataRepository;
-import goblinbob.mobends.forge.EntityData;
-import goblinbob.mobends.forge.ForgeMutationContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 
@@ -23,7 +21,7 @@ public class DataRepository implements IEntityDataRepository<ForgeMutationContex
 
         if (data == null)
         {
-            data = new EntityData(entity, bender.getAnimatorTemplate(), context);
+            data = new EntityData(entity, bender.getBenderResources().getAnimatorTemplate(), context);
             entryMap.put(entity.getId(), data);
         }
 

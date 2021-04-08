@@ -1,8 +1,6 @@
 package goblinbob.mobends.core;
 
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
-import goblinbob.mobends.core.kumo.AnimatorTemplate;
-import goblinbob.mobends.core.mutation.MutationInstructions;
 import goblinbob.mobends.core.mutation.PuppeteerException;
 
 public class EntityBender<C>
@@ -12,12 +10,11 @@ public class EntityBender<C>
     protected final String key;
     protected final String unlocalizedName;
     public final Class<?> entityClass;
-    private MutationInstructions mutationInstructions;
-    private AnimatorTemplate animatorTemplate;
+    private final IBenderResources benderResources;
 
     private boolean animate = true;
 
-    public EntityBender(IPuppeteerRepository<C> puppeteerRepository, String key, String unlocalizedName, Class<?> entityClass, MutationInstructions mutationInstructions, AnimatorTemplate animatorTemplate)
+    public EntityBender(IPuppeteerRepository<C> puppeteerRepository, String key, String unlocalizedName, Class<?> entityClass, IBenderResources benderResources)
     {
         this.puppeteerRepository = puppeteerRepository;
 
@@ -27,8 +24,7 @@ public class EntityBender<C>
         this.key = key;
         this.unlocalizedName = unlocalizedName;
         this.entityClass = entityClass;
-        this.mutationInstructions = mutationInstructions;
-        this.animatorTemplate = animatorTemplate;
+        this.benderResources = benderResources;
     }
 
     public boolean isAnimated()
@@ -41,14 +37,9 @@ public class EntityBender<C>
         this.animate = animate;
     }
 
-    public MutationInstructions getMutationInstructions()
+    public IBenderResources getBenderResources()
     {
-        return mutationInstructions;
-    }
-
-    public AnimatorTemplate getAnimatorTemplate()
-    {
-        return animatorTemplate;
+        return benderResources;
     }
 
     /**
