@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.kumo.driver.expression;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.IKumoContext;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
 
 import java.io.IOException;
 
@@ -43,7 +43,7 @@ public class NumberLiteral<D extends IEntityData> extends ExpressionTemplate imp
         out.writeFloat(this.value);
     }
 
-    public static <D extends IEntityData> NumberLiteral<D> deserialize(ISerialContext<D> context, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> NumberLiteral<D> deserialize(C context, ISerialInput in) throws IOException
     {
         return new NumberLiteral<D>(in.readFloat());
     }

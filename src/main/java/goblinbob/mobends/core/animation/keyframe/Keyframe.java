@@ -1,9 +1,9 @@
 package goblinbob.mobends.core.animation.keyframe;
 
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.ISerializable;
-import goblinbob.mobends.core.serial.SerialHelper;
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.ISerializable;
+import goblinbob.bendslib.serial.SerialHelper;
 
 import java.io.IOException;
 import java.util.Arrays;

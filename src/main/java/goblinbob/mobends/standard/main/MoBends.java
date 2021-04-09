@@ -1,11 +1,14 @@
 package goblinbob.mobends.standard.main;
 
+import com.google.gson.Gson;
+import goblinbob.bendslib.resource.BinaryPolyReloadListener;
+import goblinbob.bendslib.resource.JsonPolyReloadListener;
+import goblinbob.bendslib.resource.ParsedElement;
 import goblinbob.mobends.core.Core;
-import goblinbob.mobends.forge.*;
-import goblinbob.mobends.forge.addon.AddonHelper;
-import goblinbob.mobends.forge.addon.Addons;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
+import goblinbob.mobends.core.exceptions.ResourceException;
+import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.driver.DriverFunctionRegistry;
 import goblinbob.mobends.core.kumo.driver.DriverLayerTemplate;
 import goblinbob.mobends.core.kumo.driver.node.LookAroundDriverNodeTemplate;
@@ -14,30 +17,30 @@ import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.*;
+import goblinbob.mobends.core.mutation.MutationInstructions;
+import goblinbob.mobends.forge.*;
+import goblinbob.mobends.forge.addon.AddonHelper;
+import goblinbob.mobends.forge.addon.Addons;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
 import goblinbob.mobends.forge.client.event.RenderHandler;
 import goblinbob.mobends.forge.trigger.EquipmentNameCondition;
 import goblinbob.mobends.standard.main.trigger.WolfStateCondition;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.ReloadListener;
+import net.minecraft.entity.EntityType;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.stream.Collectors;
+import java.util.Collection;
 
 @Mod(ModStatics.MODID)
 public class MoBends
@@ -45,16 +48,14 @@ public class MoBends
     public static final Logger LOGGER = LogManager.getLogger();
 
     private final SerialContext serialContext;
-    private final BenderProvider benderProvider;
+    private final BenderProvider<SerialContext> benderProvider;
     private final DriverFunctionRegistry<EntityData> driverFunctionRegistry;
     private final KeyboardHandler keyboardHandler;
-
-    private boolean wolfAnimated = true;
 
     public MoBends()
     {
         this.serialContext = new SerialContext();
-        this.benderProvider = new BenderProvider(this.serialContext);
+        this.benderProvider = new BenderProvider<>(this.serialContext);
         this.keyboardHandler = new KeyboardHandler(this::onRefresh);
 
         // Notifying the addons context about what bender container to use.
@@ -92,24 +93,12 @@ public class MoBends
 
     public void onRefresh()
     {
-        this.benderProvider.refresh();
-
-        // Toggling the wolf bender ON/OFF
-        this.wolfAnimated = !this.wolfAnimated;
-//        this.benderProvider.wolfBender.setAnimate(wolfAnimated);
-
         Core core = new Core();
         ReportOutput reportOutput = new ReportOutput();
         ErrorReportRegistry reportRegistry = new ErrorReportRegistry(reportOutput);
 
         core.registerErrors(reportRegistry);
         reportRegistry.report(new InvalidPackFormatException("Bruh", "Waddup"));
-    }
-
-    @SubscribeEvent
-    public void setup(final FMLCommonSetupEvent event)
-    {
-        LOGGER.info("PRE-INIT PHASE");
     }
 
     @SubscribeEvent
@@ -121,46 +110,54 @@ public class MoBends
 
         IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
 
-        BenderProvider benderProvider = this.benderProvider;
+        BenderProvider<SerialContext> benderProvider = this.benderProvider;
 
-        resourceManager.registerReloadListener(new BinaryResourceManager("bendsanimators", ".bends"));
-
-        resourceManager.registerReloadListener(new ReloadListener() {
+        resourceManager.registerReloadListener(new BinaryPolyReloadListener<AnimatorTemplate, SerialContext>(serialContext, AnimatorTemplate::deserialize, "bendsanimators", ".bends") {
             @Override
-            protected Object prepare(IResourceManager innerManager, IProfiler profiler)
+            protected void apply(Collection<ParsedElement<AnimatorTemplate>> animators, IResourceManager innerResourceManager, IProfiler profiler)
             {
-                return null;
+                benderProvider.clear();
+
+                for (ParsedElement<AnimatorTemplate> parsed : animators)
+                {
+                    benderProvider.registerAnimator(Registry.ENTITY_TYPE.get(parsed.relativeLocation), parsed.data);
+                }
             }
 
             @Override
-            protected void apply(Object preparedObject, IResourceManager innerManager, IProfiler profiler)
+            protected void onResourceIgnored(ResourceLocation location, Exception exception)
             {
-                benderProvider.refresh();
-                LOGGER.log(Level.ALL, "WADDUP");
+                LOGGER.error(String.format("Couldn't load animator from '%s'.", location));
+                exception.printStackTrace();
             }
         });
-    }
 
-    @SubscribeEvent
-    public void enqueueIMC(final InterModEnqueueEvent event)
-    {
-        // some example code to dispatch IMC to another mod
-        InterModComms.sendTo(ModStatics.MODID, "helloworld", () -> { LOGGER.info("Hello world from the MDK"); return "Hello world";});
-    }
+        resourceManager.registerReloadListener(new JsonPolyReloadListener<MutationInstructions>(new Gson(), "bendsmutators", MutationInstructions.class) {
+            @Override
+            protected void apply(Collection<ParsedElement<MutationInstructions>> parsedElements, IResourceManager innerResourceManager, IProfiler profiler)
+            {
+                for (ParsedElement<MutationInstructions> parsed : parsedElements)
+                {
+                    EntityType<?> entityType = Registry.ENTITY_TYPE.get(parsed.relativeLocation);
+                    benderProvider.registerMutator(entityType, parsed.data);
 
-    @SubscribeEvent
-    public void processIMC(final InterModProcessEvent event)
-    {
-        // some example code to receive and process InterModComms from other mods
-        LOGGER.info("Got IMC {}", event.getIMCStream().
-                map(m->m.getMessageSupplier().get()).
-                collect(Collectors.toList()));
-    }
+                    // Finalizing the entity.
+                    try
+                    {
+                        benderProvider.finalizeEntity(entityType);
+                    }
+                    catch (ResourceException e)
+                    {
+                        LOGGER.error(String.format("Couldn't finalize entity '%s'. Reason: %s", parsed.relativeLocation, e.getMessage()));
+                    }
+                }
+            }
 
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event)
-    {
-        // do something when the server starts
-        LOGGER.info("HELLO from server starting");
+            @Override
+            protected void onResourceIgnored(ResourceLocation location, Exception exception)
+            {
+                LOGGER.error(String.format("Couldn't load mutator from '%s'. Reason: %s", location, exception.getMessage()));
+            }
+        });
     }
 }

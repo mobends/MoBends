@@ -1,5 +1,8 @@
 package goblinbob.mobends.core.kumo.keyframe;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.animation.keyframe.ArmatureMask;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
@@ -7,9 +10,6 @@ import goblinbob.mobends.core.kumo.ILayerState;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -58,7 +58,7 @@ public class KeyframeLayerTemplate extends LayerTemplate
         return new KeyframeLayerState<>(this, context);
     }
 
-    public static <D extends IEntityData> LayerTemplate deserialize(ISerialContext<D> context, String type, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> LayerTemplate deserialize(C context, String type, ISerialInput in) throws IOException
     {
         int entryNode = in.readInt();
         ArmatureMask mask = SerialHelper.deserializeNullable(context, ArmatureMask::deserialize, in);

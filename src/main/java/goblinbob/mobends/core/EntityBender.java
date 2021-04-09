@@ -3,28 +3,30 @@ package goblinbob.mobends.core;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.mutation.PuppeteerException;
 
-public class EntityBender<C>
+import javax.annotation.Nonnull;
+
+public class EntityBender<C, R extends IBenderResources>
 {
-    private IPuppeteerRepository<C> puppeteerRepository;
+    private IPuppeteerRepository<C, R> puppeteerRepository;
 
     protected final String key;
     protected final String unlocalizedName;
-    public final Class<?> entityClass;
-    private final IBenderResources benderResources;
+    private final R benderResources;
 
     private boolean animate = true;
 
-    public EntityBender(IPuppeteerRepository<C> puppeteerRepository, String key, String unlocalizedName, Class<?> entityClass, IBenderResources benderResources)
+    public EntityBender(IPuppeteerRepository<C, R> puppeteerRepository, String key, String unlocalizedName, @Nonnull R benderResources)
     {
         this.puppeteerRepository = puppeteerRepository;
 
-        if (entityClass == null)
-            throw new NullPointerException("The entity class cannot be null.");
-
         this.key = key;
         this.unlocalizedName = unlocalizedName;
-        this.entityClass = entityClass;
         this.benderResources = benderResources;
+    }
+
+    public String getKey()
+    {
+        return key;
     }
 
     public boolean isAnimated()
@@ -32,14 +34,14 @@ public class EntityBender<C>
         return animate;
     }
 
+    public R getBenderResources()
+    {
+        return benderResources;
+    }
+
     public void setAnimate(boolean animate)
     {
         this.animate = animate;
-    }
-
-    public IBenderResources getBenderResources()
-    {
-        return benderResources;
     }
 
     /**

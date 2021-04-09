@@ -1,14 +1,14 @@
 package goblinbob.mobends.core.kumo.driver;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ILayerState;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
 import goblinbob.mobends.core.kumo.driver.node.DriverNodeTemplate;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -53,7 +53,7 @@ public class DriverLayerTemplate extends LayerTemplate
         return new DriverLayerState<>(this, context);
     }
 
-    public static <D extends IEntityData> LayerTemplate deserialize(ISerialContext<D> context, String type, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> LayerTemplate deserialize(C context, String type, ISerialInput in) throws IOException
     {
         int entryNode = in.readInt();
         DriverNodeTemplate[] nodes = SerialHelper.deserializeArray(context, DriverNodeTemplate::deserializeGeneral, new DriverNodeTemplate[0], in);

@@ -1,13 +1,13 @@
 package goblinbob.mobends.core.kumo.driver.instruction;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.ISerializable;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.ISerializable;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.io.IOException;
 
@@ -23,7 +23,7 @@ public abstract class InstructionTemplate implements ISerializable
         SerialHelper.serializeEnum(this.type, out);
     }
 
-    public static <D extends IEntityData> InstructionTemplate deserializeGeneral(ISerialContext<D> context, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> InstructionTemplate deserializeGeneral(C context, ISerialInput in) throws IOException
     {
         InstructionType instructionType = SerialHelper.deserializeEnum(InstructionType.values(), in);
 

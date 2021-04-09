@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.kumo.trigger;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
 
 import java.io.IOException;
 
@@ -75,7 +75,7 @@ public class StateCondition<D extends IEntityData> implements ITriggerCondition<
             out.writeByte((byte) state.ordinal());
         }
 
-        public static <D extends IEntityData> Template deserialize(ISerialContext<D> context, String type, ISerialInput in) throws IOException
+        public static <D extends IEntityData, C extends ISerialContext<C, D>> Template deserialize(C context, String type, ISerialInput in) throws IOException
         {
             return new Template(type, State.values()[in.readByte()]);
         }

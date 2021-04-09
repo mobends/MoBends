@@ -1,9 +1,9 @@
 package goblinbob.mobends.core.kumo;
 
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.ISerializable;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.ISerializable;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.util.List;
 

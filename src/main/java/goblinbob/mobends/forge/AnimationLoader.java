@@ -1,7 +1,7 @@
 package goblinbob.mobends.forge;
 
+import goblinbob.bendslib.serial.StreamSerialInput;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.serial.StreamSerialInput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 

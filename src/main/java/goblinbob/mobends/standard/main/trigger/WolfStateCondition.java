@@ -1,5 +1,7 @@
 package goblinbob.mobends.standard.main.trigger;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
@@ -7,8 +9,6 @@ import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.trigger.ITriggerCondition;
 import goblinbob.mobends.core.kumo.trigger.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.trigger.TriggerConditionTemplate;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
 import goblinbob.mobends.forge.EntityData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.WolfEntity;
@@ -82,7 +82,7 @@ public class WolfStateCondition implements ITriggerCondition<EntityData>
             return (ITriggerCondition<D>) new WolfStateCondition(this);
         }
 
-        public static <D extends IEntityData> Template deserialize(ISerialContext<D> context, String type, ISerialInput in) throws IOException
+        public static <D extends IEntityData, C extends ISerialContext<C, D>> Template deserialize(C context, String type, ISerialInput in) throws IOException
         {
             return new Template(type, State.values()[in.readByte()]);
         }

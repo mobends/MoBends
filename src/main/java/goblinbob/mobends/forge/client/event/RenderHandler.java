@@ -5,19 +5,22 @@ import goblinbob.mobends.core.IEntityBenderProvider;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.kumo.driver.IDriverFunctionProvider;
 import goblinbob.mobends.core.mutation.PuppeteerException;
+import goblinbob.mobends.forge.BenderResources;
 import goblinbob.mobends.forge.EntityData;
 import goblinbob.mobends.forge.ForgeMutationContext;
 import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class RenderHandler
 {
-    IEntityBenderProvider<ForgeMutationContext> benderProvider;
+    IEntityBenderProvider<ForgeMutationContext, BenderResources> benderProvider;
     IDriverFunctionProvider<EntityData> driverFunctionProvider;
 
-    public RenderHandler(IEntityBenderProvider<ForgeMutationContext> benderProvider, IDriverFunctionProvider<EntityData> driverFunctionProvider)
+    public RenderHandler(IEntityBenderProvider<ForgeMutationContext, BenderResources> benderProvider, IDriverFunctionProvider<EntityData> driverFunctionProvider)
     {
         this.benderProvider = benderProvider;
         this.driverFunctionProvider = driverFunctionProvider;
@@ -28,7 +31,10 @@ public class RenderHandler
     {
         final LivingEntity living = event.getEntity();
 
-        final EntityBender<ForgeMutationContext> bender = this.benderProvider.getBenderForEntity(living);
+        EntityType<?> type = living.getType();
+        ResourceLocation registryName = type.getRegistryName();
+
+        final EntityBender<ForgeMutationContext, BenderResources> bender = this.benderProvider.getBenderForEntity(living);
         if (bender == null)
             return;
 
@@ -54,7 +60,7 @@ public class RenderHandler
     {
         final LivingEntity living = event.getEntity();
 
-        final EntityBender<ForgeMutationContext> bender = benderProvider.getBenderForEntity(living);
+        final EntityBender<ForgeMutationContext, BenderResources> bender = benderProvider.getBenderForEntity(living);
         if (bender == null)
             return;
 

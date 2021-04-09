@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class DataRepository implements IEntityDataRepository<ForgeMutationContext>
+public class DataRepository implements IEntityDataRepository<ForgeMutationContext, BenderResources>
 {
     private final Map<Integer, EntityData> entryMap = new HashMap<>();
 
     @Override
-    public EntityData getOrMakeData(ForgeMutationContext context, EntityBender<ForgeMutationContext> bender)
+    public EntityData getOrMakeData(ForgeMutationContext context, EntityBender<ForgeMutationContext, BenderResources> bender)
     {
         LivingEntity entity = context.getEntity();
         EntityData data = entryMap.get(entity.getId());

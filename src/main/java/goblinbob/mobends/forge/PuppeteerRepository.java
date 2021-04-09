@@ -1,6 +1,9 @@
 package goblinbob.mobends.forge;
 
-import goblinbob.mobends.core.*;
+import goblinbob.mobends.core.EntityBender;
+import goblinbob.mobends.core.IEntityDataRepository;
+import goblinbob.mobends.core.IPuppeteer;
+import goblinbob.mobends.core.IPuppeteerRepository;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 
@@ -9,19 +12,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class PuppeteerRepository implements IPuppeteerRepository<ForgeMutationContext>, IRefreshable
+public class PuppeteerRepository implements IPuppeteerRepository<ForgeMutationContext, BenderResources>
 {
-    private final IEntityDataRepository<ForgeMutationContext> dataRepository;
+    private final IEntityDataRepository<ForgeMutationContext, BenderResources> dataRepository;
     private final Map<LivingRenderer<?, ?>, ForgePuppeteer<?, ?, ?>> puppeteerMap = new HashMap<>();
     private final Set<LivingRenderer<?, ?>> skippedRenderers = new HashSet<>();
 
-    public PuppeteerRepository(IEntityDataRepository<ForgeMutationContext> dataRepository)
+    public PuppeteerRepository(IEntityDataRepository<ForgeMutationContext, BenderResources> dataRepository)
     {
         this.dataRepository = dataRepository;
     }
 
-    @Override
-    public void refresh()
+    public void clear()
     {
         for (ForgePuppeteer<?, ?, ?> puppeteer : puppeteerMap.values())
         {
@@ -33,7 +35,7 @@ public class PuppeteerRepository implements IPuppeteerRepository<ForgeMutationCo
     }
 
     @Override
-    public IPuppeteer<ForgeMutationContext> getOrCreatePuppeteer(ForgeMutationContext context, EntityBender<ForgeMutationContext> bender) throws InvalidMutationException
+    public IPuppeteer<ForgeMutationContext> getOrCreatePuppeteer(ForgeMutationContext context, EntityBender<ForgeMutationContext, BenderResources> bender) throws InvalidMutationException
     {
         LivingRenderer<?, ?> renderer = context.getRenderer();
 
@@ -75,7 +77,7 @@ public class PuppeteerRepository implements IPuppeteerRepository<ForgeMutationCo
     }
 
     @Override
-    public void disposePuppeteer(ForgeMutationContext context, EntityBender<ForgeMutationContext> bender)
+    public void disposePuppeteer(ForgeMutationContext context, EntityBender<ForgeMutationContext, BenderResources> bender)
     {
         LivingRenderer<?, ?> renderer = context.getRenderer();
 

@@ -1,14 +1,14 @@
 package goblinbob.mobends.core.kumo.driver.expression;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.IKumoContext;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.driver.IDriverBooleanFunction;
 import goblinbob.mobends.core.kumo.driver.ParamStack;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,7 +61,7 @@ public class BooleanFunctionCall<D extends IEntityData> implements IExpression<D
             SerialHelper.serializeList(parameters, out);
         }
 
-        public static <D extends IEntityData> Template deserialize(ISerialContext<D> context, ISerialInput in) throws IOException
+        public static <D extends IEntityData, C extends ISerialContext<C, D>> Template deserialize(C context, ISerialInput in) throws IOException
         {
             String functionName = in.readString();
 

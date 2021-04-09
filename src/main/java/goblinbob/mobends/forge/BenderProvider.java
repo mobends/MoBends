@@ -2,71 +2,95 @@ package goblinbob.mobends.forge;
 
 import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.IEntityBenderProvider;
-import goblinbob.mobends.core.IRefreshable;
+import goblinbob.mobends.core.exceptions.ResourceException;
+import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.ISerialContext;
+import goblinbob.mobends.core.mutation.MutationInstructions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.util.ResourceLocation;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BenderProvider implements IEntityBenderProvider<ForgeMutationContext>, IRefreshable
+public class BenderProvider<C extends ISerialContext<C, EntityData>> implements IEntityBenderProvider<ForgeMutationContext, BenderResources>
 {
-    private final ISerialContext<EntityData> serialContext;
+    private final C serialContext;
     private final DataRepository dataRepository;
     private final PuppeteerRepository puppeteerRepository;
 
-    private final Map<EntityType<?>, EntityBender<ForgeMutationContext>> benderMap = new HashMap<>();
+    private final Map<ResourceLocation, EntityBender<ForgeMutationContext, BenderResources>> benderMap = new HashMap<>();
 
-    public BenderProvider(ISerialContext<EntityData> serialContext)
+    public BenderProvider(C serialContext)
     {
         this.serialContext = serialContext;
         this.dataRepository = new DataRepository();
         this.puppeteerRepository = new PuppeteerRepository(dataRepository);
     }
 
-    public ISerialContext<EntityData> getSerialContext()
+    public ISerialContext<?, EntityData> getSerialContext()
     {
         return serialContext;
     }
 
-    @Override
-    public void refresh()
+    public void clear()
     {
-        this.puppeteerRepository.refresh();
-
-        for (EntityBender<ForgeMutationContext> bender : benderMap.values())
-        {
-            try
-            {
-                bender.getBenderResources().loadResources(serialContext);
-            }
-            catch (IOException e)
-            {
-                // TODO Add better error handling.
-                e.printStackTrace();
-            }
-        }
+        this.puppeteerRepository.clear();
+        this.benderMap.values().forEach(b -> b.getBenderResources().clear());
     }
 
     @Override
-    public EntityBender<ForgeMutationContext> getBenderForEntity(LivingEntity entity)
+    public EntityBender<ForgeMutationContext, BenderResources> getBenderForEntity(LivingEntity entity)
     {
-        return this.benderMap.get(entity.getType());
+        return this.benderMap.get(entity.getType().getRegistryName());
     }
 
-    public <T extends LivingEntity> EntityBender<ForgeMutationContext> registerEntity(EntityType<T> entityType, String key, String unlocalizedName, ResourceLocation instructionsPath, ResourceLocation animatorPath)
+    private <T extends LivingEntity> EntityBender<ForgeMutationContext, BenderResources> registerEntity(EntityType<?> entityType)
     {
-        return this.benderMap.put(entityType, new EntityBender<>(
+        ResourceLocation registryName = entityType.getRegistryName();
+
+        return this.benderMap.put(registryName, new EntityBender<>(
                 this.puppeteerRepository,
-                key,
-                unlocalizedName,
-                WolfEntity.class,
-                new BenderResources(instructionsPath, animatorPath)
+                registryName.toString(),
+                entityType.toString(),
+                new BenderResources()
         ));
+    }
+
+    public <T extends LivingEntity> void registerMutator(EntityType<?> entityType, MutationInstructions mutationInstructions)
+    {
+        ResourceLocation registryName = entityType.getRegistryName();
+
+        if (!this.benderMap.containsKey(registryName))
+        {
+            registerEntity(entityType);
+        }
+
+        this.benderMap.get(registryName).getBenderResources().addPartialMutator(mutationInstructions);
+    }
+
+    public <T extends LivingEntity> void registerAnimator(EntityType<?> entityType, AnimatorTemplate animatorTemplate)
+    {
+        ResourceLocation registryName = entityType.getRegistryName();
+
+        if (!this.benderMap.containsKey(registryName))
+        {
+            registerEntity(entityType);
+        }
+
+        this.benderMap.get(registryName).getBenderResources().addPartialAnimator(animatorTemplate);
+    }
+
+    public void finalizeEntity(EntityType<?> entityType) throws ResourceException
+    {
+        ResourceLocation registryName = entityType.getRegistryName();
+
+        if (!this.benderMap.containsKey(registryName))
+        {
+            throw new ResourceException("Cannot finalize an entity that hasn't been registered yet.");
+        }
+
+        this.benderMap.get(registryName).getBenderResources().mergePartials();
     }
 
     public void updateDataOnClientTick()

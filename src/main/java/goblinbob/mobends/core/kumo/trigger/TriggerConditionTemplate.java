@@ -1,12 +1,12 @@
 package goblinbob.mobends.core.kumo.trigger;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.ISerializable;
+import goblinbob.bendslib.serial.ISubTypeDeserializer;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.ISerializable;
-import goblinbob.mobends.core.serial.ISubTypeDeserializer;
 
 import java.io.IOException;
 
@@ -32,11 +32,11 @@ public abstract class TriggerConditionTemplate implements ISerializable
 
     public abstract <D extends IEntityData> ITriggerCondition<D> instantiate(IKumoInstancingContext<D> context);
 
-    public static <D extends IEntityData> TriggerConditionTemplate deserializeGeneral(ISerialContext<D> context, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> TriggerConditionTemplate deserializeGeneral(C context, ISerialInput in) throws IOException
     {
         String type = in.readString();
 
-        ISubTypeDeserializer<TriggerConditionTemplate, D> deserializer = context.getTriggerConditionDeserializer();
+        ISubTypeDeserializer<TriggerConditionTemplate, C> deserializer = context.getTriggerConditionDeserializer();
         return deserializer.deserialize(context, type, in);
     }
 }

@@ -44,3 +44,10 @@ It makes players seem alive, and adds epic sword animations!
     versionRange="[1.16.1,)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.mobends]]
+    modId="bendslib"
+    mandatory=true
+    versionRange="[0.1.0,)"
+    ordering="AFTER"
+    side="BOTH"

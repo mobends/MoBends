@@ -1,10 +1,10 @@
 package goblinbob.mobends.core.kumo;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.ISerializable;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.ISerializable;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class AnimatorTemplate implements ISerializable
         SerialHelper.serializeArray(layers, out);
     }
 
-    public static <D extends IEntityData> AnimatorTemplate deserialize(ISerialContext<D> context, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> AnimatorTemplate deserialize(C context, ISerialInput in) throws IOException
     {
         AnimatorTemplate animatorTemplate = new AnimatorTemplate();
 

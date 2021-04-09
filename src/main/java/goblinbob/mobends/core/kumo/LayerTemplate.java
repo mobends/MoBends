@@ -1,10 +1,10 @@
 package goblinbob.mobends.core.kumo;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.ISerializable;
+import goblinbob.bendslib.serial.ISubTypeDeserializer;
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.ISerializable;
-import goblinbob.mobends.core.serial.ISubTypeDeserializer;
 
 import java.io.IOException;
 
@@ -30,11 +30,11 @@ public abstract class LayerTemplate implements ISerializable
         out.writeString(type);
     }
 
-    public static <D extends IEntityData> LayerTemplate deserializeGeneral(ISerialContext<D> context, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> LayerTemplate deserializeGeneral(C context, ISerialInput in) throws IOException
     {
         String type = in.readString();
 
-        ISubTypeDeserializer<LayerTemplate, D> deserializer = context.getLayerDeserializer();
+        ISubTypeDeserializer<LayerTemplate, C> deserializer = context.getLayerDeserializer();
         return deserializer.deserialize(context, type, in);
     }
 }

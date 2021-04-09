@@ -1,26 +1,39 @@
 package goblinbob.mobends.forge;
 
 import goblinbob.mobends.core.IBenderResources;
-import goblinbob.mobends.core.data.IEntityData;
+import goblinbob.mobends.core.exceptions.ResourceException;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
-import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.mutation.MutationInstructions;
-import net.minecraft.util.ResourceLocation;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BenderResources implements IBenderResources
 {
-    private final ResourceLocation mutatorLocation;
-    private final ResourceLocation animatorLocation;
-
     private MutationInstructions mutationInstructions;
     private AnimatorTemplate animatorTemplate;
 
-    public BenderResources(ResourceLocation mutatorLocation, ResourceLocation animatorLocation)
+    private List<MutationInstructions> partialMutators = new ArrayList<>();
+    private List<AnimatorTemplate> partialAnimators = new ArrayList<>();
+
+    public BenderResources()
     {
-        this.mutatorLocation = mutatorLocation;
-        this.animatorLocation = animatorLocation;
+    }
+
+    public void clear()
+    {
+        this.partialMutators.clear();
+        this.partialAnimators.clear();
+    }
+
+    public void addPartialMutator(MutationInstructions mutationInstructions)
+    {
+        this.partialMutators.add(mutationInstructions);
+    }
+
+    public void addPartialAnimator(AnimatorTemplate animatorTemplate)
+    {
+        this.partialAnimators.add(animatorTemplate);
     }
 
     @Override
@@ -35,10 +48,15 @@ public class BenderResources implements IBenderResources
         return animatorTemplate;
     }
 
-    @Override
-    public <D extends IEntityData> void loadResources(ISerialContext<D> serialContext) throws IOException
+    public void mergePartials() throws ResourceException
     {
-        this.mutationInstructions = GsonResources.get(this.mutatorLocation, MutationInstructions.class);
-        this.animatorTemplate = AnimatorTemplate.deserialize(serialContext, BinaryResources.getStream(this.animatorLocation));
+        if (this.partialMutators.size() == 0)
+            throw new ResourceException("No mutation instructions defined.");
+
+        if (this.partialAnimators.size() == 0)
+            throw new ResourceException("No animators defined.");
+
+        this.mutationInstructions = this.partialMutators.get(0);
+        this.animatorTemplate = this.partialAnimators.get(0);
     }
 }

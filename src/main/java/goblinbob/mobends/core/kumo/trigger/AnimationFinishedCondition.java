@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.kumo.trigger;
 
+import goblinbob.bendslib.serial.ISerialInput;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.keyframe.node.IKeyframeNodeState;
-import goblinbob.mobends.core.serial.ISerialInput;
 
 /**
  * @author Iwo Plaza
@@ -46,7 +46,7 @@ public class AnimationFinishedCondition<D extends IEntityData> implements ITrigg
             return new AnimationFinishedCondition<>();
         }
 
-        public static <D extends IEntityData> Template deserialize(ISerialContext<D> context, String type, ISerialInput in)
+        public static <D extends IEntityData, C extends ISerialContext<C, D>> Template deserialize(C context, String type, ISerialInput in)
         {
             return new Template(type);
         }

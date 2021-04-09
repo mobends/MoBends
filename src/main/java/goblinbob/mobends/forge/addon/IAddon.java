@@ -1,7 +1,5 @@
 package goblinbob.mobends.forge.addon;
 
-import goblinbob.mobends.forge.addon.IAddonContentRegistry;
-
 /**
  * Classes that implement this interface can be
  * registered as an addon.

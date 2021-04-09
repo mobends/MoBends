@@ -31,12 +31,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationContext>, IRefreshable
+public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationContext, BenderResources>, IRefreshable
 {
     private final DataRepository dataRepository;
     private final PuppeteerRepository puppeteerRepository;
 
-    public EntityBender<ForgeMutationContext> wolfBender;
+    public EntityBender<ForgeMutationContext, BenderResources> wolfBender;
 
     public TestBenderProvider()
     {
@@ -172,7 +172,7 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
     @Override
     public void refresh()
     {
-        this.puppeteerRepository.refresh();
+        this.puppeteerRepository.clear();
         try
         {
             this.init();
@@ -184,7 +184,7 @@ public class TestBenderProvider implements IEntityBenderProvider<ForgeMutationCo
     }
 
     @Override
-    public EntityBender<ForgeMutationContext> getBenderForEntity(LivingEntity entity)
+    public EntityBender<ForgeMutationContext, BenderResources> getBenderForEntity(LivingEntity entity)
     {
         if (entity instanceof WolfEntity)
         {

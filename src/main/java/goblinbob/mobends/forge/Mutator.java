@@ -1,7 +1,6 @@
 package goblinbob.mobends.forge;
 
 import goblinbob.mobends.core.EntityBender;
-import goblinbob.mobends.core.ModelPartTransform;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.exceptions.MissingPartException;
 import goblinbob.mobends.core.exceptions.UnmappedPartException;
@@ -15,13 +14,13 @@ import java.util.Map;
 
 public class Mutator
 {
-    private final EntityBender<ForgeMutationContext> bender;
+    private final EntityBender<ForgeMutationContext, BenderResources> bender;
     private final EntityModel<?> model;
 
     private final VanillaContainer vanillaContainer = new VanillaContainer();
     private final Map<String, IForgeModelPart> partMap = new HashMap<>();
 
-    public Mutator(EntityBender<ForgeMutationContext> bender, EntityModel<?> model)
+    public Mutator(EntityBender<ForgeMutationContext, BenderResources> bender, EntityModel<?> model)
     {
         this.bender = bender;
         this.model = model;
@@ -278,7 +277,7 @@ public class Mutator
         return part;
     }
 
-    private static Field fetchField(EntityBender<ForgeMutationContext> bender, Class<?> modelClass, String partName, String fieldName, String obfuscatedFieldName) throws MissingPartException
+    private static Field fetchField(EntityBender<ForgeMutationContext, BenderResources> bender, Class<?> modelClass, String partName, String fieldName, String obfuscatedFieldName) throws MissingPartException
     {
         Field field = null;
         // Trying to fetch the obfuscated field.

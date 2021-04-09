@@ -19,15 +19,15 @@ import java.util.Map;
 
 public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M extends EntityModel<E>> implements IPuppeteer<ForgeMutationContext>, IDisposable
 {
-    private final EntityBender<ForgeMutationContext> bender;
+    private final EntityBender<ForgeMutationContext, BenderResources> bender;
     private final LivingRenderer<E, M> renderer;
     private final M model;
-    private final IEntityDataRepository<ForgeMutationContext> dataRepository;
+    private final IEntityDataRepository<ForgeMutationContext, BenderResources> dataRepository;
 
     protected List<LayerRenderer<E, M>> layerRenderers;
     private Mutator mutator;
 
-    private ForgePuppeteer(EntityBender<ForgeMutationContext> bender, LivingRenderer<E, M> renderer, IEntityDataRepository<ForgeMutationContext> dataRepository)
+    private ForgePuppeteer(EntityBender<ForgeMutationContext, BenderResources> bender, LivingRenderer<E, M> renderer, IEntityDataRepository<ForgeMutationContext, BenderResources> dataRepository)
     {
         this.bender = bender;
         this.renderer = renderer;
@@ -201,7 +201,7 @@ public class ForgePuppeteer<D extends EntityData, E extends LivingEntity, M exte
         return false;
     }
 
-    public static <D extends EntityData, E extends LivingEntity, M extends EntityModel<E>> ForgePuppeteer<D, E, M> create(ForgeMutationContext context, EntityBender<ForgeMutationContext> bender, IEntityDataRepository<ForgeMutationContext> dataRepository) throws InvalidMutationException
+    public static <D extends EntityData, E extends LivingEntity, M extends EntityModel<E>> ForgePuppeteer<D, E, M> create(ForgeMutationContext context, EntityBender<ForgeMutationContext, BenderResources> bender, IEntityDataRepository<ForgeMutationContext, BenderResources> dataRepository) throws InvalidMutationException
     {
         //noinspection unchecked
         ForgePuppeteer<D, E, M> puppeteer = new ForgePuppeteer<>(bender, (LivingRenderer<E, M>) context.getRenderer(), dataRepository);

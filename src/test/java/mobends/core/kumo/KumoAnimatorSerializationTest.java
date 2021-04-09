@@ -1,5 +1,6 @@
 package mobends.core.kumo;
 
+import bendslib.mock.MockSerialQueue;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
@@ -7,8 +8,8 @@ import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
 import goblinbob.mobends.forge.EntityData;
+import goblinbob.mobends.forge.SerialContext;
 import mobends.mock.MockSerialContext;
-import mobends.mock.MockSerialQueue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ import static org.junit.Assert.fail;
 public class KumoAnimatorSerializationTest
 {
 
-    ISerialContext<EntityData> createMockSerialContext()
+    MockSerialContext createMockSerialContext()
     {
         MockSerialContext context = new MockSerialContext();
         context.layerRegistry.register("core:keyframe", KeyframeLayerTemplate::deserialize);
@@ -65,7 +66,7 @@ public class KumoAnimatorSerializationTest
     @Test
     public void keyframeNodeTemplate()
     {
-        ISerialContext<EntityData> context = createMockSerialContext();
+        MockSerialContext context = createMockSerialContext();
         KeyframeNodeTemplate original = createMockKeyframeNodeTemplate();
 
         original.serialize(queue);
@@ -85,7 +86,7 @@ public class KumoAnimatorSerializationTest
     @Test
     public void keyframeLayerTemplate()
     {
-        ISerialContext<EntityData> context = createMockSerialContext();
+        MockSerialContext context = createMockSerialContext();
         LayerTemplate original = createMockLayerTemplate();
 
         original.serialize(queue);
@@ -109,7 +110,7 @@ public class KumoAnimatorSerializationTest
 
         animatorTemplate.serialize(queue);
 
-        ISerialContext<EntityData> context = createMockSerialContext();
+        MockSerialContext context = createMockSerialContext();
 
         try
         {

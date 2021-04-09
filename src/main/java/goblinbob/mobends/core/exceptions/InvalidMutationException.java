@@ -4,15 +4,15 @@ import goblinbob.mobends.core.EntityBender;
 
 public class InvalidMutationException extends RuntimeException
 {
-    private EntityBender<?> bender;
+    private EntityBender<?, ?> bender;
 
-    public InvalidMutationException(String message, EntityBender<?> bender)
+    public InvalidMutationException(String message, EntityBender<?, ?> bender)
     {
         super(message);
         this.bender = bender;
     }
 
-    public EntityBender<?> getBender()
+    public EntityBender<?, ?> getBender()
     {
         return bender;
     }

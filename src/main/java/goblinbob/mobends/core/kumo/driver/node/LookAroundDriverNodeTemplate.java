@@ -1,13 +1,13 @@
 package goblinbob.mobends.core.kumo.driver.node;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.INodeState;
 import goblinbob.mobends.core.kumo.ISerialContext;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,7 +36,7 @@ public class LookAroundDriverNodeTemplate extends DriverNodeTemplate
         out.writeString(this.headPartName);
     }
 
-    public static <D extends IEntityData> LookAroundDriverNodeTemplate deserialize(ISerialContext<D> context, String type, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> LookAroundDriverNodeTemplate deserialize(C context, String type, ISerialInput in) throws IOException
     {
         List<ConnectionTemplate> connections = SerialHelper.deserializeList(context, ConnectionTemplate::deserialize, in);
 

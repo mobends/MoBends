@@ -1,13 +1,13 @@
 package goblinbob.mobends.forge.trigger;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.trigger.ITriggerCondition;
 import goblinbob.mobends.core.kumo.trigger.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.trigger.TriggerConditionTemplate;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
 import goblinbob.mobends.forge.EntityData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -72,7 +72,7 @@ public class EquipmentNameCondition implements ITriggerCondition<EntityData>
             out.writeByte((byte) slot.ordinal());
         }
 
-        public static Template deserialize(ISerialContext<EntityData> context, String type, ISerialInput in) throws IOException
+        public static <D extends IEntityData, C extends ISerialContext<C, D>> Template deserialize(C context, String type, ISerialInput in) throws IOException
         {
             Template template = new Template(type);
 

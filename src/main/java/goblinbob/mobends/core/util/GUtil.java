@@ -3,7 +3,6 @@ package goblinbob.mobends.core.util;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.QuaternionUtils;
 import goblinbob.mobends.core.math.vector.IVec3f;
-import net.minecraft.client.gui.FontRenderer;
 
 import java.io.*;
 import java.util.ArrayList;

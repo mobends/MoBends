@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.kumo;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.ISerializable;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
 import goblinbob.mobends.core.kumo.trigger.TriggerConditionTemplate;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.ISerializable;
 
 import java.io.IOException;
 import java.util.List;
@@ -77,7 +77,7 @@ public class ConnectionTemplate implements ISerializable
         this.triggerCondition.serialize(out);
     }
 
-    public static <D extends IEntityData> ConnectionTemplate deserialize(ISerialContext<D> context, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> ConnectionTemplate deserialize(C context, ISerialInput in) throws IOException
     {
         return new ConnectionTemplate(
                 in.readInt(),

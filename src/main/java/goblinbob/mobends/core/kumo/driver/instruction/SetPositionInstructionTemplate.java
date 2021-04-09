@@ -1,12 +1,12 @@
 package goblinbob.mobends.core.kumo.driver.instruction;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.driver.expression.ExpressionTemplate;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.SerialHelper;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ public class SetPositionInstructionTemplate extends InstructionTemplate
         return new SetPositionInstruction<>(this, context);
     }
 
-    public static <D extends IEntityData> SetPositionInstructionTemplate deserialize(ISerialContext<D> context, ISerialInput in) throws IOException
+    public static <D extends IEntityData, C extends ISerialContext<C, D>> SetPositionInstructionTemplate deserialize(C context, ISerialInput in) throws IOException
     {
         String partName = in.readString();
 

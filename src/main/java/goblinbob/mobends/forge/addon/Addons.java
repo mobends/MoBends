@@ -1,10 +1,8 @@
 package goblinbob.mobends.forge.addon;
 
-import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.forge.BenderProvider;
-import goblinbob.mobends.forge.ForgeMutationContext;
+import goblinbob.mobends.forge.SerialContext;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,10 +17,10 @@ public class Addons
 {
     private static final Addons INSTANCE = new Addons();
 
-    private BenderProvider benderProvider;
+    private BenderProvider<SerialContext> benderProvider;
     private final List<IAddon> addons = new ArrayList<>();
 
-    public static void setBenderProvider(BenderProvider benderProvider)
+    public static void setBenderProvider(BenderProvider<SerialContext> benderProvider)
     {
         INSTANCE.benderProvider = benderProvider;
     }
@@ -36,21 +34,6 @@ public class Addons
 
         AddonContentRegistry registry = new AddonContentRegistry(modId);
         addon.registerContent(registry);
-
-        // Evaluating the registered content.
-        for (AddonContentRegistry.BenderEntry<?> entry : registry.getRegisteredBenders())
-        {
-            EntityBender<ForgeMutationContext> bender = INSTANCE.benderProvider.registerEntity(entry.entityType, entry.key, entry.unlocalizedName, entry.mutatorPath, entry.animatorPath);
-            try
-            {
-                bender.getBenderResources().loadResources(INSTANCE.benderProvider.getSerialContext());
-            }
-            catch (IOException e)
-            {
-                // TODO Add more sophisticated error handling.
-                e.printStackTrace();
-            }
-        }
     }
 
     public static Iterable<IAddon> getRegistered()

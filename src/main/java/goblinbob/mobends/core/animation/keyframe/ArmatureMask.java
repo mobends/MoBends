@@ -1,10 +1,10 @@
 package goblinbob.mobends.core.animation.keyframe;
 
+import goblinbob.bendslib.serial.ISerialInput;
+import goblinbob.bendslib.serial.ISerialOutput;
+import goblinbob.bendslib.serial.ISerializable;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.ISerialContext;
-import goblinbob.mobends.core.serial.ISerialInput;
-import goblinbob.mobends.core.serial.ISerialOutput;
-import goblinbob.mobends.core.serial.ISerializable;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -60,7 +60,7 @@ public class ArmatureMask implements ISerializable
 		out.writeByte((byte) this.mode.ordinal());
 	}
 
-	public static <D extends IEntityData> ArmatureMask deserialize(ISerialContext<D> context, ISerialInput in) throws IOException
+	public static <D extends IEntityData, C extends ISerialContext<C, D>> ArmatureMask deserialize(C context, ISerialInput in) throws IOException
 	{
 		Mode mode = Mode.values()[in.readByte()];
 
