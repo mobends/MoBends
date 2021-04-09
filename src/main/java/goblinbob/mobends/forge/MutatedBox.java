@@ -1,7 +1,7 @@
 package goblinbob.mobends.forge;
 
-import goblinbob.mobends.core.math.physics.AABBox;
-import goblinbob.mobends.core.math.vector.IVec3fRead;
+import goblinbob.bendslib.math.physics.AABBox;
+import goblinbob.bendslib.math.vector.IVec3fRead;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.model.ModelRenderer.PositionTextureVertex;
 import net.minecraft.client.renderer.model.ModelRenderer.TexturedQuad;

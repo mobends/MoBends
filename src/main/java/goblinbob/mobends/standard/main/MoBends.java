@@ -19,7 +19,6 @@ import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.*;
 import goblinbob.mobends.core.mutation.MutationInstructions;
 import goblinbob.mobends.forge.*;
-import goblinbob.mobends.forge.addon.AddonHelper;
 import goblinbob.mobends.forge.addon.Addons;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
 import goblinbob.mobends.forge.client.event.RenderHandler;
@@ -56,7 +55,7 @@ public class MoBends
     {
         this.serialContext = new SerialContext();
         this.benderProvider = new BenderProvider<>(this.serialContext);
-        this.keyboardHandler = new KeyboardHandler(this::onRefresh);
+        this.keyboardHandler = new KeyboardHandler();
 
         // Notifying the addons context about what bender container to use.
         Addons.setBenderProvider(this.benderProvider);
@@ -89,27 +88,13 @@ public class MoBends
         MinecraftForge.EVENT_BUS.register(new DataUpdateHandler(benderProvider::updateDataOnClientTick));
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
+
+        this.setupResourceListeners();
     }
 
-    public void onRefresh()
+    private void setupResourceListeners()
     {
-        Core core = new Core();
-        ReportOutput reportOutput = new ReportOutput();
-        ErrorReportRegistry reportRegistry = new ErrorReportRegistry(reportOutput);
-
-        core.registerErrors(reportRegistry);
-        reportRegistry.report(new InvalidPackFormatException("Bruh", "Waddup"));
-    }
-
-    @SubscribeEvent
-    public void setupClient(final FMLClientSetupEvent event)
-    {
-        this.keyboardHandler.setup();
-
-        AddonHelper.registerAddon(ModStatics.MODID, new StandardAddon());
-
         IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
-
         BenderProvider<SerialContext> benderProvider = this.benderProvider;
 
         resourceManager.registerReloadListener(new BinaryPolyReloadListener<AnimatorTemplate, SerialContext>(serialContext, AnimatorTemplate::deserialize, "bendsanimators", ".bends") {
@@ -159,5 +144,21 @@ public class MoBends
                 LOGGER.error(String.format("Couldn't load mutator from '%s'. Reason: %s", location, exception.getMessage()));
             }
         });
+    }
+
+    public void onRefresh()
+    {
+        Core core = new Core();
+        ReportOutput reportOutput = new ReportOutput();
+        ErrorReportRegistry reportRegistry = new ErrorReportRegistry(reportOutput);
+
+        core.registerErrors(reportRegistry);
+        reportRegistry.report(new InvalidPackFormatException("Bruh", "Waddup"));
+    }
+
+    @SubscribeEvent
+    public void setupClient(final FMLClientSetupEvent event)
+    {
+        this.keyboardHandler.setup();
     }
 }

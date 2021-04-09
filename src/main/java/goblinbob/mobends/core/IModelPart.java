@@ -1,7 +1,7 @@
 package goblinbob.mobends.core;
 
-import goblinbob.mobends.core.math.IQuaternion;
-import goblinbob.mobends.core.math.vector.IVec3f;
+import goblinbob.bendslib.math.IQuaternion;
+import goblinbob.bendslib.math.vector.IVec3f;
 
 public interface IModelPart
 {

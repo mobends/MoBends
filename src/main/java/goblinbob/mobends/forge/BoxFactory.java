@@ -1,7 +1,7 @@
 package goblinbob.mobends.forge;
 
-import goblinbob.mobends.core.math.vector.IVec3fRead;
-import goblinbob.mobends.core.math.vector.Vec3f;
+import goblinbob.bendslib.math.vector.IVec3fRead;
+import goblinbob.bendslib.math.vector.Vec3f;
 import goblinbob.mobends.core.mutation.BoxSide;
 import goblinbob.mobends.core.mutation.FaceRotation;
 import net.minecraft.client.renderer.model.ModelRenderer;

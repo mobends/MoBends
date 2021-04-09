@@ -2,7 +2,6 @@ package goblinbob.mobends.core.util;
 
 public class Timer
 {
-
     private long time, lastTime;
     private float delta;
 
@@ -25,5 +24,4 @@ public class Timer
     {
         return delta;
     }
-
 }

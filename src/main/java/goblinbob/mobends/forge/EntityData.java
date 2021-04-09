@@ -7,7 +7,7 @@ import goblinbob.mobends.core.data.PropertyStorage;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.KumoAnimatorState;
-import goblinbob.mobends.core.math.vector.Vec3d;
+import goblinbob.bendslib.math.vector.Vec3d;
 import net.minecraft.entity.Entity;
 
 import java.util.HashMap;

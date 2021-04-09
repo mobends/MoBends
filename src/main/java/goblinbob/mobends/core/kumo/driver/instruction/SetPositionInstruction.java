@@ -7,7 +7,7 @@ import goblinbob.mobends.core.kumo.IKumoContext;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.driver.expression.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.driver.expression.IExpression;
-import goblinbob.mobends.core.math.vector.IVec3f;
+import goblinbob.bendslib.math.vector.IVec3f;
 
 public class SetPositionInstruction<D extends IEntityData> implements IInstruction<D>
 {

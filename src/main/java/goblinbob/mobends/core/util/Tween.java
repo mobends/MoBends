@@ -2,7 +2,6 @@ package goblinbob.mobends.core.util;
 
 public class Tween
 {
-
     public static double easeIn(double a, double power)
     {
         return Math.pow(a, power);
@@ -31,5 +30,4 @@ public class Tween
         }
         return a;
     }
-
 }

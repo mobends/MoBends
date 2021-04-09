@@ -1,9 +1,9 @@
 package goblinbob.mobends.core;
 
-import goblinbob.mobends.core.math.IQuaternion;
-import goblinbob.mobends.core.math.Quaternion;
-import goblinbob.mobends.core.math.vector.IVec3f;
-import goblinbob.mobends.core.math.vector.Vec3f;
+import goblinbob.bendslib.math.IQuaternion;
+import goblinbob.bendslib.math.Quaternion;
+import goblinbob.bendslib.math.vector.IVec3f;
+import goblinbob.bendslib.math.vector.Vec3f;
 
 /**
  * Used for manipulating the transform of things that are
