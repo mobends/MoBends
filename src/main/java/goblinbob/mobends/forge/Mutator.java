@@ -93,27 +93,13 @@ public class Mutator
 
         for (Map.Entry<String, PartMutationInstructions> entry : instructions.getPartMutations())
         {
-            resolveParents(entry.getKey(), entry.getValue());
+            resolveParents(entry.getKey(), entry.getValue(), false);
         }
 
         for (Map.Entry<String, PartMutationInstructions> entry : instructions.getAddedParts())
         {
-            resolveParents(entry.getKey(), entry.getValue());
+            resolveParents(entry.getKey(), entry.getValue(), true);
         }
-
-//        original.wolfBody = wolfBody = new ModelPart(original, 18, 14)
-//                .setPosition(0.0F, 13.0F, 8.0F);
-//        wolfBody.developBox(-3.0F, -3.0F, -8.0F, 6, 6, 9, scaleFactor)
-//                .offsetTextureQuad(BoxSide.TOP, 9.0F, 6.0F)
-//                .rotateTextureQuad(BoxSide.TOP, FaceRotation.HALF_TURN)
-//                .offsetTextureQuad(BoxSide.BACK, -12F, -9F)
-//                .rotateTextureQuad(BoxSide.BOTTOM, FaceRotation.HALF_TURN)
-//                .offsetTextureQuad(BoxSide.BOTTOM, -8F, 6F)
-//                .rotateTextureQuad(BoxSide.LEFT, FaceRotation.CLOCKWISE)
-//                .offsetTextureQuad(BoxSide.LEFT, -3F, -3F)
-//                .rotateTextureQuad(BoxSide.RIGHT, FaceRotation.COUNTER_CLOCKWISE)
-//                .offsetTextureQuad(BoxSide.RIGHT, 0F, -3F)
-//                .create();
     }
 
     private void createMutationPart(MutationInstructions instructions, String partName, PartMutationInstructions partInstructions) throws InvalidMutationException
@@ -234,7 +220,14 @@ public class Mutator
         return modelPart;
     }
 
-    private void resolveParents(String partName, PartMutationInstructions partInstructions) throws InvalidMutationException
+    /**
+     *
+     * @param partName The name of the part to resolve parents of
+     * @param partInstructions The instructions of the part to resolve parents of
+     * @param independent True if the part is rendered by the original renderer independently, and not as a child.
+     * @throws InvalidMutationException
+     */
+    private void resolveParents(String partName, PartMutationInstructions partInstructions, boolean independent) throws InvalidMutationException
     {
         String parentName = partInstructions.getParent();
 
@@ -246,7 +239,7 @@ public class Mutator
         IForgeModelPart part = getModelPart(partName);
         IForgeModelPart parent = getModelPart(parentName);
 
-        if (partInstructions.isIndependent())
+        if (independent)
         {
             part.setParent(parent);
         }
