@@ -1,5 +1,6 @@
 package goblinbob.mobends.forge;
 
+import goblinbob.bendslib.math.vector.Vec3d;
 import goblinbob.mobends.core.IModelPart;
 import goblinbob.mobends.core.ModelPartTransform;
 import goblinbob.mobends.core.data.IEntityData;
@@ -7,7 +8,6 @@ import goblinbob.mobends.core.data.PropertyStorage;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.KumoAnimatorState;
-import goblinbob.bendslib.math.vector.Vec3d;
 import net.minecraft.entity.Entity;
 
 import java.util.HashMap;

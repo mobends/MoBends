@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.driver.instruction;
 
+import goblinbob.bendslib.math.vector.IVec3f;
 import goblinbob.mobends.core.IModelPart;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.exceptions.AnimationRuntimeException;
@@ -7,7 +8,6 @@ import goblinbob.mobends.core.kumo.IKumoContext;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.driver.expression.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.driver.expression.IExpression;
-import goblinbob.bendslib.math.vector.IVec3f;
 
 public class SetPositionInstruction<D extends IEntityData> implements IInstruction<D>
 {

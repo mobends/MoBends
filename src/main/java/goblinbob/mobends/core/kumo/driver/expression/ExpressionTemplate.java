@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.kumo.driver.expression;
 
+import goblinbob.bendslib.InvalidFormatException;
 import goblinbob.bendslib.serial.ISerialInput;
 import goblinbob.bendslib.serial.ISerialOutput;
 import goblinbob.bendslib.serial.ISerializable;
 import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
 
@@ -29,7 +29,7 @@ public abstract class ExpressionTemplate implements ISerializable
 
         if (expressionType == null)
         {
-            throw new MalformedKumoTemplateException("Unknown expression type");
+            throw new InvalidFormatException("Unknown expression type");
         }
 
         switch (expressionType)
@@ -43,7 +43,7 @@ public abstract class ExpressionTemplate implements ISerializable
             case BOOLEAN_LITERAL:
                 return BooleanLiteral.deserialize(context, in);
             default:
-                throw new MalformedKumoTemplateException("Unknown expression type");
+                throw new InvalidFormatException("Unknown expression type");
         }
     }
 }

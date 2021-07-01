@@ -2,13 +2,13 @@ package goblinbob.mobends.forge;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import goblinbob.mobends.core.IModelPart;
 import goblinbob.bendslib.math.Quaternion;
 import goblinbob.bendslib.math.physics.AABBoxGroup;
 import goblinbob.bendslib.math.physics.IAABBox;
 import goblinbob.bendslib.math.physics.ICollider;
 import goblinbob.bendslib.math.vector.IVec3f;
 import goblinbob.bendslib.math.vector.Vec3f;
+import goblinbob.mobends.core.IModelPart;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.model.ModelRenderer;

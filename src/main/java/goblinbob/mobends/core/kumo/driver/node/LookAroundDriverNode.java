@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.driver.node;
 
+import goblinbob.bendslib.GUtil;
+import goblinbob.bendslib.math.Quaternion;
 import goblinbob.mobends.core.BasePropertyKeys;
 import goblinbob.mobends.core.IModelPart;
 import goblinbob.mobends.core.data.IEntityData;
@@ -8,8 +10,6 @@ import goblinbob.mobends.core.kumo.ConnectionState;
 import goblinbob.mobends.core.kumo.IKumoContext;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.NodeState;
-import goblinbob.bendslib.math.Quaternion;
-import goblinbob.bendslib.GUtil;
 
 public class LookAroundDriverNode<D extends IEntityData> extends NodeState<D> implements IDriverNodeState<D>
 {

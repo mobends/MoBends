@@ -2,13 +2,10 @@ package mobends.core.kumo;
 
 import bendslib.mock.MockSerialQueue;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
-import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.kumo.LayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
-import goblinbob.mobends.forge.EntityData;
-import goblinbob.mobends.forge.SerialContext;
 import mobends.mock.MockSerialContext;
 import org.junit.Before;
 import org.junit.Test;

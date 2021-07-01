@@ -1,11 +1,11 @@
 package goblinbob.mobends.forge;
 
+import goblinbob.bendslib.GUtil;
 import goblinbob.mobends.core.*;
 import goblinbob.mobends.core.data.PropertyStorage;
 import goblinbob.mobends.core.exceptions.InvalidMutationException;
 import goblinbob.mobends.core.exceptions.UnknownPropertyException;
 import goblinbob.mobends.core.mutation.PuppeteerException;
-import goblinbob.bendslib.GUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;

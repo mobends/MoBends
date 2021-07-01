@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.kumo.driver.instruction;
 
+import goblinbob.bendslib.InvalidFormatException;
 import goblinbob.bendslib.serial.ISerialInput;
 import goblinbob.bendslib.serial.ISerialOutput;
 import goblinbob.bendslib.serial.ISerializable;
 import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
-import goblinbob.mobends.core.exceptions.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.ISerialContext;
 
@@ -29,7 +29,7 @@ public abstract class InstructionTemplate implements ISerializable
 
         if (instructionType == null)
         {
-            throw new MalformedKumoTemplateException("Unknown instruction type");
+            throw new InvalidFormatException("Unknown instruction type");
         }
 
         switch (instructionType)
@@ -37,7 +37,7 @@ public abstract class InstructionTemplate implements ISerializable
             case SET_POSITION:
                 return SetPositionInstructionTemplate.deserialize(context, in);
             default:
-                throw new MalformedKumoTemplateException("Unknown expression type");
+                throw new InvalidFormatException("Unknown expression type");
         }
     }
 }

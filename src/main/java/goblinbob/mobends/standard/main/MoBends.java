@@ -5,11 +5,10 @@ import goblinbob.bendslib.resource.BinaryPolyReloadListener;
 import goblinbob.bendslib.resource.JsonPolyReloadListener;
 import goblinbob.bendslib.resource.ParsedElement;
 import goblinbob.mobends.core.Core;
-import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
 import goblinbob.mobends.core.exceptions.ResourceException;
-import goblinbob.mobends.core.kumo.AnimatorTemplate;
+import goblinbob.mobends.core.kumo.AnimatorFile;
 import goblinbob.mobends.core.kumo.driver.DriverFunctionRegistry;
 import goblinbob.mobends.core.kumo.driver.DriverLayerTemplate;
 import goblinbob.mobends.core.kumo.driver.node.LookAroundDriverNodeTemplate;
@@ -28,12 +27,10 @@ import goblinbob.mobends.forge.config.ClientConfig;
 import goblinbob.mobends.forge.trigger.EquipmentNameCondition;
 import goblinbob.mobends.standard.main.trigger.WolfStateCondition;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.EntityType;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -129,13 +126,13 @@ public class MoBends
             }
         });
 
-        resourceManager.registerReloadListener(new BinaryPolyReloadListener<AnimatorTemplate, SerialContext>(serialContext, AnimatorTemplate::deserialize, "bendsanimators", ".bends") {
+        resourceManager.registerReloadListener(new BinaryPolyReloadListener<AnimatorFile, SerialContext>(serialContext, AnimatorFile::deserialize, "bendsanimators", ".bends") {
             @Override
-            protected void apply(Collection<ParsedElement<AnimatorTemplate>> animators, IResourceManager innerResourceManager, IProfiler profiler)
+            protected void apply(Collection<ParsedElement<AnimatorFile>> animators, IResourceManager innerResourceManager, IProfiler profiler)
             {
-                for (ParsedElement<AnimatorTemplate> parsed : animators)
+                for (ParsedElement<AnimatorFile> parsed : animators)
                 {
-                    resourcesFactory.registerPartialAnimator(parsed.data);
+                    resourcesFactory.registerPartialAnimator(parsed.data.template);
                 }
             }
 

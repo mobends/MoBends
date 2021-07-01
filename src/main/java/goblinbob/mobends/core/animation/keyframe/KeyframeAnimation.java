@@ -1,8 +1,10 @@
 package goblinbob.mobends.core.animation.keyframe;
 
+import goblinbob.bendslib.FormatVersion;
 import goblinbob.bendslib.serial.ISerialInput;
 import goblinbob.bendslib.serial.ISerialOutput;
 import goblinbob.bendslib.serial.ISerializable;
+import goblinbob.bendslib.serial.SerialHelper;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,7 +13,8 @@ import java.util.Objects;
 
 public class KeyframeAnimation implements ISerializable
 {
-    private final int LATEST_FORMAT_VERSION = 1;
+    private static final String HEADER = "BENDSANIM";
+    private static final FormatVersion LATEST_FORMAT_VERSION = new FormatVersion(0, 1, 0);
     public Map<String, Bone> bones;
 
     @Override
@@ -28,7 +31,8 @@ public class KeyframeAnimation implements ISerializable
     @Override
     public void serialize(ISerialOutput out)
     {
-        out.writeInt(LATEST_FORMAT_VERSION);
+        SerialHelper.serializeChars(HEADER, out);
+        LATEST_FORMAT_VERSION.serialize(out);
 
         int amountOfKeyframes = 0;
         for (Bone bone : bones.values())
@@ -53,10 +57,17 @@ public class KeyframeAnimation implements ISerializable
 
     public static KeyframeAnimation deserialize(ISerialInput in) throws IOException
     {
+        // Checking header
+        String header = SerialHelper.deserializeChars(HEADER.length(), in);
+        if (!header.equals(HEADER))
+        {
+            return null;
+        }
+
         KeyframeAnimation animation = new KeyframeAnimation();
         animation.bones = new HashMap<>();
 
-        int version =           in.readInt();
+        FormatVersion version = FormatVersion.deserialize(in);
         int amountOfKeyframes = in.readInt();
         int amountOfBones =     in.readInt();
 
