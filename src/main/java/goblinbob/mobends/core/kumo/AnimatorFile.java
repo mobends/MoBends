@@ -13,6 +13,7 @@ import java.io.IOException;
 public class AnimatorFile implements ISerializable
 {
     public static final String HEADER = "BENDSANMT";
+    private static final FormatVersion LATEST_FORMAT_VERSION = new FormatVersion(0, 1, 0);
     public FormatVersion version;
     public AnimatorTemplate template;
 
