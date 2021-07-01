@@ -79,10 +79,14 @@ public class ConnectionTemplate implements ISerializable
 
     public static <D extends IEntityData, C extends ISerialContext<C, D>> ConnectionTemplate deserialize(C context, ISerialInput in) throws IOException
     {
+        int targetNodeIndex = in.readInt();
+        float transitionDuration = in.readFloat();
+        Easing easing = Easing.values()[in.readByte()];
+
         return new ConnectionTemplate(
-                in.readInt(),
-                in.readFloat(),
-                Easing.values()[in.readByte()],
+                targetNodeIndex,
+                transitionDuration,
+                easing,
                 TriggerConditionTemplate.deserializeGeneral(context, in)
         );
     }

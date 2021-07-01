@@ -4,36 +4,38 @@ import goblinbob.mobends.core.IBenderResources;
 import goblinbob.mobends.core.exceptions.ResourceException;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.mutation.MutationInstructions;
+import goblinbob.mobends.core.mutation.MutationMetadata;
+import net.minecraft.util.ResourceLocation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BenderResources implements IBenderResources
 {
+    private ResourceLocation entityLocation;
     private MutationInstructions mutationInstructions;
-    private AnimatorTemplate animatorTemplate;
+    private MutationMetadata mutationMetadata;
+    private List<AnimatorTemplate> partialAnimators;
 
-    private List<MutationInstructions> partialMutators = new ArrayList<>();
-    private List<AnimatorTemplate> partialAnimators = new ArrayList<>();
+    private AnimatorTemplate combinedAnimatorTemplate;
 
-    public BenderResources()
+    public BenderResources(MutationInstructions instructions, MutationMetadata metadata, List<AnimatorTemplate> partialAnimators) throws ResourceException
     {
-    }
+        this.entityLocation = new ResourceLocation(instructions.getTarget());
+        this.mutationInstructions = instructions;
+        this.mutationMetadata = metadata;
+        this.partialAnimators = partialAnimators;
 
-    public void clear()
-    {
-        this.partialMutators.clear();
-        this.partialAnimators.clear();
-    }
-
-    public void addPartialMutator(MutationInstructions mutationInstructions)
-    {
-        this.partialMutators.add(mutationInstructions);
+        this.mergePartials();
     }
 
     public void addPartialAnimator(AnimatorTemplate animatorTemplate)
     {
         this.partialAnimators.add(animatorTemplate);
+    }
+
+    public ResourceLocation getEntityLocation()
+    {
+        return entityLocation;
     }
 
     @Override
@@ -43,20 +45,22 @@ public class BenderResources implements IBenderResources
     }
 
     @Override
+    public MutationMetadata getMutationMetadata()
+    {
+        return mutationMetadata;
+    }
+
+    @Override
     public AnimatorTemplate getAnimatorTemplate()
     {
-        return animatorTemplate;
+        return combinedAnimatorTemplate;
     }
 
     public void mergePartials() throws ResourceException
     {
-        if (this.partialMutators.size() == 0)
-            throw new ResourceException("No mutation instructions defined.");
-
         if (this.partialAnimators.size() == 0)
             throw new ResourceException("No animators defined.");
 
-        this.mutationInstructions = this.partialMutators.get(0);
-        this.animatorTemplate = this.partialAnimators.get(0);
+        this.combinedAnimatorTemplate = this.partialAnimators.get(0);
     }
 }

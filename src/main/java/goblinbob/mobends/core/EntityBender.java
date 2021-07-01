@@ -5,33 +5,31 @@ import goblinbob.mobends.core.mutation.PuppeteerException;
 
 import javax.annotation.Nonnull;
 
+/**
+ * One per mutator.
+ * @param <C>
+ * @param <R>
+ */
 public class EntityBender<C, R extends IBenderResources>
 {
     private IPuppeteerRepository<C, R> puppeteerRepository;
 
-    protected final String key;
+    private String mutatorId;
     protected final String unlocalizedName;
     private final R benderResources;
 
-    private boolean animate = true;
-
-    public EntityBender(IPuppeteerRepository<C, R> puppeteerRepository, String key, String unlocalizedName, @Nonnull R benderResources)
+    public EntityBender(IPuppeteerRepository<C, R> puppeteerRepository, String unlocalizedName, @Nonnull R benderResources)
     {
         this.puppeteerRepository = puppeteerRepository;
 
-        this.key = key;
+        this.mutatorId = benderResources.getMutationInstructions().getID();
         this.unlocalizedName = unlocalizedName;
         this.benderResources = benderResources;
     }
 
-    public String getKey()
+    public String getMutatorId()
     {
-        return key;
-    }
-
-    public boolean isAnimated()
-    {
-        return animate;
+        return mutatorId;
     }
 
     public R getBenderResources()
@@ -39,18 +37,13 @@ public class EntityBender<C, R extends IBenderResources>
         return benderResources;
     }
 
-    public void setAnimate(boolean animate)
-    {
-        this.animate = animate;
-    }
-
     /**
      * This function is to be called each time before rendering a mutated entity.
      * It animates, and if it wasn't done prior, mutates the entity model.
      */
-    public void beforeRender(C context) throws PuppeteerException, InvalidMutationException
+    public void beforeRender(C context, boolean animated) throws PuppeteerException, InvalidMutationException
     {
-        if (this.animate)
+        if (animated)
         {
             IPuppeteer<C> puppeteer = puppeteerRepository.getOrCreatePuppeteer(context, this);
 

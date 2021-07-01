@@ -3,6 +3,7 @@ package goblinbob.mobends.core.animation.keyframe;
 import goblinbob.bendslib.serial.ISerialInput;
 import goblinbob.bendslib.serial.ISerialOutput;
 import goblinbob.bendslib.serial.ISerializable;
+import goblinbob.bendslib.serial.SerialHelper;
 import goblinbob.mobends.core.data.IEntityData;
 import goblinbob.mobends.core.kumo.ISerialContext;
 
@@ -24,9 +25,14 @@ public class ArmatureMask implements ISerializable
 
 	public ArmatureMask(Mode mode)
 	{
+		this(mode, new HashSet<>(), new HashSet<>());
+	}
+
+	public ArmatureMask(Mode mode, Set<String> includedParts, Set<String> excludedParts)
+	{
 		this.mode = mode;
-		this.includedParts = new HashSet<>();
-		this.excludedParts = new HashSet<>();
+		this.includedParts = includedParts;
+		this.excludedParts = excludedParts;
 	}
 
 	@Override
@@ -58,13 +64,17 @@ public class ArmatureMask implements ISerializable
 	public void serialize(ISerialOutput out)
 	{
 		out.writeByte((byte) this.mode.ordinal());
+		SerialHelper.serializeStringSet(includedParts, out);
+		SerialHelper.serializeStringSet(excludedParts, out);
 	}
 
 	public static <D extends IEntityData, C extends ISerialContext<C, D>> ArmatureMask deserialize(C context, ISerialInput in) throws IOException
 	{
 		Mode mode = Mode.values()[in.readByte()];
+		Set<String> includedParts = SerialHelper.deserializeStringSet(in);
+		Set<String> excludedParts = SerialHelper.deserializeStringSet(in);
 
-		return new ArmatureMask(mode);
+		return new ArmatureMask(mode, includedParts, excludedParts);
 	}
 
 	public enum Mode

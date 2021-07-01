@@ -9,7 +9,7 @@ public class MissingPartException extends InvalidMutationException
 
     public MissingPartException(EntityBender<?, ?> bender, String partName, String invalidFieldName)
     {
-        super(String.format("Failed to find part '%s' under '%s' of bender '%s'", partName, invalidFieldName, bender.getKey()), bender);
+        super(String.format("Failed to find part '%s' under '%s' of bender '%s'", partName, invalidFieldName, bender.getMutatorId()), bender);
         this.partName = partName;
         this.invalidFieldName = invalidFieldName;
     }

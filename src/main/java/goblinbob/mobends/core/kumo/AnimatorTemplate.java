@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 public class AnimatorTemplate implements ISerializable
 {
+    public String mutatorId;
     public LayerTemplate[] layers;
 
     @Override
@@ -20,12 +21,13 @@ public class AnimatorTemplate implements ISerializable
             return false;
 
         AnimatorTemplate other = (AnimatorTemplate) obj;
-        return Arrays.equals(other.layers, this.layers);
+        return other.mutatorId.equals(this.mutatorId) && Arrays.equals(other.layers, this.layers);
     }
 
     @Override
     public void serialize(ISerialOutput out)
     {
+        out.writeString(mutatorId);
         SerialHelper.serializeArray(layers, out);
     }
 
@@ -33,6 +35,7 @@ public class AnimatorTemplate implements ISerializable
     {
         AnimatorTemplate animatorTemplate = new AnimatorTemplate();
 
+        animatorTemplate.mutatorId = in.readString();
         animatorTemplate.layers = SerialHelper.deserializeArray(context, LayerTemplate::deserializeGeneral, new LayerTemplate[0], in);
 
         return animatorTemplate;

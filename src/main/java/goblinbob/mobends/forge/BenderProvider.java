@@ -6,9 +6,11 @@ import goblinbob.mobends.core.exceptions.ResourceException;
 import goblinbob.mobends.core.kumo.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.ISerialContext;
 import goblinbob.mobends.core.mutation.MutationInstructions;
+import goblinbob.mobends.core.mutation.MutationMetadata;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +38,7 @@ public class BenderProvider<C extends ISerialContext<C, EntityData>> implements 
     public void clear()
     {
         this.puppeteerRepository.clear();
-        this.benderMap.values().forEach(b -> b.getBenderResources().clear());
+        this.benderMap.clear();
     }
 
     @Override
@@ -45,40 +47,16 @@ public class BenderProvider<C extends ISerialContext<C, EntityData>> implements 
         return this.benderMap.get(entity.getType().getRegistryName());
     }
 
-    private <T extends LivingEntity> EntityBender<ForgeMutationContext, BenderResources> registerEntity(EntityType<?> entityType)
+    public void registerBender(BenderResources benderResources)
     {
-        ResourceLocation registryName = entityType.getRegistryName();
+        ResourceLocation registryName = benderResources.getEntityLocation();
+        EntityType<?> entityType = Registry.ENTITY_TYPE.get(registryName);
 
-        return this.benderMap.put(registryName, new EntityBender<>(
+        this.benderMap.put(registryName, new EntityBender<>(
                 this.puppeteerRepository,
-                registryName.toString(),
                 entityType.toString(),
-                new BenderResources()
+                benderResources
         ));
-    }
-
-    public <T extends LivingEntity> void registerMutator(EntityType<?> entityType, MutationInstructions mutationInstructions)
-    {
-        ResourceLocation registryName = entityType.getRegistryName();
-
-        if (!this.benderMap.containsKey(registryName))
-        {
-            registerEntity(entityType);
-        }
-
-        this.benderMap.get(registryName).getBenderResources().addPartialMutator(mutationInstructions);
-    }
-
-    public <T extends LivingEntity> void registerAnimator(EntityType<?> entityType, AnimatorTemplate animatorTemplate)
-    {
-        ResourceLocation registryName = entityType.getRegistryName();
-
-        if (!this.benderMap.containsKey(registryName))
-        {
-            registerEntity(entityType);
-        }
-
-        this.benderMap.get(registryName).getBenderResources().addPartialAnimator(animatorTemplate);
     }
 
     public void finalizeEntity(EntityType<?> entityType) throws ResourceException

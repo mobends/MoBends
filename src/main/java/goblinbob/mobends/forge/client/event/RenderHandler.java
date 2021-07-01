@@ -8,6 +8,7 @@ import goblinbob.mobends.core.mutation.PuppeteerException;
 import goblinbob.mobends.forge.BenderResources;
 import goblinbob.mobends.forge.EntityData;
 import goblinbob.mobends.forge.ForgeMutationContext;
+import goblinbob.mobends.forge.config.IClientConfigProvider;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -19,11 +20,17 @@ public class RenderHandler
 {
     IEntityBenderProvider<ForgeMutationContext, BenderResources> benderProvider;
     IDriverFunctionProvider<EntityData> driverFunctionProvider;
+    IClientConfigProvider clientConfigProvider;
 
-    public RenderHandler(IEntityBenderProvider<ForgeMutationContext, BenderResources> benderProvider, IDriverFunctionProvider<EntityData> driverFunctionProvider)
+    public RenderHandler(
+            IEntityBenderProvider<ForgeMutationContext, BenderResources> benderProvider,
+            IDriverFunctionProvider<EntityData> driverFunctionProvider,
+            IClientConfigProvider clientConfigProvider
+    )
     {
         this.benderProvider = benderProvider;
         this.driverFunctionProvider = driverFunctionProvider;
+        this.clientConfigProvider = clientConfigProvider;
     }
 
     @SubscribeEvent
@@ -47,7 +54,7 @@ public class RenderHandler
 
         try
         {
-            bender.beforeRender(context);
+            bender.beforeRender(context, !clientConfigProvider.isTargetDisabled(registryName));
         }
         catch (InvalidMutationException | PuppeteerException e)
         {

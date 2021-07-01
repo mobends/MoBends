@@ -5,6 +5,7 @@ import goblinbob.bendslib.resource.BinaryPolyReloadListener;
 import goblinbob.bendslib.resource.JsonPolyReloadListener;
 import goblinbob.bendslib.resource.ParsedElement;
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.EntityBender;
 import goblinbob.mobends.core.error.ErrorReportRegistry;
 import goblinbob.mobends.core.exceptions.InvalidPackFormatException;
 import goblinbob.mobends.core.exceptions.ResourceException;
@@ -18,10 +19,12 @@ import goblinbob.mobends.core.kumo.keyframe.node.MovementKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.keyframe.node.StandardKeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.trigger.*;
 import goblinbob.mobends.core.mutation.MutationInstructions;
+import goblinbob.mobends.core.mutation.MutationMetadata;
 import goblinbob.mobends.forge.*;
 import goblinbob.mobends.forge.addon.Addons;
 import goblinbob.mobends.forge.client.event.KeyboardHandler;
 import goblinbob.mobends.forge.client.event.RenderHandler;
+import goblinbob.mobends.forge.config.ClientConfig;
 import goblinbob.mobends.forge.trigger.EquipmentNameCondition;
 import goblinbob.mobends.standard.main.trigger.WolfStateCondition;
 import net.minecraft.client.Minecraft;
@@ -49,6 +52,7 @@ public class MoBends
     private final SerialContext serialContext;
     private final BenderProvider<SerialContext> benderProvider;
     private final DriverFunctionRegistry<EntityData> driverFunctionRegistry;
+    private final ClientConfig clientConfig = new ClientConfig();
     private final KeyboardHandler keyboardHandler;
 
     public MoBends()
@@ -84,7 +88,7 @@ public class MoBends
 
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(this.keyboardHandler);
-        MinecraftForge.EVENT_BUS.register(new RenderHandler(benderProvider, driverFunctionRegistry));
+        MinecraftForge.EVENT_BUS.register(new RenderHandler(benderProvider, driverFunctionRegistry, clientConfig));
         MinecraftForge.EVENT_BUS.register(new DataUpdateHandler(benderProvider::updateDataOnClientTick));
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
@@ -96,16 +100,42 @@ public class MoBends
     {
         IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
         BenderProvider<SerialContext> benderProvider = this.benderProvider;
+        BenderResourcesFactory<ForgeMutationContext> resourcesFactory = new BenderResourcesFactory<>();
+
+        resourceManager.registerReloadListener(new JsonPolyReloadListener<MutationMetadata>(new Gson(), "bendsmeta", MutationMetadata.class) {
+            @Override
+            protected void apply(Collection<ParsedElement<MutationMetadata>> parsedElements, IResourceManager innerResourceManager, IProfiler profiler)
+            {
+                benderProvider.clear();
+
+                for (ParsedElement<MutationMetadata> parsed : parsedElements)
+                {
+                    try
+                    {
+                        resourcesFactory.registerMetadata(parsed.data);
+                    }
+                    catch (ResourceException e)
+                    {
+                        LOGGER.error(String.format("Couldn't load metadata from '%s'. Reason: %s", parsed.relativeLocation, e.getMessage()));
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            protected void onResourceIgnored(ResourceLocation location, Exception exception)
+            {
+                LOGGER.error(String.format("Couldn't load metadata from '%s'. Reason: %s", location, exception.getMessage()));
+            }
+        });
 
         resourceManager.registerReloadListener(new BinaryPolyReloadListener<AnimatorTemplate, SerialContext>(serialContext, AnimatorTemplate::deserialize, "bendsanimators", ".bends") {
             @Override
             protected void apply(Collection<ParsedElement<AnimatorTemplate>> animators, IResourceManager innerResourceManager, IProfiler profiler)
             {
-                benderProvider.clear();
-
                 for (ParsedElement<AnimatorTemplate> parsed : animators)
                 {
-                    benderProvider.registerAnimator(Registry.ENTITY_TYPE.get(parsed.relativeLocation), parsed.data);
+                    resourcesFactory.registerPartialAnimator(parsed.data);
                 }
             }
 
@@ -123,13 +153,16 @@ public class MoBends
             {
                 for (ParsedElement<MutationInstructions> parsed : parsedElements)
                 {
-                    EntityType<?> entityType = Registry.ENTITY_TYPE.get(parsed.relativeLocation);
-                    benderProvider.registerMutator(entityType, parsed.data);
+                    if (parsed.data.getID() == null)
+                    {
+                        LOGGER.error(String.format("Missing id in '%s' mutator.", parsed.relativeLocation));
+                        continue;
+                    }
 
-                    // Finalizing the entity.
                     try
                     {
-                        benderProvider.finalizeEntity(entityType);
+                        BenderResources benderResources = resourcesFactory.registerMutator(parsed.data);
+                        benderProvider.registerBender(benderResources);
                     }
                     catch (ResourceException e)
                     {

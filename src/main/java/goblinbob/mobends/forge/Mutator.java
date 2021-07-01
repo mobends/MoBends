@@ -15,6 +15,7 @@ import java.util.Map;
 public class Mutator
 {
     private final EntityBender<ForgeMutationContext, BenderResources> bender;
+    private final MutationMetadata metadata;
     private final EntityModel<?> model;
 
     private final VanillaContainer vanillaContainer = new VanillaContainer();
@@ -23,6 +24,7 @@ public class Mutator
     public Mutator(EntityBender<ForgeMutationContext, BenderResources> bender, EntityModel<?> model)
     {
         this.bender = bender;
+        this.metadata = bender.getBenderResources().getMutationMetadata();
         this.model = model;
     }
 
@@ -83,7 +85,7 @@ public class Mutator
 
         for (Map.Entry<String, PartMutationInstructions> entry : instructions.getPartMutations())
         {
-            createMutationPart(instructions, entry.getKey(), entry.getValue());
+            createMutationPart(entry.getKey(), entry.getValue());
         }
 
         for (Map.Entry<String, PartMutationInstructions> entry : instructions.getAddedParts())
@@ -93,27 +95,25 @@ public class Mutator
 
         for (Map.Entry<String, PartMutationInstructions> entry : instructions.getPartMutations())
         {
-            resolveParents(entry.getKey(), entry.getValue(), false);
+            resolveParents(entry.getKey(), entry.getValue(), true);
         }
 
         for (Map.Entry<String, PartMutationInstructions> entry : instructions.getAddedParts())
         {
-            resolveParents(entry.getKey(), entry.getValue(), true);
+            resolveParents(entry.getKey(), entry.getValue(), false);
         }
     }
 
-    private void createMutationPart(MutationInstructions instructions, String partName, PartMutationInstructions partInstructions) throws InvalidMutationException
+    private void createMutationPart(String partName, PartMutationInstructions partInstructions) throws InvalidMutationException
     {
         Class<?> modelClass = model.getClass();
 
         // Fetching the field names
         String fieldName;
-        String obfuscatedFieldName;
 
         try
         {
-            fieldName = instructions.getFieldName(partName);
-            obfuscatedFieldName = instructions.getObfuscated(partName);
+            fieldName = metadata.getFieldName(partName);
         }
         catch (UnmappedPartException e)
         {
@@ -121,7 +121,7 @@ public class Mutator
         }
 
         // Fetching the model renderer field
-        Field field = fetchField(bender, modelClass, partName, fieldName, obfuscatedFieldName);
+        Field field = fetchField(bender, modelClass, partName, fieldName);
         field.setAccessible(true);
 
         try
@@ -255,7 +255,7 @@ public class Mutator
             }
             catch(IllegalStateException ex)
             {
-                throw new InvalidMutationException(ex.getMessage(), this.bender);
+                throw new InvalidMutationException(ex.getMessage() + String.format(" (Parent=%s, Child=%s)", parentName, partName), this.bender);
             }
         }
     }
@@ -270,38 +270,16 @@ public class Mutator
         return part;
     }
 
-    private static Field fetchField(EntityBender<ForgeMutationContext, BenderResources> bender, Class<?> modelClass, String partName, String fieldName, String obfuscatedFieldName) throws MissingPartException
+    private static Field fetchField(EntityBender<ForgeMutationContext, BenderResources> bender, Class<?> modelClass, String partName, String fieldName) throws MissingPartException
     {
-        Field field = null;
-        // Trying to fetch the obfuscated field.
+        // Trying to fetch the field.
         try
         {
-            field = modelClass.getDeclaredField(obfuscatedFieldName);
+            return modelClass.getDeclaredField(fieldName);
         }
         catch (NoSuchFieldException e)
         {
-            // ignore
+            throw new MissingPartException(bender, partName, fieldName);
         }
-
-        // If no obfuscated field has been found, try to find the deobfuscated one
-        if (field == null)
-        {
-            try
-            {
-                field = modelClass.getDeclaredField(fieldName);
-            }
-            catch (NoSuchFieldException e)
-            {
-                throw new MissingPartException(bender, partName, fieldName);
-            }
-        }
-
-        if (field == null)
-        {
-            // Must have been due to the fact that the obfuscatedFieldName was incorrect.
-            throw new MissingPartException(bender, partName, obfuscatedFieldName);
-        }
-
-        return field;
     }
 }

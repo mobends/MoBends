@@ -1,17 +1,11 @@
 package goblinbob.mobends.core.mutation;
 
-public class VanillaPart
+public class PartMetadata
 {
     private String fieldName;
-    private String obfuscated;
 
     public String getFieldName()
     {
         return fieldName;
-    }
-
-    public String getObfuscated()
-    {
-        return obfuscated;
     }
 }
