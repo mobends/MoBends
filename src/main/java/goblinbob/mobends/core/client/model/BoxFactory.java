@@ -262,7 +262,6 @@ public class BoxFactory
 	
 	public static class TextureFace
 	{
-		
 		public int uPos;
 		public int vPos;
 		public int uSize;
@@ -284,7 +283,5 @@ public class BoxFactory
 			this.uSize = face.uSize;
 			this.vSize = face.vSize;
 		}
-		
 	}
-	
 }

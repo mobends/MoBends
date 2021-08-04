@@ -10,12 +10,10 @@ import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.standard.data.WolfData;
 import goblinbob.mobends.standard.main.ModStatics;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -27,7 +25,6 @@ import java.util.Collection;
  */
 public class WolfController implements IAnimationController<WolfData>
 {
-
     protected static final ResourceLocation WOLF_ANIMATOR = new ResourceLocation(ModStatics.MODID, "animators/wolf.json");
     protected AnimatorTemplate animatorTemplate;
     protected KumoAnimatorState<WolfData> kumoAnimatorState;
@@ -56,7 +53,6 @@ public class WolfController implements IAnimationController<WolfData>
     }
 
     @Override
-    @Nullable
     public Collection<String> perform(WolfData data)
     {
         EntityWolf wolf = data.getEntity();
