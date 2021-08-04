@@ -13,7 +13,6 @@ import net.minecraft.util.EnumHand;
 
 public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 {
-
 	protected boolean sprintJumpLeg = false;
 	protected boolean sprintJumpLegSwitched = false;
 	protected boolean fistPunchArm = false;

@@ -7,6 +7,7 @@ import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.pack.state.PackAnimationState;
 import goblinbob.mobends.core.util.GUtil;
+import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -108,7 +109,17 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
         if (this.onGroundOverride != null)
             return this.onGroundOverride;
 
-        List<AxisAlignedBB> list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(0, -0.025F, 0));
+        // Checking if we're going down stairs.
+        BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
+
+        IBlockState block = entity.world.getBlockState(position);
+        IBlockState blockBelow = entity.world.getBlockState(position.add(0, -1, 0));
+    
+        if (motionY <= 0 && (block.getBlock() instanceof BlockStairs || blockBelow.getBlock() instanceof BlockStairs))
+            return true;
+
+        // Checking collisions.
+        List<AxisAlignedBB> list = entity.world.getCollisionBoxes(entity, entity.getEntityBoundingBox().offset(0, -0.125F, 0));
         return list.size() > 0;
     }
 
