@@ -179,8 +179,8 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 
     public void performAnimations(D data, String animatedEntityKey, RenderLivingBase<? extends E> renderer, float partialTicks)
     {
-        data.headYaw.set(this.headYaw);
-        data.headPitch.set(this.headPitch);
+        data.headYaw.set(MathHelper.wrapDegrees(this.headYaw));
+        data.headPitch.set(MathHelper.wrapDegrees(this.headPitch));
         data.limbSwing.set(this.limbSwing);
         data.limbSwingAmount.set(this.limbSwingAmount);
         data.swingProgress.set(this.swingProgress);

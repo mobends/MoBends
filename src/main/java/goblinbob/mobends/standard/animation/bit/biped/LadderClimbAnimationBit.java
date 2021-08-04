@@ -56,7 +56,7 @@ public class LadderClimbAnimationBit extends AnimationBit<BipedEntityData<?>>
         data.rightForeLeg.rotation.setSmoothness(.5F).orientX(20F + legSwingRight2 * 90F);
         data.leftForeLeg.rotation.setSmoothness(.5F).orientX(20F + legSwingLeft2 * 90F);
 
-        data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()))
+        data.head.rotation.orientX(data.headPitch.get())
                 .rotateY(GUtil.clamp(MathHelper.wrapDegrees(data.headYaw.get() + renderRotationY), -90F, 90F));
 
 		final float ledgeClimbStart = 0.6F;

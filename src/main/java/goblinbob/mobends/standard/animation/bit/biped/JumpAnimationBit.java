@@ -58,8 +58,8 @@ public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 		data.rightForeArm.rotation.setSmoothness(0.3F).orientX(0);
 		data.leftForeArm.rotation.setSmoothness(0.3F).orientX(0);
 
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRotationX)
-						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()));
+		data.head.rotation.orientX(data.headPitch.get() - bodyRotationX)
+						  .rotateY(data.headYaw.get());
 
 		if (!data.isStillHorizontally())
 		{

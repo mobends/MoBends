@@ -62,8 +62,8 @@ public class AttackSlashInwardAnimationBit extends AnimationBit<BipedEntityData<
 
 		data.body.rotation.setSmoothness(.9F).orientX(bodyRot.x)
 				.orientY(bodyRot.y);
-		data.head.rotation.setSmoothness(.9F).orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRot.x)
-						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRot.y);
+		data.head.rotation.setSmoothness(.9F).orientX(data.headPitch.get() - bodyRot.x)
+						  .rotateY(data.headYaw.get() - bodyRot.y);
 
 		mainArm.getRotation().setSmoothness(.9F).orientZ(90F * handDirMtp)
 				.rotateY((60F - armSwing * 180F) * handDirMtp);

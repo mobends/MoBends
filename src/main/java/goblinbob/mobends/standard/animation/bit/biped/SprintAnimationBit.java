@@ -24,6 +24,9 @@ public class SprintAnimationBit<T extends BipedEntityData<?>> extends AnimationB
 		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
 		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
 
+		final float headPitch = data.headPitch.get();
+		final float headYaw = data.headYaw.get();
+
 		final float PI = (float) Math.PI;
 		float limbSwing = data.limbSwing.get() * 0.6662F * 0.8F;
 		float armSwingAmount =  data.limbSwingAmount.get() / PI * 180F * 1.1F;
@@ -47,13 +50,13 @@ public class SprintAnimationBit<T extends BipedEntityData<?>> extends AnimationB
 
 		float bodyRotationY = MathHelper.cos(limbSwing) * -40;
 		float bodyRotationX = MathHelper.cos(limbSwing * 2F) * 10F + 10F;
-		float var10 = data.headYaw.get() * .3F;
+		float var10 = headYaw * .3F;
 		var10 = Math.max(-10, Math.min(var10, 10));
 		data.body.rotation.setSmoothness(.8F).orientY(bodyRotationY)
 				.rotateX(bodyRotationX)
 				.rotateZ(-var10);
-		data.head.rotation.setSmoothness(.5F).orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRotationX)
-											 .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRotationY);
+		data.head.rotation.setSmoothness(.5F).orientX(headPitch - bodyRotationX)
+											 .rotateY(headYaw - bodyRotationY);
 		
 
 		data.globalOffset.slideY(MathHelper.cos(limbSwing * 2F + 0.6F) * 1.5f, .9f);

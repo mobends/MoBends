@@ -54,8 +54,8 @@ public class WalkAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 				.rotateX(bodyRotationX)
 				.rotateZ(-var10);
 		
-		data.head.rotation.setSmoothness(0.5F).orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRotationX)
-										  	  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRotationY);
+		data.head.rotation.setSmoothness(0.5F).orientX(data.headPitch.get() - bodyRotationX)
+										  	  .rotateY(data.headYaw.get() - bodyRotationY);
 
 		data.globalOffset.slideY(MathHelper.cos(limbSwing * 2) * 0.6F);
 		

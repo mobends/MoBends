@@ -52,8 +52,8 @@ public class StandAnimationBit<T extends BipedEntityData<?>> extends AnimationBi
 		data.rightForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
 		data.leftForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
 
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()))
-						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()));
+		data.head.rotation.orientX(data.headPitch.get())
+						  .rotateY(data.headYaw.get());
 
 		final float PI = (float) Math.PI;
 		float phase = DataUpdateHandler.getTicks() / 10;

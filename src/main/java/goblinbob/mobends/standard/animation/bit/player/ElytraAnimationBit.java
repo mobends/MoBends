@@ -9,7 +9,6 @@ public class ElytraAnimationBit extends AnimationBit<PlayerData>
 {
 
     private static final String[] ACTIONS = new String[] { "elytra" };
-    private static final float PI = (float) Math.PI;
 
     @Override
     public String[] getActions(PlayerData entityData)
@@ -20,12 +19,10 @@ public class ElytraAnimationBit extends AnimationBit<PlayerData>
     @Override
     public void perform(PlayerData data)
     {
-        final AbstractClientPlayer player = data.getEntity();
-
         final double magnitude = data.getInterpolatedMotionMagnitude();
 
-        float headPitch = MathHelper.wrapDegrees(data.headPitch.get());
-        float headYaw = MathHelper.wrapDegrees(data.headYaw.get());
+        float headPitch = data.headPitch.get();
+        float headYaw = data.headYaw.get();
         float headYawAbs = MathHelper.abs(headYaw);
 
         float speedFactor = MathHelper.clamp((float) magnitude, 0.0F, 0.2F) / 0.2F;

@@ -30,8 +30,8 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		data.renderLeftItemRotation.orientZero();
 		data.renderRightItemRotation.orientZero();
 		
-		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()))
-		  				  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()));
+		data.head.rotation.orientX(data.headPitch.get())
+		  				  .rotateY(data.headYaw.get());
 		data.body.rotation.orientY(0).setSmoothness(0.5F);
 		
 		data.leftLeg.rotation.orientX(-90.0F).rotateZ(-10.0F).rotateY(-25.0F);
