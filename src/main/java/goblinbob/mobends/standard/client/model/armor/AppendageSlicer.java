@@ -44,7 +44,7 @@ public class AppendageSlicer
         }
     }
 
-    protected void slice(MutatedArmorModel armor, ModelPartContainer part, PartGroup targetGroup, float cutPlane)
+    protected void slice(ArmorWrapper armor, ModelPartContainer part, PartGroup targetGroup, float cutPlane)
     {
         final ModelRenderer originalPart = part.getModel();
         vanillaPartBoxes.clearRenderer(originalPart);

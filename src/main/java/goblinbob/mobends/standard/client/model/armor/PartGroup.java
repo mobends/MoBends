@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class PartGroup<T extends EntityData> implements Iterable<ModelPartContainer>
+public class PartGroup<T extends EntityData<?>> implements Iterable<ModelPartContainer>
 {
-
     private List<ModelPartContainer> parts;
     private DataPartSelector<T> dataPartSelector;
-    private ModelPartSelector modelPartSelector;
+    private ModelPartSelector<T> modelPartSelector;
 
-    public PartGroup(DataPartSelector<T> dataPartSelector, ModelPartSelector modelPartSelector)
+    public PartGroup(DataPartSelector<T> dataPartSelector, ModelPartSelector<T> modelPartSelector)
     {
         this.parts = new ArrayList<>();
         this.dataPartSelector = dataPartSelector;
@@ -28,7 +27,7 @@ public class PartGroup<T extends EntityData> implements Iterable<ModelPartContai
         parts.forEach(part -> part.syncUp(dataPartSelector.selectPart(data)));
     }
 
-    public void updateVisibility(MutatedArmorModel model)
+    public void updateVisibility(ArmorWrapper model)
     {
         ModelRenderer originalPart = modelPartSelector.selectPart(model);
         parts.forEach(part -> part.setVisible(originalPart.showModel && !originalPart.isHidden));
@@ -56,19 +55,14 @@ public class PartGroup<T extends EntityData> implements Iterable<ModelPartContai
     }
 
     @FunctionalInterface
-    public interface DataPartSelector<T extends EntityData>
+    public interface DataPartSelector<T extends EntityData<?>>
     {
-
         ModelPartTransform selectPart(T data);
-
     }
 
     @FunctionalInterface
-    public interface ModelPartSelector<T extends EntityData>
+    public interface ModelPartSelector<T extends EntityData<?>>
     {
-
-        ModelRenderer selectPart(MutatedArmorModel model);
-
+        ModelRenderer selectPart(ArmorWrapper model);
     }
-
 }

@@ -24,9 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MutatedArmorModel extends ModelBiped
+public class ArmorWrapper extends ModelBiped
 {
-
     protected ModelBiped original;
     protected List<Field> gatheredFields = new ArrayList<>();
 
@@ -72,9 +71,20 @@ public class MutatedArmorModel extends ModelBiped
 
     protected AppendageSlicer appendageSlicer = new AppendageSlicer();
 
-    public MutatedArmorModel(ModelBiped original)
+    private ArmorWrapper(ModelBiped original)
     {
         this.original = original;
+        // Replacing our unused modelRenderer properties with the ones from
+        // the original model, meaning that whenever some internal method changes
+        // the visibility of a model we can get it from these.
+        this.bipedBody = original.bipedBody;
+        this.bipedHead = original.bipedHead;
+        this.bipedLeftArm = original.bipedLeftArm;
+        this.bipedRightArm = original.bipedRightArm;
+        this.bipedLeftLeg = original.bipedLeftLeg;
+        this.bipedRightLeg = original.bipedRightLeg;
+        this.bipedHeadwear = original.bipedHeadwear;
+
         this.mainBodyTransform = new ModelPartTransform();
 
         this.partGroups = new ArrayList<>();
@@ -88,12 +98,20 @@ public class MutatedArmorModel extends ModelBiped
         this.partGroups.add(this.rightForeArmParts = new PartGroup<>(data -> data.rightForeArm, model -> model.bipedRightArm));
         this.partGroups.add(this.leftForeLegParts = new PartGroup<>(data -> data.leftForeLeg, model -> model.bipedLeftLeg));
         this.partGroups.add(this.rightForeLegParts = new PartGroup<>(data -> data.rightForeLeg, model -> model.bipedRightLeg));
+
+        // Mutating by default, but not applying yet.
+        this.mutate();
     }
 
     @Override
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
                        float headPitch, float scale)
     {
+        if (!this.mutated)
+        {
+            throw new IllegalStateException("Operating on a demutated armor wrapper.");
+        }
+
         this.apply();
 
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
@@ -138,8 +156,6 @@ public class MutatedArmorModel extends ModelBiped
         renderPartGroups(rightForeLegParts, scale, dataBiped.rightLeg);
 
         GlStateManager.popMatrix();
-
-        this.deapply();
     }
 
     private void renderPartGroups(PartGroup<BipedEntityData<?>> group, float scale, ModelPartTransform ...dependencies)
@@ -191,7 +207,7 @@ public class MutatedArmorModel extends ModelBiped
     {
         if (this.mutated)
         {
-            this.demutate();
+            throw new IllegalStateException("Cannot mutate twice");
         }
 
         this.partGroups.forEach(PartGroup::clear);
@@ -236,8 +252,6 @@ public class MutatedArmorModel extends ModelBiped
         this.positionParts();
 
         this.mutated = true;
-
-        this.apply();
     }
 
     /**
@@ -256,6 +270,11 @@ public class MutatedArmorModel extends ModelBiped
 
     public void apply()
     {
+        if (!this.mutated)
+        {
+            throw new IllegalStateException("Operating on a demutated armor wrapper.");
+        }
+
         if (this.applied)
             return;
 
@@ -279,6 +298,11 @@ public class MutatedArmorModel extends ModelBiped
 
     public void deapply()
     {
+        if (!this.mutated)
+        {
+            throw new IllegalStateException("Operating on a demutated armor wrapper.");
+        }
+
         if (!this.applied)
             return;
 
@@ -412,12 +436,8 @@ public class MutatedArmorModel extends ModelBiped
         rightArmParts.forEach(part -> appendageSlicer.slice(this, part, rightForeArmParts, 6F));
     }
 
-    public static MutatedArmorModel createFrom(ModelBiped src)
+    public static ArmorWrapper createFor(ModelBiped src)
     {
-        final MutatedArmorModel customModel = new MutatedArmorModel(src);
-        customModel.mutate();
-
-        return customModel;
+        return new ArmorWrapper(src);
     }
-
 }

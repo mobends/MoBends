@@ -71,14 +71,8 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
     	
     	final ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model);
 
-    	if (entityData instanceof BipedEntityData && !ModConfig.shouldKeepArmorAsVanilla(itemStack.getItem()))
-    	{
-    		return ArmorModelFactory.getArmorModel(suggestedModel);
-    	}
-    	else
-    	{
-    		return suggestedModel;
-    	}
+        boolean shouldBeMutated = !ModConfig.shouldKeepArmorAsVanilla(itemStack.getItem()) && entityData instanceof BipedEntityData;
+
+        return ArmorModelFactory.getArmorModel(suggestedModel, shouldBeMutated);
     }
-    
 }
