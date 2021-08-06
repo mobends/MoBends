@@ -81,6 +81,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    testCompile "junit:junit:4.11"
 }
 
 jar {
@@ -98,6 +99,10 @@ jar {
         )
     }
 }
+
+// Temporary fix for resources not being available during testing
+// Comment this out upon publishing
+sourceSets {main { output.resourcesDir = output.classesDir }}
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file

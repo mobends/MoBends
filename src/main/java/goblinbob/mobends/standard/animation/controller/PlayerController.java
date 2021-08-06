@@ -11,6 +11,7 @@ import goblinbob.mobends.standard.animation.bit.player.*;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.PlayerData;
 import goblinbob.mobends.standard.main.ModConfig;
+import goblinbob.mobends.standard.main.ModConfig.ItemClassification;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
@@ -30,7 +31,6 @@ import java.util.List;
  */
 public class PlayerController implements IAnimationController<PlayerData>
 {
-
     protected HardAnimationLayer<BipedEntityData<?>> layerBase = new HardAnimationLayer<>();
     protected HardAnimationLayer<BipedEntityData<?>> layerTorch = new HardAnimationLayer<>();
     protected HardAnimationLayer<BipedEntityData<?>> layerSneak = new HardAnimationLayer<>();
@@ -89,7 +89,12 @@ public class PlayerController implements IAnimationController<PlayerData>
 
     public static boolean isHoldingWeapon(Item heldItemMainhand)
     {
-        return heldItemMainhand instanceof ItemSword || ModConfig.getItemClassification(heldItemMainhand) == ModConfig.ItemClassification.WEAPON;
+        ItemClassification classification = ModConfig.getItemClassification(heldItemMainhand);
+
+        return (
+            classification == ModConfig.ItemClassification.WEAPON ||
+            (classification == ModConfig.ItemClassification.UNKNOWN && heldItemMainhand instanceof ItemSword)
+        );
     }
 
     public void performActionAnimations(PlayerData data, AbstractClientPlayer player)
@@ -266,5 +271,4 @@ public class PlayerController implements IAnimationController<PlayerData>
 
         return ArmPose.EMPTY;
     }
-
 }

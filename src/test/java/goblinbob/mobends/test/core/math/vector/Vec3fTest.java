@@ -1,10 +1,10 @@
 package goblinbob.mobends.test.core.math.vector;
 
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.math.vector.VectorUtils;
-import org.junit.Test;
 
 public class Vec3fTest
 {
