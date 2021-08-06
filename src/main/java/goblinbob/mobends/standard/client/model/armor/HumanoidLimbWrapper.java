@@ -80,7 +80,7 @@ public class HumanoidLimbWrapper extends HumanoidPartWrapper
             else
             {
                 // Lower leg, adding the unchanged box.
-                mutatedBoxes.add(box);
+                lowerPart.addVanillaBox(box);
             }
         }
     }

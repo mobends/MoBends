@@ -10,6 +10,7 @@ import goblinbob.mobends.core.math.vector.IVec3f;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
+import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.TextureOffset;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -244,6 +245,13 @@ public class ModelPart extends ModelRenderer implements IModelPart
     public BoxFactory developBox(float x, float y, float z, int dx, int dy, int dz, float scaleFactor)
     {
         return new BoxFactory(x, y, z, dx, dy, dz, scaleFactor).setTarget(this);
+    }
+
+    public ModelPart addVanillaBox(ModelBox box)
+    {
+        this.cubeList.add(box);
+        this.compiled = false;
+        return this;
     }
 
     public ModelPart addBox(MutatedBox box)

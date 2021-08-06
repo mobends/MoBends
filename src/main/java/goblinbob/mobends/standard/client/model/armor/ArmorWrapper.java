@@ -7,6 +7,7 @@ import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.PlayerData;
+import goblinbob.mobends.standard.main.MoBends;
 import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
@@ -36,7 +37,8 @@ public class ArmorWrapper extends ModelBiped
     protected List<IPartWrapper> partWrappers;
 
     protected IPartWrapper bodyParts,
-                           headParts;
+                           headParts,
+                           headwearParts;
     protected IPartWrapper leftArmParts,
                            rightArmParts,
                            leftLegParts,
@@ -61,6 +63,7 @@ public class ArmorWrapper extends ModelBiped
         this.partWrappers = new ArrayList<>();
         this.bodyParts = registerWrapper(new HumanoidPartWrapper(data -> data.body, model -> model.bipedBody, (model, part) -> model.bipedBody = part));
         this.headParts = registerWrapper(new HumanoidPartWrapper(data -> data.head, model -> model.bipedHead, (model, part) -> model.bipedHead = part));
+        this.headwearParts = registerWrapper(new HumanoidPartWrapper(data -> data.head, model -> model.bipedHeadwear, (model, part) -> model.bipedHeadwear = part));
         this.leftArmParts = registerWrapper(new HumanoidLimbWrapper(data -> data.leftArm, data -> data.leftForeArm, model -> model.bipedLeftArm, (model, part) -> model.bipedLeftArm = part));
         this.rightArmParts = registerWrapper(new HumanoidLimbWrapper(data -> data.rightArm, data -> data.rightForeArm, model -> model.bipedRightArm, (model, part) -> model.bipedRightArm = part));
         this.leftLegParts = registerWrapper(new HumanoidLimbWrapper(data -> data.leftLeg, data -> data.leftForeLeg, model -> model.bipedLeftLeg, (model, part) -> model.bipedLeftLeg = part));
@@ -76,6 +79,7 @@ public class ArmorWrapper extends ModelBiped
 
         this.bodyParts.offsetInner(0, -12.0F, 0);
         this.headParts.setParent(this.bodyTransform);
+        this.headwearParts.setParent(this.bodyTransform);
         this.leftArmParts.setParent(this.bodyTransform);
         this.rightArmParts.setParent(this.bodyTransform);
 
@@ -131,6 +135,8 @@ public class ArmorWrapper extends ModelBiped
         }
 
         GlStateManager.popMatrix();
+
+        this.deapply();
     }
 
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
@@ -167,15 +173,12 @@ public class ArmorWrapper extends ModelBiped
         this.deapply();
         this.partWrappers.clear();
         this.mutated = false;
+
+        MoBends.LOG.info("Demutating the armor");
     }
 
     public void apply()
     {
-        if (!this.mutated)
-        {
-            throw new MalformedArmorModel("Operating on a demutated armor wrapper.");
-        }
-
         if (this.applied)
             return;
 
@@ -190,11 +193,6 @@ public class ArmorWrapper extends ModelBiped
 
     public void deapply()
     {
-        if (!this.mutated)
-        {
-            throw new MalformedArmorModel("Operating on a demutated armor wrapper.");
-        }
-
         if (!this.applied)
             return;
 

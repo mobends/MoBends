@@ -15,7 +15,6 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	 */
 	
 	public ModelPartTransform head;
-    public ModelPartTransform headwear;
     public ModelPartTransform body;
     public ModelPartTransform rightArm;
     public ModelPartTransform leftArm;
@@ -43,7 +42,6 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		
 		this.body = new ModelPartTransform();
 		this.head = new ModelPartTransform(this.body);
-		this.headwear = new ModelPartTransform(this.head);
 		this.rightArm = new ModelPartTransform(this.body);
 		this.leftArm = new ModelPartTransform(this.body);
 		this.rightLeg = new ModelPartTransform();
@@ -88,7 +86,6 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		super.updateParts(ticksPerFrame);
 		
 		this.head.update(ticksPerFrame);
-		this.headwear.update(ticksPerFrame);
 		this.body.update(ticksPerFrame);
 		this.rightArm.update(ticksPerFrame);
 		this.leftArm.update(ticksPerFrame);
