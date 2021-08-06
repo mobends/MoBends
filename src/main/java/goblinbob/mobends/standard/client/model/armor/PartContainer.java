@@ -1,5 +1,6 @@
-package goblinbob.mobends.core.client.model;
+package goblinbob.mobends.standard.client.model.armor;
 
+import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.TransformUtils;
 import goblinbob.mobends.core.math.matrix.IMat4x4d;
@@ -13,9 +14,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ModelPartContainer extends ModelRenderer implements IModelPart
+public class PartContainer extends ModelRenderer implements IModelPart
 {
-	
 	public Vec3f position;
 	/**
 	 * A secondary position variable is used to offset
@@ -36,41 +36,71 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	 */
 	public Vec3f globalOffset = new Vec3f();
 	
-	private ModelRenderer model;
+	private ModelRenderer innerModel;
 	
 	protected IModelPart parent;
 	protected ICollider collider;
 	
-	public ModelPartContainer(ModelBase modelBase, ModelRenderer model)
+	public PartContainer(ModelBase modelBase, ModelRenderer model)
 	{
 		super(modelBase, 0, 0);
-		this.model = model;
+		this.innerModel = model;
 		this.position = new Vec3f();
 		this.offset = new Vec3f();
 		this.innerOffset = new Vec3f();
 		this.scale = new Vec3f(1, 1, 1);
 		this.rotation = new SmoothOrientation();
+		
+		this.mirror = model.mirror;
 	}
 
-	public ModelRenderer getModel() { return this.model; }
+	public ModelRenderer getModel() { return this.innerModel; }
 	public IModelPart getParent() { return this.parent; }
 	
-	public ModelPartContainer setParent(IModelPart parent)
+	public PartContainer setParent(IModelPart parent)
 	{
 		this.parent = parent;
 		return this;
 	}
 	
-	public ModelPartContainer setPosition(float x, float y, float z)
+	public PartContainer setPosition(float x, float y, float z)
 	{
 		this.position.set(x, y, z);
 		return this;
 	}
 	
-	public ModelPartContainer setInnerOffset(float x, float y, float z)
+	public PartContainer setInnerOffset(float x, float y, float z)
 	{
 		this.innerOffset.set(x, y, z);
 		return this;
+	}
+
+	private void renderContainedModel(float scale)
+	{
+		float x = this.innerModel.rotationPointX;
+		float y = this.innerModel.rotationPointY;
+		float z = this.innerModel.rotationPointZ;
+		float ox = this.innerModel.offsetX;
+		float oy = this.innerModel.offsetY;
+		float oz = this.innerModel.offsetZ;
+		
+		// We assume that the rotation angle is updated each frame (since they're the original parts.)
+		this.innerModel.rotateAngleX = this.innerModel.rotateAngleY = this.innerModel.rotateAngleZ = 0;
+		this.innerModel.rotationPointX = this.innerModel.rotationPointY = this.innerModel.rotationPointZ = 0;
+		this.innerModel.offsetX = this.innerModel.offsetY = this.innerModel.offsetZ = 0;
+		this.innerModel.showModel = true;
+		this.innerModel.isHidden = false;
+
+		// Rendering the model, with no offset and rotation.
+        this.innerModel.render(scale);
+		
+		// Restoring the previous values.
+		this.innerModel.rotationPointX = x;
+		this.innerModel.rotationPointY = y;
+		this.innerModel.rotationPointZ = z;
+		this.innerModel.offsetX = ox;
+		this.innerModel.offsetY = oy;
+		this.innerModel.offsetZ = oz;
 	}
 	
 	@Override
@@ -87,14 +117,13 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		
         GlStateManager.pushMatrix();
         this.applyCharacterTransform(scale);
-        this.model.rotateAngleX = this.model.rotateAngleY = this.model.rotateAngleZ = 0;
         
         // This is applied outside the standalone transform method, so that children aren't affected.
         if (this.innerOffset.x != 0.0F || this.innerOffset.y != 0.0F || this.innerOffset.z != 0.0F)
-        	GlStateManager.translate(this.innerOffset.x * scale, this.innerOffset.y * scale, this.innerOffset.z * scale);
+		GlStateManager.translate(this.innerOffset.x * scale, this.innerOffset.y * scale, this.innerOffset.z * scale);
         
-        this.model.render(scale);
-        
+		this.renderContainedModel(scale);
+
         if (this.childModels != null)
         {
             for (int k = 0; k < this.childModels.size(); ++k)
@@ -117,7 +146,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
         if (this.innerOffset.x != 0.0F || this.innerOffset.y != 0.0F || this.innerOffset.z != 0.0F)
         	GlStateManager.translate(this.innerOffset.x * scale, this.innerOffset.y * scale, this.innerOffset.z * scale);
         
-        this.model.render(scale);
+        this.renderContainedModel(scale);
         
         if (this.childModels != null)
         {
@@ -192,6 +221,7 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 	{
 		if(part == null)
 			return;
+		
 		this.position.set(part.getPosition());
 		this.rotation.set(part.getRotation());
 		this.offset.set(part.getOffset());
@@ -239,5 +269,4 @@ public class ModelPartContainer extends ModelRenderer implements IModelPart
 		if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
     		TransformUtils.scale(matrix, this.scale.x, this.scale.y, this.scale.z);
 	}
-	
 }

@@ -24,7 +24,6 @@ import java.util.List;
 
 public class ModelPart extends ModelRenderer implements IModelPart
 {
-
     public Vec3f position = new Vec3f();
     public Vec3f scale = new Vec3f(1, 1, 1);
     public Vec3f offset = new Vec3f();
@@ -409,5 +408,4 @@ public class ModelPart extends ModelRenderer implements IModelPart
     {
         return this.textureOffsetY;
     }
-
 }

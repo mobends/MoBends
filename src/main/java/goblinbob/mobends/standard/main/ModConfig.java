@@ -48,6 +48,10 @@ public class ModConfig
             if (event.getModID().equals(ModStatics.MODID))
             {
                 ConfigManager.sync(ModStatics.MODID, Config.Type.INSTANCE);
+
+                // Clearing the cache
+                itemClassificationCache.clear();
+                keepArmorAsVanillaCache.clear();
             }
         }
     }

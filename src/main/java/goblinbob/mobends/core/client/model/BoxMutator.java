@@ -6,18 +6,14 @@ import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.TexturedQuad;
 
-import java.util.Collection;
-
 public class BoxMutator
 {
-	
 	protected ModelBase targetModel;
 	protected ModelRenderer targetRenderer;
 	protected BoxFactory factory;
 	
 	protected int textureOffsetX;
 	protected int textureOffsetY;
-	protected float globalBoxX, globalBoxY, globalBoxZ;
 	
 	public BoxMutator(ModelBase targetModel, ModelRenderer targetRenderer, BoxFactory factory, int textureOffsetX, int textureOffsetY)
 	{
@@ -26,10 +22,6 @@ public class BoxMutator
 		this.factory = factory;
 		this.textureOffsetX = textureOffsetX;
 		this.textureOffsetY = textureOffsetY;
-		
-		this.globalBoxX = this.targetRenderer.rotationPointX + this.factory.min.x;
-		this.globalBoxY = this.targetRenderer.rotationPointY + this.factory.min.y;
-		this.globalBoxZ = this.targetRenderer.rotationPointZ + this.factory.min.z;
 	}
 	
 	/*
@@ -43,13 +35,6 @@ public class BoxMutator
 		{
 			return null;
 		}
-		
-		final float x = original.posX1;
-		final float y = original.posY1;
-		final float z = original.posZ1;
-		int width = (int) (original.posX2 - original.posX1);
-		int height = (int) (original.posY2 - original.posY1);
-		int length = (int) (original.posZ2 - original.posZ1);
 
 		float textureWidth = modelRenderer.textureWidth;
 		float textureHeight = modelRenderer.textureHeight;
@@ -83,102 +68,50 @@ public class BoxMutator
 		return this.textureOffsetY;
 	}
 	
-	public float getGlobalBoxX()
-	{
-		return this.globalBoxX;
-	}
-	
-	public float getGlobalBoxY()
-	{
-		return this.globalBoxY;
-	}
-	
-	public float getGlobalBoxZ()
-	{
-		return this.globalBoxZ;
-	}
-	
 	/*
-	 * Offsets the global position of this box to include what it's
-	 * parent would offset it by. This is helpful when slicing the target
-	 * box into mutliple boxes, so that the slice plane matches the model
-	 * space.
+	 * This will move the box to a new location.
 	 */
-	public void includeParentTransform(ModelRenderer parentRenderer)
+	public void offsetBy(float offsetX, float offsetY, float offsetZ)
 	{
-		this.globalBoxX += parentRenderer.rotationPointX;
-		this.globalBoxY += parentRenderer.rotationPointY;
-		this.globalBoxZ += parentRenderer.rotationPointZ;
-	}
-	
-	public void includeParentTransform(Collection<ModelRenderer> parentsList)
-	{
-		for (ModelRenderer parent : parentsList)
-		{
-			this.includeParentTransform(parent);
-		}
-	}
-	
-	/*
-	 * This will move the box to a new location, so that when the new
-	 * origin will be applied, it will stay in the same place.
-	 * 
-	 * The origin is in model space (aka. global space)
-	 */
-	public void offsetBasedOnNewOrigin(float originX, float originY, float originZ)
-	{
-		float offsetX = originX - this.globalBoxX;
-		float offsetY = originY - this.globalBoxY;
-		float offsetZ = originZ - this.globalBoxZ;
-		
-		this.factory.offset(-offsetX, -offsetY, -offsetZ);
-	}
-	
-	/*
-	 * This will reverse the effect of the offsetBasedOnNewOrigin function.
-	 * 
-	 * The origin is in model space (aka. global space)
-	 */
-	public void offsetBackBasedOnNewOrigin(float originX, float originY, float originZ)
-	{
-		float offsetX = originX - this.globalBoxX;
-		float offsetY = originY - this.globalBoxY;
-		float offsetZ = originZ - this.globalBoxZ;
-		
 		this.factory.offset(offsetX, offsetY, offsetZ);
 	}
 	
-	public BoxFactory sliceFromBottom(float sliceY, boolean preservePositions)
+	/**
+	 * 
+	 * @param sliceY Position of the slice relative to the parent modelRenderer.
+	 * @return
+	 */
+	public BoxFactory sliceFromBottom(float sliceY)
 	{
 		final float height = this.factory.max.y - this.factory.min.y;
-		final float localSliceY = sliceY - this.globalBoxY;
 		
 		// If slicing is necessarry (if the cut plane intersects the box)
-		if (localSliceY > this.factory.min.y && localSliceY < this.factory.max.y)
+		if (sliceY > this.factory.min.y && sliceY < this.factory.max.y)
 		{
-			final float newHeight = localSliceY;
+			final float newHeight = sliceY - this.factory.min.y;
 
-			final TextureFace[] slidesFaces = new TextureFace[6];
+			final TextureFace[] newBoxFaces = new TextureFace[6];
 			final BoxSide[] faces = { BoxSide.BACK, BoxSide.FRONT, BoxSide.LEFT, BoxSide.RIGHT };
 			for (BoxSide faceEnum : faces)
 			{
-				final float textureOffset = newHeight / height;
+				final float textureScale = newHeight / height;
 
 				final TextureFace face = this.factory.faces[faceEnum.faceIndex];
-				int sliceV = (int) (face.vPos + (face.vSize) * textureOffset);
-				slidesFaces[faceEnum.faceIndex] = new TextureFace(face.uPos, sliceV, face.uSize, face.vPos + face.vSize - sliceV);
-				face.vSize = sliceV - face.vPos;
+				int vSizeSlice = (int) (face.vSize * textureScale);
+				
+				newBoxFaces[faceEnum.faceIndex] = new TextureFace(face.uPos, face.vPos + vSizeSlice, face.uSize, face.vSize - vSizeSlice);
+				face.vSize = vSizeSlice;
 			}
-			slidesFaces[BoxSide.TOP.faceIndex] = new TextureFace(this.factory.faces[BoxSide.TOP.faceIndex]);
-			slidesFaces[BoxSide.BOTTOM.faceIndex] = new TextureFace(this.factory.faces[BoxSide.BOTTOM.faceIndex]);
 
-			// Create the slice
-			final float slicedY = preservePositions ? localSliceY : 0;
-			final BoxFactory sliced = new BoxFactory(factory.min.x, localSliceY, factory.min.z, factory.max.x, factory.max.y, factory.max.z, slidesFaces);
+			newBoxFaces[BoxSide.TOP.faceIndex] = new TextureFace(this.factory.faces[BoxSide.TOP.faceIndex]);
+			newBoxFaces[BoxSide.BOTTOM.faceIndex] = new TextureFace(this.factory.faces[BoxSide.BOTTOM.faceIndex]);
+
+			// Create the sliced box
+			final BoxFactory sliced = new BoxFactory(factory.min.x, sliceY, factory.min.z, factory.max.x, factory.max.y, factory.max.z, newBoxFaces);
 			sliced.hideFace(BoxSide.TOP);
 
 			// Shorten the original part
-			factory.max.setY(localSliceY + this.factory.min.y);
+			factory.max.setY(sliceY);
 			factory.hideFace(BoxSide.BOTTOM);
 			
 			return sliced;
@@ -187,5 +120,4 @@ public class BoxMutator
 		// Nothing was cut
 		return null;
 	}
-	
 }
