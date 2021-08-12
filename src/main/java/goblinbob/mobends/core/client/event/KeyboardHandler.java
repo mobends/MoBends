@@ -7,6 +7,7 @@ import goblinbob.mobends.core.client.gui.GuiBendsMenu;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.pack.PackDataProvider;
 import goblinbob.mobends.core.util.GsonResources;
+import goblinbob.mobends.standard.main.MoBends;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -36,12 +37,7 @@ public class KeyboardHandler
         }
         else if (KEY_REFRESH.isPressed())
         {
-            AnimationLoader.clearCache();
-            GsonResources.clearCache();
-            PackDataProvider.INSTANCE.clearCache();
-            EntityDatabase.instance.refresh();
-            EntityBenderRegistry.instance.refreshMutators();
-            Addons.onRefresh();
+            MoBends.refreshSystems();
         }
     }
 

@@ -12,7 +12,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EntityRenderHandler
 {
-
     @SubscribeEvent
     public void beforeLivingRender(RenderLivingEvent.Pre<? extends EntityLivingBase> event)
     {
@@ -54,5 +53,4 @@ public class EntityRenderHandler
 
         GlStateManager.popMatrix();
     }
-
 }

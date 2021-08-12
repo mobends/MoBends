@@ -1,5 +1,7 @@
 package goblinbob.mobends.standard.main;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Config;
@@ -8,7 +10,9 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import goblinbob.mobends.core.util.WildcardPattern;
@@ -28,11 +32,22 @@ public class ModConfig
     public static String[] toolItems = new String[] {};
     @Config.LangKey(ModStatics.MODID + ".config.keep_armor_as_vanilla")
     public static String[] keepArmorAsVanilla = new String[] {};
+    @Config.LangKey(ModStatics.MODID + ".config.keep_entity_as_vanilla")
+    public static String[] keepEntityAsVanilla = new String[] {};
 
     @Config.Ignore
-    private static Map<Item, ItemClassification> itemClassificationCache = new HashMap<>();
+    private static Map<Item, Boolean> keepArmorAsVanillaCache;
     @Config.Ignore
-    private static Map<Item, Boolean> keepArmorAsVanillaCache = new HashMap<>();
+    private static Map<Entity, Boolean> keepEntityAsVanillaCache;
+    @Config.Ignore
+    private static Map<Item, ItemClassification> itemClassificationCache;
+
+    @Config.Ignore
+    private static List<Map<?, ?>> caches = Arrays.asList(
+        keepArmorAsVanillaCache = new HashMap<>(),
+        keepEntityAsVanillaCache = new HashMap<>(),
+        itemClassificationCache = new HashMap<>()
+    );
 
     @Mod.EventBusSubscriber(modid = ModStatics.MODID)
     private static class EventHandler
@@ -49,9 +64,13 @@ public class ModConfig
             {
                 ConfigManager.sync(ModStatics.MODID, Config.Type.INSTANCE);
 
-                // Clearing the cache
-                itemClassificationCache.clear();
-                keepArmorAsVanillaCache.clear();
+                // Clearing the caches
+                for (Map<?, ?> cache : caches)
+                {
+                    cache.clear();
+                }
+
+                MoBends.refreshSystems();
             }
         }
     }
@@ -88,47 +107,39 @@ public class ModConfig
         return false;
     }
 
-    private static boolean checkForClassification(Item item, ItemClassification classification, String[] patterns)
-    {
-        if (checkForPatterns(item.getRegistryName(), patterns))
-        {
-            itemClassificationCache.put(item, classification);
-            return true;
-        }
-
-        return false;
-    }
-
     public static ItemClassification getItemClassification(Item item)
     {
         // If cached before, returning the cached classification.
-        if (itemClassificationCache.containsKey(item))
-            return itemClassificationCache.get(item);
+        return itemClassificationCache.computeIfAbsent(item, (i) -> {
+            ResourceLocation location = item.getRegistryName();
 
-        if (checkForClassification(item,  ItemClassification.WEAPON, weaponItems))
-            return ItemClassification.WEAPON;
+            if (checkForPatterns(location, weaponItems))
+                return ItemClassification.WEAPON;
 
-        if (checkForClassification(item,  ItemClassification.TOOL, toolItems))
-            return ItemClassification.TOOL;
+            if (checkForPatterns(location, toolItems))
+                return ItemClassification.TOOL;
 
-        // Unclassified
-        itemClassificationCache.put(item, ItemClassification.UNKNOWN);
-        return ItemClassification.UNKNOWN;
+            // Unclassified
+            return ItemClassification.UNKNOWN;
+        });
     }
-
+    
     public static boolean shouldKeepArmorAsVanilla(Item item)
     {
         // If cached before, returning the cached result.
-        if (keepArmorAsVanillaCache.containsKey(item))
-            return keepArmorAsVanillaCache.get(item);
+        return keepArmorAsVanillaCache.computeIfAbsent(item, (i) -> {
+            return checkForPatterns(i.getRegistryName(), keepArmorAsVanilla);
+        });
+    }
 
-        if (checkForPatterns(item.getRegistryName(), keepArmorAsVanilla))
-        {
-            keepArmorAsVanillaCache.put(item, true);
-            return true;
-        }
+    public static boolean shouldKeepEntityAsVanilla(Entity entity)
+    {
+        // If cached before, returning the cached result.
+        return keepEntityAsVanillaCache.computeIfAbsent(entity, (e) -> {
+            ResourceLocation location = EntityList.getKey(entity);
 
-        keepArmorAsVanillaCache.put(item, false);
-        return false;
+            // The player, for example, doesn't have a key.
+            return location != null && checkForPatterns(location, keepEntityAsVanilla);
+        });
     }
 }

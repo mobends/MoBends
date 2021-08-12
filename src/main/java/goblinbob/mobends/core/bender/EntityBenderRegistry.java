@@ -2,6 +2,7 @@ package goblinbob.mobends.core.bender;
 
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
+import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.entity.EntityLivingBase;
 
 import java.util.*;
@@ -66,6 +67,12 @@ public class EntityBenderRegistry
             // noinspection unchecked
             return (EntityBender<E>) entityToBenderMap.get(entity);
 
+        // Checking the config blacklist
+        if (ModConfig.shouldKeepEntityAsVanilla(entity))
+        {
+            return null;
+        }
+
         // Checking direct registration
         Class<? extends EntityLivingBase> entityClass = entity.getClass();
         for (EntityBender<?> entityBender : entityClassToBenderMap.values())
@@ -108,6 +115,8 @@ public class EntityBenderRegistry
 
     public void refreshMutators()
     {
+        clearCache();
+
         for (EntityBender<?> entityBender : entityClassToBenderMap.values())
             entityBender.refreshMutation();
     }
