@@ -7,10 +7,9 @@ import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.PlayerData;
-import goblinbob.mobends.standard.main.MoBends;
 import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.model.ModelBiped;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -38,13 +37,21 @@ public class ArmorWrapper extends ModelBiped
 
     protected IPartWrapper bodyParts,
                            headParts,
-                           headwearParts;
-    protected IPartWrapper leftArmParts,
+                           headwearParts,
+                           leftArmParts,
                            rightArmParts,
                            leftLegParts,
                            rightLegParts;
 
     protected ModelPartTransform bodyTransform;
+
+    private static final IPartWrapper.ModelPartSetter bodySetter = (model, part) -> model.bipedBody = part;
+    private static final IPartWrapper.ModelPartSetter headSetter = (model, part) -> model.bipedHead = part;
+    private static final IPartWrapper.ModelPartSetter headwearSetter = (model, part) -> model.bipedHeadwear = part;
+    private static final IPartWrapper.ModelPartSetter leftArmSetter = (model, part) -> model.bipedLeftArm = part;
+    private static final IPartWrapper.ModelPartSetter rightArmSetter = (model, part) -> model.bipedRightArm = part;
+    private static final IPartWrapper.ModelPartSetter leftLegSetter = (model, part) -> model.bipedLeftLeg = part;
+    private static final IPartWrapper.ModelPartSetter rightLegSetter = (model, part) -> model.bipedRightLeg = part;
 
     private ArmorWrapper(ModelBiped original)
     {
@@ -60,35 +67,35 @@ public class ArmorWrapper extends ModelBiped
         this.bipedRightLeg = original.bipedRightLeg;
         this.bipedHeadwear = original.bipedHeadwear;
 
-        this.partWrappers = new ArrayList<>();
-        this.bodyParts = registerWrapper(new HumanoidPartWrapper(data -> data.body, model -> model.bipedBody, (model, part) -> model.bipedBody = part));
-        this.headParts = registerWrapper(new HumanoidPartWrapper(data -> data.head, model -> model.bipedHead, (model, part) -> model.bipedHead = part));
-        this.headwearParts = registerWrapper(new HumanoidPartWrapper(data -> data.head, model -> model.bipedHeadwear, (model, part) -> model.bipedHeadwear = part));
-        this.leftArmParts = registerWrapper(new HumanoidLimbWrapper(data -> data.leftArm, data -> data.leftForeArm, model -> model.bipedLeftArm, (model, part) -> model.bipedLeftArm = part));
-        this.rightArmParts = registerWrapper(new HumanoidLimbWrapper(data -> data.rightArm, data -> data.rightForeArm, model -> model.bipedRightArm, (model, part) -> model.bipedRightArm = part));
-        this.leftLegParts = registerWrapper(new HumanoidLimbWrapper(data -> data.leftLeg, data -> data.leftForeLeg, model -> model.bipedLeftLeg, (model, part) -> model.bipedLeftLeg = part));
-        this.rightLegParts = registerWrapper(new HumanoidLimbWrapper(data -> data.rightLeg, data -> data.rightForeLeg, model -> model.bipedRightLeg, (model, part) -> model.bipedRightLeg = part));
-
         this.bodyTransform = new ModelPartTransform();
 
         // Mutating by default, but not applying yet.
-        for (IPartWrapper partWrapper : partWrappers)
-        {
-            partWrapper.mutate(original);
-        }
-
-        this.bodyParts.offsetInner(0, -12.0F, 0);
-        this.headParts.setParent(this.bodyTransform);
-        this.headwearParts.setParent(this.bodyTransform);
-        this.leftArmParts.setParent(this.bodyTransform);
-        this.rightArmParts.setParent(this.bodyTransform);
-
-        this.leftLegParts.offsetInner(1.9F, 0, 0);
-        this.rightLegParts.offsetInner(-1.9F, 0, 0);
+        this.partWrappers = new ArrayList<>();
+        this.bodyParts = registerWrapper(original, bipedBody, bodySetter, data -> data.body).offsetInner(0, -12.0F, 0);
+        this.headParts = registerWrapper(original, bipedHead, headSetter, data -> data.head)
+            .setParent(this.bodyTransform);
+        this.headwearParts = registerWrapper(original, bipedHeadwear, headwearSetter, data -> data.head)
+            .setParent(this.bodyTransform);
+        this.leftArmParts  = registerWrapper(original, bipedLeftArm,  leftArmSetter,  data -> data.leftArm,  data -> data.leftForeArm, 4.0F, 0.001F)
+            .offsetLower(0, -4.0F, -2.0F).setParent(this.bodyTransform);
+        this.rightArmParts = registerWrapper(original, bipedRightArm, rightArmSetter, data -> data.rightArm, data -> data.rightForeArm, 4.0F, 0.001F)
+            .offsetLower(0, -4.0F, -2.0F).setParent(this.bodyTransform);
+        this.leftLegParts  = registerWrapper(original, bipedLeftLeg,  leftLegSetter,  data -> data.leftLeg,  data -> data.leftForeLeg, 6.0F, 0F)
+            .offsetLower(1.9F, -6.0F, 2.0F).offsetInner(1.9F, 0, 0);
+        this.rightLegParts = registerWrapper(original, bipedRightLeg, rightLegSetter, data -> data.rightLeg, data -> data.rightForeLeg, 6.0F, 0F)
+            .offsetLower(-1.9F, -6.0F, 2.0F).offsetInner(-1.9F, 0, 0);
     }
 
-    private IPartWrapper registerWrapper(IPartWrapper wrapper)
+    private HumanoidPartWrapper registerWrapper(ModelBiped vanillaModel, ModelRenderer vanillaPart, IPartWrapper.ModelPartSetter setter, IPartWrapper.DataPartSelector dataSelector)
     {
+        HumanoidPartWrapper wrapper = new HumanoidPartWrapper(vanillaModel, vanillaPart, setter, dataSelector);
+        this.partWrappers.add(wrapper);
+        return wrapper;
+    }
+
+    private HumanoidLimbWrapper registerWrapper(ModelBiped vanillaModel, ModelRenderer vanillaPart, IPartWrapper.ModelPartSetter setter, IPartWrapper.DataPartSelector data, IPartWrapper.DataPartSelector lowerData, float cutPlane, float inflation)
+    {
+        HumanoidLimbWrapper wrapper = new HumanoidLimbWrapper(vanillaModel, vanillaPart, setter, data, lowerData, cutPlane, inflation);
         this.partWrappers.add(wrapper);
         return wrapper;
     }
@@ -99,12 +106,8 @@ public class ArmorWrapper extends ModelBiped
     {
         if (!this.mutated)
         {
-            throw new MalformedArmorModel("Operating on a demutated armor wrapper.");
+            throw new MalformedArmorModelException("Operating on a demutated armor wrapper.");
         }
-
-        this.apply();
-
-        this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
         if (!(entityIn instanceof EntityLivingBase))
             return;
@@ -113,41 +116,6 @@ public class ArmorWrapper extends ModelBiped
         EntityBender<EntityLivingBase> entityBender = EntityBenderRegistry.instance.getForEntity(entityLiving);
         if (entityBender == null)
             return;
-
-        EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
-        if (!(entityData instanceof BipedEntityData))
-            return;
-
-        GlStateManager.pushMatrix();
-        original.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-
-        if (entityIn.isSneaking())
-        {
-            // This value was fine-tuned to counteract the vanilla
-            // translation done to the character.
-            GlStateManager.translate(0, 0.2D, 0);
-        }
-
-        if (this.isChild)
-        {
-            GlStateManager.scale(0.5F, 0.5F, 0.5F);
-            GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
-        }
-
-        GlStateManager.popMatrix();
-
-        this.deapply();
-    }
-
-    public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-                                  float headPitch, float scaleFactor, Entity entityIn)
-    {
-        original.setModelAttributes(this);
-
-        if (!(entityIn instanceof EntityLivingBase))
-            return;
-
-        final EntityLivingBase entityLiving = (EntityLivingBase) entityIn;
 
         EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
         if (!(entityData instanceof BipedEntityData))
@@ -163,6 +131,20 @@ public class ArmorWrapper extends ModelBiped
         // Syncing up the model with animated data.
         this.bodyTransform.syncUp(dataBiped.body);
         this.partWrappers.forEach(group -> group.syncUp(dataBiped));
+
+        this.apply();
+
+        original.setModelAttributes(this);
+        original.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+
+        this.deapply();
+    }
+
+    @Override
+    public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
+                                  float headPitch, float scaleFactor, Entity entityIn)
+    {
+        // Do nothing
     }
 
     /**
@@ -173,8 +155,6 @@ public class ArmorWrapper extends ModelBiped
         this.deapply();
         this.partWrappers.clear();
         this.mutated = false;
-
-        MoBends.LOG.info("Demutating the armor");
     }
 
     public void apply()

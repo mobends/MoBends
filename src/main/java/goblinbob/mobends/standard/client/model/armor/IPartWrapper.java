@@ -8,24 +8,17 @@ import net.minecraft.client.model.ModelRenderer;
 
 public interface IPartWrapper
 {
-    public void mutate(ModelBiped originalModel);
     public void apply(ArmorWrapper armorWrapper);
     public void deapply(ArmorWrapper armorWrapper);
     public void syncUp(BipedEntityData<?> data);
 
-    public void offsetInner(float x, float y, float z);
-    public void setParent(IModelPart parent);
+    public IPartWrapper offsetInner(float x, float y, float z);
+    public IPartWrapper setParent(IModelPart parent);
 
     @FunctionalInterface
     public interface DataPartSelector
     {
         ModelPartTransform selectPart(BipedEntityData<?> data);
-    }
-
-    @FunctionalInterface
-    public interface ModelPartSelector
-    {
-        ModelRenderer selectPart(ModelBiped model);
     }
 
     @FunctionalInterface

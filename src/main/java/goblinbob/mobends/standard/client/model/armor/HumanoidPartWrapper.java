@@ -8,7 +8,6 @@ import net.minecraft.client.model.ModelRenderer;
 public class HumanoidPartWrapper implements IPartWrapper
 {
     protected IPartWrapper.DataPartSelector dataPartSelector;
-    protected IPartWrapper.ModelPartSelector modelPartSelector;
     protected IPartWrapper.ModelPartSetter modelPartSetter;
 
     /**
@@ -21,28 +20,25 @@ public class HumanoidPartWrapper implements IPartWrapper
     protected PartContainer partContainer;
 
     public HumanoidPartWrapper(
-        IPartWrapper.DataPartSelector dataPartSelector,
-        IPartWrapper.ModelPartSelector modelPartSelector,
-        IPartWrapper.ModelPartSetter modelPartSetter)
+        ModelBiped vanillaModel,
+        ModelRenderer vanillaPart,
+        IPartWrapper.ModelPartSetter modelPartSetter,
+        IPartWrapper.DataPartSelector dataPartSelector)
     {
         this.dataPartSelector = dataPartSelector;
-        this.modelPartSelector = modelPartSelector;
         this.modelPartSetter = modelPartSetter;
-    }
+        this.vanillaPart = vanillaPart;
 
-    @Override
-    public void mutate(ModelBiped originalModel)
-    {
-        this.vanillaPart = modelPartSelector.selectPart(originalModel);
+        // Mutating by default
 
-        if (this.vanillaPart instanceof PartContainer)
+        if (vanillaPart instanceof PartContainer)
         {
-            throw new MalformedArmorModel("Tried to mutate a previously mutated part. " +
+            throw new MalformedArmorModelException("Tried to mutate a previously mutated part. " +
                 "A ModelRenderer instance has to have been used between Model instances.");
         }
 
         // Create a part container for the original MR.
-        this.partContainer = new PartContainer(originalModel, this.vanillaPart);
+        this.partContainer = new PartContainer(vanillaModel, vanillaPart);
     }
 
     @Override
@@ -74,14 +70,16 @@ public class HumanoidPartWrapper implements IPartWrapper
     }
 
     @Override
-    public void offsetInner(float x, float y, float z)
+    public IPartWrapper setParent(IModelPart parent)
     {
-        partContainer.setInnerOffset(x, y, z);
+        partContainer.setParent(parent);
+        return this;
     }
 
     @Override
-    public void setParent(IModelPart parent)
+    public IPartWrapper offsetInner(float x, float y, float z)
     {
-        partContainer.setParent(parent);
+        partContainer.setInnerOffset(x, y, z);
+        return this;
     }
 }

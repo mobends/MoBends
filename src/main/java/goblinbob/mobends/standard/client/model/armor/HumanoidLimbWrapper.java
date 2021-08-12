@@ -1,61 +1,72 @@
 package goblinbob.mobends.standard.client.model.armor;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import goblinbob.mobends.core.client.model.BoxFactory;
 import goblinbob.mobends.core.client.model.BoxMutator;
+import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
-import goblinbob.mobends.core.client.model.MutatedBox;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBox;
+import net.minecraft.client.model.ModelRenderer;
 
-public class HumanoidLimbWrapper extends HumanoidPartWrapper
+public class HumanoidLimbWrapper implements IPartWrapper
 {
-    private List<ModelBox> vanillaBoxes = new LinkedList<>();
-    /**
-     * A list of both slices boxes and original boxes that didn't have to get sliced.
-     */
-    private List<ModelBox> mutatedBoxes = new LinkedList<>();
+    private final ModelRenderer vanillaPart;
+    protected IPartWrapper.DataPartSelector upperPartDataSelector;
+    protected IPartWrapper.ModelPartSetter modelPartSetter;
+    private final IPartWrapper.DataPartSelector lowerPartDataSelector;
+    private final float inflation;
 
-    private IPartWrapper.DataPartSelector lowerPartDataSelector;
+    private ModelPart upperPart;
+    private ModelPart upperPartAnchor;
     private ModelPart lowerPart;
+    private ModelPart lowerPartAnchor;
 
     public HumanoidLimbWrapper(
+        ModelBiped vanillaModel,
+        ModelRenderer vanillaPart,
+        IPartWrapper.ModelPartSetter modelPartSetter,
         IPartWrapper.DataPartSelector upperPartDataSelector,
         IPartWrapper.DataPartSelector lowerPartDataSelector,
-        IPartWrapper.ModelPartSelector modelPartSelector,
-        IPartWrapper.ModelPartSetter modelPartSetter)
+        float cutPlane,
+        float inflation)
     {
-        super(upperPartDataSelector, modelPartSelector, modelPartSetter);
-
+        this.vanillaPart = vanillaPart;
+        this.upperPartDataSelector = upperPartDataSelector;
         this.lowerPartDataSelector = lowerPartDataSelector;
+        this.modelPartSetter = modelPartSetter;
+        this.inflation = inflation;
+
+        if (vanillaPart instanceof PartContainer)
+        {
+            throw new MalformedArmorModelException("Tried to mutate a previously mutated part. " +
+                "A ModelRenderer instance has to have been used between Model instances.");
+        }
+
+        this.upperPart = new ModelPart(vanillaModel, false);
+        this.upperPartAnchor = (new ModelPart(vanillaModel, false));
+        this.lowerPart = new ModelPart(vanillaModel, false);
+        this.lowerPartAnchor = (new ModelPart(vanillaModel, false));
+
+        this.upperPart.addChild(this.upperPartAnchor);
+        this.upperPart.addChild(this.lowerPart);
+        this.lowerPart.addChild(this.lowerPartAnchor);
+
+        upperPart.mirror = upperPartAnchor.mirror = lowerPart.mirror = lowerPartAnchor.mirror = vanillaPart.mirror;
+
+        this.sliceAppendage(vanillaModel, vanillaPart, cutPlane);
     }
 
-    @Override
-    public void mutate(ModelBiped originalModel)
+    private void sliceAppendage(ModelBiped vanillaModel, ModelRenderer vanillaPart, float cutPlane)
     {
-        super.mutate(originalModel);
-
-        this.sliceAppendage(originalModel);
-    }
-
-    private void sliceAppendage(ModelBiped originalModel)
-    {
-        final float cutPlane = 6.0F;
-        List<ModelBox> cubeList = vanillaPart.cubeList;
-
         // Storing the vanilla boxes
-        vanillaBoxes.addAll(cubeList);
-
-        this.lowerPart = new ModelPart(originalModel, false);
-        lowerPart.mirror = vanillaPart.mirror;
-        this.partContainer.addChild(lowerPart);
+        List<ModelBox> vanillaBoxes = vanillaPart.cubeList;
 
         for (ModelBox box : vanillaBoxes)
         {
-            final BoxMutator mutator = BoxMutator.createFrom(originalModel, vanillaPart, box);
+            final BoxMutator mutator = BoxMutator.createFrom(vanillaModel, vanillaPart, box);
 
             if (mutator == null)
             {
@@ -68,19 +79,41 @@ public class HumanoidLimbWrapper extends HumanoidPartWrapper
                 BoxFactory lowerPartFactory = mutator.sliceFromBottom(cutPlane);
 
                 // Adding the upper part to the mutated boxes list.
-                mutatedBoxes.add(mutator.getFactory().create(this.partContainer));
+                upperPartAnchor.addBox(mutator.getFactory().inflate(inflation, 0, inflation).create(upperPart));
 
                 if (lowerPartFactory != null)
                 {
-                    float slightInflation = 0.01F;
-                    MutatedBox lowerPartBox = lowerPartFactory.offset(0, -cutPlane, 2F).inflate(slightInflation, 0, slightInflation).create(this.partContainer);
-                    lowerPart.addBox(lowerPartBox);
+                    float lowerInflation = inflation + 0.001F;
+                    lowerPartAnchor.addBox(lowerPartFactory.inflate(lowerInflation, 0, lowerInflation).create(upperPart));
                 }
             }
             else
             {
                 // Lower leg, adding the unchanged box.
-                lowerPart.addVanillaBox(box);
+                lowerPartAnchor.addVanillaBox(box);
+            }
+        }
+
+        // Reassigning children
+        List<ModelRenderer> vanillaChildren = vanillaPart.childModels;
+
+        if (vanillaChildren != null)
+        {
+            for (ModelRenderer child : vanillaChildren)
+            {
+                if (child == null)
+                    continue;
+
+                if (child.rotationPointY < cutPlane)
+                {
+                    // This child will appear as a child of the UPPER part.
+                    upperPartAnchor.addChild(child);
+                }
+                else
+                {
+                    // This child will appear as a child of the LOWER part.
+                    lowerPartAnchor.addChild(child);
+                }
             }
         }
     }
@@ -88,7 +121,7 @@ public class HumanoidLimbWrapper extends HumanoidPartWrapper
     @Override
     public void syncUp(BipedEntityData<?> data)
     {
-        super.syncUp(data);
+        upperPart.syncUp(upperPartDataSelector.selectPart(data));
 
         if (lowerPart != null)
         {
@@ -99,18 +132,42 @@ public class HumanoidLimbWrapper extends HumanoidPartWrapper
     @Override
     public void apply(ArmorWrapper armorWrapper)
     {
-        super.apply(armorWrapper);
+        // Replacing the parts both on the original and the wrapper. That way, any visibility change will be applied to a proper instance.
+        this.modelPartSetter.replacePart(armorWrapper, upperPart);
+        this.modelPartSetter.replacePart(armorWrapper.original, upperPart);
 
-        vanillaPart.cubeList.clear();
-        vanillaPart.cubeList.addAll(mutatedBoxes);
+        upperPart.isHidden = vanillaPart.isHidden;
+        upperPart.showModel = vanillaPart.showModel;
     }
 
     @Override
     public void deapply(ArmorWrapper armorWrapper)
     {
-        super.deapply(armorWrapper);
+        // Replacing the parts both on the original and the wrapper. That way, any visibility change will be applied to a proper instance.
+        this.modelPartSetter.replacePart(armorWrapper, vanillaPart);
+        this.modelPartSetter.replacePart(armorWrapper.original, vanillaPart);
 
-        vanillaPart.cubeList.clear();
-        vanillaPart.cubeList.addAll(vanillaBoxes);
+        vanillaPart.isHidden = upperPart.isHidden;
+        vanillaPart.showModel = upperPart.showModel;
+    }
+
+    @Override
+    public IPartWrapper setParent(IModelPart parent)
+    {
+        upperPart.setParent(parent);
+        return this;
+    }
+
+    @Override
+    public IPartWrapper offsetInner(float x, float y, float z)
+    {
+        upperPartAnchor.setPosition(x, y, z);
+        return this;
+    }
+
+    public HumanoidLimbWrapper offsetLower(float x, float y, float z)
+    {
+        lowerPartAnchor.setPosition(x, y, z);
+        return this;
     }
 }

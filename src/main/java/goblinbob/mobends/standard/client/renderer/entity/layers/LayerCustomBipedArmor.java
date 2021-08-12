@@ -3,7 +3,7 @@ package goblinbob.mobends.standard.client.renderer.entity.layers;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
-import goblinbob.mobends.standard.client.model.armor.MalformedArmorModel;
+import goblinbob.mobends.standard.client.model.armor.MalformedArmorModelException;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.model.ModelBiped;
@@ -78,7 +78,7 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
         {
             return ArmorModelFactory.getArmorModel(suggestedModel, shouldBeMutated);
         }
-        catch(MalformedArmorModel ex)
+        catch(MalformedArmorModelException ex)
         {
             ex.printStackTrace();
             return suggestedModel;
