@@ -2,7 +2,6 @@ package goblinbob.mobends.core.util;
 
 public class Color implements IColor
 {
-	
 	public static final ColorReadonly WHITE = new ColorReadonly(1, 1, 1, 1);
 	public static final ColorReadonly RED 	= new ColorReadonly(1, 0, 0, 1);
 	public static final ColorReadonly GREEN = new ColorReadonly(0, 1, 0, 1);
@@ -140,7 +139,19 @@ public class Color implements IColor
 		return value;
 	}
 	
-	public static ColorReadonly fromHex(int hexValue)
+	public static Color fromHexRGB(int hexValue)
+	{
+		int valueB = hexValue & 255;
+		hexValue >>= 8;
+		int valueG = hexValue & 255;
+		hexValue >>= 8;
+		int valueR = hexValue & 255;
+		hexValue >>= 8;
+		
+		return new Color(valueR / 255.0F, valueG / 255.0F, valueB / 255.0F, 1.0F);
+	}
+
+	public static Color fromHex(int hexValue)
 	{
 		int valueB = hexValue & 255;
 		hexValue >>= 8;
@@ -151,7 +162,6 @@ public class Color implements IColor
 		int valueA = hexValue & 255;
 		hexValue >>= 8;
 		
-		return new ColorReadonly(valueR / 255.0F, valueG / 255.0F, valueB / 255.0F, valueA / 255.0F);
+		return new Color(valueR / 255.0F, valueG / 255.0F, valueB / 255.0F, valueA / 255.0F);
 	}
-	
 }

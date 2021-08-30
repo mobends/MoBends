@@ -5,6 +5,7 @@ import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.QuaternionUtils;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GUtil;
+import goblinbob.mobends.core.util.IColorRead;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
@@ -15,11 +16,17 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.function.Supplier;
 
 public class SwordTrail
 {
-
+    protected final Supplier<IColorRead> baseColor;
     protected LinkedList<TrailPart> trailPartList = new LinkedList<>();
+
+    public SwordTrail(Supplier<IColorRead> baseColor)
+    {
+        this.baseColor = baseColor;
+    }
 
     public void reset()
     {
@@ -28,6 +35,8 @@ public class SwordTrail
 
     protected static class TrailPart
     {
+        protected EnumHandSide primaryHand;
+        protected IColorRead baseColor;
 
         protected ModelPartTransform body;
         protected ModelPartTransform arm;
@@ -38,16 +47,16 @@ public class SwordTrail
         protected Quaternion itemRotation = new Quaternion();
         protected Vec3f position = new Vec3f();
 
-        protected EnumHandSide primaryHand;
         protected float velocityX, velocityY, velocityZ;
         protected float ticksExisted = 0F;
 
-        public TrailPart(EnumHandSide primaryHand, float velocityX, float velocityY, float velocityZ)
+        public TrailPart(EnumHandSide primaryHand, IColorRead baseColor, float velocityX, float velocityY, float velocityZ)
         {
             this.body = new ModelPartTransform();
             this.arm = new ModelPartTransform();
             this.foreArm = new ModelPartTransform();
             this.primaryHand = primaryHand;
+            this.baseColor = baseColor;
             this.velocityX = velocityX;
             this.velocityY = velocityY;
             this.velocityZ = velocityZ;
@@ -89,7 +98,7 @@ public class SwordTrail
                 point.add(position);
             }
 
-            GlStateManager.color(1, 1, 1, alpha);
+            GlStateManager.color(baseColor.getR(), baseColor.getG(), baseColor.getB(), alpha);
 
             if (!first)
             {
@@ -108,7 +117,6 @@ public class SwordTrail
                 GlStateManager.glVertex3f(points[0].x, points[0].y, points[0].z);
             }
         }
-
     }
 
     public void render()
@@ -145,7 +153,7 @@ public class SwordTrail
     {
         final EntityLivingBase entity = entityData.getEntity();
         final EnumHandSide primaryHand = entity.getPrimaryHand();
-        final TrailPart newPart = new TrailPart(primaryHand, velocityX, velocityY, velocityZ);
+        final TrailPart newPart = new TrailPart(primaryHand, this.baseColor.get(), velocityX, velocityY, velocityZ);
 
         newPart.body.syncUp(entityData.body);
 
@@ -191,5 +199,4 @@ public class SwordTrail
 			}
         }
     }
-
 }

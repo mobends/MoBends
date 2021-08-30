@@ -3,6 +3,7 @@ package goblinbob.mobends.standard.data;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.math.SmoothOrientation;
+import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -53,7 +54,7 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		this.renderRightItemRotation = new SmoothOrientation();
 		this.renderLeftItemRotation = new SmoothOrientation();
 		
-		this.swordTrail = new SwordTrail();
+		this.swordTrail = new SwordTrail(() -> SupporterContent.INSTANCE.getTrailColorFor(this.entity));
 		
 		this.nameToPartMap.put("body", body);
 		this.nameToPartMap.put("head", head);

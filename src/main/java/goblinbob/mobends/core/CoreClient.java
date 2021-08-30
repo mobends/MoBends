@@ -3,6 +3,7 @@ package goblinbob.mobends.core;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.event.*;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
+import goblinbob.mobends.core.connection.ConnectionManager;
 import goblinbob.mobends.core.pack.PackManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -13,7 +14,6 @@ import javax.annotation.Nullable;
 
 public class CoreClient extends Core<CoreClientConfig>
 {
-
     private static CoreClient INSTANCE;
 
     private CoreClientConfig configuration;
@@ -58,6 +58,8 @@ public class CoreClient extends Core<CoreClientConfig>
         super.postInit(event);
 
         EntityBenderRegistry.instance.applyConfiguration(configuration);
+
+        ConnectionManager.INSTANCE.setup();
     }
 
     @Nullable
@@ -65,5 +67,4 @@ public class CoreClient extends Core<CoreClientConfig>
     {
         return INSTANCE;
     }
-
 }
