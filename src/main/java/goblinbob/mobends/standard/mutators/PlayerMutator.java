@@ -4,6 +4,7 @@ import goblinbob.mobends.core.client.model.*;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomCape;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomElytra;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerPlayerAccessories;
 import goblinbob.mobends.standard.data.PlayerData;
 import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -21,7 +22,6 @@ import net.minecraft.entity.EntityLivingBase;
  */
 public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer, ModelPlayer>
 {
-
 	protected ModelPart bodywear;
 	protected ModelPart leftArmwear;
 	protected ModelPart rightArmwear;
@@ -38,6 +38,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	protected LayerCape layerCapeVanilla;
 	protected LayerCustomElytra layerElytra;
 	protected LayerElytra layerElytraVanilla;
+	protected LayerPlayerAccessories layerPlayerAccessories;
 
 	public PlayerMutator(IEntityDataFactory<AbstractClientPlayer> dataFactory)
 	{
@@ -48,7 +49,28 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	{
 		return this.smallArms;
 	}
-	
+
+	@Override
+	public boolean mutate(RenderLivingBase<? extends AbstractClientPlayer> renderer)
+	{
+		if (super.mutate(renderer))
+		{
+			this.layerPlayerAccessories = new LayerPlayerAccessories();
+			layerRenderers.add(layerPlayerAccessories);
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public void demutate(RenderLivingBase<? extends AbstractClientPlayer> renderer)
+	{
+		super.demutate(renderer);
+
+		layerRenderers.remove(layerPlayerAccessories);
+	}
+
 	@Override
 	public void fetchFields(RenderLivingBase<? extends AbstractClientPlayer> renderer)
 	{
@@ -126,13 +148,15 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		{
 			layerRenderers.set(index, this.layerElytraVanilla);
 		}
+
+		layerRenderers.remove(layerPlayerAccessories);
 	}
 
 	@Override
 	public boolean createParts(ModelPlayer original, float scaleFactor)
 	{
 		super.createParts(original, scaleFactor);
-		
+
 		// Arms
 		int armWidth = this.smallArms ? 3 : 4;
 		float armY = this.smallArms ? -9.5F : -10F;
