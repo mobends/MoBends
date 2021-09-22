@@ -3,6 +3,7 @@ package goblinbob.mobends.standard.animation.controller;
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
+import goblinbob.mobends.standard.ItemClassification;
 import goblinbob.mobends.standard.animation.bit.biped.AttackSlashInwardAnimationBit;
 import goblinbob.mobends.standard.animation.bit.biped.BowAnimationBit;
 import goblinbob.mobends.standard.animation.bit.biped.HarvestAnimationBit;
@@ -59,7 +60,7 @@ public class SkeletonController implements IAnimationController<SkeletonData>
 
 	public static boolean isHoldingWeapon(Item heldItemMainhand)
 	{
-		return heldItemMainhand instanceof ItemSword || ModConfig.getItemClassification(heldItemMainhand) == ModConfig.ItemClassification.WEAPON;
+		return heldItemMainhand instanceof ItemSword || ModConfig.getItemClassification(heldItemMainhand) == ItemClassification.SWORD;
 	}
 
 	public void performActionAnimations(SkeletonData data, EntitySkeleton skeleton)

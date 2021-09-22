@@ -15,7 +15,7 @@ public class ConnectionManager
 {
     public static ConnectionManager INSTANCE = new ConnectionManager();
 
-    private static String API_URL = "http://localhost:5000";
+    private static String API_URL = "https://mobends.com";
 
     private boolean initialized = false;
     private PingTask pingTask;

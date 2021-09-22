@@ -4,6 +4,7 @@ import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.keyframe.ArmatureMask;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
+import goblinbob.mobends.standard.ItemClassification;
 import goblinbob.mobends.standard.animation.bit.biped.*;
 import goblinbob.mobends.standard.animation.bit.player.SprintAnimationBit;
 import goblinbob.mobends.standard.animation.bit.player.WalkAnimationBit;
@@ -11,7 +12,6 @@ import goblinbob.mobends.standard.animation.bit.player.*;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.PlayerData;
 import goblinbob.mobends.standard.main.ModConfig;
-import goblinbob.mobends.standard.main.ModConfig.ItemClassification;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
@@ -92,8 +92,8 @@ public class PlayerController implements IAnimationController<PlayerData>
         ItemClassification classification = ModConfig.getItemClassification(heldItemMainhand);
 
         return (
-            classification == ModConfig.ItemClassification.WEAPON ||
-            (classification == ModConfig.ItemClassification.UNKNOWN && heldItemMainhand instanceof ItemSword)
+            classification == ItemClassification.SWORD ||
+            (classification == ItemClassification.UNKNOWN && heldItemMainhand instanceof ItemSword)
         );
     }
 

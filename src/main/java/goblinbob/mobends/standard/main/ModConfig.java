@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.main;
 
+import goblinbob.mobends.standard.ItemClassification;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
@@ -75,13 +76,6 @@ public class ModConfig
         }
     }
 
-    public enum ItemClassification
-    {
-        UNKNOWN,
-        WEAPON,
-        TOOL,
-    }
-
     private static boolean checkForPatterns(ResourceLocation resourceLocation, String[] patterns)
     {
         final String resourceDomain = resourceLocation.getResourceDomain();
@@ -114,7 +108,7 @@ public class ModConfig
             ResourceLocation location = item.getRegistryName();
 
             if (checkForPatterns(location, weaponItems))
-                return ItemClassification.WEAPON;
+                return ItemClassification.SWORD;
 
             if (checkForPatterns(location, toolItems))
                 return ItemClassification.TOOL;
