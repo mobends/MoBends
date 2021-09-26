@@ -2,7 +2,6 @@ package goblinbob.mobends.standard.animation.bit.player;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.standard.data.PlayerData;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.math.MathHelper;
 
 public class ElytraAnimationBit extends AnimationBit<PlayerData>

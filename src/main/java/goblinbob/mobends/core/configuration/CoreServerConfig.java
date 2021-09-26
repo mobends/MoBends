@@ -7,7 +7,6 @@ import java.io.File;
 
 public class CoreServerConfig extends CoreConfig
 {
-
     private static final String CATEGORY_SERVER = "Server";
 
     public CoreServerConfig(File file)
@@ -30,5 +29,4 @@ public class CoreServerConfig extends CoreConfig
     {
         // No config to save.
     }
-
 }

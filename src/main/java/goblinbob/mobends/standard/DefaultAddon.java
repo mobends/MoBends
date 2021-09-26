@@ -22,7 +22,6 @@ import net.minecraft.entity.passive.EntityWolf;
 
 public class DefaultAddon implements IAddon
 {
-
 	@Override
 	public void registerContent(AddonAnimationRegistry registry)
 	{
@@ -108,5 +107,4 @@ public class DefaultAddon implements IAddon
 	{
 		return "Default";
 	}
-	
 }

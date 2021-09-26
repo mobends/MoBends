@@ -1,29 +1,32 @@
 package goblinbob.mobends.core.connection;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.logging.Level;
-
 import com.google.gson.JsonObject;
-
+import goblinbob.mobends.core.env.EnvironmentModule;
+import goblinbob.mobends.core.module.IModule;
 import goblinbob.mobends.core.util.ConnectionHelper;
 import goblinbob.mobends.core.util.ErrorReporter;
 import goblinbob.mobends.standard.main.MoBends;
 import goblinbob.mobends.standard.main.ModStatics;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.logging.Level;
 
 public class ConnectionManager
 {
     public static ConnectionManager INSTANCE = new ConnectionManager();
 
-    private static String API_URL = "https://mobends.com";
-
     private boolean initialized = false;
     private PingTask pingTask;
     private Thread pingTaskThread;
-    private AssetDownloader assetDownloader;
-    private Thread assetDownloaderThread;
+    private PlayerSettingsDownloader playerSettingsDownloader;
+    private Thread playerSettingsDownloaderThread;
 
-    private ConnectionManager() {}
+    private ConnectionManager()
+    {
+        this.setup();
+    }
 
     public void setup()
     {
@@ -31,6 +34,8 @@ public class ConnectionManager
         {
             return;
         }
+
+        String apiUrl = EnvironmentModule.getConfig().getApiUrl();
 
         JoinResponse response = null;
 
@@ -40,7 +45,7 @@ public class ConnectionManager
             body.addProperty("app", "mobends");
             body.addProperty("version", ModStatics.VERSION_STRING);
 
-            response = ConnectionHelper.sendPostRequest(new URL(API_URL + "/api/activity/join"), body, JoinResponse.class);
+            response = ConnectionHelper.sendPostRequest(new URL(apiUrl + "/api/activity/join"), body, JoinResponse.class);
 
             MoBends.LOG.info("Ping interval: " + response.pingInterval);
         }
@@ -53,27 +58,42 @@ public class ConnectionManager
             return;
         }
 
-        pingTask = new PingTask(API_URL, response.pingInterval);
+        pingTask = new PingTask(apiUrl, response.pingInterval);
         pingTaskThread = new Thread(pingTask);
         pingTaskThread.start();
 
-        assetDownloader = new AssetDownloader(API_URL, 10);
-        assetDownloaderThread = new Thread(assetDownloader);
-        assetDownloaderThread.start();
+        playerSettingsDownloader = new PlayerSettingsDownloader(apiUrl);
+        playerSettingsDownloaderThread = new Thread(playerSettingsDownloader);
+        playerSettingsDownloaderThread.start();
 
         initialized = true;
     }
 
     public void fetchSettingsForPlayer(String playerName)
     {
-        if (assetDownloader != null)
+        if (playerSettingsDownloader != null)
         {
-            assetDownloader.fetchSettingsForPlayer(playerName);
+            playerSettingsDownloader.fetchSettingsForPlayer(playerName);
         }
     }
 
     private static class JoinResponse
     {
         public float pingInterval;
+    }
+
+    public static class Factory implements IModule
+    {
+        @Override
+        public void preInit(FMLPreInitializationEvent event)
+        {
+            ConnectionManager.INSTANCE = new ConnectionManager();
+        }
+
+        @Override
+        public void onRefresh()
+        {
+            ConnectionManager.INSTANCE.setup();
+        }
     }
 }

@@ -1,19 +1,8 @@
 package goblinbob.mobends.core.util;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -21,6 +10,16 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class ConnectionHelper
 {
@@ -38,7 +37,7 @@ public class ConnectionHelper
         this.gson = builder.create();
     }
 
-    public <T> T sendGetRequest(URL url, Map<String, String> params, Class<T> responseClass) throws IOException, URISyntaxException
+    public static <T> T sendGetRequest(URL url, Map<String, String> params, Class<T> responseClass) throws IOException, URISyntaxException
     {
         HttpGet request = new HttpGet();
 
@@ -50,13 +49,13 @@ public class ConnectionHelper
 
         request.setURI(uriBuilder.build());
 
-        try (CloseableHttpResponse response = httpClient.execute(request))
+        try (CloseableHttpResponse response = INSTANCE.httpClient.execute(request))
         {
             HttpEntity entity = response.getEntity();
 
             if (entity != null) {
                 // return it as a String
-                return gson.fromJson(EntityUtils.toString(entity), responseClass);
+                return INSTANCE.gson.fromJson(EntityUtils.toString(entity), responseClass);
             }
         }
 
@@ -83,7 +82,7 @@ public class ConnectionHelper
 
         // Response
         BufferedReader json = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        T response = new Gson().fromJson(json, responseClass);
+        T response = INSTANCE.gson.fromJson(json, responseClass);
 
         return response;
     }

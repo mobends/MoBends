@@ -1,14 +1,13 @@
 package goblinbob.mobends.core.connection;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.URL;
-
 import com.google.gson.JsonObject;
-
 import goblinbob.mobends.core.util.ConnectionHelper;
 import goblinbob.mobends.standard.main.MoBends;
 import goblinbob.mobends.standard.main.ModStatics;
+
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.URL;
 
 /**
  * Sends a ping request in a specific interval.
@@ -62,10 +61,7 @@ public class PingTask implements Runnable
         catch(IOException e)
         {
             MoBends.LOG.warning("API ping failed.");
-            return;
         }
-
-        MoBends.LOG.info("Ping successful");
     }
 
     private static class PingResponse

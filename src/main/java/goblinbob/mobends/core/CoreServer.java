@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 public class CoreServer extends Core<CoreServerConfig>
 {
-
 	private static CoreServer INSTANCE;
 
 	private CoreServerConfig configuration;
@@ -36,5 +35,4 @@ public class CoreServer extends Core<CoreServerConfig>
 	{
 		return INSTANCE;
 	}
-	
 }

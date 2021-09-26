@@ -1,7 +1,11 @@
 package goblinbob.mobends.core.connection;
 
+import goblinbob.mobends.core.supporters.SupporterContent;
+import goblinbob.mobends.core.util.ConnectionHelper;
+import goblinbob.mobends.standard.main.MoBends;
+import org.apache.http.conn.HttpHostConnectException;
+
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
@@ -11,24 +15,15 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.google.gson.JsonObject;
-
-import goblinbob.mobends.core.supporters.SupporterContent;
-import goblinbob.mobends.core.util.ConnectionHelper;
-import goblinbob.mobends.standard.main.MoBends;
-import org.apache.http.conn.HttpHostConnectException;
-
-public class AssetDownloader implements Runnable
+public class PlayerSettingsDownloader implements Runnable
 {
     private final String apiUrl;
-    private final float updateInterval;
     private final Set<String> loadingPlayersSet = new HashSet<>();
     private BlockingQueue<PlayerSettingsTask> playerSettingsTasks = new LinkedBlockingQueue<>();
 
-    public AssetDownloader(String apiUrl, float updateInterval)
+    public PlayerSettingsDownloader(String apiUrl)
     {
         this.apiUrl = apiUrl;
-        this.updateInterval = updateInterval;
     }
 
     @Override

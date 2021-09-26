@@ -1,6 +1,10 @@
 package goblinbob.mobends.standard.mutators;
 
-import goblinbob.mobends.core.client.model.*;
+import goblinbob.mobends.core.client.model.FaceRotation;
+import goblinbob.mobends.core.client.model.IModelPart;
+import goblinbob.mobends.core.client.model.ModelPart;
+import goblinbob.mobends.core.client.model.ModelPartExtended;
+import goblinbob.mobends.core.client.model.BoxSide;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerWolfMisc;
