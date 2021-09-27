@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.connection;
 
+import goblinbob.mobends.core.supporters.AccessorySettings;
+
 import java.util.Map;
 
 public class PlayerSettingsResponse

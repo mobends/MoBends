@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.GlStateManager;
  */
 public class ModelPartTransform implements IModelPart
 {
-	
 	public Vec3f position;
 	public Vec3f scale;
 	public Vec3f offset;
@@ -42,12 +41,6 @@ public class ModelPartTransform implements IModelPart
 	public ModelPartTransform()
 	{
 		this(null);
-	}
-	
-	@Override
-	public void applyCharacterTransform(float scale)
-	{
-		this.applyLocalTransform(scale);
 	}
 
 	@Override
@@ -167,5 +160,4 @@ public class ModelPartTransform implements IModelPart
 	{
 		return this.parent;
 	}
-	
 }

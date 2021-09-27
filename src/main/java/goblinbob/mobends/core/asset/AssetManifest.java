@@ -1,9 +1,6 @@
 package goblinbob.mobends.core.asset;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AssetManifest
 {
@@ -21,9 +18,9 @@ public class AssetManifest
         return baseUrl;
     }
 
-    public Iterable<AssetDefinition> getAssets()
+    public Collection<AssetDefinition> getAssets()
     {
-        return assets;
+        return Collections.unmodifiableCollection(assets);
     }
 
     public static Iterable<AssetDefinition> getAssetsToUpdate(AssetManifest oldManifest, AssetManifest newManifest)

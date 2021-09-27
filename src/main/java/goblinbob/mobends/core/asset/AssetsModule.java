@@ -6,6 +6,7 @@ import com.google.gson.JsonParseException;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.module.IModule;
+import goblinbob.mobends.core.util.ConnectionHelper;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.http.conn.HttpHostConnectException;
 
@@ -13,6 +14,8 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +23,7 @@ import static goblinbob.mobends.core.util.ConnectionHelper.sendGetRequest;
 
 public class AssetsModule
 {
-    private static AssetsModule INSTANCE;
+    public static AssetsModule INSTANCE;
 
     private final String apiUrl;
     private final File assetsDirectory;
@@ -36,9 +39,17 @@ public class AssetsModule
         this.assetsDirectory.mkdirs();
 
         this.localManifestFile = new File(modConfigDirectory, "asset_manifest.json");
+
+        this.updateAssets();
+    }
+
+    private void fetchLocalManifest()
+    {
+        this.localManifest = null;
+
         if (this.localManifestFile.isFile())
         {
-            Gson gson = new Gson();
+            Gson gson = ConnectionHelper.INSTANCE.getGson();
 
             try
             {
@@ -50,8 +61,6 @@ public class AssetsModule
                 e.printStackTrace();
             }
         }
-
-        this.updateAssets();
     }
 
     private AssetManifest fetchOnlineManifest()
@@ -84,7 +93,7 @@ public class AssetsModule
     {
         try (FileWriter writer = new FileWriter(localManifestFile))
         {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            Gson gson = ConnectionHelper.INSTANCE.getGson();
             gson.toJson(manifest, writer);
         }
         catch (JsonParseException | IOException e)
@@ -100,7 +109,7 @@ public class AssetsModule
     {
         try
         {
-            URL url = new URL(manifest.getBaseUrl() + asset.getPath());
+            URL url = new URL(manifest.getBaseUrl() + asset.getPath().getAssetPath());
             URLConnection connection = url.openConnection();
             DataInputStream dis = new DataInputStream(connection.getInputStream());
             byte[] fileData = new byte[connection.getContentLength()];
@@ -111,7 +120,7 @@ public class AssetsModule
             dis.close();
 
             // Making sure the path exists.
-            File localAssetPath = new File(assetsDirectory, asset.getPath());
+            File localAssetPath = getAssetFile(asset.getPath());
             localAssetPath.getParentFile().mkdirs();
             // Saving the file.
             FileOutputStream fos = new FileOutputStream(localAssetPath);
@@ -126,6 +135,8 @@ public class AssetsModule
 
     public void updateAssets()
     {
+        fetchLocalManifest();
+
         AssetManifest onlineManifest = fetchOnlineManifest();
 
         if (onlineManifest == null)
@@ -156,6 +167,16 @@ public class AssetsModule
         {
             Core.LOG.warning(e.getMessage());
         }
+    }
+
+    public Collection<AssetDefinition> getAssets()
+    {
+        return localManifest != null ? localManifest.getAssets() : Collections.emptyList();
+    }
+
+    public File getAssetFile(AssetLocation location)
+    {
+        return new File(assetsDirectory, location.getAssetPath());
     }
 
     public static class Factory implements IModule

@@ -59,7 +59,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	{
 		if (super.mutate(renderer))
 		{
-			this.layerPlayerAccessories = new LayerPlayerAccessories();
+			this.layerPlayerAccessories = new LayerPlayerAccessories(renderer);
 			layerRenderers.add(layerPlayerAccessories);
 			return true;
 		}

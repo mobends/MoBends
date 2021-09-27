@@ -4,7 +4,7 @@ public class AssetDefinition
 {
     private int id;
     private int version;
-    private String path;
+    private AssetLocation path;
 
     public int getId()
     {
@@ -16,7 +16,7 @@ public class AssetDefinition
         return version;
     }
 
-    public String getPath()
+    public AssetLocation getPath()
     {
         return path;
     }

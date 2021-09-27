@@ -15,7 +15,7 @@ import java.util.logging.Level;
 
 public class ConnectionManager
 {
-    public static ConnectionManager INSTANCE = new ConnectionManager();
+    public static ConnectionManager INSTANCE;
 
     private boolean initialized = false;
     private PingTask pingTask;
@@ -60,10 +60,12 @@ public class ConnectionManager
 
         pingTask = new PingTask(apiUrl, response.pingInterval);
         pingTaskThread = new Thread(pingTask);
+        pingTaskThread.setDaemon(true);
         pingTaskThread.start();
 
         playerSettingsDownloader = new PlayerSettingsDownloader(apiUrl);
         playerSettingsDownloaderThread = new Thread(playerSettingsDownloader);
+        playerSettingsDownloaderThread.setDaemon(true);
         playerSettingsDownloaderThread.start();
 
         initialized = true;

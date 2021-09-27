@@ -3,6 +3,8 @@ package goblinbob.mobends.core.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import goblinbob.mobends.core.asset.AssetLocation;
+import goblinbob.mobends.core.supporters.BindPoint;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -33,8 +35,16 @@ public class ConnectionHelper
     private ConnectionHelper()
     {
         GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting();
         builder.registerTypeAdapter(Color.class, new ColorAdapter());
+        builder.registerTypeAdapter(BindPoint.class, new BindPoint.Adapter());
+        builder.registerTypeAdapter(AssetLocation.class, new AssetLocation.Adapter());
         this.gson = builder.create();
+    }
+
+    public Gson getGson()
+    {
+        return gson;
     }
 
     public static <T> T sendGetRequest(URL url, Map<String, String> params, Class<T> responseClass) throws IOException, URISyntaxException

@@ -1,11 +1,16 @@
 package goblinbob.mobends.core;
 
+import goblinbob.mobends.core.asset.AssetReloadListener;
 import goblinbob.mobends.core.asset.AssetsModule;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.event.*;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
+import goblinbob.mobends.core.connection.ConnectionManager;
 import goblinbob.mobends.core.env.EnvironmentModule;
+import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.pack.PackManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -24,7 +29,9 @@ public class CoreClient extends Core<CoreClientConfig>
         INSTANCE = this;
 
         registerModule(new EnvironmentModule.Factory());
+        registerModule(new ConnectionManager.Factory());
         registerModule(new AssetsModule.Factory());
+        registerModule(new SupporterContent.Factory());
     }
 
     @Override
@@ -54,6 +61,10 @@ public class CoreClient extends Core<CoreClientConfig>
         MinecraftForge.EVENT_BUS.register(new KeyboardHandler());
         MinecraftForge.EVENT_BUS.register(new FluxHandler());
         MinecraftForge.EVENT_BUS.register(new WorldJoinHandler());
+
+        // Registering a listener to whenever resources have been reloaded.
+        IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
+        resourceManager.registerReloadListener(new AssetReloadListener());
     }
 
     @Override

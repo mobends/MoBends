@@ -54,7 +54,7 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		this.renderRightItemRotation = new SmoothOrientation();
 		this.renderLeftItemRotation = new SmoothOrientation();
 		
-		this.swordTrail = new SwordTrail(() -> SupporterContent.INSTANCE.getTrailColorFor(this.entity));
+		this.swordTrail = new SwordTrail(() -> SupporterContent.getTrailColorFor(this.entity));
 		
 		this.nameToPartMap.put("body", body);
 		this.nameToPartMap.put("head", head);

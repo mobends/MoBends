@@ -70,7 +70,7 @@ public class PlayerSettingsDownloader implements Runnable
 
         PlayerSettingsResponse response = ConnectionHelper.INSTANCE.sendGetRequest(new URL(apiUrl + "/api/accessory"), params, PlayerSettingsResponse.class);
 
-        SupporterContent.INSTANCE.registerPlayerAccessorySettings(task.playerName, response);
+        SupporterContent.registerPlayerAccessorySettings(task.playerName, response);
 
         MoBends.LOG.info("Player settings fetch successful");
     }
