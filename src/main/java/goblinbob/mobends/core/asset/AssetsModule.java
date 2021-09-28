@@ -144,12 +144,6 @@ public class AssetsModule
             return;
         }
 
-        if (localManifest != null && onlineManifest.getVersion() <= localManifest.getVersion())
-        {
-            // No new updates.
-            return;
-        }
-
         Core.LOG.info("New assets detected");
         Iterable<AssetDefinition> assetsToUpdate = AssetManifest.getAssetsToUpdate(localManifest, onlineManifest);
 

@@ -4,14 +4,8 @@ import java.util.*;
 
 public class AssetManifest
 {
-    private int version = 0;
     private String baseUrl = "";
     private List<AssetDefinition> assets = new ArrayList<>();
-
-    public int getVersion()
-    {
-        return version;
-    }
 
     public String getBaseUrl()
     {
