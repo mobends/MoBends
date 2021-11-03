@@ -1,11 +1,10 @@
 package goblinbob.mobends.standard.client.model.armor;
 
+import goblinbob.mobends.standard.main.MoBends;
 import net.minecraft.client.model.ModelBiped;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import goblinbob.mobends.standard.main.MoBends;
 
 public class ArmorModelFactory
 {

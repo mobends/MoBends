@@ -8,7 +8,6 @@ import java.util.Collection;
 
 public class CoreClientConfig extends CoreConfig
 {
-
     private static final String[] emptyStringList = new String[0];
 
     // General
@@ -62,5 +61,4 @@ public class CoreClientConfig extends CoreConfig
     {
         return configuration.get(CATEGORY_ANIMATED, alterEntryKey, true).getBoolean();
     }
-
 }

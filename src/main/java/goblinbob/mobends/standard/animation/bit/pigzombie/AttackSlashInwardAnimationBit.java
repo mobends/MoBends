@@ -8,7 +8,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
-import net.minecraft.util.math.MathHelper;
 import org.lwjgl.util.vector.Vector3f;
 
 public class AttackSlashInwardAnimationBit extends AnimationBit<BipedEntityData<?>>

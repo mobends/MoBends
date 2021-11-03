@@ -4,13 +4,14 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.addon.AddonHelper;
 import goblinbob.mobends.core.addon.Addons;
 import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
+import goblinbob.mobends.core.asset.AssetReloadListener;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.connection.ConnectionManager;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.pack.PackDataProvider;
-import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.standard.DefaultAddon;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -56,8 +57,6 @@ public class MoBends
     {
         Core.getInstance().postInit(event);
         proxy.postInit();
-
-        ConnectionManager.INSTANCE.setup();
     }
 
     /**
@@ -71,8 +70,7 @@ public class MoBends
         EntityDatabase.instance.refresh();
         EntityBenderRegistry.instance.refreshMutators();
         Addons.onRefresh();
-        SupporterContent.INSTANCE.clearCache();
 
-        ConnectionManager.INSTANCE.setup();
+        Core.getInstance().refreshModules();
     }
 }

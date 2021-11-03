@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 public class ArrowTrailManager
 {
-
     private static HashMap<EntityArrow, ArrowTrail> trailMap = new HashMap<>();
     public static long time, lastTime;
 
@@ -48,6 +47,7 @@ public class ArrowTrailManager
         {
             trail.onRenderTick();
         }
-    }
 
+        cleanup();
+    }
 }

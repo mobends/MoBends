@@ -2,6 +2,7 @@ package goblinbob.mobends.core.data;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import net.minecraft.block.BlockLadder;
+import net.minecraft.block.BlockVine;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.EnumAction;
@@ -145,6 +146,32 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         return getLadderFacing().getHorizontalAngle() + 180.0F;
     }
 
+    private static boolean isBlockClimbable(IBlockState state)
+    {
+        return state.getBlock() instanceof BlockLadder || state.getBlock() instanceof BlockVine;
+    }
+
+    private static EnumFacing getClimbableBlockFacing(IBlockState state)
+    {
+        if (state.getBlock() instanceof BlockLadder)
+        {
+            return state.getValue(BlockLadder.FACING);
+        }
+        else if (state.getBlock() instanceof BlockVine)
+        {
+            if (state.getValue(BlockVine.EAST))
+                return EnumFacing.WEST;
+            else if (state.getValue(BlockVine.WEST))
+                return EnumFacing.EAST;
+            else if (state.getValue(BlockVine.NORTH))
+                return EnumFacing.SOUTH;
+            else if (state.getValue(BlockVine.SOUTH))
+                return EnumFacing.NORTH;
+        }
+
+        return EnumFacing.NORTH;
+    }
+
     public EnumFacing getLadderFacing()
     {
         BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
@@ -153,10 +180,14 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         IBlockState blockBelow = entity.world.getBlockState(position.add(0, -1, 0));
         IBlockState blockBelow2 = entity.world.getBlockState(position.add(0, -2, 0));
 
-        if (block.getBlock() instanceof BlockLadder) return block.getValue(BlockLadder.FACING);
-        else if (blockBelow.getBlock() instanceof BlockLadder) return blockBelow.getValue(BlockLadder.FACING);
-        else if (blockBelow2.getBlock() instanceof BlockLadder) return blockBelow2.getValue(BlockLadder.FACING);
-        return EnumFacing.NORTH;
+        EnumFacing facing = EnumFacing.NORTH;
+        facing = getClimbableBlockFacing(block);
+        if (facing == EnumFacing.NORTH)
+            facing = getClimbableBlockFacing(blockBelow);
+        if (facing == EnumFacing.NORTH)
+            facing = getClimbableBlockFacing(blockBelow2);
+
+        return facing;
     }
 
     public boolean calcClimbing()
@@ -170,7 +201,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         IBlockState blockBelow = entity.world.getBlockState(position.add(0, -1, 0));
         IBlockState blockBelow2 = entity.world.getBlockState(position.add(0, -2, 0));
 
-        return entity.isOnLadder() && !this.isOnGround() && (block.getBlock() instanceof BlockLadder || blockBelow.getBlock() instanceof BlockLadder || blockBelow2.getBlock() instanceof BlockLadder);
+        return entity.isOnLadder() && !this.isOnGround() && (isBlockClimbable(block) || isBlockClimbable(blockBelow) || isBlockClimbable(blockBelow2));
     }
 
     public float getLedgeHeight()
@@ -182,11 +213,11 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         IBlockState block = entity.world.getBlockState(position.add(0, 2, 0));
         IBlockState blockBelow = entity.world.getBlockState(position.add(0, 1, 0));
         IBlockState blockBelow2 = entity.world.getBlockState(position.add(0, 0, 0));
-        if (!(block.getBlock() instanceof BlockLadder))
+        if (!isBlockClimbable(block))
         {
-            if (!(blockBelow.getBlock() instanceof BlockLadder))
+            if (!isBlockClimbable(blockBelow))
             {
-                if (!(blockBelow2.getBlock() instanceof BlockLadder))
+                if (!isBlockClimbable(blockBelow2))
                     return (clientY - (int) clientY) + 2;
                 else
                     return (clientY - (int) clientY) + 1;

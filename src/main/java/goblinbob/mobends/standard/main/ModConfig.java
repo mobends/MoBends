@@ -1,6 +1,7 @@
 package goblinbob.mobends.standard.main;
 
 import goblinbob.mobends.standard.ItemClassification;
+import goblinbob.mobends.core.util.WildcardPattern;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
@@ -15,8 +16,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import goblinbob.mobends.core.util.WildcardPattern;
 
 @Config(modid = ModStatics.MODID)
 public class ModConfig

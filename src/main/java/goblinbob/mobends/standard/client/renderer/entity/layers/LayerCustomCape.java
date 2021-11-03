@@ -50,14 +50,13 @@ public class LayerCustomCape implements LayerRenderer<AbstractClientPlayer>
                     }
                     else
                     {
-                        GlStateManager.translate(0F, 5F * scale, 0F);
+                        GlStateManager.translate(0F, 4F * scale, 0F);
                     }
                 }
 
-                this.playerRenderer.getMainModel().bipedBody.postRender(0.0625F);
-
-                GlStateManager.translate(0.0F, 0.0F, 0.225F);
-                data.cape.applyCharacterTransform(0.0625F);
+                data.body.applyLocalTransform(0.0625F);
+                GlStateManager.translate(0.0F, -12.0F * scale, 2.2F * scale);
+                data.cape.applyLocalTransform(0.0625F);
                 GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
 
                 capeRenderer.applyAnimation(data);

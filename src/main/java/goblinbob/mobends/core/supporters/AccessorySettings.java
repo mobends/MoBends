@@ -1,25 +1,21 @@
-package goblinbob.mobends.core.connection;
+package goblinbob.mobends.core.supporters;
 
 import goblinbob.mobends.core.util.Color;
+import goblinbob.mobends.core.util.IColorRead;
 
 public class AccessorySettings
 {
-    private String displayName;
+    public static final AccessorySettings DEFAULT = new AccessorySettings(false, false, Color.WHITE);
+
     private boolean unlocked;
     private boolean hidden;
     private Color color;
 
-    public AccessorySettings(String displayName, boolean unlocked, boolean hidden, Color color)
+    public AccessorySettings(boolean unlocked, boolean hidden, IColorRead color)
     {
-        this.displayName = displayName;
         this.unlocked = unlocked;
         this.hidden = hidden;
-        this.color = color;
-    }
-
-    public String getDisplayName()
-    {
-        return displayName;
+        this.color = new Color(color);
     }
 
     public boolean isUnlocked()
@@ -32,7 +28,7 @@ public class AccessorySettings
         return hidden;
     }
 
-    public Color getColor()
+    public IColorRead getColor()
     {
         return color;
     }

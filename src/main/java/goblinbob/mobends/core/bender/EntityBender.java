@@ -8,7 +8,6 @@ import goblinbob.mobends.core.math.TransformUtils;
 import goblinbob.mobends.core.math.matrix.IMat4x4d;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.mutators.Mutator;
-import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.resources.I18n;
@@ -26,7 +25,6 @@ import java.util.Map.Entry;
 
 public abstract class EntityBender<T extends EntityLivingBase>
 {
-
 	protected final String key;
 	protected final String unlocalizedName;
 
@@ -198,5 +196,4 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	{
 		return this.mutatorMap.get(renderer);
 	}
-	
 }

@@ -6,7 +6,6 @@ import java.io.File;
 
 public abstract class CoreConfig
 {
-
     protected Configuration configuration;
 
     CoreConfig(File file)
@@ -15,5 +14,4 @@ public abstract class CoreConfig
     }
 
     public abstract void save();
-
 }

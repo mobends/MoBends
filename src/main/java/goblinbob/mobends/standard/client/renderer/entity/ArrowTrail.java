@@ -15,7 +15,6 @@ import org.lwjgl.opengl.GL11;
 
 public class ArrowTrail
 {
-
     public static final int MAX_LENGTH = 10;
     public static final float SPAWN_INTERVAL = 1;
 
@@ -189,7 +188,6 @@ public class ArrowTrail
 
     static class TrailNode
     {
-
         public double x;
         public double y;
         public double z;
@@ -229,7 +227,5 @@ public class ArrowTrail
                     (float) -forward.x, (float) -forward.y, (float) forward.z,
                     this.up.x, this.up.y, this.up.z, this.right);
         }
-
     }
-
 }

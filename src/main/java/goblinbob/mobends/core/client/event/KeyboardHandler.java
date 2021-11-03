@@ -1,12 +1,6 @@
 package goblinbob.mobends.core.client.event;
 
-import goblinbob.mobends.core.addon.Addons;
-import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
-import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
-import goblinbob.mobends.core.data.EntityDatabase;
-import goblinbob.mobends.core.pack.PackDataProvider;
-import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.standard.main.MoBends;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;

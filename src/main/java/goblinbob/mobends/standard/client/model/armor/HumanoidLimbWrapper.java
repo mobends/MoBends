@@ -1,7 +1,5 @@
 package goblinbob.mobends.standard.client.model.armor;
 
-import java.util.List;
-
 import goblinbob.mobends.core.client.model.BoxFactory;
 import goblinbob.mobends.core.client.model.BoxMutator;
 import goblinbob.mobends.core.client.model.IModelPart;
@@ -10,6 +8,8 @@ import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
+
+import java.util.List;
 
 public class HumanoidLimbWrapper implements IPartWrapper
 {

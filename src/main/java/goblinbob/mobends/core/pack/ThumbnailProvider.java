@@ -8,7 +8,6 @@ import net.minecraft.util.ResourceLocation;
 
 public class ThumbnailProvider
 {
-
     public static final ResourceLocation DEFAULT_THUMBNAIL_LOCATION = new ResourceLocation(ModStatics.MODID,
             "textures/gui/default_pack_thumbnail.png");
 
@@ -38,5 +37,4 @@ public class ThumbnailProvider
 
         return DEFAULT_THUMBNAIL_LOCATION;
     }
-
 }
