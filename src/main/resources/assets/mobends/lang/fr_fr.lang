@@ -1,0 +1,26 @@
+mobends.gui.section.settings=paramètres
+mobends.gui.section.packs=packs
+mobends.gui.section.customize=personnaliser
+mobends.gui.settings=Paramètres
+mobends.gui.packs=Packs
+mobends.gui.publicpacks=Packs publics
+mobends.gui.localpacks=Packs locaux
+mobends.gui.unusedpacks=Packs non utilisés
+mobends.gui.appliedpacks=Packs appliqués
+mobends.gui.back=Retour
+mobends.gui.use=Utiliser
+mobends.gui.disable=Désactiver
+mobends.gui.edit=Modifier
+mobends.gui.done=Terminé
+mobends.gui.selectpack=Sélectionnez un pack
+mobends.gui.apply=Appliquer
+mobends.gui.openpacksfolder=Ouvrir le dossier des packs
+mobends.gui.help=Aide
+mobends.gui.discardchanges=Voulez-vous annuler les modifications ?
+mobends.gui.createpack=Créer un pack
+mobends.gui.noscaleallowed=Attention : Ce serveur n'autorise pas le body scaling.
+mobends.gui.search=Recherche...
+mobends.gui.editornotfound=Editeur d'animation non trouvé
+mobends.gui.geteditor=Obtenir un éditeur
+
+mobends.player=Joueur
