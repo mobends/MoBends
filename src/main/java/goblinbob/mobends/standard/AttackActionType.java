@@ -1,9 +1,9 @@
 package goblinbob.mobends.standard;
 
-public enum ItemClassification
+public enum AttackActionType
 {
-    UNKNOWN,
     TOOL,
+    FISTS,
     SWORD,
     LONGSWORD,
 }

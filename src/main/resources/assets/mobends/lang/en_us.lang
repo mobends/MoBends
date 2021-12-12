@@ -31,7 +31,9 @@ mobends.config.show_sword_trails=Show Sword Trails
 mobends.config.show_sword_trails.tooltip=If true, sword trails will be shown
 mobends.config.perform_spin_attack=Perform Spin Attack
 mobends.config.perform_spin_attack.tooltip=If true, the spin attack (whirl slash) will be occur.
-mobends.config.item_classifications=Item classifications
-mobends.config.item_classifications.tooltip=A list of "item=classification" mappings.
+mobends.config.item_use_classifications=Item use classifications
+mobends.config.item_use_classifications.tooltip=A list of "item=classification" mappings.
+mobends.config.item_attack_classifications=Item attack classifications
+mobends.config.item_attack_classifications.tooltip=A list of "item=classification" mappings.
 mobends.config.keep_armor_as_vanilla=Keep armor as vanilla
 mobends.config.keep_entity_as_vanilla=Keep entity as vanilla

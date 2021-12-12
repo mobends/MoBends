@@ -1,4 +1,4 @@
-package goblinbob.mobends.standard.animation.bit.biped;
+package goblinbob.mobends.standard.animation.bit.biped.item;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
@@ -8,19 +8,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class BowAnimationBit extends AnimationBit<BipedEntityData<?>>
+public class BowAction extends AnimationBit<BipedEntityData<?>>
 {
-	private static final String[] ACTIONS = new String[] { "bow" };
-	
-	protected EnumHandSide actionHand = EnumHandSide.RIGHT;
-	
-	@Override
-	public String[] getActions(BipedEntityData<?> entityData)
-	{
-		return ACTIONS;
-	}
+	protected final EnumHandSide actionHand;
 
-	public void setActionHand(EnumHandSide handSide)
+	public BowAction(EnumHandSide handSide)
 	{
 		this.actionHand = handSide;
 	}

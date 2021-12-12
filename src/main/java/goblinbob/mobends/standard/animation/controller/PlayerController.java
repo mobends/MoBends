@@ -4,8 +4,10 @@ import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.keyframe.ArmatureMask;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
-import goblinbob.mobends.standard.ItemClassification;
+import goblinbob.mobends.standard.AttackActionType;
+import goblinbob.mobends.standard.UseActionType;
 import goblinbob.mobends.standard.animation.bit.biped.*;
+import goblinbob.mobends.standard.animation.bit.biped.item.*;
 import goblinbob.mobends.standard.animation.bit.player.*;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.PlayerData;
@@ -14,6 +16,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBiped.ArmPose;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
@@ -47,17 +50,44 @@ public class PlayerController implements IAnimationController<PlayerData>
     protected AnimationBit<PlayerData> bitSprint = new goblinbob.mobends.standard.animation.bit.player.SprintAnimationBit();
     protected AnimationBit<PlayerData> bitSprintJump = new SprintJumpAnimationBit();
     protected AnimationBit<BipedEntityData<?>> bitTorchHolding = new TorchHoldingAnimationBit();
-    protected AnimationBit<PlayerData> bitAttack = new AttackAnimationBit();
     protected FlyingAnimationBit bitFlying = new FlyingAnimationBit();
     protected ElytraAnimationBit bitElytra = new ElytraAnimationBit();
-    protected BowAnimationBit bitBow = new BowAnimationBit();
-    protected EatingAnimationBit bitEating = new EatingAnimationBit();
-    protected HarvestAnimationBit bitHarvest = new HarvestAnimationBit();
-    protected ShieldAnimationBit bitShield = new ShieldAnimationBit();
     protected CapeAnimationBit bitCape = new CapeAnimationBit();
     protected SleepingAnimationBit bitSleeping = new SleepingAnimationBit();
 
+    protected UseActionType currentUseActionType = null;
+    protected AttackActionType currentAttackActionType = null;
+    protected AnimationBit<BipedEntityData<?>> actionBit = null;
+
     protected ArmatureMask upperBodyOnlyMask;
+
+    private static final Map<UseActionType, ItemActionFactory<AnimationBit<BipedEntityData<?>>>> ITEM_USE_ACTION_MAP = new HashMap<>();
+    private static final Map<AttackActionType, ItemActionFactory<AnimationBit<BipedEntityData<?>>>> ITEM_ATTACK_ACTION_MAP = new HashMap<>();
+    static
+    {
+        ITEM_USE_ACTION_MAP.put(UseActionType.FOOD, EatingAnimationBit::new);
+        ITEM_USE_ACTION_MAP.put(UseActionType.BOW, BowAction::new);
+        ITEM_USE_ACTION_MAP.put(UseActionType.SHIELD, ShieldAnimationBit::new);
+
+        ITEM_ATTACK_ACTION_MAP.put(AttackActionType.TOOL, ToolAction::new);
+        ITEM_ATTACK_ACTION_MAP.put(AttackActionType.FISTS, PunchingAction::new);
+        ITEM_ATTACK_ACTION_MAP.put(AttackActionType.SWORD, SwordAction::new);
+        ITEM_ATTACK_ACTION_MAP.put(AttackActionType.LONGSWORD, SwordAction::new);
+
+        // Completeness checks
+        for (UseActionType type : UseActionType.values())
+        {
+            if (!ITEM_USE_ACTION_MAP.containsKey(type))
+                throw new IllegalStateException("The ITEM_USE_ACTION_MAP map needs to be complete.");
+        }
+
+        // Completeness checks
+        for (AttackActionType type : AttackActionType.values())
+        {
+            if (!ITEM_ATTACK_ACTION_MAP.containsKey(type))
+                throw new IllegalStateException("The ITEM_ATTACK_ACTION_MAP map needs to be complete.");
+        }
+    }
 
     public PlayerController()
     {
@@ -70,29 +100,46 @@ public class PlayerController implements IAnimationController<PlayerData>
         this.upperBodyOnlyMask.exclude("rightForeLeg");
     }
 
-    public static boolean isHoldingFood(Item activeItem)
+    public static UseActionType getBuiltInItemUseAction(Item item, ModelBiped.ArmPose armPoseMain, ModelBiped.ArmPose armPoseOff)
     {
-        return activeItem instanceof ItemFood;
+        if (item == Items.AIR)
+            return null;
+
+        if (item instanceof ItemFood)
+            return UseActionType.FOOD;
+
+        if (item instanceof ItemBow || armPoseMain == ArmPose.BOW_AND_ARROW || armPoseOff == ArmPose.BOW_AND_ARROW)
+            return UseActionType.BOW;
+
+        if (armPoseMain == ArmPose.BLOCK || armPoseOff == ArmPose.BLOCK)
+            return UseActionType.SHIELD;
+
+        return UseActionType.FOOD;
     }
 
-    public static boolean isHoldingBow(ModelBiped.ArmPose mainArmPose, ModelBiped.ArmPose offArmPose)
+    public static UseActionType getItemUseAction(Item item, ModelBiped.ArmPose armPoseMain, ModelBiped.ArmPose armPoseOff)
     {
-        return mainArmPose == ArmPose.BOW_AND_ARROW || offArmPose == ArmPose.BOW_AND_ARROW;
+        UseActionType useActionType = ModConfig.getItemUseAction(item);
+
+        return useActionType != null ? useActionType : getBuiltInItemUseAction(item, armPoseMain, armPoseOff);
     }
 
-    public static boolean isShielding(ModelBiped.ArmPose mainArmPose, ModelBiped.ArmPose offArmPose)
+    public static AttackActionType getBuiltInItemAttackAction(Item item)
     {
-        return mainArmPose == ArmPose.BLOCK || offArmPose == ArmPose.BLOCK;
+        if (item instanceof ItemSword)
+            return AttackActionType.SWORD;
+
+        if (item == Items.AIR)
+            return AttackActionType.FISTS;
+
+        return AttackActionType.TOOL;
     }
 
-    public static boolean isHoldingWeapon(Item heldItemMainhand)
+    public static AttackActionType getItemAttackAction(Item item)
     {
-        ItemClassification classification = ModConfig.getItemClassification(heldItemMainhand);
+        AttackActionType attackActionType = ModConfig.getItemAttackAction(item);
 
-        return (
-            classification == ItemClassification.SWORD ||
-            (classification == ItemClassification.UNKNOWN && heldItemMainhand instanceof ItemSword)
-        );
+        return attackActionType != null ? attackActionType : getBuiltInItemAttackAction(item);
     }
 
     public void performActionAnimations(PlayerData data, AbstractClientPlayer player)
@@ -112,32 +159,41 @@ public class PlayerController implements IAnimationController<PlayerData>
         final ModelBiped.ArmPose armPoseOff = getAction(player, heldItemOffhand);
         final EnumHandSide activeHandSide = player.getActiveHand() == EnumHand.MAIN_HAND ? primaryHand : offHand;
 
-        if (isShielding(armPoseMain, armPoseOff))
+        UseActionType useActionType = getItemUseAction(activeItem, armPoseMain, armPoseOff);
+        if (useActionType != currentUseActionType)
         {
-            bitShield.setActionHand(armPoseMain == ArmPose.BLOCK ? primaryHand : offHand);
-            layerAction.playOrContinueBit(bitShield, data);
-        }
-        else if (isHoldingFood(activeItem))
-        {
-            bitEating.setActionHand(activeHandSide);
-            layerAction.playOrContinueBit(bitEating, data);
-        }
-        else if (isHoldingBow(armPoseMain, armPoseOff))
-        {
-            bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
-            layerAction.playOrContinueBit(bitBow, data);
-        }
-        else if (isHoldingWeapon(heldItemMainhand.getItem()) || heldItemMainhand.isEmpty())
-        {
-            layerAction.playOrContinueBit(bitAttack, data);
-        }
-        else
-        {
-            bitHarvest.setActionHand(primaryHand);
-            if (player.isSwingInProgress)
-                layerAction.playOrContinueBit(bitHarvest, data);
+            currentUseActionType = useActionType;
+
+            if (useActionType != null)
+            {
+                ItemActionFactory<AnimationBit<BipedEntityData<?>>> factory = ITEM_USE_ACTION_MAP.get(useActionType);
+                this.actionBit = factory.create(activeHandSide);
+                this.layerAction.playOrContinueBit(this.actionBit, data);
+            }
             else
-                layerAction.clearAnimation();
+            {
+                this.layerAction.clearAnimation();
+                this.currentAttackActionType = null;
+            }
+        }
+
+        AttackActionType attackActionType = getItemAttackAction(heldItemMainhand.getItem());
+
+        if (this.currentAttackActionType != attackActionType)
+        {
+            this.currentAttackActionType = attackActionType;
+
+            ItemActionFactory<AnimationBit<BipedEntityData<?>>> factory = ITEM_ATTACK_ACTION_MAP.get(attackActionType);
+            if (factory == null)
+            {
+                this.actionBit = null;
+                this.layerAction.clearAnimation();
+            }
+            else
+            {
+                this.actionBit = factory.create(primaryHand);
+                this.layerAction.playOrContinueBit(this.actionBit, data);
+            }
         }
     }
 
@@ -250,7 +306,7 @@ public class PlayerController implements IAnimationController<PlayerData>
         return actions;
     }
 
-    private ArmPose getAction(AbstractClientPlayer player, ItemStack heldItem)
+    private static ArmPose getAction(AbstractClientPlayer player, ItemStack heldItem)
     {
         if (!heldItem.isEmpty())
         {

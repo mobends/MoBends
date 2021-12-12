@@ -8,22 +8,21 @@ import net.minecraft.util.EnumHandSide;
 
 public class ShieldAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
-
     private static final String[] ACTIONS = new String[] { "shield" };
 
-    protected EnumHandSide actionHand = EnumHandSide.RIGHT;
+    protected final EnumHandSide actionHand;
 
     protected float bringUpAnimation;
+
+    public ShieldAnimationBit(EnumHandSide handSide)
+    {
+        this.actionHand = handSide;
+    }
 
     @Override
     public String[] getActions(BipedEntityData<?> data)
     {
         return ACTIONS;
-    }
-
-    public void setActionHand(EnumHandSide handSide)
-    {
-        this.actionHand = handSide;
     }
 
     @Override

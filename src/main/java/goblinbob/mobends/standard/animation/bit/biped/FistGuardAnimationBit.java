@@ -25,7 +25,13 @@ public class FistGuardAnimationBit extends AnimationBit<BipedEntityData<?>>
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on
 		// what is your main hand.
 		float handDirMtp = mainHandSwitch ? 1 : -1;
-		
+
+		if (!data.isStillHorizontally())
+		{
+			// Skipping the fist guard if the entity is moving around.
+			return;
+		}
+
 		data.globalOffset.slideY(-2.0F);
 		data.renderRotation.setSmoothness(.3F).orientY(-20 * handDirMtp);
 		

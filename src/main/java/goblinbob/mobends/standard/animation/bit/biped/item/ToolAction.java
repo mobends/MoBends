@@ -1,34 +1,30 @@
-package goblinbob.mobends.standard.animation.bit.biped;
+package goblinbob.mobends.standard.animation.bit.biped.item;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.standard.data.BipedEntityData;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class HarvestAnimationBit extends AnimationBit<BipedEntityData<?>>
+public class ToolAction extends AnimationBit<BipedEntityData<?>>
 {
+    protected final EnumHandSide actionHand;
 
-    private static final String[] ACTIONS = new String[] { "harvest" };
-
-    protected EnumHandSide actionHand = EnumHandSide.RIGHT;
-
-    @Override
-    public String[] getActions(BipedEntityData<?> entityData)
+    public ToolAction(EnumHandSide actionHand)
     {
-        return ACTIONS;
+        this.actionHand = actionHand;
     }
-
-    public void setActionHand(EnumHandSide handSide)
-    {
-        this.actionHand = handSide;
-    }
-
-    public HarvestAnimationBit() {}
 
     @Override
     public void perform(BipedEntityData<?> data)
     {
+        EntityLivingBase entity = data.getEntity();
+        if (!entity.isSwingInProgress)
+        {
+            return;
+        }
+
         final float headPitch = data.headPitch.get();
         final float headYaw = data.headYaw.get();
 
@@ -61,5 +57,4 @@ public class HarvestAnimationBit extends AnimationBit<BipedEntityData<?>>
         mainArm.rotation.orientInstantX(MathHelper.sin(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F)) * 50.0F - 30.0F);
         mainArm.rotation.localRotateZ(MathHelper.cos(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F)) * -20.0F + 10.0F).finish();
     }
-
 }

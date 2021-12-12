@@ -1,19 +1,20 @@
 package goblinbob.mobends.standard.animation.bit.player;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
-import goblinbob.mobends.standard.data.PlayerData;
+import goblinbob.mobends.standard.data.BipedEntityData;
+import net.minecraft.util.EnumHandSide;
 
-public class PunchAnimationBit extends AnimationBit<PlayerData>
+public class PunchAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
+	private final EnumHandSide fistPunchArm;
 
-	@Override
-	public String[] getActions(PlayerData entityData)
+	public PunchAnimationBit(EnumHandSide fistPunchArm)
 	{
-		return new String[] { "attack", "punch" };
+		this.fistPunchArm = fistPunchArm;
 	}
 
 	@Override
-	public void perform(PlayerData data)
+	public void perform(BipedEntityData<?> data)
 	{
 		data.rightArm.rotation.setSmoothness(.3F).orientX(-90).rotateZ(20);
 		data.leftArm.rotation.setSmoothness(.3F).orientZ(-20).rotateX(-90);
@@ -34,7 +35,7 @@ public class PunchAnimationBit extends AnimationBit<PlayerData>
 			data.leftForeLeg.rotation.setSmoothness(.3F).orientX(30);
 		}
 
-		if (data.getFistPunchArm())
+		if (this.fistPunchArm == EnumHandSide.RIGHT)
 		{
 			data.rightArm.rotation.setSmoothness(.9F).orientY(-90).rotateX(-90.0f + data.headPitch.get()).rotateY(10);
 			data.rightForeArm.rotation.setSmoothness(.9F).orientX(0);
@@ -53,5 +54,4 @@ public class PunchAnimationBit extends AnimationBit<PlayerData>
 
 		data.renderRotation.orientY(renderRotationY);
 	}
-
 }

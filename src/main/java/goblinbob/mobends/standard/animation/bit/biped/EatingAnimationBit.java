@@ -9,24 +9,15 @@ import net.minecraft.util.math.MathHelper;
 
 public class EatingAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
-
-	private static final String[] ACTIONS = new String[] { "eating" };
-	
-	protected EnumHandSide actionHand = EnumHandSide.RIGHT;
+	protected final EnumHandSide actionHand;
 	
 	protected float bringUpAnimation;
-	
-	@Override
-	public String[] getActions(BipedEntityData<?> data)
-	{
-		return ACTIONS;
-	}
 
-	public void setActionHand(EnumHandSide handSide)
+	public EatingAnimationBit(EnumHandSide handSide)
 	{
 		this.actionHand = handSide;
 	}
-	
+
 	@Override
 	public void onPlay(BipedEntityData<?> data)
 	{
@@ -61,5 +52,4 @@ public class EatingAnimationBit extends AnimationBit<BipedEntityData<?>>
 						.rotateZ(45.0F * bringUpAnimation * handDirMtp);
 		mainForeArm.rotation.orientX(bringUpAnimation * -45.0F);
 	}
-
 }

@@ -1,7 +1,8 @@
 package goblinbob.mobends.standard.main;
 
-import goblinbob.mobends.standard.ItemClassification;
+import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.core.util.WildcardPattern;
+import goblinbob.mobends.standard.UseActionType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.item.Item;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.*;
+import java.util.function.Function;
 
 @Config(modid = ModStatics.MODID)
 public class ModConfig
@@ -23,8 +25,10 @@ public class ModConfig
     public static boolean showSwordTrail = true;
     @Config.LangKey(ModStatics.MODID + ".config.perform_spin_attack")
     public static boolean performSpinAttack = true;
-    @Config.LangKey(ModStatics.MODID + ".config.item_classifications")
-    public static String[] itemClassificationsRaw = new String[] {};
+    @Config.LangKey(ModStatics.MODID + ".config.item_use_classifications")
+    public static String[] itemUseClassifications = new String[] {};
+    @Config.LangKey(ModStatics.MODID + ".config.item_attack_classifications")
+    public static String[] itemAttackClassifications = new String[] {};
     @Config.LangKey(ModStatics.MODID + ".config.keep_armor_as_vanilla")
     public static String[] keepArmorAsVanilla = new String[] {};
     @Config.LangKey(ModStatics.MODID + ".config.keep_entity_as_vanilla")
@@ -35,15 +39,20 @@ public class ModConfig
     @Config.Ignore
     private static Map<Entity, Boolean> keepEntityAsVanillaCache;
     @Config.Ignore
-    private static Map<Item, ItemClassification> itemClassificationCache;
+    private static Map<Item, UseActionType> itemUseClassificationCache;
     @Config.Ignore
-    private static LinkedList<ItemClassificationEntry> itemClassificationEntries = new LinkedList<>();
+    private static Map<Item, AttackActionType> itemAttackClassificationCache;
+    @Config.Ignore
+    private static LinkedList<ItemClassificationEntry<UseActionType>> itemUseClassificationEntries = new LinkedList<>();
+    @Config.Ignore
+    private static LinkedList<ItemClassificationEntry<AttackActionType>> itemAttackClassificationEntries = new LinkedList<>();
 
     @Config.Ignore
     private static List<Map<?, ?>> caches = Arrays.asList(
         keepArmorAsVanillaCache = new HashMap<>(),
         keepEntityAsVanillaCache = new HashMap<>(),
-        itemClassificationCache = new HashMap<>()
+        itemUseClassificationCache = new HashMap<>(),
+        itemAttackClassificationCache = new HashMap<>()
     );
 
     @Mod.EventBusSubscriber(modid = ModStatics.MODID)
@@ -67,10 +76,16 @@ public class ModConfig
                     cache.clear();
                 }
 
-                itemClassificationEntries.clear();
-                for (String rawEntry : itemClassificationsRaw)
+                itemUseClassificationEntries.clear();
+                for (String rawEntry : itemUseClassifications)
                 {
-                    itemClassificationEntries.addFirst(ItemClassificationEntry.parse(rawEntry));
+                    itemUseClassificationEntries.addFirst(ItemClassificationEntry.parse(rawEntry, UseActionType::valueOf));
+                }
+
+                itemAttackClassificationEntries.clear();
+                for (String rawEntry : itemAttackClassifications)
+                {
+                    itemAttackClassificationEntries.addFirst(ItemClassificationEntry.parse(rawEntry, AttackActionType::valueOf));
                 }
 
                 MoBends.refreshSystems();
@@ -117,15 +132,15 @@ public class ModConfig
         return false;
     }
 
-    public static ItemClassification getItemClassification(Item item)
+    public static UseActionType getItemUseAction(Item item)
     {
         // If cached before, returning the cached classification.
-        return itemClassificationCache.computeIfAbsent(item, (i) -> {
+        return itemUseClassificationCache.computeIfAbsent(item, (i) -> {
             ResourceLocation location = item.getRegistryName();
 
             if (location != null)
             {
-                for (ItemClassificationEntry e : itemClassificationEntries)
+                for (ItemClassificationEntry<UseActionType> e : itemUseClassificationEntries)
                 {
                     if (doesLocationMatchPattern(location, e.pattern))
                     {
@@ -135,7 +150,29 @@ public class ModConfig
             }
 
             // Unclassified
-            return ItemClassification.UNKNOWN;
+            return null;
+        });
+    }
+
+    public static AttackActionType getItemAttackAction(Item item)
+    {
+        // If cached before, returning the cached classification.
+        return itemAttackClassificationCache.computeIfAbsent(item, (i) -> {
+            ResourceLocation location = item.getRegistryName();
+
+            if (location != null)
+            {
+                for (ItemClassificationEntry<AttackActionType> e : itemAttackClassificationEntries)
+                {
+                    if (doesLocationMatchPattern(location, e.pattern))
+                    {
+                        return e.classification;
+                    }
+                }
+            }
+
+            // Unclassified
+            return null;
         });
     }
     
@@ -156,18 +193,18 @@ public class ModConfig
         });
     }
 
-    private static class ItemClassificationEntry
+    private static class ItemClassificationEntry<T>
     {
         public final String pattern;
-        public final ItemClassification classification;
+        public final T classification;
 
-        public ItemClassificationEntry(String pattern, ItemClassification classification)
+        public ItemClassificationEntry(String pattern, T classification)
         {
             this.pattern = pattern;
             this.classification = classification;
         }
 
-        public static ItemClassificationEntry parse(String encoded)
+        public static <T> ItemClassificationEntry<T> parse(String encoded, Function<String, T> parsingFunction)
         {
             int indexOfEquals = encoded.indexOf("=");
 
@@ -177,9 +214,9 @@ public class ModConfig
             }
 
             String pattern = encoded.substring(0, indexOfEquals);
-            ItemClassification classification = ItemClassification.valueOf(encoded.substring(indexOfEquals + 1).toUpperCase());
+            T classification = parsingFunction.apply(encoded.substring(indexOfEquals + 1).toUpperCase());
 
-            return new ItemClassificationEntry(pattern, classification);
+            return new ItemClassificationEntry<>(pattern, classification);
         }
     }
 }

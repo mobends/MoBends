@@ -3,10 +3,10 @@ package goblinbob.mobends.standard.animation.controller;
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
-import goblinbob.mobends.standard.ItemClassification;
+import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.animation.bit.biped.AttackSlashInwardAnimationBit;
-import goblinbob.mobends.standard.animation.bit.biped.BowAnimationBit;
-import goblinbob.mobends.standard.animation.bit.biped.HarvestAnimationBit;
+import goblinbob.mobends.standard.animation.bit.biped.item.BowAction;
+import goblinbob.mobends.standard.animation.bit.biped.item.ToolAction;
 import goblinbob.mobends.standard.animation.bit.biped.JumpAnimationBit;
 import goblinbob.mobends.standard.animation.bit.skeleton.StandAnimationBit;
 import goblinbob.mobends.standard.animation.bit.skeleton.WalkAnimationBit;
@@ -40,8 +40,8 @@ public class SkeletonController implements IAnimationController<SkeletonData>
 	protected AnimationBit<? extends BipedEntityData<EntitySkeleton>> bitStand, bitWalk, bitJump;
 
 	protected AttackSlashInwardAnimationBit bitAttack = new AttackSlashInwardAnimationBit();
-	protected BowAnimationBit bitBow = new BowAnimationBit();
-	protected HarvestAnimationBit bitHarvest = new HarvestAnimationBit();
+	protected BowAction bitBow = new BowAction(EnumHandSide.RIGHT);
+	protected ToolAction bitHarvest = new ToolAction(EnumHandSide.RIGHT); // TODO Implement action system into the skeleton.
 
 	public SkeletonController()
 	{
@@ -60,7 +60,7 @@ public class SkeletonController implements IAnimationController<SkeletonData>
 
 	public static boolean isHoldingWeapon(Item heldItemMainhand)
 	{
-		return heldItemMainhand instanceof ItemSword || ModConfig.getItemClassification(heldItemMainhand) == ItemClassification.SWORD;
+		return heldItemMainhand instanceof ItemSword || ModConfig.getItemAttackAction(heldItemMainhand) == AttackActionType.SWORD;
 	}
 
 	public void performActionAnimations(SkeletonData data, EntitySkeleton skeleton)
@@ -74,7 +74,6 @@ public class SkeletonController implements IAnimationController<SkeletonData>
 
 		if (isHoldingBow(armPoseMain, armPoseOff))
 		{
-			bitBow.setActionHand(armPoseMain == ModelBiped.ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
 			layerAction.playOrContinueBit(bitBow, data);
 		}
 		else if (isHoldingWeapon(heldItemMainhand.getItem()) || heldItemMainhand.isEmpty())
@@ -83,7 +82,7 @@ public class SkeletonController implements IAnimationController<SkeletonData>
 		}
 		else
 		{
-			bitHarvest.setActionHand(primaryHand);
+//			bitHarvest.setActionHand(primaryHand);
 			if (skeleton.isSwingInProgress)
 				layerAction.playOrContinueBit(bitHarvest, data);
 			else

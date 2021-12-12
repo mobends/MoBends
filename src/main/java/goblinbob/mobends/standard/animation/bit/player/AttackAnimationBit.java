@@ -12,30 +12,24 @@ import net.minecraft.util.EnumHand;
 
 public class AttackAnimationBit extends AnimationBit<PlayerData>
 {
-
 	protected HardAnimationLayer<BipedEntityData<?>> layerBase;
-	protected AttackStanceAnimationBit bitAttackStance;
-	protected AttackStanceSprintAnimationBit bitAttackStanceSprint;
+
 	protected AttackSlashUpAnimationBit bitAttackSlashUp;
 	protected AttackSlashDownAnimationBit bitAttackSlashDown;
 	protected AttackSlashInwardAnimationBit bitAttackSlashInward;
 	protected AttackSlashOutwardAnimationBit bitAttackSlashOutward;
 	protected AttackWhirlSlashAnimationBit bitAttackWhirlSlash;
 	protected FistGuardAnimationBit bitFistGuard;
-	protected PunchAnimationBit bitPunch;
 
 	public AttackAnimationBit()
 	{
 		this.layerBase = new HardAnimationLayer<>();
-		this.bitAttackStance = new AttackStanceAnimationBit();
-		this.bitAttackStanceSprint = new AttackStanceSprintAnimationBit();
 		this.bitAttackSlashUp = new AttackSlashUpAnimationBit();
 		this.bitAttackSlashDown = new AttackSlashDownAnimationBit();
 		this.bitAttackSlashInward = new AttackSlashInwardAnimationBit();
 		this.bitAttackSlashOutward = new AttackSlashOutwardAnimationBit();
 		this.bitAttackWhirlSlash = new AttackWhirlSlashAnimationBit();
 		this.bitFistGuard = new FistGuardAnimationBit();
-		this.bitPunch = new PunchAnimationBit();
 	}
 
 	@Override
@@ -59,71 +53,71 @@ public class AttackAnimationBit extends AnimationBit<PlayerData>
 	public void perform(PlayerData playerData)
 	{
 		final AbstractClientPlayer player = playerData.getEntity();
-		
-		if (this.shouldPerformAttack(player))
-		{
-			if (playerData.getTicksAfterAttack() < 10)
-			{
-				if (playerData.getCurrentAttack() == 1)
-				{
-					this.layerBase.playOrContinueBit(this.bitAttackSlashUp, playerData);
-				}
-				else if (playerData.getCurrentAttack() == 2)
-				{
-					this.layerBase.playOrContinueBit(this.bitAttackSlashDown, playerData);
-				}
-				else if (playerData.getCurrentAttack() == 3)
-				{
-					this.layerBase.playOrContinueBit(this.bitAttackSlashInward, playerData);
-				}
-				else if (playerData.getCurrentAttack() == 4)
-				{
-					this.layerBase.playOrContinueBit(this.bitAttackSlashOutward, playerData);
-				}
-				else if (playerData.getCurrentAttack() == 5)
-				{
-					this.layerBase.playOrContinueBit(this.bitAttackWhirlSlash, playerData);
-				}
-				else
-				{
-					this.layerBase.clearAnimation();
-				}
-			}
-			else if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround())
-			{
-				if (player.isSprinting())
-				{
-					this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, playerData);
-				}
-				else if (playerData.isStillHorizontally())
-				{
-					this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
-				}
-				else
-				{
-					this.layerBase.clearAnimation();
-				}
-			}
-			else
-			{
-				this.layerBase.clearAnimation();
-			}
-		}
-		else
-		{
-			if (playerData.getTicksAfterAttack() < 10)
-			{
-				this.layerBase.playOrContinueBit(this.bitPunch, playerData);
-			}
-			else if (playerData.getTicksAfterAttack() < 60 && playerData.isStillHorizontally())
-			{
-				this.layerBase.playOrContinueBit(this.bitFistGuard, playerData);
-			}
-			else
-			{
-				this.layerBase.clearAnimation();
-			}
-		}
+//
+//		if (this.shouldPerformAttack(player))
+//		{
+//			if (playerData.getTicksAfterAttack() < 10)
+//			{
+//				if (playerData.getCurrentAttack() == 1)
+//				{
+//					this.layerBase.playOrContinueBit(this.bitAttackSlashUp, playerData);
+//				}
+//				else if (playerData.getCurrentAttack() == 2)
+//				{
+//					this.layerBase.playOrContinueBit(this.bitAttackSlashDown, playerData);
+//				}
+//				else if (playerData.getCurrentAttack() == 3)
+//				{
+//					this.layerBase.playOrContinueBit(this.bitAttackSlashInward, playerData);
+//				}
+//				else if (playerData.getCurrentAttack() == 4)
+//				{
+//					this.layerBase.playOrContinueBit(this.bitAttackSlashOutward, playerData);
+//				}
+//				else if (playerData.getCurrentAttack() == 5)
+//				{
+//					this.layerBase.playOrContinueBit(this.bitAttackWhirlSlash, playerData);
+//				}
+//				else
+//				{
+//					this.layerBase.clearAnimation();
+//				}
+//			}
+//			else if (playerData.getTicksAfterAttack() < 60 && playerData.isOnGround())
+//			{
+//				if (player.isSprinting())
+//				{
+//					this.layerBase.playOrContinueBit(this.bitAttackStanceSprint, playerData);
+//				}
+//				else if (playerData.isStillHorizontally())
+//				{
+//					this.layerBase.playOrContinueBit(this.bitAttackStance, playerData);
+//				}
+//				else
+//				{
+//					this.layerBase.clearAnimation();
+//				}
+//			}
+//			else
+//			{
+//				this.layerBase.clearAnimation();
+//			}
+//		}
+//		else
+//		{
+//			if (playerData.getTicksAfterAttack() < 10)
+//			{
+//				this.layerBase.playOrContinueBit(this.bitPunch, playerData);
+//			}
+//			else if (playerData.getTicksAfterAttack() < 60 && playerData.isStillHorizontally())
+//			{
+//				this.layerBase.playOrContinueBit(this.bitFistGuard, playerData);
+//			}
+//			else
+//			{
+//				this.layerBase.clearAnimation();
+//			}
+//		}
 
 		this.layerBase.perform(playerData);
 	}
