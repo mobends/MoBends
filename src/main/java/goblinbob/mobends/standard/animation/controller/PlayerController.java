@@ -23,6 +23,8 @@ import net.minecraft.util.EnumHandSide;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 
 /**
