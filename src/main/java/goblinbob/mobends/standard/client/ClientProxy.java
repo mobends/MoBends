@@ -1,10 +1,13 @@
 package goblinbob.mobends.standard.client;
 
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.addon.AddonHelper;
+import goblinbob.mobends.standard.DefaultAddon;
 import goblinbob.mobends.standard.client.event.RenderingEventHandler;
 import goblinbob.mobends.standard.client.renderer.entity.RenderBendsSpectralArrow;
 import goblinbob.mobends.standard.client.renderer.entity.RenderBendsTippedArrow;
 import goblinbob.mobends.standard.main.CommonProxy;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.entity.projectile.EntitySpectralArrow;
 import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraftforge.common.MinecraftForge;
@@ -24,6 +27,9 @@ public class ClientProxy extends CommonProxy
 	public void init()
 	{
 		MinecraftForge.EVENT_BUS.register(new RenderingEventHandler());
+
+		// Registering the standard set of animations.
+		AddonHelper.registerAddon(ModStatics.MODID, new DefaultAddon());
 	}
 	
 	@Override

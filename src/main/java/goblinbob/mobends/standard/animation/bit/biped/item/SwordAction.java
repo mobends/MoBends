@@ -62,6 +62,14 @@ public class SwordAction extends AnimationBit<BipedEntityData<?>>
 
         EntityLivingBase entity = entityData.getEntity();
 
+        int comboClearTime = 20;
+
+        // Creating the combo.
+        if (ticksAfterAttack > comboClearTime)
+        {
+            moveId = 0;
+        }
+
         if (ticksAfterAttack < 10)
         {
         }

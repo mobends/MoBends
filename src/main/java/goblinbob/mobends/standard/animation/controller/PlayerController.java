@@ -299,6 +299,10 @@ public class PlayerController implements IAnimationController<PlayerData>
 
         this.performActionAnimations(data, player);
 
+        // Resetting item rotations
+        data.renderLeftItemRotation.orientZero();
+        data.renderRightItemRotation.orientZero();
+
         final List<String> actions = new ArrayList<>();
         layerBase.perform(data, actions);
         layerSneak.perform(data, actions);

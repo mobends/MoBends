@@ -77,20 +77,27 @@ public class ModConfig
                 }
 
                 itemUseClassificationEntries.clear();
-                for (String rawEntry : itemUseClassifications)
-                {
-                    itemUseClassificationEntries.addFirst(ItemClassificationEntry.parse(rawEntry, UseActionType::valueOf));
-                }
-
                 itemAttackClassificationEntries.clear();
-                for (String rawEntry : itemAttackClassifications)
-                {
-                    itemAttackClassificationEntries.addFirst(ItemClassificationEntry.parse(rawEntry, AttackActionType::valueOf));
-                }
 
                 MoBends.refreshSystems();
             }
         }
+    }
+
+    private static <T> LinkedList<ItemClassificationEntry<T>> getOrMakeEntries(LinkedList<ItemClassificationEntry<T>> entries, String[] rawEntries, Function<String, T> parseFunction)
+    {
+        if (rawEntries.length == 0)
+            return entries;
+
+        if (entries.size() == 0)
+        {
+            for (String rawEntry : rawEntries)
+            {
+                entries.addFirst(ItemClassificationEntry.parse(rawEntry, parseFunction));
+            }
+        }
+
+        return entries;
     }
 
     private static boolean doesLocationMatchPattern(ResourceLocation resourceLocation, String pattern)
@@ -140,7 +147,8 @@ public class ModConfig
 
             if (location != null)
             {
-                for (ItemClassificationEntry<UseActionType> e : itemUseClassificationEntries)
+                List<ItemClassificationEntry<UseActionType>> entries = getOrMakeEntries(itemUseClassificationEntries, itemUseClassifications, UseActionType::valueOf);
+                for (ItemClassificationEntry<UseActionType> e : entries)
                 {
                     if (doesLocationMatchPattern(location, e.pattern))
                     {
@@ -162,7 +170,8 @@ public class ModConfig
 
             if (location != null)
             {
-                for (ItemClassificationEntry<AttackActionType> e : itemAttackClassificationEntries)
+                List<ItemClassificationEntry<AttackActionType>> entries = getOrMakeEntries(itemAttackClassificationEntries, itemAttackClassifications, AttackActionType::valueOf);
+                for (ItemClassificationEntry<AttackActionType> e : entries)
                 {
                     if (doesLocationMatchPattern(location, e.pattern))
                     {

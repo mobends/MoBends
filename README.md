@@ -20,3 +20,9 @@ Say you came from GitHub if you decide to come by! Hope to see you there ;)
 If you'd like to extend the functionality of the Mo' Bends mod, here's what you can do:
 1. Check out an example addon for Mo' Bends: [CustomNPCs Support Addon](https://github.com/mobends/mobends-addon-customnpcs)
 2. That's it for now <3
+
+## Development
+
+### Troubleshooting
+- IntelliJ freaks out and can't find symbols in the project, but compiles fine.
+    - `File > Invalidate Caches/Restart` works like a charm <3
