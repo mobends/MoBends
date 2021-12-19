@@ -1,15 +1,18 @@
 package goblinbob.mobends.core.animation.keyframe;
 
+import goblinbob.mobends.core.util.SerialHelper;
 import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class BinaryAnimationLoader
 {
+    private static final String HEADER = "BENDSANIM";
 
     private static final byte HAS_POSITION = 1;
     private static final byte HAS_ROTATION = 2;
@@ -17,10 +20,17 @@ public class BinaryAnimationLoader
 
     public static KeyframeAnimation loadFromBinaryInputStream(InputStream stream) throws IOException
     {
+        DataInputStream dataInputStream = new DataInputStream(stream);
+
+        // Checking header
+        String header = SerialHelper.readChar(dataInputStream, HEADER.length());
+        if (!header.equals(HEADER))
+        {
+            throw new IOException("File doesn't start with the header.");
+        }
+
         KeyframeAnimation animation = new KeyframeAnimation();
         animation.bones = new HashMap<>();
-
-        DataInputStream dataInputStream = new DataInputStream(stream);
 
         int version = dataInputStream.readInt();
         int amountOfKeyframes = dataInputStream.readInt();
@@ -36,7 +46,7 @@ public class BinaryAnimationLoader
                 character = dataInputStream.readByte();
             }
 
-            String boneName = new String(buffer.toByteArray(), "UTF-8");
+            String boneName = new String(buffer.toByteArray(), StandardCharsets.UTF_8);
             Bone bone = new Bone();
             bone.keyframes = new ArrayList<>();
 

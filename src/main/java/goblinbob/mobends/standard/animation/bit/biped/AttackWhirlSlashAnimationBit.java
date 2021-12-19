@@ -14,14 +14,6 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
-	private static final String[] ACTIONS = new String[] { "attack", "attack_2" };
-	
-	@Override
-	public String[] getActions(BipedEntityData<?> entityData)
-	{
-		return ACTIONS;
-	}
-
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
@@ -47,10 +39,7 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?
 
 		if (living.getHeldItem(EnumHand.MAIN_HAND) != null)
 		{
-			if (living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
-			{
-				data.swordTrail.add(data);
-			}
+			data.swordTrail.add(data);
 		}
 
 		float attackState = data.getTicksAfterAttack() / 10.0f;
@@ -66,13 +55,13 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?
 		data.body.rotation.setSmoothness(.9F).orientX(bodyRot.x)
 				.orientY(bodyRot.y);
 		data.head.rotation.orientX(MathHelper.wrapDegrees(data.headPitch.get()) - bodyRot.x)
-						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRot.y - 30);
+						  .rotateY(MathHelper.wrapDegrees(data.headYaw.get()) - bodyRot.y - 30 * handDirMtp);
 		
 		offArm.getRotation().setSmoothness(.3F).orientZ(20F * handDirMtp);
 		offArm.getRotation().setSmoothness(.3F).orientZ(-80F * handDirMtp);
 		
 		mainArm.getRotation().setSmoothness(.3F).orientZ(-(-10.0f - var5 * 120) * handDirMtp)
-				.rotateInstantY(-20 + armSwing * 70);
+				.rotateInstantY((-20 + armSwing * 70) * handDirMtp);
 
 		mainForeArm.getRotation().setSmoothness(.3F).orientX(-20);
 		offForeArm.getRotation().setSmoothness(.3F).orientX(-60);

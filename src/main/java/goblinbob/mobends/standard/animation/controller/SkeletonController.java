@@ -3,22 +3,15 @@ package goblinbob.mobends.standard.animation.controller;
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
-import goblinbob.mobends.standard.AttackActionType;
-import goblinbob.mobends.standard.animation.bit.biped.AttackSlashInwardAnimationBit;
-import goblinbob.mobends.standard.animation.bit.biped.item.BowAction;
-import goblinbob.mobends.standard.animation.bit.biped.item.ToolAction;
+import goblinbob.mobends.standard.animation.bit.biped.item.BipedActionController;
 import goblinbob.mobends.standard.animation.bit.biped.JumpAnimationBit;
 import goblinbob.mobends.standard.animation.bit.skeleton.StandAnimationBit;
 import goblinbob.mobends.standard.animation.bit.skeleton.WalkAnimationBit;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.data.SkeletonData;
-import goblinbob.mobends.standard.main.ModConfig;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.monster.EntitySkeleton;
-import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHandSide;
 
 import java.util.ArrayList;
@@ -34,60 +27,28 @@ import java.util.List;
  */
 public class SkeletonController implements IAnimationController<SkeletonData>
 {
-
 	protected HardAnimationLayer<BipedEntityData<EntitySkeleton>> layerBase;
-	protected HardAnimationLayer<BipedEntityData<?>> layerAction;
 	protected AnimationBit<? extends BipedEntityData<EntitySkeleton>> bitStand, bitWalk, bitJump;
 
-	protected AttackSlashInwardAnimationBit bitAttack = new AttackSlashInwardAnimationBit();
-	protected BowAction bitBow = new BowAction(EnumHandSide.RIGHT);
-	protected ToolAction bitHarvest = new ToolAction(EnumHandSide.RIGHT); // TODO Implement action system into the skeleton.
+	protected final BipedActionController actionController = new BipedActionController();
 
 	public SkeletonController()
 	{
 		this.layerBase = new HardAnimationLayer<>();
-		this.layerAction = new HardAnimationLayer<>();
 
 		this.bitStand = new StandAnimationBit();
 		this.bitWalk = new WalkAnimationBit();
 		this.bitJump = new JumpAnimationBit<>();
 	}
 
-	public static boolean isHoldingBow(ModelBiped.ArmPose mainArmPose, ModelBiped.ArmPose offArmPose)
-	{
-		return mainArmPose == ModelBiped.ArmPose.BOW_AND_ARROW || offArmPose == ModelBiped.ArmPose.BOW_AND_ARROW;
-	}
-
-	public static boolean isHoldingWeapon(Item heldItemMainhand)
-	{
-		return heldItemMainhand instanceof ItemSword || ModConfig.getItemAttackAction(heldItemMainhand) == AttackActionType.SWORD;
-	}
-
 	public void performActionAnimations(SkeletonData data, EntitySkeleton skeleton)
 	{
 		final EnumHandSide primaryHand = skeleton.getPrimaryHand();
-		final EnumHandSide offHand = primaryHand == EnumHandSide.RIGHT ? EnumHandSide.LEFT : EnumHandSide.RIGHT;
 		final ItemStack heldItemMainhand = skeleton.getHeldItemMainhand();
 		final ItemStack heldItemOffhand = skeleton.getHeldItemOffhand();
-		final ModelBiped.ArmPose armPoseMain = getAction(skeleton, heldItemMainhand);
-		final ModelBiped.ArmPose armPoseOff = getAction(skeleton, heldItemOffhand);
+		final Item activeItem = skeleton.getActiveItemStack().getItem();
 
-		if (isHoldingBow(armPoseMain, armPoseOff))
-		{
-			layerAction.playOrContinueBit(bitBow, data);
-		}
-		else if (isHoldingWeapon(heldItemMainhand.getItem()) || heldItemMainhand.isEmpty())
-		{
-			layerAction.playOrContinueBit(bitAttack, data);
-		}
-		else
-		{
-//			bitHarvest.setActionHand(primaryHand);
-			if (skeleton.isSwingInProgress)
-				layerAction.playOrContinueBit(bitHarvest, data);
-			else
-				layerAction.clearAnimation();
-		}
+		actionController.perform(data, primaryHand, heldItemMainhand, heldItemOffhand, activeItem);
 	}
 	
 	@Override
@@ -111,32 +72,10 @@ public class SkeletonController implements IAnimationController<SkeletonData>
 			}
 		}
 
-		this.performActionAnimations(skeletonData, skeleton);
 
 		List<String> actions = new ArrayList<>();
 		this.layerBase.perform(skeletonData, actions);
-		this.layerAction.perform(skeletonData, actions);
+		this.performActionAnimations(skeletonData, skeleton);
 		return actions;
 	}
-
-	private ModelBiped.ArmPose getAction(EntitySkeleton skeleton, ItemStack heldItem)
-	{
-		if (!heldItem.isEmpty())
-		{
-			if (skeleton.getItemInUseCount() > 0)
-			{
-				EnumAction enumaction = heldItem.getItemUseAction();
-
-				if (enumaction == EnumAction.BLOCK)
-					return ModelBiped.ArmPose.BLOCK;
-				else if (enumaction == EnumAction.BOW)
-					return ModelBiped.ArmPose.BOW_AND_ARROW;
-			}
-
-			return ModelBiped.ArmPose.ITEM;
-		}
-
-		return ModelBiped.ArmPose.EMPTY;
-	}
-
 }

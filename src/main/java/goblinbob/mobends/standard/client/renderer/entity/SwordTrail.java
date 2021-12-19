@@ -77,13 +77,13 @@ public class SwordTrail
             alpha = 1F - alpha;
 
             final Vec3f[] points = new Vec3f[] {
-                    new Vec3f(0, 0, -8 + 8 * alpha + (primaryHand == EnumHandSide.LEFT ? -8 : 0)),
-                    new Vec3f(0, 0, -8 - 8 * alpha + (primaryHand == EnumHandSide.LEFT ? -8 : 0))
+                    new Vec3f(0, 0, -8 + 8 * alpha),
+                    new Vec3f(0, 0, -8 - 8 * alpha)
             };
 
             GUtil.translate(points, 0, 0, 16);
             GUtil.rotate(points, itemRotation);
-            GUtil.translate(points, -1, -6, 0);
+            GUtil.translate(points, primaryHand == EnumHandSide.LEFT ? 1 : -1, -6, 0);
             GUtil.rotate(points, foreArm.rotation.getSmooth());
             GUtil.translate(points, 0, -6 + 2, 0);
             GUtil.rotate(points, arm.rotation.getSmooth());
@@ -168,7 +168,6 @@ public class SwordTrail
             newPart.arm.syncUp(entityData.leftArm);
             newPart.foreArm.syncUp(entityData.leftForeArm);
             newPart.itemRotation.set(entityData.renderLeftItemRotation.getSmooth());
-            QuaternionUtils.rotate(newPart.itemRotation, 90F, 0F, 1F, 0F);
         }
 
         newPart.renderOffset.set(entityData.globalOffset.getX(),

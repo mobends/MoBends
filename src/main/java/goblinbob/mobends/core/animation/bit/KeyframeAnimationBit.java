@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class KeyframeAnimationBit<T extends EntityData<?>> extends AnimationBit<T>
 {
-
 	protected KeyframeAnimation performedAnimation = null;
 	private ArmatureMask mask = null;
 	private TriggerMode triggerMode = TriggerMode.RETRIGGER;
@@ -162,5 +161,4 @@ public class KeyframeAnimationBit<T extends EntityData<?>> extends AnimationBit<
 		RETRIGGER,
 		CONTINUE
 	}
-
 }

@@ -63,40 +63,25 @@ public class EntityBenderRegistry
 
     public <E extends EntityLivingBase> EntityBender<E> getForEntity(E entity)
     {
-        if (entityToBenderMap.containsKey(entity))
-            // noinspection unchecked
-            return (EntityBender<E>) entityToBenderMap.get(entity);
+        // noinspection unchecked
+        return (EntityBender<E>) entityToBenderMap.computeIfAbsent(entity, key -> {
+            // Checking the config blacklist
+            if (ModConfig.shouldKeepEntityAsVanilla(entity))
+                return null;
 
-        // Checking the config blacklist
-        if (ModConfig.shouldKeepEntityAsVanilla(entity))
-        {
+            // Checking direct registration
+            Class<? extends EntityLivingBase> entityClass = entity.getClass();
+            for (EntityBender<?> entityBender : entityClassToBenderMap.values())
+                if (entityBender.entityClass.equals(entityClass))
+                    return entityBender;
+
+            // Checking indirect inheritance
+            for (EntityBender<?> entityBender : entityClassToBenderMap.values())
+                if (entityBender.entityClass.isInstance(entity))
+                    return entityBender;
+
             return null;
-        }
-
-        // Checking direct registration
-        Class<? extends EntityLivingBase> entityClass = entity.getClass();
-        for (EntityBender<?> entityBender : entityClassToBenderMap.values())
-        {
-            if (entityBender.entityClass.equals(entityClass))
-            {
-                entityToBenderMap.put(entity, entityBender);
-                // noinspection unchecked
-                return (EntityBender<E>) entityBender;
-            }
-        }
-
-        // Checking indirect inheritance
-        for (EntityBender<?> entityBender : entityClassToBenderMap.values())
-        {
-            if (entityBender.entityClass.isInstance(entity))
-            {
-                entityToBenderMap.put(entity, entityBender);
-                // noinspection unchecked
-                return (EntityBender<E>) entityBender;
-            }
-        }
-
-        return null;
+        });
     }
 
     public <E extends EntityLivingBase> void clearCache(E entity)

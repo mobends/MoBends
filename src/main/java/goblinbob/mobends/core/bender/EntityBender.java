@@ -186,12 +186,6 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		return null;
 	}
 
-	public void transformModelToCharacterSpace(IMat4x4d matrixOut)
-	{
-		TransformUtils.scale(matrixOut, -1.0F, -1.0F, 1.0F);
-		TransformUtils.translate(matrixOut, 0.0F, -1.501F, 0.0F);
-	}
-
 	public Mutator<?, ?, ?> getMutator(RenderLivingBase<? extends EntityLivingBase> renderer)
 	{
 		return this.mutatorMap.get(renderer);

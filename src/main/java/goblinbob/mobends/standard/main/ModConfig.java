@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.main;
 
+import goblinbob.mobends.core.util.ErrorReporter;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.core.util.WildcardPattern;
 import goblinbob.mobends.standard.UseActionType;
@@ -77,7 +78,10 @@ public class ModConfig
                 }
 
                 itemUseClassificationEntries.clear();
+                getOrMakeEntries(itemUseClassificationEntries, itemUseClassifications, UseActionType::valueOf);
+
                 itemAttackClassificationEntries.clear();
+                getOrMakeEntries(itemAttackClassificationEntries, itemAttackClassifications, AttackActionType::valueOf);
 
                 MoBends.refreshSystems();
             }
@@ -93,7 +97,14 @@ public class ModConfig
         {
             for (String rawEntry : rawEntries)
             {
-                entries.addFirst(ItemClassificationEntry.parse(rawEntry, parseFunction));
+                try
+                {
+                    entries.addFirst(ItemClassificationEntry.parse(rawEntry, parseFunction));
+                }
+                catch(MalformedConfigException e)
+                {
+                    ErrorReporter.showErrorToPlayer(String.format("Invalid configuration! %s", e.getMessage()));
+                }
             }
         }
 
@@ -223,9 +234,18 @@ public class ModConfig
             }
 
             String pattern = encoded.substring(0, indexOfEquals);
-            T classification = parsingFunction.apply(encoded.substring(indexOfEquals + 1).toUpperCase());
+            String encodedActionType = encoded.substring(indexOfEquals + 1).toUpperCase();
 
-            return new ItemClassificationEntry<>(pattern, classification);
+            try
+            {
+                T actionType = parsingFunction.apply(encodedActionType);
+
+                return new ItemClassificationEntry<>(pattern, actionType);
+            }
+            catch(IllegalArgumentException e)
+            {
+                throw new MalformedConfigException(String.format("Unknown action type: %s", encodedActionType), e);
+            }
         }
     }
 }
