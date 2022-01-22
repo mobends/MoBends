@@ -12,7 +12,7 @@ A Minecraft mod that adds more realistic looking animations to the inhabitants o
 ## Discord server
 The development of version **1.0.0** is in progress right now! If you'd like to be a part of it, see the progress, or just hang out, join our Discord server!
 
-[![Discord](https://img.shields.io/discord/386940930739011584.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/Epf7atm)
+[![Discord](https://img.shields.io/discord/386940930739011584.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/JqgWRgdkvx)
 
 Say you came from GitHub if you decide to come by! Hope to see you there ;)
 
