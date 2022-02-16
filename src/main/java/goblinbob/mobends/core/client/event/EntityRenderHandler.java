@@ -4,9 +4,11 @@ import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.mutators.Mutator;
+import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -32,7 +34,17 @@ public class EntityRenderHandler
             {
                 final Mutator mutator = entityBender.getMutator(renderer);
                 final LivingEntityData<EntityLivingBase> data = mutator.getData(living);
-                entityBender.beforeRender(data, living, pt);
+
+                if(!living.isInWater())
+                {
+                    entityBender.beforeRender(data, living, pt);
+                }
+                else
+                {
+                    if(!ModConfig.swimModule && living instanceof EntityPlayer)
+                    entityBender.deapplyMutation(event.getRenderer(), living);
+                }
+
             }
         }
         else

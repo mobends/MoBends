@@ -25,6 +25,9 @@ public class ModConfig
     public static boolean showSwordTrail = true;
     @Config.LangKey(ModStatics.MODID + ".config.perform_spin_attack")
     public static boolean performSpinAttack = true;
+    @Config.LangKey(ModStatics.MODID + ".config.swim_module")
+    public static boolean swimModule = true;
+
     @Config.LangKey(ModStatics.MODID + ".config.weapon_items")
     public static String[] weaponItems = new String[] {};
     @Config.LangKey(ModStatics.MODID + ".config.tool_items")
