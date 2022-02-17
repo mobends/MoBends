@@ -41,8 +41,15 @@ public class EntityRenderHandler
                 }
                 else
                 {
+                    //in water
                     if(!ModConfig.swimModule && living instanceof EntityPlayer)
-                    entityBender.deapplyMutation(event.getRenderer(), living);
+                    {
+                        entityBender.deapplyMutation(event.getRenderer(), living);
+                    }else
+                    {
+                        entityBender.beforeRender(data, living, pt);
+                    }
+
                 }
 
             }
