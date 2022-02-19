@@ -1,38 +1,32 @@
-package goblinbob.mobends.standard.animation.bit.player;
+package goblinbob.mobends.standard.animation.bit.biped;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.math.SmoothOrientation;
-import goblinbob.mobends.standard.data.PlayerData;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import goblinbob.mobends.standard.data.BipedEntityData;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
 
-public class AttackStanceAnimationBit extends AnimationBit<PlayerData>
+public class AttackStanceAnimationBit extends AnimationBit<BipedEntityData<?>>
 {
 	protected final float PI = (float) Math.PI;
 	protected final float kneelDuration = 0.15F;
 	protected final float legSpreadSpeed = 0.1F;
 	protected float legSpreadAnimation = 0F;
-	
+
 	@Override
-	public String[] getActions(PlayerData entityData)
-	{
-		return new String[] { "attack_stance" };
-	}
-	
-	@Override
-	public void onPlay(PlayerData entityData)
+	public void onPlay(BipedEntityData<?> entityData)
 	{
 		this.legSpreadAnimation = 0F;
 	}
 
 	@Override
-	public void perform(PlayerData data)
+	public void perform(BipedEntityData<?> data)
 	{
-		AbstractClientPlayer player = data.getEntity();
-		EnumHandSide primaryHand = player.getPrimaryHand();
+		EntityLivingBase entity = data.getEntity();
+		EnumHandSide primaryHand = entity.getPrimaryHand();
 
 		boolean mainHandSwitch = primaryHand == EnumHandSide.RIGHT;
 		// Main Hand Direction Multiplier - it helps switch animation sides depending on
@@ -42,10 +36,6 @@ public class AttackStanceAnimationBit extends AnimationBit<PlayerData>
 		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
 		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
 		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
-		IModelPart mainLeg = mainHandSwitch ? data.rightLeg : data.leftLeg;
-		IModelPart offLeg = mainHandSwitch ? data.leftLeg : data.rightLeg;
-		IModelPart mainForeLeg = mainHandSwitch ? data.rightForeLeg : data.leftForeLeg;
-		IModelPart offForeLeg = mainHandSwitch ? data.leftForeLeg : data.rightForeLeg;
 		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
 		
 		// ItemStack offHandItemStack = player.getHeldItemOffhand();
@@ -89,5 +79,4 @@ public class AttackStanceAnimationBit extends AnimationBit<PlayerData>
 			data.globalOffset.setY(-MathHelper.sin(touchdown * PI) * 2F - 2F);
 		}
 	}
-
 }

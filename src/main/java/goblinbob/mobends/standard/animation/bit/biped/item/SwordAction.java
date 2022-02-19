@@ -3,9 +3,8 @@ package goblinbob.mobends.standard.animation.bit.biped.item;
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
 import goblinbob.mobends.standard.animation.bit.biped.*;
-import goblinbob.mobends.standard.animation.bit.player.AttackStanceAnimationBit;
+import goblinbob.mobends.standard.animation.bit.biped.AttackStanceAnimationBit;
 import goblinbob.mobends.standard.data.BipedEntityData;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
 

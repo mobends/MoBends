@@ -110,6 +110,13 @@ jar.finalizedBy('reobfJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfJar')
 
+task srcJar(type: Jar) {
+    build.dependsOn it
+    from sourceSets.main.allSource
+    classifier = 'sources'
+    from file("LICENSE")
+}
+
 processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", mod_version
@@ -133,6 +140,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             artifact jar
+            artifact srcJar
         }
     }
     repositories {
