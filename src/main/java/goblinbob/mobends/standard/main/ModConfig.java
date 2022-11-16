@@ -32,6 +32,9 @@ public class ModConfig
     public static String[] weaponItems = new String[] {};
     @Config.LangKey(ModStatics.MODID + ".config.tool_items")
     public static String[] toolItems = new String[] {};
+    @Config.LangKey(ModStatics.MODID + ".config.gun_items")
+    public static String[] gunItems = new String[] {};
+
     @Config.LangKey(ModStatics.MODID + ".config.keep_armor_as_vanilla")
     public static String[] keepArmorAsVanilla = new String[] {};
     @Config.LangKey(ModStatics.MODID + ".config.keep_entity_as_vanilla")
@@ -82,6 +85,7 @@ public class ModConfig
         UNKNOWN,
         WEAPON,
         TOOL,
+        GUN
     }
 
     private static boolean checkForPatterns(ResourceLocation resourceLocation, String[] patterns)
@@ -117,6 +121,9 @@ public class ModConfig
 
             if (checkForPatterns(location, weaponItems))
                 return ItemClassification.WEAPON;
+
+            if(checkForPatterns(location, gunItems))
+                return ItemClassification.GUN;
 
             if (checkForPatterns(location, toolItems))
                 return ItemClassification.TOOL;

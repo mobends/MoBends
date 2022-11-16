@@ -51,6 +51,7 @@ public class PlayerController implements IAnimationController<PlayerData>
     protected FlyingAnimationBit bitFlying = new FlyingAnimationBit();
     protected ElytraAnimationBit bitElytra = new ElytraAnimationBit();
     protected BowAnimationBit bitBow = new BowAnimationBit();
+    protected GunAnimationBit bitGun = new GunAnimationBit();
     protected EatingAnimationBit bitEating = new EatingAnimationBit();
     protected HarvestAnimationBit bitHarvest = new HarvestAnimationBit();
     protected ShieldAnimationBit bitShield = new ShieldAnimationBit();
@@ -95,6 +96,13 @@ public class PlayerController implements IAnimationController<PlayerData>
         );
     }
 
+    public static boolean isHoldingGun(Item heldItemMainhand)
+    {
+        ItemClassification classification = ModConfig.getItemClassification(heldItemMainhand);
+
+        return (classification == ModConfig.ItemClassification.GUN);
+    }
+
     public void performActionAnimations(PlayerData data, AbstractClientPlayer player)
     {
         if (player.isEntityAlive() && player.isPlayerSleeping())
@@ -126,6 +134,11 @@ public class PlayerController implements IAnimationController<PlayerData>
         {
             bitBow.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
             layerAction.playOrContinueBit(bitBow, data);
+        }
+        else if (isHoldingGun(heldItemMainhand.getItem()))
+        {
+            bitGun.setActionHand(armPoseMain == ArmPose.BOW_AND_ARROW ? primaryHand : offHand);
+            layerAction.playOrContinueBit(bitGun, data);
         }
         else if (isHoldingWeapon(heldItemMainhand.getItem()) || heldItemMainhand.isEmpty())
         {
