@@ -34,16 +34,13 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Upload JAR artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         if: success()
-        run: |
-          for jar in build/libs/*.jar; do
-            if [ -f "$jar" ]; then
-              artifact_name=$(basename "$jar" .jar)
-              echo "Uploading $jar as $artifact_name"
-              gh actions upload-artifact --name "$artifact_name" --path "$jar" --retention-days 30
-            fi
-          done
+        with:
+          name: mod-jars
+          path: build/libs/*.jar
+          retention-days: 30
 
       - name: Comment PR with artifact URLs
         if: success() && github.event_name == 'pull_request'
