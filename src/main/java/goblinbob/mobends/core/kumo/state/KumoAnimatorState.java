@@ -10,7 +10,6 @@ import java.util.List;
 
 public class KumoAnimatorState<D extends EntityData<?>>
 {
-
     private List<ILayerState> layerStates = new ArrayList<>();
     private KumoContext context = new KumoContext();
     private boolean started = false;

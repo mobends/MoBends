@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.GlStateManager;
 
 public class ModelPartExtended extends ModelPart
 {
-
     protected IModelPart extension;
 
     public ModelPartExtended(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
@@ -97,5 +96,4 @@ public class ModelPartExtended extends ModelPart
         super.propagateTransform(scale);
         this.applyPostTransform(scale);
     }
-
 }

@@ -19,12 +19,10 @@ public class WalkAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 	@Override
 	public void perform(T data)
 	{
-		data.localOffset.slideToZero(0.3F);
-		data.globalOffset.slideToZero(0.3F);
-		data.centerRotation.setSmoothness(.3F).orientZero();
-		data.renderRotation.setSmoothness(.3F).orientZero();
-		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
-		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
+		data.root.offset.slideToZero(0.3F);
+		data.root.rotation.setSmoothness(.3F).orientZero();
+		data.rightHeldItem.rotation.setSmoothness(.3F).orientZero();
+		data.leftHeldItem.rotation.setSmoothness(.3F).orientZero();
 		
 		final float PI = (float) Math.PI;
 		float limbSwing = data.limbSwing.get() * 0.6662F;
@@ -41,10 +39,10 @@ public class WalkAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 				.rotateZ(-2);
 		
 		float var = (limbSwing / PI) % 2;
-		data.leftForeLeg.rotation.setSmoothness(0.5F).orientX(var > 1 ? 45F : 0F);
-		data.rightForeLeg.rotation.setSmoothness(0.5F).orientX(var > 1 ? 0F : 45F);
-		data.leftForeArm.rotation.setSmoothness(0.8F).orientX(MathHelper.cos(limbSwing + PI/2) * -10F - 10F);
-		data.rightForeArm.rotation.setSmoothness(0.8F).orientX(MathHelper.cos(limbSwing) * -10F - 10F);
+		data.leftShin.rotation.setSmoothness(0.5F).orientX(var > 1 ? 45F : 0F);
+		data.rightShin.rotation.setSmoothness(0.5F).orientX(var > 1 ? 0F : 45F);
+		data.leftForearm.rotation.setSmoothness(0.8F).orientX(MathHelper.cos(limbSwing + PI/2) * -10F - 10F);
+		data.rightForearm.rotation.setSmoothness(0.8F).orientX(MathHelper.cos(limbSwing) * -10F - 10F);
 
 		float bodyRotationY = MathHelper.cos(limbSwing) * -20F;
 		float bodyRotationX = MathHelper.cos(limbSwing * 2F) * 5F + 3F;
@@ -57,14 +55,14 @@ public class WalkAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 		data.head.rotation.setSmoothness(0.5F).orientX(data.headPitch.get() - bodyRotationX)
 										  	  .rotateY(data.headYaw.get() - bodyRotationY);
 
-		data.globalOffset.slideY(MathHelper.cos(limbSwing * 2) * 0.6F);
+		data.root.offset.slideY(MathHelper.cos(limbSwing * 2) * 0.6F);
 		
 		float touchdown = Math.min(data.getTicksAfterTouchdown() * KNEEL_DURATION, 1.0F);
 		if (touchdown < 1.0F)
 		{
 			data.body.rotation.setSmoothness(1F);
 			data.body.rotation.orient(20.0F * (1 - touchdown), 1F, 0F, 0F);
-			data.globalOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
+			data.root.offset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
 		}
 	}
 }

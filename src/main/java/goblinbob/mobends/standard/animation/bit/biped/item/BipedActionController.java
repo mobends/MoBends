@@ -2,8 +2,6 @@ package goblinbob.mobends.standard.animation.bit.biped.item;
 
 import goblinbob.mobends.core.animation.bit.AnimationBit;
 import goblinbob.mobends.core.animation.layer.HardAnimationLayer;
-import goblinbob.mobends.core.data.EntityData;
-import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.UseActionType;
 import goblinbob.mobends.standard.animation.bit.biped.EatingAnimationBit;
@@ -38,6 +36,7 @@ public class BipedActionController
         ITEM_ATTACK_ACTION_MAP.put(AttackActionType.TOOL, ToolAction::new);
         ITEM_ATTACK_ACTION_MAP.put(AttackActionType.FISTS, PunchingAction::new);
         ITEM_ATTACK_ACTION_MAP.put(AttackActionType.SWORD, SwordAction::new);
+        ITEM_ATTACK_ACTION_MAP.put(AttackActionType.LONGSWORD, LongSwordAction::new);
 
         // Completeness checks
         for (UseActionType type : UseActionType.values())

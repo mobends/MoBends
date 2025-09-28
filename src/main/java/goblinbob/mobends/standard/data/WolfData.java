@@ -3,12 +3,16 @@ package goblinbob.mobends.standard.data;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.math.vector.IVec3fRead;
+import goblinbob.mobends.core.math.vector.Vec3fReadonly;
 import goblinbob.mobends.standard.animation.controller.WolfController;
 import net.minecraft.entity.passive.EntityWolf;
 
 public class WolfData extends LivingEntityData<EntityWolf>
 {
+    private static final IVec3fRead ROOT_OFFSET = new Vec3fReadonly(0, 0, 0);
 
+    public ModelPartTransform root;
     public ModelPartTransform head;
     public ModelPartTransform nose;
     public ModelPartTransform mouth;
@@ -50,8 +54,7 @@ public class WolfData extends LivingEntityData<EntityWolf>
     @Override
     public void initModelPose()
     {
-        super.initModelPose();
-
+        nameToPartMap.put("root", root = new ModelPartTransform());
         nameToPartMap.put("head", head = new ModelPartTransform());
         nameToPartMap.put("body", body = new ModelPartTransform());
         nameToPartMap.put("leg1", leg1 = new ModelPartTransform());
@@ -71,6 +74,7 @@ public class WolfData extends LivingEntityData<EntityWolf>
         nameToPartMap.put("foreLeg3", foreLeg3 = new ModelPartTransform());
         nameToPartMap.put("foreLeg4", foreLeg4 = new ModelPartTransform());
 
+        root.position.set(0.0F, -2.0F, 0.0F);
         head.position.set(0.0F, -0.5F, -13.0F);
         body.position.set(0.0F, 14.0F, 8.0F);
         mane.position.set(0.0F, -0.5F, -12.0F);
@@ -94,8 +98,7 @@ public class WolfData extends LivingEntityData<EntityWolf>
     @Override
     public void updateParts(float ticksPerFrame)
     {
-        super.updateParts(ticksPerFrame);
-
+        root.update(ticksPerFrame);
         head.update(ticksPerFrame);
         body.update(ticksPerFrame);
         leg1.update(ticksPerFrame);
@@ -121,4 +124,9 @@ public class WolfData extends LivingEntityData<EntityWolf>
         return entity.isSitting();
     }
 
+    @Override
+    public IVec3fRead getRootOffset()
+    {
+        return ROOT_OFFSET;
+    }
 }

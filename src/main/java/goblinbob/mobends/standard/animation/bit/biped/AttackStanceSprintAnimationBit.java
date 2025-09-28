@@ -13,7 +13,7 @@ public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		data.localOffset.slideToZero(0.3F);
+		data.root.offset.slideToZero(0.3F);
 
 		final EntityLivingBase living = data.getEntity();
 		final EnumHandSide primaryHand = living.getPrimaryHand();
@@ -24,8 +24,8 @@ public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData
 		float handDirMtp = mainHandSwitch ? 1 : -1;
 		IModelPart mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
 		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
-		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
-		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
+		IModelPart mainForeArm = mainHandSwitch ? data.rightForearm : data.leftForearm;
+		IModelPart offForeArm = mainHandSwitch ? data.leftForearm : data.rightForearm;
 
 		if (living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
 		{
@@ -40,11 +40,11 @@ public class AttackStanceSprintAnimationBit extends AnimationBit<BipedEntityData
 		
 		if (mainHandSwitch)
 		{
-			data.renderRightItemRotation.setSmoothness(.3F).orientX(45);
+			data.rightHeldItem.rotation.setSmoothness(.3F).orientX(45);
 		}
 		else
 		{
-			data.renderLeftItemRotation.setSmoothness(.3F).orientX(45);
+			data.leftHeldItem.rotation.setSmoothness(.3F).orientX(45);
 		}
 	}
 }

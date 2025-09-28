@@ -9,7 +9,7 @@ public class StandAnimationBit extends goblinbob.mobends.standard.animation.bit.
 	{
 		super.perform(data);
 		
-		data.globalOffset.slideY(-3F);
+		data.root.offset.slideY(-3F);
 		
 		data.body.rotation.localRotateX(20F)
 						  .rotateZ(-10F);
@@ -27,7 +27,7 @@ public class StandAnimationBit extends goblinbob.mobends.standard.animation.bit.
 		data.leftLeg.rotation.rotateX(-10F)
 							 .rotateY(-10F);
 		
-		data.rightForeLeg.rotation.rotateX(25);
-		data.leftForeLeg.rotation.rotateX(25);
+		data.rightShin.rotation.rotateX(25);
+		data.leftShin.rotation.rotateX(25);
 	}
 }

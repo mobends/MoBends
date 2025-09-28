@@ -16,13 +16,13 @@ public enum BindPoint
     HEAD("head", data -> data.head),
     BODY("body", data -> data.body),
     LEFT_ARM("leftArm", data -> data.leftArm),
-    LEFT_FOREARM("leftForearm", data -> data.leftForeArm),
+    LEFT_FOREARM("leftForearm", data -> data.leftForearm),
     RIGHT_ARM("rightArm", data -> data.rightArm),
-    RIGHT_FOREARM("rightForearm", data -> data.rightForeArm),
+    RIGHT_FOREARM("rightForearm", data -> data.rightForearm),
     LEFT_THIGH("leftThigh", data -> data.leftLeg),
-    LEFT_SHIN("leftShin", data -> data.leftForeLeg),
+    LEFT_SHIN("leftShin", data -> data.leftShin),
     RIGHT_THIGH("rightThigh", data -> data.rightLeg),
-    RIGHT_SHIN("rightShin", data -> data.rightForeLeg);
+    RIGHT_SHIN("rightShin", data -> data.rightShin);
 
     private static Map<String, BindPoint> KEY_TO_VALUE = new HashMap<>();
     static

@@ -1,10 +1,6 @@
 package goblinbob.mobends.standard.mutators;
 
-import goblinbob.mobends.core.client.model.IModelPart;
-import goblinbob.mobends.core.client.model.ModelPart;
-import goblinbob.mobends.core.client.model.ModelPartExtended;
-import goblinbob.mobends.core.client.model.ModelPartPostOffset;
-import goblinbob.mobends.core.client.model.BoxSide;
+import goblinbob.mobends.core.client.model.*;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomBipedArmor;
@@ -24,6 +20,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 								  extends Mutator<D, E, M>
 {
 
+	protected ModelPartTransform root;
 	protected ModelPartPostOffset body;
 	protected ModelPart head;
 	protected ModelPart headwear;
@@ -143,9 +140,12 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	@Override
 	public boolean createParts(M original, float scaleFactor)
 	{
+		root = new ModelPartTransform();
+
 		// Body
 		original.bipedBody = body = (ModelPartPostOffset) new ModelPartPostOffset(original, 16, 16)
 				.setPostOffset(0.0F, -12.0F, 0.0F)
+				.setParent(root)
 				.setPosition(0.0F, 12.0F, 0.0F);
 		body.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, scaleFactor);
 
@@ -199,9 +199,11 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 
 		// Legs
 		original.bipedRightLeg = rightLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
+				.setParent(root)
 				.setPosition(0.0F, 12F, 0F);
 		rightLeg.addBox(-3.9F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
 		original.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
+				.setParent(root)
 				.setPosition(0.0F, 12.0F, 0.0F)
 				.setMirror(true);
 		leftLeg.addBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
@@ -235,16 +237,17 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	@Override
 	public void syncUpWithData(D data)
 	{
+		root.syncUp(data.root);
 		head.syncUp(data.head);
 		body.syncUp(data.body);
 		leftArm.syncUp(data.leftArm);
 		rightArm.syncUp(data.rightArm);
 		leftLeg.syncUp(data.leftLeg);
 		rightLeg.syncUp(data.rightLeg);
-		leftForeArm.syncUp(data.leftForeArm);
-		rightForeArm.syncUp(data.rightForeArm);
-		leftForeLeg.syncUp(data.leftForeLeg);
-		rightForeLeg.syncUp(data.rightForeLeg);
+		leftForeArm.syncUp(data.leftForearm);
+		rightForeArm.syncUp(data.rightForearm);
+		leftForeLeg.syncUp(data.leftShin);
+		rightForeLeg.syncUp(data.rightShin);
 	}
 
 	/**

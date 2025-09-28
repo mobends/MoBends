@@ -5,4 +5,5 @@ public enum AttackActionType
     TOOL,
     FISTS,
     SWORD,
+    LONGSWORD,
 }

@@ -61,12 +61,12 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?>>
 			
 			data.leftArm.rotation.setSmoothness(.3F).orientX(armSway2*30-15).rotateZ(-armSway*30);
 			data.rightArm.rotation.setSmoothness(.3F).orientX(armSway2*30-15).rotateZ(armSway*30);
-			data.leftForeArm.rotation.setSmoothness(.3F).orientX(armSway2*-40);
-			data.rightForeArm.rotation.setSmoothness(.3F).orientX(armSway2*-40);
+			data.leftForearm.rotation.setSmoothness(.3F).orientX(armSway2*-40);
+			data.rightForearm.rotation.setSmoothness(.3F).orientX(armSway2*-40);
 			data.leftLeg.rotation.setSmoothness(.3F).orientX(legFlap*40);
 			data.rightLeg.rotation.setSmoothness(.3F).orientX(-legFlap*40);
-			data.leftForeLeg.rotation.setSmoothness(.4F).orientX(5);
-			data.rightForeLeg.rotation.setSmoothness(.4F).orientX(5);
+			data.leftShin.rotation.setSmoothness(.4F).orientX(5);
+			data.rightShin.rotation.setSmoothness(.4F).orientX(5);
 			data.body.rotation.orientX(armSway*10);
 		}
 		else
@@ -84,27 +84,26 @@ public class SwimmingAnimationBit extends AnimationBit<BipedEntityData<?>>
 					.rotateY(90F * t)
 					.rotateX(armSway * 20);
 			
-			data.leftForeArm.rotation.setSmoothness(.3F).orientX((foreArmSway < 0.55f | foreArmSway > 0.9) ? foreArmStretch*-60.0f : -60);
-			data.rightForeArm.rotation.setSmoothness(.3F).orientX((foreArmSway < 0.55f | foreArmSway > 0.9) ? foreArmStretch*-60.0f : -60);
+			data.leftForearm.rotation.setSmoothness(.3F).orientX((foreArmSway < 0.55f | foreArmSway > 0.9) ? foreArmStretch*-60.0f : -60);
+			data.rightForearm.rotation.setSmoothness(.3F).orientX((foreArmSway < 0.55f | foreArmSway > 0.9) ? foreArmStretch*-60.0f : -60);
 			
 			data.leftLeg.rotation.setSmoothness(.3F).orientX(legFlap*40);
 			data.rightLeg.rotation.setSmoothness(.3F).orientX(-legFlap*40);
 			
-			data.leftForeLeg.rotation.setSmoothness(.4F).orientX(5);
-			data.rightForeLeg.rotation.setSmoothness(.4F).orientX(5);
+			data.leftShin.rotation.setSmoothness(.4F).orientX(5);
+			data.rightShin.rotation.setSmoothness(.4F).orientX(5);
 			
 			data.body.rotation.setSmoothness(.5F).orientX(armSway*-20);
 			
-			data.renderRightItemRotation.setSmoothness(.3F).orientX(armSway*50);
+			data.rightHeldItem.rotation.setSmoothness(.3F).orientX(armSway*50);
 		}
 		
 		data.head.rotation.setSmoothness(1.0F).orientX(data.headPitch.get())
 		  				  .rotateY(data.headYaw.get())
 		  				  .rotateX(-80F * t);
 		
-		data.renderRotation.setSmoothness(.7F).orientX(t * 80F);
-		data.globalOffset.slideZ(-20 * t, .7F);
-		data.globalOffset.slideY(14 * t, .7F);
-		data.localOffset.slideToZero(0.3F);
+		data.root.rotation.setSmoothness(.7F).orientX(t * 80F);
+		data.root.offset.slideZ(-20 * t, .7F);
+		data.root.offset.slideY(14 * t, .7F);
 	}
 }

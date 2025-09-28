@@ -2,7 +2,6 @@ package goblinbob.mobends.standard.client.renderer.entity;
 
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.math.Quaternion;
-import goblinbob.mobends.core.math.QuaternionUtils;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.util.IColorRead;
@@ -160,21 +159,15 @@ public class SwordTrail
         if (primaryHand == EnumHandSide.RIGHT)
         {
             newPart.arm.syncUp(entityData.rightArm);
-            newPart.foreArm.syncUp(entityData.rightForeArm);
-            newPart.itemRotation.set(entityData.renderRightItemRotation.getSmooth());
+            newPart.foreArm.syncUp(entityData.rightForearm);
+            newPart.itemRotation.set(entityData.rightHeldItem.rotation.getSmooth());
         }
         else
         {
             newPart.arm.syncUp(entityData.leftArm);
-            newPart.foreArm.syncUp(entityData.leftForeArm);
-            newPart.itemRotation.set(entityData.renderLeftItemRotation.getSmooth());
+            newPart.foreArm.syncUp(entityData.leftForearm);
+            newPart.itemRotation.set(entityData.leftHeldItem.rotation.getSmooth());
         }
-
-        newPart.renderOffset.set(entityData.globalOffset.getX(),
-                entityData.globalOffset.getY(),
-                entityData.globalOffset.getZ());
-        newPart.renderRotation.set(entityData.renderRotation.getSmooth());
-        newPart.renderRotation.negate();
 
         trailPartList.add(newPart);
     }

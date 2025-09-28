@@ -26,20 +26,18 @@ public class StandAnimationBit<T extends BipedEntityData<?>> extends AnimationBi
 			data.body.rotation.orientInstant(20F, 1F, 0F, 0F);
 			data.rightLeg.rotation.orient(-20F, 1F, 0F, 0F);
 			data.leftLeg.rotation.orient(-45, 1F, 0F, 0F);
-			data.rightForeLeg.rotation.orient(60F, 1F, 0F, 0F);
-			data.leftForeLeg.rotation.orient(60, 1F, 0F, 0F);
+			data.rightShin.rotation.orient(60F, 1F, 0F, 0F);
+			data.leftShin.rotation.orient(60, 1F, 0F, 0F);
 		}
 	}
 
 	@Override
 	public void perform(T data)
 	{
-		data.localOffset.slideToZero(0.3F);
-		data.globalOffset.slideToZero(0.3F);
-		data.renderRotation.setSmoothness(.3F).orientZero();
-		data.centerRotation.setSmoothness(.3F).orientZero();
-		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
-		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
+		data.root.offset.slideToZero(0.3F);
+		data.root.rotation.setSmoothness(.3F).orientZero();
+		data.rightHeldItem.rotation.setSmoothness(.3F).orientZero();
+		data.leftHeldItem.rotation.setSmoothness(.3F).orientZero();
 		
 		data.rightLeg.rotation.orient(0F, 1F, 0F, 0F);
 		data.rightLeg.rotation.rotate(2F, 0F, 0F, 1F);
@@ -47,10 +45,10 @@ public class StandAnimationBit<T extends BipedEntityData<?>> extends AnimationBi
 		data.leftLeg.rotation.orient(0F, 1F, 0F, 0F);
 		data.leftLeg.rotation.rotate(-2F, 0F, 0F, 1F);
 		data.leftLeg.rotation.rotate(-5, 0F, 1F, 0F);
-		data.rightForeLeg.rotation.orient(4F, 1F, 0F, 0F);
-		data.leftForeLeg.rotation.orient(4F, 1F, 0F, 0F);
-		data.rightForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
-		data.leftForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
+		data.rightShin.rotation.orient(4F, 1F, 0F, 0F);
+		data.leftShin.rotation.orient(4F, 1F, 0F, 0F);
+		data.rightForearm.rotation.orient(-4.0F, 1F, 0F, 0F);
+		data.leftForearm.rotation.orient(-4.0F, 1F, 0F, 0F);
 
 		data.head.rotation.orientX(data.headPitch.get())
 						  .rotateY(data.headYaw.get());
@@ -68,7 +66,7 @@ public class StandAnimationBit<T extends BipedEntityData<?>> extends AnimationBi
 		{
 			data.body.rotation.setSmoothness(1F);
 			data.body.rotation.orient(20.0F * (1 - touchdown), 1F, 0F, 0F);
-			data.globalOffset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
+			data.root.offset.setY((float) -Math.sin(touchdown * Math.PI) * 2.0F);
 		}
 	}
 }

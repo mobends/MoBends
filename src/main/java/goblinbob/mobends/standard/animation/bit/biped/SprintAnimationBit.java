@@ -17,12 +17,9 @@ public class SprintAnimationBit<T extends BipedEntityData<?>> extends AnimationB
 	@Override
 	public void perform(T data)
 	{
-		data.localOffset.slideToZero(0.3F);
-		data.globalOffset.slideToZero(0.1F);
-		data.centerRotation.setSmoothness(.3F).orientZero();
-		data.renderRotation.setSmoothness(.3F).orientZero();
-		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
-		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
+		data.root.rotation.setSmoothness(.3F).orientZero();
+		data.rightHeldItem.rotation.setSmoothness(.3F).orientZero();
+		data.leftHeldItem.rotation.setSmoothness(.3F).orientZero();
 
 		final float headPitch = data.headPitch.get();
 		final float headYaw = data.headYaw.get();
@@ -43,10 +40,10 @@ public class SprintAnimationBit<T extends BipedEntityData<?>> extends AnimationB
 
 		float foreLegSwingAmount = 0.7F * data.limbSwingAmount.get() / PI * 180F;
 		float var = (limbSwing / PI) % 2;
-		data.leftForeLeg.rotation.setSmoothness(.7F).orientX(40F + MathHelper.cos(limbSwing + 1.8F) * foreLegSwingAmount);
-		data.rightForeLeg.rotation.setSmoothness(.7F).orientX(40F + MathHelper.cos(limbSwing + PI + 1.8F) * foreLegSwingAmount);
-		data.leftForeArm.rotation.setSmoothness(.3F).orientX((var > 1 ? -10F : -45F));
-		data.rightForeArm.rotation.setSmoothness(.3F).orientX((var > 1 ? -45F : -10F));
+		data.leftShin.rotation.setSmoothness(.7F).orientX(40F + MathHelper.cos(limbSwing + 1.8F) * foreLegSwingAmount);
+		data.rightShin.rotation.setSmoothness(.7F).orientX(40F + MathHelper.cos(limbSwing + PI + 1.8F) * foreLegSwingAmount);
+		data.leftForearm.rotation.setSmoothness(.3F).orientX((var > 1 ? -10F : -45F));
+		data.rightForearm.rotation.setSmoothness(.3F).orientX((var > 1 ? -45F : -10F));
 
 		float bodyRotationY = MathHelper.cos(limbSwing) * -40;
 		float bodyRotationX = MathHelper.cos(limbSwing * 2F) * 10F + 10F;
@@ -59,7 +56,7 @@ public class SprintAnimationBit<T extends BipedEntityData<?>> extends AnimationB
 											 .rotateY(headYaw - bodyRotationY);
 		
 
-		data.globalOffset.slideY(MathHelper.cos(limbSwing * 2F + 0.6F) * 1.5f, .9f);
+		data.root.offset.slideY(MathHelper.cos(limbSwing * 2F + 0.6F) * 1.5f, .9f);
 	}
 
 }

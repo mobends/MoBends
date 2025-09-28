@@ -24,11 +24,10 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 	{
 		final EntityLivingBase living = data.getEntity();
 
-		data.localOffset.slideToZero(0.3F);
-		data.renderRotation.orientZero();
-		data.centerRotation.setSmoothness(.3F).orientZero();
-		data.renderLeftItemRotation.orientZero();
-		data.renderRightItemRotation.orientZero();
+		data.root.offset.slideToZero(0.3F);
+		data.root.rotation.setSmoothness(.3F).orientZero();
+		data.leftHeldItem.rotation.orientZero();
+		data.rightHeldItem.rotation.orientZero();
 		
 		data.head.rotation.orientX(data.headPitch.get())
 		  				  .rotateY(data.headYaw.get());
@@ -36,13 +35,13 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		
 		data.leftLeg.rotation.orientX(-90.0F).rotateZ(-10.0F).rotateY(-25.0F);
 		data.rightLeg.rotation.orientX(-90.0F).rotateZ(10.0F).rotateY(25.0F);
-		data.leftForeLeg.rotation.orientX(60.0F);
-		data.rightForeLeg.rotation.orientX(60.0F);
+		data.leftShin.rotation.orientX(60.0F);
+		data.rightShin.rotation.orientX(60.0F);
 		
 		data.leftArm.rotation.orientX(0.0F).rotateZ(-10F);
-		data.leftForeArm.rotation.orientX(-10.0F);
+		data.leftForearm.rotation.orientX(-10.0F);
 		data.rightArm.rotation.orientX(0.0F).rotateZ(10F);
-		data.rightForeArm.rotation.orientX(-10.0F);
+		data.rightForearm.rotation.orientX(-10.0F);
 		
 		Entity ridden = living.getRidingEntity();
 		if (ridden != null && ridden instanceof EntityLivingBase)
@@ -60,9 +59,9 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 		{
 			data.body.rotation.orientX(25.0F);
 			data.leftArm.rotation.orientX(-45.0F).rotateZ(10F);
-			data.leftForeArm.rotation.orientX(-10.0F);
+			data.leftForearm.rotation.orientX(-10.0F);
 			data.rightArm.rotation.orientX(-45.0F).rotateZ(-10F);
-			data.rightForeArm.rotation.orientX(-10.0F);
+			data.rightForearm.rotation.orientX(-10.0F);
 			
 			float motionMagnitude = (float) (Math.sqrt(living.motionX*living.motionX + living.motionZ*living.motionZ)) * 100;
 			if (motionMagnitude > 1)
@@ -73,7 +72,7 @@ public class RidingAnimationBit extends AnimationBit<BipedEntityData<?>>
 				data.head.rotation.rotateX(-bodyRotation);
 				data.leftArm.rotation.rotateX(-bodyRotation);
 				data.rightArm.rotation.rotateX(-bodyRotation);
-				data.globalOffset.slideY(MathHelper.sin(ticks) * 0.3F);
+				data.root.offset.slideY(MathHelper.sin(ticks) * 0.3F);
 			}
 			else
 			{

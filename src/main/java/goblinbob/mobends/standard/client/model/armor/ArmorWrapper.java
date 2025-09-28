@@ -76,13 +76,13 @@ public class ArmorWrapper extends ModelBiped
             .setParent(this.bodyTransform);
         this.headwearParts = registerWrapper(original, bipedHeadwear, headwearSetter, data -> data.head)
             .setParent(this.bodyTransform);
-        this.leftArmParts  = registerWrapper(original, bipedLeftArm,  leftArmSetter,  data -> data.leftArm,  data -> data.leftForeArm, 4.0F, 0.001F)
+        this.leftArmParts  = registerWrapper(original, bipedLeftArm,  leftArmSetter,  data -> data.leftArm,  data -> data.leftForearm, 4.0F, 0.001F)
             .offsetLower(0, -4.0F, -2.0F).setParent(this.bodyTransform);
-        this.rightArmParts = registerWrapper(original, bipedRightArm, rightArmSetter, data -> data.rightArm, data -> data.rightForeArm, 4.0F, 0.001F)
+        this.rightArmParts = registerWrapper(original, bipedRightArm, rightArmSetter, data -> data.rightArm, data -> data.rightForearm, 4.0F, 0.001F)
             .offsetLower(0, -4.0F, -2.0F).setParent(this.bodyTransform);
-        this.leftLegParts  = registerWrapper(original, bipedLeftLeg,  leftLegSetter,  data -> data.leftLeg,  data -> data.leftForeLeg, 6.0F, 0F)
+        this.leftLegParts  = registerWrapper(original, bipedLeftLeg,  leftLegSetter,  data -> data.leftLeg,  data -> data.leftShin, 6.0F, 0F)
             .offsetLower(1.9F, -6.0F, 2.0F).offsetInner(1.9F, 0, 0);
-        this.rightLegParts = registerWrapper(original, bipedRightLeg, rightLegSetter, data -> data.rightLeg, data -> data.rightForeLeg, 6.0F, 0F)
+        this.rightLegParts = registerWrapper(original, bipedRightLeg, rightLegSetter, data -> data.rightLeg, data -> data.rightShin, 6.0F, 0F)
             .offsetLower(-1.9F, -6.0F, 2.0F).offsetInner(-1.9F, 0, 0);
     }
 

@@ -4,6 +4,7 @@ import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IBendsModel;
 import goblinbob.mobends.core.math.SmoothOrientation;
+import goblinbob.mobends.core.math.vector.IVec3fRead;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.pack.state.PackAnimationState;
 import goblinbob.mobends.core.util.GUtil;
@@ -22,7 +23,6 @@ import java.util.List;
 
 public abstract class EntityData<E extends Entity> implements IBendsModel
 {
-
     protected int entityID;
     protected final E entity;
 
@@ -30,11 +30,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
     protected double prevMotionX, prevMotionY, prevMotionZ;
     protected double motionX, motionY, motionZ;
     protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
-
-    public SmoothVector3f globalOffset;
-    public SmoothVector3f localOffset;
-    public SmoothOrientation renderRotation;
-    public SmoothOrientation centerRotation;
 
     public boolean onGround = true;
     public Boolean onGroundOverride = null;
@@ -82,27 +77,12 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
         this.stillnessOverride = null;
     }
 
-    public void initModelPose()
-    {
-        this.globalOffset = new SmoothVector3f();
-        this.localOffset = new SmoothVector3f();
-        this.renderRotation = new SmoothOrientation();
-        this.centerRotation = new SmoothOrientation();
-
-        this.nameToPartMap.put("renderRotation", renderRotation);
-        this.nameToPartMap.put("centerRotation", centerRotation);
-    }
+    public abstract void initModelPose();
 
     /**
      * Updates all the model's parts to be in their next frame. Called in {@code EntityData.update()}
      */
-    public void updateParts(float ticksPerFrame)
-    {
-        this.globalOffset.update(ticksPerFrame);
-        this.localOffset.update(ticksPerFrame);
-        this.renderRotation.update(ticksPerFrame);
-        this.centerRotation.update(ticksPerFrame);
-    }
+    public abstract void updateParts(float ticksPerFrame);
 
     public boolean calcOnGround()
     {
@@ -305,4 +285,5 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 
     public abstract void onTicksRestart();
 
+    public abstract IVec3fRead getRootOffset();
 }

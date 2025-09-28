@@ -1,0 +1,44 @@
+{
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": 0,
+      "nodes": [
+        {
+          "comment": "NODE 0 - Idle",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/player_idle.bendsanim",
+          "playbackSpeed": 1,
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 1,
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              }
+            }
+          ]
+        },
+        {
+          "comment": "NODE 1 - Walking",
+          "type": "core:standard",
+          "animationKey": "mobends:animations/player_longsword_swing_1.bendsanim",
+          "playbackSpeed": 1,
+          "looping": true,
+          "connections": [
+            {
+              "targetNodeIndex": 0,
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "STANDING_STILL"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

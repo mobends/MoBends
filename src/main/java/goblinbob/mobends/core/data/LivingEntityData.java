@@ -12,7 +12,6 @@ import net.minecraft.util.math.BlockPos;
 
 public abstract class LivingEntityData<E extends EntityLivingBase> extends EntityData<E>
 {
-
     protected float ticksInAir;
     protected float ticksAfterTouchdown;
     protected float ticksAfterAttack;

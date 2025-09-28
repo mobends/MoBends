@@ -41,8 +41,8 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		IModelPart offArm = sprintLegSwitch ? data.leftArm : data.rightArm;
 		IModelPart mainLeg = sprintLegSwitch ? data.rightLeg : data.leftLeg;
 		IModelPart offLeg = sprintLegSwitch ? data.leftLeg : data.rightLeg;
-		IModelPart mainForeLeg = sprintLegSwitch ? data.rightForeLeg : data.leftForeLeg;
-		IModelPart offForeLeg = sprintLegSwitch ? data.leftForeLeg : data.rightForeLeg;
+		IModelPart mainForeLeg = sprintLegSwitch ? data.rightShin : data.leftShin;
+		IModelPart offForeLeg = sprintLegSwitch ? data.leftShin : data.rightShin;
 		
 		float bodyRotationY = 20 * legSwitchMtp;
 		float bodyLean = MathHelper.clamp((float) data.getMotionY(), -.2F, .2F);
@@ -56,8 +56,8 @@ public class SprintJumpAnimationBit extends AnimationBit<PlayerData>
 		
 		float relaxAngle = MathHelper.sqrt(MathHelper.sqrt(this.relax));
 
-		data.centerRotation.setSmoothness(.3F).orientZero();
-		data.globalOffset.slideToZero(0.5F);
+		data.root.rotation.setSmoothness(.3F).orientZero();
+		data.root.offset.slideToZero(0.5F);
 
 		data.body.rotation.setSmoothness(.3F).orientX(bodyLean)
 				.rotateY(bodyRotationY);

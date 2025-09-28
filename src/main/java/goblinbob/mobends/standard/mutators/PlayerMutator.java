@@ -206,6 +206,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		this.rightArm.setExtension(this.rightForeArm);
 
 		original.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(original, 16, 48)
+				.setParent(root)
 				.setPosition(0.0F, 12.0F, 0.0F);
 		leftLeg.addBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
 		leftLeg.setExtension(leftForeLeg);
@@ -357,5 +358,4 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	{
 		return PlayerPreviewer.isPreviewInProgress() ? PlayerPreviewer.getPreviewData() : super.getOrMakeData(entity);
 	}
-
 }

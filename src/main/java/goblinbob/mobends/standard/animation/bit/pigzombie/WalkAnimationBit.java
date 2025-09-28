@@ -10,8 +10,6 @@ public class WalkAnimationBit extends goblinbob.mobends.standard.animation.bit.b
 	{
 		super.perform(data);
 		
-		data.globalOffset.slideY(-3F);
-		
 		data.body.rotation.localRotateX(20F)
 						  .rotateZ(-10F);
 		data.head.rotation.rotateX(-20F);
@@ -28,10 +26,10 @@ public class WalkAnimationBit extends goblinbob.mobends.standard.animation.bit.b
 		data.leftLeg.rotation.rotateX(-10F)
 							 .rotateY(-10F);
 		
-		data.rightForeLeg.rotation.rotateX(25);
-		data.leftForeLeg.rotation.rotateX(25);
+		data.rightShin.rotation.rotateX(25);
+		data.leftShin.rotation.rotateX(25);
 		
 		float limbSwing = data.limbSwing.get() * 0.6662F;
-		data.globalOffset.slideY(Math.abs(MathHelper.sin(limbSwing)) * -1.4F - 3F);
+		data.root.offset.slideY(Math.abs(MathHelper.sin(limbSwing)) * -1.4F - 3F);
 	}
 }

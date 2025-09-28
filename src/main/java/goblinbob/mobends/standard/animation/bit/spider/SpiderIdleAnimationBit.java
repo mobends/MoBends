@@ -73,9 +73,7 @@ public class SpiderIdleAnimationBit extends AnimationBit<SpiderData>
 		float climbingRotation = 0;
 		float renderRotationY = MathHelper.wrapDegrees(spider.rotationYaw - data.headYaw.get() - climbingRotation);
 
-		data.localOffset.slideToZero();
-		data.globalOffset.set((float) bodyX, (float) -groundLevel, (float) -bodyZ);
-		data.centerRotation.orientZero();
-		data.renderRotation.orientZero();
+		data.root.offset.set((float) bodyX, (float) -groundLevel, (float) -bodyZ);
+		data.root.rotation.orientZero();
 	}
 }

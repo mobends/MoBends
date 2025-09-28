@@ -30,7 +30,7 @@ public class SpiderDeathAnimationBit extends AnimationBit<SpiderData>
     @Override
     public void perform(SpiderData data)
     {
-        data.globalOffset.slideY(10.0F, 0.3F);
+        data.root.offset.slideY(10.0F, 0.3F);
 
         final float headYaw = data.headYaw.get();
         final float headPitch = data.headPitch.get();

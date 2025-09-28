@@ -2,11 +2,15 @@ package goblinbob.mobends.standard.data;
 
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.math.vector.IVec3fRead;
+import goblinbob.mobends.core.math.vector.Vec3fReadonly;
 import goblinbob.mobends.standard.animation.controller.SquidController;
 import net.minecraft.entity.passive.EntitySquid;
 
 public class SquidData extends LivingEntityData<EntitySquid>
 {
+	private static final IVec3fRead ROOT_OFFSET = new Vec3fReadonly(0, 0, 0);
+
 	public static final int TENTACLE_SECTIONS = 9;
 	public static final int SECTION_HEIGHT = 18 / TENTACLE_SECTIONS;
 
@@ -35,8 +39,6 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	@Override
 	public void initModelPose()
 	{
-		super.initModelPose();
-
 		this.squidBody = new ModelPartTransform();
 		this.squidBody.rotation.finish();
 		this.squidBody.position.set(0.0F, 8.0F, 0.0F);
@@ -67,12 +69,16 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	@Override
 	public void updateParts(float ticksPerFrame)
 	{
-		super.updateParts(ticksPerFrame);
-
 		this.squidBody.update(ticksPerFrame);
 
 		for (int i = 0; i < this.squidTentacles.length; ++i)
 			for (int j = 0; j < SquidData.TENTACLE_SECTIONS; ++j)
 				this.squidTentacles[i][j].update(ticksPerFrame);
+	}
+
+	@Override
+	public IVec3fRead getRootOffset()
+	{
+		return ROOT_OFFSET;
 	}
 }

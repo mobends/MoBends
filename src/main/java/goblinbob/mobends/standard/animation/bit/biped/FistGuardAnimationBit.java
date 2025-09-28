@@ -32,16 +32,16 @@ public class FistGuardAnimationBit extends AnimationBit<BipedEntityData<?>>
 			return;
 		}
 
-		data.globalOffset.slideY(-2.0F);
-		data.renderRotation.setSmoothness(.3F).orientY(-20 * handDirMtp);
+		data.root.offset.slideY(-2.0F);
+		data.root.rotation.setSmoothness(.3F).orientY(-20 * handDirMtp);
 		
 		data.rightArm.rotation.setSmoothness(.3F).orientX(-90F)
 				.rotateZ(20F);
-		data.rightForeArm.rotation.setSmoothness(.3F).orientX(-80F);
+		data.rightForearm.rotation.setSmoothness(.3F).orientX(-80F);
 
 		data.leftArm.rotation.setSmoothness(.3F).orientX(-90F)
 				.rotateZ(-20F);
-		data.leftForeArm.rotation.setSmoothness(.3F).orientX(-80F);
+		data.leftForearm.rotation.setSmoothness(.3F).orientX(-80F);
 		
 		data.body.rotation.rotateX(10);
 
@@ -51,8 +51,8 @@ public class FistGuardAnimationBit extends AnimationBit<BipedEntityData<?>>
 				.rotateY(-25F)
 				.rotateZ(-10);
 
-		data.rightForeLeg.rotation.setSmoothness(.3F).orientX(30);
-		data.leftForeLeg.rotation.setSmoothness(.3F).orientX(30);
+		data.rightShin.rotation.setSmoothness(.3F).orientX(30);
+		data.leftShin.rotation.setSmoothness(.3F).orientX(30);
 
 		data.head.rotation.rotateX(-10);
 		data.head.rotation.rotateY(-20 * handDirMtp);

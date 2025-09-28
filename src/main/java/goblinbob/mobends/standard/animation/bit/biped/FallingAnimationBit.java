@@ -20,8 +20,6 @@ public class FallingAnimationBit extends AnimationBit<BipedEntityData<?>>
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		data.centerRotation.setSmoothness(.3F).orientZero();
-		
 		data.head.rotation.orientX(data.headPitch.get())
 				.rotateY(data.headYaw.get());
 		data.body.rotation.orientY(0).setSmoothness(0.5F);
@@ -40,15 +38,15 @@ public class FallingAnimationBit extends AnimationBit<BipedEntityData<?>>
 				.rotateY(MathHelper.cos(ticks) * armSpan);
 		data.rightArm.rotation.setSmoothness(s).orientZ(90.0F + MathHelper.sin(ticks + rightArmDelay) * armSpan)
 				.rotateY(MathHelper.cos(ticks + rightArmDelay) * armSpan);
-		data.leftForeArm.rotation.setSmoothness(s).orientX(-15.0F);
-		data.rightForeArm.rotation.setSmoothness(s).orientX(-15.0F);
+		data.leftForearm.rotation.setSmoothness(s).orientX(-15.0F);
+		data.rightForearm.rotation.setSmoothness(s).orientX(-15.0F);
 		data.leftLeg.rotation.setSmoothness(s).orientX(MathHelper.sin(ticks) * legSpan)
 				.rotateZ(-20.0F + MathHelper.cos(ticks) * legSpan);
 		data.rightLeg.rotation.setSmoothness(s).orientX(MathHelper.sin(ticks + rightArmDelay) * legSpan)
 				.rotateZ(20.0F + MathHelper.cos(ticks + rightArmDelay) * legSpan);
-		data.leftForeLeg.rotation.setSmoothness(s).orientX(20.0F);
-		data.rightForeLeg.rotation.setSmoothness(s).orientX(20.0F);
-		data.renderRotation.setSmoothness(s).orientX(20.0F);
+		data.leftShin.rotation.setSmoothness(s).orientX(20.0F);
+		data.rightShin.rotation.setSmoothness(s).orientX(20.0F);
+		data.root.rotation.setSmoothness(s).orientX(20.0F);
 		data.head.rotation.setSmoothness(s).rotateX(-20.0F);
 	}
 }

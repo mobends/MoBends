@@ -47,7 +47,7 @@ public class TorchHoldingAnimationBit extends AnimationBit<BipedEntityData<?>>
 			return;
 
 		final IModelPart mainArm = torchHand == EnumHandSide.RIGHT ? data.rightArm : data.leftArm;
-		final IModelPart mainForeArm = torchHand == EnumHandSide.RIGHT ? data.rightForeArm : data.leftForeArm;
+		final IModelPart mainForeArm = torchHand == EnumHandSide.RIGHT ? data.rightForearm : data.leftForearm;
 		
 		mainArm.getRotation().orientX(-90.0F + data.headPitch.get() * 0.5F)
 							 .rotateY(data.headYaw.get() * 0.7F);

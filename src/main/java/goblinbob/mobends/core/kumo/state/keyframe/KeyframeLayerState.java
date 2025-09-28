@@ -145,17 +145,6 @@ public class KeyframeLayerState implements ILayerState
 
     public void applyRestPose(EntityData<?> entityData, KeyframeAnimation animation)
     {
-        if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
-        {
-            entityData.globalOffset.set(0, 0, 0);
-        }
-
-        if ((shouldPartBeAffected("root") && animation.bones.containsKey("root")) ||
-            (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation")))
-        {
-            entityData.centerRotation.set(0F, 0F, 0F, 0F);
-        }
-
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
         {
             final String key = entry.getKey();
@@ -179,31 +168,6 @@ public class KeyframeLayerState implements ILayerState
         final int frameB = (int) keyframeIndex + 1;
         final float tween = keyframeIndex - frameA;
 
-        if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
-        {
-            final Bone rootBone = animation.bones.get("root");
-            final Keyframe keyframe = rootBone.keyframes.get(frameA);
-            final Keyframe nextFrame = rootBone.keyframes.get(frameB);
-
-            if (keyframe != null && nextFrame != null)
-            {
-                KeyframeUtils.tweenVectorAdditive(entityData.globalOffset, keyframe.position, nextFrame.position, tween, amount);
-            }
-        }
-
-        if (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation"))
-        {
-            final Bone rootBone = animation.bones.get("centerRotation");
-            final Keyframe keyframe = rootBone.keyframes.get(frameA);
-            final Keyframe nextFrame = rootBone.keyframes.get(frameB);
-
-            if (keyframe != null && nextFrame != null)
-            {
-                KeyframeUtils.tweenOrientationAdditive(entityData.centerRotation, keyframe.rotation, nextFrame.rotation, tween, amount);
-                KeyframeUtils.tweenVectorAdditive(entityData.globalOffset, keyframe.position, nextFrame.position, tween, amount);
-            }
-        }
-
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
         {
             final String key = entry.getKey();
@@ -222,9 +186,10 @@ public class KeyframeLayerState implements ILayerState
                     {
                         if (part instanceof IModelPart)
                         {
-                            KeyframeUtils.tweenOrientationAdditive(((IModelPart) part).getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
+                            IModelPart modelPart = (IModelPart) part;
+                            KeyframeUtils.tweenOrientationAdditive(modelPart.getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
                             // Note that the amount is negated.
-                            KeyframeUtils.tweenVectorAdditive(((IModelPart) part).getOffset(), keyframe.position, nextFrame.position, tween, -amount);
+                            KeyframeUtils.tweenVectorAdditive(modelPart.getOffset(), keyframe.position, nextFrame.position, tween, -amount);
                         }
                     }
                 }
@@ -241,5 +206,4 @@ public class KeyframeLayerState implements ILayerState
     {
         return new KeyframeLayerState(data, layerTemplate);
     }
-
 }

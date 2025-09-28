@@ -6,7 +6,6 @@ import net.minecraft.util.math.MathHelper;
 
 public class SpiderMoveAnimationBit extends SpiderAnimationBitBase
 {
-
     protected static final String[] ACTIONS = new String[] { "move" };
     protected static final float KNEEL_DURATION = 10F;
 
@@ -58,10 +57,7 @@ public class SpiderMoveAnimationBit extends SpiderAnimationBitBase
         animateMovingLimb(data, groundLevel, limbSwing + .7F, 6, 10F, 20.0F, 60, 80.0F);
         animateMovingLimb(data, groundLevel, limbSwing + .4F, 7, 10F, 20.0F, 60, 80.0F);
 
-        data.localOffset.slideToZero();
-        data.globalOffset.set(bodyX, -groundLevel, -bodyZ);
-        data.renderRotation.orientZero();
-        data.centerRotation.orientZero();
+        data.root.offset.set(bodyX, -groundLevel, -bodyZ);
+        data.root.rotation.orientZero();
     }
-
 }

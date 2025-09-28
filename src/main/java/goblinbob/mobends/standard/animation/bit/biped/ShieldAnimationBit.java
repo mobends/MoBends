@@ -39,7 +39,7 @@ public class ShieldAnimationBit extends AnimationBit<BipedEntityData<?>>
         // what is your main hand.
         final float handDirMtp = mainHandSwitch ? 1 : -1;
         final ModelPartTransform mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
-        final ModelPartTransform mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
+        final ModelPartTransform mainForeArm = mainHandSwitch ? data.rightForearm : data.leftForearm;
 
         if (bringUpAnimation < 1F)
         {

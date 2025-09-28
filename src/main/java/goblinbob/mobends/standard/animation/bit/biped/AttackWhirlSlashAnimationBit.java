@@ -6,7 +6,6 @@ import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemSword;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
@@ -17,7 +16,7 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		data.localOffset.slideToZero(0.3F);
+		data.root.offset.slideToZero(0.3F);
 
 		final EntityLivingBase living = data.getEntity();
 		final EnumHandSide primaryHand = living.getPrimaryHand();
@@ -28,9 +27,9 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?
 		float handDirMtp = mainHandSwitch ? 1 : -1;
 		IModelPart mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
 		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
-		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
-		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
-		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
+		IModelPart mainForeArm = mainHandSwitch ? data.rightForearm : data.leftForearm;
+		IModelPart offForeArm = mainHandSwitch ? data.leftForearm : data.rightForearm;
+		SmoothOrientation mainItemRotation = mainHandSwitch ? data.rightHeldItem.rotation : data.leftHeldItem.rotation;
 		
 		if (data.getTicksAfterAttack() < 0.5f)
 		{
@@ -75,13 +74,13 @@ public class AttackWhirlSlashAnimationBit extends AnimationBit<BipedEntityData<?
 					.rotateZ(-10)
 					.rotateY(-25);
 			
-			data.rightForeLeg.rotation.setSmoothness(.3F).orientX(30F);
-			data.leftForeLeg.rotation.setSmoothness(.3F).orientX(30F);
+			data.rightShin.rotation.setSmoothness(.3F).orientX(30F);
+			data.leftShin.rotation.setSmoothness(.3F).orientX(30F);
 		}
 		
-		data.globalOffset.slideY(-2F);
+		data.root.offset.slideY(-2F);
 		mainItemRotation.setSmoothness(.9F).orientX(90 * attackState);
 		float renderRotationY = 30 + 360 * var5;
-		data.renderRotation.orientInstantY(MathHelper.wrapDegrees(-renderRotationY * handDirMtp));
+		data.root.rotation.orientInstantY(MathHelper.wrapDegrees(-renderRotationY * handDirMtp));
 	}
 }

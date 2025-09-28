@@ -35,7 +35,7 @@ public class AttackSlashOutwardAnimationBit extends AnimationBit<BipedEntityData
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		data.localOffset.slideToZero(0.3F);
+		data.root.offset.slideToZero(0.3F);
 
 		final EntityLivingBase living = data.getEntity();
 		final EnumHandSide primaryHand = living.getPrimaryHand();
@@ -46,9 +46,9 @@ public class AttackSlashOutwardAnimationBit extends AnimationBit<BipedEntityData
 		float handDirMtp = mainHandSwitch ? 1 : -1;
 		IModelPart mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
 		IModelPart offArm = mainHandSwitch ? data.leftArm : data.rightArm;
-		IModelPart mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
-		IModelPart offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
-		SmoothOrientation mainItemRotation = mainHandSwitch ? data.renderRightItemRotation : data.renderLeftItemRotation;
+		IModelPart mainForeArm = mainHandSwitch ? data.rightForearm : data.leftForearm;
+		IModelPart offForeArm = mainHandSwitch ? data.leftForearm : data.rightForearm;
+		SmoothOrientation mainItemRotation = mainHandSwitch ? data.rightHeldItem.rotation : data.leftHeldItem.rotation;
 
 		if (data.getTicksAfterAttack() < 4F &&
 			living.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemSword)
@@ -83,12 +83,12 @@ public class AttackSlashOutwardAnimationBit extends AnimationBit<BipedEntityData
 					.rotateZ(-10)
 					.rotateY(-25);
 			
-			data.rightForeLeg.rotation.setSmoothness(.3F).orientX(30F);
-			data.leftForeLeg.rotation.setSmoothness(.3F).orientX(30F);
+			data.rightShin.rotation.setSmoothness(.3F).orientX(30F);
+			data.leftShin.rotation.setSmoothness(.3F).orientX(30F);
 			
 			data.head.rotation.rotateY(-30 * handDirMtp);
-			data.globalOffset.slideY(-2F);
-			data.renderRotation.setSmoothness(.3F).orientY(-30 * handDirMtp);
+			data.root.offset.slideY(-2F);
+			data.root.rotation.setSmoothness(.3F).orientY(-30 * handDirMtp);
 		}
 
 		mainItemRotation.orientInstantX(90);

@@ -14,7 +14,7 @@ public class ZombieLeanAnimationBit extends AnimationBit<ZombieDataBase<?>>
 	@Override
 	public void perform(ZombieDataBase<?> data)
 	{
-		data.globalOffset.slideY(-3F);
+		data.root.offset.slideY(-3F);
 		
 		data.body.rotation.localRotateX(30F);
 		data.head.rotation.rotateX(-30F);
@@ -28,8 +28,8 @@ public class ZombieLeanAnimationBit extends AnimationBit<ZombieDataBase<?>>
 		data.rightLeg.rotation.rotateX(-20);
 		data.leftLeg.rotation.rotateX(-20);
 		
-		data.rightForeLeg.rotation.rotateX(25);
-		data.leftForeLeg.rotation.rotateX(25);
+		data.rightShin.rotation.rotateX(25);
+		data.leftShin.rotation.rotateX(25);
 		
 		if(!data.isStillHorizontally() && data.getCurrentWalkingState() == 1)
 		{

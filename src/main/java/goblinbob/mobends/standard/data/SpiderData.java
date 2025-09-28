@@ -3,6 +3,8 @@ package goblinbob.mobends.standard.data;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.math.vector.IVec3fRead;
+import goblinbob.mobends.core.math.vector.Vec3fReadonly;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.animation.controller.SpiderController;
 import net.minecraft.block.state.IBlockState;
@@ -14,7 +16,9 @@ import net.minecraft.util.math.MathHelper;
 
 public class SpiderData extends LivingEntityData<EntitySpider>
 {
+    private static final IVec3fRead ROOT_OFFSET = new Vec3fReadonly(0, 0F, 0);
 
+    public ModelPartTransform root;
     public ModelPartTransform spiderHead;
     public ModelPartTransform spiderNeck;
     public ModelPartTransform spiderBody;
@@ -62,11 +66,10 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     @Override
     public void initModelPose()
     {
-        super.initModelPose();
-
-        this.spiderBody = new ModelPartTransform();
-        this.spiderNeck = new ModelPartTransform();
-        this.spiderHead = new ModelPartTransform();
+        this.root = new ModelPartTransform();
+        this.spiderBody = new ModelPartTransform(this.root);
+        this.spiderNeck = new ModelPartTransform(this.root);
+        this.spiderHead = new ModelPartTransform(this.root);
         this.limbs = new Limb[8];
 
         for (int i = 0; i < limbs.length; ++i)
@@ -76,6 +79,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             nameToPartMap.put("foreLeg" + (i + 1), limbs[i].lowerPart);
         }
 
+        nameToPartMap.put("root", root);
         nameToPartMap.put("body", spiderBody);
         nameToPartMap.put("neck", spiderNeck);
         nameToPartMap.put("head", spiderHead);
@@ -88,8 +92,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     @Override
     public void updateParts(float ticksPerFrame)
     {
-        super.updateParts(ticksPerFrame);
-
+        this.root.update(ticksPerFrame);
         this.spiderBody.update(ticksPerFrame);
         this.spiderNeck.update(ticksPerFrame);
         this.spiderHead.update(ticksPerFrame);
@@ -150,9 +153,14 @@ public class SpiderData extends LivingEntityData<EntitySpider>
         return wallFacing.getHorizontalAngle();
     }
 
+    @Override
+    public IVec3fRead getRootOffset()
+    {
+        return ROOT_OFFSET;
+    }
+
     public static class Limb
     {
-
         private final SpiderData data;
         public final ModelPartTransform upperPart;
         public final ModelPartTransform lowerPart;
@@ -333,12 +341,10 @@ public class SpiderData extends LivingEntityData<EntitySpider>
         {
             return this.odd;
         }
-
     }
 
     public static class IKResult
     {
-
         public final double worldX;
         public final double worldZ;
         public final double localX;
@@ -359,7 +365,5 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             this.xzDistance = xzDistance;
             this.xzAngle = xzAngle;
         }
-
     }
-
 }

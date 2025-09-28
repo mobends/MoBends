@@ -34,11 +34,11 @@ public class ToolAction extends AnimationBit<BipedEntityData<?>>
         float sideMultiplier = actionHand == EnumHandSide.RIGHT ? 1.0F : -1.0F;
         ModelPartTransform mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
         ModelPartTransform offArm = mainHandSwitch ? data.leftArm : data.rightArm;
-        ModelPartTransform mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
-        ModelPartTransform offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
+        ModelPartTransform mainForeArm = mainHandSwitch ? data.rightForearm : data.leftForearm;
+        ModelPartTransform offForeArm = mainHandSwitch ? data.leftForearm : data.rightForearm;
 
-        data.localOffset.slideToZero(0.3F);
-        data.centerRotation.setSmoothness(.3F).orientZero();
+        data.root.offset.slideToZero(0.3F);
+        data.root.rotation.setSmoothness(.3F).orientZero();
 
         float swingProgress = data.swingProgress.get();
         final float bodyYaw = MathHelper.sin(MathHelper.sqrt(swingProgress) * ((float)Math.PI * 2F)) * 30.0F * sideMultiplier;

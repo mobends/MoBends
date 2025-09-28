@@ -3,6 +3,7 @@ package goblinbob.mobends.core.client.model;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.matrix.IMat4x4d;
 import goblinbob.mobends.core.math.vector.IVec3f;
+import goblinbob.mobends.core.math.vector.SmoothVector3f;
 
 public interface IModelPart
 {
@@ -87,7 +88,7 @@ public interface IModelPart
 	void setVisible(boolean showModel);
 	IVec3f getPosition();
 	IVec3f getScale();
-	IVec3f getOffset();
+	SmoothVector3f getOffset();
 	SmoothOrientation getRotation();
 	float getOffsetScale();
 	IVec3f getGlobalOffset();

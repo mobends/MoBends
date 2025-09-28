@@ -10,7 +10,6 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class ModelPartPostOffset extends ModelPart
 {
-
     /**
      * The amount to offset whatever is using the postRender method.
      */
@@ -48,5 +47,4 @@ public class ModelPartPostOffset extends ModelPart
     {
         GlStateManager.translate(this.postOffset.x * scale, this.postOffset.y * scale, this.postOffset.z * scale);
     }
-
 }

@@ -6,7 +6,6 @@ import net.minecraft.util.math.MathHelper;
 
 public class ElytraAnimationBit extends AnimationBit<PlayerData>
 {
-
     private static final String[] ACTIONS = new String[] { "elytra" };
 
     @Override
@@ -32,16 +31,14 @@ public class ElytraAnimationBit extends AnimationBit<PlayerData>
         data.body.rotation.setSmoothness(0.7F).orientX(0);
         data.leftArm.rotation.setSmoothness(0.7F).orientX(0).rotateZ(-60F + 55F * speedFactor - headYawAbs * 0.5F);
         data.rightArm.rotation.setSmoothness(0.7F).orientX(0).rotateZ(60F - 55F * speedFactor + headYawAbs * 0.5F);
-        data.leftForeArm.rotation.setSmoothness(.7F).orientZero();
-        data.rightForeArm.rotation.setSmoothness(.7F).orientZero();
+        data.leftForearm.rotation.setSmoothness(.7F).orientZero();
+        data.rightForearm.rotation.setSmoothness(.7F).orientZero();
         data.leftLeg.rotation.setSmoothness(0.7F).orientZ(-5.0F);
         data.rightLeg.rotation.setSmoothness(0.7F).orientZ(5.0F);
-        data.leftForeLeg.rotation.setSmoothness(0.7F).orientX(0.0F);
-        data.rightForeLeg.rotation.setSmoothness(0.7F).orientX(0.0F);
+        data.leftShin.rotation.setSmoothness(0.7F).orientX(0.0F);
+        data.rightShin.rotation.setSmoothness(0.7F).orientX(0.0F);
 
-        data.centerRotation.setSmoothness(1.0F).orientZero();
-        data.renderRotation.setSmoothness(.7F).orientX(0);
-        data.globalOffset.slideToZero(.7F);
+        data.root.rotation.setSmoothness(1.0F).orientZero();
+        data.root.offset.slideToZero(.7F);
     }
-
 }

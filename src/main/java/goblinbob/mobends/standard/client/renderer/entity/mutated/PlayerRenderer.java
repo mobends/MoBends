@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.GlStateManager;
 
 public class PlayerRenderer extends BipedRenderer<AbstractClientPlayer>
 {
-
     @Override
     protected void transformLocally(AbstractClientPlayer entity, EntityData<?> data, float partialTicks)
     {
@@ -22,5 +21,4 @@ public class PlayerRenderer extends BipedRenderer<AbstractClientPlayer>
             }
         }
     }
-
 }

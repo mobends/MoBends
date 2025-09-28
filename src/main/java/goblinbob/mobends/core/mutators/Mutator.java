@@ -191,17 +191,13 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         final IAnimationController<D> controller = (IAnimationController<D>) data.getController();
         final Collection<String> actions = controller.perform(data);
 
-        SmoothVector3f lastGlobalOffset = new SmoothVector3f(data.globalOffset);
-        SmoothVector3f lastLocalOffset = new SmoothVector3f(data.localOffset);
         if (NetworkConfiguration.instance.areBendsPacksAllowed())
         {
             BendsPackPerformer.INSTANCE.performCurrentPack(data, animatedEntityKey, actions);
 
             if (NetworkConfiguration.instance.isMovementLimited())
             {
-                // Limit movement
-                data.globalOffset.limitDistanceTo(lastGlobalOffset, 10F);
-                data.localOffset.limitDistanceTo(lastLocalOffset, 10F);
+                // TODO: Limit movement
             }
         }
     }

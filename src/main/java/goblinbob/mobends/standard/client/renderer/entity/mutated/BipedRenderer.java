@@ -9,7 +9,6 @@ import net.minecraft.entity.EntityLivingBase;
 
 public class BipedRenderer<T extends EntityLivingBase> extends MutatedRenderer<T>
 {
-
     @Override
     public void renderLocalAccessories(T entity, EntityData<?> data, float partialTicks)
     {
@@ -37,5 +36,4 @@ public class BipedRenderer<T extends EntityLivingBase> extends MutatedRenderer<T
             GlStateManager.translate(0F, 5F * scale, 0F);
         }
     }
-
 }

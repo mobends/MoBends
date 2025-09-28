@@ -7,6 +7,7 @@ import goblinbob.mobends.core.math.physics.AABBoxGroup;
 import goblinbob.mobends.core.math.physics.IAABBox;
 import goblinbob.mobends.core.math.physics.ICollider;
 import goblinbob.mobends.core.math.vector.IVec3f;
+import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
@@ -27,7 +28,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 {
     public Vec3f position = new Vec3f();
     public Vec3f scale = new Vec3f(1, 1, 1);
-    public Vec3f offset = new Vec3f();
+    public SmoothVector3f offset = new SmoothVector3f();
     public SmoothOrientation rotation = new SmoothOrientation();
     /**
      * The scale at which animation position offset is applied, used for child models.
@@ -153,10 +154,11 @@ public class ModelPart extends ModelRenderer implements IModelPart
         if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
             GlStateManager.translate(this.position.x * scale * offsetScale, this.position.y * scale * offsetScale, this.position.z * scale * offsetScale);
 
-        if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
-            GlStateManager.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
-
         GlHelper.rotate(rotation.getSmooth());
+
+        Vec3f offset = this.offset.getSmooth();
+        if (offset.x != 0.0F || offset.y != 0.0F || offset.z != 0.0F)
+            GlStateManager.translate(offset.x * scale * offsetScale, offset.y * scale * offsetScale, offset.z * scale * offsetScale);
 
         if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
             GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
@@ -168,10 +170,11 @@ public class ModelPart extends ModelRenderer implements IModelPart
         if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
             TransformUtils.translate(matrix, this.position.x * scale * offsetScale, this.position.y * scale * offsetScale, this.position.z * scale * offsetScale);
 
-        if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
-            TransformUtils.translate(matrix, this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
-
         TransformUtils.rotate(matrix, rotation.getSmooth());
+
+        Vec3f offset = this.offset.getSmooth();
+        if (offset.x != 0.0F || offset.y != 0.0F || offset.z != 0.0F)
+            TransformUtils.translate(matrix, offset.x * scale * offsetScale, offset.y * scale * offsetScale, offset.z * scale * offsetScale);
 
         if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
             TransformUtils.scale(matrix, this.scale.x, this.scale.y, this.scale.z, matrix);
@@ -317,7 +320,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
-    public Vec3f getOffset()
+    public SmoothVector3f getOffset()
     {
         return this.offset;
     }

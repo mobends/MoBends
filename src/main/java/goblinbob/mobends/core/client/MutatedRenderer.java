@@ -1,6 +1,9 @@
 package goblinbob.mobends.core.client;
 
 import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.math.vector.IVec3f;
+import goblinbob.mobends.core.math.vector.IVec3fRead;
+import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -10,7 +13,6 @@ import net.minecraft.entity.EntityLivingBase;
 
 public abstract class MutatedRenderer<T extends EntityLivingBase>
 {
-
     protected final float scale = 0.0625F;
     protected final TextureManager textureManager;
 
@@ -37,28 +39,18 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
             viewY = viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * partialTicks;
             viewZ = viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * partialTicks;
         }
+
+        float rotation = interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
         GlStateManager.translate(entityX - viewX, entityY - viewY, entityZ - viewZ);
-        GlStateManager.rotate(-interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
+        GlStateManager.rotate(-rotation, 0F, 1F, 0F);
+
+        IVec3fRead rootOffset = data.getRootOffset();
+        GlStateManager.translate(rootOffset.getX() * scale, rootOffset.getY() * scale, rootOffset.getZ() * scale);
 
         this.renderLocalAccessories(entity, data, partialTicks);
-
-        float globalScale = entity.isChild() ? getChildScale() : 1;
-
-        GlStateManager.translate(data.globalOffset.getX() * scale * globalScale,
-                data.globalOffset.getY() * scale * globalScale,
-                data.globalOffset.getZ() * scale * globalScale);
-        GlStateManager.translate(0, entity.height / 2, 0);
-        GlHelper.rotate(data.centerRotation.getSmooth());
-        GlStateManager.translate(0, -entity.height / 2, 0);
-        GlHelper.rotate(data.renderRotation.getSmooth());
-
-        GlStateManager.translate(data.localOffset.getX() * scale * globalScale,
-                data.localOffset.getY() * scale * globalScale,
-                data.localOffset.getZ() * scale * globalScale);
-
         this.transformLocally(entity, data, partialTicks);
 
-        GlStateManager.rotate(interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks), 0F, 1F, 0F);
+        GlStateManager.rotate(rotation, 0F, 1F, 0F);
         GlStateManager.translate(viewX - entityX, viewY - entityY, viewZ - entityZ);
     }
 
@@ -99,5 +91,4 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
     {
         return 0.5F;
     }
-
 }

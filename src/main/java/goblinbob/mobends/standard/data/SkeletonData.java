@@ -34,10 +34,10 @@ public class SkeletonData extends BipedEntityData<EntitySkeleton>
 		this.leftArm.position.set(5F, -10f, 0f);
 		this.rightLeg.position.set(-2F, 12.0F, 0.0F);
 		this.leftLeg.position.set(2F, 12.0F, 0.0F);
-		this.rightForeArm.position.set(0F, 4F, 1F);
-		this.leftForeArm.position.set(0F, 4F, 1F);
-		this.leftForeLeg.position.set(0, 6.0F, -1.0F);
-		this.rightForeLeg.position.set(0, 6.0F, -1.0F);
+		this.rightForearm.position.set(0F, 4F, 1F);
+		this.leftForearm.position.set(0F, 4F, 1F);
+		this.leftShin.position.set(0, 6.0F, -1.0F);
+		this.rightShin.position.set(0, 6.0F, -1.0F);
 	}
 
 }

@@ -11,10 +11,10 @@
    viewBox="0 0 800 272.1"
    version="1.1"
    sodipodi:docname="DiscordInvite.svg"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   inkscape:export-filename="C:\Minecraft Modding\MoBends\MoBends\misc\promo\DiscordInvite.png"
-   inkscape:export-xdpi="139.4446"
-   inkscape:export-ydpi="139.4446">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:export-filename="D:\Projects\Mods\MoBends\misc\promo\DiscordInviteSmall.png"
+   inkscape:export-xdpi="41.149773"
+   inkscape:export-ydpi="41.149773">
   <metadata
      id="metadata3737">
     <rdf:RDF>
@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -42,9 +42,9 @@
      inkscape:window-height="1017"
      id="namedview3733"
      showgrid="false"
-     inkscape:zoom="0.39001358"
-     inkscape:cx="413.89133"
-     inkscape:cy="54.894484"
+     inkscape:zoom="1.103125"
+     inkscape:cx="444.6454"
+     inkscape:cy="182.73379"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -80,5 +80,6 @@
        sodipodi:role="line"
        id="tspan3739"
        x="255.26703"
-       y="212.15686">discord.gg/Epf7atm</tspan></text>
+       y="212.15686"
+       style="font-size:52px">discord.gg/v467CxGFqk</tspan></text>
 </svg>

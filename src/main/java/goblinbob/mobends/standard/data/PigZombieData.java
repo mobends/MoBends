@@ -5,7 +5,6 @@ import net.minecraft.entity.monster.EntityPigZombie;
 
 public class PigZombieData extends BipedEntityData<EntityPigZombie>
 {
-	
 	private final PigZombieController controller = new PigZombieController();
 	
 	public PigZombieData(EntityPigZombie entity)
@@ -24,5 +23,4 @@ public class PigZombieData extends BipedEntityData<EntityPigZombie>
 	{
 		// No behaviour
 	}
-
 }

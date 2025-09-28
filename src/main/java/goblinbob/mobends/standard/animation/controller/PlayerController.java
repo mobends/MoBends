@@ -178,8 +178,8 @@ public class PlayerController implements IAnimationController<PlayerData>
 
 
         // Resetting item rotations
-        data.renderLeftItemRotation.orientZero();
-        data.renderRightItemRotation.orientZero();
+        data.leftHeldItem.rotation.orientZero();
+        data.rightHeldItem.rotation.orientZero();
 
         final List<String> actions = new ArrayList<>();
         layerBase.perform(data, actions);

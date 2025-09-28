@@ -20,7 +20,7 @@ public class BowAction extends AnimationBit<BipedEntityData<?>>
 	@Override
 	public void perform(BipedEntityData<?> data)
 	{
-		data.localOffset.slideToZero(0.3F);
+		data.root.offset.slideToZero(0.3F);
 
 		final EntityLivingBase living = data.getEntity();
 		final float headPitch = data.headPitch.get();
@@ -32,8 +32,8 @@ public class BowAction extends AnimationBit<BipedEntityData<?>>
 		float handDirMtp = mainHandSwitch ? 1 : -1;
 		ModelPartTransform mainArm = mainHandSwitch ? data.rightArm : data.leftArm;
 		ModelPartTransform offArm = mainHandSwitch ? data.leftArm : data.rightArm;
-		ModelPartTransform mainForeArm = mainHandSwitch ? data.rightForeArm : data.leftForeArm;
-		ModelPartTransform offForeArm = mainHandSwitch ? data.leftForeArm : data.rightForeArm;
+		ModelPartTransform mainForeArm = mainHandSwitch ? data.rightForearm : data.leftForearm;
+		ModelPartTransform offForeArm = mainHandSwitch ? data.leftForearm : data.rightForearm;
 
 		int aimedBowDuration = living != null ? Math.min(living.getItemInUseMaxCount(), 15) : 0;
 

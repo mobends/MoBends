@@ -19,12 +19,10 @@ public class SleepingAnimationBit extends AnimationBit<PlayerData>
     @Override
     public void perform(PlayerData data)
     {
-        data.localOffset.slideToZero(0.3F);
-        data.globalOffset.slideToZero(0.3F);
-        data.renderRotation.setSmoothness(.3F).orientZero();
-        data.centerRotation.setSmoothness(.3F).orientZero();
-        data.renderRightItemRotation.setSmoothness(.3F).orientZero();
-        data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
+        data.root.offset.slideToZero(0.3F);
+        data.root.rotation.setSmoothness(.3F).orientZero();
+        data.rightHeldItem.rotation.setSmoothness(.3F).orientZero();
+        data.leftHeldItem.rotation.setSmoothness(.3F).orientZero();
 
         data.rightLeg.rotation.orient(0F, 1F, 0F, 0F);
         data.rightLeg.rotation.rotate(2F, 0F, 0F, 1F);
@@ -32,10 +30,10 @@ public class SleepingAnimationBit extends AnimationBit<PlayerData>
         data.leftLeg.rotation.orient(0F, 1F, 0F, 0F);
         data.leftLeg.rotation.rotate(-2F, 0F, 0F, 1F);
         data.leftLeg.rotation.rotate(-5, 0F, 1F, 0F);
-        data.rightForeLeg.rotation.orient(4F, 1F, 0F, 0F);
-        data.leftForeLeg.rotation.orient(4F, 1F, 0F, 0F);
-        data.rightForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
-        data.leftForeArm.rotation.orient(-4.0F, 1F, 0F, 0F);
+        data.rightShin.rotation.orient(4F, 1F, 0F, 0F);
+        data.leftShin.rotation.orient(4F, 1F, 0F, 0F);
+        data.rightForearm.rotation.orient(-4.0F, 1F, 0F, 0F);
+        data.leftForearm.rotation.orient(-4.0F, 1F, 0F, 0F);
 
         final float PI = (float) Math.PI;
         float phase = DataUpdateHandler.getTicks() / 10;

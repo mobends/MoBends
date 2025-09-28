@@ -18,17 +18,16 @@ public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 	@Override
 	public void onPlay(T data)
 	{
-		data.renderRotation.identity();
-		data.centerRotation.identity();
+		data.root.rotation.identity();
 		data.body.rotation.orientInstantX(20F);
 		data.rightLeg.rotation.orientInstantX(0F);
 		data.leftLeg.rotation.orientInstantX(0F);
-		data.rightForeLeg.rotation.orientInstantX(0F);
-		data.leftForeLeg.rotation.orientInstantX(0F);
+		data.rightShin.rotation.orientInstantX(0F);
+		data.leftShin.rotation.orientInstantX(0F);
 		data.rightArm.rotation.orientInstantZ(2F);
 		data.leftArm.rotation.orientInstantZ(-2F);
-		data.rightForeArm.rotation.orientInstantX(-20F);
-		data.leftForeArm.rotation.orientInstantX(-20F);
+		data.rightForearm.rotation.orientInstantX(-20F);
+		data.leftForearm.rotation.orientInstantX(-20F);
 	}
 
 	@Override
@@ -45,18 +44,17 @@ public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 
 		EntityLivingBase biped = data.getEntity();
 
-		data.globalOffset.slideToZero(0.3F);
-		data.renderRotation.setSmoothness(.3F).orientZero();
-		data.centerRotation.setSmoothness(.7F).orientZero();
-		data.renderRightItemRotation.setSmoothness(.3F).orientZero();
-		data.renderLeftItemRotation.setSmoothness(.3F).orientZero();
+		data.root.offset.slideToZero(0.3F);
+		data.root.rotation.setSmoothness(.3F).orientZero();
+		data.rightHeldItem.rotation.setSmoothness(.3F).orientZero();
+		data.leftHeldItem.rotation.setSmoothness(.3F).orientZero();
 
 		float bodyRotationX = Math.max(1.0F - data.getTicksInAir() * 0.1F, 0.0F);
 		data.body.rotation.setSmoothness(0.2F).orientX(bodyRotationX);
 		data.rightArm.rotation.setSmoothness(0.05F).orientZ(45F);
 		data.leftArm.rotation.setSmoothness(0.05F).orientZ(-45F);
-		data.rightForeArm.rotation.setSmoothness(0.3F).orientX(0);
-		data.leftForeArm.rotation.setSmoothness(0.3F).orientX(0);
+		data.rightForearm.rotation.setSmoothness(0.3F).orientX(0);
+		data.leftForearm.rotation.setSmoothness(0.3F).orientX(0);
 
 		data.head.rotation.orientX(data.headPitch.get() - bodyRotationX)
 						  .rotateY(data.headYaw.get());
@@ -70,10 +68,10 @@ public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 			data.leftLeg.rotation.setSmoothness(1.0F).orientX(-5F + MathHelper.cos(limbSwing + PI) * limbSwingAmount);
 
 			float var = (limbSwing / PI) % 2;
-			data.leftForeLeg.rotation.setSmoothness(0.3F).orientX((var > 1 ? 45 : 0));
-			data.rightForeLeg.rotation.setSmoothness(0.3F).orientX((var > 1 ? 0 : 45));
-			data.leftForeArm.rotation.setSmoothness(0.3F).orientX((MathHelper.cos(limbSwing + PI/2) / 2F + 0.5F) * -20F);
-			data.rightForeArm.rotation.setSmoothness(0.3F).orientX((MathHelper.cos(limbSwing) / 2F + 0.5F) * -20F);
+			data.leftShin.rotation.setSmoothness(0.3F).orientX((var > 1 ? 45 : 0));
+			data.rightShin.rotation.setSmoothness(0.3F).orientX((var > 1 ? 0 : 45));
+			data.leftForearm.rotation.setSmoothness(0.3F).orientX((MathHelper.cos(limbSwing + PI/2) / 2F + 0.5F) * -20F);
+			data.rightForearm.rotation.setSmoothness(0.3F).orientX((MathHelper.cos(limbSwing) / 2F + 0.5F) * -20F);
 		}
 		else
 		{
@@ -81,8 +79,8 @@ public class JumpAnimationBit<T extends BipedEntityData<?>> extends AnimationBit
 			data.rightLeg.rotation.setSmoothness(0.3F).rotateX(-45);
 			data.leftLeg.rotation.setSmoothness(0.1F).orientZ(-10);
 			data.leftLeg.rotation.setSmoothness(0.3F).rotateX(-17);
-			data.rightForeLeg.rotation.setSmoothness(0.3F).orientX(70);
-			data.leftForeLeg.rotation.setSmoothness(0.3F).orientX(17);
+			data.rightShin.rotation.setSmoothness(0.3F).orientX(70);
+			data.leftShin.rotation.setSmoothness(0.3F).orientX(17);
 		}
 	}
 }

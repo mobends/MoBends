@@ -53,11 +53,9 @@ public class SpiderCrawlAnimationBit extends SpiderAnimationBitBase
         final float climbingRotation = data.getCrawlingRotation();
         final float yaw = spider.prevRotationYaw + (spider.rotationYaw - spider.prevRotationYaw) * pt;
         final float renderRotationY = MathHelper.wrapDegrees(yaw - climbingRotation);
-        data.renderRotation.orientX(-90F);
-        data.renderRotation.setSmoothness(.6F).rotateY(renderRotationY);
+        data.root.rotation.orientX(-90F);
+        data.root.rotation.setSmoothness(.6F).rotateY(renderRotationY);
 
-        data.localOffset.slideTo(0, -10.0F, 0, 0.5F);
-        data.centerRotation.orientZero();
+        data.root.offset.slideTo(0, -10.0F, 0, 0.5F);
     }
-
 }
