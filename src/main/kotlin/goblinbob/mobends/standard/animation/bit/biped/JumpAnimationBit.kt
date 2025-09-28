@@ -12,10 +12,11 @@ import kotlin.math.max
  * Represents a jump animation bit for biped entities.
  */
 class JumpAnimationBit<T : BipedEntityData<*>> : AnimationBit<T>() {
-  /*
-   * Holds values that are constant across bits of this type.
-   */
   companion object {
+    /*
+     * Holds the actions that the bits of this type perform.
+     * TODO: Used by bends-packs, but not sure for purpose exactly.
+     */
     private val ACTIONS = arrayOf("jump")
   }
 
