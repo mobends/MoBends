@@ -12,6 +12,9 @@ import kotlin.math.max
  * Represents a jump animation bit for biped entities.
  */
 class JumpAnimationBit<T : BipedEntityData<*>> : AnimationBit<T>() {
+  /**
+   * All constants that are shared across all bits of this type.
+   */
   companion object {
     /*
      * Holds the actions that the bits of this type perform.
