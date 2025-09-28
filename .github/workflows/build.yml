@@ -34,13 +34,40 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload JAR artifacts
         if: success()
+        run: |
+          for jar in build/libs/*.jar; do
+            if [ -f "$jar" ]; then
+              artifact_name=$(basename "$jar" .jar)
+              echo "Uploading $jar as $artifact_name"
+              gh actions upload-artifact --name "$artifact_name" --path "$jar" --retention-days 30
+            fi
+          done
+
+      - name: Comment PR with artifact URLs
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
         with:
-          name: mod-jars
-          path: build/libs/*.jar
-          retention-days: 30
+          script: |
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+
+            let comment = '🦾 Fresh bends, straight out the oven, ready to be tested out:\n';
+            for (const artifact of artifacts.data.artifacts) {
+              const download_url = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${artifact.id}`;
+              comment += `- [${artifact.name}](${download_url})\n`;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment,
+            });
 
       - name: Upload build artifacts (on failure)
         uses: actions/upload-artifact@v4
