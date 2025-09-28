@@ -8,7 +8,13 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
 
+/**
+ * Represents a jump animation bit for biped entities.
+ */
 class JumpAnimationBit<T : BipedEntityData<*>> : AnimationBit<T>() {
+  /*
+   * Holds values that are constant across bits of this type.
+   */
   companion object {
     private val ACTIONS = arrayOf("jump")
   }
