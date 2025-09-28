@@ -1,9 +1,10 @@
 /*
 
+!/.github
 !/build\.gradle
 !/gradle\.properties
 !/src
 !/misc
 !/gradle
-!gradlew
-!gradlew.bat
+!/gradlew
+!/gradlew.bat
