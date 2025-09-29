@@ -162,10 +162,9 @@ processResources {
 shadowJar {
     dependencies {
         include(dependency('org.jetbrains.kotlin:kotlin-stdlib'))
-        include(dependency('org.jetbrains.kotlin:kotlin-stdlib-jdk7'))
         include(dependency('org.jetbrains.kotlin:kotlin-stdlib-jdk8'))
-        include(dependency('org.jetbrains.kotlin:kotlin-reflect'))
     }
+    relocate 'kotlin', 'goblinbob.mobends.kotlin'
 }
 
 publishing {
