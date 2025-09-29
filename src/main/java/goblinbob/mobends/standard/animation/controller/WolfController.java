@@ -25,7 +25,7 @@ import java.util.Collection;
  */
 public class WolfController implements IAnimationController<WolfData>
 {
-    protected static final ResourceLocation WOLF_ANIMATOR = new ResourceLocation(ModStatics.MODID, "animators/wolf.json");
+    protected static final ResourceLocation WOLF_ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/wolf.json");
     protected AnimatorTemplate animatorTemplate;
     protected KumoAnimatorState<WolfData> kumoAnimatorState;
 
