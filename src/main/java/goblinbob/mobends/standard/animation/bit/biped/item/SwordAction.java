@@ -28,7 +28,7 @@ public class SwordAction extends AnimationBit<BipedEntityData<?>>
             new AttackWhirlSlashAnimationBit()
     );
 
-    public SwordAction(EnumHandSide _handSide)
+    public SwordAction(EnumHandSide ignoredHandSide)
     {
 
     }
