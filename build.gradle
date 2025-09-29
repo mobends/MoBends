@@ -123,9 +123,11 @@ jar {
     }
 }
 
-// Temporary fix for resources not being available during testing
-// Comment this out upon publishing
-// sourceSets {main { output.resourcesDir = output.classesDir }}
+// Only apply this config when running the project from IntelliJ IDEA
+// This fixes resources being stale during development
+if (System.getProperty("idea.active") == "true") {
+    sourceSets {main { output.resourcesDir = output.classesDir }}
+}
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
