@@ -5,14 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import goblinbob.mobends.core.asset.AssetLocation;
 import goblinbob.mobends.core.supporters.BindPoint;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,78 +14,149 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import javax.net.ssl.HttpsURLConnection;
+import org.apache.http.client.utils.URIBuilder;
 
-public class ConnectionHelper
-{
+/**
+ * HTTP connection utility that applies SSL certificate bypassing directly to HTTPS connections.
+ * This avoids SSL validation issues (like "PKIX path building failed") by immediately
+ * bypassing certificate validation for all HTTPS requests, eliminating the need for
+ * complex retry logic while maintaining simple, reliable network connectivity.
+ */
+public class ConnectionHelper {
+
     public static ConnectionHelper INSTANCE = new ConnectionHelper();
-    private final CloseableHttpClient httpClient = HttpClients.createDefault();
     private Gson gson;
 
     /**
      * Makes it so we can't instantiate this class.
      */
-    private ConnectionHelper()
-    {
+    private ConnectionHelper() {
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
         builder.registerTypeAdapter(Color.class, new ColorAdapter());
         builder.registerTypeAdapter(BindPoint.class, new BindPoint.Adapter());
-        builder.registerTypeAdapter(AssetLocation.class, new AssetLocation.Adapter());
+        builder.registerTypeAdapter(
+            AssetLocation.class,
+            new AssetLocation.Adapter()
+        );
         this.gson = builder.create();
     }
 
-    public Gson getGson()
-    {
+    public Gson getGson() {
         return gson;
     }
 
-    public static <T> T sendGetRequest(URL url, Map<String, String> params, Class<T> responseClass) throws IOException, URISyntaxException
-    {
-        HttpGet request = new HttpGet();
-
+    /**
+     * Sends a GET request with SSL bypassing applied to HTTPS connections.
+     */
+    public static <T> T sendGetRequest(
+        URL url,
+        Map<String, String> params,
+        Class<T> responseClass
+    ) throws IOException, URISyntaxException {
+        // Build URL with query parameters using URIBuilder
         URIBuilder uriBuilder = new URIBuilder(url.toURI());
-        for (Map.Entry<String, String> entry : params.entrySet())
-        {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
             uriBuilder.addParameter(entry.getKey(), entry.getValue());
         }
 
-        request.setURI(uriBuilder.build());
+        URL fullUrl = uriBuilder.build().toURL();
+        HttpURLConnection connection =
+            (HttpURLConnection) fullUrl.openConnection();
 
-        try (CloseableHttpResponse response = INSTANCE.httpClient.execute(request))
-        {
-            HttpEntity entity = response.getEntity();
-
-            if (entity != null) {
-                // return it as a String
-                return INSTANCE.gson.fromJson(EntityUtils.toString(entity), responseClass);
-            }
+        // Apply SSL bypass if this is an HTTPS connection
+        if (connection instanceof HttpsURLConnection) {
+            SSLHelper.bypassSSLForConnection((HttpsURLConnection) connection);
         }
 
-        return null;
-    }
-
-    public static <T> T sendPostRequest(URL url, JsonObject body, Class<T> responseClass) throws IOException
-    {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-
-        byte[] out = (new Gson()).toJson(body).getBytes(StandardCharsets.UTF_8);
-        int length = out.length;
-
-        connection.setFixedLengthStreamingMode(length);
-        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(10000); // 10 seconds
+        connection.setReadTimeout(10000); // 10 seconds
         connection.connect();
 
-        try (OutputStream os = connection.getOutputStream())
-        {
-            os.write(out);
+        // Check response code
+        int responseCode = connection.getResponseCode();
+        if (responseCode < 200 || responseCode >= 300) {
+            throw new IOException(
+                "HTTP request failed with response code: " + responseCode
+            );
         }
 
-        // Response
-        BufferedReader json = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        T response = INSTANCE.gson.fromJson(json, responseClass);
+        // Read response
+        try (
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                    connection.getInputStream(),
+                    StandardCharsets.UTF_8
+                )
+            )
+        ) {
+            return INSTANCE.gson.fromJson(reader, responseClass);
+        } finally {
+            connection.disconnect();
+        }
+    }
 
-        return response;
+    /**
+     * Sends a POST request with SSL bypassing applied to HTTPS connections.
+     */
+    public static <T> T sendPostRequest(
+        URL url,
+        JsonObject body,
+        Class<T> responseClass
+    ) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        // Apply SSL bypass if this is an HTTPS connection
+        if (connection instanceof HttpsURLConnection) {
+            SSLHelper.bypassSSLForConnection((HttpsURLConnection) connection);
+        }
+
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setConnectTimeout(10000); // 10 seconds
+        connection.setReadTimeout(10000); // 10 seconds
+
+        byte[] jsonBytes = INSTANCE.gson
+            .toJson(body)
+            .getBytes(StandardCharsets.UTF_8);
+        int length = jsonBytes.length;
+
+        connection.setFixedLengthStreamingMode(length);
+        connection.setRequestProperty(
+            "Content-Type",
+            "application/json; charset=UTF-8"
+        );
+        connection.connect();
+
+        // Write request body
+        try (OutputStream os = connection.getOutputStream()) {
+            os.write(jsonBytes);
+            os.flush();
+        }
+
+        // Check response code
+        int responseCode = connection.getResponseCode();
+        if (responseCode < 200 || responseCode >= 300) {
+            throw new IOException(
+                "HTTP POST request failed with response code: " + responseCode
+            );
+        }
+
+        // Read response
+        try (
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                    connection.getInputStream(),
+                    StandardCharsets.UTF_8
+                )
+            )
+        ) {
+            T response = INSTANCE.gson.fromJson(reader, responseClass);
+            return response;
+        } finally {
+            connection.disconnect();
+        }
     }
 }
