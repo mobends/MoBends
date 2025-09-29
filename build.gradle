@@ -3,16 +3,21 @@ buildscript {
         maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72'
+        classpath 'com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin:4.0.4'
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
+apply plugin: 'kotlin'
 apply plugin: 'maven-publish'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 version = "${mod_version}-${getDate()}"
 group = "goblinbob.mobends" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -20,6 +25,18 @@ archivesBaseName = "MoBends_${minecraft_version}"
 
  // Need this here so eclipse task generates correctly.
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+
+// Kotlin configuration
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
 
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
@@ -30,7 +47,7 @@ minecraft {
     //mappings channel: 'snapshot', version: '20171003-1.12'
     mappings channel: "${mappings_channel}", version: "${mappings_version}"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-    
+
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
@@ -81,6 +98,12 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    // Kotlin support
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.72'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
+
     testCompile "junit:junit:4.11"
 }
 
@@ -102,13 +125,19 @@ jar {
 
 // Temporary fix for resources not being available during testing
 // Comment this out upon publishing
-sourceSets {main { output.resourcesDir = output.classesDir }}
+// sourceSets {main { output.resourcesDir = output.classesDir }}
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar') 
+// Configure reobf to work on shadowJar instead of regular jar
+reobf {
+    shadowJar {
+        // This will create a reobfuscated shadow jar
+    }
+}
+shadowJar.finalizedBy('reobfShadowJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-//publish.dependsOn('reobfJar')
+//publish.dependsOn('reobfShadowJar')
 
 task srcJar(type: Jar) {
     build.dependsOn it
@@ -136,10 +165,19 @@ processResources {
     }
 }
 
+// Bundling the Kotlin standard library along with the mod
+shadowJar {
+    dependencies {
+        include(dependency('org.jetbrains.kotlin:kotlin-stdlib'))
+        include(dependency('org.jetbrains.kotlin:kotlin-stdlib-jdk8'))
+    }
+    relocate 'kotlin', 'goblinbob.mobends.kotlin'
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact jar
+            artifact shadowJar
             artifact srcJar
         }
     }
