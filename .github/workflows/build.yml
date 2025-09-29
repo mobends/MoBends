@@ -38,8 +38,8 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: mod-jars
-          path: build/libs/*.jar
+          name: mobends-ci-build
+          path: build/libs/*-all.jar
           retention-days: 30
 
       - name: Comment PR with artifact URLs
