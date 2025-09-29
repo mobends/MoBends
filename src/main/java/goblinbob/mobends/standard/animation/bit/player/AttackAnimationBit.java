@@ -47,8 +47,9 @@ public class AttackAnimationBit extends AnimationBit<PlayerData> {
 
     @Override
     public void perform(PlayerData playerData) {
-        final AbstractClientPlayer player = playerData.getEntity();
         // TODO: Find out why this was commented out years ago
+        //
+        //      final AbstractClientPlayer player = playerData.getEntity();
         //
         //		if (this.shouldPerformAttack(player))
         //		{

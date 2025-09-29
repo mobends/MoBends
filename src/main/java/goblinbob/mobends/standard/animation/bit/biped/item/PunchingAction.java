@@ -18,7 +18,7 @@ public class PunchingAction extends AnimationBit<BipedEntityData<?>>
     protected EnumHandSide punchingFist = EnumHandSide.LEFT;
     protected float lastTicksAfterAttack = 0;
 
-    public PunchingAction(EnumHandSide handSide)
+    public PunchingAction(EnumHandSide _handSide)
     {
 
     }
