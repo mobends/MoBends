@@ -5,5 +5,7 @@
 !/src
 !/misc
 !/gradle
-!gradlew
-!gradlew.bat
+!/gradlew
+!/gradlew.bat
+!/README.md
+!/LICENSE
