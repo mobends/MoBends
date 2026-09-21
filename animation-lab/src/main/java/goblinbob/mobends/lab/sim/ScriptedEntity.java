@@ -155,6 +155,7 @@ public class ScriptedEntity
         e.playerSleeping = in.sleeping;
         e.mainHand = in.mainHand;
         e.offHand = in.offHand;
+        e.activeHand = in.activeHand;
         e.itemInUseCount = in.itemUseCount;
         e.itemInUseMaxCount = in.itemUseMaxCount;
         e.health = in.health;

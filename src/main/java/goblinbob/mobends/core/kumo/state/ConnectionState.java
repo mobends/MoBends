@@ -15,6 +15,8 @@ public class ConnectionState
     public final ITriggerCondition triggerCondition;
     public final float transitionDuration;
     public ConnectionTemplate.Easing transitionEasing;
+    /** Layer variables assigned when the connection fires; may be null. */
+    public Map<String, Float> set;
 
     public ConnectionState(INodeState targetNode, ITriggerCondition triggerCondition, float transitionDuration, ConnectionTemplate.Easing transitionEasing)
     {
@@ -51,10 +53,12 @@ public class ConnectionState
             throw new MalformedKumoTemplateException("No trigger condition was specified for a connection.");
         }
 
-        return new ConnectionState(node,
+        ConnectionState state = new ConnectionState(node,
                 TriggerConditionRegistry.instance.createFromTemplate(template.triggerCondition),
                 template.transitionDuration,
                 template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing);
+        state.set = template.set;
+        return state;
     }
 
 }

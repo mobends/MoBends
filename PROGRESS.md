@@ -215,3 +215,58 @@ as pending in `KumoParityTest` until the action layer (stage B) lands.
 **Known gaps.** Left-handed players are not mirrored yet (clips are baked right-handed).
 `PunchAnimationBit`'s fist toggle can desync from `PlayerData.fistPunchArm` after item switches in
 the reference; to be decided when the action layer is migrated.
+
+## 6. Player on KUMO, stage B: the action layer
+
+**What.** The `BipedActionController` and its item actions are now a fifth layer of
+`player.json`, between the torch and cape layers: sword combos (`SwordAction`: five slashes in
+order, the still and sprinting stances, the 20-tick combo window), bare-fist punches
+(`PunchingAction`: alternating fists, the guard) and the tool swing, plus the use actions eating,
+bow drawing and shield blocking, one node per active hand so an off-hand shield or snack plays
+on the correct arm. The reference's per-action-instance state (`moveId`, `lastTicksAfterAttack`,
+`punchingFist`, the bring-up ramps) is expressed as layer variables (`combo`, `fist`) set by the
+connections that fire, `core:decreased` edge triggers on `ticksAfterAttack`, node-local ramps
+and a `core:set` driver that clears the combo once enough ticks have passed. A switch of item
+type re-enters the family through its entry connections (a fresh instance in the reference),
+which reset the variables and pick the stance if its window is already open.
+
+* Slashes are baked (`PlayerBake.bakeActions`) with the look direction wrapped around the baked
+  head part; the two clocks of `AttackStanceAnimationBit` (`sin(t/5)`, `cos(t/5.7)`) are
+  incommensurate, so its breathing is two generated clips composed in PRE space.
+* Fist guard, punches, sprint stance, the tool swing curves (dense samples where
+  `sin(sqrt(p))` is steep), eating and bow curves are generated analytically in
+  `gen_animators.py` from the bits' formulas, with Minecraft's table sine/cosine.
+* An action bit's `slideY()` on the global offset restarts every frame because the base layer
+  re-slides the same vector; that is an exponential approach, `RETARGET` in the animator.
+
+**Core fixes found by the parity runs.**
+* `And`/`Or`/`Not` conditions did not forward `onNodeStarted` to their children and
+  short-circuited, so a nested `core:decreased` missed frames; they now evaluate every child.
+* Connection evaluation stops at the first match but still evaluates every condition, for the
+  same reason.
+* Driver items ignored their `when` (only clips and `core:axis_rotate` honoured it); the node now
+  wraps any conditional driver (`ConditionalPoseItem`). A ramp's `when` stays its direction switch.
+* `ClipSampler` interpolated keyframe quaternions without hemisphere correction: a track that
+  crosses the ±180° wrap (the whirl slash's full spin) took the long way round for one frame.
+* Connections gained `set` (variables assigned when they fire); `core:ramp` gained
+  `readBeforeAdvance`; new `core:set` driver.
+
+**Scenarios.** `player/bow_and_eat` re-recorded: the item is now switched to before it is used,
+and use counts follow vanilla (`itemInUseCount` counts down, `getItemInUseMaxCount()` is the
+ticks used). New: `player/sword_moves` (combo timeout, sprinting stance, a hit in the air),
+`player/punch_and_tool` (punches still and walking, pickaxe swings still and sneaking),
+`player/offhand_use` (off-hand shield, slash, off-hand eating).
+
+**Result.** 23/23 parity scenarios pass (worst 0.036° / 0.007 units), 26/26 stability. Nothing
+is pending in `KumoParityTest`.
+
+**Deliberate deviations (documented, not replicated).**
+* After sleeping, the reference's action layer stays cleared until the held item type changes
+  (`clearAction` does not reset the type memo); the animator resumes actions on waking.
+* A use action started on the same tick as an item switch shows the tool action in the reference
+  (both memos change at once and the attack check runs last); the animator prefers the use action.
+* A change of active hand during an unchanged use action keeps the original hand in the
+  reference; the animator follows the hand.
+
+**Known gaps.** Left-handed players (the attack bits mirror on the primary hand); the bow's
+climbing branch; `ToolAction` only (no separate axe/pickaxe poses exist in the reference either).

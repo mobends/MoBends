@@ -159,13 +159,19 @@ public class KeyframeLayerState implements ILayerState
         }
 
         // 1. Transitions are decided before posing, so a state change shows up on the frame it happens.
+        //    Every condition is evaluated each frame (edge triggers such as core:decreased track the
+        //    variable they watch); the first one met wins.
+        ConnectionState fired = null;
         for (ConnectionState connection : currentNode.getConnections())
         {
-            if (connection.triggerCondition.isConditionMet(context))
+            if (connection.triggerCondition.isConditionMet(context) && fired == null)
             {
-                beginTransition(connection, context);
-                break;
+                fired = connection;
             }
+        }
+        if (fired != null)
+        {
+            beginTransition(fired, context);
         }
 
         // 2. Evaluate.
@@ -239,6 +245,14 @@ public class KeyframeLayerState implements ILayerState
             previousNode = currentNode;
             previousIsSnapshot = false;
             transitionProgress = 0;
+        }
+
+        if (connection.set != null && context.getLayerScope() != null)
+        {
+            for (java.util.Map.Entry<String, Float> entry : connection.set.entrySet())
+            {
+                context.getLayerScope().set(entry.getKey(), entry.getValue());
+            }
         }
 
         currentNode = connection.targetNode;

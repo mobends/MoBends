@@ -47,10 +47,14 @@ public class ClipSampler
         Keyframe a = bone.keyframes.get(frameA);
         Keyframe b = bone.keyframes.get(frameB);
 
-        rotation.set(a.rotation[0] + (b.rotation[0] - a.rotation[0]) * tween,
-                a.rotation[1] + (b.rotation[1] - a.rotation[1]) * tween,
-                a.rotation[2] + (b.rotation[2] - a.rotation[2]) * tween,
-                a.rotation[3] + (b.rotation[3] - a.rotation[3]) * tween);
+        // Hemisphere correction: neighbouring keyframes that straddle the +-180 degree wrap are
+        // stored as q and ~-q; interpolating towards -b takes the short way round.
+        float dot = a.rotation[0] * b.rotation[0] + a.rotation[1] * b.rotation[1] + a.rotation[2] * b.rotation[2] + a.rotation[3] * b.rotation[3];
+        float sign = dot < 0 ? -1F : 1F;
+        rotation.set(a.rotation[0] + (sign * b.rotation[0] - a.rotation[0]) * tween,
+                a.rotation[1] + (sign * b.rotation[1] - a.rotation[1]) * tween,
+                a.rotation[2] + (sign * b.rotation[2] - a.rotation[2]) * tween,
+                a.rotation[3] + (sign * b.rotation[3] - a.rotation[3]) * tween);
         rotation.normalise();
 
         position.set(a.position[0] + (b.position[0] - a.position[0]) * tween,

@@ -167,7 +167,11 @@ public class PoseNode implements INodeState
 
         if (template instanceof DriverItemTemplate)
         {
-            return DriverRegistry.INSTANCE.create(context, skeleton, (DriverItemTemplate) template);
+            IPoseItem driver = DriverRegistry.INSTANCE.create(context, skeleton, (DriverItemTemplate) template);
+            // A ramp's "when" is its own up/down switch; every other driver is skipped while its
+            // condition does not hold, like a clip.
+            boolean ownsCondition = "core:ramp".equals(((DriverItemTemplate) template).driver);
+            return when == null || ownsCondition ? driver : new goblinbob.mobends.core.kumo.pose.ConditionalPoseItem(driver, when);
         }
 
         throw new MalformedKumoTemplateException("Unknown pose item template: " + template.getClass().getName());

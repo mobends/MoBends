@@ -51,7 +51,7 @@ public class AxisRotateDriver implements IPoseItem
         }
         ValueSource angle = ValueSource.fromTemplate(template.angle, ValueSource.ZERO);
         Pose.Space space = template.space == null ? Pose.Space.PRE : template.space;
-        ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
+        ITriggerCondition when = template.when == null ? null : null /* the node applies the item condition */;
         ItemEffects effects = new ItemEffects(skeleton, template.damping, template.vectorModes, template.snap);
         return new AxisRotateDriver(skeleton.indexOf(template.bone), template.axis, angle, space, when, effects.isEmpty() ? null : effects);
     }

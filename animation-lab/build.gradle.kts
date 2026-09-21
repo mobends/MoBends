@@ -206,4 +206,5 @@ tasks.register<JavaExec>("compare") {
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("goblinbob.mobends.lab.cli.CompareKumo")
     args(projectDir.resolve("golden").absolutePath)
+    if (System.getProperty("lab.debugNodes") != null) systemProperty("lab.debugNodes", System.getProperty("lab.debugNodes"))
 }

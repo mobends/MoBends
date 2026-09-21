@@ -41,6 +41,8 @@ public class EntityInputs
     /** True on the tick an arm swing (attack) starts. */
     public boolean attack = false;
     /** Number of ticks the active item has been in use (0 = not using). */
+    /** The hand the item in use is held in. */
+    public net.minecraft.util.EnumHand activeHand = net.minecraft.util.EnumHand.MAIN_HAND;
     public int itemUseCount = 0;
     public int itemUseMaxCount = 0;
 

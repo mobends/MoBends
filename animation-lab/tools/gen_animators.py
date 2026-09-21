@@ -496,6 +496,285 @@ for name, node in nodes.items():
         conns.append({"target": name, "triggerCondition": AND(cmp("prevMotionY", "<", 0), cmp("motionY", ">", 0))})
     node["connections"] = conns
 
+# ---- player: the action layer (BipedActionController and its item actions) ---------------------------
+# Right-handed only (the bits read the primary hand); use actions get a clip per active hand.
+def mc_sin(v):
+    i = int(v * 10430.378) & 65535
+    return math.sin(i * math.pi * 2 / 65536)
+
+def curve_clip(path, bone_fn, samples, duration, vectors_fn=None):
+    """A non-looping clip with explicit keyframe times: bone_fn(t) -> {bone: quaternion}."""
+    data = {"bones": {}, "duration": duration, "loop": False, "times": [round(t, 7) for t in samples]}
+    frames = [bone_fn(t) for t in samples]
+    for bone in frames[0]:
+        data["bones"][bone] = {"keyframes": [{"position": [0, 0, 0], "rotation": f[bone], "scale": [1, 1, 1]} for f in frames]}
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    json.dump(data, open(path, 'w'))
+
+def prop(name, value=None, unset=False):
+    c = {"type": "core:property", "property": name}
+    if unset: c["unset"] = True
+    else: c["value"] = value
+    return c
+
+def conn(target, cond, sets=None):
+    c = {"target": target, "triggerCondition": cond}
+    if sets: c["set"] = sets
+    return c
+
+# The base layer re-slides the global offset every frame, so an action bit's slideY() restarts
+# each frame too: an exponential approach, which is RETARGET here.
+tAA = "ticksAfterAttack"
+dec = {"type": "core:decreased", "variable": tAA}
+stillNotRiding = AND(state("STANDING_STILL"), NOT(state("RIDING")))
+stanceWindow = AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60), state("ON_GROUND"))
+stanceSprintCond = AND(stanceWindow, state("SPRINTING"))
+stanceStillCond = AND(stanceWindow, NOT(state("SPRINTING")), state("STANDING_STILL"))
+comboReset = {"driver": "core:set", "variable": "combo", "value": 0, "when": cmp(tAA, ">", 20)}
+localOffsetZero = {"animationKey": PL("localoffset_zero"), "damping": {"localOffset": 0.3}, "vectorModes": {"localOffset": "SLIDE"}}
+pose_clip(os.path.join(CLIPS, 'player', 'localoffset_zero.json'), {}, {"localOffset": [0, 0, 0]})
+
+# --- sword slashes: baked clips, the look direction wrapped around the baked head part -------------------
+def slash_node(name, clipname, by_attack, main_damp, main_snap, head_damp, still_cond, item_damp, item_snap, still_extra=None):
+    time = {"variable": tAA} if by_attack else None
+    def item(bones, **kw):
+        it = {"animationKey": PL(clipname), "bones": bones}
+        if time: it["time"] = time
+        it.update(kw)
+        return it
+    pose = [
+        item(["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
+             damping={"body": 0.9, "leftArm": 0.3, "leftForeArm": 0.3, "rightForeArm": 0.3, "localOffset": 0.3}, vectorModes={"localOffset": "SLIDE"}),
+        item(["rightArm"], damping={"rightArm": main_damp}, snap=main_snap),
+        item(["renderRightItemRotation"], damping={"renderRightItemRotation": item_damp} if item_damp else {}, snap=item_snap),
+        with_damping(drv("head", "X", "headPitch", space="OVERRIDE"), head=head_damp) if head_damp else drv("head", "X", "headPitch", space="OVERRIDE"),
+        item(["head"], space="PRE"),
+        drv("head", "Y", "headYaw"),
+        when({"animationKey": PL(clipname + "_still"), "damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3, "renderRotation": 0.3, "root": [None, 0.6, None]},
+              "vectorModes": {"root": "RETARGET"}}, still_cond),
+    ]
+    if still_extra: pose += [when(x, still_cond) for x in still_extra]
+    return {"type": "core:pose", "tags": [name], "pose": pose}
+
+# up / inward: legs, fore leg and render rotation are not damped by the bit (keep their rate)
+def slash_node_keep_legs(node):
+    node["pose"][-1]["damping"] = {"renderRotation": 0.3, "root": [None, 0.6, None]}
+    return node
+
+slashes = {
+    "slash_up": slash_node_keep_legs(slash_node("attack_slash_up", "slash_up", True, 0.9, False, 0.9, stillNotRiding, 0.9, True)),
+    "slash_inward": slash_node_keep_legs(slash_node("attack_slash_inward", "slash_inward", True, 0.9, False, 0.9, stillNotRiding, 0.9, True)),
+    "slash_down": slash_node("attack_slash_down", "slash_down", False, 0.3, True, 0.9, stillNotRiding, None, True, [drv("head", "Y", const=-30)]),
+    "slash_outward": slash_node("attack_slash_outward", "slash_outward", False, 0.3, True, 0.9, stillNotRiding, None, True, [drv("head", "Y", const=-30)]),
+}
+# the whirl: head undamped, render rotation snapped, the global offset always dips
+whirl = slash_node("attack_whirl_slash", "slash_whirl", True, 0.3, True, None, state("STANDING_STILL"), 0.9, False)
+whirl["pose"][-1] = when({"animationKey": PL("slash_whirl_still"), "damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3}}, state("STANDING_STILL"))
+whirl["pose"].insert(3, {"animationKey": PL("slash_whirl"), "bones": ["root"], "time": {"variable": tAA}, "damping": {"root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}})
+whirl["pose"].insert(4, {"animationKey": PL("slash_whirl"), "bones": ["renderRotation"], "time": {"variable": tAA}, "snap": True})
+slashes["slash_whirl"] = whirl
+
+# --- attack stance: two breathing clocks (sin(t/5), cos(t/5.7)) split into two clips ----------------------
+cycle_clip(os.path.join(CLIPS, 'player', 'stance_breath0.json'), lambda p: {
+    "body": rotations(('X', 20 + math.sin(p) * 2)),
+    "rightArm": rotations(('Z', 60 + math.sin(p) * 5)),
+    "head": rotations(('Y', -30), ('X', -(20 + math.sin(p) * 2)))})
+cycle_clip(os.path.join(CLIPS, 'player', 'stance_breath1.json'), lambda p: {
+    "leftArm": rotations(('Z', -60 + math.cos(p) * 5)),
+    "rightArm": rotations(('Y', math.cos(p) * 5))})
+pose_clip(os.path.join(CLIPS, 'player', 'stance_const.json'), {
+    "rightLeg": rotations(('X', -30), ('Z', 10), ('Y', 25)), "leftLeg": rotations(('X', -30), ('Z', -10), ('Y', -25)),
+    "rightForeLeg": rotations(('X', 30)), "leftForeLeg": rotations(('X', 30)),
+    "rightForeArm": rotations(('X', -20)), "leftForeArm": rotations(('X', -60)),
+    "renderRightItemRotation": rotations(('X', 65)), "renderRotation": rotations(('Y', -30))}, {"root": [0, -2, 0]})
+b0time = {"variable": "ticks", "scale": 1 / 5.0}
+b1time = {"variable": "ticks", "scale": 1 / 5.7}
+stance = {"type": "core:pose", "tags": ["attack_stance"], "pose": [
+    {"animationKey": PL("stance_breath0"), "time": b0time, "bones": ["body", "rightArm"], "damping": {"body": 0.3, "rightArm": 0.3}},
+    {"animationKey": PL("stance_breath0"), "time": b0time, "bones": ["head"], "space": "PRE"},
+    {"animationKey": PL("stance_breath1"), "time": b1time, "bones": ["leftArm"], "damping": {"leftArm": 0.3}},
+    {"animationKey": PL("stance_breath1"), "time": b1time, "bones": ["rightArm"], "space": "PRE"},
+    {"animationKey": PL("stance_const"), "damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3,
+                                                     "renderRightItemRotation": 0.3, "renderRotation": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}},
+    {"animationKey": PL("stance_kneel"), "time": {"variable": "ticksAfterTouchdown"}, "when": cmp("ticksAfterTouchdown", "<", 1 / 0.15), "damping": {"body": 1.0}, "vectorModes": {"root": "SNAP"}},
+    comboReset,
+]}
+pose_clip(os.path.join(CLIPS, 'player', 'stance_sprint_abs.json'), {"rightArm": rotations(('Z', 60), ('Y', 60)), "renderRightItemRotation": rotations(('X', 45))})
+pose_clip(os.path.join(CLIPS, 'player', 'stance_sprint_pre.json'), {"body": rotations(('Y', 20)), "head": rotations(('Y', -20)), "leftArm": rotations(('Z', -30))})
+stance_sprint = {"type": "core:pose", "tags": ["attack_stance_sprint"], "pose": [
+    localOffsetZero,
+    {"animationKey": PL("stance_sprint_abs"), "damping": {"renderRightItemRotation": 0.3}},
+    {"animationKey": PL("stance_sprint_pre"), "space": "PRE"},
+    comboReset,
+]}
+sword_idle = {"type": "core:pose", "pose": [comboReset]}
+
+# --- fists: punches (alternating arm) and the guard -----------------------------------------------------
+legsStill = {"rightLeg": rotations(('X', -30), ('Z', 10)), "leftLeg": rotations(('X', -30), ('Y', -25), ('Z', -10)),
+             "rightForeLeg": rotations(('X', 30)), "leftForeLeg": rotations(('X', 30))}
+pose_clip(os.path.join(CLIPS, 'player', 'punch_still.json'), legsStill, {"root": [0, -2, 0]})
+pose_clip(os.path.join(CLIPS, 'player', 'punch_right_abs.json'), {
+    "rightArm": rotations(('Y', -90)), "leftArm": rotations(('Z', -20), ('X', -90)),
+    "rightForeArm": rotations(), "leftForeArm": rotations(('X', -80)), "body": rotations(('Y', -20)), "renderRotation": rotations()})
+pose_clip(os.path.join(CLIPS, 'player', 'punch_right_pre.json'), {"rightArm": rotations(('Y', 10)), "head": rotations(('Y', 20))})
+pose_clip(os.path.join(CLIPS, 'player', 'punch_right_still.json'), {"body": rotations(('Y', -40)), "renderRotation": rotations(('Y', -20))})
+pose_clip(os.path.join(CLIPS, 'player', 'punch_left_abs.json'), {
+    "leftArm": rotations(('Y', 100)), "rightArm": rotations(('X', -90), ('Z', 20)),
+    "leftForeArm": rotations(), "rightForeArm": rotations(('X', -80)), "body": rotations(('Y', 20)), "renderRotation": rotations()})
+pose_clip(os.path.join(CLIPS, 'player', 'punch_left_pre.json'), {"leftArm": rotations(('Y', -16)), "head": rotations(('Y', -20))})
+pose_clip(os.path.join(CLIPS, 'player', 'punch_left_still.json'), {"body": rotations(), "renderRotation": rotations(('Y', -20))})
+def punch_node(side):
+    arm, other = (("rightArm", "leftArm") if side == "right" else ("leftArm", "rightArm"))
+    fore, otherFore = arm.replace("Arm", "ForeArm"), other.replace("Arm", "ForeArm")
+    return {"type": "core:pose", "tags": ["punch"], "pose": [
+        {"animationKey": PL(f"punch_{side}_abs"), "damping": {arm: 0.9, other: 0.3, fore: 0.9, otherFore: 0.3, "body": 0.6}},
+        drv(arm, "X", "headPitch", offset=-90),
+        {"animationKey": PL(f"punch_{side}_pre"), "space": "PRE"},
+        when({"animationKey": PL("punch_still"), "damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}}, state("STANDING_STILL")),
+        when({"animationKey": PL(f"punch_{side}_still"), "damping": {"body": 0.6}}, state("STANDING_STILL")),
+    ]}
+pose_clip(os.path.join(CLIPS, 'player', 'fist_guard_abs.json'), dict(legsStill, **{
+    "renderRotation": rotations(('Y', -20)),
+    "rightArm": rotations(('X', -90), ('Z', 20)), "leftArm": rotations(('X', -90), ('Z', -20)),
+    "rightForeArm": rotations(('X', -80)), "leftForeArm": rotations(('X', -80))}), {"root": [0, -2, 0]})
+pose_clip(os.path.join(CLIPS, 'player', 'fist_guard_pre.json'), {"body": rotations(('X', 10)), "head": rotations(('X', -10), ('Y', -20))})
+fist_guard = {"type": "core:pose", "tags": ["fist_guard"], "pose": [
+    when({"animationKey": PL("fist_guard_abs"), "damping": {"renderRotation": 0.3, "rightArm": 0.3, "leftArm": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3,
+                                                          "rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "root": [None, 0.6, None]},
+          "vectorModes": {"root": "RETARGET"}}, state("STANDING_STILL")),
+    when({"animationKey": PL("fist_guard_pre"), "space": "PRE"}, state("STANDING_STILL")),
+]}
+fists_idle = {"type": "core:pose", "pose": []}
+
+# --- tool swing: curves over the swing progress (sin(sqrt(p) * 2pi) is steep near 0: dense samples there) -
+swingSamples = [(k / 128) ** 2 for k in range(129)]
+swingPhase = lambda p: math.sqrt(p) * 6.2831855
+curve_clip(os.path.join(CLIPS, 'player', 'tool_body.json'), lambda p: {"body": rotations(('Y', mc_sin(swingPhase(p)) * 30))}, swingSamples, 1)
+curve_clip(os.path.join(CLIPS, 'player', 'tool_head.json'), lambda p: {"head": rotations(('Y', -mc_sin(swingPhase(p)) * 30))}, swingSamples, 1)
+curve_clip(os.path.join(CLIPS, 'player', 'tool_arm.json'), lambda p: {"rightArm": rotations(('X', mc_sin(swingPhase(p)) * 50 - 30))}, swingSamples, 1)
+curve_clip(os.path.join(CLIPS, 'player', 'tool_arm_post.json'), lambda p: {"rightArm": rotations(('Z', mc_cos(swingPhase(p)) * -20 + 10))}, swingSamples, 1)
+pose_clip(os.path.join(CLIPS, 'player', 'tool_rest.json'), {"centerRotation": rotations()}, {"localOffset": [0, 0, 0]})
+pose_clip(os.path.join(CLIPS, 'player', 'tool_sneak_body.json'), {"body": rotations(('X', 20))})
+swingTime = {"variable": "swingProgress"}
+def also_when(item, cond):
+    return when(item, AND(item["when"], cond) if "when" in item else cond)
+tool = {"type": "core:pose", "tags": ["tool"], "pose": [also_when(x, state("SWINGING")) for x in [
+    {"animationKey": PL("tool_rest"), "damping": {"centerRotation": 0.3, "localOffset": 0.3}, "vectorModes": {"localOffset": "SLIDE"}},
+    {"animationKey": PL("tool_body"), "time": swingTime, "damping": {"body": 0.8}},
+    when({"animationKey": PL("tool_sneak_body"), "space": "PRE"}, state("SNEAKING")),
+    when(with_damping(drv("head", "X", "headPitch", space="OVERRIDE"), head=0.8), NOT(state("SNEAKING"))),
+    when(with_damping(drv("head", "X", "headPitch", offset=-20, space="OVERRIDE"), head=0.8), state("SNEAKING")),
+    drv("head", "Y", "headYaw"),
+    {"animationKey": PL("tool_head"), "time": swingTime, "space": "PRE"},
+    {"animationKey": PL("tool_arm"), "time": swingTime, "snap": True},
+    {"animationKey": PL("tool_arm_post"), "time": swingTime, "space": "POST"},
+]]}
+
+# --- item use: eating, bow, shield; one node per active hand ---------------------------------------------
+def use_nodes():
+    nodes = {}
+    for side, h in (("right", 1), ("left", -1)):
+        arm, other = (("rightArm", "leftArm") if side == "right" else ("leftArm", "rightArm"))
+        fore, otherFore = arm.replace("Arm", "ForeArm"), other.replace("Arm", "ForeArm")
+        eatSamples = [k / 64 for k in range(65)]
+        curve_clip(os.path.join(CLIPS, 'player', f'eat_arm_{side}.json'), lambda b, arm=arm, h=h: {arm: rotations(('X', b * -80), ('Z', 45 * b * h))}, eatSamples, 1)
+        cycle_clip(os.path.join(CLIPS, 'player', f'eat_head_{side}.json'), lambda p, h=h: {"head": rotations(('X', mc_cos(p) * 5), ('Y', 15 * h))})
+        nodes[f"eat_{side}"] = {"type": "core:pose", "tags": ["eating"], "pose": [
+            {"driver": "core:ramp", "name": "bringUp", "speed": 0.15, "downSpeed": 0},
+            {"driver": "core:ramp", "name": "bringUpPrev", "speed": 0.15, "downSpeed": 0, "readBeforeAdvance": True},
+            {"animationKey": PL(f"eat_arm_{side}"), "time": {"variable": "bringUp"}},
+            drv(fore, "X", "bringUp", scale=-45, space="OVERRIDE"),
+            when({"animationKey": PL(f"eat_head_{side}"), "time": {"variable": "ticks"}}, cmp("bringUpPrev", ">=", 1)),
+        ]}
+        # bow: the off arm's Z part is a curve over the head pitch
+        pitchSamples = [-90 + 180 * k / 64 for k in range(65)]
+        # keyframe times run 0..180 for a pitch of -90..90
+        curve_clip(os.path.join(CLIPS, 'player', f'bow_offarm_{side}.json'),
+                   lambda t, other=other, h=h: {other: rotations(('Z', (-mc_cos((t - 90) / 180 * 3.1415927) * 40 + 40) * h))}, [p + 90 for p in pitchSamples], 180)
+        nodes[f"bow_{side}"] = {"type": "core:pose", "tags": ["bow"], "pose": [
+            localOffsetZero,
+            with_damping(drv("head", "X", "headPitch", space="OVERRIDE"), head=0.5),
+            drv("head", "Y", "aimedBowTicks", scale=-5 * h, offset=50 * h),
+            with_damping(drv("body", "Y", "aimedBowTicks", scale=5 * h, offset=-50 * h, space="OVERRIDE"), body=0.8),
+            drv("body", "Y", "headYaw"),
+            with_damping(drv(arm, "X", "headPitch", offset=-90, space="OVERRIDE"), **{arm: 0.8}),
+            drv(arm, "Y", "aimedBowTicks", scale=-5 * h, offset=50 * h),
+            with_damping(drv(other, "Y", const=80 * h, space="OVERRIDE"), **{other: 1.0}),
+            {"animationKey": PL(f"bow_offarm_{side}"), "time": {"variable": "headPitch", "offset": 90}, "space": "PRE"},
+            drv(other, "X", "headPitch", offset=-90, min=-160),
+            with_damping(drv(fore, "X", const=0, space="OVERRIDE"), **{fore: 1.0}),
+            drv(otherFore, "X", "aimedBowTicks", scale=-3, space="OVERRIDE"),
+        ]}
+        nodes[f"shield_{side}"] = {"type": "core:pose", "tags": ["shield"], "pose": [
+            {"driver": "core:ramp", "name": "bringUp", "speed": 0.7, "downSpeed": 0},
+            drv(arm, "Y", "bringUp", scale=-45 * h, space="OVERRIDE"),
+            drv(fore, "X", "bringUp", scale=-45, space="OVERRIDE"),
+        ]}
+    return nodes
+
+# --- the node graph ---------------------------------------------------------------------------------------
+useTypes = [("eat", "FOOD"), ("bow", "BOW"), ("shield", "SHIELD")]
+def use_conns(exclude_type=None):
+    out = []
+    for base, typ in useTypes:
+        if typ == exclude_type: continue
+        for side in ("right", "left"):
+            out.append(conn(f"{base}_{side}", AND(prop("useActionType", typ), prop("activeHandSide", side.upper()))))
+    return out
+noUse = prop("useActionType", unset=True)
+familyEntry = {
+    # a fresh SwordAction: no move plays until the next attack; the stance if in its window
+    "sword": [("stance_sprint", stanceSprintCond, {"combo": 0}), ("stance", stanceStillCond, {"combo": 0}), ("sword_idle", None, {"combo": 0})],
+    # a fresh PunchingAction starts with the left fist
+    "fists": [("punch_left", cmp(tAA, "<", 10), {"fist": 0}), ("fist_guard", AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60)), {"fist": 0}), ("fists_idle", None, {"fist": 0})],
+    "tool": [("tool", None, None)],
+}
+familyType = {"sword": "SWORD", "fists": "FISTS", "tool": "TOOL"}
+def attack_conns(exclude_family=None):
+    out = []
+    for family, entries in familyEntry.items():
+        if family == exclude_family: continue
+        for target, cond, sets in entries:
+            parts = [noUse, prop("attackActionType", familyType[family])] + ([cond] if cond else [])
+            out.append(conn(target, AND(*parts), sets))
+    return out
+slashOrder = ["slash_up", "slash_down", "slash_inward", "slash_outward", "slash_whirl"]
+slashByCombo = [conn(n, AND(dec, cmp("combo", "==", k)), {"combo": (k + 1) % 5}) for k, n in enumerate(slashOrder)]
+afterSlash = [conn("stance_sprint", stanceSprintCond), conn("stance", stanceStillCond),
+              conn("sword_idle", AND(cmp(tAA, ">=", 10), NOT(stanceSprintCond), NOT(stanceStillCond)))]
+punchConns = [conn("punch_right", AND(dec, cmp("fist", "==", 0)), {"fist": 1}), conn("punch_left", AND(dec, cmp("fist", "==", 1)), {"fist": 0})]
+guardWindow = AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60))
+
+action_nodes = {"idle": {"type": "core:pose", "pose": []}, "sword_idle": sword_idle, "stance": stance, "stance_sprint": stance_sprint,
+                "fists_idle": fists_idle, "punch_right": punch_node("right"), "punch_left": punch_node("left"), "fist_guard": fist_guard, "tool": tool}
+action_nodes.update(slashes)
+action_nodes.update(use_nodes())
+for name, node in action_nodes.items():
+    if name == "idle":
+        c = use_conns() + attack_conns()
+    elif name == "sword_idle":
+        c = use_conns() + attack_conns("sword") + slashByCombo + [conn("stance_sprint", stanceSprintCond), conn("stance", stanceStillCond)]
+    elif name.startswith("slash_"):
+        c = use_conns() + attack_conns("sword") + slashByCombo + afterSlash
+    elif name == "stance":
+        c = use_conns() + attack_conns("sword") + slashByCombo + [conn("stance_sprint", stanceSprintCond), conn("sword_idle", NOT(OR(stanceSprintCond, stanceStillCond)))]
+    elif name == "stance_sprint":
+        c = use_conns() + attack_conns("sword") + slashByCombo + [conn("stance", stanceStillCond), conn("sword_idle", NOT(OR(stanceSprintCond, stanceStillCond)))]
+    elif name == "fists_idle":
+        c = use_conns() + attack_conns("fists") + punchConns + [conn("fist_guard", guardWindow)]
+    elif name.startswith("punch_"):
+        c = use_conns() + attack_conns("fists") + punchConns + [conn("fist_guard", guardWindow), conn("fists_idle", cmp(tAA, ">=", 60))]
+    elif name == "fist_guard":
+        c = use_conns() + attack_conns("fists") + punchConns + [conn("fists_idle", cmp(tAA, ">=", 60))]
+    elif name == "tool":
+        c = use_conns() + attack_conns("tool")
+    else:  # use nodes
+        typ = [t for b, t in useTypes if name.startswith(b)][0]
+        c = use_conns(typ) + attack_conns()
+    node["connections"] = copy.deepcopy(c)
+
+action_layer = {"type": "KEYFRAME", "when": NOT(state("SLEEPING")), "entryNode": "idle", "variables": {"combo": 0, "fist": 0}, "nodes": action_nodes}
+
 groundAction = OR(action("stand"), action("walk"), action("sprint"))
 torchMain = {"type": "core:property", "property": "mainHandItem", "value": "minecraft:torch"}
 torchOff = {"type": "core:property", "property": "offHandItem", "value": "minecraft:torch"}
@@ -524,6 +803,8 @@ player = {
                 when(drv("leftArm", "X", "headPitch", scale=0.5, offset=-90, space="OVERRIDE"), AND(NOT(torchMain), torchOff)), when(drv("leftArm", "Y", "headYaw", scale=0.7), AND(NOT(torchMain), torchOff)),
                 when({"animationKey": PL("torch_forearm_left")}, AND(NOT(torchMain), torchOff)),
             ]}}},
+        # items and attacks (the BipedActionController)
+        action_layer,
         # the cape is physics, kept as a driver
         {"type": "KEYFRAME", "entryNode": "cape", "nodes": {"cape": {"type": "core:pose", "pose": [{"driver": "mobends:cape", "bone": "cape"}]}}},
     ]}

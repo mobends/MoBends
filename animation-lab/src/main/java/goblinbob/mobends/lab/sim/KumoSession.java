@@ -86,6 +86,10 @@ public class KumoSession
         }
     };
 
+    /** -Dlab.debugNodes=true prints every layer's current node per frame. */
+    private static final boolean DEBUG_NODES = Boolean.getBoolean("lab.debugNodes");
+    private int frameIndex = 0;
+
     public static AnimatorTemplate loadAnimator(String resource) throws IOException
     {
         LabBootstrap.ensure();
@@ -145,6 +149,19 @@ public class KumoSession
         data.swingProgress.set(modelInputs.swingProgress);
 
         animator.update(data, goblinbob.mobends.core.client.event.DataUpdateHandler.ticksPerFrame);
+        if (DEBUG_NODES)
+        {
+            StringBuilder line = new StringBuilder(String.format("frame %d tick %.2f:", frameIndex, clock.getTicks()));
+            for (goblinbob.mobends.core.kumo.state.ILayerState layer : animator.getLayers())
+            {
+                if (layer instanceof goblinbob.mobends.core.kumo.state.keyframe.KeyframeLayerState)
+                {
+                    line.append(' ').append(((goblinbob.mobends.core.kumo.state.keyframe.KeyframeLayerState) layer).getCurrentNode().getName());
+                }
+            }
+            System.out.println(line);
+        }
+        frameIndex++;
 
         FramePose frame = PoseCapture.capture(data);
         frame.tick = clock.getTicks();

@@ -5,6 +5,7 @@ import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.Scenario;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,19 +87,72 @@ public class Scenarios
             if (between(tick, 150, 200)) walk(in, WALK_SPEED);
         }));
 
+        // Item use: vanilla counts the remaining use ticks down (itemInUseCount) and exposes the
+        // ticks used so far as getItemInUseMaxCount().
+        // The item is switched to a few ticks before it is used, as a player would.
         add(new Scenario(EntityKind.PLAYER, "bow_and_eat", FPS, 160, (tick, in) -> {
+            if (between(tick, 5, 80)) in.mainHand = new ItemStack(Items.BOW);
             if (between(tick, 10, 70))
             {
-                in.mainHand = new ItemStack(Items.BOW);
-                in.itemUseCount = tick - 10;
-                in.itemUseMaxCount = 72000;
+                in.itemUseCount = 72000 - (tick - 10);
+                in.itemUseMaxCount = tick - 10;
             }
+            if (between(tick, 85, 160)) in.mainHand = new ItemStack(Items.APPLE);
             if (between(tick, 90, 150))
             {
-                in.mainHand = new ItemStack(Items.APPLE);
-                in.itemUseCount = tick - 90;
-                in.itemUseMaxCount = 32;
+                in.itemUseCount = Math.max(0, 32 - (tick - 90));
+                in.itemUseMaxCount = tick - 90;
             }
+            lookAround(in, tick);
+        }));
+
+        add(new Scenario(EntityKind.PLAYER, "sword_moves", FPS, 200, (tick, in) -> {
+            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            // Two hits, a pause longer than the combo window, then the combo starts over.
+            if (tick == 10 || tick == 22 || tick == 60) in.attack = true;
+            // The sprinting stance.
+            if (between(tick, 90, 140)) { walk(in, SPRINT_SPEED); in.sprinting = true; }
+            if (tick == 100) in.attack = true;
+            // A hit in the air.
+            if (tick == 150) in.jump = true;
+            if (tick == 152) in.attack = true;
+            lookAround(in, tick);
+        }));
+
+        add(new Scenario(EntityKind.PLAYER, "punch_and_tool", FPS, 200, (tick, in) -> {
+            // Bare fists: three punches standing still, one while walking, then the guard fades.
+            if (tick == 10 || tick == 22 || tick == 34) in.attack = true;
+            if (between(tick, 50, 90)) walk(in, WALK_SPEED);
+            if (tick == 60) in.attack = true;
+            // A pickaxe: swings standing, then while sneaking.
+            if (tick >= 110) in.mainHand = new ItemStack(Items.IRON_PICKAXE);
+            if (tick == 120 || tick == 132) in.attack = true;
+            if (between(tick, 150, 200)) { walk(in, SNEAK_SPEED); in.sneaking = true; }
+            if (tick == 160 || tick == 175) in.attack = true;
+            lookAround(in, tick);
+        }));
+
+        add(new Scenario(EntityKind.PLAYER, "offhand_use", FPS, 160, (tick, in) -> {
+            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            in.offHand = new ItemStack(Items.SHIELD);
+            // Blocking with the off-hand shield, then a slash once it is lowered.
+            if (between(tick, 10, 60))
+            {
+                in.activeHand = EnumHand.OFF_HAND;
+                in.itemUseCount = 72000 - (tick - 10);
+                in.itemUseMaxCount = tick - 10;
+            }
+            if (between(tick, 70, 100)) walk(in, WALK_SPEED);
+            if (tick == 75) in.attack = true;
+            // Eating from the off hand.
+            if (between(tick, 110, 160))
+            {
+                in.offHand = new ItemStack(Items.APPLE);
+                in.activeHand = EnumHand.OFF_HAND;
+                in.itemUseCount = Math.max(0, 32 - (tick - 110));
+                in.itemUseMaxCount = tick - 110;
+            }
+            lookAround(in, tick);
         }));
 
         add(new Scenario(EntityKind.PLAYER, "fly_and_swim", FPS, 200, (tick, in) -> {

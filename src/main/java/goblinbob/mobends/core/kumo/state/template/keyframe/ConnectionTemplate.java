@@ -20,6 +20,9 @@ public class ConnectionTemplate
 
     public Easing transitionEasing = Easing.EASE_IN_OUT;
 
+    /** Layer variables assigned when this connection fires (before the target node starts). */
+    public java.util.Map<String, Float> set;
+
     public enum Easing
     {
         LINEAR,

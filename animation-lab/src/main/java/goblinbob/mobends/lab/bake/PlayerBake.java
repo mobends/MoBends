@@ -84,6 +84,8 @@ public class PlayerBake
         Baker.Setup climbAt = (r, phase) -> { r.set("climbingCycle", phase); r.headYaw(0); r.headPitch(0); r.entity().rotationYaw = 0; still(r); };
         baker.cycle(ladder, climbAt, TWO_PI, 64).without("head", "renderRotation").write(out.resolve("ladder.json"));
 
+        bakeActions(baker, out);
+
         // ---- swimming: surface (two clocks) and underwater (two clocks) -----------------------------
         AnimationBit<?> swimming = new SwimmingAnimationBit();
         Baker.Setup surfaceA = (r, phase) -> { r.ticks(phase / 0.0825F); still(r); r.headYaw(0); r.headPitch(0); r.set("ticksAfterAttack", 100F); BakeRig.setField(swimming, "transformTransition", 0F); };
@@ -99,6 +101,48 @@ public class PlayerBake
         baker.cycle(swimming, deepB, TWO_PI, 64).only("leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg").write(out.resolve("swim_deep_legs.json"));
 
         finish(baker, out);
+    }
+
+    // ---- the action layer: sword slashes and the attack stance's landing kneel ----------------------
+    static void bakeActions(Baker baker, Path out) throws IOException
+    {
+        // Slashes driven by ticksAfterAttack (up, inward, whirl) and by the bit's own clock
+        // (down, outward: ticksPlayed, i.e. the node's elapsed time). Sampled while moving and
+        // looking straight ahead: the look goes in through drivers around the baked head part.
+        AnimationBit<?> up = new AttackSlashUpAnimationBit();
+        AnimationBit<?> inward = new AttackSlashInwardAnimationBit();
+        AnimationBit<?> whirl = new AttackWhirlSlashAnimationBit();
+        AnimationBit<?> down = new AttackSlashDownAnimationBit();
+        AnimationBit<?> outward = new AttackSlashOutwardAnimationBit();
+        Baker.Setup byAttack = (r, t) -> { r.set("ticksAfterAttack", t); r.headYaw(0); r.headPitch(0); forward(r); };
+        Baker.Setup byAttackStill = (r, t) -> { r.set("ticksAfterAttack", 5F); r.headYaw(0); r.headPitch(0); still(r); };
+        String[] stillBonesA = { "leftLeg", "rightLeg", "rightForeLeg", "renderRotation", "root" };
+        String[] stillBonesB = { "leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "renderRotation", "root" };
+
+        baker.oneShot(up, byAttack, 10F, 30).write(out.resolve("slash_up.json"));
+        baker.oneShot(up, byAttackStill, 0F, 0).only(stillBonesA).write(out.resolve("slash_up_still.json"));
+        baker.oneShot(inward, byAttack, 10F, 30).write(out.resolve("slash_inward.json"));
+        baker.oneShot(inward, byAttackStill, 0F, 0).only(stillBonesA).write(out.resolve("slash_inward_still.json"));
+        // The whirl's render rotation spins a full turn in 6.25 ticks: dense samples keep the
+        // interpolation error small.
+        baker.oneShot(whirl, byAttack, 10F, 100).write(out.resolve("slash_whirl.json"));
+        baker.oneShot(whirl, byAttackStill, 0F, 0).only("leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg").write(out.resolve("slash_whirl_still.json"));
+
+        for (Object[] pair : new Object[][] { { down, "slash_down" }, { outward, "slash_outward" } })
+        {
+            AnimationBit<?> bit = (AnimationBit<?>) pair[0];
+            String name = (String) pair[1];
+            Baker.Setup byClock = (r, t) -> { BakeRig.setField(bit, "ticksPlayed", t); r.set("ticksAfterAttack", 100F); r.headYaw(0); r.headPitch(0); forward(r); };
+            Baker.Setup byClockStill = (r, t) -> { BakeRig.setField(bit, "ticksPlayed", 5F); r.set("ticksAfterAttack", 100F); r.headYaw(0); r.headPitch(0); still(r); };
+            baker.oneShot(bit, byClock, 10F, 30).write(out.resolve(name + ".json"));
+            baker.oneShot(bit, byClockStill, 0F, 0).only(stillBonesB).write(out.resolve(name + "_still.json"));
+        }
+
+        // The stance's landing kneel over ticksAfterTouchdown (body and the global offset), with the
+        // breathing at phase 0 (ticks = 0).
+        AnimationBit<?> stance = new AttackStanceAnimationBit();
+        baker.oneShot(stance, (r, t) -> { r.set("ticksAfterTouchdown", t); r.ticks(0); r.headYaw(0); r.headPitch(0); still(r); r.set("ticksAfterAttack", 30F); }, 1F / 0.15F, 40)
+                .only("body", "root").write(out.resolve("stance_kneel.json"));
     }
 
     static void sprintSetup(BakeRig r, float phase, float amount)

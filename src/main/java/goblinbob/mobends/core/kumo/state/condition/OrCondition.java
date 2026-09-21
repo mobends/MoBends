@@ -31,14 +31,25 @@ public class OrCondition implements ITriggerCondition
     @Override
     public boolean isConditionMet(ITriggerConditionContext context) throws MalformedKumoTemplateException
     {
+        // No short-circuit: nested edge triggers (core:decreased) must see every frame.
+        boolean met = false;
         for (ITriggerCondition condition : this.conditions)
         {
             if (condition.isConditionMet(context))
             {
-                return true;
+                met = true;
             }
         }
-        return false;
+        return met;
+    }
+
+    @Override
+    public void onNodeStarted(ITriggerConditionContext context)
+    {
+        for (ITriggerCondition condition : this.conditions)
+        {
+            condition.onNodeStarted(context);
+        }
     }
 
     public static class Template extends TriggerConditionTemplate

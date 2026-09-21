@@ -32,13 +32,10 @@ public class KumoParityTest
     public static final double MAX_OFFSET = 0.01;
 
     /**
-     * Scenarios whose reference behaviour is not migrated yet (they exercise the player's action
-     * layer: items, attacks, bow, eating). They are reported as skipped, not as failures, until
-     * that layer exists; remove them from here as it lands.
+     * Scenarios whose reference behaviour is not migrated yet. They are reported as skipped, not
+     * as failures, until the matching animator work lands; remove them from here as it does.
      */
-    public static final Set<String> PENDING = new HashSet<>(Arrays.asList(
-            "player/sword_combo",
-            "player/bow_and_eat"));
+    public static final Set<String> PENDING = new HashSet<>(Arrays.asList());
 
     @TestFactory
     List<DynamicTest> animatorMatchesReference()
