@@ -1,0 +1,1435 @@
+{
+  "formatVersion": 2,
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "idle",
+      "variables": {
+        "resetLimbs": 1
+      },
+      "nodes": {
+        "idle": {
+          "type": "core:pose",
+          "tags": [
+            "idle"
+          ],
+          "pose": [
+            {
+              "driver": "mobends:spider_idle_legs",
+              "groundLevel": {
+                "variable": "ticks",
+                "scale": 0.1,
+                "fn": "sin",
+                "mul": 0.5
+              },
+              "bodyX": {
+                "variable": "ticks",
+                "scale": 0.2,
+                "fn": "sin",
+                "mul": 0.4
+              },
+              "bodyZ": {
+                "variable": "ticks",
+                "scale": 0.2,
+                "fn": "cos",
+                "mul": 0.4
+              },
+              "kneelDuration": 10,
+              "kneelAmplitude": 4,
+              "kneelLead": 0
+            },
+            {
+              "driver": "core:vector",
+              "bone": "root",
+              "x": {
+                "variable": "ticks",
+                "scale": 0.2,
+                "fn": "sin",
+                "mul": 0.4
+              },
+              "y": {
+                "variable": "groundLevel",
+                "scale": -1
+              },
+              "z": {
+                "variable": "ticks",
+                "scale": 0.2,
+                "fn": "cos",
+                "mul": -0.4
+              },
+              "snap": true
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE"
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/rest.json",
+              "damping": {
+                "localOffset": 1.0
+              },
+              "vectorModes": {
+                "localOffset": "SLIDE"
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "death",
+              "triggerCondition": {
+                "type": "core:compare",
+                "variable": "health",
+                "op": "<=",
+                "value": 0
+              }
+            },
+            {
+              "target": "crawl",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "BESIDE_CLIMBABLE"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:or",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "AIRBORNE"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": "<",
+                        "value": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "target": "move",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:or",
+                      "conditions": [
+                        {
+                          "type": "core:state",
+                          "state": "AIRBORNE"
+                        },
+                        {
+                          "type": "core:compare",
+                          "variable": "ticksAfterTouchdown",
+                          "op": "<",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "STANDING_STILL"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "move": {
+          "type": "core:pose",
+          "tags": [
+            "move"
+          ],
+          "pose": [
+            {
+              "driver": "mobends:spider_moving_legs",
+              "swing": {
+                "variable": "limbSwing",
+                "scale": 0.6662
+              },
+              "groundLevel": {
+                "variable": "ticks",
+                "scale": 0.6,
+                "fn": "mcsin",
+                "mul": 1.2
+              },
+              "kneelDuration": 10,
+              "kneelAmplitude": 3,
+              "kneelLead": 0.2,
+              "limbs": [
+                {
+                  "phase": 0.0,
+                  "minDist": 20,
+                  "maxDist": 10,
+                  "minRot": -80,
+                  "maxRot": -50
+                },
+                {
+                  "phase": 0.3,
+                  "minDist": 20,
+                  "maxDist": 10,
+                  "minRot": -80,
+                  "maxRot": -50
+                },
+                {
+                  "phase": 0.3,
+                  "minDist": 15,
+                  "maxDist": 15,
+                  "minRot": -30,
+                  "maxRot": 10
+                },
+                {
+                  "phase": 0.0,
+                  "minDist": 15,
+                  "maxDist": 15,
+                  "minRot": -30,
+                  "maxRot": 10
+                },
+                {
+                  "phase": 0.4,
+                  "minDist": 7,
+                  "maxDist": 15,
+                  "minRot": 20,
+                  "maxRot": 50
+                },
+                {
+                  "phase": 0.7,
+                  "minDist": 7,
+                  "maxDist": 15,
+                  "minRot": 20,
+                  "maxRot": 50
+                },
+                {
+                  "phase": 0.7,
+                  "minDist": 10,
+                  "maxDist": 20,
+                  "minRot": 60,
+                  "maxRot": 80
+                },
+                {
+                  "phase": 0.4,
+                  "minDist": 10,
+                  "maxDist": 20,
+                  "minRot": 60,
+                  "maxRot": 80
+                }
+              ]
+            },
+            {
+              "driver": "core:vector",
+              "bone": "root",
+              "x": {
+                "variable": "ticks",
+                "scale": 0.2,
+                "fn": "mcsin",
+                "mul": 0.4
+              },
+              "y": {
+                "variable": "groundLevel",
+                "scale": -1
+              },
+              "z": {
+                "variable": "ticks",
+                "scale": 0.2,
+                "fn": "mccos",
+                "mul": -0.4
+              },
+              "snap": true
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE"
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/rest.json",
+              "damping": {
+                "localOffset": 1.0
+              },
+              "vectorModes": {
+                "localOffset": "SLIDE"
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "death",
+              "triggerCondition": {
+                "type": "core:compare",
+                "variable": "health",
+                "op": "<=",
+                "value": 0
+              }
+            },
+            {
+              "target": "crawl",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "BESIDE_CLIMBABLE"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:or",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "AIRBORNE"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": "<",
+                        "value": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "target": "idle",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:or",
+                      "conditions": [
+                        {
+                          "type": "core:state",
+                          "state": "AIRBORNE"
+                        },
+                        {
+                          "type": "core:compare",
+                          "variable": "ticksAfterTouchdown",
+                          "op": "<",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "jump": {
+          "type": "core:pose",
+          "tags": [
+            "jump"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/spider/jump.json",
+              "bones": [
+                "root"
+              ],
+              "snap": true
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/jump.json",
+              "bones": [
+                "leg1",
+                "leg2",
+                "leg3",
+                "leg4",
+                "leg5",
+                "leg6",
+                "leg7",
+                "leg8"
+              ],
+              "damping": {
+                "leg1": 1.0,
+                "leg2": 1.0,
+                "leg3": 1.0,
+                "leg4": 1.0,
+                "leg5": 1.0,
+                "leg6": 1.0,
+                "leg7": 1.0,
+                "leg8": 1.0
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg1",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": 25,
+                "add": -20
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg2",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": -25,
+                "add": 20
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg3",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": 25,
+                "add": -20
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg4",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": -25,
+                "add": 20
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg5",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": 25,
+                "add": -20
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg6",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": -25,
+                "add": 20
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg7",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": 25,
+                "add": -20
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg8",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": -25,
+                "add": 20
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "foreLeg1",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": -40,
+                "add": -70
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "foreLeg1": 1.0
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "foreLeg2",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": 40,
+                "add": 70
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "foreLeg2": 1.0
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "foreLeg3",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": -40,
+                "add": -70
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "foreLeg3": 1.0
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "foreLeg4",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": 40,
+                "add": 70
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "foreLeg4": 1.0
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "foreLeg5",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": -40,
+                "add": -70
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "foreLeg5": 1.0
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "foreLeg6",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": 40,
+                "add": 70
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "foreLeg6": 1.0
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "foreLeg7",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": -40,
+                "add": -70
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "foreLeg7": 1.0
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "foreLeg8",
+              "axis": "Z",
+              "angle": {
+                "variable": "interpolatedMotionY",
+                "scale": -5,
+                "min": -1,
+                "max": 1,
+                "mul": 40,
+                "add": 70
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "foreLeg8": 1.0
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/rest.json",
+              "damping": {
+                "localOffset": 1.0
+              },
+              "vectorModes": {
+                "localOffset": "SLIDE"
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "death",
+              "triggerCondition": {
+                "type": "core:compare",
+                "variable": "health",
+                "op": "<=",
+                "value": 0
+              }
+            },
+            {
+              "target": "crawl",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "BESIDE_CLIMBABLE"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "idle",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:or",
+                      "conditions": [
+                        {
+                          "type": "core:state",
+                          "state": "AIRBORNE"
+                        },
+                        {
+                          "type": "core:compare",
+                          "variable": "ticksAfterTouchdown",
+                          "op": "<",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  }
+                ]
+              },
+              "set": {
+                "resetLimbs": 1
+              }
+            },
+            {
+              "target": "move",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:or",
+                      "conditions": [
+                        {
+                          "type": "core:state",
+                          "state": "AIRBORNE"
+                        },
+                        {
+                          "type": "core:compare",
+                          "variable": "ticksAfterTouchdown",
+                          "op": "<",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "STANDING_STILL"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "resetLimbs": 1
+              }
+            }
+          ]
+        },
+        "crawl": {
+          "type": "core:pose",
+          "tags": [
+            "crawl"
+          ],
+          "pose": [
+            {
+              "driver": "mobends:spider_moving_legs",
+              "swing": {
+                "variable": "crawlProgress",
+                "scale": 5
+              },
+              "groundLevel": {
+                "variable": "crawlProgress",
+                "scale": 3.0,
+                "fn": "mcsin",
+                "mul": 1.2
+              },
+              "limbs": [
+                {
+                  "phase": 0.0,
+                  "minDist": 20,
+                  "maxDist": 10,
+                  "minRot": -80,
+                  "maxRot": -50
+                },
+                {
+                  "phase": 0.3,
+                  "minDist": 20,
+                  "maxDist": 10,
+                  "minRot": -80,
+                  "maxRot": -50
+                },
+                {
+                  "phase": 0.3,
+                  "minDist": 15,
+                  "maxDist": 15,
+                  "minRot": -30,
+                  "maxRot": 10
+                },
+                {
+                  "phase": 0.0,
+                  "minDist": 15,
+                  "maxDist": 15,
+                  "minRot": -30,
+                  "maxRot": 10
+                },
+                {
+                  "phase": 0.4,
+                  "minDist": 7,
+                  "maxDist": 15,
+                  "minRot": 20,
+                  "maxRot": 50
+                },
+                {
+                  "phase": 0.7,
+                  "minDist": 7,
+                  "maxDist": 15,
+                  "minRot": 20,
+                  "maxRot": 50
+                },
+                {
+                  "phase": 0.7,
+                  "minDist": 10,
+                  "maxDist": 20,
+                  "minRot": 60,
+                  "maxRot": 80
+                },
+                {
+                  "phase": 0.4,
+                  "minDist": 10,
+                  "maxDist": 20,
+                  "minRot": 60,
+                  "maxRot": 80
+                }
+              ]
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "renderRotation",
+              "axis": "X",
+              "angle": -90,
+              "space": "OVERRIDE",
+              "damping": {
+                "renderRotation": 0.6
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "renderRotation",
+              "axis": "Y",
+              "angle": {
+                "variable": "crawlRenderYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE"
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/crawl_rest.json",
+              "damping": {
+                "localOffset": 0.5
+              },
+              "vectorModes": {
+                "localOffset": "SLIDE"
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "death",
+              "triggerCondition": {
+                "type": "core:compare",
+                "variable": "health",
+                "op": "<=",
+                "value": 0
+              }
+            },
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:or",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "AIRBORNE"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": "<",
+                        "value": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "target": "idle",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:or",
+                      "conditions": [
+                        {
+                          "type": "core:state",
+                          "state": "AIRBORNE"
+                        },
+                        {
+                          "type": "core:compare",
+                          "variable": "ticksAfterTouchdown",
+                          "op": "<",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "move",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:or",
+                      "conditions": [
+                        {
+                          "type": "core:state",
+                          "state": "AIRBORNE"
+                        },
+                        {
+                          "type": "core:compare",
+                          "variable": "ticksAfterTouchdown",
+                          "op": "<",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "STANDING_STILL"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "death": {
+          "type": "core:pose",
+          "tags": [
+            "death"
+          ],
+          "pose": [
+            {
+              "driver": "core:accumulate",
+              "name": "wiggleSpeed",
+              "rate": -0.1,
+              "initial": 1,
+              "min": 0
+            },
+            {
+              "driver": "core:accumulate",
+              "name": "wigglePhase",
+              "rate": {
+                "variable": "wiggleSpeed",
+                "scale": 2,
+                "offset": 0.3
+              }
+            },
+            {
+              "driver": "core:vector",
+              "bone": "root",
+              "y": 10,
+              "damping": {
+                "root": [
+                  null,
+                  0.3,
+                  null
+                ]
+              },
+              "vectorModes": {
+                "root": "SLIDE"
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE"
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/death.json",
+              "snap": true
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/death_sway_y.json",
+              "time": {
+                "variable": "limbSwing",
+                "scale": 0.6662
+              },
+              "weight": {
+                "variable": "limbSwingAmount",
+                "scale": 57.29577951308232
+              },
+              "space": "PRE"
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/death_sway_z.json",
+              "time": {
+                "variable": "limbSwing",
+                "scale": 0.6662
+              },
+              "weight": {
+                "variable": "limbSwingAmount",
+                "scale": 57.29577951308232
+              },
+              "space": "PRE"
+            },
+            {
+              "animationKey": "mobends:bends/animations/spider/death_wiggle.json",
+              "time": {
+                "variable": "wigglePhase"
+              },
+              "weight": {
+                "variable": "wiggleSpeed",
+                "scale": 10,
+                "offset": 10
+              },
+              "space": "PRE"
+            }
+          ],
+          "connections": [
+            {
+              "target": "crawl",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "BESIDE_CLIMBABLE"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:or",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "AIRBORNE"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": "<",
+                        "value": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "target": "idle",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:or",
+                      "conditions": [
+                        {
+                          "type": "core:state",
+                          "state": "AIRBORNE"
+                        },
+                        {
+                          "type": "core:compare",
+                          "variable": "ticksAfterTouchdown",
+                          "op": "<",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "move",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:compare",
+                      "variable": "health",
+                      "op": "<=",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "BESIDE_CLIMBABLE"
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:or",
+                      "conditions": [
+                        {
+                          "type": "core:state",
+                          "state": "AIRBORNE"
+                        },
+                        {
+                          "type": "core:compare",
+                          "variable": "ticksAfterTouchdown",
+                          "op": "<",
+                          "value": 1
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "STANDING_STILL"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

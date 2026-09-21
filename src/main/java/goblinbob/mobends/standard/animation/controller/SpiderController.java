@@ -90,24 +90,9 @@ public class SpiderController implements IAnimationController<SpiderData>
 
 	public static void putLimbOnGround(SmoothOrientation upperLimb, SmoothOrientation lowerLimb, boolean odd, double stretchDistance, double groundLevel, float smoothness)
 	{
-		final float limbSegmentLength = 12F;
-		final float maxStretch = limbSegmentLength * 2;
-
-		double c = groundLevel == 0F ? stretchDistance : Math.sqrt(stretchDistance * stretchDistance + groundLevel * groundLevel);
-		if (c > maxStretch)
-		{
-			c = maxStretch;
-		}
-
-		final double alpha = c > maxStretch ? 0 : Math.acos((c/2)/limbSegmentLength);
-		final double beta = Math.atan2(stretchDistance, -groundLevel);
-
-		double lowerAngle = Math.max(-2.3, -2 * alpha);
-		double upperAngle = Math.min(1, alpha + beta - Math.PI/2);
-		upperLimb.setSmoothness(smoothness).localRotateZ((float) (upperAngle / Math.PI * 180) * (odd ? -1 : 1));
-		lowerLimb.setSmoothness(smoothness).orientZ((float) (lowerAngle / Math.PI * 180) * (odd ? -1 : 1));
+		double[] angles = goblinbob.mobends.standard.kumo.spider.SpiderLegIk.solve(stretchDistance, groundLevel);
+		upperLimb.setSmoothness(smoothness).localRotateZ((float) (angles[0] / Math.PI * 180) * (odd ? -1 : 1));
+		lowerLimb.setSmoothness(smoothness).orientZ((float) (angles[1] / Math.PI * 180) * (odd ? -1 : 1));
 	}
-
-
 
 }

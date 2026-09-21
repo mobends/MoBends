@@ -270,3 +270,33 @@ is pending in `KumoParityTest`.
 
 **Known gaps.** Left-handed players (the attack bits mirror on the primary hand); the bow's
 climbing branch; `ToolAction` only (no separate axe/pickaxe poses exist in the reference either).
+
+## 7. Squid and spider on KUMO
+
+**Squid.** `bends/animators/squid.json`: the vanilla tentacle wave as two generated curve clips
+over the interpolated squid rotation (`squidRotation`), each with a rest variant chosen by the
+controller's two "not yet wrapped" checks (`SQUID_ROTATION_LOW`, `SQUID_PREV_ROTATION_LOW`).
+The tentacle bases (`tentacle_i_0`) are now named bones like the sections; the golden was
+re-recorded to include them. Worst error 0.0007°.
+
+**Spider.** The legs are stateful inverse kinematics (each foot remembers a world position,
+steps to a neutral spot when overstretched, lifts while it moves), so they stay code: two
+drivers, `mobends:spider_idle_legs` and `mobends:spider_moving_legs`, parametrised from
+`bends/animators/spider.json` (bob and ground-level value sources, the landing bounce, the
+eight limbs' gait table, the "feeling the ground" cadence). The IK itself moved to
+`SpiderLegIk`, shared with the old controller. Everything else is data: the jump (a fan-out
+pose plus per-leg drivers on the vertical motion), the death (an instant splay, two sway clips
+weighted by the limb swing amount, and a wiggle whose speed decays through a
+`core:accumulate` phase), crawling (the moving gait on the crawl progress, the wall-facing
+render rotation), and the controller's decision chain with a `resetLimbs` layer variable that
+the jump's exits set so the feet are re-planted on landing, as `resetAfterJumped` did.
+
+**Core additions.** Value sources take a shaping function (`sin`, `cos`, `mcsin`, `mccos`,
+`abs`) and a post multiplier/offset, so a bit's `sin(ticks * 0.1) * 0.5` is one expression;
+`core:accumulate` (a node variable that integrates a rate, clamped); ramps take an `initial`
+value; a `core:vector` item may leave axes out, which keeps the bone's current target on those
+axes (the `slideY()` idiom); drivers expose computed values as node variables (`groundLevel`).
+
+**Scenarios added.** `spider/death`, `spider/crawl` (goldens recorded from the reference).
+
+**Result.** 27/27 parity scenarios pass (spider worst 0.004°), 28/28 stability.

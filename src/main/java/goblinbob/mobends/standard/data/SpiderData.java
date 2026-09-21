@@ -29,6 +29,12 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public SpiderData(EntitySpider entity)
     {
         super(entity);
+        registerVariable("crawlProgress", this::getInterpolatedCrawlProgress);
+        registerVariable("crawlRenderYaw", () -> {
+            final float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * DataUpdateHandler.partialTicks;
+            return MathHelper.wrapDegrees(yaw - getCrawlingRotation());
+        });
+        registerState("BESIDE_CLIMBABLE", entity::isBesideClimbableBlock);
     }
 
     @Override

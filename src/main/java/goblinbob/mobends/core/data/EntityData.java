@@ -94,6 +94,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         registerVariable("prevMotionY", () -> prevMotionY);
         registerVariable("prevMotionZ", () -> prevMotionZ);
         registerVariable("motionMagnitude", this::getInterpolatedMotionMagnitude);
+        registerVariable("interpolatedMotionY", this::getInterpolatedMotionY);
+        registerVariable("ticksExisted", () -> entity != null ? entity.ticksExisted : 0);
         registerVariable("xzMotionMagnitude", this::getInterpolatedXZMotionMagnitude);
         registerVariable("forwardMomentum", this::getForwardMomentum);
         registerVariable("sidewaysMomentum", this::getSidewaysMomentum);

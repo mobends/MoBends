@@ -17,5 +17,7 @@ public class LabBootstrap
         done = true;
         TriggerConditionRegistry.instance.register("mobends:wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
         goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:cape", goblinbob.mobends.standard.kumo.CapeDriver::create, goblinbob.mobends.standard.kumo.CapeDriver.Template.class);
+        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:spider_idle_legs", goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver::create, goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate.class);
+        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:spider_moving_legs", goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver::create, goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate.class);
     }
 }

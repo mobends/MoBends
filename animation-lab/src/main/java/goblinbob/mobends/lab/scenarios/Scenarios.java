@@ -226,6 +226,24 @@ public class Scenarios
             lookAround(in, tick);
         }));
 
+        add(new Scenario(EntityKind.SPIDER, "death", FPS, 120, (tick, in) -> {
+            if (between(tick, 10, 60)) walk(in, WALK_SPEED);
+            if (tick >= 60) in.health = 0;
+            lookAround(in, tick);
+        }));
+
+        add(new Scenario(EntityKind.SPIDER, "crawl", FPS, 140, (tick, in) -> {
+            if (between(tick, 20, 120))
+            {
+                in.spiderClimbing = true;
+                in.onLadder = true;
+                in.ladderColumn = true;
+                in.noGravity = true;
+                in.verticalSpeed = between(tick, 30, 100) ? 0.1D : 0.0D;
+            }
+            lookAround(in, tick);
+        }));
+
         // --- Squid ------------------------------------------------------------------------------
         add(new Scenario(EntityKind.SQUID, "swim", FPS, 120, (tick, in) -> {
             in.inWater = true;

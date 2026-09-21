@@ -14,6 +14,8 @@ import goblinbob.mobends.core.kumo.state.template.pose.VectorTemplate;
  */
 public class VectorDriver implements IPoseItem
 {
+    /** An axis the template leaves out keeps the bone's current target for that axis. */
+    private static final ValueSource UNWRITTEN = new ValueSource(Float.NaN);
 
     private final int slot;
     private final ValueSource x, y, z;
@@ -43,9 +45,9 @@ public class VectorDriver implements IPoseItem
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
         ItemEffects effects = new ItemEffects(skeleton, template.damping, template.vectorModes, template.snap);
         return new VectorDriver(skeleton.indexOf(template.bone),
-                ValueSource.fromTemplate(template.x, ValueSource.ZERO),
-                ValueSource.fromTemplate(template.y, ValueSource.ZERO),
-                ValueSource.fromTemplate(template.z, ValueSource.ZERO),
+                ValueSource.fromTemplate(template.x, UNWRITTEN),
+                ValueSource.fromTemplate(template.y, UNWRITTEN),
+                ValueSource.fromTemplate(template.z, UNWRITTEN),
                 template.space == null ? Pose.Space.OVERRIDE : template.space,
                 when, effects.isEmpty() ? null : effects);
     }

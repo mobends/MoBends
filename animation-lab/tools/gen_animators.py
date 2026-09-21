@@ -841,7 +841,104 @@ squid = {"formatVersion": 2, "layers": [{"type": "KEYFRAME", "entryNode": "swim"
     when({"animationKey": SQ("swim_sections_rest"), "damping": squidSectionDamp}, NOT(state("SQUID_ROTATION_LOW"))),
 ]}}}]}
 
-for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player), ("squid", squid)]:
+
+# ---- spider: IK leg drivers for the ground gaits, data for the jump and the death ----------------------
+SP = lambda n: clip('spider', n)
+def with_snap(item):
+    item = dict(item); item["snap"] = True; return item
+spiderHead = [with_snap(drv("head", "X", "headPitch", space="OVERRIDE")), drv("head", "Y", "headYaw")]
+pose_clip(os.path.join(CLIPS, 'spider', 'rest.json'), {"centerRotation": rotations(), "renderRotation": rotations()}, {"localOffset": [0, 0, 0]})
+spiderRest = {"animationKey": SP("rest"), "damping": {"localOffset": 1.0}, "vectorModes": {"localOffset": "SLIDE"}}
+spiderLimbs = [
+    {"phase": 0.0, "minDist": 20, "maxDist": 10, "minRot": -80, "maxRot": -50}, {"phase": 0.3, "minDist": 20, "maxDist": 10, "minRot": -80, "maxRot": -50},
+    {"phase": 0.3, "minDist": 15, "maxDist": 15, "minRot": -30, "maxRot": 10}, {"phase": 0.0, "minDist": 15, "maxDist": 15, "minRot": -30, "maxRot": 10},
+    {"phase": 0.4, "minDist": 7, "maxDist": 15, "minRot": 20, "maxRot": 50}, {"phase": 0.7, "minDist": 7, "maxDist": 15, "minRot": 20, "maxRot": 50},
+    {"phase": 0.7, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80}, {"phase": 0.4, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80},
+]
+bodyBob = lambda fn, sign: {"variable": "ticks", "scale": 0.2, "fn": fn, "mul": 0.4 * sign}
+sp_idle = {"type": "core:pose", "tags": ["idle"], "pose": [
+    {"driver": "mobends:spider_idle_legs", "groundLevel": {"variable": "ticks", "scale": 0.1, "fn": "sin", "mul": 0.5},
+     "bodyX": bodyBob("sin", 1), "bodyZ": bodyBob("cos", 1), "kneelDuration": 10, "kneelAmplitude": 4, "kneelLead": 0},
+    with_snap({"driver": "core:vector", "bone": "root", "x": bodyBob("sin", 1), "y": {"variable": "groundLevel", "scale": -1}, "z": bodyBob("cos", -1)}),
+    *spiderHead, spiderRest,
+]}
+sp_move = {"type": "core:pose", "tags": ["move"], "pose": [
+    {"driver": "mobends:spider_moving_legs", "swing": {"variable": "limbSwing", "scale": 0.6662},
+     "groundLevel": {"variable": "ticks", "scale": 0.6, "fn": "mcsin", "mul": 1.2}, "kneelDuration": 10, "kneelAmplitude": 3, "kneelLead": 0.2, "limbs": spiderLimbs},
+    with_snap({"driver": "core:vector", "bone": "root", "x": bodyBob("mcsin", 1), "y": {"variable": "groundLevel", "scale": -1}, "z": bodyBob("mccos", -1)}),
+    *spiderHead, spiderRest,
+]}
+pose_clip(os.path.join(CLIPS, 'spider', 'crawl_rest.json'), {"centerRotation": rotations()}, {"localOffset": [0, -10, 0]})
+sp_crawl = {"type": "core:pose", "tags": ["crawl"], "pose": [
+    {"driver": "mobends:spider_moving_legs", "swing": {"variable": "crawlProgress", "scale": 5},
+     "groundLevel": {"variable": "crawlProgress", "scale": 3.0, "fn": "mcsin", "mul": 1.2}, "limbs": spiderLimbs},
+    *spiderHead,
+    with_damping(drv("renderRotation", "X", const=-90, space="OVERRIDE"), renderRotation=0.6), drv("renderRotation", "Y", "crawlRenderYaw"),
+    {"animationKey": SP("crawl_rest"), "damping": {"localOffset": 0.5}, "vectorModes": {"localOffset": "SLIDE"}},
+]}
+# jump: legs fan out to their natural yaw and bend with the vertical motion
+def natural_yaw(i):
+    ny = -((i / 7) * 2 - 1)
+    return math.degrees(-ny * 1.3 if i % 2 == 1 else ny * 1.3)
+pose_clip(os.path.join(CLIPS, 'spider', 'jump.json'), {f"leg{i + 1}": rotations(('Y', natural_yaw(i))) for i in range(8)}, {"root": [0, 0, 0]})
+jumpMotion = lambda mul, add: {"variable": "interpolatedMotionY", "scale": -5, "min": -1, "max": 1, "mul": mul, "add": add}
+sp_jump = {"type": "core:pose", "tags": ["jump"], "pose": [
+    with_snap({"animationKey": SP("jump"), "bones": ["root"]}),
+    {"animationKey": SP("jump"), "bones": [f"leg{i + 1}" for i in range(8)], "damping": {f"leg{i + 1}": 1.0 for i in range(8)}},
+    *[drv(f"leg{i + 1}", "Z", None, space="POST", **{}) | {"angle": jumpMotion(25 * (-1 if i % 2 else 1), -20 * (-1 if i % 2 else 1))} for i in range(8)],
+    *[with_damping(drv(f"foreLeg{i + 1}", "Z", None, space="OVERRIDE") | {"angle": jumpMotion(-40 * (-1 if i % 2 else 1), -70 * (-1 if i % 2 else 1))}, **{f"foreLeg{i + 1}": 1.0}) for i in range(8)],
+    spiderRest,
+]}
+# death: legs splay (instant), sway with the last limb swing, and wiggle with a decaying speed
+deathZ = [-45, 45, -33.3, 33.3, -33.3, 33.3, -45, 45]
+deathY = [45, -45, 22.5, -22.5, -22.5, 22.5, -45, 45]
+pose_clip(os.path.join(CLIPS, 'spider', 'death.json'),
+          dict({f"leg{i + 1}": rotations(('Z', deathZ[i]), ('Y', deathY[i])) for i in range(8)},
+               **{f"foreLeg{i + 1}": rotations(('Z', 89 if i % 2 else -89)) for i in range(8)}))
+swingPhases = [0.0, 0.0, math.pi, math.pi, math.pi / 2, math.pi / 2, math.pi * 3 / 2, math.pi * 3 / 2]
+cycle_clip(os.path.join(CLIPS, 'spider', 'death_sway_y.json'), lambda ls: {
+    f"leg{i + 1}": rotations(('Y', -(mc_cos(ls * 2.0 + swingPhases[i]) * 0.4) * (-1 if i % 2 else 1))) for i in range(8)}, 128)
+cycle_clip(os.path.join(CLIPS, 'spider', 'death_sway_z.json'), lambda ls: {
+    f"leg{i + 1}": rotations(('Z', abs(mc_sin(ls + swingPhases[i]) * 0.4) * (-1 if i % 2 else 1))) for i in range(8)}, 128)
+wigglePhases = [0, math.pi / 4, math.pi / 2, math.pi / 4 * 3]
+cycle_clip(os.path.join(CLIPS, 'spider', 'death_wiggle.json'), lambda ph: {
+    f"leg{i + 1}": rotations(('Z', mc_cos(ph + wigglePhases[i % 4]))) for i in range(8)}, 128)
+amountDeg = {"variable": "limbSwingAmount", "scale": 180 / math.pi}
+sp_death = {"type": "core:pose", "tags": ["death"], "pose": [
+    {"driver": "core:accumulate", "name": "wiggleSpeed", "rate": -0.1, "initial": 1, "min": 0},
+    {"driver": "core:accumulate", "name": "wigglePhase", "rate": {"variable": "wiggleSpeed", "scale": 2, "offset": 0.3}},
+    {"driver": "core:vector", "bone": "root", "y": 10, "damping": {"root": [None, 0.3, None]}, "vectorModes": {"root": "SLIDE"}},
+    *spiderHead,
+    with_snap({"animationKey": SP("death")}),
+    {"animationKey": SP("death_sway_y"), "time": {"variable": "limbSwing", "scale": 0.6662}, "weight": amountDeg, "space": "PRE"},
+    {"animationKey": SP("death_sway_z"), "time": {"variable": "limbSwing", "scale": 0.6662}, "weight": amountDeg, "space": "PRE"},
+    {"animationKey": SP("death_wiggle"), "time": {"variable": "wigglePhase"}, "weight": {"variable": "wiggleSpeed", "scale": 10, "offset": 10}, "space": "PRE"},
+]}
+# the controller's decision chain, guarded like the player's
+spiderChain = [
+    ("death", cmp("health", "<=", 0)),
+    ("crawl", state("BESIDE_CLIMBABLE")),
+    ("jump", jumping),
+    ("idle", state("STANDING_STILL")),
+    ("move", None),
+]
+sp_nodes = {"idle": sp_idle, "move": sp_move, "jump": sp_jump, "crawl": sp_crawl, "death": sp_death}
+for name, node in sp_nodes.items():
+    conns = []
+    prior = []
+    for target, cond in spiderChain:
+        parts = [NOT(c) for c in prior] + ([cond] if cond is not None else [])
+        if target != name:
+            c = {"target": target, "triggerCondition": parts[0] if len(parts) == 1 else AND(*parts)}
+            if name == "jump" and target in ("idle", "move"):
+                c["set"] = {"resetLimbs": 1}  # feet re-planted under the body after a jump
+            conns.append(c)
+        if cond is not None:
+            prior.append(cond)
+    node["connections"] = conns
+spider = {"formatVersion": 2, "layers": [{"type": "KEYFRAME", "entryNode": "idle", "variables": {"resetLimbs": 1}, "nodes": sp_nodes}]}
+
+for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player), ("squid", squid), ("spider", spider)]:
     with open(os.path.join(ANIM, name + ".json"), 'w') as f:
         json.dump(data, f, indent=2)
     print("wrote", name + ".json")

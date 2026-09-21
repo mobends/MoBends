@@ -36,6 +36,10 @@ public class VectorSink implements IVectorSink
     @Override
     public void setVectorTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, Mode mode, IVec3fRead start)
     {
+        // A NaN component means "this axis is not written": keep its current target (slideY() idiom).
+        if (Float.isNaN(x)) x = vector.end.x;
+        if (Float.isNaN(y)) y = vector.end.y;
+        if (Float.isNaN(z)) z = vector.end.z;
         if (start != null && mode != Mode.SNAP)
         {
             vector.set(start.getX(), start.getY(), start.getZ());

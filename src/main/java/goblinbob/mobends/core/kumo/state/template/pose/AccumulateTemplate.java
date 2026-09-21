@@ -16,4 +16,7 @@ public class AccumulateTemplate extends DriverItemTemplate
 
     public float initial = 0;
 
+    public float min = Float.NEGATIVE_INFINITY;
+    public float max = Float.POSITIVE_INFINITY;
+
 }
