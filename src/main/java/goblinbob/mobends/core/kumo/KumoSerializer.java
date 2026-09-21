@@ -2,55 +2,48 @@ package goblinbob.mobends.core.kumo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import goblinbob.mobends.core.kumo.state.serializer.KeyframeNodeSerializer;
-import goblinbob.mobends.core.kumo.state.serializer.LayerTemplateSerializer;
-import goblinbob.mobends.core.kumo.state.serializer.TriggerConditionTemplateSerializer;
-import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
+import goblinbob.mobends.core.kumo.state.serializer.*;
+import goblinbob.mobends.core.kumo.state.template.*;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
 
 public class KumoSerializer
 {
 
     public static final KumoSerializer INSTANCE = new KumoSerializer();
 
+    /** The general multi-purpose gson instance (animators, bends packs). */
     public final Gson gson;
 
-    /**
-     * This is the gson to use when deserializing templates on the LayerTemplate level and downwards.
-     */
+    /** For deserializing templates on the LayerTemplate level and downwards. */
     public final Gson layerGson;
 
-    /**
-     * This is the gson to use when deserializing templates on the KeyframeNode level and downwards.
-     */
+    /** For deserializing templates on the KeyframeNode level and downwards. */
     public final Gson keyframeNodeGson;
 
     private KumoSerializer()
     {
-        // Creating the general multi-purpose gson instance.
-        {
-            final GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(LayerTemplate.class, new LayerTemplateSerializer());
-            gsonBuilder.registerTypeAdapter(KeyframeNodeTemplate.class, new KeyframeNodeSerializer());
-            gsonBuilder.registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer());
-            gson = gsonBuilder.create();
-        }
+        keyframeNodeGson = builderWithLeafAdapters().create();
 
-        // Creating the LayerTemplate level gson instance.
-        {
-            final GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(KeyframeNodeTemplate.class, new KeyframeNodeSerializer());
-            gsonBuilder.registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer());
-            layerGson = gsonBuilder.create();
-        }
+        layerGson = builderWithLeafAdapters()
+                .registerTypeAdapter(KeyframeNodeTemplate.class, new KeyframeNodeSerializer())
+                .create();
 
-        // Creating the KeyframeNode level gson instance.
-        {
-            final GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer());
-            keyframeNodeGson = gsonBuilder.create();
-        }
+        gson = builderWithLeafAdapters()
+                .registerTypeAdapter(LayerTemplate.class, new LayerTemplateSerializer())
+                .registerTypeAdapter(KeyframeNodeTemplate.class, new KeyframeNodeSerializer())
+                .create();
+    }
+
+    private static GsonBuilder builderWithLeafAdapters()
+    {
+        return new GsonBuilder()
+                .registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer())
+                .registerTypeAdapter(PoseItemTemplate.class, new PoseItemSerializer())
+                .registerTypeAdapter(ValueTemplate.class, new ValueTemplateSerializer())
+                .registerTypeAdapter(TimeTemplate.class, new TimeTemplateSerializer())
+                .registerTypeAdapter(DampingTemplate.class, new DampingTemplateSerializer())
+                .registerTypeAdapter(SpaceTemplate.class, new SpaceTemplateSerializer());
     }
 
 }

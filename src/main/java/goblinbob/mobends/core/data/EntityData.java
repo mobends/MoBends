@@ -3,6 +3,10 @@ package goblinbob.mobends.core.data;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IBendsModel;
+import goblinbob.mobends.core.kumo.IKumoSubject;
+import goblinbob.mobends.core.kumo.bind.BoneSinks;
+import goblinbob.mobends.core.kumo.bind.IBoneSink;
+import goblinbob.mobends.core.kumo.bind.VectorSink;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.pack.state.PackAnimationState;
@@ -19,8 +23,11 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
-public abstract class EntityData<E extends Entity> implements IBendsModel
+public abstract class EntityData<E extends Entity> implements IBendsModel, IKumoSubject
 {
 
     protected int entityID;
@@ -30,6 +37,11 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
     protected double prevMotionX, prevMotionY, prevMotionZ;
     protected double motionX, motionY, motionZ;
     protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
+
+    /** Named numeric inputs exposed to KUMO animators (see {@link #registerVariable}). */
+    private final Map<String, DoubleSupplier> kumoVariables = new HashMap<>();
+    /** Named boolean inputs exposed to KUMO animators (see {@link #registerState}). */
+    private final Map<String, BooleanSupplier> kumoStates = new HashMap<>();
 
     public SmoothVector3f globalOffset;
     public SmoothVector3f localOffset;
@@ -60,6 +72,103 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
         this.packAnimationState = new PackAnimationState();
 
         this.initModelPose();
+        this.registerKumoBindings();
+    }
+
+    // --- KUMO subject ------------------------------------------------------------------------
+
+    /**
+     * Registers the variables and states this data exposes to asset-driven animators. Subclasses
+     * override to add their own and must call {@code super.registerKumoBindings()}.
+     */
+    protected void registerKumoBindings()
+    {
+        registerVariable("ticks", DataUpdateHandler::getTicks);
+        registerVariable("partialTicks", () -> DataUpdateHandler.partialTicks);
+        registerVariable("ticksPerFrame", () -> DataUpdateHandler.ticksPerFrame);
+        registerVariable("random", Math::random);
+        registerVariable("motionX", () -> motionX);
+        registerVariable("motionY", () -> motionY);
+        registerVariable("motionZ", () -> motionZ);
+        registerVariable("prevMotionX", () -> prevMotionX);
+        registerVariable("prevMotionY", () -> prevMotionY);
+        registerVariable("prevMotionZ", () -> prevMotionZ);
+        registerVariable("motionMagnitude", this::getInterpolatedMotionMagnitude);
+        registerVariable("xzMotionMagnitude", this::getInterpolatedXZMotionMagnitude);
+        registerVariable("forwardMomentum", this::getForwardMomentum);
+        registerVariable("sidewaysMomentum", this::getSidewaysMomentum);
+        registerVariable("movementAngle", this::getMovementAngle);
+
+        registerState("ON_GROUND", this::isOnGround);
+        registerState("AIRBORNE", () -> !isOnGround());
+        registerState("STANDING_STILL", this::isStillHorizontally);
+        registerState("MOVING_HORIZONTALLY", () -> !isStillHorizontally());
+        registerState("SPRINTING", () -> entity != null && entity.isSprinting());
+        registerState("SNEAKING", () -> entity != null && entity.isSneaking());
+        registerState("IN_WATER", () -> entity != null && entity.isInWater());
+        registerState("UNDERWATER", this::isUnderwater);
+        registerState("RIDING", () -> entity != null && entity.isRiding());
+        registerState("ALIVE", () -> entity != null && entity.isEntityAlive());
+        registerState("STRAFING", this::isStrafing);
+    }
+
+    protected final void registerVariable(String name, DoubleSupplier supplier)
+    {
+        kumoVariables.put(name, supplier);
+    }
+
+    protected final void registerState(String name, BooleanSupplier supplier)
+    {
+        kumoStates.put(name, supplier);
+    }
+
+    @Override
+    public IBoneSink getBone(String name)
+    {
+        // The entity-level smoothed vectors are not model parts, but animators address them by name.
+        if ("root".equals(name) || "globalOffset".equals(name))
+        {
+            return new VectorSink(globalOffset);
+        }
+        if ("localOffset".equals(name))
+        {
+            return new VectorSink(localOffset);
+        }
+        return BoneSinks.wrap(getPartForName(name));
+    }
+
+    @Override
+    public boolean hasVariable(String name)
+    {
+        return kumoVariables.containsKey(name);
+    }
+
+    @Override
+    public double getVariable(String name)
+    {
+        DoubleSupplier supplier = kumoVariables.get(name);
+        if (supplier == null)
+        {
+            throw new IllegalArgumentException("Unknown animation variable: " + name);
+        }
+        return supplier.getAsDouble();
+    }
+
+    @Override
+    public boolean hasState(String name)
+    {
+        return kumoStates.containsKey(name);
+    }
+
+    @Override
+    public boolean getState(String name)
+    {
+        BooleanSupplier supplier = kumoStates.get(name);
+        if (supplier == null)
+        {
+            throw new IllegalArgumentException("Unknown animation state: " + name);
+        }
+        return supplier.getAsBoolean();
     }
 
     public void overrideOnGroundState(boolean state)

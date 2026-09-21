@@ -1,0 +1,307 @@
+package goblinbob.mobends.core.kumo.state.keyframe;
+
+import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
+import goblinbob.mobends.core.kumo.bind.IVectorSink;
+import goblinbob.mobends.core.kumo.driver.DriverRegistry;
+import goblinbob.mobends.core.kumo.pose.*;
+import goblinbob.mobends.core.kumo.state.ConnectionState;
+import goblinbob.mobends.core.kumo.state.IKumoContext;
+import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
+import goblinbob.mobends.core.kumo.state.INodeState;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
+import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
+import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.keyframe.*;
+import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
+
+import java.util.*;
+
+/**
+ * A node of a keyframe layer: an ordered stack of pose items (clips, drivers), a damping table,
+ * a list of bones to snap on entry, and the outgoing connections. The legacy
+ * {@code core:standard} and {@code core:movement} nodes are pose nodes with a single legacy clip.
+ */
+public class PoseNode implements INodeState
+{
+
+    private final String name;
+    private final List<String> tags;
+    private final List<IPoseItem> items;
+    private final IPoseItem primary;
+    private final int[] dampingSlots;
+    private final float[][] dampingValues;
+    private final int[] snapSlots;
+    private final List<ConnectionState> connections = new ArrayList<>();
+
+    /**
+     * Legacy nodes (core:standard / core:movement) hard-set every bone they touch, as the original
+     * KUMO did; format 2 nodes hand their targets to the bones' own smoothing.
+     */
+    private boolean hardSet;
+
+    private float elapsed;
+    private boolean snapPending;
+
+    public PoseNode(String name, List<String> tags, List<IPoseItem> items, Skeleton skeleton, DampingTemplate layerDamping, DampingTemplate nodeDamping, List<String> snapOnEnter)
+    {
+        this.name = name;
+        this.tags = tags == null ? Collections.<String>emptyList() : tags;
+        this.items = items;
+        this.primary = items.isEmpty() ? null : items.get(0);
+
+        // Merge layer defaults with node overrides into slot-indexed tables.
+        Map<String, float[]> damping = new LinkedHashMap<>();
+        if (layerDamping != null) damping.putAll(layerDamping.entries);
+        if (nodeDamping != null) damping.putAll(nodeDamping.entries);
+        float[] defaultDamping = damping.remove(DampingTemplate.DEFAULT);
+        this.dampingValues = new float[damping.size() + (defaultDamping != null ? 1 : 0)][];
+        this.dampingSlots = new int[dampingValues.length];
+        int i = 0;
+        for (Map.Entry<String, float[]> entry : damping.entrySet())
+        {
+            dampingSlots[i] = skeleton.indexOf(entry.getKey());
+            dampingValues[i] = entry.getValue();
+            i++;
+        }
+        if (defaultDamping != null)
+        {
+            dampingSlots[i] = -1;
+            dampingValues[i] = defaultDamping;
+        }
+
+        this.snapSlots = new int[snapOnEnter == null ? 0 : snapOnEnter.size()];
+        for (int j = 0; j < snapSlots.length; j++)
+        {
+            snapSlots[j] = skeleton.indexOf(snapOnEnter.get(j));
+        }
+    }
+
+    // --- factories -------------------------------------------------------------------------------
+
+    public static PoseNode createStandard(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, StandardKeyframeNodeTemplate template) throws MalformedKumoTemplateException
+    {
+        List<IPoseItem> items = new ArrayList<>();
+        if (template.animationKey != null)
+        {
+            KeyframeAnimation animation = requireAnimation(context, template.animationKey);
+            items.add(new LegacyClipPoseItem(new ClipBinding(animation, skeleton, null), template.startFrame, template.playbackSpeed, template.looping, false));
+        }
+        PoseNode node = new PoseNode(template.name, template.tags, items, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        node.hardSet = true;
+        return node;
+    }
+
+    public static PoseNode createMovement(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, MovementKeyframeNodeTemplate template) throws MalformedKumoTemplateException
+    {
+        List<IPoseItem> items = new ArrayList<>();
+        if (template.animationKey != null)
+        {
+            KeyframeAnimation animation = requireAnimation(context, template.animationKey);
+            items.add(new LegacyClipPoseItem(new ClipBinding(animation, skeleton, null), template.startFrame, template.playbackSpeed, false, true));
+        }
+        PoseNode node = new PoseNode(template.name, template.tags, items, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        node.hardSet = true;
+        return node;
+    }
+
+    public static PoseNode createPose(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, PoseNodeTemplate template) throws MalformedKumoTemplateException
+    {
+        List<IPoseItem> items = new ArrayList<>();
+        if (template.pose != null)
+        {
+            for (PoseItemTemplate itemTemplate : template.pose)
+            {
+                items.add(createItem(context, skeleton, itemTemplate));
+            }
+        }
+        return new PoseNode(template.name, template.tags, items, skeleton, layer.damping, template.damping, template.snapOnEnter);
+    }
+
+    private static IPoseItem createItem(IKumoInstancingContext context, Skeleton skeleton, PoseItemTemplate template) throws MalformedKumoTemplateException
+    {
+        ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
+
+        if (template instanceof ClipItemTemplate)
+        {
+            ClipItemTemplate clipTemplate = (ClipItemTemplate) template;
+            KeyframeAnimation animation = requireAnimation(context, clipTemplate.animationKey);
+            ClipBinding binding = new ClipBinding(animation, skeleton, clipTemplate.bones);
+
+            float duration = clipTemplate.duration != null ? clipTemplate.duration
+                    : animation.duration != null ? animation.duration
+                    : Math.max(binding.keyframeCount - 1, 0);
+            boolean loop = clipTemplate.loop != null ? clipTemplate.loop
+                    : animation.loop != null ? animation.loop : false;
+
+            return new ClipPoseItem(binding,
+                    TimeSource.fromTemplate(clipTemplate.time),
+                    ValueSource.fromTemplate(clipTemplate.weight, ValueSource.ONE),
+                    template.space == null ? Pose.Space.OVERRIDE : template.space,
+                    when, duration, loop);
+        }
+
+        if (template instanceof DriverItemTemplate)
+        {
+            return DriverRegistry.INSTANCE.create(context, skeleton, (DriverItemTemplate) template);
+        }
+
+        throw new MalformedKumoTemplateException("Unknown pose item template: " + template.getClass().getName());
+    }
+
+    private static KeyframeAnimation requireAnimation(IKumoInstancingContext context, String key) throws MalformedKumoTemplateException
+    {
+        KeyframeAnimation animation = context.getAnimation(key);
+        if (animation == null)
+        {
+            throw new MalformedKumoTemplateException(String.format("Trying to use a missing animation: \"%s\".", key));
+        }
+        if (animation.bones == null)
+        {
+            throw new MalformedKumoTemplateException(String.format("Animation \"%s\" has no bones.", key));
+        }
+        return animation;
+    }
+
+    // --- INodeState ------------------------------------------------------------------------------
+
+    @Override
+    public String getName()
+    {
+        return name;
+    }
+
+    @Override
+    public Collection<String> getTags()
+    {
+        return tags;
+    }
+
+    @Override
+    public Iterable<ConnectionState> getConnections()
+    {
+        return connections;
+    }
+
+    @Override
+    public float getElapsedTicks()
+    {
+        return elapsed;
+    }
+
+    @Override
+    public boolean isAnimationFinished()
+    {
+        return primary == null || primary.isFinished(elapsed);
+    }
+
+    @Override
+    public void parseConnections(List<INodeState> nodeStates, Map<String, INodeState> nodesByName, KeyframeNodeTemplate template) throws MalformedKumoTemplateException
+    {
+        if (template.connections != null)
+        {
+            for (ConnectionTemplate connectionTemplate : template.connections)
+            {
+                connections.add(ConnectionState.createFromTemplate(nodeStates, nodesByName, connectionTemplate));
+            }
+        }
+    }
+
+    @Override
+    public void start(IKumoContext context)
+    {
+        elapsed = 0;
+        snapPending = snapSlots.length > 0;
+        for (IPoseItem item : items)
+        {
+            item.onNodeStarted(context);
+        }
+        for (ConnectionState connection : connections)
+        {
+            connection.triggerCondition.onNodeStarted(context);
+        }
+    }
+
+    @Override
+    public void evaluate(IKumoContext context, Pose pose) throws MalformedKumoTemplateException
+    {
+        for (IPoseItem item : items)
+        {
+            item.apply(pose, context, elapsed);
+        }
+
+        // Damping applies to whatever this node wrote.
+        for (int i = 0; i < dampingSlots.length; i++)
+        {
+            if (dampingSlots[i] >= 0)
+            {
+                applyDamping(pose.get(dampingSlots[i]), dampingValues[i]);
+            }
+            else
+            {
+                for (int slot = 0; slot < pose.size(); slot++)
+                {
+                    BoneTarget target = pose.get(slot);
+                    if ((target.hasRotation || target.hasVector) && Float.isNaN(target.smoothness) && Float.isNaN(target.vectorSmoothness.x))
+                    {
+                        applyDamping(target, dampingValues[i]);
+                    }
+                }
+            }
+        }
+
+        if (snapPending)
+        {
+            for (int slot : snapSlots)
+            {
+                BoneTarget target = pose.get(slot);
+                target.snap = true;
+                target.vectorMode = IVectorSink.Mode.SNAP;
+            }
+            snapPending = false;
+        }
+
+        for (int slot = 0; slot < pose.size(); slot++)
+        {
+            BoneTarget target = pose.get(slot);
+            if (hardSet)
+            {
+                if (target.hasRotation) target.snap = true;
+                if (target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
+            }
+            else if (target.hasVector && Float.isNaN(target.vectorSmoothness.x) && target.vectorMode == IVectorSink.Mode.RETARGET)
+            {
+                // Keyframed root motion is already smooth; without an explicit damping entry it is applied as is.
+                target.vectorMode = IVectorSink.Mode.SNAP;
+            }
+        }
+    }
+
+    private static void applyDamping(BoneTarget target, float[] value)
+    {
+        if (value.length >= 3)
+        {
+            target.vectorSmoothness.set(value[0], value[1], value[2]);
+            target.smoothness = value[0];
+        }
+        else if (value.length == 1)
+        {
+            target.smoothness = value[0];
+            target.vectorSmoothness.set(value[0], value[0], value[0]);
+        }
+    }
+
+    @Override
+    public void advance(IKumoContext context, float deltaTime)
+    {
+        elapsed += deltaTime;
+        for (IPoseItem item : items)
+        {
+            item.advance(context, deltaTime);
+        }
+    }
+
+}

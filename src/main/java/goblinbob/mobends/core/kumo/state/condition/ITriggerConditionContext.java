@@ -1,6 +1,6 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
-import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.state.ILayerState;
 import goblinbob.mobends.core.kumo.state.INodeState;
 
@@ -8,9 +8,9 @@ public interface ITriggerConditionContext
 {
 
     /**
-     * Returns data for the entity that's being animated.
+     * Returns the subject that's being animated.
      */
-    EntityData<?> getEntityData();
+    IKumoSubject getSubject();
 
     /**
      * Returns the layer this condition has to be met on.

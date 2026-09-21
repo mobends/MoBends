@@ -6,6 +6,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 public class ConnectionState
 {
@@ -23,18 +24,26 @@ public class ConnectionState
         this.transitionEasing = transitionEasing;
     }
 
-    public static ConnectionState createFromTemplate(List<INodeState> nodes, ConnectionTemplate template) throws MalformedKumoTemplateException
+    public static ConnectionState createFromTemplate(List<INodeState> nodes, Map<String, INodeState> nodesByName, ConnectionTemplate template) throws MalformedKumoTemplateException
     {
-        INodeState node = null;
+        INodeState node;
 
-        try
+        if (template.target != null)
         {
-            node = nodes.get(template.targetNodeIndex);
+            node = nodesByName.get(template.target);
+            if (node == null)
+            {
+                throw new MalformedKumoTemplateException(String.format("A connection to node '%s' was specified, which doesn't exist.", template.target));
+            }
         }
-        catch (IndexOutOfBoundsException ex)
+        else
         {
-            throw new MalformedKumoTemplateException(String.format("A connection to node at index: %d was specified, which doesn't exist.",
-                    template.targetNodeIndex));
+            if (template.targetNodeIndex < 0 || template.targetNodeIndex >= nodes.size())
+            {
+                throw new MalformedKumoTemplateException(String.format("A connection to node at index: %d was specified, which doesn't exist.",
+                        template.targetNodeIndex));
+            }
+            node = nodes.get(template.targetNodeIndex);
         }
 
         if (template.triggerCondition == null)
@@ -45,7 +54,7 @@ public class ConnectionState
         return new ConnectionState(node,
                 TriggerConditionRegistry.instance.createFromTemplate(template.triggerCondition),
                 template.transitionDuration,
-                template.transitionEasing);
+                template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing);
     }
 
 }

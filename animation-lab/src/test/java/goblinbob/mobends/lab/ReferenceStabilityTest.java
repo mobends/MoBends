@@ -46,6 +46,9 @@ public class ReferenceStabilityTest
         if (!report.isWithin(MAX_ANGLE_DEG, MAX_OFFSET))
         {
             System.out.println(report.toMarkdown());
+            Path dump = LabPaths.root().resolve("build").resolve("traces").resolve(scenario.kind.id()).resolve(scenario.name + ".json.gz");
+            TraceIO.write(fresh, dump);
+            System.out.println("fresh trace written to " + dump);
         }
         assertTrue(report.isWithin(MAX_ANGLE_DEG, MAX_OFFSET), "reference output drifted from golden trace for " + scenario.id());
     }

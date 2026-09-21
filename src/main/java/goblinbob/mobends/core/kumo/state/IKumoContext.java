@@ -12,4 +12,7 @@ public interface IKumoContext extends ITriggerConditionContext
 
     void setCurrentNode(INodeState node);
 
+    /** Ticks elapsed since the previous update. */
+    float getDeltaTime();
+
 }

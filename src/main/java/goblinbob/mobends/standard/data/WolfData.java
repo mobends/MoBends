@@ -116,6 +116,13 @@ public class WolfData extends LivingEntityData<EntityWolf>
         foreLeg4.update(ticksPerFrame);
     }
 
+    @Override
+    protected void registerKumoBindings()
+    {
+        super.registerKumoBindings();
+        registerState("SITTING", this::isSitting);
+    }
+
     public boolean isSitting()
     {
         return entity.isSitting();

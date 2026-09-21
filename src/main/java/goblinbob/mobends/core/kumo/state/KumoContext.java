@@ -1,6 +1,6 @@
 package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.kumo.IKumoSubject;
 
 /**
  * A simple implementation of the KUMO context.
@@ -10,16 +10,18 @@ import goblinbob.mobends.core.data.EntityData;
 public class KumoContext implements IKumoContext
 {
 
-    public EntityData<?> entityData;
+    public IKumoSubject subject;
 
     public ILayerState layerState;
 
     public INodeState currentNode;
 
+    public float deltaTime;
+
     @Override
-    public EntityData<?> getEntityData()
+    public IKumoSubject getSubject()
     {
-        return entityData;
+        return subject;
     }
 
     @Override
@@ -38,6 +40,12 @@ public class KumoContext implements IKumoContext
     public void setCurrentNode(INodeState node)
     {
         currentNode = node;
+    }
+
+    @Override
+    public float getDeltaTime()
+    {
+        return deltaTime;
     }
 
 }

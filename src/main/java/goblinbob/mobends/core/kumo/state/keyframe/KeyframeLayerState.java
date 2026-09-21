@@ -1,245 +1,341 @@
 package goblinbob.mobends.core.kumo.state.keyframe;
 
 import goblinbob.mobends.core.animation.keyframe.ArmatureMask;
-import goblinbob.mobends.core.animation.keyframe.Bone;
-import goblinbob.mobends.core.animation.keyframe.Keyframe;
-import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
-import goblinbob.mobends.core.client.model.IModelPart;
-import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.kumo.pose.BoneTarget;
+import goblinbob.mobends.core.kumo.pose.Pose;
+import goblinbob.mobends.core.kumo.pose.PoseMath;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.*;
+import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
-import goblinbob.mobends.core.util.KeyframeUtils;
 import goblinbob.mobends.core.util.Tween;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * A state machine of pose nodes. Each frame the current node (and, during a transition, the
+ * previous node or a frozen snapshot of the blend) is evaluated, the two are cross-faded, and the
+ * result is composited onto the animator pose in the layer's mode.
+ */
 public class KeyframeLayerState implements ILayerState
 {
 
-    private List<INodeState> nodeStates = new ArrayList<>();
-    private ArmatureMask mask;
+    private final List<INodeState> nodeStates = new ArrayList<>();
+    private final Map<String, INodeState> nodesByName = new HashMap<>();
+    private final ArmatureMask mask;
+    private final LayerTemplate.LayerMode mode;
+    private final Pose.Space[] additiveSpaces;
+    private final Skeleton skeleton;
+    private final boolean[] allowed;
+
+    private final Pose currentPose;
+    private final Pose previousPose;
+    private final Pose snapshotPose;
+    private final Pose outputPose;
+    private final goblinbob.mobends.core.math.Quaternion blendTemp = new goblinbob.mobends.core.math.Quaternion();
+
     private INodeState previousNode;
     private INodeState currentNode;
+    private boolean previousIsSnapshot;
     private float transitionProgress = 0.0F;
     private float transitionDuration = 0.0F;
     private ConnectionTemplate.Easing transitionEasing = ConnectionTemplate.Easing.EASE_IN_OUT;
+    private float elapsedTicks = 0.0F;
 
-    public KeyframeLayerState(IKumoInstancingContext context, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
+    public KeyframeLayerState(IKumoInstancingContext context, Skeleton skeleton, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
         this.mask = layerTemplate.mask;
+        this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
+        this.skeleton = skeleton;
 
-        for (KeyframeNodeTemplate nodeTemplate : layerTemplate.nodes)
+        if (layerTemplate.nodes == null || layerTemplate.nodes.isEmpty())
         {
-            nodeStates.add(KeyframeNodeRegistry.INSTANCE.createFromTemplate(context, nodeTemplate));
+            throw new MalformedKumoTemplateException("A keyframe layer has no nodes.");
         }
 
-        for (int i = 0; i < nodeStates.size(); ++i)
+        for (int i = 0; i < layerTemplate.nodes.size(); i++)
         {
-            nodeStates.get(i).parseConnections(nodeStates, layerTemplate.nodes.get(i));
+            KeyframeNodeTemplate nodeTemplate = layerTemplate.nodes.get(i);
+            if (nodeTemplate.name == null)
+            {
+                nodeTemplate.name = Integer.toString(i);
+            }
+            INodeState node = KeyframeNodeRegistry.INSTANCE.createFromTemplate(context, skeleton, layerTemplate, nodeTemplate);
+            nodeStates.add(node);
+            if (nodesByName.put(nodeTemplate.name, node) != null)
+            {
+                throw new MalformedKumoTemplateException(String.format("Two nodes share the name '%s'.", nodeTemplate.name));
+            }
         }
 
-        try
+        for (int i = 0; i < nodeStates.size(); i++)
         {
+            nodeStates.get(i).parseConnections(nodeStates, nodesByName, layerTemplate.nodes.get(i));
+        }
+
+        if (layerTemplate.entryNodeName != null)
+        {
+            currentNode = nodesByName.get(layerTemplate.entryNodeName);
+            if (currentNode == null)
+            {
+                throw new MalformedKumoTemplateException(String.format("Entry node '%s' doesn't exist.", layerTemplate.entryNodeName));
+            }
+        }
+        else
+        {
+            if (layerTemplate.entryNode < 0 || layerTemplate.entryNode >= nodeStates.size())
+            {
+                throw new MalformedKumoTemplateException("Entry node index is out of bounds.");
+            }
             currentNode = nodeStates.get(layerTemplate.entryNode);
         }
-        catch (IndexOutOfBoundsException e)
+
+        // Poses are sized after every node has registered its bones.
+        currentPose = new Pose(skeleton);
+        previousPose = new Pose(skeleton);
+        snapshotPose = new Pose(skeleton);
+        outputPose = new Pose(skeleton);
+
+        additiveSpaces = new Pose.Space[skeleton.size()];
+        allowed = new boolean[skeleton.size()];
+        Pose.Space defaultSpace = layerTemplate.defaultAdditiveSpace();
+        for (int i = 0; i < skeleton.size(); i++)
         {
-            throw new MalformedKumoTemplateException("Entry node index is out of bounds.");
+            String bone = skeleton.nameOf(i);
+            additiveSpaces[i] = layerTemplate.additiveSpace == null ? defaultSpace : layerTemplate.additiveSpace.forBone(bone, defaultSpace);
+            allowed[i] = mask == null || mask.doesAllow(bone);
         }
     }
 
     @Override
     public void start(IKumoContext context)
     {
+        context.setCurrentNode(currentNode);
         currentNode.start(context);
     }
 
     @Override
-    public void update(IKumoContext context, float deltaTime) throws MalformedKumoTemplateException
+    public float getElapsedTicks()
     {
-        final EntityData<?> data = context.getEntityData();
+        return elapsedTicks;
+    }
 
-        if (currentNode != null)
+    @Override
+    public Collection<String> getActions()
+    {
+        return currentNode.getTags();
+    }
+
+    public INodeState getCurrentNode()
+    {
+        return currentNode;
+    }
+
+    @Override
+    public void update(IKumoContext context, float deltaTime, Pose animatorPose) throws MalformedKumoTemplateException
+    {
+        context.setCurrentNode(currentNode);
+
+        // 1. Evaluate.
+        currentPose.clear();
+        currentNode.evaluate(context, currentPose);
+
+        Pose result = currentPose;
+        if (previousNode != null)
         {
-            KeyframeAnimation animation = currentNode.getAnimation();
-
-            if (animation != null)
+            float t = ease(transitionDuration <= 0 ? 1F : transitionProgress / transitionDuration);
+            Pose source;
+            if (previousIsSnapshot)
             {
-                applyRestPose(data, animation);
+                source = snapshotPose;
+            }
+            else
+            {
+                previousPose.clear();
+                previousNode.evaluate(context, previousPose);
+                source = previousPose;
+            }
+            blend(source, currentPose, t, outputPose);
+            result = outputPose;
+        }
 
-                if (previousNode != null)
-                {
-                    float t = transitionProgress / transitionDuration;
-                    switch (transitionEasing)
-                    {
-                        case EASE_IN:
-                            t = (float) Tween.easeIn(t, 2.0);
-                            break;
-                        case EASE_OUT:
-                            t = (float) Tween.easeOut(t, 2.0);
-                            break;
-                        case EASE_IN_OUT:
-                            t = (float) Tween.easeInOut(t, 2.0);
-                            break;
-                        case LINEAR:
-                            break;
-                    }
+        // 2. Composite onto the animator pose.
+        composite(result, animatorPose);
 
-                    // Transition is in progress
-                    KeyframeAnimation previousAnimation = previousNode.getAnimation();
-                    applyKeyframeAnimation(data, previousAnimation, previousNode.getProgress(), 1 - t);
-                    applyKeyframeAnimation(data, animation, currentNode.getProgress(), t);
-
-                    transitionProgress += deltaTime;
-                    if (transitionProgress >= transitionDuration)
-                    {
-                        previousNode = null;
-                    }
-                }
-                else
-                {
-                    applyKeyframeAnimation(data, animation, currentNode.getProgress(), 1.0F);
-                }
+        // 3. Advance clocks.
+        elapsedTicks += deltaTime;
+        currentNode.advance(context, deltaTime);
+        if (previousNode != null)
+        {
+            if (!previousIsSnapshot)
+            {
+                previousNode.advance(context, deltaTime);
+            }
+            transitionProgress += deltaTime;
+            if (transitionProgress >= transitionDuration)
+            {
+                previousNode = null;
+                previousIsSnapshot = false;
             }
         }
 
-        // Populating the context.
-        context.setCurrentNode(currentNode);
-
-        // Updating node states.
-        for (INodeState node : nodeStates)
-        {
-            node.update(context, deltaTime);
-        }
-
-        // Evaluating connection trigger conditions.
+        // 4. Evaluate connections.
         for (ConnectionState connection : currentNode.getConnections())
         {
             if (connection.triggerCondition.isConditionMet(context))
             {
-                // Transition setup
-                transitionDuration = connection.transitionDuration;
-                transitionEasing = connection.transitionEasing;
-                if (transitionDuration == 0.0F)
-                {
-                    previousNode = null;
-                }
-                else
-                {
-                    previousNode = currentNode;
-                    transitionProgress = 0;
-                }
-
-                currentNode = connection.targetNode;
-                currentNode.start(context);
-
+                beginTransition(connection, result, context);
                 break;
             }
         }
     }
 
-    public void applyRestPose(EntityData<?> entityData, KeyframeAnimation animation)
+    private void beginTransition(ConnectionState connection, Pose currentOutput, IKumoContext context)
     {
-        if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
+        transitionDuration = connection.transitionDuration;
+        transitionEasing = connection.transitionEasing;
+
+        if (transitionDuration <= 0.0F || connection.targetNode == currentNode)
         {
-            entityData.globalOffset.set(0, 0, 0);
+            previousNode = null;
+            previousIsSnapshot = false;
+        }
+        else if (previousNode != null)
+        {
+            // Interrupting a transition: freeze what is on screen and fade from that (no pop).
+            snapshotPose.set(currentOutput);
+            previousNode = currentNode;
+            previousIsSnapshot = true;
+            transitionProgress = 0;
+        }
+        else
+        {
+            previousNode = currentNode;
+            previousIsSnapshot = false;
+            transitionProgress = 0;
         }
 
-        if ((shouldPartBeAffected("root") && animation.bones.containsKey("root")) ||
-            (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation")))
+        currentNode = connection.targetNode;
+        context.setCurrentNode(currentNode);
+        currentNode.start(context);
+    }
+
+    private float ease(float t)
+    {
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        switch (transitionEasing)
         {
-            entityData.centerRotation.set(0F, 0F, 0F, 0F);
-        }
-
-        for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
-        {
-            final String key = entry.getKey();
-
-            if (shouldPartBeAffected(key))
-            {
-                Object part = entityData.getPartForName(key);
-
-                if (part instanceof IModelPart)
-                {
-                    ((IModelPart) part).getRotation().set(0F, 0F, 0F, 0F);
-                    ((IModelPart) part).getOffset().set(0F, 0F, 0F);
-                }
-            }
+            case EASE_IN:
+                return (float) Tween.easeIn(t, 2.0);
+            case EASE_OUT:
+                return (float) Tween.easeOut(t, 2.0);
+            case EASE_IN_OUT:
+                return (float) Tween.easeInOut(t, 2.0);
+            case EXPONENTIAL:
+                return (float) ((1.0 - Math.exp(-4.0 * t)) / (1.0 - Math.exp(-4.0)));
+            case LINEAR:
+            default:
+                return t;
         }
     }
 
-    public void applyKeyframeAnimation(EntityData<?> entityData, KeyframeAnimation animation, float keyframeIndex, float amount)
+    /** dest = nlerp(from, to, t); bones present on one side only are taken from that side. */
+    private void blend(Pose from, Pose to, float t, Pose dest)
     {
-        final int frameA = (int) keyframeIndex;
-        final int frameB = (int) keyframeIndex + 1;
-        final float tween = keyframeIndex - frameA;
-
-        if (shouldPartBeAffected("root") && animation.bones.containsKey("root"))
+        dest.clear();
+        for (int i = 0; i < dest.size(); i++)
         {
-            final Bone rootBone = animation.bones.get("root");
-            final Keyframe keyframe = rootBone.keyframes.get(frameA);
-            final Keyframe nextFrame = rootBone.keyframes.get(frameB);
+            BoneTarget a = from.get(i);
+            BoneTarget b = to.get(i);
+            BoneTarget d = dest.get(i);
 
-            if (keyframe != null && nextFrame != null)
+            if (a.hasRotation && b.hasRotation)
             {
-                KeyframeUtils.tweenVectorAdditive(entityData.globalOffset, keyframe.position, nextFrame.position, tween, amount);
+                PoseMath.nlerp(a.rotation, b.rotation, t, d.rotation);
+                d.hasRotation = true;
             }
-        }
-
-        if (shouldPartBeAffected("centerRotation") && animation.bones.containsKey("centerRotation"))
-        {
-            final Bone rootBone = animation.bones.get("centerRotation");
-            final Keyframe keyframe = rootBone.keyframes.get(frameA);
-            final Keyframe nextFrame = rootBone.keyframes.get(frameB);
-
-            if (keyframe != null && nextFrame != null)
+            else if (a.hasRotation || b.hasRotation)
             {
-                KeyframeUtils.tweenOrientationAdditive(entityData.centerRotation, keyframe.rotation, nextFrame.rotation, tween, amount);
-                KeyframeUtils.tweenVectorAdditive(entityData.globalOffset, keyframe.position, nextFrame.position, tween, amount);
+                d.rotation.set(a.hasRotation ? a.rotation : b.rotation);
+                d.hasRotation = true;
             }
-        }
 
-        for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
-        {
-            final String key = entry.getKey();
-
-            if (shouldPartBeAffected(key))
+            if (a.hasOffset && b.hasOffset)
             {
-                Bone bone = entry.getValue();
-                Object part = entityData.getPartForName(key);
-
-                if (part != null)
-                {
-                    Keyframe keyframe = bone.keyframes.get(frameA);
-                    Keyframe nextFrame = bone.keyframes.get(frameB);
-
-                    if (keyframe != null && nextFrame != null)
-                    {
-                        if (part instanceof IModelPart)
-                        {
-                            KeyframeUtils.tweenOrientationAdditive(((IModelPart) part).getRotation(), keyframe.rotation, nextFrame.rotation, tween, amount);
-                            // Note that the amount is negated.
-                            KeyframeUtils.tweenVectorAdditive(((IModelPart) part).getOffset(), keyframe.position, nextFrame.position, tween, -amount);
-                        }
-                    }
-                }
+                d.offset.set(a.offset.x + (b.offset.x - a.offset.x) * t, a.offset.y + (b.offset.y - a.offset.y) * t, a.offset.z + (b.offset.z - a.offset.z) * t);
+                d.hasOffset = true;
             }
+            else if (a.hasOffset || b.hasOffset)
+            {
+                d.offset.set(a.hasOffset ? a.offset : b.offset);
+                d.hasOffset = true;
+            }
+
+            if (a.hasVector && b.hasVector)
+            {
+                d.vector.set(a.vector.x + (b.vector.x - a.vector.x) * t, a.vector.y + (b.vector.y - a.vector.y) * t, a.vector.z + (b.vector.z - a.vector.z) * t);
+                d.hasVector = true;
+            }
+            else if (a.hasVector || b.hasVector)
+            {
+                d.vector.set(a.hasVector ? a.vector : b.vector);
+                d.hasVector = true;
+            }
+
+            // Damping, snapping and vector modes follow the node being entered.
+            d.smoothness = b.smoothness;
+            d.vectorSmoothness.set(b.vectorSmoothness);
+            d.snap = b.snap;
+            d.vectorMode = b.vectorMode;
         }
     }
 
-    private boolean shouldPartBeAffected(String partName)
+    private void composite(Pose layerPose, Pose animatorPose)
     {
-        return mask == null || mask.doesAllow(partName);
+        for (int i = 0; i < layerPose.size(); i++)
+        {
+            if (!allowed[i])
+            {
+                continue;
+            }
+            BoneTarget src = layerPose.get(i);
+            BoneTarget dst = animatorPose.get(i);
+            if (!src.hasRotation && !src.hasOffset && !src.hasVector)
+            {
+                continue;
+            }
+
+            Pose.Space space = mode == LayerTemplate.LayerMode.ADDITIVE ? additiveSpaces[i] : Pose.Space.OVERRIDE;
+
+            if (src.hasRotation)
+            {
+                animatorPose.composeRotation(i, src.rotation, space);
+            }
+            if (src.hasOffset)
+            {
+                animatorPose.composeOffset(i, src.offset.x, src.offset.y, src.offset.z, space);
+            }
+            if (src.hasVector)
+            {
+                animatorPose.composeVector(i, src.vector.x, src.vector.y, src.vector.z, space);
+            }
+
+            if (!Float.isNaN(src.smoothness)) dst.smoothness = src.smoothness;
+            if (!Float.isNaN(src.vectorSmoothness.x)) dst.vectorSmoothness.x = src.vectorSmoothness.x;
+            if (!Float.isNaN(src.vectorSmoothness.y)) dst.vectorSmoothness.y = src.vectorSmoothness.y;
+            if (!Float.isNaN(src.vectorSmoothness.z)) dst.vectorSmoothness.z = src.vectorSmoothness.z;
+            if (src.snap) dst.snap = true;
+            if (src.hasVector) dst.vectorMode = src.vectorMode;
+        }
     }
 
-    public static KeyframeLayerState createFromTemplate(IKumoInstancingContext data, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
+    public static KeyframeLayerState createFromTemplate(IKumoInstancingContext data, Skeleton skeleton, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
-        return new KeyframeLayerState(data, layerTemplate);
+        return new KeyframeLayerState(data, skeleton, layerTemplate);
     }
 
 }

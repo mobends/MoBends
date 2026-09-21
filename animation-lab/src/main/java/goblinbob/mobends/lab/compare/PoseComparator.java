@@ -13,6 +13,7 @@ import java.util.Map;
  */
 public class PoseComparator
 {
+    private static final float[] IDENTITY = { 0, 0, 0, 1 };
     public static ComparisonReport compare(String title, PoseTrace expected, PoseTrace actual)
     {
         ComparisonReport report = new ComparisonReport(title);
@@ -83,12 +84,10 @@ public class PoseComparator
     {
         double la = Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2] + a[3] * a[3]);
         double lb = Math.sqrt(b[0] * b[0] + b[1] * b[1] + b[2] * b[2] + b[3] * b[3]);
-        if (la == 0 || lb == 0)
-        {
-            // A zero quaternion renders as a collapsed (all zero) matrix; treat it as maximally wrong
-            // unless both are zero.
-            return la == lb ? 0 : 180;
-        }
+        // A zero quaternion renders as the identity matrix (every product term vanishes), and the
+        // original KUMO leaves bones it reset but never wrote at exactly zero. Compare it as identity.
+        if (la == 0) { a = IDENTITY; la = 1; }
+        if (lb == 0) { b = IDENTITY; lb = 1; }
         double dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
         double sign = dot < 0 ? -1 : 1;
         double dx = 0, sx = 0;

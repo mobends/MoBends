@@ -129,6 +129,16 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-Xlint:-options")
 }
 
+// The mod itself is built with JDK 8 (ForgeGradle for 1.12.2). Compiling its sources with
+// --release 8 here keeps the lab from letting newer language features or APIs slip into src/main.
+tasks.named<JavaCompile>("compileReferenceJava") {
+    options.release.set(8)
+}
+
+tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>("compileReferenceKotlin") {
+    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+}
+
 dependencies {
     val referenceImplementation by configurations.getting
     val mcstubImplementation by configurations.getting

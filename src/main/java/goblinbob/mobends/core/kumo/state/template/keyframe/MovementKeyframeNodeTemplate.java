@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state.template.keyframe;
 
+/** Legacy node: one clip, played by limb swing. */
 public class MovementKeyframeNodeTemplate extends KeyframeNodeTemplate
 {
 

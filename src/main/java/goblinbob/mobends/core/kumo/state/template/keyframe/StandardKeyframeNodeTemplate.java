@@ -3,6 +3,7 @@ package goblinbob.mobends.core.kumo.state.template.keyframe;
 import goblinbob.mobends.core.kumo.state.IKumoValidationContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
+/** Legacy node: one clip, played by elapsed ticks. */
 public class StandardKeyframeNodeTemplate extends KeyframeNodeTemplate
 {
 

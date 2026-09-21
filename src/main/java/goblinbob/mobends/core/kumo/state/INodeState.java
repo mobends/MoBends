@@ -1,29 +1,35 @@
 package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
+import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface INodeState
 {
 
+    String getName();
+
+    Collection<String> getTags();
+
     Iterable<ConnectionState> getConnections();
 
-    KeyframeAnimation getAnimation();
-
-    /**
-     * Returns progress counted in keyframes including the in-betweens (not just whole number indices).
-     */
-    float getProgress();
+    /** Ticks since the node was entered. */
+    float getElapsedTicks();
 
     boolean isAnimationFinished();
 
-    void parseConnections(List<INodeState> nodeStates, KeyframeNodeTemplate template) throws MalformedKumoTemplateException;
+    void parseConnections(List<INodeState> nodeStates, Map<String, INodeState> nodesByName, KeyframeNodeTemplate template) throws MalformedKumoTemplateException;
 
     void start(IKumoContext context);
 
-    void update(IKumoContext context, float deltaTime);
+    /** Writes this node's pose for the current frame into the given (cleared) pose. */
+    void evaluate(IKumoContext context, Pose pose) throws MalformedKumoTemplateException;
+
+    /** Advances the node's clock; called after evaluation. */
+    void advance(IKumoContext context, float deltaTime);
 
 }

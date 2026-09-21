@@ -13,15 +13,31 @@ public class KeyframeNodeSerializer implements JsonSerializer<KeyframeNodeTempla
     @Override
     public JsonElement serialize(KeyframeNodeTemplate src, Type typeOfSrc, JsonSerializationContext context)
     {
-        return (new Gson()).toJsonTree(src, KeyframeNodeRegistry.INSTANCE.getTemplateClass(src.getType()));
+        return KumoSerializer.INSTANCE.keyframeNodeGson.toJsonTree(src, KeyframeNodeRegistry.INSTANCE.getTemplateClass(src.getType()));
     }
 
     @Override
     public KeyframeNodeTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        Gson gson = new Gson();
-        KeyframeNodeTemplate abstractNode = gson.fromJson(json, KeyframeNodeTemplate.class);
-        return KumoSerializer.INSTANCE.keyframeNodeGson.fromJson(json, KeyframeNodeRegistry.INSTANCE.getTemplateClass(abstractNode.getType()));
+        String type = "core:standard";
+        if (json.isJsonObject() && json.getAsJsonObject().has("type"))
+        {
+            type = json.getAsJsonObject().get("type").getAsString();
+        }
+        else if (json.isJsonObject() && json.getAsJsonObject().has("pose"))
+        {
+            type = "core:pose";
+        }
+
+        Type templateType = KeyframeNodeRegistry.INSTANCE.getTemplateClass(type);
+        if (templateType == null)
+        {
+            throw new JsonParseException(String.format("A non-existent KeyframeNode type was specified: %s", type));
+        }
+
+        KeyframeNodeTemplate template = KumoSerializer.INSTANCE.keyframeNodeGson.fromJson(json, templateType);
+        template.setType(type);
+        return template;
     }
 
 }

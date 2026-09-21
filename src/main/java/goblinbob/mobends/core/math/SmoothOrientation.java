@@ -68,6 +68,28 @@ public class SmoothOrientation
         return this;
     }
 
+    /**
+     * Starts smoothing towards a new target from the current smoothed value. This is exactly what
+     * the {@code orient*} family does, minus the axis-angle construction; KUMO writes through it.
+     */
+    public SmoothOrientation target(Quaternion target)
+    {
+        this.start.set(this.smooth);
+        this.end.set(target);
+        this.progress = 0F;
+        this.updateSmooth();
+        return this;
+    }
+
+    /** Jumps straight to the target, like {@code orientInstant*}. */
+    public SmoothOrientation snapTo(Quaternion target)
+    {
+        this.end.set(target);
+        this.start.set(this.end);
+        this.smooth.set(this.end);
+        return this;
+    }
+
     public SmoothOrientation orient(float angle, float x, float y, float z)
     {
         this.start.set(this.smooth);

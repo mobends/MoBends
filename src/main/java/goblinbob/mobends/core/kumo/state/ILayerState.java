@@ -1,15 +1,17 @@
 package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.kumo.pose.Pose;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.keyframe.KeyframeLayerState;
-import goblinbob.mobends.core.kumo.state.template.DriverLayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
 
+import java.util.Collection;
+
 /**
- * Represent the state of a KUMO animation layer. This doesn't have to be keyframe animation,
- * this can be any mutation over time.
+ * Represents the state of a KUMO animation layer. A layer evaluates into a pose each frame and
+ * composites it onto the animator's pose.
  *
  * @author Iwo Plaza
  */
@@ -18,22 +20,31 @@ public interface ILayerState
 
     void start(IKumoContext context);
 
-    void update(IKumoContext context, float deltaTime) throws MalformedKumoTemplateException;
+    /**
+     * Evaluates the layer for this frame and composites its output into {@code animatorPose}.
+     */
+    void update(IKumoContext context, float deltaTime, Pose animatorPose) throws MalformedKumoTemplateException;
 
-    static ILayerState createFromTemplate(IKumoInstancingContext context, LayerTemplate template) throws MalformedKumoTemplateException
+    /** Ticks elapsed since the layer started. */
+    float getElapsedTicks();
+
+    /** The tags of the layer's current node (bends packs see them as "actions"). */
+    Collection<String> getActions();
+
+    static ILayerState createFromTemplate(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate template) throws MalformedKumoTemplateException
     {
+        if (template.getLayerType() == null)
+        {
+            throw new MalformedKumoTemplateException("A layer has no type.");
+        }
+
         switch (template.getLayerType())
         {
             case KEYFRAME:
-                return KeyframeLayerState.createFromTemplate(context, (KeyframeLayerTemplate) template);
-            case DRIVER:
-                return new DriverLayerState((DriverLayerTemplate) template);
+                return KeyframeLayerState.createFromTemplate(context, skeleton, (KeyframeLayerTemplate) template);
             default:
-                Core.LOG.warning(String.format("Unknown layer type was specified in state template: %d",
-                        template.getLayerType().ordinal()));
+                throw new MalformedKumoTemplateException(String.format("Unsupported layer type: %s", template.getLayerType()));
         }
-
-        return null;
     }
 
 }

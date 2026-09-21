@@ -64,6 +64,20 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	}
 
 	@Override
+	protected void registerKumoBindings()
+	{
+		super.registerKumoBindings();
+		registerVariable("currentAttack", () -> currentAttack);
+		registerVariable("capeWavePhase", () -> capeWavePhase);
+		registerVariable("elytraTicks", () -> entity != null ? entity.getTicksElytraFlying() : 0);
+		registerState("FLYING", this::isFlying);
+		registerState("SLEEPING", () -> entity != null && entity.isEntityAlive() && entity.isPlayerSleeping());
+		registerState("ELYTRA_FLYING", () -> entity != null && entity.getTicksElytraFlying() > 4);
+		registerState("SPRINT_JUMP_LEG", () -> sprintJumpLeg);
+		registerState("FIST_PUNCH_ARM", () -> fistPunchArm);
+	}
+
+	@Override
 	public void initModelPose()
 	{
 		super.initModelPose();

@@ -40,6 +40,34 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         this.ticksFalling = 100F;
     }
 
+    @Override
+    protected void registerKumoBindings()
+    {
+        super.registerKumoBindings();
+
+        registerVariable("limbSwing", () -> limbSwing.get());
+        registerVariable("limbSwingAmount", () -> limbSwingAmount.get());
+        registerVariable("swingProgress", () -> swingProgress.get());
+        registerVariable("headYaw", () -> headYaw.get());
+        registerVariable("headPitch", () -> headPitch.get());
+        registerVariable("ticksInAir", () -> ticksInAir);
+        registerVariable("ticksAfterTouchdown", () -> ticksAfterTouchdown);
+        registerVariable("ticksAfterAttack", () -> ticksAfterAttack);
+        registerVariable("ticksAfterPunch", () -> ticksAfterAttack);
+        registerVariable("ticksFalling", () -> ticksFalling);
+        registerVariable("climbingCycle", () -> climbingCycle);
+        registerVariable("health", () -> entity != null ? entity.getHealth() : 0);
+        registerVariable("ledgeHeight", this::getLedgeHeight);
+        registerVariable("climbingRotation", this::getClimbingRotation);
+        registerVariable("itemUseCount", () -> entity != null ? entity.getItemInUseCount() : 0);
+        registerVariable("itemUseMaxCount", () -> entity != null ? entity.getItemInUseMaxCount() : 0);
+
+        registerState("CLIMBING", this::isClimbing);
+        registerState("DRAWING_BOW", this::isDrawingBow);
+        registerState("SWINGING", () -> entity != null && entity.isSwingInProgress);
+        registerState("CHILD", () -> entity != null && entity.isChild());
+    }
+
     public void setClimbing(boolean flag)
     {
         this.climbing = flag;
