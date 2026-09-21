@@ -381,7 +381,7 @@ equal.
 
 Every entity of the mod (player, zombie, zombie villager, skeleton, pig zombie, spider, squid,
 wolf) animates from `assets/mobends/bends/animators/*.json` through `KumoAnimatorController`,
-and eight more mobs animate from model definitions (step 13).
+and nine more mobs animate from model definitions (step 13).
 33 scenarios pin the behaviour to the procedural reference within 0.1° / 0.01 units (most
 within 0.04°). The procedural bits and controllers remain in the tree only as that reference.
 
@@ -439,15 +439,16 @@ builds:
   (`DefinedBenders`, called from `DefaultAddon`).
 
 **Shipped.** Definitions for cow, mooshroom, polar bear, pig (quadruped), creeper, chicken,
-villager and witch, all with split legs, driven by four generated animators (`quadruped`,
-`creeper`, `chicken`, `villager`): a breathing stand, a knee-bending walk weighted by the limb
-swing amount, a tucked jump, and a damped head look; the chicken's wings flap from the vanilla
-flap fields.
+villager, witch and iron golem, all with split legs (the golem's arms get elbows too), driven by
+five generated animators (`quadruped`, `creeper`, `chicken`, `villager`, `iron_golem`): a
+breathing stand, a knee-bending walk weighted by the limb swing amount, a tucked jump, and a
+damped head look; the chicken's wings flap from the vanilla flap fields and the golem swings
+its arms from its attack timer.
 
 **Verified.** `DefinedModelsTest` builds every listed definition in the lab, checks each bone the
 animator drives exists, runs 150 frames of standing then walking, and asserts finite poses, a
 moving knee-bearing leg and the walk node. `BoxSplitterTest` pins the split geometry and UVs
-(Y and Z axes). 98 lab tests pass.
+(Y and Z axes). 90 lab tests pass.
 
 **Not verified here (needs the game).** The mutator and renderer are client code the lab cannot
 compile; the box-list indices and the quadruped/chicken/villager field names come from the 1.12

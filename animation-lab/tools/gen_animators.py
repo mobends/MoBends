@@ -1037,8 +1037,42 @@ chickenWings = [with_damping(drv("rightWing", "Z", "wingAngle", space="OVERRIDE"
                 with_damping(drv("leftWing", "Z", "wingAngle", scale=-1, space="OVERRIDE"), leftWing=1.0)]
 chicken = walker_animator("chicken", [("rightLeg", "foreRightLeg", 0.0), ("leftLeg", "foreLeftLeg", math.pi)], [("head", 2.0)], extra=chickenWings)
 
+
+# iron golem: the vanilla gait is a triangle wave of period 13 on the limb swing; arms and legs get
+# middle joints, and the attack swing comes from the entity's attack timer.
+def triangle_wave(f, period):
+    return (abs(f % period - period * 0.5) - period * 0.25) / (period * 0.25)
+golemArmDamp = {"rightArm": 0.8, "leftArm": 0.8, "rightForeArm": 0.6, "leftForeArm": 0.6}
+golemLegDamp = {"rightLeg": 0.8, "leftLeg": 0.8, "rightForeLeg": 0.6, "leftForeLeg": 0.6}
+def golem_walk(t):
+    w = triangle_wave(t, 13)
+    return {
+        "leftLeg": rotations(('X', -60 * w)), "rightLeg": rotations(('X', 60 * w)),
+        "leftForeLeg": rotations(('X', (1 + w) * 0.5 * 30)), "rightForeLeg": rotations(('X', (1 - w) * 0.5 * 30)),
+        "rightArm": rotations(('X', -11.5 + 60 * w)), "leftArm": rotations(('X', -11.5 - 60 * w)),
+        "rightForeArm": rotations(('X', -(1 + w) * 0.5 * 25)), "leftForeArm": rotations(('X', -(1 - w) * 0.5 * 25)),
+    }
+curve_clip(os.path.join(CLIPS, 'iron_golem', 'walk.json'), golem_walk, [13 * k / 104 for k in range(105)], 13)
+json.dump(dict(json.load(open(os.path.join(CLIPS, 'iron_golem', 'walk.json'))), loop=True), open(os.path.join(CLIPS, 'iron_golem', 'walk.json'), 'w'))
+curve_clip(os.path.join(CLIPS, 'iron_golem', 'attack.json'), lambda t: {
+    "rightArm": rotations(('X', math.degrees(-2 + 1.5 * triangle_wave(t, 10)))), "leftArm": rotations(('X', math.degrees(-2 + 1.5 * triangle_wave(t, 10)))),
+    "rightForeArm": rotations(('X', -20)), "leftForeArm": rotations(('X', -20))}, [10 * k / 80 for k in range(81)], 10)
+cycle_clip(os.path.join(CLIPS, 'iron_golem', 'idle.json'), lambda p: {"head": rotations(('X', mc_cos(p) * 1.5)), "body": rotations(('X', mc_cos(p + 1) * 0.7))})
+pose_clip(os.path.join(CLIPS, 'iron_golem', 'jump.json'), {"leftLeg": rotations(('X', -15)), "rightLeg": rotations(('X', -15)), "leftForeLeg": rotations(('X', 25)), "rightForeLeg": rotations(('X', 25))})
+golemLook = [with_damping(drv("head", "Y", "headYaw"), head=0.5), drv("head", "X", "headPitch", space="POST")]
+golemAttack = when({"animationKey": W("iron_golem", "attack"), "time": {"variable": "attackTimer"}, "damping": golemArmDamp}, cmp("attackTimer", ">", 0))
+golemNodes = {
+    "stand": {"type": "core:pose", "tags": ["stand"], "pose": [{"animationKey": W("iron_golem", "idle"), "time": {"variable": "ticks", "scale": 0.07}, "damping": {"head": 0.5, "body": 0.5}}, *golemLook, golemAttack],
+              "connections": [{"target": "jump", "triggerCondition": jumping}, {"target": "walk", "triggerCondition": state("MOVING_HORIZONTALLY")}]},
+    "walk": {"type": "core:pose", "tags": ["walk"], "pose": [{"animationKey": W("iron_golem", "walk"), "time": {"variable": "limbSwing"}, "weight": {"variable": "limbSwingAmount"}, "damping": dict(golemArmDamp, **golemLegDamp)}, *golemLook, golemAttack],
+             "connections": [{"target": "jump", "triggerCondition": jumping}, {"target": "stand", "triggerCondition": state("STANDING_STILL")}]},
+    "jump": {"type": "core:pose", "tags": ["jump"], "pose": [{"animationKey": W("iron_golem", "jump"), "damping": golemLegDamp}, *golemLook, golemAttack],
+             "connections": [{"target": "stand", "triggerCondition": AND(grounded, state("STANDING_STILL"))}, {"target": "walk", "triggerCondition": AND(grounded, state("MOVING_HORIZONTALLY"))}]},
+}
+iron_golem = {"formatVersion": 2, "layers": [{"type": "KEYFRAME", "entryNode": "stand", "nodes": golemNodes}]}
+
 for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player), ("squid", squid), ("spider", spider), ("zombie_villager", zombie_villager),
-                   ("quadruped", quadruped), ("creeper", creeper), ("villager", villager), ("chicken", chicken)]:
+                   ("quadruped", quadruped), ("creeper", creeper), ("villager", villager), ("chicken", chicken), ("iron_golem", iron_golem)]:
     with open(os.path.join(ANIM, name + ".json"), 'w') as f:
         json.dump(data, f, indent=2)
     print("wrote", name + ".json")

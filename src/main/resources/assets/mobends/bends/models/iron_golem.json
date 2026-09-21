@@ -1,0 +1,95 @@
+{
+  "comment": "ModelIronGolem: arms pivot at the shoulder with their boxes offset sideways; both arms and legs get a middle joint.",
+  "entity": "net.minecraft.entity.monster.EntityIronGolem",
+  "model": "net.minecraft.client.model.ModelIronGolem",
+  "animator": "mobends:bends/animators/iron_golem.json",
+  "childScale": 1.0,
+  "bones": [
+    {
+      "name": "head",
+      "vanilla": {
+        "field": "ironGolemHead",
+        "index": 0
+      }
+    },
+    {
+      "name": "body",
+      "vanilla": {
+        "field": "ironGolemBody",
+        "index": 1
+      }
+    },
+    {
+      "name": "rightArm",
+      "vanilla": {
+        "field": "ironGolemRightArm",
+        "index": 2
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "rightForeArm"
+        ]
+      }
+    },
+    {
+      "name": "leftArm",
+      "vanilla": {
+        "field": "ironGolemLeftArm",
+        "index": 3
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "leftForeArm"
+        ]
+      }
+    },
+    {
+      "name": "leftLeg",
+      "vanilla": {
+        "field": "ironGolemLeftLeg",
+        "index": 4
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "leftForeLeg"
+        ]
+      }
+    },
+    {
+      "name": "rightLeg",
+      "vanilla": {
+        "field": "ironGolemRightLeg",
+        "index": 5
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "rightForeLeg"
+        ]
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "attackTimer",
+      "field": [
+        "attackTimer"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,313 @@
+{
+  "formatVersion": 2,
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "stand",
+      "nodes": {
+        "stand": {
+          "type": "core:pose",
+          "tags": [
+            "stand"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/iron_golem/idle.json",
+              "time": {
+                "variable": "ticks",
+                "scale": 0.07
+              },
+              "damping": {
+                "head": 0.5,
+                "body": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE",
+              "damping": {
+                "head": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/iron_golem/attack.json",
+              "time": {
+                "variable": "attackTimer"
+              },
+              "damping": {
+                "rightArm": 0.8,
+                "leftArm": 0.8,
+                "rightForeArm": 0.6,
+                "leftForeArm": 0.6
+              },
+              "when": {
+                "type": "core:compare",
+                "variable": "attackTimer",
+                "op": ">",
+                "value": 0
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:or",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "AIRBORNE"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterTouchdown",
+                    "op": "<",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "target": "walk",
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              }
+            }
+          ]
+        },
+        "walk": {
+          "type": "core:pose",
+          "tags": [
+            "walk"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/iron_golem/walk.json",
+              "time": {
+                "variable": "limbSwing"
+              },
+              "weight": {
+                "variable": "limbSwingAmount"
+              },
+              "damping": {
+                "rightArm": 0.8,
+                "leftArm": 0.8,
+                "rightForeArm": 0.6,
+                "leftForeArm": 0.6,
+                "rightLeg": 0.8,
+                "leftLeg": 0.8,
+                "rightForeLeg": 0.6,
+                "leftForeLeg": 0.6
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE",
+              "damping": {
+                "head": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/iron_golem/attack.json",
+              "time": {
+                "variable": "attackTimer"
+              },
+              "damping": {
+                "rightArm": 0.8,
+                "leftArm": 0.8,
+                "rightForeArm": 0.6,
+                "leftForeArm": 0.6
+              },
+              "when": {
+                "type": "core:compare",
+                "variable": "attackTimer",
+                "op": ">",
+                "value": 0
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:or",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "AIRBORNE"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterTouchdown",
+                    "op": "<",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "target": "stand",
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "STANDING_STILL"
+              }
+            }
+          ]
+        },
+        "jump": {
+          "type": "core:pose",
+          "tags": [
+            "jump"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/iron_golem/jump.json",
+              "damping": {
+                "rightLeg": 0.8,
+                "leftLeg": 0.8,
+                "rightForeLeg": 0.6,
+                "leftForeLeg": 0.6
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE",
+              "damping": {
+                "head": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/iron_golem/attack.json",
+              "time": {
+                "variable": "attackTimer"
+              },
+              "damping": {
+                "rightArm": 0.8,
+                "leftArm": 0.8,
+                "rightForeArm": 0.6,
+                "leftForeArm": 0.6
+              },
+              "when": {
+                "type": "core:compare",
+                "variable": "attackTimer",
+                "op": ">",
+                "value": 0
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "stand",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:and",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "ON_GROUND"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": ">=",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "walk",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:and",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "ON_GROUND"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": ">=",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "MOVING_HORIZONTALLY"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

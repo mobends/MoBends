@@ -171,8 +171,9 @@ and the renderer, and registers the entity; the animator asset does the rest.
 | `variables[]` | animator variables from entity fields: `field` (candidate names, deobfuscated then SRG), optional `prevField` for partial-tick interpolation, `scale`, `offset`, `fn`, `add`, or a `product` of other variables |
 
 The shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
-`villager`, `witch`) give every leg a knee and share four generated animators
-(`quadruped`, `creeper`, `chicken`, `villager`: stand / walk / jump with a smooth look).
+`villager`, `witch`, `iron_golem`) give every leg a knee (and the golem's arms an elbow) and
+share five generated animators (`quadruped`, `creeper`, `chicken`, `villager`, `iron_golem`:
+stand / walk / jump with a smooth look, the golem's attack from its timer).
 `DefinedModelsTest` in the lab checks every listed definition builds, covers what its animator
 drives, and walks.
 
