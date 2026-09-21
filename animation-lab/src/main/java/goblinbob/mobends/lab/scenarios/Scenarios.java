@@ -219,6 +219,13 @@ public class Scenarios
             lookAround(in, tick);
         }));
 
+        add(new Scenario(EntityKind.WOLF, "interest_and_shake", FPS, 160, (tick, in) -> {
+            // Vanilla ramps the interest 0..1 while the wolf begs, and the shake timer 0..~2 while it dries off.
+            if (between(tick, 10, 70)) in.wolfInterested = Math.min(1F, (tick - 10) * 0.04F);
+            if (between(tick, 90, 150)) in.wolfShaking = (tick - 90) * 0.04F;
+            lookAround(in, tick);
+        }));
+
         // A left-handed player: the attack bits mirror on the primary hand, the use actions follow the active hand.
         add(new Scenario(EntityKind.PLAYER, "left_handed", FPS, 220, (tick, in) -> {
             in.leftHanded = true;

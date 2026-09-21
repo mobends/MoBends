@@ -1,153 +1,109 @@
 {
+  "formatVersion": 2,
+  "comment": "The wolf: the keyframe clips of wolf_clips.json plus the vanilla expressions as drivers.",
+  "extends": "mobends:bends/animators/wolf_clips.json",
   "layers": [
     {
+      "comment": "The look direction, the interested tilt, the shaking and the tail (vanilla expressions) applied after the clips in each bone's own space; the clips' head offset is discarded.",
       "type": "KEYFRAME",
-      "entryNode": 0,
-      "nodes": [
-        {
-          "comment": "NODE 0 - Idle",
-          "type": "core:standard",
-          "animationKey": "mobends:bends/animations/wolf_idle.bendsanim",
-          "playbackSpeed": 1,
-          "looping": true,
-          "connections": [
+      "mode": "ADDITIVE",
+      "entryNode": "look",
+      "nodes": {
+        "look": {
+          "type": "core:pose",
+          "pose": [
             {
-              "targetNodeIndex": 1,
-              "transitionDuration": 4,
-              "triggerCondition": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              }
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw"
+              },
+              "space": "POST",
+              "snap": true
             },
             {
-              "targetNodeIndex": 2,
-              "transitionDuration": 3,
-              "triggerCondition": {
-                "type": "mobends:wolf_state",
-                "state": "SITTING"
-              }
-            }
-          ]
-        },
-        {
-          "comment": "NODE 1 - Walking",
-          "type": "core:movement",
-          "animationKey": "mobends:bends/animations/wolf_walking.bendsanim",
-          "playbackSpeed": 4,
-          "connections": [
-            {
-              "targetNodeIndex": 0,
-              "transitionDuration": 4,
-              "triggerCondition": {
-                "type": "core:state",
-                "state": "STANDING_STILL"
-              }
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch"
+              },
+              "space": "POST",
+              "snap": true
             },
             {
-              "targetNodeIndex": 2,
-              "transitionDuration": 1,
-              "triggerCondition": {
-                "type": "mobends:wolf_state",
-                "state": "SITTING"
-              }
-            }
-          ]
-        },
-        {
-          "comment": "NODE 2 - Sitting Down",
-          "type": "core:standard",
-          "animationKey": "mobends:bends/animations/wolf_sitting_down.bendsanim",
-          "playbackSpeed": 2,
-          "startFrame": 6,
-          "connections": [
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Z",
+              "angle": {
+                "variable": "interestedAngle"
+              },
+              "space": "POST",
+              "snap": true
+            },
             {
-              "targetNodeIndex": 3,
-              "transitionDuration": 1,
-              "triggerCondition": { "type": "core:animation_finished" }
-            }
-          ]
-        },
-        {
-          "comment": "NODE 3 - Sitting",
-          "type": "core:standard",
-          "animationKey": "mobends:bends/animations/wolf_sitting.bendsanim",
-          "playbackSpeed": 1,
-          "startFrame": 0,
-          "looping": true,
-          "connections": [
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Z",
+              "angle": {
+                "variable": "shakeAngleHead"
+              },
+              "space": "POST",
+              "snap": true
+            },
             {
-              "targetNodeIndex": 4,
-              "transitionDuration": 1,
-              "triggerCondition": {
-                "type": "core:not",
-                "condition": {
-                  "type": "mobends:wolf_state",
-                  "state": "SITTING"
-                }
-              }
-            }
-          ]
-        },
-        {
-          "comment": "NODE 4 - Standing Up",
-          "type": "core:standard",
-          "animationKey": "mobends:bends/animations/wolf_standing_up.bendsanim",
-          "playbackSpeed": 2,
-          "startFrame": 4,
-          "connections": [
+              "driver": "core:axis_rotate",
+              "bone": "mane",
+              "axis": "Z",
+              "angle": {
+                "variable": "shakeAngleMane"
+              },
+              "space": "POST",
+              "snap": true
+            },
             {
-              "targetNodeIndex": 0,
-              "transitionDuration": 1,
-              "triggerCondition": { "type": "core:animation_finished" }
+              "driver": "core:axis_rotate",
+              "bone": "tail",
+              "axis": "Z",
+              "angle": {
+                "variable": "shakeAngleTail"
+              },
+              "space": "POST",
+              "snap": true
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "tail",
+              "axis": "Z",
+              "angle": {
+                "variable": "tailWag"
+              },
+              "space": "POST",
+              "snap": true
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "tail",
+              "axis": "X",
+              "angle": {
+                "variable": "tailRotation",
+                "offset": -90
+              },
+              "space": "POST",
+              "snap": true
+            },
+            {
+              "driver": "core:offset",
+              "bone": "head",
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "space": "OVERRIDE"
             }
           ]
         }
-      ]
-    },
-    {
-      "type": "KEYFRAME",
-      "entryNode": 0,
-      "additive": true,
-      "mask": {
-        "mode": "INCLUDE_ONLY",
-        "includedParts": ["tongue", "mouth"]
-      },
-      "nodes": [
-        {
-          "comment": "NODE 0 - Idle",
-          "type": "core:standard",
-          "animationKey": "mobends:bends/animations/wolf_idle.bendsanim",
-          "playbackSpeed": 1,
-          "looping": true,
-          "connections": [
-            {
-              "targetNodeIndex": 1,
-              "transitionDuration": 4,
-              "triggerCondition": {
-                "type": "core:ticks_passed",
-                "ticksToPass": "80"
-              }
-            }
-          ]
-        },
-        {
-          "comment": "NODE 1 - Breathing",
-          "type": "core:standard",
-          "animationKey": "mobends:bends/animations/wolf_breathing.bendsanim",
-          "playbackSpeed": 1.2,
-          "looping": true,
-          "connections": [
-            {
-              "targetNodeIndex": 0,
-              "transitionDuration": 4,
-              "triggerCondition": {
-                "type": "core:ticks_passed",
-                "ticksToPass": "50"
-              }
-            }
-          ]
-        }
-      ]
+      }
     }
   ]
 }

@@ -348,3 +348,21 @@ recorded from the reference with the primary hand set to LEFT). Worst error 0.03
 **Also.** Resource reloads now clear the animator cache (`MoBends.refreshSystems`).
 
 **Result.** 31/31 parity scenarios, 32/32 stability, side effects equal.
+
+## 10. The wolf: last procedural code into data
+
+**What.** `WolfController` was already a KUMO animator plus hand-written look, shake and tail
+code. That code is now a third, additive layer of `bends/animators/wolf.json`: snapping
+POST-space drivers on the head (look, interested tilt, shake), mane (shake) and tail (shake,
+wag, vanilla tail rotation), fed by variables `WolfData` derives from the vanilla wolf
+(`interestedAngle`, `shakeAngleHead/Mane/Tail`, `tailRotation`, `tailWag`, all in degrees), plus a
+`core:offset` item that discards the clips' head offset as the controller did. The pup's head
+scaling and position are model setup, not animation, and moved into `WolfData.update`. The two
+clip layers moved to `wolf_clips.json`, which the animator `extends` and which the reference
+`WolfController` keeps loading, so the reference never sees the new layer. `WolfData` animates
+through `KumoAnimatorController`: every entity of the mod now animates from its asset.
+
+**Scenario added.** `wolf/interest_and_shake` (golden from the reference).
+
+**Result.** 33/33 parity scenarios (both wolf scenarios exact), 34/34 stability, side effects
+equal.

@@ -3,7 +3,11 @@ package goblinbob.mobends.standard.data;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.standard.animation.controller.WolfController;
+import goblinbob.mobends.core.client.event.DataUpdateHandler;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.core.util.GUtil;
+import goblinbob.mobends.standard.main.ModStatics;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.entity.passive.EntityWolf;
 
 public class WolfData extends LivingEntityData<EntityWolf>
@@ -28,17 +32,45 @@ public class WolfData extends LivingEntityData<EntityWolf>
     public ModelPartTransform foreLeg3;
     public ModelPartTransform foreLeg4;
 
-    private final WolfController controller = new WolfController();
+    /** The procedural WolfController is kept as the parity reference; the entity animates from its animator asset. */
+    private final KumoAnimatorController<WolfData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/wolf.json");
 
     public WolfData(EntityWolf entity)
     {
         super(entity);
+        // The vanilla wolf's expressions, in degrees, for the animator's look-and-wag layer.
+        registerVariable("interestedAngle", () -> entity.getInterestedAngle(DataUpdateHandler.partialTicks) * GUtil.RAD_TO_DEG);
+        registerVariable("shakeAngleHead", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, 0.0F) * GUtil.RAD_TO_DEG);
+        registerVariable("shakeAngleMane", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, -0.08F) * GUtil.RAD_TO_DEG);
+        registerVariable("shakeAngleTail", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, -0.2F) * GUtil.RAD_TO_DEG);
+        registerVariable("tailRotation", () -> entity.getTailRotation() * GUtil.RAD_TO_DEG);
+        registerVariable("tailWag", () -> entity.getInterestedAngle(DataUpdateHandler.partialTicks)
+                * MathHelper.sin(entity.ticksExisted + DataUpdateHandler.partialTicks) * 20.0F);
     }
 
     @Override
     public IAnimationController<?> getController()
     {
         return controller;
+    }
+
+    @Override
+    public void update(float partialTicks)
+    {
+        super.update(partialTicks);
+        // Model setup that is not animation: a pup's head is half size and sits higher.
+        if (entity.isChild())
+        {
+            head.offsetScale = 0.5F;
+            head.globalOffset.set(0.0F, 5.0F, -2.0F);
+        }
+        else
+        {
+            head.offsetScale = 1.0F;
+            head.globalOffset.set(0.0F, 0.0F, 0.0F);
+        }
+        head.position.set(0.0F, -0.5F, -13.0F);
+        head.offset.set(0, 0, 0);
     }
 
     @Override
