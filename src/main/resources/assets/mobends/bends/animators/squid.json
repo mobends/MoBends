@@ -1,0 +1,211 @@
+{
+  "formatVersion": 2,
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "swim",
+      "nodes": {
+        "swim": {
+          "type": "core:pose",
+          "tags": [
+            "swim"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/squid/swim_base.json",
+              "time": {
+                "variable": "squidRotation"
+              },
+              "damping": {
+                "tentacle_0_0": 0.1,
+                "tentacle_1_0": 0.1,
+                "tentacle_2_0": 0.1,
+                "tentacle_3_0": 0.1,
+                "tentacle_4_0": 0.1,
+                "tentacle_5_0": 0.1,
+                "tentacle_6_0": 0.1,
+                "tentacle_7_0": 0.1
+              },
+              "when": {
+                "type": "core:state",
+                "state": "SQUID_PREV_ROTATION_LOW"
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/squid/swim_base_rest.json",
+              "damping": {
+                "tentacle_0_0": 0.1,
+                "tentacle_1_0": 0.1,
+                "tentacle_2_0": 0.1,
+                "tentacle_3_0": 0.1,
+                "tentacle_4_0": 0.1,
+                "tentacle_5_0": 0.1,
+                "tentacle_6_0": 0.1,
+                "tentacle_7_0": 0.1
+              },
+              "when": {
+                "type": "core:not",
+                "condition": {
+                  "type": "core:state",
+                  "state": "SQUID_PREV_ROTATION_LOW"
+                }
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/squid/swim_sections.json",
+              "time": {
+                "variable": "squidRotation"
+              },
+              "damping": {
+                "tentacle_0_1": 0.1,
+                "tentacle_0_2": 0.1,
+                "tentacle_0_3": 0.1,
+                "tentacle_0_4": 0.1,
+                "tentacle_0_5": 0.1,
+                "tentacle_0_6": 0.1,
+                "tentacle_0_7": 0.1,
+                "tentacle_0_8": 0.1,
+                "tentacle_1_1": 0.1,
+                "tentacle_1_2": 0.1,
+                "tentacle_1_3": 0.1,
+                "tentacle_1_4": 0.1,
+                "tentacle_1_5": 0.1,
+                "tentacle_1_6": 0.1,
+                "tentacle_1_7": 0.1,
+                "tentacle_1_8": 0.1,
+                "tentacle_2_1": 0.1,
+                "tentacle_2_2": 0.1,
+                "tentacle_2_3": 0.1,
+                "tentacle_2_4": 0.1,
+                "tentacle_2_5": 0.1,
+                "tentacle_2_6": 0.1,
+                "tentacle_2_7": 0.1,
+                "tentacle_2_8": 0.1,
+                "tentacle_3_1": 0.1,
+                "tentacle_3_2": 0.1,
+                "tentacle_3_3": 0.1,
+                "tentacle_3_4": 0.1,
+                "tentacle_3_5": 0.1,
+                "tentacle_3_6": 0.1,
+                "tentacle_3_7": 0.1,
+                "tentacle_3_8": 0.1,
+                "tentacle_4_1": 0.1,
+                "tentacle_4_2": 0.1,
+                "tentacle_4_3": 0.1,
+                "tentacle_4_4": 0.1,
+                "tentacle_4_5": 0.1,
+                "tentacle_4_6": 0.1,
+                "tentacle_4_7": 0.1,
+                "tentacle_4_8": 0.1,
+                "tentacle_5_1": 0.1,
+                "tentacle_5_2": 0.1,
+                "tentacle_5_3": 0.1,
+                "tentacle_5_4": 0.1,
+                "tentacle_5_5": 0.1,
+                "tentacle_5_6": 0.1,
+                "tentacle_5_7": 0.1,
+                "tentacle_5_8": 0.1,
+                "tentacle_6_1": 0.1,
+                "tentacle_6_2": 0.1,
+                "tentacle_6_3": 0.1,
+                "tentacle_6_4": 0.1,
+                "tentacle_6_5": 0.1,
+                "tentacle_6_6": 0.1,
+                "tentacle_6_7": 0.1,
+                "tentacle_6_8": 0.1,
+                "tentacle_7_1": 0.1,
+                "tentacle_7_2": 0.1,
+                "tentacle_7_3": 0.1,
+                "tentacle_7_4": 0.1,
+                "tentacle_7_5": 0.1,
+                "tentacle_7_6": 0.1,
+                "tentacle_7_7": 0.1,
+                "tentacle_7_8": 0.1
+              },
+              "when": {
+                "type": "core:state",
+                "state": "SQUID_ROTATION_LOW"
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/squid/swim_sections_rest.json",
+              "damping": {
+                "tentacle_0_1": 0.1,
+                "tentacle_0_2": 0.1,
+                "tentacle_0_3": 0.1,
+                "tentacle_0_4": 0.1,
+                "tentacle_0_5": 0.1,
+                "tentacle_0_6": 0.1,
+                "tentacle_0_7": 0.1,
+                "tentacle_0_8": 0.1,
+                "tentacle_1_1": 0.1,
+                "tentacle_1_2": 0.1,
+                "tentacle_1_3": 0.1,
+                "tentacle_1_4": 0.1,
+                "tentacle_1_5": 0.1,
+                "tentacle_1_6": 0.1,
+                "tentacle_1_7": 0.1,
+                "tentacle_1_8": 0.1,
+                "tentacle_2_1": 0.1,
+                "tentacle_2_2": 0.1,
+                "tentacle_2_3": 0.1,
+                "tentacle_2_4": 0.1,
+                "tentacle_2_5": 0.1,
+                "tentacle_2_6": 0.1,
+                "tentacle_2_7": 0.1,
+                "tentacle_2_8": 0.1,
+                "tentacle_3_1": 0.1,
+                "tentacle_3_2": 0.1,
+                "tentacle_3_3": 0.1,
+                "tentacle_3_4": 0.1,
+                "tentacle_3_5": 0.1,
+                "tentacle_3_6": 0.1,
+                "tentacle_3_7": 0.1,
+                "tentacle_3_8": 0.1,
+                "tentacle_4_1": 0.1,
+                "tentacle_4_2": 0.1,
+                "tentacle_4_3": 0.1,
+                "tentacle_4_4": 0.1,
+                "tentacle_4_5": 0.1,
+                "tentacle_4_6": 0.1,
+                "tentacle_4_7": 0.1,
+                "tentacle_4_8": 0.1,
+                "tentacle_5_1": 0.1,
+                "tentacle_5_2": 0.1,
+                "tentacle_5_3": 0.1,
+                "tentacle_5_4": 0.1,
+                "tentacle_5_5": 0.1,
+                "tentacle_5_6": 0.1,
+                "tentacle_5_7": 0.1,
+                "tentacle_5_8": 0.1,
+                "tentacle_6_1": 0.1,
+                "tentacle_6_2": 0.1,
+                "tentacle_6_3": 0.1,
+                "tentacle_6_4": 0.1,
+                "tentacle_6_5": 0.1,
+                "tentacle_6_6": 0.1,
+                "tentacle_6_7": 0.1,
+                "tentacle_6_8": 0.1,
+                "tentacle_7_1": 0.1,
+                "tentacle_7_2": 0.1,
+                "tentacle_7_3": 0.1,
+                "tentacle_7_4": 0.1,
+                "tentacle_7_5": 0.1,
+                "tentacle_7_6": 0.1,
+                "tentacle_7_7": 0.1,
+                "tentacle_7_8": 0.1
+              },
+              "when": {
+                "type": "core:not",
+                "condition": {
+                  "type": "core:state",
+                  "state": "SQUID_ROTATION_LOW"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

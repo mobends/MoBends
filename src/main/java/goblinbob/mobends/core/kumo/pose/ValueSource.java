@@ -25,8 +25,37 @@ public class ValueSource
     private final Easing ease;
     private final float power;
     private final boolean clampAfter;
+    private Fn fn = Fn.NONE;
+    private float mul = 1;
+    private float add = 0;
 
     public enum Easing { NONE, POW, EASE_IN, EASE_OUT, EASE_IN_OUT }
+
+    /** A function applied after scaling and clamping; MC_* use Minecraft's sine table. */
+    public enum Fn { NONE, SIN, COS, MC_SIN, MC_COS, ABS }
+
+    /** Post-processing: {@code fn(value) * mul + add}. */
+    public ValueSource post(Fn fn, float mul, float add)
+    {
+        this.fn = fn == null ? Fn.NONE : fn;
+        this.mul = mul;
+        this.add = add;
+        return this;
+    }
+
+    private float post(float value)
+    {
+        switch (fn)
+        {
+            case SIN: value = (float) Math.sin(value); break;
+            case COS: value = (float) Math.cos(value); break;
+            case MC_SIN: value = net.minecraft.util.math.MathHelper.sin(value); break;
+            case MC_COS: value = net.minecraft.util.math.MathHelper.cos(value); break;
+            case ABS: value = Math.abs(value); break;
+            default: break;
+        }
+        return value * mul + add;
+    }
 
     public ValueSource(float constant)
     {
@@ -97,7 +126,7 @@ public class ValueSource
             value = value * scale + offset;
             if (value < min) value = min;
             if (value > max) value = max;
-            return value;
+            return post(value);
         }
         if (value < min) value = min;
         if (value > max) value = max;
@@ -109,7 +138,7 @@ public class ValueSource
             case EASE_IN_OUT: value = (float) goblinbob.mobends.core.util.Tween.easeInOut(value, power); break;
             default: break;
         }
-        return value * scale + offset;
+        return post(value * scale + offset);
     }
 
     public static ValueSource fromTemplate(ValueTemplate template, ValueSource fallback) throws MalformedKumoTemplateException
@@ -136,7 +165,20 @@ public class ValueSource
         }
         // With an easing the clamp has to happen first (the ramp is shaped in 0..1, then scaled).
         boolean clampAfter = ease == Easing.NONE && !template.clampFirst;
-        return new ValueSource(template.variable, template.scale, template.offset, template.min, template.max, ease, template.power, clampAfter);
+        Fn fn = Fn.NONE;
+        if (template.fn != null)
+        {
+            try
+            {
+                fn = Fn.valueOf(template.fn.toUpperCase().replace("MCSIN", "MC_SIN").replace("MCCOS", "MC_COS"));
+            }
+            catch (IllegalArgumentException e)
+            {
+                throw new MalformedKumoTemplateException("Unknown value function: " + template.fn);
+            }
+        }
+        return new ValueSource(template.variable, template.scale, template.offset, template.min, template.max, ease, template.power, clampAfter)
+                .post(fn, template.mul, template.add);
     }
 
 }

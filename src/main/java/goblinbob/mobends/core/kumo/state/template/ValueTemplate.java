@@ -15,5 +15,12 @@ public class ValueTemplate
     public float power = 2;
     /** Clamp the raw variable before scale/offset (the default is after, unless an easing is set). */
     public boolean clampFirst = false;
+    /**
+     * Optional function applied to the scaled, offset and clamped value: "sin", "cos" (radians),
+     * "mcsin", "mccos" (Minecraft's table versions), "abs". The result is then {@code * mul + add}.
+     */
+    public String fn;
+    public float mul = 1;
+    public float add = 0;
 
 }

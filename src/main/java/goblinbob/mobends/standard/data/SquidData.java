@@ -1,5 +1,8 @@
 package goblinbob.mobends.standard.data;
 
+import goblinbob.mobends.core.client.event.DataUpdateHandler;
+import goblinbob.mobends.core.util.GUtil;
+
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.standard.animation.controller.SquidController;
@@ -18,6 +21,11 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	public SquidData(EntitySquid entity)
 	{
 		super(entity);
+		// The tentacle phase the vanilla model animates with (interpolated), and the two
+		// "not yet wrapped" checks of the procedural controller.
+		registerVariable("squidRotation", () -> entity.prevSquidRotation + (entity.squidRotation - entity.prevSquidRotation) * DataUpdateHandler.partialTicks);
+		registerState("SQUID_ROTATION_LOW", () -> entity.squidRotation < GUtil.PI);
+		registerState("SQUID_PREV_ROTATION_LOW", () -> entity.prevSquidRotation < GUtil.PI);
 	}
 	
 	@Override
@@ -51,6 +59,7 @@ public class SquidData extends LivingEntityData<EntitySquid>
 
 			this.squidTentacles[i][0] = new ModelPartTransform();
 			this.squidTentacles[i][0].position.set(x, 16.0F, z);
+			nameToPartMap.put("tentacle_" + i + "_0", this.squidTentacles[i][0]);
 
 			for (int j = 1; j < SquidData.TENTACLE_SECTIONS; ++j)
 			{

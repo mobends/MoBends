@@ -24,15 +24,17 @@ public class RampDriver implements IPoseItem
     private final float downSpeed;
     private final ITriggerCondition when;
     private final boolean readBeforeAdvance;
+    private final float initial;
     private float value;
 
-    public RampDriver(String name, float upSpeed, float downSpeed, ITriggerCondition when, boolean readBeforeAdvance)
+    public RampDriver(String name, float upSpeed, float downSpeed, ITriggerCondition when, boolean readBeforeAdvance, float initial)
     {
         this.name = name;
         this.upSpeed = upSpeed;
         this.downSpeed = downSpeed;
         this.when = when;
         this.readBeforeAdvance = readBeforeAdvance;
+        this.initial = initial;
     }
 
     public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, RampTemplate template) throws MalformedKumoTemplateException
@@ -42,7 +44,7 @@ public class RampDriver implements IPoseItem
             throw new MalformedKumoTemplateException("core:ramp needs a 'name'.");
         }
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
-        return new RampDriver(template.name, template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when, template.readBeforeAdvance);
+        return new RampDriver(template.name, template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when, template.readBeforeAdvance, template.initial);
     }
 
     @Override
@@ -79,8 +81,8 @@ public class RampDriver implements IPoseItem
     @Override
     public void onNodeStarted(IKumoContext context)
     {
-        value = 0;
-        context.getNodeScope().set(name, 0);
+        value = initial;
+        context.getNodeScope().set(name, initial);
     }
 
     @Override

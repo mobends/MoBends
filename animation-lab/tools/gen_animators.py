@@ -809,7 +809,39 @@ player = {
         {"type": "KEYFRAME", "entryNode": "cape", "nodes": {"cape": {"type": "core:pose", "pose": [{"driver": "mobends:cape", "bone": "cape"}]}}},
     ]}
 
-for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player)]:
+
+# ---- squid: the vanilla tentacle wave over the interpolated squid rotation --------------------------
+SQ = lambda n: clip('squid', n)
+def squid_base(t, active):
+    out = {}
+    sr = t + 1.1
+    f = max(0.0, sr / math.pi)
+    angle = mc_sin(f * f * math.pi) * 60 if active else 0
+    for i in range(8):
+        out[f"tentacle_{i}_0"] = rotations(('X', angle), ('Y', i * -360.0 / 8 + 90.0))
+    return out
+def squid_sections(t, active):
+    out = {}
+    for i in range(8):
+        for j in range(1, 9):
+            out[f"tentacle_{i}_{j}"] = rotations(('X', -(mc_sin((t + 1.1) + j * 0.1) * 10) if active else 0))
+    return out
+squidSamples = [2 * math.pi * k / 512 for k in range(513)]
+curve_clip(os.path.join(CLIPS, 'squid', 'swim_base.json'), lambda t: squid_base(t, True), squidSamples, 2 * math.pi)
+pose_clip(os.path.join(CLIPS, 'squid', 'swim_base_rest.json'), squid_base(0, False))
+curve_clip(os.path.join(CLIPS, 'squid', 'swim_sections.json'), lambda t: squid_sections(t, True), squidSamples, 2 * math.pi)
+pose_clip(os.path.join(CLIPS, 'squid', 'swim_sections_rest.json'), squid_sections(0, False))
+squidBaseDamp = {f"tentacle_{i}_0": 0.1 for i in range(8)}
+squidSectionDamp = {f"tentacle_{i}_{j}": 0.1 for i in range(8) for j in range(1, 9)}
+squidTime = {"variable": "squidRotation"}
+squid = {"formatVersion": 2, "layers": [{"type": "KEYFRAME", "entryNode": "swim", "nodes": {"swim": {"type": "core:pose", "tags": ["swim"], "pose": [
+    when({"animationKey": SQ("swim_base"), "time": squidTime, "damping": squidBaseDamp}, state("SQUID_PREV_ROTATION_LOW")),
+    when({"animationKey": SQ("swim_base_rest"), "damping": squidBaseDamp}, NOT(state("SQUID_PREV_ROTATION_LOW"))),
+    when({"animationKey": SQ("swim_sections"), "time": squidTime, "damping": squidSectionDamp}, state("SQUID_ROTATION_LOW")),
+    when({"animationKey": SQ("swim_sections_rest"), "damping": squidSectionDamp}, NOT(state("SQUID_ROTATION_LOW"))),
+]}}}]}
+
+for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player), ("squid", squid)]:
     with open(os.path.join(ANIM, name + ".json"), 'w') as f:
         json.dump(data, f, indent=2)
     print("wrote", name + ".json")

@@ -19,4 +19,7 @@ public class RampTemplate extends DriverItemTemplate
      */
     public boolean readBeforeAdvance = false;
 
+    /** Value when the node is entered (0..1). */
+    public float initial = 0;
+
 }

@@ -28,6 +28,9 @@ public class ValueTemplateSerializer implements JsonDeserializer<ValueTemplate>
         if (object.has("ease")) value.ease = object.get("ease").getAsString();
         if (object.has("power")) value.power = object.get("power").getAsFloat();
         if (object.has("clampFirst")) value.clampFirst = object.get("clampFirst").getAsBoolean();
+        if (object.has("fn")) value.fn = object.get("fn").getAsString();
+        if (object.has("mul")) value.mul = object.get("mul").getAsFloat();
+        if (object.has("add")) value.add = object.get("add").getAsFloat();
         return value;
     }
 

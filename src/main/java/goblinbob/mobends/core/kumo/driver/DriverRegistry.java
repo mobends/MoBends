@@ -30,6 +30,7 @@ public class DriverRegistry
         register("core:ramp", RampDriver::create, goblinbob.mobends.core.kumo.state.template.pose.RampTemplate.class);
         register("core:vector", VectorDriver::create, goblinbob.mobends.core.kumo.state.template.pose.VectorTemplate.class);
         register("core:set", SetDriver::create, goblinbob.mobends.core.kumo.state.template.pose.SetTemplate.class);
+        register("core:accumulate", AccumulateDriver::create, goblinbob.mobends.core.kumo.state.template.pose.AccumulateTemplate.class);
     }
 
     public <T extends DriverItemTemplate> void register(String key, IDriverFactory<T> factory, Class<T> templateType)
