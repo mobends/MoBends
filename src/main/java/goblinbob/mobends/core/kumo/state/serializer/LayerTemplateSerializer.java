@@ -37,7 +37,13 @@ public class LayerTemplateSerializer implements JsonSerializer<LayerTemplate>, J
 
         if (type == LayerType.KEYFRAME)
         {
-            JsonObject copy = object.deepCopy();
+            // Shallow copy: only the top-level entries are rewritten below, and
+            // JsonObject.deepCopy() is not public in the Gson shipped with 1.12.2.
+            JsonObject copy = new JsonObject();
+            for (Map.Entry<String, JsonElement> entry : object.entrySet())
+            {
+                copy.add(entry.getKey(), entry.getValue());
+            }
             List<String> names = null;
             JsonElement nodes = copy.get("nodes");
             if (nodes != null && nodes.isJsonObject())
