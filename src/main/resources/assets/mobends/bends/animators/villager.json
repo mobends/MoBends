@@ -1,0 +1,256 @@
+{
+  "formatVersion": 2,
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "stand",
+      "nodes": {
+        "stand": {
+          "type": "core:pose",
+          "tags": [
+            "stand"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/villager/idle.json",
+              "time": {
+                "variable": "ticks",
+                "scale": 0.09
+              },
+              "damping": {
+                "head": 0.5,
+                "arms": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE",
+              "damping": {
+                "head": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "POST"
+            }
+          ],
+          "connections": [
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:or",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "AIRBORNE"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterTouchdown",
+                    "op": "<",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "target": "walk",
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              }
+            }
+          ]
+        },
+        "walk": {
+          "type": "core:pose",
+          "tags": [
+            "walk"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/villager/walk.json",
+              "time": {
+                "variable": "limbSwing",
+                "scale": 0.6662
+              },
+              "weight": {
+                "variable": "limbSwingAmount"
+              },
+              "damping": {
+                "rightLeg": 0.8,
+                "foreRightLeg": 0.8,
+                "leftLeg": 0.8,
+                "foreLeftLeg": 0.8
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE",
+              "damping": {
+                "head": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "POST"
+            }
+          ],
+          "connections": [
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:or",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "AIRBORNE"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterTouchdown",
+                    "op": "<",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "target": "stand",
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "STANDING_STILL"
+              }
+            }
+          ]
+        },
+        "jump": {
+          "type": "core:pose",
+          "tags": [
+            "jump"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/villager/jump.json",
+              "damping": {
+                "rightLeg": 0.3,
+                "foreRightLeg": 0.3,
+                "leftLeg": 0.3,
+                "foreLeftLeg": 0.3
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "PRE",
+              "damping": {
+                "head": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "POST"
+            }
+          ],
+          "connections": [
+            {
+              "target": "stand",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:and",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "ON_GROUND"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": ">=",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "walk",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:and",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "ON_GROUND"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": ">=",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "MOVING_HORIZONTALLY"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

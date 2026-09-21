@@ -59,6 +59,7 @@ public class MoBends
         AnimationLoader.clearCache();
         GsonResources.clearCache();
         goblinbob.mobends.core.kumo.AnimatorResources.INSTANCE.clearCache();
+        goblinbob.mobends.core.definition.ModelDefinitions.INSTANCE.clearCache();
         PackDataProvider.INSTANCE.clearCache();
         EntityDatabase.instance.refresh();
         EntityBenderRegistry.instance.refreshMutators();

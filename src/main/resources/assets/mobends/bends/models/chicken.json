@@ -1,0 +1,128 @@
+{
+  "entity": "net.minecraft.entity.passive.EntityChicken",
+  "model": "net.minecraft.client.model.ModelChicken",
+  "animator": "mobends:bends/animators/chicken.json",
+  "bones": [
+    {
+      "name": "head",
+      "vanilla": {
+        "field": "head",
+        "index": 0
+      }
+    },
+    {
+      "name": "bill",
+      "vanilla": {
+        "field": "bill",
+        "index": 1
+      },
+      "parent": "head",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "chin",
+      "vanilla": {
+        "field": "chin",
+        "index": 2
+      },
+      "parent": "head",
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "body",
+      "vanilla": {
+        "field": "body",
+        "index": 3
+      },
+      "restRotation": [
+        90,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "rightLeg",
+      "vanilla": {
+        "field": "rightLeg",
+        "index": 4
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "foreRightLeg"
+        ]
+      }
+    },
+    {
+      "name": "leftLeg",
+      "vanilla": {
+        "field": "leftLeg",
+        "index": 5
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "foreLeftLeg"
+        ]
+      }
+    },
+    {
+      "name": "rightWing",
+      "vanilla": {
+        "field": "rightWing",
+        "index": 6
+      }
+    },
+    {
+      "name": "leftWing",
+      "vanilla": {
+        "field": "leftWing",
+        "index": 7
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "flapWave",
+      "field": [
+        "wingRotation"
+      ],
+      "prevField": [
+        "oFlap"
+      ],
+      "fn": "mcsin",
+      "add": 1
+    },
+    {
+      "name": "flapSpeed",
+      "field": [
+        "destPos"
+      ],
+      "prevField": [
+        "oFlapSpeed"
+      ]
+    },
+    {
+      "name": "wingAngle",
+      "product": [
+        "flapWave",
+        "flapSpeed"
+      ],
+      "scale": 57.29578
+    }
+  ]
+}

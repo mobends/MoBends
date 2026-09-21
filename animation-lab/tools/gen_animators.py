@@ -987,7 +987,58 @@ skeleton["layers"].append(skeleton_actions)
 # the zombie villager's controller is the zombie's
 zombie_villager = {"formatVersion": 2, "extends": "mobends:bends/animators/zombie.json"}
 
-for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player), ("squid", squid), ("spider", spider), ("zombie_villager", zombie_villager)]:
+
+# ---- mobs described by model definitions (bends/models/*.json): generic walkers ---------------------
+# Their legs are split at the knee by the definition; the gait swings the upper segment like the
+# vanilla model did and bends the lower one when the leg trails.
+W = lambda folder, n: clip(folder, n)
+def walker_gait(folder, legs, upperAmp=55, lowerAmp=35):
+    """legs: list of (upper, lower, phase). A looping cycle over the limb swing at unit amplitude."""
+    def frame(p):
+        out = {}
+        for upper, lower, phase in legs:
+            swing = mc_cos(p + phase)
+            out[upper] = rotations(('X', swing * upperAmp))
+            if lower:
+                out[lower] = rotations(('X', (1 - swing) * 0.5 * lowerAmp))
+        return out
+    cycle_clip(os.path.join(CLIPS, folder, 'walk.json'), frame)
+    return {"animationKey": W(folder, "walk"), "time": limbTime, "weight": {"variable": "limbSwingAmount"},
+            "damping": {b: 0.8 for upper, lower, _ in legs for b in ([upper] + ([lower] if lower else []))}}
+
+def walker_idle(folder, bones):
+    """A slow breathing sway of the listed bones on the tick clock."""
+    cycle_clip(os.path.join(CLIPS, folder, 'idle.json'), lambda p: {b: rotations(('X', mc_cos(p) * amp)) for b, amp in bones})
+    return {"animationKey": W(folder, "idle"), "time": {"variable": "ticks", "scale": 0.09}, "damping": {b: 0.5 for b, _ in bones}}
+
+def walker_jump(folder, legs, upperAngle=-20, lowerAngle=35):
+    pose_clip(os.path.join(CLIPS, folder, 'jump.json'), dict(
+        {upper: rotations(('X', upperAngle)) for upper, lower, _ in legs},
+        **{lower: rotations(('X', lowerAngle)) for upper, lower, _ in legs if lower}))
+    return {"animationKey": W(folder, "jump"), "damping": {b: 0.3 for upper, lower, _ in legs for b in ([upper] + ([lower] if lower else []))}}
+
+def walker_animator(folder, legs, idleBones, extra=None, headBone="head"):
+    look = [with_damping(drv(headBone, "Y", "headYaw"), **{headBone: 0.5}), drv(headBone, "X", "headPitch", space="POST")]
+    extra = extra or []
+    stand = {"type": "core:pose", "tags": ["stand"], "pose": [walker_idle(folder, idleBones), *look, *extra],
+             "connections": [{"target": "jump", "triggerCondition": jumping}, {"target": "walk", "triggerCondition": state("MOVING_HORIZONTALLY")}]}
+    walk = {"type": "core:pose", "tags": ["walk"], "pose": [walker_gait(folder, legs), *look, *extra],
+            "connections": [{"target": "jump", "triggerCondition": jumping}, {"target": "stand", "triggerCondition": state("STANDING_STILL")}]}
+    jump = {"type": "core:pose", "tags": ["jump"], "pose": [walker_jump(folder, legs), *look, *extra],
+            "connections": [{"target": "stand", "triggerCondition": AND(grounded, state("STANDING_STILL"))}, {"target": "walk", "triggerCondition": AND(grounded, state("MOVING_HORIZONTALLY"))}]}
+    return {"formatVersion": 2, "layers": [{"type": "KEYFRAME", "entryNode": "stand", "nodes": {"stand": stand, "walk": walk, "jump": jump}}]}
+
+# vanilla ModelQuadruped: legs 1 and 4 swing together, 2 and 3 opposite
+quadLegs = [("leg1", "foreLeg1", 0.0), ("leg2", "foreLeg2", math.pi), ("leg3", "foreLeg3", math.pi), ("leg4", "foreLeg4", 0.0)]
+quadruped = walker_animator("quadruped", quadLegs, [("head", 2.0), ("body", 1.0)])
+creeper = walker_animator("creeper", quadLegs, [("head", 1.5)])
+villager = walker_animator("villager", [("rightLeg", "foreRightLeg", 0.0), ("leftLeg", "foreLeftLeg", math.pi)], [("head", 1.5), ("arms", 2.0)])
+chickenWings = [with_damping(drv("rightWing", "Z", "wingAngle", space="OVERRIDE"), rightWing=1.0),
+                with_damping(drv("leftWing", "Z", "wingAngle", scale=-1, space="OVERRIDE"), leftWing=1.0)]
+chicken = walker_animator("chicken", [("rightLeg", "foreRightLeg", 0.0), ("leftLeg", "foreLeftLeg", math.pi)], [("head", 2.0)], extra=chickenWings)
+
+for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player), ("squid", squid), ("spider", spider), ("zombie_villager", zombie_villager),
+                   ("quadruped", quadruped), ("creeper", creeper), ("villager", villager), ("chicken", chicken)]:
     with open(os.path.join(ANIM, name + ".json"), 'w') as f:
         json.dump(data, f, indent=2)
     print("wrote", name + ".json")

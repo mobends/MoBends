@@ -1,5 +1,7 @@
 package goblinbob.mobends.standard;
 
+import goblinbob.mobends.standard.main.ModStatics;
+
 import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.addon.IAddon;
 import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
@@ -79,6 +81,9 @@ public class DefaultAddon implements IAddon
 //						new RenderBendsStray(Minecraft.getMinecraft().getRenderManager()),
 //						new String[] { "head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg",
 //								"rightLeg", "leftForeLeg", "rightForeLeg" }));
+
+		// Mobs described as data: bends/models/index.json (see misc/kumo-format.md).
+		goblinbob.mobends.core.client.definition.DefinedBenders.registerAll(ModStatics.MODID, registry);
 
 		registry.registerTriggerCondition("wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
 		registry.registerDriver("cape", CapeDriver::create, CapeDriver.Template.class);

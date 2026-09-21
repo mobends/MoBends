@@ -380,7 +380,8 @@ equal.
 ## Where things stand
 
 Every entity of the mod (player, zombie, zombie villager, skeleton, pig zombie, spider, squid,
-wolf) animates from `assets/mobends/bends/animators/*.json` through `KumoAnimatorController`.
+wolf) animates from `assets/mobends/bends/animators/*.json` through `KumoAnimatorController`,
+and eight more mobs animate from model definitions (step 13).
 33 scenarios pin the behaviour to the procedural reference within 0.1° / 0.01 units (most
 within 0.04°). The procedural bits and controllers remain in the tree only as that reference.
 
@@ -417,3 +418,39 @@ Open items, in order of value:
 **Result.** 39/39 parity scenarios (worst 0.036° / 0.007 units), 39/39 stability, side
 effects equal. Every hand-dependent branch of the reference now has a left- and a
 right-handed scenario.
+
+## 13. Scaffolding for every other mob: model definitions
+
+**What.** A mob can now be animated without code. `bends/models/<mob>.json` names the entity,
+the vanilla model parts that become bones (by field name, or by box-list index where names are
+obfuscated), optional parents, rest rotations, and *splits*: a vanilla box cut into segments
+along an axis, each a further bone with the matching strip of texture, which is how the new mobs
+get knees (and how a tail or tentacle gets as many joints as wanted). Entity fields can be
+exposed as animator variables (interpolated, shaped, multiplied). From the definition the mod
+builds:
+
+* `DefinedEntityData` (core): one transform per bone, the variables, the animator as controller;
+* `DefinedMutator` (client): copies each vanilla part's boxes and texture into bends parts,
+  splits them (`BoxSplitter`, pure geometry, unit-tested), applies rest rotations
+  (`DefinedModelPart`), replaces every field or array slot that held the vanilla part (found by
+  identity, so it works obfuscated), hands the vanilla rotation points and split pivots to the
+  data on first sync, and restores the model on demutation;
+* `DefinedRenderer` and the registration of every definition in `bends/models/index.json`
+  (`DefinedBenders`, called from `DefaultAddon`).
+
+**Shipped.** Definitions for cow, mooshroom, polar bear, pig (quadruped), creeper, chicken,
+villager and witch, all with split legs, driven by four generated animators (`quadruped`,
+`creeper`, `chicken`, `villager`): a breathing stand, a knee-bending walk weighted by the limb
+swing amount, a tucked jump, and a damped head look; the chicken's wings flap from the vanilla
+flap fields.
+
+**Verified.** `DefinedModelsTest` builds every listed definition in the lab, checks each bone the
+animator drives exists, runs 150 frames of standing then walking, and asserts finite poses, a
+moving knee-bearing leg and the walk node. `BoxSplitterTest` pins the split geometry and UVs
+(Y and Z axes). 98 lab tests pass.
+
+**Not verified here (needs the game).** The mutator and renderer are client code the lab cannot
+compile; the box-list indices and the quadruped/chicken/villager field names come from the 1.12
+model sources as remembered and should be checked in a dev run; the chicken's wing variables
+need their SRG field names for a production build. Layers that copy a model's angles (sheep
+wool, charged creeper armour) are not covered, which is why the sheep is not listed.

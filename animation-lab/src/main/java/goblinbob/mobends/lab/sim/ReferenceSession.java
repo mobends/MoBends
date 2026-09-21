@@ -105,7 +105,7 @@ public class ReferenceSession
         return frame;
     }
 
-    static void resetInputs(EntityInputs inputs)
+    public static void resetInputs(EntityInputs inputs)
     {
         EntityInputs fresh = new EntityInputs();
         // Keep object identity so scripts can hold onto it; copy defaults over.

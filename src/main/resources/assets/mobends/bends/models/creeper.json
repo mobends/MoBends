@@ -1,0 +1,85 @@
+{
+  "entity": "net.minecraft.entity.monster.EntityCreeper",
+  "model": "net.minecraft.client.model.ModelCreeper",
+  "animator": "mobends:bends/animators/creeper.json",
+  "bones": [
+    {
+      "name": "head",
+      "vanilla": {
+        "field": "head",
+        "index": 0
+      }
+    },
+    {
+      "name": "body",
+      "vanilla": {
+        "field": "body",
+        "index": 2
+      }
+    },
+    {
+      "name": "leg1",
+      "vanilla": {
+        "field": "leg1",
+        "index": 3
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "foreLeg1"
+        ]
+      }
+    },
+    {
+      "name": "leg2",
+      "vanilla": {
+        "field": "leg2",
+        "index": 4
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "foreLeg2"
+        ]
+      }
+    },
+    {
+      "name": "leg3",
+      "vanilla": {
+        "field": "leg3",
+        "index": 5
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "foreLeg3"
+        ]
+      }
+    },
+    {
+      "name": "leg4",
+      "vanilla": {
+        "field": "leg4",
+        "index": 6
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "foreLeg4"
+        ]
+      }
+    }
+  ]
+}

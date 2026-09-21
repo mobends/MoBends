@@ -1,0 +1,65 @@
+{
+  "entity": "net.minecraft.entity.passive.EntityVillager",
+  "model": "net.minecraft.client.model.ModelVillager",
+  "animator": "mobends:bends/animators/villager.json",
+  "bones": [
+    {
+      "name": "head",
+      "vanilla": {
+        "field": "villagerHead",
+        "index": 0
+      }
+    },
+    {
+      "name": "body",
+      "vanilla": {
+        "field": "villagerBody",
+        "index": 2
+      }
+    },
+    {
+      "name": "arms",
+      "vanilla": {
+        "field": "villagerArms",
+        "index": 3
+      },
+      "restRotation": [
+        -42.97,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "rightLeg",
+      "vanilla": {
+        "field": "rightVillagerLeg",
+        "index": 4
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "foreRightLeg"
+        ]
+      }
+    },
+    {
+      "name": "leftLeg",
+      "vanilla": {
+        "field": "leftVillagerLeg",
+        "index": 5
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "foreLeftLeg"
+        ]
+      }
+    }
+  ]
+}

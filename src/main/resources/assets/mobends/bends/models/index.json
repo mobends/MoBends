@@ -1,0 +1,13 @@
+{
+  "comment": "Mobs animated from a model definition and an animator (see misc/kumo-format.md). Vanilla parts are found by field name in a development environment and by box-list index otherwise.",
+  "models": [
+    "cow",
+    "mooshroom",
+    "polar_bear",
+    "pig",
+    "creeper",
+    "chicken",
+    "villager",
+    "witch"
+  ]
+}

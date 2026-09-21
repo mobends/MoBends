@@ -133,3 +133,50 @@ such as `mainHandItem`, `useActionType`, `activeHandSide`), `core:equipment_name
 * An offset vector written by two layers in one frame keeps only the last write; a bit that
   re-slid the same vector every frame on top of another writer is `RETARGET`.
 * Mirroring is an involution applied around the item, so composition rules do not change.
+
+# Model definitions: mobs without hand-written code
+
+A mob that never had a Mo' Bends treatment is described in
+`assets/mobends/bends/models/<mob>.json` and listed in `bends/models/index.json`. From the
+definition the mod builds the data class (`DefinedEntityData`), the mutator (`DefinedMutator`)
+and the renderer, and registers the entity; the animator asset does the rest.
+
+```json
+{
+  "entity": "net.minecraft.entity.passive.EntityCow",
+  "model": "net.minecraft.client.model.ModelQuadruped",
+  "animator": "mobends:bends/animators/quadruped.json",
+  "childScale": 0.5,
+  "bones": [
+    {"name": "head", "vanilla": {"field": "head", "index": 6}},
+    {"name": "body", "vanilla": {"field": "body", "index": 7}, "restRotation": [90, 0, 0]},
+    {"name": "leg1", "vanilla": {"field": "leg1", "index": 2},
+     "split": {"axis": "Y", "at": [0.5], "names": ["foreLeg1"]}}
+  ],
+  "variables": [
+    {"name": "flapWave", "field": ["wingRotation"], "prevField": ["oFlap"], "fn": "mcsin", "add": 1}
+  ]
+}
+```
+
+| field | meaning |
+|---|---|
+| `entity` | the entity class; `model` (optional) restricts mutation to that model class and its subclasses |
+| `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
+| `bones[].vanilla` | the vanilla part the bone takes over: `field` is the model's field (deobfuscated name; used when it resolves, e.g. in a development environment), `element` its index for array fields, `index` the fallback position in the model's box list (creation order). Every field or array slot that holds the part is replaced, found by identity, so obfuscated field names do not matter. |
+| `bones[].parent` | renders the bone inside another one (an invisible stand-in takes the vanilla slot); `position` is then relative to the parent |
+| `bones[].position` | pivot override; default: the vanilla rotation point |
+| `bones[].restRotation` | constant X, Y, Z degrees the vanilla model held the part at (`setRotationAngles` constants), applied before the animated rotation |
+| `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. |
+| `variables[]` | animator variables from entity fields: `field` (candidate names, deobfuscated then SRG), optional `prevField` for partial-tick interpolation, `scale`, `offset`, `fn`, `add`, or a `product` of other variables |
+
+The shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
+`villager`, `witch`) give every leg a knee and share four generated animators
+(`quadruped`, `creeper`, `chicken`, `villager`: stand / walk / jump with a smooth look).
+`DefinedModelsTest` in the lab checks every listed definition builds, covers what its animator
+drives, and walks.
+
+Production builds need the SRG names added to `variables[].field` lists (the chicken's wing
+variables); the box-list indices carry the parts. Layers that keep their own copy of a model
+(the sheep's wool, a charged creeper's armour) still animate vanilla-style, so the sheep is not
+listed yet.
