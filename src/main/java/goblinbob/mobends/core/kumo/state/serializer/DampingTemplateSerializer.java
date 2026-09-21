@@ -28,7 +28,7 @@ public class DampingTemplateSerializer implements JsonDeserializer<DampingTempla
                 float[] values = new float[array.size()];
                 for (int i = 0; i < values.length; i++)
                 {
-                    values[i] = array.get(i).getAsFloat();
+                    values[i] = array.get(i).isJsonNull() ? Float.NaN : array.get(i).getAsFloat();
                 }
                 damping.entries.put(entry.getKey(), values);
             }

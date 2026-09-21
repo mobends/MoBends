@@ -34,8 +34,12 @@ public class VectorSink implements IVectorSink
     }
 
     @Override
-    public void setVectorTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, Mode mode)
+    public void setVectorTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, Mode mode, IVec3fRead start)
     {
+        if (start != null && mode != Mode.SNAP)
+        {
+            vector.set(start.getX(), start.getY(), start.getZ());
+        }
         switch (mode)
         {
             case SNAP:

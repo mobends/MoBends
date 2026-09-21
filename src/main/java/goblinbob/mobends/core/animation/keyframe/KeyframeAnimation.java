@@ -16,6 +16,12 @@ public class KeyframeAnimation
     public Boolean loop;
     /** "LINEAR" (default) or "STEP" (hold each keyframe until the next). */
     public String interpolation;
+    /**
+     * Optional explicit keyframe times (one per keyframe, ascending, in the clip's time units).
+     * Without it keyframes are evenly spaced over the duration. Lets a baked clip place two
+     * keyframes right around a discontinuity.
+     */
+    public float[] times;
 
     public void mirrorRotationYZ(String boneName)
     {

@@ -93,3 +93,52 @@ legacy-node path of the new core.
 
 **Verification.** 18/18 scenarios pass; all seven procedural entities are bit-identical to the
 goldens (the `EntityData` changes are additive), the wolf differs only as described above.
+
+## 3. First migrated entity: the zombie runs on KUMO with parity
+
+**What.** `bends/animators/zombie.json` (format 2) plus 18 baked clips under
+`bends/animations/zombie/` reproduce `ZombieController` and its five bits (stand, walk, jump,
+lean, stumbling). `KumoParityTest` replays the three zombie scenarios with the animator in place
+of the controller and compares against the golden traces.
+
+**Result.** All three scenarios within tolerance (0.1° / 0.01 units): worst rotation error
+0.027°, worst offset error 0.0026 units, over 630 frames including stand ↔ walk ↔ jump switches,
+landing kneels, mid-walk jumps, head look, and both zombie animation sets.
+
+**How the mapping works** (this is the recipe for every other biped):
+
+* *Cycles* (walk, stumble) are baked over the limb-swing phase and split into a constant part
+  (`walk_base`), a stepped part (`walk_forelegs`, `STEP` interpolation, sampled at interval
+  midpoints), and an amplitude part (`walk_swing`, the POST-space delta between amplitude 0 and 1,
+  played with `weight = limbSwingAmount`). The baker verifies the decomposition is linear
+  (0.0000° nonlinearity for every clip).
+* *Idles on the global clock* (stand breathing) use `time: {variable: "ticks", scale: 0.1}`.
+* *One-shots on entity counters* (landing kneel over `ticksAfterTouchdown`, jump body lean over
+  `ticksInAir`) are clips whose time source is that variable, gated by a `when` condition.
+* *Head look* is two `core:axis_rotate` drivers (yaw PRE, pitch POST) around the clip's head
+  pose; the walk body twist is a third driver with scale −0.1 and a ±10° clamp.
+* *`onPlay` snaps* become `enterPose` (jump: body 20°, arms ±2°, forearms −20°; stand: body 20°
+  when landing recently).
+* *Per-bone smoothness* is copied from the `setSmoothness` calls into item-level `damping`;
+  unlisted bones keep their rate, as in the bits. Vector writes carry their mode (`SLIDE` for
+  `slideToZero`, `RETARGET` for per-frame bobs, `SNAP` for `setY`).
+* *Animation sets* are two extra layers with `when: animationSet == 0/1`: lean is `ADDITIVE`
+  (body in POST space, everything else PRE, root overridden), stumble overrides.
+* Discontinuities (the stumble sawtooth) are handled by explicit keyframe `times`: the baker
+  bisects to the jump and inserts a keyframe pair around it (69 keyframes instead of a dense
+  ramp).
+
+**Core additions in this step.** Item-level `damping` / `vectorModes`, `enterPose`, layer `when`,
+per-slot composition spaces (an OVERRIDE item inside an additive layer replaces), explicit
+keyframe `times`, transitions evaluated before posing (a state change is visible on the frame it
+happens, as with `playOrContinueBit`; the wolf golden was re-recorded for this), and a "snap
+from" / "vector start" so an entry pose followed by a target in the same frame matches the
+`orientInstant`-then-`orient` sequence exactly.
+
+**Lab additions.** `BakeRig` / `Baker` / `ClipBuilder` (sample a bit's *targets* under scripted
+inputs; marker rotations and vectors detect which bones a bit actually writes), `bakeZombie`,
+`KumoSession`, `compare` CLI, `KumoParityTest`.
+
+**Known gap.** `ZombieLeanAnimationBit` writes only the Y axis of the global offset
+(`slideY(-3)`); the animator writes the whole vector with `[null, 0.6, null]` damping, which is
+equivalent while the base layer keeps X and Z at zero.

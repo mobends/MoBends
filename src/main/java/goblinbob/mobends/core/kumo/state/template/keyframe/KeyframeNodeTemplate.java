@@ -3,6 +3,7 @@ package goblinbob.mobends.core.kumo.state.template.keyframe;
 import goblinbob.mobends.core.kumo.state.IKumoValidationContext;
 import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
 
 import java.util.List;
 
@@ -24,6 +25,12 @@ public class KeyframeNodeTemplate
 
     /** Bones that jump to their target on the frame the node is entered (the {@code orientInstant} idiom). */
     public List<String> snapOnEnter;
+
+    /**
+     * A pose evaluated once when the node is entered; the bones it writes are snapped to it
+     * before this frame's regular target applies (the {@code onPlay} + {@code orientInstant} idiom).
+     */
+    public List<PoseItemTemplate> enterPose;
 
     public String getType()
     {

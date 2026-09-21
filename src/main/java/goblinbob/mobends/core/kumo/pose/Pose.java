@@ -28,8 +28,21 @@ public class Pose
     private final BoneTarget[] targets;
     private final Quaternion temp = new Quaternion();
 
+    /**
+     * Whether an additive write to an empty slot composes onto the bone's live target (true for
+     * the animator pose) or just records the rotation and its space for a later composite (layer
+     * poses).
+     */
+    private final boolean sinkFallback;
+
     public Pose(Skeleton skeleton)
     {
+        this(skeleton, false);
+    }
+
+    public Pose(Skeleton skeleton, boolean sinkFallback)
+    {
+        this.sinkFallback = sinkFallback;
         this.skeleton = skeleton;
         this.targets = new BoneTarget[skeleton.size()];
         for (int i = 0; i < targets.length; i++)
@@ -81,6 +94,10 @@ public class Pose
             dest.set(target.rotation);
             return true;
         }
+        if (!sinkFallback)
+        {
+            return false;
+        }
         IBoneSink sink = skeleton.sink(index);
         IRotationSink rotationSink = sink == null ? null : sink.asRotation();
         if (rotationSink != null)
@@ -94,6 +111,15 @@ public class Pose
     public void composeRotation(int index, Quaternion q, Space space)
     {
         BoneTarget target = targets[index];
+        if (!target.hasRotation)
+        {
+            // First write: remember how it composes with whatever lies beneath.
+            target.space = space;
+        }
+        else if (space == Space.OVERRIDE)
+        {
+            target.space = Space.OVERRIDE;
+        }
         switch (space)
         {
             case PRE:
@@ -127,9 +153,10 @@ public class Pose
     public void composeOffset(int index, float x, float y, float z, Space space)
     {
         BoneTarget target = targets[index];
+        if (!target.hasOffset && !target.hasRotation) target.space = space;
         if (space == Space.OVERRIDE || !target.hasOffset)
         {
-            if (space != Space.OVERRIDE)
+            if (space != Space.OVERRIDE && sinkFallback)
             {
                 IBoneSink sink = skeleton.sink(index);
                 IRotationSink rotationSink = sink == null ? null : sink.asRotation();
@@ -153,9 +180,11 @@ public class Pose
     public void composeVector(int index, float x, float y, float z, Space space)
     {
         BoneTarget target = targets[index];
+        if (!target.hasVector) target.space = space;
+        else if (space == Space.OVERRIDE) target.space = Space.OVERRIDE;
         if (space == Space.OVERRIDE || !target.hasVector)
         {
-            if (space != Space.OVERRIDE)
+            if (space != Space.OVERRIDE && sinkFallback)
             {
                 IBoneSink sink = skeleton.sink(index);
                 IVectorSink vectorSink = sink == null ? null : sink.asVector();
@@ -193,7 +222,7 @@ public class Pose
             {
                 if (target.hasRotation)
                 {
-                    rotationSink.setRotationTarget(target.rotation, target.smoothness, target.snap);
+                    rotationSink.setRotationTarget(target.rotation, target.smoothness, target.snap, target.hasSnapFrom ? target.snapFrom : null);
                 }
                 if (target.hasOffset && rotationSink.hasOffset())
                 {
@@ -206,7 +235,7 @@ public class Pose
             {
                 vectorSink.setVectorTarget(target.vector.x, target.vector.y, target.vector.z,
                         target.vectorSmoothness.x, target.vectorSmoothness.y, target.vectorSmoothness.z,
-                        target.vectorMode);
+                        target.vectorMode, target.hasVectorStart ? target.vectorStart : null);
             }
         }
     }

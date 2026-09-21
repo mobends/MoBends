@@ -36,6 +36,10 @@ public class PoseNode implements INodeState
     private final float[][] dampingValues;
     private final int[] snapSlots;
     private final List<ConnectionState> connections = new ArrayList<>();
+    private final List<IPoseItem> enterItems;
+    private final Skeleton skeleton;
+    private Pose enterPose;
+    private boolean enterPending;
 
     /**
      * Legacy nodes (core:standard / core:movement) hard-set every bone they touch, as the original
@@ -46,11 +50,13 @@ public class PoseNode implements INodeState
     private float elapsed;
     private boolean snapPending;
 
-    public PoseNode(String name, List<String> tags, List<IPoseItem> items, Skeleton skeleton, DampingTemplate layerDamping, DampingTemplate nodeDamping, List<String> snapOnEnter)
+    public PoseNode(String name, List<String> tags, List<IPoseItem> items, List<IPoseItem> enterItems, Skeleton skeleton, DampingTemplate layerDamping, DampingTemplate nodeDamping, List<String> snapOnEnter)
     {
         this.name = name;
         this.tags = tags == null ? Collections.<String>emptyList() : tags;
         this.items = items;
+        this.enterItems = enterItems == null ? Collections.<IPoseItem>emptyList() : enterItems;
+        this.skeleton = skeleton;
         this.primary = items.isEmpty() ? null : items.get(0);
 
         // Merge layer defaults with node overrides into slot-indexed tables.
@@ -90,7 +96,7 @@ public class PoseNode implements INodeState
             KeyframeAnimation animation = requireAnimation(context, template.animationKey);
             items.add(new LegacyClipPoseItem(new ClipBinding(animation, skeleton, null), template.startFrame, template.playbackSpeed, template.looping, false));
         }
-        PoseNode node = new PoseNode(template.name, template.tags, items, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        PoseNode node = new PoseNode(template.name, template.tags, items, null, skeleton, layer.damping, template.damping, template.snapOnEnter);
         node.hardSet = true;
         return node;
     }
@@ -103,27 +109,37 @@ public class PoseNode implements INodeState
             KeyframeAnimation animation = requireAnimation(context, template.animationKey);
             items.add(new LegacyClipPoseItem(new ClipBinding(animation, skeleton, null), template.startFrame, template.playbackSpeed, false, true));
         }
-        PoseNode node = new PoseNode(template.name, template.tags, items, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        PoseNode node = new PoseNode(template.name, template.tags, items, null, skeleton, layer.damping, template.damping, template.snapOnEnter);
         node.hardSet = true;
         return node;
     }
 
     public static PoseNode createPose(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, PoseNodeTemplate template) throws MalformedKumoTemplateException
     {
+        LayerSpaces spaces = new LayerSpaces(skeleton, layer);
         List<IPoseItem> items = new ArrayList<>();
         if (template.pose != null)
         {
             for (PoseItemTemplate itemTemplate : template.pose)
             {
-                items.add(createItem(context, skeleton, itemTemplate));
+                items.add(createItem(context, skeleton, spaces, itemTemplate));
             }
         }
-        return new PoseNode(template.name, template.tags, items, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        List<IPoseItem> enterItems = new ArrayList<>();
+        if (template.enterPose != null)
+        {
+            for (PoseItemTemplate itemTemplate : template.enterPose)
+            {
+                enterItems.add(createItem(context, skeleton, spaces, itemTemplate));
+            }
+        }
+        return new PoseNode(template.name, template.tags, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
     }
 
-    private static IPoseItem createItem(IKumoInstancingContext context, Skeleton skeleton, PoseItemTemplate template) throws MalformedKumoTemplateException
+    private static IPoseItem createItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
+        ItemEffects effects = new ItemEffects(skeleton, template.damping, template.vectorModes);
 
         if (template instanceof ClipItemTemplate)
         {
@@ -140,8 +156,8 @@ public class PoseNode implements INodeState
             return new ClipPoseItem(binding,
                     TimeSource.fromTemplate(clipTemplate.time),
                     ValueSource.fromTemplate(clipTemplate.weight, ValueSource.ONE),
-                    template.space == null ? Pose.Space.OVERRIDE : template.space,
-                    when, duration, loop);
+                    template.space,
+                    when, duration, loop, spaces, effects.isEmpty() ? null : effects);
         }
 
         if (template instanceof DriverItemTemplate)
@@ -219,6 +235,27 @@ public class PoseNode implements INodeState
         {
             item.onNodeStarted(context);
         }
+        if (!enterItems.isEmpty())
+        {
+            if (enterPose == null || enterPose.size() != skeleton.size())
+            {
+                enterPose = new Pose(skeleton);
+            }
+            enterPose.clear();
+            try
+            {
+                for (IPoseItem item : enterItems)
+                {
+                    item.onNodeStarted(context);
+                    item.apply(enterPose, context, 0);
+                }
+                enterPending = true;
+            }
+            catch (MalformedKumoTemplateException e)
+            {
+                throw new IllegalStateException(e);
+            }
+        }
         for (ConnectionState connection : connections)
         {
             connection.triggerCondition.onNodeStarted(context);
@@ -233,12 +270,16 @@ public class PoseNode implements INodeState
             item.apply(pose, context, elapsed);
         }
 
-        // Damping applies to whatever this node wrote.
+        // Node-level damping applies to whatever this node wrote and no item damped already.
         for (int i = 0; i < dampingSlots.length; i++)
         {
             if (dampingSlots[i] >= 0)
             {
-                applyDamping(pose.get(dampingSlots[i]), dampingValues[i]);
+                BoneTarget target = pose.get(dampingSlots[i]);
+                if (Float.isNaN(target.smoothness) && Float.isNaN(target.vectorSmoothness.x))
+                {
+                    ItemEffects.applyDamping(target, dampingValues[i]);
+                }
             }
             else
             {
@@ -247,10 +288,50 @@ public class PoseNode implements INodeState
                     BoneTarget target = pose.get(slot);
                     if ((target.hasRotation || target.hasVector) && Float.isNaN(target.smoothness) && Float.isNaN(target.vectorSmoothness.x))
                     {
-                        applyDamping(target, dampingValues[i]);
+                        ItemEffects.applyDamping(target, dampingValues[i]);
                     }
                 }
             }
+        }
+
+        if (enterPending)
+        {
+            for (int slot = 0; slot < pose.size(); slot++)
+            {
+                BoneTarget entered = enterPose.get(slot);
+                BoneTarget target = pose.get(slot);
+                if (entered.hasRotation)
+                {
+                    if (target.hasRotation)
+                    {
+                        target.hasSnapFrom = true;
+                        target.snapFrom.set(entered.rotation);
+                    }
+                    else
+                    {
+                        target.hasRotation = true;
+                        target.rotation.set(entered.rotation);
+                        target.space = entered.space;
+                        target.snap = true;
+                    }
+                }
+                if (entered.hasVector)
+                {
+                    if (target.hasVector)
+                    {
+                        target.hasVectorStart = true;
+                        target.vectorStart.set(entered.vector);
+                    }
+                    else
+                    {
+                        target.hasVector = true;
+                        target.vector.set(entered.vector);
+                        target.space = entered.space;
+                        target.vectorMode = IVectorSink.Mode.SNAP;
+                    }
+                }
+            }
+            enterPending = false;
         }
 
         if (snapPending)
@@ -277,20 +358,6 @@ public class PoseNode implements INodeState
                 // Keyframed root motion is already smooth; without an explicit damping entry it is applied as is.
                 target.vectorMode = IVectorSink.Mode.SNAP;
             }
-        }
-    }
-
-    private static void applyDamping(BoneTarget target, float[] value)
-    {
-        if (value.length >= 3)
-        {
-            target.vectorSmoothness.set(value[0], value[1], value[2]);
-            target.smoothness = value[0];
-        }
-        else if (value.length == 1)
-        {
-            target.smoothness = value[0];
-            target.vectorSmoothness.set(value[0], value[0], value[0]);
         }
     }
 

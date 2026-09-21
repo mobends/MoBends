@@ -24,15 +24,19 @@ public class AxisRotateDriver implements IPoseItem
     private final ValueSource angle;
     private final Pose.Space space;
     private final ITriggerCondition when;
+    private final ItemEffects effects;
+    private final int[] written;
     private final Quaternion rotation = new Quaternion();
 
-    public AxisRotateDriver(int slot, EnumAxis axis, ValueSource angle, Pose.Space space, ITriggerCondition when)
+    public AxisRotateDriver(int slot, EnumAxis axis, ValueSource angle, Pose.Space space, ITriggerCondition when, ItemEffects effects)
     {
         this.slot = slot;
         this.axis = axis;
         this.angle = angle;
         this.space = space;
         this.when = when;
+        this.effects = effects;
+        this.written = new int[] { slot };
     }
 
     public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, AxisRotateTemplate template) throws MalformedKumoTemplateException
@@ -48,7 +52,8 @@ public class AxisRotateDriver implements IPoseItem
         ValueSource angle = ValueSource.fromTemplate(template.angle, ValueSource.ZERO);
         Pose.Space space = template.space == null ? Pose.Space.PRE : template.space;
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
-        return new AxisRotateDriver(skeleton.indexOf(template.bone), template.axis, angle, space, when);
+        ItemEffects effects = new ItemEffects(skeleton, template.damping, template.vectorModes);
+        return new AxisRotateDriver(skeleton.indexOf(template.bone), template.axis, angle, space, when, effects.isEmpty() ? null : effects);
     }
 
     @Override
@@ -61,6 +66,10 @@ public class AxisRotateDriver implements IPoseItem
         float degrees = angle.get(context.getSubject());
         PoseMath.axisAngleDegrees(axis == EnumAxis.X ? 1 : 0, axis == EnumAxis.Y ? 1 : 0, axis == EnumAxis.Z ? 1 : 0, degrees, rotation);
         pose.composeRotation(slot, rotation, space);
+        if (effects != null)
+        {
+            effects.apply(pose, written);
+        }
     }
 
     @Override

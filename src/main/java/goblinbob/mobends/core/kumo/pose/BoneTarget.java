@@ -11,6 +11,17 @@ public class BoneTarget
     public boolean hasRotation;
     public final Quaternion rotation = new Quaternion();
 
+    /** How the first write to this slot composes with what lies beneath (earlier layers / the bone). */
+    public Pose.Space space = Pose.Space.OVERRIDE;
+
+    /** Rotation the bone is snapped to before the target is applied (the "orientInstant then orient" idiom). */
+    public boolean hasSnapFrom;
+    public final Quaternion snapFrom = new Quaternion();
+
+    /** Vector value the interpolation restarts from (a snap write followed by a retarget in one frame). */
+    public boolean hasVectorStart;
+    public final Vec3f vectorStart = new Vec3f();
+
     public boolean hasOffset;
     public final Vec3f offset = new Vec3f();
 
@@ -27,6 +38,9 @@ public class BoneTarget
 
     public void clear()
     {
+        space = Pose.Space.OVERRIDE;
+        hasSnapFrom = false;
+        hasVectorStart = false;
         hasRotation = false;
         hasOffset = false;
         hasVector = false;
@@ -38,6 +52,11 @@ public class BoneTarget
 
     public void set(BoneTarget other)
     {
+        space = other.space;
+        hasSnapFrom = other.hasSnapFrom;
+        snapFrom.set(other.snapFrom);
+        hasVectorStart = other.hasVectorStart;
+        vectorStart.set(other.vectorStart);
         hasRotation = other.hasRotation;
         rotation.set(other.rotation);
         hasOffset = other.hasOffset;

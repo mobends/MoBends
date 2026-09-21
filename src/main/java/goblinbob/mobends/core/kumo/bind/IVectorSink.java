@@ -24,7 +24,8 @@ public interface IVectorSink extends IBoneSink
 
     /**
      * @param smoothnessX/Y/Z damping per axis; NaN keeps the previous value for that axis.
+     * @param start optional value to restart the interpolation from (RETARGET / SLIDE only).
      */
-    void setVectorTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, Mode mode);
+    void setVectorTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, Mode mode, IVec3fRead start);
 
 }

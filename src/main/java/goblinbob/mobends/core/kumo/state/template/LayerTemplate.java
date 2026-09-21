@@ -21,6 +21,9 @@ public class LayerTemplate
     /** Default damping for bones this layer writes; nodes can override per bone. */
     public DampingTemplate damping;
 
+    /** Optional condition; while it does not hold the layer writes nothing (bones hold their targets). */
+    public TriggerConditionTemplate when;
+
     public enum LayerMode
     {
         OVERRIDE,

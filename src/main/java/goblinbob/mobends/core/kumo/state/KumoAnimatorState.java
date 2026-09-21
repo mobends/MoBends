@@ -39,7 +39,7 @@ public class KumoAnimatorState<S extends IKumoSubject>
         }
 
         // Every bone name is known once the layers are instanced.
-        pose = new Pose(skeleton);
+        pose = new Pose(skeleton, true);
     }
 
     public void update(S subject, float deltaTime) throws MalformedKumoTemplateException

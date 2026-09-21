@@ -72,7 +72,7 @@ public class ReferenceSession
         for (int t = 0; t < ticksStarted; t++)
         {
             int tick = clock.getTick() - ticksStarted + t + 1;
-            resetInputs();
+            resetInputs(inputs);
             scenario.script.fill(tick, inputs);
             scripted.tick(inputs);
             data.updateClient();
@@ -97,7 +97,7 @@ public class ReferenceSession
         return frame;
     }
 
-    private void resetInputs()
+    static void resetInputs(EntityInputs inputs)
     {
         EntityInputs fresh = new EntityInputs();
         // Keep object identity so scripts can hold onto it; copy defaults over.

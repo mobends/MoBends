@@ -23,6 +23,8 @@ public class ClipBinding
     public final KeyframeAnimation animation;
     public final int keyframeCount;
     public final boolean step;
+    /** Format-1 clips couple the centerRotation bone's position into the root offset; format-2 clips do not. */
+    private final boolean legacyRootCoupling;
 
     final Bone[] bones;
     final int[] slots;
@@ -39,6 +41,7 @@ public class ClipBinding
         this.animation = animation;
         this.keyframeCount = ClipSampler.keyframeCount(animation);
         this.step = "STEP".equalsIgnoreCase(animation.interpolation);
+        this.legacyRootCoupling = animation.duration == null;
 
         List<Map.Entry<String, Bone>> entries = new ArrayList<>();
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
@@ -64,8 +67,31 @@ public class ClipBinding
         rootSlot = skeleton.indexOf(Skeleton.ROOT);
     }
 
-    /** Samples every bound bone at the index and composes it into the pose. */
+    /** The skeleton slots this clip writes (bones plus the root vector when a root bone exists). */
+    public int[] writtenSlots()
+    {
+        boolean hasRoot = false;
+        for (boolean r : isRoot) hasRoot |= r;
+        if (legacyRootCoupling) for (boolean c : isCenterRotation) hasRoot |= c;
+        int n = 0;
+        for (int i = 0; i < slots.length; i++) if (!isRoot[i]) n++;
+        int[] result = new int[n + (hasRoot ? 1 : 0)];
+        int k = 0;
+        for (int i = 0; i < slots.length; i++) if (!isRoot[i]) result[k++] = slots[i];
+        if (hasRoot) result[k] = rootSlot;
+        return result;
+    }
+
+    /** Samples every bound bone at the index and composes it into the pose in one space. */
     public void apply(Pose pose, float index, float weight, Pose.Space space)
+    {
+        apply(pose, index, weight, space, null);
+    }
+
+    /**
+     * @param spaces per-bone spaces (parallel to the clip's bone list), or null to use {@code space}.
+     */
+    public void apply(Pose pose, float index, float weight, Pose.Space space, Pose.Space[] spaces)
     {
         for (int i = 0; i < bones.length; i++)
         {
@@ -74,24 +100,34 @@ public class ClipBinding
                 continue;
             }
 
+            Pose.Space boneSpace = spaces != null ? spaces[i] : space;
+
             if (isRoot[i])
             {
-                pose.composeVector(rootSlot, position.x * weight, position.y * weight, position.z * weight, space);
+                pose.composeVector(rootSlot, position.x * weight, position.y * weight, position.z * weight, boneSpace);
                 continue;
             }
 
             PoseMath.scale(rotation, weight, scaled);
-            pose.composeRotation(slots[i], scaled, space);
+            pose.composeRotation(slots[i], scaled, boneSpace);
 
             if (isCenterRotation[i])
             {
-                pose.composeVector(rootSlot, position.x * weight, position.y * weight, position.z * weight, space == Pose.Space.OVERRIDE ? Pose.Space.PRE : space);
+                if (legacyRootCoupling)
+                {
+                    pose.composeVector(rootSlot, position.x * weight, position.y * weight, position.z * weight, boneSpace == Pose.Space.OVERRIDE ? Pose.Space.PRE : boneSpace);
+                }
             }
             else
             {
-                pose.composeOffset(slots[i], -position.x * weight, -position.y * weight, -position.z * weight, space);
+                pose.composeOffset(slots[i], -position.x * weight, -position.y * weight, -position.z * weight, boneSpace);
             }
         }
+    }
+
+    public int[] boneSlots()
+    {
+        return slots.clone();
     }
 
 }

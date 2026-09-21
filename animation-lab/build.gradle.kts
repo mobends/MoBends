@@ -178,6 +178,14 @@ tasks.register<JavaExec>("record") {
     args(projectDir.resolve("golden").absolutePath)
 }
 
+tasks.register<JavaExec>("bakeZombie") {
+    description = "Bakes the zombie's procedural animation bits into format-2 clips in the mod resources."
+    group = "lab"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("goblinbob.mobends.lab.bake.ZombieBake")
+    args(modSrc.resolve("resources").absolutePath)
+}
+
 tasks.register<JavaExec>("compare") {
     description = "Runs the KUMO animators against the golden traces and prints a parity report."
     group = "lab"

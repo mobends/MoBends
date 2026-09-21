@@ -6,6 +6,8 @@ import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.*;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
+import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
@@ -30,11 +32,13 @@ public class KeyframeLayerState implements ILayerState
     private final Pose.Space[] additiveSpaces;
     private final Skeleton skeleton;
     private final boolean[] allowed;
+    private final ITriggerCondition when;
 
     private final Pose currentPose;
     private final Pose previousPose;
     private final Pose snapshotPose;
     private final Pose outputPose;
+    private final Pose lastOutput;
     private final goblinbob.mobends.core.math.Quaternion blendTemp = new goblinbob.mobends.core.math.Quaternion();
 
     private INodeState previousNode;
@@ -50,6 +54,7 @@ public class KeyframeLayerState implements ILayerState
         this.mask = layerTemplate.mask;
         this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
         this.skeleton = skeleton;
+        this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(layerTemplate.when);
 
         if (layerTemplate.nodes == null || layerTemplate.nodes.isEmpty())
         {
@@ -98,6 +103,7 @@ public class KeyframeLayerState implements ILayerState
         previousPose = new Pose(skeleton);
         snapshotPose = new Pose(skeleton);
         outputPose = new Pose(skeleton);
+        lastOutput = new Pose(skeleton);
 
         additiveSpaces = new Pose.Space[skeleton.size()];
         allowed = new boolean[skeleton.size()];
@@ -139,7 +145,23 @@ public class KeyframeLayerState implements ILayerState
     {
         context.setCurrentNode(currentNode);
 
-        // 1. Evaluate.
+        if (when != null && !when.isConditionMet(context))
+        {
+            // Disabled: the layer writes nothing and its clocks pause.
+            return;
+        }
+
+        // 1. Transitions are decided before posing, so a state change shows up on the frame it happens.
+        for (ConnectionState connection : currentNode.getConnections())
+        {
+            if (connection.triggerCondition.isConditionMet(context))
+            {
+                beginTransition(connection, context);
+                break;
+            }
+        }
+
+        // 2. Evaluate.
         currentPose.clear();
         currentNode.evaluate(context, currentPose);
 
@@ -162,10 +184,11 @@ public class KeyframeLayerState implements ILayerState
             result = outputPose;
         }
 
-        // 2. Composite onto the animator pose.
+        // 3. Composite onto the animator pose.
         composite(result, animatorPose);
+        lastOutput.set(result);
 
-        // 3. Advance clocks.
+        // 4. Advance clocks.
         elapsedTicks += deltaTime;
         currentNode.advance(context, deltaTime);
         if (previousNode != null)
@@ -181,19 +204,9 @@ public class KeyframeLayerState implements ILayerState
                 previousIsSnapshot = false;
             }
         }
-
-        // 4. Evaluate connections.
-        for (ConnectionState connection : currentNode.getConnections())
-        {
-            if (connection.triggerCondition.isConditionMet(context))
-            {
-                beginTransition(connection, result, context);
-                break;
-            }
-        }
     }
 
-    private void beginTransition(ConnectionState connection, Pose currentOutput, IKumoContext context)
+    private void beginTransition(ConnectionState connection, IKumoContext context)
     {
         transitionDuration = connection.transitionDuration;
         transitionEasing = connection.transitionEasing;
@@ -206,7 +219,7 @@ public class KeyframeLayerState implements ILayerState
         else if (previousNode != null)
         {
             // Interrupting a transition: freeze what is on screen and fade from that (no pop).
-            snapshotPose.set(currentOutput);
+            snapshotPose.set(lastOutput);
             previousNode = currentNode;
             previousIsSnapshot = true;
             transitionProgress = 0;
@@ -286,11 +299,16 @@ public class KeyframeLayerState implements ILayerState
                 d.hasVector = true;
             }
 
-            // Damping, snapping and vector modes follow the node being entered.
+            // Damping, snapping, spaces and vector modes follow the node being entered.
             d.smoothness = b.smoothness;
             d.vectorSmoothness.set(b.vectorSmoothness);
             d.snap = b.snap;
             d.vectorMode = b.vectorMode;
+            d.space = (b.hasRotation || b.hasVector || b.hasOffset) ? b.space : a.space;
+            d.hasSnapFrom = b.hasSnapFrom;
+            d.snapFrom.set(b.snapFrom);
+            d.hasVectorStart = b.hasVectorStart;
+            d.vectorStart.set(b.vectorStart);
         }
     }
 
@@ -309,7 +327,8 @@ public class KeyframeLayerState implements ILayerState
                 continue;
             }
 
-            Pose.Space space = mode == LayerTemplate.LayerMode.ADDITIVE ? additiveSpaces[i] : Pose.Space.OVERRIDE;
+            // Each slot recorded how its first write composes (items default to the layer's space).
+            Pose.Space space = src.space;
 
             if (src.hasRotation)
             {
@@ -322,6 +341,16 @@ public class KeyframeLayerState implements ILayerState
             if (src.hasVector)
             {
                 animatorPose.composeVector(i, src.vector.x, src.vector.y, src.vector.z, space);
+            }
+            if (src.hasSnapFrom)
+            {
+                dst.hasSnapFrom = true;
+                dst.snapFrom.set(src.snapFrom);
+            }
+            if (src.hasVectorStart)
+            {
+                dst.hasVectorStart = true;
+                dst.vectorStart.set(src.vectorStart);
             }
 
             if (!Float.isNaN(src.smoothness)) dst.smoothness = src.smoothness;
