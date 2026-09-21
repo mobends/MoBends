@@ -12,9 +12,15 @@ public class LabWorlds
 {
     public static void placeLadderColumn(World world, Entity entity)
     {
+        placeLadderColumn(world, entity, 40);
+    }
+
+    /** A ladder of {@code height} blocks from the floor up (a short one exposes the ledge pull-up). */
+    public static void placeLadderColumn(World world, Entity entity, int height)
+    {
         int x = (int) Math.floor(entity.posX);
         int z = (int) Math.floor(entity.posZ);
-        for (int y = (int) Math.floor(world.floorY); y < world.floorY + 40; y++)
+        for (int y = (int) Math.floor(world.floorY); y < world.floorY + height; y++)
         {
             world.setBlockState(new BlockPos(x, y, z), Blocks.LADDER.getDefaultState().withProperty(BlockLadder.FACING, EnumFacing.NORTH));
         }

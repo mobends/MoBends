@@ -138,7 +138,7 @@ public class ScriptedEntity
         // World features the mod queries (placed once, kept).
         if (in.ladderColumn && !ladderPlaced)
         {
-            LabWorlds.placeLadderColumn(world, e);
+            LabWorlds.placeLadderColumn(world, e, in.ladderHeight);
             ladderPlaced = true;
         }
         if (in.waterHeight > 0 && waterPlaced < in.waterHeight)

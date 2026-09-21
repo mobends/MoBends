@@ -29,6 +29,8 @@ public class EntityInputs
     public boolean onLadder = false;
     /** Ladder blocks in the entity's column (needed for the mod's climb / ledge queries). */
     public boolean ladderColumn = false;
+    /** Height of that ladder in blocks. */
+    public int ladderHeight = 40;
     /** Water blocks around the entity up to this height (0 = none); makes isUnderwater() true. */
     public int waterHeight = 0;
     public boolean flying = false;

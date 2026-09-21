@@ -407,11 +407,13 @@ Open items, in order of value:
 * **The bow on a ladder**: the body faces the wall (`climbingBodyYaw`), the head only pitches
   (`player/ladder_bow`).
 * **A slash from the saddle** (`player/riding` re-recorded with a sword hit).
+* **The ledge pull-up** at the top of a short ladder (`player/ladder_top`; the lab's ladder
+  column takes a height).
 * **Core:** a vector target replaced by a different one within the same frame restarts the
   slide on those axes (`BoneTarget.restartX/Y/Z`, `IVectorSink.restartSlide`), which is exactly
   what two `slideTo()` calls did. The action layer's offsets are plain `SLIDE`s again and match
   whether or not the base layer writes the same vector that frame.
 
-**Result.** 40/40 parity scenarios (worst 0.036° / 0.007 units), 40/40 stability, side
+**Result.** 39/39 parity scenarios (worst 0.036° / 0.007 units), 39/39 stability, side
 effects equal. Every hand-dependent branch of the reference now has a left- and a
 right-handed scenario.

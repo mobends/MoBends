@@ -223,6 +223,19 @@ public class Scenarios
             if (between(tick, 120, 160)) walk(in, 0.05D);
         }));
 
+        // A short ladder: climbing past its top plays the ledge pull-up.
+        add(new Scenario(EntityKind.PLAYER, "ladder_top", FPS, 120, (tick, in) -> {
+            in.ladderColumn = true;
+            in.ladderHeight = 4;
+            if (between(tick, 10, 110))
+            {
+                in.onLadder = true;
+                in.noGravity = true;
+                in.verticalSpeed = between(tick, 10, 70) ? 0.08D : 0.0D;
+                in.headPitch = -30;
+            }
+        }));
+
         add(new Scenario(EntityKind.PLAYER, "ladder_bow", FPS, 140, (tick, in) -> {
             in.ladderColumn = true;
             in.mainHand = new ItemStack(Items.BOW);
