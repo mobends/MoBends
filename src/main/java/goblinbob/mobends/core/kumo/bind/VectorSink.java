@@ -70,4 +70,13 @@ public class VectorSink implements IVectorSink
         vector.slideTo(axis, value, s);
     }
 
+
+    @Override
+    public void restartSlide(boolean x, boolean y, boolean z)
+    {
+        if (x) vector.restart(EnumAxis.X);
+        if (y) vector.restart(EnumAxis.Y);
+        if (z) vector.restart(EnumAxis.Z);
+    }
+
 }

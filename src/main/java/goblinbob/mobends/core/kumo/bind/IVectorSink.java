@@ -28,4 +28,10 @@ public interface IVectorSink extends IBoneSink
      */
     void setVectorTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, Mode mode, IVec3fRead start);
 
+
+    /** Restarts the slide on the given axes from the current value (a target replaced within the frame). */
+    default void restartSlide(boolean x, boolean y, boolean z)
+    {
+    }
+
 }

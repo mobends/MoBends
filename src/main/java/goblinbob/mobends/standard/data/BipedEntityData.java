@@ -4,6 +4,9 @@ import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.supporters.SupporterContent;
+import goblinbob.mobends.standard.AttackActionType;
+import goblinbob.mobends.standard.UseActionType;
+import goblinbob.mobends.standard.animation.bit.biped.item.BipedActionController;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -110,4 +113,27 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	{
 		return this.entity;
 	}
+	/** The item action types the biped action controller derives from the held and active items. */
+	@Override
+	public String getProperty(String name)
+	{
+		switch (name)
+		{
+			case "useActionType":
+			{
+				UseActionType type = BipedActionController.getItemUseAction(entity.getActiveItemStack().getItem(),
+						BipedActionController.armPoseOf(entity, entity.getHeldItemMainhand()),
+						BipedActionController.armPoseOf(entity, entity.getHeldItemOffhand()));
+				return type == null ? null : type.name();
+			}
+			case "attackActionType":
+			{
+				AttackActionType type = BipedActionController.getItemAttackAction(entity.getHeldItemMainhand().getItem());
+				return type == null ? null : type.name();
+			}
+			default:
+				return super.getProperty(name);
+		}
+	}
+
 }

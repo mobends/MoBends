@@ -2,9 +2,6 @@ package goblinbob.mobends.standard.data;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
-import goblinbob.mobends.standard.AttackActionType;
-import goblinbob.mobends.standard.UseActionType;
-import goblinbob.mobends.standard.animation.bit.biped.item.BipedActionController;
 import net.minecraft.util.math.MathHelper;
 import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.standard.main.ModStatics;
@@ -90,27 +87,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		});
 	}
 
-	@Override
-	public String getProperty(String name)
-	{
-		switch (name)
-		{
-			case "useActionType":
-			{
-				UseActionType type = BipedActionController.getItemUseAction(entity.getActiveItemStack().getItem(),
-						BipedActionController.armPoseOf(entity, entity.getHeldItemMainhand()),
-						BipedActionController.armPoseOf(entity, entity.getHeldItemOffhand()));
-				return type == null ? null : type.name();
-			}
-			case "attackActionType":
-			{
-				AttackActionType type = BipedActionController.getItemAttackAction(entity.getHeldItemMainhand().getItem());
-				return type == null ? null : type.name();
-			}
-			default:
-				return super.getProperty(name);
-		}
-	}
 
 	@Override
 	public void initModelPose()

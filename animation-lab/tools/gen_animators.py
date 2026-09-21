@@ -191,16 +191,22 @@ pig_zombie = {
                 {"animationKey": P("stand_offset"), "when": action("stand"), "damping": {"root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}},
                 {"animationKey": P("walk_bob"), "time": limbTime, "when": action("walk"), "damping": {"root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}},
             ]}}},
-        {"type": "KEYFRAME", "when": cmp("entitySwingProgress", ">", 0), "entryNode": "slash", "nodes": {"slash": {
+        {"type": "KEYFRAME", "when": cmp("entitySwingProgress", ">", 0), "entryNode": "slash",
+         "mirror": {"when": state("LEFT_HANDED"), "negate": ["headYaw"],
+                    "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
+                              ["renderLeftItemRotation", "renderRightItemRotation"]]},
+         "nodes": {"slash": {
             "type": "core:pose", "tags": ["attack", "attack_slash_inward"],
             "pose": [
-                {"animationKey": P("slash"), "time": {"variable": "ticksAfterAttack"},
+                {"animationKey": P("slash"), "time": {"variable": "ticksAfterAttack"}, "mirror": True,
                  "damping": {"body": 0.9, "head": 0.9, "rightArm": 0.9, "leftArm": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3, "localOffset": 0.3},
                  "vectorModes": {"localOffset": "SLIDE"}},
-                *headLook,
-                {"animationKey": P("slash_still"), "when": AND(state("STANDING_STILL"), NOT(state("RIDING"))),
-                 "damping": {"renderRotation": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}},
-                {"driver": "core:axis_rotate", "bone": "renderRightItemRotation", "axis": "X", "angle": 50, "space": "OVERRIDE", "snap": True, "damping": {"renderRightItemRotation": 0.9}},
+                *[dict(x, mirror=True) for x in headLook],
+                # the still-standing legs are the same for both hands; the render rotation is not
+                {"animationKey": P("slash_still"), "bones": ["leftLeg", "rightLeg", "rightForeLeg", "root"], "when": AND(state("STANDING_STILL"), NOT(state("RIDING"))),
+                 "damping": {"root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}},
+                {"animationKey": P("slash_still"), "bones": ["renderRotation"], "mirror": True, "when": AND(state("STANDING_STILL"), NOT(state("RIDING"))), "damping": {"renderRotation": 0.3}},
+                {"driver": "core:axis_rotate", "bone": "renderRightItemRotation", "axis": "X", "angle": 50, "space": "OVERRIDE", "snap": True, "mirror": True, "damping": {"renderRightItemRotation": 0.9}},
             ]}}},
     ]}
 
@@ -522,8 +528,8 @@ def conn(target, cond, sets=None):
     if sets: c["set"] = sets
     return c
 
-# The base layer re-slides the global offset every frame, so an action bit's slideY() restarts
-# each frame too: an exponential approach, which is RETARGET here.
+# An action bit's slideY() over a base layer that re-slides the same vector restarts every
+# frame; the core detects the conflicting write and restarts the slide, so SLIDE is exact.
 tAA = "ticksAfterAttack"
 dec = {"type": "core:decreased", "variable": tAA}
 stillNotRiding = AND(state("STANDING_STILL"), NOT(state("RIDING")))
@@ -559,7 +565,7 @@ def slash_node(name, clipname, by_attack, main_damp, main_snap, head_damp, still
         mirrored(drv("head", "Y", "headYaw")),
         when({"animationKey": PL(clipname + "_still"), "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"],
               "damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3, "root": [None, 0.6, None]},
-              "vectorModes": {"root": "RETARGET"}}, still_cond),
+              "vectorModes": {"root": "SLIDE"}}, still_cond),
         when(mirrored({"animationKey": PL(clipname + "_still"), "bones": ["renderRotation"], "damping": {"renderRotation": 0.3}}), still_cond),
     ]
     if still_extra: pose += [when(mirrored(x), still_cond) for x in still_extra]
@@ -580,7 +586,7 @@ slashes = {
 # the whirl: head undamped, render rotation snapped, the global offset always dips
 whirl = slash_node("attack_whirl_slash", "slash_whirl", True, 0.3, True, None, state("STANDING_STILL"), 0.9, False)
 whirl["pose"][-1] = when({"animationKey": PL("slash_whirl_still"), "damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3}}, state("STANDING_STILL"))
-whirl["pose"].insert(3, {"animationKey": PL("slash_whirl"), "bones": ["root"], "time": {"variable": tAA}, "damping": {"root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}})
+whirl["pose"].insert(3, {"animationKey": PL("slash_whirl"), "bones": ["root"], "time": {"variable": tAA}, "damping": {"root": [None, 0.6, None]}, "vectorModes": {"root": "SLIDE"}})
 whirl["pose"].insert(4, {"animationKey": PL("slash_whirl"), "bones": ["renderRotation"], "time": {"variable": tAA}, "snap": True})
 slashes["slash_whirl"] = whirl
 for n, node in slashes.items():
@@ -615,7 +621,7 @@ stance = {"type": "core:pose", "tags": ["attack_stance"], "pose": [
     swapped({"animationKey": PL("stance_breath1"), "time": b1time, "bones": ["leftArm"], "space": "POST"}),
     swapped({"animationKey": PL("stance_breath1"), "time": b1time, "bones": ["rightArm"], "space": "PRE"}),
     mirrored({"animationKey": PL("stance_const"), "damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3,
-                                                     "renderRightItemRotation": 0.3, "renderRotation": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}}),
+                                                     "renderRightItemRotation": 0.3, "renderRotation": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "SLIDE"}}),
     {"animationKey": PL("stance_kneel"), "time": {"variable": "ticksAfterTouchdown"}, "when": cmp("ticksAfterTouchdown", "<", 1 / 0.15), "damping": {"body": 1.0}, "vectorModes": {"root": "SNAP"}},
     comboReset,
 ]}
@@ -651,7 +657,7 @@ def punch_node(side):
         {"animationKey": PL(f"punch_{side}_abs"), "damping": {arm: 0.9, other: 0.3, fore: 0.9, otherFore: 0.3, "body": 0.6}},
         drv(arm, "X", "headPitch", offset=-90),
         {"animationKey": PL(f"punch_{side}_pre"), "space": "PRE"},
-        when({"animationKey": PL("punch_still"), "damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}}, state("STANDING_STILL")),
+        when({"animationKey": PL("punch_still"), "damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "SLIDE"}}, state("STANDING_STILL")),
         when({"animationKey": PL(f"punch_{side}_still"), "damping": {"body": 0.6}}, state("STANDING_STILL")),
     ]}
 pose_clip(os.path.join(CLIPS, 'player', 'fist_guard_abs.json'), dict(legsStill, **{
@@ -663,7 +669,7 @@ fistGuardBones = ["rightArm", "leftArm", "rightForeArm", "leftForeArm", "rightLe
 fist_guard = {"type": "core:pose", "tags": ["fist_guard"], "pose": [
     when({"animationKey": PL("fist_guard_abs"), "bones": fistGuardBones, "damping": {"rightArm": 0.3, "leftArm": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3,
                                                           "rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "root": [None, 0.6, None]},
-          "vectorModes": {"root": "RETARGET"}}, state("STANDING_STILL")),
+          "vectorModes": {"root": "SLIDE"}}, state("STANDING_STILL")),
     when(mirrored({"animationKey": PL("fist_guard_abs"), "bones": ["renderRotation"], "damping": {"renderRotation": 0.3}}), state("STANDING_STILL")),
     when({"animationKey": PL("fist_guard_pre"), "bones": ["body"], "space": "PRE"}, state("STANDING_STILL")),
     when(mirrored({"animationKey": PL("fist_guard_pre"), "bones": ["head"], "space": "PRE"}), state("STANDING_STILL")),
@@ -718,9 +724,11 @@ def use_nodes():
         nodes[f"bow_{side}"] = {"type": "core:pose", "tags": ["bow"], "pose": [
             localOffsetZero,
             with_damping(drv("head", "X", "headPitch", space="OVERRIDE"), head=0.5),
-            drv("head", "Y", "aimedBowTicks", scale=-5 * h, offset=50 * h),
-            with_damping(drv("body", "Y", "aimedBowTicks", scale=5 * h, offset=-50 * h, space="OVERRIDE"), body=0.8),
-            drv("body", "Y", "headYaw"),
+            # on a ladder the body faces the wall and the head only pitches
+            when(drv("head", "Y", "aimedBowTicks", scale=-5 * h, offset=50 * h), NOT(state("CLIMBING"))),
+            when(with_damping(drv("body", "Y", "aimedBowTicks", scale=5 * h, offset=-50 * h, space="OVERRIDE"), body=0.8), NOT(state("CLIMBING"))),
+            when(drv("body", "Y", "headYaw"), NOT(state("CLIMBING"))),
+            when(with_damping(drv("body", "Y", "climbingBodyYaw", space="OVERRIDE"), body=0.8), state("CLIMBING")),
             with_damping(drv(arm, "X", "headPitch", offset=-90, space="OVERRIDE"), **{arm: 0.8}),
             drv(arm, "Y", "aimedBowTicks", scale=-5 * h, offset=50 * h),
             with_damping(drv(other, "Y", const=80 * h, space="OVERRIDE"), **{other: 1.0}),
@@ -804,6 +812,10 @@ action_layer = {"type": "KEYFRAME", "when": NOT(state("SLEEPING")), "entryNode":
                                      ["renderLeftItemRotation", "renderRightItemRotation"]]}}
 
 groundAction = OR(action("stand"), action("walk"), action("sprint"))
+def torchArm(side):
+    arm = side + "Arm"
+    return [drv(arm, "X", "headPitch", scale=0.5, offset=-90, space="OVERRIDE"), drv(arm, "Y", "headYaw", scale=0.7),
+            {"animationKey": PL(f"torch_forearm_{side}")}]
 torchMain = {"type": "core:property", "property": "mainHandItem", "value": "minecraft:torch"}
 torchOff = {"type": "core:property", "property": "offHandItem", "value": "minecraft:torch"}
 player = {
@@ -826,10 +838,11 @@ player = {
         # torch holding while standing or walking (not sprinting)
         {"type": "KEYFRAME", "when": AND(OR(action("stand"), action("walk")), OR(torchMain, torchOff)), "entryNode": "torch", "nodes": {"torch": {
             "type": "core:pose", "tags": ["torch_holding"], "pose": [
-                when(drv("rightArm", "X", "headPitch", scale=0.5, offset=-90, space="OVERRIDE"), torchMain), when(drv("rightArm", "Y", "headYaw", scale=0.7), torchMain),
-                when({"animationKey": PL("torch_forearm_right")}, torchMain),
-                when(drv("leftArm", "X", "headPitch", scale=0.5, offset=-90, space="OVERRIDE"), AND(NOT(torchMain), torchOff)), when(drv("leftArm", "Y", "headYaw", scale=0.7), AND(NOT(torchMain), torchOff)),
-                when({"animationKey": PL("torch_forearm_left")}, AND(NOT(torchMain), torchOff)),
+                # the main hand holds the torch if it has one, else the off hand; the arm follows the primary hand
+                *[when(x, AND(torchMain, NOT(state("LEFT_HANDED")))) for x in torchArm("right")],
+                *[when(x, AND(torchMain, state("LEFT_HANDED"))) for x in torchArm("left")],
+                *[when(x, AND(NOT(torchMain), torchOff, NOT(state("LEFT_HANDED")))) for x in torchArm("left")],
+                *[when(x, AND(NOT(torchMain), torchOff, state("LEFT_HANDED"))) for x in torchArm("right")],
             ]}}},
         # items and attacks (the BipedActionController)
         action_layer,
@@ -965,6 +978,11 @@ for name, node in sp_nodes.items():
             prior.append(cond)
     node["connections"] = conns
 spider = {"formatVersion": 2, "layers": [{"type": "KEYFRAME", "entryNode": "idle", "variables": {"resetLimbs": 1}, "nodes": sp_nodes}]}
+
+# the skeleton's controller runs the biped action controller as well: bow, sword, tool, fists
+skeleton_actions = copy.deepcopy(action_layer)
+del skeleton_actions["when"]  # only players sleep
+skeleton["layers"].append(skeleton_actions)
 
 # the zombie villager's controller is the zombie's
 zombie_villager = {"formatVersion": 2, "extends": "mobends:bends/animators/zombie.json"}

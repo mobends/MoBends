@@ -58,6 +58,33 @@ public class Scenarios
             if (between(tick, 100, 140)) walk(in, WALK_SPEED);
         }));
 
+        for (boolean left : new boolean[] { false, true })
+        {
+            add(new Scenario(EntityKind.SKELETON, left ? "bow_and_sword_left_handed" : "bow_and_sword", FPS, 200, (tick, in) -> {
+                in.leftHanded = left;
+                if (tick >= 5 && tick < 110) in.mainHand = new ItemStack(Items.BOW);
+                if (between(tick, 20, 90))
+                {
+                    in.itemUseCount = 72000 - (tick - 20);
+                    in.itemUseMaxCount = tick - 20;
+                }
+                if (between(tick, 60, 100)) walk(in, WALK_SPEED);
+                if (tick >= 110) in.mainHand = new ItemStack(Items.IRON_SWORD);
+                if (tick == 120 || tick == 132 || tick == 144) in.attack = true;
+                if (between(tick, 170, 200)) walk(in, WALK_SPEED);
+                if (tick == 175) in.attack = true;
+                lookAround(in, tick);
+            }));
+        }
+
+        add(new Scenario(EntityKind.PIG_ZOMBIE, "walk_attack_left_handed", FPS, 120, (tick, in) -> {
+            in.leftHanded = true;
+            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            if (between(tick, 10, 60)) walk(in, WALK_SPEED);
+            if (tick == 40 || tick == 80) in.attack = true;
+            lookAround(in, tick);
+        }));
+
         add(new Scenario(EntityKind.PIG_ZOMBIE, "walk_attack", FPS, 120, (tick, in) -> {
             in.mainHand = new ItemStack(Items.IRON_SWORD);
             if (between(tick, 10, 120)) walk(in, WALK_SPEED);
@@ -188,9 +215,30 @@ public class Scenarios
         add(new Scenario(EntityKind.PLAYER, "riding", FPS, 160, (tick, in) -> {
             in.noGravity = true;
             in.riding = true;
+            in.mainHand = new ItemStack(Items.IRON_SWORD);
             lookAround(in, tick);
+            // A slash from the saddle: the still-standing legs must not apply.
+            if (tick == 20) in.attack = true;
             if (between(tick, 60, 120)) walk(in, 0.3D);
             if (between(tick, 120, 160)) walk(in, 0.05D);
+        }));
+
+        add(new Scenario(EntityKind.PLAYER, "ladder_bow", FPS, 140, (tick, in) -> {
+            in.ladderColumn = true;
+            in.mainHand = new ItemStack(Items.BOW);
+            if (between(tick, 10, 130))
+            {
+                in.onLadder = true;
+                in.noGravity = true;
+                in.verticalSpeed = between(tick, 10, 60) ? 0.12D : 0.0D;
+                in.headYaw = (float) (Math.sin(tick * 0.05) * 60.0);
+                in.headPitch = -20;
+            }
+            if (between(tick, 40, 120))
+            {
+                in.itemUseCount = 72000 - (tick - 40);
+                in.itemUseMaxCount = tick - 40;
+            }
         }));
 
         add(new Scenario(EntityKind.PLAYER, "sleep_sit_elytra", FPS, 180, (tick, in) -> {
@@ -227,7 +275,7 @@ public class Scenarios
         }));
 
         // A left-handed player: the attack bits mirror on the primary hand, the use actions follow the active hand.
-        add(new Scenario(EntityKind.PLAYER, "left_handed", FPS, 220, (tick, in) -> {
+        add(new Scenario(EntityKind.PLAYER, "left_handed", FPS, 260, (tick, in) -> {
             in.leftHanded = true;
             in.mainHand = new ItemStack(Items.IRON_SWORD);
             if (tick == 10 || tick == 22 || tick == 34) in.attack = true;
@@ -239,6 +287,15 @@ public class Scenarios
             if (tick == 150 || tick == 162) in.attack = true;
             if (tick >= 180) in.mainHand = ItemStack.EMPTY;
             if (tick == 190 || tick == 202) in.attack = true;
+            // a torch, in the main hand then the off hand
+            if (between(tick, 220, 240)) in.mainHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            if (between(tick, 240, 260)) in.offHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            lookAround(in, tick);
+        }));
+
+        add(new Scenario(EntityKind.PLAYER, "right_handed_torch_offhand", FPS, 80, (tick, in) -> {
+            if (between(tick, 10, 70)) in.offHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            if (between(tick, 40, 70)) walk(in, WALK_SPEED);
             lookAround(in, tick);
         }));
 

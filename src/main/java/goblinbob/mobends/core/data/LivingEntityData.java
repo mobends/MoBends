@@ -78,6 +78,8 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         registerVariable("rotationYaw", () -> entity != null ? entity.rotationYaw : 0);
         registerVariable("headYawAbs", () -> Math.abs(headYaw.get()));
         registerVariable("climbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - getClimbingRotation()) : 0);
+        registerVariable("climbingBodyYaw", () -> entity != null
+                ? MathHelper.wrapDegrees(headYaw.get() + MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - getClimbingRotation())) : 0);
         registerVariable("climbingHeadYaw", () -> {
             if (entity == null) return 0;
             float renderRotationY = MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - getClimbingRotation());

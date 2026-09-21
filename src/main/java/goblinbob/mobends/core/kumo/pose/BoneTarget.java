@@ -46,6 +46,12 @@ public class BoneTarget
 
     /** Jump to the rotation target this frame instead of smoothing. */
     public boolean snap;
+    /**
+     * Set when a vector write replaced a different target written earlier in the same frame: the
+     * original code re-aimed the slide from the current value each time (an exponential approach
+     * instead of a linear tween), so the sink restarts the slide on these axes.
+     */
+    public boolean restartX, restartY, restartZ;
     public IVectorSink.Mode vectorMode = IVectorSink.Mode.RETARGET;
 
     public void clear()
@@ -62,6 +68,7 @@ public class BoneTarget
         smoothness = Float.NaN;
         vectorSmoothness.set(Float.NaN, Float.NaN, Float.NaN);
         snap = false;
+        restartX = restartY = restartZ = false;
         vectorMode = IVectorSink.Mode.RETARGET;
     }
 
@@ -98,6 +105,9 @@ public class BoneTarget
         smoothness = other.smoothness;
         vectorSmoothness.set(other.vectorSmoothness);
         snap = other.snap;
+        restartX = other.restartX;
+        restartY = other.restartY;
+        restartZ = other.restartZ;
         vectorMode = other.vectorMode;
     }
 

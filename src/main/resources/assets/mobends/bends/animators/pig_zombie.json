@@ -89,6 +89,37 @@
         "value": 0
       },
       "entryNode": "slash",
+      "mirror": {
+        "when": {
+          "type": "core:state",
+          "state": "LEFT_HANDED"
+        },
+        "negate": [
+          "headYaw"
+        ],
+        "pairs": [
+          [
+            "leftArm",
+            "rightArm"
+          ],
+          [
+            "leftForeArm",
+            "rightForeArm"
+          ],
+          [
+            "leftLeg",
+            "rightLeg"
+          ],
+          [
+            "leftForeLeg",
+            "rightForeLeg"
+          ],
+          [
+            "renderLeftItemRotation",
+            "renderRightItemRotation"
+          ]
+        ]
+      },
       "nodes": {
         "slash": {
           "type": "core:pose",
@@ -102,6 +133,7 @@
               "time": {
                 "variable": "ticksAfterAttack"
               },
+              "mirror": true,
               "damping": {
                 "body": 0.9,
                 "head": 0.9,
@@ -122,7 +154,8 @@
               "angle": {
                 "variable": "headYaw"
               },
-              "space": "PRE"
+              "space": "PRE",
+              "mirror": true
             },
             {
               "driver": "core:axis_rotate",
@@ -131,10 +164,17 @@
               "angle": {
                 "variable": "headPitch"
               },
-              "space": "POST"
+              "space": "POST",
+              "mirror": true
             },
             {
               "animationKey": "mobends:bends/animations/pigzombie/slash_still.json",
+              "bones": [
+                "leftLeg",
+                "rightLeg",
+                "rightForeLeg",
+                "root"
+              ],
               "when": {
                 "type": "core:and",
                 "conditions": [
@@ -152,7 +192,6 @@
                 ]
               },
               "damping": {
-                "renderRotation": 0.3,
                 "root": [
                   null,
                   0.6,
@@ -164,12 +203,39 @@
               }
             },
             {
+              "animationKey": "mobends:bends/animations/pigzombie/slash_still.json",
+              "bones": [
+                "renderRotation"
+              ],
+              "mirror": true,
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "RIDING"
+                    }
+                  }
+                ]
+              },
+              "damping": {
+                "renderRotation": 0.3
+              }
+            },
+            {
               "driver": "core:axis_rotate",
               "bone": "renderRightItemRotation",
               "axis": "X",
               "angle": 50,
               "space": "OVERRIDE",
               "snap": true,
+              "mirror": true,
               "damping": {
                 "renderRightItemRotation": 0.9
               }

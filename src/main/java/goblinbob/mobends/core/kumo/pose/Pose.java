@@ -247,6 +247,14 @@ public class Pose
                 target.hasVectorStart = true;
                 target.vectorStart.set(target.vector);
             }
+            else if (target.hasVector)
+            {
+                // Two writers with different targets in one frame: each slideTo() saw a new
+                // target and restarted from the current value.
+                if (!Float.isNaN(x) && x != target.vector.x) target.restartX = true;
+                if (!Float.isNaN(y) && y != target.vector.y) target.restartY = true;
+                if (!Float.isNaN(z) && z != target.vector.z) target.restartZ = true;
+            }
             target.vector.set(x, y, z);
             target.vectorAdditive = false;
         }
@@ -308,6 +316,10 @@ public class Pose
                 vectorSink.setVectorTarget(target.vector.x, target.vector.y, target.vector.z,
                         target.vectorSmoothness.x, target.vectorSmoothness.y, target.vectorSmoothness.z,
                         target.vectorMode, target.hasVectorStart ? target.vectorStart : null);
+                if (target.vectorMode == IVectorSink.Mode.SLIDE && (target.restartX || target.restartY || target.restartZ))
+                {
+                    vectorSink.restartSlide(target.restartX, target.restartY, target.restartZ);
+                }
             }
         }
     }

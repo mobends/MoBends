@@ -392,3 +392,26 @@ Open items, in order of value:
 3. The bow's climbing branch and the pig zombie / skeleton left-handed cases have no scenario.
 4. Retire the procedural code once the assets have been seen in-game; the lab then needs the
    goldens only.
+
+## 12. Closing the coverage gaps
+
+* **Skeletons draw bows and swing swords.** `SkeletonController` ran the `BipedActionController`
+  too; `skeleton.json` now carries the player's action layer (the `useActionType` /
+  `attackActionType` properties moved from `PlayerData` to `BipedEntityData`). Scenarios
+  `skeleton/bow_and_sword` and `skeleton/bow_and_sword_left_handed`.
+* **Left-handed mobs.** Vanilla mobs can be left-handed; the pig zombie's slash layer has the
+  mirror rule now (`pig_zombie/walk_attack_left_handed`), and the skeleton's actions inherit the
+  player's.
+* **The torch follows the primary hand** (`player/right_handed_torch_offhand`, and a torch phase
+  at the end of `player/left_handed`).
+* **The bow on a ladder**: the body faces the wall (`climbingBodyYaw`), the head only pitches
+  (`player/ladder_bow`).
+* **A slash from the saddle** (`player/riding` re-recorded with a sword hit).
+* **Core:** a vector target replaced by a different one within the same frame restarts the
+  slide on those axes (`BoneTarget.restartX/Y/Z`, `IVectorSink.restartSlide`), which is exactly
+  what two `slideTo()` calls did. The action layer's offsets are plain `SLIDE`s again and match
+  whether or not the base layer writes the same vector that frame.
+
+**Result.** 40/40 parity scenarios (worst 0.036° / 0.007 units), 40/40 stability, side
+effects equal. Every hand-dependent branch of the reference now has a left- and a
+right-handed scenario.

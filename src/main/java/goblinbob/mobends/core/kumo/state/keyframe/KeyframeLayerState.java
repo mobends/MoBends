@@ -393,6 +393,9 @@ public class KeyframeLayerState implements ILayerState
             if (!Float.isNaN(src.vectorSmoothness.y)) dst.vectorSmoothness.y = src.vectorSmoothness.y;
             if (!Float.isNaN(src.vectorSmoothness.z)) dst.vectorSmoothness.z = src.vectorSmoothness.z;
             if (src.snap) dst.snap = true;
+            if (src.restartX) dst.restartX = true;
+            if (src.restartY) dst.restartY = true;
+            if (src.restartZ) dst.restartZ = true;
             if (src.hasVector) dst.vectorMode = src.vectorMode;
         }
     }

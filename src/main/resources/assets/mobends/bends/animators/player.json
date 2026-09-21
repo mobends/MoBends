@@ -13372,9 +13372,21 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:property",
-                "property": "mainHandItem",
-                "value": "minecraft:torch"
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:property",
+                    "property": "mainHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "LEFT_HANDED"
+                    }
+                  }
+                ]
               }
             },
             {
@@ -13388,17 +13400,108 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:property",
-                "property": "mainHandItem",
-                "value": "minecraft:torch"
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:property",
+                    "property": "mainHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "LEFT_HANDED"
+                    }
+                  }
+                ]
               }
             },
             {
               "animationKey": "mobends:bends/animations/player/torch_forearm_right.json",
               "when": {
-                "type": "core:property",
-                "property": "mainHandItem",
-                "value": "minecraft:torch"
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:property",
+                    "property": "mainHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "LEFT_HANDED"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftArm",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 0.5,
+                "offset": -90
+              },
+              "space": "OVERRIDE",
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:property",
+                    "property": "mainHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "LEFT_HANDED"
+                  }
+                ]
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftArm",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 0.7,
+                "offset": 0
+              },
+              "space": "PRE",
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:property",
+                    "property": "mainHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "LEFT_HANDED"
+                  }
+                ]
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/player/torch_forearm_left.json",
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:property",
+                    "property": "mainHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "LEFT_HANDED"
+                  }
+                ]
               }
             },
             {
@@ -13426,6 +13529,13 @@
                     "type": "core:property",
                     "property": "offHandItem",
                     "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "LEFT_HANDED"
+                    }
                   }
                 ]
               }
@@ -13455,6 +13565,13 @@
                     "type": "core:property",
                     "property": "offHandItem",
                     "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "LEFT_HANDED"
+                    }
                   }
                 ]
               }
@@ -13476,6 +13593,104 @@
                     "type": "core:property",
                     "property": "offHandItem",
                     "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "LEFT_HANDED"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch",
+                "scale": 0.5,
+                "offset": -90
+              },
+              "space": "OVERRIDE",
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:property",
+                      "property": "mainHandItem",
+                      "value": "minecraft:torch"
+                    }
+                  },
+                  {
+                    "type": "core:property",
+                    "property": "offHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "LEFT_HANDED"
+                  }
+                ]
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw",
+                "scale": 0.7,
+                "offset": 0
+              },
+              "space": "PRE",
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:property",
+                      "property": "mainHandItem",
+                      "value": "minecraft:torch"
+                    }
+                  },
+                  {
+                    "type": "core:property",
+                    "property": "offHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "LEFT_HANDED"
+                  }
+                ]
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/player/torch_forearm_right.json",
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:property",
+                      "property": "mainHandItem",
+                      "value": "minecraft:torch"
+                    }
+                  },
+                  {
+                    "type": "core:property",
+                    "property": "offHandItem",
+                    "value": "minecraft:torch"
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "LEFT_HANDED"
                   }
                 ]
               }
@@ -14348,7 +14563,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "mirror": true
             },
@@ -15672,7 +15887,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "when": {
                 "type": "core:state",
@@ -16065,7 +16280,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "when": {
                 "type": "core:state",
@@ -16448,7 +16663,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "when": {
                 "type": "core:state",
@@ -17428,7 +17643,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "when": {
                 "type": "core:and",
@@ -18087,7 +18302,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "when": {
                 "type": "core:and",
@@ -18736,7 +18951,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "when": {
                 "type": "core:and",
@@ -19409,7 +19624,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "when": {
                 "type": "core:and",
@@ -20047,7 +20262,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               }
             },
             {
@@ -20116,7 +20331,7 @@
                 ]
               },
               "vectorModes": {
-                "root": "RETARGET"
+                "root": "SLIDE"
               },
               "when": {
                 "type": "core:state",
@@ -21013,7 +21228,14 @@
                 "scale": -5,
                 "offset": 50
               },
-              "space": "PRE"
+              "space": "PRE",
+              "when": {
+                "type": "core:not",
+                "condition": {
+                  "type": "core:state",
+                  "state": "CLIMBING"
+                }
+              }
             },
             {
               "driver": "core:axis_rotate",
@@ -21027,6 +21249,13 @@
               "space": "OVERRIDE",
               "damping": {
                 "body": 0.8
+              },
+              "when": {
+                "type": "core:not",
+                "condition": {
+                  "type": "core:state",
+                  "state": "CLIMBING"
+                }
               }
             },
             {
@@ -21038,7 +21267,32 @@
                 "scale": 1,
                 "offset": 0
               },
-              "space": "PRE"
+              "space": "PRE",
+              "when": {
+                "type": "core:not",
+                "condition": {
+                  "type": "core:state",
+                  "state": "CLIMBING"
+                }
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "body",
+              "axis": "Y",
+              "angle": {
+                "variable": "climbingBodyYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "body": 0.8
+              },
+              "when": {
+                "type": "core:state",
+                "state": "CLIMBING"
+              }
             },
             {
               "driver": "core:axis_rotate",
@@ -22166,7 +22420,14 @@
                 "scale": 5,
                 "offset": -50
               },
-              "space": "PRE"
+              "space": "PRE",
+              "when": {
+                "type": "core:not",
+                "condition": {
+                  "type": "core:state",
+                  "state": "CLIMBING"
+                }
+              }
             },
             {
               "driver": "core:axis_rotate",
@@ -22180,6 +22441,13 @@
               "space": "OVERRIDE",
               "damping": {
                 "body": 0.8
+              },
+              "when": {
+                "type": "core:not",
+                "condition": {
+                  "type": "core:state",
+                  "state": "CLIMBING"
+                }
               }
             },
             {
@@ -22191,7 +22459,32 @@
                 "scale": 1,
                 "offset": 0
               },
-              "space": "PRE"
+              "space": "PRE",
+              "when": {
+                "type": "core:not",
+                "condition": {
+                  "type": "core:state",
+                  "state": "CLIMBING"
+                }
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "body",
+              "axis": "Y",
+              "angle": {
+                "variable": "climbingBodyYaw",
+                "scale": 1,
+                "offset": 0
+              },
+              "space": "OVERRIDE",
+              "damping": {
+                "body": 0.8
+              },
+              "when": {
+                "type": "core:state",
+                "state": "CLIMBING"
+              }
             },
             {
               "driver": "core:axis_rotate",
