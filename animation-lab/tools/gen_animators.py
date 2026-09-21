@@ -534,7 +534,14 @@ comboReset = {"driver": "core:set", "variable": "combo", "value": 0, "when": cmp
 localOffsetZero = {"animationKey": PL("localoffset_zero"), "damping": {"localOffset": 0.3}, "vectorModes": {"localOffset": "SLIDE"}}
 pose_clip(os.path.join(CLIPS, 'player', 'localoffset_zero.json'), {}, {"localOffset": [0, 0, 0]})
 
+def mirrored(item):
+    item = dict(item); item["mirror"] = True; return item
+def swapped(item):
+    item = dict(item); item["swapSides"] = True; return item
+
 # --- sword slashes: baked clips, the look direction wrapped around the baked head part -------------------
+# Everything the bit computes with its hand multiplier is marked "mirror"; the still-standing legs
+# are not (the bit poses them the same way for both hands).
 def slash_node(name, clipname, by_attack, main_damp, main_snap, head_damp, still_cond, item_damp, item_snap, still_extra=None):
     time = {"variable": tAA} if by_attack else None
     def item(bones, **kw):
@@ -543,22 +550,24 @@ def slash_node(name, clipname, by_attack, main_damp, main_snap, head_damp, still
         it.update(kw)
         return it
     pose = [
-        item(["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
-             damping={"body": 0.9, "leftArm": 0.3, "leftForeArm": 0.3, "rightForeArm": 0.3, "localOffset": 0.3}, vectorModes={"localOffset": "SLIDE"}),
-        item(["rightArm"], damping={"rightArm": main_damp}, snap=main_snap),
-        item(["renderRightItemRotation"], damping={"renderRightItemRotation": item_damp} if item_damp else {}, snap=item_snap),
-        with_damping(drv("head", "X", "headPitch", space="OVERRIDE"), head=head_damp) if head_damp else drv("head", "X", "headPitch", space="OVERRIDE"),
-        item(["head"], space="PRE"),
-        drv("head", "Y", "headYaw"),
-        when({"animationKey": PL(clipname + "_still"), "damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3, "renderRotation": 0.3, "root": [None, 0.6, None]},
+        mirrored(item(["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
+             damping={"body": 0.9, "leftArm": 0.3, "leftForeArm": 0.3, "rightForeArm": 0.3, "localOffset": 0.3}, vectorModes={"localOffset": "SLIDE"})),
+        mirrored(item(["rightArm"], damping={"rightArm": main_damp}, snap=main_snap)),
+        mirrored(item(["renderRightItemRotation"], damping={"renderRightItemRotation": item_damp} if item_damp else {}, snap=item_snap)),
+        mirrored(with_damping(drv("head", "X", "headPitch", space="OVERRIDE"), head=head_damp) if head_damp else drv("head", "X", "headPitch", space="OVERRIDE")),
+        mirrored(item(["head"], space="PRE")),
+        mirrored(drv("head", "Y", "headYaw")),
+        when({"animationKey": PL(clipname + "_still"), "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"],
+              "damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3, "root": [None, 0.6, None]},
               "vectorModes": {"root": "RETARGET"}}, still_cond),
+        when(mirrored({"animationKey": PL(clipname + "_still"), "bones": ["renderRotation"], "damping": {"renderRotation": 0.3}}), still_cond),
     ]
-    if still_extra: pose += [when(x, still_cond) for x in still_extra]
+    if still_extra: pose += [when(mirrored(x), still_cond) for x in still_extra]
     return {"type": "core:pose", "tags": [name], "pose": pose}
 
 # up / inward: legs, fore leg and render rotation are not damped by the bit (keep their rate)
 def slash_node_keep_legs(node):
-    node["pose"][-1]["damping"] = {"renderRotation": 0.3, "root": [None, 0.6, None]}
+    node["pose"][-2]["damping"] = {"root": [None, 0.6, None]}
     return node
 
 swordTrail = when({"driver": "mobends:sword_trail", "resetOnEnter": True}, AND(cmp(tAA, "<", 4), prop("attackActionType", "SWORD")))
@@ -581,13 +590,16 @@ whirl["pose"][0] = {"driver": "mobends:sword_trail"}
 whirl["pose"].insert(0, when({"driver": "mobends:sword_trail", "add": False, "resetEachFrame": True}, cmp(tAA, "<", 0.5)))
 
 # --- attack stance: two breathing clocks (sin(t/5), cos(t/5.7)) split into two clips ----------------------
+# The bit's arm angles are 60h + 5 sin(t/5) etc.: the constant carries the hand multiplier, the
+# breathing does not, so the constants mirror while the sways only change arm.
 cycle_clip(os.path.join(CLIPS, 'player', 'stance_breath0.json'), lambda p: {
     "body": rotations(('X', 20 + math.sin(p) * 2)),
-    "rightArm": rotations(('Z', 60 + math.sin(p) * 5)),
+    "rightArm": rotations(('Z', math.sin(p) * 5)),
     "head": rotations(('Y', -30), ('X', -(20 + math.sin(p) * 2)))})
 cycle_clip(os.path.join(CLIPS, 'player', 'stance_breath1.json'), lambda p: {
-    "leftArm": rotations(('Z', -60 + math.cos(p) * 5)),
+    "leftArm": rotations(('Z', math.cos(p) * 5)),
     "rightArm": rotations(('Y', math.cos(p) * 5))})
+pose_clip(os.path.join(CLIPS, 'player', 'stance_arms.json'), {"rightArm": rotations(('Z', 60)), "leftArm": rotations(('Z', -60))})
 pose_clip(os.path.join(CLIPS, 'player', 'stance_const.json'), {
     "rightLeg": rotations(('X', -30), ('Z', 10), ('Y', 25)), "leftLeg": rotations(('X', -30), ('Z', -10), ('Y', -25)),
     "rightForeLeg": rotations(('X', 30)), "leftForeLeg": rotations(('X', 30)),
@@ -596,12 +608,14 @@ pose_clip(os.path.join(CLIPS, 'player', 'stance_const.json'), {
 b0time = {"variable": "ticks", "scale": 1 / 5.0}
 b1time = {"variable": "ticks", "scale": 1 / 5.7}
 stance = {"type": "core:pose", "tags": ["attack_stance"], "pose": [
-    {"animationKey": PL("stance_breath0"), "time": b0time, "bones": ["body", "rightArm"], "damping": {"body": 0.3, "rightArm": 0.3}},
-    {"animationKey": PL("stance_breath0"), "time": b0time, "bones": ["head"], "space": "PRE"},
-    {"animationKey": PL("stance_breath1"), "time": b1time, "bones": ["leftArm"], "damping": {"leftArm": 0.3}},
-    {"animationKey": PL("stance_breath1"), "time": b1time, "bones": ["rightArm"], "space": "PRE"},
-    {"animationKey": PL("stance_const"), "damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3,
-                                                     "renderRightItemRotation": 0.3, "renderRotation": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}},
+    mirrored({"animationKey": PL("stance_arms"), "damping": {"rightArm": 0.3, "leftArm": 0.3}}),
+    {"animationKey": PL("stance_breath0"), "time": b0time, "bones": ["body"], "damping": {"body": 0.3}},
+    swapped({"animationKey": PL("stance_breath0"), "time": b0time, "bones": ["rightArm"], "space": "POST"}),
+    mirrored({"animationKey": PL("stance_breath0"), "time": b0time, "bones": ["head"], "space": "PRE"}),
+    swapped({"animationKey": PL("stance_breath1"), "time": b1time, "bones": ["leftArm"], "space": "POST"}),
+    swapped({"animationKey": PL("stance_breath1"), "time": b1time, "bones": ["rightArm"], "space": "PRE"}),
+    mirrored({"animationKey": PL("stance_const"), "damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3,
+                                                     "renderRightItemRotation": 0.3, "renderRotation": 0.3, "root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}}),
     {"animationKey": PL("stance_kneel"), "time": {"variable": "ticksAfterTouchdown"}, "when": cmp("ticksAfterTouchdown", "<", 1 / 0.15), "damping": {"body": 1.0}, "vectorModes": {"root": "SNAP"}},
     comboReset,
 ]}
@@ -610,8 +624,8 @@ pose_clip(os.path.join(CLIPS, 'player', 'stance_sprint_pre.json'), {"body": rota
 stance_sprint = {"type": "core:pose", "tags": ["attack_stance_sprint"], "pose": [
     when({"driver": "mobends:sword_trail", "velocity": [0, 0, -10]}, prop("attackActionType", "SWORD")),
     localOffsetZero,
-    {"animationKey": PL("stance_sprint_abs"), "damping": {"renderRightItemRotation": 0.3}},
-    {"animationKey": PL("stance_sprint_pre"), "space": "PRE"},
+    mirrored({"animationKey": PL("stance_sprint_abs"), "damping": {"renderRightItemRotation": 0.3}}),
+    mirrored({"animationKey": PL("stance_sprint_pre"), "space": "PRE"}),
     comboReset,
 ]}
 sword_idle = {"type": "core:pose", "pose": [comboReset]}
@@ -645,11 +659,14 @@ pose_clip(os.path.join(CLIPS, 'player', 'fist_guard_abs.json'), dict(legsStill, 
     "rightArm": rotations(('X', -90), ('Z', 20)), "leftArm": rotations(('X', -90), ('Z', -20)),
     "rightForeArm": rotations(('X', -80)), "leftForeArm": rotations(('X', -80))}), {"root": [0, -2, 0]})
 pose_clip(os.path.join(CLIPS, 'player', 'fist_guard_pre.json'), {"body": rotations(('X', 10)), "head": rotations(('X', -10), ('Y', -20))})
+fistGuardBones = ["rightArm", "leftArm", "rightForeArm", "leftForeArm", "rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg", "root"]
 fist_guard = {"type": "core:pose", "tags": ["fist_guard"], "pose": [
-    when({"animationKey": PL("fist_guard_abs"), "damping": {"renderRotation": 0.3, "rightArm": 0.3, "leftArm": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3,
+    when({"animationKey": PL("fist_guard_abs"), "bones": fistGuardBones, "damping": {"rightArm": 0.3, "leftArm": 0.3, "rightForeArm": 0.3, "leftForeArm": 0.3,
                                                           "rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3, "root": [None, 0.6, None]},
           "vectorModes": {"root": "RETARGET"}}, state("STANDING_STILL")),
-    when({"animationKey": PL("fist_guard_pre"), "space": "PRE"}, state("STANDING_STILL")),
+    when(mirrored({"animationKey": PL("fist_guard_abs"), "bones": ["renderRotation"], "damping": {"renderRotation": 0.3}}), state("STANDING_STILL")),
+    when({"animationKey": PL("fist_guard_pre"), "bones": ["body"], "space": "PRE"}, state("STANDING_STILL")),
+    when(mirrored({"animationKey": PL("fist_guard_pre"), "bones": ["head"], "space": "PRE"}), state("STANDING_STILL")),
 ]}
 fists_idle = {"type": "core:pose", "pose": []}
 
@@ -665,7 +682,7 @@ pose_clip(os.path.join(CLIPS, 'player', 'tool_sneak_body.json'), {"body": rotati
 swingTime = {"variable": "swingProgress"}
 def also_when(item, cond):
     return when(item, AND(item["when"], cond) if "when" in item else cond)
-tool = {"type": "core:pose", "tags": ["tool"], "pose": [also_when(x, state("SWINGING")) for x in [
+tool = {"type": "core:pose", "tags": ["tool"], "pose": [(swapped if "tool_arm" in json.dumps(x) else mirrored)(also_when(x, state("SWINGING"))) for x in [
     {"animationKey": PL("tool_rest"), "damping": {"centerRotation": 0.3, "localOffset": 0.3}, "vectorModes": {"localOffset": "SLIDE"}},
     {"animationKey": PL("tool_body"), "time": swingTime, "damping": {"body": 0.8}},
     when({"animationKey": PL("tool_sneak_body"), "space": "PRE"}, state("SNEAKING")),
@@ -780,7 +797,11 @@ for name, node in action_nodes.items():
         c = use_conns(typ) + attack_conns()
     node["connections"] = copy.deepcopy(c)
 
-action_layer = {"type": "KEYFRAME", "when": NOT(state("SLEEPING")), "entryNode": "idle", "variables": {"combo": 0, "fist": 0}, "nodes": action_nodes}
+action_layer = {"type": "KEYFRAME", "when": NOT(state("SLEEPING")), "entryNode": "idle", "variables": {"combo": 0, "fist": 0}, "nodes": action_nodes,
+                # a left-handed player plays the hand-dependent items as their mirror image
+                "mirror": {"when": state("LEFT_HANDED"), "negate": ["headYaw"],
+                           "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
+                                     ["renderLeftItemRotation", "renderRightItemRotation"]]}}
 
 groundAction = OR(action("stand"), action("walk"), action("sprint"))
 torchMain = {"type": "core:property", "property": "mainHandItem", "value": "minecraft:torch"}

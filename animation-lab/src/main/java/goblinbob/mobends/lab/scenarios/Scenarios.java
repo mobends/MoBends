@@ -219,6 +219,22 @@ public class Scenarios
             lookAround(in, tick);
         }));
 
+        // A left-handed player: the attack bits mirror on the primary hand, the use actions follow the active hand.
+        add(new Scenario(EntityKind.PLAYER, "left_handed", FPS, 220, (tick, in) -> {
+            in.leftHanded = true;
+            in.mainHand = new ItemStack(Items.IRON_SWORD);
+            if (tick == 10 || tick == 22 || tick == 34) in.attack = true;
+            if (between(tick, 60, 100)) walk(in, WALK_SPEED);
+            if (tick == 70) in.attack = true;
+            if (between(tick, 100, 130)) { walk(in, SPRINT_SPEED); in.sprinting = true; }
+            if (tick == 110) in.attack = true;
+            if (tick >= 140) in.mainHand = new ItemStack(Items.IRON_PICKAXE);
+            if (tick == 150 || tick == 162) in.attack = true;
+            if (tick >= 180) in.mainHand = ItemStack.EMPTY;
+            if (tick == 190 || tick == 202) in.attack = true;
+            lookAround(in, tick);
+        }));
+
         // --- Spider -----------------------------------------------------------------------------
         add(new Scenario(EntityKind.SPIDER, "idle_move_jump", FPS, 160, (tick, in) -> {
             if (between(tick, 30, 90)) walk(in, WALK_SPEED);

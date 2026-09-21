@@ -72,10 +72,15 @@ public class KumoContext implements IKumoContext
     @Override
     public double resolveVariable(String name)
     {
-        if (nodeScope != null && nodeScope.has(name)) return nodeScope.get(name);
-        if (layerScope != null && layerScope.has(name)) return layerScope.get(name);
-        return subject.getVariable(name);
+        double value;
+        if (nodeScope != null && nodeScope.has(name)) value = nodeScope.get(name);
+        else if (layerScope != null && layerScope.has(name)) value = layerScope.get(name);
+        else value = subject.getVariable(name);
+        return negatedVariables != null && negatedVariables.contains(name) ? -value : value;
     }
+
+    /** Variables read as their negation while a mirrored item is evaluated (see {@code MirroredPoseItem}). */
+    public java.util.Set<String> negatedVariables;
 
     @Override
     public boolean hasVariable(String name)

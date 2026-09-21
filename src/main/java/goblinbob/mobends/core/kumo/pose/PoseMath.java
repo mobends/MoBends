@@ -68,4 +68,11 @@ public class PoseMath
         dest.setFromAxisAngle(x, y, z, degrees / 180F * (float) Math.PI);
     }
 
+    /** The rotation reflected across the YZ plane (a left-right mirror): axis x kept, y and z negated. */
+    public static void mirrorX(Quaternion q)
+    {
+        q.y = -q.y;
+        q.z = -q.z;
+    }
+
 }

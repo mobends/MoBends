@@ -82,6 +82,32 @@ public class Pose
         }
     }
 
+    /**
+     * Becomes the left-right mirror image of {@code other}: slot {@code i} of the source lands in
+     * {@code pairOf[i]} with Y and Z rotations and X offsets negated.
+     */
+    public void mirrorFrom(Pose other, int[] pairOf)
+    {
+        mirrorFrom(other, pairOf, true);
+    }
+
+    /** As {@link #mirrorFrom(Pose, int[])}; with {@code flip} false only the slots are swapped. */
+    public void mirrorFrom(Pose other, int[] pairOf, boolean flip)
+    {
+        // Poses created before the skeleton finished growing can be shorter than the pairing.
+        int count = Math.min(targets.length, other.targets.length);
+        for (int i = 0; i < count; i++)
+        {
+            int j = i < pairOf.length ? pairOf[i] : i;
+            if (j >= targets.length) j = i;
+            targets[j].set(other.targets[i]);
+            if (flip)
+            {
+                targets[j].mirrorX();
+            }
+        }
+    }
+
     /** The live target of a bone's sink (the value beneath the first layer), if it has one. */
     private boolean sinkRotation(int index, Quaternion dest)
     {

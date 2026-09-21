@@ -25,5 +25,12 @@ public class PoseItemTemplate
 
     /** The bones this item writes jump to their target every frame (the per-frame {@code orientInstant} idiom). */
     public boolean snap;
+    /** Evaluate as the mirror image while the layer's mirror condition holds (see the layer's {@code mirror}). */
+    public boolean mirror;
+    /**
+     * Like {@code mirror}, but only the paired bones swap sides: rotations and inputs are kept
+     * (a part the bit applies to its main hand without the hand multiplier, e.g. a breathing sway).
+     */
+    public boolean swapSides;
 
 }

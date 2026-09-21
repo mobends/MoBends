@@ -143,6 +143,20 @@ public class PoseNode implements INodeState
 
     private static IPoseItem createItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
+        IPoseItem item = createPlainItem(context, skeleton, spaces, template);
+        if (template.mirror || template.swapSides)
+        {
+            if (spaces.mirror == null)
+            {
+                throw new MalformedKumoTemplateException("An item sets \"mirror\" / \"swapSides\" but its layer has no \"mirror\" rule.");
+            }
+            item = new goblinbob.mobends.core.kumo.pose.MirroredPoseItem(item, spaces.mirror, skeleton, template.mirror);
+        }
+        return item;
+    }
+
+    private static IPoseItem createPlainItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
+    {
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
         ItemEffects effects = new ItemEffects(skeleton, template.damping, template.vectorModes, template.snap);
 

@@ -65,6 +65,18 @@ public class BoneTarget
         vectorMode = IVectorSink.Mode.RETARGET;
     }
 
+    /** Reflects the target across the YZ plane: rotations (x, -y, -z, w), vectors (-x, y, z). */
+    public void mirrorX()
+    {
+        PoseMath.mirrorX(rotation);
+        PoseMath.mirrorX(pre);
+        PoseMath.mirrorX(post);
+        PoseMath.mirrorX(snapFrom);
+        vector.x = -vector.x;
+        vectorStart.x = -vectorStart.x;
+        offset.x = -offset.x;
+    }
+
     public void set(BoneTarget other)
     {
         hasPre = other.hasPre;

@@ -26,6 +26,8 @@ public class LayerTemplate
 
     /** Layer variables with their initial values (e.g. a combo counter); nodes can set them on entry. */
     public java.util.Map<String, Float> variables;
+    /** Left-right mirroring rule for items that set {@code "mirror": true}. */
+    public MirrorTemplate mirror;
 
     public enum LayerMode
     {

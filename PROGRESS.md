@@ -327,3 +327,24 @@ head and tail code.
 lab compiles the affected mod sources with `--release 8`, but the first real build of the mod
 should be checked in a dev environment. Resource reloads should call
 `AnimatorResources.INSTANCE.clearCache()` and each controller's `reload()` (not wired yet).
+
+## 9. Left-handed players: mirroring in data
+
+**What.** The attack bits mirrored themselves through a hand multiplier and a main/off arm
+swap. The animator expresses this as a layer rule plus item flags: the player's action layer
+declares `mirror: {when: LEFT_HANDED, pairs: [[leftArm, rightArm], ...], negate: [headYaw]}`,
+and every item a bit computed with the hand multiplier sets `"mirror": true`. Such an item is
+evaluated on the mirror image of the pose (paired bones swapped, Y and Z rotations and X offsets
+negated) with the yaw-like inputs negated, and the result is mirrored back, which is an
+involution, so the item's own composition rules are untouched and a look driver comes out
+right (the look direction is a world input, the body twist is not). Parts a bit applied to its
+main hand *without* the multiplier (the stance's breathing sways, the tool swing's arm curves)
+set `"swapSides": true` instead: they change arm but keep their sign. The still-standing legs
+of the slashes and the fist guard are left alone, as the bits did.
+
+**Scenario added.** `player/left_handed` (sword combo, stances, a pickaxe, bare fists; golden
+recorded from the reference with the primary hand set to LEFT). Worst error 0.035°.
+
+**Also.** Resource reloads now clear the animator cache (`MoBends.refreshSystems`).
+
+**Result.** 31/31 parity scenarios, 32/32 stability, side effects equal.

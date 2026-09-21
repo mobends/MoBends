@@ -150,6 +150,7 @@ public class ScriptedEntity
         // Flags and items.
         e.sprinting = in.sprinting;
         e.sneaking = in.sneaking;
+        e.primaryHand = in.leftHanded ? net.minecraft.util.EnumHandSide.LEFT : net.minecraft.util.EnumHandSide.RIGHT;
         e.inWater = in.inWater;
         e.onLadder = in.onLadder;
         e.playerSleeping = in.sleeping;
