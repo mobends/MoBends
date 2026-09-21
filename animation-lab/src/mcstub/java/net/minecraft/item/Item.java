@@ -9,6 +9,18 @@ public class Item
 {
     private static final Map<Block, Item> BLOCK_ITEMS = new HashMap<>();
 
+    /** Minimal stand-in for the game's item registry: names are "minecraft:<name>". */
+    public static final Registry REGISTRY = new Registry();
+
+    public static class Registry
+    {
+        public net.minecraft.util.ResourceLocation getNameForObject(Item item)
+        {
+            String name = item.getName().startsWith("block.") ? item.getName().substring(6) : item.getName();
+            return new net.minecraft.util.ResourceLocation("minecraft", name);
+        }
+    }
+
     private final String name;
     private EnumAction useAction = EnumAction.NONE;
 

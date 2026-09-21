@@ -6,7 +6,11 @@ import net.minecraft.block.BlockVine;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
@@ -67,6 +71,61 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         registerState("DRAWING_BOW", this::isDrawingBow);
         registerState("SWINGING", () -> entity != null && entity.isSwingInProgress);
         registerState("CHILD", () -> entity != null && entity.isChild());
+        registerState("RIDING_LIVING", () -> entity != null && entity.getRidingEntity() instanceof EntityLivingBase);
+        registerState("LEFT_HANDED", () -> entity != null && entity.getPrimaryHand() == EnumHandSide.LEFT);
+
+        // Derived inputs the procedural bits compute inline; exposed so animators stay data.
+        registerVariable("rotationYaw", () -> entity != null ? entity.rotationYaw : 0);
+        registerVariable("headYawAbs", () -> Math.abs(headYaw.get()));
+        registerVariable("climbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - getClimbingRotation()) : 0);
+        registerVariable("climbingHeadYaw", () -> {
+            if (entity == null) return 0;
+            float renderRotationY = MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - getClimbingRotation());
+            return Math.max(-90F, Math.min(90F, MathHelper.wrapDegrees(headYaw.get() + renderRotationY)));
+        });
+        registerVariable("ridingRelativeHeadYaw", () -> {
+            if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
+            return MathHelper.wrapDegrees(entity.rotationYaw - ((EntityLivingBase) entity.getRidingEntity()).renderYawOffset);
+        });
+        registerVariable("ridingRelativeYaw", () -> {
+            if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
+            return MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - ((EntityLivingBase) entity.getRidingEntity()).renderYawOffset);
+        });
+        registerVariable("entityXZSpeed", () -> entity != null ? Math.sqrt(entity.motionX * entity.motionX + entity.motionZ * entity.motionZ) : 0);
+        registerVariable("aimedBowTicks", () -> entity != null ? Math.min(entity.getItemInUseMaxCount(), 15) : 0);
+    }
+
+    // --- string-valued inputs -----------------------------------------------------------------
+
+    @Override
+    public String getProperty(String name)
+    {
+        if (entity == null) return null;
+        switch (name)
+        {
+            case "mainHandItem": return itemName(entity.getHeldItemMainhand());
+            case "offHandItem": return itemName(entity.getHeldItemOffhand());
+            case "activeItem": return itemName(entity.getActiveItemStack());
+            case "mainHandUseAction": return useAction(entity.getHeldItemMainhand());
+            case "offHandUseAction": return useAction(entity.getHeldItemOffhand());
+            case "activeHand": return entity.getActiveHand() == EnumHand.MAIN_HAND ? "MAIN_HAND" : "OFF_HAND";
+            case "primaryHand": return entity.getPrimaryHand().name();
+            case "activeHandSide": return (entity.getActiveHand() == EnumHand.MAIN_HAND ? entity.getPrimaryHand() : entity.getPrimaryHand().opposite()).name();
+            default: return null;
+        }
+    }
+
+    private static String itemName(ItemStack stack)
+    {
+        if (stack == null || stack.isEmpty()) return null;
+        net.minecraft.util.ResourceLocation key = Item.REGISTRY.getNameForObject(stack.getItem());
+        return key == null ? null : key.toString();
+    }
+
+    private static String useAction(ItemStack stack)
+    {
+        if (stack == null || stack.isEmpty()) return null;
+        return stack.getItemUseAction().name();
     }
 
     public void setClimbing(boolean flag)

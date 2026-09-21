@@ -54,6 +54,12 @@ public class BipedActionController
         }
     }
 
+    /** The vanilla arm pose an item in hand implies (public for the KUMO "useActionType" property). */
+    public static ModelBiped.ArmPose armPoseOf(EntityLivingBase entity, ItemStack heldItem)
+    {
+        return getAction(entity, heldItem);
+    }
+
     private static ModelBiped.ArmPose getAction(EntityLivingBase entity, ItemStack heldItem)
     {
         if (!heldItem.isEmpty())

@@ -21,6 +21,8 @@ public class ItemEffects
     private final int[] modeSlots;
     private final IVectorSink.Mode[] modes;
     private final boolean snap;
+    private final int[] dynamicSlots;
+    private final ValueSource[] dynamicValues;
 
     public ItemEffects(Skeleton skeleton, DampingTemplate damping, Map<String, IVectorSink.Mode> vectorModes)
     {
@@ -57,6 +59,31 @@ public class ItemEffects
         }
         defaultDamping = fallback;
 
+        List<Integer> dynSlots = new ArrayList<>();
+        List<ValueSource> dynValues = new ArrayList<>();
+        if (damping != null)
+        {
+            for (Map.Entry<String, goblinbob.mobends.core.kumo.state.template.ValueTemplate> entry : damping.dynamic.entrySet())
+            {
+                dynSlots.add(skeleton.indexOf(entry.getKey()));
+                try
+                {
+                    dynValues.add(ValueSource.fromTemplate(entry.getValue(), ValueSource.ONE));
+                }
+                catch (goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException e)
+                {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        }
+        dynamicSlots = new int[dynSlots.size()];
+        dynamicValues = new ValueSource[dynSlots.size()];
+        for (int k = 0; k < dynamicSlots.length; k++)
+        {
+            dynamicSlots[k] = dynSlots.get(k);
+            dynamicValues[k] = dynValues.get(k);
+        }
+
         modeSlots = new int[vectorModes == null ? 0 : vectorModes.size()];
         modes = new IVectorSink.Mode[modeSlots.length];
         int i = 0;
@@ -73,12 +100,25 @@ public class ItemEffects
 
     public boolean isEmpty()
     {
-        return dampingSlots.length == 0 && defaultDamping == null && modeSlots.length == 0 && !snap;
+        return dampingSlots.length == 0 && defaultDamping == null && modeSlots.length == 0 && !snap && dynamicSlots.length == 0;
     }
 
     /** @param writtenSlots the slots the item wrote this frame (the default rate applies to those). */
     public void apply(Pose pose, int[] writtenSlots)
     {
+        apply(pose, writtenSlots, null);
+    }
+
+    public void apply(Pose pose, int[] writtenSlots, goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext context)
+    {
+        if (context != null)
+        {
+            for (int i = 0; i < dynamicSlots.length; i++)
+            {
+                float rate = dynamicValues[i].get(context);
+                applyDamping(pose.get(dynamicSlots[i]), new float[] { rate });
+            }
+        }
         if (snap)
         {
             for (int slot : writtenSlots)

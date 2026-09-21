@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.pose;
 
+import goblinbob.mobends.core.kumo.IKumoSubject;
+
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -96,12 +98,12 @@ public class ClipPoseItem implements IPoseItem
         {
             return;
         }
-        float w = weight.get(context.getSubject());
+        float w = weight.get(context);
         if (w == 0F)
         {
             return;
         }
-        float t = time.get(context.getSubject(), elapsedTicks);
+        float t = time.get(context, elapsedTicks);
         if (resolvedSpaces == null)
         {
             resolvedSpaces = layerSpaces.resolve(clip.boneSlots(), space);
@@ -110,14 +112,14 @@ public class ClipPoseItem implements IPoseItem
         clip.apply(pose, keyframeIndexAt(t), w, space, resolvedSpaces);
         if (effects != null)
         {
-            effects.apply(pose, writtenSlots);
+            effects.apply(pose, writtenSlots, context);
         }
     }
 
     @Override
     public boolean isFinished(float elapsedTicks)
     {
-        return !loop && time.isElapsed() && duration > 0 && time.get(null, elapsedTicks) >= duration;
+        return !loop && time.isElapsed() && duration > 0 && time.get((IKumoSubject) null, elapsedTicks) >= duration;
     }
 
     @Override

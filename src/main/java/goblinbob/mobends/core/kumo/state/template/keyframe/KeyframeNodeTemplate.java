@@ -32,6 +32,9 @@ public class KeyframeNodeTemplate
      */
     public List<PoseItemTemplate> enterPose;
 
+    /** Layer variables to set when the node is entered. */
+    public java.util.Map<String, Float> set;
+
     public String getType()
     {
         return type;

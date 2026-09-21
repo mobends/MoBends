@@ -16,6 +16,9 @@ public class DampingTemplate
     /** Per bone: a single rate, or three per-axis rates for vectors. */
     public Map<String, float[]> entries = new HashMap<>();
 
+    /** Per bone: a rate driven by a variable (e.g. the falling bit ramps its smoothness). */
+    public Map<String, ValueTemplate> dynamic = new HashMap<>();
+
     public float[] forBone(String bone)
     {
         float[] value = entries.get(bone);

@@ -122,6 +122,14 @@ public class AddonAnimationRegistry
         TriggerConditionRegistry.instance.register(String.format("%s:%s", modId, key), condition);
     }
 
+    /**
+     * Registers a procedural pose driver usable from animator JSON as "modid:key".
+     */
+    public <T extends goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate> void registerDriver(String key, goblinbob.mobends.core.kumo.driver.IDriverFactory<T> factory, Class<T> templateType)
+    {
+        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory, templateType);
+    }
+
     public void registerAnimationEditor(IAnimationEditor editor)
     {
         AnimationEditorRegistry.INSTANCE.registerEditor(editor);

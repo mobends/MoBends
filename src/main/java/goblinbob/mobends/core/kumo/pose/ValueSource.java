@@ -1,12 +1,14 @@
 package goblinbob.mobends.core.kumo.pose;
 
 import goblinbob.mobends.core.kumo.IKumoSubject;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.ValueTemplate;
 
 /**
- * A number that is either constant or derived from a subject variable:
- * {@code clamp(variable * scale + offset, min, max)}.
+ * A number that is either constant or derived from a variable:
+ * {@code ease(clamp(variable, min, max)) * scale + offset} (easing applies to the clamped
+ * variable before scaling, so a 0..1 ramp can be shaped and then scaled to degrees).
  */
 public class ValueSource
 {
@@ -20,6 +22,11 @@ public class ValueSource
     private final float offset;
     private final float min;
     private final float max;
+    private final Easing ease;
+    private final float power;
+    private final boolean clampAfter;
+
+    public enum Easing { NONE, POW, EASE_IN, EASE_OUT, EASE_IN_OUT }
 
     public ValueSource(float constant)
     {
@@ -29,9 +36,17 @@ public class ValueSource
         this.offset = 0;
         this.min = Float.NEGATIVE_INFINITY;
         this.max = Float.POSITIVE_INFINITY;
+        this.ease = Easing.NONE;
+        this.power = 1;
+        this.clampAfter = false;
     }
 
     public ValueSource(String variable, float scale, float offset, float min, float max)
+    {
+        this(variable, scale, offset, min, max, Easing.NONE, 1, true);
+    }
+
+    public ValueSource(String variable, float scale, float offset, float min, float max, Easing ease, float power, boolean clampAfter)
     {
         this.constant = 0;
         this.variable = variable;
@@ -39,6 +54,9 @@ public class ValueSource
         this.offset = offset;
         this.min = min;
         this.max = max;
+        this.ease = ease;
+        this.power = power;
+        this.clampAfter = clampAfter;
     }
 
     public boolean isConstant()
@@ -51,16 +69,47 @@ public class ValueSource
         return variable;
     }
 
+    /** Resolves through the context's scopes (node-local, layer, subject). */
+    public float get(ITriggerConditionContext context)
+    {
+        if (variable == null)
+        {
+            return constant;
+        }
+        return shape((float) context.resolveVariable(variable));
+    }
+
+    /** Subject-only resolution (no node or layer scopes). */
     public float get(IKumoSubject subject)
     {
         if (variable == null)
         {
             return constant;
         }
-        float value = (float) subject.getVariable(variable) * scale + offset;
+        return shape((float) subject.getVariable(variable));
+    }
+
+    private float shape(float value)
+    {
+        if (clampAfter)
+        {
+            // Legacy order: scale/offset first, then clamp (used by drivers like the body twist).
+            value = value * scale + offset;
+            if (value < min) value = min;
+            if (value > max) value = max;
+            return value;
+        }
         if (value < min) value = min;
         if (value > max) value = max;
-        return value;
+        switch (ease)
+        {
+            case POW: value = (float) Math.pow(value, power); break;
+            case EASE_IN: value = (float) goblinbob.mobends.core.util.Tween.easeIn(value, power); break;
+            case EASE_OUT: value = (float) goblinbob.mobends.core.util.Tween.easeOut(value, power); break;
+            case EASE_IN_OUT: value = (float) goblinbob.mobends.core.util.Tween.easeInOut(value, power); break;
+            default: break;
+        }
+        return value * scale + offset;
     }
 
     public static ValueSource fromTemplate(ValueTemplate template, ValueSource fallback) throws MalformedKumoTemplateException
@@ -73,7 +122,21 @@ public class ValueSource
         {
             return new ValueSource(template.constant);
         }
-        return new ValueSource(template.variable, template.scale, template.offset, template.min, template.max);
+        Easing ease = Easing.NONE;
+        if (template.ease != null)
+        {
+            try
+            {
+                ease = Easing.valueOf(template.ease.toUpperCase());
+            }
+            catch (IllegalArgumentException e)
+            {
+                throw new MalformedKumoTemplateException("Unknown easing: " + template.ease);
+            }
+        }
+        // With an easing the clamp has to happen first (the ramp is shaped in 0..1, then scaled).
+        boolean clampAfter = ease == Easing.NONE && !template.clampFirst;
+        return new ValueSource(template.variable, template.scale, template.offset, template.min, template.max, ease, template.power, clampAfter);
     }
 
 }

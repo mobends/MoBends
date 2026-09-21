@@ -8,6 +8,7 @@ import goblinbob.mobends.core.kumo.state.ConnectionState;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
+import goblinbob.mobends.core.kumo.state.VariableScope;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
@@ -38,6 +39,8 @@ public class PoseNode implements INodeState
     private final List<ConnectionState> connections = new ArrayList<>();
     private final List<IPoseItem> enterItems;
     private final Skeleton skeleton;
+    private final VariableScope scope = new VariableScope();
+    private Map<String, Float> setOnEnter;
     private Pose enterPose;
     private boolean enterPending;
 
@@ -133,7 +136,9 @@ public class PoseNode implements INodeState
                 enterItems.add(createItem(context, skeleton, spaces, itemTemplate));
             }
         }
-        return new PoseNode(template.name, template.tags, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        PoseNode node = new PoseNode(template.name, template.tags, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        node.setOnEnter = template.set;
+        return node;
     }
 
     private static IPoseItem createItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
@@ -227,10 +232,23 @@ public class PoseNode implements INodeState
     }
 
     @Override
+    public VariableScope getScope()
+    {
+        return scope;
+    }
+
+    @Override
     public void start(IKumoContext context)
     {
         elapsed = 0;
         snapPending = snapSlots.length > 0;
+        if (setOnEnter != null && context.getLayerScope() != null)
+        {
+            for (Map.Entry<String, Float> entry : setOnEnter.entrySet())
+            {
+                context.getLayerScope().set(entry.getKey(), entry.getValue());
+            }
+        }
         for (IPoseItem item : items)
         {
             item.onNodeStarted(context);

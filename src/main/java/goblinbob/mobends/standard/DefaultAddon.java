@@ -6,6 +6,7 @@ import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.*;
 import goblinbob.mobends.standard.data.*;
+import goblinbob.mobends.standard.kumo.CapeDriver;
 import goblinbob.mobends.standard.kumo.WolfStateCondition;
 import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.mutators.*;
@@ -80,6 +81,7 @@ public class DefaultAddon implements IAddon
 //								"rightLeg", "leftForeLeg", "rightForeLeg" }));
 
 		registry.registerTriggerCondition("wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
+		registry.registerDriver("cape", CapeDriver::create, CapeDriver.Template.class);
 	}
 
 	@Override

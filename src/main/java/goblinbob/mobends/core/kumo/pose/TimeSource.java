@@ -39,6 +39,12 @@ public class TimeSource
         return base * scale + offset;
     }
 
+    public float get(goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext context, float elapsedTicks)
+    {
+        float base = variable == null ? elapsedTicks : (float) context.resolveVariable(variable);
+        return base * scale + offset;
+    }
+
     public static TimeSource fromTemplate(TimeTemplate template) throws MalformedKumoTemplateException
     {
         if (template == null)

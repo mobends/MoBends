@@ -26,6 +26,9 @@ public interface INodeState
 
     void start(IKumoContext context);
 
+    /** The node's own variable scope (ramps). */
+    VariableScope getScope();
+
     /** Writes this node's pose for the current frame into the given (cleared) pose. */
     void evaluate(IKumoContext context, Pose pose) throws MalformedKumoTemplateException;
 

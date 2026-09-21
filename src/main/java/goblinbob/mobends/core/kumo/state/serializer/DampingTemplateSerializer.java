@@ -32,6 +32,10 @@ public class DampingTemplateSerializer implements JsonDeserializer<DampingTempla
                 }
                 damping.entries.put(entry.getKey(), values);
             }
+            else if (value.isJsonObject())
+            {
+                damping.dynamic.put(entry.getKey(), context.deserialize(value, goblinbob.mobends.core.kumo.state.template.ValueTemplate.class));
+            }
             else
             {
                 damping.entries.put(entry.getKey(), new float[] { value.getAsFloat() });

@@ -28,4 +28,12 @@ public interface ITriggerConditionContext
      */
     boolean isActionActive(String tag);
 
+    /**
+     * Resolves a variable through the scopes: node-local (ramps), layer variables, then the
+     * subject. Throws if none has it.
+     */
+    double resolveVariable(String name);
+
+    boolean hasVariable(String name);
+
 }

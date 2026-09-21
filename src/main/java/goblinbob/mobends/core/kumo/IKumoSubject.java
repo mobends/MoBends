@@ -30,6 +30,15 @@ public interface IKumoSubject
     boolean hasState(String name);
 
     /**
+     * @return a string-valued input (e.g. "mainHandItem" = "minecraft:torch", "attackActionType" =
+     *         "SWORD"), or null if the subject has no such property or it is currently unset.
+     */
+    default String getProperty(String name)
+    {
+        return null;
+    }
+
+    /**
      * @return whether a boolean state holds (e.g. "ON_GROUND", "SPRINTING").
      * @throws IllegalArgumentException if the state is unknown; check with {@link #hasState}.
      */

@@ -16,5 +16,6 @@ public class LabBootstrap
         if (done) return;
         done = true;
         TriggerConditionRegistry.instance.register("mobends:wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
+        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:cape", goblinbob.mobends.standard.kumo.CapeDriver::create, goblinbob.mobends.standard.kumo.CapeDriver.Template.class);
     }
 }

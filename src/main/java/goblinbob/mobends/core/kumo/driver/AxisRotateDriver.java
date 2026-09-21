@@ -63,12 +63,12 @@ public class AxisRotateDriver implements IPoseItem
         {
             return;
         }
-        float degrees = angle.get(context.getSubject());
+        float degrees = angle.get(context);
         PoseMath.axisAngleDegrees(axis == EnumAxis.X ? 1 : 0, axis == EnumAxis.Y ? 1 : 0, axis == EnumAxis.Z ? 1 : 0, degrees, rotation);
         pose.composeRotation(slot, rotation, space);
         if (effects != null)
         {
-            effects.apply(pose, written);
+            effects.apply(pose, written, context);
         }
     }
 

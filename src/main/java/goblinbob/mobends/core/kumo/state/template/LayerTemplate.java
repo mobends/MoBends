@@ -24,6 +24,9 @@ public class LayerTemplate
     /** Optional condition; while it does not hold the layer writes nothing (bones hold their targets). */
     public TriggerConditionTemplate when;
 
+    /** Layer variables with their initial values (e.g. a combo counter); nodes can set them on entry. */
+    public java.util.Map<String, Float> variables;
+
     public enum LayerMode
     {
         OVERRIDE,

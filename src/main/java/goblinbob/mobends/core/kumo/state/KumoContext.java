@@ -51,6 +51,38 @@ public class KumoContext implements IKumoContext
         return deltaTime;
     }
 
+    /** Node-local variables of the node being evaluated (set by the layer before evaluation). */
+    public VariableScope nodeScope;
+
+    /** Variables of the layer being evaluated. */
+    public VariableScope layerScope;
+
+    @Override
+    public VariableScope getNodeScope()
+    {
+        return nodeScope;
+    }
+
+    @Override
+    public VariableScope getLayerScope()
+    {
+        return layerScope;
+    }
+
+    @Override
+    public double resolveVariable(String name)
+    {
+        if (nodeScope != null && nodeScope.has(name)) return nodeScope.get(name);
+        if (layerScope != null && layerScope.has(name)) return layerScope.get(name);
+        return subject.getVariable(name);
+    }
+
+    @Override
+    public boolean hasVariable(String name)
+    {
+        return (nodeScope != null && nodeScope.has(name)) || (layerScope != null && layerScope.has(name)) || subject.hasVariable(name);
+    }
+
     @Override
     public boolean isActionActive(String tag)
     {

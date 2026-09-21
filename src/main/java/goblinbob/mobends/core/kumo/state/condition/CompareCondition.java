@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
-import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
@@ -31,12 +30,11 @@ public class CompareCondition implements ITriggerCondition
     @Override
     public boolean isConditionMet(ITriggerConditionContext context) throws MalformedKumoTemplateException
     {
-        IKumoSubject subject = context.getSubject();
-        if (!subject.hasVariable(variable))
+        if (!context.hasVariable(variable))
         {
             throw new MalformedKumoTemplateException(String.format("Unknown variable '%s' for this subject.", variable));
         }
-        double actual = subject.getVariable(variable);
+        double actual = context.resolveVariable(variable);
         switch (op)
         {
             case LESS: return actual < value;

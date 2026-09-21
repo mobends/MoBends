@@ -2,6 +2,10 @@ package goblinbob.mobends.standard.data;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
+import goblinbob.mobends.standard.AttackActionType;
+import goblinbob.mobends.standard.UseActionType;
+import goblinbob.mobends.standard.animation.bit.biped.item.BipedActionController;
+import net.minecraft.util.math.MathHelper;
 import goblinbob.mobends.standard.animation.controller.PlayerController;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
@@ -75,6 +79,35 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		registerState("ELYTRA_FLYING", () -> entity != null && entity.getTicksElytraFlying() > 4);
 		registerState("SPRINT_JUMP_LEG", () -> sprintJumpLeg);
 		registerState("FIST_PUNCH_ARM", () -> fistPunchArm);
+
+		registerVariable("flightSpeedFactor", () -> Math.min(Math.max((float) getInterpolatedMotionMagnitude(), 0F), 0.2F) / 0.2F);
+		registerVariable("yMomentumAngle", () -> MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getMotionY()) * 180.0D / Math.PI);
+		registerVariable("flightPitch", () -> {
+			double speedFactor = Math.min(Math.max((float) getInterpolatedMotionMagnitude(), 0F), 0.2F) / 0.2F;
+			return MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getMotionY()) * 180.0D / Math.PI * speedFactor;
+		});
+	}
+
+	@Override
+	public String getProperty(String name)
+	{
+		switch (name)
+		{
+			case "useActionType":
+			{
+				UseActionType type = BipedActionController.getItemUseAction(entity.getActiveItemStack().getItem(),
+						BipedActionController.armPoseOf(entity, entity.getHeldItemMainhand()),
+						BipedActionController.armPoseOf(entity, entity.getHeldItemOffhand()));
+				return type == null ? null : type.name();
+			}
+			case "attackActionType":
+			{
+				AttackActionType type = BipedActionController.getItemAttackAction(entity.getHeldItemMainhand().getItem());
+				return type == null ? null : type.name();
+			}
+			default:
+				return super.getProperty(name);
+		}
 	}
 
 	@Override

@@ -25,6 +25,9 @@ public class ValueTemplateSerializer implements JsonDeserializer<ValueTemplate>
         if (object.has("offset")) value.offset = object.get("offset").getAsFloat();
         if (object.has("min")) value.min = object.get("min").getAsFloat();
         if (object.has("max")) value.max = object.get("max").getAsFloat();
+        if (object.has("ease")) value.ease = object.get("ease").getAsString();
+        if (object.has("power")) value.power = object.get("power").getAsFloat();
+        if (object.has("clampFirst")) value.clampFirst = object.get("clampFirst").getAsBoolean();
         return value;
     }
 

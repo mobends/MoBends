@@ -32,6 +32,7 @@ public class KeyframeLayerState implements ILayerState
     private final Skeleton skeleton;
     private final boolean[] allowed;
     private final ITriggerCondition when;
+    private final VariableScope variables = new VariableScope();
 
     private final Pose currentPose;
     private final Pose previousPose;
@@ -54,6 +55,7 @@ public class KeyframeLayerState implements ILayerState
         this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
         this.skeleton = skeleton;
         this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(layerTemplate.when);
+        this.variables.putAll(layerTemplate.variables);
 
         if (layerTemplate.nodes == null || layerTemplate.nodes.isEmpty())
         {
@@ -114,8 +116,18 @@ public class KeyframeLayerState implements ILayerState
     @Override
     public void start(IKumoContext context)
     {
-        context.setCurrentNode(currentNode);
+        bindScopes(context, currentNode);
         currentNode.start(context);
+    }
+
+    private void bindScopes(IKumoContext context, INodeState node)
+    {
+        context.setCurrentNode(node);
+        if (context instanceof KumoContext)
+        {
+            ((KumoContext) context).layerScope = variables;
+            ((KumoContext) context).nodeScope = node == null ? null : node.getScope();
+        }
     }
 
     @Override
@@ -138,7 +150,7 @@ public class KeyframeLayerState implements ILayerState
     @Override
     public void update(IKumoContext context, float deltaTime, Pose animatorPose) throws MalformedKumoTemplateException
     {
-        context.setCurrentNode(currentNode);
+        bindScopes(context, currentNode);
 
         if (when != null && !when.isConditionMet(context))
         {
@@ -157,6 +169,7 @@ public class KeyframeLayerState implements ILayerState
         }
 
         // 2. Evaluate.
+        bindScopes(context, currentNode);
         currentPose.clear();
         currentNode.evaluate(context, currentPose);
 
@@ -171,9 +184,11 @@ public class KeyframeLayerState implements ILayerState
             }
             else
             {
+                bindScopes(context, previousNode);
                 previousPose.clear();
                 previousNode.evaluate(context, previousPose);
                 source = previousPose;
+                bindScopes(context, currentNode);
             }
             blend(source, currentPose, t, outputPose);
             result = outputPose;
@@ -227,7 +242,7 @@ public class KeyframeLayerState implements ILayerState
         }
 
         currentNode = connection.targetNode;
-        context.setCurrentNode(currentNode);
+        bindScopes(context, currentNode);
         currentNode.start(context);
     }
 
