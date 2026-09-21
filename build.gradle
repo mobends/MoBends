@@ -123,11 +123,11 @@ jar {
     }
 }
 
-// Only apply this config when running the project from IntelliJ IDEA
-// This fixes resources being stale during development
-if (System.getProperty("idea.active") == "true") {
-    sourceSets {main { output.resourcesDir = output.classesDir }}
-}
+// FML's dev-time resource pack for the mod is rooted at the directory that holds the @Mod class
+// (build/classes/java/main), so the resources must be written next to the classes or nothing under
+// assets/ (textures, animators, model definitions, even mcmod.info) is found when running the
+// client from Gradle. IntelliJ needs the same for fresh resources during development.
+sourceSets { main { output.resourcesDir = java.outputDir } }
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
