@@ -26,7 +26,7 @@ public class Scenarios
     static
     {
         // --- Biped locomotion, shared by zombie / skeleton / pig zombie ------------------------
-        for (EntityKind kind : new EntityKind[] { EntityKind.ZOMBIE, EntityKind.SKELETON, EntityKind.PIG_ZOMBIE })
+        for (EntityKind kind : new EntityKind[] { EntityKind.ZOMBIE, EntityKind.ZOMBIE_VILLAGER, EntityKind.SKELETON, EntityKind.PIG_ZOMBIE })
         {
             add(new Scenario(kind, "stand_walk_stop", FPS, 150, (tick, in) -> {
                 if (between(tick, 30, 100)) walk(in, WALK_SPEED);

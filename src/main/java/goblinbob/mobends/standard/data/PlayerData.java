@@ -6,7 +6,8 @@ import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.UseActionType;
 import goblinbob.mobends.standard.animation.bit.biped.item.BipedActionController;
 import net.minecraft.util.math.MathHelper;
-import goblinbob.mobends.standard.animation.controller.PlayerController;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.standard.main.ModStatics;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -28,7 +29,8 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 
 	public ModelPartTransform cape;
 
-	private final PlayerController controller = new PlayerController();
+	/** The procedural PlayerController is kept as the parity reference; the entity animates from its animator asset. */
+	private final KumoAnimatorController<PlayerData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/player.json");
 
 	public PlayerData(AbstractClientPlayer entity)
 	{
@@ -36,7 +38,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	}
 
 	@Override
-	public PlayerController getController()
+	public KumoAnimatorController<PlayerData> getController()
 	{
 		return controller;
 	}

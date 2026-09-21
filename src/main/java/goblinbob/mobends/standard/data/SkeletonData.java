@@ -1,12 +1,14 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.standard.animation.controller.SkeletonController;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.entity.monster.EntitySkeleton;
 
 public class SkeletonData extends BipedEntityData<EntitySkeleton>
 {
 
-	private final SkeletonController controller = new SkeletonController();
+	/** The procedural SkeletonController is kept as the parity reference; the entity animates from its animator asset. */
+	private final KumoAnimatorController<SkeletonData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/skeleton.json");
 
 	public SkeletonData(EntitySkeleton entity)
 	{
@@ -14,7 +16,7 @@ public class SkeletonData extends BipedEntityData<EntitySkeleton>
 	}
 
 	@Override
-	public SkeletonController getController()
+	public KumoAnimatorController<SkeletonData> getController()
 	{
 		return controller;
 	}

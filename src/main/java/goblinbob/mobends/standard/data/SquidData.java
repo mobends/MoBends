@@ -5,7 +5,8 @@ import goblinbob.mobends.core.util.GUtil;
 
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.standard.animation.controller.SquidController;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.entity.passive.EntitySquid;
 
 public class SquidData extends LivingEntityData<EntitySquid>
@@ -16,7 +17,8 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	public ModelPartTransform squidBody;
 	public ModelPartTransform[][] squidTentacles;
 
-	private final SquidController controller = new SquidController();
+	/** The procedural SquidController is kept as the parity reference; the entity animates from its animator asset. */
+	private final KumoAnimatorController<SquidData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/squid.json");
 	
 	public SquidData(EntitySquid entity)
 	{
@@ -29,7 +31,7 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	}
 	
 	@Override
-	public SquidController getController()
+	public KumoAnimatorController<SquidData> getController()
 	{
 		return controller;
 	}

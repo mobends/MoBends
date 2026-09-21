@@ -1,12 +1,14 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.standard.animation.controller.PigZombieController;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.entity.monster.EntityPigZombie;
 
 public class PigZombieData extends BipedEntityData<EntityPigZombie>
 {
 	
-	private final PigZombieController controller = new PigZombieController();
+	/** The procedural PigZombieController is kept as the parity reference; the entity animates from its animator asset. */
+	private final KumoAnimatorController<PigZombieData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/pig_zombie.json");
 	
 	public PigZombieData(EntityPigZombie entity)
 	{
@@ -14,7 +16,7 @@ public class PigZombieData extends BipedEntityData<EntityPigZombie>
 	}
 
 	@Override
-	public PigZombieController getController()
+	public KumoAnimatorController<PigZombieData> getController()
 	{
 		return controller;
 	}

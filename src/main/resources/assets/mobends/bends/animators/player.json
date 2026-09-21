@@ -14800,6 +14800,19 @@
           ],
           "pose": [
             {
+              "driver": "mobends:sword_trail",
+              "velocity": [
+                0,
+                0,
+                -10
+              ],
+              "when": {
+                "type": "core:property",
+                "property": "attackActionType",
+                "value": "SWORD"
+              }
+            },
+            {
               "animationKey": "mobends:bends/animations/player/localoffset_zero.json",
               "damping": {
                 "localOffset": 0.3
@@ -17219,6 +17232,26 @@
           ],
           "pose": [
             {
+              "driver": "mobends:sword_trail",
+              "resetOnEnter": true,
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterAttack",
+                    "op": "<",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:property",
+                    "property": "attackActionType",
+                    "value": "SWORD"
+                  }
+                ]
+              }
+            },
+            {
               "animationKey": "mobends:bends/animations/player/slash_up.json",
               "bones": [
                 "body",
@@ -17820,6 +17853,26 @@
           ],
           "pose": [
             {
+              "driver": "mobends:sword_trail",
+              "resetOnEnter": true,
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterAttack",
+                    "op": "<",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:property",
+                    "property": "attackActionType",
+                    "value": "SWORD"
+                  }
+                ]
+              }
+            },
+            {
               "animationKey": "mobends:bends/animations/player/slash_inward.json",
               "bones": [
                 "body",
@@ -18420,6 +18473,26 @@
             "attack_slash_down"
           ],
           "pose": [
+            {
+              "driver": "mobends:sword_trail",
+              "resetOnEnter": true,
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterAttack",
+                    "op": "<",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:property",
+                    "property": "attackActionType",
+                    "value": "SWORD"
+                  }
+                ]
+              }
+            },
             {
               "animationKey": "mobends:bends/animations/player/slash_down.json",
               "bones": [
@@ -19035,6 +19108,26 @@
           ],
           "pose": [
             {
+              "driver": "mobends:sword_trail",
+              "resetOnEnter": true,
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterAttack",
+                    "op": "<",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:property",
+                    "property": "attackActionType",
+                    "value": "SWORD"
+                  }
+                ]
+              }
+            },
+            {
               "animationKey": "mobends:bends/animations/player/slash_outward.json",
               "bones": [
                 "body",
@@ -19648,6 +19741,20 @@
             "attack_whirl_slash"
           ],
           "pose": [
+            {
+              "driver": "mobends:sword_trail",
+              "add": false,
+              "resetEachFrame": true,
+              "when": {
+                "type": "core:compare",
+                "variable": "ticksAfterAttack",
+                "op": "<",
+                "value": 0.5
+              }
+            },
+            {
+              "driver": "mobends:sword_trail"
+            },
             {
               "animationKey": "mobends:bends/animations/player/slash_whirl.json",
               "bones": [

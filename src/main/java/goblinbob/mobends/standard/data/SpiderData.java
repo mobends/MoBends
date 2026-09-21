@@ -4,7 +4,9 @@ import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.GUtil;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.standard.animation.controller.SpiderController;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.init.Blocks;
@@ -21,7 +23,8 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 
     public Limb[] limbs;
 
-    protected final SpiderController controller = new SpiderController();
+    /** The procedural SpiderController is kept as the parity reference; the entity animates from its animator asset. */
+	private final KumoAnimatorController<SpiderData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/spider.json");
     protected float prevCrawlProgress = 0;
     protected float crawlProgress = 0;
     protected EnumFacing wallFacing = null;
@@ -38,7 +41,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     }
 
     @Override
-    public SpiderController getController()
+    public KumoAnimatorController<SpiderData> getController()
     {
         return controller;
     }

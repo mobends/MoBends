@@ -561,6 +561,7 @@ def slash_node_keep_legs(node):
     node["pose"][-1]["damping"] = {"renderRotation": 0.3, "root": [None, 0.6, None]}
     return node
 
+swordTrail = when({"driver": "mobends:sword_trail", "resetOnEnter": True}, AND(cmp(tAA, "<", 4), prop("attackActionType", "SWORD")))
 slashes = {
     "slash_up": slash_node_keep_legs(slash_node("attack_slash_up", "slash_up", True, 0.9, False, 0.9, stillNotRiding, 0.9, True)),
     "slash_inward": slash_node_keep_legs(slash_node("attack_slash_inward", "slash_inward", True, 0.9, False, 0.9, stillNotRiding, 0.9, True)),
@@ -573,6 +574,11 @@ whirl["pose"][-1] = when({"animationKey": PL("slash_whirl_still"), "damping": {"
 whirl["pose"].insert(3, {"animationKey": PL("slash_whirl"), "bones": ["root"], "time": {"variable": tAA}, "damping": {"root": [None, 0.6, None]}, "vectorModes": {"root": "RETARGET"}})
 whirl["pose"].insert(4, {"animationKey": PL("slash_whirl"), "bones": ["renderRotation"], "time": {"variable": tAA}, "snap": True})
 slashes["slash_whirl"] = whirl
+for n, node in slashes.items():
+    node["pose"].insert(0, swordTrail)
+# the whirl feeds the trail for its whole duration and clears it while its first half tick lasts
+whirl["pose"][0] = {"driver": "mobends:sword_trail"}
+whirl["pose"].insert(0, when({"driver": "mobends:sword_trail", "add": False, "resetEachFrame": True}, cmp(tAA, "<", 0.5)))
 
 # --- attack stance: two breathing clocks (sin(t/5), cos(t/5.7)) split into two clips ----------------------
 cycle_clip(os.path.join(CLIPS, 'player', 'stance_breath0.json'), lambda p: {
@@ -602,6 +608,7 @@ stance = {"type": "core:pose", "tags": ["attack_stance"], "pose": [
 pose_clip(os.path.join(CLIPS, 'player', 'stance_sprint_abs.json'), {"rightArm": rotations(('Z', 60), ('Y', 60)), "renderRightItemRotation": rotations(('X', 45))})
 pose_clip(os.path.join(CLIPS, 'player', 'stance_sprint_pre.json'), {"body": rotations(('Y', 20)), "head": rotations(('Y', -20)), "leftArm": rotations(('Z', -30))})
 stance_sprint = {"type": "core:pose", "tags": ["attack_stance_sprint"], "pose": [
+    when({"driver": "mobends:sword_trail", "velocity": [0, 0, -10]}, prop("attackActionType", "SWORD")),
     localOffsetZero,
     {"animationKey": PL("stance_sprint_abs"), "damping": {"renderRightItemRotation": 0.3}},
     {"animationKey": PL("stance_sprint_pre"), "space": "PRE"},
@@ -938,7 +945,10 @@ for name, node in sp_nodes.items():
     node["connections"] = conns
 spider = {"formatVersion": 2, "layers": [{"type": "KEYFRAME", "entryNode": "idle", "variables": {"resetLimbs": 1}, "nodes": sp_nodes}]}
 
-for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player), ("squid", squid), ("spider", spider)]:
+# the zombie villager's controller is the zombie's
+zombie_villager = {"formatVersion": 2, "extends": "mobends:bends/animators/zombie.json"}
+
+for name, data in [("biped", biped), ("zombie", zombie), ("skeleton", skeleton), ("pig_zombie", pig_zombie), ("player", player), ("squid", squid), ("spider", spider), ("zombie_villager", zombie_villager)]:
     with open(os.path.join(ANIM, name + ".json"), 'w') as f:
         json.dump(data, f, indent=2)
     print("wrote", name + ".json")

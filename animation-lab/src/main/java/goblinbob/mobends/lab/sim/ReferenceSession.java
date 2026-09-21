@@ -24,8 +24,12 @@ import net.minecraft.world.World;
  *   <li>the model is drawn with the smoothed values, which is what gets captured</li>
  * </ol>
  */
+@SuppressWarnings("unchecked")
 public class ReferenceSession
 {
+    /** The procedural controller of the entity kind: the reference, independent of what the data class animates with. */
+    private final IAnimationController<LivingEntityData<?>> controller;
+
     public final Scenario scenario;
     public final World world;
     public final ScriptedEntity scripted;
@@ -39,6 +43,7 @@ public class ReferenceSession
     public ReferenceSession(Scenario scenario)
     {
         LabBootstrap.ensure();
+        this.controller = (IAnimationController<LivingEntityData<?>>) scenario.kind.createLegacyController();
         net.minecraft.entity.Entity.resetIds();
         this.scenario = scenario;
         this.world = new World();
@@ -93,7 +98,6 @@ public class ReferenceSession
 
         KumoVariableRegistry.instance.provideTemporaryData(data);
 
-        IAnimationController<LivingEntityData<?>> controller = (IAnimationController<LivingEntityData<?>>) data.getController();
         controller.perform(data);
 
         FramePose frame = PoseCapture.capture(data);

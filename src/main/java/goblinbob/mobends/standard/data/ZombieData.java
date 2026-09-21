@@ -1,12 +1,14 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.standard.animation.controller.ZombieController;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.entity.monster.EntityZombie;
 
 public class ZombieData extends ZombieDataBase<EntityZombie>
 {
 	
-	private final ZombieController controller = new ZombieController();
+	/** The procedural ZombieController is kept as the parity reference; the entity animates from its animator asset. */
+	private final KumoAnimatorController<ZombieData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/zombie.json");
 	
 	public ZombieData(EntityZombie entity)
 	{
@@ -14,7 +16,7 @@ public class ZombieData extends ZombieDataBase<EntityZombie>
 	}
 	
 	@Override
-	public ZombieController getController()
+	public KumoAnimatorController<ZombieData> getController()
 	{
 		return this.controller;
 	}

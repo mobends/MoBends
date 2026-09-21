@@ -300,3 +300,30 @@ axes (the `slideY()` idiom); drivers expose computed values as node variables (`
 **Scenarios added.** `spider/death`, `spider/crawl` (goldens recorded from the reference).
 
 **Result.** 27/27 parity scenarios pass (spider worst 0.004°), 28/28 stability.
+
+## 8. The mod animates from the assets; zombie villager; sword trail
+
+**What.** `KumoAnimatorController` (core) is an `IAnimationController` that is nothing but an
+animator asset: it loads `bends/animators/<entity>.json` through `AnimatorResources` (clips via
+`AnimationLoader`, parent animators for `extends` via `GsonResources`), updates the animator
+state every frame and returns the current nodes' tags as the actions bends packs see. A broken
+asset logs once and animates nothing rather than crashing the render. `ZombieData`,
+`ZombieVillagerData`, `SkeletonData`, `PigZombieData`, `PlayerData`, `SpiderData` and
+`SquidData` now return it; the procedural controllers stay in the tree as the parity reference
+(the lab's `EntityKind` instantiates them explicitly, so the goldens no longer depend on what
+the data classes animate with). The wolf keeps its existing KUMO controller with the extra
+head and tail code.
+
+* `bends/animators/zombie_villager.json` simply `extends` the zombie's (the two controllers were
+  identical); the lab gained the `ZOMBIE_VILLAGER` kind and its three biped scenarios.
+* The one side effect the bits had beyond bone targets, the sword trail, is a
+  `mobends:sword_trail` driver (feed, clear on node entry, clear each frame, velocity offset)
+  placed in the slash and sprint-stance nodes. `SideEffectParityTest` checks the trail is fed
+  and cleared on exactly the same frames as by the reference.
+
+**Result.** 30/30 parity scenarios, 31/31 stability, side effects equal.
+
+**Not done here.** The mod cannot be built in this environment (ForgeGradle needs Java 8); the
+lab compiles the affected mod sources with `--release 8`, but the first real build of the mod
+should be checked in a dev environment. Resource reloads should call
+`AnimatorResources.INSTANCE.clearCache()` and each controller's `reload()` (not wired yet).
