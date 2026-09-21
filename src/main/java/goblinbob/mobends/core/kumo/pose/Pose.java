@@ -82,22 +82,9 @@ public class Pose
         }
     }
 
-    /**
-     * The rotation a bone currently heads towards, as seen from this pose: the value written
-     * earlier this frame, or else the bone's live target. Used as the base for additive writes.
-     */
-    public boolean currentRotation(int index, Quaternion dest)
+    /** The live target of a bone's sink (the value beneath the first layer), if it has one. */
+    private boolean sinkRotation(int index, Quaternion dest)
     {
-        BoneTarget target = targets[index];
-        if (target.hasRotation)
-        {
-            dest.set(target.rotation);
-            return true;
-        }
-        if (!sinkFallback)
-        {
-            return false;
-        }
         IBoneSink sink = skeleton.sink(index);
         IRotationSink rotationSink = sink == null ? null : sink.asRotation();
         if (rotationSink != null)
@@ -108,71 +95,116 @@ public class Pose
         return false;
     }
 
+    /**
+     * Composes a rotation into a slot. OVERRIDE replaces (folding away relative parts); PRE and
+     * POST either fold into an existing absolute value, or accumulate as relative parts to be
+     * applied to whatever lies beneath at composite / write time. The animator pose resolves
+     * relative parts against the bone's live target right away.
+     */
     public void composeRotation(int index, Quaternion q, Space space)
     {
         BoneTarget target = targets[index];
-        if (!target.hasRotation)
-        {
-            // First write: remember how it composes with whatever lies beneath.
-            target.space = space;
-        }
-        else if (space == Space.OVERRIDE)
-        {
-            target.space = Space.OVERRIDE;
-        }
         switch (space)
         {
             case PRE:
-                if (currentRotation(index, temp))
+                if (target.hasRotation)
+                {
+                    Quaternion.mul(q, target.rotation, temp);
+                    target.rotation.set(temp);
+                }
+                else if (sinkFallback && sinkRotation(index, temp))
                 {
                     Quaternion.mul(q, temp, target.rotation);
+                    target.hasRotation = true;
+                }
+                else if (target.hasPre)
+                {
+                    Quaternion.mul(q, target.pre, temp);
+                    target.pre.set(temp);
                 }
                 else
                 {
-                    target.rotation.set(q);
+                    target.pre.set(q);
+                    target.hasPre = true;
                 }
                 break;
             case POST:
-                if (currentRotation(index, temp))
+                if (target.hasRotation)
+                {
+                    Quaternion.mul(target.rotation, q, temp);
+                    target.rotation.set(temp);
+                }
+                else if (sinkFallback && sinkRotation(index, temp))
                 {
                     Quaternion.mul(temp, q, target.rotation);
+                    target.hasRotation = true;
+                }
+                else if (target.hasPost)
+                {
+                    Quaternion.mul(target.post, q, temp);
+                    target.post.set(temp);
                 }
                 else
                 {
-                    target.rotation.set(q);
+                    target.post.set(q);
+                    target.hasPost = true;
                 }
                 break;
             case OVERRIDE:
             default:
                 target.rotation.set(q);
+                target.hasRotation = true;
+                target.hasPre = false;
+                target.hasPost = false;
                 break;
         }
-        target.hasRotation = true;
+    }
+
+    /** Applies another slot's rotation parts onto this pose's slot (layer compositing). */
+    public void composeRotation(int index, BoneTarget src)
+    {
+        if (src.hasRotation)
+        {
+            composeRotation(index, src.rotation, Space.OVERRIDE);
+        }
+        else
+        {
+            if (src.hasPre) composeRotation(index, src.pre, Space.PRE);
+            if (src.hasPost) composeRotation(index, src.post, Space.POST);
+        }
     }
 
     public void composeOffset(int index, float x, float y, float z, Space space)
     {
         BoneTarget target = targets[index];
-        if (!target.hasOffset && !target.hasRotation) target.space = space;
-        if (space == Space.OVERRIDE || !target.hasOffset)
+        if (space == Space.OVERRIDE)
         {
-            if (space != Space.OVERRIDE && sinkFallback)
-            {
-                IBoneSink sink = skeleton.sink(index);
-                IRotationSink rotationSink = sink == null ? null : sink.asRotation();
-                if (rotationSink != null && rotationSink.hasOffset())
-                {
-                    IVec3fRead current = rotationSink.getOffset();
-                    target.offset.set(current.getX() + x, current.getY() + y, current.getZ() + z);
-                    target.hasOffset = true;
-                    return;
-                }
-            }
             target.offset.set(x, y, z);
+            target.offsetAdditive = false;
+        }
+        else if (target.hasOffset)
+        {
+            target.offset.add(x, y, z);
+        }
+        else if (sinkFallback)
+        {
+            IBoneSink sink = skeleton.sink(index);
+            IRotationSink rotationSink = sink == null ? null : sink.asRotation();
+            if (rotationSink != null && rotationSink.hasOffset())
+            {
+                IVec3fRead current = rotationSink.getOffset();
+                target.offset.set(current.getX() + x, current.getY() + y, current.getZ() + z);
+            }
+            else
+            {
+                target.offset.set(x, y, z);
+            }
+            target.offsetAdditive = false;
         }
         else
         {
-            target.offset.add(x, y, z);
+            target.offset.set(x, y, z);
+            target.offsetAdditive = true;
         }
         target.hasOffset = true;
     }
@@ -180,27 +212,41 @@ public class Pose
     public void composeVector(int index, float x, float y, float z, Space space)
     {
         BoneTarget target = targets[index];
-        if (!target.hasVector) target.space = space;
-        else if (space == Space.OVERRIDE) target.space = Space.OVERRIDE;
-        if (space == Space.OVERRIDE || !target.hasVector)
+        if (space == Space.OVERRIDE)
         {
-            if (space != Space.OVERRIDE && sinkFallback)
+            if (target.hasVector && target.vectorMode == IVectorSink.Mode.SNAP)
             {
-                IBoneSink sink = skeleton.sink(index);
-                IVectorSink vectorSink = sink == null ? null : sink.asVector();
-                if (vectorSink != null)
-                {
-                    IVec3fRead current = vectorSink.getVectorTarget();
-                    target.vector.set(current.getX() + x, current.getY() + y, current.getZ() + z);
-                    target.hasVector = true;
-                    return;
-                }
+                // A snap followed by another write in the same frame: the new interpolation
+                // starts from the snapped value (setY(...) then slideY(...) in the original code).
+                target.hasVectorStart = true;
+                target.vectorStart.set(target.vector);
             }
             target.vector.set(x, y, z);
+            target.vectorAdditive = false;
+        }
+        else if (target.hasVector)
+        {
+            target.vector.add(x, y, z);
+        }
+        else if (sinkFallback)
+        {
+            IBoneSink sink = skeleton.sink(index);
+            IVectorSink vectorSink = sink == null ? null : sink.asVector();
+            if (vectorSink != null)
+            {
+                IVec3fRead current = vectorSink.getVectorTarget();
+                target.vector.set(current.getX() + x, current.getY() + y, current.getZ() + z);
+            }
+            else
+            {
+                target.vector.set(x, y, z);
+            }
+            target.vectorAdditive = false;
         }
         else
         {
-            target.vector.add(x, y, z);
+            target.vector.set(x, y, z);
+            target.vectorAdditive = true;
         }
         target.hasVector = true;
     }

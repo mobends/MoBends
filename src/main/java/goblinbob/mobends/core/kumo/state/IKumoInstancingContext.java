@@ -12,4 +12,10 @@ public interface IKumoInstancingContext
 
     KeyframeAnimation getAnimation(String key);
 
+    /** Resolves another animator by key, for {@code "extends"}. Null if unsupported or missing. */
+    default goblinbob.mobends.core.kumo.state.template.AnimatorTemplate getAnimator(String key)
+    {
+        return null;
+    }
+
 }

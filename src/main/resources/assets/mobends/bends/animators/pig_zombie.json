@@ -1,0 +1,182 @@
+{
+  "formatVersion": 2,
+  "extends": "mobends:bends/animators/biped.json",
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "mode": "ADDITIVE",
+      "additiveSpace": {
+        "default": "PRE",
+        "root": "OVERRIDE"
+      },
+      "when": {
+        "type": "core:or",
+        "conditions": [
+          {
+            "type": "core:action",
+            "tag": "stand"
+          },
+          {
+            "type": "core:action",
+            "tag": "walk"
+          }
+        ]
+      },
+      "entryNode": "hunch",
+      "nodes": {
+        "hunch": {
+          "type": "core:pose",
+          "tags": [
+            "hunch"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/pigzombie/pose_post.json",
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/pigzombie/pose_pre.json",
+              "space": "PRE"
+            },
+            {
+              "animationKey": "mobends:bends/animations/pigzombie/stand_offset.json",
+              "when": {
+                "type": "core:action",
+                "tag": "stand"
+              },
+              "damping": {
+                "root": [
+                  null,
+                  0.6,
+                  null
+                ]
+              },
+              "vectorModes": {
+                "root": "RETARGET"
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/pigzombie/walk_bob.json",
+              "time": {
+                "variable": "limbSwing",
+                "scale": 0.6662
+              },
+              "when": {
+                "type": "core:action",
+                "tag": "walk"
+              },
+              "damping": {
+                "root": [
+                  null,
+                  0.6,
+                  null
+                ]
+              },
+              "vectorModes": {
+                "root": "RETARGET"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "KEYFRAME",
+      "when": {
+        "type": "core:compare",
+        "variable": "entitySwingProgress",
+        "op": ">",
+        "value": 0
+      },
+      "entryNode": "slash",
+      "nodes": {
+        "slash": {
+          "type": "core:pose",
+          "tags": [
+            "attack",
+            "attack_slash_inward"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/pigzombie/slash.json",
+              "time": {
+                "variable": "ticksAfterAttack"
+              },
+              "damping": {
+                "body": 0.9,
+                "head": 0.9,
+                "rightArm": 0.9,
+                "leftArm": 0.3,
+                "rightForeArm": 0.3,
+                "leftForeArm": 0.3,
+                "localOffset": 0.3
+              },
+              "vectorModes": {
+                "localOffset": "SLIDE"
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "variable": "headYaw"
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "variable": "headPitch"
+              },
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/pigzombie/slash_still.json",
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "RIDING"
+                    }
+                  }
+                ]
+              },
+              "damping": {
+                "renderRotation": 0.3,
+                "root": [
+                  null,
+                  0.6,
+                  null
+                ]
+              },
+              "vectorModes": {
+                "root": "RETARGET"
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "renderRightItemRotation",
+              "axis": "X",
+              "angle": 50,
+              "space": "OVERRIDE",
+              "snap": true,
+              "damping": {
+                "renderRightItemRotation": 0.9
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

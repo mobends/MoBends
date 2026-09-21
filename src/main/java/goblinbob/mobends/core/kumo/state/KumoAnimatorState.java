@@ -28,18 +28,42 @@ public class KumoAnimatorState<S extends IKumoSubject>
 
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
-        if (animatorTemplate.layers == null)
-        {
-            throw new MalformedKumoTemplateException("No layers were specified");
-        }
-
-        for (LayerTemplate template : animatorTemplate.layers)
+        for (LayerTemplate template : resolveLayers(animatorTemplate, dataProvider, 0))
         {
             layerStates.add(ILayerState.createFromTemplate(dataProvider, skeleton, template));
         }
+        context.layers = layerStates;
 
         // Every bone name is known once the layers are instanced.
         pose = new Pose(skeleton, true);
+    }
+
+    /** Parent layers (via "extends") first, then this animator's own. */
+    private static List<LayerTemplate> resolveLayers(AnimatorTemplate template, IKumoInstancingContext context, int depth) throws MalformedKumoTemplateException
+    {
+        List<LayerTemplate> layers = new ArrayList<>();
+        if (template.extendsAnimator != null)
+        {
+            if (depth > 8)
+            {
+                throw new MalformedKumoTemplateException("Animator 'extends' chain is too deep (cycle?).");
+            }
+            AnimatorTemplate parent = context.getAnimator(template.extendsAnimator);
+            if (parent == null)
+            {
+                throw new MalformedKumoTemplateException(String.format("Cannot resolve the animator to extend: '%s'.", template.extendsAnimator));
+            }
+            layers.addAll(resolveLayers(parent, context, depth + 1));
+        }
+        if (template.layers != null)
+        {
+            layers.addAll(template.layers);
+        }
+        if (layers.isEmpty())
+        {
+            throw new MalformedKumoTemplateException("No layers were specified");
+        }
+        return layers;
     }
 
     public void update(S subject, float deltaTime) throws MalformedKumoTemplateException

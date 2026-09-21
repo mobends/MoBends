@@ -20,9 +20,16 @@ public class ItemEffects
     private final float[] defaultDamping;
     private final int[] modeSlots;
     private final IVectorSink.Mode[] modes;
+    private final boolean snap;
 
     public ItemEffects(Skeleton skeleton, DampingTemplate damping, Map<String, IVectorSink.Mode> vectorModes)
     {
+        this(skeleton, damping, vectorModes, false);
+    }
+
+    public ItemEffects(Skeleton skeleton, DampingTemplate damping, Map<String, IVectorSink.Mode> vectorModes, boolean snap)
+    {
+        this.snap = snap;
         List<Integer> slots = new ArrayList<>();
         List<float[]> values = new ArrayList<>();
         float[] fallback = null;
@@ -66,12 +73,21 @@ public class ItemEffects
 
     public boolean isEmpty()
     {
-        return dampingSlots.length == 0 && defaultDamping == null && modeSlots.length == 0;
+        return dampingSlots.length == 0 && defaultDamping == null && modeSlots.length == 0 && !snap;
     }
 
     /** @param writtenSlots the slots the item wrote this frame (the default rate applies to those). */
     public void apply(Pose pose, int[] writtenSlots)
     {
+        if (snap)
+        {
+            for (int slot : writtenSlots)
+            {
+                BoneTarget target = pose.get(slot);
+                target.snap = true;
+                if (target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
+            }
+        }
         if (defaultDamping != null)
         {
             for (int slot : writtenSlots)

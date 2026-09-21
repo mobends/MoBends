@@ -139,7 +139,7 @@ public class PoseNode implements INodeState
     private static IPoseItem createItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
-        ItemEffects effects = new ItemEffects(skeleton, template.damping, template.vectorModes);
+        ItemEffects effects = new ItemEffects(skeleton, template.damping, template.vectorModes, template.snap);
 
         if (template instanceof ClipItemTemplate)
         {
@@ -276,7 +276,7 @@ public class PoseNode implements INodeState
             if (dampingSlots[i] >= 0)
             {
                 BoneTarget target = pose.get(dampingSlots[i]);
-                if (Float.isNaN(target.smoothness) && Float.isNaN(target.vectorSmoothness.x))
+                if (Float.isNaN(target.smoothness) && isUndamped(target.vectorSmoothness))
                 {
                     ItemEffects.applyDamping(target, dampingValues[i]);
                 }
@@ -286,7 +286,7 @@ public class PoseNode implements INodeState
                 for (int slot = 0; slot < pose.size(); slot++)
                 {
                     BoneTarget target = pose.get(slot);
-                    if ((target.hasRotation || target.hasVector) && Float.isNaN(target.smoothness) && Float.isNaN(target.vectorSmoothness.x))
+                    if ((target.hasRotation || target.hasPre || target.hasPost || target.hasVector) && Float.isNaN(target.smoothness) && isUndamped(target.vectorSmoothness))
                     {
                         ItemEffects.applyDamping(target, dampingValues[i]);
                     }
@@ -302,7 +302,7 @@ public class PoseNode implements INodeState
                 BoneTarget target = pose.get(slot);
                 if (entered.hasRotation)
                 {
-                    if (target.hasRotation)
+                    if (target.hasRotation || target.hasPre || target.hasPost)
                     {
                         target.hasSnapFrom = true;
                         target.snapFrom.set(entered.rotation);
@@ -311,7 +311,6 @@ public class PoseNode implements INodeState
                     {
                         target.hasRotation = true;
                         target.rotation.set(entered.rotation);
-                        target.space = entered.space;
                         target.snap = true;
                     }
                 }
@@ -326,7 +325,7 @@ public class PoseNode implements INodeState
                     {
                         target.hasVector = true;
                         target.vector.set(entered.vector);
-                        target.space = entered.space;
+                        target.vectorAdditive = entered.vectorAdditive;
                         target.vectorMode = IVectorSink.Mode.SNAP;
                     }
                 }
@@ -350,15 +349,20 @@ public class PoseNode implements INodeState
             BoneTarget target = pose.get(slot);
             if (hardSet)
             {
-                if (target.hasRotation) target.snap = true;
+                if (target.hasRotation || target.hasPre || target.hasPost) target.snap = true;
                 if (target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
             }
-            else if (target.hasVector && Float.isNaN(target.vectorSmoothness.x) && target.vectorMode == IVectorSink.Mode.RETARGET)
+            else if (target.hasVector && isUndamped(target.vectorSmoothness) && target.vectorMode == IVectorSink.Mode.RETARGET)
             {
                 // Keyframed root motion is already smooth; without an explicit damping entry it is applied as is.
                 target.vectorMode = IVectorSink.Mode.SNAP;
             }
         }
+    }
+
+    private static boolean isUndamped(goblinbob.mobends.core.math.vector.Vec3f smoothness)
+    {
+        return Float.isNaN(smoothness.x) && Float.isNaN(smoothness.y) && Float.isNaN(smoothness.z);
     }
 
     @Override

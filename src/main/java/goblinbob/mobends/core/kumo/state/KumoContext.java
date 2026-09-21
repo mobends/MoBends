@@ -18,6 +18,9 @@ public class KumoContext implements IKumoContext
 
     public float deltaTime;
 
+    /** The animator's layers, for {@link #isActionActive}. */
+    public java.util.List<ILayerState> layers = java.util.Collections.emptyList();
+
     @Override
     public IKumoSubject getSubject()
     {
@@ -46,6 +49,19 @@ public class KumoContext implements IKumoContext
     public float getDeltaTime()
     {
         return deltaTime;
+    }
+
+    @Override
+    public boolean isActionActive(String tag)
+    {
+        for (ILayerState layer : layers)
+        {
+            if (layer.getActions().contains(tag))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

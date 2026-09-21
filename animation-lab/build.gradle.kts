@@ -178,12 +178,18 @@ tasks.register<JavaExec>("record") {
     args(projectDir.resolve("golden").absolutePath)
 }
 
-tasks.register<JavaExec>("bakeZombie") {
-    description = "Bakes the zombie's procedural animation bits into format-2 clips in the mod resources."
+tasks.register<JavaExec>("bakeBipeds") {
+    description = "Bakes the biped entities' procedural animation bits into format-2 clips in the mod resources."
     group = "lab"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("goblinbob.mobends.lab.bake.ZombieBake")
+    mainClass.set("goblinbob.mobends.lab.bake.BipedBake")
     args(modSrc.resolve("resources").absolutePath)
+}
+
+tasks.register<Exec>("generateAnimators") {
+    description = "Regenerates the biped animator JSON files from tools/gen_animators.py."
+    group = "lab"
+    commandLine("python3", projectDir.resolve("tools/gen_animators.py").absolutePath, modSrc.resolve("resources").absolutePath)
 }
 
 tasks.register<JavaExec>("compare") {

@@ -29,7 +29,6 @@ public class KeyframeLayerState implements ILayerState
     private final Map<String, INodeState> nodesByName = new HashMap<>();
     private final ArmatureMask mask;
     private final LayerTemplate.LayerMode mode;
-    private final Pose.Space[] additiveSpaces;
     private final Skeleton skeleton;
     private final boolean[] allowed;
     private final ITriggerCondition when;
@@ -105,14 +104,10 @@ public class KeyframeLayerState implements ILayerState
         outputPose = new Pose(skeleton);
         lastOutput = new Pose(skeleton);
 
-        additiveSpaces = new Pose.Space[skeleton.size()];
         allowed = new boolean[skeleton.size()];
-        Pose.Space defaultSpace = layerTemplate.defaultAdditiveSpace();
         for (int i = 0; i < skeleton.size(); i++)
         {
-            String bone = skeleton.nameOf(i);
-            additiveSpaces[i] = layerTemplate.additiveSpace == null ? defaultSpace : layerTemplate.additiveSpace.forBone(bone, defaultSpace);
-            allowed[i] = mask == null || mask.doesAllow(bone);
+            allowed[i] = mask == null || mask.doesAllow(skeleton.nameOf(i));
         }
     }
 
@@ -266,16 +261,12 @@ public class KeyframeLayerState implements ILayerState
             BoneTarget b = to.get(i);
             BoneTarget d = dest.get(i);
 
-            if (a.hasRotation && b.hasRotation)
-            {
-                PoseMath.nlerp(a.rotation, b.rotation, t, d.rotation);
-                d.hasRotation = true;
-            }
-            else if (a.hasRotation || b.hasRotation)
-            {
-                d.rotation.set(a.hasRotation ? a.rotation : b.rotation);
-                d.hasRotation = true;
-            }
+            blendQuat(a.hasRotation, a.rotation, b.hasRotation, b.rotation, t, d.rotation);
+            d.hasRotation = a.hasRotation || b.hasRotation;
+            blendQuat(a.hasPre, a.pre, b.hasPre, b.pre, t, d.pre);
+            d.hasPre = !d.hasRotation && (a.hasPre || b.hasPre);
+            blendQuat(a.hasPost, a.post, b.hasPost, b.post, t, d.post);
+            d.hasPost = !d.hasRotation && (a.hasPost || b.hasPost);
 
             if (a.hasOffset && b.hasOffset)
             {
@@ -287,6 +278,7 @@ public class KeyframeLayerState implements ILayerState
                 d.offset.set(a.hasOffset ? a.offset : b.offset);
                 d.hasOffset = true;
             }
+            d.offsetAdditive = b.hasOffset ? b.offsetAdditive : a.offsetAdditive;
 
             if (a.hasVector && b.hasVector)
             {
@@ -298,17 +290,33 @@ public class KeyframeLayerState implements ILayerState
                 d.vector.set(a.hasVector ? a.vector : b.vector);
                 d.hasVector = true;
             }
+            d.vectorAdditive = b.hasVector ? b.vectorAdditive : a.vectorAdditive;
 
-            // Damping, snapping, spaces and vector modes follow the node being entered.
+            // Damping, snapping and vector modes follow the node being entered.
             d.smoothness = b.smoothness;
             d.vectorSmoothness.set(b.vectorSmoothness);
             d.snap = b.snap;
             d.vectorMode = b.vectorMode;
-            d.space = (b.hasRotation || b.hasVector || b.hasOffset) ? b.space : a.space;
             d.hasSnapFrom = b.hasSnapFrom;
             d.snapFrom.set(b.snapFrom);
             d.hasVectorStart = b.hasVectorStart;
             d.vectorStart.set(b.vectorStart);
+        }
+    }
+
+    private void blendQuat(boolean hasA, goblinbob.mobends.core.math.Quaternion a, boolean hasB, goblinbob.mobends.core.math.Quaternion b, float t, goblinbob.mobends.core.math.Quaternion dest)
+    {
+        if (hasA && hasB)
+        {
+            PoseMath.nlerp(a, b, t, dest);
+        }
+        else if (hasA)
+        {
+            dest.set(a);
+        }
+        else if (hasB)
+        {
+            dest.set(b);
         }
     }
 
@@ -322,25 +330,23 @@ public class KeyframeLayerState implements ILayerState
             }
             BoneTarget src = layerPose.get(i);
             BoneTarget dst = animatorPose.get(i);
-            if (!src.hasRotation && !src.hasOffset && !src.hasVector)
+            boolean any = src.hasRotation || src.hasPre || src.hasPost || src.hasOffset || src.hasVector;
+            if (!any)
             {
                 continue;
             }
 
-            // Each slot recorded how its first write composes (items default to the layer's space).
-            Pose.Space space = src.space;
-
-            if (src.hasRotation)
+            if (src.hasRotation || src.hasPre || src.hasPost)
             {
-                animatorPose.composeRotation(i, src.rotation, space);
+                animatorPose.composeRotation(i, src);
             }
             if (src.hasOffset)
             {
-                animatorPose.composeOffset(i, src.offset.x, src.offset.y, src.offset.z, space);
+                animatorPose.composeOffset(i, src.offset.x, src.offset.y, src.offset.z, src.offsetAdditive ? Pose.Space.PRE : Pose.Space.OVERRIDE);
             }
             if (src.hasVector)
             {
-                animatorPose.composeVector(i, src.vector.x, src.vector.y, src.vector.z, space);
+                animatorPose.composeVector(i, src.vector.x, src.vector.y, src.vector.z, src.vectorAdditive ? Pose.Space.PRE : Pose.Space.OVERRIDE);
             }
             if (src.hasSnapFrom)
             {

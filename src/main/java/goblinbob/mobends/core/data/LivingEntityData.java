@@ -48,6 +48,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         registerVariable("limbSwing", () -> limbSwing.get());
         registerVariable("limbSwingAmount", () -> limbSwingAmount.get());
         registerVariable("swingProgress", () -> swingProgress.get());
+        registerVariable("entitySwingProgress", () -> entity != null ? entity.swingProgress : 0);
         registerVariable("headYaw", () -> headYaw.get());
         registerVariable("headPitch", () -> headPitch.get());
         registerVariable("ticksInAir", () -> ticksInAir);

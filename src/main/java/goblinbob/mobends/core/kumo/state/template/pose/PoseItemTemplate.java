@@ -23,4 +23,7 @@ public class PoseItemTemplate
     /** Vector modes for the vectors this item writes, e.g. {"root": "SLIDE"}. */
     public Map<String, IVectorSink.Mode> vectorModes;
 
+    /** The bones this item writes jump to their target every frame (the per-frame {@code orientInstant} idiom). */
+    public boolean snap;
+
 }

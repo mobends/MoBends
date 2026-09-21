@@ -22,4 +22,10 @@ public interface ITriggerConditionContext
      */
     INodeState getCurrentNode();
 
+    /**
+     * @return true if any layer's current node carries the tag (layers before the one being
+     *         evaluated already reflect this frame's transitions).
+     */
+    boolean isActionActive(String tag);
+
 }

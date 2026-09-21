@@ -1,0 +1,55 @@
+{
+  "formatVersion": 2,
+  "extends": "mobends:bends/animators/biped.json",
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "when": {
+        "type": "core:and",
+        "conditions": [
+          {
+            "type": "core:action",
+            "tag": "walk"
+          },
+          {
+            "type": "core:state",
+            "state": "STRAFING"
+          }
+        ]
+      },
+      "entryNode": "strafe",
+      "nodes": {
+        "strafe": {
+          "type": "core:pose",
+          "tags": [
+            "strafe"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/skeleton/strafe_base.json",
+              "time": {
+                "variable": "limbSwing",
+                "scale": 0.6662
+              },
+              "damping": {
+                "rightLeg": 1.0,
+                "leftLeg": 1.0
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/skeleton/strafe_swing.json",
+              "time": {
+                "variable": "limbSwing",
+                "scale": 0.6662
+              },
+              "weight": {
+                "variable": "limbSwingAmount"
+              },
+              "space": "POST"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

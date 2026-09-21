@@ -9,6 +9,31 @@ import java.util.Random;
  */
 public class Determinism
 {
+    /** Sets a (possibly protected) field by name, searching superclasses. */
+    public static void setField(Object target, String name, Object value)
+    {
+        Class<?> c = target.getClass();
+        while (c != null)
+        {
+            try
+            {
+                Field f = c.getDeclaredField(name);
+                f.setAccessible(true);
+                f.set(target, value);
+                return;
+            }
+            catch (NoSuchFieldException e)
+            {
+                c = c.getSuperclass();
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new IllegalStateException(e);
+            }
+        }
+        throw new IllegalArgumentException("no field " + name + " on " + target.getClass());
+    }
+
     public static void seedRandoms(Object target, long seed)
     {
         Class<?> c = target.getClass();

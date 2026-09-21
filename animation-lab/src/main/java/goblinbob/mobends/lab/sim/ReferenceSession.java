@@ -48,6 +48,10 @@ public class ReferenceSession
         EntityLivingBase entity = scenario.kind.createEntity(world);
         this.scripted = new ScriptedEntity(entity, world);
         this.data = scenario.kind.createData(entity, scenario.id().hashCode());
+        if (scenario.setup != null)
+        {
+            scenario.setup.accept(this.data);
+        }
         this.clock = new LabClock(scenario.fps);
     }
 

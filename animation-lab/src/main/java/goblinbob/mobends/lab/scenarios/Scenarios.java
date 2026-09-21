@@ -1,5 +1,6 @@
 package goblinbob.mobends.lab.scenarios;
 
+import goblinbob.mobends.lab.sim.Determinism;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.Scenario;
 import net.minecraft.init.Items;
@@ -41,6 +42,20 @@ public class Scenarios
                 if (between(tick, 60, 120)) walk(in, WALK_SPEED);
             }));
         }
+
+        // The scenarios above get an animation-set-1 (stumbling) zombie from its entity id; this one
+        // forces set 0 (leaning) so both zombie variants are covered.
+        add(new Scenario(EntityKind.ZOMBIE, "lean_walk_jump", FPS, 150, (tick, in) -> {
+            if (between(tick, 20, 90)) walk(in, WALK_SPEED);
+            if (tick == 60) in.jump = true;
+            lookAround(in, tick);
+        }, data -> Determinism.setField(data, "animationSet", 0)));
+
+        add(new Scenario(EntityKind.SKELETON, "strafe", FPS, 140, (tick, in) -> {
+            if (between(tick, 20, 60)) in.strafeSpeed = WALK_SPEED;
+            if (between(tick, 60, 100)) { in.strafeSpeed = WALK_SPEED * 0.7; walk(in, WALK_SPEED * 0.7); }
+            if (between(tick, 100, 140)) walk(in, WALK_SPEED);
+        }));
 
         add(new Scenario(EntityKind.PIG_ZOMBIE, "walk_attack", FPS, 120, (tick, in) -> {
             in.mainHand = new ItemStack(Items.IRON_SWORD);

@@ -52,19 +52,37 @@ public class KumoSession
         registeredClips.clear();
     }
 
-    public static final IKumoInstancingContext INSTANCING = key -> {
-        KeyframeAnimation registered = registeredClips.get(key);
-        if (registered != null)
+    public static final IKumoInstancingContext INSTANCING = new IKumoInstancingContext()
+    {
+        @Override
+        public KeyframeAnimation getAnimation(String key)
         {
-            return registered;
+            KeyframeAnimation registered = registeredClips.get(key);
+            if (registered != null)
+            {
+                return registered;
+            }
+            try
+            {
+                return AnimationLoader.loadFromPath(key);
+            }
+            catch (IOException e)
+            {
+                throw new IllegalStateException("cannot load clip " + key, e);
+            }
         }
-        try
+
+        @Override
+        public AnimatorTemplate getAnimator(String key)
         {
-            return AnimationLoader.loadFromPath(key);
-        }
-        catch (IOException e)
-        {
-            throw new IllegalStateException("cannot load clip " + key, e);
+            try
+            {
+                return loadAnimator(key);
+            }
+            catch (IOException e)
+            {
+                throw new IllegalStateException("cannot load animator " + key, e);
+            }
         }
     };
 
@@ -85,6 +103,10 @@ public class KumoSession
         EntityLivingBase entity = scenario.kind.createEntity(world);
         this.scripted = new ScriptedEntity(entity, world);
         this.data = scenario.kind.createData(entity, scenario.id().hashCode());
+        if (scenario.setup != null)
+        {
+            scenario.setup.accept(this.data);
+        }
         this.clock = new LabClock(scenario.fps);
         this.animator = new KumoAnimatorState<>(template, INSTANCING);
     }

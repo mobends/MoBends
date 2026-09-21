@@ -8,11 +8,23 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 public class BoneTarget
 {
 
+    /** Absolute rotation (an OVERRIDE write happened). */
     public boolean hasRotation;
     public final Quaternion rotation = new Quaternion();
 
-    /** How the first write to this slot composes with what lies beneath (earlier layers / the bone). */
-    public Pose.Space space = Pose.Space.OVERRIDE;
+    /**
+     * Relative rotations gathered while no absolute value exists: the result composes as
+     * {@code pre * beneath * post}, where "beneath" is the earlier layers' value or the bone's
+     * live target. An OVERRIDE write folds them away.
+     */
+    public boolean hasPre;
+    public final Quaternion pre = new Quaternion();
+    public boolean hasPost;
+    public final Quaternion post = new Quaternion();
+
+    /** Offset / vector written additively (relative to what lies beneath) rather than absolutely. */
+    public boolean offsetAdditive;
+    public boolean vectorAdditive;
 
     /** Rotation the bone is snapped to before the target is applied (the "orientInstant then orient" idiom). */
     public boolean hasSnapFrom;
@@ -38,7 +50,10 @@ public class BoneTarget
 
     public void clear()
     {
-        space = Pose.Space.OVERRIDE;
+        hasPre = false;
+        hasPost = false;
+        offsetAdditive = false;
+        vectorAdditive = false;
         hasSnapFrom = false;
         hasVectorStart = false;
         hasRotation = false;
@@ -52,7 +67,12 @@ public class BoneTarget
 
     public void set(BoneTarget other)
     {
-        space = other.space;
+        hasPre = other.hasPre;
+        pre.set(other.pre);
+        hasPost = other.hasPost;
+        post.set(other.post);
+        offsetAdditive = other.offsetAdditive;
+        vectorAdditive = other.vectorAdditive;
         hasSnapFrom = other.hasSnapFrom;
         snapFrom.set(other.snapFrom);
         hasVectorStart = other.hasVectorStart;
