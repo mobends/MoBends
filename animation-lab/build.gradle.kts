@@ -186,6 +186,14 @@ tasks.register<JavaExec>("bakeBipeds") {
     args(modSrc.resolve("resources").absolutePath)
 }
 
+tasks.register<JavaExec>("bakePlayer") {
+    description = "Bakes the player's procedural animation bits into format-2 clips in the mod resources."
+    group = "lab"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("goblinbob.mobends.lab.bake.PlayerBake")
+    args(modSrc.resolve("resources").absolutePath)
+}
+
 tasks.register<Exec>("generateAnimators") {
     description = "Regenerates the biped animator JSON files from tools/gen_animators.py."
     group = "lab"

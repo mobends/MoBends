@@ -27,9 +27,15 @@ public class EntityInputs
     public boolean sneaking = false;
     public boolean inWater = false;
     public boolean onLadder = false;
+    /** Ladder blocks in the entity's column (needed for the mod's climb / ledge queries). */
+    public boolean ladderColumn = false;
+    /** Water blocks around the entity up to this height (0 = none); makes isUnderwater() true. */
+    public int waterHeight = 0;
     public boolean flying = false;
     public boolean sleeping = false;
     public boolean riding = false;
+    /** Whether the mount is a living entity (horse) or not (boat / minecart). */
+    public boolean ridingLiving = true;
     public int elytraTicks = 0;
 
     /** True on the tick an arm swing (attack) starts. */

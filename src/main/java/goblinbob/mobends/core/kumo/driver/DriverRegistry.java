@@ -28,6 +28,7 @@ public class DriverRegistry
     {
         register("core:axis_rotate", AxisRotateDriver::create, AxisRotateTemplate.class);
         register("core:ramp", RampDriver::create, goblinbob.mobends.core.kumo.state.template.pose.RampTemplate.class);
+        register("core:vector", VectorDriver::create, goblinbob.mobends.core.kumo.state.template.pose.VectorTemplate.class);
     }
 
     public <T extends DriverItemTemplate> void register(String key, IDriverFactory<T> factory, Class<T> templateType)

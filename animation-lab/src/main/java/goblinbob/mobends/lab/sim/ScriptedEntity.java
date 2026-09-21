@@ -23,15 +23,19 @@ public class ScriptedEntity
     public final EntityLivingBase entity;
     public final World world;
     private final EntityLivingBase mount;
+    private final net.minecraft.entity.Entity vehicle;
 
     private int swingTicks = -1;
     private double velocityY = 0;
+    private boolean ladderPlaced = false;
+    private int waterPlaced = 0;
 
     public ScriptedEntity(EntityLivingBase entity, World world)
     {
         this.entity = entity;
         this.world = world;
         this.mount = new EntityLivingBase(world);
+        this.vehicle = new net.minecraft.entity.Entity(world);
         entity.setLocationAndAngles(0.5D, world.floorY, 0.5D, 0.0F, 0.0F);
     }
 
@@ -131,6 +135,18 @@ public class ScriptedEntity
             e.swingProgress = 0.0F;
         }
 
+        // World features the mod queries (placed once, kept).
+        if (in.ladderColumn && !ladderPlaced)
+        {
+            LabWorlds.placeLadderColumn(world, e);
+            ladderPlaced = true;
+        }
+        if (in.waterHeight > 0 && waterPlaced < in.waterHeight)
+        {
+            LabWorlds.placeWaterColumn(world, e, in.waterHeight);
+            waterPlaced = in.waterHeight;
+        }
+
         // Flags and items.
         e.sprinting = in.sprinting;
         e.sneaking = in.sneaking;
@@ -142,7 +158,7 @@ public class ScriptedEntity
         e.itemInUseCount = in.itemUseCount;
         e.itemInUseMaxCount = in.itemUseMaxCount;
         e.health = in.health;
-        e.ridingEntity = in.riding ? mount : null;
+        e.ridingEntity = in.riding ? (in.ridingLiving ? mount : vehicle) : null;
         if (in.riding)
         {
             mount.prevRenderYawOffset = mount.renderYawOffset;

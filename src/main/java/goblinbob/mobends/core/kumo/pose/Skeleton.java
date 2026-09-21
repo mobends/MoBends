@@ -19,6 +19,12 @@ public class Skeleton
     /** Name of the slot that maps to the subject's global offset in legacy clips. */
     public static final String ROOT = "root";
 
+    /** Bone names that denote entity-level smoothed vectors rather than rotations. */
+    public static boolean isVectorBone(String name)
+    {
+        return ROOT.equals(name) || "globalOffset".equals(name) || "localOffset".equals(name);
+    }
+
     private final List<String> names = new ArrayList<>();
     private final Map<String, Integer> indices = new HashMap<>();
     private IBoneSink[] sinks = new IBoneSink[0];

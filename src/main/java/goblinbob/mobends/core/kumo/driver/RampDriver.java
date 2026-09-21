@@ -23,15 +23,16 @@ public class RampDriver implements IPoseItem
     private final float upSpeed;
     private final float downSpeed;
     private final ITriggerCondition when;
+    private final boolean readBeforeAdvance;
     private float value;
-    private boolean advanceBeforeEvaluate;
 
-    public RampDriver(String name, float upSpeed, float downSpeed, ITriggerCondition when)
+    public RampDriver(String name, float upSpeed, float downSpeed, ITriggerCondition when, boolean readBeforeAdvance)
     {
         this.name = name;
         this.upSpeed = upSpeed;
         this.downSpeed = downSpeed;
         this.when = when;
+        this.readBeforeAdvance = readBeforeAdvance;
     }
 
     public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, RampTemplate template) throws MalformedKumoTemplateException
@@ -41,13 +42,18 @@ public class RampDriver implements IPoseItem
             throw new MalformedKumoTemplateException("core:ramp needs a 'name'.");
         }
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
-        return new RampDriver(template.name, template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when);
+        return new RampDriver(template.name, template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when, template.readBeforeAdvance);
     }
 
     @Override
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
-        // The bits advance their ramp at the top of perform(), i.e. before using it.
+        // Most bits advance their ramp at the top of perform(), i.e. before using it; some
+        // compute their eased value first and advance afterwards (readBeforeAdvance).
+        if (readBeforeAdvance)
+        {
+            context.getNodeScope().set(name, value);
+        }
         boolean up = when == null || when.isConditionMet(context);
         float dt = context.getDeltaTime();
         if (up)
@@ -58,7 +64,10 @@ public class RampDriver implements IPoseItem
         {
             value = Math.max(value - dt * downSpeed, 0F);
         }
-        context.getNodeScope().set(name, value);
+        if (!readBeforeAdvance)
+        {
+            context.getNodeScope().set(name, value);
+        }
     }
 
     @Override

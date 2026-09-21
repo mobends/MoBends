@@ -61,7 +61,7 @@ public class ClipBinding
             String name = entries.get(i).getKey();
             bones[i] = entries.get(i).getValue();
             slots[i] = skeleton.indexOf(name);
-            isRoot[i] = Skeleton.ROOT.equals(name);
+            isRoot[i] = Skeleton.isVectorBone(name);
             isCenterRotation[i] = CENTER_ROTATION.equals(name);
         }
         rootSlot = skeleton.indexOf(Skeleton.ROOT);
@@ -70,15 +70,11 @@ public class ClipBinding
     /** The skeleton slots this clip writes (bones plus the root vector when a root bone exists). */
     public int[] writtenSlots()
     {
-        boolean hasRoot = false;
-        for (boolean r : isRoot) hasRoot |= r;
-        if (legacyRootCoupling) for (boolean c : isCenterRotation) hasRoot |= c;
-        int n = 0;
-        for (int i = 0; i < slots.length; i++) if (!isRoot[i]) n++;
-        int[] result = new int[n + (hasRoot ? 1 : 0)];
-        int k = 0;
-        for (int i = 0; i < slots.length; i++) if (!isRoot[i]) result[k++] = slots[i];
-        if (hasRoot) result[k] = rootSlot;
+        boolean centerRoot = false;
+        if (legacyRootCoupling) for (boolean c : isCenterRotation) centerRoot |= c;
+        int[] result = new int[slots.length + (centerRoot ? 1 : 0)];
+        System.arraycopy(slots, 0, result, 0, slots.length);
+        if (centerRoot) result[slots.length] = rootSlot;
         return result;
     }
 
@@ -104,7 +100,7 @@ public class ClipBinding
 
             if (isRoot[i])
             {
-                pose.composeVector(rootSlot, position.x * weight, position.y * weight, position.z * weight, boneSpace);
+                pose.composeVector(slots[i], position.x * weight, position.y * weight, position.z * weight, boneSpace);
                 continue;
             }
 

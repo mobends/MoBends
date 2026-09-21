@@ -15,6 +15,7 @@ public class Animators
         BY_KIND.put(EntityKind.ZOMBIE, "mobends:bends/animators/zombie.json");
         BY_KIND.put(EntityKind.SKELETON, "mobends:bends/animators/skeleton.json");
         BY_KIND.put(EntityKind.PIG_ZOMBIE, "mobends:bends/animators/pig_zombie.json");
+        BY_KIND.put(EntityKind.PLAYER, "mobends:bends/animators/player.json");
     }
 
     public static String forKind(EntityKind kind)

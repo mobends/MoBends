@@ -10,6 +10,7 @@ import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.LabBootstrap;
+import goblinbob.mobends.lab.sim.LabWorlds;
 import goblinbob.mobends.lab.trace.PoseCapture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -129,6 +130,19 @@ public class BakeRig
         return Math.abs(q.x - MARKER.x) < 1e-6 && Math.abs(q.y - MARKER.y) < 1e-6 && Math.abs(q.z - MARKER.z) < 1e-6 && Math.abs(q.w - MARKER.w) < 1e-6;
     }
 
+    /** Mounts (or dismounts) the entity on a living stand-in whose body yaw is zero. */
+    public void ride(boolean riding)
+    {
+        EntityLivingBase e = data.getEntity();
+        e.ridingEntity = riding ? new EntityLivingBase(e.world) : null;
+    }
+
+    /** Places ladder blocks in the entity's column so ledge/climb queries see a ladder. */
+    public void placeLadderColumn()
+    {
+        LabWorlds.placeLadderColumn(data.getEntity().world, data.getEntity());
+    }
+
     public void limbSwing(float value) { data.limbSwing.set(value); }
     public void limbSwingAmount(float value) { data.limbSwingAmount.set(value); }
     public void headYaw(float value) { data.headYaw.set(value); }
@@ -137,6 +151,12 @@ public class BakeRig
 
     /** Sets a protected counter of the data class by name (e.g. "ticksAfterTouchdown"). */
     public void set(String field, float value)
+    {
+        setField(data, field, value);
+    }
+
+    /** Sets a numeric/boolean field on any object (e.g. a bit's own transition state). */
+    public static void setField(Object data, String field, float value)
     {
         Class<?> c = data.getClass();
         while (c != null)
@@ -163,6 +183,7 @@ public class BakeRig
         }
         throw new IllegalArgumentException("no field " + field + " on " + data.getClass());
     }
+
 
     @SuppressWarnings("unchecked")
     public void perform(AnimationBit<?> bit)

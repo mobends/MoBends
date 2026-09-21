@@ -175,6 +175,22 @@ public class Baker
         return clip;
     }
 
+    /**
+     * Samples a function of one variable over [from, to] into a non-looping clip whose time is
+     * meant to be driven by that variable ({@code "time": {"variable": ..., "offset": -from}}).
+     */
+    public ClipBuilder curve(AnimationBit<?> bit, Setup setup, float from, float to, int count)
+    {
+        ClipBuilder clip = new ClipBuilder().duration(to - from).loop(false);
+        for (int i = 0; i <= count; i++)
+        {
+            float t = from + (to - from) * i / count;
+            Sample s = sample(bit, setup, t);
+            clip.frame(s.rotations, s.vectors);
+        }
+        return clip;
+    }
+
     /** Samples a one-shot over [0, duration] into a non-looping clip. */
     public ClipBuilder oneShot(AnimationBit<?> bit, Setup setup, float duration, int count)
     {

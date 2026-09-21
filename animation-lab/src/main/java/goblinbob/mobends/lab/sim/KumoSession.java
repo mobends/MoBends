@@ -88,6 +88,7 @@ public class KumoSession
 
     public static AnimatorTemplate loadAnimator(String resource) throws IOException
     {
+        LabBootstrap.ensure();
         return GsonResources.get(new ResourceLocation(resource), AnimatorTemplate.class);
     }
 

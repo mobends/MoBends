@@ -117,9 +117,12 @@ public class ReferenceSession
         inputs.sneaking = fresh.sneaking;
         inputs.inWater = fresh.inWater;
         inputs.onLadder = fresh.onLadder;
+        inputs.ladderColumn = fresh.ladderColumn;
+        inputs.waterHeight = fresh.waterHeight;
         inputs.flying = fresh.flying;
         inputs.sleeping = fresh.sleeping;
         inputs.riding = fresh.riding;
+        inputs.ridingLiving = fresh.ridingLiving;
         inputs.elytraTicks = fresh.elytraTicks;
         inputs.attack = fresh.attack;
         inputs.itemUseCount = fresh.itemUseCount;

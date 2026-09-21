@@ -114,6 +114,47 @@ public class Scenarios
                 in.inWater = true;
                 in.noGravity = true;
                 if (between(tick, 130, 180)) walk(in, 0.1D);
+                // Deep water from tick 150: the swimming bit switches to its underwater pose.
+                if (tick >= 150) in.waterHeight = 8;
+            }
+        }));
+
+        add(new Scenario(EntityKind.PLAYER, "ladder_climb", FPS, 160, (tick, in) -> {
+            in.ladderColumn = true;
+            if (between(tick, 10, 150))
+            {
+                in.onLadder = true;
+                in.noGravity = true;
+                in.verticalSpeed = between(tick, 10, 80) ? 0.12D : (between(tick, 80, 110) ? 0.0D : -0.12D);
+                in.headYaw = (float) (Math.sin(tick * 0.05) * 60.0);
+                in.headPitch = -30;
+            }
+        }));
+
+        add(new Scenario(EntityKind.PLAYER, "riding", FPS, 160, (tick, in) -> {
+            in.noGravity = true;
+            in.riding = true;
+            lookAround(in, tick);
+            if (between(tick, 60, 120)) walk(in, 0.3D);
+            if (between(tick, 120, 160)) walk(in, 0.05D);
+        }));
+
+        add(new Scenario(EntityKind.PLAYER, "sleep_sit_elytra", FPS, 180, (tick, in) -> {
+            if (between(tick, 0, 60)) in.sleeping = true;
+            if (between(tick, 60, 120))
+            {
+                in.noGravity = true;
+                in.elytraTicks = tick - 60;
+                walk(in, 0.4D);
+                in.headPitch = -20;
+                in.headYaw = 30;
+            }
+            if (between(tick, 120, 180))
+            {
+                in.noGravity = true;
+                in.riding = true;
+                in.ridingLiving = false;
+                lookAround(in, tick);
             }
         }));
 
