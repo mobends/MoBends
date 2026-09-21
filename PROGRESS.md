@@ -366,3 +366,29 @@ through `KumoAnimatorController`: every entity of the mod now animates from its 
 
 **Result.** 33/33 parity scenarios (both wolf scenarios exact), 34/34 stability, side effects
 equal.
+
+## 11. Continuous validation and documentation
+
+* `.github/workflows/animation-lab.yml` runs the lab's tests (reference stability, animator
+  parity, side effects) on JDK 21 for every push or pull request that touches the animation
+  sources, the assets or the lab, and uploads the reports and the fresh traces on failure.
+* `animation-lab/README.md` explains the lab; `misc/kumo-format.md` documents the format-2
+  animator (layers, nodes, items, drivers, value sources, conditions, mirroring);
+  `animation-lab/tools/trace_diff.py` prints per-frame deviations between a golden and an
+  animator trace.
+
+## Where things stand
+
+Every entity of the mod (player, zombie, zombie villager, skeleton, pig zombie, spider, squid,
+wolf) animates from `assets/mobends/bends/animators/*.json` through `KumoAnimatorController`.
+33 scenarios pin the behaviour to the procedural reference within 0.1° / 0.01 units (most
+within 0.04°). The procedural bits and controllers remain in the tree only as that reference.
+
+Open items, in order of value:
+1. Build and run the mod itself in a Forge dev environment (not possible here); watch for
+   resource-reload behaviour and the bends-pack path (`BendsPackPerformer` reads the actions).
+2. Decide the documented deviations of step 6 (the reference's post-sleep and same-tick quirks)
+   and whether `BipedEntityData.updateParts` should keep smoothing the offsets twice per frame.
+3. The bow's climbing branch and the pig zombie / skeleton left-handed cases have no scenario.
+4. Retire the procedural code once the assets have been seen in-game; the lab then needs the
+   goldens only.

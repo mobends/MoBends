@@ -1,0 +1,45 @@
+name: Animation lab
+
+# Continuous validation that the KUMO animator assets still reproduce the procedural
+# reference frame by frame (see animation-lab/README.md and PROGRESS.md).
+on:
+  push:
+    paths:
+      - "animation-lab/**"
+      - "src/main/java/goblinbob/mobends/core/**"
+      - "src/main/java/goblinbob/mobends/standard/**"
+      - "src/main/kotlin/**"
+      - "src/main/resources/assets/mobends/bends/**"
+      - ".github/workflows/animation-lab.yml"
+  pull_request:
+    paths:
+      - "animation-lab/**"
+      - "src/main/java/goblinbob/mobends/core/**"
+      - "src/main/java/goblinbob/mobends/standard/**"
+      - "src/main/kotlin/**"
+      - "src/main/resources/assets/mobends/bends/**"
+      - ".github/workflows/animation-lab.yml"
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+      - name: Reference stability, animator parity, side effects
+        working-directory: animation-lab
+        run: gradle test --no-daemon
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: animation-lab-test-reports
+          path: |
+            animation-lab/build/reports/tests/test
+            animation-lab/build/traces
