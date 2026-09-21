@@ -1,6 +1,8 @@
 # Moving Mo' Bends fully to KUMO — feasibility study and plan
 
-Status: proposal (static analysis of the 1.2.2 codebase on `1.X/forge-1.12`; nothing here has been run in-game yet).
+Status: executed. The migration described below has been carried out; `PROGRESS.md` (repository
+root) records each step, `misc/kumo-format.md` documents the resulting animator format, and
+`animation-lab/` holds the parity framework. The text below is the original study, kept as is.
 
 ## 0. Verdict
 
