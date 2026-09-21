@@ -12,3 +12,7 @@
 !/gradlew.bat
 !/README.md
 !/LICENSE
+
+# Standalone animation lab (modern JDK, no Forge)
+!/animation-lab
+!/PROGRESS.md
