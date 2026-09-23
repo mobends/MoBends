@@ -3,8 +3,11 @@ package goblinbob.mobends.core.client.definition;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.core.definition.DefinedFields;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
+import goblinbob.mobends.core.vanilla.VanillaEntityFields;
+import goblinbob.mobends.core.vanilla.VanillaModelParts;
 import net.minecraft.entity.EntityLivingBase;
 
 import java.util.logging.Level;
@@ -19,6 +22,7 @@ public final class DefinedBenders
 
     public static void registerAll(String modId, AddonAnimationRegistry registry)
     {
+        DefinedFields.install(VanillaEntityFields::get, VanillaModelParts::get);
         try
         {
             for (String name : ModelDefinitions.INSTANCE.index(modId))

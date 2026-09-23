@@ -452,6 +452,28 @@ moving knee-bearing leg and the walk node. `BoxSplitterTest` pins the split geom
 
 **Not verified here (needs the game).** The mutator and renderer are client code the lab cannot
 compile; the box-list indices and the quadruped/chicken/villager field names come from the 1.12
-model sources as remembered and should be checked in a dev run; the chicken's wing variables
-need their SRG field names for a production build. Layers that copy a model's angles (sheep
+model sources as remembered and should be checked in a dev run. Layers that copy a model's angles (sheep
 wool, charged creeper armour) are not covered, which is why the sheep is not listed.
+
+## 14. Vanilla field names in production
+
+**What.** Definitions name fields by their development (MCP) names, which do not exist in a
+production (SRG) runtime. `tools/gen_vanilla_fields.py` (`gradle generateVanillaFields`) reads the
+SRG Forge jar and the SRG-to-MCP mappings from `build/fg_cache` and generates
+`core/vanilla/VanillaModelParts` (241 model part fields of 48 models) and
+`core/vanilla/VanillaEntityFields` (269 numeric fields of `Entity`, `EntityLivingBase` and the
+living entities): a string switch from `owner#name` to a lambda reading the field directly, so
+reobfuscation renames every access. The 281 non-public ones are made public by a generated section
+of `META-INF/accesstransformer.cfg` (below a marker line; the hand-written entries above it are
+kept and not duplicated). `DefinedFields` (core, lab-safe) walks the hierarchy: generated table for
+each class first, then reflection, which is how fields of modded entities and models are found.
+`DefinedBenders` installs the tables; the lab runs on reflection alone.
+
+**Verified.** The mod compiles against the transformed jar (JDK 8, `gradle compileJava`); in the
+reobfuscated `shadowJar`, all 241 part reads and 268 of the 269 entity reads are SRG-named
+(e.g. `EntityChicken.field_70883_f`; the remaining one is Forge's own `EntityPlayer.eyeHeight`).
+90 lab tests pass.
+
+**Not verified here (needs the game).** A production run of a definition with a variable (the
+chicken's wings, the golem's attack timer).
+

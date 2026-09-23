@@ -141,6 +141,13 @@ shadowJar.finalizedBy('reobfShadowJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfShadowJar')
 
+// Regenerates the accessors of the vanilla fields model definitions can name (core/vanilla) and the
+// access transformer entries they need, from the mappings in build/fg_cache.
+task generateVanillaFields(type: Exec) {
+    description = 'Regenerates core/vanilla and the generated access transformer section from the Minecraft mappings.'
+    commandLine 'python3', file('tools/gen_vanilla_fields.py').absolutePath, projectDir.absolutePath
+}
+
 task srcJar(type: Jar) {
     build.dependsOn it
     from sourceSets.main.allSource

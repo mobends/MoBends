@@ -163,12 +163,12 @@ and the renderer, and registers the entity; the animator asset does the rest.
 |---|---|
 | `entity` | the entity class; `model` (optional) restricts mutation to that model class and its subclasses |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
-| `bones[].vanilla` | the vanilla part the bone takes over: `field` is the model's field (deobfuscated name; used when it resolves, e.g. in a development environment), `element` its index for array fields, `index` the fallback position in the model's box list (creation order). Every field or array slot that holds the part is replaced, found by identity, so obfuscated field names do not matter. |
+| `bones[].vanilla` | the vanilla part the bone takes over: `field` is the model's field by its development (MCP) name (see *Field names* below), `element` its index for array fields, `index` an optional fallback position in the model's box list (creation order). Every field or array slot that holds the part is replaced, found by identity. |
 | `bones[].parent` | renders the bone inside another one (an invisible stand-in takes the vanilla slot); `position` is then relative to the parent |
 | `bones[].position` | pivot override; default: the vanilla rotation point |
 | `bones[].restRotation` | constant X, Y, Z degrees the vanilla model held the part at (`setRotationAngles` constants), applied before the animated rotation |
 | `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. |
-| `variables[]` | animator variables from entity fields: `field` (candidate names, deobfuscated then SRG), optional `prevField` for partial-tick interpolation, `scale`, `offset`, `fn`, `add`, or a `product` of other variables |
+| `variables[]` | animator variables from numeric entity fields: `field` (candidate names, the first found is used), optional `prevField` for partial-tick interpolation, `scale`, `offset`, `fn`, `add`, or a `product` of other variables |
 
 The shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
 `villager`, `witch`, `iron_golem`) give every leg a knee (and the golem's arms an elbow) and
@@ -177,7 +177,25 @@ stand / walk / jump with a smooth look, the golem's attack from its timer).
 `DefinedModelsTest` in the lab checks every listed definition builds, covers what its animator
 drives, and walks.
 
-Production builds need the SRG names added to `variables[].field` lists (the chicken's wing
-variables); the box-list indices carry the parts. Layers that keep their own copy of a model
+### Field names
+
+Fields are always named as in the development environment (MCP names), for vanilla and modded
+classes alike; `DefinedFields` walks the class hierarchy from the entity (or model) class up and,
+for each class:
+
+* **vanilla classes** are looked up in the generated accessors `core/vanilla/VanillaModelParts`
+  (every `ModelRenderer` / `ModelRenderer[]` field of every vanilla model) and
+  `core/vanilla/VanillaEntityFields` (every numeric field of `Entity`, `EntityLivingBase` and the
+  living entities). They read the fields directly, so reobfuscation renames them for production;
+  no SRG name appears in a definition. Regenerate them with `gradle generateVanillaFields`
+  (`tools/gen_vanilla_fields.py`, which also writes the generated section of the access
+  transformer that makes the non-public ones readable) after changing the Minecraft or mappings
+  version.
+* **anything else** (a mod's own entity or model, or its fields on a subclass) is found by
+  reflection under the same name, since mods are not obfuscated.
+
+A vanilla field the tables lack falls back to reflection too, which works in development only.
+
+Layers that keep their own copy of a model
 (the sheep's wool, a charged creeper's armour) still animate vanilla-style, so the sheep is not
 listed yet.

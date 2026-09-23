@@ -8,11 +8,11 @@ import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
-import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
+import java.util.function.ToDoubleFunction;
 
 /**
  * The entity data of a mob described by an {@link EntityModelDefinition}: one transform per bone
@@ -161,17 +161,17 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
                 return shape(variable, value);
             };
         }
-        Field current = findField(variable.field);
-        Field previous = variable.prevField == null ? null : findField(variable.prevField);
+        ToDoubleFunction<Object> current = entity == null ? null : DefinedFields.number(entity.getClass(), variable.field);
+        ToDoubleFunction<Object> previous = entity == null || variable.prevField == null ? null : DefinedFields.number(entity.getClass(), variable.prevField);
         if (current == null)
         {
             return () -> variable.offset;
         }
         return () -> {
-            double now = read(current);
+            double now = current.applyAsDouble(entity);
             if (previous != null)
             {
-                double before = read(previous);
+                double before = previous.applyAsDouble(entity);
                 now = before + (now - before) * DataUpdateHandler.partialTicks;
             }
             return shape(variable, now);
@@ -194,46 +194,6 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
             }
         }
         return value + variable.add;
-    }
-
-    private double read(Field field)
-    {
-        try
-        {
-            return field.getDouble(entity);
-        }
-        catch (IllegalAccessException | IllegalArgumentException e)
-        {
-            return 0;
-        }
-    }
-
-    private Field findField(List<String> candidates)
-    {
-        if (entity == null || candidates == null)
-        {
-            return null;
-        }
-        for (Class<?> c = entity.getClass(); c != null; c = c.getSuperclass())
-        {
-            for (String name : candidates)
-            {
-                try
-                {
-                    Field field = c.getDeclaredField(name);
-                    Class<?> type = field.getType();
-                    if (type == float.class || type == double.class || type == int.class || type == long.class)
-                    {
-                        field.setAccessible(true);
-                        return field;
-                    }
-                }
-                catch (NoSuchFieldException ignored)
-                {
-                }
-            }
-        }
-        return null;
     }
 
 }

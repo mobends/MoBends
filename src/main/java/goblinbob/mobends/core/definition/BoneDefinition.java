@@ -72,11 +72,11 @@ public class BoneDefinition
 
     public static class VanillaPart
     {
-        /** The model's field holding the part (the deobfuscated name; used when it resolves). */
+        /** The model's field holding the part, by its development name (see {@link DefinedFields}). */
         public String field;
         /** For an array field: the element. */
         public int element = -1;
-        /** Fallback: the part's position in the model's box list (creation order). */
+        /** Optional fallback: the part's position in the model's box list (creation order). */
         public int index = -1;
     }
 

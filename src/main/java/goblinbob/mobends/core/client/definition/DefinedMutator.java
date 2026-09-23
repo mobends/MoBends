@@ -8,6 +8,7 @@ import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.BoxSplitter;
 import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.core.definition.DefinedFields;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 /**
@@ -110,26 +112,13 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
 
     private static ModelRenderer findVanillaPart(ModelBase model, BoneDefinition.VanillaPart ref)
     {
-        if (ref.field != null)
+        Function<Object, Object> field = ref.field == null ? null : DefinedFields.part(model.getClass(), ref.field);
+        Object value = field == null ? null : field.apply(model);
+        if (value instanceof ModelRenderer) return (ModelRenderer) value;
+        if (value != null && value.getClass().isArray() && ref.element >= 0 && ref.element < Array.getLength(value))
         {
-            for (Class<?> c = model.getClass(); c != null && c != Object.class; c = c.getSuperclass())
-            {
-                try
-                {
-                    Field field = c.getDeclaredField(ref.field);
-                    field.setAccessible(true);
-                    Object value = field.get(model);
-                    if (value instanceof ModelRenderer) return (ModelRenderer) value;
-                    if (value != null && value.getClass().isArray() && ref.element >= 0 && ref.element < Array.getLength(value))
-                    {
-                        Object element = Array.get(value, ref.element);
-                        if (element instanceof ModelRenderer) return (ModelRenderer) element;
-                    }
-                }
-                catch (NoSuchFieldException | IllegalAccessException ignored)
-                {
-                }
-            }
+            Object element = Array.get(value, ref.element);
+            if (element instanceof ModelRenderer) return (ModelRenderer) element;
         }
         if (ref.index >= 0 && ref.index < model.boxList.size())
         {

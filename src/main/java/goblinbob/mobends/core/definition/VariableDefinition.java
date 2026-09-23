@@ -13,7 +13,7 @@ public class VariableDefinition
 
     public String name;
 
-    /** Candidate field names (deobfuscated and SRG), the first that exists is used. */
+    /** Candidate field names, by their development names (see {@link DefinedFields}); the first that exists is used. */
     public List<String> field;
     /** Optional previous-tick field for interpolation by partial ticks. */
     public List<String> prevField;
