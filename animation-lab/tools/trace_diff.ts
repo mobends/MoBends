@@ -13,10 +13,9 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { gunzipSync } from "node:zlib";
-import { formatFixed, Float, type Json, numberRepr, parseJson } from "./python_compat";
 
-type Bone = Record<string, (number | Float)[]>;
-type Trace = { frames: { tick: number | Float; bones: Record<string, Bone> }[] };
+type Bone = Record<string, number[]>;
+type Trace = { frames: { tick: number; bones: Record<string, Bone> }[] };
 
 const root = dirname(import.meta.dir);
 const args = process.argv.slice(2);
@@ -37,11 +36,10 @@ while (args.length > 0) {
     bones.push(a);
   }
 }
-const load = (path: string) => parseJson(gunzipSync(readFileSync(path)).toString("utf8")) as unknown as Trace;
+const load = (path: string) => JSON.parse(gunzipSync(readFileSync(path)).toString("utf8")) as Trace;
 const g = load(`${root}/golden/${scen}.json.gz`);
 const k = load(join(root, "build", "kumo-traces", `${scen}.json.gz`));
 
-const nums = (v: (number | Float)[]) => v.map(Number);
 const degrees = (rad: number) => rad * (180 / Math.PI);
 
 function ang(a: number[], b: number[]): number {
@@ -55,12 +53,9 @@ function euler(q: number[]): string {
   // ZYX-ish readout: just print quaternion + axis-angle for readability
   const n = Math.sqrt(x * x + y * y + z * z);
   if (n < 1e-9) return "id";
-  const f = (v: number) => formatFixed(v, 2, { plus: true });
-  return `${formatFixed(degrees(2 * Math.atan2(n, w)), 1, { width: 6 })}@[${f(x / n)},${f(y / n)},${f(z / n)}]`;
+  const f = (v: number) => (v < 0 ? "" : "+") + v.toFixed(2);
+  return `${degrees(2 * Math.atan2(n, w)).toFixed(1).padStart(6)}@[${f(x / n)},${f(y / n)},${f(z / n)}]`;
 }
-
-/** A vector as Python prints a list. */
-const listRepr = (v: Json[]) => `[${v.map((x) => (typeof x === "number" || x instanceof Float ? numberRepr(x) : String(x))).join(", ")}]`;
 
 const lines: string[] = [];
 const key = opts.key as string;
@@ -78,23 +73,23 @@ for (let i = 0; i < frames; i++) {
     if (opts.vec) {
       const v = opts.vec as string;
       if (v in bg && v in bk) {
-        const [vg, vk] = [nums(bg[v]), nums(bk[v])];
+        const [vg, vk] = [bg[v], bk[v]];
         const differs = vg.length !== vk.length || vg.some((x, j) => x !== vk[j]);
         if (differs) {
           const dv = Math.max(...vg.slice(0, vk.length).map((x, j) => Math.abs(x - vk[j])));
-          if (dv > 0.01) out.push(`${b}.${v} ref=${listRepr(bg[v])} kumo=${listRepr(bk[v])}`);
+          if (dv > 0.01) out.push(`${b}.${v} ref=${JSON.stringify(vg)} kumo=${JSON.stringify(vk)}`);
         }
       }
       continue;
     }
     if (!(key in bg)) continue;
-    const e = ang(nums(bg[key]), nums(bk[key]));
+    const e = ang(bg[key], bk[key]);
     if (e > (opts.thresh as number)) {
-      out.push(`${b}: ${formatFixed(e, 2, { width: 5 })} ref=${euler(nums(bg[key]))} kumo=${euler(nums(bk[key]))}`);
+      out.push(`${b}: ${e.toFixed(2).padStart(5)} ref=${euler(bg[key])} kumo=${euler(bk[key])}`);
     }
   }
   if (out.length > 0) {
-    lines.push(`-- frame ${i} tick ${formatFixed(Number(fg.tick), 2)}`);
+    lines.push(`-- frame ${i} tick ${fg.tick.toFixed(2)}`);
     for (const o of out) lines.push(`    ${o}`);
   }
 }

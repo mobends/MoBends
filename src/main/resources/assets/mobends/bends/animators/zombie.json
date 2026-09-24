@@ -83,10 +83,10 @@
                 "scale": 0.6662
               },
               "damping": {
-                "rightLeg": 1.0,
-                "leftLeg": 1.0,
-                "rightArm": 1.0,
-                "leftArm": 1.0,
+                "rightLeg": 1,
+                "leftLeg": 1,
+                "rightArm": 1,
+                "leftArm": 1,
                 "body": 0.5
               }
             },

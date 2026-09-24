@@ -49,7 +49,7 @@
                 "centerRotation": 0.3,
                 "renderRightItemRotation": 0.3,
                 "renderLeftItemRotation": 0.3,
-                "body": 1.0,
+                "body": 1,
                 "rightArm": 0.4,
                 "leftArm": 0.4
               },
@@ -88,7 +88,7 @@
                 "value": 6.666666666666667
               },
               "damping": {
-                "body": 1.0
+                "body": 1
               },
               "vectorModes": {
                 "root": "SNAP"
@@ -835,8 +835,8 @@
                 "leftArm": 0.8,
                 "rightForeArm": 0.8,
                 "leftForeArm": 0.8,
-                "rightLeg": 1.0,
-                "leftLeg": 1.0
+                "rightLeg": 1,
+                "leftLeg": 1
               },
               "vectorModes": {
                 "root": "RETARGET",
@@ -907,7 +907,7 @@
                 "value": 6.666666666666667
               },
               "damping": {
-                "body": 1.0
+                "body": 1
               },
               "vectorModes": {
                 "root": "SNAP"
@@ -1686,8 +1686,8 @@
                 "head": 0.5,
                 "rightArm": 0.8,
                 "leftArm": 0.8,
-                "rightLeg": 1.0,
-                "leftLeg": 1.0,
+                "rightLeg": 1,
+                "leftLeg": 1,
                 "rightForeLeg": 0.7,
                 "leftForeLeg": 0.7
               },
@@ -2560,8 +2560,8 @@
                 "state": "MOVING_HORIZONTALLY"
               },
               "damping": {
-                "rightLeg": 1.0,
-                "leftLeg": 1.0,
+                "rightLeg": 1,
+                "leftLeg": 1,
                 "leftForeArm": 0.3,
                 "rightForeArm": 0.3
               }
@@ -5762,8 +5762,8 @@
             {
               "animationKey": "mobends:bends/animations/player/fly_sprint.json",
               "damping": {
-                "centerRotation": 1.0,
-                "head": 1.0,
+                "centerRotation": 1,
+                "head": 1,
                 "body": 0.7,
                 "leftArm": 0.7,
                 "rightArm": 0.7,
@@ -6393,7 +6393,7 @@
             {
               "animationKey": "mobends:bends/animations/player/fly_hover_rest.json",
               "damping": {
-                "head": 1.0
+                "head": 1
               },
               "when": {
                 "type": "core:and",
@@ -6529,7 +6529,7 @@
             {
               "animationKey": "mobends:bends/animations/player/fly_moving.json",
               "damping": {
-                "head": 1.0
+                "head": 1
               },
               "when": {
                 "type": "core:and",
@@ -7833,7 +7833,7 @@
             {
               "animationKey": "mobends:bends/animations/player/swim_common.json",
               "damping": {
-                "head": 1.0,
+                "head": 1,
                 "renderRotation": 0.7,
                 "localOffset": 0.3
               },
@@ -9884,7 +9884,7 @@
             {
               "animationKey": "mobends:bends/animations/player/elytra.json",
               "damping": {
-                "head": 1.0,
+                "head": 1,
                 "body": 0.7,
                 "leftArm": 0.7,
                 "rightArm": 0.7,
@@ -9894,7 +9894,7 @@
                 "rightLeg": 0.7,
                 "leftForeLeg": 0.7,
                 "rightForeLeg": 0.7,
-                "centerRotation": 1.0,
+                "centerRotation": 1,
                 "renderRotation": 0.7,
                 "root": 0.7
               },
@@ -12436,7 +12436,7 @@
                 "centerRotation": 0.3,
                 "renderRightItemRotation": 0.3,
                 "renderLeftItemRotation": 0.3,
-                "head": 1.0,
+                "head": 1,
                 "rightArm": 0.4,
                 "leftArm": 0.4
               },
@@ -13260,8 +13260,8 @@
                 "scale": 0.6662
               },
               "damping": {
-                "rightLeg": 1.0,
-                "leftLeg": 1.0,
+                "rightLeg": 1,
+                "leftLeg": 1,
                 "rightArm": 0.8,
                 "leftArm": 0.8,
                 "root": [
@@ -14579,7 +14579,7 @@
                 "value": 6.666666666666667
               },
               "damping": {
-                "body": 1.0
+                "body": 1
               },
               "vectorModes": {
                 "root": "SNAP"
@@ -21326,7 +21326,7 @@
               "angle": 80,
               "space": "OVERRIDE",
               "damping": {
-                "leftArm": 1.0
+                "leftArm": 1
               }
             },
             {
@@ -21356,7 +21356,7 @@
               "angle": 0,
               "space": "OVERRIDE",
               "damping": {
-                "rightForeArm": 1.0
+                "rightForeArm": 1
               }
             },
             {
@@ -22518,7 +22518,7 @@
               "angle": -80,
               "space": "OVERRIDE",
               "damping": {
-                "rightArm": 1.0
+                "rightArm": 1
               }
             },
             {
@@ -22548,7 +22548,7 @@
               "angle": 0,
               "space": "OVERRIDE",
               "damping": {
-                "leftForeArm": 1.0
+                "leftForeArm": 1
               }
             },
             {

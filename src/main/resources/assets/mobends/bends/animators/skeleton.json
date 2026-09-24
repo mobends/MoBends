@@ -32,8 +32,8 @@
                 "scale": 0.6662
               },
               "damping": {
-                "rightLeg": 1.0,
-                "leftLeg": 1.0
+                "rightLeg": 1,
+                "leftLeg": 1
               }
             },
             {
@@ -924,7 +924,7 @@
                 "value": 6.666666666666667
               },
               "damping": {
-                "body": 1.0
+                "body": 1
               },
               "vectorModes": {
                 "root": "SNAP"
@@ -7671,7 +7671,7 @@
               "angle": 80,
               "space": "OVERRIDE",
               "damping": {
-                "leftArm": 1.0
+                "leftArm": 1
               }
             },
             {
@@ -7701,7 +7701,7 @@
               "angle": 0,
               "space": "OVERRIDE",
               "damping": {
-                "rightForeArm": 1.0
+                "rightForeArm": 1
               }
             },
             {
@@ -8863,7 +8863,7 @@
               "angle": -80,
               "space": "OVERRIDE",
               "damping": {
-                "rightArm": 1.0
+                "rightArm": 1
               }
             },
             {
@@ -8893,7 +8893,7 @@
               "angle": 0,
               "space": "OVERRIDE",
               "damping": {
-                "leftForeArm": 1.0
+                "leftForeArm": 1
               }
             },
             {

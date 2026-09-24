@@ -1,1 +1,1 @@
-{"bones": {"body": {"keyframes": [{"position": [0, 0, 0], "rotation": [0.0, -0.3420201, 0.0, 0.9396926], "scale": [1, 1, 1]}]}, "renderRotation": {"keyframes": [{"position": [0, 0, 0], "rotation": [0.0, -0.1736482, 0.0, 0.9848078], "scale": [1, 1, 1]}]}}, "duration": 0, "loop": false}
+{"bones":{"body":{"keyframes":[{"position":[0,0,0],"rotation":[0,-0.3420201,0,0.9396926],"scale":[1,1,1]}]},"renderRotation":{"keyframes":[{"position":[0,0,0],"rotation":[0,-0.1736482,0,0.9848078],"scale":[1,1,1]}]}},"duration":0,"loop":false}

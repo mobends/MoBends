@@ -6,19 +6,15 @@
  * The animators are plain data; this script only spares us from writing the shared structure by
  * hand and from computing the quaternions of hand-authored constant poses. Run it through
  * `gradle generateAnimators` (or directly with the mod's resources dir as the argument).
- *
- * `float(1)` marks a value the first (Python) version of this script wrote as "1.0"; it keeps the
- * generated assets byte-identical. New code does not need it: the mod reads 1 and 1.0 alike.
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { deepcopy, dumps, Float, float, type Json, pyMod, pyRound } from "./python_compat";
 
 // Animator data is schemaless JSON built up and patched in place, like the files it becomes.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Obj = { [key: string]: any };
 type Axis = "X" | "Y" | "Z";
-type Quaternion = (number | Float)[];
+type Quaternion = number[];
 
 const RES = process.argv[2] ?? join(import.meta.dir, "..", "..", "src", "main", "resources");
 const ANIM = join(RES, "assets", "mobends", "bends", "animators");
@@ -28,18 +24,21 @@ mkdirSync(ANIM, { recursive: true });
 const radians = (deg: number) => deg * (Math.PI / 180);
 const degrees = (rad: number) => rad * (180 / Math.PI);
 const range = (n: number, start = 0) => Array.from({ length: n - start }, (_, i) => start + i);
+const round7 = (v: number) => Math.round(v * 1e7) / 1e7;
+/** Floored modulo: the result takes the divisor's sign. */
+const mod = (a: number, b: number) => ((a % b) + b) % b;
 
 function clip(folder: string, name: string): string {
   return `mobends:bends/animations/${folder}/${name}.json`;
 }
 
-function writeClip(path: string, data: Json): void {
+function writeClip(path: string, data: Obj): void {
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, dumps(data));
+  writeFileSync(path, JSON.stringify(data));
 }
 
 // ---- condition helpers ----------------------------------------------------------------------
-const cmp = (variable: string, op: string, value: number | Float): Obj => ({ type: "core:compare", variable, op, value });
+const cmp = (variable: string, op: string, value: number): Obj => ({ type: "core:compare", variable, op, value });
 const state = (s: string): Obj => ({ type: "core:state", state: s });
 const action = (tag: string): Obj => ({ type: "core:action", tag });
 const AND = (...conditions: Obj[]): Obj => ({ type: "core:and", conditions });
@@ -69,7 +68,7 @@ function rotations(...calls: [Axis, number][]): Quaternion {
   for (const [a, deg] of calls) {
     q = mul(axis(a, deg), q);
   }
-  return calls.length === 0 ? q : q.map((v) => float(pyRound(v, 7)));
+  return calls.length === 0 ? q : q.map((v) => round7(v));
 }
 
 function poseClip(path: string, bones: Record<string, Quaternion>, vectors: Record<string, number[]> = {}): void {
@@ -93,7 +92,7 @@ const headLook: Obj[] = [
   { driver: "core:axis_rotate", bone: "head", axis: "X", angle: { variable: "headPitch" }, space: "POST" },
 ];
 const kneel = { animationKey: B("kneel"), time: { variable: "ticksAfterTouchdown" },
-                when: cmp("ticksAfterTouchdown", "<", 1 / 0.15), damping: { body: float(1) }, vectorModes: { root: "SNAP" } };
+                when: cmp("ticksAfterTouchdown", "<", 1 / 0.15), damping: { body: 1 }, vectorModes: { root: "SNAP" } };
 const resetDamping = { root: 0.3, localOffset: 0.3, renderRotation: 0.3, centerRotation: 0.3,
                        renderRightItemRotation: 0.3, renderLeftItemRotation: 0.3 };
 
@@ -102,7 +101,7 @@ const stand: Obj = {
   enterPose: [{ animationKey: B("stand_enter"), when: cmp("ticksAfterTouchdown", "<", 0.5 / 0.15) }],
   pose: [
     { animationKey: B("stand"), time: { variable: "ticks", scale: 0.1 },
-      damping: { ...resetDamping, body: float(1), rightArm: 0.4, leftArm: 0.4 },
+      damping: { ...resetDamping, body: 1, rightArm: 0.4, leftArm: 0.4 },
       vectorModes: { root: "SLIDE", localOffset: "SLIDE" } },
     ...headLook,
     kneel,
@@ -116,7 +115,7 @@ const walk: Obj = {
   pose: [
     { animationKey: B("walk_base"), time: limbTime,
       damping: { ...resetDamping, body: 0.5, head: 0.5, rightArm: 0.8, leftArm: 0.8, rightForeArm: 0.8, leftForeArm: 0.8,
-                 rightLeg: float(1), leftLeg: float(1), root: [0.3, 0.6, 0.3] },
+                 rightLeg: 1, leftLeg: 1, root: [0.3, 0.6, 0.3] },
       vectorModes: { root: "RETARGET", localOffset: "SLIDE" } },
     { animationKey: B("walk_forelegs"), time: limbTime, damping: { leftForeLeg: 0.5, rightForeLeg: 0.5 } },
     { animationKey: B("walk_swing"), time: limbTime, weight: { variable: "limbSwingAmount" }, space: "POST" },
@@ -137,7 +136,7 @@ const jump: Obj = {
       vectorModes: { root: "SLIDE" } },
     ...headLook,
     { animationKey: B("jump_moving_base"), time: limbTime, when: state("MOVING_HORIZONTALLY"),
-      damping: { rightLeg: float(1), leftLeg: float(1), leftForeArm: 0.3, rightForeArm: 0.3 } },
+      damping: { rightLeg: 1, leftLeg: 1, leftForeArm: 0.3, rightForeArm: 0.3 } },
     { animationKey: B("jump_moving_forelegs"), time: limbTime, when: state("MOVING_HORIZONTALLY"),
       damping: { leftForeLeg: 0.3, rightForeLeg: 0.3 } },
     { animationKey: B("jump_moving_swing"), time: limbTime, weight: { variable: "limbSwingAmount" }, space: "POST", when: state("MOVING_HORIZONTALLY") },
@@ -173,7 +172,7 @@ const zombie: Obj = {
         type: "core:pose", tags: ["stumbling"],
         pose: [
           { animationKey: Z("stumble_base"), time: limbTime,
-            damping: { rightLeg: float(1), leftLeg: float(1), rightArm: float(1), leftArm: float(1), body: 0.5 } },
+            damping: { rightLeg: 1, leftLeg: 1, rightArm: 1, leftArm: 1, body: 0.5 } },
           { animationKey: Z("stumble_swing"), time: limbTime, weight: { variable: "limbSwingAmount" }, space: "POST" },
           { animationKey: Z("stumble_head"), time: limbTime, space: "PRE" },
         ] } } },
@@ -188,7 +187,7 @@ const skeleton: Obj = {
     { type: "KEYFRAME", when: AND(action("walk"), state("STRAFING")), entryNode: "strafe", nodes: { strafe: {
         type: "core:pose", tags: ["strafe"],
         pose: [
-          { animationKey: S("strafe_base"), time: limbTime, damping: { rightLeg: float(1), leftLeg: float(1) } },
+          { animationKey: S("strafe_base"), time: limbTime, damping: { rightLeg: 1, leftLeg: 1 } },
           { animationKey: S("strafe_swing"), time: limbTime, weight: { variable: "limbSwingAmount" }, space: "POST" },
         ] } } },
   ] };
@@ -268,7 +267,7 @@ cycleClip(join(CLIPS, "player", "swim_deep_arm_inner.json"),
 cycleClip(join(CLIPS, "player", "swim_deep_arm_outer.json"),
           (p) => ({ leftArm: rotations(["X", armSway(p) * 20]), rightArm: rotations(["X", armSway(p) * 20]) }));
 
-type DrvOptions = { scale?: number; offset?: number; space?: string; const?: number; [key: string]: Json | undefined };
+type DrvOptions = { scale?: number; offset?: number; space?: string; const?: number; [key: string]: unknown };
 
 function drv(bone: string, ax: Axis, variable: string | null = null,
              { scale = 1, offset = 0, space = "PRE", const: constant, ...kw }: DrvOptions = {}): Obj {
@@ -325,14 +324,14 @@ const attackHead = [
   when(drv("head", "Y", "headYaw", { space: "PRE" }), cmp("ticksAfterAttack", "<", 10)),
   when(drv("head", "X", "headPitch", { space: "POST" }), cmp("ticksAfterAttack", "<", 10)),
 ];
-const pWalk = deepcopy(walk);
+const pWalk = structuredClone(walk);
 pWalk.pose.push(...attackHead);
 const sprintTime = { variable: "limbSwing", scale: 0.6662 * 0.8 };
 const pSprint: Obj = {
   type: "core:pose", tags: ["sprint"],
   pose: [
     { animationKey: PL("sprint_base"), time: sprintTime,
-      damping: { ...resetDamping, body: 0.8, head: 0.5, rightArm: 0.8, leftArm: 0.8, rightLeg: float(1), leftLeg: float(1),
+      damping: { ...resetDamping, body: 0.8, head: 0.5, rightArm: 0.8, leftArm: 0.8, rightLeg: 1, leftLeg: 1,
                  rightForeLeg: 0.7, leftForeLeg: 0.7, root: [0.1, 0.9, 0.1] },
       vectorModes: { root: "RETARGET", localOffset: "SLIDE" } },
     { animationKey: PL("sprint_forearms"), time: sprintTime, damping: { leftForeArm: 0.3, rightForeArm: 0.3 } },
@@ -390,14 +389,14 @@ function playerConnections(exclude: string | null): Obj[] {
   return conns;
 }
 
-const pStand = deepcopy(stand);
-const pJump = deepcopy(jump);
+const pStand = structuredClone(stand);
+const pJump = structuredClone(jump);
 // the biped jump's self-restart stays last
 const jumpRestart = pJump.connections.filter((c: Obj) => c.target === "jump");
 
 const pSleeping: Obj = { type: "core:pose", tags: ["sleeping"], pose: [
   { animationKey: PL("sleeping"), time: { variable: "ticks", scale: 0.1 },
-    damping: { ...resetDamping, head: float(1), rightArm: 0.4, leftArm: 0.4 }, vectorModes: { root: "SLIDE", localOffset: "SLIDE" } }] };
+    damping: { ...resetDamping, head: 1, rightArm: 0.4, leftArm: 0.4 }, vectorModes: { root: "SLIDE", localOffset: "SLIDE" } }] };
 const pSitting: Obj = { type: "core:pose", tags: ["sitting"], pose: [
   { animationKey: PL("sitting"), damping: { centerRotation: 0.3, body: 0.5 } }, ...headLook] };
 const pRiding: Obj = { type: "core:pose", tags: ["riding"], pose: [
@@ -419,8 +418,8 @@ pRiding.pose.push(when({ animationKey: PL("riding_fast"), bones: ["head"], time:
                        AND(state("MOVING_HORIZONTALLY"), cmp("entityXZSpeed", ">", 0.01))));
 
 const pElytra: Obj = { type: "core:pose", tags: ["elytra"], pose: [
-  { animationKey: PL("elytra"), damping: { head: float(1), body: 0.7, leftArm: 0.7, rightArm: 0.7, leftForeArm: 0.7, rightForeArm: 0.7,
-                                           leftLeg: 0.7, rightLeg: 0.7, leftForeLeg: 0.7, rightForeLeg: 0.7, centerRotation: float(1), renderRotation: 0.7, root: 0.7 },
+  { animationKey: PL("elytra"), damping: { head: 1, body: 0.7, leftArm: 0.7, rightArm: 0.7, leftForeArm: 0.7, rightForeArm: 0.7,
+                                           leftLeg: 0.7, rightLeg: 0.7, leftForeLeg: 0.7, rightForeLeg: 0.7, centerRotation: 1, renderRotation: 0.7, root: 0.7 },
     vectorModes: { root: "SLIDE" } },
   drv("head", "Y", "headYaw", { space: "OVERRIDE" }), drv("head", "X", null, { const: -90 }),
   drv("leftArm", "Z", null, { const: -60 }), drv("leftArm", "Z", "flightSpeedFactor", { scale: 55 }), drv("leftArm", "Z", "headYawAbs", { scale: -0.5 }),
@@ -435,7 +434,7 @@ const bodyRotXDrv = (bone: string, sign: number, space: string) =>
 const pFlying: Obj = { type: "core:pose", tags: ["flying"], pose: [
   { animationKey: PL("fly_common"), damping: { renderRotation: 0.7, root: 0.7 }, vectorModes: { root: "SLIDE" } },
   // sprint-flying
-  when({ animationKey: PL("fly_sprint"), damping: { centerRotation: float(1), head: float(1), body: 0.7, leftArm: 0.7, rightArm: 0.7, leftForeArm: 0.7, rightForeArm: 0.7,
+  when({ animationKey: PL("fly_sprint"), damping: { centerRotation: 1, head: 1, body: 0.7, leftArm: 0.7, rightArm: 0.7, leftForeArm: 0.7, rightForeArm: 0.7,
                                                     leftLeg: 0.7, rightLeg: 0.7, leftForeLeg: 0.7, rightForeLeg: 0.7 } }, flySprint),
   when(drv("centerRotation", "X", "flightPitch", { space: "OVERRIDE" }), flySprint), when(drv("centerRotation", "Z", "headYaw"), flySprint),
   when(bodyRotXDrv("body", 1, "OVERRIDE"), flySprint),
@@ -446,10 +445,10 @@ const pFlying: Obj = { type: "core:pose", tags: ["flying"], pose: [
   // hovering
   when({ animationKey: PL("fly_hover_arms"), time: { variable: "ticks", scale: 0.0825 }, damping: { leftArm: 0.3, rightArm: 0.3, leftForeArm: 0.3, rightForeArm: 0.3 } }, flyHover),
   when({ animationKey: PL("fly_hover_legs"), time: { variable: "ticks", scale: 0.125 }, damping: { leftLeg: 0.3, rightLeg: 0.3, leftForeLeg: 0.4, rightForeLeg: 0.4 } }, flyHover),
-  when({ animationKey: PL("fly_hover_rest"), damping: { head: float(1) } }, flyHover),
+  when({ animationKey: PL("fly_hover_rest"), damping: { head: 1 } }, flyHover),
   when(drv("head", "X", "headPitch", { space: "OVERRIDE" }), flyHover), when(drv("head", "Y", "headYaw"), flyHover),
   // moving
-  when({ animationKey: PL("fly_moving"), damping: { head: float(1) } }, flyMoving),
+  when({ animationKey: PL("fly_moving"), damping: { head: 1 } }, flyMoving),
   when(drv("centerRotation", "X", "forwardMomentum", { scale: 50 }), flyMoving),
   when(drv("leftArm", "X", "forwardMomentum", { scale: 90, space: "OVERRIDE" }), flyMoving), when(drv("leftArm", "Z", "sidewaysMomentum", { scale: -80, offset: -20, space: "POST" }), flyMoving),
   when(drv("rightArm", "X", "forwardMomentum", { scale: 90, space: "OVERRIDE" }), flyMoving), when(drv("rightArm", "Z", "sidewaysMomentum", { scale: -80, offset: 20, space: "POST" }), flyMoving),
@@ -515,7 +514,7 @@ const deep = NOT(surface);
 const deepT = { variable: "deep", ease: "ease_in_out", power: 3, min: 0, max: 1 };
 const pSwimming: Obj = { type: "core:pose", tags: ["swimming"], pose: [
   { driver: "core:ramp", name: "deep", speed: 0.1, when: deep, readBeforeAdvance: true },
-  { animationKey: PL("swim_common"), damping: { head: float(1), renderRotation: 0.7, localOffset: 0.3 }, vectorModes: { localOffset: "SLIDE" } },
+  { animationKey: PL("swim_common"), damping: { head: 1, renderRotation: 0.7, localOffset: 0.3 }, vectorModes: { localOffset: "SLIDE" } },
   when({ animationKey: PL("swim_surface_arms"), time: { variable: "ticks", scale: 0.0825 }, damping: { leftArm: 0.3, rightArm: 0.3, leftForeArm: 0.3, rightForeArm: 0.3 } }, surface),
   when({ animationKey: PL("swim_surface_legs"), time: { variable: "ticks", scale: 0.2625 }, damping: { leftLeg: 0.3, rightLeg: 0.3, leftForeLeg: 0.4, rightForeLeg: 0.4 } }, surface),
   when({ animationKey: PL("swim_deep_arm_inner"), time: { variable: "ticks", scale: 0.1625 }, damping: { leftArm: 0.3, rightArm: 0.3 } }, deep),
@@ -567,7 +566,7 @@ function mcSin(v: number): number {
 
 /** A non-looping clip with explicit keyframe times: boneFn(t) -> {bone: quaternion}. */
 function curveClip(path: string, boneFn: (t: number) => Record<string, Quaternion>, samples: number[], duration: number, loop = false): void {
-  const data: Obj = { bones: {}, duration, loop, times: samples.map((t) => float(pyRound(t, 7))) };
+  const data: Obj = { bones: {}, duration, loop, times: samples.map((t) => round7(t)) };
   const frames = samples.map((t) => boneFn(t));
   for (const bone of Object.keys(frames[0])) {
     data.bones[bone] = { keyframes: frames.map((f) => ({ position: [0, 0, 0], rotation: f[bone], scale: [1, 1, 1] })) };
@@ -575,7 +574,7 @@ function curveClip(path: string, boneFn: (t: number) => Record<string, Quaternio
   writeClip(path, data);
 }
 
-function prop(name: string, value: Json = null, unset = false): Obj {
+function prop(name: string, value: unknown = null, unset = false): Obj {
   const c: Obj = { type: "core:property", property: name };
   if (unset) c.unset = true;
   else c.value = value;
@@ -684,7 +683,7 @@ const stance: Obj = { type: "core:pose", tags: ["attack_stance"], pose: [
   swapped({ animationKey: PL("stance_breath1"), time: b1time, bones: ["rightArm"], space: "PRE" }),
   mirrored({ animationKey: PL("stance_const"), damping: { rightLeg: 0.3, leftLeg: 0.3, rightForeLeg: 0.3, leftForeLeg: 0.3, rightForeArm: 0.3, leftForeArm: 0.3,
                                                           renderRightItemRotation: 0.3, renderRotation: 0.3, root: [null, 0.6, null] }, vectorModes: { root: "SLIDE" } }),
-  { animationKey: PL("stance_kneel"), time: { variable: "ticksAfterTouchdown" }, when: cmp("ticksAfterTouchdown", "<", 1 / 0.15), damping: { body: float(1) }, vectorModes: { root: "SNAP" } },
+  { animationKey: PL("stance_kneel"), time: { variable: "ticksAfterTouchdown" }, when: cmp("ticksAfterTouchdown", "<", 1 / 0.15), damping: { body: 1 }, vectorModes: { root: "SNAP" } },
   comboReset,
 ] };
 poseClip(join(CLIPS, "player", "stance_sprint_abs.json"), { rightArm: rotations(["Z", 60], ["Y", 60]), renderRightItemRotation: rotations(["X", 45]) });
@@ -796,10 +795,10 @@ function useNodes(): Record<string, Obj> {
       when(withDamping(drv("body", "Y", "climbingBodyYaw", { space: "OVERRIDE" }), { body: 0.8 }), state("CLIMBING")),
       withDamping(drv(arm, "X", "headPitch", { offset: -90, space: "OVERRIDE" }), { [arm]: 0.8 }),
       drv(arm, "Y", "aimedBowTicks", { scale: -5 * h, offset: 50 * h }),
-      withDamping(drv(other, "Y", null, { const: 80 * h, space: "OVERRIDE" }), { [other]: float(1) }),
+      withDamping(drv(other, "Y", null, { const: 80 * h, space: "OVERRIDE" }), { [other]: 1 }),
       { animationKey: PL(`bow_offarm_${side}`), time: { variable: "headPitch", offset: 90 }, space: "PRE" },
       drv(other, "X", "headPitch", { offset: -90, min: -160 }),
-      withDamping(drv(fore, "X", null, { const: 0, space: "OVERRIDE" }), { [fore]: float(1) }),
+      withDamping(drv(fore, "X", null, { const: 0, space: "OVERRIDE" }), { [fore]: 1 }),
       drv(otherFore, "X", "aimedBowTicks", { scale: -3, space: "OVERRIDE" }),
     ] };
     nodes[`shield_${side}`] = { type: "core:pose", tags: ["shield"], pose: [
@@ -880,7 +879,7 @@ for (const [name, node] of Object.entries(actionNodes)) {
     const typ = useTypes.filter(([b]) => name.startsWith(b)).map(([, t]) => t)[0];
     c = [...useConns(typ), ...attackConns()];
   }
-  node.connections = deepcopy(c);
+  node.connections = structuredClone(c);
 }
 
 const actionLayer: Obj = { type: "KEYFRAME", when: NOT(state("SLEEPING")), entryNode: "idle", variables: { combo: 0, fist: 0 }, nodes: actionNodes,
@@ -907,7 +906,7 @@ const player: Obj = {
     { type: "KEYFRAME", when: AND(state("SNEAKING"), groundAction), entryNode: "sneak", nodes: { sneak: {
         type: "core:pose", tags: ["sneak"], pose: [
           { animationKey: PL("sneak_base"), time: limbTime,
-            damping: { rightLeg: float(1), leftLeg: float(1), rightArm: 0.8, leftArm: 0.8, root: [null, 0.6, null], localOffset: 0.3 },
+            damping: { rightLeg: 1, leftLeg: 1, rightArm: 0.8, leftArm: 0.8, root: [null, 0.6, null], localOffset: 0.3 },
             vectorModes: { root: "RETARGET", localOffset: "SLIDE" } },
           { animationKey: PL("sneak_forelegs"), time: limbTime, damping: { leftForeLeg: 0.3, rightForeLeg: 0.3 } },
           { animationKey: PL("sneak_swing"), time: limbTime, weight: { variable: "limbSwingAmount" }, space: "POST" },
@@ -972,10 +971,10 @@ const SP = (n: string) => clip("spider", n);
 const withSnap = (item: Obj): Obj => ({ ...item, snap: true });
 const spiderHead = [withSnap(drv("head", "X", "headPitch", { space: "OVERRIDE" })), drv("head", "Y", "headYaw")];
 poseClip(join(CLIPS, "spider", "rest.json"), { centerRotation: rotations(), renderRotation: rotations() }, { localOffset: [0, 0, 0] });
-const spiderRest = { animationKey: SP("rest"), damping: { localOffset: float(1) }, vectorModes: { localOffset: "SLIDE" } };
+const spiderRest = { animationKey: SP("rest"), damping: { localOffset: 1 }, vectorModes: { localOffset: "SLIDE" } };
 const spiderLimbs = [
-  { phase: float(0), minDist: 20, maxDist: 10, minRot: -80, maxRot: -50 }, { phase: 0.3, minDist: 20, maxDist: 10, minRot: -80, maxRot: -50 },
-  { phase: 0.3, minDist: 15, maxDist: 15, minRot: -30, maxRot: 10 }, { phase: float(0), minDist: 15, maxDist: 15, minRot: -30, maxRot: 10 },
+  { phase: 0, minDist: 20, maxDist: 10, minRot: -80, maxRot: -50 }, { phase: 0.3, minDist: 20, maxDist: 10, minRot: -80, maxRot: -50 },
+  { phase: 0.3, minDist: 15, maxDist: 15, minRot: -30, maxRot: 10 }, { phase: 0, minDist: 15, maxDist: 15, minRot: -30, maxRot: 10 },
   { phase: 0.4, minDist: 7, maxDist: 15, minRot: 20, maxRot: 50 }, { phase: 0.7, minDist: 7, maxDist: 15, minRot: 20, maxRot: 50 },
   { phase: 0.7, minDist: 10, maxDist: 20, minRot: 60, maxRot: 80 }, { phase: 0.4, minDist: 10, maxDist: 20, minRot: 60, maxRot: 80 },
 ];
@@ -995,7 +994,7 @@ const spMove: Obj = { type: "core:pose", tags: ["move"], pose: [
 poseClip(join(CLIPS, "spider", "crawl_rest.json"), { centerRotation: rotations() }, { localOffset: [0, -10, 0] });
 const spCrawl: Obj = { type: "core:pose", tags: ["crawl"], pose: [
   { driver: "mobends:spider_moving_legs", swing: { variable: "crawlProgress", scale: 5 },
-    groundLevel: { variable: "crawlProgress", scale: float(3), fn: "mcsin", mul: 1.2 }, limbs: spiderLimbs },
+    groundLevel: { variable: "crawlProgress", scale: 3, fn: "mcsin", mul: 1.2 }, limbs: spiderLimbs },
   ...spiderHead,
   withDamping(drv("renderRotation", "X", null, { const: -90, space: "OVERRIDE" }), { renderRotation: 0.6 }), drv("renderRotation", "Y", "crawlRenderYaw"),
   { animationKey: SP("crawl_rest"), damping: { localOffset: 0.5 }, vectorModes: { localOffset: "SLIDE" } },
@@ -1010,10 +1009,10 @@ const jumpMotion = (mul: number, add: number) => ({ variable: "interpolatedMotio
 const alternate = (i: number) => (i % 2 ? -1 : 1);
 const spJump: Obj = { type: "core:pose", tags: ["jump"], pose: [
   withSnap({ animationKey: SP("jump"), bones: ["root"] }),
-  { animationKey: SP("jump"), bones: range(8).map((i) => `leg${i + 1}`), damping: Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, float(1)])) },
+  { animationKey: SP("jump"), bones: range(8).map((i) => `leg${i + 1}`), damping: Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, 1])) },
   ...range(8).map((i) => ({ ...drv(`leg${i + 1}`, "Z", null, { space: "POST" }), angle: jumpMotion(25 * alternate(i), -20 * alternate(i)) })),
   ...range(8).map((i) => withDamping({ ...drv(`foreLeg${i + 1}`, "Z", null, { space: "OVERRIDE" }), angle: jumpMotion(-40 * alternate(i), -70 * alternate(i)) },
-                                     { [`foreLeg${i + 1}`]: float(1) })),
+                                     { [`foreLeg${i + 1}`]: 1 })),
   spiderRest,
 ] };
 // death: legs splay (instant), sway with the last limb swing, and wiggle with a decaying speed
@@ -1071,7 +1070,7 @@ for (const [name, node] of Object.entries(spNodes)) {
 const spider: Obj = { formatVersion: 2, layers: [{ type: "KEYFRAME", entryNode: "idle", variables: { resetLimbs: 1 }, nodes: spNodes }] };
 
 // the skeleton's controller runs the biped action controller as well: bow, sword, tool, fists
-const skeletonActions = deepcopy(actionLayer);
+const skeletonActions = structuredClone(actionLayer);
 delete skeletonActions.when; // only players sleep
 skeleton.layers.push(skeletonActions);
 
@@ -1133,15 +1132,15 @@ const quadLegs: Leg[] = [["leg1", "foreLeg1", 0.0], ["leg2", "foreLeg2", Math.PI
 const quadruped = walkerAnimator("quadruped", quadLegs, [["head", 2.0], ["body", 1.0]]);
 const creeper = walkerAnimator("creeper", quadLegs, [["head", 1.5]]);
 const villager = walkerAnimator("villager", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 1.5], ["arms", 2.0]]);
-const chickenWings = [withDamping(drv("rightWing", "Z", "wingAngle", { space: "OVERRIDE" }), { rightWing: float(1) }),
-                      withDamping(drv("leftWing", "Z", "wingAngle", { scale: -1, space: "OVERRIDE" }), { leftWing: float(1) })];
+const chickenWings = [withDamping(drv("rightWing", "Z", "wingAngle", { space: "OVERRIDE" }), { rightWing: 1 }),
+                      withDamping(drv("leftWing", "Z", "wingAngle", { scale: -1, space: "OVERRIDE" }), { leftWing: 1 })];
 const chicken = walkerAnimator("chicken", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 2.0]], chickenWings);
 
 
 // iron golem: the vanilla gait is a triangle wave of period 13 on the limb swing; arms and legs get
 // middle joints, and the attack swing comes from the entity's attack timer.
 function triangleWave(f: number, period: number): number {
-  return (Math.abs(pyMod(f, period) - period * 0.5) - period * 0.25) / (period * 0.25);
+  return (Math.abs(mod(f, period) - period * 0.5) - period * 0.25) / (period * 0.25);
 }
 const golemArmDamp = { rightArm: 0.8, leftArm: 0.8, rightForeArm: 0.6, leftForeArm: 0.6 };
 const golemLegDamp = { rightLeg: 0.8, leftLeg: 0.8, rightForeLeg: 0.6, leftForeLeg: 0.6 };
@@ -1177,6 +1176,6 @@ const animators: [string, Obj][] = [
   ["quadruped", quadruped], ["creeper", creeper], ["villager", villager], ["chicken", chicken], ["iron_golem", ironGolem],
 ];
 for (const [name, data] of animators) {
-  writeFileSync(join(ANIM, name + ".json"), dumps(data, 2));
+  writeFileSync(join(ANIM, name + ".json"), JSON.stringify(data, null, 2));
   console.log("wrote", name + ".json");
 }

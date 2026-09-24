@@ -85,7 +85,7 @@
             {
               "animationKey": "mobends:bends/animations/spider/rest.json",
               "damping": {
-                "localOffset": 1.0
+                "localOffset": 1
               },
               "vectorModes": {
                 "localOffset": "SLIDE"
@@ -236,7 +236,7 @@
               "kneelLead": 0.2,
               "limbs": [
                 {
-                  "phase": 0.0,
+                  "phase": 0,
                   "minDist": 20,
                   "maxDist": 10,
                   "minRot": -80,
@@ -257,7 +257,7 @@
                   "maxRot": 10
                 },
                 {
-                  "phase": 0.0,
+                  "phase": 0,
                   "minDist": 15,
                   "maxDist": 15,
                   "minRot": -30,
@@ -340,7 +340,7 @@
             {
               "animationKey": "mobends:bends/animations/spider/rest.json",
               "damping": {
-                "localOffset": 1.0
+                "localOffset": 1
               },
               "vectorModes": {
                 "localOffset": "SLIDE"
@@ -491,14 +491,14 @@
                 "leg8"
               ],
               "damping": {
-                "leg1": 1.0,
-                "leg2": 1.0,
-                "leg3": 1.0,
-                "leg4": 1.0,
-                "leg5": 1.0,
-                "leg6": 1.0,
-                "leg7": 1.0,
-                "leg8": 1.0
+                "leg1": 1,
+                "leg2": 1,
+                "leg3": 1,
+                "leg4": 1,
+                "leg5": 1,
+                "leg6": 1,
+                "leg7": 1,
+                "leg8": 1
               }
             },
             {
@@ -627,7 +627,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "foreLeg1": 1.0
+                "foreLeg1": 1
               }
             },
             {
@@ -644,7 +644,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "foreLeg2": 1.0
+                "foreLeg2": 1
               }
             },
             {
@@ -661,7 +661,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "foreLeg3": 1.0
+                "foreLeg3": 1
               }
             },
             {
@@ -678,7 +678,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "foreLeg4": 1.0
+                "foreLeg4": 1
               }
             },
             {
@@ -695,7 +695,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "foreLeg5": 1.0
+                "foreLeg5": 1
               }
             },
             {
@@ -712,7 +712,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "foreLeg6": 1.0
+                "foreLeg6": 1
               }
             },
             {
@@ -729,7 +729,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "foreLeg7": 1.0
+                "foreLeg7": 1
               }
             },
             {
@@ -746,13 +746,13 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "foreLeg8": 1.0
+                "foreLeg8": 1
               }
             },
             {
               "animationKey": "mobends:bends/animations/spider/rest.json",
               "damping": {
-                "localOffset": 1.0
+                "localOffset": 1
               },
               "vectorModes": {
                 "localOffset": "SLIDE"
@@ -907,13 +907,13 @@
               },
               "groundLevel": {
                 "variable": "crawlProgress",
-                "scale": 3.0,
+                "scale": 3,
                 "fn": "mcsin",
                 "mul": 1.2
               },
               "limbs": [
                 {
-                  "phase": 0.0,
+                  "phase": 0,
                   "minDist": 20,
                   "maxDist": 10,
                   "minRot": -80,
@@ -934,7 +934,7 @@
                   "maxRot": 10
                 },
                 {
-                  "phase": 0.0,
+                  "phase": 0,
                   "minDist": 15,
                   "maxDist": 15,
                   "minRot": -30,

@@ -1,1 +1,1 @@
-{"bones": {"rightArm": {"keyframes": [{"position": [0, 0, 0], "rotation": [0.25, 0.4330127, 0.4330127, 0.75], "scale": [1, 1, 1]}]}, "renderRightItemRotation": {"keyframes": [{"position": [0, 0, 0], "rotation": [0.3826834, 0.0, 0.0, 0.9238795], "scale": [1, 1, 1]}]}}, "duration": 0, "loop": false}
+{"bones":{"rightArm":{"keyframes":[{"position":[0,0,0],"rotation":[0.25,0.4330127,0.4330127,0.75],"scale":[1,1,1]}]},"renderRightItemRotation":{"keyframes":[{"position":[0,0,0],"rotation":[0.3826834,0,0,0.9238795],"scale":[1,1,1]}]}},"duration":0,"loop":false}

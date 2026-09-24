@@ -35,7 +35,7 @@
                 "centerRotation": 0.3,
                 "renderRightItemRotation": 0.3,
                 "renderLeftItemRotation": 0.3,
-                "body": 1.0,
+                "body": 1,
                 "rightArm": 0.4,
                 "leftArm": 0.4
               },
@@ -74,7 +74,7 @@
                 "value": 6.666666666666667
               },
               "damping": {
-                "body": 1.0
+                "body": 1
               },
               "vectorModes": {
                 "root": "SNAP"
@@ -138,8 +138,8 @@
                 "leftArm": 0.8,
                 "rightForeArm": 0.8,
                 "leftForeArm": 0.8,
-                "rightLeg": 1.0,
-                "leftLeg": 1.0
+                "rightLeg": 1,
+                "leftLeg": 1
               },
               "vectorModes": {
                 "root": "RETARGET",
@@ -210,7 +210,7 @@
                 "value": 6.666666666666667
               },
               "damping": {
-                "body": 1.0
+                "body": 1
               },
               "vectorModes": {
                 "root": "SNAP"
@@ -307,8 +307,8 @@
                 "state": "MOVING_HORIZONTALLY"
               },
               "damping": {
-                "rightLeg": 1.0,
-                "leftLeg": 1.0,
+                "rightLeg": 1,
+                "leftLeg": 1,
                 "leftForeArm": 0.3,
                 "rightForeArm": 0.3
               }

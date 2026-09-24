@@ -57,7 +57,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "rightWing": 1.0
+                "rightWing": 1
               }
             },
             {
@@ -71,7 +71,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "leftWing": 1.0
+                "leftWing": 1
               }
             }
           ],
@@ -161,7 +161,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "rightWing": 1.0
+                "rightWing": 1
               }
             },
             {
@@ -175,7 +175,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "leftWing": 1.0
+                "leftWing": 1
               }
             }
           ],
@@ -258,7 +258,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "rightWing": 1.0
+                "rightWing": 1
               }
             },
             {
@@ -272,7 +272,7 @@
               },
               "space": "OVERRIDE",
               "damping": {
-                "leftWing": 1.0
+                "leftWing": 1
               }
             }
           ],
