@@ -141,11 +141,20 @@ shadowJar.finalizedBy('reobfShadowJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfShadowJar')
 
+// Build-time tools (src/tools/kotlin), not part of the mod.
+sourceSets { tools }
+dependencies {
+    toolsImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.72'
+    toolsImplementation 'org.ow2.asm:asm-debug-all:5.2'
+}
+
 // Regenerates the accessors of the vanilla fields model definitions can name (core/vanilla) and the
 // access transformer entries they need, from the mappings in build/fg_cache.
-task generateVanillaFields(type: Exec) {
+task generateVanillaFields(type: JavaExec) {
     description = 'Regenerates core/vanilla and the generated access transformer section from the Minecraft mappings.'
-    commandLine 'python3', file('tools/gen_vanilla_fields.py').absolutePath, projectDir.absolutePath
+    classpath = sourceSets.tools.runtimeClasspath
+    main = 'goblinbob.mobends.tools.GenVanillaFieldsKt'
+    args projectDir.absolutePath, minecraft_version, forge_version, "${mappings_channel}_${mappings_version}"
 }
 
 task srcJar(type: Jar) {

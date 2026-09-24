@@ -196,9 +196,9 @@ tasks.register<JavaExec>("bakePlayer") {
 }
 
 tasks.register<Exec>("generateAnimators") {
-    description = "Regenerates the biped animator JSON files from tools/gen_animators.py."
+    description = "Regenerates the animator JSON files and hand-authored clips from tools/gen_animators.ts (needs Bun)."
     group = "lab"
-    commandLine("python3", projectDir.resolve("tools/gen_animators.py").absolutePath, modSrc.resolve("resources").absolutePath)
+    commandLine("bun", projectDir.resolve("tools/gen_animators.ts").absolutePath, modSrc.resolve("resources").absolutePath)
 }
 
 tasks.register<JavaExec>("compare") {

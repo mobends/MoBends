@@ -7,7 +7,6 @@
 !/gradle\.properties
 !/src
 !/misc
-!/tools
 !/gradle
 !/gradlew
 !/gradlew.bat

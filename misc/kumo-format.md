@@ -188,7 +188,7 @@ for each class:
   `core/vanilla/VanillaEntityFields` (every numeric field of `Entity`, `EntityLivingBase` and the
   living entities). They read the fields directly, so reobfuscation renames them for production;
   no SRG name appears in a definition. Regenerate them with `gradle generateVanillaFields`
-  (`tools/gen_vanilla_fields.py`, which also writes the generated section of the access
+  (`src/tools/kotlin/.../GenVanillaFields.kt`, which also writes the generated section of the access
   transformer that makes the non-public ones readable) after changing the Minecraft or mappings
   version.
 * **anything else** (a mod's own entity or model, or its fields on a subclass) is found by
