@@ -5,12 +5,10 @@ import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.client.model.ModelPartExtended;
 import goblinbob.mobends.core.client.model.ModelPartPostOffset;
 import goblinbob.mobends.core.client.model.BoxSide;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomCape;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomElytra;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerPlayerAccessories;
 import goblinbob.mobends.standard.data.PlayerData;
-import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelPlayer;
@@ -19,7 +17,6 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
 import net.minecraft.client.renderer.entity.layers.LayerElytra;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.entity.EntityLivingBase;
 
 /**
  * Instantiated once per RenderPlayer
@@ -39,16 +36,9 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	protected boolean smallArms;
 
 	protected LayerCustomCape layerCape;
-	protected LayerCape layerCapeVanilla;
 	protected LayerCustomElytra layerElytra;
-	protected LayerElytra layerElytraVanilla;
 	protected LayerPlayerAccessories layerPlayerAccessories;
 
-	public PlayerMutator(IEntityDataFactory<AbstractClientPlayer> dataFactory)
-	{
-		super(dataFactory);
-	}
-	
 	public boolean hasSmallArms()
 	{
 		return this.smallArms;
@@ -65,14 +55,6 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		}
 
 		return false;
-	}
-
-	@Override
-	public void demutate(RenderLivingBase<? extends AbstractClientPlayer> renderer)
-	{
-		super.demutate(renderer);
-
-		layerRenderers.remove(layerPlayerAccessories);
 	}
 
 	@Override
@@ -101,18 +83,6 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		vanillaModel.bipedRightArmwear = model.bipedRightArmwear;
 		vanillaModel.bipedRightLegwear = model.bipedRightLegwear;
 	}
-	
-	@Override
-	public void applyVanillaModel(ModelPlayer model)
-	{
-		super.applyVanillaModel(model);
-		
-		model.bipedBodyWear = vanillaModel.bipedBodyWear;
-		model.bipedLeftArmwear = vanillaModel.bipedLeftArmwear;
-		model.bipedLeftLegwear = vanillaModel.bipedLeftLegwear;
-		model.bipedRightArmwear = vanillaModel.bipedRightArmwear;
-		model.bipedRightLegwear = vanillaModel.bipedRightLegwear;
-	}
 
 	@Override
 	public void swapLayer(RenderLivingBase<? extends AbstractClientPlayer> renderer, int index, boolean isModelVanilla)
@@ -123,37 +93,14 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		if (layer instanceof LayerCape)
 		{
 			this.layerCape = new LayerCustomCape((RenderPlayer) renderer);
-			if (isModelVanilla)
-				this.layerCapeVanilla = (LayerCape) layer;
 			layerRenderers.set(index, this.layerCape);
 		}
 
 		if (layer instanceof LayerElytra)
 		{
 			this.layerElytra = new LayerCustomElytra((RenderPlayer) renderer);
-			if (isModelVanilla)
-				this.layerElytraVanilla = (LayerElytra) layer;
 			layerRenderers.set(index, this.layerElytra);
 		}
-	}
-
-	@Override
-	public void deswapLayer(RenderLivingBase<? extends AbstractClientPlayer> renderer, int index)
-	{
-		super.deswapLayer(renderer, index);
-
-		final LayerRenderer<? extends EntityLivingBase> layer = layerRenderers.get(index);
-		if (layer instanceof LayerCustomCape)
-		{
-			layerRenderers.set(index, this.layerCapeVanilla);
-		}
-
-		if (layer instanceof LayerCustomElytra)
-		{
-			layerRenderers.set(index, this.layerElytraVanilla);
-		}
-
-		layerRenderers.remove(layerPlayerAccessories);
 	}
 
 	@Override
@@ -314,13 +261,6 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 		super.performAnimations(data, animatedEntityKey, renderer, partialTicks);
 	}
 	
-	@Override
-	public void postRefresh()
-	{
-		if (this.layerArmor != null)
-			this.layerArmor.initArmor();
-	}
-	
 	/**
 	 * Called before the first person hand is rendered, so the mutator can pose it
 	 * in any way.
@@ -344,18 +284,6 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	public boolean shouldModelBeSkipped(ModelBase model)
 	{
 		return !(model instanceof ModelPlayer);
-	}
-
-	@Override
-	public PlayerData getData(AbstractClientPlayer entity)
-	{
-		return PlayerPreviewer.isPreviewInProgress() ? PlayerPreviewer.getPreviewData() : super.getData(entity);
-	}
-
-	@Override
-	public PlayerData getOrMakeData(AbstractClientPlayer entity)
-	{
-		return PlayerPreviewer.isPreviewInProgress() ? PlayerPreviewer.getPreviewData() : super.getOrMakeData(entity);
 	}
 
 }

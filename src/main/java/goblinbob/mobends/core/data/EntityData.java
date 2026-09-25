@@ -4,6 +4,7 @@ import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IBendsModel;
 import goblinbob.mobends.core.kumo.IKumoSubject;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.bind.BoneSinks;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.VectorSink;
@@ -16,6 +17,7 @@ import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -49,8 +51,9 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     public SmoothOrientation centerRotation;
 
     public boolean onGround = true;
-    public Boolean onGroundOverride = null;
-    public Boolean stillnessOverride = null;
+
+    /** The animator of the entity's type, when it replaces the data's own controller. */
+    private IAnimationController<?> typeAnimator;
 
     public final PackAnimationState packAnimationState;
 
@@ -173,26 +176,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         return supplier.getAsBoolean();
     }
 
-    public void overrideOnGroundState(boolean state)
-    {
-        this.onGroundOverride = state;
-    }
-
-    public void unsetOnGroundStateOverride()
-    {
-        this.onGroundOverride = null;
-    }
-
-    public void overrideStillness(boolean stillness)
-    {
-        this.stillnessOverride = stillness;
-    }
-
-    public void unsetStillnessOverride()
-    {
-        this.stillnessOverride = null;
-    }
-
     public void initModelPose()
     {
         this.globalOffset = new SmoothVector3f();
@@ -217,9 +200,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
 
     public boolean calcOnGround()
     {
-        if (this.onGroundOverride != null)
-            return this.onGroundOverride;
-
         // Checking if we're going down stairs.
         BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 
@@ -276,10 +256,22 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         // The motion value that is the threshold for determining movement.
         final double deadZone = 0.0025;
         final double horizontalSqMagnitude = this.motionX * this.motionX + this.motionZ * this.motionZ;
-        return this.stillnessOverride != null ? this.stillnessOverride : horizontalSqMagnitude < deadZone;
+        return horizontalSqMagnitude < deadZone;
     }
 
     public abstract IAnimationController<?> getController();
+
+    /** Animates this entity with {@code animator} instead of its own controller (a type chose another animator). */
+    public void setAnimator(ResourceLocation animator)
+    {
+        this.typeAnimator = new KumoAnimatorController<>(animator);
+    }
+
+    /** The controller that animates this entity: its type's animator, or else its own. */
+    public IAnimationController<?> getActiveController()
+    {
+        return this.typeAnimator != null ? this.typeAnimator : this.getController();
+    }
 
     /**
      * Called during the render tick in {@code EntityDatabase.updateRender()}

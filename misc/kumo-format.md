@@ -199,3 +199,109 @@ A vanilla field the tables lack falls back to reflection too, which works in dev
 Layers that keep their own copy of a model
 (the sheep's wool, a charged creeper's armour) still animate vanilla-style, so the sheep is not
 listed yet.
+
+# Entity types and selectors
+
+Decided on 2026-09-25 and implemented in `core/types`. Work on selectors, the entity registry,
+mutation or the related GUI has to follow this section; change it here first if the design
+changes.
+
+## Type files
+
+A *type* says which model and animator an entity gets while a condition holds for it. Types live
+in `assets/<namespace>/bends/types/**.json` of any mod or resource pack. Mo' Bends looks for them
+in every pack (mods first, then resource packs from the bottom of the list up, then folders on
+the classpath no pack covered, which is how a development environment's resources are found).
+Within one pack, files are read in path order. A mod or a pack animates a mob with JSON only; no
+Java addon is needed unless it brings its own conditions or drivers.
+
+```json
+{
+  "id": "yourpack:notch_zombie_arms",
+  "selector": {"type": "core:and", "conditions": [
+    {"type": "core:entity_type", "entityType": "minecraft:player"},
+    {"type": "core:player_name", "name": "Notch"}
+  ]},
+  "animator": "yourpack:bends/animators/zombie_arms.json"
+}
+```
+
+| field | meaning |
+|---|---|
+| `id` | identifies the type; ranks are stored by it. Two types with the same id: a warning, and the first one found is used |
+| `selector` | a condition on the entity; absent means the type applies to every entity |
+| `model` | optional: a bender key (`mobends-player`, `mobends-minecraft:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
+| `animator` | optional: the animator asset. Absent: the model's own animator |
+
+A type applies to an entity only if its model fits the entity's class. A type without a `model`
+applies only to entities that have a default model.
+
+Every bender an addon registers (the player, the zombie, the model definitions listed in
+`bends/models/index.json`, ...) also gets a **built-in type**. Its id is the bender key, and its
+one condition is "this is the entity's default model": the addon bender for the entity's exact
+class, or else the first registered for a superclass.
+
+## Selector conditions
+
+Selector conditions have their own registry (`SelectorConditionRegistry`). They are evaluated
+against the entity before any entity data exists; they are not KUMO trigger conditions. Built in:
+
+| condition | fields |
+|---|---|
+| `core:and`, `core:or` | `conditions` |
+| `core:not` | `condition` |
+| `core:entity_type` | `entityType` or `entityTypes`: registry ids; `minecraft:player` stands for players, which have none |
+| `core:player_name` | `name` or `names`: the profile name, ignoring case (never the display name) |
+| `core:player_uuid` | `uuid` or `uuids`: stays the same when the player renames |
+| `mobends:skin_variant` | `variant`: `default` or `slim` |
+
+Addons add conditions with `AddonAnimationRegistry.registerSelectorCondition`, which prefixes
+their key with the mod id.
+
+A condition says whether its answer can change during an entity's life (`isStable`). A player's
+name can't. A skin variant can: it reads as `default` until the skin downloads. The types whose
+selector holds are cached per entity (weakly, so unloaded entities aren't kept alive); types with
+an unstable selector are asked again every frame, and an entity can change type mid-life. Its
+data is then made anew by the new type's factory.
+
+## Precedence
+
+When the selectors of several types hold for an entity, exactly one type applies. Candidates are
+sorted by these keys, most significant first (`TypeOrder`):
+
+1. **rank**, higher first. Every type starts at rank 0; only the user sets ranks.
+2. **the number of conditions** of the selector, higher first. Every condition other than
+   `core:and` / `core:or` / `core:not` counts, whatever it means: a broad assumption that more
+   conditions make a more specific type, knowingly allowing false positives. A type without a
+   selector counts 0; built-in types count 1.
+3. **id**, plain lexical order, earlier first; the final tie breaker, so the result never depends
+   on load order.
+
+Types are not deduplicated: two types with different ids are two entries, even if they do the
+same thing.
+
+## User control
+
+* **Ranks.** Settings shows an *Order* button next to every entity with more than one type. It
+  lists the types in precedence order, and the user moves them up and down like resource packs.
+  Each move ranks the whole list (top = highest) and stores the ranks in the client config
+  (`TypeRanks`, by type id); *Reset* puts them back to 0.
+* **On/off.** The existing per-bender switch (`Animated`) decides whether the chosen type animates
+  at all. When the winning type's bender is off, the entity is rendered vanilla.
+
+## Rendering: swap per render
+
+Renderers are shared: every player is drawn by one of two `RenderPlayer`s, and every entity of a
+kind by one renderer. So a renderer is never mutated for good:
+
+* `RendererState` captures a renderer's vanilla state (the model's part fields, the elements of
+  its part arrays and lists, the layers) before its first mutation, and each bender's mutated
+  state right after mutating;
+* `RenderLivingEvent.Pre` (lowest priority, after anything that could cancel the render) puts the
+  chosen bender's state in place, or vanilla; `Post` always puts vanilla back;
+* the first-person hand puts the local player's mutation in place for the hand, and the next
+  render of that renderer sets its own state.
+
+Mutators only build (`mutate`). Nothing demutates them; refreshing drops the mutators and
+restores vanilla. Rebuilding parts per render is not an option: players of different types share
+a renderer in the same frame.

@@ -59,6 +59,8 @@ val referenceIncludes = listOf(
     "goblinbob/mobends/core/client/model/ModelPartTransform.java",
     "goblinbob/mobends/core/kumo/**",
     "goblinbob/mobends/core/definition/**",
+    "goblinbob/mobends/core/types/TypeOrder.java",
+    "goblinbob/mobends/core/types/EntityTypeDefinition.java",
     "goblinbob/mobends/core/pack/BendsPackData.java",
     "goblinbob/mobends/core/pack/state/PackAnimationState.java",
     "goblinbob/mobends/standard/animation/**",

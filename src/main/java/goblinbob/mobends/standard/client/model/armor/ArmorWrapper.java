@@ -6,8 +6,6 @@ import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.standard.data.BipedEntityData;
-import goblinbob.mobends.standard.data.PlayerData;
-import goblinbob.mobends.standard.previewer.PlayerPreviewer;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
@@ -120,11 +118,6 @@ public class ArmorWrapper extends ModelBiped
         EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
         if (!(entityData instanceof BipedEntityData))
             return;
-
-        if (entityData instanceof PlayerData && PlayerPreviewer.isPreviewInProgress())
-        {
-            entityData = PlayerPreviewer.getPreviewData();
-        }
 
         final BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
 

@@ -63,6 +63,7 @@ public class MoBends
         PackDataProvider.INSTANCE.clearCache();
         EntityDatabase.instance.refresh();
         EntityBenderRegistry.instance.refreshMutators();
+        goblinbob.mobends.core.types.EntityTypeRegistry.INSTANCE.reload();
         Addons.onRefresh();
 
         Core.getInstance().refreshModules();

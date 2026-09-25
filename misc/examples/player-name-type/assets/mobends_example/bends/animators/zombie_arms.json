@@ -1,0 +1,46 @@
+{
+  "formatVersion": 2,
+  "extends": "mobends:bends/animators/player.json",
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "zombie_arms",
+      "nodes": {
+        "zombie_arms": {
+          "type": "core:pose",
+          "tags": ["zombie_arms"],
+          "pose": [
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "X",
+              "angle": {"variable": "ticks", "scale": 0.1, "fn": "sin", "mul": 6, "add": -85},
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftArm",
+              "axis": "X",
+              "angle": {"variable": "ticks", "scale": 0.1, "offset": 3.14, "fn": "sin", "mul": 6, "add": -85},
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightForeArm",
+              "axis": "X",
+              "angle": 0,
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftForeArm",
+              "axis": "X",
+              "angle": 0,
+              "space": "OVERRIDE"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

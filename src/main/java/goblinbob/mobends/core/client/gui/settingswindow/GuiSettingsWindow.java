@@ -6,6 +6,7 @@ import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
 import goblinbob.mobends.core.client.gui.elements.GuiCompactTextField;
+import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.standard.main.ModStatics;
@@ -168,7 +169,11 @@ public class GuiSettingsWindow extends GuiScreen
         bendsSettingsListUI.clearElements();
         for (final EntityBender<?> bender : EntityBenderRegistry.instance.getRegistered(filter))
         {
-            bendsSettingsListUI.addElement(new GuiBenderSettings(bender));
+            final int typeCount = EntityTypeRegistry.INSTANCE.getTypesFor(bender).size();
+            bendsSettingsListUI.addElement(new GuiBenderSettings(bender, typeCount, () -> {
+                Core.saveConfiguration();
+                this.mc.displayGuiScreen(new GuiTypeOrderWindow(bender));
+            }));
         }
     }
 

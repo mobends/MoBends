@@ -1,27 +1,22 @@
 package goblinbob.mobends.core.bender;
 
 import goblinbob.mobends.core.client.MutatedRenderer;
+import goblinbob.mobends.core.client.RendererState;
 import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.core.math.TransformUtils;
-import goblinbob.mobends.core.math.matrix.IMat4x4d;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.mutators.Mutator;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public abstract class EntityBender<T extends EntityLivingBase>
 {
@@ -31,10 +26,28 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	private final MutatedRenderer<T> renderer;
 	public final Class<T> entityClass;
 
-	private final Map<RenderLivingBase<? extends T>, Mutator<LivingEntityData<T>, T, ?>> mutatorMap = new HashMap<>();
+	/**
+	 * Per renderer: this bender's mutator and the renderer's state with the mutation in place, or
+	 * {@link #NOT_MUTABLE} if the renderer's model can't be mutated by this bender.
+	 */
+	private final Map<RenderLivingBase<?>, Mutation> mutations = new HashMap<>();
+	private static final Mutation NOT_MUTABLE = new Mutation(null, null);
 
+	private IEntityDataFactory<T> dataFactory;
 	private boolean animate;
 	protected Map<String, BoneMetadata> boneMetadataMap;
+
+	private static class Mutation
+	{
+		final Mutator<?, ?, ?> mutator;
+		final RendererState state;
+
+		Mutation(Mutator<?, ?, ?> mutator, RendererState state)
+		{
+			this.mutator = mutator;
+			this.state = state;
+		}
+	}
 
 	public EntityBender(String modId, @Nullable String key, String unlocalizedName, Class<T> entityClass,
 						MutatedRenderer<T> renderer)
@@ -45,7 +58,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 			throw new NullPointerException("The entity class cannot be null.");
 		if (modId == null)
 			throw new NullPointerException("The Mod ID cannot be null.");
-		
+
 		if (key == null)
 		{
 			ResourceLocation resourceLocation = EntityList.getKey(entityClass);
@@ -54,7 +67,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 			key = resourceLocation.toString();
 			unlocalizedName = "entity." + EntityList.getTranslationName(resourceLocation) + ".name";
 		}
-		
+
 		this.key = modId + "-" + key;
 		this.unlocalizedName = unlocalizedName;
 		this.entityClass = entityClass;
@@ -67,9 +80,16 @@ public abstract class EntityBender<T extends EntityLivingBase>
 
 	public abstract IMutatorFactory<T> getMutatorFactory();
 
-	public abstract IPreviewer<?> getPreviewer();
-
-	public abstract LivingEntityData<?> getDataForPreview();
+	/**
+	 * The data factory entities of this bender get when their type keeps the bender's own animator.
+	 * Always the same instance, which is how the entity database tells whose data it holds.
+	 */
+	public IEntityDataFactory<T> getDefaultDataFactory()
+	{
+		if (this.dataFactory == null)
+			this.dataFactory = this.getDataFactory();
+		return this.dataFactory;
+	}
 
 	public String getKey()
 	{
@@ -111,26 +131,23 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	}
 
 	/**
-	 * Used to apply the effect of the mutation, or just to update the model if it was already mutated.
-	 * Called from EntityBender.
+	 * Puts this bender's mutation in place on the renderer (mutating it the first time) and animates
+	 * the entity with data made by {@code dataFactory}. The caller restores the renderer to vanilla
+	 * after the render, see {@link RendererState}.
+	 *
+	 * @return False if the renderer's model can't be mutated by this bender.
 	 */
-	@SuppressWarnings("unchecked")
-	public boolean applyMutation(RenderLivingBase<? extends T> renderer, T entity, float partialTicks)
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public boolean applyMutation(RenderLivingBase<? extends T> renderer, T entity, IEntityDataFactory<T> dataFactory, float partialTicks)
 	{
-		Mutator<LivingEntityData<T>, T, ?> mutator = mutatorMap.get(renderer);
+		Mutator mutator = this.attachMutation(renderer);
 		if (mutator == null)
 		{
-			mutator = (Mutator<LivingEntityData<T>, T, ?>) this.getMutatorFactory().createMutator(this.getDataFactory());
-			if (!mutator.mutate(renderer))
-			{
-				return false;
-			}
-
-			mutatorMap.put(renderer, mutator);
+			return false;
 		}
 
 		mutator.updateModel(entity, renderer, partialTicks);
-		LivingEntityData<T> data = mutator.getOrMakeData(entity);
+		LivingEntityData<T> data = EntityDatabase.instance.getOrMake(dataFactory, entity);
 		mutator.performAnimations(data, this.key, renderer, partialTicks);
 		mutator.syncUpWithData(data);
 
@@ -138,56 +155,63 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	}
 
 	/**
-	 * Used to reverse the effect of the mutation.
-	 * Called from EntityBender.
+	 * Puts this bender's mutation in place on the renderer, mutating it first if it never was.
+	 *
+	 * @return The mutator, or null if the renderer's model can't be mutated by this bender.
 	 */
-	public void deapplyMutation(RenderLivingBase<? extends T> renderer, EntityLivingBase entity)
+	@Nullable
+	public Mutator<?, ?, ?> attachMutation(RenderLivingBase<? extends T> renderer)
 	{
-		if (mutatorMap.containsKey(renderer))
+		Mutation mutation = mutations.get(renderer);
+		if (mutation == null)
 		{
-			Mutator<LivingEntityData<T>, T, ?> mutator = mutatorMap.get(renderer);
-			mutator.demutate(renderer);
-			mutatorMap.remove(renderer);
+			// Mutating starts from the vanilla renderer, whatever another bender left in place.
+			RendererState.vanillaOf(renderer);
+			RendererState.restoreVanilla(renderer);
+
+			Mutator<? extends LivingEntityData<T>, ? extends T, ?> mutator = this.getMutatorFactory().createMutator();
+			if (mutateWith(mutator, renderer))
+			{
+				mutation = new Mutation(mutator, RendererState.capture(renderer));
+				RendererState.markMutated(renderer);
+			}
+			else
+			{
+				RendererState.restoreVanilla(renderer);
+				mutation = NOT_MUTABLE;
+			}
+			mutations.put(renderer, mutation);
 		}
+		else if (mutation != NOT_MUTABLE)
+		{
+			mutation.state.applyMutation(renderer);
+		}
+		return mutation.mutator;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static boolean mutateWith(Mutator mutator, RenderLivingBase<?> renderer)
+	{
+		return mutator.mutate(renderer);
 	}
 
 	/**
-	 * Used to refresh the mutators in case of real-time changes during development.
+	 * Drops every mutation (the renderers go back to vanilla), so they are rebuilt from (reloaded)
+	 * resources on the next render.
 	 */
 	public void refreshMutation()
 	{
-		for (Entry<RenderLivingBase<? extends T>, Mutator<LivingEntityData<T>, T, ?>> entry : mutatorMap.entrySet())
+		for (RenderLivingBase<?> renderer : mutations.keySet())
 		{
-			Mutator<?, T, ?> mutator = entry.getValue();
-			mutator.demutate(entry.getKey());
-			mutator.mutate(entry.getKey());
-			mutator.postRefresh();
+			RendererState.restoreVanilla(renderer);
 		}
+		mutations.clear();
 	}
 
-	@SuppressWarnings("unchecked")
-	protected T createPreviewEntity()
-	{
-		try
-		{
-			EntityLiving entity = (EntityLiving) this.entityClass.getConstructor(World.class).newInstance(Minecraft.getMinecraft().world);
-			entity.world = Minecraft.getMinecraft().world;
-			entity.setLocationAndAngles(0, 0, 0, 0, 0);
-			entity.onInitialSpawn(entity.world.getDifficultyForLocation(entity.getPosition()), null);
-			PreviewHelper.registerPreviewEntity(entity);
-
-			return (T) entity;
-		}
-		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
-		{
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
+	@Nullable
 	public Mutator<?, ?, ?> getMutator(RenderLivingBase<? extends EntityLivingBase> renderer)
 	{
-		return this.mutatorMap.get(renderer);
+		Mutation mutation = this.mutations.get(renderer);
+		return mutation == null ? null : mutation.mutator;
 	}
 }

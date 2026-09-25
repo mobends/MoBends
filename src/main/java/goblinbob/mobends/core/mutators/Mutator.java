@@ -2,7 +2,6 @@ package goblinbob.mobends.core.mutators;
 
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.data.EntityDatabase;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.kumo.variable.KumoVariableRegistry;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
@@ -28,13 +27,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
     protected float limbSwingAmount;
     protected float swingProgress;
 
-    private IEntityDataFactory<E> dataFactory;
     protected List<LayerRenderer<?>> layerRenderers;
-
-    public Mutator(IEntityDataFactory<E> dataFactory)
-    {
-        this.dataFactory = dataFactory;
-    }
 
     /**
      * Used to fetch private data from the original
@@ -49,23 +42,11 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
     public abstract void storeVanillaModel(M model);
 
     /**
-     * Sets the model parameter back to it's vanilla
-     * state. Used to demutate the model.
-     */
-    public abstract void applyVanillaModel(M model);
-
-    /**
      * Swaps out the vanilla layers for their custom counterparts,
      * and if it's a vanilla model, it stores the vanilla layers
      * for future mutation reversal.
      */
     public abstract void swapLayer(RenderLivingBase<? extends E> renderer, int index, boolean isModelVanilla);
-
-    /**
-     * Swaps the custom layers back with the vanilla layers.
-     * Used to demutate the model.
-     */
-    public abstract void deswapLayer(RenderLivingBase<? extends E> renderer, int index);
 
     /**
      * Creates all the custom parts you need! It swaps all the
@@ -102,27 +83,6 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         }
 
         return true;
-    }
-
-    /**
-     * Performs the steps needed to demutate the model.
-     */
-    public void demutate(RenderLivingBase<? extends E> renderer)
-    {
-        if (this.shouldModelBeSkipped(renderer.getMainModel()))
-            return;
-
-        M model = (M) renderer.getMainModel();
-
-        this.applyVanillaModel(model);
-
-        if (this.layerRenderers != null)
-        {
-            for (int i = 0; i < layerRenderers.size(); ++i)
-            {
-                this.deswapLayer(renderer, i);
-            }
-        }
     }
 
     public void updateModel(E entity, RenderLivingBase<? extends E> renderer, float partialTicks)
@@ -188,7 +148,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         KumoVariableRegistry.instance.provideTemporaryData(data);
 
         // noinspection unchecked
-        final IAnimationController<D> controller = (IAnimationController<D>) data.getController();
+        final IAnimationController<D> controller = (IAnimationController<D>) data.getActiveController();
         final Collection<String> actions = controller.perform(data);
 
         SmoothVector3f lastGlobalOffset = new SmoothVector3f(data.globalOffset);
@@ -213,11 +173,6 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         return EntityDatabase.instance.get(entity);
     }
 
-    public D getOrMakeData(E entity)
-    {
-        return EntityDatabase.instance.getOrMake(dataFactory, entity);
-    }
-
     /**
      * True, if this renderer wasn't mutated before.
      */
@@ -227,13 +182,5 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
      * Returns true, if this model should skip the mutation process.
      */
     public abstract boolean shouldModelBeSkipped(ModelBase model);
-
-    /**
-     * Called right after this mutator has been refreshed.
-     */
-    public void postRefresh()
-    {
-        // No default behaviour
-    }
 
 }

@@ -61,6 +61,11 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+
+            // Play under a fixed name, e.g. to test name selectors: ./gradlew runClient -Pmc_username=BendyTester
+            if (project.hasProperty('mc_username')) {
+                args '--username', project.property('mc_username')
+            }
         }
 
         server {

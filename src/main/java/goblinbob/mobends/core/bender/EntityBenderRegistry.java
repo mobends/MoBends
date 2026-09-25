@@ -2,35 +2,78 @@ package goblinbob.mobends.core.bender;
 
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
+import goblinbob.mobends.core.types.EntityType;
+import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.entity.EntityLivingBase;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
- * This class is responsible for keeping track of all entity benders.
+ * This class is responsible for keeping track of all entity benders, and of which one (and which
+ * type, see {@link EntityTypeRegistry}) each entity is animated by.
  */
 public class EntityBenderRegistry
 {
 
     public static final EntityBenderRegistry instance = new EntityBenderRegistry();
 
-    private final Map<Class<? extends EntityLivingBase>, EntityBender<?>> entityClassToBenderMap = new HashMap<>();
+    /** Every bender by key, in registration order. */
+    private final Map<String, EntityBender<?>> benders = new LinkedHashMap<>();
+
+    /** The benders registered by addons: each is the default model of its entity class. */
+    private final List<EntityBender<?>> defaultBenders = new ArrayList<>();
+
+    private final Map<Class<?>, Optional<EntityBender<?>>> defaultBenderByClass = new HashMap<>();
 
     /**
-     * Used to cache entity-to-bender relationships, so they won't be calculated every time.
+     * Used to cache entity-to-type relationships, so they won't be calculated every time.
+     * Weak keys, so entities that are no longer referenced elsewhere don't stay in memory.
      */
-    private final Map<EntityLivingBase, EntityBender<?>> entityToBenderMap = new HashMap<>();
+    private final Map<EntityLivingBase, EntityTypeRegistry.Candidates> entityToCandidatesMap = new WeakHashMap<>();
 
+    /** Registers a bender of an addon: the default model of every entity of its class. */
     public void registerBender(EntityBender<?> entityBender)
     {
         Core.LOG.info(String.format("Registering %s", entityBender.getKey()));
-        entityClassToBenderMap.put(entityBender.entityClass, entityBender);
+        EntityBender<?> previous = benders.put(entityBender.getKey(), entityBender);
+        if (previous != null)
+        {
+            defaultBenders.remove(previous);
+        }
+        defaultBenders.add(entityBender);
+        defaultBenderByClass.clear();
+    }
+
+    /** Registers a bender a type made from a model definition. It only animates entities of that type. */
+    public void registerTypeBender(EntityBender<?> entityBender, CoreClientConfig config)
+    {
+        benders.put(entityBender.getKey(), entityBender);
+        if (config != null)
+        {
+            entityBender.setAnimate(config.isEntityAnimated(entityBender.getKey()));
+        }
+    }
+
+    /** Removes the benders made by types, putting their renderers back to vanilla. */
+    public void removeTypeBenders()
+    {
+        Iterator<EntityBender<?>> it = benders.values().iterator();
+        while (it.hasNext())
+        {
+            EntityBender<?> bender = it.next();
+            if (!defaultBenders.contains(bender))
+            {
+                bender.refreshMutation();
+                it.remove();
+            }
+        }
     }
 
     public void applyConfiguration(CoreClientConfig config)
     {
-        for (EntityBender<?> entityBender : entityClassToBenderMap.values())
+        for (EntityBender<?> entityBender : benders.values())
         {
             entityBender.setAnimate(config.isEntityAnimated(entityBender.getKey()));
         }
@@ -38,12 +81,23 @@ public class EntityBenderRegistry
 
     public Collection<EntityBender<?>> getRegistered()
     {
-        return entityClassToBenderMap.values();
+        return benders.values();
+    }
+
+    public Collection<EntityBender<?>> getDefaultBenders()
+    {
+        return defaultBenders;
+    }
+
+    @Nullable
+    public EntityBender<?> getByKey(String key)
+    {
+        return benders.get(key);
     }
 
     public Collection<EntityBender<?>> getRegistered(Filter filter)
     {
-        List<EntityBender<?>> benderList = new ArrayList<>(entityClassToBenderMap.values());
+        List<EntityBender<?>> benderList = new ArrayList<>(benders.values());
 
         if (filter.query != null)
         {
@@ -55,54 +109,76 @@ public class EntityBenderRegistry
         return benderList;
     }
 
-    public <E extends EntityLivingBase> EntityBender<E> getForEntityClass(Class<E> c)
+    /**
+     * The model an entity of this class has by default: the addon bender registered for exactly this
+     * class, or else the first one registered for a superclass.
+     */
+    @Nullable
+    public EntityBender<?> getDefaultBender(Class<?> entityClass)
     {
-        // noinspection unchecked
-        return (EntityBender<E>) entityClassToBenderMap.get(c);
+        return defaultBenderByClass.computeIfAbsent(entityClass, c -> {
+            for (EntityBender<?> entityBender : defaultBenders)
+                if (entityBender.entityClass.equals(c))
+                    return Optional.of(entityBender);
+
+            for (EntityBender<?> entityBender : defaultBenders)
+                if (entityBender.entityClass.isAssignableFrom(c))
+                    return Optional.of(entityBender);
+
+            return Optional.empty();
+        }).orElse(null);
     }
 
+    /** The type the entity is animated by, with its bender, or null if it stays vanilla. */
+    @Nullable
+    public EntityTypeRegistry.Selection getSelection(EntityLivingBase entity)
+    {
+        EntityTypeRegistry.Candidates candidates = entityToCandidatesMap.get(entity);
+        if (candidates == null)
+        {
+            // Checking the config blacklist
+            candidates = ModConfig.shouldKeepEntityAsVanilla(entity)
+                    ? EntityTypeRegistry.Candidates.NONE
+                    : EntityTypeRegistry.INSTANCE.candidatesFor(entity);
+            entityToCandidatesMap.put(entity, candidates);
+        }
+        return candidates.select(entity);
+    }
+
+    @Nullable
     public <E extends EntityLivingBase> EntityBender<E> getForEntity(E entity)
     {
+        EntityTypeRegistry.Selection selection = getSelection(entity);
         // noinspection unchecked
-        return (EntityBender<E>) entityToBenderMap.computeIfAbsent(entity, key -> {
-            // Checking the config blacklist
-            if (ModConfig.shouldKeepEntityAsVanilla(entity))
-                return null;
+        return selection == null ? null : (EntityBender<E>) selection.bender;
+    }
 
-            // Checking direct registration
-            Class<? extends EntityLivingBase> entityClass = entity.getClass();
-            for (EntityBender<?> entityBender : entityClassToBenderMap.values())
-                if (entityBender.entityClass.equals(entityClass))
-                    return entityBender;
-
-            // Checking indirect inheritance
-            for (EntityBender<?> entityBender : entityClassToBenderMap.values())
-                if (entityBender.entityClass.isInstance(entity))
-                    return entityBender;
-
-            return null;
-        });
+    @Nullable
+    public EntityType getTypeForEntity(EntityLivingBase entity)
+    {
+        EntityTypeRegistry.Selection selection = getSelection(entity);
+        return selection == null ? null : selection.type;
     }
 
     public <E extends EntityLivingBase> void clearCache(E entity)
     {
-        entityToBenderMap.remove(entity);
+        entityToCandidatesMap.remove(entity);
     }
 
     /**
-     * Will clear any associations between entities and EntityBenders.
-     * This is usually called whenever the player joins a new world.
+     * Will clear any associations between entities and types.
+     * This is usually called whenever the player joins a new world, and when types or ranks change.
      */
     public void clearCache()
     {
-        entityToBenderMap.clear();
+        entityToCandidatesMap.clear();
     }
 
     public void refreshMutators()
     {
         clearCache();
 
-        for (EntityBender<?> entityBender : entityClassToBenderMap.values())
+        for (EntityBender<?> entityBender : benders.values())
             entityBender.refreshMutation();
     }
 

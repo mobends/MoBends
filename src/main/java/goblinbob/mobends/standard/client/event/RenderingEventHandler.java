@@ -1,6 +1,9 @@
 package goblinbob.mobends.standard.client.event;
 
-import goblinbob.mobends.core.util.BenderHelper;
+import goblinbob.mobends.core.bender.EntityBender;
+import goblinbob.mobends.core.bender.EntityBenderRegistry;
+import goblinbob.mobends.core.client.RendererState;
+import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.mutators.PlayerMutator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -23,13 +26,20 @@ public class RenderingEventHandler
 
         AbstractClientPlayer player = (AbstractClientPlayer) viewEntity;
 
-        if (!BenderHelper.isEntityAnimated(player))
-        	return;
-
         RenderPlayer renderPlayer = (RenderPlayer) mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
-        PlayerMutator mutator = (PlayerMutator) BenderHelper.getMutatorForRenderer(AbstractClientPlayer.class, renderPlayer);
-        if (mutator != null)
-            mutator.poseForFirstPersonView();
+        EntityBender<AbstractClientPlayer> bender = EntityBenderRegistry.instance.getForEntity(player);
+
+        if (bender == null || !bender.isAnimated())
+        {
+            // The hand is drawn from the renderer's model, which may hold another player's mutation.
+            RendererState.restoreVanilla(renderPlayer);
+            return;
+        }
+
+        // Stays in place for the hand; the next render of the renderer puts the right model back.
+        Mutator<?, ?, ?> mutator = bender.attachMutation(renderPlayer);
+        if (mutator instanceof PlayerMutator)
+            ((PlayerMutator) mutator).poseForFirstPersonView();
     }
 
 }

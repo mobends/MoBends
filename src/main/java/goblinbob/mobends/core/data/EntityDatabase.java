@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.data;
 
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.bender.PreviewHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,6 +20,12 @@ public class EntityDatabase
      */
     protected final Map<Integer, LivingEntityData<?>> entryMap = new HashMap<>();
 
+    /**
+     * The factory that made each entity's data. An entity whose type changes gets data from another
+     * factory (another model or animator), so its data is made anew.
+     */
+    private final Map<Integer, IEntityDataFactory<?>> factoryMap = new HashMap<>();
+
     private LivingEntityData<?> get(Integer identifier)
     {
         return entryMap.get(identifier);
@@ -32,8 +37,8 @@ public class EntityDatabase
     }
 
     /**
-     * If a data instance for that identifier is null, create one. Return the data
-     * instance for that identifier.
+     * If there is no data instance for that entity, or it was made by another factory, create one.
+     * Return the data instance for that entity.
      *
      * @param dataCreationFunction The function that creates
      *                             and returned a new EntityData instance
@@ -48,10 +53,11 @@ public class EntityDatabase
         @SuppressWarnings("unchecked")
         T data = (T) this.get(entityId);
 
-        if (data == null)
+        if (data == null || factoryMap.get(entityId) != dataCreationFunction)
         {
             data = (T) dataCreationFunction.createEntityData(entity);
             this.add(entityId, data);
+            this.factoryMap.put(entityId, dataCreationFunction);
         }
         return data;
     }
@@ -76,9 +82,10 @@ public class EntityDatabase
             LivingEntityData<?> entityData = entry.getValue();
             EntityLivingBase entityInData = entityData.getEntity();
             Entity entity = Minecraft.getMinecraft().world.getEntityByID(entry.getKey());
-            if (!PreviewHelper.isPreviewEntity(entityInData) && (entity == null || entityInData != entity))
+            if (entity == null || entityInData != entity)
             {
                 EntityBenderRegistry.instance.clearCache(entityInData);
+                factoryMap.remove(entry.getKey());
                 it.remove();
             }
             else
@@ -99,6 +106,7 @@ public class EntityDatabase
     public void refresh()
     {
         this.entryMap.clear();
+        this.factoryMap.clear();
     }
 
     public void onTicksRestart()

@@ -21,12 +21,6 @@ public class BenderHelper
         return bender != null && bender.isAnimated();
     }
 
-    public static <T extends EntityLivingBase> Mutator<?, ?, ?> getMutatorForRenderer(Class<T> entityClass, RenderLivingBase<T> renderer)
-    {
-        final EntityBender<?> bender = EntityBenderRegistry.instance.getForEntityClass(entityClass);
-        return bender != null ? bender.getMutator(renderer) : null;
-    }
-
     public static <D extends LivingEntityData<E>, E extends EntityLivingBase> D getData(E entity, RenderLivingBase<? extends EntityLivingBase> renderer)
     {
         final EntityBender<EntityLivingBase> entityBender = EntityBenderRegistry.instance.getForEntity(entity);

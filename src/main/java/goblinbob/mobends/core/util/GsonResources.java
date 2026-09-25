@@ -22,14 +22,13 @@ public class GsonResources
 
     public static <T> T get(ResourceLocation location, Class<T> classOfT) throws IOException
     {
-        final InputStream stream = Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream();
-
         if (cache.containsKey(location))
         {
             //noinspection unchecked
             return (T) cache.get(location);
         }
-        else
+
+        try (InputStream stream = Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream())
         {
             T resource = KumoSerializer.INSTANCE.gson.fromJson(new InputStreamReader(stream), classOfT);
             cache.put(location, resource);

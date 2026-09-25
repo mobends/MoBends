@@ -22,8 +22,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	protected float capeWavePhase = 0;
 	protected float capeWaveSpeed = 0;
 
-	private Boolean flyingStateOverride = null;
-
 	public ModelPartTransform cape;
 
 	/** The procedural PlayerController is kept as the parity reference; the entity animates from its animator asset. */
@@ -48,16 +46,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	public float getCapeWavePhase()
 	{
 		return capeWavePhase;
-	}
-
-	public void overrideFlyingState(boolean flying)
-	{
-		this.flyingStateOverride = flying;
-	}
-	
-	public void unsetFlyingStateOverride()
-	{
-		this.flyingStateOverride = null;
 	}
 
 	@Override
@@ -206,9 +194,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	
 	public boolean isFlying()
 	{
-		return this.flyingStateOverride != null ?
-				this.flyingStateOverride :
-				this.entity.capabilities.isFlying;
+		return this.entity.capabilities.isFlying;
 	}
 	
 }

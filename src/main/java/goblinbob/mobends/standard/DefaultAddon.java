@@ -12,10 +12,7 @@ import goblinbob.mobends.standard.kumo.CapeDriver;
 import goblinbob.mobends.standard.kumo.WolfStateCondition;
 import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.mutators.*;
-import goblinbob.mobends.standard.previewer.BipedPreviewer;
-import goblinbob.mobends.standard.previewer.PlayerPreviewer;
-import goblinbob.mobends.standard.previewer.SpiderPreviewer;
-import goblinbob.mobends.standard.previewer.ZombiePreviewer;
+import goblinbob.mobends.standard.selector.SkinVariantCondition;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
@@ -31,7 +28,6 @@ public class DefaultAddon implements IAddon
 		registry.registerEntity(new PlayerBender());
 		
 		registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>(),
-				new ZombiePreviewer(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 
@@ -40,17 +36,14 @@ public class DefaultAddon implements IAddon
 						"rightLeg", "leftForeLeg", "rightForeLeg");
 
 //		registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>(),
-//				new BipedPreviewer<>(),
 //				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 //				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 //
 		registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>(),
-				new BipedPreviewer<>(),
 				"head", "body", "leftArm", "rightArm", "leftForeArm", "rightForeArm",
 				"leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg");
 
 		registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>(),
-				new SpiderPreviewer(),
 				"head", "body", "neck", "leg1", "leg2", "leg3", "leg4", "leg5", "leg6", "leg7", "leg8",
 				"foreLeg1", "foreLeg2", "foreLeg3", "foreLeg4", "foreLeg5", "foreLeg6", "foreLeg7", "foreLeg8");
 
@@ -90,6 +83,7 @@ public class DefaultAddon implements IAddon
 		registry.registerDriver("sword_trail", goblinbob.mobends.standard.kumo.SwordTrailDriver::create, goblinbob.mobends.standard.kumo.SwordTrailDriver.Template.class);
 		registry.registerDriver("spider_idle_legs", goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver::create, goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate.class);
 		registry.registerDriver("spider_moving_legs", goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver::create, goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate.class);
+		registry.registerSelectorCondition("skin_variant", SkinVariantCondition::create);
 	}
 
 	@Override
@@ -97,13 +91,6 @@ public class DefaultAddon implements IAddon
 	{
 		if (ModConfig.showArrowTrails)
 			ArrowTrailManager.onRenderTick();
-		PlayerPreviewer.updatePreviewData(partialTicks);
-	}
-	
-	@Override
-	public void onClientTick()
-	{
-		PlayerPreviewer.updatePreviewDataClient();
 	}
 	
 	@Override

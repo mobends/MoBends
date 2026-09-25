@@ -2,6 +2,8 @@ package goblinbob.mobends.core.client.definition;
 
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.addon.AddonAnimationRegistry;
+import goblinbob.mobends.core.bender.DefaultEntityBender;
+import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.DefinedFields;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
@@ -43,13 +45,19 @@ public final class DefinedBenders
         }
     }
 
+    private static void register(String modId, AddonAnimationRegistry registry, EntityModelDefinition definition) throws ClassNotFoundException
+    {
+        registry.registerEntity(createBender(modId, definition));
+    }
+
+    /** The bender of a model definition, not registered yet. Its key is prefixed with {@code modId}. */
     @SuppressWarnings("unchecked")
-    private static <E extends EntityLivingBase> void register(String modId, AddonAnimationRegistry registry, EntityModelDefinition definition) throws ClassNotFoundException
+    public static <E extends EntityLivingBase> EntityBender<E> createBender(String modId, EntityModelDefinition definition) throws ClassNotFoundException
     {
         Class<E> entityClass = (Class<E>) Class.forName(definition.entity);
-        registry.registerNewEntity(definition.key, definition.unlocalizedName, entityClass,
+        return new DefaultEntityBender<>(modId, definition.key, definition.unlocalizedName, entityClass,
                 entity -> DefinedEntityData.create(definition, entity),
-                dataFactory -> new DefinedMutator<>(definition, dataFactory),
+                () -> new DefinedMutator<>(definition),
                 new DefinedRenderer<>(definition),
                 definition.alterablePartsOrAll());
     }

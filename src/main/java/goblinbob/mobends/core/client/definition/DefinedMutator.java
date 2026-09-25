@@ -4,7 +4,6 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.model.BoxFactory;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.BoxSplitter;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -75,9 +74,8 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         }
     }
 
-    public DefinedMutator(EntityModelDefinition definition, IEntityDataFactory<E> dataFactory)
+    public DefinedMutator(EntityModelDefinition definition)
     {
-        super(dataFactory);
         this.definition = definition;
     }
 
@@ -176,21 +174,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
     }
 
     @Override
-    public void applyVanillaModel(ModelBase model)
-    {
-        for (Slot slot : slots)
-        {
-            slot.set(slot.vanilla);
-        }
-    }
-
-    @Override
     public void swapLayer(RenderLivingBase<? extends E> renderer, int index, boolean isModelVanilla)
-    {
-    }
-
-    @Override
-    public void deswapLayer(RenderLivingBase<? extends E> renderer, int index)
     {
     }
 

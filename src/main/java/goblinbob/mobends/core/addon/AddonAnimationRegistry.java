@@ -3,7 +3,6 @@ package goblinbob.mobends.core.addon;
 import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.bender.IPreviewer;
 import goblinbob.mobends.core.client.MutatedRenderer;
 import goblinbob.mobends.core.client.gui.AnimationEditorRegistry;
 import goblinbob.mobends.core.client.gui.IAnimationEditor;
@@ -13,6 +12,8 @@ import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionFactory;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
+import goblinbob.mobends.core.types.selector.ISelectorConditionFactory;
+import goblinbob.mobends.core.types.selector.SelectorConditionRegistry;
 import net.minecraft.entity.EntityLivingBase;
 
 public class AddonAnimationRegistry
@@ -37,17 +38,6 @@ public class AddonAnimationRegistry
     }
 
     /**
-     * Works like {@link #registerNewEntity(Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer, IPreviewer,
-     * String...)}, but the key and unlocalizedName are decided based on how the entity was registered.
-     */
-    public <T extends EntityLivingBase> String registerNewEntity(Class<T> entityClass,
-                                                                 IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-                                                                 MutatedRenderer<T> renderer, IPreviewer<?> previewer, String... alterableParts)
-    {
-        return registerNewEntity(null, null, entityClass, entityDataFactory, mutatorFactory, renderer, previewer, alterableParts);
-    }
-
-    /**
      * Registers the entity as an animated one. The system will then mutate all entities belonging to the specified
      * EntityClass, and apply custom animations.
      *
@@ -65,19 +55,7 @@ public class AddonAnimationRegistry
                                                                  IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
                                                                  MutatedRenderer<T> renderer, String... alterableParts)
     {
-        EntityBender<T> entityBender = new DefaultEntityBender<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, null, alterableParts);
-        return registerEntity(entityBender);
-    }
-
-    /**
-     * Works like {@link #registerNewEntity(String, String, Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer,
-     * String...)}, but you can specify a custom previewer.
-     */
-    public <T extends EntityLivingBase> String registerNewEntity(String key, String unlocalizedName, Class<T> entityClass,
-                                                                 IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-                                                                 MutatedRenderer<T> renderer, IPreviewer<?> previewer, String... alterableParts)
-    {
-        EntityBender<T> entityBender = new DefaultEntityBender<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, previewer, alterableParts);
+        EntityBender<T> entityBender = new DefaultEntityBender<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
         return registerEntity(entityBender);
     }
 
@@ -128,6 +106,17 @@ public class AddonAnimationRegistry
     public <T extends goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate> void registerDriver(String key, goblinbob.mobends.core.kumo.driver.IDriverFactory<T> factory, Class<T> templateType)
     {
         goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory, templateType);
+    }
+
+    /**
+     * Registers a condition that type files can use in their selectors (see misc/kumo-format.md).
+     * @param key The internal name of the condition. (snake_case preferable)
+     *            This is going to be automatically prefixed with the modid like so "modid:key"
+     * @param factory Makes the condition from its JSON object.
+     */
+    public void registerSelectorCondition(String key, ISelectorConditionFactory factory)
+    {
+        SelectorConditionRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory);
     }
 
     public void registerAnimationEditor(IAnimationEditor editor)

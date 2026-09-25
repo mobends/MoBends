@@ -5,7 +5,6 @@ import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.client.model.ModelPartExtended;
 import goblinbob.mobends.core.client.model.BoxSide;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerWolfMisc;
 import goblinbob.mobends.standard.data.WolfData;
@@ -45,11 +44,6 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
 
     protected LayerWolfMisc layerMisc;
 
-    public WolfMutator(IEntityDataFactory<EntityWolf> dataFactory)
-    {
-        super(dataFactory);
-    }
-
     @Override
     public void storeVanillaModel(ModelWolf model)
     {
@@ -66,29 +60,9 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
     }
 
     @Override
-    public void applyVanillaModel(ModelWolf model)
-    {
-        model.wolfHeadMain = this.vanillaModel.wolfHeadMain;
-        model.wolfBody = this.vanillaModel.wolfBody;
-        model.wolfLeg1 = this.vanillaModel.wolfLeg1;
-        model.wolfLeg2 = this.vanillaModel.wolfLeg2;
-        model.wolfLeg3 = this.vanillaModel.wolfLeg3;
-        model.wolfLeg4 = this.vanillaModel.wolfLeg4;
-        model.wolfTail = this.vanillaModel.wolfTail;
-        model.wolfMane = this.vanillaModel.wolfMane;
-
-        layerRenderers.remove(layerMisc);
-    }
-
-    @Override
     public void swapLayer(RenderLivingBase<? extends EntityWolf> renderer, int index, boolean isModelVanilla)
     {
 
-    }
-
-    @Override
-    public void deswapLayer(RenderLivingBase<? extends EntityWolf> renderer, int index)
-    {
     }
 
     @Override

@@ -41,11 +41,17 @@ public class ModelDefinitions
 
     public EntityModelDefinition load(String modId, String name) throws IOException, MalformedKumoTemplateException
     {
-        String key = modId + ":" + name;
+        return load(locationOf(modId, name));
+    }
+
+    /** Loads the definition at {@code location}, e.g. {@code yourmod:bends/models/beast.json}. */
+    public EntityModelDefinition load(ResourceLocation location) throws IOException, MalformedKumoTemplateException
+    {
+        String key = location.toString();
         EntityModelDefinition definition = loaded.get(key);
         if (definition == null)
         {
-            definition = GsonResources.get(locationOf(modId, name), EntityModelDefinition.class);
+            definition = GsonResources.get(location, EntityModelDefinition.class);
             if (definition == null)
             {
                 throw new IOException("Missing model definition " + key);

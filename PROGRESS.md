@@ -477,3 +477,27 @@ reobfuscated `shadowJar`, all 241 part reads and 268 of the 269 entity reads are
 **Not verified here (needs the game).** A production run of a definition with a variable (the
 chicken's wings, the golem's attack timer).
 
+
+## 15. Entity types and selectors
+
+**What.** Which model and animator an entity gets is now decided by *types* (`core/types`,
+design in `misc/kumo-format.md`, "Entity types and selectors"): JSON files in
+`assets/<namespace>/bends/types/` of any mod or resource pack, each with an `id`, a selector
+(its own condition registry: `core:and/or/not`, `core:entity_type`, `core:player_name`,
+`core:player_uuid`, `mobends:skin_variant`), and an optional model and animator. Every addon
+bender gets a built-in type. Precedence: user rank, then the number of conditions, then the id.
+Ranks are set in Settings (*Order*) and stored by type id in the client config.
+
+Entities sharing a renderer can now have different types, so mutation changed shape:
+`RendererState` captures each renderer's vanilla state and each bender's mutated state once,
+and the render handler swaps them in per render (Post always restores vanilla). The mutators'
+demutation code and the unused previewers are gone. Entity data is keyed by the type's data
+factory, so an entity that changes type gets fresh data; a type's animator replaces the data's
+own controller (`EntityData.setAnimator`).
+
+**Verified.** The mod compiles. `EntityTypesTest` (lab) pins the precedence order and the
+condition count, and runs the example pack's animator (`misc/examples/player-name-type`) on a
+walking player: the arms are held forward, the legs still walk. 94 lab tests pass.
+
+**Not verified here (needs the game).** Type discovery in the dev environment and in a packaged
+jar, the per-render swap with several players on screen, the first-person hand, the Order screen.
