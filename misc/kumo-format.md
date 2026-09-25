@@ -189,8 +189,8 @@ for each class:
   living entities). They read the fields directly, so reobfuscation renames them for production;
   no SRG name appears in a definition. Regenerate them with `gradle generateVanillaFields`
   (`src/tools/kotlin/.../GenVanillaFields.kt`, which also writes the generated section of the access
-  transformer that makes the non-public ones readable) after changing the Minecraft or mappings
-  version.
+  transformer that makes the non-public ones readable) after changing the Minecraft, Forge or
+  mappings version; `checkVanillaFields`, run before `compileJava`, fails the build until you do.
 * **anything else** (a mod's own entity or model, or its fields on a subclass) is found by
   reflection under the same name, since mods are not obfuscated.
 
