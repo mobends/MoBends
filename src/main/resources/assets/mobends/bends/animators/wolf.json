@@ -1,8 +1,250 @@
 {
   "formatVersion": 2,
-  "comment": "The wolf: the keyframe clips of wolf_clips.json plus the vanilla expressions as drivers.",
-  "extends": "mobends:bends/animators/wolf_clips.json",
+  "comment": "The wolf: keyframe clips for the body and the mouth, and the vanilla expressions as drivers on top.",
   "layers": [
+    {
+      "comment": "The body clips. Every clip is hard-set (snap): the wolf's clips were authored without smoothing.",
+      "type": "KEYFRAME",
+      "entryNode": "idle",
+      "nodes": {
+        "idle": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/wolf/idle.json",
+              "frame": {
+                "mod": [
+                  "elapsed",
+                  "clipLength"
+                ]
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            }
+          ],
+          "connections": [
+            {
+              "target": "walk",
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              }
+            },
+            {
+              "target": "sit_down",
+              "transitionDuration": 3,
+              "triggerCondition": {
+                "type": "mobends:wolf_state",
+                "state": "SITTING"
+              }
+            }
+          ]
+        },
+        "walk": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/wolf/walking.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662,
+                      4
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            }
+          ],
+          "connections": [
+            {
+              "target": "idle",
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "STANDING_STILL"
+              }
+            },
+            {
+              "target": "sit_down",
+              "transitionDuration": 1,
+              "triggerCondition": {
+                "type": "mobends:wolf_state",
+                "state": "SITTING"
+              }
+            }
+          ]
+        },
+        "sit_down": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/wolf/sitting_down.json",
+              "frame": {
+                "add": [
+                  6,
+                  {
+                    "mul": [
+                      "elapsed",
+                      2
+                    ]
+                  }
+                ]
+              },
+              "duration": 8,
+              "space": "OVERRIDE",
+              "snap": true
+            }
+          ],
+          "connections": [
+            {
+              "target": "sit",
+              "transitionDuration": 1,
+              "triggerCondition": {
+                "type": "core:animation_finished"
+              }
+            }
+          ]
+        },
+        "sit": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/wolf/sitting.json",
+              "frame": {
+                "mod": [
+                  "elapsed",
+                  "clipLength"
+                ]
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            }
+          ],
+          "connections": [
+            {
+              "target": "stand_up",
+              "transitionDuration": 1,
+              "triggerCondition": {
+                "type": "core:not",
+                "condition": {
+                  "type": "mobends:wolf_state",
+                  "state": "SITTING"
+                }
+              }
+            }
+          ]
+        },
+        "stand_up": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/wolf/standing_up.json",
+              "frame": {
+                "add": [
+                  4,
+                  {
+                    "mul": [
+                      "elapsed",
+                      2
+                    ]
+                  }
+                ]
+              },
+              "duration": 9,
+              "space": "OVERRIDE",
+              "snap": true
+            }
+          ],
+          "connections": [
+            {
+              "target": "idle",
+              "transitionDuration": 1,
+              "triggerCondition": {
+                "type": "core:animation_finished"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "comment": "The mouth and tongue alternate between idling and panting.",
+      "type": "KEYFRAME",
+      "entryNode": "idle",
+      "mask": {
+        "mode": "INCLUDE_ONLY",
+        "includedParts": [
+          "tongue",
+          "mouth"
+        ]
+      },
+      "nodes": {
+        "idle": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/wolf/idle.json",
+              "frame": {
+                "mod": [
+                  "elapsed",
+                  "clipLength"
+                ]
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            }
+          ],
+          "connections": [
+            {
+              "target": "breathe",
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:ticks_passed",
+                "ticksToPass": 80
+              }
+            }
+          ]
+        },
+        "breathe": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/wolf/breathing.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "elapsed",
+                      1.2
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "space": "OVERRIDE",
+              "snap": true
+            }
+          ],
+          "connections": [
+            {
+              "target": "idle",
+              "transitionDuration": 4,
+              "triggerCondition": {
+                "type": "core:ticks_passed",
+                "ticksToPass": 50
+              }
+            }
+          ]
+        }
+      }
+    },
     {
       "comment": "The look direction, the interested tilt, the shaking and the tail (vanilla expressions) applied after the clips in each bone's own space; the clips' head offset is discarded.",
       "type": "KEYFRAME",

@@ -46,6 +46,16 @@ public final class BoxSplitter
      */
     public static List<Segment> split(float[] min, float[] max, float[][] faces, int axis, float[] fractions)
     {
+        return split(min, max, faces, axis, fractions, -1, 0);
+    }
+
+    /**
+     * @param hingeAxis the axis (other than {@code axis}) whose edge the joints sit on, or -1 for
+     *                  the middle of the cut (the bone's own origin on the other axes)
+     * @param hingeSide -1 for the low edge of the box on {@code hingeAxis}, 1 for the high one
+     */
+    public static List<Segment> split(float[] min, float[] max, float[][] faces, int axis, float[] fractions, int hingeAxis, int hingeSide)
+    {
         float length = max[axis] - min[axis];
         int count = fractions.length + 1;
         float[] cuts = new float[count + 1];
@@ -56,21 +66,28 @@ public final class BoxSplitter
         }
         cuts[count] = max[axis];
 
+        float hinge = hingeAxis < 0 ? 0 : hingeSide < 0 ? min[hingeAxis] : max[hingeAxis];
+
         List<Segment> segments = new ArrayList<>();
-        float previousOrigin = 0; // along the axis, in the bone frame
+        float[] previousOrigin = new float[3]; // in the bone frame
         for (int k = 0; k < count; k++)
         {
             Segment segment = new Segment();
-            float origin = k == 0 ? 0 : cuts[k];
+            // A segment's origin is its joint: on the cut, at the hinge. The first one keeps the bone's.
+            float[] origin = new float[3];
+            if (k > 0)
+            {
+                origin[axis] = cuts[k];
+                if (hingeAxis >= 0) origin[hingeAxis] = hinge;
+            }
             for (int i = 0; i < 3; i++)
             {
-                segment.min[i] = min[i];
-                segment.max[i] = max[i];
-                segment.pivot[i] = 0;
+                segment.min[i] = min[i] - origin[i];
+                segment.max[i] = max[i] - origin[i];
+                segment.pivot[i] = origin[i] - previousOrigin[i];
             }
-            segment.min[axis] = cuts[k] - origin;
-            segment.max[axis] = cuts[k + 1] - origin;
-            segment.pivot[axis] = origin - previousOrigin;
+            segment.min[axis] = cuts[k] - origin[axis];
+            segment.max[axis] = cuts[k + 1] - origin[axis];
             previousOrigin = origin;
 
             for (int f = 0; f < 6; f++)

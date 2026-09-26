@@ -10,10 +10,7 @@ import java.util.List;
 public class KeyframeLayerTemplate extends LayerTemplate
 {
 
-    /** Legacy: index of the entry node. */
-    public int entryNode = 0;
-
-    /** Format 2: name of the entry node. */
+    /** Name of the entry node (JSON: {@code entryNode}). */
     public String entryNodeName;
 
     public List<KeyframeNodeTemplate> nodes;

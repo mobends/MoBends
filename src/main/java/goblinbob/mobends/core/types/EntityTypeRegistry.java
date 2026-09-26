@@ -38,6 +38,7 @@ public class EntityTypeRegistry
     public static final EntityTypeRegistry INSTANCE = new EntityTypeRegistry();
 
     private final Map<String, EntityType> types = new LinkedHashMap<>();
+    private final Map<String, Extension> extensions = new LinkedHashMap<>();
     private boolean loaded;
 
     /** What a type does to an entity: the bender (null: vanilla) and the factory of the entity's data. */
@@ -149,7 +150,7 @@ public class EntityTypeRegistry
             add(EntityType.builtIn(bender));
         }
 
-        for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover())
+        for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("types"))
         {
             try
             {
@@ -168,8 +169,59 @@ public class EntityTypeRegistry
                 type.setRank(config.getTypeRank(type.getId()));
             }
         }
+        int extensionCount = loadExtensions(config);
         benders.clearCache();
-        Core.LOG.info(String.format("Loaded %d entity types", types.size()));
+        Core.LOG.info(String.format("Loaded %d entity types and %d extensions", types.size(), extensionCount));
+    }
+
+    /** Loads every extension, with its rank, and gives each type its own; returns how many there are. */
+    private int loadExtensions(@Nullable CoreClientConfig config)
+    {
+        extensions.clear();
+        for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("extensions"))
+        {
+            try
+            {
+                ExtensionDefinition definition = ExtensionDefinition.parse(file.json);
+                Extension existing = extensions.get(definition.id);
+                if (existing != null)
+                {
+                    Core.LOG.warning(String.format("Two extensions have the id '%s': using %s, ignoring %s", definition.id, existing.getSource(), file.source));
+                    continue;
+                }
+                if (!types.containsKey(definition.type))
+                {
+                    Core.LOG.warning(String.format("The extension '%s' (%s) extends the type '%s', which doesn't exist.", definition.id, file.source, definition.type));
+                    continue;
+                }
+                Extension extension = new Extension(definition.id, file.source, definition.type, new ResourceLocation(definition.animator));
+                if (config != null)
+                {
+                    extension.setRank(config.getExtensionRank(extension.getId()));
+                }
+                extensions.put(extension.getId(), extension);
+            }
+            catch (Exception e)
+            {
+                Core.LOG.log(Level.SEVERE, "Could not load the extension " + file.source + ": " + e.getMessage());
+            }
+        }
+        applyExtensions();
+        return extensions.size();
+    }
+
+    /** Gives every type its extensions' animators, in the order their layers go on. */
+    private void applyExtensions()
+    {
+        for (EntityType type : types.values())
+        {
+            List<Extension> own = new ArrayList<>();
+            for (Extension extension : extensions.values())
+            {
+                if (extension.getTypeId().equals(type.getId())) own.add(extension);
+            }
+            type.setExtensions(Extension.layerOrder(own));
+        }
     }
 
     private void add(EntityType type)
@@ -288,6 +340,50 @@ public class EntityTypeRegistry
             type.setRank(0);
             config.clearTypeRank(type.getId());
         }
+        EntityBenderRegistry.instance.clearCache();
+    }
+
+    /** The extensions of the types that can animate this bender's entities, in precedence order (the first goes on top). */
+    public List<Extension> getExtensionsFor(EntityBender<?> bender)
+    {
+        Set<String> typeIds = new HashSet<>();
+        for (EntityType type : getTypesFor(bender))
+        {
+            typeIds.add(type.getId());
+        }
+        List<Extension> found = new ArrayList<>();
+        for (Extension extension : extensions.values())
+        {
+            if (typeIds.contains(extension.getTypeId())) found.add(extension);
+        }
+        found.sort(TypeOrder.PRECEDENCE);
+        return found;
+    }
+
+    /** Ranks the extensions in the given order (the first one highest, so on top) and stores the ranks. */
+    public void setExtensionOrder(List<Extension> order)
+    {
+        CoreClientConfig config = CoreClient.getInstance().getConfiguration();
+        for (int i = 0; i < order.size(); i++)
+        {
+            Extension extension = order.get(i);
+            extension.setRank(order.size() - 1 - i);
+            config.setExtensionRank(extension.getId(), extension.getRank());
+        }
+        applyExtensions();
+        EntityBenderRegistry.instance.clearCache();
+    }
+
+    /** Puts the extensions back to rank 0, so their ids decide the order again. */
+    public void resetExtensionRanks(List<Extension> order)
+    {
+        CoreClientConfig config = CoreClient.getInstance().getConfiguration();
+        for (Extension extension : order)
+        {
+            extension.setRank(0);
+            config.clearExtensionRank(extension.getId());
+        }
+        applyExtensions();
         EntityBenderRegistry.instance.clearCache();
     }
 

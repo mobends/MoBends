@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Picks the layer template class by {@code type}, and accepts both node forms:
- * a JSON array (legacy, index-addressed) or a JSON object keyed by node name (format 2).
+ * Picks the layer template class by {@code type}. A keyframe layer's {@code nodes} is an object
+ * keyed by node name, and its {@code entryNode} is one of those names.
  */
 public class LayerTemplateSerializer implements JsonSerializer<LayerTemplate>, JsonDeserializer<LayerTemplate>
 {
@@ -44,11 +44,14 @@ public class LayerTemplateSerializer implements JsonSerializer<LayerTemplate>, J
             {
                 copy.add(entry.getKey(), entry.getValue());
             }
-            List<String> names = null;
+            List<String> names = new ArrayList<>();
             JsonElement nodes = copy.get("nodes");
-            if (nodes != null && nodes.isJsonObject())
+            if (nodes != null && !nodes.isJsonObject())
             {
-                names = new ArrayList<>();
+                throw new JsonParseException("A keyframe layer's \"nodes\" has to be an object keyed by node name.");
+            }
+            if (nodes != null)
+            {
                 JsonArray array = new JsonArray();
                 for (Map.Entry<String, JsonElement> entry : nodes.getAsJsonObject().entrySet())
                 {
@@ -59,20 +62,20 @@ public class LayerTemplateSerializer implements JsonSerializer<LayerTemplate>, J
             }
 
             JsonElement entry = copy.get("entryNode");
-            String entryName = null;
-            if (entry != null && entry.isJsonPrimitive() && entry.getAsJsonPrimitive().isString())
+            if (entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isString())
             {
-                entryName = entry.getAsString();
-                copy.remove("entryNode");
+                throw new JsonParseException("A keyframe layer's \"entryNode\" has to be the name of one of its nodes.");
             }
+            String entryName = entry.getAsString();
+            copy.remove("entryNode");
 
             KeyframeLayerTemplate layer = KumoSerializer.INSTANCE.layerGson.fromJson(copy, KeyframeLayerTemplate.class);
-            if (names != null && layer.nodes != null)
+            if (layer.nodes != null)
             {
                 for (int i = 0; i < names.size() && i < layer.nodes.size(); i++)
                 {
                     KeyframeNodeTemplate node = layer.nodes.get(i);
-                    if (node != null && node.name == null)
+                    if (node != null)
                     {
                         node.name = names.get(i);
                     }

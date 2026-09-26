@@ -5,7 +5,6 @@ import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.kumo.KumoAnimatorController;
-import goblinbob.mobends.standard.animation.controller.SpiderController;
 import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntitySpider;
@@ -23,7 +22,6 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 
     public Limb[] limbs;
 
-    /** The procedural SpiderController is kept as the parity reference; the entity animates from its animator asset. */
 	private final KumoAnimatorController<SpiderData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/spider.json");
     protected float prevCrawlProgress = 0;
     protected float crawlProgress = 0;
@@ -297,15 +295,6 @@ public class SpiderData extends LivingEntityData<EntitySpider>
                     deltaX, deltaZ,
                     xzDistance, xzAngle
             );
-        }
-
-        public void applyIK(IKResult result, double groundLevel, double liftHeight, float pt)
-        {
-            double xzAngle = odd ? (Math.PI / 2 + result.xzAngle) : (-Math.PI / 2 + result.xzAngle);
-            this.upperPart.rotation.orientY((float) (xzAngle / Math.PI * 180F));
-            this.lowerPart.rotation.orientZero();
-            SpiderController.putLimbOnGround(this.upperPart.rotation, this.lowerPart.rotation, this.odd, result.xzDistance,
-                    groundLevel - 7 + Math.sin(this.adjustingProgress * Math.PI) * liftHeight);
         }
 
         public double getNeutralYaw()

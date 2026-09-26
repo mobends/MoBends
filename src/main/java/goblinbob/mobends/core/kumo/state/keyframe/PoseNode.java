@@ -24,8 +24,7 @@ import java.util.*;
 
 /**
  * A node of a keyframe layer: an ordered stack of pose items (clips, drivers), a damping table,
- * a list of bones to snap on entry, and the outgoing connections. The legacy
- * {@code core:standard} and {@code core:movement} nodes are pose nodes with a single legacy clip.
+ * a list of bones to snap on entry, and the outgoing connections.
  */
 public class PoseNode implements INodeState
 {
@@ -45,11 +44,7 @@ public class PoseNode implements INodeState
     private Pose enterPose;
     private boolean enterPending;
 
-    /**
-     * Legacy nodes (core:standard / core:movement) hard-set every bone they touch, as the original
-     * KUMO did; format 2 nodes hand their targets to the bones' own smoothing.
-     */
-    private boolean hardSet;
+    private boolean fallthrough;
 
     private float elapsed;
     private boolean snapPending;
@@ -92,32 +87,6 @@ public class PoseNode implements INodeState
 
     // --- factories -------------------------------------------------------------------------------
 
-    public static PoseNode createStandard(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, StandardKeyframeNodeTemplate template) throws MalformedKumoTemplateException
-    {
-        List<IPoseItem> items = new ArrayList<>();
-        if (template.animationKey != null)
-        {
-            KeyframeAnimation animation = requireAnimation(context, template.animationKey);
-            items.add(new LegacyClipPoseItem(new ClipBinding(animation, skeleton, null), template.startFrame, template.playbackSpeed, template.looping, false));
-        }
-        PoseNode node = new PoseNode(template.name, template.tags, items, null, skeleton, layer.damping, template.damping, template.snapOnEnter);
-        node.hardSet = true;
-        return node;
-    }
-
-    public static PoseNode createMovement(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, MovementKeyframeNodeTemplate template) throws MalformedKumoTemplateException
-    {
-        List<IPoseItem> items = new ArrayList<>();
-        if (template.animationKey != null)
-        {
-            KeyframeAnimation animation = requireAnimation(context, template.animationKey);
-            items.add(new LegacyClipPoseItem(new ClipBinding(animation, skeleton, null), template.startFrame, template.playbackSpeed, false, true));
-        }
-        PoseNode node = new PoseNode(template.name, template.tags, items, null, skeleton, layer.damping, template.damping, template.snapOnEnter);
-        node.hardSet = true;
-        return node;
-    }
-
     public static PoseNode createPose(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, PoseNodeTemplate template) throws MalformedKumoTemplateException
     {
         LayerSpaces spaces = new LayerSpaces(skeleton, layer);
@@ -139,6 +108,14 @@ public class PoseNode implements INodeState
         }
         PoseNode node = new PoseNode(template.name, template.tags, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
         node.setOnEnter = template.set;
+        return node;
+    }
+
+    public static PoseNode createFallthrough(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, FallthroughNodeTemplate template) throws MalformedKumoTemplateException
+    {
+        PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
+        node.setOnEnter = template.set;
+        node.fallthrough = true;
         return node;
     }
 
@@ -242,19 +219,25 @@ public class PoseNode implements INodeState
     }
 
     @Override
+    public boolean isFallthrough()
+    {
+        return fallthrough;
+    }
+
+    @Override
     public boolean isAnimationFinished()
     {
         return primary == null || primary.isFinished(elapsed);
     }
 
     @Override
-    public void parseConnections(List<INodeState> nodeStates, Map<String, INodeState> nodesByName, KeyframeNodeTemplate template) throws MalformedKumoTemplateException
+    public void parseConnections(Map<String, INodeState> nodesByName, KeyframeNodeTemplate template) throws MalformedKumoTemplateException
     {
         if (template.connections != null)
         {
             for (ConnectionTemplate connectionTemplate : template.connections)
             {
-                connections.add(ConnectionState.createFromTemplate(nodeStates, nodesByName, connectionTemplate));
+                connections.add(ConnectionState.createFromTemplate(nodesByName, connectionTemplate));
             }
         }
     }
@@ -393,12 +376,7 @@ public class PoseNode implements INodeState
         for (int slot = 0; slot < pose.size(); slot++)
         {
             BoneTarget target = pose.get(slot);
-            if (hardSet)
-            {
-                if (target.hasRotation || target.hasPre || target.hasPost) target.snap = true;
-                if (target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
-            }
-            else if (target.hasVector && isUndamped(target.vectorSmoothness) && target.vectorMode == IVectorSink.Mode.RETARGET)
+            if (target.hasVector && isUndamped(target.vectorSmoothness) && target.vectorMode == IVectorSink.Mode.RETARGET)
             {
                 // Keyframed root motion is already smooth; without an explicit damping entry it is applied as is.
                 target.vectorMode = IVectorSink.Mode.SNAP;

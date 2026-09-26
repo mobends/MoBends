@@ -2,11 +2,12 @@ package goblinbob.mobends.core.animation.keyframe;
 
 public class Keyframe
 {
-	public float[] position;
+	/** Each field may be left out of a clip file; it then keeps its default (no offset, no rotation, unit scale). */
+	public float[] position = { 0, 0, 0 };
 	// X, Y, Z, W
-	public float[] rotation;
+	public float[] rotation = { 0, 0, 0, 1 };
 
-	public float[] scale;
+	public float[] scale = { 1, 1, 1 };
 	
 	public void mirrorRotationYZ()
 	{

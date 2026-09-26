@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.data;
 
+import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IBendsModel;
@@ -10,7 +11,6 @@ import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.VectorSink;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
-import goblinbob.mobends.core.pack.state.PackAnimationState;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockStaticLiquid;
@@ -23,6 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     /** The animator of the entity's type, when it replaces the data's own controller. */
     private IAnimationController<?> typeAnimator;
 
-    public final PackAnimationState packAnimationState;
-
     public EntityData(E entity)
     {
         this.entity = entity;
@@ -72,7 +71,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         this.motionY = this.prevMotionY = 1.0D;
         this.motionZ = this.prevMotionZ = 0.0D;
 
-        this.packAnimationState = new PackAnimationState();
 
         this.initModelPose();
         this.registerKumoBindings();
@@ -262,9 +260,26 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     public abstract IAnimationController<?> getController();
 
     /** Animates this entity with {@code animator} instead of its own controller (a type chose another animator). */
-    public void setAnimator(ResourceLocation animator)
+    /**
+     * Animates this entity with its type's animator and extensions: {@code animator} (null for the
+     * data's own), with the layers of each of {@code extensions} on top.
+     */
+    public void setAnimator(@Nullable ResourceLocation animator, List<ResourceLocation> extensions)
     {
-        this.typeAnimator = new KumoAnimatorController<>(animator);
+        ResourceLocation base = animator;
+        if (base == null)
+        {
+            IAnimationController<?> own = this.getController();
+            if (own instanceof KumoAnimatorController)
+            {
+                base = ((KumoAnimatorController<?>) own).getAnimator();
+            }
+            else if (!extensions.isEmpty())
+            {
+                Core.LOG.warning("Extensions need an animator asset to go on top of; the model of " + entity + " has none, so they are ignored.");
+            }
+        }
+        this.typeAnimator = base == null ? null : new KumoAnimatorController<>(base, extensions);
     }
 
     /** The controller that animates this entity: its type's animator, or else its own. */

@@ -7,7 +7,6 @@ import net.minecraft.entity.monster.EntityZombie;
 public class ZombieData extends ZombieDataBase<EntityZombie>
 {
 	
-	/** The procedural ZombieController is kept as the parity reference; the entity animates from its animator asset. */
 	private final KumoAnimatorController<ZombieData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/zombie.json");
 	
 	public ZombieData(EntityZombie entity)

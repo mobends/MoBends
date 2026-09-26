@@ -60,4 +60,42 @@ public class EntityInputs
     public boolean spiderClimbing = false;
     public float squidRotation = 0;
     public float health = 20;
+
+    /** Puts every input back to its default (scripts fill them in again each tick). */
+    public void reset()
+    {
+        EntityInputs fresh = new EntityInputs();
+        // Keep object identity so scripts can hold onto it; copy defaults over.
+        this.forwardSpeed = fresh.forwardSpeed;
+        this.strafeSpeed = fresh.strafeSpeed;
+        this.jump = fresh.jump;
+        this.verticalSpeed = fresh.verticalSpeed;
+        this.noGravity = fresh.noGravity;
+        this.bodyYaw = fresh.bodyYaw;
+        this.headYaw = fresh.headYaw;
+        this.headPitch = fresh.headPitch;
+        this.sprinting = fresh.sprinting;
+        this.sneaking = fresh.sneaking;
+        this.inWater = fresh.inWater;
+        this.onLadder = fresh.onLadder;
+        this.ladderColumn = fresh.ladderColumn;
+        this.waterHeight = fresh.waterHeight;
+        this.flying = fresh.flying;
+        this.sleeping = fresh.sleeping;
+        this.riding = fresh.riding;
+        this.ridingLiving = fresh.ridingLiving;
+        this.elytraTicks = fresh.elytraTicks;
+        this.attack = fresh.attack;
+        this.itemUseCount = fresh.itemUseCount;
+        this.itemUseMaxCount = fresh.itemUseMaxCount;
+        this.mainHand = fresh.mainHand;
+        this.offHand = fresh.offHand;
+        this.wolfSitting = fresh.wolfSitting;
+        this.wolfInterested = fresh.wolfInterested;
+        this.wolfShaking = fresh.wolfShaking;
+        this.spiderClimbing = fresh.spiderClimbing;
+        this.squidRotation = fresh.squidRotation;
+        this.health = fresh.health;
+    }
+
 }

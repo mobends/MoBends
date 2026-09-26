@@ -5,7 +5,6 @@ import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
 
-import java.util.List;
 import java.util.Map;
 
 public class ConnectionState
@@ -26,26 +25,16 @@ public class ConnectionState
         this.transitionEasing = transitionEasing;
     }
 
-    public static ConnectionState createFromTemplate(List<INodeState> nodes, Map<String, INodeState> nodesByName, ConnectionTemplate template) throws MalformedKumoTemplateException
+    public static ConnectionState createFromTemplate(Map<String, INodeState> nodesByName, ConnectionTemplate template) throws MalformedKumoTemplateException
     {
-        INodeState node;
-
-        if (template.target != null)
+        if (template.target == null)
         {
-            node = nodesByName.get(template.target);
-            if (node == null)
-            {
-                throw new MalformedKumoTemplateException(String.format("A connection to node '%s' was specified, which doesn't exist.", template.target));
-            }
+            throw new MalformedKumoTemplateException("A connection has no target.");
         }
-        else
+        INodeState node = nodesByName.get(template.target);
+        if (node == null)
         {
-            if (template.targetNodeIndex < 0 || template.targetNodeIndex >= nodes.size())
-            {
-                throw new MalformedKumoTemplateException(String.format("A connection to node at index: %d was specified, which doesn't exist.",
-                        template.targetNodeIndex));
-            }
-            node = nodes.get(template.targetNodeIndex);
+            throw new MalformedKumoTemplateException(String.format("A connection to node '%s' was specified, which doesn't exist.", template.target));
         }
 
         if (template.triggerCondition == null)

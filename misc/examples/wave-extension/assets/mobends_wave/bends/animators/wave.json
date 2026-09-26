@@ -1,0 +1,41 @@
+{
+  "formatVersion": 2,
+  "comment": "One layer on top of the player's animator: it lets the player's own pose through while they move, and raises the right arm to wave while they stand still.",
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "through",
+      "nodes": {
+        "through": {
+          "type": "core:fallthrough",
+          "connections": [
+            {
+              "target": "wave",
+              "transitionDuration": 8,
+              "triggerCondition": {"type": "core:state", "state": "STANDING_STILL"}
+            }
+          ]
+        },
+        "wave": {
+          "type": "core:pose",
+          "tags": ["wave"],
+          "expressions": {
+            "sway": {"mul": [{"sin": [{"mul": ["elapsed", 0.5]}]}, 25]}
+          },
+          "pose": [
+            {"driver": "core:axis_rotate", "bone": "rightArm", "axis": "X", "angle": -165, "space": "OVERRIDE"},
+            {"driver": "core:axis_rotate", "bone": "rightArm", "axis": "Z", "angle": "sway", "space": "POST"},
+            {"driver": "core:axis_rotate", "bone": "rightForeArm", "axis": "X", "angle": -20, "space": "OVERRIDE"}
+          ],
+          "connections": [
+            {
+              "target": "through",
+              "transitionDuration": 8,
+              "triggerCondition": {"type": "core:state", "state": "MOVING_HORIZONTALLY"}
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -5,16 +5,20 @@ import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
+import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An animation controller that is entirely an animator asset: every frame the animator's layers
- * write the bone targets of the entity data (which does the smoothing), and the current nodes'
- * tags are the actions bends packs react to.
+ * write the bone targets of the entity data (which does the smoothing). Extensions add the layers
+ * of their own animators on top.
  *
  * <p>If the animator fails to load, the controller logs once and animates nothing, so a broken
  * asset never crashes the render.
@@ -23,13 +27,26 @@ public class KumoAnimatorController<T extends EntityData<?>> implements IAnimati
 {
 
     private final ResourceLocation animator;
+    private final List<ResourceLocation> extensions;
     @Nullable
     private KumoAnimatorState<T> state;
     private boolean failed;
 
     public KumoAnimatorController(ResourceLocation animator)
     {
+        this(animator, Collections.emptyList());
+    }
+
+    /** {@code animator}, with the layers of each of {@code extensions} on top, in order. */
+    public KumoAnimatorController(ResourceLocation animator, List<ResourceLocation> extensions)
+    {
         this.animator = animator;
+        this.extensions = extensions;
+    }
+
+    public ResourceLocation getAnimator()
+    {
+        return animator;
     }
 
     public KumoAnimatorController(String modId, String path)
@@ -55,13 +72,18 @@ public class KumoAnimatorController<T extends EntityData<?>> implements IAnimati
         }
         try
         {
-            state = new KumoAnimatorState<>(AnimatorResources.INSTANCE.loadAnimator(animator), AnimatorResources.INSTANCE);
+            List<AnimatorTemplate> overlays = new ArrayList<>();
+            for (ResourceLocation extension : extensions)
+            {
+                overlays.add(AnimatorResources.INSTANCE.loadAnimator(extension));
+            }
+            state = new KumoAnimatorState<>(AnimatorResources.INSTANCE.loadAnimator(animator), overlays, AnimatorResources.INSTANCE);
             return true;
         }
         catch (Exception e)
         {
             failed = true;
-            Core.LOG.log(java.util.logging.Level.SEVERE, "Could not load the animator " + animator, e);
+            Core.LOG.log(java.util.logging.Level.SEVERE, "Could not load the animator " + animator + (extensions.isEmpty() ? "" : " with the extensions " + extensions), e);
             return false;
         }
     }

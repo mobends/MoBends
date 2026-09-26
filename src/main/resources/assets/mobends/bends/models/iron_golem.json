@@ -32,7 +32,8 @@
         ],
         "names": [
           "rightForeArm"
-        ]
+        ],
+        "hinge": "BACK"
       }
     },
     {
@@ -48,7 +49,8 @@
         ],
         "names": [
           "leftForeArm"
-        ]
+        ],
+        "hinge": "BACK"
       }
     },
     {
@@ -64,7 +66,8 @@
         ],
         "names": [
           "leftForeLeg"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     },
     {
@@ -80,7 +83,8 @@
         ],
         "names": [
           "rightForeLeg"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     }
   ],

@@ -4,9 +4,6 @@ import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.kumo.variable.KumoVariableRegistry;
-import goblinbob.mobends.core.math.vector.SmoothVector3f;
-import goblinbob.mobends.core.network.NetworkConfiguration;
-import goblinbob.mobends.core.pack.BendsPackPerformer;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -14,7 +11,6 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 
-import java.util.Collection;
 import java.util.List;
 
 public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLivingBase, M extends ModelBase>
@@ -149,21 +145,7 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 
         // noinspection unchecked
         final IAnimationController<D> controller = (IAnimationController<D>) data.getActiveController();
-        final Collection<String> actions = controller.perform(data);
-
-        SmoothVector3f lastGlobalOffset = new SmoothVector3f(data.globalOffset);
-        SmoothVector3f lastLocalOffset = new SmoothVector3f(data.localOffset);
-        if (NetworkConfiguration.instance.areBendsPacksAllowed())
-        {
-            BendsPackPerformer.INSTANCE.performCurrentPack(data, animatedEntityKey, actions);
-
-            if (NetworkConfiguration.instance.isMovementLimited())
-            {
-                // Limit movement
-                data.globalOffset.limitDistanceTo(lastGlobalOffset, 10F);
-                data.localOffset.limitDistanceTo(lastLocalOffset, 10F);
-            }
-        }
+        controller.perform(data);
     }
 
     public abstract void syncUpWithData(D data);

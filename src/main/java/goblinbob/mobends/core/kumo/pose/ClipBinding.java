@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A clip bound to skeleton indices, plus the legacy naming rules: the "root" bone's position
- * drives the global offset, "centerRotation" rotates the entity and also moves the global offset,
- * and every other bone's position is applied as a negated model offset.
+ * A clip bound to skeleton indices, plus the clips' naming rules: the "root" bone's position drives
+ * the global offset, "centerRotation" only rotates the entity, and every other bone's position is
+ * applied as a negated model offset.
  */
 public class ClipBinding
 {
@@ -23,14 +23,11 @@ public class ClipBinding
     public final KeyframeAnimation animation;
     public final int keyframeCount;
     public final boolean step;
-    /** Format-1 clips couple the centerRotation bone's position into the root offset; format-2 clips do not. */
-    private final boolean legacyRootCoupling;
 
     final Bone[] bones;
     final int[] slots;
     final boolean[] isRoot;
     final boolean[] isCenterRotation;
-    final int rootSlot;
 
     private final Quaternion rotation = new Quaternion();
     private final Quaternion scaled = new Quaternion();
@@ -41,7 +38,6 @@ public class ClipBinding
         this.animation = animation;
         this.keyframeCount = ClipSampler.keyframeCount(animation);
         this.step = "STEP".equalsIgnoreCase(animation.interpolation);
-        this.legacyRootCoupling = animation.duration == null;
 
         List<Map.Entry<String, Bone>> entries = new ArrayList<>();
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())
@@ -64,18 +60,12 @@ public class ClipBinding
             isRoot[i] = Skeleton.isVectorBone(name);
             isCenterRotation[i] = CENTER_ROTATION.equals(name);
         }
-        rootSlot = skeleton.indexOf(Skeleton.ROOT);
     }
 
     /** The skeleton slots this clip writes (bones plus the root vector when a root bone exists). */
     public int[] writtenSlots()
     {
-        boolean centerRoot = false;
-        if (legacyRootCoupling) for (boolean c : isCenterRotation) centerRoot |= c;
-        int[] result = new int[slots.length + (centerRoot ? 1 : 0)];
-        System.arraycopy(slots, 0, result, 0, slots.length);
-        if (centerRoot) result[slots.length] = rootSlot;
-        return result;
+        return slots.clone();
     }
 
     /** Samples every bound bone at the index and composes it into the pose in one space. */
@@ -107,14 +97,8 @@ public class ClipBinding
             PoseMath.scale(rotation, weight, scaled);
             pose.composeRotation(slots[i], scaled, boneSpace);
 
-            if (isCenterRotation[i])
-            {
-                if (legacyRootCoupling)
-                {
-                    pose.composeVector(rootSlot, position.x * weight, position.y * weight, position.z * weight, boneSpace == Pose.Space.OVERRIDE ? Pose.Space.PRE : boneSpace);
-                }
-            }
-            else
+            // centerRotation only rotates; its keyframe positions are ignored.
+            if (!isCenterRotation[i])
             {
                 pose.composeOffset(slots[i], -position.x * weight, -position.y * weight, -position.z * weight, boneSpace);
             }

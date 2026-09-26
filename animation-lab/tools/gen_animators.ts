@@ -1121,9 +1121,20 @@ function walkerJump(folder: string, legs: Leg[], upperAngle = -20, lowerAngle = 
   return { animationKey: W(folder, "jump"), damping: Object.fromEntries(legBones(legs).map((b) => [b, 0.3])) };
 }
 
+/**
+ * The head following the look direction. Over a clip that poses the head, the yaw composes onto it
+ * (PRE); where nothing else poses the head it has to set it (OVERRIDE): a PRE / POST rotation with
+ * nothing under it composes onto the bone's last target, so it would add up frame after frame.
+ */
+function headLookOver(headBone: string, clipPosesHead: boolean): Obj[] {
+  return [withDamping(drv(headBone, "Y", "headYaw", { space: clipPosesHead ? "PRE" : "OVERRIDE" }), { [headBone]: 0.5 }),
+          drv(headBone, "X", "headPitch", { space: "POST" })];
+}
+
 function walkerAnimator(folder: string, legs: Leg[], idleBones: [string, number][], extra: Obj[] = [], headBone = "head"): Obj {
-  const look = [withDamping(drv(headBone, "Y", "headYaw"), { [headBone]: 0.5 }), drv(headBone, "X", "headPitch", { space: "POST" })];
-  const stand = { type: "core:pose", tags: ["stand"], pose: [walkerIdle(folder, idleBones), ...look, ...extra],
+  const look = headLookOver(headBone, false);
+  const idleLook = headLookOver(headBone, idleBones.some(([bone]) => bone === headBone));
+  const stand = { type: "core:pose", tags: ["stand"], pose: [walkerIdle(folder, idleBones), ...idleLook, ...extra],
                   connections: [{ target: "jump", triggerCondition: jumping }, { target: "walk", triggerCondition: state("MOVING_HORIZONTALLY") }] };
   const walk = { type: "core:pose", tags: ["walk"], pose: [walkerGait(folder, legs), ...look, ...extra],
                  connections: [{ target: "jump", triggerCondition: jumping }, { target: "stand", triggerCondition: state("STANDING_STILL") }] };
@@ -1164,10 +1175,11 @@ curveClip(join(CLIPS, "iron_golem", "attack.json"), (t) => ({
   rightForeArm: rotations(["X", -20]), leftForeArm: rotations(["X", -20]) }), range(81).map((k) => 10 * k / 80), 10);
 cycleClip(join(CLIPS, "iron_golem", "idle.json"), (p) => ({ head: rotations(["X", mcCos(p) * 1.5]), body: rotations(["X", mcCos(p + 1) * 0.7]) }));
 poseClip(join(CLIPS, "iron_golem", "jump.json"), { leftLeg: rotations(["X", -15]), rightLeg: rotations(["X", -15]), leftForeLeg: rotations(["X", 25]), rightForeLeg: rotations(["X", 25]) });
-const golemLook = [withDamping(drv("head", "Y", "headYaw"), { head: 0.5 }), drv("head", "X", "headPitch", { space: "POST" })];
+const golemLook = headLookOver("head", false);
+const golemIdleLook = headLookOver("head", true);
 const golemAttack = when({ animationKey: W("iron_golem", "attack"), frame: "attackTimer", damping: golemArmDamp }, cmp("attackTimer", ">", 0));
 const golemNodes = {
-  stand: { type: "core:pose", tags: ["stand"], pose: [{ animationKey: W("iron_golem", "idle"), frame: looped(scaled("ticks", 0.07)), damping: { head: 0.5, body: 0.5 } }, ...golemLook, golemAttack],
+  stand: { type: "core:pose", tags: ["stand"], pose: [{ animationKey: W("iron_golem", "idle"), frame: looped(scaled("ticks", 0.07)), damping: { head: 0.5, body: 0.5 } }, ...golemIdleLook, golemAttack],
            connections: [{ target: "jump", triggerCondition: jumping }, { target: "walk", triggerCondition: state("MOVING_HORIZONTALLY") }] },
   walk: { type: "core:pose", tags: ["walk"], pose: [{ animationKey: W("iron_golem", "walk"), frame: looped("limbSwing"), weight: { variable: "limbSwingAmount" }, damping: { ...golemArmDamp, ...golemLegDamp } }, ...golemLook, golemAttack],
           connections: [{ target: "jump", triggerCondition: jumping }, { target: "stand", triggerCondition: state("STANDING_STILL") }] },

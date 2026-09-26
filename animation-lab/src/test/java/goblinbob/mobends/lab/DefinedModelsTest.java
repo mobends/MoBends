@@ -13,7 +13,6 @@ import goblinbob.mobends.lab.sim.EntityInputs;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.LabClock;
-import goblinbob.mobends.lab.sim.ReferenceSession;
 import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
@@ -32,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Every mob described by a model definition (bends/models/index.json) must build a data class whose
  * bones cover what its animator drives, and the animator must produce finite, moving poses while the
- * mob walks. There is no procedural reference for these mobs, so this is a structural smoke test.
+ * mob walks. They have no golden traces, so this is a structural smoke test.
  */
 public class DefinedModelsTest
 {
@@ -84,7 +83,7 @@ public class DefinedModelsTest
             for (int t = 0; t < ticksStarted; t++)
             {
                 int tick = clock.getTick() - ticksStarted + t + 1;
-                ReferenceSession.resetInputs(inputs);
+                inputs.reset();
                 if (tick >= 40) inputs.forwardSpeed = 0.15;
                 inputs.headYaw = (float) (Math.sin(tick * 0.1) * 30);
                 scripted.tick(inputs);

@@ -11,6 +11,7 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ public class EntityType implements TypeOrder.Ranked
     private final ResourceLocation animator;
     private final boolean builtIn;
     private int rank;
+    /** The animators of the extensions of this type, in the order their layers go on top. */
+    private final List<ResourceLocation> extensions = new ArrayList<>();
 
     private final Map<EntityBender<?>, EntityTypeRegistry.Selection> selections = new HashMap<>();
     private final EntityTypeRegistry.Selection vanillaSelection = new EntityTypeRegistry.Selection(this, null, null);
@@ -151,18 +154,35 @@ public class EntityType implements TypeOrder.Ranked
         return selections.computeIfAbsent(bender, b -> new EntityTypeRegistry.Selection(this, b, dataFactoryFor(b)));
     }
 
+    /** The animators of this type's extensions, in the order their layers go on (see {@link Extension}). */
+    void setExtensions(List<ResourceLocation> animators)
+    {
+        if (!animators.equals(extensions))
+        {
+            extensions.clear();
+            extensions.addAll(animators);
+            selections.clear();
+        }
+    }
+
+    public List<ResourceLocation> getExtensions()
+    {
+        return Collections.unmodifiableList(extensions);
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private IEntityDataFactory<?> dataFactoryFor(EntityBender<?> bender)
     {
         IEntityDataFactory defaultFactory = bender.getDefaultDataFactory();
-        if (animator == null)
+        if (animator == null && extensions.isEmpty())
         {
             // Types that keep the model's animator share the entity's data.
             return defaultFactory;
         }
+        List<ResourceLocation> overlays = new ArrayList<>(extensions);
         return (IEntityDataFactory) entity -> {
             EntityData<?> data = defaultFactory.createEntityData(entity);
-            data.setAnimator(animator);
+            data.setAnimator(animator, overlays);
             return data;
         };
     }

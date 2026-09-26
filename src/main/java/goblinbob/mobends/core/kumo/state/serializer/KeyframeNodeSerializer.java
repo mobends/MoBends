@@ -19,14 +19,10 @@ public class KeyframeNodeSerializer implements JsonSerializer<KeyframeNodeTempla
     @Override
     public KeyframeNodeTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        String type = "core:standard";
+        String type = "core:pose";
         if (json.isJsonObject() && json.getAsJsonObject().has("type"))
         {
             type = json.getAsJsonObject().get("type").getAsString();
-        }
-        else if (json.isJsonObject() && json.getAsJsonObject().has("pose"))
-        {
-            type = "core:pose";
         }
 
         Type templateType = KeyframeNodeRegistry.INSTANCE.getTemplateClass(type);

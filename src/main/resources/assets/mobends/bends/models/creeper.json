@@ -30,7 +30,8 @@
         ],
         "names": [
           "foreLeg1"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     },
     {
@@ -46,7 +47,8 @@
         ],
         "names": [
           "foreLeg2"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     },
     {
@@ -62,7 +64,8 @@
         ],
         "names": [
           "foreLeg3"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     },
     {
@@ -78,7 +81,8 @@
         ],
         "names": [
           "foreLeg4"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     }
   ]

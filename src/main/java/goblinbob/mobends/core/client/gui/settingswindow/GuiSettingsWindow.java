@@ -170,9 +170,13 @@ public class GuiSettingsWindow extends GuiScreen
         for (final EntityBender<?> bender : EntityBenderRegistry.instance.getRegistered(filter))
         {
             final int typeCount = EntityTypeRegistry.INSTANCE.getTypesFor(bender).size();
+            final int extensionCount = EntityTypeRegistry.INSTANCE.getExtensionsFor(bender).size();
             bendsSettingsListUI.addElement(new GuiBenderSettings(bender, typeCount, () -> {
                 Core.saveConfiguration();
-                this.mc.displayGuiScreen(new GuiTypeOrderWindow(bender));
+                this.mc.displayGuiScreen(GuiOrderWindow.forTypes(bender));
+            }, extensionCount, () -> {
+                Core.saveConfiguration();
+                this.mc.displayGuiScreen(GuiOrderWindow.forExtensions(bender));
             }));
         }
     }

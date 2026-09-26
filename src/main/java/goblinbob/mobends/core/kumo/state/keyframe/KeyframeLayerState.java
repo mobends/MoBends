@@ -65,10 +65,6 @@ public class KeyframeLayerState implements ILayerState
         for (int i = 0; i < layerTemplate.nodes.size(); i++)
         {
             KeyframeNodeTemplate nodeTemplate = layerTemplate.nodes.get(i);
-            if (nodeTemplate.name == null)
-            {
-                nodeTemplate.name = Integer.toString(i);
-            }
             INodeState node = KeyframeNodeRegistry.INSTANCE.createFromTemplate(context.withExpressions(nodeTemplate.expressions), skeleton, layerTemplate, nodeTemplate);
             nodeStates.add(node);
             if (nodesByName.put(nodeTemplate.name, node) != null)
@@ -79,24 +75,13 @@ public class KeyframeLayerState implements ILayerState
 
         for (int i = 0; i < nodeStates.size(); i++)
         {
-            nodeStates.get(i).parseConnections(nodeStates, nodesByName, layerTemplate.nodes.get(i));
+            nodeStates.get(i).parseConnections(nodesByName, layerTemplate.nodes.get(i));
         }
 
-        if (layerTemplate.entryNodeName != null)
+        currentNode = nodesByName.get(layerTemplate.entryNodeName);
+        if (currentNode == null)
         {
-            currentNode = nodesByName.get(layerTemplate.entryNodeName);
-            if (currentNode == null)
-            {
-                throw new MalformedKumoTemplateException(String.format("Entry node '%s' doesn't exist.", layerTemplate.entryNodeName));
-            }
-        }
-        else
-        {
-            if (layerTemplate.entryNode < 0 || layerTemplate.entryNode >= nodeStates.size())
-            {
-                throw new MalformedKumoTemplateException("Entry node index is out of bounds.");
-            }
-            currentNode = nodeStates.get(layerTemplate.entryNode);
+            throw new MalformedKumoTemplateException(String.format("Entry node '%s' doesn't exist.", layerTemplate.entryNodeName));
         }
 
         // Poses are sized after every node has registered its bones.
@@ -196,6 +181,12 @@ public class KeyframeLayerState implements ILayerState
                 source = previousPose;
                 bindScopes(context, currentNode);
             }
+            if (currentNode.isFallthrough() || previousNode.isFallthrough())
+            {
+                // What one side doesn't pose, the layers below do: fade to (or from) them.
+                fillFromBelow(source, currentPose, animatorPose);
+                fillFromBelow(currentPose, source, animatorPose);
+            }
             blend(source, currentPose, t, outputPose);
             result = outputPose;
         }
@@ -277,6 +268,51 @@ public class KeyframeLayerState implements ILayerState
             case LINEAR:
             default:
                 return t;
+        }
+    }
+
+    /**
+     * Gives {@code missing} what {@code present} poses and it doesn't, as the layers below have it:
+     * a full rotation, offset or vector from {@code below} (when they pose it), a PRE / POST rotation
+     * or an additive offset or vector as nothing (identity, zero).
+     */
+    private static void fillFromBelow(Pose missing, Pose present, Pose below)
+    {
+        for (int i = 0; i < missing.size(); i++)
+        {
+            BoneTarget m = missing.get(i);
+            BoneTarget p = present.get(i);
+            BoneTarget u = below.get(i);
+
+            if (p.hasRotation && !m.hasRotation && u.hasRotation)
+            {
+                m.rotation.set(u.rotation);
+                m.hasRotation = true;
+            }
+            if (p.hasPre && !m.hasPre)
+            {
+                m.pre.setIdentity();
+                m.hasPre = true;
+            }
+            if (p.hasPost && !m.hasPost)
+            {
+                m.post.setIdentity();
+                m.hasPost = true;
+            }
+            if (p.hasOffset && !m.hasOffset && (p.offsetAdditive || u.hasOffset))
+            {
+                if (p.offsetAdditive) m.offset.set(0, 0, 0);
+                else m.offset.set(u.offset);
+                m.offsetAdditive = p.offsetAdditive;
+                m.hasOffset = true;
+            }
+            if (p.hasVector && !m.hasVector && (p.vectorAdditive || u.hasVector))
+            {
+                if (p.vectorAdditive) m.vector.set(0, 0, 0);
+                else m.vector.set(u.vector);
+                m.vectorAdditive = p.vectorAdditive;
+                m.hasVector = true;
+            }
         }
     }
 

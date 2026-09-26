@@ -546,3 +546,58 @@ digit of the six-decimal traces: `mod` wraps a frame in a slightly different flo
 the old fraction wrap); `gradle test`'s parity gate is 0.1°. `ClipFrameTest` covers frames in
 clip units, holding the ends, `clipLength` / `duration` names, floored `mod`, the default frame
 with and without a duration, and finishing. 105 lab tests pass.
+
+## 18. One animation system; extensions replace bends packs
+
+**What.** Everything on the old animation system is gone or moved to KUMO v2:
+
+* **The wolf.** Its two clip layers (`wolf_clips.json`, format 1, binary `.bendsanim` clips) are
+  now `core:pose` nodes in `wolf.json`, next to its driver layer, with the clips converted to
+  JSON (`animations/wolf/`; scale dropped, it was float noise around 1 and clips don't scale).
+  The legacy playback rules map onto frames: `startFrame + playbackSpeed * elapsed`, looping with
+  `mod`, non-looping clips with `duration = (last - startFrame) / playbackSpeed` so
+  `core:animation_finished` fires on the same tick, and `snap` for the legacy hard-set. Converted
+  faithfully it matched the golden to 0.0001°; the walk then reads the current limb swing instead
+  of the previous frame's (the legacy movement node's lag), which moves `wolf/idle_walk_sit` by up
+  to 9.5°, and that golden was re-recorded.
+* **Legacy KUMO.** `core:standard` / `core:movement` nodes, `LegacyClipPoseItem`, hard-set nodes,
+  node arrays and index targets, the `centerRotation` root coupling of format-1 clips, and
+  `BinaryAnimationLoader` are removed. A node's `type` defaults to `core:pose`. Keyframe fields
+  are optional in clip files.
+* **The procedural reference.** The controllers and bits (`standard/animation`,
+  `core/animation/bit`, `core/animation/layer`, `JumpAnimationBit.kt`) are deleted. What
+  production still used moved: item action classification to `standard.ItemActions`; the spider's
+  unused `applyIK` went with its controller. In the lab, `ReferenceSession`, the bakers and
+  `ReferenceStabilityTest` are gone; the goldens stay, as the recorded output of the original
+  code, and `gradle record` now accepts an animator's output for named scenarios.
+  `SideEffectParityTest` pins the sword trail counts the reference produced. The lab's source
+  set of mod sources is `mod` (was `reference`).
+* **Bends packs.** `core/pack`, the Packs window and menu entry, the create-pack popup, the pack
+  layer in `EntityData` and `Mutator`, the two server settings and the pack GUI strings are
+  removed.
+
+**Extensions** take the place of bends packs: `assets/<namespace>/bends/extensions/**.json`
+(`ExtensionDefinition`: `id`, `type`, `animator`), found like type files. `EntityTypeRegistry`
+adds each to the type it names, in id order; the type's data factory gives the entity's data its
+animator (the type's, or the model's own) with the extensions' animators on top
+(`EntityData.setAnimator(animator, extensions)`, `KumoAnimatorController`,
+`KumoAnimatorState(template, overlays, context)`). A new node type, `core:fallthrough`, poses
+nothing; transitions into and out of it fill what one side lacks from the layers below
+(`KeyframeLayerState.fillFromBelow`), so an extension fades in and out over the animation it
+extends. Example pack: `misc/examples/wave-extension`.
+
+Extensions are ranked like types (`Extension` is a `TypeOrder.Ranked` without specificity): by
+the user's rank, then id; the first goes on top, so its layers are added last
+(`Extension.layerOrder`). Ranks are stored in the client config (`ExtensionRanks`). Settings has
+an *Extensions* button next to *Order* when an entity's types have more than one extension; both
+open `GuiOrderWindow` (the order screen, now shared by types and extensions). The leftover
+`AppliedPacks` config property of bends packs is removed.
+
+**Verified.** The mod builds. All 39 scenarios pass the parity gate (the wolf's walk re-recorded
+as above). `ExtensionsTest` checks the definitions, that a fallthrough node shows the layers
+below exactly, that the fades pass between the two poses (it fails with the fill disabled), and
+runs the example pack on a standing and a walking player, and pins the extension order. 70 lab
+tests pass.
+
+**Not verified here (needs the game).** Extension discovery from resource packs and the example
+pack in game, the Extensions order screen, the menu without the Packs section.

@@ -17,7 +17,6 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	public ModelPartTransform squidBody;
 	public ModelPartTransform[][] squidTentacles;
 
-	/** The procedural SquidController is kept as the parity reference; the entity animates from its animator asset. */
 	private final KumoAnimatorController<SquidData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/squid.json");
 	
 	public SquidData(EntitySquid entity)

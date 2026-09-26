@@ -11,7 +11,6 @@ import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.kumo.AnimatorResources;
 import goblinbob.mobends.core.supporters.SupporterContent;
-import goblinbob.mobends.core.pack.PackManager;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.GsonResources;
 import net.minecraft.client.Minecraft;
@@ -58,7 +57,6 @@ public class CoreClient extends Core<CoreClientConfig>
     {
         super.init(event);
 
-        PackManager.INSTANCE.initialize(configuration);
         KeyboardHandler.initKeyBindings();
 
         MinecraftForge.EVENT_BUS.register(new EntityRenderHandler());

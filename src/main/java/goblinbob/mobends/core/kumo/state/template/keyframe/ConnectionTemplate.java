@@ -7,10 +7,7 @@ import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 public class ConnectionTemplate
 {
 
-    /** Legacy: index of the target node in the layer's node array. */
-    public int targetNodeIndex = -1;
-
-    /** Format 2: name of the target node. */
+    /** Name of the target node. */
     public String target;
 
     public TriggerConditionTemplate triggerCondition;

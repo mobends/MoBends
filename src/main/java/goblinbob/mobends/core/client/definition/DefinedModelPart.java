@@ -6,7 +6,11 @@ import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;
 
-/** A {@link ModelPart} with a constant rest rotation applied before the animated one. */
+/**
+ * A {@link ModelPart} with a constant rest rotation applied before the animated one. A part with a
+ * parent (a split segment, or a bone declared inside another) is drawn by that parent, inside the
+ * parent's transform, so it only applies its own.
+ */
 public class DefinedModelPart extends ModelPart
 {
 
@@ -21,6 +25,23 @@ public class DefinedModelPart extends ModelPart
     {
         this.restRotation = restRotation;
         return this;
+    }
+
+    @Override
+    public void render(float scale)
+    {
+        if (getParent() != null)
+        {
+            renderJustPart(scale);
+            return;
+        }
+        super.render(scale);
+    }
+
+    @Override
+    public void renderWithRotation(float scale)
+    {
+        render(scale);
     }
 
     @Override

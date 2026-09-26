@@ -11,18 +11,15 @@ import goblinbob.mobends.lab.trace.TraceIO;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
- * The migration check: for every entity that has a KUMO animator, the animator must reproduce the
- * procedural controller's golden trace within tolerance.
+ * The regression gate: for every scenario, the entity's animator must reproduce the golden trace
+ * within tolerance. The goldens were recorded from the original procedural animation code; when an
+ * animator changes on purpose, `gradle record` accepts its new output for the named scenarios.
  */
 public class KumoParityTest
 {
@@ -31,14 +28,8 @@ public class KumoParityTest
     /** Offset tolerance in model units (1/16 block). */
     public static final double MAX_OFFSET = 0.01;
 
-    /**
-     * Scenarios whose reference behaviour is not migrated yet. They are reported as skipped, not
-     * as failures, until the matching animator work lands; remove them from here as it does.
-     */
-    public static final Set<String> PENDING = new HashSet<>(Arrays.asList());
-
     @TestFactory
-    List<DynamicTest> animatorMatchesReference()
+    List<DynamicTest> animatorMatchesGolden()
     {
         return Scenarios.all().stream()
                 .filter(s -> Animators.has(s.kind))
@@ -48,13 +39,12 @@ public class KumoParityTest
 
     private void check(Scenario scenario) throws Exception
     {
-        assumeFalse(PENDING.contains(scenario.id()), "pending: action layer not migrated yet");
         PoseTrace golden = TraceIO.read(TraceIO.fileFor(LabPaths.golden(), scenario.kind.id(), scenario.name));
         PoseTrace actual = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(scenario.kind))).run();
         ComparisonReport report = PoseComparator.compare(scenario.id(), golden, actual);
         System.out.println(report.toMarkdown());
         assertTrue(report.isWithin(MAX_ANGLE_DEG, MAX_OFFSET),
-                String.format("KUMO animator deviates from the reference for %s (worst %.3f deg / %.4f offset)",
+                String.format("The animator deviates from the golden trace for %s (worst %.3f deg / %.4f offset)",
                         scenario.id(), report.worstAngleDeg(), report.worstOffset()));
     }
 }

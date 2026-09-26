@@ -10,12 +10,12 @@ import java.util.List;
 public class KeyframeNodeTemplate
 {
 
-    private String type = "core:standard";
+    private String type = "core:pose";
 
-    /** Format 2: node name, used by connections and for the entry node. */
+    /** The node's name, used by connections and for the entry node. */
     public String name;
 
-    /** Exposed as the layer's current actions (bends packs react to them). */
+    /** Exposed as the layer's current actions ({@code core:action} conditions test them). */
     public List<String> tags;
 
     public List<ConnectionTemplate> connections;

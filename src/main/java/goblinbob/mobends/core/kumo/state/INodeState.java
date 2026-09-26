@@ -5,7 +5,6 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public interface INodeState
@@ -22,7 +21,7 @@ public interface INodeState
 
     boolean isAnimationFinished();
 
-    void parseConnections(List<INodeState> nodeStates, Map<String, INodeState> nodesByName, KeyframeNodeTemplate template) throws MalformedKumoTemplateException;
+    void parseConnections(Map<String, INodeState> nodesByName, KeyframeNodeTemplate template) throws MalformedKumoTemplateException;
 
     void start(IKumoContext context);
 
@@ -31,6 +30,12 @@ public interface INodeState
 
     /** Writes this node's pose for the current frame into the given (cleared) pose. */
     void evaluate(IKumoContext context, Pose pose) throws MalformedKumoTemplateException;
+
+    /** A node that poses nothing, so the layers below show through (and transitions fade to them). */
+    default boolean isFallthrough()
+    {
+        return false;
+    }
 
     /** Advances the node's clock; called after evaluation. */
     void advance(IKumoContext context, float deltaTime);

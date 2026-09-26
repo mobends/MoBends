@@ -111,7 +111,7 @@
               "bone": "head",
               "axis": "Y",
               "angle": "headYaw",
-              "space": "PRE",
+              "space": "OVERRIDE",
               "damping": {
                 "head": 0.5
               }
@@ -176,7 +176,7 @@
               "bone": "head",
               "axis": "Y",
               "angle": "headYaw",
-              "space": "PRE",
+              "space": "OVERRIDE",
               "damping": {
                 "head": 0.5
               }

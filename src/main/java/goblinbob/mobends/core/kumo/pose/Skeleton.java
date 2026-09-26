@@ -16,7 +16,7 @@ import java.util.Map;
 public class Skeleton
 {
 
-    /** Name of the slot that maps to the subject's global offset in legacy clips. */
+    /** Name of the slot that maps to the subject's global offset in clips. */
     public static final String ROOT = "root";
 
     /** Bone names that denote entity-level smoothed vectors rather than rotations. */

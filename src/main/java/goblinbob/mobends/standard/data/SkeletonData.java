@@ -7,7 +7,6 @@ import net.minecraft.entity.monster.EntitySkeleton;
 public class SkeletonData extends BipedEntityData<EntitySkeleton>
 {
 
-	/** The procedural SkeletonController is kept as the parity reference; the entity animates from its animator asset. */
 	private final KumoAnimatorController<SkeletonData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/skeleton.json");
 
 	public SkeletonData(EntitySkeleton entity)

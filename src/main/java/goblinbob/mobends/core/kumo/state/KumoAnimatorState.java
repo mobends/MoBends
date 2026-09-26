@@ -8,6 +8,7 @@ import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,9 +29,22 @@ public class KumoAnimatorState<S extends IKumoSubject>
 
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
+        this(animatorTemplate, Collections.<AnimatorTemplate>emptyList(), dataProvider);
+    }
+
+    /**
+     * @param overlays Animators whose layers go on top of the animator's, in order (extensions).
+     *                 Each is its own animator: it sees its own named expressions, not the base's.
+     */
+    public KumoAnimatorState(AnimatorTemplate animatorTemplate, List<AnimatorTemplate> overlays, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
+    {
         List<LayerTemplate> layers = new ArrayList<>();
         List<IKumoInstancingContext> layerContexts = new ArrayList<>();
         collectLayers(animatorTemplate, dataProvider, 0, layers, layerContexts);
+        for (AnimatorTemplate overlay : overlays)
+        {
+            collectLayers(overlay, dataProvider, 0, layers, layerContexts);
+        }
         if (layers.isEmpty())
         {
             throw new MalformedKumoTemplateException("No layers were specified");

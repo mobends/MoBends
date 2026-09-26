@@ -2,7 +2,7 @@ package net.minecraft.util.math;
 
 /**
  * Stub of Minecraft 1.12.2's MathHelper. sin/cos use the same 65536-entry lookup table as the game
- * so the reference animation output carries the same quantisation.
+ * so the animation output carries the same quantisation as in the game.
  */
 public class MathHelper
 {

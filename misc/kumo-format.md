@@ -3,7 +3,7 @@
 An animator is a JSON asset (`assets/mobends/bends/animators/<entity>.json`) that says how an
 entity's bones get their targets every frame. The entity data (the model's bones with their
 per-bone smoothing) is the *subject*; the animator only ever writes targets, the subject
-smooths them. Everything the old procedural controllers did is expressed with the pieces below.
+smooths them. Everything the original hand-written animation code did is expressed with the pieces below.
 
 ```json
 {
@@ -15,8 +15,9 @@ smooths them. Everything the old procedural controllers did is expressed with th
 ```
 
 `extends` puts a parent animator's layers first. `expressions` declares named expressions (see
-*Expressions*); layers and nodes can declare their own too. Format 1 files (node arrays, index targets)
-still load; the wolf's clip layers are one.
+*Expressions*); layers and nodes can declare their own too. Version 2 is the only format: the
+original one (node arrays addressed by index, `core:standard` / `core:movement` nodes, binary
+`.bendsanim` clips) is gone.
 
 ## Layers
 
@@ -32,7 +33,7 @@ produces the layer's pose, which composites onto the result.
 | `variables` | layer variables and their initial values, e.g. `{"combo": 0}` |
 | `expressions` | named expressions visible to the layer's nodes (see *Expressions*) |
 | `damping` | default damping for the bones the layer writes (nodes and items override) |
-| `mask` | an armature mask (legacy) |
+| `mask` | `{"mode": "INCLUDE_ONLY", "includedParts": ["mouth"]}` (or `EXCLUDE_ONLY`): the bones the layer may write |
 | `mirror` | `{"when": <condition>, "pairs": [["leftArm","rightArm"], ...], "negate": ["headYaw"]}`: the rule items with `"mirror"` / `"swapSides"` follow |
 | `entryNode`, `nodes` | the entry node's name and a map of nodes by name |
 
@@ -51,15 +52,20 @@ produces the layer's pose, which composites onto the result.
 }
 ```
 
-* `tags` are the layer's *actions* (bends packs and `core:action` see them).
+* `type` is `core:pose` (the default) or `core:fallthrough`.
+* `tags` are the layer's *actions* (`core:action` sees them, in every layer).
 * `expressions` declares named expressions visible to the node's items (see *Expressions*).
 * Connections are checked before the node is posed, so a state change shows the same frame.
   Every condition is evaluated each frame (edge triggers stay fresh); the first one met fires.
   A connection's `set` assigns layer variables when it fires. `transitionDuration` crossfades
   (an interrupted crossfade continues from what was on screen); easings `LINEAR`, `EASE_IN`,
   `EASE_OUT`, `EASE_IN_OUT`, `EXPONENTIAL`.
-* Legacy nodes `core:standard` (`animationKey`, `playbackSpeed`, `looping`) and `core:movement`
-  (played by limb swing) still work and hard-set their bones.
+* A `core:fallthrough` node poses nothing, so the layers below show through; it has tags,
+  connections, `set` and `expressions` like any node. A transition into or out of it fades between
+  the layer's pose and the one below: what one side poses and the other doesn't is blended
+  against the layers below (a full rotation, offset or vector as they have it; a PRE / POST
+  rotation or an additive offset as nothing). It is how an extension lets the animation it
+  extends show until it has something to add, but any layer can use it.
 
 ## Pose items
 
@@ -96,8 +102,9 @@ A node's `pose` is a stack; later items compose over earlier ones. Common fields
   `{"mod": ["elapsed", "clipLength"]}` with `"duration": 30` loops for 30 ticks, then finishes.
 
 `weight` (an expression) scales the rotation angles and offsets. `bones` restricts the clip.
-Clip files (`animations/...json`) hold `bones` with keyframes (position, rotation, scale), and
-optionally `duration`, `interpolation: "STEP"` and explicit keyframe `times` (in the clip's
+Clip files (`animations/...json`) hold `bones` with keyframes (`position`, `rotation` as a
+quaternion `[x, y, z, w]`, `scale`; each may be left out for no offset, no rotation, unit scale),
+and optionally `duration`, `interpolation: "STEP"` and explicit keyframe `times` (in the clip's
 units). Keyframes straddling the ±180° wrap interpolate the short way.
 
 Bone names are the subject's named parts, plus `root` / `globalOffset` and `localOffset` for
@@ -233,7 +240,7 @@ and the renderer, and registers the entity; the animator asset does the rest.
 | `bones[].parent` | renders the bone inside another one (an invisible stand-in takes the vanilla slot); `position` is then relative to the parent |
 | `bones[].position` | pivot override; default: the vanilla rotation point |
 | `bones[].restRotation` | constant X, Y, Z degrees the vanilla model held the part at (`setRotationAngles` constants), applied before the animated rotation |
-| `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. |
+| `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. `hinge` puts the joints on an edge of the cut instead of its middle: `FRONT` / `BACK` (-Z / +Z) or `TOP` / `BOTTOM` (-Y / +Y). A joint hinges on the side opposite to where it bends (a knee at the front, an elbow at the back), so the segments stay joined when it bends. |
 | `variables[]` | animator variables from numeric entity fields: `field` (candidate names, the first found is used), optional `prevField` for partial-tick interpolation, `scale`, `offset`, `fn`, `add`, or a `product` of other variables |
 
 The shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
@@ -352,8 +359,49 @@ same thing.
   lists the types in precedence order, and the user moves them up and down like resource packs.
   Each move ranks the whole list (top = highest) and stores the ranks in the client config
   (`TypeRanks`, by type id); *Reset* puts them back to 0.
+* **Extension ranks.** Settings shows an *Extensions* button next to every entity whose types
+  have more than one extension. It lists them in order (top = on top); moving one ranks the
+  whole list and stores the ranks in the client config (`ExtensionRanks`, by extension id);
+  *Reset* puts them back to 0.
 * **On/off.** The existing per-bender switch (`Animated`) decides whether the chosen type animates
   at all. When the winning type's bender is off, the entity is rendered vanilla.
+
+## Extensions
+
+An extension adds layers on top of the animator of one type, instead of replacing it: a pack can
+change part of how an entity moves (the arms while it stands still, a tail) and combine with its
+own animation and with other packs' extensions. Extension files are found like type files, in
+`assets/<namespace>/bends/extensions/**.json` of any mod or resource pack:
+
+```json
+{
+  "id": "mobends_wave:wave",
+  "type": "mobends-player",
+  "animator": "mobends_wave:bends/animators/wave.json"
+}
+```
+
+| field | meaning |
+|---|---|
+| `id` | identifies the extension (ranks are stored by it); two with one id: the first one found wins, with a warning |
+| `type` | the id of the type it extends: a type file's `id`, or a built-in type's, which is its model's key (`mobends-player`, `mobends-minecraft:zombie`, ...) |
+| `animator` | an animator whose layers go on top of the type's animator (or, for a type without one, its model's) |
+
+* The extension's layers come after every layer of the animator it extends (including that
+  animator's parents), so they pose over it; their `core:fallthrough` nodes let it show through.
+* Extensions of one type are ordered like types (`TypeOrder`): by rank, higher first, then by
+  id; the first one goes on top, so its layers are added last. Every extension starts at rank 0;
+  only the user sets ranks (see *User control*).
+* An extension's animator is an animator of its own: it can `extends` another, and it sees its own
+  named expressions, not those of the animator it extends. Its conditions see every layer, so
+  `core:action` can follow the extended animator's nodes by their tags.
+* An extension targets a type, not an entity: it applies wherever that type is chosen, and not
+  when another type wins (see *Precedence*). A type with another model or animator needs its own
+  extensions.
+* An extension of a model that has no animator asset (an addon's own Java animation) is ignored,
+  with a warning.
+
+The example pack `misc/examples/wave-extension` makes players wave while they stand still.
 
 ## Rendering: swap per render
 

@@ -13,8 +13,6 @@ public class NetworkConfiguration
 
 	private final SharedConfig sharedConfig = new SharedConfig();
 	private final SharedProperty<Boolean> modelScalingAllowed;
-    private final SharedProperty<Boolean> bendsPacksAllowed;
-    private final SharedProperty<Boolean> movementLimited;
 
     public NetworkConfiguration()
     {
@@ -22,14 +20,6 @@ public class NetworkConfiguration
                 "modelScalingAllowed",
                 false,
                 "Does the server allow scaling of the player model more than the normal size?"));
-        sharedConfig.addProperty(bendsPacksAllowed = new SharedBooleanProp(
-                "bendsPacksAllowed",
-                true,
-                "Does the server allow the use of bends packs?"));
-        sharedConfig.addProperty(movementLimited = new SharedBooleanProp(
-                "movementLimited",
-                true,
-                "Does the server limit excessive bends pack transformation?"));
     }
 
     /**
@@ -38,8 +28,6 @@ public class NetworkConfiguration
 	public void onWorldJoin()
     {
         this.modelScalingAllowed.setValue(Minecraft.getMinecraft().isSingleplayer());
-        this.bendsPacksAllowed.setValue(true);
-        this.movementLimited.setValue(!Minecraft.getMinecraft().isSingleplayer());
     }
 
     public SharedConfig getSharedConfig()
@@ -51,15 +39,5 @@ public class NetworkConfiguration
 	{
 		return modelScalingAllowed.getValue();
 	}
-
-	public boolean areBendsPacksAllowed()
-    {
-	    return bendsPacksAllowed.getValue();
-    }
-
-    public boolean isMovementLimited()
-    {
-        return movementLimited.getValue();
-    }
 
 }

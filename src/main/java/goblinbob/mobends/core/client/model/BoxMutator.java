@@ -44,10 +44,8 @@ public class BoxMutator
 		if (modelRenderer.mirror)
 			texV = (int)(quadList[MutatedBox.BOTTOM].vertexPositions[1].texturePositionY * textureHeight);
 
-		float inflation1 = Math.abs((float) (original.posX1 - quadList[1].vertexPositions[0].vector3D.x));
-		float inflation2 = Math.abs((float) (original.posX2 - quadList[1].vertexPositions[0].vector3D.x));
-		float inflation = Math.min(inflation1, inflation2);
-		
+		float inflation = BoxFactory.inflationOf(original);
+
 		BoxFactory target = new BoxFactory(modelRenderer, original);
 		target.inflate(inflation, inflation, inflation);
 		return new BoxMutator(modelBase, modelRenderer, target, texU, texV);

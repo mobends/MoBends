@@ -24,7 +24,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 
 	public ModelPartTransform cape;
 
-	/** The procedural PlayerController is kept as the parity reference; the entity animates from its animator asset. */
 	private final KumoAnimatorController<PlayerData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/player.json");
 
 	public PlayerData(AbstractClientPlayer entity)

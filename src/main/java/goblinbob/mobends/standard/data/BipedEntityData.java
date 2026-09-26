@@ -6,7 +6,7 @@ import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.UseActionType;
-import goblinbob.mobends.standard.animation.bit.biped.item.BipedActionController;
+import goblinbob.mobends.standard.ItemActions;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -121,14 +121,14 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		{
 			case "useActionType":
 			{
-				UseActionType type = BipedActionController.getItemUseAction(entity.getActiveItemStack().getItem(),
-						BipedActionController.armPoseOf(entity, entity.getHeldItemMainhand()),
-						BipedActionController.armPoseOf(entity, entity.getHeldItemOffhand()));
+				UseActionType type = ItemActions.getItemUseAction(entity.getActiveItemStack().getItem(),
+						ItemActions.armPoseOf(entity, entity.getHeldItemMainhand()),
+						ItemActions.armPoseOf(entity, entity.getHeldItemOffhand()));
 				return type == null ? null : type.name();
 			}
 			case "attackActionType":
 			{
-				AttackActionType type = BipedActionController.getItemAttackAction(entity.getHeldItemMainhand().getItem());
+				AttackActionType type = ItemActions.getItemAttackAction(entity.getHeldItemMainhand().getItem());
 				return type == null ? null : type.name();
 			}
 			default:

@@ -23,9 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Replays a scenario with a KUMO animator in place of the entity's procedural controller. Everything
- * else (entity data counters, bone smoothing, timing) is shared with {@link ReferenceSession}, so
- * a comparison isolates the animator.
+ * Replays a scenario through a KUMO animator: the entity's data class updates from the scripted
+ * inputs, the animator poses it, and each frame's bones are captured.
  */
 public class KumoSession
 {
@@ -98,6 +97,12 @@ public class KumoSession
 
     public KumoSession(Scenario scenario, AnimatorTemplate template) throws MalformedKumoTemplateException
     {
+        this(scenario, template, java.util.Collections.<AnimatorTemplate>emptyList());
+    }
+
+    /** With the layers of {@code extensions} on top of the animator's, as an entity type's extensions add them. */
+    public KumoSession(Scenario scenario, AnimatorTemplate template, java.util.List<AnimatorTemplate> extensions) throws MalformedKumoTemplateException
+    {
         LabBootstrap.ensure();
         net.minecraft.entity.Entity.resetIds();
         this.scenario = scenario;
@@ -113,7 +118,7 @@ public class KumoSession
             scenario.setup.accept(this.data);
         }
         this.clock = new LabClock(scenario.fps);
-        this.animator = new KumoAnimatorState<>(template, INSTANCING);
+        this.animator = new KumoAnimatorState<>(template, extensions, INSTANCING);
     }
 
     public PoseTrace run() throws MalformedKumoTemplateException
@@ -133,7 +138,7 @@ public class KumoSession
         for (int t = 0; t < ticksStarted; t++)
         {
             int tick = clock.getTick() - ticksStarted + t + 1;
-            ReferenceSession.resetInputs(inputs);
+            inputs.reset();
             scenario.script.fill(tick, inputs);
             scripted.tick(inputs);
             data.updateClient();

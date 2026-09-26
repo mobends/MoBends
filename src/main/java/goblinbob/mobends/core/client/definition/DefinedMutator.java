@@ -241,6 +241,9 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 for (ModelBox box : vanilla.cubeList)
                 {
                     BoxFactory source = new BoxFactory(vanilla, box);
+                    // Keep the vanilla inflation (a villager's robe is its body box, scaled up by half a unit).
+                    float inflation = BoxFactory.inflationOf(box);
+                    source.inflate(inflation, inflation, inflation);
                     if (bone.split == null)
                     {
                         part.addBox(source.create(part));
@@ -301,7 +304,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             BoxFactory.TextureFace face = source.faces[f];
             faces[f] = new float[] { face.uPos, face.vPos, face.uSize, face.vSize };
         }
-        List<BoxSplitter.Segment> pieces = BoxSplitter.split(min, max, faces, bone.split.axisIndex(), bone.split.at);
+        List<BoxSplitter.Segment> pieces = BoxSplitter.split(min, max, faces, bone.split.axisIndex(), bone.split.at, bone.split.hingeAxis(), bone.split.hingeSide());
         for (int k = 0; k < pieces.size(); k++)
         {
             BoxSplitter.Segment piece = pieces.get(k);

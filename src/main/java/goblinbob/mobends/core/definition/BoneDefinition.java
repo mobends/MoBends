@@ -65,6 +65,10 @@ public class BoneDefinition
             }
             if (split.axis == null || "XYZ".indexOf(split.axis.toUpperCase()) < 0 || split.axis.length() != 1)
                 throw new MalformedKumoTemplateException("Bone '" + name + "': split 'axis' must be X, Y or Z.");
+            if (split.hinge != null && split.hingeAxis() < 0 && !"CENTER".equalsIgnoreCase(split.hinge))
+                throw new MalformedKumoTemplateException("Bone '" + name + "': split 'hinge' must be FRONT, BACK, TOP, BOTTOM or CENTER.");
+            if (split.hingeAxis() == split.axisIndex())
+                throw new MalformedKumoTemplateException("Bone '" + name + "': a split along " + split.axis + " can't hinge at its " + split.hinge.toLowerCase() + ", which is on the same axis.");
         }
         if (vanilla != null && vanilla.field == null && vanilla.index < 0)
             throw new MalformedKumoTemplateException("Bone '" + name + "': 'vanilla' needs a 'field' name and/or a box-list 'index'.");
@@ -87,10 +91,31 @@ public class BoneDefinition
         public float[] at;
         /** Names of the segments after the first, one per cut. */
         public List<String> names;
+        /**
+         * Where on the cut each joint sits: {@code FRONT} / {@code BACK} (the -Z / +Z edge),
+         * {@code TOP} / {@code BOTTOM} (the -Y / +Y edge), or {@code CENTER} (default). A joint that
+         * bends one way hinges at the edge on the other side (a knee at the front), so the segments
+         * stay joined there.
+         */
+        public String hinge;
 
         public int axisIndex()
         {
             return "XYZ".indexOf(axis.toUpperCase());
+        }
+
+        /** The axis the hinge edge is on (1 = Y, 2 = Z), or -1 for the center. */
+        public int hingeAxis()
+        {
+            String h = hinge == null ? "CENTER" : hinge.toUpperCase();
+            return h.equals("FRONT") || h.equals("BACK") ? 2 : h.equals("TOP") || h.equals("BOTTOM") ? 1 : -1;
+        }
+
+        /** The hinge's edge on {@link #hingeAxis()}: -1 for the low one (front, top), 1 for the high one. */
+        public int hingeSide()
+        {
+            String h = hinge == null ? "CENTER" : hinge.toUpperCase();
+            return h.equals("FRONT") || h.equals("TOP") ? -1 : h.equals("BACK") || h.equals("BOTTOM") ? 1 : 0;
         }
     }
 

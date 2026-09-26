@@ -23,6 +23,11 @@
         "field": "villagerArms",
         "index": 3
       },
+      "position": [
+        0,
+        3,
+        -1
+      ],
       "restRotation": [
         -42.97,
         0,
@@ -42,7 +47,8 @@
         ],
         "names": [
           "foreRightLeg"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     },
     {
@@ -58,7 +64,8 @@
         ],
         "names": [
           "foreLeftLeg"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     }
   ]

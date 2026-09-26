@@ -73,6 +73,22 @@ public class BoxFactory
 		}
 	}
 	
+	/**
+	 * How much a vanilla box is inflated ({@code addBox(..., scaleFactor)}): its {@code posX1..posX2}
+	 * are the bounds before inflating, only its vertices are inflated.
+	 */
+	public static float inflationOf(ModelBox box)
+	{
+		TexturedQuad[] quadList = box.quadList;
+		if (quadList == null)
+		{
+			return 0;
+		}
+		float inflation1 = Math.abs((float) (box.posX1 - quadList[1].vertexPositions[0].vector3D.x));
+		float inflation2 = Math.abs((float) (box.posX2 - quadList[1].vertexPositions[0].vector3D.x));
+		return Math.min(inflation1, inflation2);
+	}
+
 	public BoxFactory(float x, float y, float z, int dx, int dy, int dz, float delta)
 	{
 		this.min = new Vec3f(x - delta, y - delta, z - delta);

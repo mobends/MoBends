@@ -78,7 +78,7 @@ public class AddonAnimationRegistry
     }
 
     /**
-     * Registers a trigger condition that can be used in KUMO internal animators as well as BendsPacks.
+     * Registers a trigger condition that animators can use.
      * @param key The internal name of the trigger condition. (snake_case preferable)
      *            This is going to be automatically prefixed with the modid like so "modid:key"
      * @param factory The constructor of the trigger condition instance.
@@ -90,7 +90,7 @@ public class AddonAnimationRegistry
     }
 
     /**
-     * Registers a trigger condition that can be used in KUMO internal animators as well as BendsPacks.
+     * Registers a trigger condition that animators can use.
      * @param key The internal name of the trigger condition. (snake_case preferable)
      *            This is going to be automatically prefixed with the modid like so "modid:key"
      * @param condition The trigger condition instance.

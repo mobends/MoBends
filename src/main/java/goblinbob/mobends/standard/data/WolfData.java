@@ -32,7 +32,6 @@ public class WolfData extends LivingEntityData<EntityWolf>
     public ModelPartTransform foreLeg3;
     public ModelPartTransform foreLeg4;
 
-    /** The procedural WolfController is kept as the parity reference; the entity animates from its animator asset. */
     private final KumoAnimatorController<WolfData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/wolf.json");
 
     public WolfData(EntityWolf entity)

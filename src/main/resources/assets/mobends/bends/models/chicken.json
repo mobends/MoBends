@@ -61,7 +61,8 @@
         ],
         "names": [
           "foreRightLeg"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     },
     {
@@ -77,7 +78,8 @@
         ],
         "names": [
           "foreLeftLeg"
-        ]
+        ],
+        "hinge": "FRONT"
       }
     },
     {

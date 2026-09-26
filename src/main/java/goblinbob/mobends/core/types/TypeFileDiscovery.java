@@ -32,16 +32,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * Finds the type files, {@code assets/<namespace>/bends/types/**.json}, in every mod and enabled
- * resource pack. The resource manager of 1.12 can't list a folder, so the packs' folders and zips
- * are read directly. Order: mods, then resource packs from the bottom of the list to the top, then
+ * Finds the files of one kind ({@code assets/<namespace>/bends/<folder>/**.json}: types,
+ * extensions) in every mod and enabled resource pack. The resource manager of 1.12 can't list a
+ * folder, so the packs' folders and zips are read directly. Order: mods, then resource packs from the bottom of the list to the top, then
  * folders on the classpath no pack covered (a development environment's resources); files of one
  * pack by path.
  */
 final class TypeFileDiscovery
 {
 
-    private static final Pattern TYPE_PATH = Pattern.compile("assets/[^/]+/bends/types/.+\\.json");
 
     static final class TypeFile
     {
@@ -60,8 +59,10 @@ final class TypeFileDiscovery
     {
     }
 
-    static List<TypeFile> discover()
+    /** The files under {@code bends/<folder>/} of every pack, in the order described above. */
+    static List<TypeFile> discover(String folder)
     {
+        Pattern pattern = Pattern.compile("assets/[^/]+/bends/" + Pattern.quote(folder) + "/.+\\.json");
         List<TypeFile> files = new ArrayList<>();
         Set<File> visited = new HashSet<>();
         for (IResourcePack pack : packs())
@@ -75,31 +76,31 @@ final class TypeFileDiscovery
             {
                 if (root.isDirectory())
                 {
-                    readFolder(pack.getPackName(), root, files);
+                    readFolder(pack.getPackName(), root, pattern, files);
                 }
                 else if (root.isFile())
                 {
-                    readZip(pack.getPackName(), root, files);
+                    readZip(pack.getPackName(), root, pattern, files);
                 }
             }
             catch (IOException e)
             {
-                Core.LOG.log(Level.WARNING, "Could not look for types in " + pack.getPackName(), e);
+                Core.LOG.log(Level.WARNING, "Could not look for " + folder + " in " + pack.getPackName(), e);
             }
         }
-        for (File folder : classpathFolders())
+        for (File root : classpathFolders())
         {
-            if (!visited.add(canonical(folder)))
+            if (!visited.add(canonical(root)))
             {
                 continue;
             }
             try
             {
-                readFolder("classpath", folder, files);
+                readFolder("classpath", root, pattern, files);
             }
             catch (IOException e)
             {
-                Core.LOG.log(Level.WARNING, "Could not look for types in " + folder, e);
+                Core.LOG.log(Level.WARNING, "Could not look for " + folder + " in " + root, e);
             }
         }
         return files;
@@ -171,7 +172,7 @@ final class TypeFileDiscovery
         return null;
     }
 
-    private static void readFolder(String packName, File root, List<TypeFile> files) throws IOException
+    private static void readFolder(String packName, File root, Pattern pattern, List<TypeFile> files) throws IOException
     {
         Path rootPath = root.toPath();
         Path assets = rootPath.resolve("assets");
@@ -183,7 +184,7 @@ final class TypeFileDiscovery
         try (Stream<Path> walk = Files.walk(assets))
         {
             paths = walk.filter(Files::isRegularFile)
-                    .filter(path -> TYPE_PATH.matcher(relative(rootPath, path)).matches())
+                    .filter(path -> pattern.matcher(relative(rootPath, path)).matches())
                     .sorted()
                     .collect(Collectors.toList());
         }
@@ -198,7 +199,7 @@ final class TypeFileDiscovery
         return root.relativize(path).toString().replace(File.separatorChar, '/');
     }
 
-    private static void readZip(String packName, File zip, List<TypeFile> files) throws IOException
+    private static void readZip(String packName, File zip, Pattern pattern, List<TypeFile> files) throws IOException
     {
         try (ZipFile zipFile = new ZipFile(zip))
         {
@@ -207,7 +208,7 @@ final class TypeFileDiscovery
             while (it.hasMoreElements())
             {
                 ZipEntry entry = it.nextElement();
-                if (!entry.isDirectory() && TYPE_PATH.matcher(entry.getName()).matches())
+                if (!entry.isDirectory() && pattern.matcher(entry.getName()).matches())
                 {
                     entries.add(entry);
                 }
