@@ -16,9 +16,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw"
-              },
+              "angle": "headYaw",
               "space": "POST",
               "snap": true
             },
@@ -26,9 +24,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch"
-              },
+              "angle": "headPitch",
               "space": "POST",
               "snap": true
             },
@@ -36,9 +32,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Z",
-              "angle": {
-                "variable": "interestedAngle"
-              },
+              "angle": "interestedAngle",
               "space": "POST",
               "snap": true
             },
@@ -46,9 +40,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Z",
-              "angle": {
-                "variable": "shakeAngleHead"
-              },
+              "angle": "shakeAngleHead",
               "space": "POST",
               "snap": true
             },
@@ -56,9 +48,7 @@
               "driver": "core:axis_rotate",
               "bone": "mane",
               "axis": "Z",
-              "angle": {
-                "variable": "shakeAngleMane"
-              },
+              "angle": "shakeAngleMane",
               "space": "POST",
               "snap": true
             },
@@ -66,9 +56,7 @@
               "driver": "core:axis_rotate",
               "bone": "tail",
               "axis": "Z",
-              "angle": {
-                "variable": "shakeAngleTail"
-              },
+              "angle": "shakeAngleTail",
               "space": "POST",
               "snap": true
             },
@@ -76,9 +64,7 @@
               "driver": "core:axis_rotate",
               "bone": "tail",
               "axis": "Z",
-              "angle": {
-                "variable": "tailWag"
-              },
+              "angle": "tailWag",
               "space": "POST",
               "snap": true
             },
@@ -87,8 +73,10 @@
               "bone": "tail",
               "axis": "X",
               "angle": {
-                "variable": "tailRotation",
-                "offset": -90
+                "add": [
+                  "tailRotation",
+                  -90
+                ]
               },
               "space": "POST",
               "snap": true

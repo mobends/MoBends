@@ -9,11 +9,13 @@ smooths them. Everything the old procedural controllers did is expressed with th
 {
   "formatVersion": 2,
   "extends": "mobends:bends/animators/biped.json",
+  "expressions": { ... },
   "layers": [ ... ]
 }
 ```
 
-`extends` puts a parent animator's layers first. Format 1 files (node arrays, index targets)
+`extends` puts a parent animator's layers first. `expressions` declares named expressions (see
+*Expressions*); layers and nodes can declare their own too. Format 1 files (node arrays, index targets)
 still load; the wolf's clip layers are one.
 
 ## Layers
@@ -28,6 +30,7 @@ produces the layer's pose, which composites onto the result.
 | `additiveSpace` | for additive layers: `"PRE"` / `"POST"`, or `{"default": "PRE", "body": "POST"}` |
 | `when` | a condition; while it does not hold the layer writes nothing and its clocks pause |
 | `variables` | layer variables and their initial values, e.g. `{"combo": 0}` |
+| `expressions` | named expressions visible to the layer's nodes (see *Expressions*) |
 | `damping` | default damping for the bones the layer writes (nodes and items override) |
 | `mask` | an armature mask (legacy) |
 | `mirror` | `{"when": <condition>, "pairs": [["leftArm","rightArm"], ...], "negate": ["headYaw"]}`: the rule items with `"mirror"` / `"swapSides"` follow |
@@ -49,6 +52,7 @@ produces the layer's pose, which composites onto the result.
 ```
 
 * `tags` are the layer's *actions* (bends packs and `core:action` see them).
+* `expressions` declares named expressions visible to the node's items (see *Expressions*).
 * Connections are checked before the node is posed, so a state change shows the same frame.
   Every condition is evaluated each frame (edge triggers stay fresh); the first one met fires.
   A connection's `set` assigns layer variables when it fires. `transitionDuration` crossfades
@@ -65,7 +69,7 @@ A node's `pose` is a stack; later items compose over earlier ones. Common fields
 |---|---|
 | `space` | `OVERRIDE` (replace), `PRE` (rotate in the parent's space, the `rotate*` idiom), `POST` (the bone's own space, the `localRotate*` idiom). Default: OVERRIDE for clips, PRE for drivers. |
 | `when` | a condition; the item is skipped while it does not hold |
-| `damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; a value source is allowed; unlisted bones keep their rate (a bit that never called `setSmoothness`) |
+| `damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate (a bit that never called `setSmoothness`) |
 | `vectorModes` | for offset vectors: `SLIDE` (tween restarted when the target changes), `RETARGET` (exponential approach re-aimed every frame), `SNAP` |
 | `snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations negated, the layer's `negate` inputs negated) |
@@ -74,15 +78,27 @@ A node's `pose` is a stack; later items compose over earlier ones. Common fields
 ### Clips
 
 ```json
-{"animationKey": "mobends:bends/animations/biped/walk_base.json", "time": {"variable": "limbSwing", "scale": 0.6662},
- "weight": {"variable": "limbSwingAmount"}, "bones": ["leftLeg", "rightLeg"], "duration": 6.283, "loop": true}
+{"animationKey": "mobends:bends/animations/biped/walk_base.json",
+ "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+ "weight": "limbSwingAmount", "bones": ["leftLeg", "rightLeg"]}
 ```
 
-`time`: `"elapsed"` (default: ticks since the node started), a number (elapsed × speed), or a
-variable with `scale` / `offset`. `weight` scales the rotation angles and offsets. `bones`
-restricts the clip. Clip files (`animations/...json`) hold `bones` with keyframes (position,
-rotation, scale), and optionally `duration`, `loop`, `interpolation: "STEP"` and explicit
-keyframe `times`. Keyframes straddling the ±180° wrap interpolate the short way.
+* `frame` (an expression) is where in the clip it is, in the clip's own units: from 0 to
+  `clipLength` (the clip file's `duration`, or its keyframe count − 1 if it has none). A frame
+  before 0 or past `clipLength` holds the first or last keyframe; a clip loops by wrapping its
+  frame with `mod`, as above.
+* `duration` (optional, in ticks) is how long the item runs, whatever its frame does: the clip
+  is finished (`core:animation_finished`) once `elapsed` reaches it. Without one it never
+  finishes.
+* The default `frame` is `{"mul": [{"div": ["elapsed", "duration"]}, "clipLength"]}` with a
+  `duration` (the clip is fitted to it), and `"elapsed"` without one (a unit per tick).
+* Inside `frame`, `clipLength` and (when the item has one) `duration` are names like any other.
+  `{"mod": ["elapsed", "clipLength"]}` with `"duration": 30` loops for 30 ticks, then finishes.
+
+`weight` (an expression) scales the rotation angles and offsets. `bones` restricts the clip.
+Clip files (`animations/...json`) hold `bones` with keyframes (position, rotation, scale), and
+optionally `duration`, `interpolation: "STEP"` and explicit keyframe `times` (in the clip's
+units). Keyframes straddling the ±180° wrap interpolate the short way.
 
 Bone names are the subject's named parts, plus `root` / `globalOffset` and `localOffset` for
 the entity-level offset vectors (their keyframe positions are the vector).
@@ -91,12 +107,12 @@ the entity-level offset vectors (their keyframe positions are the vector).
 
 | driver | fields |
 |---|---|
-| `core:axis_rotate` | `bone`, `axis` (`X`/`Y`/`Z`), `angle` (value source, degrees) |
-| `core:vector` | `bone`, `x`, `y`, `z` (value sources; an axis left out keeps the bone's current target) |
+| `core:axis_rotate` | `bone`, `axis` (`X`/`Y`/`Z`), `angle` (expression, degrees) |
+| `core:vector` | `bone`, `x`, `y`, `z` (expressions; an axis left out keeps the bone's current target) |
 | `core:offset` | `bone`, `x`, `y`, `z`: a bone's position offset |
 | `core:ramp` | `name`, `speed`, `downSpeed` (null = speed, 0 = never down), `when` (its up/down switch), `initial`, `readBeforeAdvance`: a node variable moving 0..1 |
-| `core:accumulate` | `name`, `rate` (value source per tick), `initial`, `min`, `max`: a node variable that integrates |
-| `core:set` | `variable`, `value`, `scope` (`layer` / `node`): assigns every frame the item is evaluated |
+| `core:accumulate` | `name`, `rate` (expression, per tick), `initial`, `min`, `max`: a node variable that integrates |
+| `core:set` | `variable`, `value` (expression), `scope` (`layer` / `node`): assigns every frame the item is evaluated |
 | `mobends:cape` | the player's cape physics |
 | `mobends:sword_trail` | `add`, `resetOnEnter`, `resetEachFrame`, `velocity`: feeds the sword trail |
 | `mobends:spider_idle_legs`, `mobends:spider_moving_legs` | the spider's inverse-kinematics gaits (see the templates' fields) |
@@ -104,16 +120,66 @@ the entity-level offset vectors (their keyframe positions are the vector).
 Drivers that compute something for later items publish it as a node variable
 (`groundLevel`).
 
-### Value sources
+### Expressions
 
-A number, or `{"variable": "headPitch", "scale": 0.5, "offset": -90, "min": -160, "max": 0}`.
-The clamp applies after scale and offset unless `clampFirst` is set or an easing is used
-(`ease`: `pow`, `ease_in`, `ease_out`, `ease_in_out`, with `power`), in which case the raw
-variable is clamped and shaped first. An optional `fn` (`sin`, `cos`, `mcsin`, `mccos`, `abs`)
-is applied to the result, then `mul` and `add`.
+Every number an item computes (an angle, a weight, a vector axis, a damping rate, ...) is an
+expression: a JSON tree, so tools can read and write it without a parser.
 
-Variables resolve through the node scope, the layer scope, then the subject (see the data
-classes' `registerVariable` calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...).
+| form | meaning |
+|---|---|
+| a number | a constant: `45` |
+| a string | a name: the innermost named expression called that, or else a variable: `"headYaw"` |
+| an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}` |
+
+Operations nest freely:
+
+```json
+"angle": {"add": [
+  {"mul": [{"sin": [{"mul": ["ticks", 0.1]}]}, 6]},
+  {"mul": [{"sin": [{"mul": ["ticks", 0.37]}]}, 2]},
+  -85
+]}
+```
+
+| operation | arguments |
+|---|---|
+| `add`, `sub`, `mul`, `div` | two or more, folded left to right: `{"sub": [a, b, c]}` is (a − b) − c |
+| `min`, `max` | two or more |
+| `mod`, `pow`, `atan2` | two: `{"atan2": [y, x]}`; `mod` is floored, taking the divisor's sign (`{"mod": [-1, 20]}` is 19) |
+| `neg`, `abs`, `sqrt`, `floor`, `ceil` | one |
+| `sin`, `cos` | one, in radians; `mcsin`, `mccos` use Minecraft's sine table, like vanilla models |
+| `clamp` | `[value, min, max]` |
+| `lerp` | `[from, to, t]` |
+| `easeIn`, `easeOut`, `easeInOut` | `[t, power]`: shapes a 0..1 value |
+
+Arithmetic is in single precision (`float`). Mistakes (an unknown operation, a wrong number of
+arguments, an object with more than one key) are reported when the animator loads.
+
+**Named expressions** are declared in an `expressions` object on the animator, a layer or a node,
+and used by name like variables:
+
+```json
+"expressions": {
+  "sway": {"mul": [{"sin": [{"mul": ["ticks", 0.1]}]}, 6]},
+  "reach": {"add": ["sway", -85]}
+}
+```
+
+* A name is visible in the scope that declares it and in every scope inside it (animator →
+  layer → node); an inner declaration shadows an outer one, and also shadows a variable of the
+  same name.
+* A named expression is resolved where it is declared, not where it is used: `reach` above uses
+  the `sway` of its own scope even if a node declares another `sway`.
+* An animator that `extends` another sees the parent's named expressions and can shadow them for
+  its own layers; the parent's layers keep using the parent's.
+* Names in one scope can use each other in any order; a name that depends on itself is an error.
+  Every declaration is checked when the animator loads, used or not.
+
+`elapsed` is built in: the ticks since the current node started (a named expression can
+shadow it). A name nothing declares is a **variable**, resolved every frame through the node scope (ramps,
+accumulators), the layer scope, then the subject (see the data classes' `registerVariable`
+calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). A layer's mirror rule `negate`s
+variables, not named expressions; expressions built from a negated variable follow it.
 
 ### Conditions
 

@@ -12,8 +12,19 @@
 - When several types apply to the same entity, Settings shows an *Order* button for it: move the
   types up and down like resource packs to decide which one wins.
 - Addons can add their own selector conditions (`AddonAnimationRegistry.registerSelectorCondition`).
+- Animator values (angles, weights, offsets, damping rates, ...) are expressions: JSON trees of
+  operations such as `{"add": [{"mul": ["limbSwing", 0.6662]}, 3.14]}`, which can be nested
+  freely, and named expressions declared on the animator, a layer or a node. See
+  `misc/kumo-format.md` ("Expressions").
 
 ### Changed
+
+- In animators, a clip's `time` and `loop` are replaced by `frame` (an expression: where in the
+  clip it is) and `duration` (how long the clip runs, in ticks). A clip loops by wrapping its
+  frame, `{"mod": [..., "clipLength"]}`, and holds its last frame otherwise; it counts as finished
+  once its duration has passed. `elapsed` (ticks since the node started) can be used in any
+  expression. Clip files no longer have `loop`. Custom animators need updating; see
+  `misc/kumo-format.md` ("Clips").
 
 - Entities that share a renderer (every player, for one) can now look different: one can be
   animated while the next is vanilla, or each can have its own model or animator. Previously a
@@ -38,6 +49,10 @@
   `postRefresh` and `getOrMakeData` are gone. Mo' Bends captures a renderer's vanilla state
   before the first mutation and puts it back itself.
 - The `registerNewEntity(..., IPreviewer, ...)` overloads are gone, along with the previewers.
+- `ValueSource` and `ValueTemplate` are replaced by `Expression` and `ExpressionTemplate`
+  (`core.kumo.expr`). A custom driver compiles its template's expressions with
+  `Expression.compile(template.field, context.getExpressionScope(), fallback)`, and `ItemEffects`
+  now takes the expression scope as its first argument.
 
 ### Removed
 

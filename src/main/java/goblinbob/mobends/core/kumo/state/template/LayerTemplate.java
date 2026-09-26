@@ -29,6 +29,9 @@ public class LayerTemplate
     /** Left-right mirroring rule for items that set {@code "mirror": true}. */
     public MirrorTemplate mirror;
 
+    /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
+    public java.util.Map<String, goblinbob.mobends.core.kumo.expr.ExpressionTemplate> expressions;
+
     public enum LayerMode
     {
         OVERRIDE,

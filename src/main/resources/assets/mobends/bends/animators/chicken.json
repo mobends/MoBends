@@ -13,9 +13,16 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/chicken/idle.json",
-              "time": {
-                "variable": "ticks",
-                "scale": 0.09
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "ticks",
+                      0.09
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
               "damping": {
                 "head": 0.5
@@ -25,11 +32,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -39,22 +42,14 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "rightWing",
               "axis": "Z",
-              "angle": {
-                "variable": "wingAngle",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "wingAngle",
               "space": "OVERRIDE",
               "damping": {
                 "rightWing": 1
@@ -65,9 +60,10 @@
               "bone": "leftWing",
               "axis": "Z",
               "angle": {
-                "variable": "wingAngle",
-                "scale": -1,
-                "offset": 0
+                "mul": [
+                  "wingAngle",
+                  -1
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -111,13 +107,18 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/chicken/walk.json",
-              "time": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
-              "weight": {
-                "variable": "limbSwingAmount"
-              },
+              "weight": "limbSwingAmount",
               "damping": {
                 "rightLeg": 0.8,
                 "foreRightLeg": 0.8,
@@ -129,11 +130,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -143,22 +140,14 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "rightWing",
               "axis": "Z",
-              "angle": {
-                "variable": "wingAngle",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "wingAngle",
               "space": "OVERRIDE",
               "damping": {
                 "rightWing": 1
@@ -169,9 +158,10 @@
               "bone": "leftWing",
               "axis": "Z",
               "angle": {
-                "variable": "wingAngle",
-                "scale": -1,
-                "offset": 0
+                "mul": [
+                  "wingAngle",
+                  -1
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -226,11 +216,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -240,22 +226,14 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "rightWing",
               "axis": "Z",
-              "angle": {
-                "variable": "wingAngle",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "wingAngle",
               "space": "OVERRIDE",
               "damping": {
                 "rightWing": 1
@@ -266,9 +244,10 @@
               "bone": "leftWing",
               "axis": "Z",
               "angle": {
-                "variable": "wingAngle",
-                "scale": -1,
-                "offset": 0
+                "mul": [
+                  "wingAngle",
+                  -1
+                ]
               },
               "space": "OVERRIDE",
               "damping": {

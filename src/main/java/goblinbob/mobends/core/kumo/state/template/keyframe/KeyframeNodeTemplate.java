@@ -35,6 +35,9 @@ public class KeyframeNodeTemplate
     /** Layer variables to set when the node is entered. */
     public java.util.Map<String, Float> set;
 
+    /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
+    public java.util.Map<String, goblinbob.mobends.core.kumo.expr.ExpressionTemplate> expressions;
+
     public String getType()
     {
         return type;

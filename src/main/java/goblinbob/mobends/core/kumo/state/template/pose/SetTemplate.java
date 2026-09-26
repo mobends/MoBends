@@ -1,6 +1,6 @@
 package goblinbob.mobends.core.kumo.state.template.pose;
 
-import goblinbob.mobends.core.kumo.state.template.ValueTemplate;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 /**
  * {@code "driver": "core:set"}: assigns a layer (or node) variable every frame while the item's
@@ -11,8 +11,8 @@ public class SetTemplate extends DriverItemTemplate
 
     public String variable;
 
-    /** The value to assign; a number or a value source. */
-    public ValueTemplate value;
+    /** The value to assign; an expression. */
+    public ExpressionTemplate value;
 
     /** "layer" (default) or "node". */
     public String scope = "layer";

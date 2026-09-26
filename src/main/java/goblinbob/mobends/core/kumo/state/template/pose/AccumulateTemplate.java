@@ -1,6 +1,6 @@
 package goblinbob.mobends.core.kumo.state.template.pose;
 
-import goblinbob.mobends.core.kumo.state.template.ValueTemplate;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 /**
  * {@code "driver": "core:accumulate"}: a node-local variable that grows by {@code rate} per tick
@@ -11,8 +11,8 @@ public class AccumulateTemplate extends DriverItemTemplate
 
     public String name;
 
-    /** Growth per tick; a number or a value source (e.g. a decaying ramp). */
-    public ValueTemplate rate;
+    /** Growth per tick; an expression (e.g. a decaying ramp). */
+    public ExpressionTemplate rate;
 
     public float initial = 0;
 

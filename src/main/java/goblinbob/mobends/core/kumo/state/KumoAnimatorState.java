@@ -28,9 +28,18 @@ public class KumoAnimatorState<S extends IKumoSubject>
 
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
-        for (LayerTemplate template : resolveLayers(animatorTemplate, dataProvider, 0))
+        List<LayerTemplate> layers = new ArrayList<>();
+        List<IKumoInstancingContext> layerContexts = new ArrayList<>();
+        collectLayers(animatorTemplate, dataProvider, 0, layers, layerContexts);
+        if (layers.isEmpty())
         {
-            layerStates.add(ILayerState.createFromTemplate(dataProvider, skeleton, template));
+            throw new MalformedKumoTemplateException("No layers were specified");
+        }
+        for (int i = 0; i < layers.size(); i++)
+        {
+            LayerTemplate template = layers.get(i);
+            IKumoInstancingContext layerContext = layerContexts.get(i).withExpressions(template.expressions);
+            layerStates.add(ILayerState.createFromTemplate(layerContext, skeleton, template));
         }
         context.layers = layerStates;
 
@@ -38,10 +47,18 @@ public class KumoAnimatorState<S extends IKumoSubject>
         pose = new Pose(skeleton, true);
     }
 
-    /** Parent layers (via "extends") first, then this animator's own. */
-    private static List<LayerTemplate> resolveLayers(AnimatorTemplate template, IKumoInstancingContext context, int depth) throws MalformedKumoTemplateException
+    /**
+     * Collects the parent's layers (via "extends") first, then this animator's own, each with the
+     * context it is instanced in: it sees the named expressions of the animator that declares it and
+     * of that animator's parents, so a child animator can use and shadow its parent's, never the
+     * other way around.
+     *
+     * @return The context of this animator's own declarations.
+     */
+    private static IKumoInstancingContext collectLayers(AnimatorTemplate template, IKumoInstancingContext context, int depth,
+                                                        List<LayerTemplate> layers, List<IKumoInstancingContext> contexts) throws MalformedKumoTemplateException
     {
-        List<LayerTemplate> layers = new ArrayList<>();
+        IKumoInstancingContext animatorContext = context;
         if (template.extendsAnimator != null)
         {
             if (depth > 8)
@@ -53,17 +70,18 @@ public class KumoAnimatorState<S extends IKumoSubject>
             {
                 throw new MalformedKumoTemplateException(String.format("Cannot resolve the animator to extend: '%s'.", template.extendsAnimator));
             }
-            layers.addAll(resolveLayers(parent, context, depth + 1));
+            animatorContext = collectLayers(parent, context, depth + 1, layers, contexts);
         }
+        animatorContext = animatorContext.withExpressions(template.expressions);
         if (template.layers != null)
         {
-            layers.addAll(template.layers);
+            for (LayerTemplate layer : template.layers)
+            {
+                layers.add(layer);
+                contexts.add(animatorContext);
+            }
         }
-        if (layers.isEmpty())
-        {
-            throw new MalformedKumoTemplateException("No layers were specified");
-        }
-        return layers;
+        return animatorContext;
     }
 
     public void update(S subject, float deltaTime) throws MalformedKumoTemplateException

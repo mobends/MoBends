@@ -69,7 +69,7 @@ public class KeyframeLayerState implements ILayerState
             {
                 nodeTemplate.name = Integer.toString(i);
             }
-            INodeState node = KeyframeNodeRegistry.INSTANCE.createFromTemplate(context, skeleton, layerTemplate, nodeTemplate);
+            INodeState node = KeyframeNodeRegistry.INSTANCE.createFromTemplate(context.withExpressions(nodeTemplate.expressions), skeleton, layerTemplate, nodeTemplate);
             nodeStates.add(node);
             if (nodesByName.put(nodeTemplate.name, node) != null)
             {

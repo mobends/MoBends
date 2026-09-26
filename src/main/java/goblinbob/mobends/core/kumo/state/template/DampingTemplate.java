@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state.template;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class DampingTemplate
     public Map<String, float[]> entries = new HashMap<>();
 
     /** Per bone: a rate driven by a variable (e.g. the falling bit ramps its smoothness). */
-    public Map<String, ValueTemplate> dynamic = new HashMap<>();
+    public Map<String, ExpressionTemplate> dynamic = new HashMap<>();
 
     public float[] forBone(String bone)
     {

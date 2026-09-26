@@ -501,3 +501,48 @@ walking player: the arms are held forward, the legs still walk. 94 lab tests pas
 
 **Not verified here (needs the game).** Type discovery in the dev environment and in a packaged
 jar, the per-render swap with several players on screen, the first-person hand, the Order screen.
+
+## 16. Expressions
+
+**What.** Value sources (one variable through a fixed scale / offset / clamp / ease / fn / mul /
+add pipeline, reordered by flags) are replaced by expressions (`core/kumo/expr`): JSON trees
+where a number is a constant, a string is a name, and an object with one key is an operation
+over a list of arguments (`add`, `sub`, `mul`, `div`, `min`, `max`, `mod`, `pow`, `atan2`,
+`neg`, `abs`, `sqrt`, `floor`, `ceil`, `sin`, `cos`, `mcsin`, `mccos`, `clamp`, `lerp`,
+`easeIn`, `easeOut`, `easeInOut`). Named expressions are declared on the animator, a layer or
+a node and scoped lexically (`ExpressionScope`); the instancing context carries the scope down
+(`IKumoInstancingContext.withExpressions`). A clip's `time` kept its own form (until step 17).
+
+`gen_animators.ts` still builds values with the old fields and converts each to a tree on the way
+out, in the order the fields always meant; `wolf.json` (hand-written) and the example pack were
+converted the same way. Also: `core:axis_rotate` and `core:vector` no longer check `when`
+themselves (the node does, like for every item; `core:vector` evaluated it twice).
+
+**Verified.** The KUMO traces of all 39 scenarios are bit-identical before and after
+(`gradle compare`, diffed trace by trace). `ExpressionTest` covers every operation, the error
+messages, lexical scoping, cycles, and animator / layer / node / `extends` scopes on a running
+player. 100 lab tests pass.
+
+## 17. Clip frames
+
+**What.** A clip item's `time` (a base, elapsed or one variable, times `scale` plus `offset`) and
+`loop` are replaced by `frame`, an expression in the clip's own units (0 to `clipLength`), and
+`duration`, how long the item runs in ticks. A frame outside the clip holds its first or last
+keyframe; looping is `{"mod": [frame, "clipLength"]}`. `duration` alone decides when a clip is
+finished (`core:animation_finished`), so a clip driven by a variable can finish too, and without
+one a clip never finishes. The default frame fits the clip to the duration
+(`elapsed / duration * clipLength`), or plays a unit per tick without one. `clipLength` and
+`duration` are names inside `frame`; `elapsed` (the node's ticks) is a name in every expression.
+`mod` is now floored, so wrapped frames stay in range for negative inputs. `loop` is gone from
+clip files, the baker and the generator; the item-level `duration` no longer overrides the clip's
+length. `TimeSource`, `TimeTemplate` and their serializer are removed.
+
+`gen_animators.ts` writes frames directly (`looped(scaled("limbSwing", 0.6662))`). No generated
+animator used the old item-level `duration` / `loop` overrides, and the one animator relying on
+`core:animation_finished` (`wolf_clips.json`) uses legacy nodes, which are unchanged.
+
+**Verified.** All 39 scenarios' KUMO traces match the previous ones to within 7×10⁻⁶ (the last
+digit of the six-decimal traces: `mod` wraps a frame in a slightly different float order than
+the old fraction wrap); `gradle test`'s parity gate is 0.1°. `ClipFrameTest` covers frames in
+clip units, holding the ends, `clipLength` / `duration` names, floored `mod`, the default frame
+with and without a duration, and finishing. 105 lab tests pass.

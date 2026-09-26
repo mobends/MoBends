@@ -1,7 +1,10 @@
 package goblinbob.mobends.core.kumo.pose;
 
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
+import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,14 +25,10 @@ public class ItemEffects
     private final IVectorSink.Mode[] modes;
     private final boolean snap;
     private final int[] dynamicSlots;
-    private final ValueSource[] dynamicValues;
+    private final Expression[] dynamicValues;
 
-    public ItemEffects(Skeleton skeleton, DampingTemplate damping, Map<String, IVectorSink.Mode> vectorModes)
-    {
-        this(skeleton, damping, vectorModes, false);
-    }
-
-    public ItemEffects(Skeleton skeleton, DampingTemplate damping, Map<String, IVectorSink.Mode> vectorModes, boolean snap)
+    /** @param scope Where the damping's expressions are compiled. */
+    public ItemEffects(ExpressionScope scope, Skeleton skeleton, DampingTemplate damping, Map<String, IVectorSink.Mode> vectorModes, boolean snap) throws MalformedKumoTemplateException
     {
         this.snap = snap;
         List<Integer> slots = new ArrayList<>();
@@ -60,24 +59,17 @@ public class ItemEffects
         defaultDamping = fallback;
 
         List<Integer> dynSlots = new ArrayList<>();
-        List<ValueSource> dynValues = new ArrayList<>();
+        List<Expression> dynValues = new ArrayList<>();
         if (damping != null)
         {
-            for (Map.Entry<String, goblinbob.mobends.core.kumo.state.template.ValueTemplate> entry : damping.dynamic.entrySet())
+            for (Map.Entry<String, goblinbob.mobends.core.kumo.expr.ExpressionTemplate> entry : damping.dynamic.entrySet())
             {
                 dynSlots.add(skeleton.indexOf(entry.getKey()));
-                try
-                {
-                    dynValues.add(ValueSource.fromTemplate(entry.getValue(), ValueSource.ONE));
-                }
-                catch (goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException e)
-                {
-                    throw new IllegalArgumentException(e);
-                }
+                dynValues.add(Expression.compile(entry.getValue(), scope, Expression.ONE));
             }
         }
         dynamicSlots = new int[dynSlots.size()];
-        dynamicValues = new ValueSource[dynSlots.size()];
+        dynamicValues = new Expression[dynSlots.size()];
         for (int k = 0; k < dynamicSlots.length; k++)
         {
             dynamicSlots[k] = dynSlots.get(k);

@@ -1,14 +1,14 @@
 package goblinbob.mobends.core.kumo.state.template.pose;
 
-import goblinbob.mobends.core.kumo.state.template.ValueTemplate;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
-/** {@code "driver": "core:offset"}: sets a bone's position offset (model units) from value sources. */
+/** {@code "driver": "core:offset"}: sets a bone's position offset (model units) from expressions. */
 public class OffsetTemplate extends DriverItemTemplate
 {
 
     public String bone;
-    public ValueTemplate x;
-    public ValueTemplate y;
-    public ValueTemplate z;
+    public ExpressionTemplate x;
+    public ExpressionTemplate y;
+    public ExpressionTemplate z;
 
 }

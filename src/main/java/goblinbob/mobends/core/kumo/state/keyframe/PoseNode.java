@@ -3,6 +3,7 @@ package goblinbob.mobends.core.kumo.state.keyframe;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.pose.*;
 import goblinbob.mobends.core.kumo.state.ConnectionState;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
@@ -158,7 +159,7 @@ public class PoseNode implements INodeState
     private static IPoseItem createPlainItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
-        ItemEffects effects = new ItemEffects(skeleton, template.damping, template.vectorModes, template.snap);
+        ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.damping, template.vectorModes, template.snap);
 
         if (template instanceof ClipItemTemplate)
         {
@@ -166,17 +167,26 @@ public class PoseNode implements INodeState
             KeyframeAnimation animation = requireAnimation(context, clipTemplate.animationKey);
             ClipBinding binding = new ClipBinding(animation, skeleton, clipTemplate.bones);
 
-            float duration = clipTemplate.duration != null ? clipTemplate.duration
-                    : animation.duration != null ? animation.duration
-                    : Math.max(binding.keyframeCount - 1, 0);
-            boolean loop = clipTemplate.loop != null ? clipTemplate.loop
-                    : animation.loop != null ? animation.loop : false;
+            float clipLength = animation.duration != null ? animation.duration : Math.max(binding.keyframeCount - 1, 0);
+            Map<String, Expression> clipValues = new HashMap<>();
+            clipValues.put("clipLength", Expression.constant(clipLength));
+            float duration = Float.NaN;
+            if (clipTemplate.duration != null)
+            {
+                duration = clipTemplate.duration;
+                if (!(duration >= 0))
+                {
+                    throw new MalformedKumoTemplateException("The duration of a clip can't be negative: " + clipTemplate.animationKey);
+                }
+                clipValues.put("duration", Expression.constant(duration));
+            }
+            Expression frame = clipTemplate.frame == null ? null
+                    : Expression.compile(clipTemplate.frame.json, context.getExpressionScope().withValues(clipValues));
 
-            return new ClipPoseItem(binding,
-                    TimeSource.fromTemplate(clipTemplate.time),
-                    ValueSource.fromTemplate(clipTemplate.weight, ValueSource.ONE),
+            return new ClipPoseItem(binding, frame,
+                    Expression.compile(clipTemplate.weight, context.getExpressionScope(), Expression.ONE),
                     template.space,
-                    when, duration, loop, spaces, effects.isEmpty() ? null : effects);
+                    when, clipLength, duration, spaces, effects.isEmpty() ? null : effects);
         }
 
         if (template instanceof DriverItemTemplate)

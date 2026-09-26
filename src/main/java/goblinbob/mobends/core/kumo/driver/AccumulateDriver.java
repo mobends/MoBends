@@ -3,7 +3,7 @@ package goblinbob.mobends.core.kumo.driver;
 import goblinbob.mobends.core.kumo.pose.IPoseItem;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
-import goblinbob.mobends.core.kumo.pose.ValueSource;
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -14,13 +14,13 @@ public class AccumulateDriver implements IPoseItem
 {
 
     private final String name;
-    private final ValueSource rate;
+    private final Expression rate;
     private final float initial;
     private final float min;
     private final float max;
     private float value;
 
-    public AccumulateDriver(String name, ValueSource rate, float initial, float min, float max)
+    public AccumulateDriver(String name, Expression rate, float initial, float min, float max)
     {
         this.name = name;
         this.rate = rate;
@@ -35,7 +35,7 @@ public class AccumulateDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:accumulate needs a 'name' and a 'rate'.");
         }
-        return new AccumulateDriver(template.name, ValueSource.fromTemplate(template.rate, null), template.initial, template.min, template.max);
+        return new AccumulateDriver(template.name, Expression.compile(template.rate, context.getExpressionScope(), null), template.initial, template.min, template.max);
     }
 
     @Override

@@ -25,13 +25,11 @@ public class ClipBuilder
 {
     private final LinkedHashMap<String, List<Keyframe>> bones = new LinkedHashMap<>();
     private Float duration;
-    private Boolean loop;
     private String interpolation;
     private int frames = 0;
     private final List<Float> times = new ArrayList<>();
 
     public ClipBuilder duration(float duration) { this.duration = duration; return this; }
-    public ClipBuilder loop(boolean loop) { this.loop = loop; return this; }
     public ClipBuilder step() { this.interpolation = "STEP"; return this; }
 
     /** Appends one keyframe at an explicit time. */
@@ -125,7 +123,6 @@ public class ClipBuilder
             animation.bones.put(entry.getKey(), bone);
         }
         animation.duration = duration;
-        animation.loop = loop;
         animation.interpolation = interpolation;
         if (!times.isEmpty() && times.size() == frames)
         {

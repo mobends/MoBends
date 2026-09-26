@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.kumo.state.template.pose;
 
-import goblinbob.mobends.core.kumo.state.template.TimeTemplate;
-import goblinbob.mobends.core.kumo.state.template.ValueTemplate;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 import java.util.List;
 
@@ -10,19 +9,20 @@ public class ClipItemTemplate extends PoseItemTemplate
 
     public String animationKey;
 
-    /** Playback time source; null = the node's elapsed ticks. */
-    public TimeTemplate time;
+    /**
+     * Where in the clip it is, in the clip's own units (0 to {@code clipLength}); an expression that
+     * can also use {@code clipLength} and {@code duration}. Null = {@code elapsed / duration * clipLength}
+     * with a duration, {@code elapsed} without one.
+     */
+    public ExpressionTemplate frame;
+
+    /** How long the item runs, in ticks; the clip is finished once it has passed. Null = never finishes. */
+    public Float duration;
 
     /** Blend weight; null = 1. Weighting scales rotation angles and offsets. */
-    public ValueTemplate weight;
+    public ExpressionTemplate weight;
 
     /** Only these bones of the clip are applied; null = all. */
     public List<String> bones;
-
-    /** Overrides the clip's own duration (time units for one full playthrough). */
-    public Float duration;
-
-    /** Overrides the clip's own loop flag. */
-    public Boolean loop;
 
 }

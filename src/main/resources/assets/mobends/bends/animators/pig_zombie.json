@@ -57,9 +57,16 @@
             },
             {
               "animationKey": "mobends:bends/animations/pigzombie/walk_bob.json",
-              "time": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
               "when": {
                 "type": "core:action",
@@ -130,9 +137,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/pigzombie/slash.json",
-              "time": {
-                "variable": "ticksAfterAttack"
-              },
+              "frame": "ticksAfterAttack",
               "mirror": true,
               "damping": {
                 "body": 0.9,
@@ -151,9 +156,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw"
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "mirror": true
             },
@@ -161,9 +164,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch"
-              },
+              "angle": "headPitch",
               "space": "POST",
               "mirror": true
             },

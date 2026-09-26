@@ -94,7 +94,7 @@ public class Baker
         }
         log.append(String.format(Locale.ROOT, "adaptive cycle: %d uniform + %d keyframes around discontinuities%n", count + 1, inserted));
 
-        ClipBuilder clip = new ClipBuilder().duration(period).loop(true);
+        ClipBuilder clip = new ClipBuilder().duration(period);
         for (Map.Entry<Float, Sample> entry : samples.entrySet())
         {
             clip.frame(entry.getKey(), entry.getValue().rotations, entry.getValue().vectors);
@@ -138,7 +138,7 @@ public class Baker
     public ClipBuilder sampleEnterClip(AnimationBit<?> bit, Consumer<BakeRig> setup)
     {
         Sample s = sampleEnter(bit, setup);
-        return new ClipBuilder().duration(0).loop(false).frame(s.rotations, null);
+        return new ClipBuilder().duration(0).frame(s.rotations, null);
     }
 
     /**
@@ -147,7 +147,7 @@ public class Baker
      */
     public ClipBuilder cycle(AnimationBit<?> bit, Setup setup, float period, int count)
     {
-        ClipBuilder clip = new ClipBuilder().duration(period).loop(true);
+        ClipBuilder clip = new ClipBuilder().duration(period);
         for (int i = 0; i <= count; i++)
         {
             float t = (i == count) ? 0 : period * i / count;
@@ -164,7 +164,7 @@ public class Baker
      */
     public ClipBuilder stepCycle(AnimationBit<?> bit, Setup setup, float period, int count)
     {
-        ClipBuilder clip = new ClipBuilder().duration(period).loop(true).step();
+        ClipBuilder clip = new ClipBuilder().duration(period).step();
         for (int i = 0; i <= count; i++)
         {
             float start = period * i / count;
@@ -181,7 +181,7 @@ public class Baker
      */
     public ClipBuilder curve(AnimationBit<?> bit, Setup setup, float from, float to, int count)
     {
-        ClipBuilder clip = new ClipBuilder().duration(to - from).loop(false);
+        ClipBuilder clip = new ClipBuilder().duration(to - from);
         for (int i = 0; i <= count; i++)
         {
             float t = from + (to - from) * i / count;
@@ -194,7 +194,7 @@ public class Baker
     /** Samples a one-shot over [0, duration] into a non-looping clip. */
     public ClipBuilder oneShot(AnimationBit<?> bit, Setup setup, float duration, int count)
     {
-        ClipBuilder clip = new ClipBuilder().duration(duration).loop(false);
+        ClipBuilder clip = new ClipBuilder().duration(duration);
         for (int i = 0; i <= count; i++)
         {
             Sample s = sample(bit, setup, duration * i / count);
@@ -211,7 +211,7 @@ public class Baker
      */
     public ClipBuilder amplitudeDelta(AnimationBit<?> bit, Setup base, Setup full, Setup half, float period, int count)
     {
-        ClipBuilder clip = new ClipBuilder().duration(period).loop(true);
+        ClipBuilder clip = new ClipBuilder().duration(period);
         double worst = 0;
         String worstBone = "";
         Quaternion inv = new Quaternion();

@@ -3,7 +3,8 @@ package goblinbob.mobends.standard.kumo.spider;
 import goblinbob.mobends.core.kumo.pose.IPoseItem;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
-import goblinbob.mobends.core.kumo.pose.ValueSource;
+import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -16,12 +17,12 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
 {
 
     private final SpiderMovingLegsTemplate t;
-    private final ValueSource swing;
-    private final ValueSource groundLevel;
+    private final Expression swing;
+    private final Expression groundLevel;
     /** Never reset: the procedural bit eased its legs in once per entity, on its first play. */
     private float startTransition = 0F;
 
-    public SpiderMovingLegsDriver(Skeleton skeleton, SpiderMovingLegsTemplate template) throws MalformedKumoTemplateException
+    public SpiderMovingLegsDriver(Skeleton skeleton, SpiderMovingLegsTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         super(skeleton, template.resetVariable);
         if (template.limbs == null || template.limbs.size() != LIMBS)
@@ -29,13 +30,13 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
             throw new MalformedKumoTemplateException("mobends:spider_moving_legs needs exactly 8 'limbs' entries.");
         }
         this.t = template;
-        this.swing = ValueSource.fromTemplate(template.swing, ValueSource.ZERO);
-        this.groundLevel = ValueSource.fromTemplate(template.groundLevel, ValueSource.ZERO);
+        this.swing = Expression.compile(template.swing, scope, Expression.ZERO);
+        this.groundLevel = Expression.compile(template.groundLevel, scope, Expression.ZERO);
     }
 
     public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, SpiderMovingLegsTemplate template) throws MalformedKumoTemplateException
     {
-        return new SpiderMovingLegsDriver(skeleton, template);
+        return new SpiderMovingLegsDriver(skeleton, template, context.getExpressionScope());
     }
 
     @Override

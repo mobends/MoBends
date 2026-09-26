@@ -1,12 +1,16 @@
 package goblinbob.mobends.core.kumo.state.serializer;
 
 import com.google.gson.*;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
-/** {"default": 0.3, "rightArm": 0.8, "root": [0.3, 0.6, 0.3]} */
+/**
+ * {"default": 0.3, "rightArm": 0.8, "root": [0.3, 0.6, 0.3]}; a bone's rate can also be an expression
+ * (a name or an operation), evaluated every frame.
+ */
 public class DampingTemplateSerializer implements JsonDeserializer<DampingTemplate>
 {
 
@@ -32,9 +36,9 @@ public class DampingTemplateSerializer implements JsonDeserializer<DampingTempla
                 }
                 damping.entries.put(entry.getKey(), values);
             }
-            else if (value.isJsonObject())
+            else if (value.isJsonObject() || (value.isJsonPrimitive() && value.getAsJsonPrimitive().isString()))
             {
-                damping.dynamic.put(entry.getKey(), context.deserialize(value, goblinbob.mobends.core.kumo.state.template.ValueTemplate.class));
+                damping.dynamic.put(entry.getKey(), new ExpressionTemplate(value));
             }
             else
             {

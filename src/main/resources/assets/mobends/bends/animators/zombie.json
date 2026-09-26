@@ -78,9 +78,16 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/zombie/stumble_base.json",
-              "time": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
               "damping": {
                 "rightLeg": 1,
@@ -92,20 +99,32 @@
             },
             {
               "animationKey": "mobends:bends/animations/zombie/stumble_swing.json",
-              "time": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
-              "weight": {
-                "variable": "limbSwingAmount"
-              },
+              "weight": "limbSwingAmount",
               "space": "POST"
             },
             {
               "animationKey": "mobends:bends/animations/zombie/stumble_head.json",
-              "time": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
               "space": "PRE"
             }

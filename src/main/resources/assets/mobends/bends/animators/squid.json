@@ -13,9 +13,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/squid/swim_base.json",
-              "time": {
-                "variable": "squidRotation"
-              },
+              "frame": "squidRotation",
               "damping": {
                 "tentacle_0_0": 0.1,
                 "tentacle_1_0": 0.1,
@@ -53,9 +51,7 @@
             },
             {
               "animationKey": "mobends:bends/animations/squid/swim_sections.json",
-              "time": {
-                "variable": "squidRotation"
-              },
+              "frame": "squidRotation",
               "damping": {
                 "tentacle_0_1": 0.1,
                 "tentacle_0_2": 0.1,

@@ -1,6 +1,6 @@
 package goblinbob.mobends.standard.kumo.spider;
 
-import goblinbob.mobends.core.kumo.state.template.ValueTemplate;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 
 /**
@@ -13,10 +13,10 @@ public class SpiderIdleLegsTemplate extends DriverItemTemplate
 {
 
     /** Vertical bob of the body (positive = legs push the body up), in model units. */
-    public ValueTemplate groundLevel;
+    public ExpressionTemplate groundLevel;
     /** Horizontal sway of the body the legs compensate for. */
-    public ValueTemplate bodyX;
-    public ValueTemplate bodyZ;
+    public ExpressionTemplate bodyX;
+    public ExpressionTemplate bodyZ;
 
     /** Landing bounce: over {@code kneelDuration} ticks after touchdown, amplitude in model units. */
     public float kneelDuration = 10F;

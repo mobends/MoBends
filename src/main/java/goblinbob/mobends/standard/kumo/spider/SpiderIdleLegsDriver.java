@@ -3,7 +3,8 @@ package goblinbob.mobends.standard.kumo.spider;
 import goblinbob.mobends.core.kumo.pose.IPoseItem;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
-import goblinbob.mobends.core.kumo.pose.ValueSource;
+import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -15,22 +16,22 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
 {
 
     private final SpiderIdleLegsTemplate t;
-    private final ValueSource groundLevel;
-    private final ValueSource bodyX;
-    private final ValueSource bodyZ;
+    private final Expression groundLevel;
+    private final Expression bodyX;
+    private final Expression bodyZ;
 
-    public SpiderIdleLegsDriver(Skeleton skeleton, SpiderIdleLegsTemplate template) throws MalformedKumoTemplateException
+    public SpiderIdleLegsDriver(Skeleton skeleton, SpiderIdleLegsTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         super(skeleton, template.resetVariable);
         this.t = template;
-        this.groundLevel = ValueSource.fromTemplate(template.groundLevel, ValueSource.ZERO);
-        this.bodyX = ValueSource.fromTemplate(template.bodyX, ValueSource.ZERO);
-        this.bodyZ = ValueSource.fromTemplate(template.bodyZ, ValueSource.ZERO);
+        this.groundLevel = Expression.compile(template.groundLevel, scope, Expression.ZERO);
+        this.bodyX = Expression.compile(template.bodyX, scope, Expression.ZERO);
+        this.bodyZ = Expression.compile(template.bodyZ, scope, Expression.ZERO);
     }
 
     public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, SpiderIdleLegsTemplate template) throws MalformedKumoTemplateException
     {
-        return new SpiderIdleLegsDriver(skeleton, template);
+        return new SpiderIdleLegsDriver(skeleton, template, context.getExpressionScope());
     }
 
     @Override

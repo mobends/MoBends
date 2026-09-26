@@ -13,9 +13,16 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/quadruped/idle.json",
-              "time": {
-                "variable": "ticks",
-                "scale": 0.09
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "ticks",
+                      0.09
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
               "damping": {
                 "head": 0.5,
@@ -26,11 +33,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -40,11 +43,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             }
           ],
@@ -84,13 +83,18 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/quadruped/walk.json",
-              "time": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
-              "weight": {
-                "variable": "limbSwingAmount"
-              },
+              "weight": "limbSwingAmount",
               "damping": {
                 "leg1": 0.8,
                 "foreLeg1": 0.8,
@@ -106,11 +110,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -120,11 +120,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             }
           ],
@@ -179,11 +175,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -193,11 +185,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             }
           ],

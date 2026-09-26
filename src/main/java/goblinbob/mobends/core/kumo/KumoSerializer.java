@@ -2,6 +2,7 @@ package goblinbob.mobends.core.kumo;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.serializer.*;
 import goblinbob.mobends.core.kumo.state.template.*;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
@@ -40,8 +41,7 @@ public class KumoSerializer
         return new GsonBuilder()
                 .registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer())
                 .registerTypeAdapter(PoseItemTemplate.class, new PoseItemSerializer())
-                .registerTypeAdapter(ValueTemplate.class, new ValueTemplateSerializer())
-                .registerTypeAdapter(TimeTemplate.class, new TimeTemplateSerializer())
+                .registerTypeAdapter(ExpressionTemplate.class, new ExpressionTemplate.Deserializer())
                 .registerTypeAdapter(DampingTemplate.class, new DampingTemplateSerializer())
                 .registerTypeAdapter(SpaceTemplate.class, new SpaceTemplateSerializer());
     }

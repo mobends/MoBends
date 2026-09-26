@@ -13,9 +13,16 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/iron_golem/idle.json",
-              "time": {
-                "variable": "ticks",
-                "scale": 0.07
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "ticks",
+                      0.07
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
               "damping": {
                 "head": 0.5,
@@ -26,11 +33,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -40,18 +43,12 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             },
             {
               "animationKey": "mobends:bends/animations/iron_golem/attack.json",
-              "time": {
-                "variable": "attackTimer"
-              },
+              "frame": "attackTimer",
               "damping": {
                 "rightArm": 0.8,
                 "leftArm": 0.8,
@@ -102,12 +99,13 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/iron_golem/walk.json",
-              "time": {
-                "variable": "limbSwing"
+              "frame": {
+                "mod": [
+                  "limbSwing",
+                  "clipLength"
+                ]
               },
-              "weight": {
-                "variable": "limbSwingAmount"
-              },
+              "weight": "limbSwingAmount",
               "damping": {
                 "rightArm": 0.8,
                 "leftArm": 0.8,
@@ -123,11 +121,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -137,18 +131,12 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             },
             {
               "animationKey": "mobends:bends/animations/iron_golem/attack.json",
-              "time": {
-                "variable": "attackTimer"
-              },
+              "frame": "attackTimer",
               "damping": {
                 "rightArm": 0.8,
                 "leftArm": 0.8,
@@ -210,11 +198,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE",
               "damping": {
                 "head": 0.5
@@ -224,18 +208,12 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "POST"
             },
             {
               "animationKey": "mobends:bends/animations/iron_golem/attack.json",
-              "time": {
-                "variable": "attackTimer"
-              },
+              "frame": "attackTimer",
               "damping": {
                 "rightArm": 0.8,
                 "leftArm": 0.8,

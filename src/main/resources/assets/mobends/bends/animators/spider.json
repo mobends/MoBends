@@ -17,22 +17,49 @@
             {
               "driver": "mobends:spider_idle_legs",
               "groundLevel": {
-                "variable": "ticks",
-                "scale": 0.1,
-                "fn": "sin",
-                "mul": 0.5
+                "mul": [
+                  {
+                    "sin": [
+                      {
+                        "mul": [
+                          "ticks",
+                          0.1
+                        ]
+                      }
+                    ]
+                  },
+                  0.5
+                ]
               },
               "bodyX": {
-                "variable": "ticks",
-                "scale": 0.2,
-                "fn": "sin",
-                "mul": 0.4
+                "mul": [
+                  {
+                    "sin": [
+                      {
+                        "mul": [
+                          "ticks",
+                          0.2
+                        ]
+                      }
+                    ]
+                  },
+                  0.4
+                ]
               },
               "bodyZ": {
-                "variable": "ticks",
-                "scale": 0.2,
-                "fn": "cos",
-                "mul": 0.4
+                "mul": [
+                  {
+                    "cos": [
+                      {
+                        "mul": [
+                          "ticks",
+                          0.2
+                        ]
+                      }
+                    ]
+                  },
+                  0.4
+                ]
               },
               "kneelDuration": 10,
               "kneelAmplitude": 4,
@@ -42,20 +69,40 @@
               "driver": "core:vector",
               "bone": "root",
               "x": {
-                "variable": "ticks",
-                "scale": 0.2,
-                "fn": "sin",
-                "mul": 0.4
+                "mul": [
+                  {
+                    "sin": [
+                      {
+                        "mul": [
+                          "ticks",
+                          0.2
+                        ]
+                      }
+                    ]
+                  },
+                  0.4
+                ]
               },
               "y": {
-                "variable": "groundLevel",
-                "scale": -1
+                "mul": [
+                  "groundLevel",
+                  -1
+                ]
               },
               "z": {
-                "variable": "ticks",
-                "scale": 0.2,
-                "fn": "cos",
-                "mul": -0.4
+                "mul": [
+                  {
+                    "cos": [
+                      {
+                        "mul": [
+                          "ticks",
+                          0.2
+                        ]
+                      }
+                    ]
+                  },
+                  -0.4
+                ]
               },
               "snap": true
             },
@@ -63,11 +110,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "OVERRIDE",
               "snap": true
             },
@@ -75,11 +118,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE"
             },
             {
@@ -222,14 +261,25 @@
             {
               "driver": "mobends:spider_moving_legs",
               "swing": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+                "mul": [
+                  "limbSwing",
+                  0.6662
+                ]
               },
               "groundLevel": {
-                "variable": "ticks",
-                "scale": 0.6,
-                "fn": "mcsin",
-                "mul": 1.2
+                "mul": [
+                  {
+                    "mcsin": [
+                      {
+                        "mul": [
+                          "ticks",
+                          0.6
+                        ]
+                      }
+                    ]
+                  },
+                  1.2
+                ]
               },
               "kneelDuration": 10,
               "kneelAmplitude": 3,
@@ -297,20 +347,40 @@
               "driver": "core:vector",
               "bone": "root",
               "x": {
-                "variable": "ticks",
-                "scale": 0.2,
-                "fn": "mcsin",
-                "mul": 0.4
+                "mul": [
+                  {
+                    "mcsin": [
+                      {
+                        "mul": [
+                          "ticks",
+                          0.2
+                        ]
+                      }
+                    ]
+                  },
+                  0.4
+                ]
               },
               "y": {
-                "variable": "groundLevel",
-                "scale": -1
+                "mul": [
+                  "groundLevel",
+                  -1
+                ]
               },
               "z": {
-                "variable": "ticks",
-                "scale": 0.2,
-                "fn": "mccos",
-                "mul": -0.4
+                "mul": [
+                  {
+                    "mccos": [
+                      {
+                        "mul": [
+                          "ticks",
+                          0.2
+                        ]
+                      }
+                    ]
+                  },
+                  -0.4
+                ]
               },
               "snap": true
             },
@@ -318,11 +388,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "OVERRIDE",
               "snap": true
             },
@@ -330,11 +396,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE"
             },
             {
@@ -506,12 +568,26 @@
               "bone": "leg1",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": 25,
-                "add": -20
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      25
+                    ]
+                  },
+                  -20
+                ]
               },
               "space": "POST"
             },
@@ -520,12 +596,26 @@
               "bone": "leg2",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": -25,
-                "add": 20
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      -25
+                    ]
+                  },
+                  20
+                ]
               },
               "space": "POST"
             },
@@ -534,12 +624,26 @@
               "bone": "leg3",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": 25,
-                "add": -20
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      25
+                    ]
+                  },
+                  -20
+                ]
               },
               "space": "POST"
             },
@@ -548,12 +652,26 @@
               "bone": "leg4",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": -25,
-                "add": 20
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      -25
+                    ]
+                  },
+                  20
+                ]
               },
               "space": "POST"
             },
@@ -562,12 +680,26 @@
               "bone": "leg5",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": 25,
-                "add": -20
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      25
+                    ]
+                  },
+                  -20
+                ]
               },
               "space": "POST"
             },
@@ -576,12 +708,26 @@
               "bone": "leg6",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": -25,
-                "add": 20
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      -25
+                    ]
+                  },
+                  20
+                ]
               },
               "space": "POST"
             },
@@ -590,12 +736,26 @@
               "bone": "leg7",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": 25,
-                "add": -20
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      25
+                    ]
+                  },
+                  -20
+                ]
               },
               "space": "POST"
             },
@@ -604,12 +764,26 @@
               "bone": "leg8",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": -25,
-                "add": 20
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      -25
+                    ]
+                  },
+                  20
+                ]
               },
               "space": "POST"
             },
@@ -618,12 +792,26 @@
               "bone": "foreLeg1",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": -40,
-                "add": -70
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      -40
+                    ]
+                  },
+                  -70
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -635,12 +823,26 @@
               "bone": "foreLeg2",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": 40,
-                "add": 70
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      40
+                    ]
+                  },
+                  70
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -652,12 +854,26 @@
               "bone": "foreLeg3",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": -40,
-                "add": -70
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      -40
+                    ]
+                  },
+                  -70
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -669,12 +885,26 @@
               "bone": "foreLeg4",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": 40,
-                "add": 70
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      40
+                    ]
+                  },
+                  70
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -686,12 +916,26 @@
               "bone": "foreLeg5",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": -40,
-                "add": -70
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      -40
+                    ]
+                  },
+                  -70
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -703,12 +947,26 @@
               "bone": "foreLeg6",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": 40,
-                "add": 70
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      40
+                    ]
+                  },
+                  70
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -720,12 +978,26 @@
               "bone": "foreLeg7",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": -40,
-                "add": -70
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      -40
+                    ]
+                  },
+                  -70
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -737,12 +1009,26 @@
               "bone": "foreLeg8",
               "axis": "Z",
               "angle": {
-                "variable": "interpolatedMotionY",
-                "scale": -5,
-                "min": -1,
-                "max": 1,
-                "mul": 40,
-                "add": 70
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "clamp": [
+                          {
+                            "mul": [
+                              "interpolatedMotionY",
+                              -5
+                            ]
+                          },
+                          -1,
+                          1
+                        ]
+                      },
+                      40
+                    ]
+                  },
+                  70
+                ]
               },
               "space": "OVERRIDE",
               "damping": {
@@ -902,14 +1188,25 @@
             {
               "driver": "mobends:spider_moving_legs",
               "swing": {
-                "variable": "crawlProgress",
-                "scale": 5
+                "mul": [
+                  "crawlProgress",
+                  5
+                ]
               },
               "groundLevel": {
-                "variable": "crawlProgress",
-                "scale": 3,
-                "fn": "mcsin",
-                "mul": 1.2
+                "mul": [
+                  {
+                    "mcsin": [
+                      {
+                        "mul": [
+                          "crawlProgress",
+                          3
+                        ]
+                      }
+                    ]
+                  },
+                  1.2
+                ]
               },
               "limbs": [
                 {
@@ -974,11 +1271,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "OVERRIDE",
               "snap": true
             },
@@ -986,11 +1279,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE"
             },
             {
@@ -1007,11 +1296,7 @@
               "driver": "core:axis_rotate",
               "bone": "renderRotation",
               "axis": "Y",
-              "angle": {
-                "variable": "crawlRenderYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "crawlRenderYaw",
               "space": "PRE"
             },
             {
@@ -1187,9 +1472,15 @@
               "driver": "core:accumulate",
               "name": "wigglePhase",
               "rate": {
-                "variable": "wiggleSpeed",
-                "scale": 2,
-                "offset": 0.3
+                "add": [
+                  {
+                    "mul": [
+                      "wiggleSpeed",
+                      2
+                    ]
+                  },
+                  0.3
+                ]
               }
             },
             {
@@ -1211,11 +1502,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "variable": "headPitch",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headPitch",
               "space": "OVERRIDE",
               "snap": true
             },
@@ -1223,11 +1510,7 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "variable": "headYaw",
-                "scale": 1,
-                "offset": 0
-              },
+              "angle": "headYaw",
               "space": "PRE"
             },
             {
@@ -1236,37 +1519,64 @@
             },
             {
               "animationKey": "mobends:bends/animations/spider/death_sway_y.json",
-              "time": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
               "weight": {
-                "variable": "limbSwingAmount",
-                "scale": 57.29577951308232
+                "mul": [
+                  "limbSwingAmount",
+                  57.29577951308232
+                ]
               },
               "space": "PRE"
             },
             {
               "animationKey": "mobends:bends/animations/spider/death_sway_z.json",
-              "time": {
-                "variable": "limbSwing",
-                "scale": 0.6662
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
               },
               "weight": {
-                "variable": "limbSwingAmount",
-                "scale": 57.29577951308232
+                "mul": [
+                  "limbSwingAmount",
+                  57.29577951308232
+                ]
               },
               "space": "PRE"
             },
             {
               "animationKey": "mobends:bends/animations/spider/death_wiggle.json",
-              "time": {
-                "variable": "wigglePhase"
+              "frame": {
+                "mod": [
+                  "wigglePhase",
+                  "clipLength"
+                ]
               },
               "weight": {
-                "variable": "wiggleSpeed",
-                "scale": 10,
-                "offset": 10
+                "add": [
+                  {
+                    "mul": [
+                      "wiggleSpeed",
+                      10
+                    ]
+                  },
+                  10
+                ]
               },
               "space": "PRE"
             }

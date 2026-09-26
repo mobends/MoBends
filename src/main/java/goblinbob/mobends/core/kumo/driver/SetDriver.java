@@ -3,7 +3,7 @@ package goblinbob.mobends.core.kumo.driver;
 import goblinbob.mobends.core.kumo.pose.IPoseItem;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
-import goblinbob.mobends.core.kumo.pose.ValueSource;
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.VariableScope;
@@ -18,10 +18,10 @@ public class SetDriver implements IPoseItem
 {
 
     private final String variable;
-    private final ValueSource value;
+    private final Expression value;
     private final boolean nodeScope;
 
-    public SetDriver(String variable, ValueSource value, boolean nodeScope)
+    public SetDriver(String variable, Expression value, boolean nodeScope)
     {
         this.variable = variable;
         this.value = value;
@@ -34,7 +34,7 @@ public class SetDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:set needs a 'variable' and a 'value'.");
         }
-        return new SetDriver(template.variable, ValueSource.fromTemplate(template.value, null), "node".equals(template.scope));
+        return new SetDriver(template.variable, Expression.compile(template.value, context.getExpressionScope(), null), "node".equals(template.scope));
     }
 
     @Override

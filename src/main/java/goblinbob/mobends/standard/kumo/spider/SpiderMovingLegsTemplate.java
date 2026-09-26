@@ -1,6 +1,6 @@
 package goblinbob.mobends.standard.kumo.spider;
 
-import goblinbob.mobends.core.kumo.state.template.ValueTemplate;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 
 import java.util.List;
@@ -14,9 +14,9 @@ public class SpiderMovingLegsTemplate extends DriverItemTemplate
 {
 
     /** The gait clock in radians (limb swing scaled, or the crawl progress). */
-    public ValueTemplate swing;
+    public ExpressionTemplate swing;
     /** Vertical bob of the body, in model units. */
-    public ValueTemplate groundLevel;
+    public ExpressionTemplate groundLevel;
 
     /** Optional landing bounce; null = none. */
     public Float kneelDuration;
