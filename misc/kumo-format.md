@@ -401,7 +401,10 @@ own animation and with other packs' extensions. Extension files are found like t
 * An extension of a model that has no animator asset (an addon's own Java animation) is ignored,
   with a warning.
 
-The example pack `misc/examples/wave-extension` makes players wave while they stand still.
+The example pack `misc/examples/wave-extension` makes players wave while they stand still;
+`misc/examples/dance-extension` makes cows and chickens dance to a beat, with one animator shared
+by two extensions, and moves the whole body (`globalOffset`, `renderRotation`), which the mobs' own
+animators leave alone, so it returns them to rest itself instead of falling through.
 
 ## Rendering: swap per render
 

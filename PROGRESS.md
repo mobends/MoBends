@@ -601,3 +601,10 @@ tests pass.
 
 **Not verified here (needs the game).** Extension discovery from resource packs and the example
 pack in game, the Extensions order screen, the menu without the Packs section.
+
+**Follow-ups.** Defined mobs: split joints hinge at an edge of the cut (`"hinge"`), heads set
+their rotation where no clip poses them (they spun while airborne), legs return to rest in the
+stand pose (a `rest` clip under the idle), and inflated boxes, nested parts and villager arms are
+placed as in vanilla. `DefinedModelsTest` now also walks each mob, stops it and checks every leg
+segment settles (it fails with the rest clip removed). Example pack `misc/examples/dance-extension`
+(`DanceExtensionTest` runs it on the cow's and the chicken's own animators). 74 lab tests pass.

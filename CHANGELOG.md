@@ -20,7 +20,8 @@
   JSON file in `assets/<namespace>/bends/extensions/`, changing part of how an entity moves while
   the rest of its animation (and other packs' extensions) carry on. Their `core:fallthrough`
   nodes let the animation below show, and fade to and from it. They replace bends packs. See
-  `misc/kumo-format.md` ("Extensions") and the example pack in `misc/examples/wave-extension`.
+  `misc/kumo-format.md` ("Extensions") and the example packs in `misc/examples/wave-extension`
+  and `misc/examples/dance-extension` (cows and chickens dance to a beat).
 - When an entity has several extensions, Settings shows an *Extensions* button for it: move them
   up and down to decide which goes on top.
 - A keyframe in a clip file can leave out `position`, `rotation` or `scale` when it has none.
@@ -63,6 +64,8 @@
   definition's `split`), so a bent leg no longer opens a gap at the knee.
 - The head of a villager, witch, cow, pig, creeper, chicken or iron golem no longer spins while
   it walks or jumps: those poses now set the head's rotation instead of adding to last frame's.
+- Those mobs' legs (and the iron golem's arms) settle back to rest when they stop walking,
+  instead of freezing mid-stride.
 - Mo' Bends' messages (such as a type or an extension that fails to load) now appear in the game
   log (`latest.log`), not only in the console.
 

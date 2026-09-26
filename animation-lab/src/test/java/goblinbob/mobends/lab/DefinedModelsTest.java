@@ -77,14 +77,16 @@ public class DefinedModelsTest
         VanillaModelInputs modelInputs = new VanillaModelInputs();
         Quaternion standing = null;
         double moved = 0;
-        for (int frame = 0; frame < 150; frame++)
+        boolean walked = false;
+        // Stands for 40 ticks, walks until tick 100, then stands again until tick 180.
+        for (int frame = 0; frame < 270; frame++)
         {
             int ticksStarted = clock.nextFrame();
             for (int t = 0; t < ticksStarted; t++)
             {
                 int tick = clock.getTick() - ticksStarted + t + 1;
                 inputs.reset();
-                if (tick >= 40) inputs.forwardSpeed = 0.15;
+                if (tick >= 40 && tick < 100) inputs.forwardSpeed = 0.15;
                 inputs.headYaw = (float) (Math.sin(tick * 0.1) * 30);
                 scripted.tick(inputs);
                 data.updateClient();
@@ -108,12 +110,28 @@ public class DefinedModelsTest
             {
                 standing = new Quaternion(legNow.x, legNow.y, legNow.z, legNow.w);
             }
-            if (standing != null)
+            if (standing != null && frame < 150)
             {
                 moved = Math.max(moved, Math.abs(legNow.x - standing.x) + Math.abs(legNow.y - standing.y) + Math.abs(legNow.z - standing.z));
             }
+            if (frame == 140)
+            {
+                walked = animator.getActions().contains("walk");
+            }
         }
         assertTrue(moved > 0.05, name + ": the leg '" + leg + "' did not move while walking (max quaternion change " + moved + ")");
-        assertTrue(animator.getActions().contains("walk"), name + ": the animator is not in its walk node while walking");
+        assertTrue(walked, name + ": the animator is not in its walk node while walking");
+
+        // Having stopped, every leg segment settles back where it stood before walking.
+        for (BoneDefinition bone : definition.bones)
+        {
+            if (bone.split == null) continue;
+            for (String segment : bone.segmentNames())
+            {
+                Quaternion q = data.getPart(segment).rotation.getSmooth();
+                double degrees = Math.toDegrees(2 * Math.acos(Math.min(1, Math.abs(q.w))));
+                assertTrue(degrees < 2, String.format("%s: '%s' is still bent %.1f° after the mob stopped walking", name, segment, degrees));
+            }
+        }
     }
 }

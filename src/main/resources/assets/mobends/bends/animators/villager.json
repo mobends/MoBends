@@ -12,6 +12,15 @@
           ],
           "pose": [
             {
+              "animationKey": "mobends:bends/animations/villager/rest.json",
+              "damping": {
+                "rightLeg": 0.5,
+                "foreRightLeg": 0.5,
+                "leftLeg": 0.5,
+                "foreLeftLeg": 0.5
+              }
+            },
+            {
               "animationKey": "mobends:bends/animations/villager/idle.json",
               "frame": {
                 "mod": [

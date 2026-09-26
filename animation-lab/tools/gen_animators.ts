@@ -1114,6 +1114,15 @@ function walkerIdle(folder: string, bones: [string, number][]): Obj {
   return { animationKey: W(folder, "idle"), frame: looped(scaled("ticks", 0.09)), damping: Object.fromEntries(bones.map(([b]) => [b, 0.5])) };
 }
 
+/**
+ * The legs hanging straight: under the idle, so a mob that stops walking settles instead of
+ * holding its last stride (nothing else in the stand pose touches the legs).
+ */
+function walkerRest(folder: string, bones: string[], damping = 0.5): Obj {
+  poseClip(join(CLIPS, folder, "rest.json"), Object.fromEntries(bones.map((b) => [b, rotations()])));
+  return { animationKey: W(folder, "rest"), damping: Object.fromEntries(bones.map((b) => [b, damping])) };
+}
+
 function walkerJump(folder: string, legs: Leg[], upperAngle = -20, lowerAngle = 35): Obj {
   poseClip(join(CLIPS, folder, "jump.json"), {
     ...Object.fromEntries(legs.map(([upper]) => [upper, rotations(["X", upperAngle])])),
@@ -1134,7 +1143,7 @@ function headLookOver(headBone: string, clipPosesHead: boolean): Obj[] {
 function walkerAnimator(folder: string, legs: Leg[], idleBones: [string, number][], extra: Obj[] = [], headBone = "head"): Obj {
   const look = headLookOver(headBone, false);
   const idleLook = headLookOver(headBone, idleBones.some(([bone]) => bone === headBone));
-  const stand = { type: "core:pose", tags: ["stand"], pose: [walkerIdle(folder, idleBones), ...idleLook, ...extra],
+  const stand = { type: "core:pose", tags: ["stand"], pose: [walkerRest(folder, legBones(legs)), walkerIdle(folder, idleBones), ...idleLook, ...extra],
                   connections: [{ target: "jump", triggerCondition: jumping }, { target: "walk", triggerCondition: state("MOVING_HORIZONTALLY") }] };
   const walk = { type: "core:pose", tags: ["walk"], pose: [walkerGait(folder, legs), ...look, ...extra],
                  connections: [{ target: "jump", triggerCondition: jumping }, { target: "stand", triggerCondition: state("STANDING_STILL") }] };
@@ -1179,7 +1188,8 @@ const golemLook = headLookOver("head", false);
 const golemIdleLook = headLookOver("head", true);
 const golemAttack = when({ animationKey: W("iron_golem", "attack"), frame: "attackTimer", damping: golemArmDamp }, cmp("attackTimer", ">", 0));
 const golemNodes = {
-  stand: { type: "core:pose", tags: ["stand"], pose: [{ animationKey: W("iron_golem", "idle"), frame: looped(scaled("ticks", 0.07)), damping: { head: 0.5, body: 0.5 } }, ...golemIdleLook, golemAttack],
+  stand: { type: "core:pose", tags: ["stand"], pose: [walkerRest("iron_golem", ["rightArm", "leftArm", "rightForeArm", "leftForeArm", "rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg"]),
+                                                      { animationKey: W("iron_golem", "idle"), frame: looped(scaled("ticks", 0.07)), damping: { head: 0.5, body: 0.5 } }, ...golemIdleLook, golemAttack],
            connections: [{ target: "jump", triggerCondition: jumping }, { target: "walk", triggerCondition: state("MOVING_HORIZONTALLY") }] },
   walk: { type: "core:pose", tags: ["walk"], pose: [{ animationKey: W("iron_golem", "walk"), frame: looped("limbSwing"), weight: { variable: "limbSwingAmount" }, damping: { ...golemArmDamp, ...golemLegDamp } }, ...golemLook, golemAttack],
           connections: [{ target: "jump", triggerCondition: jumping }, { target: "stand", triggerCondition: state("STANDING_STILL") }] },

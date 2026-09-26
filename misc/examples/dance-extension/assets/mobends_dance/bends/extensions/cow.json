@@ -1,0 +1,5 @@
+{
+  "id": "mobends_dance:cow",
+  "type": "mobends-minecraft:cow",
+  "animator": "mobends_dance:bends/animators/dance.json"
+}

@@ -12,6 +12,19 @@
           ],
           "pose": [
             {
+              "animationKey": "mobends:bends/animations/iron_golem/rest.json",
+              "damping": {
+                "rightArm": 0.5,
+                "leftArm": 0.5,
+                "rightForeArm": 0.5,
+                "leftForeArm": 0.5,
+                "rightLeg": 0.5,
+                "leftLeg": 0.5,
+                "rightForeLeg": 0.5,
+                "leftForeLeg": 0.5
+              }
+            },
+            {
               "animationKey": "mobends:bends/animations/iron_golem/idle.json",
               "frame": {
                 "mod": [

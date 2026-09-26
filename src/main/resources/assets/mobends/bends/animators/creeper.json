@@ -12,6 +12,19 @@
           ],
           "pose": [
             {
+              "animationKey": "mobends:bends/animations/creeper/rest.json",
+              "damping": {
+                "leg1": 0.5,
+                "foreLeg1": 0.5,
+                "leg2": 0.5,
+                "foreLeg2": 0.5,
+                "leg3": 0.5,
+                "foreLeg3": 0.5,
+                "leg4": 0.5,
+                "foreLeg4": 0.5
+              }
+            },
+            {
               "animationKey": "mobends:bends/animations/creeper/idle.json",
               "frame": {
                 "mod": [
