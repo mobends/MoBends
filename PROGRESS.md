@@ -608,3 +608,13 @@ stand pose (a `rest` clip under the idle), and inflated boxes, nested parts and 
 placed as in vanilla. `DefinedModelsTest` now also walks each mob, stops it and checks every leg
 segment settles (it fails with the rest clip removed). Example pack `misc/examples/dance-extension`
 (`DanceExtensionTest` runs it on the cow's and the chicken's own animators). 74 lab tests pass.
+
+**Vanilla nodes.** `core:vanilla` (`VanillaNodeTemplate`, a `PoseNode` that poses nothing) makes
+`KeyframeLayerState.wantsVanilla()` true while it's current and the layer's `when` holds;
+`KumoAnimatorState`, `IAnimationController` (default false), `KumoAnimatorController` and
+`EntityData.wantsVanilla()` pass it up. `EntityBender.applyMutation` animates as usual, then
+restores the vanilla renderer state and reports no mutation, so the render handler skips the
+mutated renderer's transforms and vanilla draws the entity; the first-person hand does the same.
+`ExtensionsTest` checks the node asks for vanilla only while current, that a disabled layer's
+doesn't, and that the player's own animation keeps running underneath. 75 lab tests pass.
+Not verified in game.

@@ -8,6 +8,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.FallthroughNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.PoseNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.keyframe.VanillaNodeTemplate;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
@@ -25,6 +26,7 @@ public class KeyframeNodeRegistry
     {
         register("core:pose", PoseNode::createPose, PoseNodeTemplate.class);
         register("core:fallthrough", PoseNode::createFallthrough, FallthroughNodeTemplate.class);
+        register("core:vanilla", PoseNode::createVanilla, VanillaNodeTemplate.class);
     }
 
     public <T extends KeyframeNodeTemplate> void register(String key, IKeyframeNodeFactory<?, T> factory, Class<T> templateType)

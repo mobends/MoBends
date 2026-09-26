@@ -134,6 +134,16 @@ public class KumoAnimatorState<S extends IKumoSubject>
         return actions;
     }
 
+    /** True while any layer is in a {@code core:vanilla} node: the entity should be drawn vanilla. */
+    public boolean wantsVanilla()
+    {
+        for (ILayerState layer : layerStates)
+        {
+            if (layer.wantsVanilla()) return true;
+        }
+        return false;
+    }
+
     public List<ILayerState> getLayers()
     {
         return layerStates;

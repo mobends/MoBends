@@ -1,5 +1,7 @@
 package goblinbob.mobends.standard.client.event;
 
+import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.RendererState;
@@ -29,9 +31,10 @@ public class RenderingEventHandler
         RenderPlayer renderPlayer = (RenderPlayer) mc.getRenderManager().<AbstractClientPlayer>getEntityRenderObject(player);
         EntityBender<AbstractClientPlayer> bender = EntityBenderRegistry.instance.getForEntity(player);
 
-        if (bender == null || !bender.isAnimated())
+        LivingEntityData<?> data = EntityDatabase.instance.get(player);
+        if (bender == null || !bender.isAnimated() || (data != null && data.wantsVanilla()))
         {
-            // The hand is drawn from the renderer's model, which may hold another player's mutation.
+            // The hand is drawn from the renderer's model, which may hold another player's mutation (or vanilla is asked for).
             RendererState.restoreVanilla(renderPlayer);
             return;
         }

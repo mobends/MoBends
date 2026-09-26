@@ -45,6 +45,7 @@ public class PoseNode implements INodeState
     private boolean enterPending;
 
     private boolean fallthrough;
+    private boolean vanilla;
 
     private float elapsed;
     private boolean snapPending;
@@ -116,6 +117,14 @@ public class PoseNode implements INodeState
         PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
         node.setOnEnter = template.set;
         node.fallthrough = true;
+        return node;
+    }
+
+    public static PoseNode createVanilla(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, VanillaNodeTemplate template) throws MalformedKumoTemplateException
+    {
+        PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
+        node.setOnEnter = template.set;
+        node.vanilla = true;
         return node;
     }
 
@@ -216,6 +225,12 @@ public class PoseNode implements INodeState
     public float getElapsedTicks()
     {
         return elapsed;
+    }
+
+    @Override
+    public boolean isVanilla()
+    {
+        return vanilla;
     }
 
     @Override

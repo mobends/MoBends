@@ -31,6 +31,12 @@ public interface ILayerState
     /** The tags of the layer's current node (bends packs see them as "actions"). */
     Collection<String> getActions();
 
+    /** True while the layer is in a {@code core:vanilla} node. */
+    default boolean wantsVanilla()
+    {
+        return false;
+    }
+
     static ILayerState createFromTemplate(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate template) throws MalformedKumoTemplateException
     {
         if (template.getLayerType() == null)

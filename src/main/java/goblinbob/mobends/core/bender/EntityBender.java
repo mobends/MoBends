@@ -135,7 +135,9 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	 * the entity with data made by {@code dataFactory}. The caller restores the renderer to vanilla
 	 * after the render, see {@link RendererState}.
 	 *
-	 * @return False if the renderer's model can't be mutated by this bender.
+	 * @return False if the renderer's model can't be mutated by this bender, or if the entity's
+	 *         animator asks for vanilla right now (the renderer is then put back to vanilla, after
+	 *         animating, so the animator's graph keeps running).
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean applyMutation(RenderLivingBase<? extends T> renderer, T entity, IEntityDataFactory<T> dataFactory, float partialTicks)
@@ -151,6 +153,11 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		mutator.performAnimations(data, this.key, renderer, partialTicks);
 		mutator.syncUpWithData(data);
 
+		if (data.wantsVanilla())
+		{
+			RendererState.restoreVanilla(renderer);
+			return false;
+		}
 		return true;
 	}
 

@@ -52,7 +52,7 @@ produces the layer's pose, which composites onto the result.
 }
 ```
 
-* `type` is `core:pose` (the default) or `core:fallthrough`.
+* `type` is `core:pose` (the default), `core:fallthrough` or `core:vanilla`.
 * `tags` are the layer's *actions* (`core:action` sees them, in every layer).
 * `expressions` declares named expressions visible to the node's items (see *Expressions*).
 * Connections are checked before the node is posed, so a state change shows the same frame.
@@ -66,6 +66,28 @@ produces the layer's pose, which composites onto the result.
   against the layers below (a full rotation, offset or vector as they have it; a PRE / POST
   rotation or an additive offset as nothing). It is how an extension lets the animation it
   extends show until it has something to add, but any layer can use it.
+* A `core:vanilla` node hands the entity back to Minecraft: while any layer is in one (and that
+  layer's `when` holds), the entity is drawn with its vanilla model and vanilla animation, and a
+  player's first-person hand is vanilla too. The animator keeps running underneath, so its
+  connections are checked every frame and leaving the node brings the animated model back where
+  it would have been. The switch is immediate: the two models can't be blended. It poses nothing
+  and has tags, connections, `set` and `expressions` like any node. It is meant for extensions
+  that bring back animations made for the vanilla model (another mod's, say) while a condition
+  holds:
+
+  ```json
+  "nodes": {
+    "animated": {"type": "core:fallthrough", "connections": [{"target": "theirs", "triggerCondition": {"type": "core:action", "tag": "..."}}]},
+    "theirs": {"type": "core:vanilla", "connections": [{"target": "animated", "triggerCondition": {"type": "core:not", "condition": ...}}]}
+  }
+  ```
+
+  The example pack `misc/examples/vanilla-swim-extension` makes players vanilla while they are in
+  water: one layer with `"when": IN_WATER` and a single `core:vanilla` node.
+
+  Rendering: the render puts the mutated model in place and animates as usual, then, if the
+  animator asks for vanilla, puts the vanilla renderer state back before the model is drawn (the
+  same swap as between entities, see *Rendering: swap per render*).
 
 ## Pose items
 

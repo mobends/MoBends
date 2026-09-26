@@ -111,6 +111,70 @@ public class ExtensionsTest
         throw new AssertionError(String.format("Between ticks %s and %s the arm never was between the player's and the raised one.", fromTick, toTick));
     }
 
+    /** Vanilla from tick 10 to tick 30; a second layer that would go vanilla is disabled by its "when". */
+    private static final String VANILLA = "{\"formatVersion\": 2, \"layers\": ["
+            + "{\"type\": \"KEYFRAME\", \"entryNode\": \"animated\", \"nodes\": {"
+            + "\"animated\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"vanilla\", \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 10}}]},"
+            + "\"vanilla\": {\"type\": \"core:vanilla\", \"tags\": [\"vanilla\"], \"connections\": [{\"target\": \"again\", \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 20}}]},"
+            + "\"again\": {\"type\": \"core:fallthrough\"}}},"
+            + "{\"type\": \"KEYFRAME\", \"when\": {\"type\": \"core:state\", \"state\": \"SPRINTING\"}, \"entryNode\": \"vanilla\", \"nodes\": {\"vanilla\": {\"type\": \"core:vanilla\"}}}"
+            + "]}";
+
+    @Test
+    void aVanillaNodeAsksForVanillaWhileTheAnimatorKeepsRunning() throws Exception
+    {
+        Scenario scenario = new Scenario(EntityKind.PLAYER, "extension_vanilla", Scenarios.FPS, 40, (tick, in) -> Scripts.walk(in, Scripts.WALK_SPEED));
+        KumoSession session = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(EntityKind.PLAYER)),
+                Collections.singletonList(KumoSerializer.INSTANCE.gson.fromJson(VANILLA, AnimatorTemplate.class)));
+
+        float[] legWhenVanillaStarted = null;
+        boolean legMovedWhileVanilla = false;
+        for (int frame = 0; frame < scenario.frameCount(); frame++)
+        {
+            float[] leg = session.step().bones.get("rightLeg").rt;
+            float tick = frame * 20F / Scenarios.FPS;
+            boolean vanilla = session.animator.wantsVanilla();
+            if (tick < 9 || tick > 32)
+            {
+                assertTrue(!vanilla, "animated on tick " + tick);
+            }
+            else if (tick > 12 && tick < 29)
+            {
+                assertTrue(vanilla, "vanilla on tick " + tick);
+                assertTrue(session.animator.getActions().contains("vanilla"));
+                if (legWhenVanillaStarted == null) legWhenVanillaStarted = leg.clone();
+                else legMovedWhileVanilla |= angleBetween(legWhenVanillaStarted, leg) > 5;
+            }
+        }
+        assertTrue(legMovedWhileVanilla, "the player's own animation keeps running underneath");
+    }
+
+    @Test
+    void theVanillaSwimExampleIsVanillaInWaterOnly() throws Exception
+    {
+        Path pack = LabPaths.root().resolve("../misc/examples/vanilla-swim-extension/assets/mobends_vanilla_swim/bends");
+        ExtensionDefinition extension = ExtensionDefinition.parse(new String(Files.readAllBytes(pack.resolve("extensions/vanilla_swim.json")), StandardCharsets.UTF_8));
+        assertEquals("mobends-player", extension.type);
+        AnimatorTemplate swim;
+        try (Reader reader = Files.newBufferedReader(pack.resolve("animators/vanilla_swim.json")))
+        {
+            swim = KumoSerializer.INSTANCE.gson.fromJson(reader, AnimatorTemplate.class);
+        }
+
+        Scenario scenario = new Scenario(EntityKind.PLAYER, "extension_vanilla_swim", Scenarios.FPS, 40, (tick, in) -> {
+            Scripts.walk(in, Scripts.WALK_SPEED);
+            in.inWater = Scripts.between(tick, 10, 30);
+        });
+        KumoSession session = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(EntityKind.PLAYER)), Collections.singletonList(swim));
+        for (int frame = 0; frame < scenario.frameCount(); frame++)
+        {
+            session.step();
+            float tick = frame * 20F / Scenarios.FPS;
+            if (tick < 9 || tick > 31) assertTrue(!session.animator.wantsVanilla(), "animated out of water, tick " + tick);
+            else if (tick > 11 && tick < 29) assertTrue(session.animator.wantsVanilla(), "vanilla in water, tick " + tick);
+        }
+    }
+
     @Test
     void theExampleWavesWhileStandingStillOnly() throws Exception
     {

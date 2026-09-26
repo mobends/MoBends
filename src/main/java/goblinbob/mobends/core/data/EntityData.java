@@ -282,6 +282,13 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         this.typeAnimator = base == null ? null : new KumoAnimatorController<>(base, extensions);
     }
 
+    /** True when the entity's animator asks for the vanilla model and animation right now (a {@code core:vanilla} node). */
+    public boolean wantsVanilla()
+    {
+        IAnimationController<?> controller = getActiveController();
+        return controller != null && controller.wantsVanilla();
+    }
+
     /** The controller that animates this entity: its type's animator, or else its own. */
     public IAnimationController<?> getActiveController()
     {

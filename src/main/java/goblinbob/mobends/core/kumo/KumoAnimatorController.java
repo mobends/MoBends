@@ -88,6 +88,12 @@ public class KumoAnimatorController<T extends EntityData<?>> implements IAnimati
         }
     }
 
+    @Override
+    public boolean wantsVanilla()
+    {
+        return state != null && state.wantsVanilla();
+    }
+
     /** Drops the instanced animator so it is rebuilt from (reloaded) resources on the next frame. */
     public void reload()
     {

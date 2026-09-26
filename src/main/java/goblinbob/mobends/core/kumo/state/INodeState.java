@@ -37,6 +37,12 @@ public interface INodeState
         return false;
     }
 
+    /** While a layer is in a node that wants vanilla, the entity is drawn with its vanilla model and animation. */
+    default boolean isVanilla()
+    {
+        return false;
+    }
+
     /** Advances the node's clock; called after evaluation. */
     void advance(IKumoContext context, float deltaTime);
 

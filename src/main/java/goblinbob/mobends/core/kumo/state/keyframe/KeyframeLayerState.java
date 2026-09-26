@@ -132,12 +132,23 @@ public class KeyframeLayerState implements ILayerState
         return currentNode;
     }
 
+    /** Whether the layer's "when" held on the last update. */
+    private boolean enabled = true;
+
+    @Override
+    public boolean wantsVanilla()
+    {
+        // A disabled layer (its "when" doesn't hold) asks for nothing.
+        return currentNode.isVanilla() && enabled;
+    }
+
     @Override
     public void update(IKumoContext context, float deltaTime, Pose animatorPose) throws MalformedKumoTemplateException
     {
         bindScopes(context, currentNode);
 
-        if (when != null && !when.isConditionMet(context))
+        enabled = when == null || when.isConditionMet(context);
+        if (!enabled)
         {
             // Disabled: the layer writes nothing and its clocks pause.
             return;

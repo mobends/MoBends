@@ -21,9 +21,13 @@
   the rest of its animation (and other packs' extensions) carry on. Their `core:fallthrough`
   nodes let the animation below show, and fade to and from it. They replace bends packs. See
   `misc/kumo-format.md` ("Extensions") and the example packs in `misc/examples/wave-extension`
-  and `misc/examples/dance-extension` (cows and chickens dance to a beat).
+  `misc/examples/dance-extension` (cows and chickens dance to a beat) and
+  `misc/examples/vanilla-swim-extension` (players swim with the vanilla animation).
 - When an entity has several extensions, Settings shows an *Extensions* button for it: move them
   up and down to decide which goes on top.
+- A `core:vanilla` node draws the entity with its vanilla model and animation while a layer is in
+  it, with the animator still running underneath; an extension can use it to bring back
+  animations made for the vanilla model under a condition. The switch is immediate.
 - A keyframe in a clip file can leave out `position`, `rotation` or `scale` when it has none.
 
 ### Changed
