@@ -72,12 +72,15 @@ public class KumoAnimatorController<T extends EntityData<?>> implements IAnimati
         }
         try
         {
+            AnimatorResources resources = AnimatorResources.INSTANCE;
             List<AnimatorTemplate> overlays = new ArrayList<>();
+            List<Boolean> overlaysTrusted = new ArrayList<>();
             for (ResourceLocation extension : extensions)
             {
-                overlays.add(AnimatorResources.INSTANCE.loadAnimator(extension));
+                overlays.add(resources.loadAnimator(extension));
+                overlaysTrusted.add(resources.isTrusted(extension.toString()));
             }
-            state = new KumoAnimatorState<>(AnimatorResources.INSTANCE.loadAnimator(animator), overlays, AnimatorResources.INSTANCE);
+            state = new KumoAnimatorState<>(resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
             return true;
         }
         catch (Exception e)
@@ -111,6 +114,7 @@ public class KumoAnimatorController<T extends EntityData<?>> implements IAnimati
         }
         try
         {
+            state.setLimits(AnimationLimits.current());
             state.update(entityData, DataUpdateHandler.ticksPerFrame);
         }
         catch (MalformedKumoTemplateException e)

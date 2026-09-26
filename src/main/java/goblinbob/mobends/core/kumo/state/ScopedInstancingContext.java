@@ -30,6 +30,12 @@ public class ScopedInstancingContext implements IKumoInstancingContext
     }
 
     @Override
+    public boolean isTrusted(String key)
+    {
+        return parent.isTrusted(key);
+    }
+
+    @Override
     public ExpressionScope getExpressionScope()
     {
         return scope;

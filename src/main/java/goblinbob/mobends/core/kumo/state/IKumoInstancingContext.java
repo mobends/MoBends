@@ -23,6 +23,16 @@ public interface IKumoInstancingContext
         return null;
     }
 
+    /**
+     * Whether the resource at {@code key} (an animator or a clip) comes from a trusted source (the
+     * mod or another mod) rather than a resource pack; animation from untrusted sources can be
+     * limited (see {@link goblinbob.mobends.core.kumo.AnimationLimits}).
+     */
+    default boolean isTrusted(String key)
+    {
+        return true;
+    }
+
     /** The named expressions visible where a template is being instanced. */
     default ExpressionScope getExpressionScope()
     {

@@ -15,7 +15,7 @@ ships with the mod. The scripts in `tools/` are TypeScript run with [Bun](https:
 
 | task | what it does |
 |---|---|
-| `gradle test` | The gate. `KumoParityTest` runs every scenario through the entity's animator asset and checks it stays within 0.1° / 0.01 model units of the golden. `SideEffectParityTest` checks the sword trail is fed on the same frames. The other tests cover expressions, clips, entity types, extensions and model definitions. |
+| `gradle test` | The gate. `KumoParityTest` runs every scenario through the entity's animator asset and checks it stays within 0.1° / 0.01 model units of the golden. `SideEffectParityTest` checks the sword trail is fed on the same frames. The other tests cover expressions, clips, entity types, extensions, server limits (`AnimationLimitsTest`) and model definitions. |
 | `gradle compare --args="$PWD/golden [entity[/scenario] ...]"` | Prints the parity report per scenario and writes the animator's traces to `build/kumo-traces/` for `tools/trace_diff.ts`. Add `-Dlab.debugNodes=true` to print every layer's current node per frame. |
 | `gradle record --args="$PWD/golden entity[/scenario] ..."` | Accepts the animator's current output as the golden of the named scenarios. Only for new scenarios, or when a change to an animator is intended (say so in `PROGRESS.md`). |
 | `gradle generateAnimators` | Regenerates the animator JSON files and the hand-authored clips from `tools/gen_animators.ts`. |

@@ -32,6 +32,14 @@
 
 ### Changed
 
+- Servers decide what resource packs may do to Mo' Bends animation (`resourcePackAnimation`,
+  `maxPartOffset`, `maxBodyOffset` in the server config, sent to clients when they join). By
+  default (`LIMITED`) a resource pack's types, extensions, animators and clips work, but can't
+  move a model's parts more than 4 units or the whole model more than 16 units from where the
+  trusted animation (Mo' Bends' or another mod's) puts them, and can't bring their own model
+  geometry; `DENY` ignores them and `ALLOW` lifts the limits. Singleplayer is always `ALLOW`. See
+  `misc/kumo-format.md` ("Servers: what resource packs may do").
+
 - In animators, a clip's `time` and `loop` are replaced by `frame` (an expression: where in the
   clip it is) and `duration` (how long the clip runs, in ticks). A clip loops by wrapping its
   frame, `{"mod": [..., "clipLength"]}`, and holds its last frame otherwise; it counts as finished
@@ -70,6 +78,8 @@
   it walks or jumps: those poses now set the head's rotation instead of adding to last frame's.
 - Those mobs' legs (and the iron golem's arms) settle back to rest when they stop walking,
   instead of freezing mid-stride.
+- Only the local player joining a world resets the server settings and asks the server for them,
+  not every player that comes into view.
 - Mo' Bends' messages (such as a type or an extension that fails to load) now appear in the game
   log (`latest.log`), not only in the console.
 
@@ -92,7 +102,12 @@
   animator nodes. Every entity animates from an animator asset.
 - Bends packs are gone (`core.pack`, `EntityData.packAnimationState`,
   `NetworkConfiguration.areBendsPacksAllowed` / `isMovementLimited`, and the `bendsPacksAllowed`
-  and `movementLimited` server settings). Use extensions.
+  and `movementLimited` server settings). Use extensions; the server limits resource packs with
+  `resourcePackAnimation` instead.
+- The unused `modelScalingAllowed` server setting (`NetworkConfiguration.isModelScalingAllowed`)
+  is gone.
+- `DefinedBenders.createBender` takes the definition's location, and `DefinedRenderer` a supplier
+  of the definition: a defined mob reads its definition again whenever it is rebuilt.
 - `AnimationLoader` only loads JSON clips from resources (`loadFromFile`, `loadFromString` and
   the internal registry are gone).
 - `BipedActionController.getItemUseAction` / `getItemAttackAction` / `armPoseOf` moved to

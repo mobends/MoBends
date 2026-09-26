@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.animation.keyframe;
 
 import com.google.gson.Gson;
-import net.minecraft.client.Minecraft;
+import goblinbob.mobends.core.client.PackTrust;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class AnimationLoader
             return cached;
         }
 
-        try (InputStream stream = Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream())
+        try (InputStream stream = PackTrust.open(location))
         {
             KeyframeAnimation animation = new Gson().fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), KeyframeAnimation.class);
             if (animation != null)

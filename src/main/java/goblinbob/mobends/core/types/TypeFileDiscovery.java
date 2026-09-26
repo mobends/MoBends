@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.types;
 
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.client.PackTrust;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.AbstractResourcePack;
 import net.minecraft.client.resources.IResourcePack;
@@ -47,9 +48,12 @@ final class TypeFileDiscovery
         /** The pack and the path, for messages. */
         final String source;
         final String json;
+        /** False for a file from a resource pack the player enabled (see {@code PackTrust}). */
+        final boolean trusted;
 
-        TypeFile(String source, String json)
+        TypeFile(String source, String json, boolean trusted)
         {
+            this.trusted = trusted;
             this.source = source;
             this.json = json;
         }
@@ -76,11 +80,11 @@ final class TypeFileDiscovery
             {
                 if (root.isDirectory())
                 {
-                    readFolder(pack.getPackName(), root, pattern, files);
+                    readFolder(pack.getPackName(), root, !PackTrust.isUserPack(pack), pattern, files);
                 }
                 else if (root.isFile())
                 {
-                    readZip(pack.getPackName(), root, pattern, files);
+                    readZip(pack.getPackName(), root, !PackTrust.isUserPack(pack), pattern, files);
                 }
             }
             catch (IOException e)
@@ -96,7 +100,7 @@ final class TypeFileDiscovery
             }
             try
             {
-                readFolder("classpath", root, pattern, files);
+                readFolder("classpath", root, true, pattern, files);
             }
             catch (IOException e)
             {
@@ -172,7 +176,7 @@ final class TypeFileDiscovery
         return null;
     }
 
-    private static void readFolder(String packName, File root, Pattern pattern, List<TypeFile> files) throws IOException
+    private static void readFolder(String packName, File root, boolean trusted, Pattern pattern, List<TypeFile> files) throws IOException
     {
         Path rootPath = root.toPath();
         Path assets = rootPath.resolve("assets");
@@ -190,7 +194,7 @@ final class TypeFileDiscovery
         }
         for (Path path : paths)
         {
-            files.add(new TypeFile(packName + "/" + relative(rootPath, path), new String(Files.readAllBytes(path), StandardCharsets.UTF_8)));
+            files.add(new TypeFile(packName + "/" + relative(rootPath, path), new String(Files.readAllBytes(path), StandardCharsets.UTF_8), trusted));
         }
     }
 
@@ -199,7 +203,7 @@ final class TypeFileDiscovery
         return root.relativize(path).toString().replace(File.separatorChar, '/');
     }
 
-    private static void readZip(String packName, File zip, Pattern pattern, List<TypeFile> files) throws IOException
+    private static void readZip(String packName, File zip, boolean trusted, Pattern pattern, List<TypeFile> files) throws IOException
     {
         try (ZipFile zipFile = new ZipFile(zip))
         {
@@ -218,7 +222,7 @@ final class TypeFileDiscovery
             {
                 try (InputStream stream = zipFile.getInputStream(entry))
                 {
-                    files.add(new TypeFile(packName + "/" + entry.getName(), IOUtils.toString(stream, StandardCharsets.UTF_8)));
+                    files.add(new TypeFile(packName + "/" + entry.getName(), IOUtils.toString(stream, StandardCharsets.UTF_8), trusted));
                 }
             }
         }

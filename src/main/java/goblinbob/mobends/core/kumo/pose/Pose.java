@@ -34,6 +34,11 @@ public class Pose
      * poses).
      */
     private final boolean sinkFallback;
+    /**
+     * When set, relative offsets and vectors with nothing under them resolve against these values
+     * (one per slot) instead of the bones' live targets: see {@code KumoAnimatorState}'s limits.
+     */
+    private IVec3fRead[] fallbackValues;
 
     public Pose(Skeleton skeleton)
     {
@@ -200,6 +205,12 @@ public class Pose
         }
     }
 
+    /** Relative offsets and vectors resolve against {@code values} (per slot) instead of the live targets; null to undo. */
+    public void setFallbackValues(IVec3fRead[] values)
+    {
+        this.fallbackValues = values;
+    }
+
     public void composeOffset(int index, float x, float y, float z, Space space)
     {
         BoneTarget target = targets[index];
@@ -218,7 +229,7 @@ public class Pose
             IRotationSink rotationSink = sink == null ? null : sink.asRotation();
             if (rotationSink != null && rotationSink.hasOffset())
             {
-                IVec3fRead current = rotationSink.getOffset();
+                IVec3fRead current = fallbackValues != null ? fallbackValues[index] : rotationSink.getOffset();
                 target.offset.set(current.getX() + x, current.getY() + y, current.getZ() + z);
             }
             else
@@ -268,7 +279,7 @@ public class Pose
             IVectorSink vectorSink = sink == null ? null : sink.asVector();
             if (vectorSink != null)
             {
-                IVec3fRead current = vectorSink.getVectorTarget();
+                IVec3fRead current = fallbackValues != null ? fallbackValues[index] : vectorSink.getVectorTarget();
                 target.vector.set(current.getX() + x, current.getY() + y, current.getZ() + z);
             }
             else

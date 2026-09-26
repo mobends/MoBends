@@ -103,6 +103,13 @@ public class KumoSession
     /** With the layers of {@code extensions} on top of the animator's, as an entity type's extensions add them. */
     public KumoSession(Scenario scenario, AnimatorTemplate template, java.util.List<AnimatorTemplate> extensions) throws MalformedKumoTemplateException
     {
+        this(scenario, template, true, extensions, java.util.Collections.nCopies(extensions.size(), true));
+    }
+
+    /** As above, saying which of the animator and the extensions come from a trusted source (the mod or another mod). */
+    public KumoSession(Scenario scenario, AnimatorTemplate template, boolean trusted, java.util.List<AnimatorTemplate> extensions,
+                       java.util.List<Boolean> extensionsTrusted) throws MalformedKumoTemplateException
+    {
         LabBootstrap.ensure();
         net.minecraft.entity.Entity.resetIds();
         this.scenario = scenario;
@@ -118,7 +125,7 @@ public class KumoSession
             scenario.setup.accept(this.data);
         }
         this.clock = new LabClock(scenario.fps);
-        this.animator = new KumoAnimatorState<>(template, extensions, INSTANCING);
+        this.animator = new KumoAnimatorState<>(template, trusted, extensions, extensionsTrusted, INSTANCING);
     }
 
     public PoseTrace run() throws MalformedKumoTemplateException

@@ -9,6 +9,8 @@ import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.network.NetworkConfiguration;
+import goblinbob.mobends.core.network.ResourcePackPolicy;
 import goblinbob.mobends.core.types.selector.CoreSelectorConditions;
 import goblinbob.mobends.core.types.selector.ISelectorCondition;
 import goblinbob.mobends.core.types.selector.SelectorConditionRegistry;
@@ -150,11 +152,17 @@ public class EntityTypeRegistry
             add(EntityType.builtIn(bender));
         }
 
+        ResourcePackPolicy policy = NetworkConfiguration.instance.getResourcePackPolicy();
         for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("types"))
         {
+            if (!file.trusted && policy == ResourcePackPolicy.DENY)
+            {
+                Core.LOG.info("The server denies resource packs' animation: ignoring the type " + file.source);
+                continue;
+            }
             try
             {
-                add(load(file, config));
+                add(load(file, config, policy));
             }
             catch (Exception e)
             {
@@ -178,8 +186,14 @@ public class EntityTypeRegistry
     private int loadExtensions(@Nullable CoreClientConfig config)
     {
         extensions.clear();
+        ResourcePackPolicy policy = NetworkConfiguration.instance.getResourcePackPolicy();
         for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("extensions"))
         {
+            if (!file.trusted && policy == ResourcePackPolicy.DENY)
+            {
+                Core.LOG.info("The server denies resource packs' animation: ignoring the extension " + file.source);
+                continue;
+            }
             try
             {
                 ExtensionDefinition definition = ExtensionDefinition.parse(file.json);
@@ -235,7 +249,7 @@ public class EntityTypeRegistry
         types.put(type.getId(), type);
     }
 
-    private EntityType load(TypeFileDiscovery.TypeFile file, @Nullable CoreClientConfig config) throws Exception
+    private EntityType load(TypeFileDiscovery.TypeFile file, @Nullable CoreClientConfig config, ResourcePackPolicy policy) throws Exception
     {
         EntityTypeDefinition definition = EntityTypeDefinition.parse(file.json);
         ISelectorCondition selector = definition.selector == null ? null : SelectorConditionRegistry.INSTANCE.parse(definition.selector);
@@ -246,10 +260,15 @@ public class EntityTypeRegistry
         {
             vanilla = true;
         }
+        else if (definition.isModelDefinition() && !file.trusted && policy != ResourcePackPolicy.ALLOW)
+        {
+            // Custom geometry from a resource pack: the entity keeps its default model.
+            Core.LOG.warning("The server limits resource packs' animation: the type " + file.source + " keeps the entity's default model instead of " + definition.model);
+        }
         else if (definition.isModelDefinition())
         {
             ResourceLocation location = new ResourceLocation(definition.model);
-            model = DefinedBenders.createBender(location.getResourceDomain(), ModelDefinitions.INSTANCE.load(location));
+            model = DefinedBenders.createBender(location.getResourceDomain(), location, ModelDefinitions.INSTANCE.load(location));
             EntityBender<?> existing = EntityBenderRegistry.instance.getByKey(model.getKey());
             if (existing != null)
             {

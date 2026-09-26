@@ -618,3 +618,39 @@ mutated renderer's transforms and vanilla draws the entity; the first-person han
 `ExtensionsTest` checks the node asks for vanilla only while current, that a disabled layer's
 doesn't, and that the player's own animation keeps running underneath. 75 lab tests pass.
 Not verified in game.
+
+## 19. Servers limit what resource packs may do
+
+**What.** Bends packs had a server switch and a per-frame movement limit; both went with them.
+Now every resource pack is limited the same way, whatever it brings (types, extensions, animators,
+clips, model definitions). `PackTrust` tells trusted content (the mod, other mods, vanilla, the
+server's resource pack) from untrusted (enabled user resource packs, including their version of a
+trusted file). The server's `resourcePackAnimation` (`ALLOW` / `LIMITED` / `DENY`),
+`maxPartOffset` and `maxBodyOffset` are shared with clients (new `SharedStringProp`,
+`SharedFloatProp`); singleplayer is `ALLOW`; `NetworkConfiguration.applyChanges` reloads the
+animation when they change. `modelScalingAllowed` (unused) is gone.
+
+* `KumoAnimatorState` knows each layer's trust (its declaring file and its clips, through
+  `IKumoInstancingContext.isTrusted`) and, with `AnimationLimits`, notes the pose before the first
+  untrusted layer and clamps every part offset and body vector around the trusted value after the
+  last. `root` and `globalOffset` are one vector. While limiting, relative offsets and vectors
+  resolve against the last trusted values (`Pose.setFallbackValues`), not the live ones.
+* Found by the every-scenario test: the swim writes the body vector with X = NaN ("not
+  written"), which reached the reference and turned every comparison false, so nothing was
+  clamped. Unwritten axes are now skipped, infinite values go to the reference, NaN part offsets
+  and broken rotations are dropped.
+* Geometry: `PackTrust.open` serves only trusted model definitions under `LIMITED` and `DENY`
+  (and only trusted anything under `DENY`); defined mobs read their definition again when
+  rebuilt (`DefinedBenders.createBender(modId, location, definition)`), so a policy change takes
+  effect; untrusted types keep the default model instead of their own definition.
+* `WorldJoinHandler` reacts to the local player only (it reset the settings whenever any player
+  came into view).
+
+**Verified.** `AnimationLimitsTest`: untrusted extensions stay within 4 / 16 of the trusted pose;
+trusted ones and `ALLOW` aren't limited; an untrusted extension leaves the player's 24-unit swim
+alone; an untrusted animator is held near rest; infinite and NaN values don't get through; and,
+for every one of the 39 scenarios, an untrusted extension that throws every part and both body
+vectors away every frame stays within the limits on every frame. 120 lab tests pass.
+
+**Not verified here (needs the game and a server).** Pack detection, the settings reaching a
+client, the reload on joining, `DENY` loading the trusted versions.

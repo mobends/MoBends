@@ -1,5 +1,6 @@
 package goblinbob.mobends.core;
 
+import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
 import goblinbob.mobends.core.asset.AssetReloadListener;
 import goblinbob.mobends.core.asset.AssetsModule;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
@@ -9,7 +10,9 @@ import goblinbob.mobends.core.connection.ConnectionManager;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.env.EnvironmentModule;
+import goblinbob.mobends.core.kumo.AnimationLimits;
 import goblinbob.mobends.core.kumo.AnimatorResources;
+import goblinbob.mobends.core.network.NetworkConfiguration;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.GsonResources;
@@ -69,7 +72,10 @@ public class CoreClient extends Core<CoreClientConfig>
         IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
         resourceManager.registerReloadListener(new AssetReloadListener());
         // Resource packs can add, change or remove types, and the model definitions and animators they use.
-        resourceManager.registerReloadListener(manager -> reloadTypes());
+        resourceManager.registerReloadListener(manager -> reloadAnimation());
+
+        // Resource packs' animation is limited as the server says (see NetworkConfiguration).
+        AnimationLimits.setProvider(NetworkConfiguration.instance::getAnimationLimits);
     }
 
     @Override
@@ -81,8 +87,13 @@ public class CoreClient extends Core<CoreClientConfig>
         EntityTypeRegistry.INSTANCE.reload();
     }
 
-    private static void reloadTypes()
+    /**
+     * Reloads the entity types, extensions, animators, clips and model definitions: after a
+     * resource reload, or when the server changes what resource packs may do.
+     */
+    public static void reloadAnimation()
     {
+        AnimationLoader.clearCache();
         GsonResources.clearCache();
         ModelDefinitions.INSTANCE.clearCache();
         AnimatorResources.INSTANCE.clearCache();

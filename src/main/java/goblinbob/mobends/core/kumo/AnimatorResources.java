@@ -2,6 +2,7 @@ package goblinbob.mobends.core.kumo;
 
 import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
+import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.util.GsonResources;
@@ -51,6 +52,12 @@ public class AnimatorResources implements IKumoInstancingContext
         {
             throw new IllegalStateException("Cannot load the animation clip '" + key + "'", e);
         }
+    }
+
+    @Override
+    public boolean isTrusted(String key)
+    {
+        return PackTrust.isTrusted(new ResourceLocation(key));
     }
 
     @Override

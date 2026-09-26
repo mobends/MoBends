@@ -4,13 +4,15 @@ import goblinbob.mobends.core.client.MutatedRenderer;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import net.minecraft.entity.EntityLivingBase;
 
+import java.util.function.Supplier;
+
 /** The mutated renderer of a defined mob: the default one with the definition's child scale. */
 public class DefinedRenderer<E extends EntityLivingBase> extends MutatedRenderer<E>
 {
 
-    private final EntityModelDefinition definition;
+    private final Supplier<EntityModelDefinition> definition;
 
-    public DefinedRenderer(EntityModelDefinition definition)
+    public DefinedRenderer(Supplier<EntityModelDefinition> definition)
     {
         this.definition = definition;
     }
@@ -18,7 +20,7 @@ public class DefinedRenderer<E extends EntityLivingBase> extends MutatedRenderer
     @Override
     protected float getChildScale()
     {
-        return definition.childScale;
+        return definition.get().childScale;
     }
 
 }

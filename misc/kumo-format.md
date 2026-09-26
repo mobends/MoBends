@@ -375,6 +375,48 @@ sorted by these keys, most significant first (`TypeOrder`):
 Types are not deduplicated: two types with different ids are two entries, even if they do the
 same thing.
 
+## Servers: what resource packs may do
+
+Types, extensions, animators and clips can come from anyone's resource pack, and a model drawn far
+from its hitbox, or given invisible or giant geometry, is an advantage on a server. So a server
+decides what resource packs may do, and sends it to every client with Mo' Bends when they join
+(the `Server` category of the server's `config/mobends.cfg`):
+
+| setting | default | meaning |
+|---|---|---|
+| `resourcePackAnimation` | `LIMITED` | `ALLOW`, `LIMITED` or `DENY` (below) |
+| `maxPartOffset` | 4 | `LIMITED`: how far resource packs' animation may move one part from where the trusted animation puts it, in model units (1/16 block) |
+| `maxBodyOffset` | 16 | `LIMITED`: the same for the whole model (`globalOffset` / `root`, `localOffset`) |
+
+* **Trusted** content is what comes from Mo' Bends, another mod, vanilla, or the server's own
+  resource pack. **Untrusted** is what a resource pack the player enabled supplies, including a
+  resource pack's version of a trusted file (an animator, a clip or a model definition it
+  replaces). `PackTrust` decides.
+* **`ALLOW`**: no limits. Singleplayer always behaves like this, whatever its config says.
+* **`LIMITED`**:
+  * Every layer from an untrusted source is limited. A layer is untrusted when the file declaring
+    it is (an animator's own layers; a parent's through `extends` are judged by the parent's
+    file), or when any clip its nodes play is.
+  * After the trusted layers, the pose is noted; after the untrusted ones, every part's offset and
+    the whole model's offsets are brought back within `maxPartOffset` / `maxBodyOffset` of what
+    the trusted layers gave them (their last value if they didn't write it this frame; the
+    bone's value when the limits started otherwise). So an extension moves a swimming player's
+    arm a little, not the swim; an untrusted animator on its own is held near the rest position.
+  * While limited, a relative offset or vector with nothing under it builds on the trusted value,
+    not the live one, which the untrusted layers have pushed (else the push would compound).
+  * An axis an offset or vector doesn't write (NaN) never widens the limit; an infinite value goes
+    back to the trusted one; a part's NaN offset axis and a broken (non-finite) rotation are
+    dropped, so no part can be made to vanish.
+  * Rotations are otherwise free. Scale needs no limit: animation can't scale parts.
+  * Model definitions (geometry) come only from trusted sources: an untrusted type that names one
+    keeps the entity's default model, and a resource pack's version of a built-in definition is
+    skipped for the built-in one.
+* **`DENY`**: untrusted types and extensions are ignored, and for every animator, clip and model
+  definition the trusted version is loaded (if there's none, it fails to load, with a warning).
+* Changing server, or the server's answer arriving, reloads the types, extensions, animators and
+  model definitions when the policy or the limits differ. A server without Mo' Bends never
+  answers: its players get the defaults (`LIMITED`, 4, 16).
+
 ## User control
 
 * **Ranks.** Settings shows an *Order* button next to every entity with more than one type. It
