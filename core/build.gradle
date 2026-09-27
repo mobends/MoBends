@@ -1,0 +1,23 @@
+// The Minecraft-free animation engine. Must not depend on Minecraft, a mod loader or LWJGL,
+// so it can be shared by every Minecraft version. Java 8, so 1.12.2 can use it.
+apply plugin: 'java'
+
+group = 'goblinbob.mobends'
+archivesBaseName = 'mobends-core'
+version = mod_version
+
+sourceCompatibility = targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Shipped by Minecraft itself (these are the versions 1.12.2 ships), so not bundled.
+    compileOnly 'com.google.code.gson:gson:2.8.0'
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.1'
+
+    testImplementation 'com.google.code.gson:gson:2.8.0'
+    testImplementation 'com.google.code.findbugs:jsr305:3.0.1'
+    testImplementation 'junit:junit:4.11'
+}

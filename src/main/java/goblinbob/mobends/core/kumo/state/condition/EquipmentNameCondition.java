@@ -9,7 +9,8 @@ import net.minecraft.item.ItemStack;
 
 /**
  * Met when the item in a player's equipment slot has a display name matching the pattern.
- * This is the one Minecraft-specific condition in the core; it only applies to entity data.
+ * This is the one Minecraft-specific condition, registered by {@link goblinbob.mobends.core.kumo.MinecraftKumoOperations};
+ * it only applies to entity data.
  *
  * @author Iwo Plaza
  */
