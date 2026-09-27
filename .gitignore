@@ -4,6 +4,7 @@
 !/.gitignore
 !/.github
 !/build\.gradle
+!/settings\.gradle
 !/gradle\.properties
 !/src
 !/misc
@@ -13,6 +14,12 @@
 !/README.md
 !/CHANGELOG.md
 !/LICENSE
+!/CONTRIBUTING.md
+
+# Minecraft-free animation engine (see CONTRIBUTING.md)
+!/core
+/core/build
+/core/out
 
 # Standalone animation lab (modern JDK, no Forge)
 !/animation-lab

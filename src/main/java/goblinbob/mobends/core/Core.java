@@ -1,6 +1,7 @@
 package goblinbob.mobends.core;
 
 import goblinbob.mobends.core.configuration.CoreConfig;
+import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
 import goblinbob.mobends.core.module.IModule;
 import goblinbob.mobends.core.network.msg.MessageConfigRequest;
 import goblinbob.mobends.core.network.msg.MessageConfigResponse;
@@ -35,6 +36,8 @@ public abstract class Core<T extends CoreConfig>
 
     public void preInit(FMLPreInitializationEvent event)
     {
+        MinecraftKumoOperations.register();
+
         networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(ModStatics.MODID);
         networkWrapper.registerMessage(MessageConfigRequest.Handler.class, MessageConfigRequest.class, MESSAGE_CONFIG_REQUEST, Side.SERVER);
         networkWrapper.registerMessage(MessageConfigResponse.Handler.class, MessageConfigResponse.class, MESSAGE_CONFIG_RESPONSE, Side.CLIENT);

@@ -7,7 +7,7 @@
  *
  * Source sets:
  *   mcstub - minimal stand-ins for the net.minecraft / org.lwjgl classes the animation code touches
- *   mod    - the mod's own animation sources, copied verbatim from ../src (plus a few shims
+ *   mod    - the mod's own animation sources, copied verbatim from ../src and ../core/src (plus a few shims
  *            for classes that need the Minecraft client, see src/mod/java)
  *   main   - the lab harness: scripted entities, recorder, comparator
  *   test   - JUnit 5 tests: KUMO parity, side effects, expressions, clips, types
@@ -33,6 +33,8 @@ kotlin {
 }
 
 val modSrc = file("../src/main")
+// The Minecraft-free engine (Kumo, math, flux), split out of src/main (see CONTRIBUTING.md).
+val coreSrc = file("../core/src/main")
 
 // Only the Minecraft-agnostic animation subset of the mod is compiled. Everything that needs
 // rendering, GUI, networking or Forge stays out. Classes listed under `exclude` are replaced by
@@ -80,6 +82,10 @@ val modSrcDir = layout.buildDirectory.dir("mod-src")
 val syncModJava by tasks.registering(Sync::class) {
     description = "Copies the Minecraft-agnostic animation sources of the mod into the build directory."
     from(modSrc.resolve("java")) {
+        include(modIncludes)
+        exclude(modExcludes)
+    }
+    from(coreSrc.resolve("java")) {
         include(modIncludes)
         exclude(modExcludes)
     }

@@ -2,7 +2,6 @@ package goblinbob.mobends.core.kumo.expr;
 
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.util.Tween;
-import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -79,9 +78,7 @@ public final class ExpressionOperations
         unary("ceil", a -> (float) Math.ceil(a));
         unary("sin", a -> (float) Math.sin(a));
         unary("cos", a -> (float) Math.cos(a));
-        // Minecraft's table-based sine and cosine, which vanilla models use.
-        unary("mcsin", MathHelper::sin);
-        unary("mccos", MathHelper::cos);
+        // "mcsin" and "mccos" (Minecraft's table-based sine and cosine) are added by the game side.
 
         // {"clamp": [value, min, max]}
         register("clamp", 3, 3, args -> new Ternary(args, (value, min, max) -> {
@@ -114,7 +111,8 @@ public final class ExpressionOperations
         return OPERATIONS.get(name);
     }
 
-    private static void unary(String name, UnaryFunction function)
+    /** Adds a one-argument operation. */
+    public static void unary(String name, UnaryFunction function)
     {
         register(name, 1, 1, args -> new Unary(args[0], function));
     }
@@ -130,7 +128,7 @@ public final class ExpressionOperations
     }
 
     @FunctionalInterface
-    private interface UnaryFunction
+    public interface UnaryFunction
     {
         float apply(float a);
     }

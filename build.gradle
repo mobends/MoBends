@@ -103,6 +103,9 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    // The Minecraft-free animation engine, bundled into the mod jar.
+    implementation project(':core')
+
     // Kotlin support
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.72'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72'
@@ -184,6 +187,7 @@ compileJava.dependsOn checkVanillaFields
 task srcJar(type: Jar) {
     build.dependsOn it
     from sourceSets.main.allSource
+    from { project(':core').sourceSets.main.allSource }
     classifier = 'sources'
     from file("LICENSE")
 }
@@ -207,9 +211,10 @@ processResources {
     }
 }
 
-// Bundling the Kotlin standard library along with the mod
+// Bundling the core and the Kotlin standard library along with the mod
 shadowJar {
     dependencies {
+        include(project(':core'))
         include(dependency('org.jetbrains.kotlin:kotlin-stdlib'))
         include(dependency('org.jetbrains.kotlin:kotlin-stdlib-jdk8'))
     }

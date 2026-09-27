@@ -7,8 +7,8 @@ down how every entity animated before the move to data; since that code is gone,
 changes when an animator is changed on purpose.
 
 The mod's Minecraft-agnostic sources (`core/kumo`, `core/math`, `core/data`, the data classes)
-are compiled straight from `../src` with `--release 8`, against small stubs of the Minecraft
-classes they touch (`src/mcstub`) and shims of the mod's loaders (`src/mod`). Nothing in here
+are compiled straight from `../src` and `../core/src` with `--release 8`, against small stubs
+of the Minecraft classes they touch (`src/mcstub`) and shims of the mod's loaders (`src/mod`). Nothing in here
 ships with the mod. The scripts in `tools/` are TypeScript run with [Bun](https://bun.sh).
 
 ## Tasks
