@@ -16,13 +16,21 @@ import java.util.Map;
 public class Skeleton
 {
 
-    /** Name of the slot that maps to the subject's global offset in clips. */
+    // The entity-level bones of the format (see misc/kumo-format.md, "Bones").
+
+    /** The subject's offset from its position; what clips call {@link #ROOT}. */
+    public static final String GLOBAL_OFFSET = "globalOffset";
+    /** The clips' name of {@link #GLOBAL_OFFSET}: its keyframe positions are root motion. */
     public static final String ROOT = "root";
+    /** The subject's offset after its rotation. */
+    public static final String LOCAL_OFFSET = "localOffset";
+    /** Rotates the whole subject about its center; its keyframe positions are ignored. */
+    public static final String CENTER_ROTATION = "centerRotation";
 
     /** Bone names that denote entity-level smoothed vectors rather than rotations. */
     public static boolean isVectorBone(String name)
     {
-        return ROOT.equals(name) || "globalOffset".equals(name) || "localOffset".equals(name);
+        return ROOT.equals(name) || GLOBAL_OFFSET.equals(name) || LOCAL_OFFSET.equals(name);
     }
 
     private final List<String> names = new ArrayList<>();
@@ -69,11 +77,6 @@ public class Skeleton
     public IBoneSink sink(int index)
     {
         return index < sinks.length ? sinks[index] : null;
-    }
-
-    public boolean isBound()
-    {
-        return boundTo != null;
     }
 
 }

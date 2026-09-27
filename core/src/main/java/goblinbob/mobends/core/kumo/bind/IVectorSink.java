@@ -10,8 +10,7 @@ public interface IVectorSink extends IBoneSink
     {
         /**
          * Restart the interpolation from the current value every time (an exponential approach
-         * to the target). This is what happens in the original code whenever several bits write
-         * the same vector in one frame.
+         * to the target).
          */
         RETARGET,
         /** Restart only when the target changes (a linear tween of 1/smoothness ticks). */

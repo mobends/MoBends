@@ -17,7 +17,7 @@ public class LabBootstrap
         if (done) return;
         done = true;
         MinecraftKumoOperations.register();
-        TriggerConditionRegistry.instance.register("mobends:wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
+        TriggerConditionRegistry.INSTANCE.register("mobends:wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
         goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:sword_trail", goblinbob.mobends.standard.kumo.SwordTrailDriver::create, goblinbob.mobends.standard.kumo.SwordTrailDriver.Template.class);
         goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:cape", goblinbob.mobends.standard.kumo.CapeDriver::create, goblinbob.mobends.standard.kumo.CapeDriver.Template.class);
         goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:spider_idle_legs", goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver::create, goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate.class);

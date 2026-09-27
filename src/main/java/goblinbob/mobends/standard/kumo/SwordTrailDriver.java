@@ -71,12 +71,6 @@ public class SwordTrailDriver implements IPoseItem
     }
 
     @Override
-    public boolean isFinished(float elapsedTicks)
-    {
-        return false;
-    }
-
-    @Override
     public void onNodeStarted(IKumoContext context)
     {
         BipedEntityData<?> data = biped(context);

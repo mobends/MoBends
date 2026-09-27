@@ -1,8 +1,9 @@
-package goblinbob.mobends.core.kumo.state.keyframe;
+package goblinbob.mobends.core.kumo.state.node;
 
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
+import goblinbob.mobends.core.kumo.driver.RampDriver;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.pose.*;
 import goblinbob.mobends.core.kumo.state.ConnectionState;
@@ -10,21 +11,19 @@ import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
 import goblinbob.mobends.core.kumo.state.VariableScope;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
-import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
-import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.keyframe.*;
+import goblinbob.mobends.core.kumo.state.template.*;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
+import goblinbob.mobends.core.math.vector.Vec3f;
 
 import java.util.*;
 
 /**
- * A node of a keyframe layer: an ordered stack of pose items (clips, drivers), a damping table,
- * a list of bones to snap on entry, and the outgoing connections.
+ * A node of a layer: an ordered stack of pose items (clips, drivers), a damping table, a list of
+ * bones to snap on entry, and the outgoing connections. Fallthrough and vanilla nodes are pose
+ * nodes without items.
  */
 public class PoseNode implements INodeState
 {
@@ -32,7 +31,6 @@ public class PoseNode implements INodeState
     private final String name;
     private final List<String> tags;
     private final List<IPoseItem> items;
-    private final IPoseItem primary;
     private final int[] dampingSlots;
     private final float[][] dampingValues;
     private final int[] snapSlots;
@@ -57,7 +55,6 @@ public class PoseNode implements INodeState
         this.items = items;
         this.enterItems = enterItems == null ? Collections.<IPoseItem>emptyList() : enterItems;
         this.skeleton = skeleton;
-        this.primary = items.isEmpty() ? null : items.get(0);
 
         // Merge layer defaults with node overrides into slot-indexed tables.
         Map<String, float[]> damping = new LinkedHashMap<>();
@@ -114,6 +111,7 @@ public class PoseNode implements INodeState
 
     public static PoseNode createFallthrough(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, FallthroughNodeTemplate template) throws MalformedKumoTemplateException
     {
+        template.validate();
         PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
         node.setOnEnter = template.set;
         node.fallthrough = true;
@@ -122,6 +120,7 @@ public class PoseNode implements INodeState
 
     public static PoseNode createVanilla(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, VanillaNodeTemplate template) throws MalformedKumoTemplateException
     {
+        template.validate();
         PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
         node.setOnEnter = template.set;
         node.vanilla = true;
@@ -137,14 +136,25 @@ public class PoseNode implements INodeState
             {
                 throw new MalformedKumoTemplateException("An item sets \"mirror\" / \"swapSides\" but its layer has no \"mirror\" rule.");
             }
-            item = new goblinbob.mobends.core.kumo.pose.MirroredPoseItem(item, spaces.mirror, skeleton, template.mirror);
+            item = new MirroredPoseItem(item, spaces.mirror, skeleton, template.mirror);
         }
         return item;
     }
 
     private static IPoseItem createPlainItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
-        ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
+        IPoseItem item = createUnconditionalItem(context, skeleton, spaces, template);
+        // A ramp's "when" is its own up/down switch; every other item is skipped while its
+        // condition does not hold.
+        if (template.when == null || item instanceof RampDriver)
+        {
+            return item;
+        }
+        return new ConditionalPoseItem(item, TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when));
+    }
+
+    private static IPoseItem createUnconditionalItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
+    {
         ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.damping, template.vectorModes, template.snap);
 
         if (template instanceof ClipItemTemplate)
@@ -172,16 +182,12 @@ public class PoseNode implements INodeState
             return new ClipPoseItem(binding, frame,
                     Expression.compile(clipTemplate.weight, context.getExpressionScope(), Expression.ONE),
                     template.space,
-                    when, clipLength, duration, spaces, effects.isEmpty() ? null : effects);
+                    clipLength, duration, spaces, effects.isEmpty() ? null : effects);
         }
 
         if (template instanceof DriverItemTemplate)
         {
-            IPoseItem driver = DriverRegistry.INSTANCE.create(context, skeleton, (DriverItemTemplate) template);
-            // A ramp's "when" is its own up/down switch; every other driver is skipped while its
-            // condition does not hold, like a clip.
-            boolean ownsCondition = "core:ramp".equals(((DriverItemTemplate) template).driver);
-            return when == null || ownsCondition ? driver : new goblinbob.mobends.core.kumo.pose.ConditionalPoseItem(driver, when);
+            return DriverRegistry.INSTANCE.create(context, skeleton, (DriverItemTemplate) template);
         }
 
         throw new MalformedKumoTemplateException("Unknown pose item template: " + template.getClass().getName());
@@ -239,14 +245,31 @@ public class PoseNode implements INodeState
         return fallthrough;
     }
 
+    /**
+     * Once every timed item (a clip with a {@code duration}) has run its course. A node without
+     * items (fallthrough, vanilla) is always finished; one whose items are all untimed never is.
+     */
     @Override
     public boolean isAnimationFinished()
     {
-        return primary == null || primary.isFinished(elapsed);
+        boolean anyTimed = false;
+        for (IPoseItem item : items)
+        {
+            float duration = item.getDuration();
+            if (!Float.isNaN(duration))
+            {
+                if (elapsed < duration)
+                {
+                    return false;
+                }
+                anyTimed = true;
+            }
+        }
+        return anyTimed || items.isEmpty();
     }
 
     @Override
-    public void parseConnections(Map<String, INodeState> nodesByName, KeyframeNodeTemplate template) throws MalformedKumoTemplateException
+    public void parseConnections(Map<String, INodeState> nodesByName, NodeTemplate template) throws MalformedKumoTemplateException
     {
         if (template.connections != null)
         {
@@ -264,11 +287,11 @@ public class PoseNode implements INodeState
     }
 
     @Override
-    public void start(IKumoContext context)
+    public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
         elapsed = 0;
         snapPending = snapSlots.length > 0;
-        if (setOnEnter != null && context.getLayerScope() != null)
+        if (setOnEnter != null)
         {
             for (Map.Entry<String, Float> entry : setOnEnter.entrySet())
             {
@@ -286,19 +309,12 @@ public class PoseNode implements INodeState
                 enterPose = new Pose(skeleton);
             }
             enterPose.clear();
-            try
+            for (IPoseItem item : enterItems)
             {
-                for (IPoseItem item : enterItems)
-                {
-                    item.onNodeStarted(context);
-                    item.apply(enterPose, context, 0);
-                }
-                enterPending = true;
+                item.onNodeStarted(context);
+                item.apply(enterPose, context, 0);
             }
-            catch (MalformedKumoTemplateException e)
-            {
-                throw new IllegalStateException(e);
-            }
+            enterPending = true;
         }
         for (ConnectionState connection : connections)
         {
@@ -399,7 +415,7 @@ public class PoseNode implements INodeState
         }
     }
 
-    private static boolean isUndamped(goblinbob.mobends.core.math.vector.Vec3f smoothness)
+    private static boolean isUndamped(Vec3f smoothness)
     {
         return Float.isNaN(smoothness.x) && Float.isNaN(smoothness.y) && Float.isNaN(smoothness.z);
     }

@@ -1,16 +1,23 @@
 package goblinbob.mobends.core.kumo.state.template;
 
-import goblinbob.mobends.core.kumo.state.IKumoValidationContext;
-import goblinbob.mobends.core.kumo.state.LayerType;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.pose.Pose;
 
-/**
- * Base of every layer template; the concrete class is chosen by {@code type}.
- */
+import java.util.List;
+import java.util.Map;
+
+/** A layer: a state machine of nodes, composited onto the layers before it. */
 public class LayerTemplate
 {
 
-    private LayerType type = LayerType.KEYFRAME;
+    /** Name of the entry node (JSON: {@code entryNode}). */
+    public String entryNodeName;
+
+    /** The nodes, in declaration order (JSON: an object keyed by node name). */
+    public List<NodeTemplate> nodes;
+
+    /** Restricts the bones the layer may write. */
+    public ArmatureMask mask;
 
     /** How this layer's output combines with the layers before it. */
     public LayerMode mode = LayerMode.OVERRIDE;
@@ -25,22 +32,18 @@ public class LayerTemplate
     public TriggerConditionTemplate when;
 
     /** Layer variables with their initial values (e.g. a combo counter); nodes can set them on entry. */
-    public java.util.Map<String, Float> variables;
+    public Map<String, Float> variables;
+
     /** Left-right mirroring rule for items that set {@code "mirror": true}. */
     public MirrorTemplate mirror;
 
     /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
-    public java.util.Map<String, goblinbob.mobends.core.kumo.expr.ExpressionTemplate> expressions;
+    public Map<String, ExpressionTemplate> expressions;
 
     public enum LayerMode
     {
         OVERRIDE,
         ADDITIVE,
-    }
-
-    public LayerType getLayerType()
-    {
-        return type;
     }
 
     public Pose.Space defaultAdditiveSpace()
@@ -50,11 +53,6 @@ public class LayerTemplate
             return Pose.Space.OVERRIDE;
         }
         return additiveSpace == null || additiveSpace.defaultSpace == null ? Pose.Space.PRE : additiveSpace.defaultSpace;
-    }
-
-    public void validate(IKumoValidationContext context) throws MalformedKumoTemplateException
-    {
-        // Does nothing by default.
     }
 
 }

@@ -2,90 +2,60 @@ package goblinbob.mobends.core.kumo.state.serializer;
 
 import com.google.gson.*;
 import goblinbob.mobends.core.kumo.KumoSerializer;
-import goblinbob.mobends.core.kumo.state.LayerType;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Picks the layer template class by {@code type}. A keyframe layer's {@code nodes} is an object
- * keyed by node name, and its {@code entryNode} is one of those names.
- */
-public class LayerTemplateSerializer implements JsonSerializer<LayerTemplate>, JsonDeserializer<LayerTemplate>
+/** A layer's {@code nodes} is an object keyed by node name, and its {@code entryNode} is one of those names. */
+public class LayerTemplateSerializer implements JsonDeserializer<LayerTemplate>
 {
-
-    @Override
-    public JsonElement serialize(LayerTemplate src, Type typeOfSrc, JsonSerializationContext context)
-    {
-        return KumoSerializer.INSTANCE.layerGson.toJsonTree(src, src.getLayerType().getTemplateType());
-    }
 
     @Override
     public LayerTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        JsonObject object = json.getAsJsonObject();
-        LayerType type = LayerType.KEYFRAME;
-        if (object.has("type"))
+        JsonObject object = JsonReading.object(json, "A layer");
+
+        // Shallow copy: only the top-level entries are rewritten below, and
+        // JsonObject.deepCopy() is not public in the Gson shipped with 1.12.2.
+        JsonObject copy = new JsonObject();
+        for (Map.Entry<String, JsonElement> entry : object.entrySet())
         {
-            type = LayerType.valueOf(object.get("type").getAsString());
+            copy.add(entry.getKey(), entry.getValue());
+        }
+        List<String> names = new ArrayList<>();
+        JsonElement nodes = copy.get("nodes");
+        if (nodes != null)
+        {
+            JsonArray array = new JsonArray();
+            for (Map.Entry<String, JsonElement> entry : JsonReading.object(nodes, "A layer's \"nodes\"").entrySet())
+            {
+                names.add(entry.getKey());
+                array.add(entry.getValue());
+            }
+            copy.add("nodes", array);
         }
 
-        if (type == LayerType.KEYFRAME)
+        String entryName = JsonReading.string(copy.remove("entryNode"), "A layer's \"entryNode\"");
+
+        LayerTemplate layer = KumoSerializer.INSTANCE.layerGson.fromJson(copy, LayerTemplate.class);
+        if (layer.nodes != null)
         {
-            // Shallow copy: only the top-level entries are rewritten below, and
-            // JsonObject.deepCopy() is not public in the Gson shipped with 1.12.2.
-            JsonObject copy = new JsonObject();
-            for (Map.Entry<String, JsonElement> entry : object.entrySet())
+            for (int i = 0; i < names.size() && i < layer.nodes.size(); i++)
             {
-                copy.add(entry.getKey(), entry.getValue());
-            }
-            List<String> names = new ArrayList<>();
-            JsonElement nodes = copy.get("nodes");
-            if (nodes != null && !nodes.isJsonObject())
-            {
-                throw new JsonParseException("A keyframe layer's \"nodes\" has to be an object keyed by node name.");
-            }
-            if (nodes != null)
-            {
-                JsonArray array = new JsonArray();
-                for (Map.Entry<String, JsonElement> entry : nodes.getAsJsonObject().entrySet())
+                NodeTemplate node = layer.nodes.get(i);
+                if (node == null)
                 {
-                    names.add(entry.getKey());
-                    array.add(entry.getValue());
+                    throw new JsonParseException(String.format("The node '%s' is null.", names.get(i)));
                 }
-                copy.add("nodes", array);
+                node.name = names.get(i);
             }
-
-            JsonElement entry = copy.get("entryNode");
-            if (entry == null || !entry.isJsonPrimitive() || !entry.getAsJsonPrimitive().isString())
-            {
-                throw new JsonParseException("A keyframe layer's \"entryNode\" has to be the name of one of its nodes.");
-            }
-            String entryName = entry.getAsString();
-            copy.remove("entryNode");
-
-            KeyframeLayerTemplate layer = KumoSerializer.INSTANCE.layerGson.fromJson(copy, KeyframeLayerTemplate.class);
-            if (layer.nodes != null)
-            {
-                for (int i = 0; i < names.size() && i < layer.nodes.size(); i++)
-                {
-                    KeyframeNodeTemplate node = layer.nodes.get(i);
-                    if (node != null)
-                    {
-                        node.name = names.get(i);
-                    }
-                }
-            }
-            layer.entryNodeName = entryName;
-            return layer;
         }
-
-        return KumoSerializer.INSTANCE.layerGson.fromJson(json, type.getTemplateType());
+        layer.entryNodeName = entryName;
+        return layer;
     }
 
 }

@@ -6,7 +6,7 @@
 
 | Module | Purpose |
 |--------|---------|
-| `core/` | The Minecraft-free animation engine: KUMO (`core/kumo`), maths (`core/math`), `flux`. Java 8, no Minecraft, Forge or LWJGL, so every Minecraft version can share it. Published as `goblinbob.mobends:mobends-core` (see `CONTRIBUTING.md`). |
+| `core/` | The Minecraft-free animation engine: KUMO (`core/kumo`), maths (`core/math`). Java 8, no Minecraft, Forge or LWJGL, so every Minecraft version can share it. Published as `goblinbob.mobends:mobends-core` (see `CONTRIBUTING.md`). |
 | root | The Forge 1.12.2 mod. Depends on `core/` and bundles it into its jar. |
 
 The few KUMO pieces that need Minecraft (`KumoAnimatorController`, `AnimatorResources`,

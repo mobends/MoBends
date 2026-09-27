@@ -33,7 +33,7 @@ public class KumoSession
     public final ScriptedEntity scripted;
     public final LivingEntityData<?> data;
     public final LabClock clock;
-    public final KumoAnimatorState<LivingEntityData<?>> animator;
+    public final KumoAnimatorState animator;
 
     private final VanillaModelInputs modelInputs = new VanillaModelInputs();
     private final EntityInputs inputs = new EntityInputs();
@@ -125,7 +125,7 @@ public class KumoSession
             scenario.setup.accept(this.data);
         }
         this.clock = new LabClock(scenario.fps);
-        this.animator = new KumoAnimatorState<>(template, trusted, extensions, extensionsTrusted, INSTANCING);
+        this.animator = new KumoAnimatorState(template, trusted, extensions, extensionsTrusted, INSTANCING);
     }
 
     public PoseTrace run() throws MalformedKumoTemplateException
@@ -164,11 +164,11 @@ public class KumoSession
         if (DEBUG_NODES)
         {
             StringBuilder line = new StringBuilder(String.format("frame %d tick %.2f:", frameIndex, clock.getTicks()));
-            for (goblinbob.mobends.core.kumo.state.ILayerState layer : animator.getLayers())
+            for (goblinbob.mobends.core.kumo.state.LayerState layer : animator.getLayers())
             {
-                if (layer instanceof goblinbob.mobends.core.kumo.state.keyframe.KeyframeLayerState)
+                if (layer instanceof goblinbob.mobends.core.kumo.state.LayerState)
                 {
-                    line.append(' ').append(((goblinbob.mobends.core.kumo.state.keyframe.KeyframeLayerState) layer).getCurrentNode().getName());
+                    line.append(' ').append(((goblinbob.mobends.core.kumo.state.LayerState) layer).getCurrentNode().getName());
                 }
             }
             System.out.println(line);

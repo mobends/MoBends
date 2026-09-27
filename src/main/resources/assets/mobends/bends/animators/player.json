@@ -2,7 +2,6 @@
   "formatVersion": 2,
   "layers": [
     {
-      "type": "KEYFRAME",
       "entryNode": "reset",
       "nodes": {
         "reset": {
@@ -16,7 +15,6 @@
       }
     },
     {
-      "type": "KEYFRAME",
       "entryNode": "stand",
       "nodes": {
         "stand": {
@@ -13600,7 +13598,6 @@
       }
     },
     {
-      "type": "KEYFRAME",
       "when": {
         "type": "core:and",
         "conditions": [
@@ -13734,7 +13731,6 @@
       }
     },
     {
-      "type": "KEYFRAME",
       "when": {
         "type": "core:and",
         "conditions": [
@@ -14143,7 +14139,6 @@
       }
     },
     {
-      "type": "KEYFRAME",
       "when": {
         "type": "core:not",
         "condition": {
@@ -23683,7 +23678,6 @@
       }
     },
     {
-      "type": "KEYFRAME",
       "entryNode": "cape",
       "nodes": {
         "cape": {

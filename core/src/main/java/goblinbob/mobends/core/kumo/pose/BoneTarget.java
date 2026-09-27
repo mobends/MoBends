@@ -26,7 +26,7 @@ public class BoneTarget
     public boolean offsetAdditive;
     public boolean vectorAdditive;
 
-    /** Rotation the bone is snapped to before the target is applied (the "orientInstant then orient" idiom). */
+    /** Rotation the bone is snapped to before the target is applied, so smoothing starts from there. */
     public boolean hasSnapFrom;
     public final Quaternion snapFrom = new Quaternion();
 
@@ -48,8 +48,8 @@ public class BoneTarget
     public boolean snap;
     /**
      * Set when a vector write replaced a different target written earlier in the same frame: the
-     * original code re-aimed the slide from the current value each time (an exponential approach
-     * instead of a linear tween), so the sink restarts the slide on these axes.
+     * sink restarts the slide from the current value on these axes (an exponential approach
+     * instead of a linear tween).
      */
     public boolean restartX, restartY, restartZ;
     public IVectorSink.Mode vectorMode = IVectorSink.Mode.RETARGET;

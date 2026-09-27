@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.math;
 
-import goblinbob.mobends.core.util.EnumAxis;
-
+/**
+ * A rotation smoothed towards its target: each tick {@code progress} advances by {@code smoothness}
+ * and the current value is the normalised blend of {@code start} and {@code end}.
+ */
 public class SmoothOrientation
 {
-
-    public static final float PI = (float) Math.PI;
 
     protected Quaternion start;
     protected Quaternion end;
@@ -68,10 +68,7 @@ public class SmoothOrientation
         return this;
     }
 
-    /**
-     * Starts smoothing towards a new target from the current smoothed value. This is exactly what
-     * the {@code orient*} family does, minus the axis-angle construction; KUMO writes through it.
-     */
+    /** Starts smoothing towards a new target from the current smoothed value. */
     public SmoothOrientation target(Quaternion target)
     {
         this.start.set(this.smooth);
@@ -81,143 +78,12 @@ public class SmoothOrientation
         return this;
     }
 
-    /** Jumps straight to the target, like {@code orientInstant*}. */
+    /** Jumps straight to the target. */
     public SmoothOrientation snapTo(Quaternion target)
     {
         this.end.set(target);
         this.start.set(this.end);
         this.smooth.set(this.end);
-        return this;
-    }
-
-    public SmoothOrientation orient(float angle, float x, float y, float z)
-    {
-        this.start.set(this.smooth);
-        this.end.setFromAxisAngle(x, y, z, angle / 180F * PI);
-        this.progress = 0F;
-        this.updateSmooth();
-        return this;
-    }
-
-    public SmoothOrientation orientX(float angle)
-    {
-        return this.orient(angle, 1F, 0F, 0F);
-    }
-
-    public SmoothOrientation orientY(float angle)
-    {
-        return this.orient(angle, 0F, 1F, 0F);
-    }
-
-    public SmoothOrientation orientZ(float angle)
-    {
-        return this.orient(angle, 0F, 0F, 1F);
-    }
-
-    public SmoothOrientation orientInstant(float a, float x, float y, float z)
-    {
-        this.end.setFromAxisAngle(x, y, z, a / 180.0F * PI);
-        this.start.set(this.end);
-        this.smooth.set(this.end);
-        return this;
-    }
-
-    public SmoothOrientation orientInstantX(float angle)
-    {
-        return this.orientInstant(angle, 1F, 0F, 0F);
-    }
-
-    public SmoothOrientation orientInstantY(float angle)
-    {
-        return this.orientInstant(angle, 0F, 1F, 0F);
-    }
-
-    public SmoothOrientation orientInstantZ(float angle)
-    {
-        return this.orientInstant(angle, 0F, 0F, 1F);
-    }
-
-    public SmoothOrientation rotate(float angle, float x, float y, float z)
-    {
-        this.end.rotate(x, y, z, angle / 180.0F * PI);
-        this.updateSmooth();
-        return this;
-    }
-
-    public SmoothOrientation rotateX(float angle)
-    {
-        return this.rotate(angle, 1F, 0F, 0F);
-    }
-
-    public SmoothOrientation rotateY(float angle)
-    {
-        return this.rotate(angle, 0F, 1F, 0F);
-    }
-
-    public SmoothOrientation rotateZ(float angle)
-    {
-        return this.rotate(angle, 0F, 0F, 1F);
-    }
-
-    public SmoothOrientation rotateInstant(float angle, float x, float y, float z)
-    {
-        Quaternion rotation = new Quaternion();
-        rotation.setFromAxisAngle(x, y, z, angle / 180.0F * PI);
-        Quaternion.mul(rotation, this.end, this.end);
-        this.start.set(this.end);
-        this.smooth.set(this.end);
-        return this;
-    }
-
-    public SmoothOrientation rotateInstantX(float angle)
-    {
-        return this.rotateInstant(angle, 1F, 0F, 0F);
-    }
-
-    public SmoothOrientation rotateInstantY(float angle)
-    {
-        return this.rotateInstant(angle, 0F, 1F, 0F);
-    }
-
-    public SmoothOrientation rotateInstantZ(float angle)
-    {
-        return this.rotateInstant(angle, 0F, 0F, 1F);
-    }
-
-    /**
-     * Rotates the orientation based on the local
-     * space, not the global space.
-     */
-    public SmoothOrientation localRotate(float angle, float x, float y, float z)
-    {
-        Quaternion rotation = new Quaternion();
-        rotation.setFromAxisAngle(x, y, z, angle / 180.0F * PI);
-        Quaternion.mul(this.end, rotation, this.end);
-        this.updateSmooth();
-        return this;
-    }
-
-    public SmoothOrientation localRotateX(float angle)
-    {
-        return this.localRotate(angle, 1F, 0F, 0F);
-    }
-
-    public SmoothOrientation localRotateY(float angle)
-    {
-        return this.localRotate(angle, 0F, 1F, 0F);
-    }
-
-    public SmoothOrientation localRotateZ(float angle)
-    {
-        return this.localRotate(angle, 0F, 0F, 1F);
-    }
-
-    public SmoothOrientation orientZero()
-    {
-        this.start.set(this.smooth);
-        this.end.setIdentity();
-        this.progress = 0F;
-        this.updateSmooth();
         return this;
     }
 
@@ -239,39 +105,6 @@ public class SmoothOrientation
         return this;
     }
 
-    public SmoothOrientation orient(EnumAxis axis, float angle)
-    {
-        if (axis == EnumAxis.X)
-            this.orientX(angle);
-        else if (axis == EnumAxis.Y)
-            this.orientY(angle);
-        else if (axis == EnumAxis.Z)
-            this.orientZ(angle);
-        return this;
-    }
-
-    public SmoothOrientation rotate(EnumAxis axis, float angle)
-    {
-        if (axis == EnumAxis.X)
-            this.rotateX(angle);
-        else if (axis == EnumAxis.Y)
-            this.rotateY(angle);
-        else if (axis == EnumAxis.Z)
-            this.rotateZ(angle);
-        return this;
-    }
-
-    public SmoothOrientation localRotate(EnumAxis axis, float angle)
-    {
-        if (axis == EnumAxis.X)
-            this.localRotateX(angle);
-        else if (axis == EnumAxis.Y)
-            this.localRotateY(angle);
-        else if (axis == EnumAxis.Z)
-            this.localRotateZ(angle);
-        return this;
-    }
-
     public void update(float ticksPerFrame)
     {
         this.progress += ticksPerFrame * this.smoothness;
@@ -281,10 +114,14 @@ public class SmoothOrientation
 
     public void updateSmooth()
     {
-        this.smooth.set(this.start.x + (this.end.x - this.start.x) * this.progress,
-                this.start.y + (this.end.y - this.start.y) * this.progress,
-                this.start.z + (this.end.z - this.start.z) * this.progress,
-                this.start.w + (this.end.w - this.start.w) * this.progress);
+        // q and -q are the same rotation: blend towards whichever is nearer, so the smoothing
+        // never takes the long way round (or passes through a near-zero quaternion).
+        float dot = start.x * end.x + start.y * end.y + start.z * end.z + start.w * end.w;
+        float sign = dot < 0 ? -1F : 1F;
+        this.smooth.set(this.start.x + (sign * this.end.x - this.start.x) * this.progress,
+                this.start.y + (sign * this.end.y - this.start.y) * this.progress,
+                this.start.z + (sign * this.end.z - this.start.z) * this.progress,
+                this.start.w + (sign * this.end.w - this.start.w) * this.progress);
         this.smooth.normalise();
     }
 

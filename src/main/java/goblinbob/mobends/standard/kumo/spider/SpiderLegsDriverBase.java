@@ -76,12 +76,6 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     }
 
     @Override
-    public boolean isFinished(float elapsedTicks)
-    {
-        return false;
-    }
-
-    @Override
     public void onNodeStarted(IKumoContext context)
     {
         SpiderData data = subject(context);

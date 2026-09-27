@@ -62,7 +62,8 @@ public class Quaternion
 		}
 	}
 	
-	public void negate()
+	/** Becomes the inverse rotation (for a unit quaternion). */
+	public void conjugate()
 	{
 		this.x = -this.x;
 		this.y = -this.y;

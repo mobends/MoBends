@@ -6,9 +6,8 @@ import goblinbob.mobends.core.math.vector.IVec3f;
 import goblinbob.mobends.core.math.vector.IVec3fRead;
 
 /**
- * Sink backed by a {@link SmoothOrientation} and an optional plain offset vector. Writing a
- * target goes through the same code path the procedural animations use ({@code orient*}), so the
- * damping behaviour is identical.
+ * Sink backed by a {@link SmoothOrientation} and an optional plain offset vector: the orientation
+ * smooths towards each target written.
  */
 public class OrientationSink implements IRotationSink
 {

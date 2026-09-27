@@ -7,40 +7,30 @@ import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import java.lang.reflect.Type;
 
-public class TriggerConditionTemplateSerializer implements JsonSerializer<TriggerConditionTemplate>, JsonDeserializer<TriggerConditionTemplate>
+/** Picks the trigger condition template class by {@code type}. */
+public class TriggerConditionTemplateSerializer implements JsonDeserializer<TriggerConditionTemplate>
 {
-
-    @Override
-    public JsonElement serialize(TriggerConditionTemplate src, Type typeOfSrc, JsonSerializationContext context)
-    {
-        return KumoSerializer.INSTANCE.keyframeNodeGson.toJsonTree(src);
-    }
 
     @Override
     public TriggerConditionTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        if (!json.isJsonObject() || !json.getAsJsonObject().has("type"))
-        {
-            throw new JsonParseException("A trigger condition needs a 'type'.");
-        }
-
-        String typeName = json.getAsJsonObject().get("type").getAsString();
-        Type templateType = TriggerConditionRegistry.instance.getTemplateClass(typeName);
-
+        JsonObject object = JsonReading.object(json, "A trigger condition");
+        String typeName = JsonReading.string(object.get("type"), "A trigger condition's \"type\"");
+        Type templateType = TriggerConditionRegistry.INSTANCE.getTemplateClass(typeName);
         if (templateType == null)
         {
-            throw new JsonParseException(String.format("A non-existent trigger condition type was specified: %s", typeName));
+            throw new JsonParseException(String.format("Unknown trigger condition: '%s'.", typeName));
         }
 
         if (templateType.equals(TriggerConditionTemplate.class))
         {
-            // A "pure" condition without parameters.
+            // A condition without parameters (reading it through the leaf Gson would recurse into this adapter).
             TriggerConditionTemplate template = new TriggerConditionTemplate();
             template.type = typeName;
             return template;
         }
 
-        return KumoSerializer.INSTANCE.keyframeNodeGson.fromJson(json, templateType);
+        return KumoSerializer.INSTANCE.leafGson.fromJson(json, templateType);
     }
 
 }

@@ -1,13 +1,13 @@
-package goblinbob.mobends.core.kumo.state.template.keyframe;
+package goblinbob.mobends.core.kumo.state.template;
 
-import goblinbob.mobends.core.kumo.state.IKumoValidationContext;
-import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
-import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
 
 import java.util.List;
+import java.util.Map;
 
-public class KeyframeNodeTemplate
+/** Base of every node template; the concrete class is chosen by {@code type} (see {@code NodeRegistry}). */
+public class NodeTemplate
 {
 
     private String type = "core:pose";
@@ -23,20 +23,20 @@ public class KeyframeNodeTemplate
     /** Damping per bone while this node is active; unlisted bones keep their previous damping. */
     public DampingTemplate damping;
 
-    /** Bones that jump to their target on the frame the node is entered (the {@code orientInstant} idiom). */
+    /** Bones that jump to their target on the frame the node is entered. */
     public List<String> snapOnEnter;
 
     /**
      * A pose evaluated once when the node is entered; the bones it writes are snapped to it
-     * before this frame's regular target applies (the {@code onPlay} + {@code orientInstant} idiom).
+     * before this frame's regular target applies.
      */
     public List<PoseItemTemplate> enterPose;
 
     /** Layer variables to set when the node is entered. */
-    public java.util.Map<String, Float> set;
+    public Map<String, Float> set;
 
     /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
-    public java.util.Map<String, goblinbob.mobends.core.kumo.expr.ExpressionTemplate> expressions;
+    public Map<String, ExpressionTemplate> expressions;
 
     public String getType()
     {
@@ -48,14 +48,12 @@ public class KeyframeNodeTemplate
         this.type = type;
     }
 
-    public void validate(IKumoValidationContext context) throws MalformedKumoTemplateException
+    /** For node types that pose nothing: fails when the template has pose-related fields. */
+    protected void requirePosesNothing(String what) throws MalformedKumoTemplateException
     {
-        if (connections != null)
+        if (damping != null || snapOnEnter != null || enterPose != null)
         {
-            for (ConnectionTemplate connectionTemplate : connections)
-            {
-                connectionTemplate.validate(context);
-            }
+            throw new MalformedKumoTemplateException(String.format("The %s node '%s' poses nothing: it can't have \"damping\", \"snapOnEnter\" or \"enterPose\".", what, name));
         }
     }
 

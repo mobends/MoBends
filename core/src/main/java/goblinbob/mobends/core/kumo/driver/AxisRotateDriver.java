@@ -11,10 +11,8 @@ import goblinbob.mobends.core.util.EnumAxis;
 
 /**
  * Rotates one bone about a fixed axis by an angle taken from a {@link Expression}
- * (in degrees), composed in PRE or POST space. Covers the head-look, body-twist and
- * "compensate the parent" idioms of the procedural animations:
- * {@code head.orientX(pitch).rotateY(yaw)} is two of these. Its {@code when} is applied by the
- * node, like every pose item's.
+ * (in degrees), composed in PRE or POST space: head-look, body-twist, compensating for a
+ * parent's rotation. Its {@code when} is applied by the node, like every pose item's.
  */
 public class AxisRotateDriver implements IPoseItem
 {
@@ -63,12 +61,6 @@ public class AxisRotateDriver implements IPoseItem
         {
             effects.apply(pose, written, context);
         }
-    }
-
-    @Override
-    public boolean isFinished(float elapsedTicks)
-    {
-        return false;
     }
 
     @Override

@@ -79,10 +79,10 @@ function rotations(...calls: [Axis, number][]): Quaternion {
 function poseClip(path: string, bones: Record<string, Quaternion>, vectors: Record<string, number[]> = {}): void {
   const data: Obj = { bones: {}, duration: 0 };
   for (const [bone, q] of Object.entries(bones)) {
-    data.bones[bone] = { keyframes: [{ position: [0, 0, 0], rotation: q, scale: [1, 1, 1] }] };
+    data.bones[bone] = { keyframes: [{ position: [0, 0, 0], rotation: q }] };
   }
   for (const [bone, v] of Object.entries(vectors)) {
-    data.bones[bone] = { keyframes: [{ position: v, rotation: [0, 0, 0, 1], scale: [1, 1, 1] }] };
+    data.bones[bone] = { keyframes: [{ position: v, rotation: [0, 0, 0, 1] }] };
   }
   writeClip(path, data);
 }
@@ -157,7 +157,7 @@ const jump: Obj = {
 const biped: Obj = {
   formatVersion: 2,
   layers: [
-    { type: "KEYFRAME", entryNode: "stand", nodes: { stand, walk, jump } },
+    { entryNode: "stand", nodes: { stand, walk, jump } },
   ] };
 
 // ---- zombie: animation sets -----------------------------------------------------------------------
@@ -166,14 +166,14 @@ const zombie: Obj = {
   formatVersion: 2,
   extends: "mobends:bends/animators/biped.json",
   layers: [
-    { type: "KEYFRAME", mode: "ADDITIVE", additiveSpace: { default: "PRE", body: "POST", root: "OVERRIDE" },
+    { mode: "ADDITIVE", additiveSpace: { default: "PRE", body: "POST", root: "OVERRIDE" },
       when: cmp("animationSet", "==", 0), entryNode: "lean", nodes: { lean: {
         type: "core:pose", tags: ["lean"],
         pose: [
           { animationKey: Z("lean"), damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
           { animationKey: Z("lean_arms_up"), space: "OVERRIDE", when: AND(state("MOVING_HORIZONTALLY"), cmp("currentWalkingState", "==", 1)) },
         ] } } },
-    { type: "KEYFRAME", when: cmp("animationSet", "==", 1), entryNode: "stumble", nodes: { stumble: {
+    { when: cmp("animationSet", "==", 1), entryNode: "stumble", nodes: { stumble: {
         type: "core:pose", tags: ["stumbling"],
         pose: [
           { animationKey: Z("stumble_base"), frame: limbFrame,
@@ -189,7 +189,7 @@ const skeleton: Obj = {
   formatVersion: 2,
   extends: "mobends:bends/animators/biped.json",
   layers: [
-    { type: "KEYFRAME", when: AND(action("walk"), state("STRAFING")), entryNode: "strafe", nodes: { strafe: {
+    { when: AND(action("walk"), state("STRAFING")), entryNode: "strafe", nodes: { strafe: {
         type: "core:pose", tags: ["strafe"],
         pose: [
           { animationKey: S("strafe_base"), frame: limbFrame, damping: { rightLeg: 1, leftLeg: 1 } },
@@ -216,7 +216,7 @@ const pigZombie: Obj = {
   formatVersion: 2,
   extends: "mobends:bends/animators/biped.json",
   layers: [
-    { type: "KEYFRAME", mode: "ADDITIVE", additiveSpace: { default: "PRE", root: "OVERRIDE" },
+    { mode: "ADDITIVE", additiveSpace: { default: "PRE", root: "OVERRIDE" },
       when: OR(action("stand"), action("walk")), entryNode: "hunch", nodes: { hunch: {
         type: "core:pose", tags: ["hunch"],
         pose: [
@@ -225,7 +225,7 @@ const pigZombie: Obj = {
           { animationKey: P("stand_offset"), when: action("stand"), damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
           { animationKey: P("walk_bob"), frame: limbFrame, when: action("walk"), damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
         ] } } },
-    { type: "KEYFRAME", when: cmp("entitySwingProgress", ">", 0), entryNode: "slash",
+    { when: cmp("entitySwingProgress", ">", 0), entryNode: "slash",
       mirror: { when: state("LEFT_HANDED"), negate: ["headYaw"],
                 pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
                         ["renderLeftItemRotation", "renderRightItemRotation"]] },
@@ -259,7 +259,7 @@ function cycleClip(path: string, boneFn: (phase: number) => Record<string, Quate
   const frames = range(count + 1).map((i) => boneFn(i < count ? period * i / count : 0.0));
   const data: Obj = { bones: {}, duration: period };
   for (const bone of Object.keys(frames[0])) {
-    data.bones[bone] = { keyframes: frames.map((f) => ({ position: [0, 0, 0], rotation: f[bone], scale: [1, 1, 1] })) };
+    data.bones[bone] = { keyframes: frames.map((f) => ({ position: [0, 0, 0], rotation: f[bone] })) };
   }
   writeClip(path, data);
 }
@@ -574,7 +574,7 @@ function curveClip(path: string, boneFn: (t: number) => Record<string, Quaternio
   const data: Obj = { bones: {}, duration, times: samples.map((t) => round7(t)) };
   const frames = samples.map((t) => boneFn(t));
   for (const bone of Object.keys(frames[0])) {
-    data.bones[bone] = { keyframes: frames.map((f) => ({ position: [0, 0, 0], rotation: f[bone], scale: [1, 1, 1] })) };
+    data.bones[bone] = { keyframes: frames.map((f) => ({ position: [0, 0, 0], rotation: f[bone] })) };
   }
   writeClip(path, data);
 }
@@ -887,7 +887,7 @@ for (const [name, node] of Object.entries(actionNodes)) {
   node.connections = structuredClone(c);
 }
 
-const actionLayer: Obj = { type: "KEYFRAME", when: NOT(state("SLEEPING")), entryNode: "idle", variables: { combo: 0, fist: 0 }, nodes: actionNodes,
+const actionLayer: Obj = { when: NOT(state("SLEEPING")), entryNode: "idle", variables: { combo: 0, fist: 0 }, nodes: actionNodes,
                            // a left-handed player plays the hand-dependent items as their mirror image
                            mirror: { when: state("LEFT_HANDED"), negate: ["headYaw"],
                                      pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
@@ -905,10 +905,10 @@ const player: Obj = {
   formatVersion: 2,
   layers: [
     // item rotations are reset every frame before the layers run (keeps their damping)
-    { type: "KEYFRAME", entryNode: "reset", nodes: { reset: { type: "core:pose", pose: [{ animationKey: PL("reset_items") }] } } },
-    { type: "KEYFRAME", entryNode: "stand", nodes },
+    { entryNode: "reset", nodes: { reset: { type: "core:pose", pose: [{ animationKey: PL("reset_items") }] } } },
+    { entryNode: "stand", nodes },
     // sneaking overlay on the ground states
-    { type: "KEYFRAME", when: AND(state("SNEAKING"), groundAction), entryNode: "sneak", nodes: { sneak: {
+    { when: AND(state("SNEAKING"), groundAction), entryNode: "sneak", nodes: { sneak: {
         type: "core:pose", tags: ["sneak"], pose: [
           { animationKey: PL("sneak_base"), frame: limbFrame,
             damping: { rightLeg: 1, leftLeg: 1, rightArm: 0.8, leftArm: 0.8, root: [null, 0.6, null], localOffset: 0.3 },
@@ -919,7 +919,7 @@ const player: Obj = {
           { animationKey: PL("sneak_head"), frame: limbFrame, space: "PRE" },
         ] } } },
     // torch holding while standing or walking (not sprinting)
-    { type: "KEYFRAME", when: AND(OR(action("stand"), action("walk")), OR(torchMain, torchOff)), entryNode: "torch", nodes: { torch: {
+    { when: AND(OR(action("stand"), action("walk")), OR(torchMain, torchOff)), entryNode: "torch", nodes: { torch: {
         type: "core:pose", tags: ["torch_holding"], pose: [
           // the main hand holds the torch if it has one, else the off hand; the arm follows the primary hand
           ...torchArm("right").map((x) => when(x, AND(torchMain, NOT(state("LEFT_HANDED"))))),
@@ -930,7 +930,7 @@ const player: Obj = {
     // items and attacks (the BipedActionController)
     actionLayer,
     // the cape is physics, kept as a driver
-    { type: "KEYFRAME", entryNode: "cape", nodes: { cape: { type: "core:pose", pose: [{ driver: "mobends:cape", bone: "cape" }] } } },
+    { entryNode: "cape", nodes: { cape: { type: "core:pose", pose: [{ driver: "mobends:cape", bone: "cape" }] } } },
   ] };
 
 
@@ -963,7 +963,7 @@ poseClip(join(CLIPS, "squid", "swim_sections_rest.json"), squidSections(0, false
 const squidBaseDamp = Object.fromEntries(range(8).map((i) => [`tentacle_${i}_0`, 0.1]));
 const squidSectionDamp = Object.fromEntries(range(8).flatMap((i) => range(9, 1).map((j) => [`tentacle_${i}_${j}`, 0.1])));
 const squidFrame = "squidRotation";
-const squid: Obj = { formatVersion: 2, layers: [{ type: "KEYFRAME", entryNode: "swim", nodes: { swim: { type: "core:pose", tags: ["swim"], pose: [
+const squid: Obj = { formatVersion: 2, layers: [{ entryNode: "swim", nodes: { swim: { type: "core:pose", tags: ["swim"], pose: [
   when({ animationKey: SQ("swim_base"), frame: squidFrame, damping: squidBaseDamp }, state("SQUID_PREV_ROTATION_LOW")),
   when({ animationKey: SQ("swim_base_rest"), damping: squidBaseDamp }, NOT(state("SQUID_PREV_ROTATION_LOW"))),
   when({ animationKey: SQ("swim_sections"), frame: squidFrame, damping: squidSectionDamp }, state("SQUID_ROTATION_LOW")),
@@ -1072,7 +1072,7 @@ for (const [name, node] of Object.entries(spNodes)) {
   }
   node.connections = conns;
 }
-const spider: Obj = { formatVersion: 2, layers: [{ type: "KEYFRAME", entryNode: "idle", variables: { resetLimbs: 1 }, nodes: spNodes }] };
+const spider: Obj = { formatVersion: 2, layers: [{ entryNode: "idle", variables: { resetLimbs: 1 }, nodes: spNodes }] };
 
 // the skeleton's controller runs the biped action controller as well: bow, sword, tool, fists
 const skeletonActions = structuredClone(actionLayer);
@@ -1149,7 +1149,7 @@ function walkerAnimator(folder: string, legs: Leg[], idleBones: [string, number]
                  connections: [{ target: "jump", triggerCondition: jumping }, { target: "stand", triggerCondition: state("STANDING_STILL") }] };
   const jump = { type: "core:pose", tags: ["jump"], pose: [walkerJump(folder, legs), ...look, ...extra],
                  connections: [{ target: "stand", triggerCondition: AND(grounded, state("STANDING_STILL")) }, { target: "walk", triggerCondition: AND(grounded, state("MOVING_HORIZONTALLY")) }] };
-  return { formatVersion: 2, layers: [{ type: "KEYFRAME", entryNode: "stand", nodes: { stand, walk, jump } }] };
+  return { formatVersion: 2, layers: [{ entryNode: "stand", nodes: { stand, walk, jump } }] };
 }
 
 // vanilla ModelQuadruped: legs 1 and 4 swing together, 2 and 3 opposite
@@ -1196,7 +1196,7 @@ const golemNodes = {
   jump: { type: "core:pose", tags: ["jump"], pose: [{ animationKey: W("iron_golem", "jump"), damping: golemLegDamp }, ...golemLook, golemAttack],
           connections: [{ target: "stand", triggerCondition: AND(grounded, state("STANDING_STILL")) }, { target: "walk", triggerCondition: AND(grounded, state("MOVING_HORIZONTALLY")) }] },
 };
-const ironGolem: Obj = { formatVersion: 2, layers: [{ type: "KEYFRAME", entryNode: "stand", nodes: golemNodes }] };
+const ironGolem: Obj = { formatVersion: 2, layers: [{ entryNode: "stand", nodes: golemNodes }] };
 
 const animators: [string, Obj][] = [
   ["biped", biped], ["zombie", zombie], ["skeleton", skeleton], ["pig_zombie", pigZombie], ["player", player], ["squid", squid], ["spider", spider], ["zombie_villager", zombieVillager],

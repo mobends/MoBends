@@ -63,7 +63,7 @@ public class DefinedModelsTest
         }
 
         AnimatorTemplate template = KumoSession.loadAnimator(definition.animator);
-        KumoAnimatorState<DefinedEntityData<EntityZombie>> animator = new KumoAnimatorState<>(template, KumoSession.INSTANCING);
+        KumoAnimatorState animator = new KumoAnimatorState(template, KumoSession.INSTANCING);
         Skeleton skeleton = animator.getSkeleton();
         for (int i = 0; i < skeleton.size(); i++)
         {

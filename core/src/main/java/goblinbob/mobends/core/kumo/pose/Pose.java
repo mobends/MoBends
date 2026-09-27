@@ -5,10 +5,18 @@ import goblinbob.mobends.core.kumo.bind.IRotationSink;
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.IVec3fRead;
+import goblinbob.mobends.core.math.vector.Vec3f;
 
 /**
  * A buffer of per-bone targets. Layers evaluate into poses, poses composite into one another,
  * and the final pose is written to the subject's sinks once per frame.
+ *
+ * <p>A relative write (PRE / POST rotation, additive offset or vector) that no layer before it
+ * gives an absolute value to resolves against the bone's live target, i.e. last frame's result.
+ * So a bone written only relatively keeps turning (or moving) a little more every frame, at a
+ * rate that depends on the frame rate: an animator that means to hold a pose writes it
+ * absolutely somewhere beneath (the animation limits rely on the same rule, see
+ * {@link #setFallbackValues}).
  */
 public class Pose
 {
@@ -18,9 +26,9 @@ public class Pose
     {
         /** Replace. */
         OVERRIDE,
-        /** Rotate in the parent's space: result = q * current (the {@code rotate*} idiom). */
+        /** Rotate in the parent's space: result = q * current. */
         PRE,
-        /** Rotate in the bone's own space: result = current * q (the {@code localRotate*} idiom). */
+        /** Rotate in the bone's own space: result = current * q. */
         POST,
     }
 
@@ -89,17 +97,10 @@ public class Pose
 
     /**
      * Becomes the left-right mirror image of {@code other}: slot {@code i} of the source lands in
-     * {@code pairOf[i]} with Y and Z rotations and X offsets negated.
+     * {@code pairOf[i]}, with Y and Z rotations and X offsets negated when {@code flip} is set.
      */
-    public void mirrorFrom(Pose other, int[] pairOf)
-    {
-        mirrorFrom(other, pairOf, true);
-    }
-
-    /** As {@link #mirrorFrom(Pose, int[])}; with {@code flip} false only the slots are swapped. */
     public void mirrorFrom(Pose other, int[] pairOf, boolean flip)
     {
-        // Poses created before the skeleton finished growing can be shorter than the pairing.
         int count = Math.min(targets.length, other.targets.length);
         for (int i = 0; i < count; i++)
         {
@@ -111,6 +112,69 @@ public class Pose
                 targets[j].mirrorX();
             }
         }
+    }
+
+    /**
+     * The absolute rotation of a slot: its own, or else, in the animator pose, the live target of
+     * the bone (what lies beneath every layer).
+     *
+     * @return false when there is none
+     */
+    public boolean absoluteRotation(int index, Quaternion dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasRotation)
+        {
+            dest.set(target.rotation);
+            return true;
+        }
+        return sinkFallback && sinkRotation(index, dest);
+    }
+
+    /** As {@link #absoluteRotation}, for the slot's offset. */
+    public boolean absoluteOffset(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasOffset && !target.offsetAdditive)
+        {
+            dest.set(target.offset);
+            return true;
+        }
+        if (!sinkFallback)
+        {
+            return false;
+        }
+        IBoneSink sink = skeleton.sink(index);
+        IRotationSink rotationSink = sink == null ? null : sink.asRotation();
+        if (rotationSink == null || !rotationSink.hasOffset())
+        {
+            return false;
+        }
+        dest.set(fallbackValues != null ? fallbackValues[index] : rotationSink.getOffset());
+        return true;
+    }
+
+    /** As {@link #absoluteRotation}, for the slot's vector. */
+    public boolean absoluteVector(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasVector && !target.vectorAdditive)
+        {
+            dest.set(target.vector);
+            return true;
+        }
+        if (!sinkFallback)
+        {
+            return false;
+        }
+        IBoneSink sink = skeleton.sink(index);
+        IVectorSink vectorSink = sink == null ? null : sink.asVector();
+        if (vectorSink == null)
+        {
+            return false;
+        }
+        dest.set(fallbackValues != null ? fallbackValues[index] : vectorSink.getVectorTarget());
+        return true;
     }
 
     /** The live target of a bone's sink (the value beneath the first layer), if it has one. */
@@ -254,14 +318,14 @@ public class Pose
             if (target.hasVector && target.vectorMode == IVectorSink.Mode.SNAP)
             {
                 // A snap followed by another write in the same frame: the new interpolation
-                // starts from the snapped value (setY(...) then slideY(...) in the original code).
+                // starts from the snapped value.
                 target.hasVectorStart = true;
                 target.vectorStart.set(target.vector);
             }
             else if (target.hasVector)
             {
-                // Two writers with different targets in one frame: each slideTo() saw a new
-                // target and restarted from the current value.
+                // Two writers with different targets in one frame: the slide restarts from the
+                // current value.
                 if (!Float.isNaN(x) && x != target.vector.x) target.restartX = true;
                 if (!Float.isNaN(y) && y != target.vector.y) target.restartY = true;
                 if (!Float.isNaN(z) && z != target.vector.z) target.restartZ = true;

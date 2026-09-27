@@ -5,8 +5,8 @@ import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 /**
- * Applies the wrapped item only while its {@code when} condition holds (the in-bit "if" idiom),
- * so every item kind supports the condition the same way.
+ * Applies the wrapped item only while its {@code when} condition holds, so every item kind
+ * supports the condition the same way (except ramps, whose {@code when} is their own switch).
  */
 public class ConditionalPoseItem implements IPoseItem
 {
@@ -30,9 +30,9 @@ public class ConditionalPoseItem implements IPoseItem
     }
 
     @Override
-    public boolean isFinished(float elapsedTicks)
+    public float getDuration()
     {
-        return item.isFinished(elapsedTicks);
+        return item.getDuration();
     }
 
     @Override

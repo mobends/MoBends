@@ -2,7 +2,6 @@
   "formatVersion": 2,
   "layers": [
     {
-      "type": "KEYFRAME",
       "entryNode": "swim",
       "nodes": {
         "swim": {

@@ -17,12 +17,12 @@ public class SpaceTemplateSerializer implements JsonDeserializer<SpaceTemplate>
         SpaceTemplate space = new SpaceTemplate();
         if (json.isJsonPrimitive())
         {
-            space.defaultSpace = Pose.Space.valueOf(json.getAsString().toUpperCase());
+            space.defaultSpace = JsonReading.enumValue(Pose.Space.class, json, "A space");
             return space;
         }
-        for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet())
+        for (Map.Entry<String, JsonElement> entry : JsonReading.object(json, "A space").entrySet())
         {
-            Pose.Space value = Pose.Space.valueOf(entry.getValue().getAsString().toUpperCase());
+            Pose.Space value = JsonReading.enumValue(Pose.Space.class, entry.getValue(), "The space of '" + entry.getKey() + "'");
             if ("default".equals(entry.getKey()))
             {
                 space.defaultSpace = value;

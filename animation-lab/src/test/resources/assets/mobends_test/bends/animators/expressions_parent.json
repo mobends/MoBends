@@ -5,7 +5,6 @@
   },
   "layers": [
     {
-      "type": "KEYFRAME",
       "entryNode": "parent",
       "nodes": {
         "parent": {

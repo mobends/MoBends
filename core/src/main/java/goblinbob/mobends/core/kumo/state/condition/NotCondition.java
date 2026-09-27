@@ -10,11 +10,15 @@ import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 public class NotCondition implements ITriggerCondition
 {
 
-    private ITriggerCondition condition;
+    private final ITriggerCondition condition;
 
     public NotCondition(Template template) throws MalformedKumoTemplateException
     {
-        this.condition = TriggerConditionRegistry.instance.createFromTemplate(template.condition);
+        if (template.condition == null)
+        {
+            throw new MalformedKumoTemplateException("core:not needs a 'condition'.");
+        }
+        this.condition = TriggerConditionRegistry.INSTANCE.createFromTemplate(template.condition);
     }
 
     @Override

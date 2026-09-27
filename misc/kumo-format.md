@@ -3,7 +3,7 @@
 An animator is a JSON asset (`assets/mobends/bends/animators/<entity>.json`) that says how an
 entity's bones get their targets every frame. The entity data (the model's bones with their
 per-bone smoothing) is the *subject*; the animator only ever writes targets, the subject
-smooths them. Everything the original hand-written animation code did is expressed with the pieces below.
+smooths them.
 
 ```json
 {
@@ -14,10 +14,11 @@ smooths them. Everything the original hand-written animation code did is express
 }
 ```
 
-`extends` puts a parent animator's layers first. `expressions` declares named expressions (see
-*Expressions*); layers and nodes can declare their own too. Version 2 is the only format: the
-original one (node arrays addressed by index, `core:standard` / `core:movement` nodes, binary
-`.bendsanim` clips) is gone.
+`formatVersion` is required: an animator written for another version of the format is refused
+with a message saying so (an older one would be upgraded on load, once there is one to upgrade
+from). `extends` puts a parent animator's layers first; the parent's version is checked too.
+`expressions` declares named expressions (see *Expressions*); layers and nodes can declare their
+own too.
 
 ## Layers
 
@@ -26,7 +27,6 @@ produces the layer's pose, which composites onto the result.
 
 | field | meaning |
 |---|---|
-| `type` | `KEYFRAME` |
 | `mode` | `OVERRIDE` (default: what the layer writes replaces) or `ADDITIVE` |
 | `additiveSpace` | for additive layers: `"PRE"` / `"POST"`, or `{"default": "PRE", "body": "POST"}` |
 | `when` | a condition; while it does not hold the layer writes nothing and its clocks pause |
@@ -59,7 +59,12 @@ produces the layer's pose, which composites onto the result.
   Every condition is evaluated each frame (edge triggers stay fresh); the first one met fires.
   A connection's `set` assigns layer variables when it fires. `transitionDuration` crossfades
   (an interrupted crossfade continues from what was on screen); easings `LINEAR`, `EASE_IN`,
-  `EASE_OUT`, `EASE_IN_OUT`, `EXPONENTIAL`.
+  `EASE_OUT`, `EASE_IN_OUT`, `EXPONENTIAL`. Where one side of a crossfade poses a bone absolutely
+  and the other only relatively (PRE / POST, additive), the relative one is first resolved
+  against the layers below, so both are blended as absolute values.
+* Conditions with a clock or a memory (`core:ticks_passed`, `core:decreased`) start over when
+  their node is entered: in a connection, an item's `when`, a ramp's `when` and the layer's
+  mirror rule alike. A layer's own `when` starts with the layer.
 * A `core:fallthrough` node poses nothing, so the layers below show through; it has tags,
   connections, `set` and `expressions` like any node. A transition into or out of it fades between
   the layer's pose and the one below: what one side poses and the other doesn't is blended
@@ -97,7 +102,7 @@ A node's `pose` is a stack; later items compose over earlier ones. Common fields
 |---|---|
 | `space` | `OVERRIDE` (replace), `PRE` (rotate in the parent's space, the `rotate*` idiom), `POST` (the bone's own space, the `localRotate*` idiom). Default: OVERRIDE for clips, PRE for drivers. |
 | `when` | a condition; the item is skipped while it does not hold |
-| `damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate (a bit that never called `setSmoothness`) |
+| `damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate |
 | `vectorModes` | for offset vectors: `SLIDE` (tween restarted when the target changes), `RETARGET` (exponential approach re-aimed every frame), `SNAP` |
 | `snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations negated, the layer's `negate` inputs negated) |
@@ -125,7 +130,7 @@ A node's `pose` is a stack; later items compose over earlier ones. Common fields
 
 `weight` (an expression) scales the rotation angles and offsets. `bones` restricts the clip.
 Clip files (`animations/...json`) hold `bones` with keyframes (`position`, `rotation` as a
-quaternion `[x, y, z, w]`, `scale`; each may be left out for no offset, no rotation, unit scale),
+quaternion `[x, y, z, w]`; each may be left out for no offset, no rotation),
 and optionally `duration`, `interpolation: "STEP"` and explicit keyframe `times` (in the clip's
 units). Keyframes straddling the ±180° wrap interpolate the short way.
 
@@ -218,15 +223,21 @@ variables, not named expressions; expressions built from a negated variable foll
 `core:ticks_passed` (`ticksToPass`, on the layer's clock), `core:action` (`tag` of any layer's
 current node), `core:property` (`property`, `value` / `values`, or `unset`: string properties
 such as `mainHandItem`, `useActionType`, `activeHandSide`), `core:equipment_name`
-(`namePattern`, `slot`), `core:animation_finished`, and `core:and` / `core:or` / `core:not`.
+(`namePattern`, `slot`), `core:animation_finished` (met once every clip of the current node
+that has a `duration` has run it; a node with no items always is, one whose items all run
+forever never is), and `core:and` / `core:or` / `core:not`. A condition that names a variable or
+state the subject doesn't have fails the animator (logged; the entity isn't animated).
 
 ## Semantics worth knowing
 
 * Transitions are decided before posing; a node entered this frame poses this frame.
-* Smoothing lives in the subject's bones. Damping in the animator is the `setSmoothness` the
-  bits called; where they called none, leave it out and the bone keeps its rate.
-* An offset vector written by two layers in one frame keeps only the last write; a bit that
-  re-slid the same vector every frame on top of another writer is `RETARGET`.
+* Smoothing lives in the subject's bones. Damping in the animator sets a bone's rate; leave it
+  out and the bone keeps the rate it has.
+* An offset vector written by two layers in one frame keeps only the last write; a vector
+  re-aimed every frame on top of another writer is `RETARGET`.
+* A bone written only relatively (PRE / POST, additive) with nothing absolute beneath builds on
+  last frame's result, so it keeps turning or moving every frame; to hold a pose, write it
+  absolutely in some layer beneath.
 * Mirroring is an involution applied around the item, so composition rules do not change.
 
 # Model definitions: mobs without hand-written code

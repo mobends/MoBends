@@ -3,7 +3,6 @@
   "extends": "mobends:bends/animators/biped.json",
   "layers": [
     {
-      "type": "KEYFRAME",
       "when": {
         "type": "core:and",
         "conditions": [
@@ -64,7 +63,6 @@
       }
     },
     {
-      "type": "KEYFRAME",
       "entryNode": "idle",
       "variables": {
         "combo": 0,

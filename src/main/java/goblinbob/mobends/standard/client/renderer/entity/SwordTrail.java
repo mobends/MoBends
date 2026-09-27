@@ -174,7 +174,7 @@ public class SwordTrail
                 entityData.globalOffset.getY(),
                 entityData.globalOffset.getZ());
         newPart.renderRotation.set(entityData.renderRotation.getSmooth());
-        newPart.renderRotation.negate();
+        newPart.renderRotation.conjugate();
 
         trailPartList.add(newPart);
     }

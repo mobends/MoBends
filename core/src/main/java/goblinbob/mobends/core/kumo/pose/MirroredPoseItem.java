@@ -1,8 +1,9 @@
 package goblinbob.mobends.core.kumo.pose;
 
 import goblinbob.mobends.core.kumo.state.IKumoContext;
-import goblinbob.mobends.core.kumo.state.KumoContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+
+import java.util.Set;
 
 /**
  * Evaluates the wrapped item on a mirror image of the pose, with the layer's yaw-like variables
@@ -41,35 +42,35 @@ public class MirroredPoseItem implements IPoseItem
         }
         int[] pairOf = mirror.pairing();
         scratch.mirrorFrom(pose, pairOf, flip);
-        KumoContext kumoContext = flip && context instanceof KumoContext ? (KumoContext) context : null;
-        java.util.Set<String> previous = kumoContext == null ? null : kumoContext.negatedVariables;
-        if (kumoContext != null)
-        {
-            kumoContext.negatedVariables = mirror.getNegatedVariables();
-        }
-        try
+        if (!flip)
         {
             item.apply(scratch, context, elapsedTicks);
         }
-        finally
+        else
         {
-            if (kumoContext != null)
+            Set<String> previous = context.setNegatedVariables(mirror.getNegatedVariables());
+            try
             {
-                kumoContext.negatedVariables = previous;
+                item.apply(scratch, context, elapsedTicks);
+            }
+            finally
+            {
+                context.setNegatedVariables(previous);
             }
         }
         pose.mirrorFrom(scratch, pairOf, flip);
     }
 
     @Override
-    public boolean isFinished(float elapsedTicks)
+    public float getDuration()
     {
-        return item.isFinished(elapsedTicks);
+        return item.getDuration();
     }
 
     @Override
     public void onNodeStarted(IKumoContext context)
     {
+        mirror.onNodeStarted(context);
         item.onNodeStarted(context);
     }
 

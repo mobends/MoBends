@@ -78,7 +78,7 @@ public final class ExpressionOperations
         unary("ceil", a -> (float) Math.ceil(a));
         unary("sin", a -> (float) Math.sin(a));
         unary("cos", a -> (float) Math.cos(a));
-        // "mcsin" and "mccos" (Minecraft's table-based sine and cosine) are added by the game side.
+        // Host-specific operations are registered by the host (the mod adds "mcsin" and "mccos").
 
         // {"clamp": [value, min, max]}
         register("clamp", 3, 3, args -> new Ternary(args, (value, min, max) -> {

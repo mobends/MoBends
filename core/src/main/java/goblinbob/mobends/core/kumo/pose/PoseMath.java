@@ -23,7 +23,7 @@ public class PoseMath
 
     /**
      * Scales a rotation: the result rotates about the same axis by {@code weight} times the
-     * angle (slerp from identity). Exact for the single-axis rotations the procedural code builds.
+     * angle (slerp from identity).
      */
     public static void scale(Quaternion q, float weight, Quaternion dest)
     {

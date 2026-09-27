@@ -65,7 +65,6 @@ public class CoreClient extends Core<CoreClientConfig>
         MinecraftForge.EVENT_BUS.register(new EntityRenderHandler());
         MinecraftForge.EVENT_BUS.register(new DataUpdateHandler());
         MinecraftForge.EVENT_BUS.register(new KeyboardHandler());
-        MinecraftForge.EVENT_BUS.register(new FluxHandler());
         MinecraftForge.EVENT_BUS.register(new WorldJoinHandler());
 
         // Registering a listener to whenever resources have been reloaded.

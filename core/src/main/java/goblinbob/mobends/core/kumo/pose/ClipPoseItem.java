@@ -1,9 +1,7 @@
 package goblinbob.mobends.core.kumo.pose;
 
 import goblinbob.mobends.core.kumo.expr.Expression;
-
 import goblinbob.mobends.core.kumo.state.IKumoContext;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 /**
@@ -23,26 +21,27 @@ public class ClipPoseItem implements IPoseItem
     private final Expression weight;
     /** Explicit space, or null to use the layer's per-bone default. */
     private final Pose.Space space;
-    private final ITriggerCondition when;
     private final float clipLength;
     /** Ticks, or NaN for none. */
     private final float duration;
     private final LayerSpaces layerSpaces;
     private final ItemEffects effects;
+    private final int[] slots;
     private Pose.Space[] resolvedSpaces;
-    private int[] writtenSlots;
+    /** The keyframe interval the last lookup landed in (explicit times), where the next one starts looking. */
+    private int lastInterval = -1;
 
-    public ClipPoseItem(ClipBinding clip, Expression frame, Expression weight, Pose.Space space, ITriggerCondition when, float clipLength, float duration, LayerSpaces layerSpaces, ItemEffects effects)
+    public ClipPoseItem(ClipBinding clip, Expression frame, Expression weight, Pose.Space space, float clipLength, float duration, LayerSpaces layerSpaces, ItemEffects effects)
     {
         this.clip = clip;
         this.frame = frame;
         this.weight = weight;
         this.space = space;
-        this.when = when;
         this.clipLength = clipLength;
         this.duration = duration;
         this.layerSpaces = layerSpaces;
         this.effects = effects;
+        this.slots = clip.slots();
     }
 
     /** How far through the clip {@code frame} (or, for the default frame, the elapsed ticks) is, 0 to 1. */
@@ -82,7 +81,6 @@ public class ClipPoseItem implements IPoseItem
         int i = lastInterval;
         if (i < 0 || i >= last || time < times[i] || time >= times[i + 1])
         {
-            i = 0;
             int lo = 0, hi = last;
             while (lo < hi)
             {
@@ -99,15 +97,9 @@ public class ClipPoseItem implements IPoseItem
         return i + within;
     }
 
-    private int lastInterval = -1;
-
     @Override
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
-        if (when != null && !when.isConditionMet(context))
-        {
-            return;
-        }
         float w = weight.get(context);
         if (w == 0F)
         {
@@ -116,20 +108,19 @@ public class ClipPoseItem implements IPoseItem
         float fraction = progress(context, elapsedTicks);
         if (resolvedSpaces == null)
         {
-            resolvedSpaces = layerSpaces.resolve(clip.boneSlots(), space);
-            writtenSlots = clip.writtenSlots();
+            resolvedSpaces = layerSpaces.resolve(slots, space);
         }
         clip.apply(pose, keyframeIndexAt(fraction), w, space, resolvedSpaces);
         if (effects != null)
         {
-            effects.apply(pose, writtenSlots, context);
+            effects.apply(pose, slots, context);
         }
     }
 
     @Override
-    public boolean isFinished(float elapsedTicks)
+    public float getDuration()
     {
-        return elapsedTicks >= duration;
+        return duration;
     }
 
     @Override

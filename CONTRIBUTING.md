@@ -13,7 +13,7 @@ Mo' Bends 2.X is built from three layers:
 
 | Layer | What it contains | Depends on Minecraft? |
 |---|---|---|
-| `core/` | The animation engine: Kumo, math, flux, the pack/extension format. Plain Java 8. | **No** |
+| `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8. | **No** |
 | `common/` | Connects the core to vanilla models, entity state and rendering, mostly via Mixins. | Yes, vanilla only (no loader APIs) |
 | `fabric/`, `neoforge/`, `forge/` | Entrypoints, events, networking, config for each loader. Kept as small as possible. | Yes |
 
@@ -111,7 +111,7 @@ its last release tag (e.g. `release/2.3-1.20.1`), fix, release, and leave the br
 
 ## Migration plan
 
-1. **Extract the core.** On `1.X/forge-1.12`, move `kumo`, `math` and `flux` into a `core/` Gradle
+1. **Extract the core.** On `1.X/forge-1.12`, move `kumo` and `math` into a `core/` Gradle
    module with `git mv` (keeps `git log --follow` history).
 2. **Create `main`.** Branch from that point, remove the 1.12-specific code, add the Stonecutter
    multi-loader layout, and port the Minecraft-facing code, starting with 1.21.1 (NeoForge + Fabric).

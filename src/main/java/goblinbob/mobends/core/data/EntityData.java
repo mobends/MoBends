@@ -141,12 +141,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     }
 
     @Override
-    public boolean hasVariable(String name)
-    {
-        return kumoVariables.containsKey(name);
-    }
-
-    @Override
     public double getVariable(String name)
     {
         DoubleSupplier supplier = kumoVariables.get(name);
@@ -155,12 +149,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
             throw new IllegalArgumentException("Unknown animation variable: " + name);
         }
         return supplier.getAsDouble();
-    }
-
-    @Override
-    public boolean hasState(String name)
-    {
-        return kumoStates.containsKey(name);
     }
 
     @Override

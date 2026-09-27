@@ -1,20 +1,31 @@
 package goblinbob.mobends.core.kumo.state.template;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
+import java.util.Map;
 
 public class AnimatorTemplate
 {
 
-    /** The format's version; 2 is the only one. */
-    public int formatVersion = 2;
+    /**
+     * The version of the animator format this build reads. Bump it whenever the format changes in
+     * a way old files can't be read as they are, and teach {@code AnimatorTemplateSerializer} to
+     * upgrade (or reject) the old version.
+     */
+    public static final int FORMAT_VERSION = 2;
+
+    /** The format the file was written for (required; see {@link #FORMAT_VERSION}). */
+    public int formatVersion;
 
     /** Key of a parent animator whose layers come first; this animator's layers are appended. */
-    @com.google.gson.annotations.SerializedName("extends")
+    @SerializedName("extends")
     public String extendsAnimator;
 
     public List<LayerTemplate> layers;
 
     /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
-    public java.util.Map<String, goblinbob.mobends.core.kumo.expr.ExpressionTemplate> expressions;
+    public Map<String, ExpressionTemplate> expressions;
 
 }

@@ -3,6 +3,8 @@ package goblinbob.mobends.core.kumo.pose;
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
@@ -10,11 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Damping rates and vector modes attached to one pose item, applied to the bones the item wrote.
- * This is the JSON form of the {@code setSmoothness(...)} that sits next to an {@code orient*}
- * call in the procedural code.
- */
+/** Damping rates, vector modes and snapping attached to one pose item, applied to the bones the item wrote. */
 public class ItemEffects
 {
 
@@ -62,7 +60,7 @@ public class ItemEffects
         List<Expression> dynValues = new ArrayList<>();
         if (damping != null)
         {
-            for (Map.Entry<String, goblinbob.mobends.core.kumo.expr.ExpressionTemplate> entry : damping.dynamic.entrySet())
+            for (Map.Entry<String, ExpressionTemplate> entry : damping.dynamic.entrySet())
             {
                 dynSlots.add(skeleton.indexOf(entry.getKey()));
                 dynValues.add(Expression.compile(entry.getValue(), scope, Expression.ONE));
@@ -96,20 +94,11 @@ public class ItemEffects
     }
 
     /** @param writtenSlots the slots the item wrote this frame (the default rate applies to those). */
-    public void apply(Pose pose, int[] writtenSlots)
+    public void apply(Pose pose, int[] writtenSlots, ITriggerConditionContext context)
     {
-        apply(pose, writtenSlots, null);
-    }
-
-    public void apply(Pose pose, int[] writtenSlots, goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext context)
-    {
-        if (context != null)
+        for (int i = 0; i < dynamicSlots.length; i++)
         {
-            for (int i = 0; i < dynamicSlots.length; i++)
-            {
-                float rate = dynamicValues[i].get(context);
-                applyDamping(pose.get(dynamicSlots[i]), new float[] { rate });
-            }
+            applyDamping(pose.get(dynamicSlots[i]), dynamicValues[i].get(context));
         }
         if (snap)
         {
@@ -146,10 +135,19 @@ public class ItemEffects
             if (!Float.isNaN(value[2])) target.vectorSmoothness.z = value[2];
             if (!Float.isNaN(value[0])) target.smoothness = value[0];
         }
-        else if (value.length == 1 && !Float.isNaN(value[0]))
+        else if (value.length == 1)
         {
-            target.smoothness = value[0];
-            target.vectorSmoothness.set(value[0], value[0], value[0]);
+            applyDamping(target, value[0]);
+        }
+    }
+
+    /** One rate for the rotation and every vector axis; NaN changes nothing. */
+    public static void applyDamping(BoneTarget target, float rate)
+    {
+        if (!Float.isNaN(rate))
+        {
+            target.smoothness = rate;
+            target.vectorSmoothness.set(rate, rate, rate);
         }
     }
 

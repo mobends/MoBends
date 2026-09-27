@@ -1,21 +1,19 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
+import goblinbob.mobends.core.kumo.TypeRegistry;
 import goblinbob.mobends.core.kumo.state.INodeState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
 
+/** Trigger conditions addressable from animator JSON by {@code "type"}. */
 public class TriggerConditionRegistry
 {
 
-    public static final TriggerConditionRegistry instance = new TriggerConditionRegistry();
+    public static final TriggerConditionRegistry INSTANCE = new TriggerConditionRegistry();
 
-    private Map<String, RegistryEntry<?>> registry = new HashMap<>();
-    private Map<String, ITriggerCondition> pureRegistry = new HashMap<>();
+    private final TypeRegistry<TriggerConditionTemplate, ITriggerConditionFactory<?, ?>> registry = new TypeRegistry<>("trigger condition");
 
     private TriggerConditionRegistry()
     {
@@ -28,86 +26,35 @@ public class TriggerConditionRegistry
         register("core:action", ActionCondition::new, ActionCondition.Template.class);
         register("core:property", PropertyCondition::new, PropertyCondition.Template.class);
         register("core:decreased", DecreasedCondition::new, DecreasedCondition.Template.class);
-        register("core:animation_finished", (context) -> {
+        register("core:animation_finished", context -> {
             INodeState node = context.getCurrentNode();
-            if (node != null)
-            {
-                return node.isAnimationFinished();
-            }
-            return false;
+            return node != null && node.isAnimationFinished();
         });
     }
 
     public <T extends TriggerConditionTemplate> void register(String key, ITriggerConditionFactory<?, T> factory, Class<T> templateType)
     {
-        registry.put(key, new RegistryEntry<T>(factory, templateType));
+        registry.register(key, templateType, factory);
     }
 
+    /** Registers a condition without parameters (and without state: the one instance is shared). */
     public void register(String key, ITriggerCondition condition)
     {
-        pureRegistry.put(key, condition);
+        registry.register(key, TriggerConditionTemplate.class, (ITriggerConditionFactory<ITriggerCondition, TriggerConditionTemplate>) template -> condition);
     }
 
     @Nullable
-    public Type getTemplateClass(String key)
+    public Class<? extends TriggerConditionTemplate> getTemplateClass(String key)
     {
-        if (registry.containsKey(key))
-        {
-            return registry.get(key).templateType;
-        }
-        if (pureRegistry.containsKey(key))
-        {
-            return TriggerConditionTemplate.class;
-        }
-        return null;
+        return registry.getTemplateClass(key);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends TriggerConditionTemplate> ITriggerCondition createFromTemplate(T template) throws MalformedKumoTemplateException
     {
-        final String type = template.getType();
-
-        if (type == null)
-        {
-            throw new MalformedKumoTemplateException("No type was specified for trigger condition.");
-        }
-
-        if (registry.containsKey(type))
-        {
-            @SuppressWarnings("unchecked") final RegistryEntry<T> entry = (RegistryEntry<T>) registry.get(type);
-            return createFromTemplate(entry, template);
-        }
-        else if (pureRegistry.containsKey(type))
-        {
-            return pureRegistry.get(type);
-        }
-        else
-        {
-            throw new MalformedKumoTemplateException(String.format("A non-existent trigger condition type was specified: %s", type));
-        }
-    }
-
-    private <T extends TriggerConditionTemplate> ITriggerCondition createFromTemplate(RegistryEntry<T> entry, T template) throws MalformedKumoTemplateException
-    {
-        if (!entry.templateType.equals(template.getClass()))
-        {
-            throw new MalformedKumoTemplateException(String.format("The trigger condition registry holds a wrong entry for '%s'", template.getType()));
-        }
-
-        return entry.factory.createTriggerCondition(template);
-    }
-
-    private static class RegistryEntry<T extends TriggerConditionTemplate>
-    {
-
-        public ITriggerConditionFactory<?, T> factory;
-        public Class<T> templateType;
-
-        RegistryEntry(ITriggerConditionFactory<?, T> factory, Class<T> templateType)
-        {
-            this.factory = factory;
-            this.templateType = templateType;
-        }
-
+        // The serializer read the template into the class registered under its type.
+        ITriggerConditionFactory<?, T> factory = (ITriggerConditionFactory<?, T>) registry.getFactory(template.getType());
+        return factory.createTriggerCondition(template);
     }
 
 }

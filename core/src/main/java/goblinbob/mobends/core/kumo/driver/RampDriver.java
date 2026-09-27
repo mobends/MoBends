@@ -12,9 +12,9 @@ import goblinbob.mobends.core.kumo.state.template.pose.RampTemplate;
 
 /**
  * A node-local 0..1 variable that moves towards 1 while {@code when} holds (or always, without a
- * condition) and back towards 0 otherwise, at {@code speed} per tick. Resets to 0 when the node
- * is entered. This is the "transformTransition" / "bringUpAnimation" idiom of the procedural
- * bits; items after it in the pose stack read it through {@code {"variable": "<name>"}}.
+ * condition) and back towards 0 otherwise, at {@code speed} per tick. Resets to {@code initial}
+ * when the node is entered. Items after it in the pose stack read it by name. Unlike other items,
+ * a ramp keeps running while its {@code when} doesn't hold: that is when it goes down.
  */
 public class RampDriver implements IPoseItem
 {
@@ -43,15 +43,15 @@ public class RampDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:ramp needs a 'name'.");
         }
-        ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
+        ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when);
         return new RampDriver(template.name, template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when, template.readBeforeAdvance, template.initial);
     }
 
     @Override
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
-        // Most bits advance their ramp at the top of perform(), i.e. before using it; some
-        // compute their eased value first and advance afterwards (readBeforeAdvance).
+        // By default the ramp advances before the items after it read it; with readBeforeAdvance
+        // they read the value from before this frame's step.
         if (readBeforeAdvance)
         {
             context.getNodeScope().set(name, value);
@@ -73,14 +73,12 @@ public class RampDriver implements IPoseItem
     }
 
     @Override
-    public boolean isFinished(float elapsedTicks)
-    {
-        return false;
-    }
-
-    @Override
     public void onNodeStarted(IKumoContext context)
     {
+        if (when != null)
+        {
+            when.onNodeStarted(context);
+        }
         value = initial;
         context.getNodeScope().set(name, initial);
     }

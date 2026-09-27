@@ -80,7 +80,7 @@ public class DanceExtensionTest
         {
             dance = KumoSerializer.INSTANCE.gson.fromJson(reader, AnimatorTemplate.class);
         }
-        KumoAnimatorState<DefinedEntityData<EntityZombie>> animator = new KumoAnimatorState<>(
+        KumoAnimatorState animator = new KumoAnimatorState(
                 KumoSession.loadAnimator(definition.animator), Collections.singletonList(dance), KumoSession.INSTANCING);
 
         LabClock clock = new LabClock(30);

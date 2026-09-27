@@ -4,17 +4,16 @@ import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 /**
- * How far animation from untrusted sources (resource packs, see {@code PackTrust}) may take a
- * model, when the server limits it: every part's offset and the whole body's offsets may differ
- * from what the trusted animation gives them by at most these many model units (1/16 block).
- * Rotations are free. Scale needs no limit: animation can't scale parts, and untrusted model
- * geometry is refused under the same policy.
+ * How far animation from untrusted sources (see {@code IKumoInstancingContext#isTrusted}) may
+ * take a model, when the host limits it: every part's offset and the whole body's offsets may
+ * differ from what the trusted animation gives them by at most these many model units.
+ * Rotations are free; animation can't scale parts.
  */
 public final class AnimationLimits
 {
 
     /** The limits in force, or null for none; the mod installs one backed by the server's settings. */
-    private static Supplier<AnimationLimits> provider = () -> null;
+    private static volatile Supplier<AnimationLimits> provider = () -> null;
 
     public final float maxPartOffset;
     public final float maxBodyOffset;

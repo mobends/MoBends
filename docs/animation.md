@@ -14,8 +14,8 @@ runtime is put together.
 |-------|-------|------|
 | `IKumoSubject` | `core/kumo` | All KUMO knows about an entity: bones resolved by name into rotation/vector sinks, plus named numeric variables and boolean states. `EntityData` implements it; data classes register what they expose (`limbSwing`, `headYaw`, `ticksAfterTouchdown`, `SITTING`, ...). |
 | `KumoAnimatorState` | `core/kumo/state` | One running animator: its layers, their trust, the resource-pack limits. |
-| `KeyframeLayerState` | `core/kumo/state/keyframe` | A layer: a state machine of nodes with timed cross-fades, composited onto the animator's pose as `OVERRIDE` or `ADDITIVE`. |
-| `PoseNode` | `core/kumo/state/keyframe` | A node: an ordered *pose stack* of items (clips, drivers), each with an optional `when`, a composition space and damping. |
+| `LayerState` | `core/kumo/state` | A layer: a state machine of nodes with timed cross-fades, composited onto the animator's pose as `OVERRIDE` or `ADDITIVE`. |
+| `PoseNode` | `core/kumo/state/node` | A node: an ordered *pose stack* of items (clips, drivers), each with an optional `when`, a composition space and damping. |
 | `Pose` | `core/kumo/pose` | Per-bone rotation / offset / vector targets for one frame, bound to the subject's sinks by index. |
 | `ExpressionScope` | `core/kumo/expr` | Named expressions, scoped lexically (animator → layer → node). |
 | `KumoAnimatorController` | `core/kumo` (mod) | The `IAnimationController` every entity data uses: loads the animator (and its extensions) through `AnimatorResources`, updates it each frame, and reports the current nodes' tags as the entity's actions. A broken asset is logged once and the entity simply doesn't animate. |

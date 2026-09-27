@@ -28,12 +28,8 @@ public class CompareCondition implements ITriggerCondition
     }
 
     @Override
-    public boolean isConditionMet(ITriggerConditionContext context) throws MalformedKumoTemplateException
+    public boolean isConditionMet(ITriggerConditionContext context)
     {
-        if (!context.hasVariable(variable))
-        {
-            throw new MalformedKumoTemplateException(String.format("Unknown variable '%s' for this subject.", variable));
-        }
         double actual = context.resolveVariable(variable);
         switch (op)
         {

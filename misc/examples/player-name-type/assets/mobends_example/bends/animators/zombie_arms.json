@@ -3,7 +3,6 @@
   "extends": "mobends:bends/animators/player.json",
   "layers": [
     {
-      "type": "KEYFRAME",
       "entryNode": "zombie_arms",
       "nodes": {
         "zombie_arms": {

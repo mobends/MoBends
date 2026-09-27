@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
 import goblinbob.mobends.core.kumo.IKumoSubject;
-import goblinbob.mobends.core.kumo.state.ILayerState;
+import goblinbob.mobends.core.kumo.state.LayerState;
 import goblinbob.mobends.core.kumo.state.INodeState;
 
 public interface ITriggerConditionContext
@@ -15,7 +15,7 @@ public interface ITriggerConditionContext
     /**
      * Returns the layer this condition has to be met on.
      */
-    ILayerState getLayerState();
+    LayerState getLayerState();
 
     /**
      * Returns the current node.
@@ -33,7 +33,5 @@ public interface ITriggerConditionContext
      * subject. Throws if none has it.
      */
     double resolveVariable(String name);
-
-    boolean hasVariable(String name);
 
 }

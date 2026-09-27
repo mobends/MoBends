@@ -2,24 +2,46 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.kumo.IKumoSubject;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 /**
- * A simple implementation of the KUMO context.
+ * The KUMO context of one animator: the subject, the frame's delta time, the layer and node
+ * being evaluated and their variable scopes.
  *
  * @author Iwo Plaza
  */
 public class KumoContext implements IKumoContext
 {
 
-    public IKumoSubject subject;
-
-    public ILayerState layerState;
-
-    public INodeState currentNode;
-
-    public float deltaTime;
-
+    private IKumoSubject subject;
+    private float deltaTime;
     /** The animator's layers, for {@link #isActionActive}. */
-    public java.util.List<ILayerState> layers = java.util.Collections.emptyList();
+    private List<LayerState> layers = Collections.emptyList();
+    private LayerState layerState;
+    private INodeState currentNode;
+    private VariableScope layerScope = new VariableScope();
+    private VariableScope nodeScope = new VariableScope();
+    /** Variables read as their negation while a mirrored item is evaluated. */
+    private Set<String> negatedVariables;
+
+    public void setLayers(List<LayerState> layers)
+    {
+        this.layers = layers;
+    }
+
+    /** Starts a frame of {@code subject}. */
+    public void beginFrame(IKumoSubject subject, float deltaTime)
+    {
+        this.subject = subject;
+        this.deltaTime = deltaTime;
+    }
+
+    public void setLayerState(LayerState layerState)
+    {
+        this.layerState = layerState;
+    }
 
     @Override
     public IKumoSubject getSubject()
@@ -28,7 +50,7 @@ public class KumoContext implements IKumoContext
     }
 
     @Override
-    public ILayerState getLayerState()
+    public LayerState getLayerState()
     {
         return layerState;
     }
@@ -40,22 +62,10 @@ public class KumoContext implements IKumoContext
     }
 
     @Override
-    public void setCurrentNode(INodeState node)
-    {
-        currentNode = node;
-    }
-
-    @Override
     public float getDeltaTime()
     {
         return deltaTime;
     }
-
-    /** Node-local variables of the node being evaluated (set by the layer before evaluation). */
-    public VariableScope nodeScope;
-
-    /** Variables of the layer being evaluated. */
-    public VariableScope layerScope;
 
     @Override
     public VariableScope getNodeScope()
@@ -70,28 +80,35 @@ public class KumoContext implements IKumoContext
     }
 
     @Override
+    public void enterNode(INodeState node, VariableScope layerScope)
+    {
+        this.currentNode = node;
+        this.layerScope = layerScope;
+        this.nodeScope = node.getScope();
+    }
+
+    @Override
+    public Set<String> setNegatedVariables(Set<String> names)
+    {
+        Set<String> previous = negatedVariables;
+        negatedVariables = names;
+        return previous;
+    }
+
+    @Override
     public double resolveVariable(String name)
     {
         double value;
-        if (nodeScope != null && nodeScope.has(name)) value = nodeScope.get(name);
-        else if (layerScope != null && layerScope.has(name)) value = layerScope.get(name);
+        if (nodeScope.has(name)) value = nodeScope.get(name);
+        else if (layerScope.has(name)) value = layerScope.get(name);
         else value = subject.getVariable(name);
         return negatedVariables != null && negatedVariables.contains(name) ? -value : value;
-    }
-
-    /** Variables read as their negation while a mirrored item is evaluated (see {@code MirroredPoseItem}). */
-    public java.util.Set<String> negatedVariables;
-
-    @Override
-    public boolean hasVariable(String name)
-    {
-        return (nodeScope != null && nodeScope.has(name)) || (layerScope != null && layerScope.has(name)) || subject.hasVariable(name);
     }
 
     @Override
     public boolean isActionActive(String tag)
     {
-        for (ILayerState layer : layers)
+        for (LayerState layer : layers)
         {
             if (layer.getActions().contains(tag))
             {

@@ -86,7 +86,7 @@ public class AddonAnimationRegistry
      */
     public <T extends TriggerConditionTemplate> void registerTriggerCondition(String key, ITriggerConditionFactory<?, T> factory, Class<T> templateType)
     {
-        TriggerConditionRegistry.instance.register(String.format("%s:%s", modId, key), factory, templateType);
+        TriggerConditionRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory, templateType);
     }
 
     /**
@@ -97,7 +97,7 @@ public class AddonAnimationRegistry
      */
     public void registerTriggerCondition(String key, ITriggerCondition condition)
     {
-        TriggerConditionRegistry.instance.register(String.format("%s:%s", modId, key), condition);
+        TriggerConditionRegistry.INSTANCE.register(String.format("%s:%s", modId, key), condition);
     }
 
     /**

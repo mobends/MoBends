@@ -60,7 +60,7 @@ public class ClipFrameTest
     private static FramePose run(int ticks, String pose, String mainFields, String otherNodes) throws MalformedKumoTemplateException
     {
         String nodes = "\"main\": {\"type\": \"core:pose\", \"pose\": [" + pose + "]" + mainFields + "}" + otherNodes;
-        AnimatorTemplate template = KumoSerializer.INSTANCE.gson.fromJson("{\"formatVersion\": 2, \"layers\": [{\"type\": \"KEYFRAME\", \"entryNode\": \"main\", \"nodes\": {"
+        AnimatorTemplate template = KumoSerializer.INSTANCE.gson.fromJson("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"main\", \"nodes\": {"
                 + nodes + "}}]}", AnimatorTemplate.class);
         Scenario scenario = new Scenario(EntityKind.PLAYER, "clip_frame", Scenarios.FPS, ticks, (tick, in) -> {});
         List<FramePose> frames = new KumoSession(scenario, template).run().frames;

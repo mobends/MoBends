@@ -111,7 +111,7 @@ packs use the same template classes):
   `core:movement`) → connections with `triggerCondition`, `transitionDuration`, `transitionEasing`.
 * Conditions: `core:or/and/not/state/ticks_passed/equipment_name/animation_finished`, addon
   registrable (`mobends:wolf_state`).
-* `KeyframeLayerState.update`: reset affected bones to rest, write
+* `LayerState.update`: reset affected bones to rest, write
   `(1-t)·prevNodePose + t·currentNodePose` (eased), advance **all** nodes, then evaluate the
   current node's connections. Bones are addressed by name via `EntityData.getPartForName`
   (`IModelPart`, or `SmoothOrientation` for `renderRotation`/`centerRotation`, or
@@ -122,12 +122,12 @@ Latent issues found while reading it (all worth fixing before building on it):
 
 | # | Issue | Where |
 |---|---|---|
-| K1 | `"additive": true` in `wolf.json` is silently ignored; `KeyframeLayerTemplate` has no such field. The second wolf layer is really a masked override layer. | `KeyframeLayerTemplate` |
-| K2 | Rotation blending is done by `set(0,0,0,0)` then component-wise `add()` of weighted quaternions; the result is only normalised when the bone later hits `updateSmooth()`/`finish()`. No hemisphere (dot-product sign) check, so antipodal keyframes/nodes blend through zero and flip. | `KeyframeLayerState.applyRestPose/applyKeyframeAnimation`, `KeyframeUtils` |
-| K3 | An interrupted transition drops the in-progress blend: `previousNode` becomes the node being left, so the pose pops to that node's un-blended pose. | `KeyframeLayerState.update` |
+| K1 | `"additive": true` in `wolf.json` is silently ignored; `LayerTemplate` has no such field. The second wolf layer is really a masked override layer. | `LayerTemplate` |
+| K2 | Rotation blending is done by `set(0,0,0,0)` then component-wise `add()` of weighted quaternions; the result is only normalised when the bone later hits `updateSmooth()`/`finish()`. No hemisphere (dot-product sign) check, so antipodal keyframes/nodes blend through zero and flip. | `LayerState.applyRestPose/applyKeyframeAnimation`, `KeyframeUtils` |
+| K3 | An interrupted transition drops the in-progress blend: `previousNode` becomes the node being left, so the pose pops to that node's un-blended pose. | `LayerState.update` |
 | K4 | Non-looping nodes clamp `progress` to `duration-2`, so the final keyframe is never shown at full weight, and `animation_finished` fires one frame early. | `StandardKeyframeNode` |
-| K5 | All nodes advance every frame even when inactive; `start()` resets them so it is harmless today, but it is wasted work and will matter for driver nodes with state. | `KeyframeLayerState.update` |
-| K6 | `getPartForName` string lookups and `entrySet` iteration per bone per frame. Fine for a wolf, wasteful at scale; bones should be bound once at instancing. | `KeyframeLayerState` |
+| K5 | All nodes advance every frame even when inactive; `start()` resets them so it is harmless today, but it is wasted work and will matter for driver nodes with state. | `LayerState.update` |
+| K6 | `getPartForName` string lookups and `entrySet` iteration per bone per frame. Fine for a wolf, wasteful at scale; bones should be bound once at instancing. | `LayerState` |
 | K7 | `TicksPassedCondition` uses the global `DataUpdateHandler.getTicks()`, which restarts on world change (`onTicksRestart`). Node-local time is safer. | `TicksPassedCondition` |
 | K8 | `DriverLayerState` is an empty stub; `KumoVariableRegistry` registers variables that nothing reads. | `core/kumo/state`, `core/kumo/variable` |
 | K9 | Keyframe interpolation is linear in quaternion components with no normalisation between frames (fine for dense Blender exports, wrong for sparse hand-authored keys). | `applyKeyframeAnimation` |
@@ -360,7 +360,7 @@ squid → player → spider.
 
 | Phase | Scope | Exit criteria | Size |
 |---|---|---|---|
-| 0. Toolchain | JDK 8 + Gradle 4.9 build green locally and in CI (`build.yml` already uses Temurin 8); JUnit for `core/math` and `core/kumo` without Minecraft classes (extract `IPose`/`IBoneSink` interfaces so `KeyframeLayerState` does not need `EntityData`). | `./gradlew build` and tests pass | S |
+| 0. Toolchain | JDK 8 + Gradle 4.9 build green locally and in CI (`build.yml` already uses Temurin 8); JUnit for `core/math` and `core/kumo` without Minecraft classes (extract `IPose`/`IBoneSink` interfaces so `LayerState` does not need `EntityData`). | `./gradlew build` and tests pass | S |
 | 1. KUMO core v2 | Pose pipeline, bone binding, hemisphere-correct nlerp, snapshot transitions + `EXPONENTIAL` easing, additive/override compositing with masks and weights, damping stage with per-bone tables and `snapOnEnter`, node tags, K4/K5/K7 fixes, format version. | Wolf animator renders identically to 1.2.2 (golden comparator); wolf head/tail maths moved to drivers or left in `WolfController` unchanged | M |
 | 2. Drivers, variables, conditions | Driver registry and the drivers/conditions/variables listed in 4.2–4.3; `core:movement` generalisation; `core:blend1d`; mirror flag; animator `extends`. | Each driver has a unit test against the formula in the corresponding bit | M |
 | 3. Tooling | Golden recorder, baker, comparator, previewer ghost, F10 re-instancing. | Zombie stand/walk/jump baked and passing comparator end to end | M |

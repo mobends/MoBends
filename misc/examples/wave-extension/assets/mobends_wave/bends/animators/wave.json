@@ -3,7 +3,6 @@
   "comment": "One layer on top of the player's animator: it lets the player's own pose through while they move, and raises the right arm to wave while they stand still.",
   "layers": [
     {
-      "type": "KEYFRAME",
       "entryNode": "through",
       "nodes": {
         "through": {

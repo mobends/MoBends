@@ -41,16 +41,7 @@ public class SetDriver implements IPoseItem
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
         VariableScope scope = nodeScope ? context.getNodeScope() : context.getLayerScope();
-        if (scope != null)
-        {
-            scope.set(variable, value.get(context));
-        }
-    }
-
-    @Override
-    public boolean isFinished(float elapsedTicks)
-    {
-        return false;
+        scope.set(variable, value.get(context));
     }
 
     @Override

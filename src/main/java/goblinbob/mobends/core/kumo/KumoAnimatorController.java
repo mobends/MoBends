@@ -29,7 +29,7 @@ public class KumoAnimatorController<T extends EntityData<?>> implements IAnimati
     private final ResourceLocation animator;
     private final List<ResourceLocation> extensions;
     @Nullable
-    private KumoAnimatorState<T> state;
+    private KumoAnimatorState state;
     private boolean failed;
 
     public KumoAnimatorController(ResourceLocation animator)
@@ -55,7 +55,7 @@ public class KumoAnimatorController<T extends EntityData<?>> implements IAnimati
     }
 
     @Nullable
-    public KumoAnimatorState<T> getState()
+    public KumoAnimatorState getState()
     {
         return state;
     }
@@ -80,7 +80,7 @@ public class KumoAnimatorController<T extends EntityData<?>> implements IAnimati
                 overlays.add(resources.loadAnimator(extension));
                 overlaysTrusted.add(resources.isTrusted(extension.toString()));
             }
-            state = new KumoAnimatorState<>(resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
+            state = new KumoAnimatorState(resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
             return true;
         }
         catch (Exception e)

@@ -3,7 +3,6 @@ package goblinbob.mobends.core.mutators;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.core.kumo.variable.KumoVariableRegistry;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -140,8 +139,6 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         data.limbSwing.set(this.limbSwing);
         data.limbSwingAmount.set(this.limbSwingAmount);
         data.swingProgress.set(this.swingProgress);
-
-        KumoVariableRegistry.instance.provideTemporaryData(data);
 
         // noinspection unchecked
         final IAnimationController<D> controller = (IAnimationController<D>) data.getActiveController();

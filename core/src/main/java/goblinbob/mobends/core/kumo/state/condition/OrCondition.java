@@ -3,28 +3,32 @@ package goblinbob.mobends.core.kumo.state.condition;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This condition is met if either of the nested conditions are met.
+ * This condition is met if any of the nested conditions is met.
  *
  * @author Iwo Plaza
  */
 public class OrCondition implements ITriggerCondition
 {
 
-    private List<ITriggerCondition> conditions;
+    private final List<ITriggerCondition> conditions = new ArrayList<>();
 
     public OrCondition(Template template) throws MalformedKumoTemplateException
     {
-        this.conditions = new LinkedList<>();
+        if (template.conditions == null)
+        {
+            throw new MalformedKumoTemplateException("core:or needs 'conditions'.");
+        }
         for (TriggerConditionTemplate conditionTemplate : template.conditions)
         {
-            if (conditionTemplate != null)
+            if (conditionTemplate == null)
             {
-                this.conditions.add(TriggerConditionRegistry.instance.createFromTemplate(conditionTemplate));
+                throw new MalformedKumoTemplateException("core:or has a null condition.");
             }
+            this.conditions.add(TriggerConditionRegistry.INSTANCE.createFromTemplate(conditionTemplate));
         }
     }
 

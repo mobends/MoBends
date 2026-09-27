@@ -31,13 +31,13 @@ public class AnimationLimitsTest
     private static final AnimationLimits LIMITS = new AnimationLimits(4, 16);
 
     /** Throws the left arm 40 units out and the whole body 100 units up. */
-    private static final String FLING = "{\"formatVersion\": 2, \"layers\": [{\"type\": \"KEYFRAME\", \"entryNode\": \"fling\", \"nodes\": {\"fling\": {\"pose\": ["
+    private static final String FLING = "{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"fling\", \"nodes\": {\"fling\": {\"pose\": ["
             + "{\"driver\": \"core:offset\", \"bone\": \"leftArm\", \"x\": 40, \"y\": 0, \"z\": 0},"
             + "{\"driver\": \"core:vector\", \"bone\": \"globalOffset\", \"x\": 0, \"y\": 100, \"z\": 0, \"snap\": true}"
             + "]}}}]}";
 
     /** Raises the right arm: rotations only. */
-    private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"type\": \"KEYFRAME\", \"entryNode\": \"raise\", \"nodes\": {\"raise\": {\"pose\": ["
+    private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"raise\", \"nodes\": {\"raise\": {\"pose\": ["
             + "{\"driver\": \"core:axis_rotate\", \"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": -150, \"space\": \"OVERRIDE\"}"
             + "]}}}]}";
 
@@ -154,13 +154,13 @@ public class AnimationLimitsTest
             items.append("{\"driver\": \"core:vector\", \"bone\": \"").append(vector).append("\", \"x\": 100, \"y\": {\"mul\": [\"ticks\", 5]}, \"z\": -100, \"space\": \"PRE\"},");
         }
         items.setLength(items.length() - 1);
-        return json("{\"formatVersion\": 2, \"layers\": [{\"type\": \"KEYFRAME\", \"entryNode\": \"fling\", \"nodes\": {\"fling\": {\"pose\": [" + items + "]}}}]}");
+        return json("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"fling\", \"nodes\": {\"fling\": {\"pose\": [" + items + "]}}}]}");
     }
 
     @Test
     void infiniteAndNotANumberValuesDontGetPast() throws Exception
     {
-        String broken = "{\"formatVersion\": 2, \"layers\": [{\"type\": \"KEYFRAME\", \"entryNode\": \"broken\", \"nodes\": {\"broken\": {\"pose\": ["
+        String broken = "{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"broken\", \"nodes\": {\"broken\": {\"pose\": ["
                 + "{\"driver\": \"core:offset\", \"bone\": \"leftArm\", \"x\": {\"div\": [1, 0]}, \"y\": {\"sqrt\": [-1]}, \"z\": 0},"
                 + "{\"driver\": \"core:vector\", \"bone\": \"globalOffset\", \"x\": {\"div\": [-1, 0]}, \"y\": {\"div\": [1, 0]}, \"z\": 0, \"snap\": true}"
                 + "]}}}]}";
@@ -171,7 +171,7 @@ public class AnimationLimitsTest
         for (float v : offset(limited, "leftArm")) assertTrue(Float.isFinite(v), "the arm's offset stays finite");
         assertTrue(distance(offset(own, "leftArm"), offset(limited, "leftArm")) <= 4 + 1e-3);
 
-        String badRotation = "{\"formatVersion\": 2, \"layers\": [{\"type\": \"KEYFRAME\", \"entryNode\": \"bad\", \"nodes\": {\"bad\": {\"pose\": ["
+        String badRotation = "{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"bad\", \"nodes\": {\"bad\": {\"pose\": ["
                 + "{\"driver\": \"core:axis_rotate\", \"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": {\"sqrt\": [-1]}, \"space\": \"OVERRIDE\"}]}}}]}";
         for (float v : last(WALK, player(), true, badRotation, false, true).bones.get("rightArm").rt) assertTrue(Float.isFinite(v), "the arm's rotation stays finite");
     }

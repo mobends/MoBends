@@ -13,8 +13,7 @@ public class RampTemplate extends DriverItemTemplate
     public Float downSpeed;
 
     /**
-     * When true, the items of this frame read the value as it was before this frame's advance
-     * (the bit computed its eased value at the top of perform() and moved the ramp afterwards).
+     * When true, the items of this frame read the value as it was before this frame's advance.
      * The default is to advance first and then expose the value.
      */
     public boolean readBeforeAdvance = false;

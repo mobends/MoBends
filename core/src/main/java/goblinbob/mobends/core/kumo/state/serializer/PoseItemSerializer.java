@@ -15,18 +15,22 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
     @Override
     public PoseItemTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        JsonObject object = json.getAsJsonObject();
+        JsonObject object = JsonReading.object(json, "A pose item");
         if (object.has("driver"))
         {
-            String key = object.get("driver").getAsString();
+            String key = JsonReading.string(object.get("driver"), "A pose item's \"driver\"");
             Type templateType = DriverRegistry.INSTANCE.getTemplateClass(key);
             if (templateType == null)
             {
-                throw new JsonParseException(String.format("Unknown driver: '%s'", key));
+                throw new JsonParseException(String.format("Unknown driver: '%s'.", key));
             }
-            return KumoSerializer.INSTANCE.keyframeNodeGson.fromJson(json, templateType);
+            return KumoSerializer.INSTANCE.leafGson.fromJson(json, templateType);
         }
-        return KumoSerializer.INSTANCE.keyframeNodeGson.fromJson(json, ClipItemTemplate.class);
+        if (!object.has("animationKey"))
+        {
+            throw new JsonParseException("A pose item has neither an \"animationKey\" nor a \"driver\".");
+        }
+        return KumoSerializer.INSTANCE.leafGson.fromJson(json, ClipItemTemplate.class);
     }
 
 }

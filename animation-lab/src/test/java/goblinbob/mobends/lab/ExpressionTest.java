@@ -34,9 +34,8 @@ public class ExpressionTest
 
     public ExpressionTest()
     {
-        context.layerScope = new VariableScope();
-        context.layerScope.set("x", 3);
-        context.layerScope.set("ticks", 42);
+        context.getLayerScope().set("x", 3);
+        context.getLayerScope().set("ticks", 42);
     }
 
     private static JsonElement json(String text)
@@ -157,7 +156,7 @@ public class ExpressionTest
                 + "\"formatVersion\": 2,"
                 + "\"extends\": \"mobends_test:bends/animators/expressions_parent.json\","
                 + "\"expressions\": {\"base\": -45},"
-                + "\"layers\": [{\"type\": \"KEYFRAME\", \"entryNode\": \"child\","
+                + "\"layers\": [{\"entryNode\": \"child\","
                 + "  \"expressions\": {\"lift\": {\"mul\": [\"base\", 0.5]}},"
                 + "  \"nodes\": {\"child\": {\"type\": \"core:pose\","
                 + "    \"expressions\": {\"legs\": {\"add\": [\"lift\", 1]}},"

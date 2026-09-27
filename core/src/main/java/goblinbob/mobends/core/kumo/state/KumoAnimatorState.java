@@ -11,9 +11,8 @@ import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.PoseNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.PoseNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
 import goblinbob.mobends.core.math.Quaternion;
@@ -30,14 +29,12 @@ import java.util.Map;
 /**
  * A running instance of an animator template for one subject. Each update evaluates every
  * layer into one pose and writes the pose's targets to the subject's bones; the bones' own
- * smoothing then does the damping, exactly as it does for the procedural animations.
- *
- * @param <S> the subject type; kept generic for source compatibility with the old EntityData-typed API.
+ * smoothing then does the damping.
  */
-public class KumoAnimatorState<S extends IKumoSubject>
+public class KumoAnimatorState
 {
 
-    private final List<ILayerState> layerStates = new ArrayList<>();
+    private final List<LayerState> layerStates = new ArrayList<>();
     private final Skeleton skeleton = new Skeleton();
     private final KumoContext context = new KumoContext();
     private final Pose pose;
@@ -51,6 +48,8 @@ public class KumoAnimatorState<S extends IKumoSubject>
     private Vec3f[] lastTrusted;
     /** Per slot: the slot whose trusted value it is limited around (aliases share one). */
     private final int[] limitGroup;
+    /** Per slot: whether it is an entity-level vector (see {@link Skeleton#isVectorBone}). */
+    private final boolean[] vectorSlot;
 
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
@@ -98,22 +97,28 @@ public class KumoAnimatorState<S extends IKumoSubject>
         {
             LayerTemplate template = layers.get(i);
             IKumoInstancingContext layerContext = layerContexts.get(i).withExpressions(template.expressions);
-            layerStates.add(ILayerState.createFromTemplate(layerContext, skeleton, template));
+            layerStates.add(new LayerState(layerContext, skeleton, template));
         }
-        context.layers = layerStates;
+        context.setLayers(layerStates);
 
         // Every bone name is known once the layers are instanced.
+        for (LayerState layer : layerStates)
+        {
+            layer.allocate();
+        }
         pose = new Pose(skeleton, true);
         trustedPose = new Pose(skeleton);
         // "root" and "globalOffset" are two names of the same vector: limited as one.
         limitGroup = new int[skeleton.size()];
+        vectorSlot = new boolean[skeleton.size()];
         Map<String, Integer> groups = new HashMap<>();
         for (int i = 0; i < limitGroup.length; i++)
         {
             String name = skeleton.nameOf(i);
-            String key = Skeleton.ROOT.equals(name) ? "globalOffset" : name;
+            String key = Skeleton.ROOT.equals(name) ? Skeleton.GLOBAL_OFFSET : name;
             Integer group = groups.putIfAbsent(key, i);
             limitGroup[i] = group == null ? i : group;
+            vectorSlot[i] = Skeleton.isVectorBone(name);
         }
     }
 
@@ -158,11 +163,11 @@ public class KumoAnimatorState<S extends IKumoSubject>
     /** Whether every clip the layer's nodes play comes from a trusted source. */
     private static boolean playsTrustedClips(LayerTemplate layer, IKumoInstancingContext context)
     {
-        if (!(layer instanceof KeyframeLayerTemplate) || ((KeyframeLayerTemplate) layer).nodes == null)
+        if (layer.nodes == null)
         {
             return true;
         }
-        for (KeyframeNodeTemplate node : ((KeyframeLayerTemplate) layer).nodes)
+        for (NodeTemplate node : layer.nodes)
         {
             List<PoseItemTemplate> items = new ArrayList<>();
             if (node instanceof PoseNodeTemplate && ((PoseNodeTemplate) node).pose != null) items.addAll(((PoseNodeTemplate) node).pose);
@@ -194,12 +199,29 @@ public class KumoAnimatorState<S extends IKumoSubject>
         return anyUntrusted;
     }
 
-    public void update(S subject, float deltaTime) throws MalformedKumoTemplateException
+    /**
+     * Animates {@code subject} for a frame.
+     *
+     * @throws MalformedKumoTemplateException when the animator fails, e.g. it reads a variable
+     *                                        the subject doesn't have; it can't be used after that.
+     */
+    public void update(IKumoSubject subject, float deltaTime) throws MalformedKumoTemplateException
+    {
+        try
+        {
+            animate(subject, deltaTime);
+        }
+        catch (RuntimeException e)
+        {
+            throw new MalformedKumoTemplateException("The animator failed: " + e.getMessage(), e);
+        }
+    }
+
+    private void animate(IKumoSubject subject, float deltaTime) throws MalformedKumoTemplateException
     {
         skeleton.bind(subject);
 
-        context.subject = subject;
-        context.deltaTime = deltaTime;
+        context.beginFrame(subject, deltaTime);
         pose.clear();
 
         boolean limiting = limits != null && anyUntrusted;
@@ -216,14 +238,13 @@ public class KumoAnimatorState<S extends IKumoSubject>
         boolean measured = false;
         for (int i = 0; i < layerStates.size(); i++)
         {
-            ILayerState layer = layerStates.get(i);
+            LayerState layer = layerStates.get(i);
             if (limiting && !measured && !layerTrusted[i])
             {
                 trustedPose.set(pose);
                 measured = true;
             }
-            context.layerState = layer;
-            context.currentNode = null;
+            context.setLayerState(layer);
 
             if (!started)
             {
@@ -252,7 +273,7 @@ public class KumoAnimatorState<S extends IKumoSubject>
         {
             BoneTarget reference = trusted.get(i);
             Vec3f last = lastTrusted[limitGroup[i]];
-            if (Skeleton.isVectorBone(skeleton.nameOf(i)))
+            if (vectorSlot[i])
             {
                 if (reference.hasVector) setWritten(last, reference.vector);
             }
@@ -265,7 +286,7 @@ public class KumoAnimatorState<S extends IKumoSubject>
         {
             BoneTarget target = pose.get(i);
             Vec3f last = lastTrusted[limitGroup[i]];
-            if (Skeleton.isVectorBone(skeleton.nameOf(i)))
+            if (vectorSlot[i])
             {
                 if (target.hasVector) clampAround(target.vector, last, limits.maxBodyOffset);
             }
@@ -350,7 +371,7 @@ public class KumoAnimatorState<S extends IKumoSubject>
     public List<String> getActions()
     {
         List<String> actions = new ArrayList<>();
-        for (ILayerState layer : layerStates)
+        for (LayerState layer : layerStates)
         {
             actions.addAll(layer.getActions());
         }
@@ -360,14 +381,14 @@ public class KumoAnimatorState<S extends IKumoSubject>
     /** True while any layer is in a {@code core:vanilla} node: the entity should be drawn vanilla. */
     public boolean wantsVanilla()
     {
-        for (ILayerState layer : layerStates)
+        for (LayerState layer : layerStates)
         {
             if (layer.wantsVanilla()) return true;
         }
         return false;
     }
 
-    public List<ILayerState> getLayers()
+    public List<LayerState> getLayers()
     {
         return layerStates;
     }

@@ -20,10 +20,10 @@ public class DampingTemplateSerializer implements JsonDeserializer<DampingTempla
         DampingTemplate damping = new DampingTemplate();
         if (json.isJsonPrimitive())
         {
-            damping.entries.put(DampingTemplate.DEFAULT, new float[] { json.getAsFloat() });
+            damping.entries.put(DampingTemplate.DEFAULT, new float[] { JsonReading.number(json, "A damping") });
             return damping;
         }
-        for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet())
+        for (Map.Entry<String, JsonElement> entry : JsonReading.object(json, "A damping").entrySet())
         {
             JsonElement value = entry.getValue();
             if (value.isJsonArray())
@@ -32,7 +32,7 @@ public class DampingTemplateSerializer implements JsonDeserializer<DampingTempla
                 float[] values = new float[array.size()];
                 for (int i = 0; i < values.length; i++)
                 {
-                    values[i] = array.get(i).isJsonNull() ? Float.NaN : array.get(i).getAsFloat();
+                    values[i] = array.get(i).isJsonNull() ? Float.NaN : JsonReading.number(array.get(i), "The damping of '" + entry.getKey() + "'");
                 }
                 damping.entries.put(entry.getKey(), values);
             }
@@ -42,7 +42,7 @@ public class DampingTemplateSerializer implements JsonDeserializer<DampingTempla
             }
             else
             {
-                damping.entries.put(entry.getKey(), new float[] { value.getAsFloat() });
+                damping.entries.put(entry.getKey(), new float[] { JsonReading.number(value, "The damping of '" + entry.getKey() + "'") });
             }
         }
         return damping;

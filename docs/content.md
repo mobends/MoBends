@@ -182,7 +182,7 @@ For per-entity variation (the zombie's two walking styles), add a layer per vari
 variable the data class sets, and let it override or add to the base:
 
 ```json
-{"type": "KEYFRAME", "mode": "ADDITIVE",
+{"mode": "ADDITIVE",
  "additiveSpace": {"default": "PRE", "body": "POST", "root": "OVERRIDE"},
  "when": {"type": "core:compare", "variable": "animationSet", "op": "==", "value": 0},
  "entryNode": "lean", "nodes": { … }}

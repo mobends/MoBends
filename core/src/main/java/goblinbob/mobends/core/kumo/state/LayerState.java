@@ -1,28 +1,29 @@
-package goblinbob.mobends.core.kumo.state.keyframe;
+package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.animation.keyframe.ArmatureMask;
 import goblinbob.mobends.core.kumo.pose.BoneTarget;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
-import goblinbob.mobends.core.kumo.state.*;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.state.node.NodeRegistry;
+import goblinbob.mobends.core.kumo.state.template.ArmatureMask;
+import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
-import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
+import goblinbob.mobends.core.math.Quaternion;
+import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.Tween;
 
 import java.util.*;
 
 /**
- * A state machine of pose nodes. Each frame the current node (and, during a transition, the
+ * A layer: a state machine of nodes. Each frame the current node (and, during a transition, the
  * previous node or a frozen snapshot of the blend) is evaluated, the two are cross-faded, and the
  * result is composited onto the animator pose in the layer's mode.
  */
-public class KeyframeLayerState implements ILayerState
+public class LayerState
 {
 
     private final List<INodeState> nodeStates = new ArrayList<>();
@@ -30,16 +31,19 @@ public class KeyframeLayerState implements ILayerState
     private final ArmatureMask mask;
     private final LayerTemplate.LayerMode mode;
     private final Skeleton skeleton;
-    private final boolean[] allowed;
     private final ITriggerCondition when;
     private final VariableScope variables = new VariableScope();
 
-    private final Pose currentPose;
-    private final Pose previousPose;
-    private final Pose snapshotPose;
-    private final Pose outputPose;
-    private final Pose lastOutput;
-    private final goblinbob.mobends.core.math.Quaternion blendTemp = new goblinbob.mobends.core.math.Quaternion();
+    // Sized by allocate(), once every layer of the animator has registered its bones.
+    private boolean[] allowed;
+    private Pose currentPose;
+    private Pose previousPose;
+    private Pose snapshotPose;
+    private Pose outputPose;
+    private Pose lastOutput;
+    private final Quaternion rotationBeneath = new Quaternion();
+    private final Quaternion rotationTemp = new Quaternion();
+    private final Vec3f vectorBeneath = new Vec3f();
 
     private INodeState previousNode;
     private INodeState currentNode;
@@ -48,24 +52,29 @@ public class KeyframeLayerState implements ILayerState
     private float transitionDuration = 0.0F;
     private ConnectionTemplate.Easing transitionEasing = ConnectionTemplate.Easing.EASE_IN_OUT;
     private float elapsedTicks = 0.0F;
+    /** Whether the layer's "when" held on the last update. */
+    private boolean enabled = true;
 
-    public KeyframeLayerState(IKumoInstancingContext context, Skeleton skeleton, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
+    public LayerState(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
         this.mask = layerTemplate.mask;
+        if (mask != null)
+        {
+            mask.validate();
+        }
         this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
         this.skeleton = skeleton;
-        this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(layerTemplate.when);
+        this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(layerTemplate.when);
         this.variables.putAll(layerTemplate.variables);
 
         if (layerTemplate.nodes == null || layerTemplate.nodes.isEmpty())
         {
-            throw new MalformedKumoTemplateException("A keyframe layer has no nodes.");
+            throw new MalformedKumoTemplateException("A layer has no nodes.");
         }
 
-        for (int i = 0; i < layerTemplate.nodes.size(); i++)
+        for (NodeTemplate nodeTemplate : layerTemplate.nodes)
         {
-            KeyframeNodeTemplate nodeTemplate = layerTemplate.nodes.get(i);
-            INodeState node = KeyframeNodeRegistry.INSTANCE.createFromTemplate(context.withExpressions(nodeTemplate.expressions), skeleton, layerTemplate, nodeTemplate);
+            INodeState node = NodeRegistry.INSTANCE.createFromTemplate(context.withExpressions(nodeTemplate.expressions), skeleton, layerTemplate, nodeTemplate);
             nodeStates.add(node);
             if (nodesByName.put(nodeTemplate.name, node) != null)
             {
@@ -83,8 +92,11 @@ public class KeyframeLayerState implements ILayerState
         {
             throw new MalformedKumoTemplateException(String.format("Entry node '%s' doesn't exist.", layerTemplate.entryNodeName));
         }
+    }
 
-        // Poses are sized after every node has registered its bones.
+    /** Sizes the layer's buffers after the skeleton, once it has every bone of the animator. */
+    void allocate()
+    {
         currentPose = new Pose(skeleton);
         previousPose = new Pose(skeleton);
         snapshotPose = new Pose(skeleton);
@@ -98,30 +110,23 @@ public class KeyframeLayerState implements ILayerState
         }
     }
 
-    @Override
-    public void start(IKumoContext context)
+    public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
-        bindScopes(context, currentNode);
+        context.enterNode(currentNode, variables);
+        if (when != null)
+        {
+            when.onNodeStarted(context);
+        }
         currentNode.start(context);
     }
 
-    private void bindScopes(IKumoContext context, INodeState node)
-    {
-        context.setCurrentNode(node);
-        if (context instanceof KumoContext)
-        {
-            ((KumoContext) context).layerScope = variables;
-            ((KumoContext) context).nodeScope = node == null ? null : node.getScope();
-        }
-    }
-
-    @Override
+    /** Ticks elapsed since the layer started. */
     public float getElapsedTicks()
     {
         return elapsedTicks;
     }
 
-    @Override
+    /** The tags of the layer's current node. */
     public Collection<String> getActions()
     {
         return currentNode.getTags();
@@ -132,20 +137,16 @@ public class KeyframeLayerState implements ILayerState
         return currentNode;
     }
 
-    /** Whether the layer's "when" held on the last update. */
-    private boolean enabled = true;
-
-    @Override
+    /** True while the layer is in a {@code core:vanilla} node (and its "when" holds). */
     public boolean wantsVanilla()
     {
-        // A disabled layer (its "when" doesn't hold) asks for nothing.
         return currentNode.isVanilla() && enabled;
     }
 
-    @Override
+    /** Evaluates the layer for this frame and composites its output into {@code animatorPose}. */
     public void update(IKumoContext context, float deltaTime, Pose animatorPose) throws MalformedKumoTemplateException
     {
-        bindScopes(context, currentNode);
+        context.enterNode(currentNode, variables);
 
         enabled = when == null || when.isConditionMet(context);
         if (!enabled)
@@ -171,7 +172,7 @@ public class KeyframeLayerState implements ILayerState
         }
 
         // 2. Evaluate.
-        bindScopes(context, currentNode);
+        context.enterNode(currentNode, variables);
         currentPose.clear();
         currentNode.evaluate(context, currentPose);
 
@@ -186,17 +187,22 @@ public class KeyframeLayerState implements ILayerState
             }
             else
             {
-                bindScopes(context, previousNode);
+                context.enterNode(previousNode, variables);
                 previousPose.clear();
                 previousNode.evaluate(context, previousPose);
                 source = previousPose;
-                bindScopes(context, currentNode);
+                context.enterNode(currentNode, variables);
             }
             if (currentNode.isFallthrough() || previousNode.isFallthrough())
             {
                 // What one side doesn't pose, the layers below do: fade to (or from) them.
                 fillFromBelow(source, currentPose, animatorPose);
                 fillFromBelow(currentPose, source, animatorPose);
+            }
+            for (int i = 0; i < currentPose.size(); i++)
+            {
+                matchSpaces(source.get(i), currentPose.get(i), animatorPose, i);
+                matchSpaces(currentPose.get(i), source.get(i), animatorPose, i);
             }
             blend(source, currentPose, t, outputPose);
             result = outputPose;
@@ -224,7 +230,7 @@ public class KeyframeLayerState implements ILayerState
         }
     }
 
-    private void beginTransition(ConnectionState connection, IKumoContext context)
+    private void beginTransition(ConnectionState connection, IKumoContext context) throws MalformedKumoTemplateException
     {
         transitionDuration = connection.transitionDuration;
         transitionEasing = connection.transitionEasing;
@@ -249,16 +255,16 @@ public class KeyframeLayerState implements ILayerState
             transitionProgress = 0;
         }
 
-        if (connection.set != null && context.getLayerScope() != null)
+        if (connection.set != null)
         {
-            for (java.util.Map.Entry<String, Float> entry : connection.set.entrySet())
+            for (Map.Entry<String, Float> entry : connection.set.entrySet())
             {
-                context.getLayerScope().set(entry.getKey(), entry.getValue());
+                variables.set(entry.getKey(), entry.getValue());
             }
         }
 
         currentNode = connection.targetNode;
-        bindScopes(context, currentNode);
+        context.enterNode(currentNode, variables);
         currentNode.start(context);
     }
 
@@ -327,6 +333,53 @@ public class KeyframeLayerState implements ILayerState
         }
     }
 
+    /**
+     * Where {@code absolute} has an absolute value and {@code relative} only a relative one (a PRE /
+     * POST rotation, an additive offset or vector), resolves {@code relative} against what lies
+     * beneath the layer, so the two are blended in the same space.
+     */
+    private void matchSpaces(BoneTarget relative, BoneTarget absolute, Pose below, int slot)
+    {
+        if (absolute.hasRotation && !relative.hasRotation && (relative.hasPre || relative.hasPost))
+        {
+            if (!below.absoluteRotation(slot, rotationBeneath))
+            {
+                rotationBeneath.setIdentity();
+            }
+            // pre * beneath * post, as composing the relative parts would give.
+            if (relative.hasPre)
+            {
+                Quaternion.mul(relative.pre, rotationBeneath, rotationTemp);
+                rotationBeneath.set(rotationTemp);
+            }
+            if (relative.hasPost)
+            {
+                Quaternion.mul(rotationBeneath, relative.post, rotationTemp);
+                rotationBeneath.set(rotationTemp);
+            }
+            relative.rotation.set(rotationBeneath);
+            relative.hasRotation = true;
+            relative.hasPre = false;
+            relative.hasPost = false;
+        }
+        if (absolute.hasOffset && !absolute.offsetAdditive && relative.hasOffset && relative.offsetAdditive)
+        {
+            if (below.absoluteOffset(slot, vectorBeneath))
+            {
+                relative.offset.add(vectorBeneath.x, vectorBeneath.y, vectorBeneath.z);
+            }
+            relative.offsetAdditive = false;
+        }
+        if (absolute.hasVector && !absolute.vectorAdditive && relative.hasVector && relative.vectorAdditive)
+        {
+            if (below.absoluteVector(slot, vectorBeneath))
+            {
+                relative.vector.add(vectorBeneath.x, vectorBeneath.y, vectorBeneath.z);
+            }
+            relative.vectorAdditive = false;
+        }
+    }
+
     /** dest = nlerp(from, to, t); bones present on one side only are taken from that side. */
     private void blend(Pose from, Pose to, float t, Pose dest)
     {
@@ -380,7 +433,7 @@ public class KeyframeLayerState implements ILayerState
         }
     }
 
-    private void blendQuat(boolean hasA, goblinbob.mobends.core.math.Quaternion a, boolean hasB, goblinbob.mobends.core.math.Quaternion b, float t, goblinbob.mobends.core.math.Quaternion dest)
+    private void blendQuat(boolean hasA, Quaternion a, boolean hasB, Quaternion b, float t, Quaternion dest)
     {
         if (hasA && hasB)
         {
@@ -445,11 +498,6 @@ public class KeyframeLayerState implements ILayerState
             if (src.restartZ) dst.restartZ = true;
             if (src.hasVector) dst.vectorMode = src.vectorMode;
         }
-    }
-
-    public static KeyframeLayerState createFromTemplate(IKumoInstancingContext data, Skeleton skeleton, KeyframeLayerTemplate layerTemplate) throws MalformedKumoTemplateException
-    {
-        return new KeyframeLayerState(data, skeleton, layerTemplate);
     }
 
 }

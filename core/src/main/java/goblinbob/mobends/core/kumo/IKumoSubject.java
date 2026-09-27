@@ -19,15 +19,11 @@ public interface IKumoSubject
      */
     IBoneSink getBone(String name);
 
-    boolean hasVariable(String name);
-
     /**
      * @return the current value of a numeric variable (e.g. "limbSwing", "headYaw", "ticksInAir").
-     * @throws IllegalArgumentException if the variable is unknown; check with {@link #hasVariable}.
+     * @throws IllegalArgumentException if the variable is unknown (the animator fails)
      */
     double getVariable(String name);
-
-    boolean hasState(String name);
 
     /**
      * @return a string-valued input (e.g. "mainHandItem" = "minecraft:torch", "attackActionType" =
@@ -40,7 +36,7 @@ public interface IKumoSubject
 
     /**
      * @return whether a boolean state holds (e.g. "ON_GROUND", "SPRINTING").
-     * @throws IllegalArgumentException if the state is unknown; check with {@link #hasState}.
+     * @throws IllegalArgumentException if the state is unknown (the animator fails)
      */
     boolean getState(String name);
 

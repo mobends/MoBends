@@ -6,7 +6,7 @@ import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 /**
  * Met while a node carrying the tag is current on any layer:
  * {@code {"type": "core:action", "tag": "walk"}}. This is how a layer reacts to what another
- * layer is doing (and what bends packs used the controller's action strings for).
+ * layer is doing.
  *
  * @author Iwo Plaza
  */

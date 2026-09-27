@@ -24,7 +24,7 @@ public class LayerMirror
     public LayerMirror(Skeleton skeleton, MirrorTemplate template) throws MalformedKumoTemplateException
     {
         this.skeleton = skeleton;
-        this.when = template.when == null ? null : TriggerConditionRegistry.instance.createFromTemplate(template.when);
+        this.when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when);
         this.pairs = template.pairs == null ? Collections.emptyList() : template.pairs;
         this.negated = template.negate == null ? Collections.emptySet() : new HashSet<>(template.negate);
         for (List<String> pair : this.pairs)
@@ -36,6 +36,15 @@ public class LayerMirror
             // Register the bones so both sides of every pair have a slot.
             skeleton.indexOf(pair.get(0));
             skeleton.indexOf(pair.get(1));
+        }
+    }
+
+    /** Starts the condition over, for a node of the layer being entered. */
+    public void onNodeStarted(ITriggerConditionContext context)
+    {
+        if (when != null)
+        {
+            when.onNodeStarted(context);
         }
     }
 

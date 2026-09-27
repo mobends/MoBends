@@ -3,7 +3,6 @@
   "extends": "mobends:bends/animators/biped.json",
   "layers": [
     {
-      "type": "KEYFRAME",
       "mode": "ADDITIVE",
       "additiveSpace": {
         "default": "PRE",
@@ -88,7 +87,6 @@
       }
     },
     {
-      "type": "KEYFRAME",
       "when": {
         "type": "core:compare",
         "variable": "entitySwingProgress",

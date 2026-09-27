@@ -3,7 +3,7 @@ package goblinbob.mobends.core.kumo.state;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
+import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 
 import java.util.Map;
 
@@ -43,7 +43,7 @@ public class ConnectionState
         }
 
         ConnectionState state = new ConnectionState(node,
-                TriggerConditionRegistry.instance.createFromTemplate(template.triggerCondition),
+                TriggerConditionRegistry.INSTANCE.createFromTemplate(template.triggerCondition),
                 template.transitionDuration,
                 template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing);
         state.set = template.set;

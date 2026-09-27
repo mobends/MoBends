@@ -18,8 +18,6 @@ import java.util.Map;
 public class ClipBinding
 {
 
-    public static final String CENTER_ROTATION = "centerRotation";
-
     public final KeyframeAnimation animation;
     public final int keyframeCount;
     public final boolean step;
@@ -58,20 +56,8 @@ public class ClipBinding
             bones[i] = entries.get(i).getValue();
             slots[i] = skeleton.indexOf(name);
             isRoot[i] = Skeleton.isVectorBone(name);
-            isCenterRotation[i] = CENTER_ROTATION.equals(name);
+            isCenterRotation[i] = Skeleton.CENTER_ROTATION.equals(name);
         }
-    }
-
-    /** The skeleton slots this clip writes (bones plus the root vector when a root bone exists). */
-    public int[] writtenSlots()
-    {
-        return slots.clone();
-    }
-
-    /** Samples every bound bone at the index and composes it into the pose in one space. */
-    public void apply(Pose pose, float index, float weight, Pose.Space space)
-    {
-        apply(pose, index, weight, space, null);
     }
 
     /**
@@ -105,7 +91,8 @@ public class ClipBinding
         }
     }
 
-    public int[] boneSlots()
+    /** The skeleton slot of each bone the clip writes, parallel to its bone list. */
+    public int[] slots()
     {
         return slots.clone();
     }

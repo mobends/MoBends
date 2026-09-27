@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.mutators;
 
+import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.mutators.Mutator;
@@ -50,7 +51,9 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 			d0 = (double) i * -360.0D / (double) this.squidTentacles.length + 90.0D;
 			this.squidTentacles[i][0].setPosition(f, 16.0F, f1);
 			this.squidTentacles[i][0].addBox(-1.0F, 0.0F, 0.0F, 2, SquidData.SECTION_HEIGHT, 2);
-			this.squidTentacles[i][0].rotation.rotateY((float) d0);
+			Quaternion yaw = new Quaternion();
+			yaw.setFromAxisAngle(0F, 1F, 0F, (float) Math.toRadians(d0));
+			this.squidTentacles[i][0].rotation.snapTo(yaw);
 
 			for (int j = 1; j < SquidData.TENTACLE_SECTIONS; ++j)
 			{

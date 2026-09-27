@@ -1,0 +1,164 @@
+package goblinbob.mobends.test.core.kumo;
+
+import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.math.Quaternion;
+import org.junit.Test;
+
+import java.util.Collections;
+
+import static org.junit.Assert.*;
+
+public class KumoAnimatorStateTest
+{
+
+    private static final String STILL_CLIP = "{\"bones\": {\"arm\": {\"keyframes\": [{\"rotation\": [0, 0, 0, 1]}, {\"rotation\": [0, 0, 0, 1]}]}}}";
+
+    private static void assertRotation(Quaternion expected, Quaternion actual)
+    {
+        float dot = Math.abs(expected.x * actual.x + expected.y * actual.y + expected.z * actual.z + expected.w * actual.w);
+        assertEquals("rotation " + actual.x + ", " + actual.y + ", " + actual.z + ", " + actual.w, 1F, dot, 1e-4F);
+    }
+
+    @Test
+    public void animationFinishedWaitsForTheTimedClipEvenWhenADriverComesFirst() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"play\", \"nodes\": {"
+                + "\"play\": {\"tags\": [\"play\"], \"pose\": ["
+                + "  {\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": 10},"
+                + "  {\"animationKey\": \"clip\", \"duration\": 5}],"
+                + " \"connections\": [{\"target\": \"done\", \"triggerCondition\": {\"type\": \"core:animation_finished\"}}]},"
+                + "\"done\": {\"tags\": [\"done\"]}}}]}", Collections.singletonMap("clip", STILL_CLIP));
+        TestSubject subject = new TestSubject("arm");
+
+        for (int frame = 0; frame < 5; frame++)
+        {
+            animator.update(subject, 1F);
+            assertEquals("frame " + frame, Collections.singletonList("play"), animator.getActions());
+        }
+        animator.update(subject, 1F);
+        assertEquals(Collections.singletonList("done"), animator.getActions());
+    }
+
+    @Test
+    public void aNodeOfUntimedItemsNeverFinishes() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"loop\", \"nodes\": {"
+                + "\"loop\": {\"tags\": [\"loop\"], \"pose\": [{\"animationKey\": \"clip\"}],"
+                + " \"connections\": [{\"target\": \"done\", \"triggerCondition\": {\"type\": \"core:animation_finished\"}}]},"
+                + "\"done\": {\"tags\": [\"done\"]}}}]}", Collections.singletonMap("clip", STILL_CLIP));
+        TestSubject subject = new TestSubject("arm");
+
+        for (int frame = 0; frame < 50; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertEquals(Collections.singletonList("loop"), animator.getActions());
+    }
+
+    @Test
+    public void anItemsTicksPassedCountsFromItsNode() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"wait\", \"nodes\": {"
+                + "\"wait\": {\"connections\": [{\"target\": \"raise\", \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 10}}]},"
+                + "\"raise\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": 45, \"space\": \"OVERRIDE\","
+                + "  \"when\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 3}}]}}}]}");
+        TestSubject subject = new TestSubject("arm");
+
+        for (int frame = 0; frame < 12; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        // "raise" was entered a frame ago: well past 3 ticks on the layer's clock, not on the node's.
+        assertRotation(new Quaternion(), subject.target("arm"));
+
+        for (int frame = 0; frame < 4; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 45), subject.target("arm"));
+    }
+
+    @Test
+    public void aCrossFadeFromARelativeToAnAbsolutePoseStartsWhereItWas() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": ["
+                + "{\"entryNode\": \"base\", \"nodes\": {\"base\": {\"pose\": ["
+                + "  {\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": 90, \"space\": \"OVERRIDE\"}]}}},"
+                + "{\"entryNode\": \"relative\", \"nodes\": {"
+                + "  \"relative\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"Y\", \"angle\": 90, \"space\": \"PRE\"}],"
+                + "   \"connections\": [{\"target\": \"absolute\", \"transitionDuration\": 10, \"transitionEasing\": \"LINEAR\","
+                + "     \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 2}}]},"
+                + "  \"absolute\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"Z\", \"angle\": 0, \"space\": \"OVERRIDE\"}]}}}]}");
+        TestSubject subject = new TestSubject("arm");
+
+        Quaternion relative = new Quaternion();
+        Quaternion.mul(TestSubject.axisAngle(0, 1, 0, 90), TestSubject.axisAngle(1, 0, 0, 90), relative);
+        for (int frame = 0; frame < 3; frame++)
+        {
+            animator.update(subject, 1F);
+            assertRotation(relative, subject.target("arm"));
+        }
+        // The transition starts: at t = 0 the relative side, resolved against the layer below, shows.
+        animator.update(subject, 1F);
+        assertRotation(relative, subject.target("arm"));
+
+        for (int frame = 0; frame < 10; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertRotation(new Quaternion(), subject.target("arm"));
+    }
+
+    @Test
+    public void anUnknownVariableFailsTheAnimatorInsteadOfEscaping()
+    {
+        try
+        {
+            KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"a\", \"nodes\": {\"a\": {\"pose\": ["
+                    + "{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": \"noSuchVariable\"}]}}}]}");
+            animator.update(new TestSubject("arm"), 1F);
+            fail("The animator should have failed.");
+        }
+        catch (MalformedKumoTemplateException e)
+        {
+            assertTrue(e.getCause() instanceof IllegalArgumentException);
+        }
+    }
+
+    @Test
+    public void anUnknownStateFailsTheAnimatorInsteadOfEscaping()
+    {
+        try
+        {
+            KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"a\", \"nodes\": {\"a\": {"
+                    + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {\"type\": \"core:state\", \"state\": \"FLYING\"}}]}}}]}");
+            animator.update(new TestSubject("arm"), 1F);
+            fail("The animator should have failed.");
+        }
+        catch (MalformedKumoTemplateException e)
+        {
+            assertTrue(e.getCause() instanceof IllegalArgumentException);
+        }
+    }
+
+    @Test(expected = MalformedKumoTemplateException.class)
+    public void aMaskWithoutAModeIsRefused() throws MalformedKumoTemplateException
+    {
+        TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"a\", \"mask\": {\"includedParts\": [\"arm\"]}, \"nodes\": {\"a\": {}}}]}");
+    }
+
+    @Test(expected = MalformedKumoTemplateException.class)
+    public void aVanillaNodeCantPose() throws MalformedKumoTemplateException
+    {
+        TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"a\", \"nodes\": {\"a\": {\"type\": \"core:vanilla\", \"snapOnEnter\": [\"arm\"]}}}]}");
+    }
+
+    @Test(expected = MalformedKumoTemplateException.class)
+    public void anAndWithoutConditionsIsRefused() throws MalformedKumoTemplateException
+    {
+        TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"a\", \"nodes\": {\"a\": {"
+                + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {\"type\": \"core:and\"}}]}}}]}");
+    }
+
+}

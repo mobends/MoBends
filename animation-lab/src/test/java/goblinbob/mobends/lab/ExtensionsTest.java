@@ -38,7 +38,7 @@ public class ExtensionsTest
      * Lets the player's own pose through for 10 ticks, fades (over 5 ticks) to holding the right
      * arm out, holds it for 20 ticks, then fades back.
      */
-    private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"type\": \"KEYFRAME\", \"entryNode\": \"through\", \"nodes\": {"
+    private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"through\", \"nodes\": {"
             + "\"through\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"raise\", \"transitionDuration\": 5, \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 10}}]},"
             + "\"raise\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": -90, \"space\": \"OVERRIDE\"}],"
             + "  \"connections\": [{\"target\": \"back\", \"transitionDuration\": 5, \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 20}}]},"
@@ -113,11 +113,11 @@ public class ExtensionsTest
 
     /** Vanilla from tick 10 to tick 30; a second layer that would go vanilla is disabled by its "when". */
     private static final String VANILLA = "{\"formatVersion\": 2, \"layers\": ["
-            + "{\"type\": \"KEYFRAME\", \"entryNode\": \"animated\", \"nodes\": {"
+            + "{\"entryNode\": \"animated\", \"nodes\": {"
             + "\"animated\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"vanilla\", \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 10}}]},"
             + "\"vanilla\": {\"type\": \"core:vanilla\", \"tags\": [\"vanilla\"], \"connections\": [{\"target\": \"again\", \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 20}}]},"
             + "\"again\": {\"type\": \"core:fallthrough\"}}},"
-            + "{\"type\": \"KEYFRAME\", \"when\": {\"type\": \"core:state\", \"state\": \"SPRINTING\"}, \"entryNode\": \"vanilla\", \"nodes\": {\"vanilla\": {\"type\": \"core:vanilla\"}}}"
+            + "{\"when\": {\"type\": \"core:state\", \"state\": \"SPRINTING\"}, \"entryNode\": \"vanilla\", \"nodes\": {\"vanilla\": {\"type\": \"core:vanilla\"}}}"
             + "]}";
 
     @Test

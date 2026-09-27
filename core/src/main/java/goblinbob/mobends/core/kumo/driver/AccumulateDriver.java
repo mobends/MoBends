@@ -48,12 +48,6 @@ public class AccumulateDriver implements IPoseItem
     }
 
     @Override
-    public boolean isFinished(float elapsedTicks)
-    {
-        return false;
-    }
-
-    @Override
     public void onNodeStarted(IKumoContext context)
     {
         value = initial;
