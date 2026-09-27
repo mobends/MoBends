@@ -10,7 +10,7 @@
 A Minecraft mod that adds more realistic looking animations to the inhabitants of your blocky world.
 
 ## Discord
-The development of version **1.0.0** is in progress right now! If you'd like to be a part of it, see the progress, or just hang out, join our Discord server!
+If you'd like to be a part of Mo' Bends' development, see the progress, or just hang out, join our Discord server!
 
 [![Discord](https://img.shields.io/discord/386940930739011584.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/JqgWRgdkvx)
 
@@ -20,9 +20,10 @@ Say you came from GitHub if you decide to come by! Hope to see you there
 Install a Java Development Kit (JDK) appropriate for the Minecraft version you are developing for. For Minecraft 1.12.2, use JDK 8.
 I personally use the [Eclipse Temurin JDK](https://adoptium.net/temurin/releases?version=8&os=any&arch=any).
 
-There are a few paper-cuts in developing mods (especially for older versions of Minecraft), but a sure-fire way to avoid
-them is to build and run the project using IntelliJ IDEA. It seems to build everything from source, as opposed to the
-`./gradlew runClient` and `./gradlew runServer` scripts, which fail at bootup.
+Run the game with `./gradlew runClient` (or `./gradlew runServer`), or from IntelliJ IDEA with the run configurations
+`./gradlew genIntellijRuns` makes. `./gradlew build` builds the mod (`build/libs/*-all.jar` is the one to install) and runs
+the tests; the animation lab (`animation-lab/`, see its README) checks the animations against recorded traces.
+[CONTRIBUTING.md](CONTRIBUTING.md) and [docs/](docs/) explain how the project is put together.
 
 ### Playing under a fixed name
 The development client picks a random name (`Player123`) on every launch. To test entity types that

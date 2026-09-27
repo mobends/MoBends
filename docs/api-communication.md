@@ -13,7 +13,7 @@ HTTP calls use plain `HttpURLConnection` + Gson via `ConnectionHelper`. Backgrou
 | POST | `/api/activity/join` | Mod init (once) | `{app: "mobends", version: "<version>"}` |
 | POST | `/api/activity/ping` | Every `pingInterval` ms | *(empty)* |
 
-`/join` response returns `pingInterval` (ms); `PingTaskThread` uses it to schedule recurring `/ping` calls.
+`/join` response returns `pingInterval` (ms); `PingTask` (on a thread of `ConnectionManager`) uses it to schedule recurring `/ping` calls.
 
 ### Cosmetics / Accessories
 
@@ -26,7 +26,7 @@ Results are cached in `SupporterContent`:
 - `accessoryDetailsMap` — all cosmetics
 - `accessorySettingsPerPlayer` — keyed by player display name
 
-Fetching is done in a background thread via `PlayerSettingsDownloaderThread`.
+Fetching is done in a background thread by `PlayerSettingsDownloader`, one `PlayerSettingsTask` per player.
 
 ### Assets
 

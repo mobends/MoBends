@@ -72,7 +72,8 @@ main                     2.X: all modern Minecraft versions × all loaders (defa
 on its own branch, `1.X/forge-1.12`. It does **not** merge from `main`.
 
 Instead, it shares the animation engine by depending on a **published, pinned release of `core`**
-(e.g. `goblinbob.mobends:mobends-core:2.1.0`) and shading it into the 1.12.2 jar.
+(e.g. `goblinbob.mobends:mobends-core:2.1.0`) and shading it into the 1.12.2 jar. Until step 3 of
+the [migration](#migration-plan), it builds `core` from its own `core/` module instead.
 
 To bring an engine fix to 1.12.2:
 

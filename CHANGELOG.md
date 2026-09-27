@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 (in development)
+## 1.3.0 (in development)
 
 ### Added
 
@@ -12,6 +12,8 @@
   entity types in `assets/<namespace>/bends/types/`.
 - Mods and resource packs can animate new mobs without code, with model definitions in
   `assets/<namespace>/bends/models/`.
+- Zombie villagers are animated.
+- A server's own resource pack can add types and extensions too.
 - Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
   several apply to the same mob.
 - An animation can hand a mob back to its vanilla animation while a condition holds, for example
@@ -26,6 +28,10 @@
   (the default), or deny it; singleplayer always allows it.
 - Resource reloads (F3+T, or changing resource packs) pick up changed animations and models.
 - The mod's download is about 1 MB smaller (2.3 MB down to 1.3 MB).
+- The Mo' Bends menu's settings (which mobs are animated, the orders) are stored in
+  `config/mobends/client.cfg`, so they no longer overwrite the mod options in `config/mobends.cfg`
+  (or get overwritten by them); they start from the defaults once.
+- Supporter accessories download in the background instead of on every resource reload.
 
 ### Fixed
 
@@ -35,16 +41,25 @@
 - Only the local player joining a world resets the server's settings, not every player that comes
   into view.
 - Mo' Bends' messages appear in the game log, not only in the console.
+- *Perform Spin Attack* works: turned off, or while riding, the sword combo starts over instead of
+  ending with the whirl.
+- The Italian, Norwegian, Polish and Portuguese translations load, and every translation covers
+  the whole mod.
+- Holding a sword no longer leaves face culling off for whatever renders next.
+- The right arm of zombies, skeletons and pig zombies is no longer slightly too deep.
 
 ### Removed
 
 - Bends packs, and the *Packs* section of the Mo' Bends menu; extensions replace them.
+- The *Customize* entry of the Mo' Bends menu, which opened the bends pack editor.
 
 **Code:** the animation system was rearchitected: the hand-written animation controllers and bits
 are gone, and every mob runs on the new KUMO engine (layers, pose nodes, expressions; see
 `misc/kumo-format.md`), which lives in a Minecraft-free `core` module published separately.
 Renderers are now swapped per render instead of mutated and demutated. Addons that register
-mutators, previewers, value sources or bends pack hooks need updating.
+mutators, previewers, value sources or bends pack hooks need updating: entity data names its
+animator (`getDefaultAnimator`) instead of returning a controller, `registerNewEntity` no longer
+takes alterable parts, and animation editors can no longer be registered.
 
 ## 1.2.2 (2025-09-29)
 
