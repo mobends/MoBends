@@ -1,100 +1,53 @@
 # Contributing to Mo' Bends
 
-Thanks for helping out! This document explains how the repository is organised, how code moves between
-Minecraft versions and mod loaders, and how releases are made.
+Thanks for helping out! This document explains how the repository is organised and how releases are
+made.
 
-> **Status:** Mo' Bends is moving from one branch per Minecraft version to a single multi-loader,
-> multi-version project (the **2.X** line). Until the [migration](#migration-plan) is finished, active
-> development still happens on `1.X/forge-1.12`.
+The version line is about what players and pack authors get: **2.X** is Mo' Bends with the
+reworked animation system (Kumo animators, entity types, extensions, model definitions), 1.X the
+mod before it. Mo' Bends for Minecraft 1.12.2 (Forge) lives on the `forge-1.12` branch and is
+2.X from 2.0.0 on; the builds for other Minecraft versions and loaders planned in
+[TODO.md](TODO.md) will be 2.X too.
 
 ## Project layout
 
-Mo' Bends 2.X is built from three layers:
-
-| Layer | What it contains | Depends on Minecraft? |
+| Part | What it contains | Depends on Minecraft? |
 |---|---|---|
 | `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8. | **No** |
-| `common/` | Connects the core to vanilla models, entity state and rendering, mostly via Mixins. | Yes, vanilla only (no loader APIs) |
-| `fabric/`, `neoforge/`, `forge/` | Entrypoints, events, networking, config for each loader. Kept as small as possible. | Yes |
+| root (`src/`) | The Forge 1.12.2 mod: connects the core to the vanilla models, entity state and rendering; the entities, menus, networking and config. Bundles `core/` into its jar. | Yes |
+| `animation-lab/` | A standalone test harness (JDK 21, no Forge) that runs the animators through scripted scenarios and checks them against recorded traces. | No (it stubs the few Minecraft classes it needs) |
 
 Rules of thumb:
 
-- If code doesn't need Minecraft, it belongs in `core/`. It must stay free of any `net.minecraft` import,
-  so the 1.12.2 build can use it too.
-- `common/` must never import a loader API. Anything loader-specific goes behind an interface in
-  `common/` and is implemented in each loader module (looked up with `java.util.ServiceLoader`).
-
-### Supported targets
-
-| Minecraft | Loaders |
-|---|---|
-| 1.20.1 | Forge, Fabric |
-| 1.21.1 | NeoForge, Fabric |
-| Latest (26.x) | Fabric, NeoForge |
-| 1.12.2 | Forge (maintenance only, separate branch, see below) |
-
-## Multiple Minecraft versions: Stonecutter
-
-All modern versions are built from **one source tree** using
-[Stonecutter](https://stonecutter.kikugie.dev/). Version-specific code is fenced with comments:
-
-```java
-//? if >=1.21.2 {
-applyPose(renderState);
-//?} else {
-/*applyPose(entity);*/
-//?}
-```
-
-- A fix is made once, in one PR, for every version.
-- Adding a Minecraft version means adding a target in the Stonecutter config, **not** creating a branch.
-- **Only commit while the default version is active.** Switching the active version in your IDE
-  rewrites the fenced comments in your working copy. Switch back to the default before committing,
-  otherwise the diff fills up with comment noise. CI rejects commits made with another version active.
+- If code doesn't need Minecraft, it belongs in `core/`. It must stay free of any `net.minecraft`
+  import, so other Minecraft versions can share it.
+- Code the lab compiles (see `modIncludes` in `animation-lab/build.gradle.kts`) must not use newer
+  Java than 8; the lab compiles it with `--release 8` to catch that.
 
 ## Branches
 
 ```
-main                     2.X: all modern Minecraft versions × all loaders (default branch)
+forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
  ├─ feature/<name>       short-lived, merged via pull request
  ├─ fix/<name>
-1.X/forge-1.12           1.12.2 maintenance: bug fixes only
 ```
 
-- Branch off `main`, open a pull request back into `main`.
-- CI builds every version × loader combination and runs the `core/` tests. All of them must pass.
-- The old unreleased 1.16 branches (`2.X/forge-1.16`, `master-1.16.3`) are archived as tags
-  (`archive/2.X-forge-1.16`, `archive/master-1.16.3`) and no longer developed.
-
-## The 1.12.2 branch
-
-1.12.2 (Java 8, LWJGL 2, old rendering pipeline) can't share a build with modern versions, so it lives
-on its own branch, `1.X/forge-1.12`. It does **not** merge from `main`.
-
-Instead, it shares the animation engine by depending on a **published, pinned release of `core`**
-(e.g. `goblinbob.mobends:mobends-core:2.1.0`) and shading it into the 1.12.2 jar. Until step 3 of
-the [migration](#migration-plan), it builds `core` from its own `core/` module instead.
-
-To bring an engine fix to 1.12.2:
-
-1. Fix it in `core/` on `main`.
-2. Release a new `core` version (see below).
-3. On `1.X/forge-1.12`, bump the `core` dependency version.
-
-No cherry-picking or copying code between branches.
+- Branch off `forge-1.12`, open a pull request back into `forge-1.12`.
+- CI builds the mod and runs the `core/` tests and the animation lab. All of them must pass.
+- `1.X/forge-1.12` holds the 1.X line (up to 1.2.2) and is no longer developed.
 
 ## Versioning and releases
 
 | What | Version line | Tag | Released from |
 |---|---|---|---|
-| The mod (modern versions) | 2.X | `v2.0.0` | `main` |
-| The engine library | follows the mod | `core-2.0.0` | `main` |
-| The mod for 1.12.2 | 1.X | `v1.x.y-1.12.2` | `1.X/forge-1.12` |
+| The mod for 1.12.2 | 2.X | `v2.x.y-1.12.2` | `forge-1.12` |
+| The engine library | follows the mod | `core-2.x.y` | `forge-1.12` |
 
-- A 2.X release ships **all targets at once**. Jars are named
-  `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.0.0+1.21.1-neoforge.jar`.
-- CI builds the jars from the tag and uploads them to Modrinth and CurseForge.
-- `core` gets a new release whenever the 1.12.2 branch needs a change from it, or when its API changes.
+1.12.2's tags carry the Minecraft version, so they never clash with the tags of the other
+versions' releases.
+
+- The mod's version is `mod_version` in `gradle.properties` (and `ModStatics.VERSION`).
+- `core` gets a new release when its API changes, or when another project needs a change from it.
 
 ### Releasing `core`
 
@@ -104,19 +57,3 @@ CI (`.github/workflows/publish-core.yml`) tests `core/` and publishes it to GitH
 
 Reading from GitHub Packages needs a GitHub token, even for public packages. In CI the built-in
 `GITHUB_TOKEN` does; locally, use a personal access token with the `read:packages` scope.
-
-### Dropping a Minecraft version
-
-Remove its Stonecutter target after a release. If it later needs a critical fix, create a branch from
-its last release tag (e.g. `release/2.3-1.20.1`), fix, release, and leave the branch as is.
-
-## Migration plan
-
-1. **Extract the core.** On `1.X/forge-1.12`, move `kumo` and `math` into a `core/` Gradle
-   module with `git mv` (keeps `git log --follow` history).
-2. **Create `main`.** Branch from that point, remove the 1.12-specific code, add the Stonecutter
-   multi-loader layout, and port the Minecraft-facing code, starting with 1.21.1 (NeoForge + Fabric).
-3. **Publish `core`.** Release the first `core` version and switch `1.X/forge-1.12` to depend on it,
-   deleting its in-tree copy.
-4. **Switch the default branch** on GitHub to `main`, and archive the 1.16 branches as tags.
-5. **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.

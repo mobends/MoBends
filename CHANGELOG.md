@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.3.0 (in development)
+## 2.0.0 (in development)
 
 ### Added
 
@@ -20,6 +20,8 @@
   while swimming.
 - Entities that share a renderer, such as players, can each look different, one animated and the
   next vanilla.
+- When an animation breaks, the chat says which one and why (once per animation), instead of the
+  mob silently standing still.
 
 ### Changed
 
@@ -29,6 +31,8 @@
 - Resource reloads (F3+T, or changing resource packs) pick up changed animations and models.
 - The mod's download is about 1 MB smaller (2.3 MB down to 1.3 MB).
 - Supporter accessories download in the background instead of on every resource reload.
+- The *Customize* entry of the Mo' Bends menu leads to the Mo' Bends website; it will open the new
+  web animation editor once it is out.
 
 ### Fixed
 
@@ -50,7 +54,7 @@
 ### Removed
 
 - Bends packs, and the *Packs* section of the Mo' Bends menu; extensions replace them.
-- The *Customize* entry of the Mo' Bends menu, which opened the bends pack editor.
+- The bends pack editor, which *Customize* used to open.
 
 **Code:** the animation system was rearchitected: the hand-written animation controllers and bits
 are gone, and every mob runs on the new KUMO engine (layers, pose nodes, expressions; see
@@ -58,7 +62,9 @@ are gone, and every mob runs on the new KUMO engine (layers, pose nodes, express
 Renderers are now swapped per render instead of mutated and demutated. Addons that register
 mutators, previewers, value sources or bends pack hooks need updating: entity data names its
 animator (`getDefaultAnimator`) instead of returning a controller, `registerNewEntity` no longer
-takes alterable parts, and animation editors can no longer be registered.
+takes alterable parts, and animation editors can no longer be registered. Every asset file
+(animators, types, extensions, model definitions) carries a `formatVersion`; one written for
+another version of its format is refused with a message saying so.
 
 ## 1.2.2 (2025-09-29)
 
