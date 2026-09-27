@@ -1,0 +1,20 @@
+{
+  "formatVersion": 2,
+  "expressions": {
+    "base": -85
+  },
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "parent",
+      "nodes": {
+        "parent": {
+          "type": "core:pose",
+          "pose": [
+            {"driver": "core:axis_rotate", "bone": "leftArm", "axis": "X", "angle": "base", "space": "OVERRIDE"}
+          ]
+        }
+      }
+    }
+  ]
+}

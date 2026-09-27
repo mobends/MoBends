@@ -1,0 +1,34 @@
+package goblinbob.mobends.lab.scenarios;
+
+import goblinbob.mobends.lab.sim.EntityKind;
+
+import java.util.EnumMap;
+import java.util.Map;
+
+/** Which KUMO animator replaces which entity's procedural controller. */
+public class Animators
+{
+    private static final Map<EntityKind, String> BY_KIND = new EnumMap<>(EntityKind.class);
+
+    static
+    {
+        BY_KIND.put(EntityKind.ZOMBIE, "mobends:bends/animators/zombie.json");
+        BY_KIND.put(EntityKind.ZOMBIE_VILLAGER, "mobends:bends/animators/zombie_villager.json");
+        BY_KIND.put(EntityKind.SKELETON, "mobends:bends/animators/skeleton.json");
+        BY_KIND.put(EntityKind.PIG_ZOMBIE, "mobends:bends/animators/pig_zombie.json");
+        BY_KIND.put(EntityKind.PLAYER, "mobends:bends/animators/player.json");
+        BY_KIND.put(EntityKind.SQUID, "mobends:bends/animators/squid.json");
+        BY_KIND.put(EntityKind.SPIDER, "mobends:bends/animators/spider.json");
+        BY_KIND.put(EntityKind.WOLF, "mobends:bends/animators/wolf.json");
+    }
+
+    public static String forKind(EntityKind kind)
+    {
+        return BY_KIND.get(kind);
+    }
+
+    public static boolean has(EntityKind kind)
+    {
+        return BY_KIND.containsKey(kind);
+    }
+}
