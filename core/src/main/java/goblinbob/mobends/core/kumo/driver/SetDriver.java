@@ -34,7 +34,20 @@ public class SetDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:set needs a 'variable' and a 'value'.");
         }
-        return new SetDriver(template.variable, Expression.compile(template.value, context.getExpressionScope(), null), "node".equals(template.scope));
+        boolean nodeScope;
+        if (template.scope == null || "layer".equals(template.scope))
+        {
+            nodeScope = false;
+        }
+        else if ("node".equals(template.scope))
+        {
+            nodeScope = true;
+        }
+        else
+        {
+            throw new MalformedKumoTemplateException("core:set has an unknown 'scope' '" + template.scope + "' (expected \"layer\" or \"node\").");
+        }
+        return new SetDriver(template.variable, Expression.compile(template.value, context.getExpressionScope(), null), nodeScope);
     }
 
     @Override
