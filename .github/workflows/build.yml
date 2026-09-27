@@ -2,7 +2,7 @@ name: Build Mod
 
 on:
   push:
-    branches: ["1.X/forge-1.12"]
+    branches: ["forge-1.12"]
   pull_request:
   workflow_dispatch:
 
