@@ -23,6 +23,7 @@ I personally use the [Eclipse Temurin JDK](https://adoptium.net/temurin/releases
 Run the game with `./gradlew runClient` (or `./gradlew runServer`), or from IntelliJ IDEA with the run configurations
 `./gradlew genIntellijRuns` makes. `./gradlew build` builds the mod (`build/libs/*-all.jar` is the one to install) and runs
 the tests; the animation lab (`animation-lab/`, see its README) checks the animations against recorded traces.
+On Apple Silicon, [run-arm64/](run-arm64/README.md) runs the client natively.
 [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/](docs/) explain how the project is put together.
 
 ### Playing under a fixed name

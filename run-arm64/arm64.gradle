@@ -1,0 +1,28 @@
+// Gradle init script: run the 1.12.2 client natively on Apple Silicon.
+//   JAVA_HOME=<any JDK 8> ./gradlew runClient -I run-arm64/arm64.gradle
+// Fixes, in classpath order:
+//   sidefix/                 Forge's real two-constant Side enum (the FG3 mapped jar ships a
+//                            three-constant Side with BUKKIT, which NPEs in NetworkRegistry.newChannel)
+//   text2speech 1.11.3 +     narrator that works on arm64 (same pair Prism Launcher uses)
+//   java-objc-bridge 1.1
+//   jna 5.13                 ships darwin-aarch64 natives (jna 4.4 is x86 only)
+//   lwjgl 2.9.4 jars         match the arm64 liblwjgl.dylib in natives/
+allprojects { p ->
+  p.gradle.taskGraph.whenReady {
+    def t = p.tasks.findByName('runClient')
+    if (t != null) {
+      def R = new File(p.rootDir, 'run-arm64').path
+      t.executable = "$R/jdk8-arm64/Contents/Home/bin/java"
+      t.environment 'nativesDirectory', "$R/natives"
+      t.classpath = p.files(
+        "$R/sidefix",
+        "$R/lib/text2speech-1.11.3.jar",
+        "$R/lib/java-objc-bridge-1.1-mmachina.jar",
+        "$R/lib/jna-5.13.0.jar",
+        "$R/lib/jna-platform-5.13.0.jar",
+        "$R/lib/lwjgl-2.9.4-nightly-20150209.jar",
+        "$R/lib/lwjgl_util-2.9.4-nightly-20150209.jar") + t.classpath
+      println "runClient: native arm64 JDK 8 + arm64 LWJGL (run-arm64/)"
+    }
+  }
+}

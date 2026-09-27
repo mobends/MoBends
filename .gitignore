@@ -1,29 +1,24 @@
-/*
+# OS
 .DS_Store
 
-!/.gitignore
-!/.github
-!/build\.gradle
-!/settings\.gradle
-!/gradle\.properties
-!/src
-!/misc
-!/gradle
-!/gradlew
-!/gradlew.bat
-!/README.md
-!/CHANGELOG.md
-!/LICENSE
-!/CONTRIBUTING.md
-!/TODO.md
+# Gradle
+.gradle/
+build/
 
-# Minecraft-free animation engine (see CONTRIBUTING.md)
-!/core
-/core/build
-/core/out
+# IDEs
+.idea/
+*.iml
+out/
+.project
+.classpath
+.settings/
+bin/
 
-# Standalone animation lab (modern JDK, no Forge)
-!/animation-lab
+# Minecraft run directory
+run/
 
-# Technical docs
-!/docs
+# Apple Silicon run setup: downloaded, see run-arm64/README.md
+run-arm64/jdk8-arm64/
+run-arm64/lib/
+run-arm64/natives/
+run-arm64/sidefix/
