@@ -14,9 +14,10 @@ smooths them.
 }
 ```
 
-`formatVersion` is required: an animator written for another version of the format is refused
-with a message saying so (an older one would be upgraded on load, once there is one to upgrade
-from). `extends` puts a parent animator's layers first; the parent's version is checked too.
+`formatVersion` is required, in animators and in every other Mo' Bends file (types, extensions,
+model definitions and `bends/models/index.json`); each format is numbered on its own, and all of
+them are at 2. A file written for another version of its format is refused with a message saying
+so (an older one would be upgraded on load, once there is one to upgrade from). `extends` puts a parent animator's layers first; the parent's version is checked too.
 `expressions` declares named expressions (see *Expressions*); layers and nodes can declare their
 own too.
 
@@ -254,6 +255,7 @@ and the renderer, and registers the entity; the animator asset does the rest.
 
 ```json
 {
+  "formatVersion": 2,
   "entity": "net.minecraft.entity.passive.EntityCow",
   "model": "net.minecraft.client.model.ModelQuadruped",
   "animator": "mobends:bends/animators/quadruped.json",
@@ -272,6 +274,7 @@ and the renderer, and registers the entity; the animator asset does the rest.
 
 | field | meaning |
 |---|---|
+| `formatVersion` | `2` (the index, `{"formatVersion": 2, "models": [...]}`, has one too) |
 | `entity` | the entity class; `model` (optional) restricts mutation to that model class and its subclasses |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
 | `bones[].vanilla` | the vanilla part the bone takes over: `field` is the model's field by its development (MCP) name (see *Field names* below), `element` its index for array fields, `index` an optional fallback position in the model's box list (creation order). Every field or array slot that holds the part is replaced, found by identity. |
@@ -328,6 +331,7 @@ Java addon is needed unless it brings its own conditions or drivers.
 
 ```json
 {
+  "formatVersion": 2,
   "id": "yourpack:notch_zombie_arms",
   "selector": {"type": "core:and", "conditions": [
     {"type": "core:entity_type", "entityType": "minecraft:player"},
@@ -339,6 +343,7 @@ Java addon is needed unless it brings its own conditions or drivers.
 
 | field | meaning |
 |---|---|
+| `formatVersion` | `2` |
 | `id` | identifies the type; ranks are stored by it. Two types with the same id: a warning, and the one from the higher-priority pack is used (the server's resource pack, then the enabled resource packs from the top of the list, then mods) |
 | `selector` | a condition on the entity; absent means the type applies to every entity |
 | `model` | optional: a bender key (`mobends-player`, `mobends-minecraft:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
@@ -457,6 +462,7 @@ own animation and with other packs' extensions. Extension files are found like t
 
 ```json
 {
+  "formatVersion": 2,
   "id": "mobends_wave:wave",
   "type": "mobends-player",
   "animator": "mobends_wave:bends/animators/wave.json"
@@ -465,6 +471,7 @@ own animation and with other packs' extensions. Extension files are found like t
 
 | field | meaning |
 |---|---|
+| `formatVersion` | `2` |
 | `id` | identifies the extension (ranks are stored by it); two with one id: the one from the higher-priority pack wins, with a warning (as for types) |
 | `type` | the id of the type it extends: a type file's `id`, or a built-in type's, which is its model's key (`mobends-player`, `mobends-minecraft:zombie`, ...) |
 | `animator` | an animator whose layers go on top of the type's animator (or, for a type without one, its model's) |

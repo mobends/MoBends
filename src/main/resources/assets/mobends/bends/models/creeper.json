@@ -1,4 +1,5 @@
 {
+  "formatVersion": 2,
   "entity": "net.minecraft.entity.monster.EntityCreeper",
   "model": "net.minecraft.client.model.ModelCreeper",
   "animator": "mobends:bends/animators/creeper.json",

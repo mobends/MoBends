@@ -2,7 +2,9 @@ package goblinbob.mobends.core.types;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.util.FormatVersion;
 
 /**
  * An extension file, {@code assets/<namespace>/bends/extensions/<name>.json}: an animator whose
@@ -11,6 +13,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
  *
  * <pre>
  * {
+ *   "formatVersion": 2,
  *   "id": "mypack:wave",
  *   "type": "mobends-player",
  *   "animator": "mypack:bends/animators/wave.json"
@@ -19,6 +22,9 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
  */
 public class ExtensionDefinition
 {
+
+    /** The {@code formatVersion} an extension file has to have (see {@link FormatVersion}). */
+    public static final int FORMAT_VERSION = 2;
 
     private static final Gson GSON = new Gson();
 
@@ -36,15 +42,11 @@ public class ExtensionDefinition
         ExtensionDefinition definition;
         try
         {
-            definition = GSON.fromJson(json, ExtensionDefinition.class);
+            definition = GSON.fromJson(FormatVersion.check(new JsonParser().parse(json), "extension file", FORMAT_VERSION), ExtensionDefinition.class);
         }
         catch (JsonParseException e)
         {
             throw new MalformedKumoTemplateException("Not a valid extension file: " + e.getMessage());
-        }
-        if (definition == null)
-        {
-            throw new MalformedKumoTemplateException("The extension file is empty.");
         }
         definition.validate();
         return definition;

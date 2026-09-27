@@ -5,7 +5,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.util.FormatVersion;
 
 /**
  * A type file, {@code assets/<namespace>/bends/types/<name>.json}: which model and animator an
@@ -13,6 +15,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
  *
  * <pre>
  * {
+ *   "formatVersion": 2,
  *   "id": "mobends:example_notch",
  *   "selector": {"type": "core:and", "conditions": [
  *     {"type": "core:entity_type", "entityType": "minecraft:player"},
@@ -27,6 +30,9 @@ public class EntityTypeDefinition
 
     /** The model value that keeps the entity vanilla. */
     public static final String VANILLA_MODEL = "vanilla";
+
+    /** The {@code formatVersion} a type file has to have (see {@link FormatVersion}). */
+    public static final int FORMAT_VERSION = 2;
 
     private static final Gson GSON = new Gson();
 
@@ -51,15 +57,11 @@ public class EntityTypeDefinition
         EntityTypeDefinition definition;
         try
         {
-            definition = GSON.fromJson(json, EntityTypeDefinition.class);
+            definition = GSON.fromJson(FormatVersion.check(new JsonParser().parse(json), "type file", FORMAT_VERSION), EntityTypeDefinition.class);
         }
         catch (JsonParseException e)
         {
             throw new MalformedKumoTemplateException("Not a valid type file: " + e.getMessage());
-        }
-        if (definition == null)
-        {
-            throw new MalformedKumoTemplateException("The type file is empty.");
         }
         definition.validate();
         return definition;

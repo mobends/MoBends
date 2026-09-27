@@ -1,4 +1,5 @@
 {
+  "formatVersion": 2,
   "id": "mobends_example:bendy_tester",
   "selector": {
     "type": "core:and",

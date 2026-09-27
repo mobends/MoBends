@@ -48,9 +48,10 @@ public class ExtensionsTest
     @Test
     void definitionsNeedAnIdATypeAndAnAnimator() throws Exception
     {
-        assertMalformed("needs an 'id'", "{\"type\": \"a:b\", \"animator\": \"a:c.json\"}");
-        assertMalformed("needs the 'type'", "{\"id\": \"x:y\", \"animator\": \"a:c.json\"}");
-        assertMalformed("needs an 'animator'", "{\"id\": \"x:y\", \"type\": \"a:b\"}");
+        assertMalformed("needs an 'id'", "{\"formatVersion\": 2, \"type\": \"a:b\", \"animator\": \"a:c.json\"}");
+        assertMalformed("needs the 'type'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"animator\": \"a:c.json\"}");
+        assertMalformed("needs a \"formatVersion\"", "{\"id\": \"x:y\", \"type\": \"a:b\", \"animator\": \"a:c.json\"}");
+        assertMalformed("needs an 'animator'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"type\": \"a:b\"}");
 
         ExtensionDefinition wave = ExtensionDefinition.parse(new String(Files.readAllBytes(EXAMPLE.resolve("extensions/wave.json")), StandardCharsets.UTF_8));
         assertEquals("mobends_wave:wave", wave.id);

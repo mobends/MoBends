@@ -1,4 +1,5 @@
 {
+  "formatVersion": 2,
   "comment": "Mobs animated from a model definition and an animator (see misc/kumo-format.md). Vanilla parts are found by field name (vanilla fields through generated accessors) and by box-list index when no field matches.",
   "models": [
     "cow",

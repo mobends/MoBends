@@ -38,7 +38,7 @@ public class ModelDefinitions
 
     public List<String> index(String modId) throws IOException
     {
-        Index index = GsonResources.read(new ResourceLocation(modId, "bends/models/index.json"), GSON, Index.class);
+        Index index = GsonResources.read(new ResourceLocation(modId, "bends/models/index.json"), GSON, Index.class, "model index", EntityModelDefinition.FORMAT_VERSION);
         return index.models == null ? new ArrayList<>() : index.models;
     }
 
@@ -53,7 +53,7 @@ public class ModelDefinitions
         EntityModelDefinition definition = loaded.get(location);
         if (definition == null)
         {
-            definition = GsonResources.read(location, GSON, EntityModelDefinition.class);
+            definition = GsonResources.read(location, GSON, EntityModelDefinition.class, "model definition", EntityModelDefinition.FORMAT_VERSION);
             definition.validate();
             loaded.put(location, definition);
         }

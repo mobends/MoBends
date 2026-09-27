@@ -2,6 +2,7 @@ package goblinbob.mobends.lab;
 
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.types.EntityTypeDefinition;
 import goblinbob.mobends.core.types.TypeOrder;
 import goblinbob.mobends.lab.scenarios.Scenarios;
@@ -27,6 +28,7 @@ import static goblinbob.mobends.lab.scenarios.Scripts.walk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Precedence between entity types (misc/kumo-format.md, "Entity types and selectors") and the example type pack. */
@@ -82,16 +84,30 @@ public class EntityTypesTest
     }
 
     @Test
+    void aTypeFileNeedsTheCurrentFormatVersion()
+    {
+        assertTypeRefused("needs a \"formatVersion\"", "{\"id\": \"x:y\"}");
+        assertTypeRefused("update Mo' Bends", "{\"formatVersion\": " + (EntityTypeDefinition.FORMAT_VERSION + 1) + ", \"id\": \"x:y\"}");
+        assertTypeRefused("no longer reads", "{\"formatVersion\": 1, \"id\": \"x:y\"}");
+    }
+
+    private static void assertTypeRefused(String message, String json)
+    {
+        MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class, () -> EntityTypeDefinition.parse(json));
+        assertTrue(e.getMessage().contains(message), e.getMessage());
+    }
+
+    @Test
     void specificityCountsConditionsNotCombinators() throws Exception
     {
-        assertEquals(0, EntityTypeDefinition.parse("{\"id\": \"x:none\"}").specificity());
-        assertEquals(1, EntityTypeDefinition.parse("{\"id\": \"x:one\", \"selector\": {\"type\": \"core:entity_type\", \"entityType\": \"minecraft:player\"}}").specificity());
+        assertEquals(0, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:none\"}").specificity());
+        assertEquals(1, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:one\", \"selector\": {\"type\": \"core:entity_type\", \"entityType\": \"minecraft:player\"}}").specificity());
         // An "or" is as specific as its broadest branch, a "not" counts one: nesting can't inflate it.
-        assertEquals(1, EntityTypeDefinition.parse("{\"id\": \"x:or\", \"selector\": {\"type\": \"core:or\", \"conditions\": ["
+        assertEquals(1, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:or\", \"selector\": {\"type\": \"core:or\", \"conditions\": ["
                 + "{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:player_name\", \"name\": \"B\"}, {\"type\": \"core:player_name\", \"name\": \"C\"}]}}").specificity());
-        assertEquals(1, EntityTypeDefinition.parse("{\"id\": \"x:not\", \"selector\": {\"type\": \"core:not\", \"condition\": {\"type\": \"core:and\", \"conditions\": ["
+        assertEquals(1, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:not\", \"selector\": {\"type\": \"core:not\", \"condition\": {\"type\": \"core:and\", \"conditions\": ["
                 + "{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:player_name\", \"name\": \"B\"}]}}}").specificity());
-        assertEquals(2, EntityTypeDefinition.parse("{\"id\": \"x:nested\", \"selector\": {\"type\": \"core:and\", \"conditions\": ["
+        assertEquals(2, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:nested\", \"selector\": {\"type\": \"core:and\", \"conditions\": ["
                 + "{\"type\": \"core:entity_type\", \"entityType\": \"minecraft:player\"},"
                 + "{\"type\": \"core:or\", \"conditions\": [{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:not\", \"condition\": {\"type\": \"core:player_name\", \"name\": \"B\"}}]}"
                 + "]}}").specificity());

@@ -1,4 +1,5 @@
 {
+  "formatVersion": 2,
   "id": "mobends_dance:chicken",
   "type": "mobends-minecraft:chicken",
   "animator": "mobends_dance:bends/animators/dance.json"

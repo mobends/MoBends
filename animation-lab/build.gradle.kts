@@ -38,6 +38,7 @@ val modIncludes = listOf(
     "goblinbob/mobends/core/math/**",
     "goblinbob/mobends/core/util/GUtil.java",
     "goblinbob/mobends/core/util/Tween.java",
+    "goblinbob/mobends/core/util/FormatVersion.java",
     "goblinbob/mobends/core/util/EnumAxis.java",
     "goblinbob/mobends/core/util/GlHelper.java",
     "goblinbob/mobends/core/util/GsonResources.java",

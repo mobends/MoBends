@@ -1,4 +1,5 @@
 {
+  "formatVersion": 2,
   "id": "mobends_vanilla_swim:vanilla_swim",
   "type": "mobends-player",
   "animator": "mobends_vanilla_swim:bends/animators/vanilla_swim.json"
