@@ -130,7 +130,11 @@ A node's `pose` is a stack; later items compose over earlier ones. Common fields
 * Inside `frame`, `clipLength` and (when the item has one) `duration` are names like any other.
   `{"mod": ["elapsed", "clipLength"]}` with `"duration": 30` loops for 30 ticks, then finishes.
 
-`weight` (an expression) scales the rotation angles and offsets. `bones` restricts the clip.
+`weight` (an expression) is how much of the clip is applied. For a bone the clip writes relatively
+(`PRE` / `POST`) it scales the rotation angle and the offset; for a bone it replaces (`OVERRIDE`)
+it blends from what the bone has so far this frame (from the layers below and the items before)
+to the clip, or from the rest pose where nothing has written the bone yet. `bones` restricts the
+clip.
 Clip files (`animations/...json`) hold `bones` with keyframes (`position`, `rotation` as a
 quaternion `[x, y, z, w]`; each may be left out for no offset, no rotation),
 and optionally `duration`, `interpolation: "STEP"` and explicit keyframe `times` (in the clip's

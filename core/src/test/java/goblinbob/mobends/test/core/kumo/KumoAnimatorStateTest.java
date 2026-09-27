@@ -181,6 +181,38 @@ public class KumoAnimatorStateTest
         assertEquals(Collections.singletonList("b"), animator.getActions());
     }
 
+    private static final String QUARTER_TURN_CLIP = "{\"bones\": {\"arm\": {\"keyframes\": [{\"rotation\": [0.70710677, 0, 0, 0.70710677]}, {\"rotation\": [0.70710677, 0, 0, 0.70710677]}]}}}";
+
+    @Test
+    public void aWeightedClipThatReplacesBlendsFromTheLayersBelow() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": ["
+                + "{\"entryNode\": \"a\", \"nodes\": {\"a\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": 90, \"space\": \"OVERRIDE\"}]}}},"
+                + "{\"entryNode\": \"b\", \"nodes\": {\"b\": {\"pose\": [{\"animationKey\": \"clip\", \"weight\": 0.5, \"space\": \"OVERRIDE\"}]}}}]}",
+                Collections.singletonMap("clip", STILL_CLIP));
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+        // Halfway between the 90 degrees below and the clip's rest rotation.
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 45), subject.target("arm"));
+    }
+
+    @Test
+    public void aWeightedClipWithNothingBelowBlendsFromTheRestPose() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": ["
+                + "{\"entryNode\": \"b\", \"nodes\": {\"b\": {\"pose\": [{\"animationKey\": \"clip\", \"weight\": 0.5}]}}}]}",
+                Collections.singletonMap("clip", QUARTER_TURN_CLIP));
+        TestSubject subject = new TestSubject("arm");
+
+        for (int frame = 0; frame < 3; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        // Not from last frame's result, which would make the weight a smoothing rate.
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 45), subject.target("arm"));
+    }
+
     @Test(expected = MalformedKumoTemplateException.class)
     public void aMaskWithoutAModeIsRefused() throws MalformedKumoTemplateException
     {

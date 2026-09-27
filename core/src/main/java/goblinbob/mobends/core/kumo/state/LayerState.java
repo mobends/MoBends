@@ -175,7 +175,9 @@ public class LayerState
             beginTransition(fired, context);
         }
 
-        // 2. Evaluate.
+        // 2. Evaluate, on top of the layers below.
+        currentPose.setBelow(animatorPose);
+        previousPose.setBelow(animatorPose);
         context.enterNode(currentNode, variables);
         currentPose.clear();
         currentNode.evaluate(context, currentPose);

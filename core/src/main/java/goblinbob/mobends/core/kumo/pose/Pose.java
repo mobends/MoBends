@@ -47,6 +47,8 @@ public class Pose
      * (one per slot) instead of the bones' live targets: see {@code KumoAnimatorState}'s limits.
      */
     private IVec3fRead[] fallbackValues;
+    /** The pose this one goes on top of (a layer's: the animator pose, holding the layers below), or null. */
+    private Pose below;
 
     public Pose(Skeleton skeleton)
     {
@@ -61,6 +63,91 @@ public class Pose
         for (int i = 0; i < targets.length; i++)
         {
             targets[i] = new BoneTarget();
+        }
+    }
+
+    /** Sets the pose this one goes on top of, for {@link #rotationSoFar} and the like; null for none. */
+    public void setBelow(Pose below)
+    {
+        this.below = below;
+    }
+
+    /**
+     * The rotation a slot has so far this frame: its own, with its relative parts applied to what
+     * the pose below has so far. Where nothing has written the bone this frame, the rest rotation
+     * (identity), not the bone's live target.
+     */
+    public void rotationSoFar(int index, Quaternion dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasRotation)
+        {
+            dest.set(target.rotation);
+            return;
+        }
+        if (below != null)
+        {
+            below.rotationSoFar(index, dest);
+        }
+        else
+        {
+            dest.setIdentity();
+        }
+        if (target.hasPre)
+        {
+            Quaternion.mul(target.pre, dest, temp);
+            dest.set(temp);
+        }
+        if (target.hasPost)
+        {
+            Quaternion.mul(dest, target.post, temp);
+            dest.set(temp);
+        }
+    }
+
+    /** As {@link #rotationSoFar}, for the slot's offset (zero where nothing has written it). */
+    public void offsetSoFar(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasOffset && !target.offsetAdditive)
+        {
+            dest.set(target.offset);
+            return;
+        }
+        if (below != null)
+        {
+            below.offsetSoFar(index, dest);
+        }
+        else
+        {
+            dest.set(0F, 0F, 0F);
+        }
+        if (target.hasOffset)
+        {
+            dest.add(target.offset.x, target.offset.y, target.offset.z);
+        }
+    }
+
+    /** As {@link #rotationSoFar}, for the slot's vector (zero where nothing has written it). */
+    public void vectorSoFar(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasVector && !target.vectorAdditive)
+        {
+            dest.set(target.vector);
+            return;
+        }
+        if (below != null)
+        {
+            below.vectorSoFar(index, dest);
+        }
+        else
+        {
+            dest.set(0F, 0F, 0F);
+        }
+        if (target.hasVector)
+        {
+            dest.add(target.vector.x, target.vector.y, target.vector.z);
         }
     }
 

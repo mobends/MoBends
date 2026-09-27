@@ -22,6 +22,24 @@ public class PoseMath
     }
 
     /**
+     * Spherical interpolation from {@code a} to {@code b}, the short way round: {@code a} followed
+     * by {@code t} of the rotation from {@code a} to {@code b}. From the identity it is exactly
+     * {@link #scale}. {@code dest} must not be {@code a}.
+     */
+    public static void slerp(Quaternion a, Quaternion b, float t, Quaternion dest)
+    {
+        if (t == 1F)
+        {
+            dest.set(b);
+            return;
+        }
+        // The rotation from a to b (a's conjugate times b), scaled, then applied to a.
+        Quaternion.mul(-a.x, -a.y, -a.z, a.w, b.x, b.y, b.z, b.w, dest);
+        scale(dest, t, dest);
+        Quaternion.mul(a, dest, dest);
+    }
+
+    /**
      * Scales a rotation: the result rotates about the same axis by {@code weight} times the
      * angle (slerp from identity).
      */

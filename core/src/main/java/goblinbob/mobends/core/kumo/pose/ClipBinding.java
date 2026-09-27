@@ -30,6 +30,8 @@ public class ClipBinding
     private final Quaternion rotation = new Quaternion();
     private final Quaternion scaled = new Quaternion();
     private final Vec3f position = new Vec3f();
+    private final Quaternion beneathRotation = new Quaternion();
+    private final Vec3f beneath = new Vec3f();
 
     public ClipBinding(KeyframeAnimation animation, Skeleton skeleton, Collection<String> onlyBones)
     {
@@ -61,6 +63,10 @@ public class ClipBinding
     }
 
     /**
+     * Applies the clip at {@code weight}. A bone written relatively (PRE / POST) gets the clip's
+     * rotation and offset scaled by the weight; one it replaces (OVERRIDE) is blended by the weight
+     * from what the bone has so far this frame (the rest pose if nothing wrote it) to the clip.
+     *
      * @param spaces per-bone spaces (parallel to the clip's bone list), or null to use {@code space}.
      */
     public void apply(Pose pose, float index, float weight, Pose.Space space, Pose.Space[] spaces)
@@ -74,21 +80,52 @@ public class ClipBinding
 
             Pose.Space boneSpace = spaces != null ? spaces[i] : space;
 
+            boolean blend = boneSpace == Pose.Space.OVERRIDE && weight != 1F;
+
             if (isRoot[i])
             {
-                pose.composeVector(slots[i], position.x * weight, position.y * weight, position.z * weight, boneSpace);
+                if (blend)
+                {
+                    pose.vectorSoFar(slots[i], beneath);
+                    pose.composeVector(slots[i], lerp(beneath.x, position.x, weight), lerp(beneath.y, position.y, weight), lerp(beneath.z, position.z, weight), boneSpace);
+                }
+                else
+                {
+                    pose.composeVector(slots[i], position.x * weight, position.y * weight, position.z * weight, boneSpace);
+                }
                 continue;
             }
 
-            PoseMath.scale(rotation, weight, scaled);
+            if (blend)
+            {
+                pose.rotationSoFar(slots[i], beneathRotation);
+                PoseMath.slerp(beneathRotation, rotation, weight, scaled);
+            }
+            else
+            {
+                PoseMath.scale(rotation, weight, scaled);
+            }
             pose.composeRotation(slots[i], scaled, boneSpace);
 
             // centerRotation only rotates; its keyframe positions are ignored.
             if (!isCenterRotation[i])
             {
-                pose.composeOffset(slots[i], -position.x * weight, -position.y * weight, -position.z * weight, boneSpace);
+                if (blend)
+                {
+                    pose.offsetSoFar(slots[i], beneath);
+                    pose.composeOffset(slots[i], lerp(beneath.x, -position.x, weight), lerp(beneath.y, -position.y, weight), lerp(beneath.z, -position.z, weight), boneSpace);
+                }
+                else
+                {
+                    pose.composeOffset(slots[i], -position.x * weight, -position.y * weight, -position.z * weight, boneSpace);
+                }
             }
         }
+    }
+
+    private static float lerp(float from, float to, float t)
+    {
+        return from + (to - from) * t;
     }
 
     /** The skeleton slot of each bone the clip writes, parallel to its bone list. */

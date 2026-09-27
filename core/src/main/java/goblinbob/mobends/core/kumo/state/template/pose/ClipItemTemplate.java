@@ -19,7 +19,7 @@ public class ClipItemTemplate extends PoseItemTemplate
     /** How long the item runs, in ticks; the clip is finished once it has passed. Null = never finishes. */
     public Float duration;
 
-    /** Blend weight; null = 1. Weighting scales rotation angles and offsets. */
+    /** How much of the clip is applied, null = 1: see {@link goblinbob.mobends.core.kumo.pose.ClipBinding#apply}. */
     public ExpressionTemplate weight;
 
     /** Only these bones of the clip are applied; null = all. */
