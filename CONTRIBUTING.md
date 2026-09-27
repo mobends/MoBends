@@ -87,13 +87,22 @@ No cherry-picking or copying code between branches.
 | What | Version line | Tag | Released from |
 |---|---|---|---|
 | The mod (modern versions) | 2.X | `v2.0.0` | `main` |
-| The engine library | follows the mod | `core-v2.0.0` | `main` |
+| The engine library | follows the mod | `core-2.0.0` | `main` |
 | The mod for 1.12.2 | 1.X | `v1.x.y-1.12.2` | `1.X/forge-1.12` |
 
 - A 2.X release ships **all targets at once**. Jars are named
   `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.0.0+1.21.1-neoforge.jar`.
 - CI builds the jars from the tag and uploads them to Modrinth and CurseForge.
 - `core` gets a new release whenever the 1.12.2 branch needs a change from it, or when its API changes.
+
+### Releasing `core`
+
+Push a tag named `core-<version>` (e.g. `git tag core-2.0.0 && git push origin core-2.0.0`).
+CI (`.github/workflows/publish-core.yml`) tests `core/` and publishes it to GitHub Packages as
+`goblinbob.mobends:mobends-core:<version>`. A version can't be published twice, so bump it for every release.
+
+Reading from GitHub Packages needs a GitHub token, even for public packages. In CI the built-in
+`GITHUB_TOKEN` does; locally, use a personal access token with the `read:packages` scope.
 
 ### Dropping a Minecraft version
 
