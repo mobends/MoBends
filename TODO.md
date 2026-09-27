@@ -3,10 +3,11 @@
 ## Web animation editor
 
 The *Customize* entry of the Mo' Bends menu (`GuiBendsMenu`) is meant to open the web animation
-editor, which is in the works. Until the editor is out, it opens `https://mobends.com/roadmap`
-(`GuiBendsMenu.EDITOR_URL`, the page the old editor link led to).
+editor, which is in the works. It opens the `officialAnimationEditorUrl` of
+[static-api.json](https://github.com/mobends/mobends-resources/blob/master/static-api.json)
+(`EditorLink`), currently `https://mobends.com/roadmap`, which is also the fallback.
 
-- [ ] Point *Customize* at the web editor once it is live.
+- [ ] Point `officialAnimationEditorUrl` at the web editor once it is live (no release needed).
 - [ ] Decide how animations made in the editor get into the game (a resource pack to download, or
       something the mod fetches).
 
