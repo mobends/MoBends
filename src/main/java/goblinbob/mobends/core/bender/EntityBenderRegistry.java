@@ -74,7 +74,7 @@ public class EntityBenderRegistry
         benders.put(entityBender.getKey(), entityBender);
         if (config != null)
         {
-            entityBender.setAnimate(config.isEntityAnimated(entityBender.getKey()));
+            entityBender.setAnimate(config.isEntityAnimated(entityBender));
         }
     }
 
@@ -97,7 +97,7 @@ public class EntityBenderRegistry
     {
         for (EntityBender<?> entityBender : benders.values())
         {
-            entityBender.setAnimate(config.isEntityAnimated(entityBender.getKey()));
+            entityBender.setAnimate(config.isEntityAnimated(entityBender));
         }
     }
 

@@ -33,9 +33,18 @@ public class CoreClientConfig extends CoreConfig
         configuration.save();
     }
 
-    public boolean isEntityAnimated(String alterEntryKey)
+    public boolean isEntityAnimated(EntityBender<?> bender)
     {
-        return configuration.get(CATEGORY_ANIMATED, alterEntryKey, true).getBoolean();
+        ConfigCategory animated = configuration.getCategory(CATEGORY_ANIMATED);
+        // Settings saved before 2.0 are under the old key; carried over once.
+        if (!animated.containsKey(bender.getKey()) && animated.containsKey(bender.getLegacyKey()))
+        {
+            boolean value = animated.get(bender.getLegacyKey()).getBoolean(true);
+            animated.remove(bender.getLegacyKey());
+            configuration.get(CATEGORY_ANIMATED, bender.getKey(), true).set(value);
+            return value;
+        }
+        return configuration.get(CATEGORY_ANIMATED, bender.getKey(), true).getBoolean();
     }
 
     public int getTypeRank(String typeId)

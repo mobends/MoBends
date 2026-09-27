@@ -6,7 +6,7 @@ untouched. Unlike a type, an extension doesn't replace the player's animator, it
 top of it, so it combines with the player's own animation and with other extensions.
 
 * `assets/mobends_wave/bends/extensions/wave.json`: the extension. `type` is the id of the type it
-  extends; a built-in type's id is its model's key (`mobends-player`).
+  extends; a built-in type's id is its model's key (`mobends:player`).
 * `assets/mobends_wave/bends/animators/wave.json`: the layer. Its entry node, `through`, is a
   `core:fallthrough` node: it poses nothing, so the player's own pose shows. The transitions to
   and from `wave` fade between the waving arm and the player's own arm.

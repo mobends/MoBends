@@ -15,7 +15,7 @@ import goblinbob.mobends.core.util.FormatVersion;
  * {
  *   "formatVersion": 2,
  *   "id": "mypack:wave",
- *   "type": "mobends-player",
+ *   "type": "mobends:player",
  *   "animator": "mypack:bends/animators/wave.json"
  * }
  * </pre>
@@ -31,7 +31,7 @@ public class ExtensionDefinition
     /** Identifies the extension; extensions of one type apply in id order. Two with one id: the first one found wins. */
     public String id;
 
-    /** The id of the entity type it extends (a type file's id, or a built-in type: the model's key, such as {@code mobends-minecraft:zombie}). */
+    /** The id of the entity type it extends (a type file's id, or a built-in type: the model's key, such as {@code mobends:zombie}). */
     public String type;
 
     /** The animator whose layers are added. */

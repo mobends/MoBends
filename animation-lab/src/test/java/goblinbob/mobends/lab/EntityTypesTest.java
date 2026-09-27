@@ -122,10 +122,10 @@ public class EntityTypesTest
 
         TypeOrder.Ranked exampleType = type(example.id, 0, example.specificity());
         // Built-in types are one condition: "this entity's default model is this bender".
-        TypeOrder.Ranked builtIn = type("mobends-player", 0, 1);
+        TypeOrder.Ranked builtIn = type("mobends:player", 0, 1);
         assertSame(exampleType, TypeOrder.first(Arrays.asList(builtIn, exampleType)));
         // Unless the user ranks the built-in type above it.
-        TypeOrder.Ranked rankedBuiltIn = type("mobends-player", 1, 1);
+        TypeOrder.Ranked rankedBuiltIn = type("mobends:player", 1, 1);
         assertSame(rankedBuiltIn, TypeOrder.first(Arrays.asList(rankedBuiltIn, exampleType)));
     }
 

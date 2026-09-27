@@ -20,7 +20,14 @@ import java.util.Map;
 
 public abstract class EntityBender<T extends EntityLivingBase>
 {
+	/**
+	 * Identifies the bender (its model), a resource location: the registering mod and the name the
+	 * mod gave it, or else the entity's id ({@code mobends:zombie}; {@code mobends:othermod/beast}
+	 * for an entity of another mod than Minecraft). Also the id of the bender's built-in entity type.
+	 */
 	protected final String key;
+	/** The key before 2.0 ({@code mobends:zombie}), for settings saved by older versions. */
+	private final String legacyKey;
 	protected final String unlocalizedName;
 
 	private final MutatedRenderer<T> renderer;
@@ -58,16 +65,21 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		if (modId == null)
 			throw new NullPointerException("The Mod ID cannot be null.");
 
+		String name = key;
 		if (key == null)
 		{
 			ResourceLocation resourceLocation = EntityList.getKey(entityClass);
 			if (resourceLocation == null)
 				throw new RuntimeException("Unable to find a key for " + entityClass.getName());
 			key = resourceLocation.toString();
+			name = "minecraft".equals(resourceLocation.getResourceDomain())
+					? resourceLocation.getResourcePath()
+					: resourceLocation.getResourceDomain() + "/" + resourceLocation.getResourcePath();
 			unlocalizedName = "entity." + EntityList.getTranslationName(resourceLocation) + ".name";
 		}
 
-		this.key = modId + "-" + key;
+		this.key = new ResourceLocation(modId, name).toString();
+		this.legacyKey = modId + "-" + key;
 		this.unlocalizedName = unlocalizedName;
 		this.entityClass = entityClass;
 		this.renderer = renderer;
@@ -91,6 +103,12 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	public String getKey()
 	{
 		return this.key;
+	}
+
+	/** The key versions before 2.0 used (see {@link #key}), under which they saved settings. */
+	public String getLegacyKey()
+	{
+		return this.legacyKey;
 	}
 
 	public String getUnlocalizedName()

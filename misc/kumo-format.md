@@ -346,16 +346,19 @@ Java addon is needed unless it brings its own conditions or drivers.
 | `formatVersion` | `2` |
 | `id` | identifies the type; ranks are stored by it. Two types with the same id: a warning, and the one from the higher-priority pack is used (the server's resource pack, then the enabled resource packs from the top of the list, then mods) |
 | `selector` | a condition on the entity; absent means the type applies to every entity |
-| `model` | optional: a bender key (`mobends-player`, `mobends-minecraft:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
+| `model` | optional: a bender key (`mobends:player`, `mobends:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
 | `animator` | optional: the animator asset. Absent: the model's own animator |
 
 A type applies to an entity only if its model fits the entity's class. A type without a `model`
 applies only to entities that have a default model.
 
 Every bender an addon registers (the player, the zombie, the model definitions listed in
-`bends/models/index.json`, ...) also gets a **built-in type**. Its id is the bender key, and its
-one condition is "this is the entity's default model": the addon bender for the entity's exact
-class, or else the first registered for a superclass.
+`bends/models/index.json`, ...) also gets a **built-in type**. Its id is the bender key, a
+resource location: the mod that registered the bender, and the name it gave it or else the
+entity's id (`mobends:player`, `mobends:zombie`; an entity of another mod than Minecraft keeps its
+namespace in the path, `mobends:othermod/beast`). The type's one condition is "this is the
+entity's default model": the addon bender for the entity's exact class, or else the first
+registered for a superclass.
 
 ## Selector conditions
 
@@ -464,7 +467,7 @@ own animation and with other packs' extensions. Extension files are found like t
 {
   "formatVersion": 2,
   "id": "mobends_wave:wave",
-  "type": "mobends-player",
+  "type": "mobends:player",
   "animator": "mobends_wave:bends/animators/wave.json"
 }
 ```
@@ -473,7 +476,7 @@ own animation and with other packs' extensions. Extension files are found like t
 |---|---|
 | `formatVersion` | `2` |
 | `id` | identifies the extension (ranks are stored by it); two with one id: the one from the higher-priority pack wins, with a warning (as for types) |
-| `type` | the id of the type it extends: a type file's `id`, or a built-in type's, which is its model's key (`mobends-player`, `mobends-minecraft:zombie`, ...) |
+| `type` | the id of the type it extends: a type file's `id`, or a built-in type's, which is its model's key (`mobends:player`, `mobends:zombie`, ...) |
 | `animator` | an animator whose layers go on top of the type's animator (or, for a type without one, its model's) |
 
 * The extension's layers come after every layer of the animator it extends (including that

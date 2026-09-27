@@ -1,7 +1,7 @@
 # Example: dancing cows and chickens
 
-A resource pack with two extensions, one for cows (`mobends-minecraft:cow`) and one for chickens
-(`mobends-minecraft:chicken`), sharing one animator: while standing still, they dance to a beat
+A resource pack with two extensions, one for cows (`mobends:cow`) and one for chickens
+(`mobends:chicken`), sharing one animator: while standing still, they dance to a beat
 of 120 BPM. On every beat the whole body bounces up and sways to the other side, tilting with
 the sway, and the head nods. Walking or jumping stops the dance; it fades out and in over
 6 ticks. Every dancing mob follows the game's tick clock, so a field of them dances in sync.

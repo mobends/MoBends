@@ -40,8 +40,8 @@ public class DanceExtensionTest
     void theExtensionsTargetTheCowAndTheChicken() throws Exception
     {
         // A defined mob's built-in type is "mobends-" + its entity's registry name.
-        assertEquals("mobends-minecraft:cow", extension("cow").type);
-        assertEquals("mobends-minecraft:chicken", extension("chicken").type);
+        assertEquals("mobends:cow", extension("cow").type);
+        assertEquals("mobends:chicken", extension("chicken").type);
         assertEquals(extension("cow").animator, extension("chicken").animator, "one dance for both");
     }
 

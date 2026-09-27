@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
   "id": "mobends_wave:wave",
-  "type": "mobends-player",
+  "type": "mobends:player",
   "animator": "mobends_wave:bends/animators/wave.json"
 }

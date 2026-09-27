@@ -21,14 +21,14 @@ import java.util.function.Function;
  */
 public enum EntityKind
 {
-    PLAYER("mobends-player", AbstractClientPlayer::new, e -> new PlayerData((AbstractClientPlayer) e)),
-    ZOMBIE("mobends-minecraft:zombie", EntityZombie::new, e -> new ZombieData((EntityZombie) e)),
-    ZOMBIE_VILLAGER("mobends-minecraft:zombie_villager", EntityZombieVillager::new, e -> new ZombieVillagerData((EntityZombieVillager) e)),
-    SKELETON("mobends-minecraft:skeleton", EntitySkeleton::new, e -> new SkeletonData((EntitySkeleton) e)),
-    PIG_ZOMBIE("mobends-minecraft:zombie_pigman", EntityPigZombie::new, e -> new PigZombieData((EntityPigZombie) e)),
-    SPIDER("mobends-minecraft:spider", EntitySpider::new, e -> new SpiderData((EntitySpider) e)),
-    SQUID("mobends-minecraft:squid", EntitySquid::new, e -> new SquidData((EntitySquid) e)),
-    WOLF("mobends-minecraft:wolf", EntityWolf::new, e -> new WolfData((EntityWolf) e));
+    PLAYER("mobends:player", AbstractClientPlayer::new, e -> new PlayerData((AbstractClientPlayer) e)),
+    ZOMBIE("mobends:zombie", EntityZombie::new, e -> new ZombieData((EntityZombie) e)),
+    ZOMBIE_VILLAGER("mobends:zombie_villager", EntityZombieVillager::new, e -> new ZombieVillagerData((EntityZombieVillager) e)),
+    SKELETON("mobends:skeleton", EntitySkeleton::new, e -> new SkeletonData((EntitySkeleton) e)),
+    PIG_ZOMBIE("mobends:zombie_pigman", EntityPigZombie::new, e -> new PigZombieData((EntityPigZombie) e)),
+    SPIDER("mobends:spider", EntitySpider::new, e -> new SpiderData((EntitySpider) e)),
+    SQUID("mobends:squid", EntitySquid::new, e -> new SquidData((EntitySquid) e)),
+    WOLF("mobends:wolf", EntityWolf::new, e -> new WolfData((EntityWolf) e));
 
     /** The key the mod registers the entity bender under. */
     public final String benderKey;

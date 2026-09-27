@@ -1,7 +1,7 @@
 # Example: vanilla swimming
 
 A resource pack with one extension (`mobends_vanilla_swim:vanilla_swim`) on the built-in player
-type (`mobends-player`): while a player is in water, they are drawn with the vanilla model and
+type (`mobends:player`): while a player is in water, they are drawn with the vanilla model and
 vanilla animation; out of water, Mo' Bends animates them as usual. The switch is immediate.
 
 * `assets/mobends_vanilla_swim/bends/extensions/vanilla_swim.json`: the extension.

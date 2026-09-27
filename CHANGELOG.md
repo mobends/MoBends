@@ -64,7 +64,9 @@ mutators, previewers, value sources or bends pack hooks need updating: entity da
 animator (`getDefaultAnimator`) instead of returning a controller, `registerNewEntity` no longer
 takes alterable parts, and animation editors can no longer be registered. Every asset file
 (animators, types, extensions, model definitions) carries a `formatVersion`; one written for
-another version of its format is refused with a message saying so.
+another version of its format is refused with a message saying so. Bender keys are resource
+locations (`mobends:zombie` instead of `mobends-minecraft:zombie`); which mobs you turned off
+carries over.
 
 ## 1.2.2 (2025-09-29)
 

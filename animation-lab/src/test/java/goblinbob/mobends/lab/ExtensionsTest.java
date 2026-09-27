@@ -55,10 +55,10 @@ public class ExtensionsTest
 
         ExtensionDefinition wave = ExtensionDefinition.parse(new String(Files.readAllBytes(EXAMPLE.resolve("extensions/wave.json")), StandardCharsets.UTF_8));
         assertEquals("mobends_wave:wave", wave.id);
-        // A built-in type's id is its model's key; the player's is "mobends-" + "player" (PlayerBender),
-        // not "mobends-minecraft:player" like the entities keyed by their registry name.
-        assertEquals("mobends-player", wave.type);
-        assertEquals("mobends-player", EntityKind.PLAYER.benderKey);
+        // A built-in type's id is its model's key: the registering mod and the name it gave the model
+        // (PlayerBender's "player"), or else the entity's id.
+        assertEquals("mobends:player", wave.type);
+        assertEquals("mobends:player", EntityKind.PLAYER.benderKey);
     }
 
     @Test
@@ -155,7 +155,7 @@ public class ExtensionsTest
     {
         Path pack = LabPaths.root().resolve("../misc/examples/vanilla-swim-extension/assets/mobends_vanilla_swim/bends");
         ExtensionDefinition extension = ExtensionDefinition.parse(new String(Files.readAllBytes(pack.resolve("extensions/vanilla_swim.json")), StandardCharsets.UTF_8));
-        assertEquals("mobends-player", extension.type);
+        assertEquals("mobends:player", extension.type);
         AnimatorTemplate swim;
         try (Reader reader = Files.newBufferedReader(pack.resolve("animators/vanilla_swim.json")))
         {

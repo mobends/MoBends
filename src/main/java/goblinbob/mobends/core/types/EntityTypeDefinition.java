@@ -43,7 +43,7 @@ public class EntityTypeDefinition
     public JsonObject selector;
 
     /**
-     * Optional: a bender key ({@code mobends-player}), a model definition
+     * Optional: a bender key ({@code mobends:player}), a model definition
      * ({@code yourmod:bends/models/beast.json}) or {@value #VANILLA_MODEL}. Absent: the model the
      * entity has by default.
      */

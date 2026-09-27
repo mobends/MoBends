@@ -69,7 +69,7 @@ public class AddonAnimationRegistry
     public <T extends EntityLivingBase> String registerEntity(EntityBender<T> entityBender)
     {
         String key = entityBender.getKey();
-        if (!key.startsWith(this.modId + "-"))
+        if (!key.startsWith(this.modId + ":"))
         {
             throw new IllegalArgumentException("The EntityBender's ModID does not match that of the AddonAnimationRegistry.");
         }
