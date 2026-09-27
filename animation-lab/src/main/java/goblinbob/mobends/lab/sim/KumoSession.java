@@ -1,13 +1,12 @@
 package goblinbob.mobends.lab.sim;
 
-import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.kumo.AnimatorResources;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.util.GsonResources;
 import goblinbob.mobends.lab.trace.FramePose;
 import goblinbob.mobends.lab.trace.PoseCapture;
 import goblinbob.mobends.lab.trace.PoseTrace;
@@ -61,14 +60,7 @@ public class KumoSession
             {
                 return registered;
             }
-            try
-            {
-                return AnimationLoader.loadFromPath(key);
-            }
-            catch (IOException e)
-            {
-                throw new IllegalStateException("cannot load clip " + key, e);
-            }
+            return AnimatorResources.INSTANCE.getAnimation(key);
         }
 
         @Override
@@ -92,7 +84,7 @@ public class KumoSession
     public static AnimatorTemplate loadAnimator(String resource) throws IOException
     {
         LabBootstrap.ensure();
-        return GsonResources.get(new ResourceLocation(resource), AnimatorTemplate.class);
+        return AnimatorResources.INSTANCE.loadAnimator(new ResourceLocation(resource));
     }
 
     public KumoSession(Scenario scenario, AnimatorTemplate template) throws MalformedKumoTemplateException
@@ -154,11 +146,11 @@ public class KumoSession
         data.update(clock.getPartialTicks());
 
         modelInputs.compute(scripted.entity, clock.getPartialTicks());
-        data.headYaw.set(MathHelper.wrapDegrees(modelInputs.headYaw));
-        data.headPitch.set(MathHelper.wrapDegrees(modelInputs.headPitch));
-        data.limbSwing.set(modelInputs.limbSwing);
-        data.limbSwingAmount.set(modelInputs.limbSwingAmount);
-        data.swingProgress.set(modelInputs.swingProgress);
+        data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
+        data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+        data.limbSwing = modelInputs.limbSwing;
+        data.limbSwingAmount = modelInputs.limbSwingAmount;
+        data.swingProgress = modelInputs.swingProgress;
 
         animator.update(data, goblinbob.mobends.core.client.event.DataUpdateHandler.ticksPerFrame);
         if (DEBUG_NODES)

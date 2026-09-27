@@ -1,21 +1,23 @@
 package goblinbob.mobends.core;
 
-import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
+import goblinbob.mobends.core.addon.Addons;
 import goblinbob.mobends.core.asset.AssetReloadListener;
 import goblinbob.mobends.core.asset.AssetsModule;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
+import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.client.event.*;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.connection.ConnectionManager;
 import goblinbob.mobends.core.data.EntityDatabase;
+import goblinbob.mobends.core.definition.DefinedFields;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.kumo.AnimationLimits;
 import goblinbob.mobends.core.kumo.AnimatorResources;
-import goblinbob.mobends.core.network.NetworkConfiguration;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
-import goblinbob.mobends.core.util.GsonResources;
+import goblinbob.mobends.core.vanilla.VanillaEntityFields;
+import goblinbob.mobends.core.vanilla.VanillaModelParts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -73,8 +75,11 @@ public class CoreClient extends Core<CoreClientConfig>
         // Resource packs can add, change or remove types, and the model definitions and animators they use.
         resourceManager.registerReloadListener(manager -> reloadAnimation());
 
-        // Resource packs' animation is limited as the server says (see NetworkConfiguration).
-        AnimationLimits.setProvider(NetworkConfiguration.instance::getAnimationLimits);
+        // Model definitions find vanilla fields through accessors generated against them (see DefinedFields).
+        DefinedFields.install(VanillaEntityFields::get, VanillaModelParts::get);
+
+        // Resource packs' animation is limited as the server says.
+        AnimationLimits.setProvider(AnimationPolicy.INSTANCE::limits);
     }
 
     @Override
@@ -82,8 +87,8 @@ public class CoreClient extends Core<CoreClientConfig>
     {
         super.postInit(event);
 
+        // The types load on first use, or with the first resource reload.
         EntityBenderRegistry.instance.applyConfiguration(configuration);
-        EntityTypeRegistry.INSTANCE.reload();
     }
 
     /**
@@ -92,13 +97,23 @@ public class CoreClient extends Core<CoreClientConfig>
      */
     public static void reloadAnimation()
     {
-        AnimationLoader.clearCache();
-        GsonResources.clearCache();
+        AnimationPolicy.INSTANCE.onContentReloaded();
         ModelDefinitions.INSTANCE.clearCache();
         AnimatorResources.INSTANCE.clearCache();
         EntityDatabase.instance.refresh();
         EntityBenderRegistry.instance.refreshMutators();
         EntityTypeRegistry.INSTANCE.reload();
+    }
+
+    /**
+     * Reloads the animation and refreshes the addons and modules: the refresh key, and changes to
+     * the mod's configuration.
+     */
+    public static void refresh()
+    {
+        reloadAnimation();
+        Addons.onRefresh();
+        INSTANCE.refreshModules();
     }
 
     @Nullable

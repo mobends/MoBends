@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.definition;
 
+import com.google.gson.Gson;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.GsonResources;
 import net.minecraft.util.ResourceLocation;
@@ -16,12 +17,14 @@ public class ModelDefinitions
 
     public static final ModelDefinitions INSTANCE = new ModelDefinitions();
 
+    private static final Gson GSON = new Gson();
+
     public static class Index
     {
         public List<String> models = new ArrayList<>();
     }
 
-    private final Map<String, EntityModelDefinition> loaded = new LinkedHashMap<>();
+    private final Map<ResourceLocation, EntityModelDefinition> loaded = new LinkedHashMap<>();
 
     public void clearCache()
     {
@@ -35,8 +38,8 @@ public class ModelDefinitions
 
     public List<String> index(String modId) throws IOException
     {
-        Index index = GsonResources.get(new ResourceLocation(modId, "bends/models/index.json"), Index.class);
-        return index == null || index.models == null ? new ArrayList<>() : index.models;
+        Index index = GsonResources.read(new ResourceLocation(modId, "bends/models/index.json"), GSON, Index.class);
+        return index.models == null ? new ArrayList<>() : index.models;
     }
 
     public EntityModelDefinition load(String modId, String name) throws IOException, MalformedKumoTemplateException
@@ -47,17 +50,12 @@ public class ModelDefinitions
     /** Loads the definition at {@code location}, e.g. {@code yourmod:bends/models/beast.json}. */
     public EntityModelDefinition load(ResourceLocation location) throws IOException, MalformedKumoTemplateException
     {
-        String key = location.toString();
-        EntityModelDefinition definition = loaded.get(key);
+        EntityModelDefinition definition = loaded.get(location);
         if (definition == null)
         {
-            definition = GsonResources.get(location, EntityModelDefinition.class);
-            if (definition == null)
-            {
-                throw new IOException("Missing model definition " + key);
-            }
+            definition = GsonResources.read(location, GSON, EntityModelDefinition.class);
             definition.validate();
-            loaded.put(key, definition);
+            loaded.put(location, definition);
         }
         return definition;
     }

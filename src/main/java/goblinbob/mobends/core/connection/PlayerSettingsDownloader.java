@@ -1,8 +1,8 @@
 package goblinbob.mobends.core.connection;
 
+import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.util.ConnectionHelper;
-import goblinbob.mobends.standard.main.MoBends;
 import org.apache.http.conn.HttpHostConnectException;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class PlayerSettingsDownloader implements Runnable
                 }
                 catch(IOException|URISyntaxException e)
                 {
-                    MoBends.LOG.warning("API player settings fetch failed.");
+                    Core.LOG.warning("API player settings fetch failed.");
                     e.printStackTrace();
                 }
 
@@ -57,7 +57,7 @@ public class PlayerSettingsDownloader implements Runnable
             }
             catch (InterruptedException e)
             {
-                MoBends.LOG.warning("AssetDownloader has been interrupted");
+                Core.LOG.warning("AssetDownloader has been interrupted");
                 return;
             }
         }
@@ -72,7 +72,7 @@ public class PlayerSettingsDownloader implements Runnable
 
         SupporterContent.registerPlayerAccessorySettings(task.playerName, response);
 
-        MoBends.LOG.info("Player settings fetch successful");
+        Core.LOG.info("Player settings fetch successful");
     }
 
     public void fetchSettingsForPlayer(String playerName)

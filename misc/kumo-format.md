@@ -334,7 +334,7 @@ Java addon is needed unless it brings its own conditions or drivers.
 
 | field | meaning |
 |---|---|
-| `id` | identifies the type; ranks are stored by it. Two types with the same id: a warning, and the first one found is used |
+| `id` | identifies the type; ranks are stored by it. Two types with the same id: a warning, and the one from the higher-priority pack is used (the server's resource pack, then the enabled resource packs from the top of the list, then mods) |
 | `selector` | a condition on the entity; absent means the type applies to every entity |
 | `model` | optional: a bender key (`mobends-player`, `mobends-minecraft:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
 | `animator` | optional: the animator asset. Absent: the model's own animator |
@@ -376,10 +376,12 @@ When the selectors of several types hold for an entity, exactly one type applies
 sorted by these keys, most significant first (`TypeOrder`):
 
 1. **rank**, higher first. Every type starts at rank 0; only the user sets ranks.
-2. **the number of conditions** of the selector, higher first. Every condition other than
-   `core:and` / `core:or` / `core:not` counts, whatever it means: a broad assumption that more
-   conditions make a more specific type, knowingly allowing false positives. A type without a
-   selector counts 0; built-in types count 1.
+2. **the number of conditions** of the selector, higher first: a broad assumption that more
+   conditions make a more specific type, knowingly allowing false positives. Every condition
+   other than `core:and` / `core:or` / `core:not` counts 1, whatever it means; `core:and` counts
+   the sum of its conditions, `core:or` the fewest of any of its conditions (it only holds as
+   narrowly as its broadest branch), and `core:not` 1. A type without a selector counts 0;
+   built-in types count 1.
 3. **id**, plain lexical order, earlier first; the final tie breaker, so the result never depends
    on load order.
 
@@ -458,7 +460,7 @@ own animation and with other packs' extensions. Extension files are found like t
 
 | field | meaning |
 |---|---|
-| `id` | identifies the extension (ranks are stored by it); two with one id: the first one found wins, with a warning |
+| `id` | identifies the extension (ranks are stored by it); two with one id: the one from the higher-priority pack wins, with a warning (as for types) |
 | `type` | the id of the type it extends: a type file's `id`, or a built-in type's, which is its model's key (`mobends-player`, `mobends-minecraft:zombie`, ...) |
 | `animator` | an animator whose layers go on top of the type's animator (or, for a type without one, its model's) |
 

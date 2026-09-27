@@ -4,27 +4,26 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import goblinbob.mobends.core.client.model.IModelPart;
-import goblinbob.mobends.standard.data.PlayerData;
+import goblinbob.mobends.core.data.EntityData;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 public enum BindPoint
 {
-    HEAD("head", data -> data.head),
-    BODY("body", data -> data.body),
-    LEFT_ARM("leftArm", data -> data.leftArm),
-    LEFT_FOREARM("leftForearm", data -> data.leftForeArm),
-    RIGHT_ARM("rightArm", data -> data.rightArm),
-    RIGHT_FOREARM("rightForearm", data -> data.rightForeArm),
-    LEFT_THIGH("leftThigh", data -> data.leftLeg),
-    LEFT_SHIN("leftShin", data -> data.leftForeLeg),
-    RIGHT_THIGH("rightThigh", data -> data.rightLeg),
-    RIGHT_SHIN("rightShin", data -> data.rightForeLeg);
+    HEAD("head", "head"),
+    BODY("body", "body"),
+    LEFT_ARM("leftArm", "leftArm"),
+    LEFT_FOREARM("leftForearm", "leftForeArm"),
+    RIGHT_ARM("rightArm", "rightArm"),
+    RIGHT_FOREARM("rightForearm", "rightForeArm"),
+    LEFT_THIGH("leftThigh", "leftLeg"),
+    LEFT_SHIN("leftShin", "leftForeLeg"),
+    RIGHT_THIGH("rightThigh", "rightLeg"),
+    RIGHT_SHIN("rightShin", "rightForeLeg");
 
-    private static Map<String, BindPoint> KEY_TO_VALUE = new HashMap<>();
+    private static final Map<String, BindPoint> KEY_TO_VALUE = new HashMap<>();
     static
     {
         for (BindPoint p : BindPoint.values())
@@ -33,13 +32,14 @@ public enum BindPoint
         }
     }
 
-    private String key;
-    private Function<PlayerData, IModelPart> partSelector;
+    private final String key;
+    /** The bone the accessory is bound to. */
+    private final String bone;
 
-    BindPoint(String key, Function<PlayerData, IModelPart> partSelector)
+    BindPoint(String key, String bone)
     {
         this.key = key;
-        this.partSelector = partSelector;
+        this.bone = bone;
     }
 
     public String getKey()
@@ -47,9 +47,11 @@ public enum BindPoint
         return key;
     }
 
-    public Function<PlayerData, IModelPart> getPartSelector()
+    /** The part of {@code data} the accessory is bound to, or null if it has none. */
+    public IModelPart partOf(EntityData<?> data)
     {
-        return partSelector;
+        Object part = data.getPartForName(bone);
+        return part instanceof IModelPart ? (IModelPart) part : null;
     }
 
     public static BindPoint fromKey(String key)

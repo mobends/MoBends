@@ -96,13 +96,6 @@ public final class RendererState
         MUTATED.put(renderer, Boolean.TRUE);
     }
 
-    /** Forgets every captured state (the next render captures vanilla anew). */
-    public static void forgetAll()
-    {
-        VANILLA.clear();
-        MUTATED.clear();
-    }
-
     @SuppressWarnings("unchecked")
     private void apply(RenderLivingBase<?> renderer)
     {

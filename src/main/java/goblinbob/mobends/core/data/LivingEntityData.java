@@ -25,11 +25,11 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     protected boolean alreadyAttacked = false;
     protected boolean climbing = false;
 
-    public OverridableProperty<Float> limbSwing = new OverridableProperty<>(0F);
-    public OverridableProperty<Float> limbSwingAmount = new OverridableProperty<>(0F);
-    public OverridableProperty<Float> swingProgress = new OverridableProperty<>(0F);
-    public OverridableProperty<Float> headYaw = new OverridableProperty<>(0F);
-    public OverridableProperty<Float> headPitch = new OverridableProperty<>(0F);
+    public float limbSwing;
+    public float limbSwingAmount;
+    public float swingProgress;
+    public float headYaw;
+    public float headPitch;
 
     public LivingEntityData(E entity)
     {
@@ -49,16 +49,15 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     {
         super.registerKumoBindings();
 
-        registerVariable("limbSwing", () -> limbSwing.get());
-        registerVariable("limbSwingAmount", () -> limbSwingAmount.get());
-        registerVariable("swingProgress", () -> swingProgress.get());
+        registerVariable("limbSwing", () -> limbSwing);
+        registerVariable("limbSwingAmount", () -> limbSwingAmount);
+        registerVariable("swingProgress", () -> swingProgress);
         registerVariable("entitySwingProgress", () -> entity != null ? entity.swingProgress : 0);
-        registerVariable("headYaw", () -> headYaw.get());
-        registerVariable("headPitch", () -> headPitch.get());
+        registerVariable("headYaw", () -> headYaw);
+        registerVariable("headPitch", () -> headPitch);
         registerVariable("ticksInAir", () -> ticksInAir);
         registerVariable("ticksAfterTouchdown", () -> ticksAfterTouchdown);
         registerVariable("ticksAfterAttack", () -> ticksAfterAttack);
-        registerVariable("ticksAfterPunch", () -> ticksAfterAttack);
         registerVariable("ticksFalling", () -> ticksFalling);
         registerVariable("climbingCycle", () -> climbingCycle);
         registerVariable("health", () -> entity != null ? entity.getHealth() : 0);
@@ -76,14 +75,14 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
         // Derived inputs the procedural bits compute inline; exposed so animators stay data.
         registerVariable("rotationYaw", () -> entity != null ? entity.rotationYaw : 0);
-        registerVariable("headYawAbs", () -> Math.abs(headYaw.get()));
-        registerVariable("climbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - getClimbingRotation()) : 0);
+        registerVariable("headYawAbs", () -> Math.abs(headYaw));
+        registerVariable("climbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation()) : 0);
         registerVariable("climbingBodyYaw", () -> entity != null
-                ? MathHelper.wrapDegrees(headYaw.get() + MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - getClimbingRotation())) : 0);
+                ? MathHelper.wrapDegrees(headYaw + MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation())) : 0);
         registerVariable("climbingHeadYaw", () -> {
             if (entity == null) return 0;
-            float renderRotationY = MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - getClimbingRotation());
-            return Math.max(-90F, Math.min(90F, MathHelper.wrapDegrees(headYaw.get() + renderRotationY)));
+            float renderRotationY = MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation());
+            return Math.max(-90F, Math.min(90F, MathHelper.wrapDegrees(headYaw + renderRotationY)));
         });
         registerVariable("ridingRelativeHeadYaw", () -> {
             if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
@@ -91,7 +90,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         });
         registerVariable("ridingRelativeYaw", () -> {
             if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
-            return MathHelper.wrapDegrees(entity.rotationYaw - headYaw.get() - ((EntityLivingBase) entity.getRidingEntity()).renderYawOffset);
+            return MathHelper.wrapDegrees(entity.rotationYaw - headYaw - ((EntityLivingBase) entity.getRidingEntity()).renderYawOffset);
         });
         registerVariable("entityXZSpeed", () -> entity != null ? Math.sqrt(entity.motionX * entity.motionX + entity.motionZ * entity.motionZ) : 0);
         registerVariable("aimedBowTicks", () -> entity != null ? Math.min(entity.getItemInUseMaxCount(), 15) : 0);

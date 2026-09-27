@@ -1,13 +1,13 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.core.kumo.KumoAnimatorController;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.entity.monster.EntityPigZombie;
+import net.minecraft.util.ResourceLocation;
 
 public class PigZombieData extends BipedEntityData<EntityPigZombie>
 {
 	
-	private final KumoAnimatorController<PigZombieData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/pig_zombie.json");
+	private static final ResourceLocation ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/pig_zombie.json");
 	
 	public PigZombieData(EntityPigZombie entity)
 	{
@@ -15,15 +15,9 @@ public class PigZombieData extends BipedEntityData<EntityPigZombie>
 	}
 
 	@Override
-	public KumoAnimatorController<PigZombieData> getController()
+	protected ResourceLocation getDefaultAnimator()
 	{
-		return controller;
-	}
-
-	@Override
-	public void onTicksRestart()
-	{
-		// No behaviour
+		return ANIMATOR;
 	}
 
 }

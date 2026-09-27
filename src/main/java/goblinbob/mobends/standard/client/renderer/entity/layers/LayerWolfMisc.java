@@ -6,7 +6,7 @@ import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.util.MeshBuilder;
 import goblinbob.mobends.standard.data.WolfData;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;

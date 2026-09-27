@@ -1,38 +1,41 @@
 package goblinbob.mobends.core.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import goblinbob.mobends.core.client.PackTrust;
-import goblinbob.mobends.core.kumo.KumoSerializer;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
-public class GsonResources
+/** Reads JSON resources for animation, as {@link PackTrust} allows. Callers cache what they read. */
+public final class GsonResources
 {
 
-    private static Map<ResourceLocation, Object> cache = new HashMap<>();
-
-    public static void clearCache()
+    private GsonResources()
     {
-        cache.clear();
     }
 
-    public static <T> T get(ResourceLocation location, Class<T> classOfT) throws IOException
+    /**
+     * @throws IOException when the resource is missing, or isn't what {@code classOfT} expects
+     *                     (the parse error is the cause)
+     */
+    public static <T> T read(ResourceLocation location, Gson gson, Class<T> classOfT) throws IOException
     {
-        if (cache.containsKey(location))
-        {
-            //noinspection unchecked
-            return (T) cache.get(location);
-        }
-
         try (InputStream stream = PackTrust.open(location))
         {
-            T resource = KumoSerializer.INSTANCE.gson.fromJson(new InputStreamReader(stream), classOfT);
-            cache.put(location, resource);
+            T resource = gson.fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), classOfT);
+            if (resource == null)
+            {
+                throw new IOException(location + " is empty");
+            }
             return resource;
+        }
+        catch (JsonParseException | IllegalStateException e)
+        {
+            throw new IOException(location + ": " + e.getMessage(), e);
         }
     }
 

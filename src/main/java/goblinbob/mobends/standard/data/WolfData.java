@@ -1,14 +1,13 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
-import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.util.GUtil;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.util.ResourceLocation;
 
 public class WolfData extends LivingEntityData<EntityWolf>
 {
@@ -32,7 +31,7 @@ public class WolfData extends LivingEntityData<EntityWolf>
     public ModelPartTransform foreLeg3;
     public ModelPartTransform foreLeg4;
 
-    private final KumoAnimatorController<WolfData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/wolf.json");
+    private static final ResourceLocation ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/wolf.json");
 
     public WolfData(EntityWolf entity)
     {
@@ -48,9 +47,9 @@ public class WolfData extends LivingEntityData<EntityWolf>
     }
 
     @Override
-    public IAnimationController<?> getController()
+    protected ResourceLocation getDefaultAnimator()
     {
-        return controller;
+        return ANIMATOR;
     }
 
     @Override
@@ -72,11 +71,6 @@ public class WolfData extends LivingEntityData<EntityWolf>
         head.offset.set(0, 0, 0);
     }
 
-    @Override
-    public void onTicksRestart()
-    {
-        // No behaviour
-    }
 
     @Override
     public void initModelPose()

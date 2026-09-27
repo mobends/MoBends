@@ -3,7 +3,7 @@ package goblinbob.mobends.core.asset;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;

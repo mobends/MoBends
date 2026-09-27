@@ -1,9 +1,6 @@
 package goblinbob.mobends.core.asset;
 
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.MalformedJsonException;
-import goblinbob.mobends.core.supporters.AccessoryDetails;
-import goblinbob.mobends.core.supporters.SupporterContent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
@@ -24,9 +21,12 @@ public class AssetReloadListener implements IResourceManagerReloadListener
 
     public void onResourceManagerReload(IResourceManager resourceManager)
     {
-        // Refreshing assets
-        AssetsModule.INSTANCE.updateAssets();
+        registerAssets();
+    }
 
+    /** Registers the textures and models of the assets on disk. Client thread. */
+    public static void registerAssets()
+    {
         AssetModels.INSTANCE.clearCache();
 
         Collection<AssetDefinition> assets = AssetsModule.INSTANCE.getAssets();

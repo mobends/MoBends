@@ -1,10 +1,8 @@
 package goblinbob.mobends.core.definition;
 
-import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
@@ -16,40 +14,30 @@ import java.util.function.ToDoubleFunction;
 
 /**
  * The entity data of a mob described by an {@link EntityModelDefinition}: one transform per bone
- * (split segments included), the definition's entity-field variables, and the animator as the
- * controller. Positions default to the definition's; the mutator hands over the vanilla rotation
- * points and split pivots the first time it syncs.
+ * (split segments included), the definition's entity-field variables, and its animator.
+ * Positions default to the definition's; the mutator hands over the vanilla rotation points and
+ * split pivots the first time it syncs.
  */
 public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityData<E>
 {
 
-    /** The definition is needed inside {@code initModelPose}, which the base constructor calls. */
-    private static final ThreadLocal<EntityModelDefinition> CONSTRUCTING = new ThreadLocal<>();
-
     private final EntityModelDefinition definition;
-    /** Filled by {@code initModelPose}, which the base constructor calls before field initialisers run. */
-    private Map<String, ModelPartTransform> parts;
-    private final KumoAnimatorController<DefinedEntityData<E>> controller;
+    private final Map<String, ModelPartTransform> parts = new LinkedHashMap<>();
+    private final ResourceLocation animator;
     private boolean positionsAdopted;
 
     public static <E extends EntityLivingBase> DefinedEntityData<E> create(EntityModelDefinition definition, E entity)
     {
-        CONSTRUCTING.set(definition);
-        try
-        {
-            return new DefinedEntityData<>(definition, entity);
-        }
-        finally
-        {
-            CONSTRUCTING.remove();
-        }
+        DefinedEntityData<E> data = new DefinedEntityData<>(definition, entity);
+        data.initialize();
+        return data;
     }
 
     protected DefinedEntityData(EntityModelDefinition definition, E entity)
     {
         super(entity);
         this.definition = definition;
-        this.controller = new KumoAnimatorController<>(new ResourceLocation(definition.animator));
+        this.animator = new ResourceLocation(definition.animator);
         for (VariableDefinition variable : definition.variables)
         {
             registerVariable(variable.name, supplierFor(variable));
@@ -75,15 +63,6 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
     public void initModelPose()
     {
         super.initModelPose();
-        EntityModelDefinition definition = CONSTRUCTING.get();
-        if (parts == null)
-        {
-            parts = new LinkedHashMap<>();
-        }
-        if (definition == null)
-        {
-            return;
-        }
         for (BoneDefinition bone : definition.bones)
         {
             ModelPartTransform parent = bone.parent == null ? null : parts.get(bone.parent);
@@ -126,14 +105,9 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
     }
 
     @Override
-    public IAnimationController<?> getController()
+    protected ResourceLocation getDefaultAnimator()
     {
-        return controller;
-    }
-
-    @Override
-    public void onTicksRestart()
-    {
+        return animator;
     }
 
     @Override

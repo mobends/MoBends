@@ -1,6 +1,6 @@
 package goblinbob.mobends.standard.client.model.armor;
 
-import goblinbob.mobends.standard.main.MoBends;
+import goblinbob.mobends.core.Core;
 import net.minecraft.client.model.ModelBiped;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public class ArmorModelFactory
 				wrapper = ArmorWrapper.createFor(suggested);
 				wrapperArchive.put(suggested, wrapper);
 
-				MoBends.LOG.info("Creating an armor wrapper for " + suggested);
+				Core.LOG.info("Creating an armor wrapper for " + suggested);
 			}
 
 			return wrapper;

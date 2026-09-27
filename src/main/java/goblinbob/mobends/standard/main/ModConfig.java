@@ -1,5 +1,7 @@
 package goblinbob.mobends.standard.main;
 
+import goblinbob.mobends.core.CoreClient;
+import goblinbob.mobends.core.ModStatics;
 import goblinbob.mobends.core.util.ErrorReporter;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.core.util.WildcardPattern;
@@ -83,7 +85,7 @@ public class ModConfig
                 itemAttackClassificationEntries.clear();
                 getOrMakeEntries(itemAttackClassificationEntries, itemAttackClassifications, AttackActionType::valueOf);
 
-                MoBends.refreshSystems();
+                CoreClient.refresh();
             }
         }
     }

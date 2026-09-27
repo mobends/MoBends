@@ -33,18 +33,19 @@ kotlin {
 }
 
 val modSrc = file("../src/main")
-// The Minecraft-free engine (Kumo, math, flux), split out of src/main (see CONTRIBUTING.md).
+// The Minecraft-free engine (Kumo, math), split out of src/main (see CONTRIBUTING.md).
 val coreSrc = file("../core/src/main")
 
 // Only the Minecraft-agnostic animation subset of the mod is compiled. Everything that needs
-// rendering, GUI, networking or Forge stays out. Classes listed under `exclude` are replaced by
-// shims in src/mod/java with the same fully qualified name.
+// rendering, GUI, networking or Forge stays out; the few classes the subset needs from there are
+// replaced by shims in src/mod/java with the same fully qualified name.
 val modIncludes = listOf(
     "goblinbob/mobends/core/math/**",
     "goblinbob/mobends/core/util/GUtil.java",
     "goblinbob/mobends/core/util/Tween.java",
     "goblinbob/mobends/core/util/EnumAxis.java",
     "goblinbob/mobends/core/util/GlHelper.java",
+    "goblinbob/mobends/core/util/GsonResources.java",
     "goblinbob/mobends/core/util/Color.java",
     "goblinbob/mobends/core/util/IColor.java",
     "goblinbob/mobends/core/util/IColorRead.java",
@@ -53,7 +54,6 @@ val modIncludes = listOf(
     "goblinbob/mobends/core/data/EntityData.java",
     "goblinbob/mobends/core/data/LivingEntityData.java",
     "goblinbob/mobends/core/data/IEntityDataFactory.java",
-    "goblinbob/mobends/core/data/OverridableProperty.java",
     "goblinbob/mobends/core/client/model/IBendsModel.java",
     "goblinbob/mobends/core/client/model/IModelPart.java",
     "goblinbob/mobends/core/client/model/ModelPartTransform.java",
@@ -68,11 +68,7 @@ val modIncludes = listOf(
     "goblinbob/mobends/standard/UseActionType.java",
     "goblinbob/mobends/standard/ItemActions.java",
     "goblinbob/mobends/standard/AttackActionType.java",
-    "goblinbob/mobends/standard/main/ModStatics.java",
-)
-
-val modExcludes = listOf(
-    "goblinbob/mobends/core/animation/keyframe/AnimationLoader.java",
+    "goblinbob/mobends/core/ModStatics.java",
 )
 
 val modSrcDir = layout.buildDirectory.dir("mod-src")
@@ -81,11 +77,9 @@ val syncModJava by tasks.registering(Sync::class) {
     description = "Copies the Minecraft-agnostic animation sources of the mod into the build directory."
     from(modSrc.resolve("java")) {
         include(modIncludes)
-        exclude(modExcludes)
     }
     from(coreSrc.resolve("java")) {
         include(modIncludes)
-        exclude(modExcludes)
     }
     into(modSrcDir.map { it.dir("java") })
 }

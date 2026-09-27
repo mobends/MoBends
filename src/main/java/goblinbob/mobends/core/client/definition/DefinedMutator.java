@@ -2,7 +2,6 @@ package goblinbob.mobends.core.client.definition;
 
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.model.BoxFactory;
-import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.BoxSplitter;
@@ -156,8 +155,9 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                         }
                     }
                 }
-                catch (IllegalAccessException | RuntimeException ignored)
+                catch (IllegalAccessException | SecurityException ignored)
                 {
+                    // A field that can't be read can't hold the part for us either.
                 }
             }
         }
@@ -167,19 +167,12 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
     // --- the mutator contract -----------------------------------------------------------------
 
     @Override
-    public void storeVanillaModel(ModelBase model)
-    {
-        this.vanillaModel = model;
-        resolve(model);
-    }
-
-    @Override
-    public void swapLayer(RenderLivingBase<? extends E> renderer, int index, boolean isModelVanilla)
+    public void swapLayer(RenderLivingBase<? extends E> renderer, int index)
     {
     }
 
     @Override
-    public boolean createParts(ModelBase model, float scaleFactor)
+    public boolean createParts(ModelBase model)
     {
         resolve(model);
         parts.clear();
@@ -371,25 +364,6 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         {
             entry.getValue().syncUp(data.getPart(entry.getKey()));
         }
-    }
-
-    @Override
-    public boolean isModelVanilla(ModelBase model)
-    {
-        resolve(model);
-        for (Slot slot : slots)
-        {
-            try
-            {
-                Object value = slot.index < 0 ? slot.field.get(slot.holder) : Array.get(slot.field.get(slot.holder), slot.index);
-                return !(value instanceof IModelPart);
-            }
-            catch (IllegalAccessException e)
-            {
-                return true;
-            }
-        }
-        return true;
     }
 
     @Override

@@ -30,7 +30,7 @@ public class EntityTypeDefinition
 
     private static final Gson GSON = new Gson();
 
-    /** Identifies the type (ranks are stored by it); two types with one id: the first one found wins. */
+    /** Identifies the type (ranks are stored by it); two types with one id: the higher-priority pack's wins. */
     public String id;
 
     /** Optional: when it's absent the type applies to every entity. */
@@ -78,7 +78,10 @@ public class EntityTypeDefinition
         return model != null && model.endsWith(".json");
     }
 
-    /** The number of conditions of the selector: every condition that isn't {@code and} / {@code or} / {@code not}. */
+    /**
+     * The number of conditions of the selector: 1 for every condition but {@code and} (the sum of
+     * its conditions), {@code or} (the fewest of any of its conditions) and {@code not} (1).
+     */
     public int specificity()
     {
         return countConditions(selector);
@@ -96,18 +99,17 @@ public class EntityTypeDefinition
         {
             case "core:and":
             case "core:or":
-                int count = 0;
+                boolean and = "core:and".equals(type);
+                int count = and ? 0 : Integer.MAX_VALUE;
                 JsonElement children = condition.get("conditions");
                 if (children != null && children.isJsonArray())
                 {
                     for (JsonElement child : (JsonArray) children)
                     {
-                        count += countConditions(child);
+                        count = and ? count + countConditions(child) : Math.min(count, countConditions(child));
                     }
                 }
-                return count;
-            case "core:not":
-                return countConditions(condition.get("condition"));
+                return count == Integer.MAX_VALUE ? 0 : count;
             default:
                 return 1;
         }

@@ -23,8 +23,11 @@ public class AssetModels
 
     public SimpleBakedModel register(AssetLocation location) throws IOException
     {
-        InputStream stream = new FileInputStream(AssetsModule.INSTANCE.getAssetFile(location));
-        ModelBlock model = ModelBlock.deserialize(new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)));
+        ModelBlock model;
+        try (InputStream stream = new FileInputStream(AssetsModule.INSTANCE.getAssetFile(location)))
+        {
+            model = ModelBlock.deserialize(new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)));
+        }
 
         SimpleBakedModel bakedModel = bakeModel(model, ModelRotation.X0_Y0, false);
         bakedModelMap.put(location, bakedModel);
@@ -97,7 +100,11 @@ public class AssetModels
                     }
 
                     TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().registerSprite(textureLocation);
-                    PngSizeInfo sizeInfo = new PngSizeInfo(new FileInputStream(AssetsModule.INSTANCE.getAssetFile(textureLocation)));
+                    PngSizeInfo sizeInfo;
+                    try (InputStream stream = new FileInputStream(AssetsModule.INSTANCE.getAssetFile(textureLocation)))
+                    {
+                        sizeInfo = new PngSizeInfo(stream);
+                    }
                     sprite.loadSprite(sizeInfo, true);
                     sprite.initSprite(sizeInfo.pngWidth, sizeInfo.pngHeight, 0, 0, false);
 

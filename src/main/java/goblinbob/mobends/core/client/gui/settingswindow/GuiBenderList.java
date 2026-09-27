@@ -2,7 +2,7 @@ package goblinbob.mobends.core.client.gui.settingswindow;
 
 import goblinbob.mobends.core.client.gui.elements.GuiList;
 import goblinbob.mobends.core.util.Draw;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
@@ -12,7 +12,7 @@ public class GuiBenderList extends GuiList<GuiBenderSettings>
 {
 
     /** The list's frame and rows. */
-    public static final ResourceLocation LIST_TEXTURE = new ResourceLocation(ModStatics.MODID, "textures/gui/pack_window.png");
+    public static final ResourceLocation LIST_TEXTURE = new ResourceLocation(ModStatics.MODID, "textures/gui/settings_window.png");
 
 
     private final LinkedList<GuiBenderSettings> elements;

@@ -1,9 +1,9 @@
 package goblinbob.mobends.core.connection;
 
+import goblinbob.mobends.core.Core;
 import com.google.gson.JsonObject;
 import goblinbob.mobends.core.util.ConnectionHelper;
-import goblinbob.mobends.standard.main.MoBends;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -38,7 +38,7 @@ public class PingTask implements Runnable
             }
             catch (InterruptedException e)
             {
-                MoBends.LOG.warning("PingTask has been interrupted");
+                Core.LOG.warning("PingTask has been interrupted");
                 return;
             }
         }
@@ -60,7 +60,7 @@ public class PingTask implements Runnable
         }
         catch(IOException e)
         {
-            MoBends.LOG.warning("API ping failed.");
+            Core.LOG.warning("API ping failed.");
         }
     }
 

@@ -93,11 +93,11 @@ public class DefinedModelsTest
             }
             data.update(clock.getPartialTicks());
             modelInputs.compute(entity, clock.getPartialTicks());
-            data.headYaw.set(MathHelper.wrapDegrees(modelInputs.headYaw));
-            data.headPitch.set(MathHelper.wrapDegrees(modelInputs.headPitch));
-            data.limbSwing.set(modelInputs.limbSwing);
-            data.limbSwingAmount.set(modelInputs.limbSwingAmount);
-            data.swingProgress.set(modelInputs.swingProgress);
+            data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
+            data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+            data.limbSwing = modelInputs.limbSwing;
+            data.limbSwingAmount = modelInputs.limbSwingAmount;
+            data.swingProgress = modelInputs.swingProgress;
             animator.update(data, DataUpdateHandler.ticksPerFrame);
 
             for (String bone : definition.allBoneNames())

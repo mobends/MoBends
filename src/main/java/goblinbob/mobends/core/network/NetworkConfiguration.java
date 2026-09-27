@@ -1,29 +1,19 @@
 package goblinbob.mobends.core.network;
 
-import goblinbob.mobends.core.CoreClient;
-import goblinbob.mobends.core.kumo.AnimationLimits;
-import net.minecraft.client.Minecraft;
-
-import javax.annotation.Nullable;
-import java.util.Objects;
-
 /**
- * These are options that are provided by a server the player's playing on.
- * They are default when playing on single-player.
+ * The options a server shares with its players (see {@code AnimationPolicy} for what the client
+ * does with them). The server's copy is loaded from its config; a client's copy holds the defaults
+ * until the server's answer arrives.
  */
 public class NetworkConfiguration
 {
 
-    public static NetworkConfiguration instance = new NetworkConfiguration();
+    public static final NetworkConfiguration instance = new NetworkConfiguration();
 
     private final SharedConfig sharedConfig = new SharedConfig();
     private final SharedProperty<String> resourcePackAnimation;
     private final SharedProperty<Float> maxPartOffset;
     private final SharedProperty<Float> maxBodyOffset;
-
-    /** What the animation was last loaded with (see {@link #applyChanges()}). */
-    @Nullable
-    private String applied;
 
     public NetworkConfiguration()
     {
@@ -43,16 +33,13 @@ public class NetworkConfiguration
                 "LIMITED only: how far (in model units, 1/16 block) resource packs' animation may move a whole model from where the trusted animation puts it."));
     }
 
-    /**
-     * Sets up the default permissions before receiving the server's config: a server that doesn't
-     * answer (no Mo' Bends on it) gets the defaults, which limit resource packs.
-     */
-    public void onWorldJoin()
+    /** Back to the defaults: what a server without Mo' Bends (that never answers) gets. */
+    public void resetToDefaults()
     {
-        this.resourcePackAnimation.setValue(this.resourcePackAnimation.getDefaultValue());
-        this.maxPartOffset.setValue(this.maxPartOffset.getDefaultValue());
-        this.maxBodyOffset.setValue(this.maxBodyOffset.getDefaultValue());
-        applyChanges();
+        for (SharedProperty<?> property : sharedConfig.getProperties())
+        {
+            property.reset();
+        }
     }
 
     public SharedConfig getSharedConfig()
@@ -60,46 +47,19 @@ public class NetworkConfiguration
         return sharedConfig;
     }
 
-    /** The policy in force: the server's, except in singleplayer, where resource packs are always allowed. */
-    public ResourcePackPolicy getResourcePackPolicy()
+    public ResourcePackPolicy getResourcePackAnimation()
     {
-        Minecraft mc = Minecraft.getMinecraft();
-        if (mc == null || mc.isSingleplayer() || mc.world == null)
-        {
-            return ResourcePackPolicy.ALLOW;
-        }
         return ResourcePackPolicy.parse(resourcePackAnimation.getValue());
     }
 
-    /** The limits resource packs' animation is kept to, or null when it isn't limited. */
-    @Nullable
-    public AnimationLimits getAnimationLimits()
+    public float getMaxPartOffset()
     {
-        if (getResourcePackPolicy() != ResourcePackPolicy.LIMITED)
-        {
-            return null;
-        }
-        return new AnimationLimits(Math.max(0, maxPartOffset.getValue()), Math.max(0, maxBodyOffset.getValue()));
+        return Math.max(0, maxPartOffset.getValue());
     }
 
-    /**
-     * Reloads the entity types and animators if the policy or the limits changed since they were
-     * loaded (resource packs' types and extensions are ignored or not, their models refused or not).
-     * Runs on the client thread.
-     */
-    public void applyChanges()
+    public float getMaxBodyOffset()
     {
-        String now = getResourcePackPolicy() + " " + maxPartOffset.getValue() + " " + maxBodyOffset.getValue();
-        if (Objects.equals(now, applied))
-        {
-            return;
-        }
-        boolean first = applied == null;
-        applied = now;
-        if (!first)
-        {
-            Minecraft.getMinecraft().addScheduledTask(CoreClient::reloadAnimation);
-        }
+        return Math.max(0, maxBodyOffset.getValue());
     }
 
 }

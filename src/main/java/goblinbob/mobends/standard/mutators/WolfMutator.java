@@ -1,7 +1,6 @@
 package goblinbob.mobends.standard.mutators;
 
 import goblinbob.mobends.core.client.model.FaceRotation;
-import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.client.model.ModelPartExtended;
 import goblinbob.mobends.core.client.model.BoxSide;
@@ -45,28 +44,13 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
     protected LayerWolfMisc layerMisc;
 
     @Override
-    public void storeVanillaModel(ModelWolf model)
-    {
-        this.vanillaModel = new ModelWolf();
-
-        this.vanillaModel.wolfHeadMain = model.wolfHeadMain;
-        this.vanillaModel.wolfBody = model.wolfBody;
-        this.vanillaModel.wolfLeg1 = model.wolfLeg1;
-        this.vanillaModel.wolfLeg2 = model.wolfLeg2;
-        this.vanillaModel.wolfLeg3 = model.wolfLeg3;
-        this.vanillaModel.wolfLeg4 = model.wolfLeg4;
-        this.vanillaModel.wolfTail = model.wolfTail;
-        this.vanillaModel.wolfMane = model.wolfMane;
-    }
-
-    @Override
-    public void swapLayer(RenderLivingBase<? extends EntityWolf> renderer, int index, boolean isModelVanilla)
+    public void swapLayer(RenderLivingBase<? extends EntityWolf> renderer, int index)
     {
 
     }
 
     @Override
-    public boolean createParts(ModelWolf original, float scaleFactor)
+    public boolean createParts(ModelWolf original)
     {
         layerRenderers.remove(layerMisc);
         layerRenderers.add(layerMisc = new LayerWolfMisc());
@@ -74,7 +58,7 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         // Body
         original.wolfBody = wolfBody = new ModelPart(original, 18, 14)
                 .setPosition(0.0F, 13.0F, 8.0F);
-        wolfBody.developBox(-3.0F, -3.0F, -8.0F, 6, 6, 9, scaleFactor)
+        wolfBody.developBox(-3.0F, -3.0F, -8.0F, 6, 6, 9, 0.0F)
                 .offsetTextureQuad(BoxSide.TOP, 9.0F, 6.0F)
                 .rotateTextureQuad(BoxSide.TOP, FaceRotation.HALF_TURN)
                 .offsetTextureQuad(BoxSide.BACK, -12F, -9F)
@@ -90,13 +74,13 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         original.wolfHeadMain = wolfHeadMain = new ModelPart(original, 0, 0)
                 .setParent(wolfBody)
                 .setPosition(0.0F, 0F, -7.0F);
-        wolfHeadMain.addBox(-3.0F, -3.0F, -4.0F, 6, 6, 4, scaleFactor);
+        wolfHeadMain.addBox(-3.0F, -3.0F, -4.0F, 6, 6, 4, 0.0F);
 
         // Mane
         original.wolfMane = wolfMane = new ModelPart(original, 21, 0)
                 .setParent(wolfBody)
                 .setPosition(0.0F, 0.0F, -7.0F);
-        wolfMane.developBox(-4.0F, -3.5F, -2.0F, 8, 7, 6, scaleFactor)
+        wolfMane.developBox(-4.0F, -3.5F, -2.0F, 8, 7, 6, 0.0F)
                 .offsetTextureQuad(BoxSide.TOP, 1.0F, 7.0F)
                 .rotateTextureQuad(BoxSide.TOP, FaceRotation.HALF_TURN)
                 .offsetTextureQuad(BoxSide.BACK, -5F, -6F)
@@ -113,31 +97,31 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         original.wolfLeg1 = wolfLeg1 = (ModelPartExtended) new ModelPartExtended(original, 0, 18)
                 .setParent(wolfBody)
                 .setPosition(-2.5F, 16.0F, 7.0F);
-        wolfLeg1.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
+        wolfLeg1.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, 0.0F);
 
         // Leg2
         original.wolfLeg2 = wolfLeg2 = (ModelPartExtended) new ModelPartExtended(original, 0, 18)
                 .setParent(wolfBody)
                 .setPosition(0.5F, 16.0F, 7.0F);
-        wolfLeg2.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
+        wolfLeg2.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, 0.0F);
 
         // Leg3
         original.wolfLeg3 = wolfLeg3 = (ModelPartExtended) new ModelPartExtended(original, 0, 18)
                 .setParent(wolfBody)
                 .setPosition(-2.5F, 0.0F, -4.0F);
-        wolfLeg3.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
+        wolfLeg3.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, 0.0F);
 
         // Leg4
         original.wolfLeg4 = wolfLeg4 = (ModelPartExtended) new ModelPartExtended(original, 0, 18)
                 .setParent(wolfBody)
                 .setPosition(0.5F, 0.0F, -4.0F);
-        wolfLeg4.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, scaleFactor);
+        wolfLeg4.addBox(-1.0F, 0.0F, -1.0F, 2, 4, 2, 0.0F);
 
         // Tail
         original.wolfTail = wolfTail = new ModelPart(original, 9, 18)
                 .setParent(wolfBody)
                 .setPosition(-1.0F, 0.0F, 8.0F);
-        wolfTail.addBox(-1.0F, 0.0F, -2.0F, 2, 8, 2, scaleFactor);
+        wolfTail.addBox(-1.0F, 0.0F, -2.0F, 2, 8, 2, 0.0F);
 
         // wolfHeadMain.setTextureOffset(16, 14).addBox(-3.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
         // wolfHeadMain.setTextureOffset(16, 14).addBox(1.0F, -5.0F, 0.0F, 2, 2, 1, 0.0F);
@@ -170,25 +154,25 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         foreLeg1 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg1)
                 .setPosition(0.0F, -4.0F, -1.0F);
-        foreLeg1.addBox(-1.0F, 0, 0, 2, 4, 2, scaleFactor);
+        foreLeg1.addBox(-1.0F, 0, 0, 2, 4, 2, 0.0F);
         wolfLeg1.setExtension(foreLeg1);
 
         foreLeg2 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg2)
                 .setPosition(0.0F, -4.0F, -1.0F);
-        foreLeg2.addBox(-1.0F, 0, 0, 2, 4, 2, scaleFactor);
+        foreLeg2.addBox(-1.0F, 0, 0, 2, 4, 2, 0.0F);
         wolfLeg2.setExtension(foreLeg2);
 
         foreLeg3 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg3)
                 .setPosition(0.0F, -4.0F, 1.0F);
-        foreLeg3.addBox(-1.0F, 0, -2, 2, 4, 2, scaleFactor);
+        foreLeg3.addBox(-1.0F, 0, -2, 2, 4, 2, 0.0F);
         wolfLeg3.setExtension(foreLeg3);
 
         foreLeg4 = new ModelPart(original, 0, 18)
                 .setParent(wolfLeg4)
                 .setPosition(0.0F, -4.0F, 1.0F);
-        foreLeg4.addBox(-1.0F, 0, -2, 2, 4, 2, scaleFactor);
+        foreLeg4.addBox(-1.0F, 0, -2, 2, 4, 2, 0.0F);
         wolfLeg4.setExtension(foreLeg4);
 
         return true;
@@ -214,12 +198,6 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
         foreLeg2.syncUp(data.foreLeg2);
         foreLeg3.syncUp(data.foreLeg3);
         foreLeg4.syncUp(data.foreLeg4);
-    }
-
-    @Override
-    public boolean isModelVanilla(ModelWolf model)
-    {
-        return !(model.wolfBody instanceof IModelPart);
     }
 
     @Override

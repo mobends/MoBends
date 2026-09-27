@@ -34,14 +34,15 @@ import java.util.zip.ZipFile;
 
 /**
  * Finds the files of one kind ({@code assets/<namespace>/bends/<folder>/**.json}: types,
- * extensions) in every mod and enabled resource pack. The resource manager of 1.12 can't list a
- * folder, so the packs' folders and zips are read directly. Order: mods, then resource packs from the bottom of the list to the top, then
- * folders on the classpath no pack covered (a development environment's resources); files of one
- * pack by path.
+ * extensions) in every mod, enabled resource pack and the server's resource pack. The resource
+ * manager of 1.12 can't list a folder, so the packs' folders and zips are read directly.
+ *
+ * <p>Order, lowest priority first (as the game layers them): folders on the classpath (a
+ * development environment's resources), mods, the resource packs from the bottom of the list to
+ * the top, then the server's resource pack; files of one pack by path.
  */
 final class TypeFileDiscovery
 {
-
 
     static final class TypeFile
     {
@@ -68,46 +69,50 @@ final class TypeFileDiscovery
     {
         Pattern pattern = Pattern.compile("assets/[^/]+/bends/" + Pattern.quote(folder) + "/.+\\.json");
         List<TypeFile> files = new ArrayList<>();
-        Set<File> visited = new HashSet<>();
-        for (IResourcePack pack : packs())
+        List<IResourcePack> packs = packs();
+        // A pack's own root wins over the classpath folder it may also be (a development environment).
+        Set<File> packRoots = new HashSet<>();
+        for (IResourcePack pack : packs)
         {
             File root = rootOf(pack);
-            if (root == null || !visited.add(canonical(root)))
-            {
-                continue;
-            }
-            try
-            {
-                if (root.isDirectory())
-                {
-                    readFolder(pack.getPackName(), root, !PackTrust.isUserPack(pack), pattern, files);
-                }
-                else if (root.isFile())
-                {
-                    readZip(pack.getPackName(), root, !PackTrust.isUserPack(pack), pattern, files);
-                }
-            }
-            catch (IOException e)
-            {
-                Core.LOG.log(Level.WARNING, "Could not look for " + folder + " in " + pack.getPackName(), e);
-            }
+            if (root != null) packRoots.add(canonical(root));
         }
         for (File root : classpathFolders())
         {
-            if (!visited.add(canonical(root)))
+            if (!packRoots.contains(canonical(root)))
             {
-                continue;
+                read("classpath", root, true, pattern, files, folder);
             }
-            try
+        }
+        Set<File> visited = new HashSet<>();
+        for (IResourcePack pack : packs)
+        {
+            File root = rootOf(pack);
+            if (root != null && visited.add(canonical(root)))
             {
-                readFolder("classpath", root, true, pattern, files);
-            }
-            catch (IOException e)
-            {
-                Core.LOG.log(Level.WARNING, "Could not look for " + folder + " in " + root, e);
+                read(pack.getPackName(), root, !PackTrust.isUserPack(pack), pattern, files, folder);
             }
         }
         return files;
+    }
+
+    private static void read(String packName, File root, boolean trusted, Pattern pattern, List<TypeFile> files, String folder)
+    {
+        try
+        {
+            if (root.isDirectory())
+            {
+                readFolder(packName, root, trusted, pattern, files);
+            }
+            else if (root.isFile())
+            {
+                readZip(packName, root, trusted, pattern, files);
+            }
+        }
+        catch (IOException e)
+        {
+            Core.LOG.log(Level.WARNING, "Could not look for " + folder + " in " + packName, e);
+        }
     }
 
     private static List<File> classpathFolders()
@@ -150,28 +155,42 @@ final class TypeFileDiscovery
         }
     }
 
+    /** The mods' packs, the enabled resource packs from the bottom of the list to the top, and the server's. */
     private static List<IResourcePack> packs()
     {
         Minecraft mc = Minecraft.getMinecraft();
         List<IResourcePack> packs = new ArrayList<>(ReflectionHelper.<List<IResourcePack>, Minecraft>getPrivateValue(
                 Minecraft.class, mc, "defaultResourcePacks", "field_110449_ao"));
-        for (ResourcePackRepository.Entry entry : mc.getResourcePackRepository().getRepositoryEntries())
+        ResourcePackRepository repository = mc.getResourcePackRepository();
+        for (ResourcePackRepository.Entry entry : repository.getRepositoryEntries())
         {
             packs.add(entry.getResourcePack());
+        }
+        if (repository.getServerResourcePack() != null)
+        {
+            packs.add(repository.getServerResourcePack());
         }
         return packs;
     }
 
+    /** The folder or zip a pack reads from, or null for a kind of pack that can't be listed. */
     @Nullable
     private static File rootOf(IResourcePack pack)
     {
-        if (pack instanceof LegacyV2Adapter)
+        try
         {
-            pack = ReflectionHelper.getPrivateValue(LegacyV2Adapter.class, (LegacyV2Adapter) pack, "pack", "field_191383_a");
+            if (pack instanceof LegacyV2Adapter)
+            {
+                pack = ReflectionHelper.getPrivateValue(LegacyV2Adapter.class, (LegacyV2Adapter) pack, "pack", "field_191383_a");
+            }
+            if (pack instanceof AbstractResourcePack)
+            {
+                return ReflectionHelper.getPrivateValue(AbstractResourcePack.class, (AbstractResourcePack) pack, "resourcePackFile", "field_110597_b");
+            }
         }
-        if (pack instanceof AbstractResourcePack)
+        catch (RuntimeException e)
         {
-            return ReflectionHelper.getPrivateValue(AbstractResourcePack.class, (AbstractResourcePack) pack, "resourcePackFile", "field_110597_b");
+            Core.LOG.log(Level.WARNING, "Can't look inside the pack " + pack.getPackName(), e);
         }
         return null;
     }

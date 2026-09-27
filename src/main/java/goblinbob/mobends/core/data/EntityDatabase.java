@@ -53,9 +53,11 @@ public class EntityDatabase
         @SuppressWarnings("unchecked")
         T data = (T) this.get(entityId);
 
-        if (data == null || factoryMap.get(entityId) != dataCreationFunction)
+        // Entities of another world can have had the same id.
+        if (data == null || data.getEntity() != entity || factoryMap.get(entityId) != dataCreationFunction)
         {
             data = (T) dataCreationFunction.createEntityData(entity);
+            data.initialize();
             this.add(entityId, data);
             this.factoryMap.put(entityId, dataCreationFunction);
         }
@@ -107,11 +109,6 @@ public class EntityDatabase
     {
         this.entryMap.clear();
         this.factoryMap.clear();
-    }
-
-    public void onTicksRestart()
-    {
-        entryMap.values().forEach(data -> data.onTicksRestart());
     }
 
 }

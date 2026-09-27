@@ -32,14 +32,9 @@ Fetching is done in a background thread via `PlayerSettingsDownloaderThread`.
 
 | Method | Path | When | Response |
 |--------|------|------|---------|
-| GET | `/api/asset/manifest` | Init / resource reload | `AssetManifest` with asset list and base URL |
+| GET | `/api/asset/manifest` | Startup and F10, on a background thread | `AssetManifest` with asset list and base URL |
 
 Assets are downloaded to `~/.minecraft/config/mobends/assets/` and compared by version hash. Manifest cached as `asset_manifest.json`.
-
-### Static Config
-
-Fetched from GitHub (`mobends-resources` repo, `static-api.json`):
-- `officialAnimationEditorUrl` — used by `WebAPI` singleton to link out to the editor
 
 ## Data Models
 

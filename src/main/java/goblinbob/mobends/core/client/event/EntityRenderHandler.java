@@ -76,7 +76,6 @@ public class EntityRenderHandler
             Render render = renders.pop();
             if (render.entity == event.getEntity())
             {
-                render.bender.afterRender(event.getEntity(), event.getPartialRenderTick());
                 GlStateManager.popMatrix();
                 break;
             }

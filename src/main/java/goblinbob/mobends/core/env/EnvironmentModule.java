@@ -3,14 +3,17 @@ package goblinbob.mobends.core.env;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.module.IModule;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -63,16 +66,17 @@ public class EnvironmentModule
 
     private static JsonObject getLocalEnvironment(File envFile)
     {
-        try
+        if (!envFile.isFile())
         {
-            if (envFile.isFile())
-            {
-                return new Gson().fromJson(new BufferedReader(new FileReader(envFile)), JsonObject.class);
-            }
+            return null;
         }
-        catch(IOException e)
+        try (Reader reader = new InputStreamReader(new FileInputStream(envFile), StandardCharsets.UTF_8))
         {
-            Core.LOG.warning("Couldn't load the local environment configuration.");
+            return new Gson().fromJson(reader, JsonObject.class);
+        }
+        catch (IOException | JsonParseException e)
+        {
+            Core.LOG.warning("Couldn't load the local environment configuration: " + e.getMessage());
         }
 
         return null;

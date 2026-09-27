@@ -4,13 +4,14 @@ import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.MutatedRenderer;
-import goblinbob.mobends.core.client.gui.AnimationEditorRegistry;
-import goblinbob.mobends.core.client.gui.IAnimationEditor;
 import goblinbob.mobends.core.data.IEntityDataFactory;
+import goblinbob.mobends.core.kumo.driver.DriverRegistry;
+import goblinbob.mobends.core.kumo.driver.IDriverFactory;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionFactory;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.types.selector.ISelectorConditionFactory;
 import goblinbob.mobends.core.types.selector.SelectorConditionRegistry;
@@ -27,14 +28,14 @@ public class AddonAnimationRegistry
     }
 
     /**
-     * Works like {@link #registerNewEntity(String, String, Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer,
-     * String...)}, but the key and unlocalizedName are decided based on how the entity was registered.
+     * Works like {@link #registerNewEntity(String, String, Class, IEntityDataFactory, IMutatorFactory, MutatedRenderer)},
+     * but the key and unlocalizedName are decided based on how the entity was registered.
      */
     public <T extends EntityLivingBase> String registerNewEntity(Class<T> entityClass,
                                                                  IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-                                                                 MutatedRenderer<T> renderer, String... alterableParts)
+                                                                 MutatedRenderer<T> renderer)
     {
-        return registerNewEntity(null, null, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
+        return registerNewEntity(null, null, entityClass, entityDataFactory, mutatorFactory, renderer);
     }
 
     /**
@@ -47,15 +48,14 @@ public class AddonAnimationRegistry
      * @param entityDataFactory Responsible for creating an entity's data.
      * @param mutatorFactory    Responsible for creating an entity's mutator.
      * @param renderer          The renderer that will decide how this entity should be rendered.
-     * @param alterableParts    A list of the entity's parts that can be animated.
      *
      * @return The entity's identifier key.
      */
     public <T extends EntityLivingBase> String registerNewEntity(String key, String unlocalizedName, Class<T> entityClass,
                                                                  IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-                                                                 MutatedRenderer<T> renderer, String... alterableParts)
+                                                                 MutatedRenderer<T> renderer)
     {
-        EntityBender<T> entityBender = new DefaultEntityBender<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer, alterableParts);
+        EntityBender<T> entityBender = new DefaultEntityBender<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer);
         return registerEntity(entityBender);
     }
 
@@ -69,7 +69,7 @@ public class AddonAnimationRegistry
     public <T extends EntityLivingBase> String registerEntity(EntityBender<T> entityBender)
     {
         String key = entityBender.getKey();
-        if (!key.startsWith(this.modId))
+        if (!key.startsWith(this.modId + "-"))
         {
             throw new IllegalArgumentException("The EntityBender's ModID does not match that of the AddonAnimationRegistry.");
         }
@@ -101,11 +101,11 @@ public class AddonAnimationRegistry
     }
 
     /**
-     * Registers a procedural pose driver usable from animator JSON as "modid:key".
+     * Registers a pose driver usable from animator JSON as "modid:key".
      */
-    public <T extends goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate> void registerDriver(String key, goblinbob.mobends.core.kumo.driver.IDriverFactory<T> factory, Class<T> templateType)
+    public <T extends DriverItemTemplate> void registerDriver(String key, IDriverFactory<T> factory, Class<T> templateType)
     {
-        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory, templateType);
+        DriverRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory, templateType);
     }
 
     /**
@@ -117,11 +117,6 @@ public class AddonAnimationRegistry
     public void registerSelectorCondition(String key, ISelectorConditionFactory factory)
     {
         SelectorConditionRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory);
-    }
-
-    public void registerAnimationEditor(IAnimationEditor editor)
-    {
-        AnimationEditorRegistry.INSTANCE.registerEditor(editor);
     }
 
 }

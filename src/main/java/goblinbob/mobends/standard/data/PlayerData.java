@@ -3,8 +3,7 @@ package goblinbob.mobends.standard.data;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import net.minecraft.util.math.MathHelper;
-import goblinbob.mobends.core.kumo.KumoAnimatorController;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -12,6 +11,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 
 public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 {
@@ -24,7 +24,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 
 	public ModelPartTransform cape;
 
-	private final KumoAnimatorController<PlayerData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/player.json");
+	private static final ResourceLocation ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/player.json");
 
 	public PlayerData(AbstractClientPlayer entity)
 	{
@@ -32,9 +32,9 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	}
 
 	@Override
-	public KumoAnimatorController<PlayerData> getController()
+	protected ResourceLocation getDefaultAnimator()
 	{
-		return controller;
+		return ANIMATOR;
 	}
 
 	public void setCapeWaveSpeed(float value)
@@ -47,11 +47,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		return capeWavePhase;
 	}
 
-	@Override
-	public void onTicksRestart()
-	{
-		// No behaviour
-	}
 
 	@Override
 	protected void registerKumoBindings()

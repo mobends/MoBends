@@ -13,7 +13,8 @@ public abstract class SharedProperty<T>
     protected final String key;
     protected final String description;
     protected final T defaultValue;
-    protected T value;
+    /** Written by the client thread (the server's answer) and read by the render thread. */
+    protected volatile T value;
 
     public SharedProperty(String key, T defaultValue, String description)
     {
@@ -46,6 +47,11 @@ public abstract class SharedProperty<T>
     public void setValue(T value)
     {
         this.value = value;
+    }
+
+    public void reset()
+    {
+        this.value = defaultValue;
     }
 
     public abstract void writeToNBT(NBTTagCompound tag);

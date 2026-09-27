@@ -28,15 +28,15 @@ The few KUMO pieces that need Minecraft (`KumoAnimatorController`, `AnimatorReso
 - `CoreClient.reloadAnimation()` — reloads everything asset-driven (clip, animator and model
   definition caches, entity data, mutators, entity types); runs after every resource reload and
   when the server changes what resource packs may do
-- `MoBends.refreshSystems()` — the same plus the modules; bound to F10 and run when the config
-  changes
+- `CoreClient.refresh()` — the same plus the addons and modules; bound to F10 and run when the
+  config changes
 
 ## Module System
 
 Modules implement `IModule` with `preInit()` and `onRefresh()`. Active modules:
 - `EnvironmentModule` — loads `env.json` API URL override
 - `ConnectionManager` — manages background HTTP threads
-- `AssetsModule` — downloads and caches remote textures/models
+- `AssetsModule` — downloads remote textures/models in the background and caches them
 - `SupporterContent` — fetches cosmetic definitions and player settings
 
 ## Addon Extension Point

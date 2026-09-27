@@ -1,12 +1,12 @@
 package goblinbob.mobends.core.client;
 
-import goblinbob.mobends.core.network.NetworkConfiguration;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.ResourcePackRepository;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.io.IOUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public final class PackTrust
     {
     }
 
-    /** The resource packs the player enabled, highest priority first. */
+    /** The resource packs the player enabled, lowest priority first (not the server's, which is trusted). */
     public static List<IResourcePack> userPacks()
     {
         List<IResourcePack> packs = new ArrayList<>();
@@ -70,7 +70,7 @@ public final class PackTrust
      */
     public static InputStream open(ResourceLocation location) throws IOException
     {
-        ResourcePackPolicy policy = NetworkConfiguration.instance.getResourcePackPolicy();
+        ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
         boolean trustedOnly = policy == ResourcePackPolicy.DENY || (policy == ResourcePackPolicy.LIMITED && isGeometry(location));
         if (!trustedOnly || isTrusted(location))
         {
@@ -82,10 +82,15 @@ public final class PackTrust
             untrusted.add(pack.getPackName());
         }
         // Lowest priority first: the last trusted one is the one the game would load without the packs.
+        List<IResource> resources = Minecraft.getMinecraft().getResourceManager().getAllResources(location);
         IResource trusted = null;
-        for (IResource resource : Minecraft.getMinecraft().getResourceManager().getAllResources(location))
+        for (IResource resource : resources)
         {
             if (!untrusted.contains(resource.getResourcePackName())) trusted = resource;
+        }
+        for (IResource resource : resources)
+        {
+            if (resource != trusted) IOUtils.closeQuietly(resource);
         }
         if (trusted == null)
         {

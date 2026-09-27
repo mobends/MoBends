@@ -1,7 +1,6 @@
 package goblinbob.mobends.standard.mutators;
 
 import goblinbob.mobends.core.math.Quaternion;
-import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.data.SquidData;
@@ -18,21 +17,13 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 	public ModelPart[][] squidTentacles = new ModelPart[8][SquidData.TENTACLE_SECTIONS];
 
 	@Override
-	public void storeVanillaModel(ModelSquid model)
-	{
-		this.vanillaModel = new ModelSquid();
-		this.vanillaModel.squidBody = model.squidBody;
-		this.vanillaModel.squidTentacles = model.squidTentacles;
-	}
-
-	@Override
-	public void swapLayer(RenderLivingBase<? extends EntitySquid> renderer, int index, boolean isModelVanilla)
+	public void swapLayer(RenderLivingBase<? extends EntitySquid> renderer, int index)
 	{
 		// No behaviour
 	}
 
 	@Override
-	public boolean createParts(ModelSquid original, float scaleFactor)
+	public boolean createParts(ModelSquid original)
 	{
 		float legLength = 12F;
 		float foreLegLength = 15F;
@@ -78,12 +69,6 @@ public class SquidMutator extends Mutator<SquidData, EntitySquid, ModelSquid>
 				this.squidTentacles[i][j].syncUp(data.squidTentacles[i][j]);
 			}
 		}
-	}
-
-	@Override
-	public boolean isModelVanilla(ModelSquid model)
-	{
-		return !(model.squidBody instanceof IModelPart);
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package goblinbob.mobends.standard.mutators;
 
-import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.data.SpiderData;
@@ -19,27 +18,12 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
     public ModelPart[] spiderLowerLimbs;
 
 	@Override
-	public void storeVanillaModel(ModelSpider model)
-	{
-		this.vanillaModel = new ModelSpider();
-		
-		this.vanillaModel.spiderLeg1 = model.spiderLeg1;
-		this.vanillaModel.spiderLeg2 = model.spiderLeg2;
-		this.vanillaModel.spiderLeg3 = model.spiderLeg3;
-		this.vanillaModel.spiderLeg4 = model.spiderLeg4;
-		this.vanillaModel.spiderLeg5 = model.spiderLeg5;
-		this.vanillaModel.spiderLeg6 = model.spiderLeg6;
-		this.vanillaModel.spiderLeg7 = model.spiderLeg7;
-		this.vanillaModel.spiderLeg8 = model.spiderLeg8;
-	}
-
-	@Override
-	public void swapLayer(RenderLivingBase<? extends EntitySpider> renderer, int index, boolean isModelVanilla)
+	public void swapLayer(RenderLivingBase<? extends EntitySpider> renderer, int index)
 	{
 	}
 
 	@Override
-	public boolean createParts(ModelSpider original, float scaleFactor)
+	public boolean createParts(ModelSpider original)
 	{
 		float legLength = 12F;
 		float foreLegLength = 12F;
@@ -102,12 +86,6 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 			this.spiderUpperLimbs[i].syncUp(data.limbs[i].upperPart);
 			this.spiderLowerLimbs[i].syncUp(data.limbs[i].lowerPart);
 		}
-	}
-	
-	@Override
-	public boolean isModelVanilla(ModelSpider model)
-	{
-		return !(model.spiderLeg1 instanceof IModelPart);
 	}
 	
 	@Override

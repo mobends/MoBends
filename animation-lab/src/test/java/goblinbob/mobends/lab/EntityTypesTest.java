@@ -16,7 +16,9 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static goblinbob.mobends.lab.scenarios.Scripts.WALK_SPEED;
@@ -37,8 +39,10 @@ public class EntityTypesTest
     {
         return new TypeOrder.Ranked()
         {
+            private int currentRank = rank;
             @Override public String getId() { return id; }
-            @Override public int getRank() { return rank; }
+            @Override public int getRank() { return currentRank; }
+            @Override public void setRank(int newRank) { currentRank = newRank; }
             @Override public int getSpecificity() { return specificity; }
             @Override public String toString() { return id; }
         };
@@ -59,11 +63,35 @@ public class EntityTypesTest
     }
 
     @Test
+    void reorderingChangesAsFewRanksAsItCan()
+    {
+        TypeOrder.Ranked a = type("a", 0, 1);
+        TypeOrder.Ranked b = type("b", 0, 1);
+        TypeOrder.Ranked shared = type("c:shared", 0, 0);
+        TypeOrder.Ranked d = type("d", 5, 1);
+
+        // Another entity's window put d above the shared type.
+        assertEquals(Collections.emptyList(), TypeOrder.rankInOrder(Arrays.asList(d, shared)));
+        // This one wants b, a, shared: only b needs a higher rank.
+        assertEquals(Collections.singletonList(b), TypeOrder.rankInOrder(Arrays.asList(b, a, shared)));
+        List<TypeOrder.Ranked> sorted = new ArrayList<>(Arrays.asList(shared, a, b));
+        sorted.sort(TypeOrder.PRECEDENCE);
+        assertEquals(Arrays.asList(b, a, shared), sorted);
+        // d still comes before the shared type.
+        assertSame(d, TypeOrder.first(Arrays.asList(shared, d)));
+    }
+
+    @Test
     void specificityCountsConditionsNotCombinators() throws Exception
     {
         assertEquals(0, EntityTypeDefinition.parse("{\"id\": \"x:none\"}").specificity());
         assertEquals(1, EntityTypeDefinition.parse("{\"id\": \"x:one\", \"selector\": {\"type\": \"core:entity_type\", \"entityType\": \"minecraft:player\"}}").specificity());
-        assertEquals(3, EntityTypeDefinition.parse("{\"id\": \"x:nested\", \"selector\": {\"type\": \"core:and\", \"conditions\": ["
+        // An "or" is as specific as its broadest branch, a "not" counts one: nesting can't inflate it.
+        assertEquals(1, EntityTypeDefinition.parse("{\"id\": \"x:or\", \"selector\": {\"type\": \"core:or\", \"conditions\": ["
+                + "{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:player_name\", \"name\": \"B\"}, {\"type\": \"core:player_name\", \"name\": \"C\"}]}}").specificity());
+        assertEquals(1, EntityTypeDefinition.parse("{\"id\": \"x:not\", \"selector\": {\"type\": \"core:not\", \"condition\": {\"type\": \"core:and\", \"conditions\": ["
+                + "{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:player_name\", \"name\": \"B\"}]}}}").specificity());
+        assertEquals(2, EntityTypeDefinition.parse("{\"id\": \"x:nested\", \"selector\": {\"type\": \"core:and\", \"conditions\": ["
                 + "{\"type\": \"core:entity_type\", \"entityType\": \"minecraft:player\"},"
                 + "{\"type\": \"core:or\", \"conditions\": [{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:not\", \"condition\": {\"type\": \"core:player_name\", \"name\": \"B\"}}]}"
                 + "]}}").specificity());

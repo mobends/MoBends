@@ -4,16 +4,11 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.client.definition.DefinedBenders;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.data.IEntityDataFactory;
-import goblinbob.mobends.core.definition.ModelDefinitions;
-import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.network.NetworkConfiguration;
+import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
 import goblinbob.mobends.core.types.selector.CoreSelectorConditions;
-import goblinbob.mobends.core.types.selector.ISelectorCondition;
-import goblinbob.mobends.core.types.selector.SelectorConditionRegistry;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -68,34 +63,28 @@ public class EntityTypeRegistry
     {
         public static final Candidates NONE = new Candidates(Collections.emptyList(), Collections.emptyList());
 
-        private final List<EntityType> matched;
         private final List<EntityType> unstable;
+        /** The first of the stable types whose selector held. */
         @Nullable
-        private final EntityType decided;
+        private final EntityType bestStable;
 
         Candidates(List<EntityType> matched, List<EntityType> unstable)
         {
-            this.matched = matched;
             this.unstable = unstable;
-            this.decided = unstable.isEmpty() ? TypeOrder.first(matched) : null;
+            this.bestStable = TypeOrder.first(matched);
         }
 
         /** The selection of the type that applies to the entity, or null if it stays vanilla. */
         @Nullable
         public Selection select(EntityLivingBase entity)
         {
-            EntityType winner = decided;
-            if (!unstable.isEmpty())
+            EntityType winner = bestStable;
+            for (EntityType type : unstable)
             {
-                List<EntityType> candidates = new ArrayList<>(matched);
-                for (EntityType type : unstable)
+                if (type.matches(entity) && (winner == null || TypeOrder.PRECEDENCE.compare(type, winner) < 0))
                 {
-                    if (type.matches(entity))
-                    {
-                        candidates.add(type);
-                    }
+                    winner = type;
                 }
-                winner = TypeOrder.first(candidates);
             }
             if (winner == null)
             {
@@ -152,7 +141,7 @@ public class EntityTypeRegistry
             add(EntityType.builtIn(bender));
         }
 
-        ResourcePackPolicy policy = NetworkConfiguration.instance.getResourcePackPolicy();
+        ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
         for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("types"))
         {
             if (!file.trusted && policy == ResourcePackPolicy.DENY)
@@ -162,11 +151,11 @@ public class EntityTypeRegistry
             }
             try
             {
-                add(load(file, config, policy));
+                add(TypeFiles.loadType(file, config, policy));
             }
-            catch (Exception e)
+            catch (Exception | StackOverflowError e)
             {
-                Core.LOG.log(Level.SEVERE, "Could not load the type " + file.source + ": " + e.getMessage());
+                Core.LOG.log(Level.SEVERE, "Could not load the type " + file.source, e);
             }
         }
 
@@ -186,7 +175,7 @@ public class EntityTypeRegistry
     private int loadExtensions(@Nullable CoreClientConfig config)
     {
         extensions.clear();
-        ResourcePackPolicy policy = NetworkConfiguration.instance.getResourcePackPolicy();
+        ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
         for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("extensions"))
         {
             if (!file.trusted && policy == ResourcePackPolicy.DENY)
@@ -196,28 +185,21 @@ public class EntityTypeRegistry
             }
             try
             {
-                ExtensionDefinition definition = ExtensionDefinition.parse(file.json);
-                Extension existing = extensions.get(definition.id);
-                if (existing != null)
+                Extension extension = TypeFiles.loadExtension(file, config);
+                if (!types.containsKey(extension.getTypeId()))
                 {
-                    Core.LOG.warning(String.format("Two extensions have the id '%s': using %s, ignoring %s", definition.id, existing.getSource(), file.source));
+                    Core.LOG.warning(String.format("The extension '%s' (%s) extends the type '%s', which doesn't exist.", extension.getId(), file.source, extension.getTypeId()));
                     continue;
                 }
-                if (!types.containsKey(definition.type))
+                Extension overridden = extensions.put(extension.getId(), extension);
+                if (overridden != null)
                 {
-                    Core.LOG.warning(String.format("The extension '%s' (%s) extends the type '%s', which doesn't exist.", definition.id, file.source, definition.type));
-                    continue;
+                    Core.LOG.warning(String.format("Two extensions have the id '%s': using %s, ignoring %s", extension.getId(), extension.getSource(), overridden.getSource()));
                 }
-                Extension extension = new Extension(definition.id, file.source, definition.type, new ResourceLocation(definition.animator));
-                if (config != null)
-                {
-                    extension.setRank(config.getExtensionRank(extension.getId()));
-                }
-                extensions.put(extension.getId(), extension);
             }
-            catch (Exception e)
+            catch (Exception | StackOverflowError e)
             {
-                Core.LOG.log(Level.SEVERE, "Could not load the extension " + file.source + ": " + e.getMessage());
+                Core.LOG.log(Level.SEVERE, "Could not load the extension " + file.source, e);
             }
         }
         applyExtensions();
@@ -238,59 +220,14 @@ public class EntityTypeRegistry
         }
     }
 
+    /** Adds a type; one found later (in a higher-priority pack) replaces one with the same id. */
     private void add(EntityType type)
     {
-        EntityType existing = types.get(type.getId());
-        if (existing != null)
+        EntityType overridden = types.put(type.getId(), type);
+        if (overridden != null)
         {
-            Core.LOG.warning(String.format("Two types have the id '%s': using %s, ignoring %s", type.getId(), existing.getSource(), type.getSource()));
-            return;
+            Core.LOG.warning(String.format("Two types have the id '%s': using %s, ignoring %s", type.getId(), type.getSource(), overridden.getSource()));
         }
-        types.put(type.getId(), type);
-    }
-
-    private EntityType load(TypeFileDiscovery.TypeFile file, @Nullable CoreClientConfig config, ResourcePackPolicy policy) throws Exception
-    {
-        EntityTypeDefinition definition = EntityTypeDefinition.parse(file.json);
-        ISelectorCondition selector = definition.selector == null ? null : SelectorConditionRegistry.INSTANCE.parse(definition.selector);
-
-        EntityBender<?> model = null;
-        boolean vanilla = false;
-        if (EntityTypeDefinition.VANILLA_MODEL.equals(definition.model))
-        {
-            vanilla = true;
-        }
-        else if (definition.isModelDefinition() && !file.trusted && policy != ResourcePackPolicy.ALLOW)
-        {
-            // Custom geometry from a resource pack: the entity keeps its default model.
-            Core.LOG.warning("The server limits resource packs' animation: the type " + file.source + " keeps the entity's default model instead of " + definition.model);
-        }
-        else if (definition.isModelDefinition())
-        {
-            ResourceLocation location = new ResourceLocation(definition.model);
-            model = DefinedBenders.createBender(location.getResourceDomain(), location, ModelDefinitions.INSTANCE.load(location));
-            EntityBender<?> existing = EntityBenderRegistry.instance.getByKey(model.getKey());
-            if (existing != null)
-            {
-                // Another type (or an addon) already made the bender with this key.
-                model = existing;
-            }
-            else
-            {
-                EntityBenderRegistry.instance.registerTypeBender(model, config);
-            }
-        }
-        else if (definition.model != null)
-        {
-            model = EntityBenderRegistry.instance.getByKey(definition.model);
-            if (model == null)
-            {
-                throw new MalformedKumoTemplateException("There is no model '" + definition.model + "'.");
-            }
-        }
-
-        ResourceLocation animator = definition.animator == null ? null : new ResourceLocation(definition.animator);
-        return new EntityType(definition.id, file.source, selector, definition.specificity(), model, vanilla, animator, false);
     }
 
     public List<EntityType> getTypes()
@@ -337,14 +274,12 @@ public class EntityTypeRegistry
         return found;
     }
 
-    /** Ranks {@code order} (the first gets precedence) and stores the ranks in the config. */
+    /** Ranks the types so {@code order} holds (the first gets precedence) and stores the ranks in the config. */
     public void setOrder(List<EntityType> order)
     {
         CoreClientConfig config = CoreClient.getInstance().getConfiguration();
-        for (int i = 0; i < order.size(); i++)
+        for (EntityType type : TypeOrder.rankInOrder(order))
         {
-            EntityType type = order.get(i);
-            type.setRank(order.size() - 1 - i);
             config.setTypeRank(type.getId(), type.getRank());
         }
         EntityBenderRegistry.instance.clearCache();
@@ -379,14 +314,12 @@ public class EntityTypeRegistry
         return found;
     }
 
-    /** Ranks the extensions in the given order (the first one highest, so on top) and stores the ranks. */
+    /** Ranks the extensions so {@code order} holds (the first one highest, so on top) and stores the ranks. */
     public void setExtensionOrder(List<Extension> order)
     {
         CoreClientConfig config = CoreClient.getInstance().getConfiguration();
-        for (int i = 0; i < order.size(); i++)
+        for (Extension extension : TypeOrder.rankInOrder(order))
         {
-            Extension extension = order.get(i);
-            extension.setRank(order.size() - 1 - i);
             config.setExtensionRank(extension.getId(), extension.getRank());
         }
         applyExtensions();

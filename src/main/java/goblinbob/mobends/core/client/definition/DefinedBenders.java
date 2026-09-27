@@ -5,11 +5,9 @@ import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.definition.DefinedEntityData;
-import goblinbob.mobends.core.definition.DefinedFields;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
-import goblinbob.mobends.core.vanilla.VanillaEntityFields;
-import goblinbob.mobends.core.vanilla.VanillaModelParts;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
@@ -26,7 +24,6 @@ public final class DefinedBenders
 
     public static void registerAll(String modId, AddonAnimationRegistry registry)
     {
-        DefinedFields.install(VanillaEntityFields::get, VanillaModelParts::get);
         try
         {
             for (String name : ModelDefinitions.INSTANCE.index(modId))
@@ -54,10 +51,9 @@ public final class DefinedBenders
      * renderer read the definition again whenever they are made (after a reload, or when the server
      * changes what resource packs may do), so the geometry always comes from where it's allowed to.
      */
-    @SuppressWarnings("unchecked")
-    public static <E extends EntityLivingBase> EntityBender<E> createBender(String modId, ResourceLocation location, EntityModelDefinition definition) throws ClassNotFoundException
+    public static <E extends EntityLivingBase> EntityBender<E> createBender(String modId, ResourceLocation location, EntityModelDefinition definition) throws MalformedKumoTemplateException
     {
-        Class<E> entityClass = (Class<E>) Class.forName(definition.entity);
+        Class<E> entityClass = entityClass(definition.entity);
         Supplier<EntityModelDefinition> current = () -> {
             try
             {
@@ -72,8 +68,27 @@ public final class DefinedBenders
         return new DefaultEntityBender<>(modId, definition.key, definition.unlocalizedName, entityClass,
                 entity -> DefinedEntityData.create(current.get(), entity),
                 () -> new DefinedMutator<>(current.get()),
-                new DefinedRenderer<>(current),
-                definition.alterablePartsOrAll());
+                new DefinedRenderer<>(current));
+    }
+
+    /** The entity class a definition names; looked up without initialising it, as a resource pack may name any class. */
+    @SuppressWarnings("unchecked")
+    private static <E extends EntityLivingBase> Class<E> entityClass(String name) throws MalformedKumoTemplateException
+    {
+        Class<?> type;
+        try
+        {
+            type = Class.forName(name, false, DefinedBenders.class.getClassLoader());
+        }
+        catch (ClassNotFoundException | LinkageError e)
+        {
+            throw new MalformedKumoTemplateException("There is no entity class " + name + ".");
+        }
+        if (!EntityLivingBase.class.isAssignableFrom(type))
+        {
+            throw new MalformedKumoTemplateException(name + " is not a living entity.");
+        }
+        return (Class<E>) type;
     }
 
 }

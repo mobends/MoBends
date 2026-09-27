@@ -1,8 +1,8 @@
 package goblinbob.mobends.core.network.msg;
 
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.network.NetworkConfiguration;
-import goblinbob.mobends.core.network.SharedProperty;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,6 +17,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public class MessageConfigResponse implements IMessage
 {
+
+    /** The configuration read on the network thread, applied on the client's. */
+    private NBTTagCompound received;
 
     /**
      * Necessary empty constructor, because of dynamic instancing.
@@ -36,14 +39,7 @@ public class MessageConfigResponse implements IMessage
     @Override
     public void fromBytes(ByteBuf buf)
     {
-        NBTTagCompound tag = ByteBufUtils.readTag(buf);
-        if (tag == null)
-        {
-            Core.LOG.severe("An error occurred while receiving server configuration.");
-            return;
-        }
-
-        NetworkConfiguration.instance.getSharedConfig().readFromNBT(tag);
+        received = ByteBufUtils.readTag(buf);
     }
 
     public static class Handler implements IMessageHandler<MessageConfigResponse, IMessage>
@@ -52,16 +48,13 @@ public class MessageConfigResponse implements IMessage
         @Override
         public IMessage onMessage(MessageConfigResponse message, MessageContext ctx)
         {
-            final StringBuilder builder = new StringBuilder("Received Mo' Bends server configuration.\n");
-            final Iterable<SharedProperty<?>> properties = NetworkConfiguration.instance.getSharedConfig().getProperties();
-            for (SharedProperty<?> property : properties)
+            if (message.received == null)
             {
-                builder.append(String.format(" - %s: %s\n", property.getKey(), property.getValue()));
+                Core.LOG.severe("An error occurred while receiving server configuration.");
+                return null;
             }
-            Core.LOG.info(builder.toString());
-            // Messages arrive on the network thread; the animation is reloaded on the client's.
-            Minecraft.getMinecraft().addScheduledTask(NetworkConfiguration.instance::applyChanges);
-
+            // Messages arrive on the network thread; the configuration is applied on the client's.
+            Minecraft.getMinecraft().addScheduledTask(() -> AnimationPolicy.INSTANCE.onServerConfiguration(message.received));
             return null;
         }
 

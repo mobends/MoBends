@@ -7,7 +7,7 @@ formats are in [`misc/kumo-format.md`](../misc/kumo-format.md); this page is how
 | Asset | Folder | Loaded by |
 |-------|--------|-----------|
 | Animators | `bends/animators/` | `AnimatorResources` (`core/kumo`) |
-| Clips | `bends/animations/` | `AnimationLoader` (`core/animation/keyframe`) |
+| Clips | `bends/animations/` | `AnimatorResources` (`core/kumo`) |
 | Entity types | `bends/types/` | `EntityTypeRegistry` (`core/types`) |
 | Extensions | `bends/extensions/` | `EntityTypeRegistry` (`core/types`) |
 | Model definitions | `bends/models/` | `ModelDefinitions`, `DefinedBenders` (`core/definition`, `core/client/definition`) |

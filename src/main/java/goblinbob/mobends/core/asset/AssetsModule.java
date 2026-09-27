@@ -1,19 +1,21 @@
 package goblinbob.mobends.core.asset;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.module.IModule;
 import goblinbob.mobends.core.util.ConnectionHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.conn.HttpHostConnectException;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,15 +23,23 @@ import java.util.Map;
 
 import static goblinbob.mobends.core.util.ConnectionHelper.sendGetRequest;
 
+/**
+ * The downloadable assets (supporter accessories): the ones on disk are registered on every
+ * resource reload; new ones are downloaded in the background, then registered.
+ */
 public class AssetsModule
 {
     public static AssetsModule INSTANCE;
+
+    private static final int TIMEOUT_MILLIS = 10000;
 
     private final String apiUrl;
     private final File assetsDirectory;
     private final File localManifestFile;
 
-    private AssetManifest localManifest;
+    /** Read by the client thread, replaced by the download thread. */
+    private volatile AssetManifest localManifest;
+    private volatile boolean updating;
 
     public AssetsModule(File configDirectory)
     {
@@ -40,7 +50,7 @@ public class AssetsModule
 
         this.localManifestFile = new File(modConfigDirectory, "asset_manifest.json");
 
-        this.updateAssets();
+        fetchLocalManifest();
     }
 
     private void fetchLocalManifest()
@@ -51,14 +61,13 @@ public class AssetsModule
         {
             Gson gson = ConnectionHelper.INSTANCE.getGson();
 
-            try
+            try (Reader reader = new InputStreamReader(new FileInputStream(this.localManifestFile), StandardCharsets.UTF_8))
             {
-                this.localManifest = gson.fromJson(new BufferedReader(new FileReader(this.localManifestFile)), AssetManifest.class);
+                this.localManifest = gson.fromJson(reader, AssetManifest.class);
             }
-            catch (JsonParseException | FileNotFoundException e)
+            catch (JsonParseException | IOException e)
             {
-                Core.LOG.warning("Failed to get local asset manifest.");
-                e.printStackTrace();
+                Core.LOG.log(java.util.logging.Level.WARNING, "Failed to get local asset manifest.", e);
             }
         }
     }
@@ -91,15 +100,14 @@ public class AssetsModule
 
     private void storeManifestLocally(AssetManifest manifest)
     {
-        try (FileWriter writer = new FileWriter(localManifestFile))
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(localManifestFile), StandardCharsets.UTF_8))
         {
             Gson gson = ConnectionHelper.INSTANCE.getGson();
             gson.toJson(manifest, writer);
         }
         catch (JsonParseException | IOException e)
         {
-            Core.LOG.warning("Failed to save local asset manifest.");
-            e.printStackTrace();
+            Core.LOG.log(java.util.logging.Level.WARNING, "Failed to save local asset manifest.", e);
         }
 
         this.localManifest = manifest;
@@ -109,23 +117,21 @@ public class AssetsModule
     {
         try
         {
-            URL url = new URL(manifest.getBaseUrl() + asset.getPath().getAssetPath());
-            URLConnection connection = url.openConnection();
-            DataInputStream dis = new DataInputStream(connection.getInputStream());
-            byte[] fileData = new byte[connection.getContentLength()];
-            for (int q = 0; q < fileData.length; q++)
-            {
-                fileData[q] = dis.readByte();
-            }
-            dis.close();
-
-            // Making sure the path exists.
             File localAssetPath = getAssetFile(asset.getPath());
+            URLConnection connection = new URL(manifest.getBaseUrl() + asset.getPath().getAssetPath()).openConnection();
+            connection.setConnectTimeout(TIMEOUT_MILLIS);
+            connection.setReadTimeout(TIMEOUT_MILLIS);
+            byte[] fileData;
+            try (InputStream stream = connection.getInputStream())
+            {
+                fileData = IOUtils.toByteArray(stream);
+            }
+
             localAssetPath.getParentFile().mkdirs();
-            // Saving the file.
-            FileOutputStream fos = new FileOutputStream(localAssetPath);
-            fos.write(fileData);
-            fos.close();
+            try (OutputStream out = new FileOutputStream(localAssetPath))
+            {
+                out.write(fileData);
+            }
         }
         catch (IOException m)
         {
@@ -133,20 +139,48 @@ public class AssetsModule
         }
     }
 
-    public void updateAssets()
+    /** Downloads new assets on a background thread, then registers them on the client thread. */
+    public void updateAssetsInBackground()
     {
-        fetchLocalManifest();
+        if (updating)
+        {
+            return;
+        }
+        updating = true;
+        Thread thread = new Thread(() -> {
+            try
+            {
+                if (updateAssets())
+                {
+                    Minecraft.getMinecraft().addScheduledTask(AssetReloadListener::registerAssets);
+                }
+            }
+            finally
+            {
+                updating = false;
+            }
+        }, "Mo' Bends asset download");
+        thread.setDaemon(true);
+        thread.start();
+    }
 
+    /** @return whether new assets were downloaded */
+    private boolean updateAssets()
+    {
         AssetManifest onlineManifest = fetchOnlineManifest();
 
         if (onlineManifest == null)
         {
-            return;
+            return false;
+        }
+
+        Iterable<AssetDefinition> assetsToUpdate = AssetManifest.getAssetsToUpdate(localManifest, onlineManifest);
+        if (!assetsToUpdate.iterator().hasNext())
+        {
+            return false;
         }
 
         Core.LOG.info("New assets detected");
-        Iterable<AssetDefinition> assetsToUpdate = AssetManifest.getAssetsToUpdate(localManifest, onlineManifest);
-
         try
         {
             for (AssetDefinition asset : assetsToUpdate)
@@ -156,21 +190,33 @@ public class AssetsModule
 
             // If we fail to download an asset, this isn't gonna get called.
             this.storeManifestLocally(onlineManifest);
+            return true;
         }
         catch(MalformedAssetException e)
         {
             Core.LOG.warning(e.getMessage());
+            return false;
         }
     }
 
     public Collection<AssetDefinition> getAssets()
     {
-        return localManifest != null ? localManifest.getAssets() : Collections.emptyList();
+        AssetManifest manifest = localManifest;
+        return manifest != null ? manifest.getAssets() : Collections.emptyList();
     }
 
-    public File getAssetFile(AssetLocation location)
+    /**
+     * The local file of an asset. The paths come from the remote manifest, so one that would lead
+     * out of the assets folder is refused.
+     */
+    public File getAssetFile(AssetLocation location) throws IOException
     {
-        return new File(assetsDirectory, location.getAssetPath());
+        File file = new File(assetsDirectory, location.getAssetPath());
+        if (!file.getCanonicalPath().startsWith(assetsDirectory.getCanonicalPath() + File.separator))
+        {
+            throw new IOException("The asset path leads out of the assets folder: " + location.getAssetPath());
+        }
+        return file;
     }
 
     public static class Factory implements IModule
@@ -179,12 +225,13 @@ public class AssetsModule
         public void preInit(FMLPreInitializationEvent event)
         {
             AssetsModule.INSTANCE = new AssetsModule(event.getModConfigurationDirectory());
+            AssetsModule.INSTANCE.updateAssetsInBackground();
         }
 
         @Override
         public void onRefresh()
         {
-            AssetsModule.INSTANCE.updateAssets();
+            AssetsModule.INSTANCE.updateAssetsInBackground();
         }
     }
 }

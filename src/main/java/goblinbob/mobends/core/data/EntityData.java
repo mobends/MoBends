@@ -1,7 +1,5 @@
 package goblinbob.mobends.core.data;
 
-import goblinbob.mobends.core.Core;
-import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IBendsModel;
 import goblinbob.mobends.core.kumo.IKumoSubject;
@@ -9,6 +7,7 @@ import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.bind.BoneSinks;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.VectorSink;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.util.GUtil;
@@ -24,6 +23,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +53,13 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
 
     public boolean onGround = true;
 
-    /** The animator of the entity's type, when it replaces the data's own controller. */
-    private IAnimationController<?> typeAnimator;
+    /** Animates the entity: its type's animator, or else {@link #getDefaultAnimator()}. */
+    private KumoAnimatorController animator;
 
+    /**
+     * Only stores the entity: the parts and the animator bindings are made by {@link #initialize()},
+     * once every subclass constructor has run.
+     */
     public EntityData(E entity)
     {
         this.entity = entity;
@@ -70,8 +74,11 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         this.motionX = this.prevMotionX = 0.0D;
         this.motionY = this.prevMotionY = 1.0D;
         this.motionZ = this.prevMotionZ = 0.0D;
+    }
 
-
+    /** Makes the model's parts and the animator bindings. Whoever creates the data calls it once. */
+    public void initialize()
+    {
         this.initModelPose();
         this.registerKumoBindings();
     }
@@ -129,11 +136,11 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     public IBoneSink getBone(String name)
     {
         // The entity-level smoothed vectors are not model parts, but animators address them by name.
-        if ("root".equals(name) || "globalOffset".equals(name))
+        if (Skeleton.ROOT.equals(name) || Skeleton.GLOBAL_OFFSET.equals(name))
         {
             return new VectorSink(globalOffset);
         }
-        if ("localOffset".equals(name))
+        if (Skeleton.LOCAL_OFFSET.equals(name))
         {
             return new VectorSink(localOffset);
         }
@@ -170,7 +177,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         this.centerRotation = new SmoothOrientation();
 
         this.nameToPartMap.put("renderRotation", renderRotation);
-        this.nameToPartMap.put("centerRotation", centerRotation);
+        this.nameToPartMap.put(Skeleton.CENTER_ROTATION, centerRotation);
     }
 
     /**
@@ -245,42 +252,32 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         return horizontalSqMagnitude < deadZone;
     }
 
-    public abstract IAnimationController<?> getController();
+    /** The animator the entity has when its type doesn't choose another. */
+    protected abstract ResourceLocation getDefaultAnimator();
 
-    /** Animates this entity with {@code animator} instead of its own controller (a type chose another animator). */
     /**
-     * Animates this entity with its type's animator and extensions: {@code animator} (null for the
-     * data's own), with the layers of each of {@code extensions} on top.
+     * Animates this entity with its type's animator and extensions: {@code animator} (null for
+     * the default one), with the layers of each of {@code extensions} on top.
      */
     public void setAnimator(@Nullable ResourceLocation animator, List<ResourceLocation> extensions)
     {
-        ResourceLocation base = animator;
-        if (base == null)
+        this.animator = new KumoAnimatorController(animator != null ? animator : getDefaultAnimator(), extensions);
+    }
+
+    /** Runs the entity's animator for this frame. */
+    public void animate()
+    {
+        if (animator == null)
         {
-            IAnimationController<?> own = this.getController();
-            if (own instanceof KumoAnimatorController)
-            {
-                base = ((KumoAnimatorController<?>) own).getAnimator();
-            }
-            else if (!extensions.isEmpty())
-            {
-                Core.LOG.warning("Extensions need an animator asset to go on top of; the model of " + entity + " has none, so they are ignored.");
-            }
+            setAnimator(null, Collections.emptyList());
         }
-        this.typeAnimator = base == null ? null : new KumoAnimatorController<>(base, extensions);
+        animator.animate(this);
     }
 
     /** True when the entity's animator asks for the vanilla model and animation right now (a {@code core:vanilla} node). */
     public boolean wantsVanilla()
     {
-        IAnimationController<?> controller = getActiveController();
-        return controller != null && controller.wantsVanilla();
-    }
-
-    /** The controller that animates this entity: its type's animator, or else its own. */
-    public IAnimationController<?> getActiveController()
-    {
-        return this.typeAnimator != null ? this.typeAnimator : this.getController();
+        return animator != null && animator.wantsVanilla();
     }
 
     /**
@@ -415,7 +412,5 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     {
         return nameToPartMap.get(name);
     }
-
-    public abstract void onTicksRestart();
 
 }

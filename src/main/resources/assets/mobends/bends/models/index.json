@@ -1,5 +1,5 @@
 {
-  "comment": "Mobs animated from a model definition and an animator (see misc/kumo-format.md). Vanilla parts are found by field name in a development environment and by box-list index otherwise.",
+  "comment": "Mobs animated from a model definition and an animator (see misc/kumo-format.md). Vanilla parts are found by field name (vanilla fields through generated accessors) and by box-list index when no field matches.",
   "models": [
     "cow",
     "mooshroom",

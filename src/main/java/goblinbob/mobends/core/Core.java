@@ -5,7 +5,6 @@ import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
 import goblinbob.mobends.core.module.IModule;
 import goblinbob.mobends.core.network.msg.MessageConfigRequest;
 import goblinbob.mobends.core.network.msg.MessageConfigResponse;
-import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;

@@ -1,4 +1,4 @@
-package goblinbob.mobends.standard.main;
+package goblinbob.mobends.core;
 
 public class ModStatics
 {

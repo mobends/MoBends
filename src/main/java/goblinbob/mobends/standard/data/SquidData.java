@@ -5,9 +5,9 @@ import goblinbob.mobends.core.util.GUtil;
 
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.core.kumo.KumoAnimatorController;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.entity.passive.EntitySquid;
+import net.minecraft.util.ResourceLocation;
 
 public class SquidData extends LivingEntityData<EntitySquid>
 {
@@ -17,7 +17,7 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	public ModelPartTransform squidBody;
 	public ModelPartTransform[][] squidTentacles;
 
-	private final KumoAnimatorController<SquidData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/squid.json");
+	private static final ResourceLocation ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/squid.json");
 	
 	public SquidData(EntitySquid entity)
 	{
@@ -30,16 +30,11 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	}
 	
 	@Override
-	public KumoAnimatorController<SquidData> getController()
+	protected ResourceLocation getDefaultAnimator()
 	{
-		return controller;
+		return ANIMATOR;
 	}
 
-	@Override
-	public void onTicksRestart()
-	{
-		// No behaviour
-	}
 
 	@Override
 	public void initModelPose()

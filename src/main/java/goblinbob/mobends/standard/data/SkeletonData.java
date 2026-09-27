@@ -1,13 +1,13 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.core.kumo.KumoAnimatorController;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.util.ResourceLocation;
 
 public class SkeletonData extends BipedEntityData<EntitySkeleton>
 {
 
-	private final KumoAnimatorController<SkeletonData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/skeleton.json");
+	private static final ResourceLocation ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/skeleton.json");
 
 	public SkeletonData(EntitySkeleton entity)
 	{
@@ -15,16 +15,11 @@ public class SkeletonData extends BipedEntityData<EntitySkeleton>
 	}
 
 	@Override
-	public KumoAnimatorController<SkeletonData> getController()
+	protected ResourceLocation getDefaultAnimator()
 	{
-		return controller;
+		return ANIMATOR;
 	}
 
-	@Override
-	public void onTicksRestart()
-	{
-		// No behaviour
-	}
 
 	@Override
 	public void initModelPose()

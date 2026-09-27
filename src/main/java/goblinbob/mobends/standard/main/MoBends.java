@@ -1,11 +1,7 @@
 package goblinbob.mobends.standard.main;
 
 import goblinbob.mobends.core.Core;
-import goblinbob.mobends.core.addon.Addons;
-import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
-import goblinbob.mobends.core.bender.EntityBenderRegistry;
-import goblinbob.mobends.core.data.EntityDatabase;
-import goblinbob.mobends.core.util.GsonResources;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -13,8 +9,6 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-
-import java.util.logging.Logger;
 
 @Mod(modid = ModStatics.MODID)
 public class MoBends
@@ -25,8 +19,6 @@ public class MoBends
 
     @Instance(value = ModStatics.MODID)
     public static MoBends instance;
-
-    public static final Logger LOG = Logger.getLogger(ModStatics.MODID);
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -48,22 +40,5 @@ public class MoBends
     {
         Core.getInstance().postInit(event);
         proxy.postInit();
-    }
-
-    /**
-     * Used to refresh all systems, clear caches. Usually performed when configuration changes.
-     */
-    public static void refreshSystems()
-    {
-        AnimationLoader.clearCache();
-        GsonResources.clearCache();
-        goblinbob.mobends.core.kumo.AnimatorResources.INSTANCE.clearCache();
-        goblinbob.mobends.core.definition.ModelDefinitions.INSTANCE.clearCache();
-        EntityDatabase.instance.refresh();
-        EntityBenderRegistry.instance.refreshMutators();
-        goblinbob.mobends.core.types.EntityTypeRegistry.INSTANCE.reload();
-        Addons.onRefresh();
-
-        Core.getInstance().refreshModules();
     }
 }

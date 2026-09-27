@@ -10,22 +10,15 @@ public class DefaultEntityBender<T extends EntityLivingBase> extends EntityBende
 
     private final IEntityDataFactory<T> entityDataFactory;
     private final IMutatorFactory<T> mutatorFactory;
-    private final String[] alterableParts;
 
     public DefaultEntityBender(String modId, String key, String unlocalizedName, Class<T> entityClass,
                                IEntityDataFactory<T> entityDataFactory, IMutatorFactory<T> mutatorFactory,
-                               MutatedRenderer<T> renderer, String... alterableParts)
+                               MutatedRenderer<T> renderer)
     {
         super(modId, key, unlocalizedName, entityClass, renderer);
 
         this.entityDataFactory = entityDataFactory;
         this.mutatorFactory = mutatorFactory;
-        this.alterableParts = alterableParts;
-    }
-
-    public String[] getAlterableParts()
-    {
-        return alterableParts;
     }
 
     @Override

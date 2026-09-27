@@ -10,7 +10,7 @@ All hooks use Forge's `MinecraftForge.EVENT_BUS`, registered in `CoreClient.init
 | `RenderLivingEvent.Post` | `EntityRenderHandler` | Reverts GL state; always puts the vanilla state back |
 | `TickEvent.RenderTickEvent` | `DataUpdateHandler` | Advances animation frames, updates `ticksPerFrame` |
 | `TickEvent.ClientTickEvent` (END) | `DataUpdateHandler` | Updates entity motion/velocity state |
-| `InputEvent.KeyInputEvent` | `KeyboardHandler` | G → Mo' Bends menu; F10 → `MoBends.refreshSystems()` |
+| `InputEvent.KeyInputEvent` | `KeyboardHandler` | G → Mo' Bends menu; F10 → `CoreClient.refresh()` |
 | `EntityJoinWorldEvent` | `WorldJoinHandler` | When the *local* player joins (other players join all the time): resets the server rules to their defaults and sends `MessageConfigRequest` |
 
 A resource reload listener runs `CoreClient.reloadAnimation()`.
@@ -60,3 +60,6 @@ see [animation.md](animation.md)):
 `LivingEntityData<E>` extends it with animation timing (`ticksInAir`, `ticksAfterAttack`, etc.), limb swing overrides, and climbing logic.
 
 `EntityDatabase` is the singleton that tracks all active entities and drives `updateRender()` / `updateClient()`.
+It makes an entity's data with the factory of the entity's type and calls `initialize()` on it
+(the parts and the animator bindings are made there, once every constructor has run); an entity
+that reuses the id of one from another world gets new data.

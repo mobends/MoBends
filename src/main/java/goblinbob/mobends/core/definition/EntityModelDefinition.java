@@ -38,8 +38,6 @@ public class EntityModelDefinition
     /** Entity fields exposed as animator variables. */
     public List<VariableDefinition> variables = new ArrayList<>();
 
-    /** Bones bends packs may alter; default: every bone. */
-    public List<String> alterableParts;
 
     /** Every bone name, split segments included, in declaration order. */
     public List<String> allBoneNames()
@@ -64,11 +62,6 @@ public class EntityModelDefinition
         return null;
     }
 
-    public String[] alterablePartsOrAll()
-    {
-        List<String> parts = alterableParts != null ? alterableParts : allBoneNames();
-        return parts.toArray(new String[0]);
-    }
 
     public void validate() throws MalformedKumoTemplateException
     {

@@ -4,14 +4,14 @@ import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.GUtil;
-import goblinbob.mobends.core.kumo.KumoAnimatorController;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.ResourceLocation;
 
 public class SpiderData extends LivingEntityData<EntitySpider>
 {
@@ -22,7 +22,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 
     public Limb[] limbs;
 
-	private final KumoAnimatorController<SpiderData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/spider.json");
+	private static final ResourceLocation ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/spider.json");
     protected float prevCrawlProgress = 0;
     protected float crawlProgress = 0;
     protected EnumFacing wallFacing = null;
@@ -39,9 +39,9 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     }
 
     @Override
-    public KumoAnimatorController<SpiderData> getController()
+    protected ResourceLocation getDefaultAnimator()
     {
-        return controller;
+    	return ANIMATOR;
     }
 
     public float getCrawlProgress()
@@ -54,11 +54,6 @@ public class SpiderData extends LivingEntityData<EntitySpider>
         return GUtil.lerp(prevCrawlProgress, crawlProgress, DataUpdateHandler.partialTicks);
     }
 
-    @Override
-    public void onTicksRestart()
-    {
-        // No behaviour
-    }
 
     @Override
     public void update(float partialTicks)

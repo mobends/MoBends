@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.mutators;
 
-import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.GUtil;
@@ -15,7 +14,6 @@ import java.util.List;
 public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLivingBase, M extends ModelBase>
 {
 
-    protected M vanillaModel;
     protected float headYaw;
     protected float headPitch;
     protected float limbSwing;
@@ -34,20 +32,14 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         this.layerRenderers = (List<LayerRenderer<?>>) ((Object) renderer.layerRenderers); // Type safety hack...
     }
 
-    public abstract void storeVanillaModel(M model);
-
     /**
-     * Swaps out the vanilla layers for their custom counterparts,
-     * and if it's a vanilla model, it stores the vanilla layers
-     * for future mutation reversal.
+     * Swaps out a vanilla layer for its custom counterpart. The renderer's vanilla state is kept
+     * by {@code RendererState}, which puts it back when the entity is drawn vanilla.
      */
-    public abstract void swapLayer(RenderLivingBase<? extends E> renderer, int index, boolean isModelVanilla);
+    public abstract void swapLayer(RenderLivingBase<? extends E> renderer, int index);
 
-    /**
-     * Creates all the custom parts you need! It swaps all the
-     * original parts with newly created custom parts.
-     */
-    public abstract boolean createParts(M original, float scaleFactor);
+    /** Replaces the model's parts with newly created custom parts. */
+    public abstract boolean createParts(M original);
 
     public boolean mutate(RenderLivingBase<? extends E> renderer)
     {
@@ -57,23 +49,14 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         this.fetchFields(renderer);
 
         M model = (M) renderer.getMainModel();
-        float scaleFactor = 0F;
-
-        boolean isModelVanilla = this.isModelVanilla(model);
-        if (isModelVanilla)
-        {
-            // If this model wasn't mutated before, save it as the vanilla model.
-            this.storeVanillaModel(model);
-        }
-
-        this.createParts(model, scaleFactor);
+        this.createParts(model);
 
         // Swapping layers
         if (this.layerRenderers != null)
         {
             for (int i = 0; i < layerRenderers.size(); ++i)
             {
-                swapLayer(renderer, i, isModelVanilla);
+                swapLayer(renderer, i);
             }
         }
 
@@ -132,17 +115,14 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
         this.swingProgress = entity.getSwingProgress(partialTicks);
     }
 
-    public void performAnimations(D data, String animatedEntityKey, RenderLivingBase<? extends E> renderer, float partialTicks)
+    public void performAnimations(D data)
     {
-        data.headYaw.set(MathHelper.wrapDegrees(this.headYaw));
-        data.headPitch.set(MathHelper.wrapDegrees(this.headPitch));
-        data.limbSwing.set(this.limbSwing);
-        data.limbSwingAmount.set(this.limbSwingAmount);
-        data.swingProgress.set(this.swingProgress);
-
-        // noinspection unchecked
-        final IAnimationController<D> controller = (IAnimationController<D>) data.getActiveController();
-        controller.perform(data);
+        data.headYaw = MathHelper.wrapDegrees(this.headYaw);
+        data.headPitch = MathHelper.wrapDegrees(this.headPitch);
+        data.limbSwing = this.limbSwing;
+        data.limbSwingAmount = this.limbSwingAmount;
+        data.swingProgress = this.swingProgress;
+        data.animate();
     }
 
     public abstract void syncUpWithData(D data);
@@ -151,11 +131,6 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
     {
         return EntityDatabase.instance.get(entity);
     }
-
-    /**
-     * True, if this renderer wasn't mutated before.
-     */
-    public abstract boolean isModelVanilla(M model);
 
     /**
      * Returns true, if this model should skip the mutation process.

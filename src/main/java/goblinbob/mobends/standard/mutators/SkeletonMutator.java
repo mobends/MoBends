@@ -35,20 +35,9 @@ public class SkeletonMutator extends BipedMutator<SkeletonData, EntitySkeleton, 
 	}
 
 	@Override
-	public void storeVanillaModel(ModelSkeleton model)
+	public boolean createParts(ModelSkeleton original)
 	{
-		this.vanillaModel = new ModelSkeleton(0.0F, !this.boneLimbs);
-
-		// Calling the super method here, since it
-		// requires the vanillaModel property to be
-		// set.
-		super.storeVanillaModel(model);
-	}
-
-	@Override
-	public boolean createParts(ModelSkeleton original, float scaleFactor)
-	{
-		super.createParts(original, scaleFactor);
+		super.createParts(original);
 
 		if (this.boneLimbs)
 		{
@@ -72,7 +61,7 @@ public class SkeletonMutator extends BipedMutator<SkeletonData, EntitySkeleton, 
 			this.rightArm
 					.setParent(body)
 					.setPosition(-5.0F, 2.0F, 0.0F)
-					.developBox(-1.0F, -2.0F, -1.0F, 2, 6, 2, scaleFactor)
+					.developBox(-1.0F, -2.0F, -1.0F, 2, 6, 2, 0.0F)
 					.inflate(0.01F, 0F, 0.01F)
 					.hideFace(BoxSide.BOTTOM)
 					.create();
@@ -81,7 +70,7 @@ public class SkeletonMutator extends BipedMutator<SkeletonData, EntitySkeleton, 
 			this.leftArm
 					.setParent(body)
 					.setPosition(5.0F, 2.0F, 0.0F)
-					.developBox(-1.0F, -2.0F, -1.0F, 2, 6, 2, scaleFactor)
+					.developBox(-1.0F, -2.0F, -1.0F, 2, 6, 2, 0.0F)
 					.inflate(0.01F, 0F, 0.01F)
 					.hideFace(BoxSide.BOTTOM)
 					.create();
@@ -91,7 +80,7 @@ public class SkeletonMutator extends BipedMutator<SkeletonData, EntitySkeleton, 
 			this.rightForeArm
 					.setPosition(0.0F, 4.0F, 1.0F)
 					.setParent(rightArm)
-					.developBox(-1.0F, 0.0F, -2.0F, 2, 6, 2, scaleFactor)
+					.developBox(-1.0F, 0.0F, -2.0F, 2, 6, 2, 0.0F)
 					.hideFace(BoxSide.TOP)
 					.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 					.create();
@@ -102,7 +91,7 @@ public class SkeletonMutator extends BipedMutator<SkeletonData, EntitySkeleton, 
 			this.leftForeArm
 					.setPosition(0.0F, 4.0F, 1.0F)
 					.setParent(leftArm)
-					.developBox(-1.0F, 0.0F, -2.0F, 2, 6, 2, scaleFactor)
+					.developBox(-1.0F, 0.0F, -2.0F, 2, 6, 2, 0.0F)
 					.hideFace(BoxSide.TOP)
 					.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 					.create();
@@ -116,17 +105,17 @@ public class SkeletonMutator extends BipedMutator<SkeletonData, EntitySkeleton, 
 			// Legs
 			original.bipedRightLeg = rightLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
 					.setPosition(-2.0F, 12.0F, 0.0F);
-			rightLeg.addBox(-1.0F, 0.0F, -1.0F, 2, 6, 2, scaleFactor);
+			rightLeg.addBox(-1.0F, 0.0F, -1.0F, 2, 6, 2, 0.0F);
 			original.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
 					.setPosition(2.0F, 12.0F, 0.0F)
 					.setMirror(true);
-			leftLeg.addBox(-1F, 0.0F, -1.0F, 2, 6, 2, scaleFactor);
+			leftLeg.addBox(-1F, 0.0F, -1.0F, 2, 6, 2, 0.0F);
 
 			leftForeLeg = new ModelPart(original, 0, 16 + 6)
 					.setParent(leftLeg)
 					.setPosition(0, 6.0F, -2.0F)
 					.setMirror(true);
-			leftForeLeg.developBox(-1.0F, 0.0F, 0.0F, 2, 6, 2, scaleFactor)
+			leftForeLeg.developBox(-1.0F, 0.0F, 0.0F, 2, 6, 2, 0.0F)
 					.inflate(0.01F, 0, 0.01F)
 					.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 					.create();
@@ -135,7 +124,7 @@ public class SkeletonMutator extends BipedMutator<SkeletonData, EntitySkeleton, 
 			rightForeLeg = new ModelPart(original, 0, 16 + 6)
 					.setParent(rightLeg)
 					.setPosition(0, 6.0F, -2.0F);
-			rightForeLeg.developBox(-1F, 0.0F, 0.0F, 2, 6, 2, scaleFactor)
+			rightForeLeg.developBox(-1F, 0.0F, 0.0F, 2, 6, 2, 0.0F)
 					.inflate(0.01F, 0, 0.01F)
 					.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 					.create();

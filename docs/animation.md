@@ -18,7 +18,7 @@ runtime is put together.
 | `PoseNode` | `core/kumo/state/node` | A node: an ordered *pose stack* of items (clips, drivers), each with an optional `when`, a composition space and damping. |
 | `Pose` | `core/kumo/pose` | Per-bone rotation / offset / vector targets for one frame, bound to the subject's sinks by index. |
 | `ExpressionScope` | `core/kumo/expr` | Named expressions, scoped lexically (animator → layer → node). |
-| `KumoAnimatorController` | `core/kumo` (mod) | The `IAnimationController` every entity data uses: loads the animator (and its extensions) through `AnimatorResources`, updates it each frame, and reports the current nodes' tags as the entity's actions. A broken asset is logged once and the entity simply doesn't animate. |
+| `KumoAnimatorController` | `core/kumo` (mod) | Animates one entity data: loads the animator (and its extensions) through `AnimatorResources` and updates it each frame. A broken asset, or one that fails while animating, is logged once and the entity simply doesn't animate. |
 
 ## Per-frame Pipeline
 
@@ -49,7 +49,7 @@ is cleared by `CoreClient.reloadAnimation()` after a resource reload.
 
 ## Clips
 
-Keyframe clips (`assets/<namespace>/bends/animations/**.json`) are loaded by `AnimationLoader`
+Keyframe clips (`assets/<namespace>/bends/animations/**.json`) are loaded by `AnimatorResources`
 into `KeyframeAnimation`s and sampled by `ClipSampler` (hemisphere-corrected, so a track crossing
 ±180° takes the short way). A clip item's `frame` is an expression in clip units, so a clip can
 run on elapsed time, on any variable (`limbSwing`, `ticksInAir`, ...) or loop with `mod`. JSON is

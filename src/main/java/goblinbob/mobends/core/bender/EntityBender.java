@@ -73,8 +73,6 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		this.renderer = renderer;
 	}
 
-	public abstract String[] getAlterableParts();
-
 	public abstract IEntityDataFactory<T> getDataFactory();
 
 	public abstract IMutatorFactory<T> getMutatorFactory();
@@ -124,11 +122,6 @@ public abstract class EntityBender<T extends EntityLivingBase>
 		this.renderer.beforeRender(data, entity, partialTicks);
 	}
 
-	public void afterRender(T entity, float partialTicks)
-	{
-		this.renderer.afterRender(entity, partialTicks);
-	}
-
 	/**
 	 * Puts this bender's mutation in place on the renderer (mutating it the first time) and animates
 	 * the entity with data made by {@code dataFactory}. The caller restores the renderer to vanilla
@@ -149,7 +142,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 
 		mutator.updateModel(entity, renderer, partialTicks);
 		LivingEntityData<T> data = EntityDatabase.instance.getOrMake(dataFactory, entity);
-		mutator.performAnimations(data, this.key, renderer, partialTicks);
+		mutator.performAnimations(data);
 		mutator.syncUpWithData(data);
 
 		if (data.wantsVanilla())

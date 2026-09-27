@@ -1,7 +1,7 @@
 package goblinbob.mobends.standard.client.renderer.entity;
 
 import goblinbob.mobends.standard.data.PlayerData;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.client.renderer.BufferBuilder;

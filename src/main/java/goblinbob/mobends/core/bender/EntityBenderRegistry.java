@@ -2,13 +2,13 @@ package goblinbob.mobends.core.bender;
 
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
-import goblinbob.mobends.core.types.EntityType;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
-import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.entity.EntityLivingBase;
 
 import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * This class is responsible for keeping track of all entity benders, and of which one (and which
@@ -28,10 +28,32 @@ public class EntityBenderRegistry
     private final Map<Class<?>, Optional<EntityBender<?>>> defaultBenderByClass = new HashMap<>();
 
     /**
-     * Used to cache entity-to-type relationships, so they won't be calculated every time.
-     * Weak keys, so entities that are no longer referenced elsewhere don't stay in memory.
+     * The types each entity can have, so they aren't worked out every frame. Weak keys, so entities
+     * that are no longer referenced elsewhere don't stay in memory. Entities compare by id, and a
+     * new entity can reuse the id of one that is gone: the entry remembers which one it is for.
      */
-    private final Map<EntityLivingBase, EntityTypeRegistry.Candidates> entityToCandidatesMap = new WeakHashMap<>();
+    private final Map<EntityLivingBase, CachedCandidates> entityToCandidatesMap = new WeakHashMap<>();
+
+    /** Entities the player chose to keep vanilla (see the mod's config). */
+    private Predicate<EntityLivingBase> keepVanilla = entity -> false;
+
+    private static final class CachedCandidates
+    {
+        final WeakReference<EntityLivingBase> entity;
+        final EntityTypeRegistry.Candidates candidates;
+
+        CachedCandidates(EntityLivingBase entity, EntityTypeRegistry.Candidates candidates)
+        {
+            this.entity = new WeakReference<>(entity);
+            this.candidates = candidates;
+        }
+    }
+
+    public void setKeepVanilla(Predicate<EntityLivingBase> keepVanilla)
+    {
+        this.keepVanilla = keepVanilla;
+        clearCache();
+    }
 
     /** Registers a bender of an addon: the default model of every entity of its class. */
     public void registerBender(EntityBender<?> entityBender)
@@ -95,17 +117,16 @@ public class EntityBenderRegistry
         return benders.get(key);
     }
 
-    public Collection<EntityBender<?>> getRegistered(Filter filter)
+    /** The benders whose displayed name contains {@code query} (all of them for null), by key. */
+    public List<EntityBender<?>> search(@Nullable String query)
     {
         List<EntityBender<?>> benderList = new ArrayList<>(benders.values());
-
-        if (filter.query != null)
+        if (query != null)
         {
-            benderList.removeIf(bender -> !bender.getUnlocalizedName().toLowerCase().contains(filter.query.toLowerCase()));
+            String lowerCase = query.toLowerCase(Locale.ROOT);
+            benderList.removeIf(bender -> !bender.getLocalizedName().toLowerCase(Locale.ROOT).contains(lowerCase));
         }
-
         benderList.sort(Comparator.comparing(EntityBender::getKey));
-
         return benderList;
     }
 
@@ -133,16 +154,17 @@ public class EntityBenderRegistry
     @Nullable
     public EntityTypeRegistry.Selection getSelection(EntityLivingBase entity)
     {
-        EntityTypeRegistry.Candidates candidates = entityToCandidatesMap.get(entity);
-        if (candidates == null)
+        CachedCandidates cached = entityToCandidatesMap.get(entity);
+        if (cached == null || cached.entity.get() != entity)
         {
-            // Checking the config blacklist
-            candidates = ModConfig.shouldKeepEntityAsVanilla(entity)
+            EntityTypeRegistry.Candidates candidates = keepVanilla.test(entity)
                     ? EntityTypeRegistry.Candidates.NONE
                     : EntityTypeRegistry.INSTANCE.candidatesFor(entity);
-            entityToCandidatesMap.put(entity, candidates);
+            cached = new CachedCandidates(entity, candidates);
+            entityToCandidatesMap.remove(entity);
+            entityToCandidatesMap.put(entity, cached);
         }
-        return candidates.select(entity);
+        return cached.candidates.select(entity);
     }
 
     @Nullable
@@ -153,22 +175,12 @@ public class EntityBenderRegistry
         return selection == null ? null : (EntityBender<E>) selection.bender;
     }
 
-    @Nullable
-    public EntityType getTypeForEntity(EntityLivingBase entity)
-    {
-        EntityTypeRegistry.Selection selection = getSelection(entity);
-        return selection == null ? null : selection.type;
-    }
-
     public <E extends EntityLivingBase> void clearCache(E entity)
     {
         entityToCandidatesMap.remove(entity);
     }
 
-    /**
-     * Will clear any associations between entities and types.
-     * This is usually called whenever the player joins a new world, and when types or ranks change.
-     */
+    /** Forgets which types the entities have: on joining a world, and when types or ranks change. */
     public void clearCache()
     {
         entityToCandidatesMap.clear();
@@ -180,18 +192,6 @@ public class EntityBenderRegistry
 
         for (EntityBender<?> entityBender : benders.values())
             entityBender.refreshMutation();
-    }
-
-    public static class Filter
-    {
-        public boolean ascending = false;
-        public SortingKey sortingKey = SortingKey.NAME;
-        public String query = null;
-
-        public enum SortingKey
-        {
-            NAME,
-        }
     }
 
 }

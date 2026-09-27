@@ -34,11 +34,6 @@ public class DataUpdateHandler
 
         final float newTicks = Minecraft.getMinecraft().player.ticksExisted + event.renderTickTime;
 
-        if (DataUpdateHandler.ticks > newTicks)
-        {
-            onTicksRestart();
-        }
-
         if (!(Minecraft.getMinecraft().world.isRemote && Minecraft.getMinecraft().isGamePaused()))
         {
             DataUpdateHandler.ticksPerFrame = Math.min(Math.max(0F, newTicks - DataUpdateHandler.ticks), 1F);
@@ -51,11 +46,6 @@ public class DataUpdateHandler
         {
             DataUpdateHandler.ticksPerFrame = 0F;
         }
-    }
-
-    public static void onTicksRestart()
-    {
-        EntityDatabase.instance.onTicksRestart();
     }
 
     @SubscribeEvent

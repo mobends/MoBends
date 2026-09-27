@@ -1,6 +1,5 @@
 package goblinbob.mobends.standard.mutators;
 
-import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.client.model.ModelPartExtended;
 import goblinbob.mobends.core.client.model.ModelPartPostOffset;
@@ -39,30 +38,9 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	protected LayerCustomHeldItem 		layerHeldItem;
 	protected LayerCustomHead 			layerCustomHead;
 
-	/**
-	 * Used to store the model parameter as the
-	 * vanilla model, so then the mutation can be
-	 * reversed.
-	 */
+	/** Swaps out the vanilla layers for their custom counterparts. */
 	@Override
-	public void storeVanillaModel(M model)
-	{
-		this.vanillaModel.bipedBody = model.bipedBody;
-		this.vanillaModel.bipedHead = model.bipedHead;
-		this.vanillaModel.bipedHeadwear = model.bipedHeadwear;
-		this.vanillaModel.bipedLeftArm = model.bipedLeftArm;
-		this.vanillaModel.bipedLeftLeg = model.bipedLeftLeg;
-		this.vanillaModel.bipedRightArm = model.bipedRightArm;
-		this.vanillaModel.bipedRightLeg = model.bipedRightLeg;
-	}
-
-	/**
-	 * Swaps out the vanilla layers for their custom counterparts,
-	 * and if it's a vanilla model, it stores the vanilla layers
-	 * for future mutation reversal.
-	 */
-	@Override
-	public void swapLayer(RenderLivingBase<? extends E> renderer, int index, boolean isModelVanilla)
+	public void swapLayer(RenderLivingBase<? extends E> renderer, int index)
 	{
 		LayerRenderer<?> layer = layerRenderers.get(index);
 		if (layer instanceof LayerBipedArmor)
@@ -87,19 +65,19 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	 * original parts with newly created custom parts.
 	 */
 	@Override
-	public boolean createParts(M original, float scaleFactor)
+	public boolean createParts(M original)
 	{
 		// Body
 		original.bipedBody = body = (ModelPartPostOffset) new ModelPartPostOffset(original, 16, 16)
 				.setPostOffset(0.0F, -12.0F, 0.0F)
 				.setPosition(0.0F, 12.0F, 0.0F);
-		body.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, scaleFactor);
+		body.addBox(-4.0F, -12.0F, -2.0F, 8, 12, 4, 0.0F);
 
 		// Head
 		original.bipedHead = head = new ModelPart(original, 0, 0)
 				.setParent(body)
 				.setPosition(0.0F, -12.0F, 0.0F);
-		head.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor);
+		head.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, 0.0F);
 
 		// Arms
 		int armWidth = 4;
@@ -109,7 +87,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setParent(body)
 				.setPosition(5.0F, armY, 0.0F)
 				.setMirror(true);
-		leftArm.developBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
+		leftArm.developBox(-1.0F, -2.0F, -2.0F, armWidth, 6, 4, 0.0F)
 				.inflate(0.01F, 0, 0.01F)
 				.hideFace(BoxSide.BOTTOM)
 				.create();
@@ -117,7 +95,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		original.bipedRightArm = rightArm = (ModelPartExtended) new ModelPartExtended(original, 40, 16)
 				.setParent(body)
 				.setPosition(-5.0F, armY, 0.0F);
-		rightArm.developBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, scaleFactor)
+		rightArm.developBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, 0.0F)
 				.inflate(0.01F, 0, 0.1F)
 				.hideFace(BoxSide.BOTTOM)
 				.create();
@@ -127,7 +105,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setParent(leftArm)
 				.setPosition(0.0F, 4.0F, 2.0F)
 				.setMirror(true);
-		leftForeArm.developBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
+		leftForeArm.developBox(-1.0F, 0.0F, -4.0F, armWidth, 6, 4, 0.0F)
 				.hideFace(BoxSide.TOP)
 				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 				.create();
@@ -137,7 +115,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setPostOffset(0, -4F, -2F)
 				.setParent(rightArm)
 				.setPosition(0.0F, 4.0F, 2.0F);
-		rightForeArm.developBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, scaleFactor)
+		rightForeArm.developBox(-armWidth + 1, 0.0F, -4.0F, armWidth, 6, 4, 0.0F)
 				.hideFace(BoxSide.TOP)
 				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 				.create();
@@ -146,17 +124,17 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		// Legs
 		original.bipedRightLeg = rightLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
 				.setPosition(0.0F, 12F, 0F);
-		rightLeg.addBox(-3.9F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+		rightLeg.addBox(-3.9F, 0.0F, -2.0F, 4, 6, 4, 0.0F);
 		original.bipedLeftLeg = leftLeg = (ModelPartExtended) new ModelPartExtended(original, 0, 16)
 				.setPosition(0.0F, 12.0F, 0.0F)
 				.setMirror(true);
-		leftLeg.addBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, scaleFactor);
+		leftLeg.addBox(-0.1F, 0.0F, -2.0F, 4, 6, 4, 0.0F);
 		leftForeLeg = new ModelPart(original, 0, 16 + 6)
 				.setParent(leftLeg)
 				.setPosition(0, 6.0F, -2.0F)
 				.setMirror(true);
 
-		leftForeLeg.developBox(-0.1F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
+		leftForeLeg.developBox(-0.1F, 0.0F, 0.0F, 4, 6, 4, 0.0F)
 				.inflate(0.01F, 0, 0.01F)
 				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 				.create();
@@ -165,7 +143,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setParent(rightLeg)
 				.setPosition(0, 6.0F, -2.0F);
 
-		rightForeLeg.developBox(-3.9F, 0.0F, 0.0F, 4, 6, 4, scaleFactor)
+		rightForeLeg.developBox(-3.9F, 0.0F, 0.0F, 4, 6, 4, 0.0F)
 				.inflate(0.01F, 0, 0.01F)
 				.offsetTextureQuad(BoxSide.BOTTOM, 0, -6F)
 				.create();
@@ -173,7 +151,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 
 		// Wear
 		original.bipedHeadwear = headwear = (ModelPart) new ModelPart(original, 32, 0).setParent(head);
-		headwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, scaleFactor + 0.5F);
+		headwear.addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8, 0.0F + 0.5F);
 
 		return true;
 	}
@@ -191,15 +169,6 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		rightForeArm.syncUp(data.rightForeArm);
 		leftForeLeg.syncUp(data.leftForeLeg);
 		rightForeLeg.syncUp(data.rightForeLeg);
-	}
-
-	/**
-	 * True, if this renderer wasn't mutated before.
-	 */
-	@Override
-	public boolean isModelVanilla(M model)
-	{
-		return !(model.bipedBody instanceof IModelPart);
 	}
 
 }

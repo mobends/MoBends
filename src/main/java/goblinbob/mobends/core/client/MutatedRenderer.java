@@ -63,14 +63,6 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
     }
 
     /**
-     * Called right after the entity is rendered.
-     */
-    public void afterRender(T entity, float partialTicks)
-    {
-        // No default behaviour
-    }
-
-    /**
      * Used to render accessories for that entity, e.g. Sword trails. Also used to transform the entity, like offset or
      * rotate it.
      */

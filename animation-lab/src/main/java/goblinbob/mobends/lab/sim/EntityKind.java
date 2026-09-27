@@ -50,6 +50,7 @@ public enum EntityKind
     public LivingEntityData<?> createData(EntityLivingBase entity, long seed)
     {
         LivingEntityData<?> data = dataFactory.apply(entity);
+        data.initialize();
         Determinism.seedRandoms(data, seed);
         return data;
     }

@@ -9,14 +9,12 @@ import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
-import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -141,7 +139,7 @@ public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlaye
 
     private void applyBindPointTransform(PlayerData data, BindPoint bindPoint, float scale)
     {
-        IModelPart modelPart = bindPoint.getPartSelector().apply(data);
+        IModelPart modelPart = bindPoint.partOf(data);
 
         if (modelPart != null)
         {

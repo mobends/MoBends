@@ -9,7 +9,7 @@ import goblinbob.mobends.core.client.gui.elements.GuiCompactTextField;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
@@ -23,7 +23,7 @@ public class GuiSettingsWindow extends GuiScreen
 {
 
     public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
-            "textures/gui/pack_window.png");
+            "textures/gui/settings_window.png");
     public static final int EDITOR_WIDTH = 280;
     public static final int EDITOR_HEIGHT = 177;
     private static final int COMPONENT_BUTTON_BACK = 0;
@@ -34,7 +34,7 @@ public class GuiSettingsWindow extends GuiScreen
     private GuiCompactTextField filterQueryInput;
     private final GuiBenderList bendsSettingsListUI = new GuiBenderList(0, 0, EDITOR_WIDTH - 10, EDITOR_HEIGHT - 10 - 20);
 
-    private final EntityBenderRegistry.Filter filter = new EntityBenderRegistry.Filter();
+    private String query;
 
     public GuiSettingsWindow()
     {
@@ -123,9 +123,9 @@ public class GuiSettingsWindow extends GuiScreen
     public void keyTyped(char typedChar, int keyCode)
     {
         filterQueryInput.textboxKeyTyped(typedChar, keyCode);
-        if (!filterQueryInput.getText().equals(filter.query))
+        if (!filterQueryInput.getText().equals(query))
         {
-            filter.query = filterQueryInput.getText();
+            query = filterQueryInput.getText();
             fetchBenders();
         }
 
@@ -167,7 +167,7 @@ public class GuiSettingsWindow extends GuiScreen
     public void fetchBenders()
     {
         bendsSettingsListUI.clearElements();
-        for (final EntityBender<?> bender : EntityBenderRegistry.instance.getRegistered(filter))
+        for (final EntityBender<?> bender : EntityBenderRegistry.instance.search(query))
         {
             final int typeCount = EntityTypeRegistry.INSTANCE.getTypesFor(bender).size();
             final int extensionCount = EntityTypeRegistry.INSTANCE.getExtensionsFor(bender).size();

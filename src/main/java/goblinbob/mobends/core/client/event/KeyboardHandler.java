@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.client.event;
 
+import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
-import goblinbob.mobends.standard.main.MoBends;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -31,7 +31,7 @@ public class KeyboardHandler
         }
         else if (KEY_REFRESH.isPressed())
         {
-            MoBends.refreshSystems();
+            CoreClient.refresh();
         }
     }
 

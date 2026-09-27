@@ -1,12 +1,12 @@
 package goblinbob.mobends.core.connection;
 
+import goblinbob.mobends.core.Core;
 import com.google.gson.JsonObject;
 import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.module.IModule;
 import goblinbob.mobends.core.util.ConnectionHelper;
 import goblinbob.mobends.core.util.ErrorReporter;
-import goblinbob.mobends.standard.main.MoBends;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import java.io.IOException;
@@ -47,14 +47,14 @@ public class ConnectionManager
 
             response = ConnectionHelper.sendPostRequest(new URL(apiUrl + "/api/activity/join"), body, JoinResponse.class);
 
-            MoBends.LOG.info("Ping interval: " + response.pingInterval);
+            Core.LOG.info("Ping interval: " + response.pingInterval);
         }
         catch (IOException e)
         {
             ErrorReporter.showErrorToPlayer("Couldn't join the API. Some features may be disabled. " +
                     "Contact the developers if this is a prolonged issue.");
             e.printStackTrace();
-            MoBends.LOG.log(Level.SEVERE, e.getMessage());
+            Core.LOG.log(Level.SEVERE, e.getMessage());
             return;
         }
 

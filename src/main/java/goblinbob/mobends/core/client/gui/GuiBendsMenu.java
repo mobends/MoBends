@@ -1,13 +1,11 @@
 package goblinbob.mobends.core.client.gui;
 
-import goblinbob.mobends.core.WebAPI;
 import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
-import goblinbob.mobends.core.client.gui.popup.GuiEditorNotFound;
 import goblinbob.mobends.core.client.gui.popup.GuiPopUp;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
-import goblinbob.mobends.standard.main.ModStatics;
+import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -27,8 +25,6 @@ public class GuiBendsMenu extends GuiScreen
 			"textures/gui/icons.png");
 
 	private GuiSectionButton settingsButton;
-	private GuiSectionButton customizeButton;
-	//private GuiSectionButton addonsButton;
 	private GuiPopUp popUp;
 
 	public GuiBendsMenu()
@@ -37,10 +33,6 @@ public class GuiBendsMenu extends GuiScreen
 
 		this.settingsButton = new GuiSectionButton(I18n.format("mobends.gui.section.settings"), 0xFFDA3A00)
 				.setLeftIcon(0, 43, 19, 19).setRightIcon(19, 43, 19, 19);
-		this.customizeButton = new GuiSectionButton(I18n.format("mobends.gui.section.customize"), 0xFF26DAA3)
-				.setLeftIcon(80, 43, 19, 14).setRightIcon(80, 43, 19, 14);
-//		this.addonsButton = new GuiSectionButton(I18n.format("mobends.gui.section.addons"), 0xFFFFE565)
-//				.setLeftIcon(61, 43, 19, 18).setRightIcon(61, 43, 19, 18);
 
 		this.popUp = null;
 	}
@@ -53,11 +45,7 @@ public class GuiBendsMenu extends GuiScreen
 		if (this.popUp != null)
 			this.popUp.initGui(this.width / 2, this.height / 2);
 
-		int startY = height / 2 - 32;
-		int distance = 49;
-
-		this.settingsButton.initGui((this.width - 318) / 2, startY);
-		this.customizeButton.initGui((this.width - 318) / 2, startY + distance);
+		this.settingsButton.initGui((this.width - 318) / 2, height / 2 - 32);
 	}
 
 	protected void keyTyped(char typedChar, int keyCode)
@@ -94,7 +82,6 @@ public class GuiBendsMenu extends GuiScreen
 		}
 
 		this.settingsButton.update(mouseX, mouseY);
-		this.customizeButton.update(mouseX, mouseY);
 	}
 
 	@Override
@@ -109,32 +96,6 @@ public class GuiBendsMenu extends GuiScreen
 		if (settingsButton.mouseClicked(x, y, state))
 		{
 			mc.displayGuiScreen(new GuiSettingsWindow());
-		}
-		else if (customizeButton.mouseClicked(x, y, state))
-		{
-			IAnimationEditor editor = AnimationEditorRegistry.INSTANCE.getPrimaryEditor();
-
-			if (editor == null)
-			{
-				openPopUp(new GuiEditorNotFound(this::closePopUp, () -> {
-					GuiEditorNotFound editorNotFoundPopup = (GuiEditorNotFound) popUp;
-					String downloadUrl = WebAPI.INSTANCE.getOfficialAnimationEditorUrl();
-
-					if (downloadUrl == null || !GuiHelper.openUrlInBrowser(downloadUrl))
-					{
-						editorNotFoundPopup.setErrorOccurred(true);
-					}
-					else
-					{
-						closePopUp();
-					}
-				}));
-			}
-			else
-			{
-				// Opens the animation editor.
-				editor.openEditorGui();
-			}
 		}
 
 		try
@@ -151,7 +112,6 @@ public class GuiBendsMenu extends GuiScreen
 	{
 		super.mouseReleased(mouseX, mouseY, state);
 		this.settingsButton.mouseReleased(mouseX, mouseY, state);
-		this.customizeButton.mouseReleased(mouseX, mouseY, state);
 	}
 
 	/**
@@ -172,7 +132,6 @@ public class GuiBendsMenu extends GuiScreen
 		Draw.texturedRectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 70, titleWidth, titleHeight, 0, 0, 1, 1);
 
 		this.settingsButton.display();
-		this.customizeButton.display();
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 
