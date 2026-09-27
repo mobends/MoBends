@@ -1,0 +1,32 @@
+mobends.gui.section.settings=impostazioni
+mobends.gui.settings=Impostazioni
+mobends.gui.back=Indietro
+mobends.gui.search=Cerca...
+mobends.gui.editornotfound=Editor di animazioni non trovato
+mobends.gui.geteditor=Scarica l'editor
+mobends.gui.addons=Addon
+
+mobends.player=Giocatore
+
+mobends.config.show_arrow_trails=Scia Delle Freccie
+mobends.config.show_arrow_trails.tooltip=Se attivo, le frecce lasciano una scia
+mobends.config.show_sword_trails=Scia Della Spada
+mobends.config.show_sword_trails.tooltip=Se attivo, le spade lasciano una scia
+mobends.config.perform_spin_attack=Attacco Rotante
+mobends.config.perform_spin_attack.tooltip=Se attivo, la combo con la spada termina con un attacco rotante, tranne quando si cavalca.
+mobends.config.item_use_classifications=Classificazione degli oggetti (uso)
+mobends.config.item_use_classifications.tooltip=Un elenco di associazioni "oggetto=classificazione".
+mobends.config.item_attack_classifications=Classificazione degli oggetti (attacco)
+mobends.config.item_attack_classifications.tooltip=Un elenco di associazioni "oggetto=classificazione".
+mobends.config.keep_armor_as_vanilla=Armature lasciate vanilla
+mobends.config.keep_entity_as_vanilla=Entità lasciate vanilla
+mobends.gui.reset=Ripristina
+mobends.gui.typeorder.button=Ordine (%d)
+mobends.gui.typeorder.title=Ordine: %s
+mobends.gui.typeorder.hint=Quando valgono più tipi, vince quello più in alto.
+mobends.gui.typeorder.conditions=%d condizioni
+mobends.gui.typeorder.rank=grado %d
+mobends.gui.extensionorder.button=Estensioni (%d)
+mobends.gui.extensionorder.title=Estensioni: %s
+mobends.gui.extensionorder.hint=Le estensioni più in alto vanno sopra quelle più in basso.
+mobends.gui.extensionorder.extends=estende %s

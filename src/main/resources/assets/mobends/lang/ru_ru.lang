@@ -1,19 +1,32 @@
-mobends.gui.customize=Настроить
-mobends.gui.use=Использовать
-mobends.gui.disable=Отключить
-mobends.gui.edit=Редактировать
-mobends.gui.done=Отмена
-mobends.gui.entername=Введите новое название
-mobends.gui.filename=Название файла
-mobends.gui.chooseapacktoedit=Выберите локальный пакет для редактирования
-mobends.gui.apply=Применить
-mobends.gui.help=Помощь
-mobends.gui.discardchanges=Вы хотите отказаться от изменений?
-mobends.gui.condition=Состояние
-mobends.gui.node=Узел
-mobends.gui.calculation=Расчёт
-mobends.gui.noscaleallowed=Предупреждение: этот сервер не позволяет масштабировать тело.
+mobends.gui.section.settings=настройки
+mobends.gui.settings=Настройки
+mobends.gui.back=Назад
+mobends.gui.search=Поиск...
+mobends.gui.editornotfound=Редактор анимаций не найден
+mobends.gui.geteditor=Скачать редактор
+mobends.gui.addons=Дополнения
 
-mobends.setting.sword_trail=След меча
-mobends.setting.arrow_trails=Следы стрел
-mobends.setting.spin_attack=Вращающаяся атака
+mobends.player=Игрок
+
+mobends.config.show_arrow_trails=Следы стрел
+mobends.config.show_arrow_trails.tooltip=Если включено, за стрелами остаётся след
+mobends.config.show_sword_trails=След меча
+mobends.config.show_sword_trails.tooltip=Если включено, за мечами остаётся след
+mobends.config.perform_spin_attack=Вращающаяся атака
+mobends.config.perform_spin_attack.tooltip=Если включено, серия ударов мечом заканчивается вращающейся атакой, кроме как верхом.
+mobends.config.item_use_classifications=Классификация предметов (использование)
+mobends.config.item_use_classifications.tooltip=Список соответствий "предмет=классификация".
+mobends.config.item_attack_classifications=Классификация предметов (атака)
+mobends.config.item_attack_classifications.tooltip=Список соответствий "предмет=классификация".
+mobends.config.keep_armor_as_vanilla=Броня без изменений (vanilla)
+mobends.config.keep_entity_as_vanilla=Существа без изменений (vanilla)
+mobends.gui.reset=Сбросить
+mobends.gui.typeorder.button=Порядок (%d)
+mobends.gui.typeorder.title=Порядок: %s
+mobends.gui.typeorder.hint=Если подходит несколько типов, побеждает верхний.
+mobends.gui.typeorder.conditions=Условий: %d
+mobends.gui.typeorder.rank=ранг %d
+mobends.gui.extensionorder.button=Расширения (%d)
+mobends.gui.extensionorder.title=Расширения: %s
+mobends.gui.extensionorder.hint=Расширения выше по списку накладываются на те, что ниже.
+mobends.gui.extensionorder.extends=расширяет %s

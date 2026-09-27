@@ -1,0 +1,32 @@
+mobends.gui.section.settings=innstillinger
+mobends.gui.settings=Innstillinger
+mobends.gui.back=Tilbake
+mobends.gui.search=Søk...
+mobends.gui.editornotfound=Fant ikke animasjonsredigereren
+mobends.gui.geteditor=Hent redigereren
+mobends.gui.addons=Tillegg
+
+mobends.player=Spiller
+
+mobends.config.show_arrow_trails=Pil Hale
+mobends.config.show_arrow_trails.tooltip=Hvis på, etterlater piler et spor
+mobends.config.show_sword_trails=Sverd Hale
+mobends.config.show_sword_trails.tooltip=Hvis på, etterlater sverd et spor
+mobends.config.perform_spin_attack=Spinne Angrep
+mobends.config.perform_spin_attack.tooltip=Hvis på, avsluttes sverdkomboen med et snurreangrep, unntatt når man rir.
+mobends.config.item_use_classifications=Klassifisering av gjenstander (bruk)
+mobends.config.item_use_classifications.tooltip=En liste med "gjenstand=klassifisering".
+mobends.config.item_attack_classifications=Klassifisering av gjenstander (angrep)
+mobends.config.item_attack_classifications.tooltip=En liste med "gjenstand=klassifisering".
+mobends.config.keep_armor_as_vanilla=Rustning som forblir vanilla
+mobends.config.keep_entity_as_vanilla=Enheter som forblir vanilla
+mobends.gui.reset=Tilbakestill
+mobends.gui.typeorder.button=Rekkefølge (%d)
+mobends.gui.typeorder.title=Rekkefølge: %s
+mobends.gui.typeorder.hint=Når flere typer passer, vinner den øverste.
+mobends.gui.typeorder.conditions=%d betingelser
+mobends.gui.typeorder.rank=rang %d
+mobends.gui.extensionorder.button=Utvidelser (%d)
+mobends.gui.extensionorder.title=Utvidelser: %s
+mobends.gui.extensionorder.hint=Utvidelser høyere opp legges oppå dem under.
+mobends.gui.extensionorder.extends=utvider %s

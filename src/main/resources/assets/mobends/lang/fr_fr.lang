@@ -1,17 +1,32 @@
 mobends.gui.section.settings=paramètres
-mobends.gui.section.customize=personnaliser
 mobends.gui.settings=Paramètres
 mobends.gui.back=Retour
-mobends.gui.use=Utiliser
-mobends.gui.disable=Désactiver
-mobends.gui.edit=Modifier
-mobends.gui.done=Terminé
-mobends.gui.apply=Appliquer
-mobends.gui.help=Aide
-mobends.gui.discardchanges=Voulez-vous annuler les modifications ?
-mobends.gui.noscaleallowed=Attention : Ce serveur n'autorise pas le body scaling.
 mobends.gui.search=Recherche...
 mobends.gui.editornotfound=Editeur d'animation non trouvé
 mobends.gui.geteditor=Obtenir un éditeur
+mobends.gui.addons=Addons
 
 mobends.player=Joueur
+
+mobends.config.show_arrow_trails=Afficher les traînées des flèches
+mobends.config.show_arrow_trails.tooltip=Si activé, les flèches laissent une traînée
+mobends.config.show_sword_trails=Afficher les traînées des épées
+mobends.config.show_sword_trails.tooltip=Si activé, les épées laissent une traînée
+mobends.config.perform_spin_attack=Effectuer l'attaque tournoyante
+mobends.config.perform_spin_attack.tooltip=Si activé, l'enchaînement à l'épée se termine par une attaque tournoyante, sauf à cheval.
+mobends.config.item_use_classifications=Classification des objets (utilisation)
+mobends.config.item_use_classifications.tooltip=Une liste de correspondances "objet=classification".
+mobends.config.item_attack_classifications=Classification des objets (attaque)
+mobends.config.item_attack_classifications.tooltip=Une liste de correspondances "objet=classification".
+mobends.config.keep_armor_as_vanilla=Armures laissées vanilla
+mobends.config.keep_entity_as_vanilla=Entités laissées vanilla
+mobends.gui.reset=Réinitialiser
+mobends.gui.typeorder.button=Ordre (%d)
+mobends.gui.typeorder.title=Ordre : %s
+mobends.gui.typeorder.hint=Quand plusieurs types s'appliquent, le plus haut l'emporte.
+mobends.gui.typeorder.conditions=%d conditions
+mobends.gui.typeorder.rank=rang %d
+mobends.gui.extensionorder.button=Extensions (%d)
+mobends.gui.extensionorder.title=Extensions : %s
+mobends.gui.extensionorder.hint=Les extensions plus haut passent par-dessus celles en dessous.
+mobends.gui.extensionorder.extends=étend %s

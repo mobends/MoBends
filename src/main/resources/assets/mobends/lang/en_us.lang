@@ -1,18 +1,10 @@
 mobends.gui.section.settings=settings
-mobends.gui.section.customize=customize
 mobends.gui.settings=Settings
 mobends.gui.back=Back
-mobends.gui.use=Use
-mobends.gui.disable=Disable
-mobends.gui.edit=Edit
-mobends.gui.done=Done
-mobends.gui.apply=Apply
-mobends.gui.help=Help
-mobends.gui.discardchanges=Do you want to discard changes?
-mobends.gui.noscaleallowed=Warning: This server doesn't allow body scaling.
 mobends.gui.search=Search...
 mobends.gui.editornotfound=Animation editor not found
 mobends.gui.geteditor=Get Editor
+mobends.gui.addons=Addons
 
 mobends.player=Player
 
@@ -21,7 +13,7 @@ mobends.config.show_arrow_trails.tooltip=If true, arrow trails will be shown
 mobends.config.show_sword_trails=Show Sword Trails
 mobends.config.show_sword_trails.tooltip=If true, sword trails will be shown
 mobends.config.perform_spin_attack=Perform Spin Attack
-mobends.config.perform_spin_attack.tooltip=If true, the spin attack (whirl slash) will be occur.
+mobends.config.perform_spin_attack.tooltip=If true, the sword combo ends with a spin attack (whirl slash), except while riding.
 mobends.config.item_use_classifications=Item use classifications
 mobends.config.item_use_classifications.tooltip=A list of "item=classification" mappings.
 mobends.config.item_attack_classifications=Item attack classifications

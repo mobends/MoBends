@@ -1,0 +1,32 @@
+mobends.gui.section.settings=ustawienia
+mobends.gui.settings=Ustawienia
+mobends.gui.back=Wróć
+mobends.gui.search=Szukaj...
+mobends.gui.editornotfound=Nie znaleziono edytora animacji
+mobends.gui.geteditor=Pobierz edytor
+mobends.gui.addons=Dodatki
+
+mobends.player=Gracz
+
+mobends.config.show_arrow_trails=Pokaż smugi za strzałami
+mobends.config.show_arrow_trails.tooltip=Jeśli włączone, będą widoczne smugi za strzałami
+mobends.config.show_sword_trails=Pokaż smugi za mieczami
+mobends.config.show_sword_trails.tooltip=Jeśli włączone, będą widoczne smugi za mieczami
+mobends.config.perform_spin_attack=Wykonuj atak obrotowy
+mobends.config.perform_spin_attack.tooltip=Jeśli włączone, gracz będzie wykonywał atak obrotowy.
+mobends.config.item_use_classifications=Klasyfikacja przedmiotów (użycie)
+mobends.config.item_use_classifications.tooltip=Lista przypisań "przedmiot=klasyfikacja".
+mobends.config.item_attack_classifications=Klasyfikacja przedmiotów (atak)
+mobends.config.item_attack_classifications.tooltip=Lista przypisań "przedmiot=klasyfikacja".
+mobends.config.keep_armor_as_vanilla=Zbroje bez zmian (vanilla)
+mobends.config.keep_entity_as_vanilla=Stworzenia bez zmian (vanilla)
+mobends.gui.reset=Resetuj
+mobends.gui.typeorder.button=Kolejność (%d)
+mobends.gui.typeorder.title=Kolejność: %s
+mobends.gui.typeorder.hint=Gdy pasuje kilka typów, wygrywa najwyższy.
+mobends.gui.typeorder.conditions=Warunki: %d
+mobends.gui.typeorder.rank=ranga %d
+mobends.gui.extensionorder.button=Rozszerzenia (%d)
+mobends.gui.extensionorder.title=Rozszerzenia: %s
+mobends.gui.extensionorder.hint=Rozszerzenia wyżej na liście nakładają się na te niżej.
+mobends.gui.extensionorder.extends=rozszerza %s
