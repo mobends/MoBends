@@ -1,8 +1,6 @@
 package goblinbob.mobends.core.client.model;
 
 import goblinbob.mobends.core.math.SmoothOrientation;
-import goblinbob.mobends.core.math.TransformUtils;
-import goblinbob.mobends.core.math.matrix.IMat4x4d;
 import goblinbob.mobends.core.math.vector.IVec3f;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
@@ -102,13 +100,6 @@ public class ModelPartTransform implements IModelPart
 	}
 
 	@Override
-	public void applyPreTransform(float scale, IMat4x4d dest)
-	{
-		if (this.globalOffset.x != 0.0F || this.globalOffset.y != 0.0F || this.globalOffset.z != 0.0F)
-			TransformUtils.translate(dest, this.globalOffset.x * scale, this.globalOffset.y * scale, this.globalOffset.z * scale);
-	}
-
-	@Override
 	public void applyLocalTransform(float scale)
 	{
 		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
@@ -138,21 +129,6 @@ public class ModelPartTransform implements IModelPart
 	public void setVisible(boolean showModel)
 	{
 		// Do nothing
-	}
-
-	@Override
-	public void applyLocalTransform(float scale, IMat4x4d matrix)
-	{
-		if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
-			TransformUtils.translate(matrix, this.position.x * scale, this.position.y * scale, this.position.z * scale);
-
-		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
-			TransformUtils.translate(matrix, this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
-
-		TransformUtils.rotate(matrix, this.rotation.getSmooth());
-		
-    	/*if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
-    		TransformUtils.scale(dest, this.scale.x, this.scale.y, this.scale.z, dest);*/
 	}
 	
 	@Override

@@ -35,7 +35,6 @@ public abstract class EntityBender<T extends EntityLivingBase>
 
 	private IEntityDataFactory<T> dataFactory;
 	private boolean animate;
-	protected Map<String, BoneMetadata> boneMetadataMap;
 
 	private static class Mutation
 	{

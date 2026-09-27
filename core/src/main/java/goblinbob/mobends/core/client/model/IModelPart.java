@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.client.model;
 
 import goblinbob.mobends.core.math.SmoothOrientation;
-import goblinbob.mobends.core.math.matrix.IMat4x4d;
 import goblinbob.mobends.core.math.vector.IVec3f;
 
 public interface IModelPart
@@ -15,25 +14,10 @@ public interface IModelPart
 	void applyPreTransform(float scale);
 
 	/**
-	 * Applies the transform in global space (relative to the entity).
-	 * This is being applied before the parent transform.
-	 * @param scale Controls the scale of the translation.
-	 * @param dest The matrix to be transformed.
-	 */
-	void applyPreTransform(float scale, IMat4x4d dest);
-
-	/**
 	 * Applies the transform in local space (relative to the parent).
 	 * @param scale Controls the scale of the translation.
 	 */
 	void applyLocalTransform(float scale);
-
-	/**
-	 * Applies the transform in local space (relative to the parent).
-	 * @param scale Controls the scale of the translation.
-	 * @param dest The matrix to be transformed.
-	 */
-	void applyLocalTransform(float scale, IMat4x4d dest);
 
 	/**
 	 * Applies the transform in character space (includes all parents).
@@ -47,21 +31,6 @@ public interface IModelPart
 			this.getParent().applyCharacterTransform(scale * getOffsetScale());
 		}
 		this.applyLocalTransform(scale);
-	}
-
-	/**
-	 * Applies the transform in character space (includes all parents).
-	 * @param scale Controls the scale of the translation.
-	 * @param dest The matrix to be transformed.
-	 */
-	default void applyCharacterTransform(float scale, IMat4x4d dest)
-	{
-		this.applyPreTransform(scale, dest);
-		if (this.getParent() != null)
-		{
-			this.getParent().applyCharacterTransform(scale * getOffsetScale(), dest);
-		}
-		this.applyLocalTransform(scale, dest);
 	}
 
 	/**

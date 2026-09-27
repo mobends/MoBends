@@ -1,6 +1,6 @@
 package goblinbob.mobends.core.util;
 
-public class Color implements IColor
+public class Color implements IColorRead
 {
 	public static final ColorReadonly WHITE = new ColorReadonly(1, 1, 1, 1);
 	public static final ColorReadonly RED 	= new ColorReadonly(1, 0, 0, 1);
@@ -81,7 +81,6 @@ public class Color implements IColor
 		return this.a;
 	}
 
-	@Override
 	public void set(float r, float g, float b, float a)
 	{
 		this.r = r;
@@ -90,31 +89,26 @@ public class Color implements IColor
 		this.a = a;
 	}
 
-	@Override
 	public void setR(float r)
 	{
 		this.r = r;
 	}
 
-	@Override
 	public void setG(float g)
 	{
 		this.g = g;
 	}
 
-	@Override
 	public void setB(float b)
 	{
 		this.b = b;
 	}
 
-	@Override
 	public void setA(float a)
 	{
 		this.a = a;
 	}
 
-	@Override
 	public void add(float r, float g, float b, float a)
 	{
 		this.r += r;
