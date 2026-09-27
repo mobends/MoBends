@@ -39,8 +39,8 @@ public class ModConfig
 
     @Config.Ignore
     private static Map<Item, Boolean> keepArmorAsVanillaCache;
-    @Config.Ignore
     /** By entity class: the answer depends on the entity's type only. */
+    @Config.Ignore
     private static Map<Class<? extends Entity>, Boolean> keepEntityAsVanillaCache;
     @Config.Ignore
     private static Map<Item, UseActionType> itemUseClassificationCache;

@@ -28,13 +28,12 @@
   (the default), or deny it; singleplayer always allows it.
 - Resource reloads (F3+T, or changing resource packs) pick up changed animations and models.
 - The mod's download is about 1 MB smaller (2.3 MB down to 1.3 MB).
-- The Mo' Bends menu's settings (which mobs are animated, the orders) are stored in
-  `config/mobends/client.cfg`, so they no longer overwrite the mod options in `config/mobends.cfg`
-  (or get overwritten by them); they start from the defaults once.
 - Supporter accessories download in the background instead of on every resource reload.
 
 ### Fixed
 
+- The Mo' Bends menu's settings (which mobs are animated, the orders) and the mod options in
+  Forge's mod options screen no longer overwrite each other in `config/mobends.cfg`.
 - The wolf's walk no longer lags one frame behind its movement.
 - Mo' Bends no longer keeps every entity it has seen in memory until you switch worlds.
 - Mobs that aren't animated no longer cost time on every frame.
