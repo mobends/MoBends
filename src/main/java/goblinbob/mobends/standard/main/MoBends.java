@@ -5,7 +5,6 @@ import goblinbob.mobends.core.addon.Addons;
 import goblinbob.mobends.core.animation.keyframe.AnimationLoader;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.data.EntityDatabase;
-import goblinbob.mobends.core.pack.PackDataProvider;
 import goblinbob.mobends.core.util.GsonResources;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -58,9 +57,11 @@ public class MoBends
     {
         AnimationLoader.clearCache();
         GsonResources.clearCache();
-        PackDataProvider.INSTANCE.clearCache();
+        goblinbob.mobends.core.kumo.AnimatorResources.INSTANCE.clearCache();
+        goblinbob.mobends.core.definition.ModelDefinitions.INSTANCE.clearCache();
         EntityDatabase.instance.refresh();
         EntityBenderRegistry.instance.refreshMutators();
+        goblinbob.mobends.core.types.EntityTypeRegistry.INSTANCE.reload();
         Addons.onRefresh();
 
         Core.getInstance().refreshModules();

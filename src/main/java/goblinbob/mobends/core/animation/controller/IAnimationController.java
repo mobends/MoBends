@@ -17,5 +17,11 @@ public interface IAnimationController<T extends EntityData<?>>
 
 	@Nullable
 	Collection<String> perform(T entityData);
+
+	/** True when, after the last {@link #perform}, the entity should be drawn with its vanilla model and animation. */
+	default boolean wantsVanilla()
+	{
+		return false;
+	}
 	
 }

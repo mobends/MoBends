@@ -1,6 +1,5 @@
 package goblinbob.mobends.standard.mutators;
 
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.data.PigZombieData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelZombie;
@@ -12,12 +11,7 @@ public class PigZombieMutator extends BipedMutator<PigZombieData, EntityPigZombi
 
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
-	
-	public PigZombieMutator(IEntityDataFactory<EntityPigZombie> dataFactory)
-	{
-		super(dataFactory);
-	}
-	
+
 	@Override
 	public void fetchFields(RenderLivingBase<? extends EntityPigZombie> renderer)
 	{

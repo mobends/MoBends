@@ -4,7 +4,8 @@ import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.GUtil;
-import goblinbob.mobends.standard.animation.controller.SpiderController;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.init.Blocks;
@@ -21,7 +22,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 
     public Limb[] limbs;
 
-    protected final SpiderController controller = new SpiderController();
+	private final KumoAnimatorController<SpiderData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/spider.json");
     protected float prevCrawlProgress = 0;
     protected float crawlProgress = 0;
     protected EnumFacing wallFacing = null;
@@ -29,10 +30,16 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public SpiderData(EntitySpider entity)
     {
         super(entity);
+        registerVariable("crawlProgress", this::getInterpolatedCrawlProgress);
+        registerVariable("crawlRenderYaw", () -> {
+            final float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * DataUpdateHandler.partialTicks;
+            return MathHelper.wrapDegrees(yaw - getCrawlingRotation());
+        });
+        registerState("BESIDE_CLIMBABLE", entity::isBesideClimbableBlock);
     }
 
     @Override
-    public SpiderController getController()
+    public KumoAnimatorController<SpiderData> getController()
     {
         return controller;
     }
@@ -288,15 +295,6 @@ public class SpiderData extends LivingEntityData<EntitySpider>
                     deltaX, deltaZ,
                     xzDistance, xzAngle
             );
-        }
-
-        public void applyIK(IKResult result, double groundLevel, double liftHeight, float pt)
-        {
-            double xzAngle = odd ? (Math.PI / 2 + result.xzAngle) : (-Math.PI / 2 + result.xzAngle);
-            this.upperPart.rotation.orientY((float) (xzAngle / Math.PI * 180F));
-            this.lowerPart.rotation.orientZero();
-            SpiderController.putLimbOnGround(this.upperPart.rotation, this.lowerPart.rotation, this.odd, result.xzDistance,
-                    groundLevel - 7 + Math.sin(this.adjustingProgress * Math.PI) * liftHeight);
         }
 
         public double getNeutralYaw()

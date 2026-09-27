@@ -26,6 +26,14 @@ public abstract class ZombieDataBase<E extends EntityZombie> extends BipedEntity
 		this.animationSet = ((int) (entity.getEntityId() * 3.61352F)) % ANIMATION_SETS_AMOUNT;
 	}
 
+	@Override
+	protected void registerKumoBindings()
+	{
+		super.registerKumoBindings();
+		registerVariable("animationSet", () -> animationSet);
+		registerVariable("currentWalkingState", () -> currentWalkingState);
+	}
+
 	public int getAnimationSet()
 	{
 		return this.animationSet;

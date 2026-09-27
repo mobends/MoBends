@@ -4,6 +4,7 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.network.NetworkConfiguration;
 import goblinbob.mobends.core.network.SharedProperty;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -55,9 +56,11 @@ public class MessageConfigResponse implements IMessage
             final Iterable<SharedProperty<?>> properties = NetworkConfiguration.instance.getSharedConfig().getProperties();
             for (SharedProperty<?> property : properties)
             {
-                builder.append(String.format(" - %s: %b\n", property.getKey(), property.getValue()));
+                builder.append(String.format(" - %s: %s\n", property.getKey(), property.getValue()));
             }
             Core.LOG.info(builder.toString());
+            // Messages arrive on the network thread; the animation is reloaded on the client's.
+            Minecraft.getMinecraft().addScheduledTask(NetworkConfiguration.instance::applyChanges);
 
             return null;
         }

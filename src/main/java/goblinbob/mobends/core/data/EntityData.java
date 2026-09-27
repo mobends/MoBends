@@ -1,26 +1,36 @@
 package goblinbob.mobends.core.data;
 
+import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.animation.controller.IAnimationController;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IBendsModel;
+import goblinbob.mobends.core.kumo.IKumoSubject;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.core.kumo.bind.BoneSinks;
+import goblinbob.mobends.core.kumo.bind.IBoneSink;
+import goblinbob.mobends.core.kumo.bind.VectorSink;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
-import goblinbob.mobends.core.pack.state.PackAnimationState;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
-public abstract class EntityData<E extends Entity> implements IBendsModel
+public abstract class EntityData<E extends Entity> implements IBendsModel, IKumoSubject
 {
 
     protected int entityID;
@@ -31,16 +41,20 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
     protected double motionX, motionY, motionZ;
     protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
 
+    /** Named numeric inputs exposed to KUMO animators (see {@link #registerVariable}). */
+    private final Map<String, DoubleSupplier> kumoVariables = new HashMap<>();
+    /** Named boolean inputs exposed to KUMO animators (see {@link #registerState}). */
+    private final Map<String, BooleanSupplier> kumoStates = new HashMap<>();
+
     public SmoothVector3f globalOffset;
     public SmoothVector3f localOffset;
     public SmoothOrientation renderRotation;
     public SmoothOrientation centerRotation;
 
     public boolean onGround = true;
-    public Boolean onGroundOverride = null;
-    public Boolean stillnessOverride = null;
 
-    public final PackAnimationState packAnimationState;
+    /** The animator of the entity's type, when it replaces the data's own controller. */
+    private IAnimationController<?> typeAnimator;
 
     public EntityData(E entity)
     {
@@ -57,29 +71,107 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
         this.motionY = this.prevMotionY = 1.0D;
         this.motionZ = this.prevMotionZ = 0.0D;
 
-        this.packAnimationState = new PackAnimationState();
 
         this.initModelPose();
+        this.registerKumoBindings();
     }
 
-    public void overrideOnGroundState(boolean state)
+    // --- KUMO subject ------------------------------------------------------------------------
+
+    /**
+     * Registers the variables and states this data exposes to asset-driven animators. Subclasses
+     * override to add their own and must call {@code super.registerKumoBindings()}.
+     */
+    protected void registerKumoBindings()
     {
-        this.onGroundOverride = state;
+        registerVariable("ticks", DataUpdateHandler::getTicks);
+        registerVariable("partialTicks", () -> DataUpdateHandler.partialTicks);
+        registerVariable("ticksPerFrame", () -> DataUpdateHandler.ticksPerFrame);
+        registerVariable("random", Math::random);
+        registerVariable("motionX", () -> motionX);
+        registerVariable("motionY", () -> motionY);
+        registerVariable("motionZ", () -> motionZ);
+        registerVariable("prevMotionX", () -> prevMotionX);
+        registerVariable("prevMotionY", () -> prevMotionY);
+        registerVariable("prevMotionZ", () -> prevMotionZ);
+        registerVariable("motionMagnitude", this::getInterpolatedMotionMagnitude);
+        registerVariable("interpolatedMotionY", this::getInterpolatedMotionY);
+        registerVariable("ticksExisted", () -> entity != null ? entity.ticksExisted : 0);
+        registerVariable("xzMotionMagnitude", this::getInterpolatedXZMotionMagnitude);
+        registerVariable("forwardMomentum", this::getForwardMomentum);
+        registerVariable("sidewaysMomentum", this::getSidewaysMomentum);
+        registerVariable("movementAngle", this::getMovementAngle);
+
+        registerState("ON_GROUND", this::isOnGround);
+        registerState("AIRBORNE", () -> !isOnGround());
+        registerState("STANDING_STILL", this::isStillHorizontally);
+        registerState("MOVING_HORIZONTALLY", () -> !isStillHorizontally());
+        registerState("SPRINTING", () -> entity != null && entity.isSprinting());
+        registerState("SNEAKING", () -> entity != null && entity.isSneaking());
+        registerState("IN_WATER", () -> entity != null && entity.isInWater());
+        registerState("UNDERWATER", this::isUnderwater);
+        registerState("RIDING", () -> entity != null && entity.isRiding());
+        registerState("ALIVE", () -> entity != null && entity.isEntityAlive());
+        registerState("STRAFING", this::isStrafing);
     }
 
-    public void unsetOnGroundStateOverride()
+    protected final void registerVariable(String name, DoubleSupplier supplier)
     {
-        this.onGroundOverride = null;
+        kumoVariables.put(name, supplier);
     }
 
-    public void overrideStillness(boolean stillness)
+    protected final void registerState(String name, BooleanSupplier supplier)
     {
-        this.stillnessOverride = stillness;
+        kumoStates.put(name, supplier);
     }
 
-    public void unsetStillnessOverride()
+    @Override
+    public IBoneSink getBone(String name)
     {
-        this.stillnessOverride = null;
+        // The entity-level smoothed vectors are not model parts, but animators address them by name.
+        if ("root".equals(name) || "globalOffset".equals(name))
+        {
+            return new VectorSink(globalOffset);
+        }
+        if ("localOffset".equals(name))
+        {
+            return new VectorSink(localOffset);
+        }
+        return BoneSinks.wrap(getPartForName(name));
+    }
+
+    @Override
+    public boolean hasVariable(String name)
+    {
+        return kumoVariables.containsKey(name);
+    }
+
+    @Override
+    public double getVariable(String name)
+    {
+        DoubleSupplier supplier = kumoVariables.get(name);
+        if (supplier == null)
+        {
+            throw new IllegalArgumentException("Unknown animation variable: " + name);
+        }
+        return supplier.getAsDouble();
+    }
+
+    @Override
+    public boolean hasState(String name)
+    {
+        return kumoStates.containsKey(name);
+    }
+
+    @Override
+    public boolean getState(String name)
+    {
+        BooleanSupplier supplier = kumoStates.get(name);
+        if (supplier == null)
+        {
+            throw new IllegalArgumentException("Unknown animation state: " + name);
+        }
+        return supplier.getAsBoolean();
     }
 
     public void initModelPose()
@@ -106,9 +198,6 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
 
     public boolean calcOnGround()
     {
-        if (this.onGroundOverride != null)
-            return this.onGroundOverride;
-
         // Checking if we're going down stairs.
         BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 
@@ -165,10 +254,46 @@ public abstract class EntityData<E extends Entity> implements IBendsModel
         // The motion value that is the threshold for determining movement.
         final double deadZone = 0.0025;
         final double horizontalSqMagnitude = this.motionX * this.motionX + this.motionZ * this.motionZ;
-        return this.stillnessOverride != null ? this.stillnessOverride : horizontalSqMagnitude < deadZone;
+        return horizontalSqMagnitude < deadZone;
     }
 
     public abstract IAnimationController<?> getController();
+
+    /** Animates this entity with {@code animator} instead of its own controller (a type chose another animator). */
+    /**
+     * Animates this entity with its type's animator and extensions: {@code animator} (null for the
+     * data's own), with the layers of each of {@code extensions} on top.
+     */
+    public void setAnimator(@Nullable ResourceLocation animator, List<ResourceLocation> extensions)
+    {
+        ResourceLocation base = animator;
+        if (base == null)
+        {
+            IAnimationController<?> own = this.getController();
+            if (own instanceof KumoAnimatorController)
+            {
+                base = ((KumoAnimatorController<?>) own).getAnimator();
+            }
+            else if (!extensions.isEmpty())
+            {
+                Core.LOG.warning("Extensions need an animator asset to go on top of; the model of " + entity + " has none, so they are ignored.");
+            }
+        }
+        this.typeAnimator = base == null ? null : new KumoAnimatorController<>(base, extensions);
+    }
+
+    /** True when the entity's animator asks for the vanilla model and animation right now (a {@code core:vanilla} node). */
+    public boolean wantsVanilla()
+    {
+        IAnimationController<?> controller = getActiveController();
+        return controller != null && controller.wantsVanilla();
+    }
+
+    /** The controller that animates this entity: its type's animator, or else its own. */
+    public IAnimationController<?> getActiveController()
+    {
+        return this.typeAnimator != null ? this.typeAnimator : this.getController();
+    }
 
     /**
      * Called during the render tick in {@code EntityDatabase.updateRender()}

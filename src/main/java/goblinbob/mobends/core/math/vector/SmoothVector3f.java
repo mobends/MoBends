@@ -53,6 +53,31 @@ public class SmoothVector3f
 		this.slideTo(orientation, 1.0F);
 	}
 
+	/**
+	 * Restarts the interpolation from the current value towards the target, even if the target
+	 * did not change. Calling this every frame yields an exponential approach; this is what the
+	 * procedural animations end up doing whenever more than one of them writes the same vector.
+	 */
+	public void retarget(float x, float y, float z)
+	{
+		this.start.set(this.getX(), this.getY(), this.getZ());
+		this.end.set(x, y, z);
+		this.completion.set(0, 0, 0);
+	}
+
+	/** Restarts the interpolation of one axis from its current value towards its current target. */
+	public void restart(EnumAxis axis)
+	{
+		if (axis == EnumAxis.X) { this.start.x = this.getX(); this.completion.x = 0.0F; }
+		else if (axis == EnumAxis.Y) { this.start.y = this.getY(); this.completion.y = 0.0F; }
+		else { this.start.z = this.getZ(); this.completion.z = 0.0F; }
+	}
+
+	public float getSmoothness(EnumAxis axis)
+	{
+		return axis == EnumAxis.X ? this.smoothness.x : axis == EnumAxis.Y ? this.smoothness.y : this.smoothness.z;
+	}
+
 	public void slideToZero(float smoothness)
 	{
 		this.slideTo(0, 0, 0, smoothness);

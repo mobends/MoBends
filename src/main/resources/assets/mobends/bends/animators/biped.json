@@ -1,0 +1,473 @@
+{
+  "formatVersion": 2,
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "stand",
+      "nodes": {
+        "stand": {
+          "type": "core:pose",
+          "tags": [
+            "stand"
+          ],
+          "enterPose": [
+            {
+              "animationKey": "mobends:bends/animations/biped/stand_enter.json",
+              "when": {
+                "type": "core:compare",
+                "variable": "ticksAfterTouchdown",
+                "op": "<",
+                "value": 3.3333333333333335
+              }
+            }
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/biped/stand.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "ticks",
+                      0.1
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "damping": {
+                "root": 0.6,
+                "localOffset": 0.3,
+                "renderRotation": 0.6,
+                "centerRotation": 0.3,
+                "renderRightItemRotation": 0.3,
+                "renderLeftItemRotation": 0.3,
+                "body": 1,
+                "rightArm": 0.4,
+                "leftArm": 0.4
+              },
+              "vectorModes": {
+                "root": "SLIDE",
+                "localOffset": "SLIDE"
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": "headYaw",
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": "headPitch",
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/biped/kneel.json",
+              "frame": "ticksAfterTouchdown",
+              "when": {
+                "type": "core:compare",
+                "variable": "ticksAfterTouchdown",
+                "op": "<",
+                "value": 6.666666666666667
+              },
+              "damping": {
+                "body": 1
+              },
+              "vectorModes": {
+                "root": "SNAP"
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:or",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "AIRBORNE"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterTouchdown",
+                    "op": "<",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "target": "walk",
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              }
+            }
+          ]
+        },
+        "walk": {
+          "type": "core:pose",
+          "tags": [
+            "walk"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/biped/walk_base.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "damping": {
+                "root": [
+                  0.6,
+                  1.2,
+                  0.6
+                ],
+                "localOffset": 0.3,
+                "renderRotation": 0.6,
+                "centerRotation": 0.3,
+                "renderRightItemRotation": 0.3,
+                "renderLeftItemRotation": 0.3,
+                "body": 0.5,
+                "head": 0.5,
+                "rightArm": 0.8,
+                "leftArm": 0.8,
+                "rightForeArm": 0.8,
+                "leftForeArm": 0.8,
+                "rightLeg": 1,
+                "leftLeg": 1
+              },
+              "vectorModes": {
+                "root": "RETARGET",
+                "localOffset": "SLIDE"
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/biped/walk_forelegs.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "damping": {
+                "leftForeLeg": 0.5,
+                "rightForeLeg": 0.5
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/biped/walk_swing.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "weight": "limbSwingAmount",
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "body",
+              "axis": "Z",
+              "angle": {
+                "clamp": [
+                  {
+                    "mul": [
+                      "headYaw",
+                      -0.1
+                    ]
+                  },
+                  -10,
+                  10
+                ]
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": "headYaw",
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": "headPitch",
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/biped/kneel.json",
+              "frame": "ticksAfterTouchdown",
+              "when": {
+                "type": "core:compare",
+                "variable": "ticksAfterTouchdown",
+                "op": "<",
+                "value": 6.666666666666667
+              },
+              "damping": {
+                "body": 1
+              },
+              "vectorModes": {
+                "root": "SNAP"
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:or",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "AIRBORNE"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "ticksAfterTouchdown",
+                    "op": "<",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "target": "stand",
+              "triggerCondition": {
+                "type": "core:state",
+                "state": "STANDING_STILL"
+              }
+            }
+          ]
+        },
+        "jump": {
+          "type": "core:pose",
+          "tags": [
+            "jump"
+          ],
+          "enterPose": [
+            {
+              "animationKey": "mobends:bends/animations/biped/jump_enter.json"
+            }
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/biped/jump.json",
+              "frame": "ticksInAir",
+              "damping": {
+                "root": 0.6,
+                "localOffset": 0.3,
+                "renderRotation": 0.6,
+                "centerRotation": 0.7,
+                "renderRightItemRotation": 0.3,
+                "renderLeftItemRotation": 0.3,
+                "body": 0.2,
+                "rightArm": 0.05,
+                "leftArm": 0.05,
+                "rightForeArm": 0.3,
+                "leftForeArm": 0.3
+              },
+              "vectorModes": {
+                "root": "SLIDE"
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": "headYaw",
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": "headPitch",
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/biped/jump_moving_base.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "when": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              },
+              "damping": {
+                "rightLeg": 1,
+                "leftLeg": 1,
+                "leftForeArm": 0.3,
+                "rightForeArm": 0.3
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/biped/jump_moving_forelegs.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "when": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              },
+              "damping": {
+                "leftForeLeg": 0.3,
+                "rightForeLeg": 0.3
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/biped/jump_moving_swing.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "weight": "limbSwingAmount",
+              "space": "POST",
+              "when": {
+                "type": "core:state",
+                "state": "MOVING_HORIZONTALLY"
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/biped/jump_still.json",
+              "when": {
+                "type": "core:state",
+                "state": "STANDING_STILL"
+              },
+              "damping": {
+                "rightLeg": 0.3,
+                "leftLeg": 0.3,
+                "rightForeLeg": 0.3,
+                "leftForeLeg": 0.3
+              }
+            }
+          ],
+          "connections": [
+            {
+              "target": "stand",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:and",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "ON_GROUND"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": ">=",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "STANDING_STILL"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "walk",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:and",
+                    "conditions": [
+                      {
+                        "type": "core:state",
+                        "state": "ON_GROUND"
+                      },
+                      {
+                        "type": "core:compare",
+                        "variable": "ticksAfterTouchdown",
+                        "op": ">=",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "MOVING_HORIZONTALLY"
+                  }
+                ]
+              }
+            },
+            {
+              "target": "jump",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:compare",
+                    "variable": "prevMotionY",
+                    "op": "<",
+                    "value": 0
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "motionY",
+                    "op": ">",
+                    "value": 0
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

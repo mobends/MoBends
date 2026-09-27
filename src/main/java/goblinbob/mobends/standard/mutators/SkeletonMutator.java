@@ -4,7 +4,6 @@ import goblinbob.mobends.core.client.model.BoxSide;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.client.model.ModelPartExtended;
 import goblinbob.mobends.core.client.model.ModelPartPostOffset;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.data.SkeletonData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelSkeleton;
@@ -21,11 +20,6 @@ public class SkeletonMutator extends BipedMutator<SkeletonData, EntitySkeleton, 
 {
 
 	protected boolean boneLimbs = false;
-
-	public SkeletonMutator(IEntityDataFactory<EntitySkeleton> dataCreationFunction)
-	{
-		super(dataCreationFunction);
-	}
 
 	@Override
 	public void fetchFields(RenderLivingBase<? extends EntitySkeleton> renderer)

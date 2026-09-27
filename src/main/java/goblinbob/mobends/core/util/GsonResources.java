@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.util;
 
+import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.kumo.KumoSerializer;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
@@ -22,14 +22,13 @@ public class GsonResources
 
     public static <T> T get(ResourceLocation location, Class<T> classOfT) throws IOException
     {
-        final InputStream stream = Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream();
-
         if (cache.containsKey(location))
         {
             //noinspection unchecked
             return (T) cache.get(location);
         }
-        else
+
+        try (InputStream stream = PackTrust.open(location))
         {
             T resource = KumoSerializer.INSTANCE.gson.fromJson(new InputStreamReader(stream), classOfT);
             cache.put(location, resource);

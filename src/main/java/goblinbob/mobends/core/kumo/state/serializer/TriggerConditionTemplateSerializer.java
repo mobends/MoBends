@@ -6,43 +6,41 @@ import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TriggerConditionTemplateSerializer implements JsonSerializer<TriggerConditionTemplate>, JsonDeserializer<TriggerConditionTemplate>
 {
 
-    private final Map<JsonElement, Type> toDeserialize = new HashMap<>();
-
     @Override
     public JsonElement serialize(TriggerConditionTemplate src, Type typeOfSrc, JsonSerializationContext context)
     {
-        return KumoSerializer.INSTANCE.gson.toJsonTree(src);
+        return KumoSerializer.INSTANCE.keyframeNodeGson.toJsonTree(src);
     }
 
     @Override
     public TriggerConditionTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        final Gson gson = new Gson();
+        if (!json.isJsonObject() || !json.getAsJsonObject().has("type"))
+        {
+            throw new JsonParseException("A trigger condition needs a 'type'.");
+        }
 
-        TriggerConditionTemplate abstractTriggerCondition = gson.fromJson(json, TriggerConditionTemplate.class);
-        String typeName = abstractTriggerCondition.getType();
-
-        if (typeName == null)
-            return null;
-
+        String typeName = json.getAsJsonObject().get("type").getAsString();
         Type templateType = TriggerConditionRegistry.instance.getTemplateClass(typeName);
 
         if (templateType == null)
-            return null;
-
-        if (templateType.equals(typeOfT))
         {
-            // If the template type of this condition is the base class.
-            return abstractTriggerCondition;
+            throw new JsonParseException(String.format("A non-existent trigger condition type was specified: %s", typeName));
         }
 
-        return KumoSerializer.INSTANCE.gson.fromJson(json, templateType);
+        if (templateType.equals(TriggerConditionTemplate.class))
+        {
+            // A "pure" condition without parameters.
+            TriggerConditionTemplate template = new TriggerConditionTemplate();
+            template.type = typeName;
+            return template;
+        }
+
+        return KumoSerializer.INSTANCE.keyframeNodeGson.fromJson(json, templateType);
     }
 
 }

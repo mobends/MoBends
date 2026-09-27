@@ -2,7 +2,9 @@ package goblinbob.mobends.standard.data;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
-import goblinbob.mobends.standard.animation.controller.PlayerController;
+import net.minecraft.util.math.MathHelper;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
+import goblinbob.mobends.standard.main.ModStatics;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -20,11 +22,9 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	protected float capeWavePhase = 0;
 	protected float capeWaveSpeed = 0;
 
-	private Boolean flyingStateOverride = null;
-
 	public ModelPartTransform cape;
 
-	private final PlayerController controller = new PlayerController();
+	private final KumoAnimatorController<PlayerData> controller = new KumoAnimatorController<>(ModStatics.MODID, "bends/animators/player.json");
 
 	public PlayerData(AbstractClientPlayer entity)
 	{
@@ -32,7 +32,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	}
 
 	@Override
-	public PlayerController getController()
+	public KumoAnimatorController<PlayerData> getController()
 	{
 		return controller;
 	}
@@ -47,21 +47,33 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		return capeWavePhase;
 	}
 
-	public void overrideFlyingState(boolean flying)
-	{
-		this.flyingStateOverride = flying;
-	}
-	
-	public void unsetFlyingStateOverride()
-	{
-		this.flyingStateOverride = null;
-	}
-
 	@Override
 	public void onTicksRestart()
 	{
 		// No behaviour
 	}
+
+	@Override
+	protected void registerKumoBindings()
+	{
+		super.registerKumoBindings();
+		registerVariable("currentAttack", () -> currentAttack);
+		registerVariable("capeWavePhase", () -> capeWavePhase);
+		registerVariable("elytraTicks", () -> entity != null ? entity.getTicksElytraFlying() : 0);
+		registerState("FLYING", this::isFlying);
+		registerState("SLEEPING", () -> entity != null && entity.isEntityAlive() && entity.isPlayerSleeping());
+		registerState("ELYTRA_FLYING", () -> entity != null && entity.getTicksElytraFlying() > 4);
+		registerState("SPRINT_JUMP_LEG", () -> sprintJumpLeg);
+		registerState("FIST_PUNCH_ARM", () -> fistPunchArm);
+
+		registerVariable("flightSpeedFactor", () -> Math.min(Math.max((float) getInterpolatedMotionMagnitude(), 0F), 0.2F) / 0.2F);
+		registerVariable("yMomentumAngle", () -> MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getMotionY()) * 180.0D / Math.PI);
+		registerVariable("flightPitch", () -> {
+			double speedFactor = Math.min(Math.max((float) getInterpolatedMotionMagnitude(), 0F), 0.2F) / 0.2F;
+			return MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getMotionY()) * 180.0D / Math.PI * speedFactor;
+		});
+	}
+
 
 	@Override
 	public void initModelPose()
@@ -181,9 +193,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	
 	public boolean isFlying()
 	{
-		return this.flyingStateOverride != null ?
-				this.flyingStateOverride :
-				this.entity.capabilities.isFlying;
+		return this.entity.capabilities.isFlying;
 	}
 	
 }

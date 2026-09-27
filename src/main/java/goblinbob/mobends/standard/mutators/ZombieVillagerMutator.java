@@ -1,7 +1,6 @@
 package goblinbob.mobends.standard.mutators;
 
 import goblinbob.mobends.core.client.model.ModelPart;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.data.ZombieVillagerData;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelZombieVillager;
@@ -10,11 +9,6 @@ import net.minecraft.entity.monster.EntityZombieVillager;
 public class ZombieVillagerMutator extends ZombieMutatorBase<ZombieVillagerData, EntityZombieVillager, ModelZombieVillager>
 {
 
-	public ZombieVillagerMutator(IEntityDataFactory<EntityZombieVillager> dataFactory)
-	{
-		super(dataFactory);
-	}
-	
 	@Override
 	public void storeVanillaModel(ModelZombieVillager model)
 	{

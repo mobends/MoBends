@@ -2,7 +2,6 @@ package goblinbob.mobends.standard.mutators;
 
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPart;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.data.SpiderData;
 import net.minecraft.client.model.ModelBase;
@@ -18,12 +17,7 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
     public ModelPart spiderBody;
     public ModelPart[] spiderUpperLimbs;
     public ModelPart[] spiderLowerLimbs;
-    
-    public SpiderMutator(IEntityDataFactory<EntitySpider> dataFactory)
-    {
-    	super(dataFactory);
-    }
-    
+
 	@Override
 	public void storeVanillaModel(ModelSpider model)
 	{
@@ -40,25 +34,7 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 	}
 
 	@Override
-	public void applyVanillaModel(ModelSpider model)
-	{
-		model.spiderLeg1 = this.vanillaModel.spiderLeg1;
-		model.spiderLeg2 = this.vanillaModel.spiderLeg2;
-		model.spiderLeg3 = this.vanillaModel.spiderLeg3;
-		model.spiderLeg4 = this.vanillaModel.spiderLeg4;
-		model.spiderLeg5 = this.vanillaModel.spiderLeg5;
-		model.spiderLeg6 = this.vanillaModel.spiderLeg6;
-		model.spiderLeg7 = this.vanillaModel.spiderLeg7;
-		model.spiderLeg8 = this.vanillaModel.spiderLeg8;
-	}
-
-	@Override
 	public void swapLayer(RenderLivingBase<? extends EntitySpider> renderer, int index, boolean isModelVanilla)
-	{
-	}
-
-	@Override
-	public void deswapLayer(RenderLivingBase<? extends EntitySpider> renderer, int index)
 	{
 	}
 

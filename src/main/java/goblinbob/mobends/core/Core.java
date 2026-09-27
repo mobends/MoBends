@@ -14,12 +14,16 @@ import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public abstract class Core<T extends CoreConfig>
 {
     private static Core INSTANCE;
-    public static final Logger LOG = Logger.getLogger("mobends-core");
+    public static final Logger LOG = createLogger();
 
     private SimpleNetworkWrapper networkWrapper;
     private static final int MESSAGE_CONFIG_REQUEST = 0;
@@ -92,4 +96,42 @@ public abstract class Core<T extends CoreConfig>
     {
         INSTANCE.getConfiguration().save();
     }
+
+    /**
+     * The mod's logger, forwarded to the game's log (latest.log): java.util.logging on its own only
+     * reaches the console, so warnings for pack authors (a broken type or extension) went unseen.
+     */
+    private static Logger createLogger()
+    {
+        Logger logger = Logger.getLogger("mobends-core");
+        org.apache.logging.log4j.Logger target = org.apache.logging.log4j.LogManager.getLogger(ModStatics.MODID);
+        logger.setUseParentHandlers(false);
+        logger.addHandler(new Handler()
+        {
+            private final SimpleFormatter formatter = new SimpleFormatter();
+
+            @Override
+            public void publish(LogRecord record)
+            {
+                int level = record.getLevel().intValue();
+                org.apache.logging.log4j.Level targetLevel = level >= Level.SEVERE.intValue() ? org.apache.logging.log4j.Level.ERROR
+                        : level >= Level.WARNING.intValue() ? org.apache.logging.log4j.Level.WARN
+                        : level >= Level.INFO.intValue() ? org.apache.logging.log4j.Level.INFO
+                        : org.apache.logging.log4j.Level.DEBUG;
+                target.log(targetLevel, formatter.formatMessage(record), record.getThrown());
+            }
+
+            @Override
+            public void flush()
+            {
+            }
+
+            @Override
+            public void close()
+            {
+            }
+        });
+        return logger;
+    }
+
 }

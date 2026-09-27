@@ -1,19 +1,20 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
-import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 /**
- * This condition is met once the entity is in the provided state.
- * (e.g. ON_GROUND, AIRBORNE, etc.)
+ * This condition is met once the subject is in the provided state (e.g. ON_GROUND, AIRBORNE).
+ * States are looked up by name on the subject, so entity data classes and addons can add their
+ * own without touching this class.
  *
  * @author Iwo Plaza
  */
 public class StateCondition implements ITriggerCondition
 {
 
-    private final State state;
+    private final String state;
 
     public StateCondition(Template template) throws MalformedKumoTemplateException
     {
@@ -26,34 +27,26 @@ public class StateCondition implements ITriggerCondition
     }
 
     @Override
-    public boolean isConditionMet(ITriggerConditionContext context)
+    public boolean isConditionMet(ITriggerConditionContext context) throws MalformedKumoTemplateException
     {
-        EntityData<?> entityData = context.getEntityData();
+        IKumoSubject subject = context.getSubject();
 
-        switch (this.state)
+        if (!subject.hasState(state))
         {
-            case ON_GROUND:
-                return entityData.isOnGround();
-            case AIRBORNE:
-                return !entityData.isOnGround();
-            case SPRINTING:
-                return entityData.getEntity().isSprinting();
-            case STANDING_STILL:
-                return entityData.isStillHorizontally();
-            case MOVING_HORIZONTALLY:
-                return !entityData.isStillHorizontally();
-            default:
-                return false;
+            throw new MalformedKumoTemplateException(String.format("Unknown state '%s' for this subject.", state));
         }
+
+        return subject.getState(state);
     }
 
     public static class Template extends TriggerConditionTemplate
     {
 
-        public State state;
+        public String state;
 
     }
 
+    /** The states every {@code EntityData} provides. Listed here for reference and tooling. */
     public enum State
     {
         ON_GROUND,
@@ -61,7 +54,11 @@ public class StateCondition implements ITriggerCondition
         SPRINTING,
         STANDING_STILL,
         MOVING_HORIZONTALLY,
+        SNEAKING,
+        IN_WATER,
+        UNDERWATER,
+        RIDING,
+        ALIVE,
     }
-
 
 }

@@ -5,7 +5,7 @@ import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.keyframe.ConnectionTemplate;
 
-import java.util.List;
+import java.util.Map;
 
 public class ConnectionState
 {
@@ -14,6 +14,8 @@ public class ConnectionState
     public final ITriggerCondition triggerCondition;
     public final float transitionDuration;
     public ConnectionTemplate.Easing transitionEasing;
+    /** Layer variables assigned when the connection fires; may be null. */
+    public Map<String, Float> set;
 
     public ConnectionState(INodeState targetNode, ITriggerCondition triggerCondition, float transitionDuration, ConnectionTemplate.Easing transitionEasing)
     {
@@ -23,18 +25,16 @@ public class ConnectionState
         this.transitionEasing = transitionEasing;
     }
 
-    public static ConnectionState createFromTemplate(List<INodeState> nodes, ConnectionTemplate template) throws MalformedKumoTemplateException
+    public static ConnectionState createFromTemplate(Map<String, INodeState> nodesByName, ConnectionTemplate template) throws MalformedKumoTemplateException
     {
-        INodeState node = null;
-
-        try
+        if (template.target == null)
         {
-            node = nodes.get(template.targetNodeIndex);
+            throw new MalformedKumoTemplateException("A connection has no target.");
         }
-        catch (IndexOutOfBoundsException ex)
+        INodeState node = nodesByName.get(template.target);
+        if (node == null)
         {
-            throw new MalformedKumoTemplateException(String.format("A connection to node at index: %d was specified, which doesn't exist.",
-                    template.targetNodeIndex));
+            throw new MalformedKumoTemplateException(String.format("A connection to node '%s' was specified, which doesn't exist.", template.target));
         }
 
         if (template.triggerCondition == null)
@@ -42,10 +42,12 @@ public class ConnectionState
             throw new MalformedKumoTemplateException("No trigger condition was specified for a connection.");
         }
 
-        return new ConnectionState(node,
+        ConnectionState state = new ConnectionState(node,
                 TriggerConditionRegistry.instance.createFromTemplate(template.triggerCondition),
                 template.transitionDuration,
-                template.transitionEasing);
+                template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing);
+        state.set = template.set;
+        return state;
     }
 
 }

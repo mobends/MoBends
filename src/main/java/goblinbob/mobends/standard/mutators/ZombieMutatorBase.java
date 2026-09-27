@@ -1,6 +1,5 @@
 package goblinbob.mobends.standard.mutators;
 
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.standard.data.ZombieDataBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelZombie;
@@ -26,12 +25,7 @@ public abstract class ZombieMutatorBase<D extends ZombieDataBase<E>,
 
 	// Should the height of the texture be 64 or 32(half)?
 	protected boolean halfTexture = false;
-	
-	public ZombieMutatorBase(IEntityDataFactory<E> dataCreationFunction)
-	{
-		super(dataCreationFunction);
-	}
-	
+
 	@Override
 	public void fetchFields(RenderLivingBase<? extends E> renderer)
 	{

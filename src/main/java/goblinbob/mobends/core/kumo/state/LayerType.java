@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.kumo.state.template.DriverLayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.keyframe.KeyframeLayerTemplate;
 
 import java.lang.reflect.Type;
@@ -8,10 +7,9 @@ import java.lang.reflect.Type;
 public enum LayerType
 {
 
-    KEYFRAME(KeyframeLayerTemplate.class),
-    DRIVER(DriverLayerTemplate.class);
+    KEYFRAME(KeyframeLayerTemplate.class);
 
-    private Type templateType;
+    private final Type templateType;
 
     LayerType(Type templateType)
     {

@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.util;
 
-import goblinbob.mobends.core.pack.InvalidPackFormatException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -34,19 +33,6 @@ public class ErrorReporter
     public static void showErrorToPlayer(String error)
     {
         showErrorToPlayer(new TextComponentString(error));
-    }
-
-    public static void showErrorToPlayer(InvalidPackFormatException ex)
-    {
-        TextComponentString textComponent = new TextComponentString("A pack has been disabled due to it's wrong format: ");
-
-        TextComponentString packName = new TextComponentString(ex.getPackName());
-        packName.getStyle().setBold(true);
-        textComponent.appendSibling(packName);
-
-        textComponent.appendText(". Check the logs for more details...");
-
-        showErrorToPlayer(textComponent);
     }
 
 }

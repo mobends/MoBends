@@ -4,6 +4,9 @@ import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.supporters.SupporterContent;
+import goblinbob.mobends.standard.AttackActionType;
+import goblinbob.mobends.standard.UseActionType;
+import goblinbob.mobends.standard.ItemActions;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -40,6 +43,11 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	public void initModelPose()
 	{
 		super.initModelPose();
+		
+		// Bipeds' animators were matched to these two moving at twice their rate (they used to be
+		// advanced twice per frame), so they ask for doubled rates; this is the doubled default.
+		this.globalOffset.smoothness.set(2.0F, 2.0F, 2.0F);
+		this.renderRotation.setSmoothness(2.0F);
 		
 		this.body = new ModelPartTransform();
 		this.head = new ModelPartTransform(this.body);
@@ -97,8 +105,6 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		this.rightForeLeg.update(ticksPerFrame);
 		this.leftForeLeg.update(ticksPerFrame);
 		
-		this.globalOffset.update(ticksPerFrame);
-		this.renderRotation.update(ticksPerFrame);
 		this.renderRightItemRotation.update(ticksPerFrame);
 		this.renderLeftItemRotation.update(ticksPerFrame);
 		
@@ -110,4 +116,27 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	{
 		return this.entity;
 	}
+	/** The item action types the biped action controller derives from the held and active items. */
+	@Override
+	public String getProperty(String name)
+	{
+		switch (name)
+		{
+			case "useActionType":
+			{
+				UseActionType type = ItemActions.getItemUseAction(entity.getActiveItemStack().getItem(),
+						ItemActions.armPoseOf(entity, entity.getHeldItemMainhand()),
+						ItemActions.armPoseOf(entity, entity.getHeldItemOffhand()));
+				return type == null ? null : type.name();
+			}
+			case "attackActionType":
+			{
+				AttackActionType type = ItemActions.getItemAttackAction(entity.getHeldItemMainhand().getItem());
+				return type == null ? null : type.name();
+			}
+			default:
+				return super.getProperty(name);
+		}
+	}
+
 }

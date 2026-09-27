@@ -1,14 +1,19 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
 import goblinbob.mobends.core.client.gui.elements.GuiList;
-import goblinbob.mobends.core.client.gui.packswindow.GuiPacksWindow;
 import goblinbob.mobends.core.util.Draw;
+import goblinbob.mobends.standard.main.ModStatics;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
 
 import java.util.LinkedList;
 
 public class GuiBenderList extends GuiList<GuiBenderSettings>
 {
+
+    /** The list's frame and rows. */
+    public static final ResourceLocation LIST_TEXTURE = new ResourceLocation(ModStatics.MODID, "textures/gui/pack_window.png");
+
 
     private final LinkedList<GuiBenderSettings> elements;
 
@@ -21,7 +26,7 @@ public class GuiBenderList extends GuiList<GuiBenderSettings>
     @Override
     protected void drawBackground(float partialTicks)
     {
-        Minecraft.getMinecraft().getTextureManager().bindTexture(GuiPacksWindow.BACKGROUND_TEXTURE);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(LIST_TEXTURE);
         Draw.borderBox(0, 0, this.width, this.height, 4, 36, 117);
     }
 

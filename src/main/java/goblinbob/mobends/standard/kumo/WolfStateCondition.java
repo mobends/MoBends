@@ -34,7 +34,7 @@ public class WolfStateCondition implements ITriggerCondition
 
         try
         {
-            wolfData = (WolfData) context.getEntityData();
+            wolfData = (WolfData) context.getSubject();
         }
         catch (ClassCastException e)
         {

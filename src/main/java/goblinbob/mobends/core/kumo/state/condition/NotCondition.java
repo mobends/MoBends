@@ -23,6 +23,12 @@ public class NotCondition implements ITriggerCondition
         return !this.condition.isConditionMet(context);
     }
 
+    @Override
+    public void onNodeStarted(ITriggerConditionContext context)
+    {
+        this.condition.onNodeStarted(context);
+    }
+
     public static class Template extends TriggerConditionTemplate
     {
 

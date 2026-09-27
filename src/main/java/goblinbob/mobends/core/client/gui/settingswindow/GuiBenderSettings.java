@@ -1,10 +1,12 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
 import goblinbob.mobends.core.bender.EntityBender;
+import goblinbob.mobends.core.client.gui.elements.GuiCustomButton;
 import goblinbob.mobends.core.client.gui.elements.GuiSmallToggleButton;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 
 public class GuiBenderSettings implements IGuiListElement
 {
@@ -12,16 +14,27 @@ public class GuiBenderSettings implements IGuiListElement
     private final EntityBender<?> bender;
     private final Minecraft mc;
     private final GuiSmallToggleButton toggleButton;
+    /** Opens the order of the entity's types; only there when more than one can animate it. */
+    private final GuiCustomButton orderButton;
+    private final Runnable onOpenOrder;
+    /** Opens the order of the extensions of those types; only there when they have more than one. */
+    private final GuiCustomButton extensionsButton;
+    private final Runnable onOpenExtensions;
 
     private int x, y;
+    private int mouseX, mouseY;
     private int listOrder;
 
-    public GuiBenderSettings(EntityBender<?> bender)
+    public GuiBenderSettings(EntityBender<?> bender, int typeCount, Runnable onOpenOrder, int extensionCount, Runnable onOpenExtensions)
     {
         this.bender = bender;
         this.mc = Minecraft.getMinecraft();
         this.toggleButton = new GuiSmallToggleButton();
         this.toggleButton.setToggleState(bender.isAnimated());
+        this.orderButton = typeCount > 1 ? new GuiCustomButton(70, 20, I18n.format("mobends.gui.typeorder.button", typeCount)) : null;
+        this.onOpenOrder = onOpenOrder;
+        this.extensionsButton = extensionCount > 1 ? new GuiCustomButton(70, 20, I18n.format("mobends.gui.extensionorder.button", extensionCount)) : null;
+        this.onOpenExtensions = onOpenExtensions;
     }
 
     public void initGui(int x, int y)
@@ -29,6 +42,10 @@ public class GuiBenderSettings implements IGuiListElement
         this.x = x;
         this.y = y;
         this.toggleButton.initGui(x + 4, y + 4);
+        if (orderButton != null)
+            this.orderButton.setPosition(x + 184, y + 4);
+        if (extensionsButton != null)
+            this.extensionsButton.setPosition(x + 112, y + 4);
     }
 
     @Override
@@ -40,12 +57,26 @@ public class GuiBenderSettings implements IGuiListElement
             return true;
         }
 
+        if (orderButton != null && mouseButton == 0 && orderButton.mousePressed(mouseX, mouseY))
+        {
+            onOpenOrder.run();
+            return true;
+        }
+
+        if (extensionsButton != null && mouseButton == 0 && extensionsButton.mousePressed(mouseX, mouseY))
+        {
+            onOpenExtensions.run();
+            return true;
+        }
+
         return false;
     }
 
     public void update(int mouseX, int mouseY)
     {
         toggleButton.update(mouseX, mouseY);
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
     }
 
     public void draw(float partialTicks)
@@ -57,9 +88,13 @@ public class GuiBenderSettings implements IGuiListElement
 //        // Container
 //        Draw.borderBox(x + 4, y + 4, 100, getHeight(), 4, 36, 126);
 
-        mc.fontRenderer.drawStringWithShadow(bender.getLocalizedName(), this.x + 38, this.y + 10, 0xffffff);
+        mc.fontRenderer.drawStringWithShadow(mc.fontRenderer.trimStringToWidth(bender.getLocalizedName(), extensionsButton != null ? 70 : 140), this.x + 38, this.y + 10, 0xffffff);
 
         toggleButton.draw();
+        if (orderButton != null)
+            orderButton.drawButton(mouseX, mouseY, partialTicks);
+        if (extensionsButton != null)
+            extensionsButton.drawButton(mouseX, mouseY, partialTicks);
     }
 
     @Override

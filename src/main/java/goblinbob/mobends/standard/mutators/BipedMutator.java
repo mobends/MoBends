@@ -5,7 +5,6 @@ import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.client.model.ModelPartExtended;
 import goblinbob.mobends.core.client.model.ModelPartPostOffset;
 import goblinbob.mobends.core.client.model.BoxSide;
-import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomBipedArmor;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomHeldItem;
@@ -37,17 +36,8 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	protected ModelPart rightForeLeg;
 
 	protected LayerCustomBipedArmor 	layerArmor;
-	protected LayerBipedArmor 			layerArmorVanilla;
 	protected LayerCustomHeldItem 		layerHeldItem;
-	protected LayerHeldItem 			layerHeldItemVanilla;
 	protected LayerCustomHead 			layerCustomHead;
-	protected LayerCustomHead 			layerCustomHeadVanilla;
-
-
-	public BipedMutator(IEntityDataFactory<E> dataFactory)
-	{
-		super(dataFactory);
-	}
 
 	/**
 	 * Used to store the model parameter as the
@@ -67,22 +57,6 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 	}
 
 	/**
-	 * Sets the model parameter back to it's vanilla
-	 * state. Used to demutate the model.
-	 */
-	@Override
-	public void applyVanillaModel(M model)
-	{
-		model.bipedBody = this.vanillaModel.bipedBody;
-		model.bipedHead = this.vanillaModel.bipedHead;
-		model.bipedHeadwear = this.vanillaModel.bipedHeadwear;
-		model.bipedLeftArm = this.vanillaModel.bipedLeftArm;
-		model.bipedLeftLeg = this.vanillaModel.bipedLeftLeg;
-		model.bipedRightArm = this.vanillaModel.bipedRightArm;
-		model.bipedRightLeg = this.vanillaModel.bipedRightLeg;
-	}
-
-	/**
 	 * Swaps out the vanilla layers for their custom counterparts,
 	 * and if it's a vanilla model, it stores the vanilla layers
 	 * for future mutation reversal.
@@ -94,45 +68,17 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 		if (layer instanceof LayerBipedArmor)
 		{
 			this.layerArmor = new LayerCustomBipedArmor(renderer);
-			if (isModelVanilla)
-				this.layerArmorVanilla = (LayerBipedArmor) layer;
 			layerRenderers.set(index, this.layerArmor);
 		}
 		else if (layer instanceof LayerHeldItem)
 		{
 			this.layerHeldItem = new LayerCustomHeldItem(renderer);
-			if (isModelVanilla)
-				this.layerHeldItemVanilla = (LayerHeldItem) layer;
 			layerRenderers.set(index, this.layerHeldItem);
 		}
 		else if (layer instanceof LayerCustomHead)
 		{
 			this.layerCustomHead = new LayerCustomHead(this.head);
-			if (isModelVanilla)
-				this.layerCustomHeadVanilla = (LayerCustomHead) layer;
 			layerRenderers.set(index, this.layerCustomHead);
-		}
-	}
-
-	/**
-	 * Swaps the custom layers back with the vanilla layers.
-	 * Used to demutate the model.
-	 */
-	@Override
-	public void deswapLayer(RenderLivingBase<? extends E> renderer, int index)
-	{
-		LayerRenderer<? extends EntityLivingBase> layer = layerRenderers.get(index);
-		if (layer instanceof LayerCustomBipedArmor)
-		{
-			layerRenderers.set(index, this.layerArmorVanilla);
-		}
-		else if (layer instanceof LayerCustomHeldItem)
-		{
-			layerRenderers.set(index, this.layerHeldItemVanilla);
-		}
-		else if (layer instanceof LayerCustomHead)
-		{
-			layerRenderers.set(index, this.layerCustomHeadVanilla);
 		}
 	}
 

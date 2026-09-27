@@ -1,0 +1,136 @@
+{
+  "formatVersion": 2,
+  "extends": "mobends:bends/animators/biped.json",
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "mode": "ADDITIVE",
+      "additiveSpace": {
+        "default": "PRE",
+        "body": "POST",
+        "root": "OVERRIDE"
+      },
+      "when": {
+        "type": "core:compare",
+        "variable": "animationSet",
+        "op": "==",
+        "value": 0
+      },
+      "entryNode": "lean",
+      "nodes": {
+        "lean": {
+          "type": "core:pose",
+          "tags": [
+            "lean"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/zombie/lean.json",
+              "damping": {
+                "root": [
+                  null,
+                  1.2,
+                  null
+                ]
+              },
+              "vectorModes": {
+                "root": "RETARGET"
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/zombie/lean_arms_up.json",
+              "space": "OVERRIDE",
+              "when": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:state",
+                    "state": "MOVING_HORIZONTALLY"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "currentWalkingState",
+                    "op": "==",
+                    "value": 1
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "KEYFRAME",
+      "when": {
+        "type": "core:compare",
+        "variable": "animationSet",
+        "op": "==",
+        "value": 1
+      },
+      "entryNode": "stumble",
+      "nodes": {
+        "stumble": {
+          "type": "core:pose",
+          "tags": [
+            "stumbling"
+          ],
+          "pose": [
+            {
+              "animationKey": "mobends:bends/animations/zombie/stumble_base.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "damping": {
+                "rightLeg": 1,
+                "leftLeg": 1,
+                "rightArm": 1,
+                "leftArm": 1,
+                "body": 0.5
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/zombie/stumble_swing.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "weight": "limbSwingAmount",
+              "space": "POST"
+            },
+            {
+              "animationKey": "mobends:bends/animations/zombie/stumble_head.json",
+              "frame": {
+                "mod": [
+                  {
+                    "mul": [
+                      "limbSwing",
+                      0.6662
+                    ]
+                  },
+                  "clipLength"
+                ]
+              },
+              "space": "PRE"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

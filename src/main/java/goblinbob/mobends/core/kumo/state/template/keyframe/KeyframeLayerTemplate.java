@@ -10,14 +10,27 @@ import java.util.List;
 public class KeyframeLayerTemplate extends LayerTemplate
 {
 
-    public int entryNode = 0;
+    /** Name of the entry node (JSON: {@code entryNode}). */
+    public String entryNodeName;
+
     public List<KeyframeNodeTemplate> nodes;
+
     public ArmatureMask mask;
 
     @Override
     public void validate(IKumoValidationContext context) throws MalformedKumoTemplateException
     {
         super.validate(context);
+
+        if (nodes == null || nodes.isEmpty())
+        {
+            throw new MalformedKumoTemplateException("A keyframe layer has no nodes.");
+        }
+
+        for (KeyframeNodeTemplate node : nodes)
+        {
+            node.validate(context);
+        }
     }
 
 }
