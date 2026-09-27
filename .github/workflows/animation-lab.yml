@@ -30,11 +30,9 @@ jobs:
           distribution: temurin
           java-version: "21"
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.14.3"
       - name: Reference stability, animator parity, side effects
         working-directory: animation-lab
-        run: gradle test --no-daemon
+        run: ./gradlew test --no-daemon
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4

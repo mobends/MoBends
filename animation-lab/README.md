@@ -1,7 +1,8 @@
 # Animation lab
 
-A standalone Gradle project (JDK 17+, no Forge) that replays the mod's animators against
-scripted entities and checks their bone poses frame by frame against recorded *golden* traces.
+A standalone Gradle project (JDK 21, no Forge; run with its own wrapper, `./gradlew`) that replays
+the mod's animators against scripted entities and checks their bone poses frame by frame against
+recorded *golden* traces.
 The goldens were first recorded from the mod's original procedural animation code, so they pin
 down how every entity animated before the move to data; since that code is gone, a golden only
 changes when an animator is changed on purpose.
@@ -15,18 +16,18 @@ ships with the mod. The scripts in `tools/` are TypeScript run with [Bun](https:
 
 | task | what it does |
 |---|---|
-| `gradle test` | The gate. `KumoParityTest` runs every scenario through the entity's animator asset and checks it stays within 0.1° / 0.01 model units of the golden. `SideEffectParityTest` checks the sword trail is fed on the same frames. The other tests cover expressions, clips, entity types, extensions, server limits (`AnimationLimitsTest`) and model definitions. |
-| `gradle compare --args="$PWD/golden [entity[/scenario] ...]"` | Prints the parity report per scenario and writes the animator's traces to `build/kumo-traces/` for `tools/trace_diff.ts`. Add `-Dlab.debugNodes=true` to print every layer's current node per frame. |
-| `gradle record --args="$PWD/golden entity[/scenario] ..."` | Accepts the animator's current output as the golden of the named scenarios. Only for new scenarios, or when a change to an animator is intended (say why in the commit, and see `docs/testing.md`). |
-| `gradle generateAnimators` | Regenerates the animator JSON files and the hand-authored clips from `tools/gen_animators.ts`. |
+| `./gradlew test` | The gate. `KumoParityTest` runs every scenario through the entity's animator asset and checks it stays within 0.1° / 0.01 model units of the golden. `SideEffectParityTest` checks the sword trail is fed on the same frames. The other tests cover expressions, clips, entity types, extensions, server limits (`AnimationLimitsTest`) and model definitions. |
+| `./gradlew compare --args="$PWD/golden [entity[/scenario] ...]"` | Prints the parity report per scenario and writes the animator's traces to `build/kumo-traces/` for `tools/trace_diff.ts`. Add `-Dlab.debugNodes=true` to print every layer's current node per frame. |
+| `./gradlew record --args="$PWD/golden entity[/scenario] ..."` | Accepts the animator's current output as the golden of the named scenarios. Only for new scenarios, or when a change to an animator is intended (say why in the commit, and see `docs/testing.md`). |
+| `./gradlew generateAnimators` | Regenerates the animator JSON files and the hand-authored clips from `tools/gen_animators.ts`. |
 
 Typical loop after touching an animator or the core:
 
 ```
-gradle generateAnimators
-gradle compare --args="$PWD/golden player"
+./gradlew generateAnimators
+./gradlew compare --args="$PWD/golden player"
 bun tools/trace_diff.ts player/sword_combo rightArm --from 80 --to 100
-gradle test
+./gradlew test
 ```
 
 ## How a frame is replayed
@@ -54,9 +55,9 @@ active.
 
 1. Add a scenario in `Scenarios` (and inputs in `EntityInputs` / `ScriptedEntity` if the entity
    needs new state).
-2. Check the animator does what it should (`gradle compare`, `trace_diff.ts`), then
-   `gradle record --args="$PWD/golden <entity>/<scenario>"`.
-3. `gradle test`.
+2. Check the animator does what it should (`./gradlew compare`, `trace_diff.ts`), then
+   `./gradlew record --args="$PWD/golden <entity>/<scenario>"`.
+3. `./gradlew test`.
 
 New entities need an `EntityKind` (entity stub factory and data factory) and an entry in
 `Animators`.

@@ -9,7 +9,7 @@ this page is about what the goldens mean.
 
 The goldens were recorded from the mod's original, hand-written animation code (controllers and
 animation bits) before it was replaced by animator assets and deleted. They are now the only
-record of how every entity animated in 1.2.2, and the gate (`gradle test`) keeps every animator
+record of how every entity animated in 1.2.2, and the gate (`./gradlew test`) keeps every animator
 within 0.1° / 0.01 model units of them. A golden may only change when an animator is changed on
 purpose, and the commit should say why.
 

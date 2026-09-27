@@ -14,7 +14,6 @@
  */
 plugins {
     java
-    kotlin("jvm") version "2.0.21"
 }
 
 repositories {
@@ -26,10 +25,6 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
-}
-
-kotlin {
-    jvmToolchain(21)
 }
 
 val modSrc = file("../src/main")
@@ -99,8 +94,6 @@ sourceSets {
     val mod by creating {
         java.srcDir("src/mod/java")
         java.srcDir(syncModJava.map { it.destinationDir })
-        kotlin.srcDir("src/mod/java")
-        kotlin.srcDir(syncModJava.map { it.destinationDir })
         resources.srcDir(syncModResources.map { it.destinationDir })
         compileClasspath += mcstub.output
         runtimeClasspath += mcstub.output
@@ -128,10 +121,6 @@ tasks.named<JavaCompile>("compileModJava") {
     options.release.set(8)
 }
 
-tasks.named<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>("compileModKotlin") {
-    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
-}
-
 dependencies {
     val modImplementation by configurations.getting
     val mcstubImplementation by configurations.getting
@@ -141,7 +130,6 @@ dependencies {
     modImplementation("com.google.code.gson:gson:2.10.1")
     modImplementation("org.apache.httpcomponents:httpcore:4.4.16")
     modImplementation("com.google.code.findbugs:jsr305:3.0.2")
-    modImplementation(kotlin("stdlib"))
 
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
