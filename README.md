@@ -24,6 +24,12 @@ There are a few paper-cuts in developing mods (especially for older versions of 
 them is to build and run the project using IntelliJ IDEA. It seems to build everything from source, as opposed to the
 `./gradlew runClient` and `./gradlew runServer` scripts, which fail at bootup.
 
+### Playing under a fixed name
+The development client picks a random name (`Player123`) on every launch. To test entity types that
+select players by name (see `misc/examples/player-name-type`), pick one:
+- Gradle: `./gradlew runClient -Pmc_username=BendyTester` (also works with `run-arm64/runClient.sh -Pmc_username=BendyTester`).
+- IntelliJ IDEA: add `--username BendyTester` to the *Program arguments* of the client run configuration.
+
 ### Troubleshooting
 - IntelliJ freaks out and can't find symbols in the project, but compiles fine.
     - `File > Invalidate Caches/Restart` works like a charm <3

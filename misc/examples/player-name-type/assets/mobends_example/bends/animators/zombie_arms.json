@@ -1,0 +1,91 @@
+{
+  "formatVersion": 2,
+  "extends": "mobends:bends/animators/player.json",
+  "layers": [
+    {
+      "type": "KEYFRAME",
+      "entryNode": "zombie_arms",
+      "nodes": {
+        "zombie_arms": {
+          "type": "core:pose",
+          "tags": [
+            "zombie_arms"
+          ],
+          "pose": [
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "X",
+              "angle": {
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "sin": [
+                          {
+                            "mul": [
+                              "ticks",
+                              0.1
+                            ]
+                          }
+                        ]
+                      },
+                      6
+                    ]
+                  },
+                  -85
+                ]
+              },
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftArm",
+              "axis": "X",
+              "angle": {
+                "add": [
+                  {
+                    "mul": [
+                      {
+                        "sin": [
+                          {
+                            "add": [
+                              {
+                                "mul": [
+                                  "ticks",
+                                  0.1
+                                ]
+                              },
+                              3.14
+                            ]
+                          }
+                        ]
+                      },
+                      6
+                    ]
+                  },
+                  -85
+                ]
+              },
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightForeArm",
+              "axis": "X",
+              "angle": 0,
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftForeArm",
+              "axis": "X",
+              "angle": 0,
+              "space": "OVERRIDE"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

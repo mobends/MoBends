@@ -1,0 +1,5 @@
+{
+  "id": "mobends_wave:wave",
+  "type": "mobends-player",
+  "animator": "mobends_wave:bends/animators/wave.json"
+}
