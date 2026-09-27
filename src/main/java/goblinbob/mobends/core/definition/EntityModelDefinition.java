@@ -17,10 +17,7 @@ import java.util.Set;
 public class EntityModelDefinition
 {
 
-    /**
-     * The {@code formatVersion} a model definition (and a mod's {@code bends/models/index.json})
-     * has to have (see {@link goblinbob.mobends.core.util.FormatVersion}).
-     */
+    /** The {@code formatVersion} a model definition has to have (see {@link goblinbob.mobends.core.util.FormatVersion}). */
     public static final int FORMAT_VERSION = 2;
 
     /** Fully qualified entity class, e.g. {@code net.minecraft.entity.passive.EntityCow}. */

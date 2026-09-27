@@ -15,7 +15,7 @@ smooths them.
 ```
 
 `formatVersion` is required, in animators and in every other Mo' Bends file (types, extensions,
-model definitions and `bends/models/index.json`); each format is numbered on its own, and all of
+model definitions); each format is numbered on its own, and all of
 them are at 2. A file written for another version of its format is refused with a message saying
 so (an older one would be upgraded on load, once there is one to upgrade from). `extends` puts a parent animator's layers first; the parent's version is checked too.
 `expressions` declares named expressions (see *Expressions*); layers and nodes can declare their
@@ -253,9 +253,20 @@ posed.
 # Model definitions: mobs without hand-written code
 
 A mob that never had a Mo' Bends treatment is described in
-`assets/mobends/bends/models/<mob>.json` and listed in `bends/models/index.json`. From the
-definition the mod builds the data class (`DefinedEntityData`), the mutator (`DefinedMutator`)
-and the renderer, and registers the entity; the animator asset does the rest.
+`assets/<namespace>/bends/models/<mob>.json`, and a type file (see *Entity types*) gives it to the
+mob. Mo' Bends' own are in `assets/mobends/bends/types/`:
+
+```json
+{
+  "formatVersion": 2,
+  "id": "mobends:cow",
+  "selector": {"type": "core:entity_type", "entityType": "minecraft:cow"},
+  "model": "mobends:bends/models/cow.json"
+}
+```
+
+From the definition the mod builds the data class (`DefinedEntityData`), the mutator
+(`DefinedMutator`) and the renderer, and registers the entity; the animator asset does the rest.
 
 ```json
 {
@@ -356,13 +367,15 @@ Java addon is needed unless it brings its own conditions or drivers.
 A type applies to an entity only if its model fits the entity's class. A type without a `model`
 applies only to entities that have a default model.
 
-Every bender an addon registers (the player, the zombie, the model definitions listed in
-`bends/models/index.json`, ...) also gets a **built-in type**. Its id is the bender key, a
+Every bender an addon registers in code (the player, the zombie, ...) also gets a **built-in
+type**. Its id is the bender key, a
 resource location: the mod that registered the bender, and the name it gave it or else the
 entity's id (`mobends:player`, `mobends:zombie`; an entity of another mod than Minecraft keeps its
 namespace in the path, `mobends:othermod/beast`). The type's one condition is "this is the
 entity's default model": the addon bender for the entity's exact class, or else the first
-registered for a superclass.
+registered for a superclass. The bender a type makes from a model definition has the same kind of
+key (`mobends:cow`), and Mo' Bends gives its own types the same id, so extensions name either
+the same way.
 
 ## Selector conditions
 
@@ -439,8 +452,9 @@ decides what resource packs may do, and sends it to every client with Mo' Bends 
     dropped, so no part can be made to vanish.
   * Rotations are otherwise free. Scale needs no limit: animation can't scale parts.
   * Model definitions (geometry) come only from trusted sources: an untrusted type that names one
-    keeps the entity's default model, and a resource pack's version of a built-in definition is
-    skipped for the built-in one.
+    is ignored as a whole (so it can't replace a trusted type with the same id, and its animator
+    never runs on a model it wasn't made for), and a resource pack's version of a trusted
+    definition is skipped for the trusted one.
 * **`DENY`**: untrusted types and extensions are ignored, and for every animator, clip and model
   definition the trusted version is loaded (if there's none, it fails to load, with a warning).
 * Changing server, or the server's answer arriving, reloads the types, extensions, animators and

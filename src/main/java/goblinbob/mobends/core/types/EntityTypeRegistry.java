@@ -151,7 +151,11 @@ public class EntityTypeRegistry
             }
             try
             {
-                add(TypeFiles.loadType(file, config, policy));
+                EntityType type = TypeFiles.loadType(file, config, policy);
+                if (type != null)
+                {
+                    add(type);
+                }
             }
             catch (Exception | StackOverflowError e)
             {

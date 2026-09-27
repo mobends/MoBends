@@ -6,23 +6,16 @@ import goblinbob.mobends.core.util.GsonResources;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-/** Loads the model definitions listed in {@code bends/models/index.json}. */
+/** Loads model definitions ({@code <namespace>:bends/models/<name>.json}), which type files name as their model. */
 public class ModelDefinitions
 {
 
     public static final ModelDefinitions INSTANCE = new ModelDefinitions();
 
     private static final Gson GSON = new Gson();
-
-    public static class Index
-    {
-        public List<String> models = new ArrayList<>();
-    }
 
     private final Map<ResourceLocation, EntityModelDefinition> loaded = new LinkedHashMap<>();
 
@@ -34,12 +27,6 @@ public class ModelDefinitions
     public static ResourceLocation locationOf(String modId, String name)
     {
         return new ResourceLocation(modId, "bends/models/" + name + ".json");
-    }
-
-    public List<String> index(String modId) throws IOException
-    {
-        Index index = GsonResources.read(new ResourceLocation(modId, "bends/models/index.json"), GSON, Index.class, "model index", EntityModelDefinition.FORMAT_VERSION);
-        return index.models == null ? new ArrayList<>() : index.models;
     }
 
     public EntityModelDefinition load(String modId, String name) throws IOException, MalformedKumoTemplateException

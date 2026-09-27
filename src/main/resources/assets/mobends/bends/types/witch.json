@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:witch",
+  "selector": {"type": "core:entity_type", "entityType": "minecraft:witch"},
+  "model": "mobends:bends/models/witch.json"
+}

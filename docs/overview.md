@@ -46,6 +46,6 @@ Third-party addons implement `IAddon`:
   conditions, and selector conditions for entity types
 - `onRenderTick`, `onClientTick`, `onRefresh` — lifecycle callbacks
 
-`DefaultAddon` (standard module) registers the vanilla entity benders and the model
-definitions in `bends/models/index.json`. Everything else a mob needs (its animator, its type,
+`DefaultAddon` (standard module) registers the entity benders written in code. The mobs made from
+model definitions come from the type files in `bends/types/`. Everything else a mob needs (its animator, its type,
 extensions) is assets; see [content.md](content.md).

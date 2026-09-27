@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.client.definition;
 
 import goblinbob.mobends.core.Core;
-import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -14,35 +13,12 @@ import net.minecraft.util.ResourceLocation;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
-/** Registers an animated entity for every model definition listed in {@code bends/models/index.json}. */
+/** Makes the animated entity (bender) of a model definition, for the type that names it. */
 public final class DefinedBenders
 {
 
     private DefinedBenders()
     {
-    }
-
-    public static void registerAll(String modId, AddonAnimationRegistry registry)
-    {
-        try
-        {
-            for (String name : ModelDefinitions.INSTANCE.index(modId))
-            {
-                try
-                {
-                    ResourceLocation location = ModelDefinitions.locationOf(modId, name);
-                    registry.registerEntity(createBender(modId, location, ModelDefinitions.INSTANCE.load(location)));
-                }
-                catch (Exception e)
-                {
-                    Core.LOG.log(Level.SEVERE, "Could not register the model definition '" + name + "'", e);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Core.LOG.log(Level.SEVERE, "Could not read the model definition index of " + modId, e);
-        }
     }
 
     /**

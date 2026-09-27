@@ -67,6 +67,9 @@ takes alterable parts, and animation editors can no longer be registered. Every 
 another version of its format is refused with a message saying so. Bender keys are resource
 locations (`mobends:zombie` instead of `mobends-minecraft:zombie`); which mobs you turned off
 carries over.
+The mobs made from model definitions are given to their entities by type files
+(`bends/types/`), not a list of definitions. While a server limits resource packs, a pack's type
+that brings its own model definition is ignored as a whole.
 
 ## 1.2.2 (2025-09-29)
 

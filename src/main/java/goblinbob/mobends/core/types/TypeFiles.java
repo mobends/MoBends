@@ -22,10 +22,21 @@ final class TypeFiles
     {
     }
 
-    /** The type a type file describes, its model (a model definition's bender is registered) resolved. */
+    /**
+     * The type a type file describes, its model (a model definition's bender is registered)
+     * resolved; null if the policy leaves it out.
+     */
+    @Nullable
     static EntityType loadType(TypeFileDiscovery.TypeFile file, @Nullable CoreClientConfig config, ResourcePackPolicy policy) throws Exception
     {
         EntityTypeDefinition definition = EntityTypeDefinition.parse(file.json);
+        if (definition.isModelDefinition() && !file.trusted && policy != ResourcePackPolicy.ALLOW)
+        {
+            // Custom geometry from a resource pack: the whole type is left out, so it can't hide a
+            // trusted type with the same id, and its animator never runs on a model it wasn't made for.
+            Core.LOG.warning("The server limits resource packs' animation: ignoring the type " + file.source + ", which brings its own model (" + definition.model + ")");
+            return null;
+        }
         ISelectorCondition selector = definition.selector == null ? null : SelectorConditionRegistry.INSTANCE.parse(definition.selector);
 
         EntityBender<?> model = null;
@@ -33,11 +44,6 @@ final class TypeFiles
         if (EntityTypeDefinition.VANILLA_MODEL.equals(definition.model))
         {
             vanilla = true;
-        }
-        else if (definition.isModelDefinition() && !file.trusted && policy != ResourcePackPolicy.ALLOW)
-        {
-            // Custom geometry from a resource pack: the entity keeps its default model.
-            Core.LOG.warning("The server limits resource packs' animation: the type " + file.source + " keeps the entity's default model instead of " + definition.model);
         }
         else if (definition.isModelDefinition())
         {

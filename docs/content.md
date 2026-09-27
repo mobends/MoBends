@@ -17,7 +17,8 @@ formats are in [`misc/kumo-format.md`](../misc/kumo-format.md); this page is how
 A *type* decides which model and animator an entity gets, under a selector condition (entity
 type, player name or UUID, skin variant, and whatever addons register through
 `AddonAnimationRegistry.registerSelectorCondition`). Every entity bender registered in code also
-gets a built-in type, so a type file only adds or overrides.
+gets a built-in type; the mobs made from model definitions get theirs from the type files in
+`assets/mobends/bends/types/`. A type file adds or overrides.
 
 When several types match an entity, the winner is picked by (`TypeOrder`):
 1. the user's rank (Settings → *Order*, stored in the client config),
@@ -25,7 +26,8 @@ When several types match an entity, the winner is picked by (`TypeOrder`):
 3. the id.
 
 Entity data is keyed by the type's data factory, so an entity that changes type gets fresh data.
-An untrusted type (see below) keeps the default model instead of its own model definition.
+An untrusted type (see below) that names its own model definition is ignored while the server
+limits resource packs.
 
 ## Extensions
 
@@ -50,8 +52,7 @@ builds:
 * `DefinedMutator` — copies each vanilla part's boxes into bends parts, splits them
   (`BoxSplitter`), applies rest rotations, and replaces every field or array slot that held the
   vanilla part, found by identity so it works in an obfuscated game;
-* `DefinedRenderer`, registered for every definition in `bends/models/index.json` by
-  `DefinedBenders`.
+* `DefinedRenderer`, made by `DefinedBenders` for every model definition a type file names.
 
 **Limitation.** Render layers that copy the model's angles (the sheep's wool, the charged
 creeper's armour) are not covered and still animate vanilla-style, which is why the sheep has no

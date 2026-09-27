@@ -1,9 +1,7 @@
 package goblinbob.mobends.standard;
 
-import goblinbob.mobends.core.ModStatics;
 import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.addon.IAddon;
-import goblinbob.mobends.core.client.definition.DefinedBenders;
 import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.*;
@@ -46,8 +44,7 @@ public class DefaultAddon implements IAddon
 
 		registry.registerNewEntity(EntityWolf.class, WolfData::new, WolfMutator::new, new WolfRenderer<>());
 
-		// Mobs described as data: bends/models/index.json (see misc/kumo-format.md).
-		DefinedBenders.registerAll(ModStatics.MODID, registry);
+		// Mobs described as data (cows, pigs, villagers, ...) come from the type files in bends/types/.
 
 		registry.registerDriver("cape", CapeDriver::create, CapeDriver.Template.class);
 		registry.registerDriver("sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);

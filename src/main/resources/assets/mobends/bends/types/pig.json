@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:pig",
+  "selector": {"type": "core:entity_type", "entityType": "minecraft:pig"},
+  "model": "mobends:bends/models/pig.json"
+}

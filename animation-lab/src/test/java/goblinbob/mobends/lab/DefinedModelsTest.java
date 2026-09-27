@@ -9,6 +9,7 @@ import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.math.Quaternion;
+import goblinbob.mobends.core.types.EntityTypeDefinition;
 import goblinbob.mobends.lab.sim.EntityInputs;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.LabBootstrap;
@@ -18,34 +19,81 @@ import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.monster.EntityZombie;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Every mob described by a model definition (bends/models/index.json) must build a data class whose
+ * Every mob a shipped type file gives a model definition (bends/types/) must build a data class whose
  * bones cover what its animator drives, and the animator must produce finite, moving poses while the
  * mob walks. They have no golden traces, so this is a structural smoke test.
  */
 public class DefinedModelsTest
 {
+    private static final Path BENDS = LabPaths.root().resolve("../src/main/resources/assets/mobends/bends");
+
+    /** The model definitions the shipped type files name, by type id. */
+    private static Map<String, ResourceLocation> definedModels() throws Exception
+    {
+        Map<String, ResourceLocation> models = new TreeMap<>();
+        try (Stream<Path> files = Files.list(BENDS.resolve("types")))
+        {
+            for (Path file : files.sorted().collect(Collectors.toList()))
+            {
+                EntityTypeDefinition type = EntityTypeDefinition.parse(new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
+                if (type.isModelDefinition())
+                {
+                    models.put(type.id, new ResourceLocation(type.model));
+                }
+            }
+        }
+        return models;
+    }
+
+    @Test
+    void everyModelDefinitionHasAType() throws Exception
+    {
+        Set<String> named = new TreeSet<>();
+        for (ResourceLocation model : definedModels().values())
+        {
+            named.add(model.getResourcePath());
+        }
+        try (Stream<Path> files = Files.list(BENDS.resolve("models")))
+        {
+            for (Path file : files.collect(Collectors.toList()))
+            {
+                assertTrue(named.contains("bends/models/" + file.getFileName()), file.getFileName() + " is named by no type file, so no mob uses it");
+            }
+        }
+    }
+
     @TestFactory
     List<DynamicTest> definedMobsAnimate() throws Exception
     {
-        return ModelDefinitions.INSTANCE.index("mobends").stream()
-                .map(name -> DynamicTest.dynamicTest(name, () -> check(name)))
+        return definedModels().entrySet().stream()
+                .map(entry -> DynamicTest.dynamicTest(entry.getKey(), () -> check(entry.getKey(), entry.getValue())))
                 .collect(Collectors.toList());
     }
 
-    private void check(String name) throws Exception
+    private void check(String name, ResourceLocation model) throws Exception
     {
-        EntityModelDefinition definition = ModelDefinitions.INSTANCE.load("mobends", name);
+        EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(model);
         LabBootstrap.ensure();
         net.minecraft.entity.Entity.resetIds();
         World world = new World();

@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:villager_golem",
+  "selector": {"type": "core:entity_type", "entityType": "minecraft:villager_golem"},
+  "model": "mobends:bends/models/iron_golem.json"
+}

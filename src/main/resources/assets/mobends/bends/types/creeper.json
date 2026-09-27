@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:creeper",
+  "selector": {"type": "core:entity_type", "entityType": "minecraft:creeper"},
+  "model": "mobends:bends/models/creeper.json"
+}
