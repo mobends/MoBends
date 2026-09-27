@@ -40,12 +40,19 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	}
 
 	@Override
+	protected void registerKumoBindings()
+	{
+		super.registerKumoBindings();
+		// The sword combo ends with a whirl (players can turn it off).
+		registerState("CAN_SPIN_ATTACK", () -> true);
+	}
+
+	@Override
 	public void initModelPose()
 	{
 		super.initModelPose();
 		
-		// Bipeds' animators were matched to these two moving at twice their rate (they used to be
-		// advanced twice per frame), so they ask for doubled rates; this is the doubled default.
+		// The bipeds' animators are tuned for these two smoothing at twice the usual rate.
 		this.globalOffset.smoothness.set(2.0F, 2.0F, 2.0F);
 		this.renderRotation.setSmoothness(2.0F);
 		
@@ -116,7 +123,7 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	{
 		return this.entity;
 	}
-	/** The item action types the biped action controller derives from the held and active items. */
+	/** The item action types the animators' action layers read, derived from the held and active items. */
 	@Override
 	public String getProperty(String name)
 	{

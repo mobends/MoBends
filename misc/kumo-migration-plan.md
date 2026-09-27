@@ -110,7 +110,7 @@ packs use the same template classes):
 * `AnimatorTemplate` → layers (`KEYFRAME`, `DRIVER` stub) → nodes (`core:standard`,
   `core:movement`) → connections with `triggerCondition`, `transitionDuration`, `transitionEasing`.
 * Conditions: `core:or/and/not/state/ticks_passed/equipment_name/animation_finished`, addon
-  registrable (`mobends:wolf_state`).
+  registrable.
 * `LayerState.update`: reset affected bones to rest, write
   `(1-t)·prevNodePose + t·currentNodePose` (eased), advance **all** nodes, then evaluate the
   current node's connections. Bones are addressed by name via `EntityData.getPartForName`

@@ -17,10 +17,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 {
 	protected boolean sprintJumpLeg = false;
 	protected boolean sprintJumpLegSwitched = false;
-	protected boolean fistPunchArm = false;
-	protected int currentAttack = 0;
 	protected float capeWavePhase = 0;
-	protected float capeWaveSpeed = 0;
 
 	public ModelPartTransform cape;
 
@@ -37,38 +34,37 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		return ANIMATOR;
 	}
 
-	public void setCapeWaveSpeed(float value)
-	{
-		capeWaveSpeed = value;
-	}
-
 	public float getCapeWavePhase()
 	{
 		return capeWavePhase;
 	}
 
-
 	@Override
 	protected void registerKumoBindings()
 	{
 		super.registerKumoBindings();
-		registerVariable("currentAttack", () -> currentAttack);
-		registerVariable("capeWavePhase", () -> capeWavePhase);
-		registerVariable("elytraTicks", () -> entity != null ? entity.getTicksElytraFlying() : 0);
 		registerState("FLYING", this::isFlying);
 		registerState("SLEEPING", () -> entity != null && entity.isEntityAlive() && entity.isPlayerSleeping());
 		registerState("ELYTRA_FLYING", () -> entity != null && entity.getTicksElytraFlying() > 4);
 		registerState("SPRINT_JUMP_LEG", () -> sprintJumpLeg);
-		registerState("FIST_PUNCH_ARM", () -> fistPunchArm);
+		// The sword combo ends with a whirl, unless the player turned it off or is riding.
+		registerState("CAN_SPIN_ATTACK", () -> ModConfig.performSpinAttack && entity != null && !entity.isRiding());
 
-		registerVariable("flightSpeedFactor", () -> Math.min(Math.max((float) getInterpolatedMotionMagnitude(), 0F), 0.2F) / 0.2F);
-		registerVariable("yMomentumAngle", () -> MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getMotionY()) * 180.0D / Math.PI);
-		registerVariable("flightPitch", () -> {
-			double speedFactor = Math.min(Math.max((float) getInterpolatedMotionMagnitude(), 0F), 0.2F) / 0.2F;
-			return MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getMotionY()) * 180.0D / Math.PI * speedFactor;
-		});
+		registerVariable("flightSpeedFactor", this::getFlightSpeedFactor);
+		registerVariable("flightPitch", () -> getMomentumPitch() * getFlightSpeedFactor());
 	}
 
+	/** How fast the player flies, 0 to 1 (full at 0.2 blocks per tick). */
+	private double getFlightSpeedFactor()
+	{
+		return Math.min(Math.max(getInterpolatedMotionMagnitude(), 0), 0.2) / 0.2;
+	}
+
+	/** The angle between the motion and straight up, in degrees. */
+	private double getMomentumPitch()
+	{
+		return MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getMotionY()) * 180.0D / Math.PI;
+	}
 
 	@Override
 	public void initModelPose()
@@ -101,11 +97,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	{
 		super.update(partialTicks);
 
-		if (getTicksAfterAttack() > 20)
-		{
-			currentAttack = 0;
-		}
-
 		if (motionY < 0)
 		{
 			sprintJumpLegSwitched = false;
@@ -117,7 +108,9 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 			sprintJumpLegSwitched = true;
 		}
 
-		this.capeWavePhase += this.capeWaveSpeed * DataUpdateHandler.ticksPerFrame;
+		// The cape ripples faster while flying fast.
+		final float capeWaveSpeed = isFlying() && entity.isSprinting() ? 4.0F : 1.0F;
+		this.capeWavePhase += capeWaveSpeed * DataUpdateHandler.ticksPerFrame;
 		if (this.capeWavePhase > 380.0F)
 			this.capeWavePhase -= 380.0F;
 	}
@@ -136,56 +129,15 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	@Override
 	public void onAttack()
 	{
-		if (this.entity.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.AIR)
+		// A sword swing right after another one doesn't start a new slash (the animator reacts to
+		// ticksAfterAttack going back to 0); punches always do.
+		if (this.entity.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR && this.ticksAfterAttack <= 6.0F)
 		{
-			this.fistPunchArm = !this.fistPunchArm;
-			this.ticksAfterAttack = 0;
 			return;
 		}
-
-		if (this.ticksAfterAttack <= 6.0F)
-		{
-			// Sword swing cooldown
-			return;
-		}
-
-		switch (this.currentAttack)
-		{
-			case 1:
-				this.currentAttack = 2;
-				break;
-			case 2:
-				this.currentAttack = 3;
-				break;
-			case 3:
-				this.currentAttack = 4;
-				break;
-			case 4:
-				this.currentAttack = (!ModConfig.performSpinAttack || this.getEntity().isRiding()) ? 1 : 5;
-				break;
-			default:
-				this.currentAttack = 1;
-				break;
-		}
-
-		this.ticksAfterAttack = 0;
+		super.onAttack();
 	}
 
-	public int getCurrentAttack()
-	{
-		return currentAttack;
-	}
-
-	public boolean getFistPunchArm()
-	{
-		return fistPunchArm;
-	}
-
-	public boolean getSprintJumpLeg()
-	{
-		return sprintJumpLeg;
-	}
-	
 	public boolean isFlying()
 	{
 		return this.entity.capabilities.isFlying;

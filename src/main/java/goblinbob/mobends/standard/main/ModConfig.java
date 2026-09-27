@@ -40,7 +40,8 @@ public class ModConfig
     @Config.Ignore
     private static Map<Item, Boolean> keepArmorAsVanillaCache;
     @Config.Ignore
-    private static Map<Entity, Boolean> keepEntityAsVanillaCache;
+    /** By entity class: the answer depends on the entity's type only. */
+    private static Map<Class<? extends Entity>, Boolean> keepEntityAsVanillaCache;
     @Config.Ignore
     private static Map<Item, UseActionType> itemUseClassificationCache;
     @Config.Ignore
@@ -129,23 +130,9 @@ public class ModConfig
 
     private static boolean checkForPatterns(ResourceLocation resourceLocation, String[] patterns)
     {
-        final String resourceDomain = resourceLocation.getResourceDomain();
-        final String resourcePath = resourceLocation.getResourcePath();
-
         for (String pattern : patterns)
         {
-            final ResourceLocation patternLocation = new ResourceLocation(pattern);
-
-            if (resourceLocation.equals(patternLocation))
-                return true;
-
-            WildcardPattern domainPattern = new WildcardPattern(patternLocation.getResourceDomain());
-            WildcardPattern pathPattern = new WildcardPattern(patternLocation.getResourcePath());
-
-            if (!domainPattern.matches(resourceDomain))
-                continue;
-
-            if (pathPattern.matches(resourcePath))
+            if (doesLocationMatchPattern(resourceLocation, pattern))
                 return true;
         }
 
@@ -201,14 +188,14 @@ public class ModConfig
     public static boolean shouldKeepArmorAsVanilla(Item item)
     {
         // If cached before, returning the cached result.
-        return keepArmorAsVanillaCache.computeIfAbsent(item, (i) -> checkForPatterns(i.getRegistryName(), keepArmorAsVanilla));
+        return keepArmorAsVanillaCache.computeIfAbsent(item, (i) -> i.getRegistryName() != null && checkForPatterns(i.getRegistryName(), keepArmorAsVanilla));
     }
 
     public static boolean shouldKeepEntityAsVanilla(Entity entity)
     {
         // If cached before, returning the cached result.
-        return keepEntityAsVanillaCache.computeIfAbsent(entity, (e) -> {
-            ResourceLocation location = EntityList.getKey(entity);
+        return keepEntityAsVanillaCache.computeIfAbsent(entity.getClass(), (c) -> {
+            ResourceLocation location = EntityList.getKey(c);
 
             // The player, for example, doesn't have a key.
             return location != null && checkForPatterns(location, keepEntityAsVanilla);

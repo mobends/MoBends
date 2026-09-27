@@ -96,7 +96,7 @@ public abstract class BipedMutator<D extends BipedEntityData<E>,
 				.setParent(body)
 				.setPosition(-5.0F, armY, 0.0F);
 		rightArm.developBox(-armWidth + 1, -2.0F, -2.0F, armWidth, 6, 4, 0.0F)
-				.inflate(0.01F, 0, 0.1F)
+				.inflate(0.01F, 0, 0.01F)
 				.hideFace(BoxSide.BOTTOM)
 				.create();
 

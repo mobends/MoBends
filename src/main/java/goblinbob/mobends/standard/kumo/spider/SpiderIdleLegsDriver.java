@@ -11,7 +11,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.data.SpiderData;
 
-/** See {@link SpiderIdleLegsTemplate}. The leg part of {@code SpiderIdleAnimationBit}. */
+/** See {@link SpiderIdleLegsTemplate}. */
 public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
 {
 
@@ -23,6 +23,16 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
     public SpiderIdleLegsDriver(Skeleton skeleton, SpiderIdleLegsTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         super(skeleton, template.resetVariable);
+        if (template.feelLimbs != null)
+        {
+            for (int limb : template.feelLimbs)
+            {
+                if (limb < 0 || limb >= LIMBS)
+                {
+                    throw new MalformedKumoTemplateException("mobends:spider_idle_legs: 'feelLimbs' are limb indices, 0 to " + (LIMBS - 1) + ".");
+                }
+            }
+        }
         this.t = template;
         this.groundLevel = Expression.compile(template.groundLevel, scope, Expression.ZERO);
         this.bodyX = Expression.compile(template.bodyX, scope, Expression.ZERO);
@@ -50,14 +60,14 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
         for (int i = 0; i < LIMBS; i++)
         {
             SpiderData.Limb limb = data.limbs[i];
-            SpiderData.IKResult ik = limb.solveIK(bx, bz, pt);
+            limb.solveIK(bx, bz, pt, ik);
             double deviation = GUtil.getRadianDifference(limb.getNeutralYaw(), ik.xzAngle + Math.PI / 2);
             if (deviation > 0.9 || ik.xzDistance * 0.0625 > 1.2)
             {
                 limb.adjustToNeutralPosition();
             }
             double xzAngle = limb.isOdd() ? (Math.PI / 2 + ik.xzAngle) : (-Math.PI / 2 + ik.xzAngle);
-            double[] angles = SpiderLegIk.solve(ik.xzDistance, ground - 7 + Math.sin(limb.getAdjustingProgress() * Math.PI) * t.liftHeight);
+            SpiderLegIk.solve(ik.xzDistance, ground + SpiderLegIk.REST_GROUND_LEVEL + Math.sin(limb.getAdjustingProgress() * Math.PI) * t.liftHeight, angles);
             writeLeg(pose, i, limb.isOdd(), (float) (xzAngle / Math.PI * 180F), angles, 1F, true);
         }
 

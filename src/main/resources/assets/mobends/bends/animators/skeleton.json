@@ -743,11 +743,43 @@
                     "variable": "combo",
                     "op": "==",
                     "value": 4
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "CAN_SPIN_ATTACK"
                   }
                 ]
               },
               "set": {
                 "combo": 0
+              }
+            },
+            {
+              "target": "slash_up",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:decreased",
+                    "variable": "ticksAfterAttack"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "combo",
+                    "op": "==",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "CAN_SPIN_ATTACK"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "combo": 1
               }
             },
             {
@@ -1296,11 +1328,43 @@
                     "variable": "combo",
                     "op": "==",
                     "value": 4
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "CAN_SPIN_ATTACK"
                   }
                 ]
               },
               "set": {
                 "combo": 0
+              }
+            },
+            {
+              "target": "slash_up",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:decreased",
+                    "variable": "ticksAfterAttack"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "combo",
+                    "op": "==",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "CAN_SPIN_ATTACK"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "combo": 1
               }
             },
             {
@@ -1779,11 +1843,43 @@
                     "variable": "combo",
                     "op": "==",
                     "value": 4
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "CAN_SPIN_ATTACK"
                   }
                 ]
               },
               "set": {
                 "combo": 0
+              }
+            },
+            {
+              "target": "slash_up",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:decreased",
+                    "variable": "ticksAfterAttack"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "combo",
+                    "op": "==",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "CAN_SPIN_ATTACK"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "combo": 1
               }
             },
             {
@@ -4359,11 +4455,43 @@
                     "variable": "combo",
                     "op": "==",
                     "value": 4
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "CAN_SPIN_ATTACK"
                   }
                 ]
               },
               "set": {
                 "combo": 0
+              }
+            },
+            {
+              "target": "slash_up",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:decreased",
+                    "variable": "ticksAfterAttack"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "combo",
+                    "op": "==",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "CAN_SPIN_ATTACK"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "combo": 1
               }
             },
             {
@@ -5002,11 +5130,43 @@
                     "variable": "combo",
                     "op": "==",
                     "value": 4
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "CAN_SPIN_ATTACK"
                   }
                 ]
               },
               "set": {
                 "combo": 0
+              }
+            },
+            {
+              "target": "slash_up",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:decreased",
+                    "variable": "ticksAfterAttack"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "combo",
+                    "op": "==",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "CAN_SPIN_ATTACK"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "combo": 1
               }
             },
             {
@@ -5667,11 +5827,43 @@
                     "variable": "combo",
                     "op": "==",
                     "value": 4
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "CAN_SPIN_ATTACK"
                   }
                 ]
               },
               "set": {
                 "combo": 0
+              }
+            },
+            {
+              "target": "slash_up",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:decreased",
+                    "variable": "ticksAfterAttack"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "combo",
+                    "op": "==",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "CAN_SPIN_ATTACK"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "combo": 1
               }
             },
             {
@@ -6332,11 +6524,43 @@
                     "variable": "combo",
                     "op": "==",
                     "value": 4
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "CAN_SPIN_ATTACK"
                   }
                 ]
               },
               "set": {
                 "combo": 0
+              }
+            },
+            {
+              "target": "slash_up",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:decreased",
+                    "variable": "ticksAfterAttack"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "combo",
+                    "op": "==",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "CAN_SPIN_ATTACK"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "combo": 1
               }
             },
             {
@@ -6970,11 +7194,43 @@
                     "variable": "combo",
                     "op": "==",
                     "value": 4
+                  },
+                  {
+                    "type": "core:state",
+                    "state": "CAN_SPIN_ATTACK"
                   }
                 ]
               },
               "set": {
                 "combo": 0
+              }
+            },
+            {
+              "target": "slash_up",
+              "triggerCondition": {
+                "type": "core:and",
+                "conditions": [
+                  {
+                    "type": "core:decreased",
+                    "variable": "ticksAfterAttack"
+                  },
+                  {
+                    "type": "core:compare",
+                    "variable": "combo",
+                    "op": "==",
+                    "value": 4
+                  },
+                  {
+                    "type": "core:not",
+                    "condition": {
+                      "type": "core:state",
+                      "state": "CAN_SPIN_ATTACK"
+                    }
+                  }
+                ]
+              },
+              "set": {
+                "combo": 1
               }
             },
             {

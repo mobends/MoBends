@@ -35,7 +35,7 @@
               "target": "sit_down",
               "transitionDuration": 3,
               "triggerCondition": {
-                "type": "mobends:wolf_state",
+                "type": "core:state",
                 "state": "SITTING"
               }
             }
@@ -75,7 +75,7 @@
               "target": "sit_down",
               "transitionDuration": 1,
               "triggerCondition": {
-                "type": "mobends:wolf_state",
+                "type": "core:state",
                 "state": "SITTING"
               }
             }
@@ -134,7 +134,7 @@
               "triggerCondition": {
                 "type": "core:not",
                 "condition": {
-                  "type": "mobends:wolf_state",
+                  "type": "core:state",
                   "state": "SITTING"
                 }
               }

@@ -23,6 +23,9 @@ public class SpiderMovingLegsTemplate extends DriverItemTemplate
     public float kneelAmplitude = 3F;
     public float kneelLead = 0.2F;
 
+    /** How high a foot lifts at the top of its step, in model units. */
+    public float liftHeight = 4F;
+
     /** The first time the gait plays, its leg smoothing ramps from 0 to 1 at this rate per tick; afterwards the legs snap. */
     public float startSpeed = 0.1F;
 

@@ -73,7 +73,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         registerState("RIDING_LIVING", () -> entity != null && entity.getRidingEntity() instanceof EntityLivingBase);
         registerState("LEFT_HANDED", () -> entity != null && entity.getPrimaryHand() == EnumHandSide.LEFT);
 
-        // Derived inputs the procedural bits compute inline; exposed so animators stay data.
+        // Derived inputs, exposed so animators can use them directly.
         registerVariable("rotationYaw", () -> entity != null ? entity.rotationYaw : 0);
         registerVariable("headYawAbs", () -> Math.abs(headYaw));
         registerVariable("climbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation()) : 0);

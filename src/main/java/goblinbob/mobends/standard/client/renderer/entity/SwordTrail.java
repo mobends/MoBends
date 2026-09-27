@@ -2,7 +2,6 @@ package goblinbob.mobends.standard.client.renderer.entity;
 
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.math.Quaternion;
-import goblinbob.mobends.core.math.QuaternionUtils;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.util.IColorRead;
@@ -145,7 +144,7 @@ public class SwordTrail
 
         GlStateManager.popMatrix();
         GlStateManager.enableTexture2D();
-        GlStateManager.disableCull();
+        GlStateManager.enableCull();
         GlStateManager.enableLighting();
     }
 

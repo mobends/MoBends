@@ -15,24 +15,26 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * The player's cape: the vanilla chasing-position physics of {@code CapeAnimationBit}, as a
- * driver ({@code "driver": "mobends:cape"}). Writes the cape rotation and the cape wave speed.
+ * The player's cape ({@code "driver": "mobends:cape"}): the vanilla chasing-position physics,
+ * written as the cape's rotation. Its wave is {@link PlayerData}'s.
  */
 public class CapeDriver implements IPoseItem
 {
 
     private final int slot;
+    private final float smoothness;
     private final Quaternion rotation = new Quaternion();
     private final Quaternion temp = new Quaternion();
 
-    public CapeDriver(int slot)
+    public CapeDriver(int slot, float smoothness)
     {
         this.slot = slot;
+        this.smoothness = smoothness;
     }
 
     public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, Template template) throws MalformedKumoTemplateException
     {
-        return new CapeDriver(skeleton.indexOf(template.bone == null ? "cape" : template.bone));
+        return new CapeDriver(skeleton.indexOf(template.bone == null ? "cape" : template.bone), template.smoothness);
     }
 
     @Override
@@ -72,22 +74,21 @@ public class CapeDriver implements IPoseItem
 
         if (data.isFlying() && player.isSprinting())
         {
-            PoseMath.axisAngleDegrees(1, 0, 0, 0.0F, rotation);
-            data.setCapeWaveSpeed(4.0F);
+            // Streams straight back.
+            rotation.setIdentity();
         }
         else
         {
-            // orientX(6 + f2/2 + f1).rotateZ(f3/2).rotateY(-f3/2)
+            // Lifted about X, then swayed about Z and Y by the sideways motion.
             PoseMath.axisAngleDegrees(1, 0, 0, (float) (6.0F + f2 / 2.0F + f1), rotation);
             PoseMath.axisAngleDegrees(0, 0, 1, f3 / 2.0F, temp);
             Quaternion.mul(temp, rotation, rotation);
             PoseMath.axisAngleDegrees(0, 1, 0, -f3 / 2.0F, temp);
             Quaternion.mul(temp, rotation, rotation);
-            data.setCapeWaveSpeed(1.0F);
         }
 
         pose.composeRotation(slot, rotation, Pose.Space.OVERRIDE);
-        pose.get(slot).smoothness = 0.5F;
+        pose.get(slot).smoothness = smoothness;
     }
 
     @Override
@@ -102,7 +103,9 @@ public class CapeDriver implements IPoseItem
 
     public static class Template extends DriverItemTemplate
     {
+        /** The cape's bone; null for "cape". */
         public String bone;
+        public float smoothness = 0.5F;
     }
 
 }

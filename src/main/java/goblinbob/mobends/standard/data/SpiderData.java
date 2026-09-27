@@ -16,13 +16,25 @@ import net.minecraft.util.ResourceLocation;
 public class SpiderData extends LivingEntityData<EntitySpider>
 {
 
+    /** The spider's leg geometry, in model units (shared by the mutator and the leg drivers). */
+    public static final int LIMBS = 8;
+    /** Length of each of the two segments of a leg. */
+    public static final float LEG_SEGMENT_LENGTH = 12F;
+    /** Where the hips are: to either side of the body, and at this height. */
+    public static final float HIP_X = 4F;
+    public static final float HIP_Y = 15F;
+    /** Where the knee is along the upper segment. */
+    public static final float KNEE_X = 11F;
+    public static final float KNEE_Y = -1F;
+
     public ModelPartTransform spiderHead;
     public ModelPartTransform spiderNeck;
     public ModelPartTransform spiderBody;
 
     public Limb[] limbs;
 
-	private static final ResourceLocation ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/spider.json");
+    private static final ResourceLocation ANIMATOR = new ResourceLocation(ModStatics.MODID, "bends/animators/spider.json");
+
     protected float prevCrawlProgress = 0;
     protected float crawlProgress = 0;
     protected EnumFacing wallFacing = null;
@@ -30,6 +42,18 @@ public class SpiderData extends LivingEntityData<EntitySpider>
     public SpiderData(EntitySpider entity)
     {
         super(entity);
+    }
+
+    @Override
+    protected ResourceLocation getDefaultAnimator()
+    {
+        return ANIMATOR;
+    }
+
+    @Override
+    protected void registerKumoBindings()
+    {
+        super.registerKumoBindings();
         registerVariable("crawlProgress", this::getInterpolatedCrawlProgress);
         registerVariable("crawlRenderYaw", () -> {
             final float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * DataUpdateHandler.partialTicks;
@@ -38,27 +62,9 @@ public class SpiderData extends LivingEntityData<EntitySpider>
         registerState("BESIDE_CLIMBABLE", entity::isBesideClimbableBlock);
     }
 
-    @Override
-    protected ResourceLocation getDefaultAnimator()
-    {
-    	return ANIMATOR;
-    }
-
-    public float getCrawlProgress()
-    {
-        return crawlProgress;
-    }
-
     public float getInterpolatedCrawlProgress()
     {
         return GUtil.lerp(prevCrawlProgress, crawlProgress, DataUpdateHandler.partialTicks);
-    }
-
-
-    @Override
-    public void update(float partialTicks)
-    {
-        super.update(partialTicks);
     }
 
     @Override
@@ -69,7 +75,7 @@ public class SpiderData extends LivingEntityData<EntitySpider>
         this.spiderBody = new ModelPartTransform();
         this.spiderNeck = new ModelPartTransform();
         this.spiderHead = new ModelPartTransform();
-        this.limbs = new Limb[8];
+        this.limbs = new Limb[LIMBS];
 
         for (int i = 0; i < limbs.length; ++i)
         {
@@ -139,11 +145,6 @@ public class SpiderData extends LivingEntityData<EntitySpider>
         return null;
     }
 
-    public EnumFacing getWallFacing()
-    {
-        return wallFacing;
-    }
-
     public float getCrawlingRotation()
     {
         if (wallFacing == null)
@@ -176,12 +177,11 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             this.index = index;
             this.odd = index % 2 == 1;
 
-            double neutralYaw = (double) this.index / (data.limbs.length - 1) * 2 - 1;
+            double neutralYaw = (double) this.index / (LIMBS - 1) * 2 - 1;
             this.neutralYaw = this.odd ? (neutralYaw * 1.3) : (Math.PI - neutralYaw * 1.3);
 
-            int z = 2 - (index / 2);
-            this.upperPart.position.set(odd ? 4F : -4F, 15F, z);
-            this.lowerPart.position.set(odd ? 11F : -11F, -1F, 0F);
+            this.upperPart.position.set(odd ? HIP_X : -HIP_X, HIP_Y, hipZ(index));
+            this.lowerPart.position.set(odd ? KNEE_X : -KNEE_X, KNEE_Y, 0F);
             this.resetPosition();
         }
 
@@ -237,17 +237,6 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             this.adjustTargetZ = Math.sin(this.neutralYaw + bodyYaw) * distance + data.getPositionZ();
         }
 
-        public void adjustToWorldPosition(double x, double z, float adjustingSpeed)
-        {
-            if (this.adjustingProgress != 1)
-                return;
-
-            this.adjustingSpeed = adjustingSpeed;
-            this.adjustingProgress = 0;
-            this.adjustTargetX = x;
-            this.adjustTargetZ = z;
-        }
-
         public void adjustToLocalPosition(double x, double z, float adjustingSpeed)
         {
             if (this.adjustingProgress != 1)
@@ -268,7 +257,8 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             this.worldZ = this.adjustTargetZ = x * Math.sin(bodyYaw) + z * Math.cos(bodyYaw) + data.getPositionZ();
         }
 
-        public IKResult solveIK(double bodyX, double bodyZ, float pt)
+        /** Where the foot is relative to the hip, the body offset by {@code bodyX}, {@code bodyZ}; written into {@code result}. */
+        public void solveIK(double bodyX, double bodyZ, float pt, IKResult result)
         {
             final double renderYawOffset = (data.entity.prevRenderYawOffset + (data.entity.renderYawOffset - data.entity.prevRenderYawOffset) * pt) / 180F * Math.PI;
             final double spiderX = data.entity.prevPosX + (data.entity.posX - data.entity.prevPosX) * pt;
@@ -281,40 +271,13 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             final double localZ = x * Math.sin(renderYawOffset) + z * Math.cos(renderYawOffset) - bodyZ;
             final double deltaX = (this.upperPart.position.x - localX);
             final double deltaZ = (this.upperPart.position.z - localZ);
-            final double xzDistance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
-            final double xzAngle = Math.atan2(deltaX, deltaZ);
-
-            return new IKResult(
-                    worldLimbX, worldLimbZ,
-                    localX, localZ,
-                    deltaX, deltaZ,
-                    xzDistance, xzAngle
-            );
+            result.xzDistance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+            result.xzAngle = Math.atan2(deltaX, deltaZ);
         }
 
         public double getNeutralYaw()
         {
             return this.neutralYaw;
-        }
-
-        public double getPrevWorldX()
-        {
-            return this.prevWorldX;
-        }
-
-        public double getPrevWorldZ()
-        {
-            return this.prevWorldZ;
-        }
-
-        public double getWorldX()
-        {
-            return this.worldX;
-        }
-
-        public double getWorldZ()
-        {
-            return this.worldZ;
         }
 
         public float getAdjustingProgress()
@@ -329,30 +292,19 @@ public class SpiderData extends LivingEntityData<EntitySpider>
 
     }
 
+    /** Where a leg's foot is: its horizontal distance from the hip and the angle to it. */
     public static class IKResult
     {
 
-        public final double worldX;
-        public final double worldZ;
-        public final double localX;
-        public final double localZ;
-        public final double deltaX;
-        public final double deltaZ;
-        public final double xzDistance;
-        public final double xzAngle;
+        public double xzDistance;
+        public double xzAngle;
 
-        IKResult(double worldX, double worldZ, double localX, double localZ, double deltaX, double deltaZ, double xzDistance, double xzAngle)
-        {
-            this.worldX = worldX;
-            this.worldZ = worldZ;
-            this.localX = localX;
-            this.localZ = localZ;
-            this.deltaX = deltaX;
-            this.deltaZ = deltaZ;
-            this.xzDistance = xzDistance;
-            this.xzAngle = xzAngle;
-        }
+    }
 
+    /** The Z of the hips of limb {@code index}: pairs from the front to the back. */
+    public static float hipZ(int index)
+    {
+        return 2 - (index / 2);
     }
 
 }

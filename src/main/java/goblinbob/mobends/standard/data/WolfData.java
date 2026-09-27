@@ -36,14 +36,6 @@ public class WolfData extends LivingEntityData<EntityWolf>
     public WolfData(EntityWolf entity)
     {
         super(entity);
-        // The vanilla wolf's expressions, in degrees, for the animator's look-and-wag layer.
-        registerVariable("interestedAngle", () -> entity.getInterestedAngle(DataUpdateHandler.partialTicks) * GUtil.RAD_TO_DEG);
-        registerVariable("shakeAngleHead", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, 0.0F) * GUtil.RAD_TO_DEG);
-        registerVariable("shakeAngleMane", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, -0.08F) * GUtil.RAD_TO_DEG);
-        registerVariable("shakeAngleTail", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, -0.2F) * GUtil.RAD_TO_DEG);
-        registerVariable("tailRotation", () -> entity.getTailRotation() * GUtil.RAD_TO_DEG);
-        registerVariable("tailWag", () -> entity.getInterestedAngle(DataUpdateHandler.partialTicks)
-                * MathHelper.sin(entity.ticksExisted + DataUpdateHandler.partialTicks) * 20.0F);
     }
 
     @Override
@@ -146,6 +138,14 @@ public class WolfData extends LivingEntityData<EntityWolf>
     {
         super.registerKumoBindings();
         registerState("SITTING", this::isSitting);
+        // The vanilla wolf's expressions, in degrees, for the animator's look-and-wag layer.
+        registerVariable("interestedAngle", () -> entity.getInterestedAngle(DataUpdateHandler.partialTicks) * GUtil.RAD_TO_DEG);
+        registerVariable("shakeAngleHead", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, 0.0F) * GUtil.RAD_TO_DEG);
+        registerVariable("shakeAngleMane", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, -0.08F) * GUtil.RAD_TO_DEG);
+        registerVariable("shakeAngleTail", () -> entity.getShakeAngle(DataUpdateHandler.partialTicks, -0.2F) * GUtil.RAD_TO_DEG);
+        registerVariable("tailRotation", () -> entity.getTailRotation() * GUtil.RAD_TO_DEG);
+        registerVariable("tailWag", () -> entity.getInterestedAngle(DataUpdateHandler.partialTicks)
+                * MathHelper.sin(entity.ticksExisted + DataUpdateHandler.partialTicks) * 20.0F);
     }
 
     public boolean isSitting()

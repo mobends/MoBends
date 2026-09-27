@@ -848,7 +848,13 @@ function attackConns(excludeFamily: string | null = null): Obj[] {
   return out;
 }
 const slashOrder = ["slash_up", "slash_down", "slash_inward", "slash_outward", "slash_whirl"];
-const slashByCombo = slashOrder.map((n, k) => conn(n, AND(dec, cmp("combo", "==", k)), { combo: (k + 1) % 5 }));
+// The fifth slash is the whirl, when the player allows it (ModConfig.performSpinAttack) and isn't
+// riding; otherwise the combo starts over.
+const canSpin = state("CAN_SPIN_ATTACK");
+const slashByCombo = [
+  ...slashOrder.map((n, k) => conn(n, AND(dec, cmp("combo", "==", k), ...(k === 4 ? [canSpin] : [])), { combo: (k + 1) % 5 })),
+  conn(slashOrder[0], AND(dec, cmp("combo", "==", 4), NOT(canSpin)), { combo: 1 }),
+];
 const afterSlash = [conn("stance_sprint", stanceSprintCond), conn("stance", stanceStillCond),
                     conn("sword_idle", AND(cmp(tAA, ">=", 10), NOT(stanceSprintCond), NOT(stanceStillCond)))];
 const punchConns = [conn("punch_right", AND(dec, cmp("fist", "==", 0)), { fist: 1 }), conn("punch_left", AND(dec, cmp("fist", "==", 1)), { fist: 0 })];

@@ -14,7 +14,7 @@ import goblinbob.mobends.standard.data.SpiderData;
 public abstract class SpiderLegsDriverBase implements IPoseItem
 {
 
-    public static final int LIMBS = 8;
+    protected static final int LIMBS = SpiderData.LIMBS;
 
     protected final int[] upperSlots = new int[LIMBS];
     protected final int[] lowerSlots = new int[LIMBS];
@@ -23,6 +23,9 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     private final Quaternion yaw = new Quaternion();
     private final Quaternion bend = new Quaternion();
     private final Quaternion upper = new Quaternion();
+    /** Per-frame scratch for the IK. */
+    protected final SpiderData.IKResult ik = new SpiderData.IKResult();
+    protected final double[] angles = new double[2];
 
     protected SpiderLegsDriverBase(Skeleton skeleton, String resetVariable) throws MalformedKumoTemplateException
     {
@@ -43,7 +46,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
         return context.getSubject() instanceof SpiderData ? (SpiderData) context.getSubject() : null;
     }
 
-    /** The landing bounce of the procedural bits: a damped sine over the touchdown progress. */
+    /** The landing bounce: a damped sine over the touchdown progress. */
     protected static double kneelBounce(IKumoContext context, float duration, float amplitude, float lead)
     {
         float touchdown = Math.min((float) context.resolveVariable("ticksAfterTouchdown") / duration, 1.0F);
@@ -55,10 +58,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
         return Math.sin((touchdown * (1 + lead) - lead) * Math.PI * 2) * amplitude * touchdownInv;
     }
 
-    /**
-     * Writes one leg: the upper segment yawed then bent about its local Z, the lower segment bent
-     * about Z ({@code orientY(yaw).localRotateZ(upper)} / {@code orientZ(lower)} in the bits).
-     */
+    /** Writes one leg: the upper segment yawed then bent about its local Z, the lower segment bent about Z. */
     protected void writeLeg(Pose pose, int index, boolean odd, float yawDegrees, double[] angles, float smoothness, boolean snap)
     {
         float side = odd ? -1F : 1F;
@@ -68,11 +68,10 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
         pose.composeRotation(upperSlots[index], upper, Pose.Space.OVERRIDE);
         PoseMath.axisAngleDegrees(0, 0, 1, (float) (angles[1] / Math.PI * 180) * side, bend);
         pose.composeRotation(lowerSlots[index], bend, Pose.Space.OVERRIDE);
-        for (int slot : new int[] { upperSlots[index], lowerSlots[index] })
-        {
-            pose.get(slot).snap = snap;
-            pose.get(slot).smoothness = smoothness;
-        }
+        pose.get(upperSlots[index]).snap = snap;
+        pose.get(upperSlots[index]).smoothness = smoothness;
+        pose.get(lowerSlots[index]).snap = snap;
+        pose.get(lowerSlots[index]).smoothness = smoothness;
     }
 
     @Override
@@ -80,7 +79,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     {
         SpiderData data = subject(context);
         VariableScope layer = context.getLayerScope();
-        if (data != null && layer != null && resetVariable != null && layer.has(resetVariable) && layer.get(resetVariable) != 0)
+        if (data != null && resetVariable != null && layer.has(resetVariable) && layer.get(resetVariable) != 0)
         {
             for (SpiderData.Limb limb : data.limbs)
             {

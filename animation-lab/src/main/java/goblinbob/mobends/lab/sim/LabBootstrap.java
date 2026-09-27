@@ -1,8 +1,13 @@
 package goblinbob.mobends.lab.sim;
 
 import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
-import goblinbob.mobends.standard.kumo.WolfStateCondition;
+import goblinbob.mobends.core.kumo.driver.DriverRegistry;
+import goblinbob.mobends.standard.kumo.CapeDriver;
+import goblinbob.mobends.standard.kumo.SwordTrailDriver;
+import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver;
+import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate;
+import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver;
+import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate;
 
 /**
  * Mirrors the registrations {@code Core.preInit} and {@code DefaultAddon.registerContent} perform
@@ -17,10 +22,9 @@ public class LabBootstrap
         if (done) return;
         done = true;
         MinecraftKumoOperations.register();
-        TriggerConditionRegistry.INSTANCE.register("mobends:wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
-        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:sword_trail", goblinbob.mobends.standard.kumo.SwordTrailDriver::create, goblinbob.mobends.standard.kumo.SwordTrailDriver.Template.class);
-        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:cape", goblinbob.mobends.standard.kumo.CapeDriver::create, goblinbob.mobends.standard.kumo.CapeDriver.Template.class);
-        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:spider_idle_legs", goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver::create, goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate.class);
-        goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:spider_moving_legs", goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver::create, goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate.class);
+        DriverRegistry.INSTANCE.register("mobends:sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);
+        DriverRegistry.INSTANCE.register("mobends:cape", CapeDriver::create, CapeDriver.Template.class);
+        DriverRegistry.INSTANCE.register("mobends:spider_idle_legs", SpiderIdleLegsDriver::create, SpiderIdleLegsTemplate.class);
+        DriverRegistry.INSTANCE.register("mobends:spider_moving_legs", SpiderMovingLegsDriver::create, SpiderMovingLegsTemplate.class);
     }
 }

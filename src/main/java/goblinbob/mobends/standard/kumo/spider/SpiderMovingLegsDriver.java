@@ -12,14 +12,14 @@ import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
-/** See {@link SpiderMovingLegsTemplate}. {@code animateMovingLimb} of the spider's move and crawl bits. */
+/** See {@link SpiderMovingLegsTemplate}. */
 public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
 {
 
     private final SpiderMovingLegsTemplate t;
     private final Expression swing;
     private final Expression groundLevel;
-    /** Never reset: the procedural bit eased its legs in once per entity, on its first play. */
+    /** Never reset: the legs ease in once per entity, the first time the gait plays. */
     private float startTransition = 0F;
 
     public SpiderMovingLegsDriver(Skeleton skeleton, SpiderMovingLegsTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
@@ -66,9 +66,9 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
             final float phase = clock + p.phase;
             float sideRotation = p.minRot + (MathHelper.sin(phase + offset) * .5F + .5F) * (p.maxRot - p.minRot);
             float dist = p.minDist + (MathHelper.sin(phase + offset) * .5F + .5F) * (p.maxDist - p.minDist);
-            float legGround = ground + -7 + Math.max(0, MathHelper.cos(phase + offset)) * 4;
+            float legGround = ground + SpiderLegIk.REST_GROUND_LEVEL + Math.max(0, MathHelper.cos(phase + offset)) * t.liftHeight;
 
-            double[] angles = SpiderLegIk.solve(dist, legGround);
+            SpiderLegIk.solve(dist, legGround, angles);
             boolean settled = startTransition >= 1.0F;
             writeLeg(pose, i, odd, odd ? sideRotation : -sideRotation, angles, settled ? 1F : startTransition, settled);
 

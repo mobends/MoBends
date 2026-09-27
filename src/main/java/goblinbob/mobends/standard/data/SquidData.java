@@ -22,11 +22,6 @@ public class SquidData extends LivingEntityData<EntitySquid>
 	public SquidData(EntitySquid entity)
 	{
 		super(entity);
-		// The tentacle phase the vanilla model animates with (interpolated), and the two
-		// "not yet wrapped" checks of the procedural controller.
-		registerVariable("squidRotation", () -> entity.prevSquidRotation + (entity.squidRotation - entity.prevSquidRotation) * DataUpdateHandler.partialTicks);
-		registerState("SQUID_ROTATION_LOW", () -> entity.squidRotation < GUtil.PI);
-		registerState("SQUID_PREV_ROTATION_LOW", () -> entity.prevSquidRotation < GUtil.PI);
 	}
 	
 	@Override
@@ -35,6 +30,16 @@ public class SquidData extends LivingEntityData<EntitySquid>
 		return ANIMATOR;
 	}
 
+	@Override
+	protected void registerKumoBindings()
+	{
+		super.registerKumoBindings();
+		// The tentacle phase the vanilla model animates with (interpolated), and whether it has
+		// wrapped around yet this cycle.
+		registerVariable("squidRotation", () -> entity.prevSquidRotation + (entity.squidRotation - entity.prevSquidRotation) * DataUpdateHandler.partialTicks);
+		registerState("SQUID_ROTATION_LOW", () -> entity.squidRotation < GUtil.PI);
+		registerState("SQUID_PREV_ROTATION_LOW", () -> entity.prevSquidRotation < GUtil.PI);
+	}
 
 	@Override
 	public void initModelPose()
