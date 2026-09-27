@@ -119,6 +119,13 @@ public class EntityTypeRegistry
         return matched.isEmpty() && unstable.isEmpty() ? Candidates.NONE : new Candidates(matched, unstable);
     }
 
+    /** The types no longer match the registered benders: they load again on next use. */
+    public void markStale()
+    {
+        loaded = false;
+        EntityBenderRegistry.instance.clearCache();
+    }
+
     public void ensureLoaded()
     {
         if (!loaded)

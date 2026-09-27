@@ -66,6 +66,9 @@ public class EntityBenderRegistry
         }
         defaultBenders.add(entityBender);
         defaultBenderByClass.clear();
+        // Every addon bender brings a built-in type, and the types may have loaded before it (a
+        // resource reload listener runs as soon as it's registered, before the addons register).
+        EntityTypeRegistry.INSTANCE.markStale();
     }
 
     /** Registers a bender a type made from a model definition. It only animates entities of that type. */
