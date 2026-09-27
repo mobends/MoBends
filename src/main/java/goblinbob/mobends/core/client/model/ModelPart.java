@@ -1,11 +1,6 @@
 package goblinbob.mobends.core.client.model;
 
 import goblinbob.mobends.core.math.SmoothOrientation;
-import goblinbob.mobends.core.math.TransformUtils;
-import goblinbob.mobends.core.math.matrix.IMat4x4d;
-import goblinbob.mobends.core.math.physics.AABBoxGroup;
-import goblinbob.mobends.core.math.physics.IAABBox;
-import goblinbob.mobends.core.math.physics.ICollider;
 import goblinbob.mobends.core.math.vector.IVec3f;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
@@ -43,7 +38,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
      * An optional parent.
      */
     protected IModelPart parent;
-    protected ICollider collider;
 
     public ModelPart(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
     {
@@ -141,13 +135,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
-    public void applyPreTransform(float scale, IMat4x4d dest)
-    {
-        if (this.globalOffset.x != 0.0F || this.globalOffset.y != 0.0F || this.globalOffset.z != 0.0F)
-            TransformUtils.translate(dest, this.globalOffset.x * scale, this.globalOffset.y * scale, this.globalOffset.z * scale);
-    }
-
-    @Override
     public void applyLocalTransform(float scale)
     {
         if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
@@ -160,21 +147,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
 
         if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
             GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
-    }
-
-    @Override
-    public void applyLocalTransform(float scale, IMat4x4d matrix)
-    {
-        if (this.position.x != 0.0F || this.position.y != 0.0F || this.position.z != 0.0F)
-            TransformUtils.translate(matrix, this.position.x * scale * offsetScale, this.position.y * scale * offsetScale, this.position.z * scale * offsetScale);
-
-        if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
-            TransformUtils.translate(matrix, this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
-
-        TransformUtils.rotate(matrix, rotation.getSmooth());
-
-        if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
-            TransformUtils.scale(matrix, this.scale.x, this.scale.y, this.scale.z, matrix);
     }
 
     @Override
@@ -350,24 +322,6 @@ public class ModelPart extends ModelRenderer implements IModelPart
     public boolean isShowing()
     {
         return this.showModel && !this.isHidden;
-    }
-
-    protected void updateBounds()
-    {
-        if (this.mutatedBoxes.size() == 1)
-        {
-            this.collider = this.mutatedBoxes.get(0).createAABB();
-        }
-        else
-        {
-            IAABBox[] bounds = new IAABBox[this.mutatedBoxes.size()];
-            for (int i = 0; i < bounds.length; ++i)
-            {
-                bounds[i] = this.mutatedBoxes.get(i).createAABB();
-            }
-
-            this.collider = new AABBoxGroup(bounds);
-        }
     }
 
     public ModelPart setMirror(boolean mirror)
