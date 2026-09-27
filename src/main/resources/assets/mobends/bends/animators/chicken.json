@@ -91,9 +91,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterTouchdown",
+                    "left": "ticksAfterTouchdown",
                     "op": "<",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               }
@@ -189,9 +189,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterTouchdown",
+                    "left": "ticksAfterTouchdown",
                     "op": "<",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               }
@@ -278,9 +278,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": ">=",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   },
@@ -305,9 +305,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": ">=",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   },

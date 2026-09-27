@@ -38,7 +38,7 @@ function writeClip(path: string, data: Obj): void {
 }
 
 // ---- condition helpers ----------------------------------------------------------------------
-const cmp = (variable: string, op: string, value: number): Obj => ({ type: "core:compare", variable, op, value });
+const cmp = (left: string | number | Obj, op: string, right: string | number | Obj): Obj => ({ type: "core:compare", left, op, right });
 const state = (s: string): Obj => ({ type: "core:state", state: s });
 const action = (tag: string): Obj => ({ type: "core:action", tag });
 const AND = (...conditions: Obj[]): Obj => ({ type: "core:and", conditions });
@@ -595,7 +595,7 @@ function conn(target: string, cond: Obj, sets: Obj | null = null): Obj {
 // An action bit's slideY() over a base layer that re-slides the same vector restarts every
 // frame; the core detects the conflicting write and restarts the slide, so SLIDE is exact.
 const tAA = "ticksAfterAttack";
-const dec = { type: "core:decreased", variable: tAA };
+const dec = { type: "core:decreased", value: tAA };
 const stillNotRiding = AND(state("STANDING_STILL"), NOT(state("RIDING")));
 const stanceWindow = AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60), state("ON_GROUND"));
 const stanceSprintCond = AND(stanceWindow, state("SPRINTING"));

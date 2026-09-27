@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.pose;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.SpaceTemplate;
 
@@ -17,12 +18,12 @@ public class LayerSpaces
     /** The layer's mirroring rule, if any. */
     public final LayerMirror mirror;
 
-    public LayerSpaces(Skeleton skeleton, LayerTemplate layer) throws goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
+    public LayerSpaces(Skeleton skeleton, LayerTemplate layer, ExpressionScope scope) throws goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
     {
         this.skeleton = skeleton;
         this.defaultSpace = layer.defaultAdditiveSpace();
         this.perBone = layer.mode == LayerTemplate.LayerMode.ADDITIVE ? layer.additiveSpace : null;
-        this.mirror = layer.mirror == null ? null : new LayerMirror(skeleton, layer.mirror);
+        this.mirror = layer.mirror == null ? null : new LayerMirror(skeleton, layer.mirror, scope);
     }
 
     public Pose.Space forSlot(int slot)

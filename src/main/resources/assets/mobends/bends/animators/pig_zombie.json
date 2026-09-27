@@ -89,9 +89,9 @@
     {
       "when": {
         "type": "core:compare",
-        "variable": "entitySwingProgress",
+        "left": "entitySwingProgress",
         "op": ">",
-        "value": 0
+        "right": 0
       },
       "entryNode": "slash",
       "mirror": {

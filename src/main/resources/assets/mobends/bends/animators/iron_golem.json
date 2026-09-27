@@ -69,9 +69,9 @@
               },
               "when": {
                 "type": "core:compare",
-                "variable": "attackTimer",
+                "left": "attackTimer",
                 "op": ">",
-                "value": 0
+                "right": 0
               }
             }
           ],
@@ -87,9 +87,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterTouchdown",
+                    "left": "ticksAfterTouchdown",
                     "op": "<",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               }
@@ -157,9 +157,9 @@
               },
               "when": {
                 "type": "core:compare",
-                "variable": "attackTimer",
+                "left": "attackTimer",
                 "op": ">",
-                "value": 0
+                "right": 0
               }
             }
           ],
@@ -175,9 +175,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterTouchdown",
+                    "left": "ticksAfterTouchdown",
                     "op": "<",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               }
@@ -234,9 +234,9 @@
               },
               "when": {
                 "type": "core:compare",
-                "variable": "attackTimer",
+                "left": "attackTimer",
                 "op": ">",
-                "value": 0
+                "right": 0
               }
             }
           ],
@@ -255,9 +255,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": ">=",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   },
@@ -282,9 +282,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": ">=",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   },

@@ -14,9 +14,9 @@
               "animationKey": "mobends:bends/animations/biped/stand_enter.json",
               "when": {
                 "type": "core:compare",
-                "variable": "ticksAfterTouchdown",
+                "left": "ticksAfterTouchdown",
                 "op": "<",
-                "value": 3.3333333333333335
+                "right": 3.3333333333333335
               }
             }
           ],
@@ -69,9 +69,9 @@
               "frame": "ticksAfterTouchdown",
               "when": {
                 "type": "core:compare",
-                "variable": "ticksAfterTouchdown",
+                "left": "ticksAfterTouchdown",
                 "op": "<",
-                "value": 6.666666666666667
+                "right": 6.666666666666667
               },
               "damping": {
                 "body": 1
@@ -93,9 +93,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterTouchdown",
+                    "left": "ticksAfterTouchdown",
                     "op": "<",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               }
@@ -224,9 +224,9 @@
               "frame": "ticksAfterTouchdown",
               "when": {
                 "type": "core:compare",
-                "variable": "ticksAfterTouchdown",
+                "left": "ticksAfterTouchdown",
                 "op": "<",
-                "value": 6.666666666666667
+                "right": 6.666666666666667
               },
               "damping": {
                 "body": 1
@@ -248,9 +248,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterTouchdown",
+                    "left": "ticksAfterTouchdown",
                     "op": "<",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               }
@@ -404,9 +404,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": ">=",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   },
@@ -431,9 +431,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": ">=",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   },
@@ -451,15 +451,15 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "prevMotionY",
+                    "left": "prevMotionY",
                     "op": "<",
-                    "value": 0
+                    "right": 0
                   },
                   {
                     "type": "core:compare",
-                    "variable": "motionY",
+                    "left": "motionY",
                     "op": ">",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               }

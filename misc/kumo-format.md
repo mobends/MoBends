@@ -54,7 +54,8 @@ produces the layer's pose, which composites onto the result.
 
 * `type` is `core:pose` (the default), `core:fallthrough` or `core:vanilla`.
 * `tags` are the layer's *actions* (`core:action` sees them, in every layer).
-* `expressions` declares named expressions visible to the node's items (see *Expressions*).
+* `expressions` declares named expressions visible to the node's items and to the conditions of
+  its connections (see *Expressions*).
 * Connections are checked before the node is posed, so a state change shows the same frame.
   Every condition is evaluated each frame (edge triggers stay fresh); the first one met fires.
   A connection's `set` assigns layer variables when it fires. `transitionDuration` crossfades
@@ -218,15 +219,19 @@ variables, not named expressions; expressions built from a negated variable foll
 ### Conditions
 
 `core:state` (`state`: a subject state such as `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`),
-`core:compare` (`variable`, `op` one of `< <= > >= == !=`, `value`), `core:decreased`
-(`variable`: met on the frame it is lower than on the previous evaluation),
+`core:compare` (`left`, `op` one of `< <= > >= == !=`, `right`; both sides are expressions),
+`core:decreased` (`value`, an expression: met on the frame it is lower than on the previous
+evaluation),
 `core:ticks_passed` (`ticksToPass`, on the layer's clock), `core:action` (`tag` of any layer's
 current node), `core:property` (`property`, `value` / `values`, or `unset`: string properties
 such as `mainHandItem`, `useActionType`, `activeHandSide`), `core:equipment_name`
 (`namePattern`, `slot`), `core:animation_finished` (met once every clip of the current node
 that has a `duration` has run it; a node with no items always is, one whose items all run
 forever never is), and `core:and` / `core:or` / `core:not`. A condition that names a variable or
-state the subject doesn't have fails the animator (logged; the entity isn't animated).
+state the subject doesn't have fails the animator (logged; the entity isn't animated). A
+condition's expressions see the named expressions where it is written: a layer's `when` sees
+the layer's; an item's, a connection's and the layer's `mirror` rule see those of the node being
+posed.
 
 ## Semantics worth knowing
 

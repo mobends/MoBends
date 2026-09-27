@@ -22,7 +22,7 @@ public final class MinecraftKumoOperations
         ExpressionOperations.unary("mcsin", MathHelper::sin);
         ExpressionOperations.unary("mccos", MathHelper::cos);
 
-        TriggerConditionRegistry.INSTANCE.register("core:equipment_name", EquipmentNameCondition::new, EquipmentNameCondition.Template.class);
+        TriggerConditionRegistry.INSTANCE.register("core:equipment_name", (template, scope) -> new EquipmentNameCondition(template), EquipmentNameCondition.Template.class);
     }
 
 }

@@ -43,7 +43,7 @@ public class RampDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:ramp needs a 'name'.");
         }
-        ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when);
+        ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, context.getExpressionScope());
         return new RampDriver(template.name, template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when, template.readBeforeAdvance, template.initial);
     }
 

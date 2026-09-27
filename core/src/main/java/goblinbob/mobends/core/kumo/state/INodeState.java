@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
@@ -21,7 +22,8 @@ public interface INodeState
 
     boolean isAnimationFinished();
 
-    void parseConnections(Map<String, INodeState> nodesByName, NodeTemplate template) throws MalformedKumoTemplateException;
+    /** Creates the node's connections; their conditions see the named expressions of {@code scope} (the node's). */
+    void parseConnections(Map<String, INodeState> nodesByName, NodeTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException;
 
     void start(IKumoContext context) throws MalformedKumoTemplateException;
 

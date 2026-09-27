@@ -142,6 +142,45 @@ public class KumoAnimatorStateTest
         }
     }
 
+    @Test
+    public void aComparisonTakesExpressionsAndSeesTheNodesNamedExpressions() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"walk\", \"nodes\": {"
+                + "\"walk\": {\"tags\": [\"walk\"], \"expressions\": {\"doubled\": {\"mul\": [\"speed\", 2]}},"
+                + " \"connections\": [{\"target\": \"run\", \"triggerCondition\": {\"type\": \"core:compare\", \"left\": \"doubled\", \"op\": \">\", \"right\": {\"add\": [\"limit\", 1]}}}]},"
+                + "\"run\": {\"tags\": [\"run\"]}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        subject.variables.put("limit", 2D);
+
+        subject.variables.put("speed", 1.5D);
+        animator.update(subject, 1F);
+        assertEquals(Collections.singletonList("walk"), animator.getActions());
+
+        subject.variables.put("speed", 2D);
+        animator.update(subject, 1F);
+        assertEquals(Collections.singletonList("run"), animator.getActions());
+    }
+
+    @Test
+    public void decreasedWatchesAnExpression() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"entryNode\": \"a\", \"nodes\": {"
+                + "\"a\": {\"tags\": [\"a\"], \"connections\": [{\"target\": \"b\", \"triggerCondition\": {\"type\": \"core:decreased\", \"value\": {\"abs\": [\"x\"]}}}]},"
+                + "\"b\": {\"tags\": [\"b\"]}}}]}");
+        TestSubject subject = new TestSubject("arm");
+
+        subject.variables.put("x", 1D);
+        animator.update(subject, 1F);
+        // x falls, but its absolute value rises.
+        subject.variables.put("x", -3D);
+        animator.update(subject, 1F);
+        assertEquals(Collections.singletonList("a"), animator.getActions());
+
+        subject.variables.put("x", 2D);
+        animator.update(subject, 1F);
+        assertEquals(Collections.singletonList("b"), animator.getActions());
+    }
+
     @Test(expected = MalformedKumoTemplateException.class)
     public void aMaskWithoutAModeIsRefused() throws MalformedKumoTemplateException
     {

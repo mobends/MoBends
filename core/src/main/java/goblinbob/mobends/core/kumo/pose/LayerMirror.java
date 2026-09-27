@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.pose;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -21,10 +22,10 @@ public class LayerMirror
     private final Set<String> negated;
     private int[] pairOf = new int[0];
 
-    public LayerMirror(Skeleton skeleton, MirrorTemplate template) throws MalformedKumoTemplateException
+    public LayerMirror(Skeleton skeleton, MirrorTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         this.skeleton = skeleton;
-        this.when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when);
+        this.when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, scope);
         this.pairs = template.pairs == null ? Collections.emptyList() : template.pairs;
         this.negated = template.negate == null ? Collections.emptySet() : new HashSet<>(template.negate);
         for (List<String> pair : this.pairs)

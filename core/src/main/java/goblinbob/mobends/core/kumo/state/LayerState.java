@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.pose.BoneTarget;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
@@ -64,7 +65,7 @@ public class LayerState
         }
         this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
         this.skeleton = skeleton;
-        this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(layerTemplate.when);
+        this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(layerTemplate.when, context.getExpressionScope());
         this.variables.putAll(layerTemplate.variables);
 
         if (layerTemplate.nodes == null || layerTemplate.nodes.isEmpty())
@@ -72,9 +73,12 @@ public class LayerState
             throw new MalformedKumoTemplateException("A layer has no nodes.");
         }
 
+        List<ExpressionScope> nodeScopes = new ArrayList<>();
         for (NodeTemplate nodeTemplate : layerTemplate.nodes)
         {
-            INodeState node = NodeRegistry.INSTANCE.createFromTemplate(context.withExpressions(nodeTemplate.expressions), skeleton, layerTemplate, nodeTemplate);
+            IKumoInstancingContext nodeContext = context.withExpressions(nodeTemplate.expressions);
+            nodeScopes.add(nodeContext.getExpressionScope());
+            INodeState node = NodeRegistry.INSTANCE.createFromTemplate(nodeContext, skeleton, layerTemplate, nodeTemplate);
             nodeStates.add(node);
             if (nodesByName.put(nodeTemplate.name, node) != null)
             {
@@ -84,7 +88,7 @@ public class LayerState
 
         for (int i = 0; i < nodeStates.size(); i++)
         {
-            nodeStates.get(i).parseConnections(nodesByName, layerTemplate.nodes.get(i));
+            nodeStates.get(i).parseConnections(nodesByName, layerTemplate.nodes.get(i), nodeScopes.get(i));
         }
 
         currentNode = nodesByName.get(layerTemplate.entryNodeName);

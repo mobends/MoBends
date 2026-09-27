@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
@@ -12,13 +13,13 @@ public class NotCondition implements ITriggerCondition
 
     private final ITriggerCondition condition;
 
-    public NotCondition(Template template) throws MalformedKumoTemplateException
+    public NotCondition(Template template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         if (template.condition == null)
         {
             throw new MalformedKumoTemplateException("core:not needs a 'condition'.");
         }
-        this.condition = TriggerConditionRegistry.INSTANCE.createFromTemplate(template.condition);
+        this.condition = TriggerConditionRegistry.INSTANCE.createFromTemplate(template.condition, scope);
     }
 
     @Override

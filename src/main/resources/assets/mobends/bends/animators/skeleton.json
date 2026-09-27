@@ -204,15 +204,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -255,15 +255,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -328,9 +328,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -358,15 +358,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -426,9 +426,9 @@
               "value": 0,
               "when": {
                 "type": "core:compare",
-                "variable": "ticksAfterAttack",
+                "left": "ticksAfterAttack",
                 "op": ">",
-                "value": 20
+                "right": 20
               }
             }
           ],
@@ -558,9 +558,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -588,15 +588,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -652,13 +652,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -673,13 +673,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -694,13 +694,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 2
+                    "right": 2
                   }
                 ]
               },
@@ -715,13 +715,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 3
+                    "right": 3
                   }
                 ]
               },
@@ -736,13 +736,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:state",
@@ -761,13 +761,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:not",
@@ -792,15 +792,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -825,15 +825,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -994,9 +994,9 @@
               "frame": "ticksAfterTouchdown",
               "when": {
                 "type": "core:compare",
-                "variable": "ticksAfterTouchdown",
+                "left": "ticksAfterTouchdown",
                 "op": "<",
-                "value": 6.666666666666667
+                "right": 6.666666666666667
               },
               "damping": {
                 "body": 1
@@ -1011,9 +1011,9 @@
               "value": 0,
               "when": {
                 "type": "core:compare",
-                "variable": "ticksAfterAttack",
+                "left": "ticksAfterAttack",
                 "op": ">",
-                "value": 20
+                "right": 20
               }
             }
           ],
@@ -1143,9 +1143,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -1173,15 +1173,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -1237,13 +1237,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -1258,13 +1258,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -1279,13 +1279,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 2
+                    "right": 2
                   }
                 ]
               },
@@ -1300,13 +1300,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 3
+                    "right": 3
                   }
                 ]
               },
@@ -1321,13 +1321,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:state",
@@ -1346,13 +1346,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:not",
@@ -1377,15 +1377,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -1415,15 +1415,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -1445,15 +1445,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -1526,9 +1526,9 @@
               "value": 0,
               "when": {
                 "type": "core:compare",
-                "variable": "ticksAfterAttack",
+                "left": "ticksAfterAttack",
                 "op": ">",
-                "value": 20
+                "right": 20
               }
             }
           ],
@@ -1658,9 +1658,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -1688,15 +1688,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -1752,13 +1752,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -1773,13 +1773,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -1794,13 +1794,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 2
+                    "right": 2
                   }
                 ]
               },
@@ -1815,13 +1815,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 3
+                    "right": 3
                   }
                 ]
               },
@@ -1836,13 +1836,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:state",
@@ -1861,13 +1861,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:not",
@@ -1892,15 +1892,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -1937,15 +1937,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -1967,15 +1967,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -2137,15 +2137,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -2188,15 +2188,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -2269,13 +2269,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "fist",
+                    "left": "fist",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -2290,13 +2290,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "fist",
+                    "left": "fist",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -2311,15 +2311,15 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": ">=",
-                    "value": 10
+                    "right": 10
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 60
+                    "right": 60
                   }
                 ]
               }
@@ -2522,15 +2522,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -2573,15 +2573,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -2654,13 +2654,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "fist",
+                    "left": "fist",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -2675,13 +2675,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "fist",
+                    "left": "fist",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -2696,15 +2696,15 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": ">=",
-                    "value": 10
+                    "right": 10
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 60
+                    "right": 60
                   }
                 ]
               }
@@ -2713,9 +2713,9 @@
               "target": "fists_idle",
               "triggerCondition": {
                 "type": "core:compare",
-                "variable": "ticksAfterAttack",
+                "left": "ticksAfterAttack",
                 "op": ">=",
-                "value": 60
+                "right": 60
               }
             }
           ]
@@ -2916,15 +2916,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -2967,15 +2967,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -3048,13 +3048,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "fist",
+                    "left": "fist",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -3069,13 +3069,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "fist",
+                    "left": "fist",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -3090,15 +3090,15 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": ">=",
-                    "value": 10
+                    "right": 10
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 60
+                    "right": 60
                   }
                 ]
               }
@@ -3107,9 +3107,9 @@
               "target": "fists_idle",
               "triggerCondition": {
                 "type": "core:compare",
-                "variable": "ticksAfterAttack",
+                "left": "ticksAfterAttack",
                 "op": ">=",
-                "value": 60
+                "right": 60
               }
             }
           ]
@@ -3326,15 +3326,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -3377,15 +3377,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -3458,13 +3458,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "fist",
+                    "left": "fist",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -3479,13 +3479,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "fist",
+                    "left": "fist",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -3497,9 +3497,9 @@
               "target": "fists_idle",
               "triggerCondition": {
                 "type": "core:compare",
-                "variable": "ticksAfterAttack",
+                "left": "ticksAfterAttack",
                 "op": ">=",
-                "value": 60
+                "right": 60
               }
             }
           ]
@@ -3786,15 +3786,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -3837,15 +3837,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -3910,9 +3910,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -3940,15 +3940,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -3995,9 +3995,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:property",
@@ -4270,9 +4270,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -4300,15 +4300,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -4364,13 +4364,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -4385,13 +4385,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -4406,13 +4406,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 2
+                    "right": 2
                   }
                 ]
               },
@@ -4427,13 +4427,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 3
+                    "right": 3
                   }
                 ]
               },
@@ -4448,13 +4448,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:state",
@@ -4473,13 +4473,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:not",
@@ -4504,15 +4504,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -4537,15 +4537,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -4574,9 +4574,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": ">=",
-                    "value": 10
+                    "right": 10
                   },
                   {
                     "type": "core:not",
@@ -4588,15 +4588,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -4621,15 +4621,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -4670,9 +4670,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:property",
@@ -4945,9 +4945,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -4975,15 +4975,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -5039,13 +5039,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -5060,13 +5060,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -5081,13 +5081,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 2
+                    "right": 2
                   }
                 ]
               },
@@ -5102,13 +5102,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 3
+                    "right": 3
                   }
                 ]
               },
@@ -5123,13 +5123,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:state",
@@ -5148,13 +5148,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:not",
@@ -5179,15 +5179,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -5212,15 +5212,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -5249,9 +5249,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": ">=",
-                    "value": 10
+                    "right": 10
                   },
                   {
                     "type": "core:not",
@@ -5263,15 +5263,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -5296,15 +5296,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -5345,9 +5345,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:property",
@@ -5642,9 +5642,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -5672,15 +5672,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -5736,13 +5736,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -5757,13 +5757,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -5778,13 +5778,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 2
+                    "right": 2
                   }
                 ]
               },
@@ -5799,13 +5799,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 3
+                    "right": 3
                   }
                 ]
               },
@@ -5820,13 +5820,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:state",
@@ -5845,13 +5845,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:not",
@@ -5876,15 +5876,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -5909,15 +5909,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -5946,9 +5946,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": ">=",
-                    "value": 10
+                    "right": 10
                   },
                   {
                     "type": "core:not",
@@ -5960,15 +5960,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -5993,15 +5993,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -6042,9 +6042,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:property",
@@ -6339,9 +6339,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -6369,15 +6369,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -6433,13 +6433,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -6454,13 +6454,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -6475,13 +6475,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 2
+                    "right": 2
                   }
                 ]
               },
@@ -6496,13 +6496,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 3
+                    "right": 3
                   }
                 ]
               },
@@ -6517,13 +6517,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:state",
@@ -6542,13 +6542,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:not",
@@ -6573,15 +6573,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -6606,15 +6606,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -6643,9 +6643,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": ">=",
-                    "value": 10
+                    "right": 10
                   },
                   {
                     "type": "core:not",
@@ -6657,15 +6657,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -6690,15 +6690,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -6737,9 +6737,9 @@
               "resetEachFrame": true,
               "when": {
                 "type": "core:compare",
-                "variable": "ticksAfterAttack",
+                "left": "ticksAfterAttack",
                 "op": "<",
-                "value": 0.5
+                "right": 0.5
               }
             },
             {
@@ -7009,9 +7009,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -7039,15 +7039,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -7103,13 +7103,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 0
+                    "right": 0
                   }
                 ]
               },
@@ -7124,13 +7124,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               },
@@ -7145,13 +7145,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 2
+                    "right": 2
                   }
                 ]
               },
@@ -7166,13 +7166,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 3
+                    "right": 3
                   }
                 ]
               },
@@ -7187,13 +7187,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:state",
@@ -7212,13 +7212,13 @@
                 "conditions": [
                   {
                     "type": "core:decreased",
-                    "variable": "ticksAfterAttack"
+                    "value": "ticksAfterAttack"
                   },
                   {
                     "type": "core:compare",
-                    "variable": "combo",
+                    "left": "combo",
                     "op": "==",
-                    "value": 4
+                    "right": 4
                   },
                   {
                     "type": "core:not",
@@ -7243,15 +7243,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -7276,15 +7276,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       },
                       {
                         "type": "core:state",
@@ -7313,9 +7313,9 @@
                 "conditions": [
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": ">=",
-                    "value": 10
+                    "right": 10
                   },
                   {
                     "type": "core:not",
@@ -7327,15 +7327,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -7360,15 +7360,15 @@
                           "conditions": [
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": ">=",
-                              "value": 10
+                              "right": 10
                             },
                             {
                               "type": "core:compare",
-                              "variable": "ticksAfterAttack",
+                              "left": "ticksAfterAttack",
                               "op": "<",
-                              "value": 60
+                              "right": 60
                             },
                             {
                               "type": "core:state",
@@ -7440,9 +7440,9 @@
               },
               "when": {
                 "type": "core:compare",
-                "variable": "bringUpPrev",
+                "left": "bringUpPrev",
                 "op": ">=",
-                "value": 1
+                "right": 1
               }
             }
           ],
@@ -7542,15 +7542,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -7593,15 +7593,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -7666,9 +7666,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -7696,15 +7696,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -8047,15 +8047,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -8098,15 +8098,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -8171,9 +8171,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -8201,15 +8201,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -8393,15 +8393,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -8444,15 +8444,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -8517,9 +8517,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -8547,15 +8547,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -8651,9 +8651,9 @@
               },
               "when": {
                 "type": "core:compare",
-                "variable": "bringUpPrev",
+                "left": "bringUpPrev",
                 "op": ">=",
-                "value": 1
+                "right": 1
               }
             }
           ],
@@ -8753,15 +8753,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -8804,15 +8804,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -8877,9 +8877,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -8907,15 +8907,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -9258,15 +9258,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -9309,15 +9309,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -9382,9 +9382,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -9412,15 +9412,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }
@@ -9604,15 +9604,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -9655,15 +9655,15 @@
                         "conditions": [
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": ">=",
-                            "value": 10
+                            "right": 10
                           },
                           {
                             "type": "core:compare",
-                            "variable": "ticksAfterAttack",
+                            "left": "ticksAfterAttack",
                             "op": "<",
-                            "value": 60
+                            "right": 60
                           },
                           {
                             "type": "core:state",
@@ -9728,9 +9728,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "ticksAfterAttack",
+                    "left": "ticksAfterAttack",
                     "op": "<",
-                    "value": 10
+                    "right": 10
                   }
                 ]
               },
@@ -9758,15 +9758,15 @@
                     "conditions": [
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": ">=",
-                        "value": 10
+                        "right": 10
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterAttack",
+                        "left": "ticksAfterAttack",
                         "op": "<",
-                        "value": 60
+                        "right": 60
                       }
                     ]
                   }

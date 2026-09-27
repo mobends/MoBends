@@ -5,6 +5,7 @@ import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.driver.RampDriver;
 import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.pose.*;
 import goblinbob.mobends.core.kumo.state.ConnectionState;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
@@ -87,7 +88,7 @@ public class PoseNode implements INodeState
 
     public static PoseNode createPose(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, PoseNodeTemplate template) throws MalformedKumoTemplateException
     {
-        LayerSpaces spaces = new LayerSpaces(skeleton, layer);
+        LayerSpaces spaces = new LayerSpaces(skeleton, layer, context.getExpressionScope());
         List<IPoseItem> items = new ArrayList<>();
         if (template.pose != null)
         {
@@ -150,7 +151,7 @@ public class PoseNode implements INodeState
         {
             return item;
         }
-        return new ConditionalPoseItem(item, TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when));
+        return new ConditionalPoseItem(item, TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, context.getExpressionScope()));
     }
 
     private static IPoseItem createUnconditionalItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
@@ -269,13 +270,13 @@ public class PoseNode implements INodeState
     }
 
     @Override
-    public void parseConnections(Map<String, INodeState> nodesByName, NodeTemplate template) throws MalformedKumoTemplateException
+    public void parseConnections(Map<String, INodeState> nodesByName, NodeTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         if (template.connections != null)
         {
             for (ConnectionTemplate connectionTemplate : template.connections)
             {
-                connections.add(ConnectionState.createFromTemplate(nodesByName, connectionTemplate));
+                connections.add(ConnectionState.createFromTemplate(nodesByName, connectionTemplate, scope));
             }
         }
     }

@@ -1,44 +1,48 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
+import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 /**
- * Compares a subject variable with a constant:
- * {@code {"type": "core:compare", "variable": "ticksAfterTouchdown", "op": "<", "value": 1}}.
+ * Compares two expressions:
+ * {@code {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 1}}.
  *
  * @author Iwo Plaza
  */
 public class CompareCondition implements ITriggerCondition
 {
 
-    private final String variable;
+    private final Expression left;
     private final Op op;
-    private final double value;
+    private final Expression right;
 
-    public CompareCondition(Template template) throws MalformedKumoTemplateException
+    public CompareCondition(Template template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
-        if (template.variable == null)
+        if (template.left == null || template.right == null)
         {
-            throw new MalformedKumoTemplateException("core:compare needs a 'variable'.");
+            throw new MalformedKumoTemplateException("core:compare needs a 'left' and a 'right' expression.");
         }
-        this.variable = template.variable;
+        this.left = Expression.compile(template.left.json, scope);
         this.op = Op.parse(template.op);
-        this.value = template.value;
+        this.right = Expression.compile(template.right.json, scope);
     }
 
     @Override
     public boolean isConditionMet(ITriggerConditionContext context)
     {
-        double actual = context.resolveVariable(variable);
+        float a = left.get(context);
+        float b = right.get(context);
         switch (op)
         {
-            case LESS: return actual < value;
-            case LESS_OR_EQUAL: return actual <= value;
-            case GREATER: return actual > value;
-            case GREATER_OR_EQUAL: return actual >= value;
-            case EQUAL: return actual == value;
-            case NOT_EQUAL: return actual != value;
+            case LESS: return a < b;
+            case LESS_OR_EQUAL: return a <= b;
+            case GREATER: return a > b;
+            case GREATER_OR_EQUAL: return a >= b;
+            case EQUAL: return a == b;
+            case NOT_EQUAL: return a != b;
             default: return false;
         }
     }
@@ -74,9 +78,9 @@ public class CompareCondition implements ITriggerCondition
     public static class Template extends TriggerConditionTemplate
     {
 
-        public String variable;
+        public ExpressionTemplate left;
         public String op;
-        public double value;
+        public ExpressionTemplate right;
 
     }
 

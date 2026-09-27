@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -25,7 +26,7 @@ public class ConnectionState
         this.transitionEasing = transitionEasing;
     }
 
-    public static ConnectionState createFromTemplate(Map<String, INodeState> nodesByName, ConnectionTemplate template) throws MalformedKumoTemplateException
+    public static ConnectionState createFromTemplate(Map<String, INodeState> nodesByName, ConnectionTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         if (template.target == null)
         {
@@ -43,7 +44,7 @@ public class ConnectionState
         }
 
         ConnectionState state = new ConnectionState(node,
-                TriggerConditionRegistry.INSTANCE.createFromTemplate(template.triggerCondition),
+                TriggerConditionRegistry.INSTANCE.createFromTemplate(template.triggerCondition, scope),
                 template.transitionDuration,
                 template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing);
         state.set = template.set;

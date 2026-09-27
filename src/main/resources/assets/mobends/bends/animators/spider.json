@@ -135,9 +135,9 @@
               "target": "death",
               "triggerCondition": {
                 "type": "core:compare",
-                "variable": "health",
+                "left": "health",
                 "op": "<=",
-                "value": 0
+                "right": 0
               }
             },
             {
@@ -149,9 +149,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -170,9 +170,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -191,9 +191,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": "<",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   }
@@ -209,9 +209,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -232,9 +232,9 @@
                         },
                         {
                           "type": "core:compare",
-                          "variable": "ticksAfterTouchdown",
+                          "left": "ticksAfterTouchdown",
                           "op": "<",
-                          "value": 1
+                          "right": 1
                         }
                       ]
                     }
@@ -413,9 +413,9 @@
               "target": "death",
               "triggerCondition": {
                 "type": "core:compare",
-                "variable": "health",
+                "left": "health",
                 "op": "<=",
-                "value": 0
+                "right": 0
               }
             },
             {
@@ -427,9 +427,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -448,9 +448,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -469,9 +469,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": "<",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   }
@@ -487,9 +487,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -510,9 +510,9 @@
                         },
                         {
                           "type": "core:compare",
-                          "variable": "ticksAfterTouchdown",
+                          "left": "ticksAfterTouchdown",
                           "op": "<",
-                          "value": 1
+                          "right": 1
                         }
                       ]
                     }
@@ -1049,9 +1049,9 @@
               "target": "death",
               "triggerCondition": {
                 "type": "core:compare",
-                "variable": "health",
+                "left": "health",
                 "op": "<=",
-                "value": 0
+                "right": 0
               }
             },
             {
@@ -1063,9 +1063,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1084,9 +1084,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1107,9 +1107,9 @@
                         },
                         {
                           "type": "core:compare",
-                          "variable": "ticksAfterTouchdown",
+                          "left": "ticksAfterTouchdown",
                           "op": "<",
-                          "value": 1
+                          "right": 1
                         }
                       ]
                     }
@@ -1133,9 +1133,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1156,9 +1156,9 @@
                         },
                         {
                           "type": "core:compare",
-                          "variable": "ticksAfterTouchdown",
+                          "left": "ticksAfterTouchdown",
                           "op": "<",
-                          "value": 1
+                          "right": 1
                         }
                       ]
                     }
@@ -1313,9 +1313,9 @@
               "target": "death",
               "triggerCondition": {
                 "type": "core:compare",
-                "variable": "health",
+                "left": "health",
                 "op": "<=",
-                "value": 0
+                "right": 0
               }
             },
             {
@@ -1327,9 +1327,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1348,9 +1348,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": "<",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   }
@@ -1366,9 +1366,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1389,9 +1389,9 @@
                         },
                         {
                           "type": "core:compare",
-                          "variable": "ticksAfterTouchdown",
+                          "left": "ticksAfterTouchdown",
                           "op": "<",
-                          "value": 1
+                          "right": 1
                         }
                       ]
                     }
@@ -1412,9 +1412,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1435,9 +1435,9 @@
                         },
                         {
                           "type": "core:compare",
-                          "variable": "ticksAfterTouchdown",
+                          "left": "ticksAfterTouchdown",
                           "op": "<",
-                          "value": 1
+                          "right": 1
                         }
                       ]
                     }
@@ -1590,9 +1590,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1611,9 +1611,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1632,9 +1632,9 @@
                       },
                       {
                         "type": "core:compare",
-                        "variable": "ticksAfterTouchdown",
+                        "left": "ticksAfterTouchdown",
                         "op": "<",
-                        "value": 1
+                        "right": 1
                       }
                     ]
                   }
@@ -1650,9 +1650,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1673,9 +1673,9 @@
                         },
                         {
                           "type": "core:compare",
-                          "variable": "ticksAfterTouchdown",
+                          "left": "ticksAfterTouchdown",
                           "op": "<",
-                          "value": 1
+                          "right": 1
                         }
                       ]
                     }
@@ -1696,9 +1696,9 @@
                     "type": "core:not",
                     "condition": {
                       "type": "core:compare",
-                      "variable": "health",
+                      "left": "health",
                       "op": "<=",
-                      "value": 0
+                      "right": 0
                     }
                   },
                   {
@@ -1719,9 +1719,9 @@
                         },
                         {
                           "type": "core:compare",
-                          "variable": "ticksAfterTouchdown",
+                          "left": "ticksAfterTouchdown",
                           "op": "<",
-                          "value": 1
+                          "right": 1
                         }
                       ]
                     }

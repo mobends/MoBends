@@ -140,7 +140,7 @@ clip with the counter as its frame, only while the counter is small:
 
 ```json
 {"animationKey": "…/kneel.json", "frame": "ticksAfterTouchdown",
- "when": {"type": "core:compare", "variable": "ticksAfterTouchdown", "op": "<", "value": 6.67},
+ "when": {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 6.67},
  "vectorModes": {"root": "SNAP"}}
 ```
 
@@ -184,7 +184,7 @@ variable the data class sets, and let it override or add to the base:
 ```json
 {"mode": "ADDITIVE",
  "additiveSpace": {"default": "PRE", "body": "POST", "root": "OVERRIDE"},
- "when": {"type": "core:compare", "variable": "animationSet", "op": "==", "value": 0},
+ "when": {"type": "core:compare", "left": "animationSet", "op": "==", "right": 0},
  "entryNode": "lean", "nodes": { … }}
 ```
 
@@ -196,8 +196,8 @@ swing) and count with layer variables set by the connection that fires:
 ```json
 {"target": "slash_up",
  "triggerCondition": {"type": "core:and", "conditions": [
-   {"type": "core:decreased", "variable": "ticksAfterAttack"},
-   {"type": "core:compare", "variable": "combo", "op": "==", "value": 0}]},
+   {"type": "core:decreased", "value": "ticksAfterAttack"},
+   {"type": "core:compare", "left": "combo", "op": "==", "right": 0}]},
  "set": {"combo": 1}}
 ```
 

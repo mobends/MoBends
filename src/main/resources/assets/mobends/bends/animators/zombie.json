@@ -11,9 +11,9 @@
       },
       "when": {
         "type": "core:compare",
-        "variable": "animationSet",
+        "left": "animationSet",
         "op": "==",
-        "value": 0
+        "right": 0
       },
       "entryNode": "lean",
       "nodes": {
@@ -48,9 +48,9 @@
                   },
                   {
                     "type": "core:compare",
-                    "variable": "currentWalkingState",
+                    "left": "currentWalkingState",
                     "op": "==",
-                    "value": 1
+                    "right": 1
                   }
                 ]
               }
@@ -62,9 +62,9 @@
     {
       "when": {
         "type": "core:compare",
-        "variable": "animationSet",
+        "left": "animationSet",
         "op": "==",
-        "value": 1
+        "right": 1
       },
       "entryNode": "stumble",
       "nodes": {

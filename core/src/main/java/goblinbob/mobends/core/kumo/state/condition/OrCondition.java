@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
@@ -16,7 +17,7 @@ public class OrCondition implements ITriggerCondition
 
     private final List<ITriggerCondition> conditions = new ArrayList<>();
 
-    public OrCondition(Template template) throws MalformedKumoTemplateException
+    public OrCondition(Template template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         if (template.conditions == null)
         {
@@ -28,7 +29,7 @@ public class OrCondition implements ITriggerCondition
             {
                 throw new MalformedKumoTemplateException("core:or has a null condition.");
             }
-            this.conditions.add(TriggerConditionRegistry.INSTANCE.createFromTemplate(conditionTemplate));
+            this.conditions.add(TriggerConditionRegistry.INSTANCE.createFromTemplate(conditionTemplate, scope));
         }
     }
 
