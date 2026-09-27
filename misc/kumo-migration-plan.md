@@ -1,7 +1,8 @@
 # Moving Mo' Bends fully to KUMO — feasibility study and plan
 
-Status: executed. The migration described below has been carried out; `misc/kumo-format.md`
-documents the resulting animator format, and `animation-lab/` holds the parity framework. The text below is the original study, kept as is.
+Status: executed. The migration described below has been carried out; `docs/animation.md` and
+`docs/content.md` describe the resulting architecture, `misc/kumo-format.md` the animator format,
+and `animation-lab/` (see `docs/testing.md`) holds the parity framework. The text below is the original study, kept as is.
 
 ## 0. Verdict
 

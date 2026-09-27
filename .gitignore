@@ -23,3 +23,6 @@
 
 # Standalone animation lab (modern JDK, no Forge)
 !/animation-lab
+
+# Technical docs
+!/docs

@@ -1,7 +1,7 @@
 name: Animation lab
 
 # Continuous validation that the KUMO animator assets still reproduce the procedural
-# reference frame by frame (see animation-lab/README.md).
+# reference frame by frame (see animation-lab/README.md and docs/testing.md).
 on:
   push:
     paths:
