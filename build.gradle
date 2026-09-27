@@ -26,18 +26,6 @@ archivesBaseName = "MoBends_${minecraft_version}"
  // Need this here so eclipse task generates correctly.
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
-// Kotlin configuration
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
@@ -106,12 +94,6 @@ dependencies {
     // The Minecraft-free animation engine, bundled into the mod jar.
     implementation project(':core')
 
-    // Kotlin support
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.72'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72'
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
-
     testCompile "junit:junit:4.11"
 }
 
@@ -149,7 +131,8 @@ shadowJar.finalizedBy('reobfShadowJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfShadowJar')
 
-// Build-time tools (src/tools/kotlin), not part of the mod.
+// Build-time tools (src/tools/kotlin), not part of the mod. The Kotlin plugin is only applied for these;
+// the mod itself is plain Java and ships no Kotlin runtime.
 sourceSets { tools }
 dependencies {
     toolsImplementation 'org.jetbrains.kotlin:kotlin-stdlib:1.3.72'
@@ -211,14 +194,11 @@ processResources {
     }
 }
 
-// Bundling the core and the Kotlin standard library along with the mod
+// Bundling the core along with the mod
 shadowJar {
     dependencies {
         include(project(':core'))
-        include(dependency('org.jetbrains.kotlin:kotlin-stdlib'))
-        include(dependency('org.jetbrains.kotlin:kotlin-stdlib-jdk8'))
     }
-    relocate 'kotlin', 'goblinbob.mobends.kotlin'
 }
 
 publishing {

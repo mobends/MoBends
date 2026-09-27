@@ -9,7 +9,6 @@ on:
       - "src/main/java/goblinbob/mobends/core/**"
       - "core/src/main/java/**"
       - "src/main/java/goblinbob/mobends/standard/**"
-      - "src/main/kotlin/**"
       - "src/main/resources/assets/mobends/bends/**"
       - ".github/workflows/animation-lab.yml"
   pull_request:
@@ -18,7 +17,6 @@ on:
       - "src/main/java/goblinbob/mobends/core/**"
       - "core/src/main/java/**"
       - "src/main/java/goblinbob/mobends/standard/**"
-      - "src/main/kotlin/**"
       - "src/main/resources/assets/mobends/bends/**"
       - ".github/workflows/animation-lab.yml"
 
