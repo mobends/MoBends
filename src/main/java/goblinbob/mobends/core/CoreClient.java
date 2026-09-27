@@ -14,6 +14,7 @@ import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.kumo.AnimationLimits;
 import goblinbob.mobends.core.kumo.AnimatorResources;
+import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.vanilla.VanillaEntityFields;
@@ -100,6 +101,7 @@ public class CoreClient extends Core<CoreClientConfig>
         AnimationPolicy.INSTANCE.onContentReloaded();
         ModelDefinitions.INSTANCE.clearCache();
         AnimatorResources.INSTANCE.clearCache();
+        KumoAnimatorController.clearReported();
         EntityDatabase.instance.refresh();
         EntityBenderRegistry.instance.refreshMutators();
         EntityTypeRegistry.INSTANCE.reload();

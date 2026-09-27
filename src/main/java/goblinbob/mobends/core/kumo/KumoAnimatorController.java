@@ -5,11 +5,14 @@ import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.util.ErrorReporter;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -17,11 +20,15 @@ import java.util.logging.Level;
  * targets of the entity data (which does the smoothing). Extensions add the layers of their own
  * animators on top.
  *
- * <p>If the animator fails to load or while animating, the controller logs once and animates
- * nothing from then on, so a broken asset never crashes the render.
+ * <p>If the animator fails to load or while animating, the controller logs it, tells the player in
+ * the chat (once per animator, however many entities use it) and animates nothing from then on, so
+ * a broken asset never crashes the render.
  */
 public class KumoAnimatorController
 {
+
+    /** The animators (with their extensions) the player has been told failed, until the animation reloads. */
+    private static final Set<String> REPORTED = new HashSet<>();
 
     private final ResourceLocation animator;
     private final List<ResourceLocation> extensions;
@@ -67,7 +74,8 @@ public class KumoAnimatorController
         catch (Exception e)
         {
             failed = true;
-            Core.LOG.log(Level.SEVERE, "Could not load the animator " + animator + (extensions.isEmpty() ? "" : " with the extensions " + extensions), e);
+            Core.LOG.log(Level.SEVERE, "Could not load the animator " + describe(), e);
+            report("could not be loaded", e);
             return false;
         }
     }
@@ -94,7 +102,29 @@ public class KumoAnimatorController
         {
             failed = true;
             state = null;
-            Core.LOG.log(Level.SEVERE, "The animator " + animator + " failed while animating", e);
+            Core.LOG.log(Level.SEVERE, "The animator " + describe() + " failed while animating", e);
+            report("stopped working", e);
+        }
+    }
+
+    /** Forgets which failures were shown, so they show again if they happen after a reload. */
+    public static void clearReported()
+    {
+        REPORTED.clear();
+    }
+
+    private String describe()
+    {
+        return animator + (extensions.isEmpty() ? "" : " with the extensions " + extensions);
+    }
+
+    private void report(String what, Exception e)
+    {
+        String key = describe();
+        // Not marked as shown while there is no player to show it to: the next entity tries again.
+        if (!REPORTED.contains(key) && ErrorReporter.showErrorToPlayer("The animator " + key + " " + what + ": " + e.getMessage() + " (see the log)."))
+        {
+            REPORTED.add(key);
         }
     }
 

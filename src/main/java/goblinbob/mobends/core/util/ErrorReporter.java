@@ -15,11 +15,12 @@ public class ErrorReporter
         return header;
     }
 
-    public static void showErrorToPlayer(TextComponentString textComponent)
+    /** Shows {@code textComponent} in the chat; false if there is no player to show it to (e.g. on the title screen). */
+    public static boolean showErrorToPlayer(TextComponentString textComponent)
     {
         if (Minecraft.getMinecraft().player == null)
         {
-            return;
+            return false;
         }
 
         TextComponentString base = new TextComponentString("");
@@ -28,11 +29,12 @@ public class ErrorReporter
         base.appendSibling(textComponent);
 
         Minecraft.getMinecraft().player.sendMessage(base);
+        return true;
     }
 
-    public static void showErrorToPlayer(String error)
+    public static boolean showErrorToPlayer(String error)
     {
-        showErrorToPlayer(new TextComponentString(error));
+        return showErrorToPlayer(new TextComponentString(error));
     }
 
 }
