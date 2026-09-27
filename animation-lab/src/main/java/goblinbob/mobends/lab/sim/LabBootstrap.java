@@ -1,11 +1,12 @@
 package goblinbob.mobends.lab.sim;
 
+import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.standard.kumo.WolfStateCondition;
 
 /**
- * Mirrors the registrations {@code DefaultAddon.registerContent} performs in the mod, for the
- * parts of it that the animation code needs.
+ * Mirrors the registrations {@code Core.preInit} and {@code DefaultAddon.registerContent} perform
+ * in the mod, for the parts of it that the animation code needs.
  */
 public class LabBootstrap
 {
@@ -15,6 +16,7 @@ public class LabBootstrap
     {
         if (done) return;
         done = true;
+        MinecraftKumoOperations.register();
         TriggerConditionRegistry.instance.register("mobends:wolf_state", WolfStateCondition::new, WolfStateCondition.Template.class);
         goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:sword_trail", goblinbob.mobends.standard.kumo.SwordTrailDriver::create, goblinbob.mobends.standard.kumo.SwordTrailDriver.Template.class);
         goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.register("mobends:cape", goblinbob.mobends.standard.kumo.CapeDriver::create, goblinbob.mobends.standard.kumo.CapeDriver.Template.class);

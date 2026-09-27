@@ -7,6 +7,7 @@ on:
     paths:
       - "animation-lab/**"
       - "src/main/java/goblinbob/mobends/core/**"
+      - "core/src/main/java/**"
       - "src/main/java/goblinbob/mobends/standard/**"
       - "src/main/kotlin/**"
       - "src/main/resources/assets/mobends/bends/**"
@@ -15,6 +16,7 @@ on:
     paths:
       - "animation-lab/**"
       - "src/main/java/goblinbob/mobends/core/**"
+      - "core/src/main/java/**"
       - "src/main/java/goblinbob/mobends/standard/**"
       - "src/main/kotlin/**"
       - "src/main/resources/assets/mobends/bends/**"
