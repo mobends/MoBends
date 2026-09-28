@@ -2,6 +2,11 @@
   "formatVersion": 2,
   "layers": [
     {
+      "comment": "Golems wander at about 0.0496 blocks a tick, just under the MOVING_HORIZONTALLY dead zone (0.05), so the walk goes by the golem's own speed thresholds, apart to keep it from flickering.",
+      "expressions": {
+        "walkStart": 0.02,
+        "walkStop": 0.01
+      },
       "entryNode": "stand",
       "nodes": {
         "stand": {
@@ -97,8 +102,10 @@
             {
               "target": "walk",
               "triggerCondition": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
+                "type": "core:compare",
+                "left": "xzMotionMagnitude",
+                "op": ">=",
+                "right": "walkStart"
               }
             }
           ]
@@ -185,8 +192,10 @@
             {
               "target": "stand",
               "triggerCondition": {
-                "type": "core:state",
-                "state": "STANDING_STILL"
+                "type": "core:compare",
+                "left": "xzMotionMagnitude",
+                "op": "<",
+                "right": "walkStop"
               }
             }
           ]
@@ -262,8 +271,10 @@
                     ]
                   },
                   {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
+                    "type": "core:compare",
+                    "left": "xzMotionMagnitude",
+                    "op": "<",
+                    "right": "walkStop"
                   }
                 ]
               }
@@ -289,8 +300,10 @@
                     ]
                   },
                   {
-                    "type": "core:state",
-                    "state": "MOVING_HORIZONTALLY"
+                    "type": "core:compare",
+                    "left": "xzMotionMagnitude",
+                    "op": ">=",
+                    "right": "walkStop"
                   }
                 ]
               }
