@@ -11,6 +11,8 @@ import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.OffsetTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.RampTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.SetTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.SpringTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.StepTurnTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.VectorTemplate;
 
 import javax.annotation.Nullable;
@@ -35,6 +37,8 @@ public class DriverRegistry
         register("core:set", SetDriver::create, SetTemplate.class);
         register("core:accumulate", AccumulateDriver::create, AccumulateTemplate.class);
         register("core:offset", OffsetDriver::create, OffsetTemplate.class);
+        register("core:spring", SpringDriver::create, SpringTemplate.class);
+        register("core:step_turn", StepTurnDriver::create, StepTurnTemplate.class);
     }
 
     public <T extends DriverItemTemplate> void register(String key, IDriverFactory<T> factory, Class<T> templateType)

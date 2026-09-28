@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.data;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
+import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockVine;
 import net.minecraft.block.state.IBlockState;
@@ -75,6 +76,8 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
         // Derived inputs, exposed so animators can use them directly.
         registerVariable("rotationYaw", () -> entity != null ? entity.rotationYaw : 0);
+        // The yaw vanilla turns the body to, interpolated as the renderer does.
+        registerVariable("bodyYaw", () -> entity != null ? GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, DataUpdateHandler.partialTicks) : 0);
         registerVariable("headYawAbs", () -> Math.abs(headYaw));
         registerVariable("climbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation()) : 0);
         registerVariable("climbingBodyYaw", () -> entity != null

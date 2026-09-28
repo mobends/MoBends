@@ -108,6 +108,10 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         registerVariable("forwardMomentum", this::getForwardMomentum);
         registerVariable("sidewaysMomentum", this::getSidewaysMomentum);
         registerVariable("movementAngle", this::getMovementAngle);
+        // Interpolated like the renderer does, in doubles: step_turn plants feet in the world.
+        registerVariable("worldX", () -> entity != null ? entity.prevPosX + (entity.posX - entity.prevPosX) * DataUpdateHandler.partialTicks : 0);
+        registerVariable("worldY", () -> entity != null ? entity.prevPosY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks : 0);
+        registerVariable("worldZ", () -> entity != null ? entity.prevPosZ + (entity.posZ - entity.prevPosZ) * DataUpdateHandler.partialTicks : 0);
 
         registerState("ON_GROUND", this::isOnGround);
         registerState("AIRBORNE", () -> !isOnGround());

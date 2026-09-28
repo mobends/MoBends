@@ -153,12 +153,54 @@ the entity-level offset vectors (their keyframe positions are the vector).
 | `core:ramp` | `name`, `speed`, `downSpeed` (null = speed, 0 = never down), `when` (its up/down switch), `initial`, `readBeforeAdvance`: a node variable moving 0..1 |
 | `core:accumulate` | `name`, `rate` (expression, per tick), `initial`, `min`, `max`: a node variable that integrates |
 | `core:set` | `variable`, `value` (expression), `scope` (`layer` / `node`): assigns every frame the item is evaluated |
+| `core:spring` | `name`, `target` (expression), `stiffness` (per tick²), `friction` (per tick), `initial`: a node variable pulled towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through) |
+| `core:step_turn` | the body turns by stepping, on planted feet (see *Turning on the feet*) |
 | `mobends:cape` | the player's cape physics |
 | `mobends:sword_trail` | `add`, `resetOnEnter`, `resetEachFrame`, `velocity`: feeds the sword trail |
 | `mobends:spider_idle_legs`, `mobends:spider_moving_legs` | the spider's inverse-kinematics gaits (see the templates' fields) |
 
 Drivers that compute something for later items publish it as a node variable
 (`groundLevel`).
+
+### Turning on the feet
+
+`core:step_turn` takes over which way the body faces. Vanilla turns a standing mob's body
+smoothly towards its head; the driver instead keeps the yaw the body is *shown* at, turns the
+model back from vanilla's yaw to it (`rotationBone`, `renderRotation` by default, put before
+whatever lies beneath), and plants the feet in the world. When vanilla's body yaw gets
+`turnThreshold` degrees ahead of a foot, that foot steps (at most `maxStepAngle` past the shown
+body, re-aimed while it rises), the leg on the side of the turn first; the body turns towards the
+mean of where its feet point, like a mass on a spring (`bodyStiffness`, `bodyDamping`), so it
+follows once the foot is down; the next foot lifts once the body has settled to within
+`settleAngle`. For `finishWindow` ticks after a landing a foot already steps at `finishThreshold`
+degrees, so a turn ends squared up. A foot pushed `driftThreshold` model units from under the
+body steps back; past `resetDistance` every foot is placed anew.
+
+```json
+{"driver": "core:step_turn", "weight": "standing",
+ "legs": [{"upper": "leftLeg", "lower": "leftForeLeg", "hip": [-4, 11, 0], "knee": [0, 5, -3], "foot": [-0.5, 8, 2.5]},
+          {"upper": "rightLeg", "lower": "rightForeLeg", "hip": [5, 11, 0], "knee": [0, 5, -3], "foot": [-0.5, 8, 2.5]}]}
+```
+
+* Each leg is two segments: `hip` is the upper bone's pivot in the model (model units, +Y down,
+  -Z forward), `knee` the lower bone's pivot relative to it and `foot` the sole relative to the
+  knee, all at rest (a split's joint sits on its cut, at the hinge). `bend` is 1 for a joint that
+  bends the foot back (a knee), -1 for one that bends forward; it never bends past its rest pose
+  the other way. The IK turns the leg to where its foot points, then swings it onto the foot, and
+  the bones snap to it at full weight. It assumes the legs have no `restRotation`.
+* The hips are lowered by `crouch`, dip by `impactDepth` a moment after a foot lands and shift
+  `weightShift` over the planted feet while one is up, through `offsetBone` (`localOffset`); the
+  legs keep the feet on the ground.
+* `weight` (an expression, 0..1) blends the driver in. At 0 it writes nothing, and the feet are
+  placed anew under the body when it goes up again. Run it in its own layer with a ramp that goes
+  up while the mob stands, so the walk and the jump show beneath it and the body turns back to
+  vanilla's yaw while they play.
+* It reads the variables `yawVariable` (`bodyYaw`), `xVariable` and `zVariable` (`worldX`,
+  `worldZ`), and publishes `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
+  head posed by `headYaw` has to add), `turnSpeed` (degrees per tick the shown body turns),
+  `stepLift` (0..1 as the stepping foot rises, negative for a foot on the -X side) and
+  `stepImpact` (0..1, peaking `impactTime` ticks after a landing), all scaled by the weight, for
+  the items after it to make the upper body react. `iron_golem.json` does it with springs.
 
 ### Expressions
 
