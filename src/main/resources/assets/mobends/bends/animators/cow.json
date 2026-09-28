@@ -1,0 +1,65 @@
+{
+  "formatVersion": 2,
+  "comment": "The quadruped, with the body bobbing on each footfall while walking and the head following through behind it.",
+  "extends": "mobends:bends/animators/quadruped.json",
+  "layers": [
+    {
+      "comment": "Two footfalls per walk cycle, so the bob runs at twice the leg swing; the body is lowest when the legs are furthest apart. The head repeats the bob a little later and nods after it.",
+      "type": "KEYFRAME",
+      "mode": "ADDITIVE",
+      "additiveSpace": "POST",
+      "entryNode": "still",
+      "expressions": {
+        "step": {"mul": ["limbSwing", 0.6662, 2]}
+      },
+      "nodes": {
+        "still": {
+          "type": "core:fallthrough",
+          "connections": [
+            {
+              "target": "walk",
+              "transitionDuration": 4,
+              "triggerCondition": {"type": "core:action", "tag": "walk"}
+            }
+          ]
+        },
+        "walk": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "driver": "core:offset",
+              "bone": "body",
+              "x": 0,
+              "y": {"mul": [{"cos": ["step"]}, 0.4, "limbSwingAmount"]},
+              "z": 0,
+              "space": "OVERRIDE",
+              "damping": {"body": 1}
+            },
+            {
+              "driver": "core:offset",
+              "bone": "head",
+              "x": 0,
+              "y": {"mul": [{"cos": [{"sub": ["step", 0.9]}]}, 0.5, "limbSwingAmount"]},
+              "z": 0,
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {"mul": [{"cos": [{"sub": ["step", 1.6]}]}, 4, "limbSwingAmount"]},
+              "space": "POST"
+            }
+          ],
+          "connections": [
+            {
+              "target": "still",
+              "transitionDuration": 4,
+              "triggerCondition": {"type": "core:not", "condition": {"type": "core:action", "tag": "walk"}}
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

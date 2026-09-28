@@ -3,7 +3,7 @@
   "comment": "ModelCow re-creates its head and body after the quadruped's, so they are box-list entries 6 and 7.",
   "entity": "net.minecraft.entity.passive.EntityCow",
   "model": "net.minecraft.client.model.ModelQuadruped",
-  "animator": "mobends:bends/animators/quadruped.json",
+  "animator": "mobends:bends/animators/cow.json",
   "childScale": 0.5,
   "bones": [
     {

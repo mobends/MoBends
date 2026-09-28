@@ -3,7 +3,7 @@
   "comment": "Uses ModelCow; the mushrooms follow the head through its post-render transform.",
   "entity": "net.minecraft.entity.passive.EntityMooshroom",
   "model": "net.minecraft.client.model.ModelQuadruped",
-  "animator": "mobends:bends/animators/quadruped.json",
+  "animator": "mobends:bends/animators/cow.json",
   "childScale": 0.5,
   "bones": [
     {
