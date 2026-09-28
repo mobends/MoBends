@@ -29,6 +29,7 @@ import org.junit.jupiter.api.TestFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,12 +119,14 @@ public class DefinedModelsTest
             assertNotNull(data.getBone(skeleton.nameOf(i)), name + ": the animator drives '" + skeleton.nameOf(i) + "', which the definition does not declare");
         }
 
-        // A first leg segment (a bone with a split) must move once the mob walks.
-        String leg = definition.bones.stream().filter(b -> b.split != null).map(b -> b.name).findFirst().orElse(definition.bones.get(0).name);
+        // A leg (its first segment, if it is split) must move once the mob walks: a bone named a leg (a creeper's body is split, its legs aren't), else one with a split.
+        String leg = definition.bones.stream().filter(b -> b.name.toLowerCase().contains("leg")).map(b -> b.name).findFirst()
+                .orElse(definition.bones.stream().filter(b -> b.split != null).map(b -> b.name).findFirst().orElse(definition.bones.get(0).name));
         LabClock clock = new LabClock(30);
         EntityInputs inputs = new EntityInputs();
         VanillaModelInputs modelInputs = new VanillaModelInputs();
         Quaternion standing = null;
+        Map<String, Quaternion> stood = new HashMap<>();
         double moved = 0;
         boolean walked = false;
         // Stands for 40 ticks, walks until tick 100, then stands again until tick 180.
@@ -157,6 +160,11 @@ public class DefinedModelsTest
             if (frame == 30)
             {
                 standing = new Quaternion(legNow.x, legNow.y, legNow.z, legNow.w);
+                for (String bone : definition.allBoneNames())
+                {
+                    Quaternion q = data.getPart(bone).rotation.getSmooth();
+                    stood.put(bone, new Quaternion(q.x, q.y, q.z, q.w));
+                }
             }
             if (standing != null && frame < 150)
             {
@@ -170,15 +178,17 @@ public class DefinedModelsTest
         assertTrue(moved > 0.05, name + ": the leg '" + leg + "' did not move while walking (max quaternion change " + moved + ")");
         assertTrue(walked, name + ": the animator is not in its walk node while walking");
 
-        // Having stopped, every leg segment settles back where it stood before walking.
+        // Having stopped, every split segment settles back where it stood before walking (not necessarily straight: a creeper leans at rest).
         for (BoneDefinition bone : definition.bones)
         {
             if (bone.split == null) continue;
             for (String segment : bone.segmentNames())
             {
                 Quaternion q = data.getPart(segment).rotation.getSmooth();
-                double degrees = Math.toDegrees(2 * Math.acos(Math.min(1, Math.abs(q.w))));
-                assertTrue(degrees < 2, String.format("%s: '%s' is still bent %.1f° after the mob stopped walking", name, segment, degrees));
+                Quaternion s = stood.get(segment);
+                double dot = q.x * s.x + q.y * s.y + q.z * s.z + q.w * s.w;
+                double degrees = Math.toDegrees(2 * Math.acos(Math.min(1, Math.abs(dot))));
+                assertTrue(degrees < 2, String.format("%s: '%s' is still %.1f° off its standing pose after the mob stopped walking", name, segment, degrees));
             }
         }
     }

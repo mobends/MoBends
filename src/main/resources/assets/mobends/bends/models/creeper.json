@@ -1,5 +1,6 @@
 {
   "formatVersion": 2,
+  "comment": "The body is cut at the waist, hinged at the back so the chest can lean forward over the lower half without opening a gap.",
   "entity": "net.minecraft.entity.monster.EntityCreeper",
   "model": "net.minecraft.client.model.ModelCreeper",
   "animator": "mobends:bends/animators/creeper.json",
@@ -16,6 +17,16 @@
       "vanilla": {
         "field": "body",
         "index": 2
+      },
+      "split": {
+        "axis": "Y",
+        "at": [
+          0.5
+        ],
+        "names": [
+          "lowerBody"
+        ],
+        "hinge": "BACK"
       }
     },
     {
@@ -23,16 +34,6 @@
       "vanilla": {
         "field": "leg1",
         "index": 3
-      },
-      "split": {
-        "axis": "Y",
-        "at": [
-          0.5
-        ],
-        "names": [
-          "foreLeg1"
-        ],
-        "hinge": "FRONT"
       }
     },
     {
@@ -40,16 +41,6 @@
       "vanilla": {
         "field": "leg2",
         "index": 4
-      },
-      "split": {
-        "axis": "Y",
-        "at": [
-          0.5
-        ],
-        "names": [
-          "foreLeg2"
-        ],
-        "hinge": "FRONT"
       }
     },
     {
@@ -57,16 +48,6 @@
       "vanilla": {
         "field": "leg3",
         "index": 5
-      },
-      "split": {
-        "axis": "Y",
-        "at": [
-          0.5
-        ],
-        "names": [
-          "foreLeg3"
-        ],
-        "hinge": "FRONT"
       }
     },
     {
@@ -74,16 +55,6 @@
       "vanilla": {
         "field": "leg4",
         "index": 6
-      },
-      "split": {
-        "axis": "Y",
-        "at": [
-          0.5
-        ],
-        "names": [
-          "foreLeg4"
-        ],
-        "hinge": "FRONT"
       }
     }
   ]

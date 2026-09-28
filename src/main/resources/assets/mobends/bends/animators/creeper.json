@@ -14,13 +14,9 @@
               "animationKey": "mobends:bends/animations/creeper/rest.json",
               "damping": {
                 "leg1": 0.5,
-                "foreLeg1": 0.5,
                 "leg2": 0.5,
-                "foreLeg2": 0.5,
                 "leg3": 0.5,
-                "foreLeg3": 0.5,
-                "leg4": 0.5,
-                "foreLeg4": 0.5
+                "leg4": 0.5
               }
             },
             {
@@ -39,6 +35,62 @@
               "damping": {
                 "head": 0.5
               }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg1",
+              "axis": "Z",
+              "angle": 8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg1",
+              "axis": "X",
+              "angle": 4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg2",
+              "axis": "Z",
+              "angle": -8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg2",
+              "axis": "X",
+              "angle": 4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg3",
+              "axis": "Z",
+              "angle": 8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg3",
+              "axis": "X",
+              "angle": -4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg4",
+              "axis": "Z",
+              "angle": -8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg4",
+              "axis": "X",
+              "angle": -4,
+              "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",
@@ -108,14 +160,66 @@
               "weight": "limbSwingAmount",
               "damping": {
                 "leg1": 0.8,
-                "foreLeg1": 0.8,
                 "leg2": 0.8,
-                "foreLeg2": 0.8,
                 "leg3": 0.8,
-                "foreLeg3": 0.8,
-                "leg4": 0.8,
-                "foreLeg4": 0.8
+                "leg4": 0.8
               }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg1",
+              "axis": "Z",
+              "angle": 8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg1",
+              "axis": "X",
+              "angle": 4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg2",
+              "axis": "Z",
+              "angle": -8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg2",
+              "axis": "X",
+              "angle": 4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg3",
+              "axis": "Z",
+              "angle": 8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg3",
+              "axis": "X",
+              "angle": -4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg4",
+              "axis": "Z",
+              "angle": -8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg4",
+              "axis": "X",
+              "angle": -4,
+              "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",
@@ -173,14 +277,66 @@
               "animationKey": "mobends:bends/animations/creeper/jump.json",
               "damping": {
                 "leg1": 0.3,
-                "foreLeg1": 0.3,
                 "leg2": 0.3,
-                "foreLeg2": 0.3,
                 "leg3": 0.3,
-                "foreLeg3": 0.3,
-                "leg4": 0.3,
-                "foreLeg4": 0.3
+                "leg4": 0.3
               }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg1",
+              "axis": "Z",
+              "angle": 8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg1",
+              "axis": "X",
+              "angle": 4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg2",
+              "axis": "Z",
+              "angle": -8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg2",
+              "axis": "X",
+              "angle": 4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg3",
+              "axis": "Z",
+              "angle": 8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg3",
+              "axis": "X",
+              "angle": -4,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg4",
+              "axis": "Z",
+              "angle": -8,
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leg4",
+              "axis": "X",
+              "angle": -4,
+              "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",
@@ -254,6 +410,168 @@
                   }
                 ]
               }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "comment": "The lean: the chest leans over the lower half, which stays upright, and the neck (and with it the head) moves to where the leaning chest puts it. Standing, it leans a little and breathes with the idle clip (same phase: 64 samples a 2pi cycle, 0.09 samples a tick); walking forward, it leans further. The waist joint is on the back edge, 6 below and 2 behind the neck.",
+      "type": "KEYFRAME",
+      "mode": "ADDITIVE",
+      "entryNode": "hunch",
+      "expressions": {
+        "walking": {
+          "clamp": [
+            {
+              "div": [
+                "forwardMomentum",
+                0.1
+              ]
+            },
+            0,
+            1
+          ]
+        },
+        "breath": {
+          "cos": [
+            {
+              "mul": [
+                "ticks",
+                0.008835729338221293
+              ]
+            }
+          ]
+        },
+        "hunch": {
+          "add": [
+            8,
+            {
+              "mul": [
+                7,
+                "walking"
+              ]
+            },
+            {
+              "mul": [
+                1.5,
+                "breath",
+                {
+                  "sub": [
+                    1,
+                    "walking"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "hunchRad": {
+          "mul": [
+            "hunch",
+            0.0174533
+          ]
+        },
+        "neckY": {
+          "add": [
+            {
+              "mul": [
+                6,
+                {
+                  "sub": [
+                    1,
+                    {
+                      "cos": [
+                        "hunchRad"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "mul": [
+                2,
+                {
+                  "sin": [
+                    "hunchRad"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "neckZ": {
+          "sub": [
+            {
+              "mul": [
+                2,
+                {
+                  "sub": [
+                    1,
+                    {
+                      "cos": [
+                        "hunchRad"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "mul": [
+                6,
+                {
+                  "sin": [
+                    "hunchRad"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "nodes": {
+        "hunch": {
+          "type": "core:pose",
+          "pose": [
+            {
+              "driver": "core:axis_rotate",
+              "bone": "body",
+              "axis": "X",
+              "angle": "hunch",
+              "space": "OVERRIDE",
+              "damping": {
+                "body": 0.5,
+                "lowerBody": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "lowerBody",
+              "axis": "X",
+              "angle": {
+                "neg": [
+                  "hunch"
+                ]
+              },
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:offset",
+              "bone": "body",
+              "x": 0,
+              "y": "neckY",
+              "z": "neckZ",
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:offset",
+              "bone": "head",
+              "x": 0,
+              "y": "neckY",
+              "z": "neckZ",
+              "space": "OVERRIDE"
             }
           ]
         }

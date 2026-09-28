@@ -1161,7 +1161,8 @@ function walkerAnimator(folder: string, legs: Leg[], idleBones: [string, number]
 // vanilla ModelQuadruped: legs 1 and 4 swing together, 2 and 3 opposite
 const quadLegs: Leg[] = [["leg1", "foreLeg1", 0.0], ["leg2", "foreLeg2", Math.PI], ["leg3", "foreLeg3", Math.PI], ["leg4", "foreLeg4", 0.0]];
 const quadruped = walkerAnimator("quadruped", quadLegs, [["head", 2.0], ["body", 1.0]]);
-const creeper = walkerAnimator("creeper", quadLegs, [["head", 1.5]]);
+// the creeper's legs are one segment each
+const creeper = walkerAnimator("creeper", quadLegs.map(([upper, , phase]): Leg => [upper, null, phase]), [["head", 1.5]]);
 const villager = walkerAnimator("villager", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 1.5], ["arms", 2.0]]);
 const chickenWings = [withDamping(drv("rightWing", "Z", "wingAngle", { space: "OVERRIDE" }), { rightWing: 1 }),
                       withDamping(drv("leftWing", "Z", "wingAngle", { scale: -1, space: "OVERRIDE" }), { leftWing: 1 })];
