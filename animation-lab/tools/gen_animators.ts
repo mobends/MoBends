@@ -1,7 +1,9 @@
 #!/usr/bin/env bun
 /**
  * Generates the animator JSON files (biped, zombie, skeleton, pig zombie, player, squid, spider and
- * the mobs described by model definitions) and the hand-authored clips they use.
+ * most of the mobs described by model definitions) and the hand-authored clips they use. The iron
+ * golem's and the creeper's animators and clips, and the cow's animator, are edited by hand
+ * instead.
  *
  * The animators are plain data; this script only spares us from writing the shared structure by
  * hand and from computing the quaternions of hand-authored constant poses. Run it through
@@ -1161,53 +1163,14 @@ function walkerAnimator(folder: string, legs: Leg[], idleBones: [string, number]
 // vanilla ModelQuadruped: legs 1 and 4 swing together, 2 and 3 opposite
 const quadLegs: Leg[] = [["leg1", "foreLeg1", 0.0], ["leg2", "foreLeg2", Math.PI], ["leg3", "foreLeg3", Math.PI], ["leg4", "foreLeg4", 0.0]];
 const quadruped = walkerAnimator("quadruped", quadLegs, [["head", 2.0], ["body", 1.0]]);
-// the creeper's legs are one segment each
-const creeper = walkerAnimator("creeper", quadLegs.map(([upper, , phase]): Leg => [upper, null, phase]), [["head", 1.5]]);
 const villager = walkerAnimator("villager", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 1.5], ["arms", 2.0]]);
 const chickenWings = [withDamping(drv("rightWing", "Z", "wingAngle", { space: "OVERRIDE" }), { rightWing: 1 }),
                       withDamping(drv("leftWing", "Z", "wingAngle", { scale: -1, space: "OVERRIDE" }), { leftWing: 1 })];
 const chicken = walkerAnimator("chicken", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 2.0]], chickenWings);
 
-
-// iron golem: the vanilla gait is a triangle wave of period 13 on the limb swing; arms and legs get
-// middle joints, and the attack swing comes from the entity's attack timer.
-function triangleWave(f: number, period: number): number {
-  return (Math.abs(mod(f, period) - period * 0.5) - period * 0.25) / (period * 0.25);
-}
-const golemArmDamp = { rightArm: 0.8, leftArm: 0.8, rightForeArm: 0.6, leftForeArm: 0.6 };
-const golemLegDamp = { rightLeg: 0.8, leftLeg: 0.8, rightForeLeg: 0.6, leftForeLeg: 0.6 };
-function golemWalk(t: number): Record<string, Quaternion> {
-  const w = triangleWave(t, 13);
-  return {
-    leftLeg: rotations(["X", -60 * w]), rightLeg: rotations(["X", 60 * w]),
-    leftForeLeg: rotations(["X", (1 + w) * 0.5 * 30]), rightForeLeg: rotations(["X", (1 - w) * 0.5 * 30]),
-    rightArm: rotations(["X", -11.5 + 60 * w]), leftArm: rotations(["X", -11.5 - 60 * w]),
-    rightForeArm: rotations(["X", -(1 + w) * 0.5 * 25]), leftForeArm: rotations(["X", -(1 - w) * 0.5 * 25]),
-  };
-}
-curveClip(join(CLIPS, "iron_golem", "walk.json"), golemWalk, range(105).map((k) => 13 * k / 104), 13);
-curveClip(join(CLIPS, "iron_golem", "attack.json"), (t) => ({
-  rightArm: rotations(["X", degrees(-2 + 1.5 * triangleWave(t, 10))]), leftArm: rotations(["X", degrees(-2 + 1.5 * triangleWave(t, 10))]),
-  rightForeArm: rotations(["X", -20]), leftForeArm: rotations(["X", -20]) }), range(81).map((k) => 10 * k / 80), 10);
-cycleClip(join(CLIPS, "iron_golem", "idle.json"), (p) => ({ head: rotations(["X", mcCos(p) * 1.5]), body: rotations(["X", mcCos(p + 1) * 0.7]) }));
-poseClip(join(CLIPS, "iron_golem", "jump.json"), { leftLeg: rotations(["X", -15]), rightLeg: rotations(["X", -15]), leftForeLeg: rotations(["X", 25]), rightForeLeg: rotations(["X", 25]) });
-const golemLook = headLookOver("head", false);
-const golemIdleLook = headLookOver("head", true);
-const golemAttack = when({ animationKey: W("iron_golem", "attack"), frame: "attackTimer", damping: golemArmDamp }, cmp("attackTimer", ">", 0));
-const golemNodes = {
-  stand: { type: "core:pose", tags: ["stand"], pose: [walkerRest("iron_golem", ["rightArm", "leftArm", "rightForeArm", "leftForeArm", "rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg"]),
-                                                      { animationKey: W("iron_golem", "idle"), frame: looped(scaled("ticks", 0.07)), damping: { head: 0.5, body: 0.5 } }, ...golemIdleLook, golemAttack],
-           connections: [{ target: "jump", triggerCondition: jumping }, { target: "walk", triggerCondition: state("MOVING_HORIZONTALLY") }] },
-  walk: { type: "core:pose", tags: ["walk"], pose: [{ animationKey: W("iron_golem", "walk"), frame: looped("limbSwing"), weight: { variable: "limbSwingAmount" }, damping: { ...golemArmDamp, ...golemLegDamp } }, ...golemLook, golemAttack],
-          connections: [{ target: "jump", triggerCondition: jumping }, { target: "stand", triggerCondition: state("STANDING_STILL") }] },
-  jump: { type: "core:pose", tags: ["jump"], pose: [{ animationKey: W("iron_golem", "jump"), damping: golemLegDamp }, ...golemLook, golemAttack],
-          connections: [{ target: "stand", triggerCondition: AND(grounded, state("STANDING_STILL")) }, { target: "walk", triggerCondition: AND(grounded, state("MOVING_HORIZONTALLY")) }] },
-};
-const ironGolem: Obj = { formatVersion: 2, layers: [{ entryNode: "stand", nodes: golemNodes }] };
-
 const animators: [string, Obj][] = [
   ["biped", biped], ["zombie", zombie], ["skeleton", skeleton], ["pig_zombie", pigZombie], ["player", player], ["squid", squid], ["spider", spider], ["zombie_villager", zombieVillager],
-  ["quadruped", quadruped], ["creeper", creeper], ["villager", villager], ["chicken", chicken], ["iron_golem", ironGolem],
+  ["quadruped", quadruped], ["villager", villager], ["chicken", chicken],
 ];
 // ---- expressions ----------------------------------------------------------------------------
 // The builders above describe values as {variable, scale, offset, min, max, ease, power, clampFirst,

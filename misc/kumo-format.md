@@ -342,9 +342,11 @@ From the definition the mod builds the data class (`DefinedEntityData`), the mut
 | `variables[]` | animator variables from numeric entity fields: `field` (candidate names, the first found is used), optional `prevField` for partial-tick interpolation, `scale`, `offset`, `fn`, `add`, or a `product` of other variables |
 
 The shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
-`villager`, `witch`, `iron_golem`) give every leg a knee (and the golem's arms an elbow) and
-share five generated animators (`quadruped`, `creeper`, `chicken`, `villager`, `iron_golem`:
-stand / walk / jump with a smooth look, the golem's attack from its timer).
+`villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
+elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: stand / walk /
+jump with a smooth look, made by the lab's `tools/gen_animators.ts`). The golem's (`iron_golem`:
+its attack from its timer, turning on its feet), the creeper's (`creeper`: leaning at the waist)
+and the cow's (`cow`, extending `quadruped`) are edited by hand.
 `DefinedModelsTest` in the lab checks every listed definition builds, covers what its animator
 drives, and walks.
 

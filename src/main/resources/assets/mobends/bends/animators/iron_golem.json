@@ -138,6 +138,16 @@
             },
             {
               "driver": "core:axis_rotate",
+              "bone": "body",
+              "axis": "X",
+              "angle": 0,
+              "space": "OVERRIDE",
+              "damping": {
+                "body": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
               "angle": "headYaw",
@@ -213,6 +223,31 @@
                 "leftLeg": 0.8,
                 "rightForeLeg": 0.6,
                 "leftForeLeg": 0.6
+              }
+            },
+            {
+              "animationKey": "mobends:bends/animations/iron_golem/rest.json",
+              "bones": [
+                "rightArm",
+                "leftArm",
+                "rightForeArm",
+                "leftForeArm"
+              ],
+              "damping": {
+                "rightArm": 0.5,
+                "leftArm": 0.5,
+                "rightForeArm": 0.5,
+                "leftForeArm": 0.5
+              }
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "body",
+              "axis": "X",
+              "angle": 0,
+              "space": "OVERRIDE",
+              "damping": {
+                "body": 0.5
               }
             },
             {
@@ -307,6 +342,277 @@
                   }
                 ]
               }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "comment": "The golem turns on its feet instead of rotating in place: step_turn holds the body where its feet point, steps the leg on the side of the turn first and lets the body follow, then the other. It fades in while the golem stands. The upper body reacts: the torso leads the turn, the arms lag behind it and swing out when a foot lands, the head keeps looking where the golem looks.",
+      "entryNode": "planted",
+      "nodes": {
+        "planted": {
+          "type": "core:pose",
+          "expressions": {
+            "twist": {
+              "clamp": [
+                {
+                  "mul": [
+                    "turnLag",
+                    0.3
+                  ]
+                },
+                -12,
+                12
+              ]
+            }
+          },
+          "pose": [
+            {
+              "driver": "core:ramp",
+              "name": "standing",
+              "speed": 0.15,
+              "when": {
+                "type": "core:action",
+                "tag": "stand"
+              }
+            },
+            {
+              "driver": "core:step_turn",
+              "weight": "standing",
+              "legs": [
+                {
+                  "upper": "leftLeg",
+                  "lower": "leftForeLeg",
+                  "hip": [
+                    -4,
+                    11,
+                    0
+                  ],
+                  "knee": [
+                    0,
+                    5,
+                    -3
+                  ],
+                  "foot": [
+                    -0.5,
+                    8,
+                    2.5
+                  ]
+                },
+                {
+                  "upper": "rightLeg",
+                  "lower": "rightForeLeg",
+                  "hip": [
+                    5,
+                    11,
+                    0
+                  ],
+                  "knee": [
+                    0,
+                    5,
+                    -3
+                  ],
+                  "foot": [
+                    -0.5,
+                    8,
+                    2.5
+                  ]
+                }
+              ],
+              "turnThreshold": 15,
+              "maxStepAngle": 45,
+              "stepDuration": 9,
+              "stepHeight": 3.5,
+              "stepPause": 2,
+              "settleAngle": 3,
+              "bodyStiffness": 0.12,
+              "bodyDamping": 0.55,
+              "crouch": 0.5,
+              "impactDepth": 1.5,
+              "impactTime": 2.5,
+              "weightShift": 1
+            },
+            {
+              "driver": "core:spring",
+              "name": "armLag",
+              "target": "turnSpeed",
+              "stiffness": 0.12,
+              "friction": 0.3
+            },
+            {
+              "driver": "core:spring",
+              "name": "armSway",
+              "target": "stepLift",
+              "stiffness": 0.15,
+              "friction": 0.35
+            },
+            {
+              "driver": "core:spring",
+              "name": "jolt",
+              "target": "stepImpact",
+              "stiffness": 0.35,
+              "friction": 0.6
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "Y",
+              "angle": {
+                "sub": [
+                  {
+                    "clamp": [
+                      {
+                        "add": [
+                          "headYaw",
+                          "turnLag"
+                        ]
+                      },
+                      -85,
+                      85
+                    ]
+                  },
+                  "headYaw"
+                ]
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "head",
+              "axis": "X",
+              "angle": {
+                "mul": [
+                  "jolt",
+                  4
+                ]
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "body",
+              "axis": "X",
+              "angle": {
+                "mul": [
+                  "jolt",
+                  2
+                ]
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "body",
+              "axis": "Y",
+              "angle": "twist",
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "X",
+              "angle": {
+                "mul": [
+                  "armLag",
+                  -2.5
+                ]
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftArm",
+              "axis": "X",
+              "angle": {
+                "mul": [
+                  "armLag",
+                  2.5
+                ]
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "Z",
+              "angle": {
+                "add": [
+                  {
+                    "mul": [
+                      "jolt",
+                      5
+                    ]
+                  },
+                  {
+                    "mul": [
+                      "armSway",
+                      -4
+                    ]
+                  }
+                ]
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftArm",
+              "axis": "Z",
+              "angle": {
+                "add": [
+                  {
+                    "mul": [
+                      "jolt",
+                      -5
+                    ]
+                  },
+                  {
+                    "mul": [
+                      "armSway",
+                      -4
+                    ]
+                  }
+                ]
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "Y",
+              "angle": "twist",
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftArm",
+              "axis": "Y",
+              "angle": "twist",
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightForeArm",
+              "axis": "X",
+              "angle": {
+                "mul": [
+                  "jolt",
+                  -12
+                ]
+              },
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftForeArm",
+              "axis": "X",
+              "angle": {
+                "mul": [
+                  "jolt",
+                  -12
+                ]
+              },
+              "space": "POST"
             }
           ]
         }
