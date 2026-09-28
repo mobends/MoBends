@@ -3,7 +3,7 @@
 Every animated entity is driven by an **animator asset**
 (`assets/<namespace>/bends/animators/*.json`) running on the KUMO engine in the `core/` module.
 There is no hand-written per-entity animation code any more: what used to be controllers and
-animation bits is data, and the few things that must stay code (the spider's leg IK, turning on planted feet, the sword
+animation bits is data, and the few things that must stay code (the spider's leg IK, turning and walking on planted feet, the sword
 trail, the cape) are *drivers* an animator places like any other item. The asset format is
 documented in [`misc/kumo-format.md`](../misc/kumo-format.md); this page is about how the
 runtime is put together.

@@ -154,7 +154,7 @@ the entity-level offset vectors (their keyframe positions are the vector).
 | `core:accumulate` | `name`, `rate` (expression, per tick), `initial`, `min`, `max`: a node variable that integrates |
 | `core:set` | `variable`, `value` (expression), `scope` (`layer` / `node`): assigns every frame the item is evaluated |
 | `core:spring` | `name`, `target` (expression), `stiffness` (per tick²), `friction` (per tick), `initial`: a node variable pulled towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through) |
-| `core:step_turn` | the body turns by stepping, on planted feet (see *Turning on the feet*) |
+| `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
 | `mobends:cape` | the player's cape physics |
 | `mobends:sword_trail` | `add`, `resetOnEnter`, `resetEachFrame`, `velocity`: feeds the sword trail |
 | `mobends:spider_idle_legs`, `mobends:spider_moving_legs` | the spider's inverse-kinematics gaits (see the templates' fields) |
@@ -174,7 +174,27 @@ mean of where its feet point, like a mass on a spring (`bodyStiffness`, `bodyDam
 follows once the foot is down; the next foot lifts once the body has settled to within
 `settleAngle`. For `finishWindow` ticks after a landing a foot already steps at `finishThreshold`
 degrees, so a turn ends squared up. A foot pushed `driftThreshold` model units from under the
-body steps back; past `resetDistance` every foot is placed anew.
+body steps back (`finishDrift` within the finish window, so a walk ends with the feet together);
+past `resetDistance` every foot is placed anew.
+
+It walks the same way. The foot left behind by the moving body steps to where it will be under the
+body once it has landed and stood half its time, judged by the entity's velocity (measured from
+its position, smoothed over `velocitySmoothing` ticks), so it lands as far ahead as it lifts
+behind; walking, the feet don't wait for the body to settle. The faster it goes, the shorter the
+steps (down to `minStepDuration`) and the pauses after them, so a foot travels at most
+`strideLength` model units a step, and a step in the air hurries when a planted foot is about to
+be left out of its leg's reach (setting off, say). The hips go down a further `walkCrouch` while
+walking, for reach.
+
+Going `runSpeed` blocks a tick or faster (easing in from 80% of it; 0, the default, never), it
+runs: the body turns the way it goes (not vanilla's yaw) instead of waiting for its feet, on a
+stiffer spring (`runBodyStiffness`, `runBodyDamping`), the feet catching up with the next steps;
+the steps lengthen to `runStrideLength` with no pause between them and lift `runStepHeight`. Only
+one foot is up at a time, so there is no moment with both off the ground. The speed is smoothed
+apart from the direction, so a mob swinging round keeps running, and the way it goes is smoothed
+over `runFacingSmoothing` ticks, so a path zigzagging between blocks doesn't swing the body about.
+A hurried step never takes less than 60% of `minStepDuration`: faster than the legs can keep up
+with, the planted foot drags rather than the feet flickering.
 
 ```json
 {"driver": "core:step_turn", "weight": "standing",
@@ -190,17 +210,24 @@ body steps back; past `resetDistance` every foot is placed anew.
   the bones snap to it at full weight. It assumes the legs have no `restRotation`.
 * The hips are lowered by `crouch`, dip by `impactDepth` a moment after a foot lands and shift
   `weightShift` over the planted feet while one is up, through `offsetBone` (`localOffset`); the
-  legs keep the feet on the ground.
+  whole model rolls `weightRoll` degrees over them too, about the entity's origin on the ground
+  (through the rotation bone). The legs keep the feet on the ground. The offset is written turned
+  back by whatever lies beneath in the rotation bone, so a counter-rotation there (of vanilla
+  rocking the model) doesn't carry the hips off.
 * `weight` (an expression, 0..1) blends the driver in. At 0 it writes nothing, and the feet are
   placed anew under the body when it goes up again. Run it in its own layer with a ramp that goes
-  up while the mob stands, so the walk and the jump show beneath it and the body turns back to
-  vanilla's yaw while they play.
+  up while the mob is on the ground, so the jump shows beneath it and the body turns back to
+  vanilla's yaw while it plays.
 * It reads the variables `yawVariable` (`bodyYaw`), `xVariable` and `zVariable` (`worldX`,
   `worldZ`), and publishes `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
   head posed by `headYaw` has to add), `turnSpeed` (degrees per tick the shown body turns),
-  `stepLift` (0..1 as the stepping foot rises, negative for a foot on the -X side) and
-  `stepImpact` (0..1, peaking `impactTime` ticks after a landing), all scaled by the weight, for
-  the items after it to make the upper body react. `iron_golem.json` does it with springs.
+  `stepLift` (0..1 as the stepping foot rises, negative for a foot on the -X side),
+  `stepImpact` (peaking at 1 `impactTime` ticks after a landing; quick landings add up smoothly
+  rather than starting it over) and `stride` (model units the
+  feet on the +X side are ahead of those on the -X side, halved: what an arm swing follows), all
+  scaled by the weight, for the items after it to make the upper body react. `iron_golem.json`
+  does it with springs, and turns back vanilla's rocking of a walking golem
+  (`RenderIronGolem.applyRotations`) in the render rotation beneath the driver.
 
 ### Expressions
 

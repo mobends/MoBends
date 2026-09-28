@@ -12,11 +12,17 @@ import java.util.List;
  * the other legs catch up. A foot pushed away from under the body steps back too. The legs are put
  * on their feet by a two-segment IK.
  *
+ * <p>It walks the same way: a foot left behind by the moving body steps to where it will be under
+ * the body half a stride ahead, judged by the entity's velocity, and the steps quicken as it goes
+ * faster so a stride stays within {@link #strideLength}.
+ *
  * <p>Publishes node variables for the items after it: {@code turnLag} (degrees the entity's body
  * yaw is ahead of the shown one, what a head that looks by {@code headYaw} has to add),
  * {@code turnSpeed} (degrees per tick the shown body turns at), {@code stepLift} (how high the
  * stepping foot is, 0..1, negative for a foot on the -X side) and {@code stepImpact} (0..1, peaks
- * a moment after a foot lands). All are scaled by the weight.
+ * a moment after a foot lands) and {@code stride} (how far the feet on the +X side are ahead of
+ * those on the -X side, halved, in model units: what an arm swing follows). All are scaled by the
+ * weight.
  */
 public class StepTurnTemplate extends DriverItemTemplate
 {
@@ -56,6 +62,8 @@ public class StepTurnTemplate extends DriverItemTemplate
     public float maxStepAngle = 45F;
     /** Model units a foot may be off its place under the body before it steps. */
     public float driftThreshold = 4F;
+    /** For {@link #finishWindow} ticks after a foot lands, a foot this far off its place steps too, so a walk ends with the feet together. */
+    public float finishDrift = 1.5F;
     /** A foot further than this from its place (model units) makes every foot be placed anew at once (a knockback, a teleport). */
     public float resetDistance = 16F;
 
@@ -65,21 +73,57 @@ public class StepTurnTemplate extends DriverItemTemplate
     public float stepHeight = 3F;
     /** Ticks after a foot lands before the next one may lift. */
     public float stepPause = 2F;
+    /**
+     * Walking: the farthest a foot travels in one step, in model units. The faster the entity
+     * goes, the shorter the steps (down to {@link #minStepDuration}) and the pauses after them take
+     * to keep within it.
+     */
+    public float strideLength = 14F;
+    public float minStepDuration = 4F;
+    /** Ticks over which the entity's velocity is smoothed before the steps lead by it. */
+    public float velocitySmoothing = 3F;
     /** The next foot lifts only once the body has turned to within this many degrees of its feet. */
     public float settleAngle = 3F;
 
     /** The body turns towards its feet like a mass on a spring: stiffness per tick², damping per tick. */
     public float bodyStiffness = 0.12F;
     public float bodyDamping = 0.55F;
+    /**
+     * Moving at this many blocks a tick or faster (easing in from 80% of it), the mob runs: the body
+     * turns the way it goes instead of waiting for its feet, on a stiffer spring
+     * ({@link #runBodyStiffness}, {@link #runBodyDamping}), the feet catching up with the next
+     * steps, which go up to {@link #runStrideLength} with no pause between them and lift
+     * {@link #runStepHeight}. 0 never runs.
+     */
+    public float runSpeed = 0F;
+    public float runBodyStiffness = 0.5F;
+    public float runBodyDamping = 1.3F;
+    public float runStrideLength = 20F;
+    public float runStepHeight = 3F;
+    /**
+     * Ticks over which the way the mob goes is smoothed before a running body turns to it, so a
+     * path zigzagging from block to block doesn't swing it about.
+     */
+    public float runFacingSmoothing = 4F;
 
     /** Model units the hips are lowered by while standing, so the legs have some bend to work with. */
     public float crouch = 0.5F;
+    /**
+     * Model units the hips are lowered by further while walking (fully once the steps quicken), so
+     * the legs reach farther ahead and behind.
+     */
+    public float walkCrouch = 1F;
     /** How far the hips dip when a foot lands, in model units. */
     public float impactDepth = 1.5F;
     /** Ticks after landing at which the dip is deepest. */
     public float impactTime = 2.5F;
     /** Model units the hips shift over the planted feet while a foot is up. */
     public float weightShift = 1F;
+    /**
+     * Degrees the whole model rolls over the planted feet while a foot is up, about the entity's
+     * origin on the ground; the legs keep the feet where they stand.
+     */
+    public float weightRoll = 0F;
 
     public static class Leg
     {
