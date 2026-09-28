@@ -95,6 +95,12 @@
       "field": [
         "attackTimer"
       ]
+    },
+    {
+      "name": "rawLimbSwingAmount",
+      "field": [
+        "limbSwingAmount"
+      ]
     }
   ]
 }

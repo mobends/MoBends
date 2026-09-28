@@ -117,23 +117,16 @@
           ],
           "pose": [
             {
-              "animationKey": "mobends:bends/animations/iron_golem/walk.json",
-              "frame": {
-                "mod": [
-                  "limbSwing",
-                  "clipLength"
-                ]
-              },
-              "weight": "limbSwingAmount",
+              "animationKey": "mobends:bends/animations/iron_golem/rest.json",
               "damping": {
-                "rightArm": 0.8,
-                "leftArm": 0.8,
-                "rightForeArm": 0.6,
-                "leftForeArm": 0.6,
-                "rightLeg": 0.8,
-                "leftLeg": 0.8,
-                "rightForeLeg": 0.6,
-                "leftForeLeg": 0.6
+                "rightArm": 0.5,
+                "leftArm": 0.5,
+                "rightForeArm": 0.5,
+                "leftForeArm": 0.5,
+                "rightLeg": 0.5,
+                "leftLeg": 0.5,
+                "rightForeLeg": 0.5,
+                "leftForeLeg": 0.5
               }
             },
             {
@@ -348,7 +341,7 @@
       }
     },
     {
-      "comment": "The golem turns on its feet instead of rotating in place: step_turn holds the body where its feet point, steps the leg on the side of the turn first and lets the body follow, then the other. It fades in while the golem stands. The upper body reacts: the torso leads the turn, the arms lag behind it and swing out when a foot lands, the head keeps looking where the golem looks.",
+      "comment": "The golem stands and walks on its feet: step_turn plants them in the world, turns the body only as far as they have stepped (the leg on the side of the turn first) and, walking, steps the foot left behind to where the body will be, shifting and rolling the weight over the planted one. It is off while the golem jumps. Vanilla rocks the whole golem side to side while it walks (RenderIronGolem.applyRotations: 6.5° on a triangle wave of the limb swing, while limbSwingAmount >= 0.01); the render rotation turns it back first. The upper body reacts: the torso leads a turn, the arms lag behind it, swing against the legs and out when a foot lands, the head keeps looking where the golem looks.",
       "entryNode": "planted",
       "nodes": {
         "planted": {
@@ -365,21 +358,83 @@
                 -12,
                 12
               ]
+            },
+            "vanillaRock": {
+              "mul": [
+                6.5,
+                {
+                  "div": [
+                    {
+                      "sub": [
+                        {
+                          "abs": [
+                            {
+                              "sub": [
+                                {
+                                  "mod": [
+                                    {
+                                      "add": [
+                                        "limbSwing",
+                                        6
+                                      ]
+                                    },
+                                    13
+                                  ]
+                                },
+                                6.5
+                              ]
+                            }
+                          ]
+                        },
+                        3.25
+                      ]
+                    },
+                    3.25
+                  ]
+                },
+                {
+                  "clamp": [
+                    {
+                      "floor": [
+                        {
+                          "mul": [
+                            "rawLimbSwingAmount",
+                            100
+                          ]
+                        }
+                      ]
+                    },
+                    0,
+                    1
+                  ]
+                }
+              ]
             }
           },
           "pose": [
             {
               "driver": "core:ramp",
-              "name": "standing",
+              "name": "onFeet",
               "speed": 0.15,
               "when": {
-                "type": "core:action",
-                "tag": "stand"
+                "type": "core:not",
+                "condition": {
+                  "type": "core:action",
+                  "tag": "jump"
+                }
               }
             },
             {
+              "driver": "core:axis_rotate",
+              "bone": "renderRotation",
+              "axis": "Z",
+              "angle": "vanillaRock",
+              "space": "OVERRIDE",
+              "snap": true
+            },
+            {
               "driver": "core:step_turn",
-              "weight": "standing",
+              "weight": "onFeet",
               "legs": [
                 {
                   "upper": "leftLeg",
@@ -425,13 +480,24 @@
               "stepDuration": 9,
               "stepHeight": 3.5,
               "stepPause": 2,
+              "strideLength": 14,
+              "minStepDuration": 4,
+              "finishDrift": 0.5,
               "settleAngle": 3,
               "bodyStiffness": 0.12,
               "bodyDamping": 0.55,
+              "runSpeed": 0.09,
+              "runBodyStiffness": 1,
+              "runBodyDamping": 2,
+              "runStrideLength": 24,
+              "runStepHeight": 5,
+              "runFacingSmoothing": 4,
               "crouch": 0.5,
+              "walkCrouch": 2,
               "impactDepth": 1.5,
               "impactTime": 2.5,
-              "weightShift": 1
+              "weightShift": 1,
+              "weightRoll": 3
             },
             {
               "driver": "core:spring",
@@ -453,6 +519,13 @@
               "target": "stepImpact",
               "stiffness": 0.35,
               "friction": 0.6
+            },
+            {
+              "driver": "core:spring",
+              "name": "armSwing",
+              "target": "stride",
+              "stiffness": 0.1,
+              "friction": 0.25
             },
             {
               "driver": "core:axis_rotate",
@@ -613,6 +686,30 @@
                 ]
               },
               "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "leftArm",
+              "axis": "X",
+              "angle": {
+                "mul": [
+                  "armSwing",
+                  3.5
+                ]
+              },
+              "space": "PRE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "X",
+              "angle": {
+                "mul": [
+                  "armSwing",
+                  -3.5
+                ]
+              },
+              "space": "PRE"
             }
           ]
         }
