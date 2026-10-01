@@ -12,7 +12,7 @@ public class NodeTemplate
 
     private String type = "core:pose";
 
-    /** The node's name, used by connections and for the entry node. */
+    /** The node's name, used by selectors, connections and {@code defaultOnEntry}. */
     public String name;
 
     /** Exposed as the layer's current actions ({@code core:action} conditions test them). */
@@ -37,6 +37,9 @@ public class NodeTemplate
 
     /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
     public Map<String, ExpressionTemplate> expressions;
+
+    /** Named conditions, visible to everything inside (see misc/kumo-format.md, "Conditions"). */
+    public Map<String, TriggerConditionTemplate> conditions;
 
     public String getType()
     {

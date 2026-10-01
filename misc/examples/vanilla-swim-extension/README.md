@@ -12,6 +12,6 @@ vanilla animation; out of water, Mo' Bends animates them as usual. The switch is
   animated model in the pose it would have had.
 
 The same shape works for any condition: swap `IN_WATER` for another state (`RIDING`,
-`SNEAKING`, ...), or give the layer more nodes and let connections decide when to go vanilla.
+`SNEAKING`, ...), or give the layer more nodes and let a selector decide when to go vanilla.
 
 To try it, copy or link this folder into the game's `resourcepacks` folder and enable it.

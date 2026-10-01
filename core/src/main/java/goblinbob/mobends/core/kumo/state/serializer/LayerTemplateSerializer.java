@@ -3,59 +3,71 @@ package goblinbob.mobends.core.kumo.state.serializer;
 import com.google.gson.*;
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.MachineTemplate;
 import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-/** A layer's {@code nodes} is an object keyed by node name, and its {@code entryNode} is one of those names. */
+/**
+ * Reads a layer, the outermost machine: in it and in every machine inside it, {@code nodes} and
+ * {@code machines} are objects keyed by name, and {@code defaultOnEntry} is one of those names.
+ */
 public class LayerTemplateSerializer implements JsonDeserializer<LayerTemplate>
 {
 
     @Override
     public LayerTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        JsonObject object = JsonReading.object(json, "A layer");
+        return readMachine(json, LayerTemplate.class, "A layer");
+    }
 
-        // Shallow copy: only the top-level entries are rewritten below, and
-        // JsonObject.deepCopy() is not public in the Gson shipped with 1.12.2.
+    private static <T extends MachineTemplate> T readMachine(JsonElement json, Class<T> type, String what)
+    {
+        JsonObject object = JsonReading.object(json, what);
+
+        // Shallow copy without the entries read here: JsonObject.deepCopy() is not public in the
+        // Gson shipped with 1.12.2.
         JsonObject copy = new JsonObject();
         for (Map.Entry<String, JsonElement> entry : object.entrySet())
         {
             copy.add(entry.getKey(), entry.getValue());
         }
-        List<String> names = new ArrayList<>();
-        JsonElement nodes = copy.get("nodes");
-        if (nodes != null)
+        JsonElement nodes = copy.remove("nodes");
+        JsonElement machines = copy.remove("machines");
+        JsonElement defaultOnEntry = copy.remove("defaultOnEntry");
+
+        T machine = KumoSerializer.INSTANCE.leafGson.fromJson(copy, type);
+        if (defaultOnEntry != null && !defaultOnEntry.isJsonNull())
         {
-            JsonArray array = new JsonArray();
-            for (Map.Entry<String, JsonElement> entry : JsonReading.object(nodes, "A layer's \"nodes\"").entrySet())
-            {
-                names.add(entry.getKey());
-                array.add(entry.getValue());
-            }
-            copy.add("nodes", array);
+            machine.defaultOnEntry = JsonReading.string(defaultOnEntry, what + "'s \"defaultOnEntry\"");
         }
-
-        String entryName = JsonReading.string(copy.remove("entryNode"), "A layer's \"entryNode\"");
-
-        LayerTemplate layer = KumoSerializer.INSTANCE.layerGson.fromJson(copy, LayerTemplate.class);
-        if (layer.nodes != null)
+        if (nodes != null && !nodes.isJsonNull())
         {
-            for (int i = 0; i < names.size() && i < layer.nodes.size(); i++)
+            machine.nodes = new ArrayList<>();
+            for (Map.Entry<String, JsonElement> entry : JsonReading.object(nodes, what + "'s \"nodes\"").entrySet())
             {
-                NodeTemplate node = layer.nodes.get(i);
+                NodeTemplate node = KumoSerializer.INSTANCE.layerGson.fromJson(entry.getValue(), NodeTemplate.class);
                 if (node == null)
                 {
-                    throw new JsonParseException(String.format("The node '%s' is null.", names.get(i)));
+                    throw new JsonParseException(String.format("The node '%s' is null.", entry.getKey()));
                 }
-                node.name = names.get(i);
+                node.name = entry.getKey();
+                machine.nodes.add(node);
             }
         }
-        layer.entryNodeName = entryName;
-        return layer;
+        if (machines != null && !machines.isJsonNull())
+        {
+            machine.machines = new ArrayList<>();
+            for (Map.Entry<String, JsonElement> entry : JsonReading.object(machines, what + "'s \"machines\"").entrySet())
+            {
+                MachineTemplate nested = readMachine(entry.getValue(), MachineTemplate.class, String.format("The machine '%s'", entry.getKey()));
+                nested.name = entry.getKey();
+                machine.machines.add(nested);
+            }
+        }
+        return machine;
     }
 
 }

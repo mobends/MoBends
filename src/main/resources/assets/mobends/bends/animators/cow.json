@@ -8,20 +8,16 @@
       "type": "KEYFRAME",
       "mode": "ADDITIVE",
       "additiveSpace": "POST",
-      "entryNode": "still",
       "expressions": {
         "step": {"mul": ["limbSwing", 0.6662, 2]}
       },
+      "select": [
+        {"when": {"type": "core:action", "tag": "walk"}, "then": "walk", "transitionDuration": 4},
+        {"then": "still", "transitionDuration": 4}
+      ],
       "nodes": {
         "still": {
-          "type": "core:fallthrough",
-          "connections": [
-            {
-              "target": "walk",
-              "transitionDuration": 4,
-              "triggerCondition": {"type": "core:action", "tag": "walk"}
-            }
-          ]
+          "type": "core:fallthrough"
         },
         "walk": {
           "type": "core:pose",
@@ -49,13 +45,6 @@
               "axis": "X",
               "angle": {"mul": [{"cos": [{"sub": ["step", 1.6]}]}, 4, "limbSwingAmount"]},
               "space": "POST"
-            }
-          ],
-          "connections": [
-            {
-              "target": "still",
-              "transitionDuration": 4,
-              "triggerCondition": {"type": "core:not", "condition": {"type": "core:action", "tag": "walk"}}
             }
           ]
         }

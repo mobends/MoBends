@@ -1,12 +1,9 @@
 package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 
 import java.util.Collection;
-import java.util.Map;
 
 public interface INodeState
 {
@@ -15,15 +12,10 @@ public interface INodeState
 
     Collection<String> getTags();
 
-    Iterable<ConnectionState> getConnections();
-
     /** Ticks since the node was entered. */
     float getElapsedTicks();
 
     boolean isAnimationFinished();
-
-    /** Creates the node's connections; their conditions see the named expressions of {@code scope} (the node's). */
-    void parseConnections(Map<String, INodeState> nodesByName, NodeTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException;
 
     void start(IKumoContext context) throws MalformedKumoTemplateException;
 

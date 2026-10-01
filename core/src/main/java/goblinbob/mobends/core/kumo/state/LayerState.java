@@ -1,18 +1,15 @@
 package goblinbob.mobends.core.kumo.state;
 
-import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.pose.BoneTarget;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
 import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
-import goblinbob.mobends.core.kumo.state.node.NodeRegistry;
 import goblinbob.mobends.core.kumo.state.template.ArmatureMask;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.Tween;
@@ -20,15 +17,18 @@ import goblinbob.mobends.core.util.Tween;
 import java.util.*;
 
 /**
- * A layer: a state machine of nodes. Each frame the current node (and, during a transition, the
- * previous node or a frozen snapshot of the blend) is evaluated, the two are cross-faded, and the
- * result is composited onto the animator pose in the layer's mode.
+ * A layer: the outermost machine of its nodes. Each frame it decides its node (see {@link #decide}),
+ * then the current node (and, during a transition, the previous node or a frozen snapshot of the
+ * blend) is evaluated, the two are cross-faded, and the result is composited onto the animator pose
+ * in the layer's mode.
  */
 public class LayerState
 {
 
-    private final List<INodeState> nodeStates = new ArrayList<>();
-    private final Map<String, INodeState> nodesByName = new HashMap<>();
+    /** The layer's own machine, the outermost. */
+    private final MachineState machine;
+    /** The machines around the current node, from the layer's own inwards. */
+    private final List<MachineState> path = new ArrayList<>();
     private final ArmatureMask mask;
     private final LayerTemplate.LayerMode mode;
     private final Skeleton skeleton;
@@ -47,6 +47,7 @@ public class LayerState
     private final Vec3f vectorBeneath = new Vec3f();
 
     private INodeState previousNode;
+    private MachineMember current;
     private INodeState currentNode;
     private boolean previousIsSnapshot;
     private float transitionProgress = 0.0F;
@@ -55,6 +56,8 @@ public class LayerState
     private float elapsedTicks = 0.0F;
     /** Whether the layer's "when" held on the last update. */
     private boolean enabled = true;
+    /** Whether {@link #start} entered the node this frame, which stands for the frame's decision. */
+    private boolean justStarted;
 
     public LayerState(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
@@ -68,34 +71,11 @@ public class LayerState
         this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(layerTemplate.when, context.getExpressionScope());
         this.variables.putAll(layerTemplate.variables);
 
-        if (layerTemplate.nodes == null || layerTemplate.nodes.isEmpty())
-        {
-            throw new MalformedKumoTemplateException("A layer has no nodes.");
-        }
-
-        List<ExpressionScope> nodeScopes = new ArrayList<>();
-        for (NodeTemplate nodeTemplate : layerTemplate.nodes)
-        {
-            IKumoInstancingContext nodeContext = context.withExpressions(nodeTemplate.expressions);
-            nodeScopes.add(nodeContext.getExpressionScope());
-            INodeState node = NodeRegistry.INSTANCE.createFromTemplate(nodeContext, skeleton, layerTemplate, nodeTemplate);
-            nodeStates.add(node);
-            if (nodesByName.put(nodeTemplate.name, node) != null)
-            {
-                throw new MalformedKumoTemplateException(String.format("Two nodes share the name '%s'.", nodeTemplate.name));
-            }
-        }
-
-        for (int i = 0; i < nodeStates.size(); i++)
-        {
-            nodeStates.get(i).parseConnections(nodesByName, layerTemplate.nodes.get(i), nodeScopes.get(i));
-        }
-
-        currentNode = nodesByName.get(layerTemplate.entryNodeName);
-        if (currentNode == null)
-        {
-            throw new MalformedKumoTemplateException(String.format("Entry node '%s' doesn't exist.", layerTemplate.entryNodeName));
-        }
+        Map<String, MachineMember> membersByName = new HashMap<>();
+        this.machine = new MachineState(context, skeleton, layerTemplate, layerTemplate, membersByName);
+        machine.link(membersByName);
+        // Until the layer starts (see start), what the layers before it see of it (core:action).
+        moveTo(machine.initialNode());
     }
 
     /** Sizes the layer's buffers after the skeleton, once it has every bone of the animator. */
@@ -114,6 +94,11 @@ public class LayerState
         }
     }
 
+    /**
+     * Starts the layer: its "when" starts over, and its machine is entered as a transition into it
+     * would enter it (see {@link #enter}), with nothing to crossfade from. This takes the place of
+     * the frame's decision.
+     */
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
         context.enterNode(currentNode, variables);
@@ -121,7 +106,11 @@ public class LayerState
         {
             when.onNodeStarted(context);
         }
-        currentNode.start(context);
+        List<MachineState> entered = new ArrayList<>();
+        moveTo(descend(enter(machine, context, entered), context, entered));
+        context.enterNode(currentNode, variables);
+        startNode(context);
+        justStarted = true;
     }
 
     /** Ticks elapsed since the layer started. */
@@ -150,6 +139,8 @@ public class LayerState
     /** Evaluates the layer for this frame and composites its output into {@code animatorPose}. */
     public void update(IKumoContext context, float deltaTime, Pose animatorPose) throws MalformedKumoTemplateException
     {
+        boolean starting = justStarted;
+        justStarted = false;
         context.enterNode(currentNode, variables);
 
         enabled = when == null || when.isConditionMet(context);
@@ -160,16 +151,8 @@ public class LayerState
         }
 
         // 1. Transitions are decided before posing, so a state change shows up on the frame it happens.
-        //    Every condition is evaluated each frame (edge triggers such as core:decreased track the
-        //    variable they watch); the first one met wins.
-        ConnectionState fired = null;
-        for (ConnectionState connection : currentNode.getConnections())
-        {
-            if (connection.triggerCondition.isConditionMet(context) && fired == null)
-            {
-                fired = connection;
-            }
-        }
+        // On the frame the layer starts, entering it was the decision.
+        ITransition fired = starting ? null : decide(context);
         if (fired != null)
         {
             beginTransition(fired, context);
@@ -236,12 +219,61 @@ public class LayerState
         }
     }
 
-    private void beginTransition(ConnectionState connection, IKumoContext context) throws MalformedKumoTemplateException
+    /**
+     * What moves the layer this frame, or null if it stays: the selectors of the machines around the
+     * node, from the layer's own inwards, the first that leads somewhere else than where the layer is;
+     * else the connections of the node, then of the machines around it from the innermost out, the
+     * first met. Every condition is evaluated, whatever is chosen (edge triggers such as
+     * {@code core:decreased} track the variable they watch).
+     */
+    private ITransition decide(IKumoContext context) throws MalformedKumoTemplateException
     {
-        transitionDuration = connection.transitionDuration;
-        transitionEasing = connection.transitionEasing;
+        ITransition fired = null;
+        for (int i = 0; i < path.size(); i++)
+        {
+            Selector selector = path.get(i).selector;
+            if (selector == null)
+            {
+                continue;
+            }
+            Selector.Branch branch = selector.choose(context);
+            MachineMember here = i + 1 < path.size() ? path.get(i + 1).member : current;
+            if (fired == null && branch != null && branch.getTarget() != here)
+            {
+                fired = branch;
+            }
+        }
+        fired = firstMet(current.connections, fired, context);
+        for (int i = path.size() - 1; i >= 0; i--)
+        {
+            fired = firstMet(path.get(i).connections, fired, context);
+        }
+        return fired;
+    }
 
-        if (transitionDuration <= 0.0F || connection.targetNode == currentNode)
+    private static ITransition firstMet(List<ConnectionState> connections, ITransition fired, IKumoContext context) throws MalformedKumoTemplateException
+    {
+        for (ConnectionState connection : connections)
+        {
+            if (connection.triggerCondition.isConditionMet(context) && fired == null)
+            {
+                fired = connection;
+            }
+        }
+        return fired;
+    }
+
+    private void beginTransition(ITransition transition, IKumoContext context) throws MalformedKumoTemplateException
+    {
+        // Its variables first: the selectors of the machines it enters see them.
+        setVariables(transition.getSet());
+        List<MachineState> entered = new ArrayList<>();
+        MachineMember target = descend(transition.getTarget(), context, entered);
+
+        transitionDuration = transition.getDuration();
+        transitionEasing = transition.getEasing();
+
+        if (transitionDuration <= 0.0F || target.node == currentNode)
         {
             previousNode = null;
             previousIsSnapshot = false;
@@ -261,17 +293,79 @@ public class LayerState
             transitionProgress = 0;
         }
 
-        if (connection.set != null)
+        List<MachineState> left = new ArrayList<>(path);
+        moveTo(target);
+        context.enterNode(currentNode, variables);
+        for (MachineState machine : path)
         {
-            for (Map.Entry<String, Float> entry : connection.set.entrySet())
+            // Those around a node the transition names directly; the entered ones have started.
+            if (!left.contains(machine) && !entered.contains(machine))
+            {
+                machine.start(context);
+            }
+        }
+        startNode(context);
+    }
+
+    /** Follows {@code target} into the machines it leads into, entering each, down to a node. */
+    private MachineMember descend(MachineMember target, IKumoContext context, List<MachineState> entered) throws MalformedKumoTemplateException
+    {
+        while (target.machine != null)
+        {
+            target = enter(target.machine, context, entered);
+        }
+        return target;
+    }
+
+    /**
+     * Enters {@code machine}: the conditions of its selector and connections start over, then its
+     * selector chooses where it goes (and the branch's {@code set} applies) or, where it chooses
+     * nothing, its defaultOnEntry does.
+     */
+    private MachineMember enter(MachineState machine, IKumoContext context, List<MachineState> entered) throws MalformedKumoTemplateException
+    {
+        entered.add(machine);
+        machine.start(context);
+        Selector.Branch branch = machine.selector == null ? null : machine.selector.choose(context);
+        if (branch == null)
+        {
+            return machine.defaultOnEntry;
+        }
+        setVariables(branch.getSet());
+        return branch.getTarget();
+    }
+
+    private void setVariables(Map<String, Float> set)
+    {
+        if (set != null)
+        {
+            for (Map.Entry<String, Float> entry : set.entrySet())
             {
                 variables.set(entry.getKey(), entry.getValue());
             }
         }
+    }
 
-        currentNode = connection.targetNode;
-        context.enterNode(currentNode, variables);
+    /** Makes {@code node} the current node, with the machines around it as the path. */
+    private void moveTo(MachineMember node)
+    {
+        current = node;
+        currentNode = node.node;
+        path.clear();
+        for (MachineState machine = node.parent; machine != null; machine = machine.member == null ? null : machine.member.parent)
+        {
+            path.add(0, machine);
+        }
+    }
+
+    /** Starts the current node, and the conditions of its connections over. */
+    private void startNode(IKumoContext context) throws MalformedKumoTemplateException
+    {
         currentNode.start(context);
+        for (ConnectionState connection : current.connections)
+        {
+            connection.triggerCondition.onNodeStarted(context);
+        }
     }
 
     private float ease(float t)

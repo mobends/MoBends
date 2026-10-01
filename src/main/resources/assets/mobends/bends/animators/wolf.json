@@ -5,7 +5,7 @@
     {
       "comment": "The body clips. Every clip is hard-set (snap): the wolf's clips were authored without smoothing.",
       "type": "KEYFRAME",
-      "entryNode": "idle",
+      "defaultOnEntry": "idle",
       "nodes": {
         "idle": {
           "type": "core:pose",
@@ -177,7 +177,7 @@
     {
       "comment": "The mouth and tongue alternate between idling and panting.",
       "type": "KEYFRAME",
-      "entryNode": "idle",
+      "defaultOnEntry": "idle",
       "mask": {
         "mode": "INCLUDE_ONLY",
         "includedParts": [
@@ -249,7 +249,7 @@
       "comment": "The look direction, the interested tilt, the shaking and the tail (vanilla expressions) applied after the clips in each bone's own space; the clips' head offset is discarded.",
       "type": "KEYFRAME",
       "mode": "ADDITIVE",
-      "entryNode": "look",
+      "defaultOnEntry": "look",
       "nodes": {
         "look": {
           "type": "core:pose",

@@ -1,20 +1,12 @@
 package goblinbob.mobends.core.kumo.state.template;
 
-import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.pose.Pose;
 
-import java.util.List;
 import java.util.Map;
 
-/** A layer: a state machine of nodes, composited onto the layers before it. */
-public class LayerTemplate
+/** A layer: the outermost machine of its nodes, composited onto the layers before it. */
+public class LayerTemplate extends MachineTemplate
 {
-
-    /** Name of the entry node (JSON: {@code entryNode}). */
-    public String entryNodeName;
-
-    /** The nodes, in declaration order (JSON: an object keyed by node name). */
-    public List<NodeTemplate> nodes;
 
     /** Restricts the bones the layer may write. */
     public ArmatureMask mask;
@@ -36,9 +28,6 @@ public class LayerTemplate
 
     /** Left-right mirroring rule for items that set {@code "mirror": true}. */
     public MirrorTemplate mirror;
-
-    /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
-    public Map<String, ExpressionTemplate> expressions;
 
     public enum LayerMode
     {

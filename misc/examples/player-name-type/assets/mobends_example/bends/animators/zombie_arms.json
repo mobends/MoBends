@@ -3,7 +3,7 @@
   "extends": "mobends:bends/animators/player.json",
   "layers": [
     {
-      "entryNode": "zombie_arms",
+      "defaultOnEntry": "zombie_arms",
       "nodes": {
         "zombie_arms": {
           "type": "core:pose",

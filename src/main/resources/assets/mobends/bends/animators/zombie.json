@@ -15,7 +15,7 @@
         "op": "==",
         "right": 0
       },
-      "entryNode": "lean",
+      "defaultOnEntry": "lean",
       "nodes": {
         "lean": {
           "type": "core:pose",
@@ -66,7 +66,7 @@
         "op": "==",
         "right": 1
       },
-      "entryNode": "stumble",
+      "defaultOnEntry": "stumble",
       "nodes": {
         "stumble": {
           "type": "core:pose",

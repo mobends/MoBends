@@ -2,7 +2,39 @@
   "formatVersion": 2,
   "layers": [
     {
-      "entryNode": "stand",
+      "conditions": {
+        "jumping": {
+          "type": "core:or",
+          "conditions": [
+            {
+              "type": "core:state",
+              "state": "AIRBORNE"
+            },
+            {
+              "type": "core:compare",
+              "left": "ticksAfterTouchdown",
+              "op": "<",
+              "right": 1
+            }
+          ]
+        }
+      },
+      "select": [
+        {
+          "when": "jumping",
+          "then": "jump"
+        },
+        {
+          "when": {
+            "type": "core:state",
+            "state": "STANDING_STILL"
+          },
+          "then": "stand"
+        },
+        {
+          "then": "walk"
+        }
+      ],
       "nodes": {
         "stand": {
           "type": "core:pose",
@@ -78,33 +110,6 @@
                 "leftWing": 1
               }
             }
-          ],
-          "connections": [
-            {
-              "target": "jump",
-              "triggerCondition": {
-                "type": "core:or",
-                "conditions": [
-                  {
-                    "type": "core:state",
-                    "state": "AIRBORNE"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterTouchdown",
-                    "op": "<",
-                    "right": 1
-                  }
-                ]
-              }
-            },
-            {
-              "target": "walk",
-              "triggerCondition": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              }
-            }
           ]
         },
         "walk": {
@@ -176,33 +181,6 @@
                 "leftWing": 1
               }
             }
-          ],
-          "connections": [
-            {
-              "target": "jump",
-              "triggerCondition": {
-                "type": "core:or",
-                "conditions": [
-                  {
-                    "type": "core:state",
-                    "state": "AIRBORNE"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterTouchdown",
-                    "op": "<",
-                    "right": 1
-                  }
-                ]
-              }
-            },
-            {
-              "target": "stand",
-              "triggerCondition": {
-                "type": "core:state",
-                "state": "STANDING_STILL"
-              }
-            }
           ]
         },
         "jump": {
@@ -260,62 +238,6 @@
               "space": "OVERRIDE",
               "damping": {
                 "leftWing": 1
-              }
-            }
-          ],
-          "connections": [
-            {
-              "target": "stand",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:and",
-                    "conditions": [
-                      {
-                        "type": "core:state",
-                        "state": "ON_GROUND"
-                      },
-                      {
-                        "type": "core:compare",
-                        "left": "ticksAfterTouchdown",
-                        "op": ">=",
-                        "right": 1
-                      }
-                    ]
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
-                ]
-              }
-            },
-            {
-              "target": "walk",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:and",
-                    "conditions": [
-                      {
-                        "type": "core:state",
-                        "state": "ON_GROUND"
-                      },
-                      {
-                        "type": "core:compare",
-                        "left": "ticksAfterTouchdown",
-                        "op": ">=",
-                        "right": 1
-                      }
-                    ]
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "MOVING_HORIZONTALLY"
-                  }
-                ]
               }
             }
           ]

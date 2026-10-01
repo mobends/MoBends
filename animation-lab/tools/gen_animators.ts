@@ -40,12 +40,14 @@ function writeClip(path: string, data: Obj): void {
 }
 
 // ---- condition helpers ----------------------------------------------------------------------
+/** A condition, or the name of a named one (declared in a "conditions" object). */
+type Cond = Obj | string;
 const cmp = (left: string | number | Obj, op: string, right: string | number | Obj): Obj => ({ type: "core:compare", left, op, right });
 const state = (s: string): Obj => ({ type: "core:state", state: s });
 const action = (tag: string): Obj => ({ type: "core:action", tag });
-const AND = (...conditions: Obj[]): Obj => ({ type: "core:and", conditions });
-const OR = (...conditions: Obj[]): Obj => ({ type: "core:or", conditions });
-const NOT = (condition: Obj): Obj => ({ type: "core:not", condition });
+const AND = (...conditions: Cond[]): Obj => ({ type: "core:and", conditions });
+const OR = (...conditions: Cond[]): Obj => ({ type: "core:or", conditions });
+const NOT = (condition: Cond): Obj => ({ type: "core:not", condition });
 
 // ---- clip frames: where in a clip it is, in the clip's units (see misc/kumo-format.md, "Clips") ----
 /** Wraps a frame around the clip, for the clips that loop. */
@@ -92,7 +94,14 @@ function poseClip(path: string, bones: Record<string, Quaternion>, vectors: Reco
 // ---- shared biped locomotion ------------------------------------------------------------------
 const B = (n: string) => clip("biped", n);
 const jumping = OR(state("AIRBORNE"), cmp("ticksAfterTouchdown", "<", 1));
-const grounded = AND(state("ON_GROUND"), cmp("ticksAfterTouchdown", ">=", 1));
+/** A new jump while still in the air (a bounce): the jump starts over. */
+const bounced = AND(cmp("prevMotionY", "<", 0), cmp("motionY", ">", 0));
+/** stand / walk / jump: the layer's selector over the nodes of those names ("jumping" is a named condition). */
+const locomotionSelect: Obj[] = [
+  { when: "jumping", then: "jump" },
+  { when: state("STANDING_STILL"), then: "stand" },
+  { then: "walk" },
+];
 const limbFrame = looped(scaled("limbSwing", 0.6662));
 const headLook: Obj[] = [
   { driver: "core:axis_rotate", bone: "head", axis: "Y", angle: { variable: "headYaw" }, space: "PRE" },
@@ -112,10 +121,6 @@ const stand: Obj = {
       vectorModes: { root: "SLIDE", localOffset: "SLIDE" } },
     ...headLook,
     kneel,
-  ],
-  connections: [
-    { target: "jump", triggerCondition: jumping },
-    { target: "walk", triggerCondition: state("MOVING_HORIZONTALLY") },
   ] };
 const walk: Obj = {
   type: "core:pose", tags: ["walk"],
@@ -129,10 +134,6 @@ const walk: Obj = {
     { driver: "core:axis_rotate", bone: "body", axis: "Z", angle: { variable: "headYaw", scale: -0.1, min: -10, max: 10 }, space: "PRE" },
     ...headLook,
     kneel,
-  ],
-  connections: [
-    { target: "jump", triggerCondition: jumping },
-    { target: "stand", triggerCondition: state("STANDING_STILL") },
   ] };
 const jump: Obj = {
   type: "core:pose", tags: ["jump"],
@@ -150,16 +151,12 @@ const jump: Obj = {
     { animationKey: B("jump_still"), when: state("STANDING_STILL"),
       damping: { rightLeg: 0.3, leftLeg: 0.3, rightForeLeg: 0.3, leftForeLeg: 0.3 } },
   ],
-  connections: [
-    { target: "stand", triggerCondition: AND(grounded, state("STANDING_STILL")) },
-    { target: "walk", triggerCondition: AND(grounded, state("MOVING_HORIZONTALLY")) },
-    { target: "jump", triggerCondition: AND(cmp("prevMotionY", "<", 0), cmp("motionY", ">", 0)) },
-  ] };
+  connections: [{ target: "jump", triggerCondition: "bounced" }] };
 
 const biped: Obj = {
   formatVersion: 2,
   layers: [
-    { entryNode: "stand", nodes: { stand, walk, jump } },
+    { conditions: { jumping, bounced }, select: locomotionSelect, nodes: { stand, walk, jump } },
   ] };
 
 // ---- zombie: animation sets -----------------------------------------------------------------------
@@ -169,13 +166,13 @@ const zombie: Obj = {
   extends: "mobends:bends/animators/biped.json",
   layers: [
     { mode: "ADDITIVE", additiveSpace: { default: "PRE", body: "POST", root: "OVERRIDE" },
-      when: cmp("animationSet", "==", 0), entryNode: "lean", nodes: { lean: {
+      when: cmp("animationSet", "==", 0), defaultOnEntry: "lean", nodes: { lean: {
         type: "core:pose", tags: ["lean"],
         pose: [
           { animationKey: Z("lean"), damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
           { animationKey: Z("lean_arms_up"), space: "OVERRIDE", when: AND(state("MOVING_HORIZONTALLY"), cmp("currentWalkingState", "==", 1)) },
         ] } } },
-    { when: cmp("animationSet", "==", 1), entryNode: "stumble", nodes: { stumble: {
+    { when: cmp("animationSet", "==", 1), defaultOnEntry: "stumble", nodes: { stumble: {
         type: "core:pose", tags: ["stumbling"],
         pose: [
           { animationKey: Z("stumble_base"), frame: limbFrame,
@@ -191,7 +188,7 @@ const skeleton: Obj = {
   formatVersion: 2,
   extends: "mobends:bends/animators/biped.json",
   layers: [
-    { when: AND(action("walk"), state("STRAFING")), entryNode: "strafe", nodes: { strafe: {
+    { when: AND(action("walk"), state("STRAFING")), defaultOnEntry: "strafe", nodes: { strafe: {
         type: "core:pose", tags: ["strafe"],
         pose: [
           { animationKey: S("strafe_base"), frame: limbFrame, damping: { rightLeg: 1, leftLeg: 1 } },
@@ -219,7 +216,7 @@ const pigZombie: Obj = {
   extends: "mobends:bends/animators/biped.json",
   layers: [
     { mode: "ADDITIVE", additiveSpace: { default: "PRE", root: "OVERRIDE" },
-      when: OR(action("stand"), action("walk")), entryNode: "hunch", nodes: { hunch: {
+      when: OR(action("stand"), action("walk")), defaultOnEntry: "hunch", nodes: { hunch: {
         type: "core:pose", tags: ["hunch"],
         pose: [
           { animationKey: P("pose_post"), space: "POST" },
@@ -227,7 +224,7 @@ const pigZombie: Obj = {
           { animationKey: P("stand_offset"), when: action("stand"), damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
           { animationKey: P("walk_bob"), frame: limbFrame, when: action("walk"), damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
         ] } } },
-    { when: cmp("entitySwingProgress", ">", 0), entryNode: "slash",
+    { when: cmp("entitySwingProgress", ">", 0), defaultOnEntry: "slash",
       mirror: { when: state("LEFT_HANDED"), negate: ["headYaw"],
                 pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
                         ["renderLeftItemRotation", "renderRightItemRotation"]] },
@@ -349,57 +346,29 @@ const pSprint: Obj = {
   ] };
 
 /**
- * The PlayerController decision tree, in priority order, as connections. Each branch is
- * guarded by the negation of the branches above it, so a node whose own condition still holds
- * never falls through to a lower-priority target.
+ * The PlayerController decision tree: the first state that applies, most important first (see
+ * misc/kumo-format.md, "Selectors").
  */
-function playerConnections(exclude: string | null): Obj[] {
-  const sleeping = state("SLEEPING");
-  const riding = state("RIDING");
-  const elytra = state("ELYTRA_FLYING");
-  const climbing = state("CLIMBING");
-  const inWater = state("IN_WATER");
-  const groups: [Obj | null, [string, Obj | null][]][] = [
-    [sleeping, [["sleeping", null]]],
-    [riding, [["riding", state("RIDING_LIVING")], ["sitting", NOT(state("RIDING_LIVING"))]]],
-    [elytra, [["elytra", null]]],
-    [climbing, [["ladder", null]]],
-    [inWater, [["swimming", null]]],
-    [jumping, [
-      ["flying", state("FLYING")],
-      ["falling", AND(NOT(state("FLYING")), cmp("ticksFalling", ">", 10))],
-      ["sprint_jump", AND(NOT(state("FLYING")), cmp("ticksFalling", "<=", 10), state("SPRINTING"))],
-      ["jump", AND(NOT(state("FLYING")), cmp("ticksFalling", "<=", 10), NOT(state("SPRINTING")))],
-    ]],
-    [null, [
-      ["stand", state("STANDING_STILL")],
-      ["sprint", AND(state("MOVING_HORIZONTALLY"), state("SPRINTING"))],
-      ["walk", AND(state("MOVING_HORIZONTALLY"), NOT(state("SPRINTING")))],
-    ]],
-  ];
-  const conns: Obj[] = [];
-  const prior: Obj[] = [];
-  for (const [group, branches] of groups) {
-    for (const [target, branch] of branches) {
-      const parts = prior.map((p) => NOT(p));
-      if (group !== null) parts.push(group);
-      if (branch !== null) parts.push(branch);
-      const cond = parts.length === 1 ? parts[0] : AND(...parts);
-      if (target !== exclude) {
-        conns.push({ target, triggerCondition: cond });
-      }
-    }
-    if (group !== null) {
-      prior.push(group);
-    }
-  }
-  return conns;
-}
+const playerSelect: Obj[] = [
+  { when: state("SLEEPING"), then: "sleeping" },
+  { when: state("RIDING"), then: [{ when: state("RIDING_LIVING"), then: "riding" }, { then: "sitting" }] },
+  { when: state("ELYTRA_FLYING"), then: "elytra" },
+  { when: state("CLIMBING"), then: "ladder" },
+  { when: state("IN_WATER"), then: "swimming" },
+  { when: "jumping", then: [
+    { when: state("FLYING"), then: "flying" },
+    { when: cmp("ticksFalling", ">", 10), then: "falling" },
+    // the sprint jump leads with the leg the entity data picked
+    { when: state("SPRINTING"), then: [{ when: state("SPRINT_JUMP_LEG"), then: "sprint_jump_right" }, { then: "sprint_jump_left" }] },
+    { then: "jump" },
+  ] },
+  { when: state("STANDING_STILL"), then: "stand" },
+  { when: state("SPRINTING"), then: "sprint" },
+  { then: "walk" },
+];
 
 const pStand = structuredClone(stand);
 const pJump = structuredClone(jump);
-// the biped jump's self-restart stays last
-const jumpRestart = pJump.connections.filter((c: Obj) => c.target === "jump");
 
 const pSleeping: Obj = { type: "core:pose", tags: ["sleeping"], pose: [
   { animationKey: PL("sleeping"), frame: looped(scaled("ticks", 0.1)),
@@ -494,7 +463,9 @@ function sprintJumpNode(leg: string): Obj {
     drv(mainFl, "X", "relax", { scale: -80, offset: 80, ease: "pow", power: 0.25, min: 0, max: 1, space: "OVERRIDE" }),
     drv(offFl, "X", "relax", { scale: 70, ease: "pow", power: 0.25, min: 0, max: 1, space: "OVERRIDE" }),
     drv("head", "X", "headPitch", { offset: -20, space: "OVERRIDE" }), drv("head", "Y", "headYaw", { offset: -20 * m }),
-  ] };
+  ],
+  // a bounce starts the sprint jump over, like the jump
+  connections: [{ target: `sprint_jump_${leg}`, triggerCondition: "bounced" }] };
 }
 // the sprint-jump body: orientX(lean).rotateY(20m) = Ry(20m) * Rx(lean): the clip holds Ry, the driver adds Rx in POST space
 
@@ -540,29 +511,6 @@ const nodes: Record<string, Obj> = {
   sprint_jump_left: sprintJumpNode("left"), falling: pFalling, flying: pFlying, swimming: pSwimming,
   ladder: pLadder, elytra: pElytra, riding: pRiding, sitting: pSitting, sleeping: pSleeping,
 };
-for (const [name, node] of Object.entries(nodes)) {
-  const key = name.startsWith("sprint_jump") ? "sprint_jump" : name;
-  // sprint jump picks the leg variant; the biped jump keeps its restart; sprint jump restarts likewise
-  const conns = playerConnections(key).filter((c) => c.target !== "sprint_jump");
-  const sj = playerConnections(null).filter((c) => c.target === "sprint_jump").map((c) => c.triggerCondition)[0];
-  const targets = conns.map((c) => c.target);
-  let at = targets.includes("jump") ? targets.indexOf("jump")
-    : targets.includes("falling") ? targets.indexOf("falling") + 1 : targets.indexOf("flying") + 1;
-  if (name !== "sprint_jump_right") {
-    conns.splice(at, 0, { target: "sprint_jump_right", triggerCondition: AND(sj, state("SPRINT_JUMP_LEG")) });
-    at += 1;
-  }
-  if (name !== "sprint_jump_left") {
-    conns.splice(at, 0, { target: "sprint_jump_left", triggerCondition: AND(sj, NOT(state("SPRINT_JUMP_LEG"))) });
-  }
-  if (name === "jump") {
-    conns.push(...jumpRestart);
-  }
-  if (name.startsWith("sprint_jump")) {
-    conns.push({ target: name, triggerCondition: AND(cmp("prevMotionY", "<", 0), cmp("motionY", ">", 0)) });
-  }
-  node.connections = conns;
-}
 
 // ---- player: the action layer (BipedActionController and its item actions) ---------------------------
 // Right-handed only (the bits read the primary hand); use actions get a clip per active hand.
@@ -588,7 +536,7 @@ function prop(name: string, value: unknown = null, unset = false): Obj {
   return c;
 }
 
-function conn(target: string, cond: Obj, sets: Obj | null = null): Obj {
+function conn(target: string, cond: Cond, sets: Obj | null = null): Obj {
   const c: Obj = { target, triggerCondition: cond };
   if (sets) c.set = sets;
   return c;
@@ -818,84 +766,62 @@ function useNodes(): Record<string, Obj> {
 }
 
 // --- the node graph ---------------------------------------------------------------------------------------
+// Using an item comes first (a node per active hand), then the attack family of the held item. A family
+// is a machine: its selector says where it rests, its connections play the moves on every attack.
 const useTypes: [string, string][] = [["eat", "FOOD"], ["bow", "BOW"], ["shield", "SHIELD"]];
-function useConns(excludeType: string | null = null): Obj[] {
-  const out: Obj[] = [];
-  for (const [base, typ] of useTypes) {
-    if (typ === excludeType) continue;
-    for (const side of ["right", "left"]) {
-      out.push(conn(`${base}_${side}`, AND(prop("useActionType", typ), prop("activeHandSide", side.toUpperCase()))));
-    }
-  }
-  return out;
-}
-const noUse = prop("useActionType", null, true);
-const familyEntry: Record<string, [string, Obj | null, Obj | null][]> = {
-  // a fresh SwordAction: no move plays until the next attack; the stance if in its window
-  sword: [["stance_sprint", stanceSprintCond, { combo: 0 }], ["stance", stanceStillCond, { combo: 0 }], ["sword_idle", null, { combo: 0 }]],
-  // a fresh PunchingAction starts with the left fist
-  fists: [["punch_left", cmp(tAA, "<", 10), { fist: 0 }], ["fist_guard", AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60)), { fist: 0 }], ["fists_idle", null, { fist: 0 }]],
-  tool: [["tool", null, null]],
+const useBranches: Obj[] = useTypes.map(([base, typ]) => ({
+  when: prop("useActionType", typ),
+  then: ["right", "left"].map((side) => ({ when: prop("activeHandSide", side.toUpperCase()), then: `${base}_${side}` })),
+}));
+const attackBranch: Obj = {
+  when: prop("useActionType", null, true),
+  then: [
+    // a fresh SwordAction or PunchingAction starts its count over
+    { when: prop("attackActionType", "SWORD"), then: "sword", set: { combo: 0 } },
+    { when: prop("attackActionType", "FISTS"), then: "fists", set: { fist: 0 } },
+    { when: prop("attackActionType", "TOOL"), then: "tool" },
+  ],
 };
-const familyType: Record<string, string> = { sword: "SWORD", fists: "FISTS", tool: "TOOL" };
-function attackConns(excludeFamily: string | null = null): Obj[] {
-  const out: Obj[] = [];
-  for (const [family, entries] of Object.entries(familyEntry)) {
-    if (family === excludeFamily) continue;
-    for (const [target, cond, sets] of entries) {
-      const parts = [noUse, prop("attackActionType", familyType[family]), ...(cond ? [cond] : [])];
-      out.push(conn(target, AND(...parts), sets));
-    }
-  }
-  return out;
-}
 const slashOrder = ["slash_up", "slash_down", "slash_inward", "slash_outward", "slash_whirl"];
 // The fifth slash is the whirl, when the player allows it (ModConfig.performSpinAttack) and isn't
 // riding; otherwise the combo starts over.
 const canSpin = state("CAN_SPIN_ATTACK");
 const slashByCombo = [
-  ...slashOrder.map((n, k) => conn(n, AND(dec, cmp("combo", "==", k), ...(k === 4 ? [canSpin] : [])), { combo: (k + 1) % 5 })),
-  conn(slashOrder[0], AND(dec, cmp("combo", "==", 4), NOT(canSpin)), { combo: 1 }),
+  ...slashOrder.map((n, k) => conn(n, AND("attacked", cmp("combo", "==", k), ...(k === 4 ? [canSpin] : [])), { combo: (k + 1) % 5 })),
+  conn(slashOrder[0], AND("attacked", cmp("combo", "==", 4), NOT(canSpin)), { combo: 1 }),
 ];
-const afterSlash = [conn("stance_sprint", stanceSprintCond), conn("stance", stanceStillCond),
-                    conn("sword_idle", AND(cmp(tAA, ">=", 10), NOT(stanceSprintCond), NOT(stanceStillCond)))];
-const punchConns = [conn("punch_right", AND(dec, cmp("fist", "==", 0)), { fist: 1 }), conn("punch_left", AND(dec, cmp("fist", "==", 1)), { fist: 0 })];
-const guardWindow = AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60));
+const punchConns = [conn("punch_right", AND("attacked", cmp("fist", "==", 0)), { fist: 1 }), conn("punch_left", AND("attacked", cmp("fist", "==", 1)), { fist: 0 })];
 
-const actionNodes: Record<string, Obj> = {
-  idle: { type: "core:pose", pose: [] }, sword_idle: swordIdle, stance, stance_sprint: stanceSprint,
-  fists_idle: fistsIdle, punch_right: punchNode("right"), punch_left: punchNode("left"), fist_guard: fistGuard, tool,
-  ...slashes,
-  ...useNodes(),
+// No move plays until the next attack; the stance while in its window. A slash isn't in the
+// selector, which chooses nothing for ten ticks after an attack, so it plays until then.
+const swordMachine: Obj = {
+  defaultOnEntry: "sword_idle",
+  conditions: { attacked: dec },
+  select: [
+    { when: stanceSprintCond, then: "stance_sprint" },
+    { when: stanceStillCond, then: "stance" },
+    { when: cmp(tAA, ">=", 10), then: "sword_idle" },
+  ],
+  connections: slashByCombo,
+  nodes: { sword_idle: swordIdle, stance, stance_sprint: stanceSprint, ...slashes },
 };
-for (const [name, node] of Object.entries(actionNodes)) {
-  let c: Obj[];
-  if (name === "idle") {
-    c = [...useConns(), ...attackConns()];
-  } else if (name === "sword_idle") {
-    c = [...useConns(), ...attackConns("sword"), ...slashByCombo, conn("stance_sprint", stanceSprintCond), conn("stance", stanceStillCond)];
-  } else if (name.startsWith("slash_")) {
-    c = [...useConns(), ...attackConns("sword"), ...slashByCombo, ...afterSlash];
-  } else if (name === "stance") {
-    c = [...useConns(), ...attackConns("sword"), ...slashByCombo, conn("stance_sprint", stanceSprintCond), conn("sword_idle", NOT(OR(stanceSprintCond, stanceStillCond)))];
-  } else if (name === "stance_sprint") {
-    c = [...useConns(), ...attackConns("sword"), ...slashByCombo, conn("stance", stanceStillCond), conn("sword_idle", NOT(OR(stanceSprintCond, stanceStillCond)))];
-  } else if (name === "fists_idle") {
-    c = [...useConns(), ...attackConns("fists"), ...punchConns, conn("fist_guard", guardWindow)];
-  } else if (name.startsWith("punch_")) {
-    c = [...useConns(), ...attackConns("fists"), ...punchConns, conn("fist_guard", guardWindow), conn("fists_idle", cmp(tAA, ">=", 60))];
-  } else if (name === "fist_guard") {
-    c = [...useConns(), ...attackConns("fists"), ...punchConns, conn("fists_idle", cmp(tAA, ">=", 60))];
-  } else if (name === "tool") {
-    c = [...useConns(), ...attackConns("tool")];
-  } else { // use nodes
-    const typ = useTypes.filter(([b]) => name.startsWith(b)).map(([, t]) => t)[0];
-    c = [...useConns(typ), ...attackConns()];
-  }
-  node.connections = structuredClone(c);
-}
+// A fresh PunchingAction starts with the left fist; after a punch the guard, then the fists rest.
+const fistsMachine: Obj = {
+  defaultOnEntry: "punch_left",
+  conditions: { attacked: dec },
+  select: [
+    { when: AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60)), then: "fist_guard" },
+    { when: cmp(tAA, ">=", 60), then: "fists_idle" },
+  ],
+  connections: punchConns,
+  nodes: { fists_idle: fistsIdle, punch_right: punchNode("right"), punch_left: punchNode("left"), fist_guard: fistGuard },
+};
 
-const actionLayer: Obj = { when: NOT(state("SLEEPING")), entryNode: "idle", variables: { combo: 0, fist: 0 }, nodes: actionNodes,
+// Idle only until the first item or attack: nothing leads back to it.
+const actionLayer: Obj = { when: NOT(state("SLEEPING")), defaultOnEntry: "idle", variables: { combo: 0, fist: 0 },
+                           select: [...useBranches, attackBranch],
+                           nodes: { idle: { type: "core:pose", pose: [] }, tool, ...useNodes() },
+                           machines: { sword: swordMachine, fists: fistsMachine },
                            // a left-handed player plays the hand-dependent items as their mirror image
                            mirror: { when: state("LEFT_HANDED"), negate: ["headYaw"],
                                      pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
@@ -913,10 +839,10 @@ const player: Obj = {
   formatVersion: 2,
   layers: [
     // item rotations are reset every frame before the layers run (keeps their damping)
-    { entryNode: "reset", nodes: { reset: { type: "core:pose", pose: [{ animationKey: PL("reset_items") }] } } },
-    { entryNode: "stand", nodes },
+    { defaultOnEntry: "reset", nodes: { reset: { type: "core:pose", pose: [{ animationKey: PL("reset_items") }] } } },
+    { conditions: { jumping, bounced }, select: playerSelect, nodes },
     // sneaking overlay on the ground states
-    { when: AND(state("SNEAKING"), groundAction), entryNode: "sneak", nodes: { sneak: {
+    { when: AND(state("SNEAKING"), groundAction), defaultOnEntry: "sneak", nodes: { sneak: {
         type: "core:pose", tags: ["sneak"], pose: [
           { animationKey: PL("sneak_base"), frame: limbFrame,
             damping: { rightLeg: 1, leftLeg: 1, rightArm: 0.8, leftArm: 0.8, root: [null, 0.6, null], localOffset: 0.3 },
@@ -927,7 +853,7 @@ const player: Obj = {
           { animationKey: PL("sneak_head"), frame: limbFrame, space: "PRE" },
         ] } } },
     // torch holding while standing or walking (not sprinting)
-    { when: AND(OR(action("stand"), action("walk")), OR(torchMain, torchOff)), entryNode: "torch", nodes: { torch: {
+    { when: AND(OR(action("stand"), action("walk")), OR(torchMain, torchOff)), defaultOnEntry: "torch", nodes: { torch: {
         type: "core:pose", tags: ["torch_holding"], pose: [
           // the main hand holds the torch if it has one, else the off hand; the arm follows the primary hand
           ...torchArm("right").map((x) => when(x, AND(torchMain, NOT(state("LEFT_HANDED"))))),
@@ -938,7 +864,7 @@ const player: Obj = {
     // items and attacks (the BipedActionController)
     actionLayer,
     // the cape is physics, kept as a driver
-    { entryNode: "cape", nodes: { cape: { type: "core:pose", pose: [{ driver: "mobends:cape", bone: "cape" }] } } },
+    { defaultOnEntry: "cape", nodes: { cape: { type: "core:pose", pose: [{ driver: "mobends:cape", bone: "cape" }] } } },
   ] };
 
 
@@ -971,7 +897,7 @@ poseClip(join(CLIPS, "squid", "swim_sections_rest.json"), squidSections(0, false
 const squidBaseDamp = Object.fromEntries(range(8).map((i) => [`tentacle_${i}_0`, 0.1]));
 const squidSectionDamp = Object.fromEntries(range(8).flatMap((i) => range(9, 1).map((j) => [`tentacle_${i}_${j}`, 0.1])));
 const squidFrame = "squidRotation";
-const squid: Obj = { formatVersion: 2, layers: [{ entryNode: "swim", nodes: { swim: { type: "core:pose", tags: ["swim"], pose: [
+const squid: Obj = { formatVersion: 2, layers: [{ defaultOnEntry: "swim", nodes: { swim: { type: "core:pose", tags: ["swim"], pose: [
   when({ animationKey: SQ("swim_base"), frame: squidFrame, damping: squidBaseDamp }, state("SQUID_PREV_ROTATION_LOW")),
   when({ animationKey: SQ("swim_base_rest"), damping: squidBaseDamp }, NOT(state("SQUID_PREV_ROTATION_LOW"))),
   when({ animationKey: SQ("swim_sections"), frame: squidFrame, damping: squidSectionDamp }, state("SQUID_ROTATION_LOW")),
@@ -1020,7 +946,8 @@ function naturalYaw(i: number): number {
 poseClip(join(CLIPS, "spider", "jump.json"), Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, rotations(["Y", naturalYaw(i)])])), { root: [0, 0, 0] });
 const jumpMotion = (mul: number, add: number) => ({ variable: "interpolatedMotionY", scale: -5, min: -1, max: 1, mul, add });
 const alternate = (i: number) => (i % 2 ? -1 : 1);
-const spJump: Obj = { type: "core:pose", tags: ["jump"], pose: [
+// Nothing in the jump reads resetLimbs: the next legs driver to start does, and replants the feet.
+const spJump: Obj = { type: "core:pose", tags: ["jump"], set: { resetLimbs: 1 }, pose: [
   withSnap({ animationKey: SP("jump"), bones: ["root"] }),
   { animationKey: SP("jump"), bones: range(8).map((i) => `leg${i + 1}`), damping: Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, 1])) },
   ...range(8).map((i) => ({ ...drv(`leg${i + 1}`, "Z", null, { space: "POST" }), angle: jumpMotion(25 * alternate(i), -20 * alternate(i)) })),
@@ -1053,34 +980,16 @@ const spDeath: Obj = { type: "core:pose", tags: ["death"], pose: [
   { animationKey: SP("death_sway_z"), frame: limbFrame, weight: amountDeg, space: "PRE" },
   { animationKey: SP("death_wiggle"), frame: looped("wigglePhase"), weight: { variable: "wiggleSpeed", scale: 10, offset: 10 }, space: "PRE" },
 ] };
-// the controller's decision chain, guarded like the player's
-const spiderChain: [string, Obj | null][] = [
-  ["death", cmp("health", "<=", 0)],
-  ["crawl", state("BESIDE_CLIMBABLE")],
-  ["jump", jumping],
-  ["idle", state("STANDING_STILL")],
-  ["move", null],
-];
-const spNodes: Record<string, Obj> = { idle: spIdle, move: spMove, jump: spJump, crawl: spCrawl, death: spDeath };
-for (const [name, node] of Object.entries(spNodes)) {
-  const conns: Obj[] = [];
-  const prior: Obj[] = [];
-  for (const [target, cond] of spiderChain) {
-    const parts = [...prior.map((c) => NOT(c)), ...(cond !== null ? [cond] : [])];
-    if (target !== name) {
-      const c: Obj = { target, triggerCondition: parts.length === 1 ? parts[0] : AND(...parts) };
-      if (name === "jump" && ["idle", "move"].includes(target)) {
-        c.set = { resetLimbs: 1 }; // feet re-planted under the body after a jump
-      }
-      conns.push(c);
-    }
-    if (cond !== null) {
-      prior.push(cond);
-    }
-  }
-  node.connections = conns;
-}
-const spider: Obj = { formatVersion: 2, layers: [{ entryNode: "idle", variables: { resetLimbs: 1 }, nodes: spNodes }] };
+// the controller's decision chain
+const spider: Obj = { formatVersion: 2, layers: [{ defaultOnEntry: "idle", variables: { resetLimbs: 1 }, conditions: { jumping },
+  select: [
+    { when: cmp("health", "<=", 0), then: "death" },
+    { when: state("BESIDE_CLIMBABLE"), then: "crawl" },
+    { when: "jumping", then: "jump" },
+    { when: state("STANDING_STILL"), then: "idle" },
+    { then: "move" },
+  ],
+  nodes: { idle: spIdle, move: spMove, jump: spJump, crawl: spCrawl, death: spDeath } }] };
 
 // the skeleton's controller runs the biped action controller as well: bow, sword, tool, fists
 const skeletonActions = structuredClone(actionLayer);
@@ -1151,13 +1060,10 @@ function headLookOver(headBone: string, clipPosesHead: boolean): Obj[] {
 function walkerAnimator(folder: string, legs: Leg[], idleBones: [string, number][], extra: Obj[] = [], headBone = "head"): Obj {
   const look = headLookOver(headBone, false);
   const idleLook = headLookOver(headBone, idleBones.some(([bone]) => bone === headBone));
-  const stand = { type: "core:pose", tags: ["stand"], pose: [walkerRest(folder, legBones(legs)), walkerIdle(folder, idleBones), ...idleLook, ...extra],
-                  connections: [{ target: "jump", triggerCondition: jumping }, { target: "walk", triggerCondition: state("MOVING_HORIZONTALLY") }] };
-  const walk = { type: "core:pose", tags: ["walk"], pose: [walkerGait(folder, legs), ...look, ...extra],
-                 connections: [{ target: "jump", triggerCondition: jumping }, { target: "stand", triggerCondition: state("STANDING_STILL") }] };
-  const jump = { type: "core:pose", tags: ["jump"], pose: [walkerJump(folder, legs), ...look, ...extra],
-                 connections: [{ target: "stand", triggerCondition: AND(grounded, state("STANDING_STILL")) }, { target: "walk", triggerCondition: AND(grounded, state("MOVING_HORIZONTALLY")) }] };
-  return { formatVersion: 2, layers: [{ entryNode: "stand", nodes: { stand, walk, jump } }] };
+  const stand = { type: "core:pose", tags: ["stand"], pose: [walkerRest(folder, legBones(legs)), walkerIdle(folder, idleBones), ...idleLook, ...extra] };
+  const walk = { type: "core:pose", tags: ["walk"], pose: [walkerGait(folder, legs), ...look, ...extra] };
+  const jump = { type: "core:pose", tags: ["jump"], pose: [walkerJump(folder, legs), ...look, ...extra] };
+  return { formatVersion: 2, layers: [{ conditions: { jumping }, select: locomotionSelect, nodes: { stand, walk, jump } }] };
 }
 
 // vanilla ModelQuadruped: legs 1 and 4 swing together, 2 and 3 opposite

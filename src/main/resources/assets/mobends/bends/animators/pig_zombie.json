@@ -21,7 +21,7 @@
           }
         ]
       },
-      "entryNode": "hunch",
+      "defaultOnEntry": "hunch",
       "nodes": {
         "hunch": {
           "type": "core:pose",
@@ -93,7 +93,7 @@
         "op": ">",
         "right": 0
       },
-      "entryNode": "slash",
+      "defaultOnEntry": "slash",
       "mirror": {
         "when": {
           "type": "core:state",

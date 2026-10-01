@@ -156,7 +156,7 @@ public class ExpressionTest
                 + "\"formatVersion\": 2,"
                 + "\"extends\": \"mobends_test:bends/animators/expressions_parent.json\","
                 + "\"expressions\": {\"base\": -45},"
-                + "\"layers\": [{\"entryNode\": \"child\","
+                + "\"layers\": [{\"defaultOnEntry\": \"child\","
                 + "  \"expressions\": {\"lift\": {\"mul\": [\"base\", 0.5]}},"
                 + "  \"nodes\": {\"child\": {\"type\": \"core:pose\","
                 + "    \"expressions\": {\"legs\": {\"add\": [\"lift\", 1]}},"

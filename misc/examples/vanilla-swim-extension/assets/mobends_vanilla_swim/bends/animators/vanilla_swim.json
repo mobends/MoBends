@@ -4,7 +4,7 @@
   "layers": [
     {
       "when": {"type": "core:state", "state": "IN_WATER"},
-      "entryNode": "vanilla",
+      "defaultOnEntry": "vanilla",
       "nodes": {
         "vanilla": {"type": "core:vanilla", "tags": ["vanilla_swim"]}
       }

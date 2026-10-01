@@ -2,7 +2,9 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -40,9 +42,19 @@ public interface IKumoInstancingContext
     }
 
     /** This context, inside a scope that declares {@code expressions} (see {@link ExpressionScope#child}). */
-    default IKumoInstancingContext withExpressions(@Nullable Map<String, goblinbob.mobends.core.kumo.expr.ExpressionTemplate> expressions) throws MalformedKumoTemplateException
+    default IKumoInstancingContext withExpressions(@Nullable Map<String, ExpressionTemplate> expressions) throws MalformedKumoTemplateException
     {
-        ExpressionScope scope = getExpressionScope().child(expressions);
+        return withDeclarations(expressions, null);
+    }
+
+    /**
+     * This context, inside a scope that declares {@code expressions} and {@code conditions} (see
+     * {@link ExpressionScope#child(Map, Map)}).
+     */
+    default IKumoInstancingContext withDeclarations(@Nullable Map<String, ExpressionTemplate> expressions,
+                                                    @Nullable Map<String, TriggerConditionTemplate> conditions) throws MalformedKumoTemplateException
+    {
+        ExpressionScope scope = getExpressionScope().child(expressions, conditions);
         return scope == getExpressionScope() ? this : new ScopedInstancingContext(this, scope);
     }
 

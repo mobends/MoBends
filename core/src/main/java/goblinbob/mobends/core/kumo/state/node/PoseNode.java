@@ -7,7 +7,6 @@ import goblinbob.mobends.core.kumo.driver.RampDriver;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.pose.*;
-import goblinbob.mobends.core.kumo.state.ConnectionState;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
@@ -23,8 +22,8 @@ import java.util.*;
 
 /**
  * A node of a layer: an ordered stack of pose items (clips, drivers), a damping table, a list of
- * bones to snap on entry, and the outgoing connections. Fallthrough and vanilla nodes are pose
- * nodes without items.
+ * bones to snap on entry. Fallthrough and vanilla nodes are pose nodes without items. (Its
+ * connections belong to the layer, see {@code LayerState}.)
  */
 public class PoseNode implements INodeState
 {
@@ -35,7 +34,6 @@ public class PoseNode implements INodeState
     private final int[] dampingSlots;
     private final float[][] dampingValues;
     private final int[] snapSlots;
-    private final List<ConnectionState> connections = new ArrayList<>();
     private final List<IPoseItem> enterItems;
     private final Skeleton skeleton;
     private final VariableScope scope = new VariableScope();
@@ -223,12 +221,6 @@ public class PoseNode implements INodeState
     }
 
     @Override
-    public Iterable<ConnectionState> getConnections()
-    {
-        return connections;
-    }
-
-    @Override
     public float getElapsedTicks()
     {
         return elapsed;
@@ -270,18 +262,6 @@ public class PoseNode implements INodeState
     }
 
     @Override
-    public void parseConnections(Map<String, INodeState> nodesByName, NodeTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
-    {
-        if (template.connections != null)
-        {
-            for (ConnectionTemplate connectionTemplate : template.connections)
-            {
-                connections.add(ConnectionState.createFromTemplate(nodesByName, connectionTemplate, scope));
-            }
-        }
-    }
-
-    @Override
     public VariableScope getScope()
     {
         return scope;
@@ -316,10 +296,6 @@ public class PoseNode implements INodeState
                 item.apply(enterPose, context, 0);
             }
             enterPending = true;
-        }
-        for (ConnectionState connection : connections)
-        {
-            connection.triggerCondition.onNodeStarted(context);
         }
     }
 

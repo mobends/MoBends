@@ -96,7 +96,7 @@ public class KumoAnimatorState
         for (int i = 0; i < layers.size(); i++)
         {
             LayerTemplate template = layers.get(i);
-            IKumoInstancingContext layerContext = layerContexts.get(i).withExpressions(template.expressions);
+            IKumoInstancingContext layerContext = layerContexts.get(i).withDeclarations(template.expressions, template.conditions);
             layerStates.add(new LayerState(layerContext, skeleton, template));
         }
         context.setLayers(layerStates);
@@ -147,7 +147,7 @@ public class KumoAnimatorState
             }
             animatorContext = collectLayers(parent, context.isTrusted(template.extendsAnimator), context, depth + 1, layers, contexts, layersTrusted);
         }
-        animatorContext = animatorContext.withExpressions(template.expressions);
+        animatorContext = animatorContext.withDeclarations(template.expressions, template.conditions);
         if (template.layers != null)
         {
             for (LayerTemplate layer : template.layers)
@@ -163,11 +163,7 @@ public class KumoAnimatorState
     /** Whether every clip the layer's nodes play comes from a trusted source. */
     private static boolean playsTrustedClips(LayerTemplate layer, IKumoInstancingContext context)
     {
-        if (layer.nodes == null)
-        {
-            return true;
-        }
-        for (NodeTemplate node : layer.nodes)
+        for (NodeTemplate node : layer.allNodes())
         {
             List<PoseItemTemplate> items = new ArrayList<>();
             if (node instanceof PoseNodeTemplate && ((PoseNodeTemplate) node).pose != null) items.addAll(((PoseNodeTemplate) node).pose);

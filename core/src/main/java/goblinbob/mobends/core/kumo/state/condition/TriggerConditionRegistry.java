@@ -27,6 +27,7 @@ public class TriggerConditionRegistry
         register("core:action", (template, scope) -> new ActionCondition(template), ActionCondition.Template.class);
         register("core:property", (template, scope) -> new PropertyCondition(template), PropertyCondition.Template.class);
         register("core:decreased", DecreasedCondition::new, DecreasedCondition.Template.class);
+        register(NamedCondition.TYPE, NamedCondition::create, NamedCondition.Template.class);
         register("core:animation_finished", context -> {
             INodeState node = context.getCurrentNode();
             return node != null && node.isAnimationFinished();

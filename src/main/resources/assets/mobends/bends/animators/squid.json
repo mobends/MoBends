@@ -2,7 +2,7 @@
   "formatVersion": 2,
   "layers": [
     {
-      "entryNode": "swim",
+      "defaultOnEntry": "swim",
       "nodes": {
         "swim": {
           "type": "core:pose",

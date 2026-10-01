@@ -2,12 +2,52 @@
   "formatVersion": 2,
   "layers": [
     {
-      "comment": "Golems wander at about 0.0496 blocks a tick, just under the MOVING_HORIZONTALLY dead zone (0.05), so the walk goes by the golem's own speed thresholds, apart to keep it from flickering.",
+      "comment": "Golems wander at about 0.0496 blocks a tick, just under the MOVING_HORIZONTALLY dead zone (0.05), so the walk goes by the golem's own speed thresholds, apart to keep it from flickering. Between the two thresholds the selector chooses nothing, so the golem keeps standing or walking; landing between them, it walks (the jump's connection).",
       "expressions": {
         "walkStart": 0.02,
         "walkStop": 0.01
       },
-      "entryNode": "stand",
+      "conditions": {
+        "jumping": {
+          "type": "core:or",
+          "conditions": [
+            {
+              "type": "core:state",
+              "state": "AIRBORNE"
+            },
+            {
+              "type": "core:compare",
+              "left": "ticksAfterTouchdown",
+              "op": "<",
+              "right": 1
+            }
+          ]
+        }
+      },
+      "select": [
+        {
+          "when": "jumping",
+          "then": "jump"
+        },
+        {
+          "when": {
+            "type": "core:compare",
+            "left": "xzMotionMagnitude",
+            "op": ">=",
+            "right": "walkStart"
+          },
+          "then": "walk"
+        },
+        {
+          "when": {
+            "type": "core:compare",
+            "left": "xzMotionMagnitude",
+            "op": "<",
+            "right": "walkStop"
+          },
+          "then": "stand"
+        }
+      ],
       "nodes": {
         "stand": {
           "type": "core:pose",
@@ -79,35 +119,6 @@
                 "right": 0
               }
             }
-          ],
-          "connections": [
-            {
-              "target": "jump",
-              "triggerCondition": {
-                "type": "core:or",
-                "conditions": [
-                  {
-                    "type": "core:state",
-                    "state": "AIRBORNE"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterTouchdown",
-                    "op": "<",
-                    "right": 1
-                  }
-                ]
-              }
-            },
-            {
-              "target": "walk",
-              "triggerCondition": {
-                "type": "core:compare",
-                "left": "xzMotionMagnitude",
-                "op": ">=",
-                "right": "walkStart"
-              }
-            }
           ]
         },
         "walk": {
@@ -170,35 +181,6 @@
                 "left": "attackTimer",
                 "op": ">",
                 "right": 0
-              }
-            }
-          ],
-          "connections": [
-            {
-              "target": "jump",
-              "triggerCondition": {
-                "type": "core:or",
-                "conditions": [
-                  {
-                    "type": "core:state",
-                    "state": "AIRBORNE"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterTouchdown",
-                    "op": "<",
-                    "right": 1
-                  }
-                ]
-              }
-            },
-            {
-              "target": "stand",
-              "triggerCondition": {
-                "type": "core:compare",
-                "left": "xzMotionMagnitude",
-                "op": "<",
-                "right": "walkStop"
               }
             }
           ]
@@ -279,53 +261,13 @@
           ],
           "connections": [
             {
-              "target": "stand",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:and",
-                    "conditions": [
-                      {
-                        "type": "core:state",
-                        "state": "ON_GROUND"
-                      },
-                      {
-                        "type": "core:compare",
-                        "left": "ticksAfterTouchdown",
-                        "op": ">=",
-                        "right": 1
-                      }
-                    ]
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "xzMotionMagnitude",
-                    "op": "<",
-                    "right": "walkStop"
-                  }
-                ]
-              }
-            },
-            {
               "target": "walk",
               "triggerCondition": {
                 "type": "core:and",
                 "conditions": [
                   {
-                    "type": "core:and",
-                    "conditions": [
-                      {
-                        "type": "core:state",
-                        "state": "ON_GROUND"
-                      },
-                      {
-                        "type": "core:compare",
-                        "left": "ticksAfterTouchdown",
-                        "op": ">=",
-                        "right": 1
-                      }
-                    ]
+                    "type": "core:not",
+                    "condition": "jumping"
                   },
                   {
                     "type": "core:compare",
@@ -342,7 +284,7 @@
     },
     {
       "comment": "The golem stands and walks on its feet: step_turn plants them in the world, turns the body only as far as they have stepped (the leg on the side of the turn first) and, walking, steps the foot left behind to where the body will be, shifting and rolling the weight over the planted one. It is off while the golem jumps. Vanilla rocks the whole golem side to side while it walks (RenderIronGolem.applyRotations: 6.5° on a triangle wave of the limb swing, while limbSwingAmount >= 0.01); the render rotation turns it back first. The upper body reacts: the torso leads a turn, the arms lag behind it, swing against the legs and out when a foot lands, the head keeps looking where the golem looks.",
-      "entryNode": "planted",
+      "defaultOnEntry": "planted",
       "nodes": {
         "planted": {
           "type": "core:pose",

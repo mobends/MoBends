@@ -171,11 +171,32 @@ smoothing at all.
 
 ### Choosing between states
 
-A node's connections are checked in order and the first one met fires, so list them by
-priority. Make sure a node never leaves while its own reason to be there still holds: `jump`
-only goes to `stand` when the entity is on the ground *and* has been for a tick *and* is still,
-otherwise it would bounce between the two while hopping in place. Use `transitionDuration` (ticks)
-to crossfade; an interrupted crossfade continues from what is on screen.
+Write the layer's `select`: a decision tree, most important state first. Each branch only
+applies when the ones before it don't, so each branch states only its own condition, and the layer
+stays in a node for as long as the tree keeps choosing it:
+
+```json
+"conditions": {"jumping": {"type": "core:or", "conditions": [
+  {"type": "core:state", "state": "AIRBORNE"},
+  {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 1}]}},
+"select": [
+  {"when": "jumping", "then": "jump"},
+  {"when": {"type": "core:state", "state": "STANDING_STILL"}, "then": "stand"},
+  {"then": "walk"}
+]
+```
+
+A branch whose `then` is a list decides inside it (the player's airborne states: flying, falling,
+sprint-jumping, jumping). Leave out the last `then` to let a node hold on until a branch applies:
+a mob that starts walking above one speed and stops below a lower one keeps doing what it did in
+between. Name the conditions you use more than once (`conditions`, then the name as a string).
+Use `transitionDuration` (ticks) on a branch to crossfade; an interrupted crossfade continues from
+what is on screen.
+
+What depends on where the layer comes from goes in a node's `connections`, checked when the
+selectors keep the layer where it is: a jump starting over when the entity bounces, a clip that
+has to finish before the next one (`core:animation_finished`), a sequence like sitting down,
+sitting and standing up.
 
 ### Variants of one animation
 
@@ -186,24 +207,36 @@ variable the data class sets, and let it override or add to the base:
 {"mode": "ADDITIVE",
  "additiveSpace": {"default": "PRE", "body": "POST", "root": "OVERRIDE"},
  "when": {"type": "core:compare", "left": "animationSet", "op": "==", "right": 0},
- "entryNode": "lean", "nodes": { … }}
+ "defaultOnEntry": "lean", "nodes": { … }}
 ```
 
 ### Combos and other sequences
 
-To react to each new attack, use `core:decreased` on `ticksAfterAttack` (it drops to 0 on every
-swing) and count with layer variables set by the connection that fires:
+Group the nodes of a sequence in a machine. The layer's selector picks the machine; the machine's
+own selector picks where to rest inside it, and its connections, which lead out of any of its
+nodes, play the sequence. To react to each new attack, use `core:decreased` on
+`ticksAfterAttack` (it drops to 0 on every swing) and count with layer variables set by the
+connection that fires:
 
 ```json
-{"target": "slash_up",
- "triggerCondition": {"type": "core:and", "conditions": [
-   {"type": "core:decreased", "value": "ticksAfterAttack"},
-   {"type": "core:compare", "left": "combo", "op": "==", "right": 0}]},
- "set": {"combo": 1}}
+"select": [{"when": {"type": "core:property", "property": "attackActionType", "value": "SWORD"},
+            "then": "sword", "set": {"combo": 0}}],
+"machines": {"sword": {
+  "defaultOnEntry": "sword_idle",
+  "conditions": {"attacked": {"type": "core:decreased", "value": "ticksAfterAttack"}},
+  "select": [{"when": {"type": "core:compare", "left": "ticksAfterAttack", "op": ">=", "right": 10}, "then": "sword_idle"}],
+  "connections": [
+    {"target": "slash_up", "set": {"combo": 1},
+     "triggerCondition": {"type": "core:and", "conditions": ["attacked", {"type": "core:compare", "left": "combo", "op": "==", "right": 0}]}},
+    …
+  ],
+  "nodes": {"sword_idle": {…}, "slash_up": {…}, …}}}
 ```
 
-Declare the variables on the layer (`"variables": {"combo": 0}`), and reset them with a
-`core:set` driver or another connection's `set` once the combo window has passed.
+The slashes aren't in the machine's selector, which chooses nothing while a slash plays (the
+first ten ticks), so the slash holds until the selector chooses `sword_idle` or the next attack
+fires a connection. Declare the variables on the layer (`"variables": {"combo": 0}`), and reset
+them with a `core:set` driver or a `set` once the combo window has passed.
 
 ### Left- and right-handed
 
@@ -241,11 +274,13 @@ An extension adds layers on top of an existing animator. Start the layer on a `c
 node, so the entity's own animation shows, and crossfade into your node when it applies:
 
 ```json
+"select": [
+  {"when": {"type": "core:state", "state": "STANDING_STILL"}, "then": "wave", "transitionDuration": 8},
+  {"then": "through", "transitionDuration": 8}
+],
 "nodes": {
-  "through": {"type": "core:fallthrough",
-              "connections": [{"target": "wave", "transitionDuration": 8,
-                               "triggerCondition": {"type": "core:state", "state": "STANDING_STILL"}}]},
-  "wave": {"pose": [ … ], "connections": [ … back to "through" … ]}
+  "through": {"type": "core:fallthrough"},
+  "wave": {"pose": [ … ]}
 }
 ```
 

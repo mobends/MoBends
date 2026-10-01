@@ -28,4 +28,7 @@ public class AnimatorTemplate
     /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
     public Map<String, ExpressionTemplate> expressions;
 
+    /** Named conditions, visible to everything inside (see misc/kumo-format.md, "Conditions"). */
+    public Map<String, TriggerConditionTemplate> conditions;
+
 }

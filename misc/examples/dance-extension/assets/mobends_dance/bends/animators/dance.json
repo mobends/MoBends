@@ -8,23 +8,19 @@
   },
   "layers": [
     {
-      "entryNode": "rest",
+      "select": [
+        {"when": {"type": "core:and", "conditions": [
+          {"type": "core:state", "state": "STANDING_STILL"},
+          {"type": "core:state", "state": "ON_GROUND"}
+        ]}, "then": "dance", "transitionDuration": 6},
+        {"then": "rest", "transitionDuration": 6}
+      ],
       "nodes": {
         "rest": {
           "comment": "The mob's own animation doesn't move its whole body, so this node puts it back in place (a fallthrough node would leave it wherever the dance stopped).",
           "pose": [
             {"driver": "core:vector", "bone": "globalOffset", "x": 0, "y": 0, "z": 0, "snap": true},
             {"driver": "core:axis_rotate", "bone": "renderRotation", "axis": "Z", "angle": 0, "space": "OVERRIDE", "snap": true}
-          ],
-          "connections": [
-            {
-              "target": "dance",
-              "transitionDuration": 6,
-              "triggerCondition": {"type": "core:and", "conditions": [
-                {"type": "core:state", "state": "STANDING_STILL"},
-                {"type": "core:state", "state": "ON_GROUND"}
-              ]}
-            }
           ]
         },
         "dance": {
@@ -33,16 +29,6 @@
             {"driver": "core:vector", "bone": "globalOffset", "x": {"mul": ["sway", 1.5]}, "y": {"mul": ["bounce", 2.5]}, "z": 0, "snap": true},
             {"driver": "core:axis_rotate", "bone": "renderRotation", "axis": "Z", "angle": {"mul": ["sway", -8]}, "space": "OVERRIDE", "snap": true},
             {"driver": "core:axis_rotate", "bone": "head", "axis": "X", "angle": {"mul": [{"sub": [1, "bounce"]}, 15]}, "space": "POST"}
-          ],
-          "connections": [
-            {
-              "target": "rest",
-              "transitionDuration": 6,
-              "triggerCondition": {"type": "core:or", "conditions": [
-                {"type": "core:state", "state": "MOVING_HORIZONTALLY"},
-                {"type": "core:state", "state": "AIRBORNE"}
-              ]}
-            }
           ]
         }
       }

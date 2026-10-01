@@ -2,10 +2,59 @@
   "formatVersion": 2,
   "layers": [
     {
-      "entryNode": "idle",
+      "defaultOnEntry": "idle",
       "variables": {
         "resetLimbs": 1
       },
+      "conditions": {
+        "jumping": {
+          "type": "core:or",
+          "conditions": [
+            {
+              "type": "core:state",
+              "state": "AIRBORNE"
+            },
+            {
+              "type": "core:compare",
+              "left": "ticksAfterTouchdown",
+              "op": "<",
+              "right": 1
+            }
+          ]
+        }
+      },
+      "select": [
+        {
+          "when": {
+            "type": "core:compare",
+            "left": "health",
+            "op": "<=",
+            "right": 0
+          },
+          "then": "death"
+        },
+        {
+          "when": {
+            "type": "core:state",
+            "state": "BESIDE_CLIMBABLE"
+          },
+          "then": "crawl"
+        },
+        {
+          "when": "jumping",
+          "then": "jump"
+        },
+        {
+          "when": {
+            "type": "core:state",
+            "state": "STANDING_STILL"
+          },
+          "then": "idle"
+        },
+        {
+          "then": "move"
+        }
+      ],
       "nodes": {
         "idle": {
           "type": "core:pose",
@@ -127,126 +176,6 @@
               },
               "vectorModes": {
                 "localOffset": "SLIDE"
-              }
-            }
-          ],
-          "connections": [
-            {
-              "target": "death",
-              "triggerCondition": {
-                "type": "core:compare",
-                "left": "health",
-                "op": "<=",
-                "right": 0
-              }
-            },
-            {
-              "target": "crawl",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "BESIDE_CLIMBABLE"
-                  }
-                ]
-              }
-            },
-            {
-              "target": "jump",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:or",
-                    "conditions": [
-                      {
-                        "type": "core:state",
-                        "state": "AIRBORNE"
-                      },
-                      {
-                        "type": "core:compare",
-                        "left": "ticksAfterTouchdown",
-                        "op": "<",
-                        "right": 1
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "target": "move",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:or",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "AIRBORNE"
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterTouchdown",
-                          "op": "<",
-                          "right": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    }
-                  }
-                ]
               }
             }
           ]
@@ -407,123 +336,6 @@
                 "localOffset": "SLIDE"
               }
             }
-          ],
-          "connections": [
-            {
-              "target": "death",
-              "triggerCondition": {
-                "type": "core:compare",
-                "left": "health",
-                "op": "<=",
-                "right": 0
-              }
-            },
-            {
-              "target": "crawl",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "BESIDE_CLIMBABLE"
-                  }
-                ]
-              }
-            },
-            {
-              "target": "jump",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:or",
-                    "conditions": [
-                      {
-                        "type": "core:state",
-                        "state": "AIRBORNE"
-                      },
-                      {
-                        "type": "core:compare",
-                        "left": "ticksAfterTouchdown",
-                        "op": "<",
-                        "right": 1
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "target": "idle",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:or",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "AIRBORNE"
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterTouchdown",
-                          "op": "<",
-                          "right": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
-                ]
-              }
-            }
           ]
         },
         "jump": {
@@ -531,6 +343,9 @@
           "tags": [
             "jump"
           ],
+          "set": {
+            "resetLimbs": 1
+          },
           "pose": [
             {
               "animationKey": "mobends:bends/animations/spider/jump.json",
@@ -1043,139 +858,6 @@
                 "localOffset": "SLIDE"
               }
             }
-          ],
-          "connections": [
-            {
-              "target": "death",
-              "triggerCondition": {
-                "type": "core:compare",
-                "left": "health",
-                "op": "<=",
-                "right": 0
-              }
-            },
-            {
-              "target": "crawl",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "BESIDE_CLIMBABLE"
-                  }
-                ]
-              }
-            },
-            {
-              "target": "idle",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:or",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "AIRBORNE"
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterTouchdown",
-                          "op": "<",
-                          "right": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
-                ]
-              },
-              "set": {
-                "resetLimbs": 1
-              }
-            },
-            {
-              "target": "move",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:or",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "AIRBORNE"
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterTouchdown",
-                          "op": "<",
-                          "right": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    }
-                  }
-                ]
-              },
-              "set": {
-                "resetLimbs": 1
-              }
-            }
           ]
         },
         "crawl": {
@@ -1307,151 +989,6 @@
                 "localOffset": "SLIDE"
               }
             }
-          ],
-          "connections": [
-            {
-              "target": "death",
-              "triggerCondition": {
-                "type": "core:compare",
-                "left": "health",
-                "op": "<=",
-                "right": 0
-              }
-            },
-            {
-              "target": "jump",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:or",
-                    "conditions": [
-                      {
-                        "type": "core:state",
-                        "state": "AIRBORNE"
-                      },
-                      {
-                        "type": "core:compare",
-                        "left": "ticksAfterTouchdown",
-                        "op": "<",
-                        "right": 1
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "target": "idle",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:or",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "AIRBORNE"
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterTouchdown",
-                          "op": "<",
-                          "right": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
-                ]
-              }
-            },
-            {
-              "target": "move",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:or",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "AIRBORNE"
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterTouchdown",
-                          "op": "<",
-                          "right": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    }
-                  }
-                ]
-              }
-            }
           ]
         },
         "death": {
@@ -1578,163 +1115,6 @@
                 ]
               },
               "space": "PRE"
-            }
-          ],
-          "connections": [
-            {
-              "target": "crawl",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "BESIDE_CLIMBABLE"
-                  }
-                ]
-              }
-            },
-            {
-              "target": "jump",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:or",
-                    "conditions": [
-                      {
-                        "type": "core:state",
-                        "state": "AIRBORNE"
-                      },
-                      {
-                        "type": "core:compare",
-                        "left": "ticksAfterTouchdown",
-                        "op": "<",
-                        "right": 1
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "target": "idle",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:or",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "AIRBORNE"
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterTouchdown",
-                          "op": "<",
-                          "right": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
-                ]
-              }
-            },
-            {
-              "target": "move",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:compare",
-                      "left": "health",
-                      "op": "<=",
-                      "right": 0
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "BESIDE_CLIMBABLE"
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:or",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "AIRBORNE"
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterTouchdown",
-                          "op": "<",
-                          "right": 1
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    }
-                  }
-                ]
-              }
             }
           ]
         }

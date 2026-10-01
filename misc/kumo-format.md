@@ -10,6 +10,7 @@ smooths them.
   "formatVersion": 2,
   "extends": "mobends:bends/animators/biped.json",
   "expressions": { ... },
+  "conditions": { ... },
   "layers": [ ... ]
 }
 ```
@@ -18,13 +19,14 @@ smooths them.
 model definitions); each format is numbered on its own, and all of
 them are at 2. A file written for another version of its format is refused with a message saying
 so (an older one would be upgraded on load, once there is one to upgrade from). `extends` puts a parent animator's layers first; the parent's version is checked too.
-`expressions` declares named expressions (see *Expressions*); layers and nodes can declare their
-own too.
+`expressions` declares named expressions (see *Expressions*) and `conditions` named conditions
+(see *Conditions*); layers, machines and nodes can declare their own too.
 
 ## Layers
 
-Layers evaluate in order into one pose. Each has a node graph; the current node's pose stack
-produces the layer's pose, which composites onto the result.
+Layers evaluate in order into one pose. Each is a state machine of nodes: its current node's pose
+stack produces the layer's pose, which composites onto the result. How the layer picks its current
+node is in *Choosing the node*.
 
 | field | meaning |
 |---|---|
@@ -32,11 +34,12 @@ produces the layer's pose, which composites onto the result.
 | `additiveSpace` | for additive layers: `"PRE"` / `"POST"`, or `{"default": "PRE", "body": "POST"}` |
 | `when` | a condition; while it does not hold the layer writes nothing and its clocks pause |
 | `variables` | layer variables and their initial values, e.g. `{"combo": 0}` |
-| `expressions` | named expressions visible to the layer's nodes (see *Expressions*) |
+| `expressions`, `conditions` | named expressions and conditions visible inside the layer (see *Expressions*, *Conditions*) |
 | `damping` | default damping for the bones the layer writes (nodes and items override) |
 | `mask` | `{"mode": "INCLUDE_ONLY", "includedParts": ["mouth"]}` (or `EXCLUDE_ONLY`): the bones the layer may write |
 | `mirror` | `{"when": <condition>, "pairs": [["leftArm","rightArm"], ...], "negate": ["headYaw"]}`: the rule items with `"mirror"` / `"swapSides"` follow |
-| `entryNode`, `nodes` | the entry node's name and a map of nodes by name |
+| `nodes`, `machines` | the layer's nodes and machines, as maps by name |
+| `select`, `connections`, `defaultOnEntry` | how the layer picks its node (see *Choosing the node*) |
 
 ## Nodes
 
@@ -49,24 +52,21 @@ produces the layer's pose, which composites onto the result.
   "snapOnEnter": ["body"],
   "damping": {...},
   "set": {"combo": 0},
-  "connections": [ {"target": "jump", "triggerCondition": {...}, "transitionDuration": 0, "transitionEasing": "EASE_IN_OUT", "set": {"combo": 1}} ]
+  "connections": [ {"target": "jump", "triggerCondition": "bounced"} ]
 }
 ```
 
 * `type` is `core:pose` (the default), `core:fallthrough` or `core:vanilla`.
 * `tags` are the layer's *actions* (`core:action` sees them, in every layer).
-* `expressions` declares named expressions visible to the node's items and to the conditions of
-  its connections (see *Expressions*).
-* Connections are checked before the node is posed, so a state change shows the same frame.
-  Every condition is evaluated each frame (edge triggers stay fresh); the first one met fires.
-  A connection's `set` assigns layer variables when it fires. `transitionDuration` crossfades
-  (an interrupted crossfade continues from what was on screen); easings `LINEAR`, `EASE_IN`,
-  `EASE_OUT`, `EASE_IN_OUT`, `EXPONENTIAL`. Where one side of a crossfade poses a bone absolutely
-  and the other only relatively (PRE / POST, additive), the relative one is first resolved
-  against the layers below, so both are blended as absolute values.
+* `expressions` and `conditions` declare named expressions and conditions visible to the node's
+  items and to the conditions of its connections (see *Expressions*, *Conditions*).
+* `set` assigns layer variables when the node is entered.
+* `connections` are the node's own ways out (see *Choosing the node*).
 * Conditions with a clock or a memory (`core:ticks_passed`, `core:decreased`) start over when
-  their node is entered: in a connection, an item's `when`, a ramp's `when` and the layer's
-  mirror rule alike. A layer's own `when` starts with the layer.
+  what they are written on is entered: a node for its connections, its items' `when`s, its ramps'
+  `when`s and the layer's mirror rule; a machine for its selector and its connections, before its
+  selector chooses. A layer's own `when` starts with the layer, and its selector and connections
+  as a machine's: the layer is entered when it starts (see *Machines*).
 * A `core:fallthrough` node poses nothing, so the layers below show through; it has tags,
   connections, `set` and `expressions` like any node. A transition into or out of it fades between
   the layer's pose and the one below: what one side poses and the other doesn't is blended
@@ -76,16 +76,17 @@ produces the layer's pose, which composites onto the result.
 * A `core:vanilla` node hands the entity back to Minecraft: while any layer is in one (and that
   layer's `when` holds), the entity is drawn with its vanilla model and vanilla animation, and a
   player's first-person hand is vanilla too. The animator keeps running underneath, so its
-  connections are checked every frame and leaving the node brings the animated model back where
-  it would have been. The switch is immediate: the two models can't be blended. It poses nothing
+  layer still decides its node every frame and leaving the node brings the animated model back
+  where it would have been. The switch is immediate: the two models can't be blended. It poses nothing
   and has tags, connections, `set` and `expressions` like any node. It is meant for extensions
   that bring back animations made for the vanilla model (another mod's, say) while a condition
   holds:
 
   ```json
+  "select": [{"when": {"type": "core:action", "tag": "..."}, "then": "theirs"}, {"then": "animated"}],
   "nodes": {
-    "animated": {"type": "core:fallthrough", "connections": [{"target": "theirs", "triggerCondition": {"type": "core:action", "tag": "..."}}]},
-    "theirs": {"type": "core:vanilla", "connections": [{"target": "animated", "triggerCondition": {"type": "core:not", "condition": ...}}]}
+    "animated": {"type": "core:fallthrough"},
+    "theirs": {"type": "core:vanilla"}
   }
   ```
 
@@ -95,6 +96,110 @@ produces the layer's pose, which composites onto the result.
   Rendering: the render puts the mutated model in place and animates as usual, then, if the
   animator asks for vanilla, puts the vanilla renderer state back before the model is drawn (the
   same swap as between entities, see *Rendering: swap per render*).
+
+## Choosing the node
+
+Most of what a layer does is pick one node out of many by the entity's state, in an order of
+priority: asleep beats riding beats swimming beats jumping beats walking. A layer says so with a
+**selector**, a decision tree of conditions. What depends on where the layer is coming from (a
+combo's next move, a jump starting over, a clip that has to finish first) goes in
+**connections**. Nodes that belong together (the sword's moves) are grouped in a **machine**, which
+has a selector and connections of its own.
+
+```json
+{
+  "conditions": {
+    "jumping": {"type": "core:or", "conditions": [{"type": "core:state", "state": "AIRBORNE"},
+                                                  {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 1}]}
+  },
+  "select": [
+    {"when": {"type": "core:state", "state": "SLEEPING"}, "then": "sleeping"},
+    {"when": "jumping", "then": [
+      {"when": {"type": "core:state", "state": "FLYING"}, "then": "flying"},
+      {"then": "jump"}
+    ]},
+    {"when": {"type": "core:state", "state": "STANDING_STILL"}, "then": "stand"},
+    {"then": "walk", "transitionDuration": 4}
+  ],
+  "nodes": {"stand": {...}, "walk": {...}, "jump": {...}, "flying": {...}, "sleeping": {...}}
+}
+```
+
+### Selectors
+
+`select` is an ordered list of branches. A branch has a `when` (a condition; left out, it always
+holds) and a `then`: the name of a node or a machine, or a list of branches of its own. The first
+branch whose `when` holds is taken; a list in its `then` is chosen from the same way. Once a
+branch is taken the choice is made inside it: if nothing in its list holds, the selector chooses
+nothing, rather than going on to the branches after it. So a branch never has to repeat the
+conditions of the branches before it, and those after it only apply when the ones before don't.
+
+* Where the selector leads to what the layer is already in (the node, or the machine it is in),
+  the layer stays. Where it leads somewhere else, the layer goes there. Where it chooses nothing,
+  the layer stays too: leave out the last `then` to let a node hold on until one of the branches
+  applies (the iron golem walks from 0.02 blocks a tick and stops under 0.01; in between it keeps
+  doing what it was doing).
+* A branch can carry `transitionDuration`, `transitionEasing` and `set`, as a connection does. In
+  a nested list, the branches inside take what their enclosing branches set unless they set it
+  themselves; `set`s add up, the inner ones last.
+* A selector only names the members of its own machine (for a layer: its nodes and machines,
+  not those inside its machines).
+
+### Machines
+
+`machines` is a map of machines by name, next to `nodes`. A machine has `nodes` and `machines` of
+its own, and its own `select`, `connections`, `defaultOnEntry`, `expressions` and `conditions`. A layer
+is a machine too, with the extra fields in the table under *Layers*. Every node and machine of a
+layer has a name of its own, whatever machine it is in.
+
+* The layer is in one node at a time, and so in every machine around it. Each of them checks its
+  selector, from the layer inwards: an outer selector decides between the machines, an inner one
+  between what is inside one.
+* A layer or machine is entered the same way whether the layer is starting or a branch or a
+  connection leads into it: the conditions of its selector and connections start over, then its
+  selector chooses where it goes. Where the selector chooses nothing, its `defaultOnEntry` does: one
+  of its own nodes or machines, by default the first node it declares (its first machine if it
+  has no nodes). A machine it goes to is entered the same way, down to a node.
+* A layer is entered when it starts, on the animator's first frame (whether or not its `when`
+  holds). That is the frame's decision, and there is nothing to crossfade from: a branch's
+  `transitionDuration` and `transitionEasing` don't apply there, its `set` does. The node's
+  connections, and the selectors again, are checked from the next frame on. So `defaultOnEntry`
+  only matters where the selectors choose nothing; to open on a node the selector wouldn't choose
+  (an intro), give it a branch of its own, e.g. first, while `core:ticks_passed` doesn't hold.
+
+### Connections
+
+Connections are the ways out that depend on where the layer is. A node's `connections` lead out of
+that node, a machine's lead out of any node inside it, and a layer's out of any of its nodes.
+
+```json
+{"target": "slash_down", "triggerCondition": "attacked", "transitionDuration": 0,
+ "transitionEasing": "EASE_IN_OUT", "set": {"combo": 2}}
+```
+
+* `target` is any node or machine of the layer: a machine is entered as above. A connection to
+  where the layer already is starts that node over (a jump bouncing into another jump).
+* `set` assigns layer variables when the connection fires. `transitionDuration` (ticks)
+  crossfades (an interrupted crossfade continues from what was on screen); easings `LINEAR`,
+  `EASE_IN`, `EASE_OUT`, `EASE_IN_OUT` (the default), `EXPONENTIAL`. Where one side of a crossfade
+  poses a bone absolutely and the other only relatively (PRE / POST, additive), the relative one
+  is first resolved against the layers below, so both are blended as absolute values.
+
+### Every frame
+
+Every frame but the one the layer starts on, before the layer is posed, so a change shows on the
+frame it happens:
+
+1. The selectors of the layer and of every machine the node is in are checked, from the layer
+   inwards. The first that leads somewhere else than where the layer is wins.
+2. If none did, the connections are checked: the node's, then those of the machines around it,
+   from the innermost out to the layer's. The first one met fires.
+
+Every condition of those selectors and connections is evaluated every frame, whatever is chosen
+(edge triggers such as `core:decreased` stay fresh). When a branch or a connection leads into a
+machine, the transition (its duration, easing and `set`) is that of the branch or the connection;
+the branches the selectors of the machines entered take on the way in add their `set`s, outermost
+first, and the node entered applies its own `set` last. Each selector sees the `set`s before it.
 
 ## Pose items
 
@@ -304,12 +409,35 @@ that has a `duration` has run it; a node with no items always is, one whose item
 forever never is), and `core:and` / `core:or` / `core:not`. A condition that names a variable or
 state the subject doesn't have fails the animator (logged; the entity isn't animated). A
 condition's expressions see the named expressions where it is written: a layer's `when` sees
-the layer's; an item's, a connection's and the layer's `mirror` rule see those of the node being
+the layer's; a selector's and a machine's connections see the machine's (the layer's for its
+own); an item's, a node's connection and the layer's `mirror` rule see those of the node being
 posed.
+
+**Named conditions** are declared in a `conditions` object on the animator, a layer, a machine or
+a node, and used by writing the name as a string wherever a condition goes:
+
+```json
+"conditions": {
+  "jumping": {"type": "core:or", "conditions": [{"type": "core:state", "state": "AIRBORNE"},
+                                                {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 1}]},
+  "attacked": {"type": "core:decreased", "value": "ticksAfterAttack"},
+  "sprintJump": {"type": "core:and", "conditions": ["jumping", {"type": "core:state", "state": "SPRINTING"}]}
+}
+```
+
+* They are scoped like named expressions: visible in the scope that declares them and every scope
+  inside it, an inner declaration shadowing an outer one; a named condition is read where it is
+  declared (its expressions and the names it uses are those visible there); names can use each
+  other in any order, but not themselves. Every declaration is checked when the animator loads.
+* A name stands for a copy of the condition: every place it is used has its own, so an edge
+  trigger or a clock used in two places keeps two memories.
+* `{"type": "core:named", "name": "jumping"}` is the same as `"jumping"`.
 
 ## Semantics worth knowing
 
 * Transitions are decided before posing; a node entered this frame poses this frame.
+* A layer's selectors only move it when they lead somewhere else: the layer stays in a node for
+  as long as it is the selector's first match.
 * Smoothing lives in the subject's bones. Damping in the animator sets a bone's rate; leave it
   out and the bone keeps the rate it has.
 * An offset vector written by two layers in one frame keeps only the last write; a vector

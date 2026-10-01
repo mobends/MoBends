@@ -8,8 +8,8 @@ import goblinbob.mobends.core.kumo.state.template.*;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
 
 /**
- * Reads animators. The adapters that check or pick a template class (animators, layers, nodes,
- * pose items, trigger conditions) read the chosen class through a Gson without their own adapter,
+ * Reads animators. The adapters that check or pick a template class (animators, layers and their
+ * machines, nodes, pose items, trigger conditions) read the chosen class through a Gson without their own adapter,
  * so they don't recurse into themselves: hence one Gson per level.
  */
 public class KumoSerializer
@@ -53,6 +53,7 @@ public class KumoSerializer
     {
         return new GsonBuilder()
                 .registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer())
+                .registerTypeAdapter(BranchTemplate.class, new BranchTemplateSerializer())
                 .registerTypeAdapter(PoseItemTemplate.class, new PoseItemSerializer())
                 .registerTypeAdapter(ExpressionTemplate.class, new ExpressionTemplate.Deserializer())
                 .registerTypeAdapter(DampingTemplate.class, new DampingTemplateSerializer())
