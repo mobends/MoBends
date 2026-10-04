@@ -14,9 +14,9 @@ formats are in [`misc/kumo-format.md`](../misc/kumo-format.md); this page is how
 
 ## Entity Types
 
-A *type* decides which model and animator an entity gets, under a selector condition (entity
-type, player name or UUID, skin variant, and whatever addons register through
-`AddonAnimationRegistry.registerSelectorCondition`). Every entity bender registered in code also
+A *type* decides which model and animator an entity gets, while its selector holds (an
+expression over the entity type, the player's name or UUID, the skin variant, and whatever
+selector-safe operations addons register: see `misc/kumo-format.md`, *Selectors*). Every entity bender registered in code also
 gets a built-in type; the mobs made from model definitions get theirs from the type files in
 `assets/mobends/bends/types/`. A type file adds or overrides.
 

@@ -11,6 +11,10 @@ public class EntityPlayer extends EntityLivingBase
     public float cameraYaw, prevCameraYaw;
     public float distanceWalkedModified, prevDistanceWalkedModified;
 
+    public com.mojang.authlib.GameProfile gameProfile = new com.mojang.authlib.GameProfile(java.util.UUID.fromString("00000000-0000-0000-0000-00000000ab1e"), "LabPlayer");
+
     public EntityPlayer(World world) { super(world); }
+
+    public com.mojang.authlib.GameProfile getGameProfile() { return gameProfile; }
 
 }

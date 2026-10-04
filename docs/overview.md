@@ -43,8 +43,8 @@ Modules implement `IModule` with `preInit()` and `onRefresh()`. Active modules:
 
 Third-party addons implement `IAddon`:
 - `registerContent(AddonAnimationRegistry)` — register entity benders, KUMO operations (see
-  [animation.md](animation.md), *Operations in Java*) and drivers, and selector conditions for
-  entity types. An addon registered before the client core exists has its content registered as
+  [animation.md](animation.md), *Operations in Java*), the selector-safe ones among them, which
+  type files' selectors read, and drivers. An addon registered before the client core exists has its content registered as
   soon as it does; registering after the first animator has loaded is refused
 - `onRenderTick`, `onClientTick`, `onRefresh` — lifecycle callbacks
 

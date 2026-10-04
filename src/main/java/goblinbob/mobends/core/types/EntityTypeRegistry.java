@@ -8,7 +8,7 @@ import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
-import goblinbob.mobends.core.types.selector.CoreSelectorConditions;
+import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -271,7 +271,7 @@ public class EntityTypeRegistry
             }
             for (ResourceLocation entityType : entityTypes)
             {
-                Class<?> entityClass = CoreSelectorConditions.PLAYER.equals(entityType)
+                Class<?> entityClass = MinecraftKumoOperations.PLAYER.equals(entityType)
                         ? AbstractClientPlayer.class
                         : EntityList.getClass(entityType);
                 if (entityClass != null && EntityBenderRegistry.instance.getDefaultBender(entityClass) == bender)

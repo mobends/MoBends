@@ -760,7 +760,7 @@ mob. Mo' Bends' own are in `assets/mobends/bends/types/`:
 {
   "formatVersion": 2,
   "id": "mobends:cow",
-  "selector": {"type": "core:entity_type", "entityType": "minecraft:cow"},
+  "selector": {"core:entity_type": ["minecraft:cow"]},
   "model": "mobends:bends/models/cow.json"
 }
 ```
@@ -863,16 +863,13 @@ in `assets/<namespace>/bends/types/**.json` of any mod or resource pack. Mo' Ben
 in every pack (mods first, then resource packs from the bottom of the list up, then folders on
 the classpath no pack covered, which is how a development environment's resources are found).
 Within one pack, files are read in path order. A mod or a pack animates a mob with JSON only; no
-Java addon is needed unless it brings its own conditions or drivers.
+Java addon is needed unless it brings its own operations or drivers.
 
 ```json
 {
   "formatVersion": 2,
   "id": "yourpack:notch_zombie_arms",
-  "selector": {"type": "core:and", "conditions": [
-    {"type": "core:entity_type", "entityType": "minecraft:player"},
-    {"type": "core:player_name", "name": "Notch"}
-  ]},
+  "selector": {"and": [{"core:entity_type": ["minecraft:player"]}, {"core:player_name": ["Notch"]}]},
   "animator": "yourpack:bends/animators/zombie_arms.json"
 }
 ```
@@ -881,7 +878,7 @@ Java addon is needed unless it brings its own conditions or drivers.
 |---|---|
 | `formatVersion` | `2` |
 | `id` | identifies the type; ranks are stored by it. Two types with the same id: a warning, and the one from the higher-priority pack is used (the server's resource pack, then the enabled resource packs from the top of the list, then mods) |
-| `selector` | a condition on the entity; absent means the type applies to every entity |
+| `selector` | a condition on the entity, an expression (see *Selectors*); absent means the type applies to every entity |
 | `model` | optional: a bender key (`mobends:player`, `mobends:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
 | `animator` | optional: the animator asset. Absent: the model's own animator |
 
@@ -898,28 +895,36 @@ registered for a superclass. The bender a type makes from a model definition has
 key (`mobends:cow`), and Mo' Bends gives its own types the same id, so extensions name either
 the same way.
 
-## Selector conditions
+## Selectors
 
-Selector conditions have their own registry (`SelectorConditionRegistry`). They are evaluated
-against the entity before any entity data exists; they are not KUMO trigger conditions. Built in:
+A selector is a boolean expression (see *Expressions*), run against the entity before any entity
+data exists: it reads no names (no built-ins, no definitions) and only the **selector-safe**
+operations, which read the entity alone; anything else in a selector is a load error, and so is
+an edge trigger (`decreased`, `rose`, `fell`), which would have nothing to remember. `and`, `or`,
+`not` and `if` combine them. The selector-safe operations:
 
-| condition | fields |
-|---|---|
-| `core:and`, `core:or` | `conditions` |
-| `core:not` | `condition` |
-| `core:entity_type` | `entityType` or `entityTypes`: registry ids; `minecraft:player` stands for players, which have none |
-| `core:player_name` | `name` or `names`: the profile name, ignoring case (never the display name) |
-| `core:player_uuid` | `uuid` or `uuids`: stays the same when the player renames |
-| `mobends:skin_variant` | `variant`: `default` or `slim` |
+| operation | arguments | holds for |
+|---|---|---|
+| `core:entity_type` | one or more registry ids; `minecraft:player` stands for players, which have none | an entity of one of these types |
+| `core:player_name` | one or more names | a player whose profile name (never the display name) is one of these, ignoring case |
+| `core:player_uuid` | one or more UUIDs | a player with one of these UUIDs, which stay the same when it renames |
+| `mobends:skin_variant` | `default` or `slim` | a player whose skin has these arms |
 
-Addons add conditions with `AddonAnimationRegistry.registerSelectorCondition`, which prefixes
-their key with the mod id.
+```json
+"selector": {"and": [{"core:entity_type": ["minecraft:player"]},
+                     {"or": [{"core:player_name": ["Notch", "jeb_"]}, {"mobends:skin_variant": ["slim"]}]}]}
+```
 
-A condition says whether its answer can change during an entity's life (`isStable`). A player's
-name can't. A skin variant can: it reads as `default` until the skin downloads. The types whose
-selector holds are cached per entity (weakly, so unloaded entities aren't kept alive); types with
-an unstable selector are asked again every frame, and an entity can change type mid-life. Its
-data is then made anew by the new type's factory.
+A mod adds its own (`KumoOperation...selectorSafe(stable)`, see `docs/animation.md`, *Operations
+in Java*); they can be used in animators too. An operation says whether its answer can change
+during an entity's life: a player's name can't; a skin variant can, as it reads `default` until
+the skin downloads. The types whose selector holds are cached per entity (weakly, so unloaded
+entities aren't kept alive); types whose selector holds an operation that can change are asked
+again every frame, and an entity can change type mid-life. Its data is then made anew by the new
+type's factory.
+
+The entity types a selector requires (its `core:entity_type` ids, but not under a `not`) list the
+type under those entities in the settings.
 
 ## Precedence
 
@@ -928,11 +933,11 @@ sorted by these keys, most significant first (`TypeOrder`):
 
 1. **rank**, higher first. Every type starts at rank 0; only the user sets ranks.
 2. **the number of conditions** of the selector, higher first: a broad assumption that more
-   conditions make a more specific type, knowingly allowing false positives. Every condition
-   other than `core:and` / `core:or` / `core:not` counts 1, whatever it means; `core:and` counts
-   the sum of its conditions, `core:or` the fewest of any of its conditions (it only holds as
-   narrowly as its broadest branch), and `core:not` 1. A type without a selector counts 0;
-   built-in types count 1.
+   conditions make a more specific type, knowingly allowing false positives. Every operation
+   other than `and`, `or`, `not` and `if` counts 1, whatever it means; `and` counts the sum of
+   its conditions, `or` the fewest of any of its conditions (it only holds as narrowly as its
+   broadest branch), `not` 1, and `if` its condition plus the fewer of its two branches'. A
+   constant counts 0, and so does a type without a selector; built-in types count 1.
 3. **id**, plain lexical order, earlier first; the final tie breaker, so the result never depends
    on load order.
 

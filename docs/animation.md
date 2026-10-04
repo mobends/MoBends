@@ -117,7 +117,9 @@ registry.registerOperation(KumoOperation.named("distance_to_nearest")
   expression of that type, `CONSTANT` a number written out, `STRING` a string written out, and
   `choice(...)` one of a set; the last may repeat), the result type, whether it takes a
   `@fallback`, whether it is **pure** (same arguments, same result: with constant arguments it is
-  computed once, at load) and whether a type file's selector may use it (**selector-safe**).
+  computed once, at load) and whether a type file's selector may use it (**selector-safe**:
+  `selectorSafe(stable)`, for an operation that reads the entity alone, and says whether its
+  answer for one entity can change during the entity's life).
   Arguments are checked when the animator loads, and mistakes are reported in the operation's own
   words (`args.error(i, ...)`).
 * **Bind** runs once per use, when the animator is loaded for an entity class (`args.entityClass()`):

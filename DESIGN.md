@@ -20,18 +20,12 @@ is implemented, the spec is updated and the entry can leave this document.
 
 ## Files
 
-- **Type files** say which model and animator an entity gets while a selector holds. The
-  selector is an expression over operations that need no entity data (`core:entity_type`,
-  `core:player_name`, `core:player_uuid`, `mobends:skin_variant`).
+- **Type files** say which model and animator an entity gets while a selector holds (spec,
+  *Selectors*).
 - **Model definitions** describe a mob's bones over its vanilla model, and the values the mob
   exposes to animators: they are the only files that declare `entity.` definitions.
 - **Animators** are layers of state machines whose nodes pose the bones.
 - **Extensions** add layers on top of a type's animator.
-
-**Type selector precedence** counts conditions as today, over expressions: an operation that
-isn't `and`, `or`, `not` or `if` counts 1 (comparisons included); `and` counts the sum of its
-operands, `or` the fewest of any operand (it holds only as narrowly as its broadest branch),
-`not` 1, and `if` its condition plus the fewer of its two branches.
 
 **Every mob is described by files.** Mo' Bends' own mobs, the player included, are type files
 plus model definitions like any mod's or resource pack's: `mobends:player` is a type file Mo'
@@ -277,10 +271,6 @@ Still to come:
   `core:offset`, `core:accumulate`, the cape, the sword trail, the spider's) move to the API with
   theirs. Feet are positions in the world, which floats round far from the origin (a float has
   1/16 of a block at a million blocks out): declared state keeps them relative to the entity.
-- **Selector-safe operations** are flagged (`selectorSafe()`): they bind against the entity class
-  and evaluate against the selector context (player name, UUID, skin variant), not entity data.
-  Any other operation in a type file's selector is a load error. This replaces
-  `registerSelectorCondition` (task 13).
 
 ## Runtime
 
@@ -356,8 +346,7 @@ An audit of the v2 format (`misc/kumo-format.md`, the deserializers in
 ### Conditions become expressions
 
 Done in the animators (named conditions are named expressions; `core:action` is an operation
-until tags go). Still to do: type-file selectors (`core:entity_type`, ..., and their own `and` /
-`or` / `not`) use the same syntax.
+until tags go), and in type-file selectors (task 13).
 
 ### Named values become definitions
 
@@ -418,8 +407,7 @@ entity.
 
 ### Addon API
 
-`registerSelectorCondition` goes away (selector operations are flagged operations). Drivers keep
-their Gson template classes, with the typed field set; `IPoseItem`'s `onNodeStarted` / `advance`
+Drivers keep their Gson template classes, with the typed field set; `IPoseItem`'s `onNodeStarted` / `advance`
 and the state in Java fields give way to declared state.
 
 ## Background: what data classes do
@@ -724,7 +712,7 @@ the additive and smaller ones.
     `core:is_flying`; `mobends:use_action`, `mobends:attack_action`, the wolf's and the spider's
     operations, `mobends:spin_attack_enabled` (*Values specific to a mob*). The spider's wall
     rotation goes with its crawl state, into its own files.
-13. [ ] **Type-file selectors as expressions**: the selector operations (`core:entity_type`,
+13. [x] **Type-file selectors as expressions**: the selector operations (`core:entity_type`,
     `core:player_name`, `core:player_uuid`, `mobends:skin_variant`) and precedence counted over
     expressions (*Files*).
 

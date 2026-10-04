@@ -56,6 +56,7 @@ val modIncludes = listOf(
     "goblinbob/mobends/core/kumo/**",
     "goblinbob/mobends/core/definition/**",
     "goblinbob/mobends/core/types/TypeOrder.java",
+    "goblinbob/mobends/core/types/selector/**",
     "goblinbob/mobends/core/types/EntityTypeDefinition.java",
     "goblinbob/mobends/core/types/ExtensionDefinition.java",
     "goblinbob/mobends/core/types/Extension.java",

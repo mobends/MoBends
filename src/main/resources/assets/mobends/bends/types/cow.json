@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
   "id": "mobends:cow",
-  "selector": {"type": "core:entity_type", "entityType": "minecraft:cow"},
+  "selector": {"core:entity_type": ["minecraft:cow"]},
   "model": "mobends:bends/models/cow.json"
 }

@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.types;
 
+import goblinbob.mobends.core.types.selector.SelectorExpression;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -17,10 +18,7 @@ import goblinbob.mobends.core.util.FormatVersion;
  * {
  *   "formatVersion": 2,
  *   "id": "mobends:example_notch",
- *   "selector": {"type": "core:and", "conditions": [
- *     {"type": "core:entity_type", "entityType": "minecraft:player"},
- *     {"type": "core:player_name", "names": ["Notch"]}
- *   ]},
+ *   "selector": {"and": [{"core:entity_type": ["minecraft:player"]}, {"core:player_name": ["Notch"]}]},
  *   "animator": "mobends:bends/animators/example_zombie_walk.json"
  * }
  * </pre>
@@ -39,8 +37,8 @@ public class EntityTypeDefinition
     /** Identifies the type (ranks are stored by it); two types with one id: the higher-priority pack's wins. */
     public String id;
 
-    /** Optional: when it's absent the type applies to every entity. */
-    public JsonObject selector;
+    /** A boolean expression over the selector-safe operations (see {@link SelectorExpression}); when it's absent the type applies to every entity. */
+    public JsonElement selector;
 
     /**
      * Optional: a bender key ({@code mobends:player}), a model definition
@@ -80,41 +78,10 @@ public class EntityTypeDefinition
         return model != null && model.endsWith(".json");
     }
 
-    /**
-     * The number of conditions of the selector: 1 for every condition but {@code and} (the sum of
-     * its conditions), {@code or} (the fewest of any of its conditions) and {@code not} (1).
-     */
+    /** The number of conditions of the selector, for precedence (see {@link SelectorExpression#countConditions}). */
     public int specificity()
     {
-        return countConditions(selector);
-    }
-
-    static int countConditions(JsonElement element)
-    {
-        if (element == null || !element.isJsonObject())
-        {
-            return 0;
-        }
-        JsonObject condition = element.getAsJsonObject();
-        String type = condition.has("type") ? condition.get("type").getAsString() : "";
-        switch (type)
-        {
-            case "core:and":
-            case "core:or":
-                boolean and = "core:and".equals(type);
-                int count = and ? 0 : Integer.MAX_VALUE;
-                JsonElement children = condition.get("conditions");
-                if (children != null && children.isJsonArray())
-                {
-                    for (JsonElement child : (JsonArray) children)
-                    {
-                        count = and ? count + countConditions(child) : Math.min(count, countConditions(child));
-                    }
-                }
-                return count == Integer.MAX_VALUE ? 0 : count;
-            default:
-                return 1;
-        }
+        return SelectorExpression.countConditions(selector);
     }
 
 }

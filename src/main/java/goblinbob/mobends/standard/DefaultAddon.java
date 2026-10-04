@@ -15,7 +15,6 @@ import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate;
 import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.mutators.*;
-import goblinbob.mobends.standard.selector.SkinVariantCondition;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
@@ -51,7 +50,6 @@ public class DefaultAddon implements IAddon
 		registry.registerDriver("sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);
 		registry.registerDriver("spider_idle_legs", SpiderIdleLegsDriver::create, SpiderIdleLegsTemplate.class);
 		registry.registerDriver("spider_moving_legs", SpiderMovingLegsDriver::create, SpiderMovingLegsTemplate.class);
-		registry.registerSelectorCondition("skin_variant", SkinVariantCondition::create);
 		MoBendsOperations.register();
 	}
 

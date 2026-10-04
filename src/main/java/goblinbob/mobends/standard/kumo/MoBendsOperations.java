@@ -13,6 +13,7 @@ import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.ItemActions;
 import goblinbob.mobends.standard.UseActionType;
 import goblinbob.mobends.standard.main.ModConfig;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.passive.EntityWolf;
@@ -61,6 +62,17 @@ public final class MoBendsOperations
         KumoRegistry.registerOperation(KumoOperation.named("mobends:spin_attack_enabled")
                 .returns(Expression.Type.BOOLEAN)
                 .bind(args -> (BooleanEvaluator) (context, values) -> ModConfig.performSpinAttack));
+
+        // {"mobends:skin_variant": ["slim"]}: a player whose skin has this arm width. Players read as
+        // default until their skin has downloaded, so the answer can change.
+        KumoRegistry.registerOperation(KumoOperation.named("mobends:skin_variant")
+                .choice("variant", "default", "slim")
+                .returns(Expression.Type.BOOLEAN).selectorSafe(false)
+                .bind(args -> {
+                    String variant = args.string(0);
+                    return (BooleanEvaluator) (context, values) -> context.entity() instanceof AbstractClientPlayer
+                            && variant.equals(((AbstractClientPlayer) context.entity()).getSkinType());
+                }));
 
         // The wolf's own: vanilla's angles, in degrees, interpolated by partialTicks where vanilla does.
         KumoRegistry.registerEntityCondition("mobends:is_sitting", EntityWolf.class, EntityWolf::isSitting);

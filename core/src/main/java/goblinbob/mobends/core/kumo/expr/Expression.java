@@ -208,6 +208,10 @@ public abstract class Expression
 
     private static Expression compileName(String name, ExpressionScope scope) throws MalformedKumoTemplateException
     {
+        if (scope.isSelector())
+        {
+            throw new MalformedKumoTemplateException(String.format("A type file's selector reads no names ('%s'): it runs before the entity has any data.", name));
+        }
         if (name.indexOf('.') >= 0)
         {
             return scope.resolveScoped(name);

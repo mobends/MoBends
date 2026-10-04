@@ -104,10 +104,12 @@ public final class ExpressionOperations
         @Nullable
         private final Class<?> entityClass;
         private final boolean readsFields;
+        private final boolean inSelector;
 
         Arguments(String operation, Param[] params, Expression[] expressions, String[] strings, float[] constants, @Nullable Expression fallback,
-                  @Nullable Class<?> entityClass, boolean readsFields)
+                  @Nullable Class<?> entityClass, boolean readsFields, boolean inSelector)
         {
+            this.inSelector = inSelector;
             this.operation = operation;
             this.params = params;
             this.expressions = expressions;
@@ -129,6 +131,12 @@ public final class ExpressionOperations
         public Class<?> entityClass()
         {
             return entityClass;
+        }
+
+        /** Whether the operation is written in a type file's selector. */
+        public boolean inSelector()
+        {
+            return inSelector;
         }
 
         /** The operation's name. */
@@ -258,7 +266,7 @@ public final class ExpressionOperations
             Expression fallback = fallbackJson == null ? null : Expression.compileAny(fallbackJson, scope);
             try
             {
-                return factory.create(new Arguments(name, params, expressions, strings, constants, fallback, scope.getEntityClass(), scope.getFieldsOf() != null));
+                return factory.create(new Arguments(name, params, expressions, strings, constants, fallback, scope.getEntityClass(), scope.getFieldsOf() != null, scope.isSelector()));
             }
             catch (MalformedKumoTemplateException e)
             {
@@ -268,6 +276,7 @@ public final class ExpressionOperations
     }
 
     private static final Map<String, Operation> OPERATIONS = new HashMap<>();
+    private static final Map<String, goblinbob.mobends.core.kumo.api.KumoOperation> REGISTERED = new HashMap<>();
 
     /** Minecraft's sine table ({@code MathHelper.SIN_TABLE}): 65536 steps of a full turn. */
     private static final float[] SIN_TABLE = new float[65536];
@@ -438,6 +447,14 @@ public final class ExpressionOperations
         }
         OPERATIONS.put(operation.name, new Operation(operation.compilerParams(), operation.repeatsLast, operation.takesFallback,
                 args -> BoundOperation.compile(operation, args)));
+        REGISTERED.put(operation.name, operation);
+    }
+
+    /** The registered operation {@code name} (see {@link #register(goblinbob.mobends.core.kumo.api.KumoOperation)}), or null. */
+    @Nullable
+    public static goblinbob.mobends.core.kumo.api.KumoOperation registered(String name)
+    {
+        return REGISTERED.get(name);
     }
 
     /**

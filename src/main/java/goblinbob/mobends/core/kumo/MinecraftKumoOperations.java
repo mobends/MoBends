@@ -6,6 +6,8 @@ import goblinbob.mobends.core.kumo.api.KumoOperation;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionOperations.Kind;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -15,6 +17,10 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -26,6 +32,9 @@ public final class MinecraftKumoOperations
 {
 
     private static final String[] HANDS = {"main_hand", "off_hand"};
+
+    /** Players have no entity registry id; this one stands for them in {@code core:entity_type}. */
+    public static final ResourceLocation PLAYER = new ResourceLocation("minecraft", "player");
 
     private MinecraftKumoOperations()
     {
@@ -105,6 +114,57 @@ public final class MinecraftKumoOperations
 
         // {"core:is_flying": []}: a player flying (creative or spectator flight, not an elytra).
         KumoRegistry.registerEntityCondition("core:is_flying", EntityPlayer.class, player -> player.capabilities.isFlying);
+
+        // What a type file's selector reads: the entity alone, any entity (false where it doesn't apply).
+        // {"core:entity_type": ["minecraft:zombie", "minecraft:husk"]}: the entity's registry id is one of these.
+        KumoRegistry.registerOperation(KumoOperation.named("core:entity_type")
+                .param("entityType", Kind.STRING).repeatsLast()
+                .returns(Expression.Type.BOOLEAN).selectorSafe(true)
+                .bind(args -> {
+                    Set<ResourceLocation> types = new HashSet<>();
+                    for (int i = 0; i < args.count(); i++)
+                    {
+                        types.add(new ResourceLocation(args.string(i)));
+                    }
+                    return (BooleanEvaluator) (context, values) -> {
+                        Object entity = context.entity();
+                        ResourceLocation id = entity instanceof EntityPlayer ? PLAYER : entity instanceof Entity ? EntityList.getKey((Entity) entity) : null;
+                        return id != null && types.contains(id);
+                    };
+                }));
+        // {"core:player_name": ["Notch"]}: a player whose profile name (never the display name) is one of these, ignoring case.
+        KumoRegistry.registerOperation(KumoOperation.named("core:player_name")
+                .param("name", Kind.STRING).repeatsLast()
+                .returns(Expression.Type.BOOLEAN).selectorSafe(true)
+                .bind(args -> {
+                    Set<String> names = new HashSet<>();
+                    for (int i = 0; i < args.count(); i++)
+                    {
+                        names.add(args.string(i).toLowerCase(Locale.ROOT));
+                    }
+                    return (BooleanEvaluator) (context, values) -> context.entity() instanceof EntityPlayer
+                            && names.contains(((EntityPlayer) context.entity()).getGameProfile().getName().toLowerCase(Locale.ROOT));
+                }));
+        // {"core:player_uuid": ["069a79f4-44e9-4726-a5be-fca90e38aaf5"]}: a player with one of these UUIDs, which stay the same when it renames.
+        KumoRegistry.registerOperation(KumoOperation.named("core:player_uuid")
+                .param("uuid", Kind.STRING).repeatsLast()
+                .returns(Expression.Type.BOOLEAN).selectorSafe(true)
+                .bind(args -> {
+                    Set<UUID> uuids = new HashSet<>();
+                    for (int i = 0; i < args.count(); i++)
+                    {
+                        try
+                        {
+                            uuids.add(UUID.fromString(args.string(i)));
+                        }
+                        catch (IllegalArgumentException e)
+                        {
+                            throw args.error(i, "is not a UUID: '" + args.string(i) + "'.");
+                        }
+                    }
+                    return (BooleanEvaluator) (context, values) -> context.entity() instanceof EntityPlayer
+                            && uuids.contains(((EntityPlayer) context.entity()).getGameProfile().getId());
+                }));
     }
 
     /** Whether the entity animated is a {@code type}. */

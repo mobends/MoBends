@@ -13,8 +13,6 @@ import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.driver.IDriverFactory;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
-import goblinbob.mobends.core.types.selector.ISelectorConditionFactory;
-import goblinbob.mobends.core.types.selector.SelectorConditionRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -157,18 +155,6 @@ public class AddonAnimationRegistry
             throw new IllegalArgumentException("'" + key + "' is registered as '" + modId + ":" + key + "': name it without a namespace.");
         }
         return modId + ":" + key;
-    }
-
-    /**
-     * Registers a condition that type files can use in their selectors (see misc/kumo-format.md).
-     * @param key The internal name of the condition. (snake_case preferable)
-     *            This is going to be automatically prefixed with the modid like so "modid:key"
-     * @param factory Makes the condition from its JSON object.
-     */
-    public void registerSelectorCondition(String key, ISelectorConditionFactory factory)
-    {
-        Addons.checkRegistrationOpen();
-        SelectorConditionRegistry.INSTANCE.register(namespaced(key), factory);
     }
 
 }

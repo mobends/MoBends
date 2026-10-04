@@ -48,8 +48,14 @@ public final class KumoOperation
     public final boolean takesFallback;
     /** Whether it is a function of its arguments alone (no entity, no state): with constant arguments, it is computed once, at load. */
     public final boolean pure;
-    /** Whether a type file's selector may use it: it binds and evaluates without entity data (task 13). */
+    /** Whether a type file's selector may use it: it reads the entity alone, no entity data. */
     public final boolean selectorSafe;
+    /**
+     * Whether its value for one entity stays the same for the entity's life (a player's name does,
+     * a skin variant doesn't: it reads {@code default} until the skin downloads). A selector
+     * that holds an unstable operation is asked again every frame.
+     */
+    public final boolean stable;
     public final Binder binder;
 
     private KumoOperation(Builder builder, Binder binder)
@@ -61,6 +67,7 @@ public final class KumoOperation
         this.takesFallback = builder.takesFallback;
         this.pure = builder.pure;
         this.selectorSafe = builder.selectorSafe;
+        this.stable = builder.stable;
         this.binder = binder;
     }
 
@@ -79,6 +86,7 @@ public final class KumoOperation
         builder.takesFallback = takesFallback;
         builder.pure = pure;
         builder.selectorSafe = selectorSafe;
+        builder.stable = stable;
         return new KumoOperation(builder, binder);
     }
 
@@ -103,6 +111,7 @@ public final class KumoOperation
         private boolean takesFallback;
         private boolean pure;
         private boolean selectorSafe;
+        private boolean stable = true;
 
         private Builder(String name)
         {
@@ -158,10 +167,15 @@ public final class KumoOperation
             return this;
         }
 
-        /** A type file's selector may use it (it binds and evaluates without entity data). */
-        public Builder selectorSafe()
+        /**
+         * A type file's selector may use it: it reads the entity alone, no entity data (a selector
+         * runs before there is any). {@code stable}: its value for one entity stays the same for
+         * the entity's life, so a selector holding it needn't be asked again.
+         */
+        public Builder selectorSafe(boolean stable)
         {
             this.selectorSafe = true;
+            this.stable = stable;
             return this;
         }
 

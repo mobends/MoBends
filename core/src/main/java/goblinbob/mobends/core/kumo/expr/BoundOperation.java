@@ -31,6 +31,10 @@ final class BoundOperation
 
     static Expression compile(KumoOperation operation, ExpressionOperations.Arguments args) throws MalformedKumoTemplateException
     {
+        if (args.inSelector() && !operation.selectorSafe)
+        {
+            throw new MalformedKumoTemplateException(String.format("'%s' can't be in a type file's selector: it reads the entity's data, which doesn't exist yet.", operation.name));
+        }
         Binding binding = new Binding(args);
         Evaluator evaluator = operation.binder.bind(binding);
         Expression fallback = args.fallback();

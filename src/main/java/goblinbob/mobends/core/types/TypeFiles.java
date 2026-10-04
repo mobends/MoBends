@@ -9,7 +9,7 @@ import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
 import goblinbob.mobends.core.types.selector.ISelectorCondition;
-import goblinbob.mobends.core.types.selector.SelectorConditionRegistry;
+import goblinbob.mobends.core.types.selector.SelectorExpression;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -37,7 +37,7 @@ final class TypeFiles
             Core.LOG.warning("The server limits resource packs' animation: ignoring the type " + file.source + ", which brings its own model (" + definition.model + ")");
             return null;
         }
-        ISelectorCondition selector = definition.selector == null ? null : SelectorConditionRegistry.INSTANCE.parse(definition.selector);
+        ISelectorCondition selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
 
         EntityBender<?> model = null;
         boolean vanilla = false;

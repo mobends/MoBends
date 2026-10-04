@@ -1,5 +1,11 @@
 package goblinbob.mobends.lab;
 
+import net.minecraft.world.World;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.entity.monster.EntityZombie;
+import net.minecraft.client.Minecraft;
+import goblinbob.mobends.lab.sim.LabBootstrap;
+import goblinbob.mobends.core.types.selector.SelectorExpression;
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -25,7 +31,7 @@ import java.util.List;
 import static goblinbob.mobends.lab.scenarios.Scripts.WALK_SPEED;
 import static goblinbob.mobends.lab.scenarios.Scripts.between;
 import static goblinbob.mobends.lab.scenarios.Scripts.walk;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -97,20 +103,61 @@ public class EntityTypesTest
         assertTrue(e.getMessage().contains(message), e.getMessage());
     }
 
+    private static int specificity(String selector) throws Exception
+    {
+        return EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:t\", \"selector\": " + selector.replace('\'', '"') + "}").specificity();
+    }
+
     @Test
     void specificityCountsConditionsNotCombinators() throws Exception
     {
         assertEquals(0, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:none\"}").specificity());
-        assertEquals(1, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:one\", \"selector\": {\"type\": \"core:entity_type\", \"entityType\": \"minecraft:player\"}}").specificity());
+        assertEquals(1, specificity("{'core:entity_type': ['minecraft:player']}"));
         // An "or" is as specific as its broadest branch, a "not" counts one: nesting can't inflate it.
-        assertEquals(1, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:or\", \"selector\": {\"type\": \"core:or\", \"conditions\": ["
-                + "{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:player_name\", \"name\": \"B\"}, {\"type\": \"core:player_name\", \"name\": \"C\"}]}}").specificity());
-        assertEquals(1, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:not\", \"selector\": {\"type\": \"core:not\", \"condition\": {\"type\": \"core:and\", \"conditions\": ["
-                + "{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:player_name\", \"name\": \"B\"}]}}}").specificity());
-        assertEquals(2, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:nested\", \"selector\": {\"type\": \"core:and\", \"conditions\": ["
-                + "{\"type\": \"core:entity_type\", \"entityType\": \"minecraft:player\"},"
-                + "{\"type\": \"core:or\", \"conditions\": [{\"type\": \"core:player_name\", \"name\": \"A\"}, {\"type\": \"core:not\", \"condition\": {\"type\": \"core:player_name\", \"name\": \"B\"}}]}"
-                + "]}}").specificity());
+        assertEquals(1, specificity("{'or': [{'core:player_name': ['A']}, {'core:player_name': ['B']}, {'core:player_name': ['C']}]}"));
+        assertEquals(1, specificity("{'not': [{'and': [{'core:player_name': ['A']}, {'core:player_name': ['B']}]}]}"));
+        assertEquals(2, specificity("{'and': [{'core:entity_type': ['minecraft:player']}, "
+                + "{'or': [{'core:player_name': ['A']}, {'not': [{'core:player_name': ['B']}]}]}]}"));
+        // An "if" counts its condition and the fewer of its branches'.
+        assertEquals(2, specificity("{'if': [{'core:player_name': ['A']}, {'core:entity_type': ['minecraft:player']}, "
+                + "{'and': [{'core:player_name': ['B']}, {'mobends:skin_variant': ['slim']}]}]}"));
+        assertEquals(0, specificity("true"));
+    }
+
+    @Test
+    void aSelectorIsAnExpressionOverTheSelectorSafeOperations() throws Exception
+    {
+        LabBootstrap.ensure();
+        SelectorExpression selector = SelectorExpression.compile(json("{'and': [{'core:entity_type': ['minecraft:player', 'minecraft:zombie']}, "
+                + "{'not': [{'core:entity_type': ['minecraft:husk']}]}, {'or': [{'core:player_name': ['Notch']}, {'mobends:skin_variant': ['slim']}]}]}"));
+        List<ResourceLocation> types = new ArrayList<>();
+        selector.collectEntityTypes(types);
+        assertEquals(Arrays.asList(new ResourceLocation("minecraft:player"), new ResourceLocation("minecraft:zombie")), types);
+        // A skin variant changes when the skin downloads.
+        assertFalse(selector.isStable());
+        assertTrue(SelectorExpression.compile(json("{'core:player_name': ['Notch']}")).isStable());
+
+        World world = new World();
+        Minecraft.getMinecraft().world = world;
+        assertTrue(SelectorExpression.compile(json("{'core:entity_type': ['minecraft:zombie']}")).test(new EntityZombie(world)));
+        assertFalse(SelectorExpression.compile(json("{'core:player_name': ['Notch']}")).test(new EntityZombie(world)));
+    }
+
+    @Test
+    void aSelectorReadsNoEntityData() throws Exception
+    {
+        LabBootstrap.ensure();
+        MalformedKumoTemplateException name = assertThrows(MalformedKumoTemplateException.class,
+                () -> SelectorExpression.compile(json("{'and': ['entityIsChild', {'core:entity_type': ['minecraft:zombie']}]}")));
+        assertTrue(name.getMessage().contains("reads no names ('entityIsChild')"), name.getMessage());
+        MalformedKumoTemplateException operation = assertThrows(MalformedKumoTemplateException.class,
+                () -> SelectorExpression.compile(json("{'core:holds_any_item': ['main_hand']}")));
+        assertTrue(operation.getMessage().contains("'core:holds_any_item' can't be in a type file's selector"), operation.getMessage());
+    }
+
+    private static com.google.gson.JsonElement json(String json)
+    {
+        return new com.google.gson.JsonParser().parse(json.replace('\'', '"'));
     }
 
     @Test

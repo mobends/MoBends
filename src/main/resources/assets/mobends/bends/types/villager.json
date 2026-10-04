@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
   "id": "mobends:villager",
-  "selector": {"type": "core:entity_type", "entityType": "minecraft:villager"},
+  "selector": {"core:entity_type": ["minecraft:villager"]},
   "model": "mobends:bends/models/villager.json"
 }

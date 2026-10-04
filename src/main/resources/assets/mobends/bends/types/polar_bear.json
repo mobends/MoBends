@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
   "id": "mobends:polar_bear",
-  "selector": {"type": "core:entity_type", "entityType": "minecraft:polar_bear"},
+  "selector": {"core:entity_type": ["minecraft:polar_bear"]},
   "model": "mobends:bends/models/polar_bear.json"
 }
