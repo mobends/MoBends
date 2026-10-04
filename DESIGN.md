@@ -229,56 +229,15 @@ files.
 
 ## Nodes, transitions and time
 
-### Node phases
-
-Built-in booleans for the node being evaluated; exactly one holds at a time:
-
-| | the node is | ends when |
-|---|---|---|
-| `nodeIsFadingIn` | the layer's current node, while the crossfade into it runs | the crossfade ends |
-| `nodeIsActive` | the layer's current node, fully in | the layer leaves it |
-| `nodeIsFadingOut` | the node the layer left, still posed while the crossfade runs | the crossfade ends; the scope is disposed |
-
-The current node is `nodeIsFadingIn or nodeIsActive`.
-
-**A node never runs twice at once.** A transition to the current node restarts it without a
-crossfade; a transition during a crossfade freezes what is on screen into a snapshot and fades
-from that, and the node being left is disposed (its `exit` list runs) at once.
-
-### Clocks and time
-
-| built-in | value |
-|---|---|
-| `ticks` | the local player's age in ticks plus `partialTicks`: the same for every entity; it restarts when the local player respawns or changes dimension |
-| `partialTicks` | progress between two game ticks, 0..1 |
-| `ticksPerFrame` | ticks this frame lasted (capped at 1, 0 while paused) |
-| `nodeTicksElapsed` | ticks since the node being evaluated was entered |
-| `layerTicksElapsed` | ticks since the layer started |
-| `nodeFadeProgress` | the linear progress of the crossfade the node is part of, the same number on both sides: 0 when the transition starts, 1 when it ends, 1 with no crossfade running. How much of a node is shown is `nodeFadeProgress` fading in and `1 − nodeFadeProgress` fading out; the transition's easing applies to the blend, not to this value |
-| `nodeIsFinished` | the node's timed clips are done (below) |
-| `random` | a random number, 0..1 |
-
-The node and layer clocks advance by `ticksPerFrame` after the frame is posed (a node reads 0 on
-its first frame) and pause while the layer's `@when` doesn't hold.
-
-**`nodeIsFinished` holds** from the frame every clip of the node that has a `duration` has run it
-(`nodeTicksElapsed >= duration`), on every frame after, until the node is left. It is not an
-edge: the frame it becomes true is `{"rose": ["nodeIsFinished"]}`. A node with no items is
-finished at once; a node whose items are all untimed never is.
-
-```json
-"sit_down": {"core:pose": {"pose": [{"core:clip": {"animationKey": ".../sitting_down.json", "duration": 8}}]},
-             "@connections": [{"when": "nodeIsFinished", "then": "sit", "transitionDuration": 1}]}
-```
-
-**Timers are functions of a clock.** A value that rises from 0 to 1 over the first ticks of a
-node is `{"linstep": ["nodeTicksElapsed", 0, 10]}`; a wait is `{"ge": ["nodeTicksElapsed", 80]}`.
-Neither needs state.
+The node and layer built-ins are in the spec (*Nodes, transitions and time*). Still to come, with
+the entity built-ins: `ticks` (the local player's age in ticks plus `partialTicks`, the same for
+every entity; it restarts when the local player respawns or changes dimension), `partialTicks`
+(progress between two game ticks, 0..1), `ticksPerFrame` (ticks this frame lasted, capped at 1, 0
+while paused) and `random` (0..1), today the entity's variables of those names.
 
 ## Pose items
 
-Pose items, their modifiers and the drivers' `inout` and `out` are in the spec. Still to come: a
-clip's `duration` read in its `frame` as `clipDuration` (today `duration`), next to `clipLength`.
+Pose items, their modifiers and the drivers' `inout` and `out` are in the spec.
 
 ## Entity values
 
@@ -604,21 +563,7 @@ Their private state moves from Java fields (`StepTurnDriver`'s planted feet, `Sp
 
 | old | new |
 |---|---|
-| `elapsed` | `nodeTicksElapsed` |
-| a clip's `clipLength` / `duration` names in `frame` | `clipLength`, `clipDuration` |
 | `ticks`, `partialTicks`, `ticksPerFrame`, `random` (subject variables) | built-ins, same names and meaning (`ticks` is still the local player's age, as in `DataUpdateHandler`) |
-| the layer's clock (`core:ticks_passed` read it; it is gone, see below) | `layerTicksElapsed` |
-| crossfade progress (not readable) | `nodeFadeProgress` |
-
-`core:ticks_passed` is gone. On a node's connections and items it was the node's clock, now
-`{"gt": ["elapsed", n]}` (the wolf's breathing); on a layer's selector, connections or `when` it
-counted from the layer's start (`layerTicksElapsed` once it exists); on a machine's, from the
-machine's entry (a `machine.` state advanced in its `update` list, when something needs it).
-`core:animation_finished` is the built-in `nodeIsFinished`.
-
-**Node re-entry.** The rule that a node never runs twice at once is the old engine's
-(`LayerState.beginTransition`): a transition to the current node restarted it without a
-crossfade, whatever its duration, and an interrupted crossfade froze a snapshot.
 
 ### Entity values from the data classes
 
@@ -981,9 +926,9 @@ the additive and smaller ones.
 
 **Built-ins and operations**
 
-7. [ ] **Node and time built-ins**: the node phases, `nodeTicksElapsed`, `layerTicksElapsed`,
-   `nodeFadeProgress`, `nodeIsFinished`, `clipLength` / `clipDuration`, the clocks
-   (*Nodes, transitions and time*).
+7. [x] **Node and time built-ins**: the node phases, `nodeTicksElapsed`, `layerTicksElapsed`,
+   `nodeFadeProgress`, `nodeIsFinished`, `clipLength` / `clipDuration`. `ticks`, `partialTicks`,
+   `ticksPerFrame` and `random` come with task 8.
 8. [ ] **Entity built-ins**: the `entity…` values, renamed from the data classes; `entitySpeed` /
    `entityXZSpeed` as interpolated magnitudes; `entityTicksAfterAttack`'s counting for every
    entity; `entitySwingProgress` interpolated (*Entity built-ins*).

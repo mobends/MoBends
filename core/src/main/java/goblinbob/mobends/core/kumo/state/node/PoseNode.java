@@ -175,7 +175,7 @@ public class PoseNode implements INodeState
                 {
                     throw new MalformedKumoTemplateException("The duration of a clip can't be negative: " + clipTemplate.animationKey);
                 }
-                clipValues.put("duration", Expression.constant(duration));
+                clipValues.put("clipDuration", Expression.constant(duration));
             }
             Expression frame = clipTemplate.frame == null ? null
                     : Expression.compile(clipTemplate.frame.json, context.getExpressionScope().withValues(clipValues));

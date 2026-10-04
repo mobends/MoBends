@@ -359,7 +359,7 @@
               }
             ]
           },
-          "@define": {"relax": {"live": {"linstep": ["elapsed", 0, 10]}}},
+          "@define": {"relax": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}},
           "@connections": [{"when": "animator.bounced", "then": "sprint_jump_right"}]
         },
         "sprint_jump_left": {
@@ -412,7 +412,7 @@
               }
             ]
           },
-          "@define": {"relax": {"live": {"linstep": ["elapsed", 0, 10]}}},
+          "@define": {"relax": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}},
           "@connections": [{"when": "animator.bounced", "then": "sprint_jump_left"}]
         },
         "falling": {
@@ -1486,7 +1486,7 @@
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"ge": ["elapsed", 6.666666666666667]},
+                "@when": {"ge": ["nodeTicksElapsed", 6.666666666666667]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/eat_head_right.json",
                   "frame": {"mod": ["ticks", "clipLength"]}
@@ -1494,7 +1494,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}}
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}}
         },
         "bow_right": {
           "core:pose": {
@@ -1581,7 +1581,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}}
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}}
         },
         "eat_left": {
           "core:pose": {
@@ -1594,7 +1594,7 @@
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"ge": ["elapsed", 6.666666666666667]},
+                "@when": {"ge": ["nodeTicksElapsed", 6.666666666666667]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/eat_head_left.json",
                   "frame": {"mod": ["ticks", "clipLength"]}
@@ -1602,7 +1602,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}}
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}}
         },
         "bow_left": {
           "core:pose": {
@@ -1689,7 +1689,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}}
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}}
         }
       },
       "machines": {

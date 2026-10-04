@@ -17,7 +17,7 @@
               {"core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": -20}, "@space": "OVERRIDE"}
             ]
           },
-          "@define": {"sway": {"live": {"mul": [{"sin": [{"mul": ["elapsed", 0.5]}]}, 25]}}}
+          "@define": {"sway": {"live": {"mul": [{"sin": [{"mul": ["nodeTicksElapsed", 0.5]}]}, 25]}}}
         }
       }
     }

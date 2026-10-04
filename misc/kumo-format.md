@@ -313,12 +313,14 @@ A clip's own fields are `animationKey`, `frame`, `duration`, `weight` and `bones
   before 0 or past `clipLength` holds the first or last keyframe; a clip loops by wrapping its
   frame with `mod`, as above.
 * `duration` (optional, in ticks) is how long the item runs, whatever its frame does: the clip
-  is finished (`nodeIsFinished`) once `elapsed` reaches it. Without one it never
+  is finished (`nodeIsFinished`) once `nodeTicksElapsed` reaches it. Without one it never
   finishes.
-* The default `frame` is `{"mul": [{"div": ["elapsed", "duration"]}, "clipLength"]}` with a
-  `duration` (the clip is fitted to it), and `"elapsed"` without one (a unit per tick).
-* Inside `frame`, `clipLength` and (when the item has one) `duration` are names like any other.
-  `{"mod": ["elapsed", "clipLength"]}` with `"duration": 30` loops for 30 ticks, then finishes.
+* The default `frame` is `{"mul": [{"div": ["nodeTicksElapsed", "clipDuration"]}, "clipLength"]}`
+  with a `duration` (the clip is fitted to it), and `"nodeTicksElapsed"` without one (a unit per
+  tick).
+* Inside `frame`, `clipLength` and (when the item has a `duration`) `clipDuration` are built-ins.
+  `{"mod": ["nodeTicksElapsed", "clipLength"]}` with `"duration": 30` loops for 30 ticks, then
+  finishes.
 
 `weight` (an expression) is how much of the clip is applied. For a bone the clip writes relatively
 (`PRE` / `POST`) it scales the rotation angle and the offset; for a bone it replaces (`OVERRIDE`)
@@ -442,7 +444,7 @@ JSON tree, so tools can read and write it without a parser.
 |---|---|
 | a number | a constant: `45` |
 | `true`, `false` | a constant condition |
-| a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name: a built-in (`elapsed`, `nodeIsFinished`), a state of the entity if written in capitals (`"ON_GROUND"`), or else a variable of the entity (`"headYaw"`) |
+| a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name: a built-in (`nodeTicksElapsed`, `nodeIsFinished`, see *Nodes, transitions and time*), a state of the entity if written in capitals (`"ON_GROUND"`), or else a variable of the entity (`"headYaw"`) |
 | an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}` |
 
 **Every expression is a number or a boolean**, and which one is checked when the animator loads:
@@ -507,16 +509,54 @@ Mistakes (an unknown operation, a wrong number or kind of arguments, an object w
 key, a number where a boolean goes) are reported when the animator loads, in the operation's own
 words: `'core:holds_item' argument 1 (hand) must be one of main_hand, off_hand, got 'left_hand'`.
 
-**Bare names** are the built-ins and the entity's values. The built-ins: `elapsed`, the ticks
-since the current node started, and `nodeIsFinished`, which holds once every clip of the current
-node that has a `duration` has run it (a node with no items always is, one whose items all run
-forever never is); and inside a clip's `frame`, `clipLength` and `duration` (see *Clips*). A bare
+**Bare names** are the built-ins and the entity's values. The built-ins are the node's and the
+layer's clocks and phases (see *Nodes, transitions and time*), and inside a clip's `frame`,
+`clipLength` and `clipDuration` (see *Clips*). A bare
 name in capitals is a **state** of the entity, a boolean (see the data classes' `registerState`
 calls: `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`, ...); any other is a **variable** of the entity, a
 number (`registerVariable`: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). The entity's
 values are looked up once, when the animator is bound to its entity on the first frame, never by
 name while animating; one the entity doesn't have fails the animator then (logged; the entity
 isn't animated), even if nothing ever reads it.
+
+## Nodes, transitions and time
+
+Built-in values of the node being evaluated and its layer:
+
+| built-in | value |
+|---|---|
+| `nodeTicksElapsed` | ticks since the node was entered |
+| `layerTicksElapsed` | ticks since the layer started |
+| `nodeFadeProgress` | the linear progress of the crossfade the node is part of, the same number on both sides: 0 when the transition starts, 1 when it ends, 1 with no crossfade running. How much of a node is shown is `nodeFadeProgress` fading in and `1 − nodeFadeProgress` fading out; the transition's easing applies to the blend, not to this value |
+| `nodeIsFadingIn` | the node is the layer's current node, while the crossfade into it runs |
+| `nodeIsActive` | the node is the layer's current node, fully in |
+| `nodeIsFadingOut` | the node is the one the layer left, still posed while the crossfade runs (its `update` list still runs, so a statement there can opt out with it) |
+| `nodeIsFinished` | the node's timed clips are done (below) |
+
+Exactly one of the three phases holds for a node being evaluated; the current node is
+`nodeIsFadingIn` or `nodeIsActive`. Outside any node (an animator's statement lists), the clocks
+read 0, `nodeFadeProgress` 1 and the phases don't hold.
+
+The node and layer clocks advance by the ticks the frame lasted after the frame is posed (a node
+reads 0 on its first frame) and pause while the layer's `@when` doesn't hold.
+
+**A node never runs twice at once.** A transition to the current node restarts it without a
+crossfade; a transition during a crossfade freezes what is on screen into a snapshot and fades
+from that, and the node being left is disposed (its `exit` list runs) at once.
+
+**`nodeIsFinished` holds** from the frame every clip of the node that has a `duration` has run it
+(`nodeTicksElapsed >= duration`), on every frame after, until the node is left. It is not an
+edge: the frame it becomes true is `{"rose": ["nodeIsFinished"]}`. A node with no items is
+finished at once; a node whose items are all untimed never is.
+
+```json
+"sit_down": {"core:pose": {"pose": [{"core:clip": {"animationKey": ".../sitting_down.json", "duration": 8}}]},
+             "@connections": [{"when": "nodeIsFinished", "then": "sit", "transitionDuration": 1}]}
+```
+
+**Timers are functions of a clock.** A value that rises from 0 to 1 over the first ticks of a
+node is `{"linstep": ["nodeTicksElapsed", 0, 10]}`; a wait is `{"ge": ["nodeTicksElapsed", 80]}`.
+Neither needs state.
 
 ## Definitions and statements
 

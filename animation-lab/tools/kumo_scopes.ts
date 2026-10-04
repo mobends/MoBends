@@ -14,7 +14,8 @@ import { join } from "node:path";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Obj = { [key: string]: any };
 
-const BUILTINS = new Set(["elapsed", "nodeIsFinished", "clipLength", "duration"]);
+const BUILTINS = new Set(["elapsed", "duration", "nodeTicksElapsed", "layerTicksElapsed", "nodeFadeProgress", "nodeIsFadingIn", "nodeIsActive",
+  "nodeIsFadingOut", "nodeIsFinished", "clipLength", "clipDuration"]);
 const STEP_TURN_OUTPUTS = ["turnLag", "turnSpeed", "stepLift", "stepImpact", "stride"];
 /** Each pose item's fields that are expressions. */
 const EXPRESSION_FIELDS: Record<string, string[]> = {

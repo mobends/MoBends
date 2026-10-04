@@ -12,7 +12,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/wolf/idle.json",
-                  "frame": {"mod": ["elapsed", "clipLength"]}
+                  "frame": {"mod": ["nodeTicksElapsed", "clipLength"]}
                 },
                 "@space": "OVERRIDE",
                 "@snap": true
@@ -48,7 +48,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/wolf/sitting_down.json",
-                  "frame": {"add": [6, {"mul": ["elapsed", 2]}]},
+                  "frame": {"add": [6, {"mul": ["nodeTicksElapsed", 2]}]},
                   "duration": 8
                 },
                 "@space": "OVERRIDE",
@@ -64,7 +64,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/wolf/sitting.json",
-                  "frame": {"mod": ["elapsed", "clipLength"]}
+                  "frame": {"mod": ["nodeTicksElapsed", "clipLength"]}
                 },
                 "@space": "OVERRIDE",
                 "@snap": true
@@ -79,7 +79,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/wolf/standing_up.json",
-                  "frame": {"add": [4, {"mul": ["elapsed", 2]}]},
+                  "frame": {"add": [4, {"mul": ["nodeTicksElapsed", 2]}]},
                   "duration": 9
                 },
                 "@space": "OVERRIDE",
@@ -102,14 +102,14 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/wolf/idle.json",
-                  "frame": {"mod": ["elapsed", "clipLength"]}
+                  "frame": {"mod": ["nodeTicksElapsed", "clipLength"]}
                 },
                 "@space": "OVERRIDE",
                 "@snap": true
               }
             ]
           },
-          "@connections": [{"when": {"gt": ["elapsed", 80]}, "then": "breathe", "transitionDuration": 4}]
+          "@connections": [{"when": {"gt": ["nodeTicksElapsed", 80]}, "then": "breathe", "transitionDuration": 4}]
         },
         "breathe": {
           "core:pose": {
@@ -117,14 +117,14 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/wolf/breathing.json",
-                  "frame": {"mod": [{"mul": ["elapsed", 1.2]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["nodeTicksElapsed", 1.2]}, "clipLength"]}
                 },
                 "@space": "OVERRIDE",
                 "@snap": true
               }
             ]
           },
-          "@connections": [{"when": {"gt": ["elapsed", 50]}, "then": "idle", "transitionDuration": 4}]
+          "@connections": [{"when": {"gt": ["nodeTicksElapsed", 50]}, "then": "idle", "transitionDuration": 4}]
         }
       }
     },

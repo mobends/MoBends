@@ -103,7 +103,7 @@ Play a clip on the global clock, looped, so every entity breathes even while its
                "frame": {"mod": [{"mul": ["ticks", 0.1]}, "clipLength"]}}}
 ```
 
-Use `elapsed` instead of `ticks` when the motion should start from the beginning each time the
+Use `nodeTicksElapsed` instead of `ticks` when the motion should start from the beginning each time the
 node is entered.
 
 ### A walk cycle that follows the legs
@@ -259,13 +259,13 @@ turned by `headYaw` looks the same way for either hand.
 
 To raise an arm over a few ticks instead of snapping, weight a later item by a value that goes
 from 0 to 1. Over the first ticks of a node, that is a function of the node's clock:
-`{"linstep": ["elapsed", 0, 10]}` rises over ten ticks. Name it in the node's `@define` when
+`{"linstep": ["nodeTicksElapsed", 0, 10]}` rises over ten ticks. Name it in the node's `@define` when
 several items read it:
 
 ```json
 "raise": {
   "core:pose": {"pose": [{"core:clip": {"animationKey": "…/raise.json", "weight": "node.lift"}}]},
-  "@define": {"lift": {"live": {"linstep": ["elapsed", 0, 10]}}}
+  "@define": {"lift": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}}
 }
 ```
 
@@ -282,7 +282,7 @@ follows the condition, clamped to 0..1:
 
 `core:accumulate` integrates any rate (a phase that slows down as it decays), and a procedural
 motion can skip clips entirely: a driver's `angle` is any expression, e.g.
-`{"mul": [{"sin": [{"mul": ["elapsed", 0.5]}]}, 25]}`.
+`{"mul": [{"sin": [{"mul": ["nodeTicksElapsed", 0.5]}]}, 25]}`.
 
 ### An overlay from a resource pack
 

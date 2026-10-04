@@ -39,10 +39,10 @@ public class ExtensionsTest
      * arm out, holds it for 20 ticks, then fades back.
      */
     private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"through\", "
-            + "\"nodes\": {\"through\": {\"core:fallthrough\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 10]}, "
-            + "\"then\": \"raise\", \"transitionDuration\": 5}]}, "
+            + "\"nodes\": {\"through\": {\"core:fallthrough\": {}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", "
+            + "10]}, \"then\": \"raise\", \"transitionDuration\": 5}]}, "
             + "\"raise\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"X\", "
-            + "\"angle\": -90}, \"@space\": \"OVERRIDE\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 20]}, "
+            + "\"angle\": -90}, \"@space\": \"OVERRIDE\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 20]}, "
             + "\"then\": \"back\", \"transitionDuration\": 5}]}, \"back\": {\"core:fallthrough\": {}}}}]}";
 
     @Test
@@ -114,10 +114,11 @@ public class ExtensionsTest
 
     /** Vanilla from tick 10 to tick 30; a second layer that would go vanilla is disabled by its "when". */
     private static final String VANILLA = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"animated\", "
-            + "\"nodes\": {\"animated\": {\"core:fallthrough\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 10]}, "
-            + "\"then\": \"vanilla\"}]}, \"vanilla\": {\"core:vanilla\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", "
-            + "20]}, \"then\": \"again\"}]}, \"again\": {\"core:fallthrough\": {}}}}, "
-            + "{\"@when\": \"SPRINTING\", \"defaultOnEntry\": \"vanilla\", \"nodes\": {\"vanilla\": {\"core:vanilla\": {}}}}]}";
+            + "\"nodes\": {\"animated\": {\"core:fallthrough\": {}, "
+            + "\"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 10]}, \"then\": \"vanilla\"}]}, "
+            + "\"vanilla\": {\"core:vanilla\": {}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 20]}, "
+            + "\"then\": \"again\"}]}, \"again\": {\"core:fallthrough\": {}}}}, {\"@when\": \"SPRINTING\", "
+            + "\"defaultOnEntry\": \"vanilla\", \"nodes\": {\"vanilla\": {\"core:vanilla\": {}}}}]}";
 
     @Test
     void aVanillaNodeAsksForVanillaWhileTheAnimatorKeepsRunning() throws Exception

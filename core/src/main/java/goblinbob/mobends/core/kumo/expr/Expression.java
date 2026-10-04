@@ -4,12 +4,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import goblinbob.mobends.core.kumo.state.INodeState;
 import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -43,10 +43,11 @@ public abstract class Expression
     public static final Expression TRUE = new BooleanConstant(true);
     public static final Expression FALSE = new BooleanConstant(false);
 
-    /** Built in: ticks since the current node started. */
-    public static final String ELAPSED_NAME = "elapsed";
-    /** Built in: the current node's timed clips have run (see {@link INodeState#isAnimationFinished}). */
-    public static final String NODE_IS_FINISHED_NAME = "nodeIsFinished";
+    /**
+     * The built-in values of the node and the layer being evaluated, by name (see
+     * misc/kumo-format.md, *Nodes, transitions and time*).
+     */
+    private static final Map<String, Expression> BUILT_INS = new HashMap<>();
     /** A name in capitals is one of the subject's states, a boolean (e.g. {@code ON_GROUND}). */
     private static final Pattern STATE_NAME = Pattern.compile("[A-Z][A-Z0-9_]*");
 
@@ -166,13 +167,10 @@ public abstract class Expression
         {
             return value;
         }
-        if (ELAPSED_NAME.equals(name))
+        Expression builtIn = BUILT_INS.get(name);
+        if (builtIn != null)
         {
-            return ELAPSED;
-        }
-        if (NODE_IS_FINISHED_NAME.equals(name))
-        {
-            return NODE_IS_FINISHED;
+            return builtIn;
         }
         if (STATE_NAME.matcher(name).matches())
         {
@@ -283,24 +281,55 @@ public abstract class Expression
         }
     }
 
-    private static final Expression ELAPSED = new NumberExpression()
+    private static void number(String name, NumberValue value)
     {
-        @Override
-        public float get(ITriggerConditionContext context)
+        BUILT_INS.put(name, new NumberExpression()
         {
-            INodeState node = context.getCurrentNode();
-            return node == null ? 0F : node.getElapsedTicks();
-        }
-    };
+            @Override
+            public float get(ITriggerConditionContext context)
+            {
+                return value.get(context);
+            }
+        });
+    }
 
-    private static final Expression NODE_IS_FINISHED = new BooleanExpression()
+    private static void bool(String name, BooleanValue value)
     {
-        @Override
-        public boolean test(ITriggerConditionContext context)
+        BUILT_INS.put(name, new BooleanExpression()
         {
-            INodeState node = context.getCurrentNode();
-            return node != null && node.isAnimationFinished();
-        }
-    };
+            @Override
+            public boolean test(ITriggerConditionContext context)
+            {
+                return value.test(context);
+            }
+        });
+    }
+
+    @FunctionalInterface
+    private interface NumberValue
+    {
+        float get(ITriggerConditionContext context);
+    }
+
+    @FunctionalInterface
+    private interface BooleanValue
+    {
+        boolean test(ITriggerConditionContext context);
+    }
+
+    static
+    {
+        // Ticks since the node being evaluated was entered.
+        number("nodeTicksElapsed", context -> context.getCurrentNode() == null ? 0F : context.getCurrentNode().getElapsedTicks());
+        // Ticks since the layer started.
+        number("layerTicksElapsed", context -> context.getLayerState() == null ? 0F : context.getLayerState().getElapsedTicks());
+        // The linear progress of the crossfade the node is part of: 0 when it starts, 1 when it ends, 1 with none.
+        number("nodeFadeProgress", context -> context.getLayerState() == null ? 1F : context.getLayerState().getFadeProgress(context.getCurrentNode()));
+        bool("nodeIsFadingIn", context -> context.getLayerState() != null && context.getLayerState().isFadingIn(context.getCurrentNode()));
+        bool("nodeIsActive", context -> context.getLayerState() != null && context.getLayerState().isActive(context.getCurrentNode()));
+        bool("nodeIsFadingOut", context -> context.getLayerState() != null && context.getLayerState().isFadingOut(context.getCurrentNode()));
+        // The node's timed clips have run (see INodeState#isAnimationFinished).
+        bool("nodeIsFinished", context -> context.getCurrentNode() != null && context.getCurrentNode().isAnimationFinished());
+    }
 
 }

@@ -479,7 +479,7 @@ function sprintJumpNode(leg: string): Obj {
   const [mainFl, offFl] = leg === "right" ? ["rightForeLeg", "leftForeLeg"] : ["leftForeLeg", "rightForeLeg"];
   return { type: "core:pose", 
     // the legs relax over the first ten ticks
-    expressions: { relax: { linstep: ["elapsed", 0, 10] } },
+    expressions: { relax: { linstep: ["nodeTicksElapsed", 0, 10] } },
     pose: [
     { animationKey: PL(`sprint_jump_${leg}`), damping: { centerRotation: 0.3, root: 0.5, body: 0.3, rightLeg: 0.8, leftLeg: 0.8, rightArm: 0.3, leftArm: 0.3 }, vectorModes: { root: "SLIDE" } },
     // body lean from the vertical motion, applied *inside* the Y twist (orientX then rotateY)
@@ -768,10 +768,10 @@ function useNodes(): Record<string, Obj> {
     cycleClip(join(CLIPS, "player", `eat_head_${side}.json`), (p) => ({ head: rotations(["X", mcCos(p) * 5], ["Y", 15 * h]) }));
     // the arm comes up over 1 / 0.15 ticks, then the head chews
     const eatUp = 1 / 0.15;
-    nodes[`eat_${side}`] = { type: "core:pose", expressions: { bringUp: { linstep: ["elapsed", 0, eatUp] } }, pose: [
+    nodes[`eat_${side}`] = { type: "core:pose", expressions: { bringUp: { linstep: ["nodeTicksElapsed", 0, eatUp] } }, pose: [
       { animationKey: PL(`eat_arm_${side}`), frame: "bringUp" },
       drv(fore, "X", "bringUp", { scale: -45, space: "OVERRIDE" }),
-      when({ animationKey: PL(`eat_head_${side}`), frame: looped("ticks") }, cmp("elapsed", ">=", eatUp)),
+      when({ animationKey: PL(`eat_head_${side}`), frame: looped("ticks") }, cmp("nodeTicksElapsed", ">=", eatUp)),
     ] };
     // bow: the off arm's Z part is a curve over the head pitch
     const pitchSamples = range(65).map((k) => -90 + 180 * k / 64);
@@ -794,7 +794,7 @@ function useNodes(): Record<string, Obj> {
       withDamping(drv(fore, "X", null, { const: 0, space: "OVERRIDE" }), { [fore]: 1 }),
       drv(otherFore, "X", "aimedBowTicks", { scale: -3, space: "OVERRIDE" }),
     ] };
-    nodes[`shield_${side}`] = { type: "core:pose", expressions: { bringUp: { linstep: ["elapsed", 0, 1 / 0.7] } }, pose: [
+    nodes[`shield_${side}`] = { type: "core:pose", expressions: { bringUp: { linstep: ["nodeTicksElapsed", 0, 1 / 0.7] } }, pose: [
       drv(arm, "Y", "bringUp", { scale: -45 * h, space: "OVERRIDE" }),
       drv(fore, "X", "bringUp", { scale: -45, space: "OVERRIDE" }),
     ] };

@@ -81,5 +81,5 @@ is cleared by `CoreClient.reloadAnimation()` after a resource reload.
 Keyframe clips (`assets/<namespace>/bends/animations/**.json`) are loaded by `AnimatorResources`
 into `KeyframeAnimation`s and sampled by `ClipSampler` (hemisphere-corrected, so a track crossing
 ±180° takes the short way). A clip item's `frame` is an expression in clip units, so a clip can
-run on elapsed time, on any variable (`limbSwing`, `ticksInAir`, ...) or loop with `mod`. JSON is
+run on a node's clock (`nodeTicksElapsed`), on any variable (`limbSwing`, `ticksInAir`, ...) or loop with `mod`. JSON is
 the only clip format.

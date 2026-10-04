@@ -58,8 +58,8 @@ public class KumoAnimatorStateTest
     public void anItemsTicksPassedCountsFromItsNode() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"wait\", \"nodes\": {\"wait\": {\"core:pose\": {}, "
-                + "\"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 10]}, \"then\": \"raise\"}]}, "
-                + "\"raise\": {\"core:pose\": {\"pose\": [{\"@when\": {\"gt\": [\"elapsed\", 3]}, "
+                + "\"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 10]}, \"then\": \"raise\"}]}, "
+                + "\"raise\": {\"core:pose\": {\"pose\": [{\"@when\": {\"gt\": [\"nodeTicksElapsed\", 3]}, "
                 + "\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"X\", \"angle\": 45}, \"@space\": \"OVERRIDE\"}]}}}}]}");
         TestSubject subject = new TestSubject("arm");
 
@@ -84,7 +84,7 @@ public class KumoAnimatorStateTest
                 + "\"nodes\": {\"base\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"X\", "
                 + "\"angle\": 90}, \"@space\": \"OVERRIDE\"}]}}}}, {\"defaultOnEntry\": \"relative\", "
                 + "\"nodes\": {\"relative\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"Y\", "
-                + "\"angle\": 90}, \"@space\": \"PRE\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 2]}, "
+                + "\"angle\": 90}, \"@space\": \"PRE\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 2]}, "
                 + "\"then\": \"absolute\", \"transitionDuration\": 10, \"transitionEasing\": \"LINEAR\"}]}, "
                 + "\"absolute\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"Z\", \"angle\": 0}, "
                 + "\"@space\": \"OVERRIDE\"}]}}}}]}");
@@ -168,7 +168,7 @@ public class KumoAnimatorStateTest
                 + "], 'exit': [" + String.format(count, "exits") + "]}";
         return animator("{'formatVersion': 2, '@define': {'enters': {'state': 0}, 'frames': {'state': 0}, 'exits': {'state': 0}, 'taken': {'state': 0}},"
                 + " 'layers': [{'defaultOnEntry': 'a', 'nodes': {"
-                + "  'a': {'core:pose': {}, " + lists + ", '@connections': [{'when': {'gt': ['elapsed', 2]}, 'then': 'b', " + connection
+                + "  'a': {'core:pose': {}, " + lists + ", '@connections': [{'when': {'gt': ['nodeTicksElapsed', 2]}, 'then': 'b', " + connection
                 + "     'do': [" + String.format(count, "taken") + "]}]},"
                 + "  'b': {'core:pose': {}, " + nodes + "}}},"
                 + " {'defaultOnEntry': 'probe', 'nodes': {'probe': {'core:pose': {'pose': ["
@@ -248,8 +248,8 @@ public class KumoAnimatorStateTest
                 + "'angle': 'node.n'}, '@space': 'OVERRIDE'}, {'core:axis_rotate': {'bone': 'layer', 'axis': 'X', "
                 + "'angle': 'layer.n'}, '@space': 'OVERRIDE'}]}, '@define': {'n': {'state': 0}}, "
                 + "'@on': {'update': [{'set': ['node.n', {'add': ['node.n', 1]}]}, {'set': ['layer.n', "
-                + "{'add': ['layer.n', 1]}]}]}, '@connections': [{'when': {'ge': ['elapsed', 2]}, 'then': 'b'}]}, "
-                + "'b': {'core:pose': {}, '@connections': [{'when': true, 'then': 'a'}]}}}]}");
+                + "{'add': ['layer.n', 1]}]}]}, '@connections': [{'when': {'ge': ['nodeTicksElapsed', 2]}, "
+                + "'then': 'b'}]}, 'b': {'core:pose': {}, '@connections': [{'when': true, 'then': 'a'}]}}}]}");
         TestSubject subject = new TestSubject("node", "layer");
         animator.update(subject, 1F);
         animator.update(subject, 1F);
@@ -258,6 +258,44 @@ public class KumoAnimatorStateTest
         animator.update(subject, 1F); // back to a, whose node.n starts over
         assertEquals(1, counted(subject, "node"), 0);
         assertEquals(3, counted(subject, "layer"), 0);
+    }
+
+    @Test
+    public void theNodePhasesAndTheClocks() throws MalformedKumoTemplateException
+    {
+        // a crossfades into b over 3 ticks on frame 4; their update lists note what they see.
+        String count = "{'@when': '%1$s', 'set': ['animator.%2$s', {'add': ['animator.%2$s', 1]}]}";
+        KumoAnimatorState animator = animator("{'formatVersion': 2, '@define': {'out': {'state': 0}, 'in': {'state': 0}, 'active': {'state': 0},"
+                + "   'progress': {'state': 0}, 'layer': {'state': 0}},"
+                + " 'layers': [{'defaultOnEntry': 'a', 'nodes': {"
+                + "  'a': {'core:pose': {}, '@on': {'update': [" + String.format(count, "nodeIsFadingOut", "out") + "]},"
+                + "   '@connections': [{'when': {'gt': ['nodeTicksElapsed', 2]}, 'then': 'b', 'transitionDuration': 3}]},"
+                + "  'b': {'core:pose': {}, '@on': {'update': [" + String.format(count, "nodeIsFadingIn", "in") + ", "
+                + String.format(count, "nodeIsActive", "active") + ", {'set': ['animator.progress', {'mul': ['nodeFadeProgress', 30]}]},"
+                + "   {'set': ['animator.layer', 'layerTicksElapsed']}]}}}},"
+                + " {'defaultOnEntry': 'probe', 'nodes': {'probe': {'core:pose': {'pose': ["
+                + "  {'core:axis_rotate': {'bone': 'out', 'axis': 'X', 'angle': 'animator.out'}, '@space': 'OVERRIDE'},"
+                + "  {'core:axis_rotate': {'bone': 'in', 'axis': 'X', 'angle': 'animator.in'}, '@space': 'OVERRIDE'},"
+                + "  {'core:axis_rotate': {'bone': 'active', 'axis': 'X', 'angle': 'animator.active'}, '@space': 'OVERRIDE'},"
+                + "  {'core:axis_rotate': {'bone': 'progress', 'axis': 'X', 'angle': 'animator.progress'}, '@space': 'OVERRIDE'},"
+                + "  {'core:axis_rotate': {'bone': 'layer', 'axis': 'X', 'angle': 'animator.layer'}, '@space': 'OVERRIDE'}]}}}}]}");
+        TestSubject subject = new TestSubject("out", "in", "active", "progress", "layer");
+        for (int frame = 0; frame < 5; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        // Frame 5, the crossfade's second: a third of the way.
+        assertEquals(2, counted(subject, "out"), 0);
+        assertEquals(2, counted(subject, "in"), 0);
+        assertEquals(10, counted(subject, "progress"), 0);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        // Frame 7: the crossfade ended after frame 6; b is fully in.
+        assertEquals(3, counted(subject, "out"), 0);
+        assertEquals(3, counted(subject, "in"), 0);
+        assertEquals(1, counted(subject, "active"), 0);
+        assertEquals(30, counted(subject, "progress"), 0);
+        assertEquals(6, counted(subject, "layer"), 0);
     }
 
     @Test

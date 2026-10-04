@@ -131,6 +131,37 @@ public class LayerState
         return elapsedTicks;
     }
 
+    /**
+     * The linear progress of the crossfade {@code node} is part of, the same on both sides: 0 when
+     * it starts, 1 when it ends, and 1 for a node no crossfade involves.
+     */
+    public float getFadeProgress(INodeState node)
+    {
+        if (previousNode == null || (node != currentNode && node != previousNode))
+        {
+            return 1F;
+        }
+        return transitionDuration <= 0 ? 1F : Math.min(transitionProgress / transitionDuration, 1F);
+    }
+
+    /** Whether {@code node} is the current node, while the crossfade into it runs. */
+    public boolean isFadingIn(INodeState node)
+    {
+        return node == currentNode && previousNode != null;
+    }
+
+    /** Whether {@code node} is the current node, fully in. */
+    public boolean isActive(INodeState node)
+    {
+        return node == currentNode && previousNode == null;
+    }
+
+    /** Whether {@code node} is the node the layer left, still posed while the crossfade runs. */
+    public boolean isFadingOut(INodeState node)
+    {
+        return node == previousNode && node != currentNode && !previousIsSnapshot;
+    }
+
     public INodeState getCurrentNode()
     {
         return currentNode;

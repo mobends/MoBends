@@ -73,7 +73,7 @@ public class ClipFrameTest
     }
 
     /** Also writes elapsed to the right arm's X angle, to compare against. */
-    private static final String ELAPSED_PROBE = "{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": \"elapsed\"}, \"@space\": \"OVERRIDE\"}";
+    private static final String ELAPSED_PROBE = "{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": \"nodeTicksElapsed\"}, \"@space\": \"OVERRIDE\"}";
 
     @Test
     void frameIsInTheClipsUnitsAndHoldsTheEnds() throws Exception
@@ -87,7 +87,7 @@ public class ClipFrameTest
     void frameSeesClipLengthAndDuration() throws Exception
     {
         assertEquals(-50, xAngle(run(2, clip("\"frame\": {\"div\": [\"clipLength\", 2]}")), "leftArm"), 0.05);
-        assertEquals(-60, xAngle(run(2, clip("\"duration\": 20, \"frame\": {\"mul\": [\"duration\", 0.3]}")), "leftArm"), 0.05);
+        assertEquals(-60, xAngle(run(2, clip("\"duration\": 20, \"frame\": {\"mul\": [\"clipDuration\", 0.3]}")), "leftArm"), 0.05);
         assertEquals(-70, xAngle(run(2, clip("\"frame\": {\"mod\": [-3, \"clipLength\"]}")), "leftArm"), 0.05, "mod is floored, so looping wraps negative frames");
     }
 

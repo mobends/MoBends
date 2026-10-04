@@ -261,6 +261,7 @@ public class KumoAnimatorState
         // The animators' scopes: created on the first frame, then their update lists every frame,
         // before any layer.
         context.enterNode(null);
+        context.setLayerState(null);
         for (int i = 0; i < animatorScopes.size(); i++)
         {
             if (started) animatorScopes.get(i).updateLive(context);
