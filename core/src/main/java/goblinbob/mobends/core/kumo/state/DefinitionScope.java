@@ -139,6 +139,11 @@ public final class DefinitionScope
             return null;
         }
         compile(index);
+        if (templates.get(index).kind == DefinitionTemplate.Kind.CONSTANT && compiled[index].isConstant())
+        {
+            // Reads nothing per entity: its value is the program's, not every entity's.
+            return compiled[index];
+        }
         return types[index] == Expression.Type.BOOLEAN ? new BooleanRead(this, index) : new NumberRead(this, index);
     }
 

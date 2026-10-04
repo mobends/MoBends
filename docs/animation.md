@@ -96,6 +96,9 @@ animates shares it; each has a `KumoAnimatorState`, which holds only that entity
   pose buffers, an edge trigger's memory, a definition's value, an operation's or a driver's
   declared state (`core:step_turn` keeps its world positions as two floats each, about 48 bits).
   Evaluation reads and writes them through the context (`context.getState()`).
+* What reads nothing per entity is computed once, when the program compiles: a language operation
+  of constant arguments (`{"mul": [{"add": [1, 2]}, 4]}`), a registered pure one, and a `constant`
+  definition of them, which then takes no slot.
 * An entity's state also holds what binds it to its subject on the first frame: its bones' sinks
   and the indices of the values the animator reads.
 * `KumoAnimatorController` caches programs by animator, extensions and entity (class and entity

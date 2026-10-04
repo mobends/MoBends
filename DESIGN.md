@@ -256,10 +256,7 @@ Still to come:
 
 ## Runtime
 
-Program and per-entity state are in `docs/animation.md` (*Program and Per-entity State*). Still
-to come: folding constant definitions (a `constant` that reads nothing per entity) into the
-program, as pure operations with constant arguments already are; today each entity computes them
-when its scope starts.
+Program and per-entity state are in `docs/animation.md` (*Program and Per-entity State*).
 
 ---
 

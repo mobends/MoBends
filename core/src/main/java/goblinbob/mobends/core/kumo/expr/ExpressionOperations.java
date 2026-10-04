@@ -274,13 +274,40 @@ public final class ExpressionOperations
             Expression fallback = fallbackJson == null ? null : Expression.compileAny(fallbackJson, scope);
             try
             {
-                return factory.create(new Arguments(name, params, expressions, strings, constants, fallback, scope.getEntityClass(), scope.getFieldsOf() != null, scope.isSelector(), scope.getLayout()));
+                Expression result = factory.create(new Arguments(name, params, expressions, strings, constants, fallback, scope.getEntityClass(), scope.getFieldsOf() != null, scope.isSelector(), scope.getLayout()));
+                return foldable(name, result, expressions) ? fold(result) : result;
             }
             catch (MalformedKumoTemplateException e)
             {
                 throw new MalformedKumoTemplateException(e.getMessage() + " In " + Expression.describe(whole));
             }
         }
+    }
+
+    /** The language operations that read the entity or remember something: never computed at load. */
+    private static final java.util.Set<String> IMPURE = new java.util.HashSet<>(Arrays.asList("field", "exists", "decreased", "rose", "fell"));
+
+    /**
+     * Whether {@code result}, a language operation of constant arguments, is the same for every
+     * entity and every frame: it is computed once, when the animator loads. (A registered pure
+     * operation folds itself, see {@code BoundOperation}.)
+     */
+    private static boolean foldable(String name, Expression result, Expression[] arguments)
+    {
+        if (name.indexOf(':') >= 0 || IMPURE.contains(name) || result.isStateful() || result.isConstant())
+        {
+            return false;
+        }
+        for (Expression argument : arguments)
+        {
+            if (argument != null && !argument.isConstant()) return false;
+        }
+        return true;
+    }
+
+    private static Expression fold(Expression constant)
+    {
+        return constant.getType() == Expression.Type.BOOLEAN ? (constant.test(null) ? Expression.TRUE : Expression.FALSE) : Expression.constant(constant.get(null));
     }
 
     private static final Map<String, Operation> OPERATIONS = new HashMap<>();
