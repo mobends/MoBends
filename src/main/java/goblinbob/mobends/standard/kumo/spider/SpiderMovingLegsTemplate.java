@@ -6,7 +6,7 @@ import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import java.util.List;
 
 /**
- * {@code "driver": "mobends:spider_moving_legs"}: the walking / crawling gait. Each leg swings
+ * {@code {"mobends:spider_moving_legs": {...}}}: the walking / crawling gait. Each leg swings
  * between two yaw angles and two stretch distances on a shared clock and is put on the ground by
  * the leg IK. Exposes the computed ground level as the node variable {@code groundLevel}.
  */

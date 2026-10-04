@@ -1,55 +1,46 @@
 {
   "formatVersion": 2,
-  "comment": "The quadruped, with the body bobbing on each footfall while walking and the head following through behind it.",
+  "@comment": "The quadruped, with the body bobbing on each footfall while walking and the head following through behind it.",
   "extends": "mobends:bends/animators/quadruped.json",
   "layers": [
     {
-      "comment": "Two footfalls per walk cycle, so the bob runs at twice the leg swing; the body is lowest when the legs are furthest apart. The head repeats the bob a little later and nods after it.",
-      "type": "KEYFRAME",
+      "@comment": "Two footfalls per walk cycle, so the bob runs at twice the leg swing; the body is lowest when the legs are furthest apart. The head repeats the bob a little later and nods after it.",
       "mode": "ADDITIVE",
       "additiveSpace": "POST",
-      "expressions": {"step": {"mul": ["limbSwing", 0.6662, 2]}},
+      "@expressions": {"step": {"mul": ["limbSwing", 0.6662, 2]}},
       "select": [
-        {
-          "when": {"core:action": ["walk"]},
-          "then": "walk",
-          "transitionDuration": 4
-        },
-        {
-          "then": "still",
-          "transitionDuration": 4
-        }
+        {"when": {"core:action": ["walk"]}, "then": "walk", "transitionDuration": 4},
+        {"then": "still", "transitionDuration": 4}
       ],
       "nodes": {
-        "still": {"type": "core:fallthrough"},
+        "still": {"core:fallthrough": {}},
         "walk": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "driver": "core:offset",
-              "bone": "body",
-              "x": 0,
-              "y": {"mul": [{"cos": ["step"]}, 0.4, "limbSwingAmount"]},
-              "z": 0,
-              "space": "OVERRIDE",
-              "damping": {"body": 1}
-            },
-            {
-              "driver": "core:offset",
-              "bone": "head",
-              "x": 0,
-              "y": {"mul": [{"cos": [{"sub": ["step", 0.9]}]}, 0.5, "limbSwingAmount"]},
-              "z": 0,
-              "space": "OVERRIDE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": {"mul": [{"cos": [{"sub": ["step", 1.6]}]}, 4, "limbSwingAmount"]},
-              "space": "POST"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:offset": {"bone": "body", "x": 0, "y": {"mul": [{"cos": ["step"]}, 0.4, "limbSwingAmount"]}, "z": 0},
+                "@space": "OVERRIDE",
+                "@damping": {"body": 1}
+              },
+              {
+                "core:offset": {
+                  "bone": "head",
+                  "x": 0,
+                  "y": {"mul": [{"cos": [{"sub": ["step", 0.9]}]}, 0.5, "limbSwingAmount"]},
+                  "z": 0
+                },
+                "@space": "OVERRIDE"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "head",
+                  "axis": "X",
+                  "angle": {"mul": [{"cos": [{"sub": ["step", 1.6]}]}, 4, "limbSwingAmount"]}
+                },
+                "@space": "POST"
+              }
+            ]
+          }
         }
       }
     }

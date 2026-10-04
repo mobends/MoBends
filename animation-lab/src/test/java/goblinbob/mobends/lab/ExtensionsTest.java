@@ -38,12 +38,12 @@ public class ExtensionsTest
      * Lets the player's own pose through for 10 ticks, fades (over 5 ticks) to holding the right
      * arm out, holds it for 20 ticks, then fades back.
      */
-    private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"through\", \"nodes\": {"
-            + "\"through\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"raise\", \"transitionDuration\": 5, \"triggerCondition\": {\"gt\": [\"elapsed\", 10]}}]},"
-            + "\"raise\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": -90, \"space\": \"OVERRIDE\"}],"
-            + "  \"connections\": [{\"target\": \"back\", \"transitionDuration\": 5, \"triggerCondition\": {\"gt\": [\"elapsed\", 20]}}]},"
-            + "\"back\": {\"type\": \"core:fallthrough\"}"
-            + "}}]}";
+    private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"through\", "
+            + "\"nodes\": {\"through\": {\"core:fallthrough\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 10]}, "
+            + "\"then\": \"raise\", \"transitionDuration\": 5}]}, "
+            + "\"raise\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"X\", "
+            + "\"angle\": -90}, \"@space\": \"OVERRIDE\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 20]}, "
+            + "\"then\": \"back\", \"transitionDuration\": 5}]}, \"back\": {\"core:fallthrough\": {}}}}]}";
 
     @Test
     void definitionsNeedAnIdATypeAndAnAnimator() throws Exception
@@ -113,13 +113,12 @@ public class ExtensionsTest
     }
 
     /** Vanilla from tick 10 to tick 30; a second layer that would go vanilla is disabled by its "when". */
-    private static final String VANILLA = "{\"formatVersion\": 2, \"layers\": ["
-            + "{\"defaultOnEntry\": \"animated\", \"nodes\": {"
-            + "\"animated\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"vanilla\", \"triggerCondition\": {\"gt\": [\"elapsed\", 10]}}]},"
-            + "\"vanilla\": {\"type\": \"core:vanilla\", \"tags\": [\"vanilla\"], \"connections\": [{\"target\": \"again\", \"triggerCondition\": {\"gt\": [\"elapsed\", 20]}}]},"
-            + "\"again\": {\"type\": \"core:fallthrough\"}}},"
-            + "{\"when\": \"SPRINTING\", \"defaultOnEntry\": \"vanilla\", \"nodes\": {\"vanilla\": {\"type\": \"core:vanilla\"}}}"
-            + "]}";
+    private static final String VANILLA = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"animated\", "
+            + "\"nodes\": {\"animated\": {\"core:fallthrough\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 10]}, "
+            + "\"then\": \"vanilla\"}]}, \"vanilla\": {\"core:vanilla\": {}, \"@tags\": [\"vanilla\"], "
+            + "\"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 20]}, \"then\": \"again\"}]}, "
+            + "\"again\": {\"core:fallthrough\": {}}}}, {\"@when\": \"SPRINTING\", \"defaultOnEntry\": \"vanilla\", "
+            + "\"nodes\": {\"vanilla\": {\"core:vanilla\": {}}}}]}";
 
     @Test
     void aVanillaNodeAsksForVanillaWhileTheAnimatorKeepsRunning() throws Exception

@@ -282,18 +282,12 @@ public class ExpressionTest
     {
         // The parent animator (a lab resource) declares base = -85 and rotates the left arm by it.
         // This child shadows base with -45 for its own layers; the parent's layer keeps its own.
-        AnimatorTemplate child = KumoSerializer.INSTANCE.gson.fromJson("{"
-                + "\"formatVersion\": 2,"
-                + "\"extends\": \"mobends_test:bends/animators/expressions_parent.json\","
-                + "\"expressions\": {\"base\": -45},"
-                + "\"layers\": [{\"defaultOnEntry\": \"child\","
-                + "  \"expressions\": {\"lift\": {\"mul\": [\"base\", 0.5]}},"
-                + "  \"nodes\": {\"child\": {\"type\": \"core:pose\","
-                + "    \"expressions\": {\"legs\": {\"add\": [\"lift\", 1]}},"
-                + "    \"pose\": ["
-                + "      {\"driver\": \"core:axis_rotate\", \"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": \"base\", \"space\": \"OVERRIDE\"},"
-                + "      {\"driver\": \"core:axis_rotate\", \"bone\": \"rightLeg\", \"axis\": \"X\", \"angle\": \"legs\", \"space\": \"OVERRIDE\"}"
-                + "    ]}}}]}", AnimatorTemplate.class);
+        AnimatorTemplate child = KumoSerializer.INSTANCE.gson.fromJson("{\"formatVersion\": 2, \"extends\": \"mobends_test:bends/animators/expressions_parent.json\", "
+                + "\"@expressions\": {\"base\": -45}, \"layers\": [{\"defaultOnEntry\": \"child\", "
+                + "\"@expressions\": {\"lift\": {\"mul\": [\"base\", 0.5]}}, "
+                + "\"nodes\": {\"child\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"X\", "
+                + "\"angle\": \"base\"}, \"@space\": \"OVERRIDE\"}, {\"core:axis_rotate\": {\"bone\": \"rightLeg\", \"axis\": \"X\", "
+                + "\"angle\": \"legs\"}, \"@space\": \"OVERRIDE\"}]}, \"@expressions\": {\"legs\": {\"add\": [\"lift\", 1]}}}}}]}", AnimatorTemplate.class);
 
         Scenario scenario = new Scenario(EntityKind.PLAYER, "expression_scopes", Scenarios.FPS, 10, (tick, in) -> {});
         List<FramePose> frames = new KumoSession(scenario, child).run().frames;

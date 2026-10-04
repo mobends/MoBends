@@ -163,7 +163,7 @@ public class MachineState
         }
         for (ConnectionState connection : connections)
         {
-            connection.triggerCondition.restart(context);
+            connection.when.restart(context);
         }
     }
 

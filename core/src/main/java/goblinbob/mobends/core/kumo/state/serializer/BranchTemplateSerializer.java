@@ -19,7 +19,8 @@ public class BranchTemplateSerializer implements JsonDeserializer<BranchTemplate
     @Override
     public BranchTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        JsonObject object = JsonReading.object(json, "A selector branch");
+        JsonObject object = JsonReading.fields(JsonReading.object(json, "A selector branch"), "A selector branch",
+                JsonReading.same("when", "then", "transitionDuration", "transitionEasing", "set"));
         BranchTemplate branch = new BranchTemplate();
 
         JsonElement when = object.get("when");

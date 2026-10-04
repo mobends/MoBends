@@ -59,7 +59,7 @@ public class ClipFrameTest
      */
     private static FramePose run(int ticks, String pose, String mainFields, String otherNodes) throws MalformedKumoTemplateException
     {
-        String nodes = "\"main\": {\"type\": \"core:pose\", \"pose\": [" + pose + "]" + mainFields + "}" + otherNodes;
+        String nodes = "\"main\": {\"core:pose\": {\"pose\": [" + pose + "]}" + mainFields + "}" + otherNodes;
         AnimatorTemplate template = KumoSerializer.INSTANCE.gson.fromJson("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"main\", \"nodes\": {"
                 + nodes + "}}]}", AnimatorTemplate.class);
         Scenario scenario = new Scenario(EntityKind.PLAYER, "clip_frame", Scenarios.FPS, ticks, (tick, in) -> {});
@@ -69,11 +69,11 @@ public class ClipFrameTest
 
     private static String clip(String fields)
     {
-        return "{\"animationKey\": \"" + RAMP + "\", \"space\": \"OVERRIDE\"" + (fields.isEmpty() ? "" : ", " + fields) + "}";
+        return "{\"core:clip\": {\"animationKey\": \"" + RAMP + "\"" + (fields.isEmpty() ? "" : ", " + fields) + "}, \"@space\": \"OVERRIDE\"}";
     }
 
     /** Also writes elapsed to the right arm's X angle, to compare against. */
-    private static final String ELAPSED_PROBE = "{\"driver\": \"core:axis_rotate\", \"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": \"elapsed\", \"space\": \"OVERRIDE\"}";
+    private static final String ELAPSED_PROBE = "{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": \"elapsed\"}, \"@space\": \"OVERRIDE\"}";
 
     @Test
     void frameIsInTheClipsUnitsAndHoldsTheEnds() throws Exception
@@ -106,8 +106,8 @@ public class ClipFrameTest
     @Test
     void theClipIsFinishedOnceItsDurationHasPassed() throws Exception
     {
-        String toDone = ", \"connections\": [{\"target\": \"done\", \"triggerCondition\": \"nodeIsFinished\"}]";
-        String done = ", \"done\": {\"type\": \"core:pose\", \"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"rightLeg\", \"axis\": \"X\", \"angle\": -45, \"space\": \"OVERRIDE\"}]}";
+        String toDone = ", \"@connections\": [{\"when\": \"nodeIsFinished\", \"then\": \"done\"}]";
+        String done = ", \"done\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightLeg\", \"axis\": \"X\", \"angle\": -45}, \"@space\": \"OVERRIDE\"}]}}";
         assertEquals(-45, xAngle(run(10, clip("\"duration\": 3"), toDone, done), "rightLeg"), 0.05);
         assertEquals(0, xAngle(run(10, clip(""), toDone, done), "rightLeg"), 0.05, "without a duration it never finishes");
     }

@@ -10,7 +10,14 @@ import java.util.Map;
 public class NodeTemplate
 {
 
-    private String type = "core:pose";
+    /**
+     * The fields every node has whatever its type, written under {@code @} keys; the others are
+     * what the type takes.
+     */
+    public static final java.util.Set<String> SCOPE_FIELDS = new java.util.HashSet<>(java.util.Arrays.asList(
+            "type", "name", "tags", "connections", "set", "expressions"));
+
+    private transient String type = "core:pose";
 
     /** The node's name, used by selectors, connections and {@code defaultOnEntry}. */
     public String name;

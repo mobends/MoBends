@@ -1,245 +1,184 @@
 {
   "formatVersion": 2,
-  "comment": "The wolf: keyframe clips for the body and the mouth, and the vanilla expressions as drivers on top.",
+  "@comment": "The wolf: keyframe clips for the body and the mouth, and the vanilla expressions as drivers on top.",
   "layers": [
     {
-      "comment": "The body clips. Every clip is hard-set (snap): the wolf's clips were authored without smoothing.",
-      "type": "KEYFRAME",
+      "@comment": "The body clips. Every clip is hard-set (snap): the wolf's clips were authored without smoothing.",
       "defaultOnEntry": "idle",
       "nodes": {
         "idle": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/wolf/idle.json",
-              "frame": {"mod": ["elapsed", "clipLength"]},
-              "space": "OVERRIDE",
-              "snap": true
-            }
-          ],
-          "connections": [
-            {
-              "target": "walk",
-              "transitionDuration": 4,
-              "triggerCondition": "MOVING_HORIZONTALLY"
-            },
-            {
-              "target": "sit_down",
-              "transitionDuration": 3,
-              "triggerCondition": "SITTING"
-            }
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/wolf/idle.json",
+                  "frame": {"mod": ["elapsed", "clipLength"]}
+                },
+                "@space": "OVERRIDE",
+                "@snap": true
+              }
+            ]
+          },
+          "@connections": [
+            {"when": "MOVING_HORIZONTALLY", "then": "walk", "transitionDuration": 4},
+            {"when": "SITTING", "then": "sit_down", "transitionDuration": 3}
           ]
         },
         "walk": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/wolf/walking.json",
-              "frame": {"mod": [{"mul": ["limbSwing", 0.6662, 4]}, "clipLength"]},
-              "space": "OVERRIDE",
-              "snap": true
-            }
-          ],
-          "connections": [
-            {
-              "target": "idle",
-              "transitionDuration": 4,
-              "triggerCondition": "STANDING_STILL"
-            },
-            {
-              "target": "sit_down",
-              "transitionDuration": 1,
-              "triggerCondition": "SITTING"
-            }
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/wolf/walking.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662, 4]}, "clipLength"]}
+                },
+                "@space": "OVERRIDE",
+                "@snap": true
+              }
+            ]
+          },
+          "@connections": [
+            {"when": "STANDING_STILL", "then": "idle", "transitionDuration": 4},
+            {"when": "SITTING", "then": "sit_down", "transitionDuration": 1}
           ]
         },
         "sit_down": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/wolf/sitting_down.json",
-              "frame": {"add": [6, {"mul": ["elapsed", 2]}]},
-              "duration": 8,
-              "space": "OVERRIDE",
-              "snap": true
-            }
-          ],
-          "connections": [
-            {
-              "target": "sit",
-              "transitionDuration": 1,
-              "triggerCondition": "nodeIsFinished"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/wolf/sitting_down.json",
+                  "frame": {"add": [6, {"mul": ["elapsed", 2]}]},
+                  "duration": 8
+                },
+                "@space": "OVERRIDE",
+                "@snap": true
+              }
+            ]
+          },
+          "@connections": [{"when": "nodeIsFinished", "then": "sit", "transitionDuration": 1}]
         },
         "sit": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/wolf/sitting.json",
-              "frame": {"mod": ["elapsed", "clipLength"]},
-              "space": "OVERRIDE",
-              "snap": true
-            }
-          ],
-          "connections": [
-            {
-              "target": "stand_up",
-              "transitionDuration": 1,
-              "triggerCondition": {"not": ["SITTING"]}
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/wolf/sitting.json",
+                  "frame": {"mod": ["elapsed", "clipLength"]}
+                },
+                "@space": "OVERRIDE",
+                "@snap": true
+              }
+            ]
+          },
+          "@connections": [{"when": {"not": ["SITTING"]}, "then": "stand_up", "transitionDuration": 1}]
         },
         "stand_up": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/wolf/standing_up.json",
-              "frame": {"add": [4, {"mul": ["elapsed", 2]}]},
-              "duration": 9,
-              "space": "OVERRIDE",
-              "snap": true
-            }
-          ],
-          "connections": [
-            {
-              "target": "idle",
-              "transitionDuration": 1,
-              "triggerCondition": "nodeIsFinished"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/wolf/standing_up.json",
+                  "frame": {"add": [4, {"mul": ["elapsed", 2]}]},
+                  "duration": 9
+                },
+                "@space": "OVERRIDE",
+                "@snap": true
+              }
+            ]
+          },
+          "@connections": [{"when": "nodeIsFinished", "then": "idle", "transitionDuration": 1}]
         }
       }
     },
     {
-      "comment": "The mouth and tongue alternate between idling and panting.",
-      "type": "KEYFRAME",
+      "@comment": "The mouth and tongue alternate between idling and panting.",
       "defaultOnEntry": "idle",
-      "mask": {
-        "mode": "INCLUDE_ONLY",
-        "includedParts": ["tongue", "mouth"]
-      },
+      "mask": {"mode": "INCLUDE_ONLY", "includedParts": ["tongue", "mouth"]},
       "nodes": {
         "idle": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/wolf/idle.json",
-              "frame": {"mod": ["elapsed", "clipLength"]},
-              "space": "OVERRIDE",
-              "snap": true
-            }
-          ],
-          "connections": [
-            {
-              "target": "breathe",
-              "transitionDuration": 4,
-              "triggerCondition": {"gt": ["elapsed", 80]}
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/wolf/idle.json",
+                  "frame": {"mod": ["elapsed", "clipLength"]}
+                },
+                "@space": "OVERRIDE",
+                "@snap": true
+              }
+            ]
+          },
+          "@connections": [{"when": {"gt": ["elapsed", 80]}, "then": "breathe", "transitionDuration": 4}]
         },
         "breathe": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/wolf/breathing.json",
-              "frame": {"mod": [{"mul": ["elapsed", 1.2]}, "clipLength"]},
-              "space": "OVERRIDE",
-              "snap": true
-            }
-          ],
-          "connections": [
-            {
-              "target": "idle",
-              "transitionDuration": 4,
-              "triggerCondition": {"gt": ["elapsed", 50]}
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/wolf/breathing.json",
+                  "frame": {"mod": [{"mul": ["elapsed", 1.2]}, "clipLength"]}
+                },
+                "@space": "OVERRIDE",
+                "@snap": true
+              }
+            ]
+          },
+          "@connections": [{"when": {"gt": ["elapsed", 50]}, "then": "idle", "transitionDuration": 4}]
         }
       }
     },
     {
-      "comment": "The look direction, the interested tilt, the shaking and the tail (vanilla expressions) applied after the clips in each bone's own space; the clips' head offset is discarded.",
-      "type": "KEYFRAME",
+      "@comment": "The look direction, the interested tilt, the shaking and the tail (vanilla expressions) applied after the clips in each bone's own space; the clips' head offset is discarded.",
       "mode": "ADDITIVE",
       "defaultOnEntry": "look",
       "nodes": {
         "look": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "POST",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Z",
-              "angle": "interestedAngle",
-              "space": "POST",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Z",
-              "angle": "shakeAngleHead",
-              "space": "POST",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "mane",
-              "axis": "Z",
-              "angle": "shakeAngleMane",
-              "space": "POST",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "tail",
-              "axis": "Z",
-              "angle": "shakeAngleTail",
-              "space": "POST",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "tail",
-              "axis": "Z",
-              "angle": "tailWag",
-              "space": "POST",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "tail",
-              "axis": "X",
-              "angle": {"add": ["tailRotation", -90]},
-              "space": "POST",
-              "snap": true
-            },
-            {
-              "driver": "core:offset",
-              "bone": "head",
-              "x": 0,
-              "y": 0,
-              "z": 0,
-              "space": "OVERRIDE"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@space": "POST",
+                "@snap": true
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@space": "POST",
+                "@snap": true
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Z", "angle": "interestedAngle"},
+                "@space": "POST",
+                "@snap": true
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Z", "angle": "shakeAngleHead"},
+                "@space": "POST",
+                "@snap": true
+              },
+              {
+                "core:axis_rotate": {"bone": "mane", "axis": "Z", "angle": "shakeAngleMane"},
+                "@space": "POST",
+                "@snap": true
+              },
+              {
+                "core:axis_rotate": {"bone": "tail", "axis": "Z", "angle": "shakeAngleTail"},
+                "@space": "POST",
+                "@snap": true
+              },
+              {
+                "core:axis_rotate": {"bone": "tail", "axis": "Z", "angle": "tailWag"},
+                "@space": "POST",
+                "@snap": true
+              },
+              {
+                "core:axis_rotate": {"bone": "tail", "axis": "X", "angle": {"add": ["tailRotation", -90]}},
+                "@space": "POST",
+                "@snap": true
+              },
+              {"core:offset": {"bone": "head", "x": 0, "y": 0, "z": 0}, "@space": "OVERRIDE"}
+            ]
+          }
         }
       }
     }

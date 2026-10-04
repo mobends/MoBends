@@ -23,11 +23,6 @@ public class LayerMirror
         this.skeleton = skeleton;
         this.when = Expression.compileCondition(template.when, scope);
         this.pairs = template.pairs == null ? Collections.emptyList() : template.pairs;
-        if (template.negate != null)
-        {
-            throw new MalformedKumoTemplateException("A mirror rule no longer negates inputs (\"negate\"): an item that follows a world direction, "
-                    + "such as the head turned by headYaw, isn't mirrored, or only swaps sides (\"swapSides\").");
-        }
         for (List<String> pair : this.pairs)
         {
             if (pair == null || pair.size() != 2)

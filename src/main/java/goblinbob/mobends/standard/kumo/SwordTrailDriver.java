@@ -10,7 +10,7 @@ import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.standard.data.BipedEntityData;
 
 /**
- * {@code "driver": "mobends:sword_trail"}: feeds the sword trail effect with the current arm
+ * {@code {"mobends:sword_trail": {...}}}: feeds the sword trail effect with the current arm
  * pose every frame the item is evaluated (gate it with {@code when}), optionally with a
  * velocity offset, and can clear the trail when its node is entered. Writes no bones.
  */

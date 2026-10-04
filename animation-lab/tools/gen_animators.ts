@@ -1188,11 +1188,112 @@ function doubleBodyRates(node: unknown): void {
   }
 }
 
+// ---- the one-key syntax: the builders above write items, nodes and connections the old way -----
+// (a key per field); this rewrites them as the format has them (see misc/kumo-format.md).
+const MODIFIERS: Record<string, string> = { when: "@when", space: "@space", damping: "@damping", snap: "@snap",
+  mirror: "@mirror", swapSides: "@swapSides", vectorModes: "@vectorModes", comment: "@comment" };
+
+function oneKeyItem(o: Obj): Obj {
+  const { driver, ...rest } = o;
+  const kind: string = driver ?? "core:clip";
+  const own: Obj = {}, mods: Obj = {};
+  for (const [k, v] of Object.entries(rest)) {
+    if (k === "when" && kind === "core:ramp") own[k] = v; // a ramp's own up/down switch
+    else if (k in MODIFIERS) mods[MODIFIERS[k]] = v;
+    else own[k] = v;
+  }
+  const out: Obj = {};
+  if ("@when" in mods) out["@when"] = mods["@when"];
+  out[kind] = own;
+  for (const [k, v] of Object.entries(mods)) if (k !== "@when") out[k] = v;
+  return out;
+}
+
+function oneKeyConnection(c: Obj): Obj {
+  const { triggerCondition, target, ...rest } = c;
+  return { when: triggerCondition, then: target, ...rest };
+}
+
+function oneKeyBranch(b: Obj): Obj {
+  return Array.isArray(b.then) ? { ...b, then: b.then.map(oneKeyBranch) } : b;
+}
+
+function oneKeyNode(n: Obj): Obj {
+  const { type = "core:pose", connections, expressions, set, tags, ...rest } = n;
+  const own: Obj = {};
+  for (const k of ["pose", "enterPose", "snapOnEnter", "damping"]) {
+    if (k in rest) {
+      own[k] = k === "pose" || k === "enterPose" ? rest[k].map(oneKeyItem) : rest[k];
+      delete rest[k];
+    }
+  }
+  if (Object.keys(rest).length) throw new Error("unexpected node keys " + Object.keys(rest));
+  const out: Obj = { [type]: own };
+  if (connections) out["@connections"] = connections.map(oneKeyConnection);
+  if (expressions) out["@expressions"] = expressions;
+  if (set) out["@set"] = set;
+  if (tags) out["@tags"] = tags;
+  return out;
+}
+
+function oneKeyMachine(m: Obj, layer: boolean): Obj {
+  const out: Obj = {};
+  for (const [k, v] of Object.entries(m)) {
+    if (k === "when" && layer) out["@when"] = v;
+    else if (k === "connections") out["@connections"] = v.map(oneKeyConnection);
+    else if (k === "expressions") out["@expressions"] = v;
+    else if (k === "nodes") out.nodes = Object.fromEntries(Object.entries(v as Obj).map(([n, x]) => [n, oneKeyNode(x)]));
+    else if (k === "machines") out.machines = Object.fromEntries(Object.entries(v as Obj).map(([n, x]) => [n, oneKeyMachine(x, false)]));
+    else if (k === "select") out.select = v.map(oneKeyBranch);
+    else if (k === "mirror") out.mirror = Object.fromEntries(Object.entries(v as Obj).map(([mk, mv]) => [mk === "when" ? "@when" : mk, mv]));
+    else out[k] = v;
+  }
+  return out;
+}
+
+function oneKeyAnimator(doc: Obj): Obj {
+  const out: Obj = {};
+  for (const [k, v] of Object.entries(doc)) {
+    if (k === "expressions") out["@expressions"] = v;
+    else if (k === "layers") out.layers = v.map((l: Obj) => oneKeyMachine(l, true));
+    else out[k] = v;
+  }
+  return out;
+}
+
+// ---- formatting: two-space indent, anything that fits in the width on one line -----------------
+const WIDTH = 110;
+function compactJson(v: unknown): string {
+  if (Array.isArray(v)) return "[" + v.map(compactJson).join(", ") + "]";
+  if (v !== null && typeof v === "object") {
+    return "{" + Object.entries(v as Obj).map(([k, x]) => JSON.stringify(k) + ": " + compactJson(x)).join(", ") + "}";
+  }
+  return JSON.stringify(v);
+}
+const isObj = (v: unknown): v is Obj => v !== null && typeof v === "object" && !Array.isArray(v);
+const inline = (v: unknown, indent: number): boolean => compactJson(v).length + indent <= WIDTH;
+function pretty(v: unknown, indent = 0): string {
+  const pad = " ".repeat(indent);
+  if (Array.isArray(v)) {
+    if (v.length === 0) return "[]";
+    if (inline(v, indent)) return compactJson(v);
+    return "[\n" + v.map((x) => pad + "  " + pretty(x, indent + 2)).join(",\n") + "\n" + pad + "]";
+  }
+  if (isObj(v)) {
+    const entries = Object.entries(v);
+    if (entries.length === 0) return "{}";
+    if (inline(v, indent)) return compactJson(v);
+    return "{\n" + entries.map(([k, x]) => pad + "  " + JSON.stringify(k) + ": " + pretty(x, indent + 2)).join(",\n") + "\n" + pad + "}";
+  }
+  return JSON.stringify(v);
+}
+
 for (const [name, built] of animators) {
   // A deep copy: the builders share value objects between items.
-  const data = JSON.parse(JSON.stringify(built));
+  let data = JSON.parse(JSON.stringify(built));
   convertValues(data);
   if (BIPEDS.has(name)) doubleBodyRates(data);
-  writeFileSync(join(ANIM, name + ".json"), JSON.stringify(data, null, 2));
+  data = oneKeyAnimator(data);
+  writeFileSync(join(ANIM, name + ".json"), pretty(data) + "\n");
   console.log("wrote", name + ".json");
 }

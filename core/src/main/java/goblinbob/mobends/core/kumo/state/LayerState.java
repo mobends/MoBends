@@ -256,7 +256,7 @@ public class LayerState
     {
         for (ConnectionState connection : connections)
         {
-            if (connection.triggerCondition.test(context) && fired == null)
+            if (connection.when.test(context) && fired == null)
             {
                 fired = connection;
             }
@@ -354,7 +354,7 @@ public class LayerState
         currentNode.start(context);
         for (ConnectionState connection : current.connections)
         {
-            connection.triggerCondition.restart(context);
+            connection.when.restart(context);
         }
     }
 

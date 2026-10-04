@@ -2,164 +2,70 @@
   "formatVersion": 2,
   "layers": [
     {
-      "expressions": {
-        "jumping": {
-          "or": [
-            "AIRBORNE",
-            {
-              "lt": [
-                "ticksAfterTouchdown",
-                1
-              ]
-            }
-          ]
-        }
-      },
-      "select": [
-        {
-          "when": "jumping",
-          "then": "jump"
-        },
-        {
-          "when": "STANDING_STILL",
-          "then": "stand"
-        },
-        {
-          "then": "walk"
-        }
-      ],
+      "@expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
+      "select": [{"when": "jumping", "then": "jump"}, {"when": "STANDING_STILL", "then": "stand"}, {"then": "walk"}],
       "nodes": {
         "stand": {
-          "type": "core:pose",
-          "tags": [
-            "stand"
-          ],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/villager/rest.json",
-              "damping": {
-                "rightLeg": 0.5,
-                "foreRightLeg": 0.5,
-                "leftLeg": 0.5,
-                "foreLeftLeg": 0.5
-              }
-            },
-            {
-              "animationKey": "mobends:bends/animations/villager/idle.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "ticks",
-                      0.09
-                    ]
-                  },
-                  "clipLength"
-                ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/villager/rest.json"},
+                "@damping": {"rightLeg": 0.5, "foreRightLeg": 0.5, "leftLeg": 0.5, "foreLeftLeg": 0.5}
               },
-              "damping": {
-                "head": 0.5,
-                "arms": 0.5
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE",
-              "damping": {
-                "head": 0.5
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            }
-          ]
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/villager/idle.json",
+                  "frame": {"mod": [{"mul": ["ticks", 0.09]}, "clipLength"]}
+                },
+                "@damping": {"head": 0.5, "arms": 0.5}
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@space": "PRE",
+                "@damping": {"head": 0.5}
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
+            ]
+          },
+          "@tags": ["stand"]
         },
         "walk": {
-          "type": "core:pose",
-          "tags": [
-            "walk"
-          ],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/villager/walk.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/villager/walk.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "limbSwingAmount"
+                },
+                "@damping": {"rightLeg": 0.8, "foreRightLeg": 0.8, "leftLeg": 0.8, "foreLeftLeg": 0.8}
               },
-              "weight": "limbSwingAmount",
-              "damping": {
-                "rightLeg": 0.8,
-                "foreRightLeg": 0.8,
-                "leftLeg": 0.8,
-                "foreLeftLeg": 0.8
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "OVERRIDE",
-              "damping": {
-                "head": 0.5
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            }
-          ]
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@space": "OVERRIDE",
+                "@damping": {"head": 0.5}
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
+            ]
+          },
+          "@tags": ["walk"]
         },
         "jump": {
-          "type": "core:pose",
-          "tags": [
-            "jump"
-          ],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/villager/jump.json",
-              "damping": {
-                "rightLeg": 0.3,
-                "foreRightLeg": 0.3,
-                "leftLeg": 0.3,
-                "foreLeftLeg": 0.3
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "OVERRIDE",
-              "damping": {
-                "head": 0.5
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/villager/jump.json"},
+                "@damping": {"rightLeg": 0.3, "foreRightLeg": 0.3, "leftLeg": 0.3, "foreLeftLeg": 0.3}
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@space": "OVERRIDE",
+                "@damping": {"head": 0.5}
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
+            ]
+          },
+          "@tags": ["jump"]
         }
       }
     }

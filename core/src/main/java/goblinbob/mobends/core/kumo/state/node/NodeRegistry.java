@@ -13,7 +13,7 @@ import goblinbob.mobends.core.kumo.state.template.VanillaNodeTemplate;
 
 import javax.annotation.Nullable;
 
-/** Node types addressable from animator JSON by {@code "type"} ({@code core:pose} when left out). */
+/** Node types addressable from animator JSON by their key: {@code {"core:pose": {...}}}. */
 public class NodeRegistry
 {
 

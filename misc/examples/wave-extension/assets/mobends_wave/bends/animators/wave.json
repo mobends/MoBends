@@ -1,48 +1,24 @@
 {
   "formatVersion": 2,
-  "comment": "One layer on top of the player's animator: it lets the player's own pose through while they move, and raises the right arm to wave while they stand still.",
+  "@comment": "One layer on top of the player's animator: it lets the player's own pose through while they move, and raises the right arm to wave while they stand still.",
   "layers": [
     {
       "select": [
-        {
-          "when": "STANDING_STILL",
-          "then": "wave",
-          "transitionDuration": 8
-        },
-        {
-          "then": "through",
-          "transitionDuration": 8
-        }
+        {"when": "STANDING_STILL", "then": "wave", "transitionDuration": 8},
+        {"then": "through", "transitionDuration": 8}
       ],
       "nodes": {
-        "through": {"type": "core:fallthrough"},
+        "through": {"core:fallthrough": {}},
         "wave": {
-          "type": "core:pose",
-          "tags": ["wave"],
-          "expressions": {"sway": {"mul": [{"sin": [{"mul": ["elapsed", 0.5]}]}, 25]}},
-          "pose": [
-            {
-              "driver": "core:axis_rotate",
-              "bone": "rightArm",
-              "axis": "X",
-              "angle": -165,
-              "space": "OVERRIDE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "rightArm",
-              "axis": "Z",
-              "angle": "sway",
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "rightForeArm",
-              "axis": "X",
-              "angle": -20,
-              "space": "OVERRIDE"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {"core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": -165}, "@space": "OVERRIDE"},
+              {"core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": "sway"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": -20}, "@space": "OVERRIDE"}
+            ]
+          },
+          "@tags": ["wave"],
+          "@expressions": {"sway": {"mul": [{"sin": [{"mul": ["elapsed", 0.5]}]}, 25]}}
         }
       }
     }

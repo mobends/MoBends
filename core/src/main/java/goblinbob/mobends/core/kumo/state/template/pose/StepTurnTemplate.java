@@ -5,7 +5,7 @@ import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import java.util.List;
 
 /**
- * {@code "driver": "core:step_turn"}: the body turns by stepping. The driver keeps the yaw the
+ * {@code {"core:step_turn": {...}}}: the body turns by stepping. The driver keeps the yaw the
  * body is shown at, cancels the entity's own body yaw with {@link #rotationBone}, plants the feet
  * in the world and turns the body only as far as its feet have gone: when the entity's body yaw
  * gets ahead of the shown one, the leg on the side of the turn steps first, the body follows, then

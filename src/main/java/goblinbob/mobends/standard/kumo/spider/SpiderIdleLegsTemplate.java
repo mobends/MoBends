@@ -4,7 +4,7 @@ import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 
 /**
- * {@code "driver": "mobends:spider_idle_legs"}: the eight legs keep their feet planted in the
+ * {@code {"mobends:spider_idle_legs": {...}}}: the eight legs keep their feet planted in the
  * world (inverse kinematics from the limbs' remembered positions), step back to a neutral spot
  * when stretched too far, and the front pair "feels" the ground periodically. Exposes the
  * computed ground level as the node variable {@code groundLevel}.

@@ -1,4 +1,1 @@
-{
-  "formatVersion": 2,
-  "extends": "mobends:bends/animators/zombie.json"
-}
+{"formatVersion": 2, "extends": "mobends:bends/animators/zombie.json"}

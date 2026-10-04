@@ -17,23 +17,34 @@ import java.util.Map;
 public class LayerTemplateSerializer implements JsonDeserializer<LayerTemplate>
 {
 
+    /** The keys of a machine, and the template fields they are read into. */
+    private static final Map<String, String> MACHINE_KEYS = JsonReading.with(JsonReading.with(
+            JsonReading.same("nodes", "machines", "select", "defaultOnEntry"), "@connections", "connections"), "@expressions", "expressions");
+    /** A layer's: a machine's, and the layer's own. */
+    private static final Map<String, String> LAYER_KEYS = JsonReading.with(withAll(MACHINE_KEYS,
+            "mode", "additiveSpace", "variables", "damping", "mask", "mirror"), "@when", "when");
+
+    private static Map<String, String> withAll(Map<String, String> keys, String... names)
+    {
+        Map<String, String> copy = keys;
+        for (String name : names)
+        {
+            copy = JsonReading.with(copy, name, name);
+        }
+        return copy;
+    }
+
     @Override
     public LayerTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-        return readMachine(json, LayerTemplate.class, "A layer");
+        return readMachine(json, LayerTemplate.class, "A layer", LAYER_KEYS);
     }
 
-    private static <T extends MachineTemplate> T readMachine(JsonElement json, Class<T> type, String what)
+    private static <T extends MachineTemplate> T readMachine(JsonElement json, Class<T> type, String what, Map<String, String> keys)
     {
-        JsonObject object = JsonReading.object(json, what);
-
-        // Shallow copy without the entries read here: JsonObject.deepCopy() is not public in the
-        // Gson shipped with 1.12.2.
-        JsonObject copy = new JsonObject();
-        for (Map.Entry<String, JsonElement> entry : object.entrySet())
-        {
-            copy.add(entry.getKey(), entry.getValue());
-        }
+        // A copy with the keys renamed to the template's fields (JsonObject.deepCopy() is not public
+        // in the Gson shipped with 1.12.2), without the entries read here.
+        JsonObject copy = JsonReading.fields(JsonReading.object(json, what), what, keys);
         JsonElement nodes = copy.remove("nodes");
         JsonElement machines = copy.remove("machines");
         JsonElement defaultOnEntry = copy.remove("defaultOnEntry");
@@ -62,7 +73,7 @@ public class LayerTemplateSerializer implements JsonDeserializer<LayerTemplate>
             machine.machines = new ArrayList<>();
             for (Map.Entry<String, JsonElement> entry : JsonReading.object(machines, what + "'s \"machines\"").entrySet())
             {
-                MachineTemplate nested = readMachine(entry.getValue(), MachineTemplate.class, String.format("The machine '%s'", entry.getKey()));
+                MachineTemplate nested = readMachine(entry.getValue(), MachineTemplate.class, String.format("The machine '%s'", entry.getKey()), MACHINE_KEYS);
                 nested.name = entry.getKey();
                 machine.machines.add(nested);
             }

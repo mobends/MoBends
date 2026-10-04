@@ -39,58 +39,27 @@ Bends ships. A mod or pack needs Java only to bring new operations or drivers.
 
 ## How constructs are written
 
-Operations, statements and pose items are all written the same way: an object with **exactly one
-key that doesn't start with `@`**. That key names the construct; its value is the construct's own
-content, as the construct declares it: an array of positional arguments (operations, `set`) or
-an object of named fields (clips, drivers).
+Pose items and nodes follow the one-key rule, with `@` modifiers and scope keys, `@comment`
+everywhere and unknown keys refused (`misc/kumo-format.md`, *How it is written*). What is still
+to come:
 
-Every other key is a **modifier**: it starts with `@` and says how the engine treats the
-construct, not what the construct is.
-
-```json
-{"add": ["layer.combo", 1]}
-{"mobends:is_sitting": [], "@fallback": false}
-{"@when": "nodeIsActive", "set": ["layer.combo", 0]}
-{"@when": "entityIsRiding", "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"neg": ["entityHeadPitch"]}},
- "@space": "PRE"}
-{"core:clip": {"animationKey": ".../walk.json", "frame": "entityLimbSwing"}, "@damping": {"body": 0.5}}
-```
-
-- **Modifiers are a closed set Mo' Bends owns**, and each kind of construct accepts its own:
-  pose items `@when`, `@space`, `@damping`, `@snap`, `@mirror`, `@swapSides`, `@vectorModes`;
-  statements `@when`; operations `@fallback` (where the operation declares it). Any other key is
-  a load error. A modifier never collides with a construct's own field, and adding a modifier
-  never breaks an addon's driver.
-- **`@comment`** is accepted on every object of every file (constructs, structured objects,
-  definitions, a file's root). Its value is a string, and the engine ignores it. A misspelt
-  `@coment` is a load error like any unknown `@` key.
+- **Statements** are written the same way: `{"@when": "nodeIsActive", "set": ["layer.combo", 0]}`,
+  their content an array of positional arguments, `@when` their one modifier.
+- **Operations** take `@fallback` where they declare it:
+  `{"mobends:is_sitting": [], "@fallback": false}`.
+- **Definitions** take `@` modifiers too (`@comment` today; see *Three kinds of definitions*).
+- Operations and drivers share one registry namespace: `core:spring` names one thing.
 - Fields only some constructs have stay their own fields (`weight` on clips and
   `core:step_turn`, `inout` on accumulators and springs).
-- Operations and drivers share one registry namespace: `core:spring` names one thing.
-- **Style:** put `@when` first when there is one, so a reader knows something applies
-  conditionally before reading what. (JSON objects are unordered; this is a convention for
-  files, not something the loader checks.)
 
 ### Structured objects
 
-Structured objects (layers, machines, selector branches, connections, the mirror rule) keep their
-fixed keys: their place in the file says what they are. Every key they don't declare is a load
-error, as on a construct.
-
-**Nodes follow the one-key rule.** A node's one key without `@` is its type, and its value is
-what the type declares: `core:pose` takes the pose list and the posing fields (`pose`,
-`enterPose`, `snapOnEnter`, `damping`), which only mean something for a node that poses.
-`core:fallthrough` and `core:vanilla` take `{}`. Addons register node types, and the runtime owns
-every `@` key beside the type, so neither can add a key that collides with the other's.
-
-What a scope has whatever else it is, is written under **`@` keys**:
+The scope keys still to come replace today's `@expressions`, `variables`, `@set` and `@tags`:
 
 | key | on | holds |
 |---|---|---|
 | `@define` | every scope | the scope's definitions (*Definitions and scopes*) |
 | `@on` | every scope | the scope's statement lists (*Statement lists*) |
-| `@connections` | nodes, machines, layers | the connections out of the node, or out of any node inside the machine or layer |
-| `@when` | layers, the mirror rule | the condition under which the layer runs, or under which mirrored items mirror |
 
 ```json
 "walk": {
@@ -101,11 +70,6 @@ What a scope has whatever else it is, is written under **`@` keys**:
 },
 "animated": {"core:fallthrough": {}}
 ```
-
-**A condition is `@when`**, on constructs and scopes alike, with one exception: **selector
-branches and connections** are `{"when": ..., "then": ...}` objects. Choosing where to go when a
-condition holds is all they are, so their condition and their target are their content, not a
-modifier. A connection's other keys (`transitionDuration`, the easing) sit beside them.
 
 Keys inside the `@` keys need no `@`: they are the format's own (`enter`, `then`) or names the
 file declares (`stride`).
@@ -866,62 +830,17 @@ variable. Names now carry their scope.
 The old `field` list in model definitions meant fallback names (the first that exists); a `field`
 path now means a chain of fields, and fallbacks are the `fallback` option.
 
-### Connections are written like selector branches
-
-A connection was `{"target": "jump", "triggerCondition": ...}`; it is
-`{"when": ..., "then": "jump"}`, the same as a selector branch, with its other keys
-(`transitionDuration`, the easing) beside them.
-
-### Conditions are `@when`
-
-Every other `when` (pose items, layers, the mirror rule) becomes `@when` (*Structured objects*).
-A ramp's own `when`, which collided with the item `when`, goes away with the ramp (*Ramps,
-springs and accumulators*).
-
-### Comments are `@comment`
-
-Files carried notes in a plain `comment` key (20 uses: `iron_golem`, `creeper`, `cow`, `wolf`,
-their model definitions and the example extensions), which loaded only because Gson ignores keys
-it doesn't know. Under the one-key rule a second key without `@` is an error, and structured
-objects now reject unknown keys, so they become `@comment`.
-
-### One key, plus modifiers
-
-The old format told constructs apart three ways: an operation by its one key, a driver by a
-`driver` key, a clip by having `animationKey`. A pose item's generic fields (`when`, `space`,
-`damping`, ...) sat in the same flat object as the driver's own fields, which is how a ramp's own
-`when` (its up/down switch) came to collide with the item `when` every other pose item has.
-
-Now every operation, statement and pose item is one key naming it, with its own content as the
-value, and `@` modifiers for what the engine does with it (*How constructs are written*):
-
-| old | new |
-|---|---|
-| `{"driver": "core:axis_rotate", "bone": "head", "axis": "X", "angle": 10, "space": "PRE", "when": ...}` | `{"@when": ..., "core:axis_rotate": {"bone": "head", "axis": "X", "angle": 10}, "@space": "PRE"}` |
-| `{"animationKey": ".../walk.json", "frame": ..., "damping": {...}}` | `{"core:clip": {"animationKey": ".../walk.json", "frame": ...}, "@damping": {...}}` |
-| `{"type": "core:property", ...}` and other conditions | operations (*Conditions become expressions*) |
-
-An earlier version of this design gave pose items a `type` key instead; the one-key form
-replaced it, so that operations, statements and pose items share one rule. Nodes follow it too:
-`{"type": "core:pose", "pose": [...]}` becomes `{"core:pose": {"pose": [...]}}`, and
-`damping`, `snapOnEnter` and `enterPose`, which every node type inherited (`core:fallthrough` and
-`core:vanilla` rejected them by hand), move into `core:pose`'s own fields. Layers and machines
-keep their structured form.
-
 ### Scope keys under `@`
 
-A node's fields were one flat object: what the engine reads for every node (`connections`,
-`tags`, `set`, `expressions`, `conditions`) next to what its type reads (`pose`). Addons register
-node types, so a field core added to every node could collide with a field an addon's node type
-already had. Everything a scope has whatever its type now goes under `@define`, `@on` and
-`@connections` (*Structured objects*):
+Nodes follow the one-key rule and connections are `{when, then}` (done). Until definitions,
+statements and the removal of tags, a scope's named expressions are `@expressions`, a node's
+`set` is `@set` and its tags `@tags`; then:
 
-| old | new |
+| today | new |
 |---|---|
-| `expressions`, `conditions`, layer `variables` | `@define` (*Named values become definitions*) |
-| `set` | a `set` statement in the `enter` list of `@on` |
-| `connections` | `@connections`, on nodes, machines and layers |
-| `tags` | removed (*Tags are removed*) |
+| `@expressions`, layer `variables` | `@define` (*Named values become definitions*) |
+| a node's `@set` | a `set` statement in the `enter` list of `@on` |
+| `@tags` | removed (*Tags are removed*) |
 
 ### Statements
 
@@ -1394,9 +1313,10 @@ the additive and smaller ones.
    (*Definitions and scopes*).
 5. [ ] **Statements**: `set`, `@on` lists (`enter`, `update`, `exit`, a transition's own), their order
    in a frame and on a transition, who may set what, and the trust rule (*Statements*).
-6. [ ] **The one-key syntax**: constructs and nodes as one key plus `@` modifiers, the closed modifier
-   sets, `@define` / `@on` / `@connections` / `@when` on scopes, `{"when", "then"}` branches and
-   connections, `@comment` everywhere, unknown keys a load error (*How constructs are written*).
+6. [x] **The one-key syntax**: pose items and nodes as one key plus `@` modifiers, `@connections`
+   and `@when` on scopes, `{"when", "then"}` connections, `@comment` everywhere, unknown keys a
+   load error. Statements and `@fallback` come with tasks 5 and 12; `@define` / `@on` with 4 and
+   5 (until then `@expressions`, `@set`, `@tags`).
 
 **Built-ins and operations**
 
@@ -1464,9 +1384,12 @@ the additive and smaller ones.
 
 25. [ ] **Rename the held-item bones** `renderLeftItemRotation` / `renderRightItemRotation` to
     `leftHeldItem` / `rightHeldItem` (*Migration work* lists the files).
-26. [ ] **Decide the remaining cleanups**: singular / plural pairs, the reserved `"default"` key,
+26. [ ] **The generator writes the format directly**: `gen_animators.ts` builds items, nodes and
+    connections the old way and rewrites them in a last pass (`oneKeyAnimator`); its builders
+    should write the one-key syntax themselves.
+27. [ ] **Decide the remaining cleanups**: singular / plural pairs, the reserved `"default"` key,
     enum casing (*Smaller renames and cleanups*).
 
 **After v2**
 
-27. [ ] **Functions**, as designed in *Functions (after v2)*.
+28. [ ] **Functions**, as designed in *Functions (after v2)*.

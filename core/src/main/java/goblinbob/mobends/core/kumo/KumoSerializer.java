@@ -53,6 +53,8 @@ public class KumoSerializer
     {
         return new GsonBuilder()
                 .registerTypeAdapter(BranchTemplate.class, new BranchTemplateSerializer())
+                .registerTypeAdapter(ConnectionTemplate.class, new ConnectionTemplateSerializer())
+                .registerTypeAdapter(MirrorTemplate.class, new MirrorTemplateSerializer())
                 .registerTypeAdapter(PoseItemTemplate.class, new PoseItemSerializer())
                 .registerTypeAdapter(ExpressionTemplate.class, new ExpressionTemplate.Deserializer())
                 .registerTypeAdapter(DampingTemplate.class, new DampingTemplateSerializer())

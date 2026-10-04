@@ -2,292 +2,102 @@
   "formatVersion": 2,
   "layers": [
     {
-      "select": [
-        {
-          "when": "jumping",
-          "then": "jump"
-        },
-        {
-          "when": "STANDING_STILL",
-          "then": "stand"
-        },
-        {"then": "walk"}
-      ],
+      "select": [{"when": "jumping", "then": "jump"}, {"when": "STANDING_STILL", "then": "stand"}, {"then": "walk"}],
       "nodes": {
         "stand": {
-          "type": "core:pose",
-          "tags": ["stand"],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/creeper/rest.json",
-              "damping": {
-                "leg1": 0.5,
-                "leg2": 0.5,
-                "leg3": 0.5,
-                "leg4": 0.5
-              }
-            },
-            {
-              "animationKey": "mobends:bends/animations/creeper/idle.json",
-              "frame": {"mod": [{"mul": ["ticks", 0.09]}, "clipLength"]},
-              "damping": {"head": 0.5}
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg1",
-              "axis": "Z",
-              "angle": 8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg1",
-              "axis": "X",
-              "angle": 4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg2",
-              "axis": "Z",
-              "angle": -8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg2",
-              "axis": "X",
-              "angle": 4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg3",
-              "axis": "Z",
-              "angle": 8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg3",
-              "axis": "X",
-              "angle": -4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg4",
-              "axis": "Z",
-              "angle": -8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg4",
-              "axis": "X",
-              "angle": -4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE",
-              "damping": {"head": 0.5}
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/creeper/rest.json"},
+                "@damping": {"leg1": 0.5, "leg2": 0.5, "leg3": 0.5, "leg4": 0.5}
+              },
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/creeper/idle.json",
+                  "frame": {"mod": [{"mul": ["ticks", 0.09]}, "clipLength"]}
+                },
+                "@damping": {"head": 0.5}
+              },
+              {"core:axis_rotate": {"bone": "leg1", "axis": "Z", "angle": 8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "X", "angle": 4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "Z", "angle": -8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "X", "angle": 4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "Z", "angle": 8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "Z", "angle": -8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@space": "PRE",
+                "@damping": {"head": 0.5}
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
+            ]
+          },
+          "@tags": ["stand"]
         },
         "walk": {
-          "type": "core:pose",
-          "tags": ["walk"],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/creeper/walk.json",
-              "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
-              "weight": "limbSwingAmount",
-              "damping": {
-                "leg1": 0.8,
-                "leg2": 0.8,
-                "leg3": 0.8,
-                "leg4": 0.8
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg1",
-              "axis": "Z",
-              "angle": 8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg1",
-              "axis": "X",
-              "angle": 4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg2",
-              "axis": "Z",
-              "angle": -8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg2",
-              "axis": "X",
-              "angle": 4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg3",
-              "axis": "Z",
-              "angle": 8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg3",
-              "axis": "X",
-              "angle": -4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg4",
-              "axis": "Z",
-              "angle": -8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg4",
-              "axis": "X",
-              "angle": -4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "OVERRIDE",
-              "damping": {"head": 0.5}
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/creeper/walk.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "limbSwingAmount"
+                },
+                "@damping": {"leg1": 0.8, "leg2": 0.8, "leg3": 0.8, "leg4": 0.8}
+              },
+              {"core:axis_rotate": {"bone": "leg1", "axis": "Z", "angle": 8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "X", "angle": 4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "Z", "angle": -8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "X", "angle": 4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "Z", "angle": 8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "Z", "angle": -8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@space": "OVERRIDE",
+                "@damping": {"head": 0.5}
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
+            ]
+          },
+          "@tags": ["walk"]
         },
         "jump": {
-          "type": "core:pose",
-          "tags": ["jump"],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/creeper/jump.json",
-              "damping": {
-                "leg1": 0.3,
-                "leg2": 0.3,
-                "leg3": 0.3,
-                "leg4": 0.3
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg1",
-              "axis": "Z",
-              "angle": 8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg1",
-              "axis": "X",
-              "angle": 4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg2",
-              "axis": "Z",
-              "angle": -8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg2",
-              "axis": "X",
-              "angle": 4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg3",
-              "axis": "Z",
-              "angle": 8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg3",
-              "axis": "X",
-              "angle": -4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg4",
-              "axis": "Z",
-              "angle": -8,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg4",
-              "axis": "X",
-              "angle": -4,
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "OVERRIDE",
-              "damping": {"head": 0.5}
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/creeper/jump.json"},
+                "@damping": {"leg1": 0.3, "leg2": 0.3, "leg3": 0.3, "leg4": 0.3}
+              },
+              {"core:axis_rotate": {"bone": "leg1", "axis": "Z", "angle": 8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "X", "angle": 4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "Z", "angle": -8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "X", "angle": 4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "Z", "angle": 8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "Z", "angle": -8}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@space": "OVERRIDE",
+                "@damping": {"head": 0.5}
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
+            ]
+          },
+          "@tags": ["jump"]
         }
       },
-      "expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}
+      "@expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}
     },
     {
-      "comment": "The lean: the chest leans over the lower half, which stays upright, and the neck (and with it the head) moves to where the leaning chest puts it. Standing, it leans a little and breathes with the idle clip (same phase: 64 samples a 2pi cycle, 0.09 samples a tick); walking forward, it leans further. The waist joint is on the back edge, 6 below and 2 behind the neck.",
-      "type": "KEYFRAME",
+      "@comment": "The lean: the chest leans over the lower half, which stays upright, and the neck (and with it the head) moves to where the leaning chest puts it. Standing, it leans a little and breathes with the idle clip (same phase: 64 samples a 2pi cycle, 0.09 samples a tick); walking forward, it leans further. The waist joint is on the back edge, 6 below and 2 behind the neck.",
       "mode": "ADDITIVE",
       "defaultOnEntry": "hunch",
-      "expressions": {
+      "@expressions": {
         "walking": {"clamp": [{"div": ["forwardMomentum", 0.1]}, 0, 1]},
         "breath": {"cos": [{"mul": ["ticks", 0.008835729338221293]}]},
         "hunch": {"add": [8, {"mul": [7, "walking"]}, {"mul": [1.5, "breath", {"sub": [1, "walking"]}]}]},
@@ -297,43 +107,21 @@
       },
       "nodes": {
         "hunch": {
-          "type": "core:pose",
-          "pose": [
-            {
-              "driver": "core:axis_rotate",
-              "bone": "body",
-              "axis": "X",
-              "angle": "hunch",
-              "space": "OVERRIDE",
-              "damping": {
-                "body": 0.5,
-                "lowerBody": 0.5
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "lowerBody",
-              "axis": "X",
-              "angle": {"neg": ["hunch"]},
-              "space": "OVERRIDE"
-            },
-            {
-              "driver": "core:offset",
-              "bone": "body",
-              "x": 0,
-              "y": "neckY",
-              "z": "neckZ",
-              "space": "OVERRIDE"
-            },
-            {
-              "driver": "core:offset",
-              "bone": "head",
-              "x": 0,
-              "y": "neckY",
-              "z": "neckZ",
-              "space": "OVERRIDE"
-            }
-          ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": "hunch"},
+                "@space": "OVERRIDE",
+                "@damping": {"body": 0.5, "lowerBody": 0.5}
+              },
+              {
+                "core:axis_rotate": {"bone": "lowerBody", "axis": "X", "angle": {"neg": ["hunch"]}},
+                "@space": "OVERRIDE"
+              },
+              {"core:offset": {"bone": "body", "x": 0, "y": "neckY", "z": "neckZ"}, "@space": "OVERRIDE"},
+              {"core:offset": {"bone": "head", "x": 0, "y": "neckY", "z": "neckZ"}, "@space": "OVERRIDE"}
+            ]
+          }
         }
       }
     }

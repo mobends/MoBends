@@ -9,7 +9,7 @@ smooths them.
 {
   "formatVersion": 2,
   "extends": "mobends:bends/animators/biped.json",
-  "expressions": { ... },
+  "@expressions": { ... },
   "layers": [ ... ]
 }
 ```
@@ -18,8 +18,31 @@ smooths them.
 model definitions); each format is numbered on its own, and all of
 them are at 2. A file written for another version of its format is refused with a message saying
 so (an older one would be upgraded on load, once there is one to upgrade from). `extends` puts a parent animator's layers first; the parent's version is checked too.
-`expressions` declares named expressions, numbers and conditions (see *Expressions*); layers,
+`@expressions` declares named expressions, numbers and conditions (see *Expressions*); layers,
 machines and nodes can declare their own too.
+
+## How it is written
+
+Pose items and nodes are written the same way: an object with **exactly one key that doesn't
+start with `@`**. That key names what it is (`core:clip`, `core:axis_rotate`, `core:pose`), and
+its value is what that takes:
+
+```json
+{"@when": "SWINGING", "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": -30}, "@space": "PRE"}
+```
+
+Every other key starts with `@`: what the engine does with it (an item's `@when`, `@space`,
+`@damping`, ...), or what a scope has whatever else it is (`@connections`, `@expressions`). These
+are a closed set, so an addon's driver or node type can have any field of its own without ever
+colliding with them. Structured objects (layers, machines, selector branches, connections, the
+mirror rule) keep fixed keys; their own conditions are `@when` on layers and the mirror rule, and
+`when` on branches and connections, which are `{"when": ..., "then": ...}`.
+
+**A key an object doesn't take is an error** when the animator loads, in every object of the
+file: a misspelt key never passes silently. The one key every object takes is **`@comment`**, a
+string the engine ignores. Put `@when` first when there is one, so a reader knows something
+applies conditionally before reading what (JSON objects are unordered; this is a convention, not
+something the loader checks).
 
 ## Layers
 
@@ -27,71 +50,74 @@ Layers evaluate in order into one pose. Each is a state machine of nodes: its cu
 stack produces the layer's pose, which composites onto the result. How the layer picks its current
 node is in *Choosing the node*.
 
-| field | meaning |
+| key | meaning |
 |---|---|
 | `mode` | `OVERRIDE` (default: what the layer writes replaces) or `ADDITIVE` |
 | `additiveSpace` | for additive layers: `"PRE"` / `"POST"`, or `{"default": "PRE", "body": "POST"}` |
-| `when` | a condition (a boolean expression); while it does not hold the layer writes nothing and its clocks pause |
+| `@when` | a condition (a boolean expression); while it does not hold the layer writes nothing and its clocks pause |
 | `variables` | layer variables and their initial values, e.g. `{"combo": 0}` |
-| `expressions` | named expressions visible inside the layer (see *Expressions*) |
+| `@expressions` | named expressions visible inside the layer (see *Expressions*) |
 | `damping` | default damping for the bones the layer writes (nodes and items override) |
 | `mask` | `{"mode": "INCLUDE_ONLY", "includedParts": ["mouth"]}` (or `EXCLUDE_ONLY`): the bones the layer may write |
-| `mirror` | `{"when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `"mirror"` / `"swapSides"` follow (see *Mirroring*) |
+| `mirror` | `{"@when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `@mirror` / `@swapSides` follow (see *Mirroring*) |
 | `nodes`, `machines` | the layer's nodes and machines, as maps by name |
-| `select`, `connections`, `defaultOnEntry` | how the layer picks its node (see *Choosing the node*) |
+| `select`, `@connections`, `defaultOnEntry` | how the layer picks its node (see *Choosing the node*) |
 
 ## Nodes
 
 ```json
 "walk": {
-  "type": "core:pose",
-  "tags": ["walk"],
-  "pose": [ ...items... ],
-  "enterPose": [ ...items evaluated once on entry; their bones snap to it... ],
-  "snapOnEnter": ["body"],
-  "damping": {...},
-  "set": {"combo": 0},
-  "connections": [ {"target": "jump", "triggerCondition": "bounced"} ]
+  "core:pose": {
+    "pose": [ ...items... ],
+    "enterPose": [ ...items evaluated once on entry; their bones snap to it... ],
+    "snapOnEnter": ["body"],
+    "damping": {...}
+  },
+  "@tags": ["walk"],
+  "@set": {"combo": 0},
+  "@connections": [{"when": "bounced", "then": "jump"}]
 }
 ```
 
-* `type` is `core:pose` (the default), `core:fallthrough` or `core:vanilla`.
-* `tags` are the layer's *actions* (`core:action` sees them, in every layer).
-* `expressions` declares named expressions visible to the node's items and to the conditions of
+* The node's one key without `@` is its type: `core:pose`, `core:fallthrough` or
+  `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
+  `snapOnEnter`, `damping`); the other two pose nothing and take `{}`.
+* `@tags` are the layer's *actions* (`core:action` sees them, in every layer).
+* `@expressions` declares named expressions visible to the node's items and to the conditions of
   its connections (see *Expressions*).
-* `set` assigns layer variables when the node is entered.
-* `connections` are the node's own ways out (see *Choosing the node*).
+* `@set` assigns layer variables when the node is entered.
+* `@connections` are the node's own ways out (see *Choosing the node*).
 * Operations with a memory (`decreased`, `rose`, `fell`) start over when what they are written on
-  is entered: a node for its connections, everything its items compute (their `when`s and their
+  is entered: a node for its connections, everything its items compute (their `@when`s and their
   own fields, ramps' `when`s included) and the layer's mirror rule; a machine for its selector and
-  its connections, before its selector chooses. A layer's own `when` starts with the layer, and
+  its connections, before its selector chooses. A layer's own `@when` starts with the layer, and
   its selector and connections as a machine's: the layer is entered when it starts (see
   *Machines*).
 * A `core:fallthrough` node poses nothing, so the layers below show through; it has tags,
-  connections, `set` and `expressions` like any node. A transition into or out of it fades between
+  connections, `@set` and `@expressions` like any node. A transition into or out of it fades between
   the layer's pose and the one below: what one side poses and the other doesn't is blended
   against the layers below (a full rotation, offset or vector as they have it; a PRE / POST
   rotation or an additive offset as nothing). It is how an extension lets the animation it
   extends show until it has something to add, but any layer can use it.
 * A `core:vanilla` node hands the entity back to Minecraft: while any layer is in one (and that
-  layer's `when` holds), the entity is drawn with its vanilla model and vanilla animation, and a
+  layer's `@when` holds), the entity is drawn with its vanilla model and vanilla animation, and a
   player's first-person hand is vanilla too. The animator keeps running underneath, so its
   layer still decides its node every frame and leaving the node brings the animated model back
   where it would have been. The switch is immediate: the two models can't be blended. It poses nothing
-  and has tags, connections, `set` and `expressions` like any node. It is meant for extensions
+  and has tags, connections, `@set` and `@expressions` like any node. It is meant for extensions
   that bring back animations made for the vanilla model (another mod's, say) while a condition
   holds:
 
   ```json
   "select": [{"when": {"core:action": ["..."]}, "then": "theirs"}, {"then": "animated"}],
   "nodes": {
-    "animated": {"type": "core:fallthrough"},
-    "theirs": {"type": "core:vanilla"}
+    "animated": {"core:fallthrough": {}},
+    "theirs": {"core:vanilla": {}}
   }
   ```
 
   The example pack `misc/examples/vanilla-swim-extension` makes players vanilla while they are in
-  water: one layer with `"when": IN_WATER` and a single `core:vanilla` node.
+  water: one layer with `"@when": "IN_WATER"` and a single `core:vanilla` node.
 
   Rendering: the render puts the mutated model in place and animates as usual, then, if the
   animator asks for vanilla, puts the vanilla renderer state back before the model is drawn (the
@@ -108,7 +134,7 @@ has a selector and connections of its own.
 
 ```json
 {
-  "expressions": {
+  "@expressions": {
     "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}
   },
   "select": [
@@ -147,7 +173,7 @@ conditions of the branches before it, and those after it only apply when the one
 ### Machines
 
 `machines` is a map of machines by name, next to `nodes`. A machine has `nodes` and `machines` of
-its own, and its own `select`, `connections`, `defaultOnEntry`, `expressions` and `conditions`. A layer
+its own, and its own `select`, `@connections`, `defaultOnEntry` and `@expressions`. A layer
 is a machine too, with the extra fields in the table under *Layers*. Every node and machine of a
 layer has a name of its own, whatever machine it is in.
 
@@ -159,7 +185,7 @@ layer has a name of its own, whatever machine it is in.
   selector chooses where it goes. Where the selector chooses nothing, its `defaultOnEntry` does: one
   of its own nodes or machines, by default the first node it declares (its first machine if it
   has no nodes). A machine it goes to is entered the same way, down to a node.
-* A layer is entered when it starts, on the animator's first frame (whether or not its `when`
+* A layer is entered when it starts, on the animator's first frame (whether or not its `@when`
   holds). That is the frame's decision, and there is nothing to crossfade from: a branch's
   `transitionDuration` and `transitionEasing` don't apply there, its `set` does. The node's
   connections, and the selectors again, are checked from the next frame on. So `defaultOnEntry`
@@ -168,16 +194,18 @@ layer has a name of its own, whatever machine it is in.
 
 ### Connections
 
-Connections are the ways out that depend on where the layer is. A node's `connections` lead out of
-that node, a machine's lead out of any node inside it, and a layer's out of any of its nodes.
+Connections are the ways out that depend on where the layer is. A node's `@connections` lead out
+of that node, a machine's lead out of any node inside it, and a layer's out of any of its nodes.
+A connection is written like a selector branch:
 
 ```json
-{"target": "slash_down", "triggerCondition": "attacked", "transitionDuration": 0,
+{"when": "attacked", "then": "slash_down", "transitionDuration": 0,
  "transitionEasing": "EASE_IN_OUT", "set": {"combo": 2}}
 ```
 
-* `target` is any node or machine of the layer: a machine is entered as above. A connection to
-  where the layer already is starts that node over (a jump bouncing into another jump).
+* `when` is its condition, and `then` any node or machine of the layer: a machine is entered as
+  above. A connection to where the layer already is starts that node over (a jump bouncing into
+  another jump).
 * `set` assigns layer variables when the connection fires. `transitionDuration` (ticks)
   crossfades (an interrupted crossfade continues from what was on screen); easings `LINEAR`,
   `EASE_IN`, `EASE_OUT`, `EASE_IN_OUT` (the default), `EXPONENTIAL`. Where one side of a crossfade
@@ -202,17 +230,24 @@ first, and the node entered applies its own `set` last. Each selector sees the `
 
 ## Pose items
 
-A node's `pose` is a stack; later items compose over earlier ones. Common fields:
+A node's `pose` is a stack; later items compose over earlier ones. An item is a clip
+(`core:clip`) or a driver (`core:axis_rotate`, ...): its one key without `@` names it, and its value
+holds the item's own fields. The modifiers, the same for every item:
 
-| field | meaning |
+| modifier | meaning |
 |---|---|
-| `space` | `OVERRIDE` (replace), `PRE` (rotate in the parent's space, the `rotate*` idiom), `POST` (the bone's own space, the `localRotate*` idiom). Default: OVERRIDE for clips, PRE for drivers. |
-| `when` | a condition; the item is skipped while it does not hold |
-| `damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate |
-| `vectorModes` | for offset vectors: `SLIDE` (tween restarted when the target changes), `RETARGET` (exponential approach re-aimed every frame), `SNAP` |
-| `snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
-| `mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
-| `swapSides` | like `mirror`, but only the paired bones swap; rotations and offsets are kept |
+| `@when` | a condition; the item is skipped while it does not hold |
+| `@space` | `OVERRIDE` (replace), `PRE` (rotate in the parent's space, the `rotate*` idiom), `POST` (the bone's own space, the `localRotate*` idiom). Default: OVERRIDE for clips, PRE for drivers. |
+| `@damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate |
+| `@vectorModes` | for offset vectors: `SLIDE` (tween restarted when the target changes), `RETARGET` (exponential approach re-aimed every frame), `SNAP` |
+| `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
+| `@mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
+| `@swapSides` | like `@mirror`, but only the paired bones swap; rotations and offsets are kept |
+
+```json
+{"@when": "SWINGING", "core:clip": {"animationKey": "mobends:bends/animations/player/tool_arm.json", "frame": "swingProgress"},
+ "@snap": true, "@swapSides": true}
+```
 
 ### Mirroring
 
@@ -220,30 +255,30 @@ A layer's `mirror` rule says when its mirrored items mirror, and which bones pai
 
 ```json
 "mirror": {
-  "when": "LEFT_HANDED",
+  "@when": "LEFT_HANDED",
   "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"],
             ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"]]
 }
 ```
 
-While the rule's `when` holds, an item with `mirror` or `swapSides` runs on a reflection of the
+While the rule's `@when` holds, an item with `@mirror` or `@swapSides` runs on a reflection of the
 pose built so far, and its result is reflected back. Reflecting twice gives back the original, so
 the item's composition rules don't change. An item that sets either without a rule on its layer
 is a load error.
 
 | | paired bones swap | Y and Z rotations, X offset negated |
 |---|---|---|
-| `mirror` | yes | yes: the item's left-right mirror image |
-| `swapSides` | yes | no: the same motion, moved to the other side |
+| `@mirror` | yes | yes: the item's left-right mirror image |
+| `@swapSides` | yes | no: the same motion, moved to the other side |
 
 **Values are never negated**: every variable and expression reads the same, mirrored or not.
 What an item does mirrored follows from how it is marked:
 
-- **`mirror`** for motion that belongs to a side: swings, clips, a head turned toward the weapon
+- **`@mirror`** for motion that belongs to a side: swings, clips, a head turned toward the weapon
   (`head`, Y, `-30` becomes `+30`).
 - **Neither** for an item on an unpaired bone that follows a world direction. The head turned by
   `headYaw` must look where the entity looks, so it isn't mirrored.
-- **`swapSides`** for an item on a paired bone that follows a world direction: the right arm
+- **`@swapSides`** for an item on a paired bone that follows a world direction: the right arm
   turned by `headYaw` becomes the left arm turned by the same angle, still pointing where the
   entity looks.
 - An item that mixes the two is split into two items.
@@ -254,10 +289,12 @@ with `negate` is now a load error.)
 ### Clips
 
 ```json
-{"animationKey": "mobends:bends/animations/biped/walk_base.json",
- "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
- "weight": "limbSwingAmount", "bones": ["leftLeg", "rightLeg"]}
+{"core:clip": {"animationKey": "mobends:bends/animations/biped/walk_base.json",
+               "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+               "weight": "limbSwingAmount", "bones": ["leftLeg", "rightLeg"]}}
 ```
+
+A clip's own fields are `animationKey`, `frame`, `duration`, `weight` and `bones`.
 
 * `frame` (an expression) is where in the clip it is, in the clip's own units: from 0 to
   `clipLength` (the clip file's `duration`, or its keyframe count − 1 if it has none). A frame
@@ -286,12 +323,14 @@ the entity-level offset vectors (their keyframe positions are the vector).
 
 ### Drivers
 
+Each driver is `{"<driver>": {fields}}` plus the modifiers.
+
 | driver | fields |
 |---|---|
 | `core:axis_rotate` | `bone`, `axis` (`X`/`Y`/`Z`), `angle` (expression, degrees) |
 | `core:vector` | `bone`, `x`, `y`, `z` (expressions; an axis left out keeps the bone's current target) |
 | `core:offset` | `bone`, `x`, `y`, `z`: a bone's position offset |
-| `core:ramp` | `name`, `speed`, `downSpeed` (null = speed, 0 = never down), `when` (its up/down switch), `initial`, `readBeforeAdvance`: a node variable moving 0..1 |
+| `core:ramp` | `name`, `speed`, `downSpeed` (null = speed, 0 = never down), `when` (its up/down switch, a field of its own: a ramp takes no `@when`), `initial`, `readBeforeAdvance`: a node variable moving 0..1 |
 | `core:accumulate` | `name`, `rate` (expression, per tick), `initial`, `min`, `max`: a node variable that integrates |
 | `core:set` | `variable`, `value` (expression), `scope` (`layer` / `node`): assigns every frame the item is evaluated |
 | `core:spring` | `name`, `target` (expression), `stiffness` (per tick²), `friction` (per tick), `initial`: a node variable pulled towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through) |
@@ -338,9 +377,9 @@ A hurried step never takes less than 60% of `minStepDuration`: faster than the l
 with, the planted foot drags rather than the feet flickering.
 
 ```json
-{"driver": "core:step_turn", "weight": "standing",
- "legs": [{"upper": "leftLeg", "lower": "leftForeLeg", "hip": [-4, 11, 0], "knee": [0, 5, -3], "foot": [-0.5, 8, 2.5]},
-          {"upper": "rightLeg", "lower": "rightForeLeg", "hip": [5, 11, 0], "knee": [0, 5, -3], "foot": [-0.5, 8, 2.5]}]}
+{"core:step_turn": {"weight": "standing",
+  "legs": [{"upper": "leftLeg", "lower": "leftForeLeg", "hip": [-4, 11, 0], "knee": [0, 5, -3], "foot": [-0.5, 8, 2.5]},
+           {"upper": "rightLeg", "lower": "rightForeLeg", "hip": [5, 11, 0], "knee": [0, 5, -3], "foot": [-0.5, 8, 2.5]}]}}
 ```
 
 * Each leg is two segments: `hip` is the upper bone's pivot in the model (model units, +Y down,
@@ -373,8 +412,8 @@ with, the planted foot drags rather than the feet flickering.
 ### Expressions
 
 Every value an animator computes is an expression: every number an item computes (an angle, a
-weight, a vector axis, a damping rate, ...) and every condition (a layer's or an item's `when`, a
-branch's `when`, a connection's `triggerCondition`, a mirror rule's `when`). An expression is a
+weight, a vector axis, a damping rate, ...) and every condition (a layer's, an item's or a mirror
+rule's `@when`, a branch's or a connection's `when`). An expression is a
 JSON tree, so tools can read and write it without a parser.
 
 | form | meaning |
@@ -385,7 +424,7 @@ JSON tree, so tools can read and write it without a parser.
 | an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}` |
 
 **Every expression is a number or a boolean**, and which one is checked when the animator loads:
-a number where a condition goes (`"when": "limbSwing"`), or a boolean where a number goes
+a number where a condition goes (`"@when": "limbSwing"`), or a boolean where a number goes
 (`{"add": ["ON_GROUND", 1]}`), is an error. Arithmetic is in single precision (`float`); strings
 are never values, only arguments some operations take written out (an item id, a hand).
 
@@ -397,7 +436,7 @@ Operations nest freely:
   {"mul": [{"sin": [{"mul": ["ticks", 0.37]}]}, 2]},
   -85
 ]},
-"when": {"and": ["ON_GROUND", {"not": ["SNEAKING"]}, {"lt": ["ticksAfterAttack", 10]}]}
+"@when": {"and": ["ON_GROUND", {"not": ["SNEAKING"]}, {"lt": ["ticksAfterAttack", 10]}]}
 ```
 
 | operation | arguments | value |
@@ -429,7 +468,7 @@ Operations nest freely:
 is written keeps its own memory (two uses keep two memories), and it starts over, noting the
 value as it is then, when the scope holding the place starts: a node for its items' and
 connections' expressions (and its layer's mirror rule), a machine for its selector and
-connections, a layer for its `when`. `{"decreased": ["ticksAfterAttack"]}` holds on a new attack.
+connections, a layer for its `@when`. `{"decreased": ["ticksAfterAttack"]}` holds on a new attack.
 
 **Registered operations** have a namespaced name, and take arguments of their own kinds:
 
@@ -447,11 +486,11 @@ Mistakes (an unknown operation, a wrong number or kind of arguments, an object w
 key, a number where a boolean goes) are reported when the animator loads, in the operation's own
 words: `'core:holds_item' argument 1 (hand) must be one of main_hand, off_hand, got 'left_hand'`.
 
-**Named expressions** are declared in an `expressions` object on the animator, a layer, a machine
+**Named expressions** are declared in an `@expressions` object on the animator, a layer, a machine
 or a node, and used by name like variables. They can be numbers or booleans:
 
 ```json
-"expressions": {
+"@expressions": {
   "sway": {"mul": [{"sin": [{"mul": ["ticks", 0.1]}]}, 6]},
   "reach": {"add": ["sway", -85]},
   "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]},
@@ -480,14 +519,14 @@ A name in capitals is a **state** of the subject, a boolean (see the data classe
 `registerState` calls: `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`, ...). Any other name nothing
 declares is a **variable**, a number: the node's own (written by its ramps, accumulators, springs,
 `core:set` and drivers such as `core:step_turn`) once the node has written it, else the layer's
-(its `variables`, `set`, `core:set`) once written, else the subject's (see the data classes'
+(its `variables`, `set`, `@set`, `core:set`) once written, else the subject's (see the data classes'
 `registerVariable` calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). Which of them a name
 can be is worked out once, when the animator is bound to its entity on the first frame, never by
 looking the name up while animating. A name that nothing in the animator writes and the subject
 doesn't have fails the animator then (logged; the entity isn't animated), even if nothing ever
 reads it.
 
-A condition's expressions see the named expressions where it is written: a layer's `when` sees
+A condition's expressions see the named expressions where it is written: a layer's `@when` sees
 the layer's; a selector's and a machine's connections see the machine's (the layer's for its
 own); an item's, a node's connection and the layer's `mirror` rule see those of the node being
 posed.

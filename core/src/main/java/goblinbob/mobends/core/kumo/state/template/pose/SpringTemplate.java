@@ -3,7 +3,7 @@ package goblinbob.mobends.core.kumo.state.template.pose;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 /**
- * {@code "driver": "core:spring"}: a node-local variable that follows {@code target} like a mass
+ * {@code {"core:spring": {...}}}: a node-local variable that follows {@code target} like a mass
  * on a spring, so it lags, overshoots and settles: follow-through of limbs that hang (arms that
  * swing after the body turns, a head that nods after a landing). Starts at {@code initial}, at
  * rest, when the node is entered.

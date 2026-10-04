@@ -15,7 +15,7 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.util.math.MathHelper;
 
 /**
- * The player's cape ({@code "driver": "mobends:cape"}): the vanilla chasing-position physics,
+ * The player's cape ({@code {"mobends:cape": {...}}}): the vanilla chasing-position physics,
  * written as the cape's rotation. Its wave is {@link PlayerData}'s.
  */
 public class CapeDriver implements IPoseItem

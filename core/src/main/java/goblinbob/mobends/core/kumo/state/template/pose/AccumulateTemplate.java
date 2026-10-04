@@ -3,7 +3,7 @@ package goblinbob.mobends.core.kumo.state.template.pose;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 /**
- * {@code "driver": "core:accumulate"}: a node-local variable that grows by {@code rate} per tick
+ * {@code {"core:accumulate": {...}}}: a node-local variable that grows by {@code rate} per tick
  * (the phase of a wiggle whose speed changes over time). Reset to {@code initial} on node entry.
  */
 public class AccumulateTemplate extends DriverItemTemplate

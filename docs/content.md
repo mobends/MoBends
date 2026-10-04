@@ -99,8 +99,8 @@ show all of them at scale.
 Play a clip on the global clock, looped, so every entity breathes even while its node is new:
 
 ```json
-{"animationKey": "mobends:bends/animations/biped/stand.json",
- "frame": {"mod": [{"mul": ["ticks", 0.1]}, "clipLength"]}}
+{"core:clip": {"animationKey": "mobends:bends/animations/biped/stand.json",
+               "frame": {"mod": [{"mul": ["ticks", 0.1]}, "clipLength"]}}}
 ```
 
 Use `elapsed` instead of `ticks` when the motion should start from the beginning each time the
@@ -113,9 +113,9 @@ vanilla legs swing at. Split the cycle into the pose that is always there and th
 weight the swing by how fast the entity walks, so a slow walk swings less:
 
 ```json
-{"animationKey": "…/walk_base.json",  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}},
-{"animationKey": "…/walk_swing.json", "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
- "weight": "limbSwingAmount", "space": "POST"}
+{"core:clip": {"animationKey": "…/walk_base.json",  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}}},
+{"core:clip": {"animationKey": "…/walk_swing.json", "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+               "weight": "limbSwingAmount"}, "@space": "POST"}
 ```
 
 `weight` scales angles, which is exact for rotations about one axis; keep swings to one axis per
@@ -127,8 +127,8 @@ Put the look on top of the clip with two drivers, yaw in the parent's space and 
 head's own space, after any clip that poses the head:
 
 ```json
-{"driver": "core:axis_rotate", "bone": "head", "axis": "Y", "angle": "headYaw",   "space": "PRE"},
-{"driver": "core:axis_rotate", "bone": "head", "axis": "X", "angle": "headPitch", "space": "POST"}
+{"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},   "@space": "PRE"},
+{"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
 ```
 
 A slight body twist towards the look is a third driver on `body` with
@@ -140,12 +140,12 @@ For something that follows an event the entity counts (landing, attacking, takin
 clip with the counter as its frame, only while the counter is small:
 
 ```json
-{"animationKey": "…/kneel.json", "frame": "ticksAfterTouchdown",
- "when": {"lt": ["ticksAfterTouchdown", 6.67]},
- "vectorModes": {"root": "SNAP"}}
+{"@when": {"lt": ["ticksAfterTouchdown", 6.67]},
+ "core:clip": {"animationKey": "…/kneel.json", "frame": "ticksAfterTouchdown"},
+ "@vectorModes": {"root": "SNAP"}}
 ```
 
-The clip holds its last keyframe once the frame passes its end, so the `when` decides when it
+The clip holds its last keyframe once the frame passes its end, so the `@when` decides when it
 lets go. Counters include `ticksAfterTouchdown`, `ticksInAir`, `ticksAfterAttack`.
 
 ### Starting a state in a pose
@@ -154,7 +154,7 @@ lets go. Counters include `ticksAfterTouchdown`, `ticksInAir`, `ticksAfterAttack
 node's own pose then smooths away from that starting pose (a jump starts crouched, then extends):
 
 ```json
-"jump": {"enterPose": [{"animationKey": "…/jump_enter.json"}], "pose": [ … ]}
+"jump": {"core:pose": {"enterPose": [{"core:clip": {"animationKey": "…/jump_enter.json"}}], "pose": [ … ]}}
 ```
 
 `snapOnEnter: ["body"]` snaps the listed bones straight to the node's own pose instead.
@@ -162,10 +162,11 @@ node's own pose then smooths away from that starting pose (a jump starts crouche
 ### How fast bones follow
 
 The animator sets targets; when a bone's target changes, the bone moves there from where it is
-and arrives after 1 / damping ticks (1 = within a tick, 0.1 = in ten). Set it per node or item:
-`"damping": {"body": 0.5, "rightArm": 0.8, "root": [null, 0.6, null]}`. A bone you don't list keeps
+and arrives after 1 / damping ticks (1 = within a tick, 0.1 = in ten). Set it per node (`damping`
+in `core:pose`) or item (`@damping`):
+`{"body": 0.5, "rightArm": 0.8, "root": [null, 0.6, null]}`. A bone you don't list keeps
 the rate it had, so set damping where a state should feel different, not everywhere. For the
-entity-level vectors (`root`, `localOffset`) pick a `vectorModes` entry: `SLIDE` for a move to a
+entity-level vectors (`root`, `localOffset`) pick an `@vectorModes` entry: `SLIDE` for a move to a
 new resting place, `RETARGET` for a target that changes every frame (a bob), `SNAP` for no
 smoothing at all.
 
@@ -176,7 +177,7 @@ applies when the ones before it don't, so each branch states only its own condit
 stays in a node for as long as the tree keeps choosing it:
 
 ```json
-"expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
+"@expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
 "select": [
   {"when": "jumping", "then": "jump"},
   {"when": "STANDING_STILL", "then": "stand"},
@@ -187,7 +188,7 @@ stays in a node for as long as the tree keeps choosing it:
 A branch whose `then` is a list decides inside it (the player's airborne states: flying, falling,
 sprint-jumping, jumping). Leave out the last `then` to let a node hold on until a branch applies:
 a mob that starts walking above one speed and stops below a lower one keeps doing what it did in
-between. Name the conditions you use more than once (`expressions`, then the name as a string).
+between. Name the conditions you use more than once (`@expressions`, then the name as a string).
 A condition is an expression that is true or false: a state in capitals (`STANDING_STILL`), a
 comparison (`{"lt": ["ticksAfterTouchdown", 1]}`), `and`, `or`, `not` (see
 `misc/kumo-format.md`, *Expressions*).
@@ -207,7 +208,7 @@ variable the data class sets, and let it override or add to the base:
 ```json
 {"mode": "ADDITIVE",
  "additiveSpace": {"default": "PRE", "body": "POST", "root": "OVERRIDE"},
- "when": {"eq": ["animationSet", 0]},
+ "@when": {"eq": ["animationSet", 0]},
  "defaultOnEntry": "lean", "nodes": { … }}
 ```
 
@@ -223,11 +224,10 @@ connection that fires:
 "select": [{"when": {"mobends:attack_action": ["sword"]}, "then": "sword", "set": {"combo": 0}}],
 "machines": {"sword": {
   "defaultOnEntry": "sword_idle",
-  "expressions": {"attacked": {"decreased": ["ticksAfterAttack"]}},
+  "@expressions": {"attacked": {"decreased": ["ticksAfterAttack"]}},
   "select": [{"when": {"ge": ["ticksAfterAttack", 10]}, "then": "sword_idle"}],
-  "connections": [
-    {"target": "slash_up", "set": {"combo": 1},
-     "triggerCondition": {"and": ["attacked", {"eq": ["combo", 0]}]}},
+  "@connections": [
+    {"when": {"and": ["attacked", {"eq": ["combo", 0]}]}, "then": "slash_up", "set": {"combo": 1}},
     …
   ],
   "nodes": {"sword_idle": {…}, "slash_up": {…}, …}}}
@@ -236,7 +236,7 @@ connection that fires:
 The slashes aren't in the machine's selector, which chooses nothing while a slash plays (the
 first ten ticks), so the slash holds until the selector chooses `sword_idle` or the next attack
 fires a connection. Declare the variables on the layer (`"variables": {"combo": 0}`), and reset
-them with a `core:set` driver or a `set` once the combo window has passed.
+them with a `core:set` driver or a node's `@set` once the combo window has passed.
 
 ### Left- and right-handed
 
@@ -244,12 +244,12 @@ Author for the right hand, then give the layer a mirror rule and mark the items 
 hand:
 
 ```json
-"mirror": {"when": "LEFT_HANDED",
+"mirror": {"@when": "LEFT_HANDED",
            "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"]]}
 ```
 
-An item with `"mirror": true` plays as its mirror image for left-handed entities. Use
-`"swapSides": true` for motion that only moves to the other arm without flipping (a breathing
+An item with `"@mirror": true` plays as its mirror image for left-handed entities. Use
+`"@swapSides": true` for motion that only moves to the other arm without flipping (a breathing
 sway of the main arm). Leave the items that follow where the entity looks unmarked: the head
 turned by `headYaw` looks the same way for either hand.
 
@@ -259,9 +259,8 @@ A `core:ramp` driver is a node variable that moves from 0 to 1 while its `when` 
 otherwise; use it as a later item's `weight` to raise an arm over a few ticks instead of snapping:
 
 ```json
-{"driver": "core:ramp", "name": "raise", "speed": 0.1,
- "when": "SNEAKING"},
-{"animationKey": "…/raise.json", "weight": "raise"}
+{"core:ramp": {"name": "raise", "speed": 0.1, "when": "SNEAKING"}},
+{"core:clip": {"animationKey": "…/raise.json", "weight": "raise"}}
 ```
 
 `core:accumulate` integrates a rate instead (a phase that slows down as it decays), and a
@@ -279,8 +278,8 @@ node, so the entity's own animation shows, and crossfade into your node when it 
   {"then": "through", "transitionDuration": 8}
 ],
 "nodes": {
-  "through": {"type": "core:fallthrough"},
-  "wave": {"pose": [ … ]}
+  "through": {"core:fallthrough": {}},
+  "wave": {"core:pose": {"pose": [ … ]}}
 }
 ```
 

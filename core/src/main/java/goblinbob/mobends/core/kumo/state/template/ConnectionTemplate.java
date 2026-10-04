@@ -10,7 +10,8 @@ public class ConnectionTemplate
     /** Name of the target node. */
     public String target;
 
-    public ExpressionTemplate triggerCondition;
+    /** The connection's condition (JSON {@code when}). */
+    public ExpressionTemplate when;
 
     /** The duration of the transition in ticks. */
     public float transitionDuration = 0;

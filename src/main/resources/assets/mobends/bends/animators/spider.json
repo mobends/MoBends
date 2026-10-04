@@ -3,1110 +3,348 @@
   "layers": [
     {
       "defaultOnEntry": "idle",
-      "variables": {
-        "resetLimbs": 1
-      },
-      "expressions": {
-        "jumping": {
-          "or": [
-            "AIRBORNE",
-            {
-              "lt": [
-                "ticksAfterTouchdown",
-                1
-              ]
-            }
-          ]
-        }
-      },
+      "variables": {"resetLimbs": 1},
+      "@expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
       "select": [
-        {
-          "when": {
-            "le": [
-              "health",
-              0
-            ]
-          },
-          "then": "death"
-        },
-        {
-          "when": "BESIDE_CLIMBABLE",
-          "then": "crawl"
-        },
-        {
-          "when": "jumping",
-          "then": "jump"
-        },
-        {
-          "when": "STANDING_STILL",
-          "then": "idle"
-        },
-        {
-          "then": "move"
-        }
+        {"when": {"le": ["health", 0]}, "then": "death"},
+        {"when": "BESIDE_CLIMBABLE", "then": "crawl"},
+        {"when": "jumping", "then": "jump"},
+        {"when": "STANDING_STILL", "then": "idle"},
+        {"then": "move"}
       ],
       "nodes": {
         "idle": {
-          "type": "core:pose",
-          "tags": [
-            "idle"
-          ],
-          "pose": [
-            {
-              "driver": "mobends:spider_idle_legs",
-              "groundLevel": {
-                "mul": [
-                  {
-                    "sin": [
-                      {
-                        "mul": [
-                          "ticks",
-                          0.1
-                        ]
-                      }
-                    ]
-                  },
-                  0.5
-                ]
+          "core:pose": {
+            "pose": [
+              {
+                "mobends:spider_idle_legs": {
+                  "groundLevel": {"mul": [{"sin": [{"mul": ["ticks", 0.1]}]}, 0.5]},
+                  "bodyX": {"mul": [{"sin": [{"mul": ["ticks", 0.2]}]}, 0.4]},
+                  "bodyZ": {"mul": [{"cos": [{"mul": ["ticks", 0.2]}]}, 0.4]},
+                  "kneelDuration": 10,
+                  "kneelAmplitude": 4,
+                  "kneelLead": 0
+                }
               },
-              "bodyX": {
-                "mul": [
-                  {
-                    "sin": [
-                      {
-                        "mul": [
-                          "ticks",
-                          0.2
-                        ]
-                      }
-                    ]
-                  },
-                  0.4
-                ]
+              {
+                "core:vector": {
+                  "bone": "root",
+                  "x": {"mul": [{"sin": [{"mul": ["ticks", 0.2]}]}, 0.4]},
+                  "y": {"mul": ["groundLevel", -1]},
+                  "z": {"mul": [{"cos": [{"mul": ["ticks", 0.2]}]}, -0.4]}
+                },
+                "@snap": true
               },
-              "bodyZ": {
-                "mul": [
-                  {
-                    "cos": [
-                      {
-                        "mul": [
-                          "ticks",
-                          0.2
-                        ]
-                      }
-                    ]
-                  },
-                  0.4
-                ]
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@space": "OVERRIDE",
+                "@snap": true
               },
-              "kneelDuration": 10,
-              "kneelAmplitude": 4,
-              "kneelLead": 0
-            },
-            {
-              "driver": "core:vector",
-              "bone": "root",
-              "x": {
-                "mul": [
-                  {
-                    "sin": [
-                      {
-                        "mul": [
-                          "ticks",
-                          0.2
-                        ]
-                      }
-                    ]
-                  },
-                  0.4
-                ]
-              },
-              "y": {
-                "mul": [
-                  "groundLevel",
-                  -1
-                ]
-              },
-              "z": {
-                "mul": [
-                  {
-                    "cos": [
-                      {
-                        "mul": [
-                          "ticks",
-                          0.2
-                        ]
-                      }
-                    ]
-                  },
-                  -0.4
-                ]
-              },
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "OVERRIDE",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE"
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/rest.json",
-              "damping": {
-                "localOffset": 1
-              },
-              "vectorModes": {
-                "localOffset": "SLIDE"
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
+                "@damping": {"localOffset": 1},
+                "@vectorModes": {"localOffset": "SLIDE"}
               }
-            }
-          ]
+            ]
+          },
+          "@tags": ["idle"]
         },
         "move": {
-          "type": "core:pose",
-          "tags": [
-            "move"
-          ],
-          "pose": [
-            {
-              "driver": "mobends:spider_moving_legs",
-              "swing": {
-                "mul": [
-                  "limbSwing",
-                  0.6662
-                ]
-              },
-              "groundLevel": {
-                "mul": [
-                  {
-                    "mcsin": [
-                      {
-                        "mul": [
-                          "ticks",
-                          0.6
-                        ]
-                      }
-                    ]
-                  },
-                  1.2
-                ]
-              },
-              "kneelDuration": 10,
-              "kneelAmplitude": 3,
-              "kneelLead": 0.2,
-              "limbs": [
-                {
-                  "phase": 0,
-                  "minDist": 20,
-                  "maxDist": 10,
-                  "minRot": -80,
-                  "maxRot": -50
-                },
-                {
-                  "phase": 0.3,
-                  "minDist": 20,
-                  "maxDist": 10,
-                  "minRot": -80,
-                  "maxRot": -50
-                },
-                {
-                  "phase": 0.3,
-                  "minDist": 15,
-                  "maxDist": 15,
-                  "minRot": -30,
-                  "maxRot": 10
-                },
-                {
-                  "phase": 0,
-                  "minDist": 15,
-                  "maxDist": 15,
-                  "minRot": -30,
-                  "maxRot": 10
-                },
-                {
-                  "phase": 0.4,
-                  "minDist": 7,
-                  "maxDist": 15,
-                  "minRot": 20,
-                  "maxRot": 50
-                },
-                {
-                  "phase": 0.7,
-                  "minDist": 7,
-                  "maxDist": 15,
-                  "minRot": 20,
-                  "maxRot": 50
-                },
-                {
-                  "phase": 0.7,
-                  "minDist": 10,
-                  "maxDist": 20,
-                  "minRot": 60,
-                  "maxRot": 80
-                },
-                {
-                  "phase": 0.4,
-                  "minDist": 10,
-                  "maxDist": 20,
-                  "minRot": 60,
-                  "maxRot": 80
+          "core:pose": {
+            "pose": [
+              {
+                "mobends:spider_moving_legs": {
+                  "swing": {"mul": ["limbSwing", 0.6662]},
+                  "groundLevel": {"mul": [{"mcsin": [{"mul": ["ticks", 0.6]}]}, 1.2]},
+                  "kneelDuration": 10,
+                  "kneelAmplitude": 3,
+                  "kneelLead": 0.2,
+                  "limbs": [
+                    {"phase": 0, "minDist": 20, "maxDist": 10, "minRot": -80, "maxRot": -50},
+                    {"phase": 0.3, "minDist": 20, "maxDist": 10, "minRot": -80, "maxRot": -50},
+                    {"phase": 0.3, "minDist": 15, "maxDist": 15, "minRot": -30, "maxRot": 10},
+                    {"phase": 0, "minDist": 15, "maxDist": 15, "minRot": -30, "maxRot": 10},
+                    {"phase": 0.4, "minDist": 7, "maxDist": 15, "minRot": 20, "maxRot": 50},
+                    {"phase": 0.7, "minDist": 7, "maxDist": 15, "minRot": 20, "maxRot": 50},
+                    {"phase": 0.7, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80},
+                    {"phase": 0.4, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80}
+                  ]
                 }
-              ]
-            },
-            {
-              "driver": "core:vector",
-              "bone": "root",
-              "x": {
-                "mul": [
-                  {
-                    "mcsin": [
-                      {
-                        "mul": [
-                          "ticks",
-                          0.2
-                        ]
-                      }
-                    ]
-                  },
-                  0.4
-                ]
               },
-              "y": {
-                "mul": [
-                  "groundLevel",
-                  -1
-                ]
+              {
+                "core:vector": {
+                  "bone": "root",
+                  "x": {"mul": [{"mcsin": [{"mul": ["ticks", 0.2]}]}, 0.4]},
+                  "y": {"mul": ["groundLevel", -1]},
+                  "z": {"mul": [{"mccos": [{"mul": ["ticks", 0.2]}]}, -0.4]}
+                },
+                "@snap": true
               },
-              "z": {
-                "mul": [
-                  {
-                    "mccos": [
-                      {
-                        "mul": [
-                          "ticks",
-                          0.2
-                        ]
-                      }
-                    ]
-                  },
-                  -0.4
-                ]
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@space": "OVERRIDE",
+                "@snap": true
               },
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "OVERRIDE",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE"
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/rest.json",
-              "damping": {
-                "localOffset": 1
-              },
-              "vectorModes": {
-                "localOffset": "SLIDE"
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
+                "@damping": {"localOffset": 1},
+                "@vectorModes": {"localOffset": "SLIDE"}
               }
-            }
-          ]
+            ]
+          },
+          "@tags": ["move"]
         },
         "jump": {
-          "type": "core:pose",
-          "tags": [
-            "jump"
-          ],
-          "set": {
-            "resetLimbs": 1
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/spider/jump.json", "bones": ["root"]},
+                "@snap": true
+              },
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/spider/jump.json",
+                  "bones": ["leg1", "leg2", "leg3", "leg4", "leg5", "leg6", "leg7", "leg8"]
+                },
+                "@damping": {"leg1": 1, "leg2": 1, "leg3": 1, "leg4": 1, "leg5": 1, "leg6": 1, "leg7": 1, "leg8": 1}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "leg1",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]}
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "leg2",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]}
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "leg3",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]}
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "leg4",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]}
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "leg5",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]}
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "leg6",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]}
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "leg7",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]}
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "leg8",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]}
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "foreLeg1",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]}
+                },
+                "@space": "OVERRIDE",
+                "@damping": {"foreLeg1": 1}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "foreLeg2",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
+                },
+                "@space": "OVERRIDE",
+                "@damping": {"foreLeg2": 1}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "foreLeg3",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]}
+                },
+                "@space": "OVERRIDE",
+                "@damping": {"foreLeg3": 1}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "foreLeg4",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
+                },
+                "@space": "OVERRIDE",
+                "@damping": {"foreLeg4": 1}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "foreLeg5",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]}
+                },
+                "@space": "OVERRIDE",
+                "@damping": {"foreLeg5": 1}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "foreLeg6",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
+                },
+                "@space": "OVERRIDE",
+                "@damping": {"foreLeg6": 1}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "foreLeg7",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]}
+                },
+                "@space": "OVERRIDE",
+                "@damping": {"foreLeg7": 1}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "foreLeg8",
+                  "axis": "Z",
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["interpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
+                },
+                "@space": "OVERRIDE",
+                "@damping": {"foreLeg8": 1}
+              },
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
+                "@damping": {"localOffset": 1},
+                "@vectorModes": {"localOffset": "SLIDE"}
+              }
+            ]
           },
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/spider/jump.json",
-              "bones": [
-                "root"
-              ],
-              "snap": true
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/jump.json",
-              "bones": [
-                "leg1",
-                "leg2",
-                "leg3",
-                "leg4",
-                "leg5",
-                "leg6",
-                "leg7",
-                "leg8"
-              ],
-              "damping": {
-                "leg1": 1,
-                "leg2": 1,
-                "leg3": 1,
-                "leg4": 1,
-                "leg5": 1,
-                "leg6": 1,
-                "leg7": 1,
-                "leg8": 1
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg1",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      25
-                    ]
-                  },
-                  -20
-                ]
-              },
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg2",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      -25
-                    ]
-                  },
-                  20
-                ]
-              },
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg3",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      25
-                    ]
-                  },
-                  -20
-                ]
-              },
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg4",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      -25
-                    ]
-                  },
-                  20
-                ]
-              },
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg5",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      25
-                    ]
-                  },
-                  -20
-                ]
-              },
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg6",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      -25
-                    ]
-                  },
-                  20
-                ]
-              },
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg7",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      25
-                    ]
-                  },
-                  -20
-                ]
-              },
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "leg8",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      -25
-                    ]
-                  },
-                  20
-                ]
-              },
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "foreLeg1",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      -40
-                    ]
-                  },
-                  -70
-                ]
-              },
-              "space": "OVERRIDE",
-              "damping": {
-                "foreLeg1": 1
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "foreLeg2",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      40
-                    ]
-                  },
-                  70
-                ]
-              },
-              "space": "OVERRIDE",
-              "damping": {
-                "foreLeg2": 1
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "foreLeg3",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      -40
-                    ]
-                  },
-                  -70
-                ]
-              },
-              "space": "OVERRIDE",
-              "damping": {
-                "foreLeg3": 1
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "foreLeg4",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      40
-                    ]
-                  },
-                  70
-                ]
-              },
-              "space": "OVERRIDE",
-              "damping": {
-                "foreLeg4": 1
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "foreLeg5",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      -40
-                    ]
-                  },
-                  -70
-                ]
-              },
-              "space": "OVERRIDE",
-              "damping": {
-                "foreLeg5": 1
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "foreLeg6",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      40
-                    ]
-                  },
-                  70
-                ]
-              },
-              "space": "OVERRIDE",
-              "damping": {
-                "foreLeg6": 1
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "foreLeg7",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      -40
-                    ]
-                  },
-                  -70
-                ]
-              },
-              "space": "OVERRIDE",
-              "damping": {
-                "foreLeg7": 1
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "foreLeg8",
-              "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "clamp": [
-                          {
-                            "mul": [
-                              "interpolatedMotionY",
-                              -5
-                            ]
-                          },
-                          -1,
-                          1
-                        ]
-                      },
-                      40
-                    ]
-                  },
-                  70
-                ]
-              },
-              "space": "OVERRIDE",
-              "damping": {
-                "foreLeg8": 1
-              }
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/rest.json",
-              "damping": {
-                "localOffset": 1
-              },
-              "vectorModes": {
-                "localOffset": "SLIDE"
-              }
-            }
-          ]
+          "@set": {"resetLimbs": 1},
+          "@tags": ["jump"]
         },
         "crawl": {
-          "type": "core:pose",
-          "tags": [
-            "crawl"
-          ],
-          "pose": [
-            {
-              "driver": "mobends:spider_moving_legs",
-              "swing": {
-                "mul": [
-                  "crawlProgress",
-                  5
-                ]
-              },
-              "groundLevel": {
-                "mul": [
-                  {
-                    "mcsin": [
-                      {
-                        "mul": [
-                          "crawlProgress",
-                          3
-                        ]
-                      }
-                    ]
-                  },
-                  1.2
-                ]
-              },
-              "limbs": [
-                {
-                  "phase": 0,
-                  "minDist": 20,
-                  "maxDist": 10,
-                  "minRot": -80,
-                  "maxRot": -50
-                },
-                {
-                  "phase": 0.3,
-                  "minDist": 20,
-                  "maxDist": 10,
-                  "minRot": -80,
-                  "maxRot": -50
-                },
-                {
-                  "phase": 0.3,
-                  "minDist": 15,
-                  "maxDist": 15,
-                  "minRot": -30,
-                  "maxRot": 10
-                },
-                {
-                  "phase": 0,
-                  "minDist": 15,
-                  "maxDist": 15,
-                  "minRot": -30,
-                  "maxRot": 10
-                },
-                {
-                  "phase": 0.4,
-                  "minDist": 7,
-                  "maxDist": 15,
-                  "minRot": 20,
-                  "maxRot": 50
-                },
-                {
-                  "phase": 0.7,
-                  "minDist": 7,
-                  "maxDist": 15,
-                  "minRot": 20,
-                  "maxRot": 50
-                },
-                {
-                  "phase": 0.7,
-                  "minDist": 10,
-                  "maxDist": 20,
-                  "minRot": 60,
-                  "maxRot": 80
-                },
-                {
-                  "phase": 0.4,
-                  "minDist": 10,
-                  "maxDist": 20,
-                  "minRot": 60,
-                  "maxRot": 80
+          "core:pose": {
+            "pose": [
+              {
+                "mobends:spider_moving_legs": {
+                  "swing": {"mul": ["crawlProgress", 5]},
+                  "groundLevel": {"mul": [{"mcsin": [{"mul": ["crawlProgress", 3]}]}, 1.2]},
+                  "limbs": [
+                    {"phase": 0, "minDist": 20, "maxDist": 10, "minRot": -80, "maxRot": -50},
+                    {"phase": 0.3, "minDist": 20, "maxDist": 10, "minRot": -80, "maxRot": -50},
+                    {"phase": 0.3, "minDist": 15, "maxDist": 15, "minRot": -30, "maxRot": 10},
+                    {"phase": 0, "minDist": 15, "maxDist": 15, "minRot": -30, "maxRot": 10},
+                    {"phase": 0.4, "minDist": 7, "maxDist": 15, "minRot": 20, "maxRot": 50},
+                    {"phase": 0.7, "minDist": 7, "maxDist": 15, "minRot": 20, "maxRot": 50},
+                    {"phase": 0.7, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80},
+                    {"phase": 0.4, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80}
+                  ]
                 }
-              ]
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "OVERRIDE",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "renderRotation",
-              "axis": "X",
-              "angle": -90,
-              "space": "OVERRIDE",
-              "damping": {
-                "renderRotation": 0.6
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "renderRotation",
-              "axis": "Y",
-              "angle": "crawlRenderYaw",
-              "space": "PRE"
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/crawl_rest.json",
-              "damping": {
-                "localOffset": 0.5
               },
-              "vectorModes": {
-                "localOffset": "SLIDE"
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@space": "OVERRIDE",
+                "@snap": true
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "X", "angle": -90},
+                "@space": "OVERRIDE",
+                "@damping": {"renderRotation": 0.6}
+              },
+              {
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "Y", "angle": "crawlRenderYaw"},
+                "@space": "PRE"
+              },
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/spider/crawl_rest.json"},
+                "@damping": {"localOffset": 0.5},
+                "@vectorModes": {"localOffset": "SLIDE"}
               }
-            }
-          ]
+            ]
+          },
+          "@tags": ["crawl"]
         },
         "death": {
-          "type": "core:pose",
-          "tags": [
-            "death"
-          ],
-          "pose": [
-            {
-              "driver": "core:accumulate",
-              "name": "wiggleSpeed",
-              "rate": -0.1,
-              "initial": 1,
-              "min": 0
-            },
-            {
-              "driver": "core:accumulate",
-              "name": "wigglePhase",
-              "rate": {
-                "add": [
-                  {
-                    "mul": [
-                      "wiggleSpeed",
-                      2
-                    ]
-                  },
-                  0.3
-                ]
+          "core:pose": {
+            "pose": [
+              {"core:accumulate": {"name": "wiggleSpeed", "rate": -0.1, "initial": 1, "min": 0}},
+              {
+                "core:accumulate": {"name": "wigglePhase", "rate": {"add": [{"mul": ["wiggleSpeed", 2]}, 0.3]}}
+              },
+              {
+                "core:vector": {"bone": "root", "y": 10},
+                "@damping": {"root": [null, 0.3, null]},
+                "@vectorModes": {"root": "SLIDE"}
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@space": "OVERRIDE",
+                "@snap": true
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {"core:clip": {"animationKey": "mobends:bends/animations/spider/death.json"}, "@snap": true},
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/spider/death_sway_y.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+                  "weight": {"mul": ["limbSwingAmount", 57.29577951308232]}
+                },
+                "@space": "PRE"
+              },
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/spider/death_sway_z.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+                  "weight": {"mul": ["limbSwingAmount", 57.29577951308232]}
+                },
+                "@space": "PRE"
+              },
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/spider/death_wiggle.json",
+                  "frame": {"mod": ["wigglePhase", "clipLength"]},
+                  "weight": {"add": [{"mul": ["wiggleSpeed", 10]}, 10]}
+                },
+                "@space": "PRE"
               }
-            },
-            {
-              "driver": "core:vector",
-              "bone": "root",
-              "y": 10,
-              "damping": {
-                "root": [
-                  null,
-                  0.3,
-                  null
-                ]
-              },
-              "vectorModes": {
-                "root": "SLIDE"
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "OVERRIDE",
-              "snap": true
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE"
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/death.json",
-              "snap": true
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/death_sway_y.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
-              "weight": {
-                "mul": [
-                  "limbSwingAmount",
-                  57.29577951308232
-                ]
-              },
-              "space": "PRE"
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/death_sway_z.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
-              "weight": {
-                "mul": [
-                  "limbSwingAmount",
-                  57.29577951308232
-                ]
-              },
-              "space": "PRE"
-            },
-            {
-              "animationKey": "mobends:bends/animations/spider/death_wiggle.json",
-              "frame": {
-                "mod": [
-                  "wigglePhase",
-                  "clipLength"
-                ]
-              },
-              "weight": {
-                "add": [
-                  {
-                    "mul": [
-                      "wiggleSpeed",
-                      10
-                    ]
-                  },
-                  10
-                ]
-              },
-              "space": "PRE"
-            }
-          ]
+            ]
+          },
+          "@tags": ["death"]
         }
       }
     }

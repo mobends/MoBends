@@ -12,16 +12,16 @@ public class ConnectionState implements ITransition
 {
 
     public final MachineMember target;
-    public final Expression triggerCondition;
+    public final Expression when;
     public final float transitionDuration;
     public final ConnectionTemplate.Easing transitionEasing;
     /** Layer variables assigned when the connection fires. */
     public final VariableTable.Assignments set;
 
-    public ConnectionState(MachineMember target, Expression triggerCondition, float transitionDuration, ConnectionTemplate.Easing transitionEasing, VariableTable.Assignments set)
+    public ConnectionState(MachineMember target, Expression when, float transitionDuration, ConnectionTemplate.Easing transitionEasing, VariableTable.Assignments set)
     {
         this.target = target;
-        this.triggerCondition = triggerCondition;
+        this.when = when;
         this.transitionDuration = transitionDuration;
         this.transitionEasing = transitionEasing;
         this.set = set;
@@ -39,13 +39,13 @@ public class ConnectionState implements ITransition
             throw new MalformedKumoTemplateException(String.format("A connection leads to '%s', which is no node or machine of the layer.", template.target));
         }
 
-        if (template.triggerCondition == null)
+        if (template.when == null)
         {
             throw new MalformedKumoTemplateException(String.format("The connection to '%s' has no trigger condition.", template.target));
         }
 
         return new ConnectionState(target,
-                Expression.compileCondition(template.triggerCondition, scope),
+                Expression.compileCondition(template.when, scope),
                 template.transitionDuration,
                 template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing,
                 scope.getVariables().layerAssignments(template.set));

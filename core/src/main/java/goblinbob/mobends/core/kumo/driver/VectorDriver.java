@@ -9,7 +9,7 @@ import goblinbob.mobends.core.kumo.state.template.pose.VectorTemplate;
 
 /**
  * Writes a vector target (e.g. the global offset) from three expressions:
- * {@code {"driver": "core:vector", "bone": "root", "y": {"mul": ["deep", 14]}}}.
+ * {@code {"core:vector": {"bone": "root", "y": {"mul": ["deep", 14]}}}}.
  * Its {@code when} is applied by the node, like every pose item's.
  */
 public class VectorDriver implements IPoseItem

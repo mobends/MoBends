@@ -1,7 +1,7 @@
 package goblinbob.mobends.core.kumo.state.template;
 
 /**
- * {@code "type": "core:fallthrough"}: a node that poses nothing, so the layers below show
+ * {@code {"core:fallthrough": {...}}}: a node that poses nothing, so the layers below show
  * through. A transition into or out of it fades between the layer's pose and theirs. It keeps
  * the rest of a node: tags, connections, {@code set}, {@code expressions}.
  */

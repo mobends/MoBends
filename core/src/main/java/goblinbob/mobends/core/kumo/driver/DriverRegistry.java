@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 
 /**
  * Computed pose items ("drivers") addressable from animator JSON by key, e.g.
- * {@code "driver": "core:axis_rotate"}. Addons register their own the same way trigger
+ * {@code {"core:axis_rotate": {...}}}. Addons register their own the same way
  * conditions are registered.
  */
 public class DriverRegistry

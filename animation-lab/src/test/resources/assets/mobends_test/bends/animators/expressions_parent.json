@@ -1,17 +1,14 @@
 {
   "formatVersion": 2,
-  "expressions": {
-    "base": -85
-  },
+  "@expressions": {"base": -85},
   "layers": [
     {
       "defaultOnEntry": "parent",
       "nodes": {
         "parent": {
-          "type": "core:pose",
-          "pose": [
-            {"driver": "core:axis_rotate", "bone": "leftArm", "axis": "X", "angle": "base", "space": "OVERRIDE"}
-          ]
+          "core:pose": {
+            "pose": [{"core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": "base"}, "@space": "OVERRIDE"}]
+          }
         }
       }
     }

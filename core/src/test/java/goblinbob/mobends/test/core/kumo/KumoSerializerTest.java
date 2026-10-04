@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 public class KumoSerializerTest
 {
 
-    private static final String LAYERS = "\"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {}}}]";
+    private static final String LAYERS = "\"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"core:pose\": {}}}}]";
 
     private static String messageOf(String json)
     {
@@ -53,31 +53,73 @@ public class KumoSerializerTest
         assertTrue(messageOf("{\"formatVersion\": 1, " + LAYERS + "}").contains("no longer reads"));
     }
 
+    private static void assertRefused(String fragment, String layer)
+    {
+        String message = messageOf("{\"formatVersion\": 2, \"layers\": [" + layer + "]}");
+        assertTrue("expected \"" + fragment + "\" in: " + message, message.contains(fragment));
+    }
+
     @Test
     public void malformedPiecesEndInAParseException()
     {
-        String prefix = "{\"formatVersion\": 2, \"layers\": [";
-        messageOf(prefix + "{\"defaultOnEntry\": 1, \"nodes\": {\"a\": {}}}]}");                    // defaultOnEntry not a name
-        messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": [{}]}]}");                        // nodes not an object
-        messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"type\": \"x:y\"}}}]}"); // unknown node type
-        messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"mode\": \"ADDITIVE\", \"additiveSpace\": \"SIDEWAYS\", \"nodes\": {\"a\": {}}}]}");
-        messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"pose\": [{\"driver\": \"x:y\"}]}}}]}");
-        messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"pose\": [{\"weight\": 1}]}}}]}");
-        messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"damping\": {\"arm\": true}}}}]}");
-        messageOf(prefix + "{\"select\": [{\"when\": \"x\"}], \"nodes\": {\"a\": {}}}]}");        // a branch without "then"
-        messageOf(prefix + "{\"select\": [{\"then\": 1}], \"nodes\": {\"a\": {}}}]}");          // "then" neither a name nor a list
-        messageOf(prefix + "{\"select\": [{\"then\": \"a\", \"transitionEasing\": \"x\"}], \"nodes\": {\"a\": {}}}]}");
-        messageOf(prefix + "{\"machines\": [], \"nodes\": {\"a\": {}}}]}");                      // machines not an object
-        messageOf(prefix + "{\"machines\": {\"m\": {\"nodes\": {\"b\": {\"type\": \"x:y\"}}}}}]}"); // unknown node type in a machine
+        String a = "\"nodes\": {\"a\": {\"core:pose\": {}}}";
+        assertRefused("has to be a string", "{\"defaultOnEntry\": 1, " + a + "}");
+        assertRefused("\"nodes\" has to be an object", "{\"defaultOnEntry\": \"a\", \"nodes\": [{}]}");
+        assertRefused("Unknown node type: \"x:y\"", "{\"nodes\": {\"a\": {\"x:y\": {}}}}");
+        assertRefused("unknown value 'SIDEWAYS'", "{\"mode\": \"ADDITIVE\", \"additiveSpace\": \"SIDEWAYS\", " + a + "}");
+        assertRefused("Unknown pose item: \"x:y\"", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"x:y\": {}}]}}}}");
+        assertRefused("needs a key naming it", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"@space\": \"PRE\"}]}}}}");
+        assertRefused("damping", "{\"nodes\": {\"a\": {\"core:pose\": {\"damping\": {\"arm\": true}}}}}");
+        assertRefused("has no \"then\"", "{\"select\": [{\"when\": \"x\"}], " + a + "}");
+        assertRefused("a name or a list of branches", "{\"select\": [{\"then\": 1}], " + a + "}");
+        assertRefused("unknown value 'x'", "{\"select\": [{\"then\": \"a\", \"transitionEasing\": \"x\"}], " + a + "}");
+        assertRefused("\"machines\" has to be an object", "{\"machines\": [], " + a + "}");
+        assertRefused("Unknown node type: \"x:y\"", "{\"machines\": {\"m\": {\"nodes\": {\"b\": {\"x:y\": {}}}}}, " + a + "}");
+    }
+
+    @Test
+    public void everyObjectRefusesKeysItDoesntTake()
+    {
+        String a = "\"nodes\": {\"a\": {\"core:pose\": {}}}";
+        assertRefused("A layer has an unknown key \"type\"", "{\"type\": \"KEYFRAME\", " + a + "}");
+        assertRefused("A node has exactly one key that doesn't start with @", "{\"nodes\": {\"a\": {\"core:pose\": {}, \"tags\": []}}}");
+        assertRefused("A node has an unknown key \"@nope\"", "{\"nodes\": {\"a\": {\"core:pose\": {}, \"@nope\": 1}}}");
+        assertRefused("The node type \"core:pose\" has an unknown key \"connections\"", "{\"nodes\": {\"a\": {\"core:pose\": {\"connections\": []}}}}");
+        assertRefused("A pose item has exactly one key that doesn't start with @",
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\"}, \"space\": \"PRE\"}]}}}}");
+        assertRefused("A pose item has an unknown modifier \"@weight\"",
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\"}, \"@weight\": 1}]}}}}");
+        assertRefused("The pose item \"core:clip\" has an unknown key \"space\"",
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\", \"space\": \"PRE\"}}]}}}}");
+        assertRefused("The pose item \"core:axis_rotate\" has an unknown key \"angel\"",
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"X\", \"angel\": 1}}]}}}}");
+        assertRefused("A connection has an unknown key \"target\"",
+                "{\"nodes\": {\"a\": {\"core:pose\": {}, \"@connections\": [{\"target\": \"a\", \"when\": true}]}}}");
+        assertRefused("A mirror rule has an unknown key \"when\"", "{\"mirror\": {\"when\": true, \"pairs\": []}, " + a + "}");
+        assertRefused("A mirror rule no longer negates inputs", "{\"mirror\": {\"negate\": [\"headYaw\"]}, " + a + "}");
+        assertRefused("A selector branch has an unknown key \"target\"", "{\"select\": [{\"target\": \"a\"}], " + a + "}");
+        assertTrue(messageOf("{\"formatVersion\": 2, \"comment\": \"x\", " + LAYERS + "}").contains("An animator has an unknown key \"comment\""));
+    }
+
+    @Test
+    public void aCommentGoesAnywhere()
+    {
+        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"@comment\": \"root\", \"layers\": [{\"@comment\": \"layer\","
+                + " \"mirror\": {\"@comment\": \"rule\", \"pairs\": []}, \"select\": [{\"@comment\": \"branch\", \"then\": \"a\"}],"
+                + " \"nodes\": {\"a\": {\"@comment\": \"node\", \"core:pose\": {\"@comment\": \"type\", \"pose\": [{\"@comment\": \"item\","
+                + " \"core:clip\": {\"@comment\": \"clip\", \"animationKey\": \"x\"}}]},"
+                + " \"@connections\": [{\"@comment\": \"connection\", \"when\": true, \"then\": \"a\"}]}}}]}");
+        assertEquals(1, template.layers.get(0).nodes.size());
     }
 
     @Test
     public void readsMachinesSelectorsAndNamedExpressions()
     {
-        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"expressions\": {\"still\": \"STANDING_STILL\"},"
-                + " \"layers\": [{\"select\": [{\"when\": \"still\", \"then\": \"a\", \"transitionDuration\": 2},"
-                + " {\"then\": [{\"then\": \"m\", \"set\": {\"v\": 1}}]}],"
-                + " \"nodes\": {\"a\": {}}, \"machines\": {\"m\": {\"defaultOnEntry\": \"c\", \"nodes\": {\"b\": {}, \"c\": {}}}}}]}");
+        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"@expressions\": {\"still\": \"STANDING_STILL\"}, "
+                + "\"layers\": [{\"select\": [{\"when\": \"still\", \"then\": \"a\", \"transitionDuration\": 2}, "
+                + "{\"then\": [{\"then\": \"m\", \"set\": {\"v\": 1}}]}], \"nodes\": {\"a\": {\"core:pose\": {}}}, "
+                + "\"machines\": {\"m\": {\"defaultOnEntry\": \"c\", \"nodes\": {\"b\": {\"core:pose\": {}}, "
+                + "\"c\": {\"core:pose\": {}}}}}}]}");
         LayerTemplate layer = template.layers.get(0);
         assertNull(layer.defaultOnEntry);
         assertEquals("still", layer.select.get(0).when.json.getAsString());

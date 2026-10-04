@@ -2,374 +2,165 @@
   "formatVersion": 2,
   "layers": [
     {
-      "expressions": {
-        "jumping": {
-          "or": [
-            "AIRBORNE",
-            {
-              "lt": [
-                "ticksAfterTouchdown",
-                1
-              ]
-            }
-          ]
-        },
-        "bounced": {
-          "and": [
-            {
-              "lt": [
-                "prevMotionY",
-                0
-              ]
-            },
-            {
-              "gt": [
-                "motionY",
-                0
-              ]
-            }
-          ]
-        }
+      "@expressions": {
+        "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]},
+        "bounced": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}
       },
-      "select": [
-        {
-          "when": "jumping",
-          "then": "jump"
-        },
-        {
-          "when": "STANDING_STILL",
-          "then": "stand"
-        },
-        {
-          "then": "walk"
-        }
-      ],
+      "select": [{"when": "jumping", "then": "jump"}, {"when": "STANDING_STILL", "then": "stand"}, {"then": "walk"}],
       "nodes": {
         "stand": {
-          "type": "core:pose",
-          "tags": [
-            "stand"
-          ],
-          "enterPose": [
-            {
-              "animationKey": "mobends:bends/animations/biped/stand_enter.json",
-              "when": {
-                "lt": [
-                  "ticksAfterTouchdown",
-                  3.3333333333333335
-                ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/stand.json",
+                  "frame": {"mod": [{"mul": ["ticks", 0.1]}, "clipLength"]}
+                },
+                "@damping": {
+                  "root": 0.6,
+                  "localOffset": 0.3,
+                  "renderRotation": 0.6,
+                  "centerRotation": 0.3,
+                  "renderRightItemRotation": 0.3,
+                  "renderLeftItemRotation": 0.3,
+                  "body": 1,
+                  "rightArm": 0.4,
+                  "leftArm": 0.4
+                },
+                "@vectorModes": {"root": "SLIDE", "localOffset": "SLIDE"}
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {
+                "@when": {"lt": ["ticksAfterTouchdown", 6.666666666666667]},
+                "core:clip": {"animationKey": "mobends:bends/animations/biped/kneel.json", "frame": "ticksAfterTouchdown"},
+                "@damping": {"body": 1},
+                "@vectorModes": {"root": "SNAP"}
               }
-            }
-          ],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/biped/stand.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "ticks",
-                      0.1
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
-              "damping": {
-                "root": 0.6,
-                "localOffset": 0.3,
-                "renderRotation": 0.6,
-                "centerRotation": 0.3,
-                "renderRightItemRotation": 0.3,
-                "renderLeftItemRotation": 0.3,
-                "body": 1,
-                "rightArm": 0.4,
-                "leftArm": 0.4
-              },
-              "vectorModes": {
-                "root": "SLIDE",
-                "localOffset": "SLIDE"
+            ],
+            "enterPose": [
+              {
+                "@when": {"lt": ["ticksAfterTouchdown", 3.3333333333333335]},
+                "core:clip": {"animationKey": "mobends:bends/animations/biped/stand_enter.json"}
               }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            },
-            {
-              "animationKey": "mobends:bends/animations/biped/kneel.json",
-              "frame": "ticksAfterTouchdown",
-              "when": {
-                "lt": [
-                  "ticksAfterTouchdown",
-                  6.666666666666667
-                ]
-              },
-              "damping": {
-                "body": 1
-              },
-              "vectorModes": {
-                "root": "SNAP"
-              }
-            }
-          ]
+            ]
+          },
+          "@tags": ["stand"]
         },
         "walk": {
-          "type": "core:pose",
-          "tags": [
-            "walk"
-          ],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/biped/walk_base.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/walk_base.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                },
+                "@damping": {
+                  "root": [0.6, 1.2, 0.6],
+                  "localOffset": 0.3,
+                  "renderRotation": 0.6,
+                  "centerRotation": 0.3,
+                  "renderRightItemRotation": 0.3,
+                  "renderLeftItemRotation": 0.3,
+                  "body": 0.5,
+                  "head": 0.5,
+                  "rightArm": 0.8,
+                  "leftArm": 0.8,
+                  "rightForeArm": 0.8,
+                  "leftForeArm": 0.8,
+                  "rightLeg": 1,
+                  "leftLeg": 1
+                },
+                "@vectorModes": {"root": "RETARGET", "localOffset": "SLIDE"}
               },
-              "damping": {
-                "root": [
-                  0.6,
-                  1.2,
-                  0.6
-                ],
-                "localOffset": 0.3,
-                "renderRotation": 0.6,
-                "centerRotation": 0.3,
-                "renderRightItemRotation": 0.3,
-                "renderLeftItemRotation": 0.3,
-                "body": 0.5,
-                "head": 0.5,
-                "rightArm": 0.8,
-                "leftArm": 0.8,
-                "rightForeArm": 0.8,
-                "leftForeArm": 0.8,
-                "rightLeg": 1,
-                "leftLeg": 1
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/walk_forelegs.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                },
+                "@damping": {"leftForeLeg": 0.5, "rightForeLeg": 0.5}
               },
-              "vectorModes": {
-                "root": "RETARGET",
-                "localOffset": "SLIDE"
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/walk_swing.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "limbSwingAmount"
+                },
+                "@space": "POST"
+              },
+              {
+                "core:axis_rotate": {"bone": "body", "axis": "Z", "angle": {"clamp": [{"mul": ["headYaw", -0.1]}, -10, 10]}},
+                "@space": "PRE"
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {
+                "@when": {"lt": ["ticksAfterTouchdown", 6.666666666666667]},
+                "core:clip": {"animationKey": "mobends:bends/animations/biped/kneel.json", "frame": "ticksAfterTouchdown"},
+                "@damping": {"body": 1},
+                "@vectorModes": {"root": "SNAP"}
               }
-            },
-            {
-              "animationKey": "mobends:bends/animations/biped/walk_forelegs.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
-              "damping": {
-                "leftForeLeg": 0.5,
-                "rightForeLeg": 0.5
-              }
-            },
-            {
-              "animationKey": "mobends:bends/animations/biped/walk_swing.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
-              "weight": "limbSwingAmount",
-              "space": "POST"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "body",
-              "axis": "Z",
-              "angle": {
-                "clamp": [
-                  {
-                    "mul": [
-                      "headYaw",
-                      -0.1
-                    ]
-                  },
-                  -10,
-                  10
-                ]
-              },
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            },
-            {
-              "animationKey": "mobends:bends/animations/biped/kneel.json",
-              "frame": "ticksAfterTouchdown",
-              "when": {
-                "lt": [
-                  "ticksAfterTouchdown",
-                  6.666666666666667
-                ]
-              },
-              "damping": {
-                "body": 1
-              },
-              "vectorModes": {
-                "root": "SNAP"
-              }
-            }
-          ]
+            ]
+          },
+          "@tags": ["walk"]
         },
         "jump": {
-          "type": "core:pose",
-          "tags": [
-            "jump"
-          ],
-          "enterPose": [
-            {
-              "animationKey": "mobends:bends/animations/biped/jump_enter.json"
-            }
-          ],
-          "pose": [
-            {
-              "animationKey": "mobends:bends/animations/biped/jump.json",
-              "frame": "ticksInAir",
-              "damping": {
-                "root": 0.6,
-                "localOffset": 0.3,
-                "renderRotation": 0.6,
-                "centerRotation": 0.7,
-                "renderRightItemRotation": 0.3,
-                "renderLeftItemRotation": 0.3,
-                "body": 0.2,
-                "rightArm": 0.05,
-                "leftArm": 0.05,
-                "rightForeArm": 0.3,
-                "leftForeArm": 0.3
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/biped/jump.json", "frame": "ticksInAir"},
+                "@damping": {
+                  "root": 0.6,
+                  "localOffset": 0.3,
+                  "renderRotation": 0.6,
+                  "centerRotation": 0.7,
+                  "renderRightItemRotation": 0.3,
+                  "renderLeftItemRotation": 0.3,
+                  "body": 0.2,
+                  "rightArm": 0.05,
+                  "leftArm": 0.05,
+                  "rightForeArm": 0.3,
+                  "leftForeArm": 0.3
+                },
+                "@vectorModes": {"root": "SLIDE"}
               },
-              "vectorModes": {
-                "root": "SLIDE"
-              }
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "Y",
-              "angle": "headYaw",
-              "space": "PRE"
-            },
-            {
-              "driver": "core:axis_rotate",
-              "bone": "head",
-              "axis": "X",
-              "angle": "headPitch",
-              "space": "POST"
-            },
-            {
-              "animationKey": "mobends:bends/animations/biped/jump_moving_base.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {
+                "@when": "MOVING_HORIZONTALLY",
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/jump_moving_base.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                },
+                "@damping": {"rightLeg": 1, "leftLeg": 1, "leftForeArm": 0.3, "rightForeArm": 0.3}
               },
-              "when": "MOVING_HORIZONTALLY",
-              "damping": {
-                "rightLeg": 1,
-                "leftLeg": 1,
-                "leftForeArm": 0.3,
-                "rightForeArm": 0.3
-              }
-            },
-            {
-              "animationKey": "mobends:bends/animations/biped/jump_moving_forelegs.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
+              {
+                "@when": "MOVING_HORIZONTALLY",
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/jump_moving_forelegs.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                },
+                "@damping": {"leftForeLeg": 0.3, "rightForeLeg": 0.3}
               },
-              "when": "MOVING_HORIZONTALLY",
-              "damping": {
-                "leftForeLeg": 0.3,
-                "rightForeLeg": 0.3
-              }
-            },
-            {
-              "animationKey": "mobends:bends/animations/biped/jump_moving_swing.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
+              {
+                "@when": "MOVING_HORIZONTALLY",
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/jump_moving_swing.json",
+                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "limbSwingAmount"
+                },
+                "@space": "POST"
               },
-              "weight": "limbSwingAmount",
-              "space": "POST",
-              "when": "MOVING_HORIZONTALLY"
-            },
-            {
-              "animationKey": "mobends:bends/animations/biped/jump_still.json",
-              "when": "STANDING_STILL",
-              "damping": {
-                "rightLeg": 0.3,
-                "leftLeg": 0.3,
-                "rightForeLeg": 0.3,
-                "leftForeLeg": 0.3
+              {
+                "@when": "STANDING_STILL",
+                "core:clip": {"animationKey": "mobends:bends/animations/biped/jump_still.json"},
+                "@damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3}
               }
-            }
-          ],
-          "connections": [
-            {
-              "target": "jump",
-              "triggerCondition": "bounced"
-            }
-          ]
+            ],
+            "enterPose": [{"core:clip": {"animationKey": "mobends:bends/animations/biped/jump_enter.json"}}]
+          },
+          "@connections": [{"when": "bounced", "then": "jump"}],
+          "@tags": ["jump"]
         }
       }
     }
