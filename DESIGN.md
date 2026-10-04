@@ -694,10 +694,8 @@ the additive and smaller ones.
 
 25. [x] **Rename the held-item bones** `renderLeftItemRotation` / `renderRightItemRotation` to
     `leftHeldItem` / `rightHeldItem`.
-26. [ ] **The generator writes the format directly**: `gen_animators.ts` builds items, nodes and
-    connections the old way and rewrites them in last passes (`oneKeyAnimator`, then
-    `kumo_scopes.ts`, which turns bare names into scoped ones); its builders should write the
-    format themselves, and `kumo_scopes.ts` then goes.
+26. [x] **The generator writes the format directly**: its builders write one-key items, scoped
+    names, `@define` and statements themselves; `kumo_scopes.ts` and the last passes are gone.
 27. [x] **The remaining cleanups**, as decided (*Smaller renames and cleanups*): `@default`, and
     lower-case enum values.
 
