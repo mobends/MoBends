@@ -32,14 +32,14 @@
         "index": 2
       },
       "split": {
-        "axis": "Y",
+        "axis": "y",
         "at": [
           0.5
         ],
         "names": [
           "foreLeg1"
         ],
-        "hinge": "FRONT"
+        "hinge": "front"
       }
     },
     {
@@ -49,14 +49,14 @@
         "index": 3
       },
       "split": {
-        "axis": "Y",
+        "axis": "y",
         "at": [
           0.5
         ],
         "names": [
           "foreLeg2"
         ],
-        "hinge": "FRONT"
+        "hinge": "front"
       }
     },
     {
@@ -66,14 +66,14 @@
         "index": 4
       },
       "split": {
-        "axis": "Y",
+        "axis": "y",
         "at": [
           0.5
         ],
         "names": [
           "foreLeg3"
         ],
-        "hinge": "FRONT"
+        "hinge": "front"
       }
     },
     {
@@ -83,14 +83,14 @@
         "index": 5
       },
       "split": {
-        "axis": "Y",
+        "axis": "y",
         "at": [
           0.5
         ],
         "names": [
           "foreLeg4"
         ],
-        "hinge": "FRONT"
+        "hinge": "front"
       }
     }
   ]

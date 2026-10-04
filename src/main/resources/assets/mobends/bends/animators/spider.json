@@ -40,15 +40,15 @@
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "override",
                 "@snap": true
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
                 "@damping": {"localOffset": 1},
-                "@vectorModes": {"localOffset": "SLIDE"}
+                "@vectorModes": {"localOffset": "slide"}
               }
             ]
           },
@@ -88,15 +88,15 @@
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "override",
                 "@snap": true
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
                 "@damping": {"localOffset": 1},
-                "@vectorModes": {"localOffset": "SLIDE"}
+                "@vectorModes": {"localOffset": "slide"}
               }
             ]
           },
@@ -119,167 +119,167 @@
               {
                 "core:axis_rotate": {
                   "bone": "leg1",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]
                   }
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:axis_rotate": {
                   "bone": "leg2",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]
                   }
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:axis_rotate": {
                   "bone": "leg3",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]
                   }
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:axis_rotate": {
                   "bone": "leg4",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]
                   }
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:axis_rotate": {
                   "bone": "leg5",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]
                   }
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:axis_rotate": {
                   "bone": "leg6",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]
                   }
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:axis_rotate": {
                   "bone": "leg7",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]
                   }
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:axis_rotate": {
                   "bone": "leg8",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]
                   }
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:axis_rotate": {
                   "bone": "foreLeg1",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]
                   }
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"foreLeg1": 1}
               },
               {
                 "core:axis_rotate": {
                   "bone": "foreLeg2",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"foreLeg2": 1}
               },
               {
                 "core:axis_rotate": {
                   "bone": "foreLeg3",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]
                   }
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"foreLeg3": 1}
               },
               {
                 "core:axis_rotate": {
                   "bone": "foreLeg4",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"foreLeg4": 1}
               },
               {
                 "core:axis_rotate": {
                   "bone": "foreLeg5",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]
                   }
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"foreLeg5": 1}
               },
               {
                 "core:axis_rotate": {
                   "bone": "foreLeg6",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"foreLeg6": 1}
               },
               {
                 "core:axis_rotate": {
                   "bone": "foreLeg7",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {
                     "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]
                   }
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"foreLeg7": 1}
               },
               {
                 "core:axis_rotate": {
                   "bone": "foreLeg8",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"foreLeg8": 1}
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
                 "@damping": {"localOffset": 1},
-                "@vectorModes": {"localOffset": "SLIDE"}
+                "@vectorModes": {"localOffset": "slide"}
               }
             ]
           },
@@ -306,24 +306,24 @@
                 }
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "override",
                 "@snap": true
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "X", "angle": -90},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "x", "angle": -90},
+                "@space": "override",
                 "@damping": {"renderRotation": 0.6}
               },
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "Y", "angle": "crawlRenderYaw"},
-                "@space": "PRE"
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "y", "angle": "crawlRenderYaw"},
+                "@space": "pre"
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/crawl_rest.json"},
                 "@damping": {"localOffset": 0.5},
-                "@vectorModes": {"localOffset": "SLIDE"}
+                "@vectorModes": {"localOffset": "slide"}
               }
             ]
           }
@@ -338,14 +338,14 @@
               {
                 "core:vector": {"bone": "root", "y": 10},
                 "@damping": {"root": [null, 0.3, null]},
-                "@vectorModes": {"root": "SLIDE"}
+                "@vectorModes": {"root": "slide"}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "override",
                 "@snap": true
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {"core:clip": {"animationKey": "mobends:bends/animations/spider/death.json"}, "@snap": true},
               {
                 "core:clip": {
@@ -353,7 +353,7 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": {"mul": ["entityLimbSwingAmount", 57.29577951308232]}
                 },
-                "@space": "PRE"
+                "@space": "pre"
               },
               {
                 "core:clip": {
@@ -361,7 +361,7 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": {"mul": ["entityLimbSwingAmount", 57.29577951308232]}
                 },
-                "@space": "PRE"
+                "@space": "pre"
               },
               {
                 "core:clip": {
@@ -369,7 +369,7 @@
                   "frame": {"mod": ["node.wigglePhase", "clipLength"]},
                   "weight": {"add": [{"mul": ["node.wiggleSpeed", 10]}, 10]}
                 },
-                "@space": "PRE"
+                "@space": "pre"
               }
             ]
           },

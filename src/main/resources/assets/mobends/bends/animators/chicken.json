@@ -24,22 +24,22 @@
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "PRE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "pre",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "rightWing", "axis": "Z", "angle": "entity.wingAngle"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "rightWing", "axis": "z", "angle": "entity.wingAngle"},
+                "@space": "override",
                 "@damping": {"rightWing": 1}
               },
               {
-                "core:axis_rotate": {"bone": "leftWing", "axis": "Z", "angle": {"mul": ["entity.wingAngle", -1]}},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "leftWing", "axis": "z", "angle": {"mul": ["entity.wingAngle", -1]}},
+                "@space": "override",
                 "@damping": {"leftWing": 1}
               }
             ]
@@ -57,22 +57,22 @@
                 "@damping": {"rightLeg": 0.8, "foreRightLeg": 0.8, "leftLeg": 0.8, "foreLeftLeg": 0.8}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "override",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "rightWing", "axis": "Z", "angle": "entity.wingAngle"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "rightWing", "axis": "z", "angle": "entity.wingAngle"},
+                "@space": "override",
                 "@damping": {"rightWing": 1}
               },
               {
-                "core:axis_rotate": {"bone": "leftWing", "axis": "Z", "angle": {"mul": ["entity.wingAngle", -1]}},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "leftWing", "axis": "z", "angle": {"mul": ["entity.wingAngle", -1]}},
+                "@space": "override",
                 "@damping": {"leftWing": 1}
               }
             ]
@@ -86,22 +86,22 @@
                 "@damping": {"rightLeg": 0.3, "foreRightLeg": 0.3, "leftLeg": 0.3, "foreLeftLeg": 0.3}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "override",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "rightWing", "axis": "Z", "angle": "entity.wingAngle"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "rightWing", "axis": "z", "angle": "entity.wingAngle"},
+                "@space": "override",
                 "@damping": {"rightWing": 1}
               },
               {
-                "core:axis_rotate": {"bone": "leftWing", "axis": "Z", "angle": {"mul": ["entity.wingAngle", -1]}},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "leftWing", "axis": "z", "angle": {"mul": ["entity.wingAngle", -1]}},
+                "@space": "override",
                 "@damping": {"leftWing": 1}
               }
             ]

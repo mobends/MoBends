@@ -2,12 +2,13 @@ package goblinbob.mobends.core.kumo.state.serializer;
 
 import com.google.gson.*;
 import goblinbob.mobends.core.kumo.pose.Pose;
+import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
 import goblinbob.mobends.core.kumo.state.template.SpaceTemplate;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 
-/** "PRE" | "POST" | {"default": "PRE", "body": "POST"} */
+/** "pre" | "post" | {"@default": "pre", "body": "post"} */
 public class SpaceTemplateSerializer implements JsonDeserializer<SpaceTemplate>
 {
 
@@ -22,8 +23,13 @@ public class SpaceTemplateSerializer implements JsonDeserializer<SpaceTemplate>
         }
         for (Map.Entry<String, JsonElement> entry : JsonReading.object(json, "A space").entrySet())
         {
+            if (JsonReading.COMMENT.equals(entry.getKey()))
+            {
+                continue;
+            }
+            JsonReading.requireBoneOrDefault(entry.getKey(), "A space");
             Pose.Space value = JsonReading.enumValue(Pose.Space.class, entry.getValue(), "The space of '" + entry.getKey() + "'");
-            if ("default".equals(entry.getKey()))
+            if (DampingTemplate.DEFAULT.equals(entry.getKey()))
             {
                 space.defaultSpace = value;
             }

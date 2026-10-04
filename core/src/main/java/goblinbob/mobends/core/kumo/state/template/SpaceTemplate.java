@@ -5,7 +5,7 @@ import goblinbob.mobends.core.kumo.pose.Pose;
 import java.util.HashMap;
 import java.util.Map;
 
-/** JSON: either "PRE" / "POST", or {"default": "PRE", "body": "POST"}. */
+/** JSON: either "pre" / "post", or {"@default": "pre", "body": "post"}. */
 public class SpaceTemplate
 {
 

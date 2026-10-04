@@ -29,7 +29,7 @@ start with `@`**. That key names what it is (`core:clip`, `core:axis_rotate`, `c
 its value is what that takes:
 
 ```json
-{"@when": "entityIsSwinging", "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": -30}, "@space": "PRE"}
+{"@when": "entityIsSwinging", "core:axis_rotate": {"bone": "head", "axis": "y", "angle": -30}, "@space": "pre"}
 ```
 
 Every other key starts with `@`: what the engine does with it (an item's `@when`, `@space`,
@@ -49,6 +49,12 @@ How the three kinds of construct compare:
 | order | doesn't matter: expressions change nothing | list order | pose-stack order |
 | state | an edge trigger's memory, per place | the state it names | its own, and the states its `inout` / `out` name |
 
+**The format's words are lower case**: every fixed set of values (`@space` `pre`, an `axis` `x`,
+a layer `mode` `additive`, a `transitionEasing` `ease_in_out`, a hinge `front`) is written in
+lower_snake_case, as operation names and their choices are; `"PRE"` is an error. A map from bones
+to values (`@damping`, `additiveSpace`) names the value for every other bone `@default`, so any
+bone name can be a key.
+
 **A key an object doesn't take is an error** when the animator loads, in every object of the
 file: a misspelt key never passes silently. The one key every object takes is **`@comment`**, a
 string the engine ignores. Put `@when` first when there is one, so a reader knows something
@@ -63,12 +69,12 @@ node is in *Choosing the node*.
 
 | key | meaning |
 |---|---|
-| `mode` | `OVERRIDE` (default: what the layer writes replaces) or `ADDITIVE` |
-| `additiveSpace` | for additive layers: `"PRE"` / `"POST"`, or `{"default": "PRE", "body": "POST"}` |
+| `mode` | `override` (default: what the layer writes replaces) or `additive` |
+| `additiveSpace` | for additive layers: `"pre"` / `"post"`, or `{"@default": "pre", "body": "post"}` |
 | `@when` | a condition (a boolean expression); while it does not hold the layer writes nothing and its clocks pause |
 | `@define`, `@on` | the layer's definitions and statement lists (see *Definitions and statements*) |
 | `damping` | default damping for the bones the layer writes (nodes and items override) |
-| `mask` | `{"mode": "INCLUDE_ONLY", "includedParts": ["mouth"]}` (or `EXCLUDE_ONLY`): the bones the layer may write |
+| `mask` | `{"mode": "include_only", "includedParts": ["mouth"]}` (or `exclude_only`): the bones the layer may write |
 | `mirror` | `{"@when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `@mirror` / `@swapSides` follow (see *Mirroring*) |
 | `nodes`, `machines` | the layer's nodes and machines, as maps by name |
 | `select`, `@connections`, `defaultOnEntry` | how the layer picks its node (see *Choosing the node*) |
@@ -105,7 +111,7 @@ node is in *Choosing the node*.
 * A `core:fallthrough` node poses nothing, so the layers below show through; it has
   connections, definitions and statement lists like any node. A transition into or out of it fades between
   the layer's pose and the one below: what one side poses and the other doesn't is blended
-  against the layers below (a full rotation, offset or vector as they have it; a PRE / POST
+  against the layers below (a full rotation, offset or vector as they have it; a `pre` / `post`
   rotation or an additive offset as nothing). It is how an extension lets the animation it
   extends show until it has something to add, but any layer can use it.
 * A `core:vanilla` node hands the entity back to Minecraft: while any layer is in one (and that
@@ -209,7 +215,7 @@ A connection is written like a selector branch:
 
 ```json
 {"when": "machine.attacked", "then": "slash_down", "transitionDuration": 0,
- "transitionEasing": "EASE_IN_OUT", "do": [{"set": ["layer.combo", 2]}]}
+ "transitionEasing": "ease_in_out", "do": [{"set": ["layer.combo", 2]}]}
 ```
 
 * `when` is its condition, and `then` any node or machine of the layer: a machine is entered as
@@ -217,9 +223,9 @@ A connection is written like a selector branch:
   another jump).
 * `do` is a statement list, run when the connection fires (see *Definitions and statements*).
   `transitionDuration` (ticks)
-  crossfades (an interrupted crossfade continues from what was on screen); easings `LINEAR`,
-  `EASE_IN`, `EASE_OUT`, `EASE_IN_OUT` (the default), `EXPONENTIAL`. Where one side of a crossfade
-  poses a bone absolutely and the other only relatively (PRE / POST, additive), the relative one
+  crossfades (an interrupted crossfade continues from what was on screen); easings `linear`,
+  `ease_in`, `ease_out`, `ease_in_out` (the default), `exponential`. Where one side of a crossfade
+  poses a bone absolutely and the other only relatively (`pre` / `post`, additive), the relative one
   is first resolved against the layers below, so both are blended as absolute values.
 
 ### Every frame
@@ -249,9 +255,9 @@ holds the item's own fields. The modifiers, the same for every item:
 | modifier | meaning |
 |---|---|
 | `@when` | a condition; the item is skipped while it does not hold |
-| `@space` | `OVERRIDE` (replace), `PRE` (rotate in the parent's space, the `rotate*` idiom), `POST` (the bone's own space, the `localRotate*` idiom). Default: OVERRIDE for clips, PRE for drivers. |
+| `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. |
 | `@damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate |
-| `@vectorModes` | for offset vectors: `SLIDE` (tween restarted when the target changes), `RETARGET` (exponential approach re-aimed every frame), `SNAP` |
+| `@vectorModes` | for offset vectors: `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
 | `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `@mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
 | `@swapSides` | like `@mirror`, but only the paired bones swap; rotations and offsets are kept |
@@ -323,13 +329,13 @@ A clip's own fields are `animationKey`, `frame`, `duration`, `weight` and `bones
   finishes.
 
 `weight` (an expression) is how much of the clip is applied. For a bone the clip writes relatively
-(`PRE` / `POST`) it scales the rotation angle and the offset; for a bone it replaces (`OVERRIDE`)
+(`pre` / `post`) it scales the rotation angle and the offset; for a bone it replaces (`override`)
 it blends from what the bone has so far this frame (from the layers below and the items before)
 to the clip, or from the rest pose where nothing has written the bone yet. `bones` restricts the
 clip.
 Clip files (`animations/...json`) hold `bones` with keyframes (`position`, `rotation` as a
 quaternion `[x, y, z, w]`; each may be left out for no offset, no rotation),
-and optionally `duration`, `interpolation: "STEP"` and explicit keyframe `times` (in the clip's
+and optionally `duration`, `interpolation: "step"` and explicit keyframe `times` (in the clip's
 units). Keyframes straddling the ±180° wrap interpolate the short way.
 
 Bone names are the subject's named parts, plus `root` / `globalOffset` and `localOffset` for
@@ -341,7 +347,7 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 
 | driver | fields |
 |---|---|
-| `core:axis_rotate` | `bone`, `axis` (`X`/`Y`/`Z`), `angle` (expression, degrees) |
+| `core:axis_rotate` | `bone`, `axis` (`x`/`y`/`z`), `angle` (expression, degrees) |
 | `core:vector` | `bone`, `x`, `y`, `z` (expressions; an axis left out keeps the bone's current target) |
 | `core:offset` | `bone`, `x`, `y`, `z`: a bone's position offset |
 | `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
@@ -744,8 +750,8 @@ ones the next.
 * Smoothing lives in the subject's bones. Damping in the animator sets a bone's rate; leave it
   out and the bone keeps the rate it has.
 * An offset vector written by two layers in one frame keeps only the last write; a vector
-  re-aimed every frame on top of another writer is `RETARGET`.
-* A bone written only relatively (PRE / POST, additive) with nothing absolute beneath builds on
+  re-aimed every frame on top of another writer is `retarget`.
+* A bone written only relatively (`pre` / `post`, additive) with nothing absolute beneath builds on
   last frame's result, so it keeps turning or moving every frame; to hold a pose, write it
   absolutely in some layer beneath.
 * Mirroring is an involution applied around the item, so composition rules do not change.
@@ -779,7 +785,7 @@ From the definition the mod builds the data class (`DefinedEntityData`), the mut
     {"name": "head", "vanilla": {"field": "head", "index": 6}},
     {"name": "body", "vanilla": {"field": "body", "index": 7}, "restRotation": [90, 0, 0]},
     {"name": "leg1", "vanilla": {"field": "leg1", "index": 2},
-     "split": {"axis": "Y", "at": [0.5], "names": ["foreLeg1"]}}
+     "split": {"axis": "y", "at": [0.5], "names": ["foreLeg1"]}}
   ]
 }
 ```
@@ -803,7 +809,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | `bones[].parent` | renders the bone inside another one (an invisible stand-in takes the vanilla slot); `position` is then relative to the parent |
 | `bones[].position` | pivot override; default: the vanilla rotation point |
 | `bones[].restRotation` | constant X, Y, Z degrees the vanilla model held the part at (`setRotationAngles` constants), applied before the animated rotation |
-| `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. `hinge` puts the joints on an edge of the cut instead of its middle: `FRONT` / `BACK` (-Z / +Z) or `TOP` / `BOTTOM` (-Y / +Y). A joint hinges on the side opposite to where it bends (a knee at the front, an elbow at the back), so the segments stay joined when it bends. |
+| `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. `hinge` puts the joints on an edge of the cut instead of its middle: `front` / `back` (-Z / +Z) or `top` / `bottom` (-Y / +Y). A joint hinges on the side opposite to where it bends (a knee at the front, an elbow at the back), so the segments stay joined when it bends. |
 | `@define`, `@on` | the entity scope: what the mob exposes to its animators and extensions (`entity.wingAngle`) and remembers across frames, as an animator's scopes declare theirs (see *Definitions and statements*). The only place `field` and `exists` are written (see *Reading the entity*) |
 | `@comment` | a note, ignored |
 

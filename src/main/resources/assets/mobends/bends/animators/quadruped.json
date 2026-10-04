@@ -36,13 +36,13 @@
                 "@damping": {"head": 0.5, "body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "PRE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "pre",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               }
             ]
           }
@@ -68,13 +68,13 @@
                 }
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "override",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               }
             ]
           }
@@ -96,13 +96,13 @@
                 }
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "override",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               }
             ]
           }

@@ -162,6 +162,11 @@ public class PoseNode implements INodeState
         {
             ClipItemTemplate clipTemplate = (ClipItemTemplate) template;
             KeyframeAnimation animation = requireAnimation(context, clipTemplate.animationKey);
+            if (animation.interpolation != null && !"linear".equals(animation.interpolation) && !"step".equals(animation.interpolation))
+            {
+                throw new MalformedKumoTemplateException(String.format("The clip '%s' has the interpolation '%s': it is \"linear\" or \"step\".",
+                        clipTemplate.animationKey, animation.interpolation));
+            }
             ClipBinding binding = new ClipBinding(animation, skeleton, clipTemplate.bones);
 
             float clipLength = animation.duration != null ? animation.duration : Math.max(binding.keyframeCount - 1, 0);

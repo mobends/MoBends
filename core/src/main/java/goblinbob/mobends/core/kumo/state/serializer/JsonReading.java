@@ -132,18 +132,19 @@ final class JsonReading
         return text.toString();
     }
 
-    /** The constant of {@code type} named by {@code json}, ignoring case. */
+    /** Throws unless {@code key}, in a map of bones, is a bone name or {@code @default}. */
+    static void requireBoneOrDefault(String key, String what)
+    {
+        if (key.startsWith("@") && !"@default".equals(key))
+        {
+            throw new JsonParseException(String.format("%s: unknown key \"%s\" (bones, \"@default\" for the others, and \"@comment\").", what, key));
+        }
+    }
+
+    /** The constant of {@code type} named by {@code json}, written in lower case (see {@link LowerCaseEnums}). */
     static <E extends Enum<E>> E enumValue(Class<E> type, JsonElement json, String what)
     {
-        String name = string(json, what);
-        try
-        {
-            return Enum.valueOf(type, name.toUpperCase(Locale.ROOT));
-        }
-        catch (IllegalArgumentException e)
-        {
-            throw new JsonParseException(String.format("%s: unknown value '%s'.", what, name));
-        }
+        return LowerCaseEnums.valueOf(type, string(json, what), what);
     }
 
 }

@@ -19,14 +19,14 @@
         "index": 2
       },
       "split": {
-        "axis": "Y",
+        "axis": "y",
         "at": [
           0.5
         ],
         "names": [
           "lowerBody"
         ],
-        "hinge": "BACK"
+        "hinge": "back"
       }
     },
     {

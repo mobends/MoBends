@@ -67,9 +67,14 @@ public class KumoSerializerTest
         assertRefused("has to be a string", "{\"defaultOnEntry\": 1, " + a + "}");
         assertRefused("\"nodes\" has to be an object", "{\"defaultOnEntry\": \"a\", \"nodes\": [{}]}");
         assertRefused("Unknown node type: \"x:y\"", "{\"nodes\": {\"a\": {\"x:y\": {}}}}");
-        assertRefused("unknown value 'SIDEWAYS'", "{\"mode\": \"ADDITIVE\", \"additiveSpace\": \"SIDEWAYS\", " + a + "}");
+        assertRefused("unknown value 'sideways' (it is one of override, pre, post)", "{\"mode\": \"additive\", \"additiveSpace\": \"sideways\", " + a + "}");
+        // The format's words are lower case, and a per-bone map's own key is "@default".
+        assertRefused("'PRE' is written in lower case, 'pre'", "{\"mode\": \"additive\", \"additiveSpace\": \"PRE\", " + a + "}");
+        assertRefused("'X' is written in lower case, 'x'",
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"X\", \"angle\": 1}}]}}}}");
+        assertRefused("unknown key \"@defaults\"", "{\"mode\": \"additive\", \"additiveSpace\": {\"@defaults\": \"pre\"}, " + a + "}");
         assertRefused("Unknown pose item: \"x:y\"", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"x:y\": {}}]}}}}");
-        assertRefused("needs a key naming it", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"@space\": \"PRE\"}]}}}}");
+        assertRefused("needs a key naming it", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"@space\": \"pre\"}]}}}}");
         assertRefused("damping", "{\"nodes\": {\"a\": {\"core:pose\": {\"damping\": {\"arm\": true}}}}}");
         assertRefused("has no \"then\"", "{\"select\": [{\"when\": \"x\"}], " + a + "}");
         assertRefused("a name or a list of branches", "{\"select\": [{\"then\": 1}], " + a + "}");
@@ -87,13 +92,13 @@ public class KumoSerializerTest
         assertRefused("A node has an unknown key \"@nope\"", "{\"nodes\": {\"a\": {\"core:pose\": {}, \"@nope\": 1}}}");
         assertRefused("The node type \"core:pose\" has an unknown key \"connections\"", "{\"nodes\": {\"a\": {\"core:pose\": {\"connections\": []}}}}");
         assertRefused("A pose item has exactly one key that doesn't start with @",
-                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\"}, \"space\": \"PRE\"}]}}}}");
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\"}, \"space\": \"pre\"}]}}}}");
         assertRefused("A pose item has an unknown modifier \"@weight\"",
                 "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\"}, \"@weight\": 1}]}}}}");
         assertRefused("The pose item \"core:clip\" has an unknown key \"space\"",
-                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\", \"space\": \"PRE\"}}]}}}}");
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\", \"space\": \"pre\"}}]}}}}");
         assertRefused("The pose item \"core:axis_rotate\" has an unknown key \"angel\"",
-                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"X\", \"angel\": 1}}]}}}}");
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"x\", \"angel\": 1}}]}}}}");
         assertRefused("A connection has an unknown key \"target\"",
                 "{\"nodes\": {\"a\": {\"core:pose\": {}, \"@connections\": [{\"target\": \"a\", \"when\": true}]}}}");
         assertRefused("A mirror rule has an unknown key \"when\"", "{\"mirror\": {\"when\": true, \"pairs\": []}, " + a + "}");

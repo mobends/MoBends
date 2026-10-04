@@ -3,8 +3,8 @@
   "extends": "mobends:bends/animators/biped.json",
   "layers": [
     {
-      "mode": "ADDITIVE",
-      "additiveSpace": {"default": "PRE", "root": "OVERRIDE"},
+      "mode": "additive",
+      "additiveSpace": {"@default": "pre", "root": "override"},
       "@when": {"or": ["animator.standing", "animator.walking"]},
       "defaultOnEntry": "hunch",
       "nodes": {
@@ -13,17 +13,17 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/pigzombie/pose_post.json"},
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/pigzombie/pose_pre.json"},
-                "@space": "PRE"
+                "@space": "pre"
               },
               {
                 "@when": "animator.standing",
                 "core:clip": {"animationKey": "mobends:bends/animations/pigzombie/stand_offset.json"},
                 "@damping": {"root": [null, 1.2, null]},
-                "@vectorModes": {"root": "RETARGET"}
+                "@vectorModes": {"root": "retarget"}
               },
               {
                 "@when": "animator.walking",
@@ -32,7 +32,7 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@damping": {"root": [null, 1.2, null]},
-                "@vectorModes": {"root": "RETARGET"}
+                "@vectorModes": {"root": "retarget"}
               }
             ]
           }
@@ -71,12 +71,12 @@
                   "leftForeArm": 0.3,
                   "localOffset": 0.3
                 },
-                "@vectorModes": {"localOffset": "SLIDE"}
+                "@vectorModes": {"localOffset": "slide"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post",
                 "@mirror": true
               },
               {
@@ -86,7 +86,7 @@
                   "bones": ["leftLeg", "rightLeg", "rightForeLeg", "root"]
                 },
                 "@damping": {"root": [null, 1.2, null]},
-                "@vectorModes": {"root": "RETARGET"}
+                "@vectorModes": {"root": "retarget"}
               },
               {
                 "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
@@ -98,8 +98,8 @@
                 "@damping": {"renderRotation": 0.6}
               },
               {
-                "core:axis_rotate": {"bone": "rightHeldItem", "axis": "X", "angle": 50},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "rightHeldItem", "axis": "x", "angle": 50},
+                "@space": "override",
                 "@snap": true,
                 "@mirror": true,
                 "@damping": {"rightHeldItem": 0.9}

@@ -3,8 +3,8 @@
   "extends": "mobends:bends/animators/biped.json",
   "layers": [
     {
-      "mode": "ADDITIVE",
-      "additiveSpace": {"default": "PRE", "body": "POST", "root": "OVERRIDE"},
+      "mode": "additive",
+      "additiveSpace": {"@default": "pre", "body": "post", "root": "override"},
       "@when": {"eq": ["animationSet", 0]},
       "defaultOnEntry": "lean",
       "nodes": {
@@ -14,12 +14,12 @@
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/zombie/lean.json"},
                 "@damping": {"root": [null, 1.2, null]},
-                "@vectorModes": {"root": "RETARGET"}
+                "@vectorModes": {"root": "retarget"}
               },
               {
                 "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"eq": ["currentWalkingState", 1]}]},
                 "core:clip": {"animationKey": "mobends:bends/animations/zombie/lean_arms_up.json"},
-                "@space": "OVERRIDE"
+                "@space": "override"
               }
             ]
           }
@@ -46,14 +46,14 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/zombie/stumble_head.json",
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
-                "@space": "PRE"
+                "@space": "pre"
               }
             ]
           }

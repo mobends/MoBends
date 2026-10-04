@@ -84,7 +84,7 @@ Each parameter has a kind, checked at load:
 | boolean | any boolean expression, evaluated every frame | `"nodeIsActive"`, `{"not": [...]}` |
 | constant number | a number literal only | a window size |
 | string | a string literal only | `"minecraft:torch"`, `"^Notch.*"` |
-| choice | one of a fixed set of strings | `"main_hand"` / `"off_hand"`, `"X"` |
+| choice | one of a fixed set of strings | `"main_hand"` / `"off_hand"`, `"x"` |
 
 - A wrong argument fails with the operation's own words: `'core:holds_item' argument 2 (item)
   must be a string, got an expression`.
@@ -106,7 +106,7 @@ parameters, for an expression repeated with different inputs:
              "body": {"mul": [{"sin": [{"mul": ["arg.t", 6.28]}]}, "arg.amount"]}}
 },
 ...
-{"core:axis_rotate": {"bone": "head", "axis": "Z",
+{"core:axis_rotate": {"bone": "head", "axis": "z",
                       "angle": {"animator.wobble": [{"div": ["nodeTicksElapsed", 20]}, 5]}}}
 ```
 
@@ -586,7 +586,7 @@ Decided:
 - Singular / plural pairs: none are left. Selectors became expressions, whose arguments are
   always lists (`{"core:player_name": ["Notch", "jeb_"]}`).
 - The reserved `"default"` key of per-bone maps (damping, `additiveSpace`) is spelled `@default`
-  (`{"@default": "PRE", "body": "POST"}`): `@` keys are the format's own, so no bone name is
+  (`{"@default": "pre", "body": "post"}`): `@` keys are the format's own, so no bone name is
   reserved.
 - Every fixed set of words is lower_snake_case, as operation choices and registry ids are:
   spaces (`pre`, `post`, `override`), axes (`x`, `y`, `z`), vector modes (`slide`, `retarget`,
@@ -698,7 +698,7 @@ the additive and smaller ones.
     connections the old way and rewrites them in last passes (`oneKeyAnimator`, then
     `kumo_scopes.ts`, which turns bare names into scoped ones); its builders should write the
     format themselves, and `kumo_scopes.ts` then goes.
-27. [ ] **The remaining cleanups**, as decided (*Smaller renames and cleanups*): `@default`, and
+27. [x] **The remaining cleanups**, as decided (*Smaller renames and cleanups*): `@default`, and
     lower-case enum values.
 
 **After v2**

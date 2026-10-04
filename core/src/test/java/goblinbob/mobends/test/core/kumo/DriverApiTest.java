@@ -66,7 +66,7 @@ public class DriverApiTest
     {
         return "{'formatVersion': 2, '@define': {'total': {'state': 0}, 'frames': {'state': 0}}, 'layers': [{'defaultOnEntry': 'a', "
                 + "'nodes': {'a': {'core:pose': {'pose': [{'test:raise': " + raise + "}, "
-                + "{'core:axis_rotate': {'bone': 'leg', 'axis': 'X', 'angle': {'add': ['animator.total', {'mul': ['animator.frames', 10]}]}}, '@space': 'OVERRIDE'}]}, "
+                + "{'core:axis_rotate': {'bone': 'leg', 'axis': 'x', 'angle': {'add': ['animator.total', {'mul': ['animator.frames', 10]}]}}, '@space': 'override'}]}, "
                 + "'@connections': [{'when': {'ge': ['nodeTicksElapsed', " + restartAfter + "]}, 'then': 'a'}]}}}]}";
     }
 

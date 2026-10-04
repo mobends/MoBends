@@ -117,7 +117,7 @@ weight the swing by how fast the entity walks, so a slow walk swings less:
 ```json
 {"core:clip": {"animationKey": "…/walk_base.json",  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}}},
 {"core:clip": {"animationKey": "…/walk_swing.json", "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
-               "weight": "entityLimbSwingAmount"}, "@space": "POST"}
+               "weight": "entityLimbSwingAmount"}, "@space": "post"}
 ```
 
 `weight` scales angles, which is exact for rotations about one axis; keep swings to one axis per
@@ -129,8 +129,8 @@ Put the look on top of the clip with two drivers, yaw in the parent's space and 
 head's own space, after any clip that poses the head:
 
 ```json
-{"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},   "@space": "PRE"},
-{"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"}
+{"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},   "@space": "pre"},
+{"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
 ```
 
 A slight body twist towards the look is a third driver on `body` with
@@ -144,7 +144,7 @@ clip with the counter as its frame, only while the counter is small:
 ```json
 {"@when": {"lt": ["entityTicksAfterTouchdown", 6.67]},
  "core:clip": {"animationKey": "…/kneel.json", "frame": "entityTicksAfterTouchdown"},
- "@vectorModes": {"root": "SNAP"}}
+ "@vectorModes": {"root": "snap"}}
 ```
 
 The clip holds its last keyframe once the frame passes its end, so the `@when` decides when it
@@ -168,8 +168,8 @@ and arrives after 1 / damping ticks (1 = within a tick, 0.1 = in ten). Set it pe
 in `core:pose`) or item (`@damping`):
 `{"body": 0.5, "rightArm": 0.8, "root": [null, 0.6, null]}`. A bone you don't list keeps
 the rate it had, so set damping where a state should feel different, not everywhere. For the
-entity-level vectors (`root`, `localOffset`) pick an `@vectorModes` entry: `SLIDE` for a move to a
-new resting place, `RETARGET` for a target that changes every frame (a bob), `SNAP` for no
+entity-level vectors (`root`, `localOffset`) pick an `@vectorModes` entry: `slide` for a move to a
+new resting place, `retarget` for a target that changes every frame (a bob), `snap` for no
 smoothing at all.
 
 ### Choosing between states
@@ -209,8 +209,8 @@ For per-entity variation (the zombie's two walking styles), add a layer per vari
 variable the data class sets, and let it override or add to the base:
 
 ```json
-{"mode": "ADDITIVE",
- "additiveSpace": {"default": "PRE", "body": "POST", "root": "OVERRIDE"},
+{"mode": "additive",
+ "additiveSpace": {"@default": "pre", "body": "post", "root": "override"},
  "@when": {"eq": ["animationSet", 0]},
  "defaultOnEntry": "lean", "nodes": { … }}
 ```

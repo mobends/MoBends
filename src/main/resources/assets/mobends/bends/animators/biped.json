@@ -34,12 +34,12 @@
                   "rightArm": 0.4,
                   "leftArm": 0.4
                 },
-                "@vectorModes": {"root": "SLIDE", "localOffset": "SLIDE"}
+                "@vectorModes": {"root": "slide", "localOffset": "slide"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               },
               {
                 "@when": {"lt": ["entityTicksAfterTouchdown", 6.666666666666667]},
@@ -48,7 +48,7 @@
                   "frame": "entityTicksAfterTouchdown"
                 },
                 "@damping": {"body": 1},
-                "@vectorModes": {"root": "SNAP"}
+                "@vectorModes": {"root": "snap"}
               }
             ],
             "enterPose": [
@@ -83,7 +83,7 @@
                   "rightLeg": 1,
                   "leftLeg": 1
                 },
-                "@vectorModes": {"root": "RETARGET", "localOffset": "SLIDE"}
+                "@vectorModes": {"root": "retarget", "localOffset": "slide"}
               },
               {
                 "core:clip": {
@@ -98,16 +98,16 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "Z", "angle": {"clamp": [{"mul": ["entityHeadYaw", -0.1]}, -10, 10]}},
-                "@space": "PRE"
+                "core:axis_rotate": {"bone": "body", "axis": "z", "angle": {"clamp": [{"mul": ["entityHeadYaw", -0.1]}, -10, 10]}},
+                "@space": "pre"
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               },
               {
                 "@when": {"lt": ["entityTicksAfterTouchdown", 6.666666666666667]},
@@ -116,7 +116,7 @@
                   "frame": "entityTicksAfterTouchdown"
                 },
                 "@damping": {"body": 1},
-                "@vectorModes": {"root": "SNAP"}
+                "@vectorModes": {"root": "snap"}
               }
             ]
           }
@@ -139,12 +139,12 @@
                   "rightForeArm": 0.3,
                   "leftForeArm": 0.3
                 },
-                "@vectorModes": {"root": "SLIDE"}
+                "@vectorModes": {"root": "slide"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post"
               },
               {
                 "@when": {"not": ["entityIsStandingStill"]},
@@ -169,7 +169,7 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
-                "@space": "POST"
+                "@space": "post"
               },
               {
                 "@when": "entityIsStandingStill",

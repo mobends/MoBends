@@ -64,7 +64,7 @@ public class OperationApiTest
     private static String posing(String angle, int restartAfter)
     {
         return "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': "
-                + "{'bone': 'arm', 'axis': 'X', 'angle': " + angle + "}, '@space': 'OVERRIDE'}]}, "
+                + "{'bone': 'arm', 'axis': 'x', 'angle': " + angle + "}, '@space': 'override'}]}, "
                 + "'@connections': [{'when': {'ge': ['nodeTicksElapsed', " + restartAfter + "]}, 'then': 'a'}]}}}]}";
     }
 

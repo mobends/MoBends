@@ -41,8 +41,8 @@ public class ExtensionsTest
     private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"through\", "
             + "\"nodes\": {\"through\": {\"core:fallthrough\": {}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", "
             + "10]}, \"then\": \"raise\", \"transitionDuration\": 5}]}, "
-            + "\"raise\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"X\", "
-            + "\"angle\": -90}, \"@space\": \"OVERRIDE\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 20]}, "
+            + "\"raise\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"x\", "
+            + "\"angle\": -90}, \"@space\": \"override\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 20]}, "
             + "\"then\": \"back\", \"transitionDuration\": 5}]}, \"back\": {\"core:fallthrough\": {}}}}]}";
 
     @Test

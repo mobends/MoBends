@@ -22,7 +22,7 @@ public class ExtensionScopeTest
     private static AnimatorTemplate posing(String define, String bone, String angle)
     {
         return TestSubject.animator("{'formatVersion': 2, " + define + "'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': "
-                + "[{'core:axis_rotate': {'bone': '" + bone + "', 'axis': 'X', 'angle': " + angle + "}, '@space': 'OVERRIDE'}]}}}}]}");
+                + "[{'core:axis_rotate': {'bone': '" + bone + "', 'axis': 'x', 'angle': " + angle + "}, '@space': 'override'}]}}}}]}");
     }
 
     private static float angle(TestSubject subject, String bone)

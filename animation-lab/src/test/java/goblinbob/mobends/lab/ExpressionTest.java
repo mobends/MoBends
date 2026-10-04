@@ -320,9 +320,9 @@ public class ExpressionTest
         AnimatorTemplate child = KumoSerializer.INSTANCE.gson.fromJson("{\"formatVersion\": 2, \"extends\": \"mobends_test:bends/animators/expressions_parent.json\", "
                 + "\"layers\": [{\"defaultOnEntry\": \"child\", \"@define\": {\"lift\": {\"live\": {\"mul\": [\"animator.base\", "
                 + "0.5]}}}, \"nodes\": {\"child\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", "
-                + "\"axis\": \"X\", \"angle\": \"animator.base\"}, \"@space\": \"OVERRIDE\"}, "
-                + "{\"core:axis_rotate\": {\"bone\": \"rightLeg\", \"axis\": \"X\", \"angle\": \"node.legs\"}, "
-                + "\"@space\": \"OVERRIDE\"}]}, \"@define\": {\"legs\": {\"live\": {\"add\": [\"layer.lift\", 1]}}}}}}]}", AnimatorTemplate.class);
+                + "\"axis\": \"x\", \"angle\": \"animator.base\"}, \"@space\": \"override\"}, "
+                + "{\"core:axis_rotate\": {\"bone\": \"rightLeg\", \"axis\": \"x\", \"angle\": \"node.legs\"}, "
+                + "\"@space\": \"override\"}]}, \"@define\": {\"legs\": {\"live\": {\"add\": [\"layer.lift\", 1]}}}}}}]}", AnimatorTemplate.class);
 
         Scenario scenario = new Scenario(EntityKind.PLAYER, "expression_scopes", Scenarios.FPS, 10, (tick, in) -> {});
         List<FramePose> frames = new KumoSession(scenario, child).run().frames;

@@ -5,8 +5,8 @@
   "layers": [
     {
       "@comment": "Two footfalls per walk cycle, so the bob runs at twice the leg swing; the body is lowest when the legs are furthest apart. The head repeats the bob a little later and nods after it.",
-      "mode": "ADDITIVE",
-      "additiveSpace": "POST",
+      "mode": "additive",
+      "additiveSpace": "post",
       "@define": {"step": {"live": {"mul": ["entityLimbSwing", 0.6662, 2]}}},
       "select": [
         {"when": "animator.walking", "then": "walk", "transitionDuration": 4},
@@ -24,7 +24,7 @@
                   "y": {"mul": [{"cos": ["layer.step"]}, 0.4, "entityLimbSwingAmount"]},
                   "z": 0
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@damping": {"body": 1}
               },
               {
@@ -34,15 +34,15 @@
                   "y": {"mul": [{"cos": [{"sub": ["layer.step", 0.9]}]}, 0.5, "entityLimbSwingAmount"]},
                   "z": 0
                 },
-                "@space": "OVERRIDE"
+                "@space": "override"
               },
               {
                 "core:axis_rotate": {
                   "bone": "head",
-                  "axis": "X",
+                  "axis": "x",
                   "angle": {"mul": [{"cos": [{"sub": ["layer.step", 1.6]}]}, 4, "entityLimbSwingAmount"]}
                 },
-                "@space": "POST"
+                "@space": "post"
               }
             ]
           }

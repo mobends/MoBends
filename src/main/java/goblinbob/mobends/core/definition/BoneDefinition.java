@@ -63,12 +63,12 @@ public class BoneDefinition
                 if (fraction <= last || fraction >= 1) throw new MalformedKumoTemplateException("Bone '" + name + "': split fractions must increase within (0, 1).");
                 last = fraction;
             }
-            if (split.axis == null || "XYZ".indexOf(split.axis.toUpperCase()) < 0 || split.axis.length() != 1)
-                throw new MalformedKumoTemplateException("Bone '" + name + "': split 'axis' must be X, Y or Z.");
-            if (split.hinge != null && split.hingeAxis() < 0 && !"CENTER".equalsIgnoreCase(split.hinge))
-                throw new MalformedKumoTemplateException("Bone '" + name + "': split 'hinge' must be FRONT, BACK, TOP, BOTTOM or CENTER.");
+            if (split.axis == null || split.axisIndex() < 0)
+                throw new MalformedKumoTemplateException("Bone '" + name + "': split 'axis' must be x, y or z, not '" + split.axis + "'.");
+            if (split.hinge != null && split.hingeAxis() < 0 && !"center".equals(split.hinge))
+                throw new MalformedKumoTemplateException("Bone '" + name + "': split 'hinge' must be front, back, top, bottom or center, not '" + split.hinge + "'.");
             if (split.hingeAxis() == split.axisIndex())
-                throw new MalformedKumoTemplateException("Bone '" + name + "': a split along " + split.axis + " can't hinge at its " + split.hinge.toLowerCase() + ", which is on the same axis.");
+                throw new MalformedKumoTemplateException("Bone '" + name + "': a split along " + split.axis + " can't hinge at its " + split.hinge + ", which is on the same axis.");
         }
         if (vanilla != null && vanilla.field == null && vanilla.index < 0)
             throw new MalformedKumoTemplateException("Bone '" + name + "': 'vanilla' needs a 'field' name and/or a box-list 'index'.");
@@ -86,14 +86,14 @@ public class BoneDefinition
 
     public static class SplitDefinition
     {
-        public String axis = "Y";
+        public String axis = "y";
         /** Cut positions as fractions of the box length along the axis, increasing. */
         public float[] at;
         /** Names of the segments after the first, one per cut. */
         public List<String> names;
         /**
-         * Where on the cut each joint sits: {@code FRONT} / {@code BACK} (the -Z / +Z edge),
-         * {@code TOP} / {@code BOTTOM} (the -Y / +Y edge), or {@code CENTER} (default). A joint that
+         * Where on the cut each joint sits: {@code front} / {@code back} (the -Z / +Z edge),
+         * {@code top} / {@code bottom} (the -Y / +Y edge), or {@code center} (default). A joint that
          * bends one way hinges at the edge on the other side (a knee at the front), so the segments
          * stay joined there.
          */
@@ -101,21 +101,21 @@ public class BoneDefinition
 
         public int axisIndex()
         {
-            return "XYZ".indexOf(axis.toUpperCase());
+            return axis.length() == 1 ? "xyz".indexOf(axis) : -1;
         }
 
         /** The axis the hinge edge is on (1 = Y, 2 = Z), or -1 for the center. */
         public int hingeAxis()
         {
-            String h = hinge == null ? "CENTER" : hinge.toUpperCase();
-            return h.equals("FRONT") || h.equals("BACK") ? 2 : h.equals("TOP") || h.equals("BOTTOM") ? 1 : -1;
+            String h = hinge == null ? "center" : hinge;
+            return h.equals("front") || h.equals("back") ? 2 : h.equals("top") || h.equals("bottom") ? 1 : -1;
         }
 
         /** The hinge's edge on {@link #hingeAxis()}: -1 for the low one (front, top), 1 for the high one. */
         public int hingeSide()
         {
-            String h = hinge == null ? "CENTER" : hinge.toUpperCase();
-            return h.equals("FRONT") || h.equals("TOP") ? -1 : h.equals("BACK") || h.equals("BOTTOM") ? 1 : 0;
+            String h = hinge == null ? "center" : hinge;
+            return h.equals("front") || h.equals("top") ? -1 : h.equals("back") || h.equals("bottom") ? 1 : 0;
         }
     }
 

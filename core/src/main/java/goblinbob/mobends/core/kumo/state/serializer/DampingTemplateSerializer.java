@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
- * {"default": 0.3, "rightArm": 0.8, "root": [0.3, 0.6, 0.3]}; a bone's rate can also be an expression
+ * {"@default": 0.3, "rightArm": 0.8, "root": [0.3, 0.6, 0.3]}; a bone's rate can also be an expression
  * (a name or an operation), evaluated every frame.
  */
 public class DampingTemplateSerializer implements JsonDeserializer<DampingTemplate>
@@ -25,6 +25,11 @@ public class DampingTemplateSerializer implements JsonDeserializer<DampingTempla
         }
         for (Map.Entry<String, JsonElement> entry : JsonReading.object(json, "A damping").entrySet())
         {
+            if (JsonReading.COMMENT.equals(entry.getKey()))
+            {
+                continue;
+            }
+            JsonReading.requireBoneOrDefault(entry.getKey(), "A damping");
             JsonElement value = entry.getValue();
             if (value.isJsonArray())
             {

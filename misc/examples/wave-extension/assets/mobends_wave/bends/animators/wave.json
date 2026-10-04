@@ -12,9 +12,9 @@
         "wave": {
           "core:pose": {
             "pose": [
-              {"core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": -165}, "@space": "OVERRIDE"},
-              {"core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": "node.sway"}, "@space": "POST"},
-              {"core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": -20}, "@space": "OVERRIDE"}
+              {"core:axis_rotate": {"bone": "rightArm", "axis": "x", "angle": -165}, "@space": "override"},
+              {"core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": "node.sway"}, "@space": "post"},
+              {"core:axis_rotate": {"bone": "rightForeArm", "axis": "x", "angle": -20}, "@space": "override"}
             ]
           },
           "@define": {"sway": {"live": {"mul": [{"sin": [{"mul": ["nodeTicksElapsed", 0.5]}]}, 25]}}}

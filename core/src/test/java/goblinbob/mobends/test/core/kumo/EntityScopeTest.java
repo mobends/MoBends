@@ -37,7 +37,7 @@ public class EntityScopeTest
     private static String posing(String angle)
     {
         return "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': "
-                + "{'bone': 'arm', 'axis': 'X', 'angle': " + angle + "}, '@space': 'OVERRIDE'}]}}}}]}";
+                + "{'bone': 'arm', 'axis': 'x', 'angle': " + angle + "}, '@space': 'override'}]}}}}]}";
     }
 
     private static EntityTemplate entity(Class<?> type, String define, String on, boolean trusted)
@@ -198,7 +198,7 @@ public class EntityScopeTest
                 "{'update': [{'set': ['entity.frames', {'add': ['entity.frames', 1]}]}]}", true),
                 "{'formatVersion': 2, '@define': {'seen': {'state': -1}}, '@on': {'update': [{'set': ['animator.seen', 'entity.frames']}]}, "
                         + "'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': "
-                        + "{'bone': 'arm', 'axis': 'X', 'angle': {'mul': ['animator.seen', 10]}}, '@space': 'OVERRIDE'}]}}}}]}");
+                        + "{'bone': 'arm', 'axis': 'x', 'angle': {'mul': ['animator.seen', 10]}}, '@space': 'override'}]}}}}]}");
         TestSubject subject = subjectOf(new Mob());
 
         animator.update(subject, 1F);

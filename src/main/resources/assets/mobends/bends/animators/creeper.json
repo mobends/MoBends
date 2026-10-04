@@ -23,20 +23,20 @@
                 },
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "leg1", "axis": "Z", "angle": 8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg1", "axis": "X", "angle": 4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg2", "axis": "Z", "angle": -8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg2", "axis": "X", "angle": 4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg3", "axis": "Z", "angle": 8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg3", "axis": "X", "angle": -4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg4", "axis": "Z", "angle": -8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg4", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "z", "angle": 8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "x", "angle": 4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "z", "angle": -8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "x", "angle": 4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "z", "angle": 8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "x", "angle": -4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "z", "angle": -8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "x", "angle": -4}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "PRE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "pre",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"}
+              {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
             ]
           }
         },
@@ -51,20 +51,20 @@
                 },
                 "@damping": {"leg1": 0.8, "leg2": 0.8, "leg3": 0.8, "leg4": 0.8}
               },
-              {"core:axis_rotate": {"bone": "leg1", "axis": "Z", "angle": 8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg1", "axis": "X", "angle": 4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg2", "axis": "Z", "angle": -8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg2", "axis": "X", "angle": 4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg3", "axis": "Z", "angle": 8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg3", "axis": "X", "angle": -4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg4", "axis": "Z", "angle": -8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg4", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "z", "angle": 8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "x", "angle": 4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "z", "angle": -8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "x", "angle": 4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "z", "angle": 8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "x", "angle": -4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "z", "angle": -8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "x", "angle": -4}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "override",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"}
+              {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
             ]
           }
         },
@@ -75,20 +75,20 @@
                 "core:clip": {"animationKey": "mobends:bends/animations/creeper/jump.json"},
                 "@damping": {"leg1": 0.3, "leg2": 0.3, "leg3": 0.3, "leg4": 0.3}
               },
-              {"core:axis_rotate": {"bone": "leg1", "axis": "Z", "angle": 8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg1", "axis": "X", "angle": 4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg2", "axis": "Z", "angle": -8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg2", "axis": "X", "angle": 4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg3", "axis": "Z", "angle": 8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg3", "axis": "X", "angle": -4}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg4", "axis": "Z", "angle": -8}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leg4", "axis": "X", "angle": -4}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "z", "angle": 8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg1", "axis": "x", "angle": 4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "z", "angle": -8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg2", "axis": "x", "angle": 4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "z", "angle": 8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg3", "axis": "x", "angle": -4}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "z", "angle": -8}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leg4", "axis": "x", "angle": -4}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "override",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"}
+              {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
             ]
           }
         }
@@ -96,7 +96,7 @@
     },
     {
       "@comment": "The lean: the chest leans over the lower half, which stays upright, and the neck (and with it the head) moves to where the leaning chest puts it. Standing, it leans a little and breathes with the idle clip (same phase: 64 samples a 2pi cycle, 0.09 samples a tick); walking forward, it leans further. The waist joint is on the back edge, 6 below and 2 behind the neck.",
-      "mode": "ADDITIVE",
+      "mode": "additive",
       "@define": {
         "walking": {"live": {"clamp": [{"div": ["entityForwardMomentum", 0.1]}, 0, 1]}},
         "breath": {"live": {"cos": [{"mul": ["ticks", 0.008835729338221293]}]}},
@@ -129,21 +129,21 @@
           "core:pose": {
             "pose": [
               {
-                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": "layer.hunch"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": "layer.hunch"},
+                "@space": "override",
                 "@damping": {"body": 0.5, "lowerBody": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "lowerBody", "axis": "X", "angle": {"neg": ["layer.hunch"]}},
-                "@space": "OVERRIDE"
+                "core:axis_rotate": {"bone": "lowerBody", "axis": "x", "angle": {"neg": ["layer.hunch"]}},
+                "@space": "override"
               },
               {
                 "core:offset": {"bone": "body", "x": 0, "y": "layer.neckY", "z": "layer.neckZ"},
-                "@space": "OVERRIDE"
+                "@space": "override"
               },
               {
                 "core:offset": {"bone": "head", "x": 0, "y": "layer.neckY", "z": "layer.neckZ"},
-                "@space": "OVERRIDE"
+                "@space": "override"
               }
             ]
           }

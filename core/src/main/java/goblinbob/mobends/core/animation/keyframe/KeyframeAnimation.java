@@ -13,7 +13,7 @@ public class KeyframeAnimation
      * meant to loop the last keyframe coincides with the first.
      */
     public Float duration;
-    /** "LINEAR" (default) or "STEP" (hold each keyframe until the next). */
+    /** "linear" (default) or "step" (hold each keyframe until the next). */
     public String interpolation;
     /**
      * Optional explicit keyframe times (one per keyframe, ascending, in the clip's time units).

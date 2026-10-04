@@ -39,11 +39,11 @@
                 "@damping": {"head": 0.5, "body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "PRE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "pre",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
@@ -70,16 +70,16 @@
                 }
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": 0},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": 0},
+                "@space": "override",
                 "@damping": {"body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "override",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
@@ -104,16 +104,16 @@
                 "@damping": {"rightArm": 0.5, "leftArm": 0.5, "rightForeArm": 0.5, "leftForeArm": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": 0},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": 0},
+                "@space": "override",
                 "@damping": {"body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "override",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
@@ -142,8 +142,8 @@
                 "core:accumulate": {"inout": "node.onFeet", "rate": {"if": ["animator.inJump", -0.15, 0.15]}, "min": 0, "max": 1}
               },
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "Z", "angle": "node.vanillaRock"},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "z", "angle": "node.vanillaRock"},
+                "@space": "override",
                 "@snap": true
               },
               {
@@ -212,61 +212,61 @@
               {
                 "core:axis_rotate": {
                   "bone": "head",
-                  "axis": "Y",
+                  "axis": "y",
                   "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}
                 },
-                "@space": "PRE"
+                "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"mul": ["node.jolt", 4]}},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": ["node.jolt", 4]}},
+                "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": {"mul": ["node.jolt", 2]}},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.jolt", 2]}},
+                "@space": "post"
               },
-              {"core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "node.twist"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "body", "axis": "y", "angle": "node.twist"}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"mul": ["node.armLag", -2.5]}},
-                "@space": "PRE"
+                "core:axis_rotate": {"bone": "rightArm", "axis": "x", "angle": {"mul": ["node.armLag", -2.5]}},
+                "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"mul": ["node.armLag", 2.5]}},
-                "@space": "PRE"
+                "core:axis_rotate": {"bone": "leftArm", "axis": "x", "angle": {"mul": ["node.armLag", 2.5]}},
+                "@space": "pre"
               },
               {
                 "core:axis_rotate": {
                   "bone": "rightArm",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {"add": [{"mul": ["node.jolt", 5]}, {"mul": ["node.armSway", -4]}]}
                 },
-                "@space": "PRE"
+                "@space": "pre"
               },
               {
                 "core:axis_rotate": {
                   "bone": "leftArm",
-                  "axis": "Z",
+                  "axis": "z",
                   "angle": {"add": [{"mul": ["node.jolt", -5]}, {"mul": ["node.armSway", -4]}]}
                 },
-                "@space": "PRE"
+                "@space": "pre"
               },
-              {"core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": "node.twist"}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": "node.twist"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "rightArm", "axis": "y", "angle": "node.twist"}, "@space": "pre"},
+              {"core:axis_rotate": {"bone": "leftArm", "axis": "y", "angle": "node.twist"}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": {"mul": ["node.jolt", -12]}},
-                "@space": "POST"
-              },
-              {
-                "core:axis_rotate": {"bone": "leftForeArm", "axis": "X", "angle": {"mul": ["node.jolt", -12]}},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "rightForeArm", "axis": "x", "angle": {"mul": ["node.jolt", -12]}},
+                "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"mul": ["node.armSwing", 3.5]}},
-                "@space": "PRE"
+                "core:axis_rotate": {"bone": "leftForeArm", "axis": "x", "angle": {"mul": ["node.jolt", -12]}},
+                "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"mul": ["node.armSwing", -3.5]}},
-                "@space": "PRE"
+                "core:axis_rotate": {"bone": "leftArm", "axis": "x", "angle": {"mul": ["node.armSwing", 3.5]}},
+                "@space": "pre"
+              },
+              {
+                "core:axis_rotate": {"bone": "rightArm", "axis": "x", "angle": {"mul": ["node.armSwing", -3.5]}},
+                "@space": "pre"
               }
             ]
           },

@@ -52,6 +52,7 @@ public class KumoSerializer
     private static GsonBuilder builderWithLeafAdapters()
     {
         return new GsonBuilder()
+                .registerTypeAdapterFactory(LowerCaseEnums.INSTANCE)
                 .registerTypeAdapter(BranchTemplate.class, new BranchTemplateSerializer())
                 .registerTypeAdapter(ConnectionTemplate.class, new ConnectionTemplateSerializer())
                 .registerTypeAdapter(DefinitionTemplate.class, new ScopeSerializers.Definition())

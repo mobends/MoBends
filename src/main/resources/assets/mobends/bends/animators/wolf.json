@@ -19,7 +19,7 @@
                   "animationKey": "mobends:bends/animations/wolf/idle.json",
                   "frame": {"mod": ["nodeTicksElapsed", "clipLength"]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@snap": true
               }
             ]
@@ -37,7 +37,7 @@
                   "animationKey": "mobends:bends/animations/wolf/walking.json",
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662, 4]}, "clipLength"]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@snap": true
               }
             ]
@@ -56,7 +56,7 @@
                   "frame": {"add": [6, {"mul": ["nodeTicksElapsed", 2]}]},
                   "duration": 8
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@snap": true
               }
             ]
@@ -71,7 +71,7 @@
                   "animationKey": "mobends:bends/animations/wolf/sitting.json",
                   "frame": {"mod": ["nodeTicksElapsed", "clipLength"]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@snap": true
               }
             ]
@@ -87,7 +87,7 @@
                   "frame": {"add": [4, {"mul": ["nodeTicksElapsed", 2]}]},
                   "duration": 9
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@snap": true
               }
             ]
@@ -99,7 +99,7 @@
     {
       "@comment": "The mouth and tongue alternate between idling and panting.",
       "defaultOnEntry": "idle",
-      "mask": {"mode": "INCLUDE_ONLY", "includedParts": ["tongue", "mouth"]},
+      "mask": {"mode": "include_only", "includedParts": ["tongue", "mouth"]},
       "nodes": {
         "idle": {
           "core:pose": {
@@ -109,7 +109,7 @@
                   "animationKey": "mobends:bends/animations/wolf/idle.json",
                   "frame": {"mod": ["nodeTicksElapsed", "clipLength"]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@snap": true
               }
             ]
@@ -124,7 +124,7 @@
                   "animationKey": "mobends:bends/animations/wolf/breathing.json",
                   "frame": {"mod": [{"mul": ["nodeTicksElapsed", 1.2]}, "clipLength"]}
                 },
-                "@space": "OVERRIDE",
+                "@space": "override",
                 "@snap": true
               }
             ]
@@ -135,53 +135,53 @@
     },
     {
       "@comment": "The look direction, the interested tilt, the shaking and the tail (vanilla expressions) applied after the clips in each bone's own space; the clips' head offset is discarded.",
-      "mode": "ADDITIVE",
+      "mode": "additive",
       "defaultOnEntry": "look",
       "nodes": {
         "look": {
           "core:pose": {
             "pose": [
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Z", "angle": {"mobends:wolf_interested_angle": []}},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "head", "axis": "z", "angle": {"mobends:wolf_interested_angle": []}},
+                "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Z", "angle": {"mobends:wolf_shake_angle": [0]}},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "head", "axis": "z", "angle": {"mobends:wolf_shake_angle": [0]}},
+                "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "mane", "axis": "Z", "angle": {"mobends:wolf_shake_angle": [-0.08]}},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "mane", "axis": "z", "angle": {"mobends:wolf_shake_angle": [-0.08]}},
+                "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "Z", "angle": {"mobends:wolf_shake_angle": [-0.2]}},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "tail", "axis": "z", "angle": {"mobends:wolf_shake_angle": [-0.2]}},
+                "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "Z", "angle": "animator.tailWag"},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "tail", "axis": "z", "angle": "animator.tailWag"},
+                "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "X", "angle": {"add": [{"mobends:wolf_tail_rotation": []}, -90]}},
-                "@space": "POST",
+                "core:axis_rotate": {"bone": "tail", "axis": "x", "angle": {"add": [{"mobends:wolf_tail_rotation": []}, -90]}},
+                "@space": "post",
                 "@snap": true
               },
-              {"core:offset": {"bone": "head", "x": 0, "y": 0, "z": 0}, "@space": "OVERRIDE"}
+              {"core:offset": {"bone": "head", "x": 0, "y": 0, "z": 0}, "@space": "override"}
             ]
           }
         }

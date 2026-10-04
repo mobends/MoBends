@@ -69,11 +69,11 @@ public class ClipFrameTest
 
     private static String clip(String fields)
     {
-        return "{\"core:clip\": {\"animationKey\": \"" + RAMP + "\"" + (fields.isEmpty() ? "" : ", " + fields) + "}, \"@space\": \"OVERRIDE\"}";
+        return "{\"core:clip\": {\"animationKey\": \"" + RAMP + "\"" + (fields.isEmpty() ? "" : ", " + fields) + "}, \"@space\": \"override\"}";
     }
 
     /** Also writes elapsed to the right arm's X angle, to compare against. */
-    private static final String ELAPSED_PROBE = "{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": \"nodeTicksElapsed\"}, \"@space\": \"OVERRIDE\"}";
+    private static final String ELAPSED_PROBE = "{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"x\", \"angle\": \"nodeTicksElapsed\"}, \"@space\": \"override\"}";
 
     @Test
     void frameIsInTheClipsUnitsAndHoldsTheEnds() throws Exception
@@ -107,7 +107,7 @@ public class ClipFrameTest
     void theClipIsFinishedOnceItsDurationHasPassed() throws Exception
     {
         String toDone = ", \"@connections\": [{\"when\": \"nodeIsFinished\", \"then\": \"done\"}]";
-        String done = ", \"done\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightLeg\", \"axis\": \"X\", \"angle\": -45}, \"@space\": \"OVERRIDE\"}]}}";
+        String done = ", \"done\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightLeg\", \"axis\": \"x\", \"angle\": -45}, \"@space\": \"override\"}]}}";
         assertEquals(-45, xAngle(run(10, clip("\"duration\": 3"), toDone, done), "rightLeg"), 0.05);
         assertEquals(0, xAngle(run(10, clip(""), toDone, done), "rightLeg"), 0.05, "without a duration it never finishes");
     }

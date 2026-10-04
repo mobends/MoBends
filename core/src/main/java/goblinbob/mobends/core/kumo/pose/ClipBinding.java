@@ -37,7 +37,7 @@ public class ClipBinding
     {
         this.animation = animation;
         this.keyframeCount = ClipSampler.keyframeCount(animation);
-        this.step = "STEP".equalsIgnoreCase(animation.interpolation);
+        this.step = "step".equals(animation.interpolation);
 
         List<Map.Entry<String, Bone>> entries = new ArrayList<>();
         for (Map.Entry<String, Bone> entry : animation.bones.entrySet())

@@ -9,8 +9,8 @@
           "core:pose": {
             "pose": [
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": "animator.base"},
-                "@space": "OVERRIDE"
+                "core:axis_rotate": {"bone": "leftArm", "axis": "x", "angle": "animator.base"},
+                "@space": "override"
               }
             ]
           }

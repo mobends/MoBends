@@ -12,7 +12,7 @@ the sway, and the head nods. Walking or jumping stops the dance; it fades out an
 * `assets/mobends_dance/bends/animators/dance.json`: the layer. Live definitions on the animator
   (`animator.beat`, `animator.sway`, `animator.bounce`) keep the moves on one clock. The whole-body moves set the offset and
   tilt outright (nothing in the mobs' own animation touches them), so the `rest` node puts them
-  back instead of being a `core:fallthrough` node. The nod is a `POST` rotation on top of the
+  back instead of being a `core:fallthrough` node. The nod is a `post` rotation on top of the
   head the mob's own animation poses.
 
 To try it, copy or link this folder into the game's `resourcepacks` folder and enable it.

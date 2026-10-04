@@ -19,8 +19,8 @@
             "pose": [
               {"core:vector": {"bone": "globalOffset", "x": 0, "y": 0, "z": 0}, "@snap": true},
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "Z", "angle": 0},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "z", "angle": 0},
+                "@space": "override",
                 "@snap": true
               }
             ]
@@ -39,13 +39,13 @@
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "Z", "angle": {"mul": ["animator.sway", -8]}},
-                "@space": "OVERRIDE",
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "z", "angle": {"mul": ["animator.sway", -8]}},
+                "@space": "override",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"mul": [{"sub": [1, "animator.bounce"]}, 15]}},
-                "@space": "POST"
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": [{"sub": [1, "animator.bounce"]}, 15]}},
+                "@space": "post"
               }
             ]
           }

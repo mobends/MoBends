@@ -42,14 +42,14 @@
         "index": 4
       },
       "split": {
-        "axis": "Y",
+        "axis": "y",
         "at": [
           0.5
         ],
         "names": [
           "foreRightLeg"
         ],
-        "hinge": "FRONT"
+        "hinge": "front"
       }
     },
     {
@@ -59,14 +59,14 @@
         "index": 5
       },
       "split": {
-        "axis": "Y",
+        "axis": "y",
         "at": [
           0.5
         ],
         "names": [
           "foreLeftLeg"
         ],
-        "hinge": "FRONT"
+        "hinge": "front"
       }
     }
   ],
