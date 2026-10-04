@@ -32,6 +32,8 @@ public final class ExpressionOperations
         BOOLEAN,
         /** A number or a boolean expression; the operation checks how its arguments' types go together. */
         ANY,
+        /** A number written out, such as a window size: known when the animator loads. */
+        CONSTANT,
         /** A string written out, such as an item id. */
         STRING,
         /** One of a fixed set of strings. */
@@ -78,6 +80,17 @@ public final class ExpressionOperations
         return new Param(name, Kind.CHOICE, choices);
     }
 
+    public static Param constant(String name)
+    {
+        return new Param(name, Kind.CONSTANT);
+    }
+
+    /** A parameter of any kind ({@code choices} for a choice). */
+    public static Param param(String name, Kind kind, String... choices)
+    {
+        return new Param(name, kind, choices);
+    }
+
     /** The compiled arguments of one use of an operation, for its {@link Factory}. */
     public static final class Arguments
     {
@@ -85,19 +98,43 @@ public final class ExpressionOperations
         private final Param[] params;
         private final Expression[] expressions;
         private final String[] strings;
+        private final float[] constants;
         @Nullable
         private final Expression fallback;
         @Nullable
-        private final Class<?> fieldsOf;
+        private final Class<?> entityClass;
+        private final boolean readsFields;
 
-        Arguments(String operation, Param[] params, Expression[] expressions, String[] strings, @Nullable Expression fallback, @Nullable Class<?> fieldsOf)
+        Arguments(String operation, Param[] params, Expression[] expressions, String[] strings, float[] constants, @Nullable Expression fallback,
+                  @Nullable Class<?> entityClass, boolean readsFields)
         {
             this.operation = operation;
             this.params = params;
             this.expressions = expressions;
             this.strings = strings;
+            this.constants = constants;
             this.fallback = fallback;
-            this.fieldsOf = fieldsOf;
+            this.entityClass = entityClass;
+            this.readsFields = readsFields;
+        }
+
+        /** The constant argument {@code index} (a number written out). */
+        public float constant(int index)
+        {
+            return constants[index];
+        }
+
+        /** The class of the entity animated, or null if unknown. */
+        @Nullable
+        public Class<?> entityClass()
+        {
+            return entityClass;
+        }
+
+        /** The operation's name. */
+        public String operation()
+        {
+            return operation;
         }
 
         /** The {@code @fallback} written with the operation, or null (only for an operation that takes one). */
@@ -111,7 +148,7 @@ public final class ExpressionOperations
         @Nullable
         public Class<?> fieldsOf()
         {
-            return fieldsOf;
+            return readsFields ? entityClass : null;
         }
 
         public int count()
@@ -182,6 +219,7 @@ public final class ExpressionOperations
             }
             Expression[] expressions = new Expression[count];
             String[] strings = new String[count];
+            float[] constants = new float[count];
             for (int i = 0; i < count; i++)
             {
                 Param param = params[Math.min(i, params.length - 1)];
@@ -201,6 +239,13 @@ public final class ExpressionOperations
                             throw new MalformedKumoTemplateException(where + " must be one of " + String.join(", ", param.choices) + ", got '" + strings[i] + "'.");
                         }
                         break;
+                    case CONSTANT:
+                        if (argument == null || !argument.isJsonPrimitive() || !argument.getAsJsonPrimitive().isNumber())
+                        {
+                            throw new MalformedKumoTemplateException(where + " must be a number written out, got " + Expression.describe(argument) + ".");
+                        }
+                        constants[i] = argument.getAsFloat();
+                        break;
                     default:
                         expressions[i] = Expression.compileAny(argument, scope);
                         Expression.Type type = param.kind == Kind.NUMBER ? Expression.Type.NUMBER : param.kind == Kind.BOOLEAN ? Expression.Type.BOOLEAN : null;
@@ -213,7 +258,7 @@ public final class ExpressionOperations
             Expression fallback = fallbackJson == null ? null : Expression.compileAny(fallbackJson, scope);
             try
             {
-                return factory.create(new Arguments(name, params, expressions, strings, fallback, scope.getFieldsOf()));
+                return factory.create(new Arguments(name, params, expressions, strings, constants, fallback, scope.getEntityClass(), scope.getFieldsOf() != null));
             }
             catch (MalformedKumoTemplateException e)
             {
@@ -383,6 +428,24 @@ public final class ExpressionOperations
     public static void register(String name, Param[] params, boolean repeatsLast, Factory factory)
     {
         OPERATIONS.put(name, new Operation(params, repeatsLast, false, factory));
+    }
+
+    /**
+     * Adds a registered operation (see {@link goblinbob.mobends.core.kumo.api.KumoRegistry}): its
+     * name must be namespaced, and not taken.
+     */
+    public static void register(goblinbob.mobends.core.kumo.api.KumoOperation operation)
+    {
+        if (operation.name.indexOf(':') <= 0)
+        {
+            throw new IllegalArgumentException("A registered operation's name is namespaced ('mymod:" + operation.name + "'): bare names are the language's.");
+        }
+        if (OPERATIONS.containsKey(operation.name))
+        {
+            throw new IllegalArgumentException("The operation '" + operation.name + "' is already registered.");
+        }
+        OPERATIONS.put(operation.name, new Operation(operation.compilerParams(), operation.repeatsLast, operation.takesFallback,
+                args -> BoundOperation.compile(operation, args)));
     }
 
     /**

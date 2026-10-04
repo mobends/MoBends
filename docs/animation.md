@@ -83,3 +83,56 @@ into `KeyframeAnimation`s and sampled by `ClipSampler` (hemisphere-corrected, so
 ±180° takes the short way). A clip item's `frame` is an expression in clip units, so a clip can
 run on a node's clock (`nodeTicksElapsed`), on any variable (`entityLimbSwing`, `entityTicksInAir`, ...) or loop with `mod`. JSON is
 the only clip format.
+
+## Operations in Java
+
+A mod (or Mo' Bends itself) brings logic to animators as **registered operations**, named
+`namespace:id` (an addon's `AddonAnimationRegistry` adds its mod id; bare names are the language's
+and can't be registered). The API lives in `core/kumo/api`, so it names no Minecraft type: the
+entity is an opaque `Object` and its `Class<?>`, and the mod layer's helpers add the typed casts.
+There are three levels:
+
+```java
+// A pure function of numbers: with its argument written out, computed once, when the animator loads.
+registry.registerFunction("smoothstep", t -> t * t * (3 - 2 * t));
+
+// Reads the entity. The class is where it applies: an entity of another class takes the
+// operation's @fallback, or the animator fails to load. The reader never casts.
+registry.registerEntityCondition("is_wet", Entity.class, entity -> entity.isWet());
+registry.registerEntityNumber("air", EntityLivingBase.class, entity -> entity.getAir());
+
+// Everything else: the full signature, bind and evaluate, and declared state.
+registry.registerOperation(KumoOperation.named("distance_to_nearest")
+        .param("entityType", Kind.STRING)
+        .returns(Expression.Type.NUMBER)
+        .withFallback()
+        .bind(args -> {
+            Class<? extends Entity> target = EntityList.getClass(new ResourceLocation(args.string(0)));
+            if (target == null) throw args.error(0, "is no entity type");
+            return (NumberEvaluator) (context, values) -> nearestDistance((Entity) context.entity(), target);
+        }));
+```
+
+* **The signature** (`KumoOperation`) declares the parameters (`NUMBER` and `BOOLEAN` take any
+  expression of that type, `CONSTANT` a number written out, `STRING` a string written out, and
+  `choice(...)` one of a set; the last may repeat), the result type, whether it takes a
+  `@fallback`, whether it is **pure** (same arguments, same result: with constant arguments it is
+  computed once, at load) and whether a type file's selector may use it (**selector-safe**).
+  Arguments are checked when the animator loads, and mistakes are reported in the operation's own
+  words (`args.error(i, ...)`).
+* **Bind** runs once per use, when the animator is loaded for an entity class (`args.entityClass()`):
+  it reads the written-out arguments (`string(i)`, `constant(i)`), does its one-time work (an item
+  looked up, a pattern compiled) and returns a `NumberEvaluator` or a `BooleanEvaluator`, or null
+  where the operation doesn't apply to the class (its `@fallback` is used, or the load fails).
+* **Evaluate** runs every frame with the entity (`context.entity()`, an instance of the bound
+  class), the frame's length (`context.deltaTime()`) and the arguments, already evaluated
+  (`values.number(i)`, `values.bool(i)`: nothing short-circuits). Both views are reused from frame
+  to frame, so evaluating allocates nothing.
+* **State** is declared at bind, floats only (a boolean is 0 or 1): `args.slot(name, initial)` or,
+  sized by what bind saw, `args.slots(name, size, initial)`. Every place the operation is written
+  keeps its own, back to its initial values whenever the scope holding that place starts (a node,
+  when it is entered).
+
+Registration closes when the first animator loads (`KumoRegistry.close()`): what an animator was
+compiled against can't change under it. An addon registered before the client core exists has its
+content registered as soon as it does.

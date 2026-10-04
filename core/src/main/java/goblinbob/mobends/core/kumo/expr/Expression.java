@@ -65,6 +65,12 @@ public abstract class Expression
     /** The value of a boolean expression. */
     public abstract boolean test(ITriggerConditionContext context);
 
+    /** Whether the expression is a constant: the same value whatever it is evaluated against. */
+    public boolean isConstant()
+    {
+        return false;
+    }
+
     /** Whether any part of the expression remembers something between frames. */
     public boolean isStateful()
     {
@@ -280,6 +286,12 @@ public abstract class Expression
         {
             return value;
         }
+
+        @Override
+        public boolean isConstant()
+        {
+            return true;
+        }
     }
 
     static final class BooleanConstant extends BooleanExpression
@@ -295,6 +307,12 @@ public abstract class Expression
         public boolean test(ITriggerConditionContext context)
         {
             return value;
+        }
+
+        @Override
+        public boolean isConstant()
+        {
+            return true;
         }
     }
 

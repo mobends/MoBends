@@ -147,9 +147,8 @@ type publishes to its extensions).
 
 ### Entity-level definitions
 
-The entity scope is in the spec (*Model definitions*, *Reading the entity*). Still to come: the
-entity class is also what registered operations bind against (*Operations and drivers in Java*),
-and with program and state split (see *Runtime*), entity state lives in the entity's state array
+The entity scope is in the spec (*Model definitions*, *Reading the entity*). Still to come: with
+program and state split (see *Runtime*), entity state lives in the entity's state array
 next to the animator's. Model definitions get an `extends` when a mob needs to share with
 another; most of what every biped has is a built-in.
 
@@ -255,104 +254,45 @@ The built-in values are in the spec too (*Built-in values*).
 
 ## Operations and drivers in Java
 
-An operation is a signature and up to three steps:
+Registered operations are in `docs/animation.md` (*Operations in Java*), and so is how
+registration works. Notes on how they were settled:
 
-1. **Signature**, declared once and used for checking, error messages and documentation: the
-   name (the registry adds the mod id), the parameters (name, kind, whether the last one
-   repeats), the result type, the modifiers it accepts (`@fallback`), and whether it is
-   **pure** (same arguments, same result, no entity, no state; a pure operation with constant
-   arguments is computed once at load).
-2. **Bind**, once when the program is compiled for an entity class: it gets the constant
-   arguments and the entity class, does its one-time work (looks up `minecraft:torch` as an
-   `Item`, compiles a pattern), and returns the evaluator, or says the operation doesn't apply to
-   that class (the `@fallback` is used, or the load fails).
-3. **Evaluate**, every frame: it gets the context (entity, built-in values, scopes), its evaluated
-   number and boolean arguments, and its state.
-4. **State**, for stateful operations only: named fields, scalars or **arrays**, with initial
-   values. Array sizes can depend on what bind saw (a driver configured with four legs keeps four
-   of each per-leg value). They are laid out flat in the entity's state array when the program is
-   compiled; every place the operation is written gets its own, reset when the scope holding that
-   place is created.
+- The entity readers are `registerEntityNumber` and `registerEntityCondition`, not one
+  `registerEntityReader`: a lambda returning a boolean and one returning a number can't overload
+  one name in Java.
+- A slot is a handle that reads through the context (`slot.get(context)`), so the operations
+  written today keep working when state moves into the entity's flat array (task 2); until then
+  each use keeps its values itself, an animator being compiled per entity.
+- An entity of unknown class (a test with no entity) is one no entity reader applies to.
 
-Three levels of registration, all through the registry that adds the mod id:
-
-```java
-// A pure function of numbers. Computed once at load when its argument is a literal.
-registry.registerFunction("smoothstep", t -> t * t * (3 - 2 * t));
-
-// Reads the entity. The class is the applicability check: other classes get the @fallback or
-// a load error, and the operation never casts.
-registry.registerEntityReader("is_wet", Entity.class, entity -> entity.isWet());
-
-// Everything else: the full signature, bind, evaluate and state.
-registry.registerOperation(Operation.named("distance_to_nearest")
-        .param("entityType", Kind.STRING)
-        .returns(Type.NUMBER)
-        .bind((args, entityClass) -> {
-            Class<? extends Entity> target = EntityList.getClass(new ResourceLocation(args.string(0)));
-            if (target == null) throw args.error(0, "unknown entity type");
-            return context -> nearestDistance(context.entity(), target);
-        }));
-```
+Still to come:
 
 - **Drivers** are registered the same way (signature, bind, evaluate, state) but take named
   fields. Their private state (`core:step_turn`'s planted feet, the spider's legs) is declared
   state, arrays included. A driver's signature names its outputs, which a file maps to states in
-  `out`, and whether it takes an `inout` state (*Driver outputs, accumulators and springs*).
-- A stateful operation or driver gets initial values for its state and no enter / exit hooks;
-  hooks are added if something needs them.
-- Mo' Bends defines its own operations and drivers with the same API. The language operations
-  use the same signature model but live in a table addons can't write to, which keeps bare names
-  Mo' Bends'.
-- The language needs a little more typing than addons: `if` returns the type of its branches,
-  `eq` compares two numbers or two booleans. That stays internal; addon operations have fixed
-  types.
-
-### Where the API lives
-
-The operation and driver API is part of `core/`, the engine shared by every Minecraft version, so
-it can't name a Minecraft type (`Entity`, `Item`, `ResourceLocation`). Each Minecraft version's
-mod layer adds entity-typed helpers on top (`registerEntityReader`, the `Entity`-typed
-`distance_to_nearest` above), and `AddonAnimationRegistry` adds the mod id.
-
-### Decided
-
-- **The entity in core** is an opaque `Object` and its `Class<?>`. Bind checks applicability
-  with `isAssignableFrom` and returns the evaluator, or says the operation doesn't apply. The mod
-  layer's helpers do the typed cast, so addon code never casts.
-- **State is floats only.** A boolean is 0 or 1, and state holds no objects, which keeps an
-  entity's state one flat `float[]`. A signature declares its slots and gets back handles,
-  `FloatSlot` or `FloatArraySlot` (sized at bind: four legs keep four of each per-leg value);
-  evaluate reads and writes through them on the entity's state. Everything drivers keep in Java
-  fields today (`StepTurnDriver`'s planted feet, the spider's legs) is positions and angles.
-  Whatever bind computes that isn't per entity (an `Item` looked up from `minecraft:torch`, a
-  compiled `Pattern`) is captured in the evaluator, which is part of the program.
+  `out`, and whether it takes an `inout` state. A stateful driver gets initial values for its
+  state and no enter / exit hooks; hooks are added if something needs them.
 - **Driver fields are Gson template classes**, as today, with field types restricted to a fixed
   set: `NumberExpr`, `BoolExpr`, `StateRef` (for `inout` and `out` targets), `BoneRef`,
   primitives, enums, and lists of nested templates (`core:step_turn`'s `legs`). The loader
   reflects over the class to check kinds, word the errors and generate the docs. Operations keep
   their builder signature: they have a few positional arguments, drivers many named, nested
   fields.
-- **Selector-safe operations** carry a flag in their signature: they bind against the entity
-  class and evaluate against the selector context (player name, UUID, skin variant), not entity
-  data. Any other operation in a type file's selector is a load error. This replaces
-  `registerSelectorCondition`.
+- **Selector-safe operations** are flagged (`selectorSafe()`): they bind against the entity class
+  and evaluate against the selector context (player name, UUID, skin variant), not entity data.
+  Any other operation in a type file's selector is a load error. This replaces
+  `registerSelectorCondition` (task 13).
+- Mo' Bends' own operations move to the API (task 12); `core:holds_item` and the others are still
+  registered the internal way.
 
-### To settle while prototyping
+### To settle while prototyping drivers
 
-Settled by porting `core:spring` and `core:step_turn` to the new API, which will show any gap:
+Settled by porting `core:spring` and `core:step_turn` to the API, which will show any gap:
 
-- **Arguments at evaluate** are passed already evaluated, through a reused view (`args.number(0)`,
-  `args.bool(1)`) that doesn't allocate. Nothing short-circuits, so an operation never needs its
-  arguments lazily.
-- **What bind gets**: the constant arguments (`args.string(i)`, `args.choice(i)`,
-  `args.constant(i)`), the entity class, `args.error(i, message)` for errors in the operation's
-  own words, and, for drivers, bone lookup from name to index.
+- **What bind gets** besides an operation's: bone lookup from name to index.
 - **How much of the pose drivers see**: a narrow `PoseWriter` (by bone index, in a space:
   `PRE`, `POST`, `OVERRIDE`) rather than `Pose`, so the pose buffers can change without breaking
   addons.
-- **Purity**: `registerFunction` implies it; the full builder opts in with `.pure()`. A pure
-  operation that isn't only loses constant folding.
 
 ## Runtime
 
@@ -490,16 +430,9 @@ entity.
 
 ### Addon API
 
-`registerSelectorCondition` goes away (selector operations are flagged operations).
-`registerTriggerCondition` is gone, and `registerOperation` registers a typed operation (the
-signature of `ExpressionOperations`); what it still lacks is the entity class at bind and declared
-state (*Operations and drivers in Java*). Drivers keep their Gson template classes, with the typed field set; `IPoseItem`'s
-`onNodeStarted` / `advance` and the state in Java fields give way to declared state.
-
-Registration timing is broken today: `Addons.registerAddon` calls `registerContent` only if
-`CoreClient` already exists, and nothing calls it later, so an addon registered too early is
-silently dropped. The new registry queues registrations and replays them once the core exists,
-and rejects a registration made after the first animator has loaded.
+`registerSelectorCondition` goes away (selector operations are flagged operations). Drivers keep
+their Gson template classes, with the typed field set; `IPoseItem`'s `onNodeStarted` / `advance`
+and the state in Java fields give way to declared state.
 
 ## Background: what data classes do
 
@@ -790,10 +723,10 @@ the additive and smaller ones.
    `entityXZSpeed` as interpolated magnitudes; `entitySwingProgress` interpolated; `ticks`,
    `partialTicks`, `ticksPerFrame`, `random`. The player's swing filter moves with its model
    definition (*Values specific to a mob*).
-9. [ ] **The addon API in `core/`**: the opaque entity, float-only state with slot handles, typed
+9. [x] **The addon API in `core/`**: the opaque entity, float-only state with slot handles, typed
    template fields for drivers, the selector-safe flag; `registerFunction`,
    `registerEntityReader`, `registerOperation`; queued registration (*Operations and drivers in
-   Java*).
+   Java*). Done for operations; the driver half (typed template fields) goes with task 10.
 10. [ ] **Prototype the API on `core:spring` and `core:step_turn`**, settling argument passing, what
     bind gets, `PoseWriter` and purity (*To settle while prototyping*).
 11. [ ] **Drivers' private state as declared slots**: `core:step_turn`'s planted feet and the
@@ -810,8 +743,7 @@ the additive and smaller ones.
 
 14. [x] **Entity-level definitions in model definitions**: `@define` / `@on` with `field`, `exists`
     and `@fallback`, replacing `variables[]`. Entity state in the entity's state array comes with
-    task 2. The generated vanilla accessors read numeric fields only; booleans and object steps
-    (`ridingEntity`) need them too before a shipped mob reads one.
+    task 2. Vanilla boolean and object fields resolving in production is a task in `TODO.md`.
 15. [ ] **`extends` and extensions as scopes**: the merged `animator.` scope of an `extends` chain;
     an extension's own animator scope reading only `entity.` names, skipped when one is missing
     (*`extends`*, *Extensions*).

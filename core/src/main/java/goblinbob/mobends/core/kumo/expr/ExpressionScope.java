@@ -25,9 +25,11 @@ public class ExpressionScope
 
     @Nullable
     private final DefinitionScope entity, animator, layer, machine, node;
-    /** The entity's class, where {@code field} may read it (an entity definition); null elsewhere. */
+    /** The class of the entity animated, which operations bind against; null if unknown. */
     @Nullable
-    private final Class<?> fieldsOf;
+    private final Class<?> entityClass;
+    /** Whether {@code field} may read the entity here (an entity definition). */
+    private final boolean readsFields;
     private final VariableTable variables;
     /** Whether the file this place is in is trusted (see {@link DefinitionScope#state}). */
     private final boolean trusted;
@@ -37,11 +39,12 @@ public class ExpressionScope
     private final Deque<List<Expression>> holders;
 
     private ExpressionScope(@Nullable DefinitionScope entity, @Nullable DefinitionScope animator, @Nullable DefinitionScope layer, @Nullable DefinitionScope machine,
-                            @Nullable DefinitionScope node, @Nullable Class<?> fieldsOf, VariableTable variables, boolean trusted, Map<String, Expression> values,
-                            Deque<List<Expression>> holders)
+                            @Nullable DefinitionScope node, @Nullable Class<?> entityClass, boolean readsFields, VariableTable variables, boolean trusted,
+                            Map<String, Expression> values, Deque<List<Expression>> holders)
     {
         this.entity = entity;
-        this.fieldsOf = fieldsOf;
+        this.entityClass = entityClass;
+        this.readsFields = readsFields;
         this.animator = animator;
         this.layer = layer;
         this.machine = machine;
@@ -55,7 +58,7 @@ public class ExpressionScope
     /** The outermost place of an animator: no scope yet, every bare name a built-in or a value of the entity. */
     public static ExpressionScope root(VariableTable variables)
     {
-        return new ExpressionScope(null, null, null, null, null, null, variables, true, Collections.emptyMap(), new ArrayDeque<>());
+        return new ExpressionScope(null, null, null, null, null, null, false, variables, true, Collections.emptyMap(), new ArrayDeque<>());
     }
 
     /** The entity's values the animator reads, by name. */
@@ -70,35 +73,48 @@ public class ExpressionScope
         switch (scope.kind)
         {
             case ENTITY:
-                return new ExpressionScope(scope, animator, layer, machine, node, fieldsOf, variables, trusted, values, holders);
+                return new ExpressionScope(scope, animator, layer, machine, node, entityClass, readsFields, variables, trusted, values, holders);
             case ANIMATOR:
-                return new ExpressionScope(entity, scope, layer, machine, node, fieldsOf, variables, trusted, values, holders);
+                return new ExpressionScope(entity, scope, layer, machine, node, entityClass, readsFields, variables, trusted, values, holders);
             case LAYER:
-                return new ExpressionScope(entity, animator, scope, machine, node, fieldsOf, variables, trusted, values, holders);
+                return new ExpressionScope(entity, animator, scope, machine, node, entityClass, readsFields, variables, trusted, values, holders);
             case MACHINE:
-                return new ExpressionScope(entity, animator, layer, scope, node, fieldsOf, variables, trusted, values, holders);
+                return new ExpressionScope(entity, animator, layer, scope, node, entityClass, readsFields, variables, trusted, values, holders);
             default:
-                return new ExpressionScope(entity, animator, layer, machine, scope, fieldsOf, variables, trusted, values, holders);
+                return new ExpressionScope(entity, animator, layer, machine, scope, entityClass, readsFields, variables, trusted, values, holders);
         }
+    }
+
+    /** This place, animating an entity of {@code type} (null: unknown), which operations bind against. */
+    public ExpressionScope forEntity(@Nullable Class<?> type)
+    {
+        return new ExpressionScope(entity, animator, layer, machine, node, type, readsFields, variables, trusted, values, holders);
     }
 
     /** This place, where {@code field} reads an entity of {@code type}: an entity definition. */
     public ExpressionScope readingFieldsOf(Class<?> type)
     {
-        return new ExpressionScope(entity, animator, layer, machine, node, type, variables, trusted, values, holders);
+        return new ExpressionScope(entity, animator, layer, machine, node, type, true, variables, trusted, values, holders);
+    }
+
+    /** The class of the entity animated, or null if unknown. */
+    @Nullable
+    public Class<?> getEntityClass()
+    {
+        return entityClass;
     }
 
     /** The entity's class, if {@code field} may read it here (an entity definition), else null. */
     @Nullable
     public Class<?> getFieldsOf()
     {
-        return fieldsOf;
+        return readsFields ? entityClass : null;
     }
 
     /** This place, in a file that is trusted or not (see {@link DefinitionScope#state}). */
     public ExpressionScope trusted(boolean trusted)
     {
-        return new ExpressionScope(entity, animator, layer, machine, node, fieldsOf, variables, trusted, values, holders);
+        return new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, variables, trusted, values, holders);
     }
 
     public boolean isTrusted()
@@ -118,7 +134,7 @@ public class ExpressionScope
         }
         Map<String, Expression> all = new HashMap<>(this.values);
         all.putAll(values);
-        return new ExpressionScope(entity, animator, layer, machine, node, fieldsOf, variables, trusted, all, holders);
+        return new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, variables, trusted, all, holders);
     }
 
     /**

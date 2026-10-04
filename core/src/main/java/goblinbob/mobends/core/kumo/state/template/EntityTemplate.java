@@ -4,9 +4,10 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
- * The entity scope a mob's model definition declares: the values it exposes and remembers, read
- * by every animator and extension of the entity as {@code entity.x}. Its definitions are the only
- * place {@code field} reads the entity.
+ * The entity an animator animates: its class, which operations bind against, and the entity scope
+ * its model definition declares (none if it has no definition), the values it exposes and
+ * remembers, read by every animator and extension of the entity as {@code entity.x}. Its
+ * definitions are the only place {@code field} reads the entity.
  */
 public class EntityTemplate
 {
@@ -19,6 +20,12 @@ public class EntityTemplate
     public final OnTemplate on;
     /** Whether the model definition comes from a trusted source (see {@code DefinitionScope#state}). */
     public final boolean trusted;
+
+    /** An entity of {@code entityClass} whose model has no definition. */
+    public EntityTemplate(Class<?> entityClass)
+    {
+        this(entityClass, null, null, true);
+    }
 
     public EntityTemplate(Class<?> entityClass, @Nullable Map<String, DefinitionTemplate> define, @Nullable OnTemplate on, boolean trusted)
     {

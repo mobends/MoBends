@@ -90,14 +90,15 @@ public class KumoAnimatorState
     }
 
     /**
-     * @param entity The entity scope its model definition declares (null: none), read as
-     *               {@code entity.x} by the animator and every extension.
+     * @param entity The entity animated: its class, which operations bind against, and the entity
+     *               scope its model definition declares (read as {@code entity.x} by the animator
+     *               and every extension). Null: unknown, with no entity scope.
      */
     public KumoAnimatorState(@Nullable EntityTemplate entity, AnimatorTemplate animatorTemplate, boolean trusted, List<AnimatorTemplate> overlays,
                              List<Boolean> overlaysTrusted, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
         // Every scope of the animator, its extensions included, shares one table of the entity's values.
-        ExpressionScope root = ExpressionScope.root(variables);
+        ExpressionScope root = ExpressionScope.root(variables).forEntity(entity == null ? null : entity.entityClass);
         if (entity != null)
         {
             entityScope = new DefinitionScope(DefinitionScope.Kind.ENTITY, "the model definition");

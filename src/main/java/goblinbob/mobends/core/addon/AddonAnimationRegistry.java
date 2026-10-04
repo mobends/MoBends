@@ -1,6 +1,8 @@
 package goblinbob.mobends.core.addon;
 
-import goblinbob.mobends.core.kumo.expr.ExpressionOperations;
+import goblinbob.mobends.core.kumo.api.KumoOperation;
+import goblinbob.mobends.core.kumo.api.KumoRegistry;
+import goblinbob.mobends.core.kumo.api.NumberFunctions;
 import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
@@ -12,7 +14,11 @@ import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.types.selector.ISelectorConditionFactory;
 import goblinbob.mobends.core.types.selector.SelectorConditionRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 
 public class AddonAnimationRegistry
 {
@@ -75,15 +81,52 @@ public class AddonAnimationRegistry
     }
 
     /**
-     * Registers an operation animators can use in their expressions, as "modid:key".
-     * @param key The internal name of the operation. (snake_case preferable)
-     * @param params What its arguments are (see {@link ExpressionOperations#number} and the others).
-     * @param repeatsLast Whether its last parameter repeats.
-     * @param factory Makes the operation from its compiled arguments.
+     * Registers an operation animators can use in their expressions, as "modid:name" (the
+     * operation is named without the mod id, in snake_case). See {@link KumoOperation} for the
+     * signature, and {@link #registerFunction} and {@link #registerEntityNumber} for the
+     * shorter ways.
      */
-    public void registerOperation(String key, ExpressionOperations.Param[] params, boolean repeatsLast, ExpressionOperations.Factory factory)
+    public void registerOperation(KumoOperation operation)
     {
-        ExpressionOperations.register(String.format("%s:%s", modId, key), params, repeatsLast, factory);
+        Addons.checkRegistrationOpen();
+        KumoRegistry.registerOperation(operation.renamed(namespaced(operation.name)));
+    }
+
+    /** Registers a pure function of numbers as "modid:key": computed once, when an animator loads, if its argument is written out. */
+    public void registerFunction(String key, NumberFunctions.Unary function)
+    {
+        Addons.checkRegistrationOpen();
+        KumoRegistry.registerFunction(namespaced(key), function);
+    }
+
+    public void registerFunction(String key, NumberFunctions.Binary function)
+    {
+        Addons.checkRegistrationOpen();
+        KumoRegistry.registerFunction(namespaced(key), function);
+    }
+
+    public void registerFunction(String key, NumberFunctions.Ternary function)
+    {
+        Addons.checkRegistrationOpen();
+        KumoRegistry.registerFunction(namespaced(key), function);
+    }
+
+    /**
+     * Registers a number read from the entity, as "modid:key": {@code {"mymod:wetness": []}}.
+     * {@code type} is where it applies: an entity of another class takes the operation's
+     * {@code @fallback}, or its animator fails to load.
+     */
+    public <E extends Entity> void registerEntityNumber(String key, Class<E> type, ToDoubleFunction<? super E> reader)
+    {
+        Addons.checkRegistrationOpen();
+        KumoRegistry.registerEntityNumber(namespaced(key), type, reader);
+    }
+
+    /** Registers whether the entity is something, as "modid:key"; see {@link #registerEntityNumber}. */
+    public <E extends Entity> void registerEntityCondition(String key, Class<E> type, Predicate<? super E> reader)
+    {
+        Addons.checkRegistrationOpen();
+        KumoRegistry.registerEntityCondition(namespaced(key), type, reader);
     }
 
     /**
@@ -91,7 +134,17 @@ public class AddonAnimationRegistry
      */
     public <T extends DriverItemTemplate> void registerDriver(String key, IDriverFactory<T> factory, Class<T> templateType)
     {
-        DriverRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory, templateType);
+        Addons.checkRegistrationOpen();
+        DriverRegistry.INSTANCE.register(namespaced(key), factory, templateType);
+    }
+
+    private String namespaced(String key)
+    {
+        if (key.indexOf(':') >= 0)
+        {
+            throw new IllegalArgumentException("'" + key + "' is registered as '" + modId + ":" + key + "': name it without a namespace.");
+        }
+        return modId + ":" + key;
     }
 
     /**
@@ -102,7 +155,8 @@ public class AddonAnimationRegistry
      */
     public void registerSelectorCondition(String key, ISelectorConditionFactory factory)
     {
-        SelectorConditionRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory);
+        Addons.checkRegistrationOpen();
+        SelectorConditionRegistry.INSTANCE.register(namespaced(key), factory);
     }
 
 }

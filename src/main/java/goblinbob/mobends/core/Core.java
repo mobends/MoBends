@@ -80,7 +80,10 @@ public abstract class Core<T extends CoreConfig>
     public static void createAsClient()
     {
         if (INSTANCE == null)
+        {
             INSTANCE = new CoreClient();
+            goblinbob.mobends.core.addon.Addons.onClientCoreCreated();
+        }
     }
 
     public static void createAsServer()

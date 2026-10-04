@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.kumo;
 
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
@@ -75,6 +76,7 @@ public class KumoAnimatorController
                 overlays.add(resources.loadAnimator(extension));
                 overlaysTrusted.add(resources.isTrusted(extension.toString()));
             }
+            KumoRegistry.close();
             state = new KumoAnimatorState(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
             return true;
         }

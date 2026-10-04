@@ -289,11 +289,14 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     /** The animator the entity has when its type doesn't choose another. */
     protected abstract ResourceLocation getDefaultAnimator();
 
-    /** The entity scope its animators read ({@code entity.x}), declared by a model definition; null if none. */
+    /**
+     * The entity its animators animate: its class, and the entity scope they read ({@code entity.x}),
+     * which only a model definition declares.
+     */
     @Nullable
     public EntityTemplate getEntityScope()
     {
-        return null;
+        return entity == null ? null : new EntityTemplate(entity.getClass());
     }
 
     /**
