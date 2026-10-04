@@ -837,6 +837,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | field | meaning |
 |---|---|
 | `formatVersion` | `2` (the index, `{"formatVersion": 2, "models": [...]}`, has one too) |
+| `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothness` and `renderer` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie. A chain with a resource pack's file in it is untrusted |
 | `entity` | the entity class; `model` (optional) restricts mutation to that model class and its subclasses |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
 | `bones[].vanilla` | the vanilla part the bone takes over: `field` is the model's field by its development (MCP) name (see *Field names* below), `element` its index for array fields, `index` an optional fallback position in the model's box list (creation order). Every field or array slot that holds the part is replaced, found by identity. |
@@ -863,7 +864,7 @@ extension of the model shares: several types can choose one model (a pack's type
 name and the default type), and if types declared entity values, which `entity.` names exist
 would depend on which type won. Extensions declare none (what an extension needs for itself is in
 its own animator's `@define`), so two extensions never collide on an `entity.` name. Model
-definitions have no `extends` (yet). A model definition from a resource pack is untrusted: an
+definitions can `extends` another, but not declare a name it declares (see `extends` above). A model definition from a resource pack is untrusted: an
 untrusted animator may set its state, never a trusted one's.
 
 The player, the zombie, the skeleton, the zombie villager, the zombie pigman, the squid, the

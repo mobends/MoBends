@@ -108,8 +108,8 @@ type publishes to its extensions).
 
 The entity scope is in the spec (*Model definitions*, *Reading the entity*). Its state lives in
 the entity's state array next to the animator's (done, with the program and state split). Model
-definitions get an `extends` when a mob needs to share with another; not yet: the five bipeds'
-definitions repeat their bones, components and layers, which an `extends` would share.
+definitions get an `extends` when a mob needs to share with another (done: the zombie villager
+and the zombie pigman extend the zombie; `DefinitionMerge`).
 
 ## Nodes, transitions and time
 

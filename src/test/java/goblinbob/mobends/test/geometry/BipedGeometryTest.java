@@ -1,12 +1,10 @@
 package goblinbob.mobends.test.geometry;
 
-import com.google.gson.JsonParser;
 import goblinbob.mobends.core.client.definition.DefinedMutator;
 import goblinbob.mobends.core.client.model.BoxSide;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.client.model.ModelPartExtended;
 import goblinbob.mobends.core.client.model.ModelPartPostOffset;
-import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.standard.mutators.BipedMutator;
 import goblinbob.mobends.standard.mutators.SkeletonMutator;
 import goblinbob.mobends.standard.mutators.ZombieMutator;
@@ -18,7 +16,6 @@ import net.minecraft.client.model.ModelZombie;
 import net.minecraft.client.model.ModelZombieVillager;
 import org.junit.Test;
 
-import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -33,10 +30,7 @@ public class BipedGeometryTest
 
     private static ModelBiped defined(String name, ModelBiped model) throws Exception
     {
-        try (FileReader reader = new FileReader("src/main/resources/assets/mobends/bends/models/" + name + ".json"))
-        {
-            new DefinedMutator<>(ModelDefinitions.parse(new JsonParser().parse(reader))).createParts(model);
-        }
+        new DefinedMutator<>(TestDefinitions.read(name)).createParts(model);
         return model;
     }
 
