@@ -51,10 +51,17 @@ public class DefinedModelsTest
 {
     private static final Path BENDS = LabPaths.root().resolve("../src/main/resources/assets/mobends/bends");
 
-    /** The model definitions the shipped type files name, by type id. */
+    /** The model definitions the mod registers as default models (DefaultAddon.registerContent), by bender key. */
+    private static final Map<String, ResourceLocation> DEFAULT_MODELS = Collections.singletonMap("mobends:player",
+            new ResourceLocation("mobends", "bends/models/player.json"));
+
+    /** The models whose animator moves the limbs while standing. */
+    private static final Set<String> IDLE_MOVES = Collections.singleton("mobends:player");
+
+    /** The model definitions the shipped type files name, by type id, and the default models. */
     private static Map<String, ResourceLocation> definedModels() throws Exception
     {
-        Map<String, ResourceLocation> models = new TreeMap<>();
+        Map<String, ResourceLocation> models = new TreeMap<>(DEFAULT_MODELS);
         try (Stream<Path> files = Files.list(BENDS.resolve("types")))
         {
             for (Path file : files.sorted().collect(Collectors.toList()))
@@ -86,10 +93,8 @@ public class DefinedModelsTest
     }
 
     @Test
-    void everyModelDefinitionHasAType() throws Exception
+    void everyModelDefinitionIsUsed() throws Exception
     {
-        // Built, but not yet any mob's: the player keeps its Java model until its type switches (task 22).
-        Set<String> building = new TreeSet<>(Collections.singletonList("player.json"));
         Set<String> named = new TreeSet<>();
         for (ResourceLocation model : definedModels().values())
         {
@@ -99,8 +104,7 @@ public class DefinedModelsTest
         {
             for (Path file : files.collect(Collectors.toList()))
             {
-                if (building.contains(file.getFileName().toString())) continue;
-                assertTrue(named.contains("bends/models/" + file.getFileName()), file.getFileName() + " is named by no type file, so no mob uses it");
+                assertTrue(named.contains("bends/models/" + file.getFileName()), file.getFileName() + " is named by no type file and is no default model, so no mob uses it");
             }
         }
     }
@@ -200,6 +204,8 @@ public class DefinedModelsTest
         assertTrue(walked, name + ": the animator is not in its walk node while walking");
 
         // Having stopped, every split segment settles back where it stood before walking (not necessarily straight: a creeper leans at rest).
+        // The player's idle never stands still (it breathes and sways its arms), so it has no pose to settle back to.
+        if (IDLE_MOVES.contains(name)) return;
         for (BoneDefinition bone : definition.bones)
         {
             if (bone.split == null) continue;

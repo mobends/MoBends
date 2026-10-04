@@ -864,14 +864,18 @@ its own animator's `@define`), so two extensions never collide on an `entity.` n
 definitions have no `extends` (yet). A model definition from a resource pack is untrusted: an
 untrusted animator may set its state, never a trusted one's.
 
-The shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
+The player is a model definition too (`player`): the default model of its entity class rather
+than a type file's (an addon registers it with `registerDefinedEntity`). Its body bends at the
+hips, its limbs at elbows and knees, its sleeves and trousers ride them, and it declares the
+components, layers, renderer settings and entity values the player's animator and layers use.
+The other shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
 `villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
 elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: stand / walk /
 jump with a smooth look, made by the lab's `tools/gen_animators.ts`). The golem's (`iron_golem`:
 its attack from its timer, turning on its feet), the creeper's (`creeper`: leaning at the waist)
 and the cow's (`cow`, extending `quadruped`) are edited by hand.
-`DefinedModelsTest` in the lab checks every listed definition builds, covers what its animator
-drives, and walks.
+`DefinedModelsTest` in the lab checks every listed definition and default model builds, covers
+what its animator drives, and walks.
 
 ### Field names
 

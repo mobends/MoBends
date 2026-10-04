@@ -2,6 +2,8 @@
   "formatVersion": 2,
   "@comment": "The player. The body bends at the hips and carries the head and arms; elbows and knees split the limbs, and the sleeves and trousers ride them. The cape hangs from the body.",
   "entity": "net.minecraft.client.entity.AbstractClientPlayer",
+  "key": "player",
+  "unlocalizedName": "mobends.player",
   "model": "net.minecraft.client.model.ModelPlayer",
   "animator": "mobends:bends/animators/player.json",
   "bones": [

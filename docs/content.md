@@ -54,11 +54,18 @@ builds:
 * `DefinedMutator` — copies each vanilla part's boxes into bends parts, splits them
   (`BoxSplitter`), applies rest rotations, and replaces every field or array slot that held the
   vanilla part, found by identity so it works in an obfuscated game;
-* `DefinedRenderer`, made by `DefinedBenders` for every model definition a type file names.
+* `DefinedRenderer`, made by `DefinedBenders` for every model definition a type file names, and
+  for those an addon registers as the default model of their entity class
+  (`AddonAnimationRegistry.registerDefinedEntity`; the player's is).
 
-**Limitation.** Render layers that copy the model's angles (the sheep's wool, the charged
-creeper's armour) are not covered and still animate vanilla-style, which is why the sheep has no
-definition.
+A definition also declares its *components* (the sword trail, held-item orientations, the cape's
+ripple), the renderer *layers* that replace vanilla's unanimated ones (armour, held items, head,
+cape, elytra), renderer settings (the sneak offset, the bones at rest in first person) and its
+attack combo window (see `misc/kumo-format.md`, *Model definitions*).
+
+**Limitation.** Render layers that copy the model's angles and have no animated replacement yet
+(the sheep's wool, the charged creeper's armour) still animate vanilla-style, which is why the
+sheep has no definition.
 
 ### Vanilla field names in production
 

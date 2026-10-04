@@ -8,18 +8,23 @@ import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.MutatedRenderer;
+import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.client.definition.DefinedBenders;
 import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.IEntityDataFactory;
+import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.driver.IDriverFactory;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.function.ToDoubleFunction;
 
 public class AddonAnimationRegistry
@@ -61,6 +66,31 @@ public class AddonAnimationRegistry
                                                                  MutatedRenderer<T> renderer)
     {
         EntityBender<T> entityBender = new DefaultEntityBender<T>(modId, key, unlocalizedName, entityClass, entityDataFactory, mutatorFactory, renderer);
+        return registerEntity(entityBender);
+    }
+
+    /**
+     * Registers a model definition of this addon ({@code <modid>:bends/models/<name>.json}) as the
+     * default model of its entity class, as {@link #registerNewEntity} does a Java one: under the
+     * key the definition names (else the entity's id), with the built-in type of that id. The
+     * definition is read again when resources reload.
+     *
+     * @return The entity's identifier key, or null if the definition can't be read (logged).
+     */
+    @Nullable
+    public String registerDefinedEntity(String name)
+    {
+        ResourceLocation location = ModelDefinitions.locationOf(modId, name);
+        EntityBender<EntityLivingBase> entityBender;
+        try
+        {
+            entityBender = DefinedBenders.createBender(modId, location, ModelDefinitions.INSTANCE.load(location));
+        }
+        catch (Exception e)
+        {
+            Core.LOG.log(Level.SEVERE, "Could not register the model definition " + location + ": " + e.getMessage());
+            return null;
+        }
         return registerEntity(entityBender);
     }
 

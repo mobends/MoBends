@@ -41,7 +41,12 @@ public class DefaultAddon implements IAddon
 	@Override
 	public void registerContent(AddonAnimationRegistry registry)
 	{
-		registry.registerEntity(new PlayerBender());
+		// The player is its model definition, bends/models/player.json. Start the game with
+		// -Dmobends.javaPlayer=true for the Java model it replaces (PlayerBender), to compare them.
+		if (Boolean.getBoolean("mobends.javaPlayer"))
+			registry.registerEntity(new PlayerBender());
+		else
+			registry.registerDefinedEntity("player");
 		
 		registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>());
 

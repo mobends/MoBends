@@ -372,15 +372,11 @@ Surveyed 2026-10-03. A model definition can already describe the player's mesh: 
 fields are in the generated tables, each skin variant's `RenderPlayer` gets its own mutator, and
 `split` makes elbows and knees. What it can't do is everything around the mesh.
 
-Registration:
-
-- **A definition can't take a built-in key.** `TypeFiles` reuses an existing bender with the same
-  key (`TypeFiles.java:48-61`), so a definition keyed `player` is silently ignored while
-  `PlayerBender` is registered (`DefaultAddon.java:31`).
-- **Defined benders are never an entity's default model.** They are registered with
-  `registerTypeBender`, not as defaults (`EntityBenderRegistry.java:75-82`), so they get no
-  built-in type, and types or extensions without a `model` can't reach them. Needed: a way for a
-  definition or type file to be the default for its entity class, under the built-in id.
+Registration (done): an addon registers a definition as the default model of its entity class,
+under the key it names (`AddonAnimationRegistry.registerDefinedEntity`); the player is
+`registerDefinedEntity("player")`, and `-Dmobends.javaPlayer=true` brings back `PlayerBender` to
+compare. Left: deleting `PlayerBender`, `PlayerMutator` and `PlayerData` once the defined player
+is checked in the game.
 
 Data that code casts to: the biped's and the player's are gone (done: layers and drivers read
 bones by name, and the sword trail, held-item orientations and cape ripple are components, see
@@ -398,6 +394,10 @@ Rendering, where definitions fall short:
   charged creeper's armour still draw their own unanimated copies: they need layers of their own.
 - **Stand-ins, split segments, pivots, overlays** (done: `misc/kumo-format.md`, *Model
   definitions*; the player's definition draws what `PlayerMutator` does, `PlayerGeometryTest`).
+- **Stuck arrows.** `LayerArrow` picks a random part from the model's `boxList`, which still
+  holds the vanilla parts (defined parts aren't registered there), so arrows stuck in a defined
+  mob sit on its unanimated vanilla pose; the Java player's parts were in the list. Needed: the
+  bones' parts in the list, with `postRender` matching the box coordinates of the part picked.
 - **First person, slim skins, renderer settings** (done: `renderer.firstPersonRest`, positions
   adopted again from each renderer, `renderer.sneakOffset`; the sword trail is a component).
 
@@ -527,6 +527,8 @@ the additive and smaller ones.
     `postRender` through split segments; pivots and overlay segments; the `layers` section and a
     bone-name armour wrapper; components instead of casts; renderer settings and the first-person
     pose; default-model registration under the built-in id; adopting pivots again for slim skins.
+    All done, and the player is its definition; left: checking it in the game, then deleting the
+    Java player (*Registration*).
 23. [ ] **One generic data class**, with per-mob parts as components declared by the model
     (*Per-entity data*).
 24. [ ] **Zombies, skeletons and the rest** the same way, plus their own items (*Moving mobs out of
