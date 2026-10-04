@@ -12,7 +12,6 @@ import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
 import goblinbob.mobends.core.kumo.state.VariableScope;
 import goblinbob.mobends.core.kumo.state.VariableTable;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.*;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
@@ -39,6 +38,8 @@ public class PoseNode implements INodeState
     private final Skeleton skeleton;
     private final VariableScope scope = new VariableScope();
     private VariableTable.Assignments setOnEnter = VariableTable.Assignments.NONE;
+    /** The stateful expressions of the node's items, started over when the node starts. */
+    private Expression[] held = new Expression[0];
     private Pose enterPose;
     private boolean enterPending;
 
@@ -87,24 +88,35 @@ public class PoseNode implements INodeState
 
     public static PoseNode createPose(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, PoseNodeTemplate template) throws MalformedKumoTemplateException
     {
-        LayerSpaces spaces = new LayerSpaces(skeleton, layer, context.getExpressionScope());
+        // What the node's items remember starts over when the node starts.
+        List<Expression> held = new ArrayList<>();
         List<IPoseItem> items = new ArrayList<>();
-        if (template.pose != null)
+        List<IPoseItem> enterItems = new ArrayList<>();
+        context.getExpressionScope().beginHolding(held);
+        try
         {
-            for (PoseItemTemplate itemTemplate : template.pose)
+            LayerSpaces spaces = new LayerSpaces(skeleton, layer, context.getExpressionScope());
+            if (template.pose != null)
             {
-                items.add(createItem(context, skeleton, spaces, itemTemplate));
+                for (PoseItemTemplate itemTemplate : template.pose)
+                {
+                    items.add(createItem(context, skeleton, spaces, itemTemplate));
+                }
+            }
+            if (template.enterPose != null)
+            {
+                for (PoseItemTemplate itemTemplate : template.enterPose)
+                {
+                    enterItems.add(createItem(context, skeleton, spaces, itemTemplate));
+                }
             }
         }
-        List<IPoseItem> enterItems = new ArrayList<>();
-        if (template.enterPose != null)
+        finally
         {
-            for (PoseItemTemplate itemTemplate : template.enterPose)
-            {
-                enterItems.add(createItem(context, skeleton, spaces, itemTemplate));
-            }
+            context.getExpressionScope().endHolding();
         }
         PoseNode node = new PoseNode(template.name, template.tags, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        node.held = held.toArray(new Expression[0]);
         node.setOnEnter = context.getExpressionScope().getVariables().layerAssignments(template.set);
         return node;
     }
@@ -150,7 +162,7 @@ public class PoseNode implements INodeState
         {
             return item;
         }
-        return new ConditionalPoseItem(item, TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, context.getExpressionScope()));
+        return new ConditionalPoseItem(item, Expression.compileCondition(template.when, context.getExpressionScope()));
     }
 
     private static IPoseItem createUnconditionalItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
@@ -274,6 +286,10 @@ public class PoseNode implements INodeState
         elapsed = 0;
         snapPending = snapSlots.length > 0;
         setOnEnter.applyTo(context.getLayerScope());
+        for (Expression expression : held)
+        {
+            expression.restart(context);
+        }
         for (IPoseItem item : items)
         {
             item.onNodeStarted(context);

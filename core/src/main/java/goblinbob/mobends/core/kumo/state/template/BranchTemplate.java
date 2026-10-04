@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.state.template;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
+
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +13,7 @@ import java.util.Map;
 public class BranchTemplate
 {
 
-    public TriggerConditionTemplate when;
+    public ExpressionTemplate when;
 
     /** JSON: {@code then} as a string. */
     public String target;

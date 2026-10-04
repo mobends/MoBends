@@ -4,23 +4,44 @@
   "layers": [
     {
       "select": [
-        {"when": {"type": "core:state", "state": "STANDING_STILL"}, "then": "wave", "transitionDuration": 8},
-        {"then": "through", "transitionDuration": 8}
+        {
+          "when": "STANDING_STILL",
+          "then": "wave",
+          "transitionDuration": 8
+        },
+        {
+          "then": "through",
+          "transitionDuration": 8
+        }
       ],
       "nodes": {
-        "through": {
-          "type": "core:fallthrough"
-        },
+        "through": {"type": "core:fallthrough"},
         "wave": {
           "type": "core:pose",
           "tags": ["wave"],
-          "expressions": {
-            "sway": {"mul": [{"sin": [{"mul": ["elapsed", 0.5]}]}, 25]}
-          },
+          "expressions": {"sway": {"mul": [{"sin": [{"mul": ["elapsed", 0.5]}]}, 25]}},
           "pose": [
-            {"driver": "core:axis_rotate", "bone": "rightArm", "axis": "X", "angle": -165, "space": "OVERRIDE"},
-            {"driver": "core:axis_rotate", "bone": "rightArm", "axis": "Z", "angle": "sway", "space": "POST"},
-            {"driver": "core:axis_rotate", "bone": "rightForeArm", "axis": "X", "angle": -20, "space": "OVERRIDE"}
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "X",
+              "angle": -165,
+              "space": "OVERRIDE"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightArm",
+              "axis": "Z",
+              "angle": "sway",
+              "space": "POST"
+            },
+            {
+              "driver": "core:axis_rotate",
+              "bone": "rightForeArm",
+              "axis": "X",
+              "angle": -20,
+              "space": "OVERRIDE"
+            }
           ]
         }
       }

@@ -18,7 +18,9 @@ runtime is put together.
 | `MachineState` | `core/kumo/state` | A machine (the layer's own, and any nested one): its members, its selector (`Selector`) and its connections. |
 | `PoseNode` | `core/kumo/state/node` | A node: an ordered *pose stack* of items (clips, drivers), each with an optional `when`, a composition space and damping. |
 | `Pose` | `core/kumo/pose` | Per-bone rotation / offset / vector targets for one frame, bound to the subject's sinks by index. |
-| `ExpressionScope` | `core/kumo/expr` | Named expressions and named conditions, scoped lexically (animator → layer → machine → node). |
+| `Expression`, `ExpressionOperations` | `core/kumo/expr` | The expression language: every value and condition an animator computes, typed (number or boolean) and checked when the animator loads. |
+| `ExpressionScope` | `core/kumo/expr` | Named expressions, scoped lexically (animator → layer → machine → node). |
+| `VariableTable` | `core/kumo/state` | The names an animator reads and writes, numbered when it is instanced and resolved against the entity on its first frame. |
 | `KumoAnimatorController` | `core/kumo` (mod) | Animates one entity data: loads the animator (and its extensions) through `AnimatorResources` and updates it each frame. A broken asset, or one that fails while animating, is logged once and the entity simply doesn't animate. |
 
 ## Per-frame Pipeline
@@ -60,9 +62,9 @@ itself is the outermost machine. Each has its runtime counterpart (`MachineState
 3. Otherwise it evaluates the connections of the node, then of each machine on the path, innermost
    first; the first met fires.
 
-Every condition on the path is evaluated each frame, so edge triggers (`core:decreased`) never
-miss a frame. Named conditions (`conditions` at any level) are templates: each use instances a
-copy, so two uses of an edge trigger keep separate memories.
+Every condition on the path is evaluated each frame, and nothing short-circuits, so edge
+triggers (`decreased`, `rose`, `fell`) never miss a frame. A named expression with an edge trigger
+is compiled anew for each use, so two uses keep separate memories.
 
 ## Where an Entity's Animator Comes From
 

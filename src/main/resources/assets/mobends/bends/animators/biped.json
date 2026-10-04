@@ -2,36 +2,31 @@
   "formatVersion": 2,
   "layers": [
     {
-      "conditions": {
+      "expressions": {
         "jumping": {
-          "type": "core:or",
-          "conditions": [
+          "or": [
+            "AIRBORNE",
             {
-              "type": "core:state",
-              "state": "AIRBORNE"
-            },
-            {
-              "type": "core:compare",
-              "left": "ticksAfterTouchdown",
-              "op": "<",
-              "right": 1
+              "lt": [
+                "ticksAfterTouchdown",
+                1
+              ]
             }
           ]
         },
         "bounced": {
-          "type": "core:and",
-          "conditions": [
+          "and": [
             {
-              "type": "core:compare",
-              "left": "prevMotionY",
-              "op": "<",
-              "right": 0
+              "lt": [
+                "prevMotionY",
+                0
+              ]
             },
             {
-              "type": "core:compare",
-              "left": "motionY",
-              "op": ">",
-              "right": 0
+              "gt": [
+                "motionY",
+                0
+              ]
             }
           ]
         }
@@ -42,10 +37,7 @@
           "then": "jump"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "STANDING_STILL"
-          },
+          "when": "STANDING_STILL",
           "then": "stand"
         },
         {
@@ -62,10 +54,10 @@
             {
               "animationKey": "mobends:bends/animations/biped/stand_enter.json",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterTouchdown",
-                "op": "<",
-                "right": 3.3333333333333335
+                "lt": [
+                  "ticksAfterTouchdown",
+                  3.3333333333333335
+                ]
               }
             }
           ],
@@ -117,10 +109,10 @@
               "animationKey": "mobends:bends/animations/biped/kneel.json",
               "frame": "ticksAfterTouchdown",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterTouchdown",
-                "op": "<",
-                "right": 6.666666666666667
+                "lt": [
+                  "ticksAfterTouchdown",
+                  6.666666666666667
+                ]
               },
               "damping": {
                 "body": 1
@@ -245,10 +237,10 @@
               "animationKey": "mobends:bends/animations/biped/kneel.json",
               "frame": "ticksAfterTouchdown",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterTouchdown",
-                "op": "<",
-                "right": 6.666666666666667
+                "lt": [
+                  "ticksAfterTouchdown",
+                  6.666666666666667
+                ]
               },
               "damping": {
                 "body": 1
@@ -317,10 +309,7 @@
                   "clipLength"
                 ]
               },
-              "when": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              },
+              "when": "MOVING_HORIZONTALLY",
               "damping": {
                 "rightLeg": 1,
                 "leftLeg": 1,
@@ -341,10 +330,7 @@
                   "clipLength"
                 ]
               },
-              "when": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              },
+              "when": "MOVING_HORIZONTALLY",
               "damping": {
                 "leftForeLeg": 0.3,
                 "rightForeLeg": 0.3
@@ -365,17 +351,11 @@
               },
               "weight": "limbSwingAmount",
               "space": "POST",
-              "when": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              }
+              "when": "MOVING_HORIZONTALLY"
             },
             {
               "animationKey": "mobends:bends/animations/biped/jump_still.json",
-              "when": {
-                "type": "core:state",
-                "state": "STANDING_STILL"
-              },
+              "when": "STANDING_STILL",
               "damping": {
                 "rightLeg": 0.3,
                 "leftLeg": 0.3,

@@ -1,8 +1,7 @@
 package goblinbob.mobends.core.kumo.pose;
 
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.MirrorTemplate;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
@@ -15,14 +14,14 @@ public class LayerMirror
 {
 
     private final Skeleton skeleton;
-    private final ITriggerCondition when;
+    private final Expression when;
     private final List<List<String>> pairs;
     private int[] pairOf = new int[0];
 
     public LayerMirror(Skeleton skeleton, MirrorTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         this.skeleton = skeleton;
-        this.when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, scope);
+        this.when = Expression.compileCondition(template.when, scope);
         this.pairs = template.pairs == null ? Collections.emptyList() : template.pairs;
         if (template.negate != null)
         {
@@ -41,18 +40,9 @@ public class LayerMirror
         }
     }
 
-    /** Starts the condition over, for a node of the layer being entered. */
-    public void onNodeStarted(ITriggerConditionContext context)
-    {
-        if (when != null)
-        {
-            when.onNodeStarted(context);
-        }
-    }
-
     public boolean isActive(ITriggerConditionContext context) throws MalformedKumoTemplateException
     {
-        return when == null || when.isConditionMet(context);
+        return when == null || when.test(context);
     }
 
     /** Slot -> its mirror slot (itself for unpaired bones); rebuilt when the skeleton grew. */

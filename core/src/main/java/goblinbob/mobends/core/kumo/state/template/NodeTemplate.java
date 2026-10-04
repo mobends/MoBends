@@ -35,11 +35,8 @@ public class NodeTemplate
     /** Layer variables to set when the node is entered. */
     public Map<String, Float> set;
 
-    /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
+    /** Named expressions (numbers and booleans), visible to everything inside (see misc/kumo-format.md, "Expressions"). */
     public Map<String, ExpressionTemplate> expressions;
-
-    /** Named conditions, visible to everything inside (see misc/kumo-format.md, "Conditions"). */
-    public Map<String, TriggerConditionTemplate> conditions;
 
     public String getType()
     {

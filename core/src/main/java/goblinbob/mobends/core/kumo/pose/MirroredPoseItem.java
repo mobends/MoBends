@@ -53,7 +53,6 @@ public class MirroredPoseItem implements IPoseItem
     @Override
     public void onNodeStarted(IKumoContext context)
     {
-        mirror.onNodeStarted(context);
         item.onNodeStarted(context);
     }
 

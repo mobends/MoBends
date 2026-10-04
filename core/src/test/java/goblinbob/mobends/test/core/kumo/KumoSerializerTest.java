@@ -1,7 +1,6 @@
 package goblinbob.mobends.test.core.kumo;
 
 import com.google.gson.JsonParseException;
-import goblinbob.mobends.core.kumo.state.condition.NamedCondition;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MachineTemplate;
@@ -65,7 +64,6 @@ public class KumoSerializerTest
         messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"pose\": [{\"driver\": \"x:y\"}]}}}]}");
         messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"pose\": [{\"weight\": 1}]}}}]}");
         messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"damping\": {\"arm\": true}}}}]}");
-        messageOf(prefix + "{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"connections\": [{\"target\": \"a\", \"triggerCondition\": {}}]}}}]}");
         messageOf(prefix + "{\"select\": [{\"when\": \"x\"}], \"nodes\": {\"a\": {}}}]}");        // a branch without "then"
         messageOf(prefix + "{\"select\": [{\"then\": 1}], \"nodes\": {\"a\": {}}}]}");          // "then" neither a name nor a list
         messageOf(prefix + "{\"select\": [{\"then\": \"a\", \"transitionEasing\": \"x\"}], \"nodes\": {\"a\": {}}}]}");
@@ -74,15 +72,15 @@ public class KumoSerializerTest
     }
 
     @Test
-    public void readsMachinesSelectorsAndNamedConditions()
+    public void readsMachinesSelectorsAndNamedExpressions()
     {
-        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"conditions\": {\"still\": {\"type\": \"core:state\", \"state\": \"STANDING_STILL\"}},"
+        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"expressions\": {\"still\": \"STANDING_STILL\"},"
                 + " \"layers\": [{\"select\": [{\"when\": \"still\", \"then\": \"a\", \"transitionDuration\": 2},"
                 + " {\"then\": [{\"then\": \"m\", \"set\": {\"v\": 1}}]}],"
                 + " \"nodes\": {\"a\": {}}, \"machines\": {\"m\": {\"defaultOnEntry\": \"c\", \"nodes\": {\"b\": {}, \"c\": {}}}}}]}");
         LayerTemplate layer = template.layers.get(0);
         assertNull(layer.defaultOnEntry);
-        assertEquals("still", ((NamedCondition.Template) layer.select.get(0).when).name);
+        assertEquals("still", layer.select.get(0).when.json.getAsString());
         assertEquals("a", layer.select.get(0).target);
         assertEquals(2F, layer.select.get(0).transitionDuration, 0F);
         assertEquals("m", layer.select.get(1).branches.get(0).target);

@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.state.template;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
+
 import java.util.Map;
 
 public class ConnectionTemplate
@@ -8,7 +10,7 @@ public class ConnectionTemplate
     /** Name of the target node. */
     public String target;
 
-    public TriggerConditionTemplate triggerCondition;
+    public ExpressionTemplate triggerCondition;
 
     /** The duration of the transition in ticks. */
     public float transitionDuration = 0;

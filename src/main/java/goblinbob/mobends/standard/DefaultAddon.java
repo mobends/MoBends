@@ -7,6 +7,7 @@ import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.*;
 import goblinbob.mobends.standard.data.*;
 import goblinbob.mobends.standard.kumo.CapeDriver;
+import goblinbob.mobends.standard.kumo.ItemActionOperations;
 import goblinbob.mobends.standard.kumo.SwordTrailDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate;
@@ -51,6 +52,8 @@ public class DefaultAddon implements IAddon
 		registry.registerDriver("spider_idle_legs", SpiderIdleLegsDriver::create, SpiderIdleLegsTemplate.class);
 		registry.registerDriver("spider_moving_legs", SpiderMovingLegsDriver::create, SpiderMovingLegsTemplate.class);
 		registry.registerSelectorCondition("skin_variant", SkinVariantCondition::create);
+		registry.registerOperation("use_action", ItemActionOperations.USE_ACTION, false, ItemActionOperations::useAction);
+		registry.registerOperation("attack_action", ItemActionOperations.ATTACK_ACTION, false, ItemActionOperations::attackAction);
 	}
 
 	@Override

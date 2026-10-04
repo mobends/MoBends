@@ -63,7 +63,7 @@ public class MachineState
 
         for (NodeTemplate nodeTemplate : nodes)
         {
-            IKumoInstancingContext nodeContext = context.withDeclarations(nodeTemplate.expressions, nodeTemplate.conditions);
+            IKumoInstancingContext nodeContext = context.withExpressions(nodeTemplate.expressions);
             INodeState node = NodeRegistry.INSTANCE.createFromTemplate(nodeContext, skeleton, layer, nodeTemplate);
             register(membersByName, new MachineMember(nodeTemplate.name, node, null, this));
             nodeTemplates.add(nodeTemplate);
@@ -75,7 +75,7 @@ public class MachineState
             {
                 throw new MalformedKumoTemplateException(String.format("%s has a null machine.", describe()));
             }
-            IKumoInstancingContext machineContext = context.withDeclarations(machineTemplate.expressions, machineTemplate.conditions);
+            IKumoInstancingContext machineContext = context.withExpressions(machineTemplate.expressions);
             MachineState machine = new MachineState(machineContext, skeleton, layer, machineTemplate, membersByName);
             machine.member = new MachineMember(machineTemplate.name, null, machine, this);
             register(membersByName, machine.member);
@@ -163,7 +163,7 @@ public class MachineState
         }
         for (ConnectionState connection : connections)
         {
-            connection.triggerCondition.onNodeStarted(context);
+            connection.triggerCondition.restart(context);
         }
     }
 

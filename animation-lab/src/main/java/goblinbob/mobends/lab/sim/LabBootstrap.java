@@ -1,5 +1,7 @@
 package goblinbob.mobends.lab.sim;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionOperations;
+import goblinbob.mobends.standard.kumo.ItemActionOperations;
 import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.standard.kumo.CapeDriver;
@@ -22,6 +24,8 @@ public class LabBootstrap
         if (done) return;
         done = true;
         MinecraftKumoOperations.register();
+        ExpressionOperations.register("mobends:use_action", ItemActionOperations.USE_ACTION, false, ItemActionOperations::useAction);
+        ExpressionOperations.register("mobends:attack_action", ItemActionOperations.ATTACK_ACTION, false, ItemActionOperations::attackAction);
         DriverRegistry.INSTANCE.register("mobends:sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);
         DriverRegistry.INSTANCE.register("mobends:cape", CapeDriver::create, CapeDriver.Template.class);
         DriverRegistry.INSTANCE.register("mobends:spider_idle_legs", SpiderIdleLegsDriver::create, SpiderIdleLegsTemplate.class);

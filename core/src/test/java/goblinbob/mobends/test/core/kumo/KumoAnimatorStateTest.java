@@ -28,7 +28,7 @@ public class KumoAnimatorStateTest
                 + "\"play\": {\"tags\": [\"play\"], \"pose\": ["
                 + "  {\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": 10},"
                 + "  {\"animationKey\": \"clip\", \"duration\": 5}],"
-                + " \"connections\": [{\"target\": \"done\", \"triggerCondition\": {\"type\": \"core:animation_finished\"}}]},"
+                + " \"connections\": [{\"target\": \"done\", \"triggerCondition\": \"nodeIsFinished\"}]},"
                 + "\"done\": {\"tags\": [\"done\"]}}}]}", Collections.singletonMap("clip", STILL_CLIP));
         TestSubject subject = new TestSubject("arm");
 
@@ -46,7 +46,7 @@ public class KumoAnimatorStateTest
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"loop\", \"nodes\": {"
                 + "\"loop\": {\"tags\": [\"loop\"], \"pose\": [{\"animationKey\": \"clip\"}],"
-                + " \"connections\": [{\"target\": \"done\", \"triggerCondition\": {\"type\": \"core:animation_finished\"}}]},"
+                + " \"connections\": [{\"target\": \"done\", \"triggerCondition\": \"nodeIsFinished\"}]},"
                 + "\"done\": {\"tags\": [\"done\"]}}}]}", Collections.singletonMap("clip", STILL_CLIP));
         TestSubject subject = new TestSubject("arm");
 
@@ -61,9 +61,9 @@ public class KumoAnimatorStateTest
     public void anItemsTicksPassedCountsFromItsNode() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"wait\", \"nodes\": {"
-                + "\"wait\": {\"connections\": [{\"target\": \"raise\", \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 10}}]},"
+                + "\"wait\": {\"connections\": [{\"target\": \"raise\", \"triggerCondition\": {\"gt\": [\"elapsed\", 10]}}]},"
                 + "\"raise\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": 45, \"space\": \"OVERRIDE\","
-                + "  \"when\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 3}}]}}}]}");
+                + "  \"when\": {\"gt\": [\"elapsed\", 3]}}]}}}]}");
         TestSubject subject = new TestSubject("arm");
 
         for (int frame = 0; frame < 12; frame++)
@@ -89,7 +89,7 @@ public class KumoAnimatorStateTest
                 + "{\"defaultOnEntry\": \"relative\", \"nodes\": {"
                 + "  \"relative\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"Y\", \"angle\": 90, \"space\": \"PRE\"}],"
                 + "   \"connections\": [{\"target\": \"absolute\", \"transitionDuration\": 10, \"transitionEasing\": \"LINEAR\","
-                + "     \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 2}}]},"
+                + "     \"triggerCondition\": {\"gt\": [\"elapsed\", 2]}}]},"
                 + "  \"absolute\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"Z\", \"angle\": 0, \"space\": \"OVERRIDE\"}]}}}]}");
         TestSubject subject = new TestSubject("arm");
 
@@ -133,7 +133,7 @@ public class KumoAnimatorStateTest
     {
         // Entering the layer is the first frame's decision: its connections aren't checked then.
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {"
-                + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {\"type\": \"core:state\", \"state\": \"FLYING\"}}]}}}]}");
+                + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": \"FLYING\"}]}}}]}");
         try
         {
             animator.update(new TestSubject("arm"), 1F);
@@ -167,7 +167,7 @@ public class KumoAnimatorStateTest
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"walk\", \"nodes\": {"
                 + "\"walk\": {\"tags\": [\"walk\"], \"expressions\": {\"doubled\": {\"mul\": [\"speed\", 2]}},"
-                + " \"connections\": [{\"target\": \"run\", \"triggerCondition\": {\"type\": \"core:compare\", \"left\": \"doubled\", \"op\": \">\", \"right\": {\"add\": [\"limit\", 1]}}}]},"
+                + " \"connections\": [{\"target\": \"run\", \"triggerCondition\": {\"gt\": [\"doubled\", {\"add\": [\"limit\", 1]}]}}]},"
                 + "\"run\": {\"tags\": [\"run\"]}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.variables.put("limit", 2D);
@@ -185,7 +185,7 @@ public class KumoAnimatorStateTest
     public void decreasedWatchesAnExpression() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {"
-                + "\"a\": {\"tags\": [\"a\"], \"connections\": [{\"target\": \"b\", \"triggerCondition\": {\"type\": \"core:decreased\", \"value\": {\"abs\": [\"x\"]}}}]},"
+                + "\"a\": {\"tags\": [\"a\"], \"connections\": [{\"target\": \"b\", \"triggerCondition\": {\"decreased\": [{\"abs\": [\"x\"]}]}}]},"
                 + "\"b\": {\"tags\": [\"b\"]}}}]}");
         TestSubject subject = new TestSubject("arm");
 
@@ -246,10 +246,17 @@ public class KumoAnimatorStateTest
     }
 
     @Test(expected = MalformedKumoTemplateException.class)
+    public void aConditionThatIsNoExpressionIsRefused() throws MalformedKumoTemplateException
+    {
+        TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {"
+                + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {}}]}}}]}");
+    }
+
+    @Test(expected = MalformedKumoTemplateException.class)
     public void anAndWithoutConditionsIsRefused() throws MalformedKumoTemplateException
     {
         TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {"
-                + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {\"type\": \"core:and\"}}]}}}]}");
+                + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {\"and\": []}}]}}}]}");
     }
 
     @Test
@@ -258,7 +265,7 @@ public class KumoAnimatorStateTest
         // The pose is reflected around the item, not its inputs: an unpaired bone turned about Y
         // turns the other way, and an unmarked item follows the input as it is.
         KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a',"
-                + " 'mirror': {'when': {'type': 'core:state', 'state': 'LEFT_HANDED'}, 'pairs': []},"
+                + " 'mirror': {'when': 'LEFT_HANDED', 'pairs': []},"
                 + " 'nodes': {'a': {'pose': ["
                 + "  {'driver': 'core:axis_rotate', 'bone': 'head', 'axis': 'Y', 'angle': 'yaw', 'mirror': true},"
                 + "  {'driver': 'core:axis_rotate', 'bone': 'neck', 'axis': 'Y', 'angle': 'yaw'}]}}}]}");
@@ -276,7 +283,7 @@ public class KumoAnimatorStateTest
     public void aMirrorRuleCantNegateInputs() throws MalformedKumoTemplateException
     {
         animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a',"
-                + " 'mirror': {'when': {'type': 'core:state', 'state': 'LEFT_HANDED'}, 'pairs': [], 'negate': ['yaw']},"
+                + " 'mirror': {'when': 'LEFT_HANDED', 'pairs': [], 'negate': ['yaw']},"
                 + " 'nodes': {'a': {}}}]}");
     }
 
@@ -293,13 +300,13 @@ public class KumoAnimatorStateTest
     }
 
     private static final String LOCOMOTION = "{'formatVersion': 2,"
-            + " 'conditions': {'jumping': {'type': 'core:state', 'state': 'AIRBORNE'}},"
+            + " 'expressions': {'jumping': 'AIRBORNE'},"
             + " 'layers': [{'defaultOnEntry': 'stand', 'select': ["
             + "  {'when': 'jumping', 'then': ["
-            + "    {'when': {'type': 'core:state', 'state': 'FLYING'}, 'then': 'fly'},"
-            + "    {'when': {'type': 'core:compare', 'left': 'fall', 'op': '>', 'right': 10}, 'then': 'fall'}]},"
-            + "  {'when': {'type': 'core:state', 'state': 'STANDING_STILL'}, 'then': 'stand'},"
-            + "  {'when': {'type': 'core:compare', 'left': 'speed', 'op': '>=', 'right': 2}, 'then': 'walk'}],"
+            + "    {'when': 'FLYING', 'then': 'fly'},"
+            + "    {'when': {'gt': ['fall', 10]}, 'then': 'fall'}]},"
+            + "  {'when': 'STANDING_STILL', 'then': 'stand'},"
+            + "  {'when': {'ge': ['speed', 2]}, 'then': 'walk'}],"
             + " 'nodes': {'stand': {'tags': ['stand']}, 'walk': {'tags': ['walk']}, 'fly': {'tags': ['fly']}, 'fall': {'tags': ['fall']}}}]}";
 
     private static TestSubject locomotionSubject()
@@ -354,17 +361,17 @@ public class KumoAnimatorStateTest
     }
 
     private static final String SWORD = "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'idle', 'variables': {'combo': 0, 'entered': 0},"
-            + " 'select': [{'when': {'type': 'core:state', 'state': 'SWORD'}, 'then': 'sword', 'set': {'combo': 0}},"
+            + " 'select': [{'when': 'SWORD', 'then': 'sword', 'set': {'combo': 0}},"
             + "            {'then': 'idle'}],"
             + " 'nodes': {'idle': {'tags': ['idle']}},"
             + " 'machines': {'sword': {'defaultOnEntry': 'sword_idle',"
-            + "   'conditions': {'attacked': {'type': 'core:decreased', 'value': 'sinceAttack'}},"
-            + "   'select': [{'when': {'type': 'core:compare', 'left': 'sinceAttack', 'op': '>=', 'right': 10}, 'then': ["
-            + "     {'when': {'type': 'core:state', 'state': 'STILL'}, 'then': 'stance', 'set': {'entered': 1}},"
+            + "   'expressions': {'attacked': {'decreased': ['sinceAttack']}},"
+            + "   'select': [{'when': {'ge': ['sinceAttack', 10]}, 'then': ["
+            + "     {'when': 'STILL', 'then': 'stance', 'set': {'entered': 1}},"
             + "     {'then': 'sword_idle'}]}],"
             + "   'connections': ["
-            + "     {'target': 'slash_a', 'triggerCondition': {'type': 'core:and', 'conditions': ['attacked', {'type': 'core:compare', 'left': 'combo', 'op': '==', 'right': 0}]}, 'set': {'combo': 1}},"
-            + "     {'target': 'slash_b', 'triggerCondition': {'type': 'core:and', 'conditions': ['attacked', {'type': 'core:compare', 'left': 'combo', 'op': '==', 'right': 1}]}, 'set': {'combo': 0}}],"
+            + "     {'target': 'slash_a', 'triggerCondition': {'and': ['attacked', {'eq': ['combo', 0]}]}, 'set': {'combo': 1}},"
+            + "     {'target': 'slash_b', 'triggerCondition': {'and': ['attacked', {'eq': ['combo', 1]}]}, 'set': {'combo': 0}}],"
             + "   'nodes': {'sword_idle': {'tags': ['sword_idle']}, 'stance': {'tags': ['stance']}, 'slash_a': {'tags': ['slash_a']}, 'slash_b': {'tags': ['slash_b']}}}}}]}";
 
     private static TestSubject swordSubject()
@@ -424,11 +431,11 @@ public class KumoAnimatorStateTest
     public void aLayerStartsWhereItsSelectorLeadsWithoutACrossfade() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'variables': {'v': 0},"
-                + " 'select': [{'when': {'type': 'core:state', 'state': 'GO'}, 'then': 'b', 'transitionDuration': 10, 'set': {'v': 1}}],"
+                + " 'select': [{'when': 'GO', 'then': 'b', 'transitionDuration': 10, 'set': {'v': 1}}],"
                 + " 'nodes': {"
                 + "  'a': {'tags': ['a'], 'pose': [{'driver': 'core:axis_rotate', 'bone': 'arm', 'axis': 'X', 'angle': 0, 'space': 'OVERRIDE'}]},"
                 + "  'b': {'tags': ['b'], 'pose': [{'driver': 'core:axis_rotate', 'bone': 'arm', 'axis': 'X', 'angle': 90, 'space': 'OVERRIDE'}],"
-                + "   'connections': [{'target': 'c', 'triggerCondition': {'type': 'core:compare', 'left': 'v', 'op': '==', 'right': 1}}]},"
+                + "   'connections': [{'target': 'c', 'triggerCondition': {'eq': ['v', 1]}}]},"
                 + "  'c': {'tags': ['c']}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.states.put("GO", true);
@@ -444,9 +451,9 @@ public class KumoAnimatorStateTest
     public void aLayerStartsThroughTheSelectorsOfTheMachinesItEnters() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'm',"
-                + " 'select': [{'when': {'type': 'core:state', 'state': 'OUT'}, 'then': 'out'}],"
+                + " 'select': [{'when': 'OUT', 'then': 'out'}],"
                 + " 'nodes': {'out': {'tags': ['out']}},"
-                + " 'machines': {'m': {'select': [{'when': {'type': 'core:state', 'state': 'LATE'}, 'then': 'late'}],"
+                + " 'machines': {'m': {'select': [{'when': 'LATE', 'then': 'late'}],"
                 + "   'nodes': {'early': {'tags': ['early']}, 'late': {'tags': ['late']}}}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.states.put("OUT", false);
@@ -455,47 +462,25 @@ public class KumoAnimatorStateTest
         assertEquals(Collections.singletonList("late"), frame(animator, subject));
 
         animator = animator("{'formatVersion': 2, 'layers': [{'machines': {'m': {"
-                + "   'select': [{'when': {'type': 'core:state', 'state': 'LATE'}, 'then': 'late'}],"
+                + "   'select': [{'when': 'LATE', 'then': 'late'}],"
                 + "   'nodes': {'early': {'tags': ['early']}, 'late': {'tags': ['late']}}}}}]}");
         subject.states.put("LATE", false);
         // No node of its own, no defaultOnEntry: the layer's first machine; nothing chosen there: its first node.
         assertEquals(Collections.singletonList("early"), frame(animator, subject));
     }
 
-    private static final String ENTERED_CLOCK = "{'formatVersion': 2, 'layers': [{"
-            + " 'select': [{'when': {'type': 'core:state', 'state': 'IN'}, 'then': 'm'}, {'then': 'out'}],"
+    private static final String ENTERED_EDGE = "{'formatVersion': 2, 'layers': [{"
+            + " 'select': [{'when': 'IN', 'then': 'm'}, {'then': 'out'}],"
             + " 'nodes': {'out': {'tags': ['out']}},"
             + " 'machines': {'m': {'defaultOnEntry': 'calm',"
-            + "   'select': [{'when': {'type': 'core:ticks_passed', 'ticksToPass': 5}, 'then': 'late'},"
-            + "              {'when': {'type': 'core:decreased', 'value': 'x'}, 'then': 'hit'}],"
+            + "   'select': [{'when': false, 'then': 'late'},"
+            + "              {'when': {'decreased': ['x']}, 'then': 'hit'}],"
             + "   'nodes': {'calm': {'tags': ['calm']}, 'late': {'tags': ['late']}, 'hit': {'tags': ['hit']}}}}}]}";
-
-    @Test
-    public void aMachinesSelectorClockStartsOverBeforeItChoosesOnEntry() throws MalformedKumoTemplateException
-    {
-        KumoAnimatorState animator = animator(ENTERED_CLOCK);
-        TestSubject subject = new TestSubject("arm");
-        subject.states.put("IN", false);
-        subject.variables.put("x", 0D);
-        for (int frame = 0; frame < 10; frame++)
-        {
-            assertEquals(Collections.singletonList("out"), frame(animator, subject));
-        }
-
-        // Ten ticks into the layer, but none into the machine.
-        subject.states.put("IN", true);
-        assertEquals(Collections.singletonList("calm"), frame(animator, subject));
-        for (int frame = 0; frame < 5; frame++)
-        {
-            assertEquals("frame " + frame, Collections.singletonList("calm"), frame(animator, subject));
-        }
-        assertEquals(Collections.singletonList("late"), frame(animator, subject));
-    }
 
     @Test
     public void aMachinesSelectorEdgeTriggerStartsOverBeforeItChoosesOnEntry() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator(ENTERED_CLOCK);
+        KumoAnimatorState animator = animator(ENTERED_EDGE);
         TestSubject subject = new TestSubject("arm");
         subject.states.put("IN", true);
         subject.variables.put("x", 5D);
@@ -517,7 +502,7 @@ public class KumoAnimatorStateTest
     public void aConnectionToTheCurrentNodeStartsItOver() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'select': [{'then': 'jump'}],"
-                + " 'nodes': {'jump': {'connections': [{'target': 'jump', 'triggerCondition': {'type': 'core:decreased', 'value': 'height'}}]}}}]}");
+                + " 'nodes': {'jump': {'connections': [{'target': 'jump', 'triggerCondition': {'decreased': ['height']}}]}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.variables.put("height", 5D);
         frame(animator, subject);
@@ -528,12 +513,12 @@ public class KumoAnimatorStateTest
     }
 
     @Test
-    public void aNamedConditionIsACopyPerUse() throws MalformedKumoTemplateException
+    public void aNamedExpressionThatRemembersIsACopyPerUse() throws MalformedKumoTemplateException
     {
         // The edge trigger is used twice; were it one instance, the second use would never see the drop.
-        KumoAnimatorState animator = animator("{'formatVersion': 2, 'conditions': {'dropped': {'type': 'core:decreased', 'value': 'x'}},"
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'expressions': {'dropped': {'decreased': ['x']}},"
                 + " 'layers': [{'defaultOnEntry': 'a', 'nodes': {"
-                + "  'a': {'tags': ['a'], 'connections': [{'target': 'b', 'triggerCondition': {'type': 'core:and', 'conditions': ['dropped', 'dropped']}}]},"
+                + "  'a': {'tags': ['a'], 'connections': [{'target': 'b', 'triggerCondition': {'and': ['dropped', 'dropped']}}]},"
                 + "  'b': {'tags': ['b']}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.variables.put("x", 2D);
@@ -543,10 +528,10 @@ public class KumoAnimatorStateTest
     }
 
     @Test
-    public void anInnerNamedConditionShadowsAnOuterOne() throws MalformedKumoTemplateException
+    public void anInnerNamedExpressionShadowsAnOuterOne() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'formatVersion': 2, 'conditions': {'go': {'type': 'core:state', 'state': 'NEVER'}},"
-                + " 'layers': [{'conditions': {'go': {'type': 'core:state', 'state': 'ALWAYS'}},"
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'expressions': {'go': 'NEVER'},"
+                + " 'layers': [{'expressions': {'go': 'ALWAYS'},"
                 + "  'select': [{'when': 'go', 'then': 'b'}], 'nodes': {'a': {'tags': ['a']}, 'b': {'tags': ['b']}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.states.put("NEVER", false);
@@ -555,14 +540,14 @@ public class KumoAnimatorStateTest
     }
 
     @Test(expected = MalformedKumoTemplateException.class)
-    public void aNamedConditionCantUseItself() throws MalformedKumoTemplateException
+    public void aNamedExpressionCantUseItself() throws MalformedKumoTemplateException
     {
-        animator("{'formatVersion': 2, 'conditions': {'p': {'type': 'core:not', 'condition': 'q'}, 'q': 'p'},"
+        animator("{'formatVersion': 2, 'expressions': {'p': {'not': ['q']}, 'q': 'p'},"
                 + " 'layers': [{'nodes': {'a': {}}}]}");
     }
 
     @Test(expected = MalformedKumoTemplateException.class)
-    public void anUnknownConditionNameIsRefused() throws MalformedKumoTemplateException
+    public void aNumberWhereAConditionGoesIsRefused() throws MalformedKumoTemplateException
     {
         animator("{'formatVersion': 2, 'layers': [{'select': [{'when': 'nope', 'then': 'a'}], 'nodes': {'a': {}}}]}");
     }

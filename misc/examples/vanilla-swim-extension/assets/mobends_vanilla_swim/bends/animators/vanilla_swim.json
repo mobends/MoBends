@@ -3,10 +3,13 @@
   "comment": "One layer on top of the player's animator. It is only enabled while the player is in water, and its only node is a vanilla node, so in water the player is drawn with the vanilla model and animation; out of water the layer is off and Mo' Bends animates as usual.",
   "layers": [
     {
-      "when": {"type": "core:state", "state": "IN_WATER"},
+      "when": "IN_WATER",
       "defaultOnEntry": "vanilla",
       "nodes": {
-        "vanilla": {"type": "core:vanilla", "tags": ["vanilla_swim"]}
+        "vanilla": {
+          "type": "core:vanilla",
+          "tags": ["vanilla_swim"]
+        }
       }
     }
   ]

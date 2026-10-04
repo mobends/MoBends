@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.addon;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionOperations;
 import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
@@ -7,10 +8,6 @@ import goblinbob.mobends.core.client.MutatedRenderer;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.driver.IDriverFactory;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionFactory;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
-import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.types.selector.ISelectorConditionFactory;
@@ -78,26 +75,15 @@ public class AddonAnimationRegistry
     }
 
     /**
-     * Registers a trigger condition that animators can use.
-     * @param key The internal name of the trigger condition. (snake_case preferable)
-     *            This is going to be automatically prefixed with the modid like so "modid:key"
-     * @param factory The constructor of the trigger condition instance.
-     * @param templateType The type of the template that this condition is going to be serialized into.
+     * Registers an operation animators can use in their expressions, as "modid:key".
+     * @param key The internal name of the operation. (snake_case preferable)
+     * @param params What its arguments are (see {@link ExpressionOperations#number} and the others).
+     * @param repeatsLast Whether its last parameter repeats.
+     * @param factory Makes the operation from its compiled arguments.
      */
-    public <T extends TriggerConditionTemplate> void registerTriggerCondition(String key, ITriggerConditionFactory<?, T> factory, Class<T> templateType)
+    public void registerOperation(String key, ExpressionOperations.Param[] params, boolean repeatsLast, ExpressionOperations.Factory factory)
     {
-        TriggerConditionRegistry.INSTANCE.register(String.format("%s:%s", modId, key), factory, templateType);
-    }
-
-    /**
-     * Registers a trigger condition that animators can use.
-     * @param key The internal name of the trigger condition. (snake_case preferable)
-     *            This is going to be automatically prefixed with the modid like so "modid:key"
-     * @param condition The trigger condition instance.
-     */
-    public void registerTriggerCondition(String key, ITriggerCondition condition)
-    {
-        TriggerConditionRegistry.INSTANCE.register(String.format("%s:%s", modId, key), condition);
+        ExpressionOperations.register(String.format("%s:%s", modId, key), params, repeatsLast, factory);
     }
 
     /**

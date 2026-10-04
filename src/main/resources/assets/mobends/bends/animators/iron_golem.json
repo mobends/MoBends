@@ -5,24 +5,8 @@
       "comment": "Golems wander at about 0.0496 blocks a tick, just under the MOVING_HORIZONTALLY dead zone (0.05), so the walk goes by the golem's own speed thresholds, apart to keep it from flickering. Between the two thresholds the selector chooses nothing, so the golem keeps standing or walking; landing between them, it walks (the jump's connection).",
       "expressions": {
         "walkStart": 0.02,
-        "walkStop": 0.01
-      },
-      "conditions": {
-        "jumping": {
-          "type": "core:or",
-          "conditions": [
-            {
-              "type": "core:state",
-              "state": "AIRBORNE"
-            },
-            {
-              "type": "core:compare",
-              "left": "ticksAfterTouchdown",
-              "op": "<",
-              "right": 1
-            }
-          ]
-        }
+        "walkStop": 0.01,
+        "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}
       },
       "select": [
         {
@@ -30,30 +14,18 @@
           "then": "jump"
         },
         {
-          "when": {
-            "type": "core:compare",
-            "left": "xzMotionMagnitude",
-            "op": ">=",
-            "right": "walkStart"
-          },
+          "when": {"ge": ["xzMotionMagnitude", "walkStart"]},
           "then": "walk"
         },
         {
-          "when": {
-            "type": "core:compare",
-            "left": "xzMotionMagnitude",
-            "op": "<",
-            "right": "walkStop"
-          },
+          "when": {"lt": ["xzMotionMagnitude", "walkStop"]},
           "then": "stand"
         }
       ],
       "nodes": {
         "stand": {
           "type": "core:pose",
-          "tags": [
-            "stand"
-          ],
+          "tags": ["stand"],
           "pose": [
             {
               "animationKey": "mobends:bends/animations/iron_golem/rest.json",
@@ -70,17 +42,7 @@
             },
             {
               "animationKey": "mobends:bends/animations/iron_golem/idle.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "ticks",
-                      0.07
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
+              "frame": {"mod": [{"mul": ["ticks", 0.07]}, "clipLength"]},
               "damping": {
                 "head": 0.5,
                 "body": 0.5
@@ -92,9 +54,7 @@
               "axis": "Y",
               "angle": "headYaw",
               "space": "PRE",
-              "damping": {
-                "head": 0.5
-              }
+              "damping": {"head": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -112,20 +72,13 @@
                 "rightForeArm": 0.6,
                 "leftForeArm": 0.6
               },
-              "when": {
-                "type": "core:compare",
-                "left": "attackTimer",
-                "op": ">",
-                "right": 0
-              }
+              "when": {"gt": ["attackTimer", 0]}
             }
           ]
         },
         "walk": {
           "type": "core:pose",
-          "tags": [
-            "walk"
-          ],
+          "tags": ["walk"],
           "pose": [
             {
               "animationKey": "mobends:bends/animations/iron_golem/rest.json",
@@ -146,9 +99,7 @@
               "axis": "X",
               "angle": 0,
               "space": "OVERRIDE",
-              "damping": {
-                "body": 0.5
-              }
+              "damping": {"body": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -156,9 +107,7 @@
               "axis": "Y",
               "angle": "headYaw",
               "space": "OVERRIDE",
-              "damping": {
-                "head": 0.5
-              }
+              "damping": {"head": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -176,20 +125,13 @@
                 "rightForeArm": 0.6,
                 "leftForeArm": 0.6
               },
-              "when": {
-                "type": "core:compare",
-                "left": "attackTimer",
-                "op": ">",
-                "right": 0
-              }
+              "when": {"gt": ["attackTimer", 0]}
             }
           ]
         },
         "jump": {
           "type": "core:pose",
-          "tags": [
-            "jump"
-          ],
+          "tags": ["jump"],
           "pose": [
             {
               "animationKey": "mobends:bends/animations/iron_golem/jump.json",
@@ -202,12 +144,7 @@
             },
             {
               "animationKey": "mobends:bends/animations/iron_golem/rest.json",
-              "bones": [
-                "rightArm",
-                "leftArm",
-                "rightForeArm",
-                "leftForeArm"
-              ],
+              "bones": ["rightArm", "leftArm", "rightForeArm", "leftForeArm"],
               "damping": {
                 "rightArm": 0.5,
                 "leftArm": 0.5,
@@ -221,9 +158,7 @@
               "axis": "X",
               "angle": 0,
               "space": "OVERRIDE",
-              "damping": {
-                "body": 0.5
-              }
+              "damping": {"body": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -231,9 +166,7 @@
               "axis": "Y",
               "angle": "headYaw",
               "space": "OVERRIDE",
-              "damping": {
-                "head": 0.5
-              }
+              "damping": {"head": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -251,32 +184,13 @@
                 "rightForeArm": 0.6,
                 "leftForeArm": 0.6
               },
-              "when": {
-                "type": "core:compare",
-                "left": "attackTimer",
-                "op": ">",
-                "right": 0
-              }
+              "when": {"gt": ["attackTimer", 0]}
             }
           ],
           "connections": [
             {
               "target": "walk",
-              "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:not",
-                    "condition": "jumping"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "xzMotionMagnitude",
-                    "op": ">=",
-                    "right": "walkStop"
-                  }
-                ]
-              }
+              "triggerCondition": {"and": [{"not": ["jumping"]}, {"ge": ["xzMotionMagnitude", "walkStop"]}]}
             }
           ]
         }
@@ -289,67 +203,14 @@
         "planted": {
           "type": "core:pose",
           "expressions": {
-            "twist": {
-              "clamp": [
-                {
-                  "mul": [
-                    "turnLag",
-                    0.3
-                  ]
-                },
-                -12,
-                12
-              ]
-            },
+            "twist": {"clamp": [{"mul": ["turnLag", 0.3]}, -12, 12]},
             "vanillaRock": {
               "mul": [
                 6.5,
                 {
-                  "div": [
-                    {
-                      "sub": [
-                        {
-                          "abs": [
-                            {
-                              "sub": [
-                                {
-                                  "mod": [
-                                    {
-                                      "add": [
-                                        "limbSwing",
-                                        6
-                                      ]
-                                    },
-                                    13
-                                  ]
-                                },
-                                6.5
-                              ]
-                            }
-                          ]
-                        },
-                        3.25
-                      ]
-                    },
-                    3.25
-                  ]
+                  "div": [{"sub": [{"abs": [{"sub": [{"mod": [{"add": ["limbSwing", 6]}, 13]}, 6.5]}]}, 3.25]}, 3.25]
                 },
-                {
-                  "clamp": [
-                    {
-                      "floor": [
-                        {
-                          "mul": [
-                            "rawLimbSwingAmount",
-                            100
-                          ]
-                        }
-                      ]
-                    },
-                    0,
-                    1
-                  ]
-                }
+                {"clamp": [{"floor": [{"mul": ["rawLimbSwingAmount", 100]}]}, 0, 1]}
               ]
             }
           },
@@ -358,13 +219,7 @@
               "driver": "core:ramp",
               "name": "onFeet",
               "speed": 0.15,
-              "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:action",
-                  "tag": "jump"
-                }
-              }
+              "when": {"not": [{"core:action": ["jump"]}]}
             },
             {
               "driver": "core:axis_rotate",
@@ -381,40 +236,16 @@
                 {
                   "upper": "leftLeg",
                   "lower": "leftForeLeg",
-                  "hip": [
-                    -4,
-                    11,
-                    0
-                  ],
-                  "knee": [
-                    0,
-                    5,
-                    -3
-                  ],
-                  "foot": [
-                    -0.5,
-                    8,
-                    2.5
-                  ]
+                  "hip": [-4, 11, 0],
+                  "knee": [0, 5, -3],
+                  "foot": [-0.5, 8, 2.5]
                 },
                 {
                   "upper": "rightLeg",
                   "lower": "rightForeLeg",
-                  "hip": [
-                    5,
-                    11,
-                    0
-                  ],
-                  "knee": [
-                    0,
-                    5,
-                    -3
-                  ],
-                  "foot": [
-                    -0.5,
-                    8,
-                    2.5
-                  ]
+                  "hip": [5, 11, 0],
+                  "knee": [0, 5, -3],
+                  "foot": [-0.5, 8, 2.5]
                 }
               ],
               "turnThreshold": 15,
@@ -473,47 +304,21 @@
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "Y",
-              "angle": {
-                "sub": [
-                  {
-                    "clamp": [
-                      {
-                        "add": [
-                          "headYaw",
-                          "turnLag"
-                        ]
-                      },
-                      -85,
-                      85
-                    ]
-                  },
-                  "headYaw"
-                ]
-              },
+              "angle": {"sub": [{"clamp": [{"add": ["headYaw", "turnLag"]}, -85, 85]}, "headYaw"]},
               "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "head",
               "axis": "X",
-              "angle": {
-                "mul": [
-                  "jolt",
-                  4
-                ]
-              },
+              "angle": {"mul": ["jolt", 4]},
               "space": "POST"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "body",
               "axis": "X",
-              "angle": {
-                "mul": [
-                  "jolt",
-                  2
-                ]
-              },
+              "angle": {"mul": ["jolt", 2]},
               "space": "POST"
             },
             {
@@ -527,68 +332,28 @@
               "driver": "core:axis_rotate",
               "bone": "rightArm",
               "axis": "X",
-              "angle": {
-                "mul": [
-                  "armLag",
-                  -2.5
-                ]
-              },
+              "angle": {"mul": ["armLag", -2.5]},
               "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "leftArm",
               "axis": "X",
-              "angle": {
-                "mul": [
-                  "armLag",
-                  2.5
-                ]
-              },
+              "angle": {"mul": ["armLag", 2.5]},
               "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "rightArm",
               "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      "jolt",
-                      5
-                    ]
-                  },
-                  {
-                    "mul": [
-                      "armSway",
-                      -4
-                    ]
-                  }
-                ]
-              },
+              "angle": {"add": [{"mul": ["jolt", 5]}, {"mul": ["armSway", -4]}]},
               "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "leftArm",
               "axis": "Z",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      "jolt",
-                      -5
-                    ]
-                  },
-                  {
-                    "mul": [
-                      "armSway",
-                      -4
-                    ]
-                  }
-                ]
-              },
+              "angle": {"add": [{"mul": ["jolt", -5]}, {"mul": ["armSway", -4]}]},
               "space": "PRE"
             },
             {
@@ -609,48 +374,28 @@
               "driver": "core:axis_rotate",
               "bone": "rightForeArm",
               "axis": "X",
-              "angle": {
-                "mul": [
-                  "jolt",
-                  -12
-                ]
-              },
+              "angle": {"mul": ["jolt", -12]},
               "space": "POST"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "leftForeArm",
               "axis": "X",
-              "angle": {
-                "mul": [
-                  "jolt",
-                  -12
-                ]
-              },
+              "angle": {"mul": ["jolt", -12]},
               "space": "POST"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "leftArm",
               "axis": "X",
-              "angle": {
-                "mul": [
-                  "armSwing",
-                  3.5
-                ]
-              },
+              "angle": {"mul": ["armSwing", 3.5]},
               "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "rightArm",
               "axis": "X",
-              "angle": {
-                "mul": [
-                  "armSwing",
-                  -3.5
-                ]
-              },
+              "angle": {"mul": ["armSwing", -3.5]},
               "space": "PRE"
             }
           ]

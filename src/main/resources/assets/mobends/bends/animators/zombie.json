@@ -10,10 +10,10 @@
         "root": "OVERRIDE"
       },
       "when": {
-        "type": "core:compare",
-        "left": "animationSet",
-        "op": "==",
-        "right": 0
+        "eq": [
+          "animationSet",
+          0
+        ]
       },
       "defaultOnEntry": "lean",
       "nodes": {
@@ -40,17 +40,13 @@
               "animationKey": "mobends:bends/animations/zombie/lean_arms_up.json",
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "MOVING_HORIZONTALLY",
                   {
-                    "type": "core:state",
-                    "state": "MOVING_HORIZONTALLY"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "currentWalkingState",
-                    "op": "==",
-                    "right": 1
+                    "eq": [
+                      "currentWalkingState",
+                      1
+                    ]
                   }
                 ]
               }
@@ -61,10 +57,10 @@
     },
     {
       "when": {
-        "type": "core:compare",
-        "left": "animationSet",
-        "op": "==",
-        "right": 1
+        "eq": [
+          "animationSet",
+          1
+        ]
       },
       "defaultOnEntry": "stumble",
       "nodes": {

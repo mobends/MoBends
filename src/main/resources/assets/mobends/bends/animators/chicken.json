@@ -2,19 +2,15 @@
   "formatVersion": 2,
   "layers": [
     {
-      "conditions": {
+      "expressions": {
         "jumping": {
-          "type": "core:or",
-          "conditions": [
+          "or": [
+            "AIRBORNE",
             {
-              "type": "core:state",
-              "state": "AIRBORNE"
-            },
-            {
-              "type": "core:compare",
-              "left": "ticksAfterTouchdown",
-              "op": "<",
-              "right": 1
+              "lt": [
+                "ticksAfterTouchdown",
+                1
+              ]
             }
           ]
         }
@@ -25,10 +21,7 @@
           "then": "jump"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "STANDING_STILL"
-          },
+          "when": "STANDING_STILL",
           "then": "stand"
         },
         {

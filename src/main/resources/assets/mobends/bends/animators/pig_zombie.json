@@ -9,15 +9,16 @@
         "root": "OVERRIDE"
       },
       "when": {
-        "type": "core:or",
-        "conditions": [
+        "or": [
           {
-            "type": "core:action",
-            "tag": "stand"
+            "core:action": [
+              "stand"
+            ]
           },
           {
-            "type": "core:action",
-            "tag": "walk"
+            "core:action": [
+              "walk"
+            ]
           }
         ]
       },
@@ -40,8 +41,9 @@
             {
               "animationKey": "mobends:bends/animations/pigzombie/stand_offset.json",
               "when": {
-                "type": "core:action",
-                "tag": "stand"
+                "core:action": [
+                  "stand"
+                ]
               },
               "damping": {
                 "root": [
@@ -68,8 +70,9 @@
                 ]
               },
               "when": {
-                "type": "core:action",
-                "tag": "walk"
+                "core:action": [
+                  "walk"
+                ]
               },
               "damping": {
                 "root": [
@@ -88,17 +91,14 @@
     },
     {
       "when": {
-        "type": "core:compare",
-        "left": "entitySwingProgress",
-        "op": ">",
-        "right": 0
+        "gt": [
+          "entitySwingProgress",
+          0
+        ]
       },
       "defaultOnEntry": "slash",
       "mirror": {
-        "when": {
-          "type": "core:state",
-          "state": "LEFT_HANDED"
-        },
+        "when": "LEFT_HANDED",
         "pairs": [
           [
             "leftArm",
@@ -171,18 +171,12 @@
                 "root"
               ],
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "STANDING_STILL",
                   {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "RIDING"
-                    }
+                    "not": [
+                      "RIDING"
+                    ]
                   }
                 ]
               },
@@ -204,18 +198,12 @@
               ],
               "mirror": true,
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "STANDING_STILL",
                   {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "RIDING"
-                    }
+                    "not": [
+                      "RIDING"
+                    ]
                   }
                 ]
               },

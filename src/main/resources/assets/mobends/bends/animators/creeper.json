@@ -2,45 +2,21 @@
   "formatVersion": 2,
   "layers": [
     {
-      "conditions": {
-        "jumping": {
-          "type": "core:or",
-          "conditions": [
-            {
-              "type": "core:state",
-              "state": "AIRBORNE"
-            },
-            {
-              "type": "core:compare",
-              "left": "ticksAfterTouchdown",
-              "op": "<",
-              "right": 1
-            }
-          ]
-        }
-      },
       "select": [
         {
           "when": "jumping",
           "then": "jump"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "STANDING_STILL"
-          },
+          "when": "STANDING_STILL",
           "then": "stand"
         },
-        {
-          "then": "walk"
-        }
+        {"then": "walk"}
       ],
       "nodes": {
         "stand": {
           "type": "core:pose",
-          "tags": [
-            "stand"
-          ],
+          "tags": ["stand"],
           "pose": [
             {
               "animationKey": "mobends:bends/animations/creeper/rest.json",
@@ -53,20 +29,8 @@
             },
             {
               "animationKey": "mobends:bends/animations/creeper/idle.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "ticks",
-                      0.09
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
-              "damping": {
-                "head": 0.5
-              }
+              "frame": {"mod": [{"mul": ["ticks", 0.09]}, "clipLength"]},
+              "damping": {"head": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -130,9 +94,7 @@
               "axis": "Y",
               "angle": "headYaw",
               "space": "PRE",
-              "damping": {
-                "head": 0.5
-              }
+              "damping": {"head": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -145,23 +107,11 @@
         },
         "walk": {
           "type": "core:pose",
-          "tags": [
-            "walk"
-          ],
+          "tags": ["walk"],
           "pose": [
             {
               "animationKey": "mobends:bends/animations/creeper/walk.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
+              "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
               "weight": "limbSwingAmount",
               "damping": {
                 "leg1": 0.8,
@@ -232,9 +182,7 @@
               "axis": "Y",
               "angle": "headYaw",
               "space": "OVERRIDE",
-              "damping": {
-                "head": 0.5
-              }
+              "damping": {"head": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -247,9 +195,7 @@
         },
         "jump": {
           "type": "core:pose",
-          "tags": [
-            "jump"
-          ],
+          "tags": ["jump"],
           "pose": [
             {
               "animationKey": "mobends:bends/animations/creeper/jump.json",
@@ -322,9 +268,7 @@
               "axis": "Y",
               "angle": "headYaw",
               "space": "OVERRIDE",
-              "damping": {
-                "head": 0.5
-              }
+              "damping": {"head": 0.5}
             },
             {
               "driver": "core:axis_rotate",
@@ -335,7 +279,8 @@
             }
           ]
         }
-      }
+      },
+      "expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}
     },
     {
       "comment": "The lean: the chest leans over the lower half, which stays upright, and the neck (and with it the head) moves to where the leaning chest puts it. Standing, it leans a little and breathes with the idle clip (same phase: 64 samples a 2pi cycle, 0.09 samples a tick); walking forward, it leans further. The waist joint is on the back edge, 6 below and 2 behind the neck.",
@@ -343,115 +288,12 @@
       "mode": "ADDITIVE",
       "defaultOnEntry": "hunch",
       "expressions": {
-        "walking": {
-          "clamp": [
-            {
-              "div": [
-                "forwardMomentum",
-                0.1
-              ]
-            },
-            0,
-            1
-          ]
-        },
-        "breath": {
-          "cos": [
-            {
-              "mul": [
-                "ticks",
-                0.008835729338221293
-              ]
-            }
-          ]
-        },
-        "hunch": {
-          "add": [
-            8,
-            {
-              "mul": [
-                7,
-                "walking"
-              ]
-            },
-            {
-              "mul": [
-                1.5,
-                "breath",
-                {
-                  "sub": [
-                    1,
-                    "walking"
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        "hunchRad": {
-          "mul": [
-            "hunch",
-            0.0174533
-          ]
-        },
-        "neckY": {
-          "add": [
-            {
-              "mul": [
-                6,
-                {
-                  "sub": [
-                    1,
-                    {
-                      "cos": [
-                        "hunchRad"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "mul": [
-                2,
-                {
-                  "sin": [
-                    "hunchRad"
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        "neckZ": {
-          "sub": [
-            {
-              "mul": [
-                2,
-                {
-                  "sub": [
-                    1,
-                    {
-                      "cos": [
-                        "hunchRad"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "mul": [
-                6,
-                {
-                  "sin": [
-                    "hunchRad"
-                  ]
-                }
-              ]
-            }
-          ]
-        }
+        "walking": {"clamp": [{"div": ["forwardMomentum", 0.1]}, 0, 1]},
+        "breath": {"cos": [{"mul": ["ticks", 0.008835729338221293]}]},
+        "hunch": {"add": [8, {"mul": [7, "walking"]}, {"mul": [1.5, "breath", {"sub": [1, "walking"]}]}]},
+        "hunchRad": {"mul": ["hunch", 0.0174533]},
+        "neckY": {"add": [{"mul": [6, {"sub": [1, {"cos": ["hunchRad"]}]}]}, {"mul": [2, {"sin": ["hunchRad"]}]}]},
+        "neckZ": {"sub": [{"mul": [2, {"sub": [1, {"cos": ["hunchRad"]}]}]}, {"mul": [6, {"sin": ["hunchRad"]}]}]}
       },
       "nodes": {
         "hunch": {
@@ -472,11 +314,7 @@
               "driver": "core:axis_rotate",
               "bone": "lowerBody",
               "axis": "X",
-              "angle": {
-                "neg": [
-                  "hunch"
-                ]
-              },
+              "angle": {"neg": ["hunch"]},
               "space": "OVERRIDE"
             },
             {

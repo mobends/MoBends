@@ -1,8 +1,7 @@
 package goblinbob.mobends.core.kumo.state;
 
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
@@ -13,13 +12,13 @@ public class ConnectionState implements ITransition
 {
 
     public final MachineMember target;
-    public final ITriggerCondition triggerCondition;
+    public final Expression triggerCondition;
     public final float transitionDuration;
     public final ConnectionTemplate.Easing transitionEasing;
     /** Layer variables assigned when the connection fires. */
     public final VariableTable.Assignments set;
 
-    public ConnectionState(MachineMember target, ITriggerCondition triggerCondition, float transitionDuration, ConnectionTemplate.Easing transitionEasing, VariableTable.Assignments set)
+    public ConnectionState(MachineMember target, Expression triggerCondition, float transitionDuration, ConnectionTemplate.Easing transitionEasing, VariableTable.Assignments set)
     {
         this.target = target;
         this.triggerCondition = triggerCondition;
@@ -46,7 +45,7 @@ public class ConnectionState implements ITransition
         }
 
         return new ConnectionState(target,
-                TriggerConditionRegistry.INSTANCE.createFromTemplate(template.triggerCondition, scope),
+                Expression.compileCondition(template.triggerCondition, scope),
                 template.transitionDuration,
                 template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing,
                 scope.getVariables().layerAssignments(template.set));

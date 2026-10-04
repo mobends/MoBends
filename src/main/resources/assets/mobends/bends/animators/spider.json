@@ -6,19 +6,15 @@
       "variables": {
         "resetLimbs": 1
       },
-      "conditions": {
+      "expressions": {
         "jumping": {
-          "type": "core:or",
-          "conditions": [
+          "or": [
+            "AIRBORNE",
             {
-              "type": "core:state",
-              "state": "AIRBORNE"
-            },
-            {
-              "type": "core:compare",
-              "left": "ticksAfterTouchdown",
-              "op": "<",
-              "right": 1
+              "lt": [
+                "ticksAfterTouchdown",
+                1
+              ]
             }
           ]
         }
@@ -26,18 +22,15 @@
       "select": [
         {
           "when": {
-            "type": "core:compare",
-            "left": "health",
-            "op": "<=",
-            "right": 0
+            "le": [
+              "health",
+              0
+            ]
           },
           "then": "death"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "BESIDE_CLIMBABLE"
-          },
+          "when": "BESIDE_CLIMBABLE",
           "then": "crawl"
         },
         {
@@ -45,10 +38,7 @@
           "then": "jump"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "STANDING_STILL"
-          },
+          "when": "STANDING_STILL",
           "then": "idle"
         },
         {

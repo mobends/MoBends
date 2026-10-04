@@ -100,7 +100,7 @@ public class KumoAnimatorState
         for (int i = 0; i < layers.size(); i++)
         {
             LayerTemplate template = layers.get(i);
-            IKumoInstancingContext layerContext = layerContexts.get(i).withDeclarations(template.expressions, template.conditions);
+            IKumoInstancingContext layerContext = layerContexts.get(i).withExpressions(template.expressions);
             layerStates.add(new LayerState(layerContext, skeleton, template));
         }
         context.setLayers(layerStates);
@@ -152,7 +152,7 @@ public class KumoAnimatorState
             }
             animatorContext = collectLayers(parent, context.isTrusted(template.extendsAnimator), context, depth + 1, layers, contexts, layersTrusted);
         }
-        animatorContext = animatorContext.withDeclarations(template.expressions, template.conditions);
+        animatorContext = animatorContext.withExpressions(template.expressions);
         if (template.layers != null)
         {
             for (LayerTemplate layer : template.layers)

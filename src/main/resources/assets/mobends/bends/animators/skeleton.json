@@ -4,16 +4,13 @@
   "layers": [
     {
       "when": {
-        "type": "core:and",
-        "conditions": [
+        "and": [
           {
-            "type": "core:action",
-            "tag": "walk"
+            "core:action": [
+              "walk"
+            ]
           },
-          {
-            "type": "core:state",
-            "state": "STRAFING"
-          }
+          "STRAFING"
         ]
       },
       "defaultOnEntry": "strafe",
@@ -71,24 +68,24 @@
       "select": [
         {
           "when": {
-            "type": "core:property",
-            "property": "useActionType",
-            "value": "FOOD"
+            "mobends:use_action": [
+              "food"
+            ]
           },
           "then": [
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "RIGHT"
+                "core:active_hand_side": [
+                  "right"
+                ]
               },
               "then": "eat_right"
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "LEFT"
+                "core:active_hand_side": [
+                  "left"
+                ]
               },
               "then": "eat_left"
             }
@@ -96,24 +93,24 @@
         },
         {
           "when": {
-            "type": "core:property",
-            "property": "useActionType",
-            "value": "BOW"
+            "mobends:use_action": [
+              "bow"
+            ]
           },
           "then": [
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "RIGHT"
+                "core:active_hand_side": [
+                  "right"
+                ]
               },
               "then": "bow_right"
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "LEFT"
+                "core:active_hand_side": [
+                  "left"
+                ]
               },
               "then": "bow_left"
             }
@@ -121,24 +118,24 @@
         },
         {
           "when": {
-            "type": "core:property",
-            "property": "useActionType",
-            "value": "SHIELD"
+            "mobends:use_action": [
+              "shield"
+            ]
           },
           "then": [
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "RIGHT"
+                "core:active_hand_side": [
+                  "right"
+                ]
               },
               "then": "shield_right"
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "LEFT"
+                "core:active_hand_side": [
+                  "left"
+                ]
               },
               "then": "shield_left"
             }
@@ -146,16 +143,34 @@
         },
         {
           "when": {
-            "type": "core:property",
-            "property": "useActionType",
-            "unset": true
+            "not": [
+              {
+                "or": [
+                  {
+                    "mobends:use_action": [
+                      "food"
+                    ]
+                  },
+                  {
+                    "mobends:use_action": [
+                      "bow"
+                    ]
+                  },
+                  {
+                    "mobends:use_action": [
+                      "shield"
+                    ]
+                  }
+                ]
+              }
+            ]
           },
           "then": [
             {
               "when": {
-                "type": "core:property",
-                "property": "attackActionType",
-                "value": "SWORD"
+                "mobends:attack_action": [
+                  "sword"
+                ]
               },
               "then": "sword",
               "set": {
@@ -164,9 +179,9 @@
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "attackActionType",
-                "value": "FISTS"
+                "mobends:attack_action": [
+                  "fists"
+                ]
               },
               "then": "fists",
               "set": {
@@ -175,9 +190,9 @@
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "attackActionType",
-                "value": "TOOL"
+                "mobends:attack_action": [
+                  "tool"
+                ]
               },
               "then": "tool"
             }
@@ -204,10 +219,7 @@
               "vectorModes": {
                 "localOffset": "SLIDE"
               },
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "mirror": true
             },
             {
@@ -216,26 +228,16 @@
               "damping": {
                 "body": 0.8
               },
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "mirror": true
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_sneak_body.json",
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:state",
-                    "state": "SNEAKING"
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "SWINGING"
-                  }
+                "and": [
+                  "SNEAKING",
+                  "SWINGING"
                 ]
               },
               "mirror": true
@@ -250,19 +252,13 @@
                 "head": 0.8
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "SNEAKING"
-                    }
+                    "not": [
+                      "SNEAKING"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "SWINGING"
-                  }
+                  "SWINGING"
                 ]
               },
               "mirror": true
@@ -282,16 +278,9 @@
                 "head": 0.8
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:state",
-                    "state": "SNEAKING"
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "SWINGING"
-                  }
+                "and": [
+                  "SNEAKING",
+                  "SWINGING"
                 ]
               },
               "mirror": true
@@ -302,39 +291,27 @@
               "axis": "Y",
               "angle": "headYaw",
               "space": "PRE",
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              }
+              "when": "SWINGING"
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_head.json",
               "frame": "swingProgress",
               "space": "PRE",
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "mirror": true
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_arm.json",
               "frame": "swingProgress",
               "snap": true,
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "swapSides": true
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_arm_post.json",
               "frame": "swingProgress",
               "space": "POST",
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "swapSides": true
             }
           ]
@@ -383,10 +360,10 @@
                 ]
               },
               "when": {
-                "type": "core:compare",
-                "left": "bringUpPrev",
-                "op": ">=",
-                "right": 1
+                "ge": [
+                  "bringUpPrev",
+                  1
+                ]
               }
             }
           ]
@@ -433,11 +410,9 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -460,11 +435,9 @@
                 "body": 0.8
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -474,11 +447,9 @@
               "angle": "headYaw",
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -490,10 +461,7 @@
               "damping": {
                 "body": 0.8
               },
-              "when": {
-                "type": "core:state",
-                "state": "CLIMBING"
-              }
+              "when": "CLIMBING"
             },
             {
               "driver": "core:axis_rotate",
@@ -670,10 +638,10 @@
                 ]
               },
               "when": {
-                "type": "core:compare",
-                "left": "bringUpPrev",
-                "op": ">=",
-                "right": 1
+                "ge": [
+                  "bringUpPrev",
+                  1
+                ]
               }
             }
           ]
@@ -720,11 +688,9 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -747,11 +713,9 @@
                 "body": 0.8
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -761,11 +725,9 @@
               "angle": "headYaw",
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -777,10 +739,7 @@
               "damping": {
                 "body": 0.8
               },
-              "when": {
-                "type": "core:state",
-                "state": "CLIMBING"
-              }
+              "when": "CLIMBING"
             },
             {
               "driver": "core:axis_rotate",
@@ -917,92 +876,75 @@
       "machines": {
         "sword": {
           "defaultOnEntry": "sword_idle",
-          "conditions": {
+          "expressions": {
             "attacked": {
-              "type": "core:decreased",
-              "value": "ticksAfterAttack"
+              "decreased": [
+                "ticksAfterAttack"
+              ]
             }
           },
           "select": [
             {
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": ">=",
-                        "right": 10
+                        "ge": [
+                          "ticksAfterAttack",
+                          10
+                        ]
                       },
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 60
+                        "lt": [
+                          "ticksAfterAttack",
+                          60
+                        ]
                       },
-                      {
-                        "type": "core:state",
-                        "state": "ON_GROUND"
-                      }
+                      "ON_GROUND"
                     ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "SPRINTING"
-                  }
+                  "SPRINTING"
                 ]
               },
               "then": "stance_sprint"
             },
             {
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": ">=",
-                        "right": 10
+                        "ge": [
+                          "ticksAfterAttack",
+                          10
+                        ]
                       },
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 60
+                        "lt": [
+                          "ticksAfterAttack",
+                          60
+                        ]
                       },
-                      {
-                        "type": "core:state",
-                        "state": "ON_GROUND"
-                      }
+                      "ON_GROUND"
                     ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "SPRINTING"
-                    }
+                    "not": [
+                      "SPRINTING"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "STANDING_STILL"
                 ]
               },
               "then": "stance"
             },
             {
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": ">=",
-                "right": 10
+                "ge": [
+                  "ticksAfterAttack",
+                  10
+                ]
               },
               "then": "sword_idle"
             }
@@ -1011,14 +953,13 @@
             {
               "target": "slash_up",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 0
+                    "eq": [
+                      "combo",
+                      0
+                    ]
                   }
                 ]
               },
@@ -1029,14 +970,13 @@
             {
               "target": "slash_down",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 1
+                    "eq": [
+                      "combo",
+                      1
+                    ]
                   }
                 ]
               },
@@ -1047,14 +987,13 @@
             {
               "target": "slash_inward",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 2
+                    "eq": [
+                      "combo",
+                      2
+                    ]
                   }
                 ]
               },
@@ -1065,14 +1004,13 @@
             {
               "target": "slash_outward",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 3
+                    "eq": [
+                      "combo",
+                      3
+                    ]
                   }
                 ]
               },
@@ -1083,19 +1021,15 @@
             {
               "target": "slash_whirl",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 4
+                    "eq": [
+                      "combo",
+                      4
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "CAN_SPIN_ATTACK"
-                  }
+                  "CAN_SPIN_ATTACK"
                 ]
               },
               "set": {
@@ -1105,21 +1039,18 @@
             {
               "target": "slash_up",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 4
+                    "eq": [
+                      "combo",
+                      4
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "CAN_SPIN_ATTACK"
-                    }
+                    "not": [
+                      "CAN_SPIN_ATTACK"
+                    ]
                   }
                 ]
               },
@@ -1137,10 +1068,10 @@
                   "variable": "combo",
                   "value": 0,
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">",
-                    "right": 20
+                    "gt": [
+                      "ticksAfterAttack",
+                      20
+                    ]
                   }
                 }
               ]
@@ -1281,10 +1212,10 @@
                   "animationKey": "mobends:bends/animations/player/stance_kneel.json",
                   "frame": "ticksAfterTouchdown",
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterTouchdown",
-                    "op": "<",
-                    "right": 6.666666666666667
+                    "lt": [
+                      "ticksAfterTouchdown",
+                      6.666666666666667
+                    ]
                   },
                   "damping": {
                     "body": 1
@@ -1298,10 +1229,10 @@
                   "variable": "combo",
                   "value": 0,
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">",
-                    "right": 20
+                    "gt": [
+                      "ticksAfterAttack",
+                      20
+                    ]
                   }
                 }
               ]
@@ -1320,9 +1251,9 @@
                     -10
                   ],
                   "when": {
-                    "type": "core:property",
-                    "property": "attackActionType",
-                    "value": "SWORD"
+                    "mobends:attack_action": [
+                      "sword"
+                    ]
                   }
                 },
                 {
@@ -1351,10 +1282,10 @@
                   "variable": "combo",
                   "value": 0,
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">",
-                    "right": 20
+                    "gt": [
+                      "ticksAfterAttack",
+                      20
+                    ]
                   }
                 }
               ]
@@ -1369,18 +1300,17 @@
                   "driver": "mobends:sword_trail",
                   "resetOnEnter": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 4
+                        "lt": [
+                          "ticksAfterAttack",
+                          4
+                        ]
                       },
                       {
-                        "type": "core:property",
-                        "property": "attackActionType",
-                        "value": "SWORD"
+                        "mobends:attack_action": [
+                          "sword"
+                        ]
                       }
                     ]
                   }
@@ -1478,18 +1408,12 @@
                     "root": "SLIDE"
                   },
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -1504,18 +1428,12 @@
                   },
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -1532,18 +1450,17 @@
                   "driver": "mobends:sword_trail",
                   "resetOnEnter": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 4
+                        "lt": [
+                          "ticksAfterAttack",
+                          4
+                        ]
                       },
                       {
-                        "type": "core:property",
-                        "property": "attackActionType",
-                        "value": "SWORD"
+                        "mobends:attack_action": [
+                          "sword"
+                        ]
                       }
                     ]
                   }
@@ -1641,18 +1558,12 @@
                     "root": "SLIDE"
                   },
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -1667,18 +1578,12 @@
                   },
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -1695,18 +1600,17 @@
                   "driver": "mobends:sword_trail",
                   "resetOnEnter": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 4
+                        "lt": [
+                          "ticksAfterAttack",
+                          4
+                        ]
                       },
                       {
-                        "type": "core:property",
-                        "property": "attackActionType",
-                        "value": "SWORD"
+                        "mobends:attack_action": [
+                          "sword"
+                        ]
                       }
                     ]
                   }
@@ -1802,18 +1706,12 @@
                     "root": "SLIDE"
                   },
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -1828,18 +1726,12 @@
                   },
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -1852,18 +1744,12 @@
                   "space": "PRE",
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -1880,18 +1766,17 @@
                   "driver": "mobends:sword_trail",
                   "resetOnEnter": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 4
+                        "lt": [
+                          "ticksAfterAttack",
+                          4
+                        ]
                       },
                       {
-                        "type": "core:property",
-                        "property": "attackActionType",
-                        "value": "SWORD"
+                        "mobends:attack_action": [
+                          "sword"
+                        ]
                       }
                     ]
                   }
@@ -1987,18 +1872,12 @@
                     "root": "SLIDE"
                   },
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -2013,18 +1892,12 @@
                   },
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -2037,18 +1910,12 @@
                   "space": "PRE",
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -2066,10 +1933,10 @@
                   "add": false,
                   "resetEachFrame": true,
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": "<",
-                    "right": 0.5
+                    "lt": [
+                      "ticksAfterAttack",
+                      0.5
+                    ]
                   }
                 },
                 {
@@ -2193,10 +2060,7 @@
                   "vectorModes": {
                     "root": "SLIDE"
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/slash_whirl_still.json",
@@ -2206,10 +2070,7 @@
                     "leftForeLeg": 0.3,
                     "rightForeLeg": 0.3
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 }
               ]
             }
@@ -2217,28 +2078,28 @@
         },
         "fists": {
           "defaultOnEntry": "punch_left",
-          "conditions": {
+          "expressions": {
             "attacked": {
-              "type": "core:decreased",
-              "value": "ticksAfterAttack"
+              "decreased": [
+                "ticksAfterAttack"
+              ]
             }
           },
           "select": [
             {
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": "<",
-                    "right": 60
+                    "lt": [
+                      "ticksAfterAttack",
+                      60
+                    ]
                   }
                 ]
               },
@@ -2246,10 +2107,10 @@
             },
             {
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": ">=",
-                "right": 60
+                "ge": [
+                  "ticksAfterAttack",
+                  60
+                ]
               },
               "then": "fists_idle"
             }
@@ -2258,14 +2119,13 @@
             {
               "target": "punch_right",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "fist",
-                    "op": "==",
-                    "right": 0
+                    "eq": [
+                      "fist",
+                      0
+                    ]
                   }
                 ]
               },
@@ -2276,14 +2136,13 @@
             {
               "target": "punch_left",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "fist",
-                    "op": "==",
-                    "right": 1
+                    "eq": [
+                      "fist",
+                      1
+                    ]
                   }
                 ]
               },
@@ -2345,20 +2204,14 @@
                   "vectorModes": {
                     "root": "SLIDE"
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/punch_right_still.json",
                   "damping": {
                     "body": 0.6
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 }
               ]
             },
@@ -2410,20 +2263,14 @@
                   "vectorModes": {
                     "root": "SLIDE"
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/punch_left_still.json",
                   "damping": {
                     "body": 0.6
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 }
               ]
             },
@@ -2464,10 +2311,7 @@
                   "vectorModes": {
                     "root": "SLIDE"
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/fist_guard_abs.json",
@@ -2478,10 +2322,7 @@
                     "renderRotation": 0.6
                   },
                   "mirror": true,
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/fist_guard_pre.json",
@@ -2489,10 +2330,7 @@
                     "body"
                   ],
                   "space": "PRE",
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/fist_guard_pre.json",
@@ -2501,10 +2339,7 @@
                   ],
                   "space": "PRE",
                   "mirror": true,
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 }
               ]
             }
@@ -2512,10 +2347,7 @@
         }
       },
       "mirror": {
-        "when": {
-          "type": "core:state",
-          "state": "LEFT_HANDED"
-        },
+        "when": "LEFT_HANDED",
         "pairs": [
           [
             "leftArm",

@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.state.template;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
+
 import goblinbob.mobends.core.kumo.pose.Pose;
 
 import java.util.Map;
@@ -21,7 +23,7 @@ public class LayerTemplate extends MachineTemplate
     public DampingTemplate damping;
 
     /** Optional condition; while it does not hold the layer writes nothing (bones hold their targets). */
-    public TriggerConditionTemplate when;
+    public ExpressionTemplate when;
 
     /** Layer variables with their initial values (e.g. a combo counter); nodes can set them on entry. */
     public Map<String, Float> variables;

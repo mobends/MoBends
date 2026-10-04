@@ -2,24 +2,26 @@ package goblinbob.mobends.core.kumo.expr;
 
 import com.google.gson.JsonElement;
 import goblinbob.mobends.core.kumo.state.VariableTable;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * The named expressions and named conditions visible at one level of an animator (the animator, a
- * layer, a machine, a node), and the scope around it. A name resolves to the innermost declaration;
- * a named expression is compiled, and a named condition instanced, in the scope that declares it, so
- * the names it uses are the ones visible there, not at the place it is used. Every scope of an
- * animator shares its {@link VariableTable}, where a name no scope declares is read as a variable.
+ * The named expressions visible at one level of an animator (the animator, a layer, a machine, a
+ * node), and the scope around it. A name resolves to the innermost declaration; a named expression
+ * is compiled in the scope that declares it, so the names it uses are the ones visible there, not
+ * at the place it is used. A named expression that remembers something ({@code decreased},
+ * {@code rose}, {@code fell}) is compiled anew for every use, so each use keeps its own memory.
+ * Every scope of an animator shares its {@link VariableTable}, where a name no scope declares is
+ * read as a variable.
  */
 public class ExpressionScope
 {
@@ -27,24 +29,24 @@ public class ExpressionScope
     @Nullable
     private final ExpressionScope parent;
     private final VariableTable variables;
+    /** The lists collecting the stateful expressions compiled for the scope being instanced (a node's items). */
+    private final Deque<List<Expression>> holders;
     private final Map<String, ExpressionTemplate> declared;
     private final Map<String, Expression> compiled = new HashMap<>();
     private final Set<String> compiling = new HashSet<>();
-    private final Map<String, TriggerConditionTemplate> declaredConditions;
-    private final Set<String> instancing = new HashSet<>();
 
-    private ExpressionScope(@Nullable ExpressionScope parent, VariableTable variables, Map<String, ExpressionTemplate> declared, Map<String, TriggerConditionTemplate> declaredConditions)
+    private ExpressionScope(@Nullable ExpressionScope parent, VariableTable variables, Deque<List<Expression>> holders, Map<String, ExpressionTemplate> declared)
     {
         this.parent = parent;
         this.variables = variables;
+        this.holders = holders;
         this.declared = declared;
-        this.declaredConditions = declaredConditions;
     }
 
     /** The outermost scope of an animator: no named expressions, every name is a variable of {@code variables}. */
     public static ExpressionScope root(VariableTable variables)
     {
-        return new ExpressionScope(null, variables, Collections.emptyMap(), Collections.emptyMap());
+        return new ExpressionScope(null, variables, new ArrayDeque<>(), Collections.emptyMap());
     }
 
     /** The variables of the animator this scope belongs to. */
@@ -53,35 +55,21 @@ public class ExpressionScope
         return variables;
     }
 
-    /** {@link #child(Map, Map)} without named conditions. */
+    /**
+     * A scope nested in this one, declaring {@code expressions} (as read from JSON; null or empty
+     * declare nothing, and this scope is returned). Every declaration is compiled right away, so a
+     * mistake is reported when the animator loads even if nothing uses it.
+     */
     public ExpressionScope child(@Nullable Map<String, ExpressionTemplate> expressions) throws MalformedKumoTemplateException
     {
-        return child(expressions, null);
-    }
-
-    /**
-     * A scope nested in this one, declaring {@code expressions} and {@code conditions} (maps as read
-     * from JSON; null or empty declare nothing, and with neither this scope is returned). Every
-     * declaration is compiled (or instanced once) right away, so a mistake is reported when the
-     * animator loads even if nothing uses it.
-     */
-    public ExpressionScope child(@Nullable Map<String, ExpressionTemplate> expressions, @Nullable Map<String, TriggerConditionTemplate> conditions) throws MalformedKumoTemplateException
-    {
-        boolean noExpressions = expressions == null || expressions.isEmpty();
-        boolean noConditions = conditions == null || conditions.isEmpty();
-        if (noExpressions && noConditions)
+        if (expressions == null || expressions.isEmpty())
         {
             return this;
         }
-        ExpressionScope scope = new ExpressionScope(this, variables, noExpressions ? Collections.<String, ExpressionTemplate>emptyMap() : expressions,
-                                                    noConditions ? Collections.<String, TriggerConditionTemplate>emptyMap() : conditions);
+        ExpressionScope scope = new ExpressionScope(this, variables, holders, expressions);
         for (String name : scope.declared.keySet())
         {
             scope.compileDeclared(name);
-        }
-        for (String name : scope.declaredConditions.keySet())
-        {
-            scope.instanceDeclared(name);
         }
         return scope;
     }
@@ -96,9 +84,32 @@ public class ExpressionScope
         {
             return this;
         }
-        ExpressionScope scope = new ExpressionScope(this, variables, Collections.emptyMap(), Collections.emptyMap());
+        ExpressionScope scope = new ExpressionScope(this, variables, holders, Collections.emptyMap());
         scope.compiled.putAll(values);
         return scope;
+    }
+
+    /**
+     * Collects into {@code holder} every stateful expression compiled until {@link #endHolding}:
+     * the scope being instanced starts their memory over when it starts.
+     */
+    public void beginHolding(List<Expression> holder)
+    {
+        holders.push(holder);
+    }
+
+    public void endHolding()
+    {
+        holders.pop();
+    }
+
+    /** Notes a compiled expression with the scope that holds it (see {@link #beginHolding}). */
+    void held(Expression expression)
+    {
+        if (expression.isStateful() && !holders.isEmpty())
+        {
+            holders.peek().add(expression);
+        }
     }
 
     /** The named expression {@code name} as seen from this scope, or null if no scope declares it. */
@@ -109,56 +120,11 @@ public class ExpressionScope
         {
             if (scope.declared.containsKey(name) || scope.compiled.containsKey(name))
             {
-                return scope.compileDeclared(name);
+                Expression expression = scope.compileDeclared(name);
+                return expression.isStateful() ? scope.compileFresh(name) : expression;
             }
         }
         return null;
-    }
-
-    /**
-     * A new instance of the named condition {@code name} as seen from this scope, or null if no
-     * scope declares it. Every use gets its own instance, so conditions with a memory
-     * ({@code core:decreased}) keep one per use.
-     */
-    @Nullable
-    public ITriggerCondition createCondition(String name) throws MalformedKumoTemplateException
-    {
-        for (ExpressionScope scope = this; scope != null; scope = scope.parent)
-        {
-            if (scope.declaredConditions.containsKey(name))
-            {
-                return scope.instanceDeclared(name);
-            }
-        }
-        return null;
-    }
-
-    private ITriggerCondition instanceDeclared(String name) throws MalformedKumoTemplateException
-    {
-        if (!instancing.add(name))
-        {
-            throw new MalformedKumoTemplateException("The named condition '" + name + "' depends on itself.");
-        }
-        try
-        {
-            TriggerConditionTemplate template = declaredConditions.get(name);
-            if (template == null)
-            {
-                throw new MalformedKumoTemplateException("The named condition '" + name + "' is empty.");
-            }
-            try
-            {
-                return TriggerConditionRegistry.INSTANCE.createFromTemplate(template, this);
-            }
-            catch (MalformedKumoTemplateException e)
-            {
-                throw new MalformedKumoTemplateException("In the named condition '" + name + "': " + e.getMessage());
-            }
-        }
-        finally
-        {
-            instancing.remove(name);
-        }
     }
 
     private Expression compileDeclared(String name) throws MalformedKumoTemplateException
@@ -168,6 +134,13 @@ public class ExpressionScope
         {
             return expression;
         }
+        expression = compileFresh(name);
+        compiled.put(name, expression);
+        return expression;
+    }
+
+    private Expression compileFresh(String name) throws MalformedKumoTemplateException
+    {
         if (!compiling.add(name))
         {
             throw new MalformedKumoTemplateException("The named expression '" + name + "' depends on itself.");
@@ -182,14 +155,12 @@ public class ExpressionScope
             }
             try
             {
-                expression = Expression.compile(json, this);
+                return Expression.compileAny(json, this);
             }
             catch (MalformedKumoTemplateException e)
             {
                 throw new MalformedKumoTemplateException("In the named expression '" + name + "': " + e.getMessage());
             }
-            compiled.put(name, expression);
-            return expression;
         }
         finally
         {

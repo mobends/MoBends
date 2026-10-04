@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.state.template;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
+
 import java.util.List;
 
 /**
@@ -12,7 +14,7 @@ import java.util.List;
 public class MirrorTemplate
 {
 
-    public TriggerConditionTemplate when;
+    public ExpressionTemplate when;
 
     /** Pairs of bone names that swap sides, e.g. {@code [["leftArm", "rightArm"], ...]}. */
     public List<List<String>> pairs;

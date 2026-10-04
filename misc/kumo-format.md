@@ -10,7 +10,6 @@ smooths them.
   "formatVersion": 2,
   "extends": "mobends:bends/animators/biped.json",
   "expressions": { ... },
-  "conditions": { ... },
   "layers": [ ... ]
 }
 ```
@@ -19,8 +18,8 @@ smooths them.
 model definitions); each format is numbered on its own, and all of
 them are at 2. A file written for another version of its format is refused with a message saying
 so (an older one would be upgraded on load, once there is one to upgrade from). `extends` puts a parent animator's layers first; the parent's version is checked too.
-`expressions` declares named expressions (see *Expressions*) and `conditions` named conditions
-(see *Conditions*); layers, machines and nodes can declare their own too.
+`expressions` declares named expressions, numbers and conditions (see *Expressions*); layers,
+machines and nodes can declare their own too.
 
 ## Layers
 
@@ -32,9 +31,9 @@ node is in *Choosing the node*.
 |---|---|
 | `mode` | `OVERRIDE` (default: what the layer writes replaces) or `ADDITIVE` |
 | `additiveSpace` | for additive layers: `"PRE"` / `"POST"`, or `{"default": "PRE", "body": "POST"}` |
-| `when` | a condition; while it does not hold the layer writes nothing and its clocks pause |
+| `when` | a condition (a boolean expression); while it does not hold the layer writes nothing and its clocks pause |
 | `variables` | layer variables and their initial values, e.g. `{"combo": 0}` |
-| `expressions`, `conditions` | named expressions and conditions visible inside the layer (see *Expressions*, *Conditions*) |
+| `expressions` | named expressions visible inside the layer (see *Expressions*) |
 | `damping` | default damping for the bones the layer writes (nodes and items override) |
 | `mask` | `{"mode": "INCLUDE_ONLY", "includedParts": ["mouth"]}` (or `EXCLUDE_ONLY`): the bones the layer may write |
 | `mirror` | `{"when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `"mirror"` / `"swapSides"` follow (see *Mirroring*) |
@@ -58,15 +57,16 @@ node is in *Choosing the node*.
 
 * `type` is `core:pose` (the default), `core:fallthrough` or `core:vanilla`.
 * `tags` are the layer's *actions* (`core:action` sees them, in every layer).
-* `expressions` and `conditions` declare named expressions and conditions visible to the node's
-  items and to the conditions of its connections (see *Expressions*, *Conditions*).
+* `expressions` declares named expressions visible to the node's items and to the conditions of
+  its connections (see *Expressions*).
 * `set` assigns layer variables when the node is entered.
 * `connections` are the node's own ways out (see *Choosing the node*).
-* Conditions with a clock or a memory (`core:ticks_passed`, `core:decreased`) start over when
-  what they are written on is entered: a node for its connections, its items' `when`s, its ramps'
-  `when`s and the layer's mirror rule; a machine for its selector and its connections, before its
-  selector chooses. A layer's own `when` starts with the layer, and its selector and connections
-  as a machine's: the layer is entered when it starts (see *Machines*).
+* Operations with a memory (`decreased`, `rose`, `fell`) start over when what they are written on
+  is entered: a node for its connections, everything its items compute (their `when`s and their
+  own fields, ramps' `when`s included) and the layer's mirror rule; a machine for its selector and
+  its connections, before its selector chooses. A layer's own `when` starts with the layer, and
+  its selector and connections as a machine's: the layer is entered when it starts (see
+  *Machines*).
 * A `core:fallthrough` node poses nothing, so the layers below show through; it has tags,
   connections, `set` and `expressions` like any node. A transition into or out of it fades between
   the layer's pose and the one below: what one side poses and the other doesn't is blended
@@ -83,7 +83,7 @@ node is in *Choosing the node*.
   holds:
 
   ```json
-  "select": [{"when": {"type": "core:action", "tag": "..."}, "then": "theirs"}, {"then": "animated"}],
+  "select": [{"when": {"core:action": ["..."]}, "then": "theirs"}, {"then": "animated"}],
   "nodes": {
     "animated": {"type": "core:fallthrough"},
     "theirs": {"type": "core:vanilla"}
@@ -108,17 +108,16 @@ has a selector and connections of its own.
 
 ```json
 {
-  "conditions": {
-    "jumping": {"type": "core:or", "conditions": [{"type": "core:state", "state": "AIRBORNE"},
-                                                  {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 1}]}
+  "expressions": {
+    "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}
   },
   "select": [
-    {"when": {"type": "core:state", "state": "SLEEPING"}, "then": "sleeping"},
+    {"when": "SLEEPING", "then": "sleeping"},
     {"when": "jumping", "then": [
-      {"when": {"type": "core:state", "state": "FLYING"}, "then": "flying"},
+      {"when": "FLYING", "then": "flying"},
       {"then": "jump"}
     ]},
-    {"when": {"type": "core:state", "state": "STANDING_STILL"}, "then": "stand"},
+    {"when": "STANDING_STILL", "then": "stand"},
     {"then": "walk", "transitionDuration": 4}
   ],
   "nodes": {"stand": {...}, "walk": {...}, "jump": {...}, "flying": {...}, "sleeping": {...}}
@@ -165,7 +164,7 @@ layer has a name of its own, whatever machine it is in.
   `transitionDuration` and `transitionEasing` don't apply there, its `set` does. The node's
   connections, and the selectors again, are checked from the next frame on. So `defaultOnEntry`
   only matters where the selectors choose nothing; to open on a node the selector wouldn't choose
-  (an intro), give it a branch of its own, e.g. first, while `core:ticks_passed` doesn't hold.
+  (an intro), give it a branch of its own, first, and connections out of it.
 
 ### Connections
 
@@ -196,7 +195,7 @@ frame it happens:
    from the innermost out to the layer's. The first one met fires.
 
 Every condition of those selectors and connections is evaluated every frame, whatever is chosen
-(edge triggers such as `core:decreased` stay fresh). When a branch or a connection leads into a
+(edge triggers such as `decreased` stay fresh). When a branch or a connection leads into a
 machine, the transition (its duration, easing and `set`) is that of the branch or the connection;
 the branches the selectors of the machines entered take on the way in add their `set`s, outermost
 first, and the node entered applies its own `set` last. Each selector sees the `set`s before it.
@@ -221,7 +220,7 @@ A layer's `mirror` rule says when its mirrored items mirror, and which bones pai
 
 ```json
 "mirror": {
-  "when": {"type": "core:state", "state": "LEFT_HANDED"},
+  "when": "LEFT_HANDED",
   "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"],
             ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"]]
 }
@@ -265,7 +264,7 @@ with `negate` is now a load error.)
   before 0 or past `clipLength` holds the first or last keyframe; a clip loops by wrapping its
   frame with `mod`, as above.
 * `duration` (optional, in ticks) is how long the item runs, whatever its frame does: the clip
-  is finished (`core:animation_finished`) once `elapsed` reaches it. Without one it never
+  is finished (`nodeIsFinished`) once `elapsed` reaches it. Without one it never
   finishes.
 * The default `frame` is `{"mul": [{"div": ["elapsed", "duration"]}, "clipLength"]}` with a
   `duration` (the clip is fitted to it), and `"elapsed"` without one (a unit per tick).
@@ -373,14 +372,22 @@ with, the planted foot drags rather than the feet flickering.
 
 ### Expressions
 
-Every number an item computes (an angle, a weight, a vector axis, a damping rate, ...) is an
-expression: a JSON tree, so tools can read and write it without a parser.
+Every value an animator computes is an expression: every number an item computes (an angle, a
+weight, a vector axis, a damping rate, ...) and every condition (a layer's or an item's `when`, a
+branch's `when`, a connection's `triggerCondition`, a mirror rule's `when`). An expression is a
+JSON tree, so tools can read and write it without a parser.
 
 | form | meaning |
 |---|---|
 | a number | a constant: `45` |
-| a string | a name: the innermost named expression called that, or else a variable: `"headYaw"` |
+| `true`, `false` | a constant condition |
+| a string | a name: the innermost named expression called that, a built-in (`elapsed`, `nodeIsFinished`), a state of the subject if written in capitals (`"ON_GROUND"`), or else a variable (`"headYaw"`) |
 | an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}` |
+
+**Every expression is a number or a boolean**, and which one is checked when the animator loads:
+a number where a condition goes (`"when": "limbSwing"`), or a boolean where a number goes
+(`{"add": ["ON_GROUND", 1]}`), is an error. Arithmetic is in single precision (`float`); strings
+are never values, only arguments some operations take written out (an item id, a hand).
 
 Operations nest freely:
 
@@ -389,91 +396,101 @@ Operations nest freely:
   {"mul": [{"sin": [{"mul": ["ticks", 0.1]}]}, 6]},
   {"mul": [{"sin": [{"mul": ["ticks", 0.37]}]}, 2]},
   -85
-]}
+]},
+"when": {"and": ["ON_GROUND", {"not": ["SNEAKING"]}, {"lt": ["ticksAfterAttack", 10]}]}
 ```
 
-| operation | arguments |
-|---|---|
-| `add`, `sub`, `mul`, `div` | two or more, folded left to right: `{"sub": [a, b, c]}` is (a − b) − c |
-| `min`, `max` | two or more |
-| `mod`, `pow`, `atan2` | two: `{"atan2": [y, x]}`; `mod` is floored, taking the divisor's sign (`{"mod": [-1, 20]}` is 19) |
-| `neg`, `abs`, `sqrt`, `floor`, `ceil` | one |
-| `sin`, `cos` | one, in radians; `mcsin`, `mccos` use Minecraft's sine table, like vanilla models |
-| `clamp` | `[value, min, max]` |
-| `lerp` | `[from, to, t]` |
-| `easeIn`, `easeOut`, `easeInOut` | `[t, power]`: shapes a 0..1 value |
+| operation | arguments | value |
+|---|---|---|
+| `add`, `sub`, `mul`, `div` | two or more numbers, folded left to right: `{"sub": [a, b, c]}` is (a − b) − c | number |
+| `min`, `max` | two or more numbers | number |
+| `mod`, `pow`, `atan2` | two numbers: `{"atan2": [y, x]}`; `mod` is floored, taking the divisor's sign (`{"mod": [-1, 20]}` is 19) | number |
+| `neg`, `abs`, `sqrt`, `floor`, `ceil` | one number | number |
+| `sin`, `cos` | one number, in radians; `mcsin`, `mccos` use Minecraft's sine table, like vanilla models | number |
+| `clamp` | `[value, min, max]` | number |
+| `lerp` | `[from, to, t]` | number |
+| `easeIn`, `easeOut`, `easeInOut` | `[t, power]`: shapes a 0..1 value | number |
+| `linstep` | `[x, edge0, edge1]`: 0 below `edge0`, 1 above `edge1`, linear between (with the edges equal, a step at them) | number |
+| `smoothstep` | `[x, edge0, edge1]`: `linstep` eased (3t² − 2t³) | number |
+| `wrapDegrees` | `[a]`: the angle in −180..180 | number |
+| `lerpAngle` | `[from, to, t]` in degrees, the short way round (350 to 10 passes 360, not 180) | number |
+| `lt`, `le`, `gt`, `ge` | two numbers: <, ≤, >, ≥ | boolean |
+| `eq`, `ne` | two numbers or two booleans | boolean |
+| `and`, `or` | one or more booleans | boolean |
+| `not` | one boolean | boolean |
+| `if` | `[condition, then, else]`, the two branches of one type | the branches' |
+| `decreased` | one number: holds on the frame it is lower than on the previous evaluation | boolean |
+| `rose`, `fell` | one boolean: holds on the frame it turns true / false | boolean |
 
-Arithmetic is in single precision (`float`). Mistakes (an unknown operation, a wrong number of
-arguments, an object with more than one key) are reported when the animator loads.
+**Nothing short-circuits**: `and`, `or` and `if` evaluate every argument, both branches of an
+`if` included, so an edge trigger inside never misses a frame.
 
-**Named expressions** are declared in an `expressions` object on the animator, a layer or a node,
-and used by name like variables:
+`decreased`, `rose` and `fell` remember their value from the previous evaluation. Each place one
+is written keeps its own memory (two uses keep two memories), and it starts over, noting the
+value as it is then, when the scope holding the place starts: a node for its items' and
+connections' expressions (and its layer's mirror rule), a machine for its selector and
+connections, a layer for its `when`. `{"decreased": ["ticksAfterAttack"]}` holds on a new attack.
+
+**Registered operations** have a namespaced name, and take arguments of their own kinds:
+
+| operation | arguments | holds while |
+|---|---|---|
+| `core:holds_item` | `[hand, item]`: `main_hand` or `off_hand`, an item id | the hand holds that item |
+| `core:holds_any_item` | `[hand]` | the hand holds anything |
+| `core:active_hand_side` | `[side]`: `left` or `right` | the hand on that side is using an item |
+| `core:equipment_name` | `[slot, pattern]`: `mainhand`, `offhand`, `head`, `chest`, `legs`, `feet`, and a regular expression | the display name of what a player has in the slot matches the pattern as a whole |
+| `core:action` | `[tag]` | any layer's current node carries the tag |
+| `mobends:use_action` | `[action]`: `food`, `bow` or `shield` | the item in use is used as that (Mo' Bends' classification, which the config can change) |
+| `mobends:attack_action` | `[action]`: `fists`, `sword` or `tool` | the held item attacks as that |
+
+Mistakes (an unknown operation, a wrong number or kind of arguments, an object with more than one
+key, a number where a boolean goes) are reported when the animator loads, in the operation's own
+words: `'core:holds_item' argument 1 (hand) must be one of main_hand, off_hand, got 'left_hand'`.
+
+**Named expressions** are declared in an `expressions` object on the animator, a layer, a machine
+or a node, and used by name like variables. They can be numbers or booleans:
 
 ```json
 "expressions": {
   "sway": {"mul": [{"sin": [{"mul": ["ticks", 0.1]}]}, 6]},
-  "reach": {"add": ["sway", -85]}
+  "reach": {"add": ["sway", -85]},
+  "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]},
+  "attacked": {"decreased": ["ticksAfterAttack"]},
+  "sprintJump": {"and": ["jumping", "SPRINTING"]}
 }
 ```
 
 * A name is visible in the scope that declares it and in every scope inside it (animator →
-  layer → node); an inner declaration shadows an outer one, and also shadows a variable of the
-  same name.
+  layer → machine → node); an inner declaration shadows an outer one, and also shadows a variable
+  of the same name.
 * A named expression is resolved where it is declared, not where it is used: `reach` above uses
   the `sway` of its own scope even if a node declares another `sway`.
+* A named expression that remembers something (`attacked` above) is a copy for each place it is
+  used, with its own memory.
 * An animator that `extends` another sees the parent's named expressions and can shadow them for
   its own layers; the parent's layers keep using the parent's.
 * Names in one scope can use each other in any order; a name that depends on itself is an error.
   Every declaration is checked when the animator loads, used or not.
 
-`elapsed` is built in: the ticks since the current node started (a named expression can
-shadow it). A name nothing declares is a **variable**: the node's own (written by its ramps,
-accumulators, springs, `core:set` and drivers such as `core:step_turn`) once the node has written
-it, else the layer's (its `variables`, `set`, `core:set`) once written, else the subject's (see
-the data classes' `registerVariable` calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...).
-Which of them a name can be is worked out once, when the animator is bound to its entity on the
-first frame, never by looking the name up while animating. A name that nothing in the animator
-writes and the subject doesn't have fails the animator then (logged; the entity isn't animated),
-even if nothing ever reads it.
+Built-in names: `elapsed`, the ticks since the current node started, and `nodeIsFinished`, which
+holds once every clip of the current node that has a `duration` has run it (a node with no items
+always is, one whose items all run forever never is). A named expression can shadow either.
 
-### Conditions
+A name in capitals is a **state** of the subject, a boolean (see the data classes'
+`registerState` calls: `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`, ...). Any other name nothing
+declares is a **variable**, a number: the node's own (written by its ramps, accumulators, springs,
+`core:set` and drivers such as `core:step_turn`) once the node has written it, else the layer's
+(its `variables`, `set`, `core:set`) once written, else the subject's (see the data classes'
+`registerVariable` calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). Which of them a name
+can be is worked out once, when the animator is bound to its entity on the first frame, never by
+looking the name up while animating. A name that nothing in the animator writes and the subject
+doesn't have fails the animator then (logged; the entity isn't animated), even if nothing ever
+reads it.
 
-`core:state` (`state`: a subject state such as `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`),
-`core:compare` (`left`, `op` one of `< <= > >= == !=`, `right`; both sides are expressions),
-`core:decreased` (`value`, an expression: met on the frame it is lower than on the previous
-evaluation),
-`core:ticks_passed` (`ticksToPass`, on the layer's clock), `core:action` (`tag` of any layer's
-current node), `core:property` (`property`, `value` / `values`, or `unset`: string properties
-such as `mainHandItem`, `useActionType`, `activeHandSide`), `core:equipment_name`
-(`namePattern`, `slot`), `core:animation_finished` (met once every clip of the current node
-that has a `duration` has run it; a node with no items always is, one whose items all run
-forever never is), and `core:and` / `core:or` / `core:not`. A condition that names a variable or
-state the subject doesn't have fails the animator on its first frame, whether or not it is ever
-evaluated (logged; the entity isn't animated). A
-condition's expressions see the named expressions where it is written: a layer's `when` sees
+A condition's expressions see the named expressions where it is written: a layer's `when` sees
 the layer's; a selector's and a machine's connections see the machine's (the layer's for its
 own); an item's, a node's connection and the layer's `mirror` rule see those of the node being
 posed.
-
-**Named conditions** are declared in a `conditions` object on the animator, a layer, a machine or
-a node, and used by writing the name as a string wherever a condition goes:
-
-```json
-"conditions": {
-  "jumping": {"type": "core:or", "conditions": [{"type": "core:state", "state": "AIRBORNE"},
-                                                {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 1}]},
-  "attacked": {"type": "core:decreased", "value": "ticksAfterAttack"},
-  "sprintJump": {"type": "core:and", "conditions": ["jumping", {"type": "core:state", "state": "SPRINTING"}]}
-}
-```
-
-* They are scoped like named expressions: visible in the scope that declares them and every scope
-  inside it, an inner declaration shadowing an outer one; a named condition is read where it is
-  declared (its expressions and the names it uses are those visible there); names can use each
-  other in any order, but not themselves. Every declaration is checked when the animator loads.
-* A name stands for a copy of the condition: every place it is used has its own, so an edge
-  trigger or a clock used in two places keeps two memories.
-* `{"type": "core:named", "name": "jumping"}` is the same as `"jumping"`.
 
 ## Semantics worth knowing
 

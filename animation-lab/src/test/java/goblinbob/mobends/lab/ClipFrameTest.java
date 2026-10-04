@@ -106,7 +106,7 @@ public class ClipFrameTest
     @Test
     void theClipIsFinishedOnceItsDurationHasPassed() throws Exception
     {
-        String toDone = ", \"connections\": [{\"target\": \"done\", \"triggerCondition\": {\"type\": \"core:animation_finished\"}}]";
+        String toDone = ", \"connections\": [{\"target\": \"done\", \"triggerCondition\": \"nodeIsFinished\"}]";
         String done = ", \"done\": {\"type\": \"core:pose\", \"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"rightLeg\", \"axis\": \"X\", \"angle\": -45, \"space\": \"OVERRIDE\"}]}";
         assertEquals(-45, xAngle(run(10, clip("\"duration\": 3"), toDone, done), "rightLeg"), 0.05);
         assertEquals(0, xAngle(run(10, clip(""), toDone, done), "rightLeg"), 0.05, "without a duration it never finishes");

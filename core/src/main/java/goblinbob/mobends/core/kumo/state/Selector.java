@@ -1,9 +1,8 @@
 package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
 import goblinbob.mobends.core.kumo.state.template.BranchTemplate;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -48,7 +47,7 @@ public class Selector
             {
                 throw new MalformedKumoTemplateException(String.format("A selector of %s has a null branch.", machine.describe()));
             }
-            ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, scope);
+            Expression when = Expression.compileCondition(template.when, scope);
             float branchDuration = template.transitionDuration == null ? duration : template.transitionDuration;
             ConnectionTemplate.Easing branchEasing = template.transitionEasing == null ? easing : template.transitionEasing;
             Map<String, Float> branchSet = set;
@@ -95,7 +94,7 @@ public class Selector
         boolean decided = false;
         for (Branch branch : branches)
         {
-            boolean met = branch.when == null || branch.when.isConditionMet(context);
+            boolean met = branch.when == null || branch.when.test(context);
             Branch inner = branch.branches == null ? branch : choose(branch.branches, context);
             if (met && !decided)
             {
@@ -118,7 +117,7 @@ public class Selector
         {
             if (branch.when != null)
             {
-                branch.when.onNodeStarted(context);
+                branch.when.restart(context);
             }
             if (branch.branches != null)
             {
@@ -132,7 +131,7 @@ public class Selector
     {
 
         @Nullable
-        private final ITriggerCondition when;
+        private final Expression when;
         /** The member it leads to, or null for a branch with branches of its own. */
         @Nullable
         private final MachineMember target;
@@ -142,7 +141,7 @@ public class Selector
         private final ConnectionTemplate.Easing easing;
         private final VariableTable.Assignments set;
 
-        private Branch(@Nullable ITriggerCondition when, @Nullable MachineMember target, @Nullable List<Branch> branches,
+        private Branch(@Nullable Expression when, @Nullable MachineMember target, @Nullable List<Branch> branches,
                        float duration, ConnectionTemplate.Easing easing, VariableTable.Assignments set)
         {
             this.when = when;

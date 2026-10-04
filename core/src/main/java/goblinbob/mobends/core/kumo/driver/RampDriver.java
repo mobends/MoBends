@@ -5,8 +5,7 @@ import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.RampTemplate;
 
@@ -23,12 +22,12 @@ public class RampDriver implements IPoseItem
     private final int variable;
     private final float upSpeed;
     private final float downSpeed;
-    private final ITriggerCondition when;
+    private final Expression when;
     private final boolean readBeforeAdvance;
     private final float initial;
     private float value;
 
-    public RampDriver(int variable, float upSpeed, float downSpeed, ITriggerCondition when, boolean readBeforeAdvance, float initial)
+    public RampDriver(int variable, float upSpeed, float downSpeed, Expression when, boolean readBeforeAdvance, float initial)
     {
         this.variable = variable;
         this.upSpeed = upSpeed;
@@ -44,7 +43,7 @@ public class RampDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:ramp needs a 'name'.");
         }
-        ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, context.getExpressionScope());
+        Expression when = Expression.compileCondition(template.when, context.getExpressionScope());
         return new RampDriver(context.getExpressionScope().getVariables().nodeVariable(template.name), template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when, template.readBeforeAdvance, template.initial);
     }
 
@@ -57,7 +56,7 @@ public class RampDriver implements IPoseItem
         {
             context.getNodeScope().set(variable, value);
         }
-        boolean up = when == null || when.isConditionMet(context);
+        boolean up = when == null || when.test(context);
         float dt = context.getDeltaTime();
         if (up)
         {
@@ -76,10 +75,6 @@ public class RampDriver implements IPoseItem
     @Override
     public void onNodeStarted(IKumoContext context)
     {
-        if (when != null)
-        {
-            when.onNodeStarted(context);
-        }
         value = initial;
         context.getNodeScope().set(variable, initial);
     }

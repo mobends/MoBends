@@ -23,10 +23,7 @@
                 "tentacle_6_0": 0.1,
                 "tentacle_7_0": 0.1
               },
-              "when": {
-                "type": "core:state",
-                "state": "SQUID_PREV_ROTATION_LOW"
-              }
+              "when": "SQUID_PREV_ROTATION_LOW"
             },
             {
               "animationKey": "mobends:bends/animations/squid/swim_base_rest.json",
@@ -41,11 +38,9 @@
                 "tentacle_7_0": 0.1
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "SQUID_PREV_ROTATION_LOW"
-                }
+                "not": [
+                  "SQUID_PREV_ROTATION_LOW"
+                ]
               }
             },
             {
@@ -117,10 +112,7 @@
                 "tentacle_7_7": 0.1,
                 "tentacle_7_8": 0.1
               },
-              "when": {
-                "type": "core:state",
-                "state": "SQUID_ROTATION_LOW"
-              }
+              "when": "SQUID_ROTATION_LOW"
             },
             {
               "animationKey": "mobends:bends/animations/squid/swim_sections_rest.json",
@@ -191,11 +183,9 @@
                 "tentacle_7_8": 0.1
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "SQUID_ROTATION_LOW"
-                }
+                "not": [
+                  "SQUID_ROTATION_LOW"
+                ]
               }
             }
           ]

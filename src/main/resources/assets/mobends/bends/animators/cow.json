@@ -8,17 +8,20 @@
       "type": "KEYFRAME",
       "mode": "ADDITIVE",
       "additiveSpace": "POST",
-      "expressions": {
-        "step": {"mul": ["limbSwing", 0.6662, 2]}
-      },
+      "expressions": {"step": {"mul": ["limbSwing", 0.6662, 2]}},
       "select": [
-        {"when": {"type": "core:action", "tag": "walk"}, "then": "walk", "transitionDuration": 4},
-        {"then": "still", "transitionDuration": 4}
+        {
+          "when": {"core:action": ["walk"]},
+          "then": "walk",
+          "transitionDuration": 4
+        },
+        {
+          "then": "still",
+          "transitionDuration": 4
+        }
       ],
       "nodes": {
-        "still": {
-          "type": "core:fallthrough"
-        },
+        "still": {"type": "core:fallthrough"},
         "walk": {
           "type": "core:pose",
           "pose": [

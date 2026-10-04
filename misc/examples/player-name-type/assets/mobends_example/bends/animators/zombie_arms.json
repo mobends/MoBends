@@ -7,65 +7,20 @@
       "nodes": {
         "zombie_arms": {
           "type": "core:pose",
-          "tags": [
-            "zombie_arms"
-          ],
+          "tags": ["zombie_arms"],
           "pose": [
             {
               "driver": "core:axis_rotate",
               "bone": "rightArm",
               "axis": "X",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "sin": [
-                          {
-                            "mul": [
-                              "ticks",
-                              0.1
-                            ]
-                          }
-                        ]
-                      },
-                      6
-                    ]
-                  },
-                  -85
-                ]
-              },
+              "angle": {"add": [{"mul": [{"sin": [{"mul": ["ticks", 0.1]}]}, 6]}, -85]},
               "space": "OVERRIDE"
             },
             {
               "driver": "core:axis_rotate",
               "bone": "leftArm",
               "axis": "X",
-              "angle": {
-                "add": [
-                  {
-                    "mul": [
-                      {
-                        "sin": [
-                          {
-                            "add": [
-                              {
-                                "mul": [
-                                  "ticks",
-                                  0.1
-                                ]
-                              },
-                              3.14
-                            ]
-                          }
-                        ]
-                      },
-                      6
-                    ]
-                  },
-                  -85
-                ]
-              },
+              "angle": {"add": [{"mul": [{"sin": [{"add": [{"mul": ["ticks", 0.1]}, 3.14]}]}, 6]}, -85]},
               "space": "OVERRIDE"
             },
             {

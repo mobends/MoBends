@@ -1,63 +1,215 @@
 package goblinbob.mobends.core.kumo.expr;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.Tween;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The operations an expression can use, by name: {@code {"<name>": [arguments...]}}. Angles for
- * {@code sin}, {@code cos} and {@code atan2} are in radians.
+ * The operations an expression can use, by name: {@code {"<name>": [arguments...]}}. Each declares
+ * its parameters, checked when the expression is compiled: a number or boolean expression, or a
+ * string written out (an item id, one of a fixed set of choices). Bare names are the language;
+ * {@code namespace:id} names are registered ({@code core:} by the engine, others by the host and
+ * addons). Angles for {@code sin}, {@code cos} and {@code atan2} are in radians, for
+ * {@code wrapDegrees} and {@code lerpAngle} in degrees.
+ * <p>
+ * Nothing short-circuits: {@code and}, {@code or} and {@code if} evaluate every argument, so an
+ * edge trigger ({@code decreased}, {@code rose}, {@code fell}) never misses a frame.
  */
 public final class ExpressionOperations
 {
 
-    /** Any number of arguments (from the minimum up). */
-    public static final int VARIADIC = Integer.MAX_VALUE;
+    /** What an argument has to be. */
+    public enum Kind
+    {
+        NUMBER,
+        BOOLEAN,
+        /** A number or a boolean expression; the operation checks how its arguments' types go together. */
+        ANY,
+        /** A string written out, such as an item id. */
+        STRING,
+        /** One of a fixed set of strings. */
+        CHOICE
+    }
+
+    /** One parameter of an operation. */
+    public static final class Param
+    {
+        final String name;
+        final Kind kind;
+        final String[] choices;
+
+        private Param(String name, Kind kind, String... choices)
+        {
+            this.name = name;
+            this.kind = kind;
+            this.choices = choices;
+        }
+    }
+
+    public static Param number(String name)
+    {
+        return new Param(name, Kind.NUMBER);
+    }
+
+    public static Param bool(String name)
+    {
+        return new Param(name, Kind.BOOLEAN);
+    }
+
+    public static Param any(String name)
+    {
+        return new Param(name, Kind.ANY);
+    }
+
+    public static Param string(String name)
+    {
+        return new Param(name, Kind.STRING);
+    }
+
+    public static Param choice(String name, String... choices)
+    {
+        return new Param(name, Kind.CHOICE, choices);
+    }
+
+    /** The compiled arguments of one use of an operation, for its {@link Factory}. */
+    public static final class Arguments
+    {
+        private final String operation;
+        private final Param[] params;
+        private final Expression[] expressions;
+        private final String[] strings;
+
+        Arguments(String operation, Param[] params, Expression[] expressions, String[] strings)
+        {
+            this.operation = operation;
+            this.params = params;
+            this.expressions = expressions;
+            this.strings = strings;
+        }
+
+        public int count()
+        {
+            return expressions.length;
+        }
+
+        /** The expression argument {@code index} (null for a string argument). */
+        public Expression expression(int index)
+        {
+            return expressions[index];
+        }
+
+        public Expression[] expressions()
+        {
+            return expressions;
+        }
+
+        /** The string or choice argument {@code index}. */
+        public String string(int index)
+        {
+            return strings[index];
+        }
+
+        /** An error about argument {@code index}, in the operation's own words. */
+        public MalformedKumoTemplateException error(int index, String message)
+        {
+            return new MalformedKumoTemplateException("'" + operation + "' argument " + (index + 1) + " (" + params[Math.min(index, params.length - 1)].name + ") " + message);
+        }
+    }
 
     @FunctionalInterface
     public interface Factory
     {
-        Expression create(Expression[] arguments);
+        Expression create(Arguments arguments) throws MalformedKumoTemplateException;
     }
 
     public static final class Operation
     {
-        private final int minArguments;
-        private final int maxArguments;
+        private final Param[] params;
+        /** Whether the last parameter repeats: the operation takes {@code params.length} or more arguments. */
+        private final boolean repeatsLast;
         private final Factory factory;
 
-        Operation(int minArguments, int maxArguments, Factory factory)
+        Operation(Param[] params, boolean repeatsLast, Factory factory)
         {
-            this.minArguments = minArguments;
-            this.maxArguments = maxArguments;
+            this.params = params;
+            this.repeatsLast = repeatsLast;
             this.factory = factory;
         }
 
-        boolean accepts(int count)
+        private String describeArity()
         {
-            return count >= minArguments && count <= maxArguments;
+            int count = params.length;
+            String arguments = count == 1 ? "1 argument" : count + " arguments";
+            return repeatsLast ? count + " or more arguments" : arguments;
         }
 
-        String describeArity()
+        Expression compile(String name, JsonArray json, ExpressionScope scope, JsonElement whole) throws MalformedKumoTemplateException
         {
-            if (maxArguments == VARIADIC) return minArguments + " or more arguments";
-            if (minArguments == maxArguments) return minArguments == 1 ? "1 argument" : minArguments + " arguments";
-            return minArguments + " to " + maxArguments + " arguments";
-        }
-
-        Expression create(Expression[] arguments)
-        {
-            return factory.create(arguments);
+            int count = json.size();
+            if (repeatsLast ? count < params.length : count != params.length)
+            {
+                throw new MalformedKumoTemplateException("'" + name + "' takes " + describeArity() + ", not " + count + ": " + Expression.describe(whole));
+            }
+            Expression[] expressions = new Expression[count];
+            String[] strings = new String[count];
+            for (int i = 0; i < count; i++)
+            {
+                Param param = params[Math.min(i, params.length - 1)];
+                JsonElement argument = json.get(i);
+                String where = "'" + name + "' argument " + (i + 1) + " (" + param.name + ")";
+                switch (param.kind)
+                {
+                    case STRING:
+                    case CHOICE:
+                        if (argument == null || !argument.isJsonPrimitive() || !argument.getAsJsonPrimitive().isString())
+                        {
+                            throw new MalformedKumoTemplateException(where + " must be a string, got " + Expression.describe(argument) + ".");
+                        }
+                        strings[i] = argument.getAsString();
+                        if (param.kind == Kind.CHOICE && !Arrays.asList(param.choices).contains(strings[i]))
+                        {
+                            throw new MalformedKumoTemplateException(where + " must be one of " + String.join(", ", param.choices) + ", got '" + strings[i] + "'.");
+                        }
+                        break;
+                    default:
+                        expressions[i] = Expression.compileAny(argument, scope);
+                        Expression.Type type = param.kind == Kind.NUMBER ? Expression.Type.NUMBER : param.kind == Kind.BOOLEAN ? Expression.Type.BOOLEAN : null;
+                        if (type != null && expressions[i].getType() != type)
+                        {
+                            throw new MalformedKumoTemplateException(where + " must be " + type.description + ", got " + expressions[i].getType().description + ": " + Expression.describe(whole));
+                        }
+                }
+            }
+            try
+            {
+                return factory.create(new Arguments(name, params, expressions, strings));
+            }
+            catch (MalformedKumoTemplateException e)
+            {
+                throw new MalformedKumoTemplateException(e.getMessage() + " In " + Expression.describe(whole));
+            }
         }
     }
 
     private static final Map<String, Operation> OPERATIONS = new HashMap<>();
 
+    /** Minecraft's sine table ({@code MathHelper.SIN_TABLE}): 65536 steps of a full turn. */
+    private static final float[] SIN_TABLE = new float[65536];
+
     static
     {
+        for (int i = 0; i < SIN_TABLE.length; i++)
+        {
+            SIN_TABLE[i] = (float) Math.sin((double) i * Math.PI * 2.0D / 65536.0D);
+        }
+
         // Folded left to right: {"sub": [a, b, c]} is (a - b) - c.
         fold("add", (a, b) -> a + b);
         fold("sub", (a, b) -> a - b);
@@ -78,31 +230,83 @@ public final class ExpressionOperations
         unary("ceil", a -> (float) Math.ceil(a));
         unary("sin", a -> (float) Math.sin(a));
         unary("cos", a -> (float) Math.cos(a));
-        // Host-specific operations are registered by the host (the mod adds "mcsin" and "mccos").
+        // Minecraft's table-based sine and cosine, which vanilla models use: values match them exactly.
+        unary("mcsin", a -> SIN_TABLE[(int) (a * 10430.378F) & 65535]);
+        unary("mccos", a -> SIN_TABLE[(int) (a * 10430.378F + 16384.0F) & 65535]);
+        unary("wrapDegrees", ExpressionOperations::wrapDegrees);
 
-        // {"clamp": [value, min, max]}
-        register("clamp", 3, 3, args -> new Ternary(args, (value, min, max) -> {
+        ternary("clamp", "value", "min", "max", (value, min, max) -> {
             if (value < min) value = min;
             if (value > max) value = max;
             return value;
-        }));
-        // {"lerp": [from, to, t]}
-        register("lerp", 3, 3, args -> new Ternary(args, (from, to, t) -> from + (to - from) * t));
+        });
+        ternary("lerp", "from", "to", "t", (from, to, t) -> from + (to - from) * t);
+        // The short way round: from 350 to 10 goes through 0.
+        ternary("lerpAngle", "from", "to", "t", (from, to, t) -> from + wrapDegrees(to - from) * t);
+        // 0 below edge0, 1 above edge1, linear (smooth) between.
+        ternary("linstep", "x", "edge0", "edge1", ExpressionOperations::linstep);
+        ternary("smoothstep", "x", "edge0", "edge1", (x, edge0, edge1) -> {
+            float t = linstep(x, edge0, edge1);
+            return t * t * (3 - 2 * t);
+        });
 
         // {"easeIn": [t, power]}: shapes a 0..1 value.
         binary("easeIn", (t, power) -> (float) Tween.easeIn(t, power));
         binary("easeOut", (t, power) -> (float) Tween.easeOut(t, power));
         binary("easeInOut", (t, power) -> (float) Tween.easeInOut(t, power));
+
+        compare("lt", (a, b) -> a < b);
+        compare("le", (a, b) -> a <= b);
+        compare("gt", (a, b) -> a > b);
+        compare("ge", (a, b) -> a >= b);
+        equality("eq", true);
+        equality("ne", false);
+
+        register("and", params(bool("condition")), true, args -> new Logic(args.expressions(), true));
+        register("or", params(bool("condition")), true, args -> new Logic(args.expressions(), false));
+        register("not", params(bool("condition")), false, args -> new Not(args.expression(0)));
+        register("if", params(bool("condition"), any("then"), any("else")), false, args -> {
+            if (args.expression(1).getType() != args.expression(2).getType())
+            {
+                throw new MalformedKumoTemplateException("'if' needs two branches of the same type, got " + args.expression(1).getType().description
+                        + " and " + args.expression(2).getType().description + ".");
+            }
+            return args.expression(1).getType() == Expression.Type.NUMBER ? new IfNumber(args.expressions()) : new IfBoolean(args.expressions());
+        });
+
+        register("decreased", params(number("value")), false, args -> new Decreased(args.expression(0)));
+        register("rose", params(bool("condition")), false, args -> new Edge(args.expression(0), true));
+        register("fell", params(bool("condition")), false, args -> new Edge(args.expression(0), false));
+
+        // What the subject holds and uses, as its string properties tell.
+        register("core:holds_item", params(choice("hand", "main_hand", "off_hand"), string("item")), false, args ->
+                new PropertyIs(handProperty(args.string(0)), args.string(1)));
+        register("core:holds_any_item", params(choice("hand", "main_hand", "off_hand")), false, args ->
+                new PropertyIs(handProperty(args.string(0)), null));
+        register("core:active_hand_side", params(choice("side", "left", "right")), false, args ->
+                new PropertyIs("activeHandSide", args.string(0).toUpperCase()));
+        // Until tags are removed: whether any layer's current node carries the tag.
+        register("core:action", params(string("tag")), false, args -> new Action(args.string(0)));
     }
 
     private ExpressionOperations()
     {
     }
 
-    /** Adds an operation (addons may add their own, prefixed with their mod id). */
-    public static void register(String name, int minArguments, int maxArguments, Factory factory)
+    public static Param[] params(Param... params)
     {
-        OPERATIONS.put(name, new Operation(minArguments, maxArguments, factory));
+        return params;
+    }
+
+    /**
+     * Adds an operation (addons may add their own, prefixed with their mod id).
+     *
+     * @param repeatsLast whether the last parameter repeats, so the operation takes as many
+     *                    arguments as it has parameters, or more
+     */
+    public static void register(String name, Param[] params, boolean repeatsLast, Factory factory)
+    {
+        OPERATIONS.put(name, new Operation(params, repeatsLast, factory));
     }
 
     @Nullable
@@ -111,20 +315,65 @@ public final class ExpressionOperations
         return OPERATIONS.get(name);
     }
 
-    /** Adds a one-argument operation. */
+    /** Adds a one-argument number operation. */
     public static void unary(String name, UnaryFunction function)
     {
-        register(name, 1, 1, args -> new Unary(args[0], function));
+        register(name, params(number("value")), false, args -> new Unary(args.expression(0), function));
     }
 
     private static void binary(String name, BinaryFunction function)
     {
-        register(name, 2, 2, args -> new Fold(args, function));
+        register(name, params(number("a"), number("b")), false, args -> new Fold(args.expressions(), function));
     }
 
     private static void fold(String name, BinaryFunction function)
     {
-        register(name, 2, VARIADIC, args -> new Fold(args, function));
+        register(name, params(number("a"), number("b")), true, args -> new Fold(args.expressions(), function));
+    }
+
+    private static void ternary(String name, String a, String b, String c, TernaryFunction function)
+    {
+        register(name, params(number(a), number(b), number(c)), false, args -> new Ternary(args.expressions(), function));
+    }
+
+    private static void compare(String name, Comparison comparison)
+    {
+        register(name, params(number("a"), number("b")), false, args -> new Compare(args.expression(0), args.expression(1), comparison));
+    }
+
+    private static void equality(String name, boolean equal)
+    {
+        register(name, params(any("a"), any("b")), false, args -> {
+            if (args.expression(0).getType() != args.expression(1).getType())
+            {
+                throw new MalformedKumoTemplateException("'" + name + "' compares two numbers or two booleans, got " + args.expression(0).getType().description
+                        + " and " + args.expression(1).getType().description + ".");
+            }
+            return new Equality(args.expression(0), args.expression(1), equal);
+        });
+    }
+
+    private static String handProperty(String hand)
+    {
+        return "main_hand".equals(hand) ? "mainHandItem" : "offHandItem";
+    }
+
+    public static float wrapDegrees(float degrees)
+    {
+        degrees %= 360;
+        if (degrees >= 180) degrees -= 360;
+        if (degrees < -180) degrees += 360;
+        return degrees;
+    }
+
+    private static float linstep(float x, float edge0, float edge1)
+    {
+        if (edge1 == edge0)
+        {
+            return x < edge0 ? 0 : 1;
+        }
+        float t = (x - edge0) / (edge1 - edge0);
+        return t < 0 ? 0 : t > 1 ? 1 : t;
     }
 
     @FunctionalInterface
@@ -145,32 +394,103 @@ public final class ExpressionOperations
         float apply(float a, float b, float c);
     }
 
-    private static final class Unary extends Expression
+    @FunctionalInterface
+    private interface Comparison
     {
-        private final Expression argument;
+        boolean test(float a, float b);
+    }
+
+    static boolean anyStateful(Expression... expressions)
+    {
+        for (Expression expression : expressions)
+        {
+            if (expression.isStateful()) return true;
+        }
+        return false;
+    }
+
+    static void restartAll(ITriggerConditionContext context, Expression... expressions)
+    {
+        for (Expression expression : expressions)
+        {
+            if (expression.isStateful()) expression.restart(context);
+        }
+    }
+
+    /** A number operation over number arguments. */
+    private abstract static class NumberOp extends Expression.NumberExpression
+    {
+        final Expression[] arguments;
+        private final boolean stateful;
+
+        NumberOp(Expression... arguments)
+        {
+            this.arguments = arguments;
+            this.stateful = anyStateful(arguments);
+        }
+
+        @Override
+        public boolean isStateful()
+        {
+            return stateful;
+        }
+
+        @Override
+        public void restart(ITriggerConditionContext context)
+        {
+            restartAll(context, arguments);
+        }
+    }
+
+    /** A boolean operation over its arguments. */
+    private abstract static class BooleanOp extends Expression.BooleanExpression
+    {
+        final Expression[] arguments;
+        private final boolean stateful;
+
+        BooleanOp(Expression... arguments)
+        {
+            this.arguments = arguments;
+            this.stateful = anyStateful(arguments);
+        }
+
+        @Override
+        public boolean isStateful()
+        {
+            return stateful;
+        }
+
+        @Override
+        public void restart(ITriggerConditionContext context)
+        {
+            restartAll(context, arguments);
+        }
+    }
+
+    private static final class Unary extends NumberOp
+    {
         private final UnaryFunction function;
 
         Unary(Expression argument, UnaryFunction function)
         {
-            this.argument = argument;
+            super(argument);
             this.function = function;
         }
 
         @Override
         public float get(ITriggerConditionContext context)
         {
-            return function.apply(argument.get(context));
+            return function.apply(arguments[0].get(context));
         }
     }
 
-    private static final class Fold extends Expression
+    private static final class Fold extends NumberOp
     {
-        private final Expression[] arguments;
         private final BinaryFunction function;
 
         Fold(Expression[] arguments, BinaryFunction function)
         {
-            this.arguments = arguments;
+            super(arguments);
             this.function = function;
         }
 
@@ -186,23 +506,248 @@ public final class ExpressionOperations
         }
     }
 
-    private static final class Ternary extends Expression
+    private static final class Ternary extends NumberOp
     {
-        private final Expression a, b, c;
         private final TernaryFunction function;
 
         Ternary(Expression[] arguments, TernaryFunction function)
         {
-            this.a = arguments[0];
-            this.b = arguments[1];
-            this.c = arguments[2];
+            super(arguments);
             this.function = function;
         }
 
         @Override
         public float get(ITriggerConditionContext context)
         {
-            return function.apply(a.get(context), b.get(context), c.get(context));
+            return function.apply(arguments[0].get(context), arguments[1].get(context), arguments[2].get(context));
+        }
+    }
+
+    private static final class Compare extends BooleanOp
+    {
+        private final Comparison comparison;
+
+        Compare(Expression a, Expression b, Comparison comparison)
+        {
+            super(a, b);
+            this.comparison = comparison;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            return comparison.test(arguments[0].get(context), arguments[1].get(context));
+        }
+    }
+
+    private static final class Equality extends BooleanOp
+    {
+        private final boolean equal;
+
+        Equality(Expression a, Expression b, boolean equal)
+        {
+            super(a, b);
+            this.equal = equal;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            boolean same = arguments[0].getType() == Expression.Type.BOOLEAN
+                    ? arguments[0].test(context) == arguments[1].test(context)
+                    : arguments[0].get(context) == arguments[1].get(context);
+            return same == equal;
+        }
+    }
+
+    /** {@code and} / {@code or}: every argument is evaluated, whatever the first ones gave. */
+    private static final class Logic extends BooleanOp
+    {
+        private final boolean all;
+
+        Logic(Expression[] arguments, boolean all)
+        {
+            super(arguments);
+            this.all = all;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            boolean result = all;
+            for (Expression argument : arguments)
+            {
+                boolean value = argument.test(context);
+                result = all ? result && value : result || value;
+            }
+            return result;
+        }
+    }
+
+    private static final class Not extends BooleanOp
+    {
+        Not(Expression argument)
+        {
+            super(argument);
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            return !arguments[0].test(context);
+        }
+    }
+
+    /** {@code if} between numbers: both branches are evaluated. */
+    private static final class IfNumber extends NumberOp
+    {
+        IfNumber(Expression[] arguments)
+        {
+            super(arguments);
+        }
+
+        @Override
+        public float get(ITriggerConditionContext context)
+        {
+            boolean condition = arguments[0].test(context);
+            float then = arguments[1].get(context);
+            float otherwise = arguments[2].get(context);
+            return condition ? then : otherwise;
+        }
+    }
+
+    /** {@code if} between booleans: both branches are evaluated. */
+    private static final class IfBoolean extends BooleanOp
+    {
+        IfBoolean(Expression[] arguments)
+        {
+            super(arguments);
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            boolean condition = arguments[0].test(context);
+            boolean then = arguments[1].test(context);
+            boolean otherwise = arguments[2].test(context);
+            return condition ? then : otherwise;
+        }
+    }
+
+    /**
+     * Holds on the frame its value is lower than on the previous evaluation (e.g.
+     * {@code ticksAfterAttack} going back to 0 on a new attack). On a restart it notes the value
+     * as it is then.
+     */
+    private static final class Decreased extends Expression.BooleanExpression
+    {
+        private final Expression value;
+        private float last;
+        private boolean primed;
+
+        Decreased(Expression value)
+        {
+            this.value = value;
+        }
+
+        @Override
+        public boolean isStateful()
+        {
+            return true;
+        }
+
+        @Override
+        public void restart(ITriggerConditionContext context)
+        {
+            value.restart(context);
+            last = value.get(context);
+            primed = true;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            float current = value.get(context);
+            boolean decreased = primed && current < last;
+            last = current;
+            primed = true;
+            return decreased;
+        }
+    }
+
+    /** {@code rose} / {@code fell}: holds on the frame its condition turns true / false. */
+    private static final class Edge extends Expression.BooleanExpression
+    {
+        private final Expression condition;
+        private final boolean rising;
+        private boolean last;
+        private boolean primed;
+
+        Edge(Expression condition, boolean rising)
+        {
+            this.condition = condition;
+            this.rising = rising;
+        }
+
+        @Override
+        public boolean isStateful()
+        {
+            return true;
+        }
+
+        @Override
+        public void restart(ITriggerConditionContext context)
+        {
+            condition.restart(context);
+            last = condition.test(context);
+            primed = true;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            boolean current = condition.test(context);
+            boolean edge = primed && current != last && current == rising;
+            last = current;
+            primed = true;
+            return edge;
+        }
+    }
+
+    /** Whether a string property of the subject is {@code value} (with a null value: is set at all). */
+    private static final class PropertyIs extends Expression.BooleanExpression
+    {
+        private final String property;
+        @Nullable
+        private final String value;
+
+        PropertyIs(String property, @Nullable String value)
+        {
+            this.property = property;
+            this.value = value;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            String actual = context.getSubject().getProperty(property);
+            return value == null ? actual != null : value.equals(actual);
+        }
+    }
+
+    private static final class Action extends Expression.BooleanExpression
+    {
+        private final String tag;
+
+        Action(String tag)
+        {
+            this.tag = tag;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            return context.isActionActive(tag);
         }
     }
 

@@ -15,59 +15,45 @@
       }
     },
     {
-      "conditions": {
+      "expressions": {
         "jumping": {
-          "type": "core:or",
-          "conditions": [
+          "or": [
+            "AIRBORNE",
             {
-              "type": "core:state",
-              "state": "AIRBORNE"
-            },
-            {
-              "type": "core:compare",
-              "left": "ticksAfterTouchdown",
-              "op": "<",
-              "right": 1
+              "lt": [
+                "ticksAfterTouchdown",
+                1
+              ]
             }
           ]
         },
         "bounced": {
-          "type": "core:and",
-          "conditions": [
+          "and": [
             {
-              "type": "core:compare",
-              "left": "prevMotionY",
-              "op": "<",
-              "right": 0
+              "lt": [
+                "prevMotionY",
+                0
+              ]
             },
             {
-              "type": "core:compare",
-              "left": "motionY",
-              "op": ">",
-              "right": 0
+              "gt": [
+                "motionY",
+                0
+              ]
             }
           ]
         }
       },
       "select": [
         {
-          "when": {
-            "type": "core:state",
-            "state": "SLEEPING"
-          },
+          "when": "SLEEPING",
           "then": "sleeping"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "RIDING"
-          },
+          "when": "RIDING",
           "then": [
             {
-              "when": {
-                "type": "core:state",
-                "state": "RIDING_LIVING"
-              },
+              "when": "RIDING_LIVING",
               "then": "riding"
             },
             {
@@ -76,56 +62,38 @@
           ]
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "ELYTRA_FLYING"
-          },
+          "when": "ELYTRA_FLYING",
           "then": "elytra"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "CLIMBING"
-          },
+          "when": "CLIMBING",
           "then": "ladder"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "IN_WATER"
-          },
+          "when": "IN_WATER",
           "then": "swimming"
         },
         {
           "when": "jumping",
           "then": [
             {
-              "when": {
-                "type": "core:state",
-                "state": "FLYING"
-              },
+              "when": "FLYING",
               "then": "flying"
             },
             {
               "when": {
-                "type": "core:compare",
-                "left": "ticksFalling",
-                "op": ">",
-                "right": 10
+                "gt": [
+                  "ticksFalling",
+                  10
+                ]
               },
               "then": "falling"
             },
             {
-              "when": {
-                "type": "core:state",
-                "state": "SPRINTING"
-              },
+              "when": "SPRINTING",
               "then": [
                 {
-                  "when": {
-                    "type": "core:state",
-                    "state": "SPRINT_JUMP_LEG"
-                  },
+                  "when": "SPRINT_JUMP_LEG",
                   "then": "sprint_jump_right"
                 },
                 {
@@ -139,17 +107,11 @@
           ]
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "STANDING_STILL"
-          },
+          "when": "STANDING_STILL",
           "then": "stand"
         },
         {
-          "when": {
-            "type": "core:state",
-            "state": "SPRINTING"
-          },
+          "when": "SPRINTING",
           "then": "sprint"
         },
         {
@@ -166,10 +128,10 @@
             {
               "animationKey": "mobends:bends/animations/biped/stand_enter.json",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterTouchdown",
-                "op": "<",
-                "right": 3.3333333333333335
+                "lt": [
+                  "ticksAfterTouchdown",
+                  3.3333333333333335
+                ]
               }
             }
           ],
@@ -221,10 +183,10 @@
               "animationKey": "mobends:bends/animations/biped/kneel.json",
               "frame": "ticksAfterTouchdown",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterTouchdown",
-                "op": "<",
-                "right": 6.666666666666667
+                "lt": [
+                  "ticksAfterTouchdown",
+                  6.666666666666667
+                ]
               },
               "damping": {
                 "body": 1
@@ -349,10 +311,10 @@
               "animationKey": "mobends:bends/animations/biped/kneel.json",
               "frame": "ticksAfterTouchdown",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterTouchdown",
-                "op": "<",
-                "right": 6.666666666666667
+                "lt": [
+                  "ticksAfterTouchdown",
+                  6.666666666666667
+                ]
               },
               "damping": {
                 "body": 1
@@ -367,10 +329,10 @@
                 "head": 0.5
               },
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": "<",
-                "right": 10
+                "lt": [
+                  "ticksAfterAttack",
+                  10
+                ]
               }
             },
             {
@@ -380,10 +342,10 @@
               "angle": "headYaw",
               "space": "PRE",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": "<",
-                "right": 10
+                "lt": [
+                  "ticksAfterAttack",
+                  10
+                ]
               }
             },
             {
@@ -393,10 +355,10 @@
               "angle": "headPitch",
               "space": "POST",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": "<",
-                "right": 10
+                "lt": [
+                  "ticksAfterAttack",
+                  10
+                ]
               }
             }
           ]
@@ -517,10 +479,10 @@
                 "head": 0.5
               },
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": "<",
-                "right": 10
+                "lt": [
+                  "ticksAfterAttack",
+                  10
+                ]
               }
             },
             {
@@ -530,10 +492,10 @@
               "angle": "headYaw",
               "space": "PRE",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": "<",
-                "right": 10
+                "lt": [
+                  "ticksAfterAttack",
+                  10
+                ]
               }
             },
             {
@@ -543,10 +505,10 @@
               "angle": "headPitch",
               "space": "POST",
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": "<",
-                "right": 10
+                "lt": [
+                  "ticksAfterAttack",
+                  10
+                ]
               }
             }
           ]
@@ -609,10 +571,7 @@
                   "clipLength"
                 ]
               },
-              "when": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              },
+              "when": "MOVING_HORIZONTALLY",
               "damping": {
                 "rightLeg": 1,
                 "leftLeg": 1,
@@ -633,10 +592,7 @@
                   "clipLength"
                 ]
               },
-              "when": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              },
+              "when": "MOVING_HORIZONTALLY",
               "damping": {
                 "leftForeLeg": 0.3,
                 "rightForeLeg": 0.3
@@ -657,17 +613,11 @@
               },
               "weight": "limbSwingAmount",
               "space": "POST",
-              "when": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              }
+              "when": "MOVING_HORIZONTALLY"
             },
             {
               "animationKey": "mobends:bends/animations/biped/jump_still.json",
-              "when": {
-                "type": "core:state",
-                "state": "STANDING_STILL"
-              },
+              "when": "STANDING_STILL",
               "damping": {
                 "rightLeg": 0.3,
                 "leftLeg": 0.3,
@@ -1207,24 +1157,18 @@
                 "rightForeLeg": 0.7
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1236,24 +1180,18 @@
               "angle": "flightPitch",
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1265,24 +1203,18 @@
               "angle": "headYaw",
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1305,24 +1237,18 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1334,24 +1260,18 @@
               "angle": "headYaw",
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1363,24 +1283,18 @@
               "angle": "headPitch",
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1403,24 +1317,18 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1437,24 +1345,18 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1477,24 +1379,18 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1506,24 +1402,18 @@
               "angle": -60,
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1540,24 +1430,18 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1574,24 +1458,18 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1614,24 +1492,18 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1643,24 +1515,18 @@
               "angle": 60,
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1677,24 +1543,18 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1711,24 +1571,18 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "SPRINTING",
                   {
-                    "type": "core:state",
-                    "state": "SPRINTING"
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   }
                 ]
               }
@@ -1753,38 +1607,32 @@
                 "rightForeArm": 0.3
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": "<",
-                    "right": 0.1
+                    "lt": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -1809,38 +1657,32 @@
                 "rightForeLeg": 0.4
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": "<",
-                    "right": 0.1
+                    "lt": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -1851,38 +1693,32 @@
                 "head": 1
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": "<",
-                    "right": 0.1
+                    "lt": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -1894,38 +1730,32 @@
               "angle": "headPitch",
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": "<",
-                    "right": 0.1
+                    "lt": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -1937,38 +1767,32 @@
               "angle": "headYaw",
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": "<",
-                    "right": 0.1
+                    "lt": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -1979,38 +1803,32 @@
                 "head": 1
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2033,38 +1851,32 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2087,38 +1899,32 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2146,38 +1952,32 @@
               },
               "space": "POST",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2200,38 +2000,32 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2259,38 +2053,32 @@
               },
               "space": "POST",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2318,38 +2106,32 @@
               },
               "space": "POST",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2377,38 +2159,32 @@
               },
               "space": "POST",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2420,38 +2196,32 @@
               "angle": "headPitch",
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2474,38 +2244,32 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:and",
-                      "conditions": [
-                        {
-                          "type": "core:state",
-                          "state": "SPRINTING"
-                        },
-                        {
-                          "type": "core:not",
-                          "condition": {
-                            "type": "core:state",
-                            "state": "DRAWING_BOW"
+                    "not": [
+                      {
+                        "and": [
+                          "SPRINTING",
+                          {
+                            "not": [
+                              "DRAWING_BOW"
+                            ]
+                          },
+                          {
+                            "ge": [
+                              "ticksAfterAttack",
+                              10
+                            ]
                           }
-                        },
-                        {
-                          "type": "core:compare",
-                          "left": "ticksAfterAttack",
-                          "op": ">=",
-                          "right": 10
-                        }
-                      ]
-                    }
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "motionMagnitude",
-                    "op": ">=",
-                    "right": 0.1
+                    "ge": [
+                      "motionMagnitude",
+                      0.1
+                    ]
                   }
                 ]
               }
@@ -2522,50 +2286,41 @@
               },
               "space": "POST",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:and",
-                          "conditions": [
-                            {
-                              "type": "core:state",
-                              "state": "SPRINTING"
-                            },
-                            {
-                              "type": "core:not",
-                              "condition": {
-                                "type": "core:state",
-                                "state": "DRAWING_BOW"
+                        "not": [
+                          {
+                            "and": [
+                              "SPRINTING",
+                              {
+                                "not": [
+                                  "DRAWING_BOW"
+                                ]
+                              },
+                              {
+                                "ge": [
+                                  "ticksAfterAttack",
+                                  10
+                                ]
                               }
-                            },
-                            {
-                              "type": "core:compare",
-                              "left": "ticksAfterAttack",
-                              "op": ">=",
-                              "right": 10
-                            }
-                          ]
-                        }
+                            ]
+                          }
+                        ]
                       },
                       {
-                        "type": "core:compare",
-                        "left": "motionMagnitude",
-                        "op": ">=",
-                        "right": 0.1
+                        "ge": [
+                          "motionMagnitude",
+                          0.1
+                        ]
                       }
                     ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    }
+                    "not": [
+                      "DRAWING_BOW"
+                    ]
                   }
                 ]
               }
@@ -2583,33 +2338,25 @@
               "name": "deep",
               "speed": 0.1,
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:or",
-                  "conditions": [
-                    {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    },
-                    {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    },
-                    {
-                      "type": "core:compare",
-                      "left": "ticksAfterAttack",
-                      "op": "<",
-                      "right": 10
-                    },
-                    {
-                      "type": "core:not",
-                      "condition": {
-                        "type": "core:state",
-                        "state": "UNDERWATER"
+                "not": [
+                  {
+                    "or": [
+                      "STANDING_STILL",
+                      "DRAWING_BOW",
+                      {
+                        "lt": [
+                          "ticksAfterAttack",
+                          10
+                        ]
+                      },
+                      {
+                        "not": [
+                          "UNDERWATER"
+                        ]
                       }
-                    }
-                  ]
-                }
+                    ]
+                  }
+                ]
               },
               "readBeforeAdvance": true
             },
@@ -2644,28 +2391,19 @@
                 "rightForeArm": 0.3
               },
               "when": {
-                "type": "core:or",
-                "conditions": [
+                "or": [
+                  "STANDING_STILL",
+                  "DRAWING_BOW",
                   {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
+                    "lt": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   },
                   {
-                    "type": "core:state",
-                    "state": "DRAWING_BOW"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": "<",
-                    "right": 10
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "UNDERWATER"
-                    }
+                    "not": [
+                      "UNDERWATER"
+                    ]
                   }
                 ]
               }
@@ -2690,28 +2428,19 @@
                 "rightForeLeg": 0.4
               },
               "when": {
-                "type": "core:or",
-                "conditions": [
+                "or": [
+                  "STANDING_STILL",
+                  "DRAWING_BOW",
                   {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
+                    "lt": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   },
                   {
-                    "type": "core:state",
-                    "state": "DRAWING_BOW"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": "<",
-                    "right": 10
-                  },
-                  {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "UNDERWATER"
-                    }
+                    "not": [
+                      "UNDERWATER"
+                    ]
                   }
                 ]
               }
@@ -2734,33 +2463,25 @@
                 "rightArm": 0.3
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:or",
-                  "conditions": [
-                    {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    },
-                    {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    },
-                    {
-                      "type": "core:compare",
-                      "left": "ticksAfterAttack",
-                      "op": "<",
-                      "right": 10
-                    },
-                    {
-                      "type": "core:not",
-                      "condition": {
-                        "type": "core:state",
-                        "state": "UNDERWATER"
+                "not": [
+                  {
+                    "or": [
+                      "STANDING_STILL",
+                      "DRAWING_BOW",
+                      {
+                        "lt": [
+                          "ticksAfterAttack",
+                          10
+                        ]
+                      },
+                      {
+                        "not": [
+                          "UNDERWATER"
+                        ]
                       }
-                    }
-                  ]
-                }
+                    ]
+                  }
+                ]
               }
             },
             {
@@ -2786,33 +2507,25 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:or",
-                  "conditions": [
-                    {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    },
-                    {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    },
-                    {
-                      "type": "core:compare",
-                      "left": "ticksAfterAttack",
-                      "op": "<",
-                      "right": 10
-                    },
-                    {
-                      "type": "core:not",
-                      "condition": {
-                        "type": "core:state",
-                        "state": "UNDERWATER"
+                "not": [
+                  {
+                    "or": [
+                      "STANDING_STILL",
+                      "DRAWING_BOW",
+                      {
+                        "lt": [
+                          "ticksAfterAttack",
+                          10
+                        ]
+                      },
+                      {
+                        "not": [
+                          "UNDERWATER"
+                        ]
                       }
-                    }
-                  ]
-                }
+                    ]
+                  }
+                ]
               }
             },
             {
@@ -2838,33 +2551,25 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:or",
-                  "conditions": [
-                    {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    },
-                    {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    },
-                    {
-                      "type": "core:compare",
-                      "left": "ticksAfterAttack",
-                      "op": "<",
-                      "right": 10
-                    },
-                    {
-                      "type": "core:not",
-                      "condition": {
-                        "type": "core:state",
-                        "state": "UNDERWATER"
+                "not": [
+                  {
+                    "or": [
+                      "STANDING_STILL",
+                      "DRAWING_BOW",
+                      {
+                        "lt": [
+                          "ticksAfterAttack",
+                          10
+                        ]
+                      },
+                      {
+                        "not": [
+                          "UNDERWATER"
+                        ]
                       }
-                    }
-                  ]
-                }
+                    ]
+                  }
+                ]
               }
             },
             {
@@ -2882,33 +2587,25 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:or",
-                  "conditions": [
-                    {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    },
-                    {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    },
-                    {
-                      "type": "core:compare",
-                      "left": "ticksAfterAttack",
-                      "op": "<",
-                      "right": 10
-                    },
-                    {
-                      "type": "core:not",
-                      "condition": {
-                        "type": "core:state",
-                        "state": "UNDERWATER"
+                "not": [
+                  {
+                    "or": [
+                      "STANDING_STILL",
+                      "DRAWING_BOW",
+                      {
+                        "lt": [
+                          "ticksAfterAttack",
+                          10
+                        ]
+                      },
+                      {
+                        "not": [
+                          "UNDERWATER"
+                        ]
                       }
-                    }
-                  ]
-                }
+                    ]
+                  }
+                ]
               }
             },
             {
@@ -2931,33 +2628,25 @@
                 "renderRightItemRotation": 0.3
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:or",
-                  "conditions": [
-                    {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    },
-                    {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    },
-                    {
-                      "type": "core:compare",
-                      "left": "ticksAfterAttack",
-                      "op": "<",
-                      "right": 10
-                    },
-                    {
-                      "type": "core:not",
-                      "condition": {
-                        "type": "core:state",
-                        "state": "UNDERWATER"
+                "not": [
+                  {
+                    "or": [
+                      "STANDING_STILL",
+                      "DRAWING_BOW",
+                      {
+                        "lt": [
+                          "ticksAfterAttack",
+                          10
+                        ]
+                      },
+                      {
+                        "not": [
+                          "UNDERWATER"
+                        ]
                       }
-                    }
-                  ]
-                }
+                    ]
+                  }
+                ]
               }
             },
             {
@@ -2980,33 +2669,25 @@
                 "rightForeLeg": 0.4
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:or",
-                  "conditions": [
-                    {
-                      "type": "core:state",
-                      "state": "STANDING_STILL"
-                    },
-                    {
-                      "type": "core:state",
-                      "state": "DRAWING_BOW"
-                    },
-                    {
-                      "type": "core:compare",
-                      "left": "ticksAfterAttack",
-                      "op": "<",
-                      "right": 10
-                    },
-                    {
-                      "type": "core:not",
-                      "condition": {
-                        "type": "core:state",
-                        "state": "UNDERWATER"
+                "not": [
+                  {
+                    "or": [
+                      "STANDING_STILL",
+                      "DRAWING_BOW",
+                      {
+                        "lt": [
+                          "ticksAfterAttack",
+                          10
+                        ]
+                      },
+                      {
+                        "not": [
+                          "UNDERWATER"
+                        ]
                       }
-                    }
-                  ]
-                }
+                    ]
+                  }
+                ]
               }
             },
             {
@@ -3198,10 +2879,10 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:compare",
-                "left": "ledgeHeight",
-                "op": ">=",
-                "right": 0.6
+                "ge": [
+                  "ledgeHeight",
+                  0.6
+                ]
               },
               "damping": {
                 "body": 0.5
@@ -3224,10 +2905,10 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:compare",
-                "left": "ledgeHeight",
-                "op": ">=",
-                "right": 0.6
+                "ge": [
+                  "ledgeHeight",
+                  0.6
+                ]
               },
               "damping": {
                 "leftArm": 0.5
@@ -3250,10 +2931,10 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:compare",
-                "left": "ledgeHeight",
-                "op": ">=",
-                "right": 0.6
+                "ge": [
+                  "ledgeHeight",
+                  0.6
+                ]
               },
               "damping": {
                 "rightArm": 0.5
@@ -3266,10 +2947,10 @@
                 "rightForeArm": 0.5
               },
               "when": {
-                "type": "core:compare",
-                "left": "ledgeHeight",
-                "op": ">=",
-                "right": 0.6
+                "ge": [
+                  "ledgeHeight",
+                  0.6
+                ]
               }
             }
           ]
@@ -3446,26 +3127,19 @@
                 "leftForeArm",
                 "rightForeArm"
               ],
-              "when": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              }
+              "when": "MOVING_HORIZONTALLY"
             },
             {
               "animationKey": "mobends:bends/animations/player/riding_moving_head.json",
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "MOVING_HORIZONTALLY",
                   {
-                    "type": "core:state",
-                    "state": "MOVING_HORIZONTALLY"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "entityXZSpeed",
-                    "op": "<=",
-                    "right": 0.01
+                    "le": [
+                      "entityXZSpeed",
+                      0.01
+                    ]
                   }
                 ]
               }
@@ -3500,17 +3174,13 @@
                 "root": "RETARGET"
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "MOVING_HORIZONTALLY",
                   {
-                    "type": "core:state",
-                    "state": "MOVING_HORIZONTALLY"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "entityXZSpeed",
-                    "op": ">",
-                    "right": 0.01
+                    "gt": [
+                      "entityXZSpeed",
+                      0.01
+                    ]
                   }
                 ]
               }
@@ -3533,17 +3203,13 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
+                  "MOVING_HORIZONTALLY",
                   {
-                    "type": "core:state",
-                    "state": "MOVING_HORIZONTALLY"
-                  },
-                  {
-                    "type": "core:compare",
-                    "left": "entityXZSpeed",
-                    "op": ">",
-                    "right": 0.01
+                    "gt": [
+                      "entityXZSpeed",
+                      0.01
+                    ]
                   }
                 ]
               }
@@ -3620,26 +3286,24 @@
     },
     {
       "when": {
-        "type": "core:and",
-        "conditions": [
+        "and": [
+          "SNEAKING",
           {
-            "type": "core:state",
-            "state": "SNEAKING"
-          },
-          {
-            "type": "core:or",
-            "conditions": [
+            "or": [
               {
-                "type": "core:action",
-                "tag": "stand"
+                "core:action": [
+                  "stand"
+                ]
               },
               {
-                "type": "core:action",
-                "tag": "walk"
+                "core:action": [
+                  "walk"
+                ]
               },
               {
-                "type": "core:action",
-                "tag": "sprint"
+                "core:action": [
+                  "sprint"
+                ]
               }
             ]
           }
@@ -3753,33 +3417,34 @@
     },
     {
       "when": {
-        "type": "core:and",
-        "conditions": [
+        "and": [
           {
-            "type": "core:or",
-            "conditions": [
+            "or": [
               {
-                "type": "core:action",
-                "tag": "stand"
+                "core:action": [
+                  "stand"
+                ]
               },
               {
-                "type": "core:action",
-                "tag": "walk"
+                "core:action": [
+                  "walk"
+                ]
               }
             ]
           },
           {
-            "type": "core:or",
-            "conditions": [
+            "or": [
               {
-                "type": "core:property",
-                "property": "mainHandItem",
-                "value": "minecraft:torch"
+                "core:holds_item": [
+                  "main_hand",
+                  "minecraft:torch"
+                ]
               },
               {
-                "type": "core:property",
-                "property": "offHandItem",
-                "value": "minecraft:torch"
+                "core:holds_item": [
+                  "off_hand",
+                  "minecraft:torch"
+                ]
               }
             ]
           }
@@ -3810,19 +3475,17 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:property",
-                    "property": "mainHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "main_hand",
+                      "minecraft:torch"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "LEFT_HANDED"
-                    }
+                    "not": [
+                      "LEFT_HANDED"
+                    ]
                   }
                 ]
               }
@@ -3839,19 +3502,17 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:property",
-                    "property": "mainHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "main_hand",
+                      "minecraft:torch"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "LEFT_HANDED"
-                    }
+                    "not": [
+                      "LEFT_HANDED"
+                    ]
                   }
                 ]
               }
@@ -3859,19 +3520,17 @@
             {
               "animationKey": "mobends:bends/animations/player/torch_forearm_right.json",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:property",
-                    "property": "mainHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "main_hand",
+                      "minecraft:torch"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "LEFT_HANDED"
-                    }
+                    "not": [
+                      "LEFT_HANDED"
+                    ]
                   }
                 ]
               }
@@ -3893,17 +3552,14 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:property",
-                    "property": "mainHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "main_hand",
+                      "minecraft:torch"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "LEFT_HANDED"
-                  }
+                  "LEFT_HANDED"
                 ]
               }
             },
@@ -3919,34 +3575,28 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:property",
-                    "property": "mainHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "main_hand",
+                      "minecraft:torch"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "LEFT_HANDED"
-                  }
+                  "LEFT_HANDED"
                 ]
               }
             },
             {
               "animationKey": "mobends:bends/animations/player/torch_forearm_left.json",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:property",
-                    "property": "mainHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "main_hand",
+                      "minecraft:torch"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "LEFT_HANDED"
-                  }
+                  "LEFT_HANDED"
                 ]
               }
             },
@@ -3967,27 +3617,27 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:property",
-                      "property": "mainHandItem",
-                      "value": "minecraft:torch"
-                    }
+                    "not": [
+                      {
+                        "core:holds_item": [
+                          "main_hand",
+                          "minecraft:torch"
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:property",
-                    "property": "offHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "off_hand",
+                      "minecraft:torch"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "LEFT_HANDED"
-                    }
+                    "not": [
+                      "LEFT_HANDED"
+                    ]
                   }
                 ]
               }
@@ -4004,27 +3654,27 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:property",
-                      "property": "mainHandItem",
-                      "value": "minecraft:torch"
-                    }
+                    "not": [
+                      {
+                        "core:holds_item": [
+                          "main_hand",
+                          "minecraft:torch"
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:property",
-                    "property": "offHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "off_hand",
+                      "minecraft:torch"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "LEFT_HANDED"
-                    }
+                    "not": [
+                      "LEFT_HANDED"
+                    ]
                   }
                 ]
               }
@@ -4032,27 +3682,27 @@
             {
               "animationKey": "mobends:bends/animations/player/torch_forearm_left.json",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:property",
-                      "property": "mainHandItem",
-                      "value": "minecraft:torch"
-                    }
+                    "not": [
+                      {
+                        "core:holds_item": [
+                          "main_hand",
+                          "minecraft:torch"
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:property",
-                    "property": "offHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "off_hand",
+                      "minecraft:torch"
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "LEFT_HANDED"
-                    }
+                    "not": [
+                      "LEFT_HANDED"
+                    ]
                   }
                 ]
               }
@@ -4074,25 +3724,24 @@
               },
               "space": "OVERRIDE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:property",
-                      "property": "mainHandItem",
-                      "value": "minecraft:torch"
-                    }
+                    "not": [
+                      {
+                        "core:holds_item": [
+                          "main_hand",
+                          "minecraft:torch"
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:property",
-                    "property": "offHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "off_hand",
+                      "minecraft:torch"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "LEFT_HANDED"
-                  }
+                  "LEFT_HANDED"
                 ]
               }
             },
@@ -4108,50 +3757,48 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:property",
-                      "property": "mainHandItem",
-                      "value": "minecraft:torch"
-                    }
+                    "not": [
+                      {
+                        "core:holds_item": [
+                          "main_hand",
+                          "minecraft:torch"
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:property",
-                    "property": "offHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "off_hand",
+                      "minecraft:torch"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "LEFT_HANDED"
-                  }
+                  "LEFT_HANDED"
                 ]
               }
             },
             {
               "animationKey": "mobends:bends/animations/player/torch_forearm_right.json",
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:property",
-                      "property": "mainHandItem",
-                      "value": "minecraft:torch"
-                    }
+                    "not": [
+                      {
+                        "core:holds_item": [
+                          "main_hand",
+                          "minecraft:torch"
+                        ]
+                      }
+                    ]
                   },
                   {
-                    "type": "core:property",
-                    "property": "offHandItem",
-                    "value": "minecraft:torch"
+                    "core:holds_item": [
+                      "off_hand",
+                      "minecraft:torch"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "LEFT_HANDED"
-                  }
+                  "LEFT_HANDED"
                 ]
               }
             }
@@ -4161,11 +3808,9 @@
     },
     {
       "when": {
-        "type": "core:not",
-        "condition": {
-          "type": "core:state",
-          "state": "SLEEPING"
-        }
+        "not": [
+          "SLEEPING"
+        ]
       },
       "defaultOnEntry": "idle",
       "variables": {
@@ -4175,24 +3820,24 @@
       "select": [
         {
           "when": {
-            "type": "core:property",
-            "property": "useActionType",
-            "value": "FOOD"
+            "mobends:use_action": [
+              "food"
+            ]
           },
           "then": [
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "RIGHT"
+                "core:active_hand_side": [
+                  "right"
+                ]
               },
               "then": "eat_right"
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "LEFT"
+                "core:active_hand_side": [
+                  "left"
+                ]
               },
               "then": "eat_left"
             }
@@ -4200,24 +3845,24 @@
         },
         {
           "when": {
-            "type": "core:property",
-            "property": "useActionType",
-            "value": "BOW"
+            "mobends:use_action": [
+              "bow"
+            ]
           },
           "then": [
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "RIGHT"
+                "core:active_hand_side": [
+                  "right"
+                ]
               },
               "then": "bow_right"
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "LEFT"
+                "core:active_hand_side": [
+                  "left"
+                ]
               },
               "then": "bow_left"
             }
@@ -4225,24 +3870,24 @@
         },
         {
           "when": {
-            "type": "core:property",
-            "property": "useActionType",
-            "value": "SHIELD"
+            "mobends:use_action": [
+              "shield"
+            ]
           },
           "then": [
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "RIGHT"
+                "core:active_hand_side": [
+                  "right"
+                ]
               },
               "then": "shield_right"
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "activeHandSide",
-                "value": "LEFT"
+                "core:active_hand_side": [
+                  "left"
+                ]
               },
               "then": "shield_left"
             }
@@ -4250,16 +3895,34 @@
         },
         {
           "when": {
-            "type": "core:property",
-            "property": "useActionType",
-            "unset": true
+            "not": [
+              {
+                "or": [
+                  {
+                    "mobends:use_action": [
+                      "food"
+                    ]
+                  },
+                  {
+                    "mobends:use_action": [
+                      "bow"
+                    ]
+                  },
+                  {
+                    "mobends:use_action": [
+                      "shield"
+                    ]
+                  }
+                ]
+              }
+            ]
           },
           "then": [
             {
               "when": {
-                "type": "core:property",
-                "property": "attackActionType",
-                "value": "SWORD"
+                "mobends:attack_action": [
+                  "sword"
+                ]
               },
               "then": "sword",
               "set": {
@@ -4268,9 +3931,9 @@
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "attackActionType",
-                "value": "FISTS"
+                "mobends:attack_action": [
+                  "fists"
+                ]
               },
               "then": "fists",
               "set": {
@@ -4279,9 +3942,9 @@
             },
             {
               "when": {
-                "type": "core:property",
-                "property": "attackActionType",
-                "value": "TOOL"
+                "mobends:attack_action": [
+                  "tool"
+                ]
               },
               "then": "tool"
             }
@@ -4308,10 +3971,7 @@
               "vectorModes": {
                 "localOffset": "SLIDE"
               },
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "mirror": true
             },
             {
@@ -4320,26 +3980,16 @@
               "damping": {
                 "body": 0.8
               },
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "mirror": true
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_sneak_body.json",
               "space": "PRE",
               "when": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:state",
-                    "state": "SNEAKING"
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "SWINGING"
-                  }
+                "and": [
+                  "SNEAKING",
+                  "SWINGING"
                 ]
               },
               "mirror": true
@@ -4354,19 +4004,13 @@
                 "head": 0.8
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "SNEAKING"
-                    }
+                    "not": [
+                      "SNEAKING"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "SWINGING"
-                  }
+                  "SWINGING"
                 ]
               },
               "mirror": true
@@ -4386,16 +4030,9 @@
                 "head": 0.8
               },
               "when": {
-                "type": "core:and",
-                "conditions": [
-                  {
-                    "type": "core:state",
-                    "state": "SNEAKING"
-                  },
-                  {
-                    "type": "core:state",
-                    "state": "SWINGING"
-                  }
+                "and": [
+                  "SNEAKING",
+                  "SWINGING"
                 ]
               },
               "mirror": true
@@ -4406,39 +4043,27 @@
               "axis": "Y",
               "angle": "headYaw",
               "space": "PRE",
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              }
+              "when": "SWINGING"
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_head.json",
               "frame": "swingProgress",
               "space": "PRE",
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "mirror": true
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_arm.json",
               "frame": "swingProgress",
               "snap": true,
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "swapSides": true
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_arm_post.json",
               "frame": "swingProgress",
               "space": "POST",
-              "when": {
-                "type": "core:state",
-                "state": "SWINGING"
-              },
+              "when": "SWINGING",
               "swapSides": true
             }
           ]
@@ -4487,10 +4112,10 @@
                 ]
               },
               "when": {
-                "type": "core:compare",
-                "left": "bringUpPrev",
-                "op": ">=",
-                "right": 1
+                "ge": [
+                  "bringUpPrev",
+                  1
+                ]
               }
             }
           ]
@@ -4537,11 +4162,9 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -4564,11 +4187,9 @@
                 "body": 0.8
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -4578,11 +4199,9 @@
               "angle": "headYaw",
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -4594,10 +4213,7 @@
               "damping": {
                 "body": 0.8
               },
-              "when": {
-                "type": "core:state",
-                "state": "CLIMBING"
-              }
+              "when": "CLIMBING"
             },
             {
               "driver": "core:axis_rotate",
@@ -4774,10 +4390,10 @@
                 ]
               },
               "when": {
-                "type": "core:compare",
-                "left": "bringUpPrev",
-                "op": ">=",
-                "right": 1
+                "ge": [
+                  "bringUpPrev",
+                  1
+                ]
               }
             }
           ]
@@ -4824,11 +4440,9 @@
               },
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -4851,11 +4465,9 @@
                 "body": 0.8
               },
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -4865,11 +4477,9 @@
               "angle": "headYaw",
               "space": "PRE",
               "when": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "CLIMBING"
-                }
+                "not": [
+                  "CLIMBING"
+                ]
               }
             },
             {
@@ -4881,10 +4491,7 @@
               "damping": {
                 "body": 0.8
               },
-              "when": {
-                "type": "core:state",
-                "state": "CLIMBING"
-              }
+              "when": "CLIMBING"
             },
             {
               "driver": "core:axis_rotate",
@@ -5021,92 +4628,75 @@
       "machines": {
         "sword": {
           "defaultOnEntry": "sword_idle",
-          "conditions": {
+          "expressions": {
             "attacked": {
-              "type": "core:decreased",
-              "value": "ticksAfterAttack"
+              "decreased": [
+                "ticksAfterAttack"
+              ]
             }
           },
           "select": [
             {
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": ">=",
-                        "right": 10
+                        "ge": [
+                          "ticksAfterAttack",
+                          10
+                        ]
                       },
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 60
+                        "lt": [
+                          "ticksAfterAttack",
+                          60
+                        ]
                       },
-                      {
-                        "type": "core:state",
-                        "state": "ON_GROUND"
-                      }
+                      "ON_GROUND"
                     ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "SPRINTING"
-                  }
+                  "SPRINTING"
                 ]
               },
               "then": "stance_sprint"
             },
             {
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": ">=",
-                        "right": 10
+                        "ge": [
+                          "ticksAfterAttack",
+                          10
+                        ]
                       },
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 60
+                        "lt": [
+                          "ticksAfterAttack",
+                          60
+                        ]
                       },
-                      {
-                        "type": "core:state",
-                        "state": "ON_GROUND"
-                      }
+                      "ON_GROUND"
                     ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "SPRINTING"
-                    }
+                    "not": [
+                      "SPRINTING"
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "STANDING_STILL"
                 ]
               },
               "then": "stance"
             },
             {
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": ">=",
-                "right": 10
+                "ge": [
+                  "ticksAfterAttack",
+                  10
+                ]
               },
               "then": "sword_idle"
             }
@@ -5115,14 +4705,13 @@
             {
               "target": "slash_up",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 0
+                    "eq": [
+                      "combo",
+                      0
+                    ]
                   }
                 ]
               },
@@ -5133,14 +4722,13 @@
             {
               "target": "slash_down",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 1
+                    "eq": [
+                      "combo",
+                      1
+                    ]
                   }
                 ]
               },
@@ -5151,14 +4739,13 @@
             {
               "target": "slash_inward",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 2
+                    "eq": [
+                      "combo",
+                      2
+                    ]
                   }
                 ]
               },
@@ -5169,14 +4756,13 @@
             {
               "target": "slash_outward",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 3
+                    "eq": [
+                      "combo",
+                      3
+                    ]
                   }
                 ]
               },
@@ -5187,19 +4773,15 @@
             {
               "target": "slash_whirl",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 4
+                    "eq": [
+                      "combo",
+                      4
+                    ]
                   },
-                  {
-                    "type": "core:state",
-                    "state": "CAN_SPIN_ATTACK"
-                  }
+                  "CAN_SPIN_ATTACK"
                 ]
               },
               "set": {
@@ -5209,21 +4791,18 @@
             {
               "target": "slash_up",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "combo",
-                    "op": "==",
-                    "right": 4
+                    "eq": [
+                      "combo",
+                      4
+                    ]
                   },
                   {
-                    "type": "core:not",
-                    "condition": {
-                      "type": "core:state",
-                      "state": "CAN_SPIN_ATTACK"
-                    }
+                    "not": [
+                      "CAN_SPIN_ATTACK"
+                    ]
                   }
                 ]
               },
@@ -5241,10 +4820,10 @@
                   "variable": "combo",
                   "value": 0,
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">",
-                    "right": 20
+                    "gt": [
+                      "ticksAfterAttack",
+                      20
+                    ]
                   }
                 }
               ]
@@ -5385,10 +4964,10 @@
                   "animationKey": "mobends:bends/animations/player/stance_kneel.json",
                   "frame": "ticksAfterTouchdown",
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterTouchdown",
-                    "op": "<",
-                    "right": 6.666666666666667
+                    "lt": [
+                      "ticksAfterTouchdown",
+                      6.666666666666667
+                    ]
                   },
                   "damping": {
                     "body": 1
@@ -5402,10 +4981,10 @@
                   "variable": "combo",
                   "value": 0,
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">",
-                    "right": 20
+                    "gt": [
+                      "ticksAfterAttack",
+                      20
+                    ]
                   }
                 }
               ]
@@ -5424,9 +5003,9 @@
                     -10
                   ],
                   "when": {
-                    "type": "core:property",
-                    "property": "attackActionType",
-                    "value": "SWORD"
+                    "mobends:attack_action": [
+                      "sword"
+                    ]
                   }
                 },
                 {
@@ -5455,10 +5034,10 @@
                   "variable": "combo",
                   "value": 0,
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">",
-                    "right": 20
+                    "gt": [
+                      "ticksAfterAttack",
+                      20
+                    ]
                   }
                 }
               ]
@@ -5473,18 +5052,17 @@
                   "driver": "mobends:sword_trail",
                   "resetOnEnter": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 4
+                        "lt": [
+                          "ticksAfterAttack",
+                          4
+                        ]
                       },
                       {
-                        "type": "core:property",
-                        "property": "attackActionType",
-                        "value": "SWORD"
+                        "mobends:attack_action": [
+                          "sword"
+                        ]
                       }
                     ]
                   }
@@ -5582,18 +5160,12 @@
                     "root": "SLIDE"
                   },
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -5608,18 +5180,12 @@
                   },
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -5636,18 +5202,17 @@
                   "driver": "mobends:sword_trail",
                   "resetOnEnter": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 4
+                        "lt": [
+                          "ticksAfterAttack",
+                          4
+                        ]
                       },
                       {
-                        "type": "core:property",
-                        "property": "attackActionType",
-                        "value": "SWORD"
+                        "mobends:attack_action": [
+                          "sword"
+                        ]
                       }
                     ]
                   }
@@ -5745,18 +5310,12 @@
                     "root": "SLIDE"
                   },
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -5771,18 +5330,12 @@
                   },
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -5799,18 +5352,17 @@
                   "driver": "mobends:sword_trail",
                   "resetOnEnter": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 4
+                        "lt": [
+                          "ticksAfterAttack",
+                          4
+                        ]
                       },
                       {
-                        "type": "core:property",
-                        "property": "attackActionType",
-                        "value": "SWORD"
+                        "mobends:attack_action": [
+                          "sword"
+                        ]
                       }
                     ]
                   }
@@ -5906,18 +5458,12 @@
                     "root": "SLIDE"
                   },
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -5932,18 +5478,12 @@
                   },
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -5956,18 +5496,12 @@
                   "space": "PRE",
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -5984,18 +5518,17 @@
                   "driver": "mobends:sword_trail",
                   "resetOnEnter": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
                       {
-                        "type": "core:compare",
-                        "left": "ticksAfterAttack",
-                        "op": "<",
-                        "right": 4
+                        "lt": [
+                          "ticksAfterAttack",
+                          4
+                        ]
                       },
                       {
-                        "type": "core:property",
-                        "property": "attackActionType",
-                        "value": "SWORD"
+                        "mobends:attack_action": [
+                          "sword"
+                        ]
                       }
                     ]
                   }
@@ -6091,18 +5624,12 @@
                     "root": "SLIDE"
                   },
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -6117,18 +5644,12 @@
                   },
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -6141,18 +5662,12 @@
                   "space": "PRE",
                   "mirror": true,
                   "when": {
-                    "type": "core:and",
-                    "conditions": [
+                    "and": [
+                      "STANDING_STILL",
                       {
-                        "type": "core:state",
-                        "state": "STANDING_STILL"
-                      },
-                      {
-                        "type": "core:not",
-                        "condition": {
-                          "type": "core:state",
-                          "state": "RIDING"
-                        }
+                        "not": [
+                          "RIDING"
+                        ]
                       }
                     ]
                   }
@@ -6170,10 +5685,10 @@
                   "add": false,
                   "resetEachFrame": true,
                   "when": {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": "<",
-                    "right": 0.5
+                    "lt": [
+                      "ticksAfterAttack",
+                      0.5
+                    ]
                   }
                 },
                 {
@@ -6297,10 +5812,7 @@
                   "vectorModes": {
                     "root": "SLIDE"
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/slash_whirl_still.json",
@@ -6310,10 +5822,7 @@
                     "leftForeLeg": 0.3,
                     "rightForeLeg": 0.3
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 }
               ]
             }
@@ -6321,28 +5830,28 @@
         },
         "fists": {
           "defaultOnEntry": "punch_left",
-          "conditions": {
+          "expressions": {
             "attacked": {
-              "type": "core:decreased",
-              "value": "ticksAfterAttack"
+              "decreased": [
+                "ticksAfterAttack"
+              ]
             }
           },
           "select": [
             {
               "when": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": ">=",
-                    "right": 10
+                    "ge": [
+                      "ticksAfterAttack",
+                      10
+                    ]
                   },
                   {
-                    "type": "core:compare",
-                    "left": "ticksAfterAttack",
-                    "op": "<",
-                    "right": 60
+                    "lt": [
+                      "ticksAfterAttack",
+                      60
+                    ]
                   }
                 ]
               },
@@ -6350,10 +5859,10 @@
             },
             {
               "when": {
-                "type": "core:compare",
-                "left": "ticksAfterAttack",
-                "op": ">=",
-                "right": 60
+                "ge": [
+                  "ticksAfterAttack",
+                  60
+                ]
               },
               "then": "fists_idle"
             }
@@ -6362,14 +5871,13 @@
             {
               "target": "punch_right",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "fist",
-                    "op": "==",
-                    "right": 0
+                    "eq": [
+                      "fist",
+                      0
+                    ]
                   }
                 ]
               },
@@ -6380,14 +5888,13 @@
             {
               "target": "punch_left",
               "triggerCondition": {
-                "type": "core:and",
-                "conditions": [
+                "and": [
                   "attacked",
                   {
-                    "type": "core:compare",
-                    "left": "fist",
-                    "op": "==",
-                    "right": 1
+                    "eq": [
+                      "fist",
+                      1
+                    ]
                   }
                 ]
               },
@@ -6449,20 +5956,14 @@
                   "vectorModes": {
                     "root": "SLIDE"
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/punch_right_still.json",
                   "damping": {
                     "body": 0.6
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 }
               ]
             },
@@ -6514,20 +6015,14 @@
                   "vectorModes": {
                     "root": "SLIDE"
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/punch_left_still.json",
                   "damping": {
                     "body": 0.6
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 }
               ]
             },
@@ -6568,10 +6063,7 @@
                   "vectorModes": {
                     "root": "SLIDE"
                   },
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/fist_guard_abs.json",
@@ -6582,10 +6074,7 @@
                     "renderRotation": 0.6
                   },
                   "mirror": true,
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/fist_guard_pre.json",
@@ -6593,10 +6082,7 @@
                     "body"
                   ],
                   "space": "PRE",
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/fist_guard_pre.json",
@@ -6605,10 +6091,7 @@
                   ],
                   "space": "PRE",
                   "mirror": true,
-                  "when": {
-                    "type": "core:state",
-                    "state": "STANDING_STILL"
-                  }
+                  "when": "STANDING_STILL"
                 }
               ]
             }
@@ -6616,10 +6099,7 @@
         }
       },
       "mirror": {
-        "when": {
-          "type": "core:state",
-          "state": "LEFT_HANDED"
-        },
+        "when": "LEFT_HANDED",
         "pairs": [
           [
             "leftArm",

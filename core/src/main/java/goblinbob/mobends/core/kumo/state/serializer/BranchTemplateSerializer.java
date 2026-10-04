@@ -4,7 +4,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import goblinbob.mobends.core.kumo.state.template.BranchTemplate;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
-import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class BranchTemplateSerializer implements JsonDeserializer<BranchTemplate
         JsonElement when = object.get("when");
         if (when != null && !when.isJsonNull())
         {
-            branch.when = context.deserialize(when, TriggerConditionTemplate.class);
+            branch.when = new ExpressionTemplate(when);
         }
 
         JsonElement then = object.get("then");

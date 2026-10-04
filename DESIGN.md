@@ -112,13 +112,6 @@ file declares (`stride`).
 
 ## Values and expressions
 
-### Types
-
-Every expression is checked when it is loaded and is either a **number** or a **boolean**.
-`entityLimbSwing` where a condition goes (a number where a boolean goes) or
-`{"add": ["entityIsOnGround", 1]}` is a load error. At runtime values are floats. Strings never are values: they appear only as
-constant arguments of operations that declare them.
-
 ### Forms
 
 | form | example | type |
@@ -233,20 +226,12 @@ pack can't read arbitrary fields. The restriction can be lifted later without br
 
 ### Stateful operations
 
-A few language operations remember something between frames:
-
-- `decreased` [x]: holds on the frame `x` is lower than on the previous frame (an edge trigger);
-- `rose` [b] / `fell` [b]: hold on the frame boolean `b` turns true / false.
-
-Each place one is written gets its own memory (two uses keep two memories), a hidden slot rather
-than a declared state, which starts over
-when the scope holding that place is created. A place inside a definition belongs to the scope
-that declares the definition: one memory however many places read it, reset with that scope
-(*Three kinds of definitions*).
-
-**Nothing short-circuits**: `and`, `or` and `if` evaluate every operand, both branches of an `if`
-included, so an edge trigger never misses a frame. The compiler may skip an operand that contains
-no stateful operation, since the result is the same.
+`decreased`, `rose` and `fell` are in the spec (*Expressions*), each place one is written keeping
+its own memory. What changes with definitions: a place inside a definition belongs to the scope
+that declares the definition, so one memory however many places read it, reset with that scope
+(*Three kinds of definitions*); today a named expression that remembers is compiled anew for each
+use. The compiler may skip an operand of `and`, `or` and `if` that contains no stateful operation,
+since the result is the same.
 
 ### Functions (after v2)
 
@@ -620,13 +605,11 @@ swing that keeps going).
 Class-specific logic is a registered operation; class-specific memory is `entity.` state in the
 mob's model definition.
 
+The held-item, use-action and equipment operations are in the spec (*Expressions*). The others:
+
 | operation | |
 |---|---|
 | `core:is_flying` | `EntityPlayer` flying |
-| `core:holds_item` [hand, item], `core:holds_any_item` [hand] | what a hand holds (`main_hand` / `off_hand`; an item id) |
-| `core:active_hand_side` [side] | the side (`left` / `right`) of the hand the entity is using an item with |
-| `mobends:use_action` [action], `mobends:attack_action` [action] | Mo' Bends' classification of the item in use (`food` / `bow` / `shield`, `UseActionType`) and of the held item's attack (`fists` / `sword` / `tool`, `ItemActions`, configurable) |
-| `core:equipment_name` [slot, pattern] | the display name of equipment |
 | `mobends:is_sitting`, `mobends:wolf_interested_angle`, `mobends:wolf_shake_angle` [offset], `mobends:wolf_tail_rotation` | the wolf |
 | `mobends:is_beside_climbable`, `mobends:spider_wall_rotation` | the spider |
 | `mobends:spin_attack_enabled` | the player's spin-attack config option |
@@ -677,18 +660,10 @@ for a component instead (`data.getComponent(SwordTrail.class)`). This is the end
 
 ## Language reference
 
-| group | operations |
-|---|---|
-| arithmetic | `add sub mul div min max` (2+, folded left), `mod` (floored) `pow atan2`, `neg abs sqrt floor ceil` |
-| trigonometry | `sin cos` (radians); `mcsin mccos` (Minecraft's sine table, for values matching vanilla models; pure, so language rather than `core:`) |
-| shaping | `clamp` [value, min, max], `lerp` [from, to, t], `easeIn easeOut easeInOut` [t, power] |
-| steps | `linstep` [x, edge0, edge1] (0 below `edge0`, 1 above `edge1`, linear between), `smoothstep` [x, edge0, edge1] |
-| angles | `wrapDegrees` [a], `lerpAngle` [from, to, t] (the short way round) |
-| comparison | `lt le gt ge eq ne` |
-| logic | `and or not` (no short-circuit) |
-| choice | `if` [condition, then, else] (evaluates both branches) |
-| entity | `field` [path] (+ `@fallback`), `exists` [path] (whether a field path reaches a non-null object) |
-| per-use state | `decreased` [x], `rose` [b], `fell` [b] |
+The language operations are in the spec (*Expressions*), `mcsin` and `mccos` among them (pure, so
+the language's rather than `core:`). Still to come: `field` [path] (+ `@fallback`) and `exists`
+[path] (whether a field path reaches a non-null object), written only in model definitions
+(*Reading the entity*).
 
 Built-in values: the clocks and node phases (*Clocks and time*, *Node phases*), `clipLength` and
 `clipDuration`, the `entity…` built-ins (*Entity built-ins*).
@@ -867,14 +842,9 @@ An audit of the v2 format (`misc/kumo-format.md`, the deserializers in
 
 ### Conditions become expressions
 
-`core:compare`, `core:and`, `core:or`, `core:not`, `core:named` and the separate trigger
-condition registry go away: comparisons, `and`, `or` and `not` are language operations, and a
-named condition is a scoped definition. The old rule that `core:and` / `core:or` evaluate every
-operand (so `core:decreased` never misses a frame) carries over to `and` / `or`. Type-file
-selectors (`core:entity_type`, ..., and their own `and` / `or` / `not`) use the same syntax.
-
-New language operations: `linstep`, `smoothstep`, `wrapDegrees`, `lerpAngle`, the comparisons,
-`and` / `or` / `not`, `if`, `field`, `exists`, `rose`, `fell`.
+Done in the animators (named conditions are named expressions; `core:action` is an operation
+until tags go). Still to do: type-file selectors (`core:entity_type`, ..., and their own `and` /
+`or` / `not`) use the same syntax.
 
 ### Named values become definitions
 
@@ -1052,30 +1022,14 @@ Their private state moves from Java fields (`StepTurnDriver`'s planted feet, `Sp
 | `elapsed` | `nodeTicksElapsed` |
 | a clip's `clipLength` / `duration` names in `frame` | `clipLength`, `clipDuration` |
 | `ticks`, `partialTicks`, `ticksPerFrame`, `random` (subject variables) | built-ins, same names and meaning (`ticks` is still the local player's age, as in `DataUpdateHandler`) |
-| the layer's clock, readable only through `core:ticks_passed` | `layerTicksElapsed` |
+| the layer's clock (`core:ticks_passed` read it; it is gone, see below) | `layerTicksElapsed` |
 | crossfade progress (not readable) | `nodeFadeProgress` |
-| `core:animation_finished` | `nodeIsFinished` (same meaning) |
 
-**`core:ticks_passed`** (`ticksToPass`) held once the layer's clock had moved `ticksToPass` past
-the moment what it was written on was entered (`TicksPassedCondition` noted the layer's time in
-`onNodeStarted`). It is dropped for the clocks:
-
-| written on | counted from | replacement |
-|---|---|---|
-| a node's connection or item `when` | the node's entry | `{"ge": ["nodeTicksElapsed", n]}` |
-| the layer's selector, connections or `when` | the layer's start | `{"ge": ["layerTicksElapsed", n]}` |
-| a machine's selector or connections | the machine's entry | a `machine.` state advanced in its `update` list (no shipped animator needs it) |
-
-Its only shipped uses, the wolf's breathing:
-
-```json
-"idle":    {"connections": [{"target": "breathe", "transitionDuration": 4, "triggerCondition": {"type": "core:ticks_passed", "ticksToPass": 80}}]},
-"breathe": {"connections": [{"target": "idle",    "transitionDuration": 4, "triggerCondition": {"type": "core:ticks_passed", "ticksToPass": 50}}]}
-```
-
-become `{"when": {"ge": ["nodeTicksElapsed", 80]}, "then": "breathe", "transitionDuration": 4}` and
-the same with `50` and `"idle"`. The spec also suggested it for
-an intro on a layer's selector (`layerTicksElapsed`); tests use it on node connections and items.
+`core:ticks_passed` is gone. On a node's connections and items it was the node's clock, now
+`{"gt": ["elapsed", n]}` (the wolf's breathing); on a layer's selector, connections or `when` it
+counted from the layer's start (`layerTicksElapsed` once it exists); on a machine's, from the
+machine's entry (a `machine.` state advanced in its `update` list, when something needs it).
+`core:animation_finished` is the built-in `nodeIsFinished`.
 
 **Node re-entry.** The rule that a node never runs twice at once is the old engine's
 (`LayerState.beginTransition`): a transition to the current node restarted it without a
@@ -1131,7 +1085,6 @@ counted.
 | old (uses) | new |
 |---|---|
 | `FLYING` (1) | `core:is_flying` |
-| properties `mainHandItem`, `offHandItem`, `activeItem`, `mainHandUseAction`, `offHandUseAction`, `useActionType`, `attackActionType`, `activeHand`, `primaryHand`, `activeHandSide` (a hard-coded `switch` in `LivingEntityData` / `BipedEntityData`) | property operations with string or choice arguments. The shipped animators use five: `mainHandItem` / `offHandItem` → `core:holds_item`, `core:holds_any_item`; `activeHandSide` → `core:active_hand_side`; `useActionType` → `mobends:use_action`; `attackActionType` → `mobends:attack_action` (*Values specific to a mob*). The others get an operation when something needs them |
 | `core:equipment_name` (a condition) | `core:equipment_name` [slot, pattern] |
 | wolf: `SITTING`, `interestedAngle`, `shakeAngleHead` / `Mane` / `Tail`, `tailRotation`, `tailWag` (1) | `mobends:is_sitting`, `mobends:wolf_interested_angle`, `mobends:wolf_shake_angle`, `mobends:wolf_tail_rotation`; `tailWag` a wolf definition |
 | spider: `BESIDE_CLIMBABLE`, wall facing, `crawlProgress` (2), `crawlRenderYaw` (1) | `mobends:is_beside_climbable`, `mobends:spider_wall_rotation`; spider state or operations |
@@ -1147,19 +1100,12 @@ the last one while the main hand held an item. The built-in keeps the shared cou
 player's filter moves to its model definition (see *Values specific to a mob*), and `player.json` reads
 `entity.ticksAfterAttack` instead of the built-in.
 
-### Properties
-
-The old properties were strings read through a hard-coded `switch` with no registry, and an
-unknown one silently matched only `unset`. As operations with string arguments, the language
-needs no string type.
-
 ### Addon API
 
-`AddonAnimationRegistry.registerTriggerCondition` goes away, and so does
-`registerSelectorCondition` (selector operations are flagged operations). Expression operations
-had no registry method: addons could only call the global `ExpressionOperations.register`, with no
-mod id, types, entity class or state. They get registry methods (*Operations and drivers in
-Java*). Drivers keep their Gson template classes, with the typed field set; `IPoseItem`'s
+`registerSelectorCondition` goes away (selector operations are flagged operations).
+`registerTriggerCondition` is gone, and `registerOperation` registers a typed operation (the
+signature of `ExpressionOperations`); what it still lacks is the entity class at bind and declared
+state (*Operations and drivers in Java*). Drivers keep their Gson template classes, with the typed field set; `IPoseItem`'s
 `onNodeStarted` / `advance` and the state in Java fields give way to declared state.
 
 Registration timing is broken today: `Addons.registerAddon` calls `registerContent` only if
@@ -1433,14 +1379,15 @@ the additive and smaller ones.
 
 1. [x] **Resolve names at compile time** in the current runtime: node and layer variables
    numbered, subject names indices, unknown names fail before the animator animates.
-2. [ ] **Split program from state**: compile an animator once per animator, extensions, trust and
+2. [ ] **Split program from state** (deferred until after the format rework, tasks 3–17: converting
+   the condition, ramp and tag classes those tasks delete would be wasted): compile an animator once per animator, extensions, trust and
    entity class into an immutable program; give every stateful element a slot in one flat
    per-entity `float[]`, a scope's slots one contiguous range; cache programs and clear the cache
    on a reload or a policy change (*Runtime*, *Splitting program from state*).
-3. [ ] **The expression language**: one typed expression tree (number or boolean, checked at load)
-   replacing expressions, trigger conditions, selector conditions and `variables[]`; the language
-   operations (*Language reference*); per-use state for `decreased`, `rose`, `fell`; nothing
-   short-circuits, `if` included (*Values and expressions*).
+3. [x] **The expression language**: one typed expression tree (number or boolean, checked at load)
+   replacing trigger conditions; the language operations; `decreased`, `rose`, `fell`; nothing
+   short-circuits. Subject states are names in capitals until the built-ins (task 8); selector
+   conditions are task 13, `variables[]` and `field` task 14.
 4. [ ] **Scopes and definitions**: entity, animator, layer, machine and node scopes with their
    lifecycles; `@define` with constant, state and live definitions; scoped names with no lookup
    and no shadowing; live definitions evaluated once per frame; cycles a load error

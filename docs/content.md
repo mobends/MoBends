@@ -141,7 +141,7 @@ clip with the counter as its frame, only while the counter is small:
 
 ```json
 {"animationKey": "…/kneel.json", "frame": "ticksAfterTouchdown",
- "when": {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 6.67},
+ "when": {"lt": ["ticksAfterTouchdown", 6.67]},
  "vectorModes": {"root": "SNAP"}}
 ```
 
@@ -176,12 +176,10 @@ applies when the ones before it don't, so each branch states only its own condit
 stays in a node for as long as the tree keeps choosing it:
 
 ```json
-"conditions": {"jumping": {"type": "core:or", "conditions": [
-  {"type": "core:state", "state": "AIRBORNE"},
-  {"type": "core:compare", "left": "ticksAfterTouchdown", "op": "<", "right": 1}]}},
+"expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
 "select": [
   {"when": "jumping", "then": "jump"},
-  {"when": {"type": "core:state", "state": "STANDING_STILL"}, "then": "stand"},
+  {"when": "STANDING_STILL", "then": "stand"},
   {"then": "walk"}
 ]
 ```
@@ -189,13 +187,16 @@ stays in a node for as long as the tree keeps choosing it:
 A branch whose `then` is a list decides inside it (the player's airborne states: flying, falling,
 sprint-jumping, jumping). Leave out the last `then` to let a node hold on until a branch applies:
 a mob that starts walking above one speed and stops below a lower one keeps doing what it did in
-between. Name the conditions you use more than once (`conditions`, then the name as a string).
+between. Name the conditions you use more than once (`expressions`, then the name as a string).
+A condition is an expression that is true or false: a state in capitals (`STANDING_STILL`), a
+comparison (`{"lt": ["ticksAfterTouchdown", 1]}`), `and`, `or`, `not` (see
+`misc/kumo-format.md`, *Expressions*).
 Use `transitionDuration` (ticks) on a branch to crossfade; an interrupted crossfade continues from
 what is on screen.
 
 What depends on where the layer comes from goes in a node's `connections`, checked when the
 selectors keep the layer where it is: a jump starting over when the entity bounces, a clip that
-has to finish before the next one (`core:animation_finished`), a sequence like sitting down,
+has to finish before the next one (`nodeIsFinished`), a sequence like sitting down,
 sitting and standing up.
 
 ### Variants of one animation
@@ -206,7 +207,7 @@ variable the data class sets, and let it override or add to the base:
 ```json
 {"mode": "ADDITIVE",
  "additiveSpace": {"default": "PRE", "body": "POST", "root": "OVERRIDE"},
- "when": {"type": "core:compare", "left": "animationSet", "op": "==", "right": 0},
+ "when": {"eq": ["animationSet", 0]},
  "defaultOnEntry": "lean", "nodes": { … }}
 ```
 
@@ -214,20 +215,19 @@ variable the data class sets, and let it override or add to the base:
 
 Group the nodes of a sequence in a machine. The layer's selector picks the machine; the machine's
 own selector picks where to rest inside it, and its connections, which lead out of any of its
-nodes, play the sequence. To react to each new attack, use `core:decreased` on
+nodes, play the sequence. To react to each new attack, use `decreased` on
 `ticksAfterAttack` (it drops to 0 on every swing) and count with layer variables set by the
 connection that fires:
 
 ```json
-"select": [{"when": {"type": "core:property", "property": "attackActionType", "value": "SWORD"},
-            "then": "sword", "set": {"combo": 0}}],
+"select": [{"when": {"mobends:attack_action": ["sword"]}, "then": "sword", "set": {"combo": 0}}],
 "machines": {"sword": {
   "defaultOnEntry": "sword_idle",
-  "conditions": {"attacked": {"type": "core:decreased", "value": "ticksAfterAttack"}},
-  "select": [{"when": {"type": "core:compare", "left": "ticksAfterAttack", "op": ">=", "right": 10}, "then": "sword_idle"}],
+  "expressions": {"attacked": {"decreased": ["ticksAfterAttack"]}},
+  "select": [{"when": {"ge": ["ticksAfterAttack", 10]}, "then": "sword_idle"}],
   "connections": [
     {"target": "slash_up", "set": {"combo": 1},
-     "triggerCondition": {"type": "core:and", "conditions": ["attacked", {"type": "core:compare", "left": "combo", "op": "==", "right": 0}]}},
+     "triggerCondition": {"and": ["attacked", {"eq": ["combo", 0]}]}},
     …
   ],
   "nodes": {"sword_idle": {…}, "slash_up": {…}, …}}}
@@ -244,7 +244,7 @@ Author for the right hand, then give the layer a mirror rule and mark the items 
 hand:
 
 ```json
-"mirror": {"when": {"type": "core:state", "state": "LEFT_HANDED"},
+"mirror": {"when": "LEFT_HANDED",
            "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"]]}
 ```
 
@@ -260,7 +260,7 @@ otherwise; use it as a later item's `weight` to raise an arm over a few ticks in
 
 ```json
 {"driver": "core:ramp", "name": "raise", "speed": 0.1,
- "when": {"type": "core:state", "state": "SNEAKING"}},
+ "when": "SNEAKING"},
 {"animationKey": "…/raise.json", "weight": "raise"}
 ```
 
@@ -275,7 +275,7 @@ node, so the entity's own animation shows, and crossfade into your node when it 
 
 ```json
 "select": [
-  {"when": {"type": "core:state", "state": "STANDING_STILL"}, "then": "wave", "transitionDuration": 8},
+  {"when": "STANDING_STILL", "then": "wave", "transitionDuration": 8},
   {"then": "through", "transitionDuration": 8}
 ],
 "nodes": {

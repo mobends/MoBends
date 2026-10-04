@@ -40,14 +40,16 @@ function writeClip(path: string, data: Obj): void {
 }
 
 // ---- condition helpers ----------------------------------------------------------------------
-/** A condition, or the name of a named one (declared in a "conditions" object). */
+/** A condition: a boolean expression, or the name of a named one (or of a subject state). */
 type Cond = Obj | string;
-const cmp = (left: string | number | Obj, op: string, right: string | number | Obj): Obj => ({ type: "core:compare", left, op, right });
-const state = (s: string): Obj => ({ type: "core:state", state: s });
-const action = (tag: string): Obj => ({ type: "core:action", tag });
-const AND = (...conditions: Cond[]): Obj => ({ type: "core:and", conditions });
-const OR = (...conditions: Cond[]): Obj => ({ type: "core:or", conditions });
-const NOT = (condition: Cond): Obj => ({ type: "core:not", condition });
+const COMPARISONS: Record<string, string> = { "<": "lt", "<=": "le", ">": "gt", ">=": "ge", "==": "eq", "!=": "ne" };
+const cmp = (left: string | number | Obj, op: string, right: string | number | Obj): Obj => ({ [COMPARISONS[op]]: [left, right] });
+/** A state of the subject (ON_GROUND, SPRINTING, ...): a boolean name. */
+const state = (s: string): Cond => s;
+const action = (tag: string): Obj => ({ "core:action": [tag] });
+const AND = (...conditions: Cond[]): Obj => ({ and: conditions });
+const OR = (...conditions: Cond[]): Obj => ({ or: conditions });
+const NOT = (condition: Cond): Obj => ({ not: [condition] });
 
 // ---- clip frames: where in a clip it is, in the clip's units (see misc/kumo-format.md, "Clips") ----
 /** Wraps a frame around the clip, for the clips that loop. */
@@ -156,7 +158,7 @@ const jump: Obj = {
 const biped: Obj = {
   formatVersion: 2,
   layers: [
-    { conditions: { jumping, bounced }, select: locomotionSelect, nodes: { stand, walk, jump } },
+    { expressions: { jumping, bounced }, select: locomotionSelect, nodes: { stand, walk, jump } },
   ] };
 
 // ---- zombie: animation sets -----------------------------------------------------------------------
@@ -530,11 +532,18 @@ function curveClip(path: string, boneFn: (t: number) => Record<string, Quaternio
   writeClip(path, data);
 }
 
-function prop(name: string, value: unknown = null, unset = false): Obj {
-  const c: Obj = { type: "core:property", property: name };
-  if (unset) c.unset = true;
-  else c.value = value;
-  return c;
+/** What the old string properties asked, as the operations that ask it now. */
+function prop(name: string, value: string | null = null, unset = false): Obj {
+  switch (name) {
+    case "mainHandItem": return { "core:holds_item": ["main_hand", value] };
+    case "offHandItem": return { "core:holds_item": ["off_hand", value] };
+    case "activeHandSide": return { "core:active_hand_side": [value!.toLowerCase()] };
+    case "attackActionType": return { "mobends:attack_action": [value!.toLowerCase()] };
+    case "useActionType":
+      if (unset) return NOT(OR(...["food", "bow", "shield"].map((a) => ({ "mobends:use_action": [a] }))));
+      return { "mobends:use_action": [value!.toLowerCase()] };
+  }
+  throw new Error(`unknown property ${name}`);
 }
 
 function conn(target: string, cond: Cond, sets: Obj | null = null): Obj {
@@ -546,7 +555,7 @@ function conn(target: string, cond: Cond, sets: Obj | null = null): Obj {
 // An action bit's slideY() over a base layer that re-slides the same vector restarts every
 // frame; the core detects the conflicting write and restarts the slide, so SLIDE is exact.
 const tAA = "ticksAfterAttack";
-const dec = { type: "core:decreased", value: tAA };
+const dec = { decreased: [tAA] };
 const stillNotRiding = AND(state("STANDING_STILL"), NOT(state("RIDING")));
 const stanceWindow = AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60), state("ON_GROUND"));
 const stanceSprintCond = AND(stanceWindow, state("SPRINTING"));
@@ -803,7 +812,7 @@ const punchConns = [conn("punch_right", AND("attacked", cmp("fist", "==", 0)), {
 // selector, which chooses nothing for ten ticks after an attack, so it plays until then.
 const swordMachine: Obj = {
   defaultOnEntry: "sword_idle",
-  conditions: { attacked: dec },
+  expressions: { attacked: dec },
   select: [
     { when: stanceSprintCond, then: "stance_sprint" },
     { when: stanceStillCond, then: "stance" },
@@ -815,7 +824,7 @@ const swordMachine: Obj = {
 // A fresh PunchingAction starts with the left fist; after a punch the guard, then the fists rest.
 const fistsMachine: Obj = {
   defaultOnEntry: "punch_left",
-  conditions: { attacked: dec },
+  expressions: { attacked: dec },
   select: [
     { when: AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60)), then: "fist_guard" },
     { when: cmp(tAA, ">=", 60), then: "fists_idle" },
@@ -840,14 +849,14 @@ function torchArm(side: string): Obj[] {
   return [drv(arm, "X", "headPitch", { scale: 0.5, offset: -90, space: "OVERRIDE" }), drv(arm, "Y", "headYaw", { scale: 0.7 }),
           { animationKey: PL(`torch_forearm_${side}`) }];
 }
-const torchMain = { type: "core:property", property: "mainHandItem", value: "minecraft:torch" };
-const torchOff = { type: "core:property", property: "offHandItem", value: "minecraft:torch" };
+const torchMain = prop("mainHandItem", "minecraft:torch");
+const torchOff = prop("offHandItem", "minecraft:torch");
 const player: Obj = {
   formatVersion: 2,
   layers: [
     // item rotations are reset every frame before the layers run (keeps their damping)
     { defaultOnEntry: "reset", nodes: { reset: { type: "core:pose", pose: [{ animationKey: PL("reset_items") }] } } },
-    { conditions: { jumping, bounced }, select: playerSelect, nodes },
+    { expressions: { jumping, bounced }, select: playerSelect, nodes },
     // sneaking overlay on the ground states
     { when: AND(state("SNEAKING"), groundAction), defaultOnEntry: "sneak", nodes: { sneak: {
         type: "core:pose", tags: ["sneak"], pose: [
@@ -988,7 +997,7 @@ const spDeath: Obj = { type: "core:pose", tags: ["death"], pose: [
   { animationKey: SP("death_wiggle"), frame: looped("wigglePhase"), weight: { variable: "wiggleSpeed", scale: 10, offset: 10 }, space: "PRE" },
 ] };
 // the controller's decision chain
-const spider: Obj = { formatVersion: 2, layers: [{ defaultOnEntry: "idle", variables: { resetLimbs: 1 }, conditions: { jumping },
+const spider: Obj = { formatVersion: 2, layers: [{ defaultOnEntry: "idle", variables: { resetLimbs: 1 }, expressions: { jumping },
   select: [
     { when: cmp("health", "<=", 0), then: "death" },
     { when: state("BESIDE_CLIMBABLE"), then: "crawl" },
@@ -1070,7 +1079,7 @@ function walkerAnimator(folder: string, legs: Leg[], idleBones: [string, number]
   const stand = { type: "core:pose", tags: ["stand"], pose: [walkerRest(folder, legBones(legs)), walkerIdle(folder, idleBones), ...idleLook, ...extra] };
   const walk = { type: "core:pose", tags: ["walk"], pose: [walkerGait(folder, legs), ...look, ...extra] };
   const jump = { type: "core:pose", tags: ["jump"], pose: [walkerJump(folder, legs), ...look, ...extra] };
-  return { formatVersion: 2, layers: [{ conditions: { jumping }, select: locomotionSelect, nodes: { stand, walk, jump } }] };
+  return { formatVersion: 2, layers: [{ expressions: { jumping }, select: locomotionSelect, nodes: { stand, walk, jump } }] };
 }
 
 // vanilla ModelQuadruped: legs 1 and 4 swing together, 2 and 3 opposite

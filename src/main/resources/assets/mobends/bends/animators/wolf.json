@@ -12,12 +12,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/wolf/idle.json",
-              "frame": {
-                "mod": [
-                  "elapsed",
-                  "clipLength"
-                ]
-              },
+              "frame": {"mod": ["elapsed", "clipLength"]},
               "space": "OVERRIDE",
               "snap": true
             }
@@ -26,18 +21,12 @@
             {
               "target": "walk",
               "transitionDuration": 4,
-              "triggerCondition": {
-                "type": "core:state",
-                "state": "MOVING_HORIZONTALLY"
-              }
+              "triggerCondition": "MOVING_HORIZONTALLY"
             },
             {
               "target": "sit_down",
               "transitionDuration": 3,
-              "triggerCondition": {
-                "type": "core:state",
-                "state": "SITTING"
-              }
+              "triggerCondition": "SITTING"
             }
           ]
         },
@@ -46,18 +35,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/wolf/walking.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "limbSwing",
-                      0.6662,
-                      4
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
+              "frame": {"mod": [{"mul": ["limbSwing", 0.6662, 4]}, "clipLength"]},
               "space": "OVERRIDE",
               "snap": true
             }
@@ -66,18 +44,12 @@
             {
               "target": "idle",
               "transitionDuration": 4,
-              "triggerCondition": {
-                "type": "core:state",
-                "state": "STANDING_STILL"
-              }
+              "triggerCondition": "STANDING_STILL"
             },
             {
               "target": "sit_down",
               "transitionDuration": 1,
-              "triggerCondition": {
-                "type": "core:state",
-                "state": "SITTING"
-              }
+              "triggerCondition": "SITTING"
             }
           ]
         },
@@ -86,17 +58,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/wolf/sitting_down.json",
-              "frame": {
-                "add": [
-                  6,
-                  {
-                    "mul": [
-                      "elapsed",
-                      2
-                    ]
-                  }
-                ]
-              },
+              "frame": {"add": [6, {"mul": ["elapsed", 2]}]},
               "duration": 8,
               "space": "OVERRIDE",
               "snap": true
@@ -106,9 +68,7 @@
             {
               "target": "sit",
               "transitionDuration": 1,
-              "triggerCondition": {
-                "type": "core:animation_finished"
-              }
+              "triggerCondition": "nodeIsFinished"
             }
           ]
         },
@@ -117,12 +77,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/wolf/sitting.json",
-              "frame": {
-                "mod": [
-                  "elapsed",
-                  "clipLength"
-                ]
-              },
+              "frame": {"mod": ["elapsed", "clipLength"]},
               "space": "OVERRIDE",
               "snap": true
             }
@@ -131,13 +86,7 @@
             {
               "target": "stand_up",
               "transitionDuration": 1,
-              "triggerCondition": {
-                "type": "core:not",
-                "condition": {
-                  "type": "core:state",
-                  "state": "SITTING"
-                }
-              }
+              "triggerCondition": {"not": ["SITTING"]}
             }
           ]
         },
@@ -146,17 +95,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/wolf/standing_up.json",
-              "frame": {
-                "add": [
-                  4,
-                  {
-                    "mul": [
-                      "elapsed",
-                      2
-                    ]
-                  }
-                ]
-              },
+              "frame": {"add": [4, {"mul": ["elapsed", 2]}]},
               "duration": 9,
               "space": "OVERRIDE",
               "snap": true
@@ -166,9 +105,7 @@
             {
               "target": "idle",
               "transitionDuration": 1,
-              "triggerCondition": {
-                "type": "core:animation_finished"
-              }
+              "triggerCondition": "nodeIsFinished"
             }
           ]
         }
@@ -180,10 +117,7 @@
       "defaultOnEntry": "idle",
       "mask": {
         "mode": "INCLUDE_ONLY",
-        "includedParts": [
-          "tongue",
-          "mouth"
-        ]
+        "includedParts": ["tongue", "mouth"]
       },
       "nodes": {
         "idle": {
@@ -191,12 +125,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/wolf/idle.json",
-              "frame": {
-                "mod": [
-                  "elapsed",
-                  "clipLength"
-                ]
-              },
+              "frame": {"mod": ["elapsed", "clipLength"]},
               "space": "OVERRIDE",
               "snap": true
             }
@@ -205,10 +134,7 @@
             {
               "target": "breathe",
               "transitionDuration": 4,
-              "triggerCondition": {
-                "type": "core:ticks_passed",
-                "ticksToPass": 80
-              }
+              "triggerCondition": {"gt": ["elapsed", 80]}
             }
           ]
         },
@@ -217,17 +143,7 @@
           "pose": [
             {
               "animationKey": "mobends:bends/animations/wolf/breathing.json",
-              "frame": {
-                "mod": [
-                  {
-                    "mul": [
-                      "elapsed",
-                      1.2
-                    ]
-                  },
-                  "clipLength"
-                ]
-              },
+              "frame": {"mod": [{"mul": ["elapsed", 1.2]}, "clipLength"]},
               "space": "OVERRIDE",
               "snap": true
             }
@@ -236,10 +152,7 @@
             {
               "target": "idle",
               "transitionDuration": 4,
-              "triggerCondition": {
-                "type": "core:ticks_passed",
-                "ticksToPass": 50
-              }
+              "triggerCondition": {"gt": ["elapsed", 50]}
             }
           ]
         }
@@ -314,12 +227,7 @@
               "driver": "core:axis_rotate",
               "bone": "tail",
               "axis": "X",
-              "angle": {
-                "add": [
-                  "tailRotation",
-                  -90
-                ]
-              },
+              "angle": {"add": ["tailRotation", -90]},
               "space": "POST",
               "snap": true
             },

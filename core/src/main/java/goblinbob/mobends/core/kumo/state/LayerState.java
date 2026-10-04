@@ -4,8 +4,7 @@ import goblinbob.mobends.core.kumo.pose.BoneTarget;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
-import goblinbob.mobends.core.kumo.state.condition.ITriggerCondition;
-import goblinbob.mobends.core.kumo.state.condition.TriggerConditionRegistry;
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.template.ArmatureMask;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
@@ -32,7 +31,7 @@ public class LayerState
     private final ArmatureMask mask;
     private final LayerTemplate.LayerMode mode;
     private final Skeleton skeleton;
-    private final ITriggerCondition when;
+    private final Expression when;
     private final VariableScope variables = new VariableScope();
     private final VariableTable.Assignments initialVariables;
 
@@ -69,7 +68,7 @@ public class LayerState
         }
         this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
         this.skeleton = skeleton;
-        this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(layerTemplate.when, context.getExpressionScope());
+        this.when = Expression.compileCondition(layerTemplate.when, context.getExpressionScope());
         this.initialVariables = context.getExpressionScope().getVariables().layerAssignments(layerTemplate.variables);
         initialVariables.applyTo(variables);
 
@@ -106,7 +105,7 @@ public class LayerState
         context.enterNode(currentNode, variables);
         if (when != null)
         {
-            when.onNodeStarted(context);
+            when.restart(context);
         }
         List<MachineState> entered = new ArrayList<>();
         moveTo(descend(enter(machine, context, entered), context, entered));
@@ -145,7 +144,7 @@ public class LayerState
         justStarted = false;
         context.enterNode(currentNode, variables);
 
-        enabled = when == null || when.isConditionMet(context);
+        enabled = when == null || when.test(context);
         if (!enabled)
         {
             // Disabled: the layer writes nothing and its clocks pause.
@@ -257,7 +256,7 @@ public class LayerState
     {
         for (ConnectionState connection : connections)
         {
-            if (connection.triggerCondition.isConditionMet(context) && fired == null)
+            if (connection.triggerCondition.test(context) && fired == null)
             {
                 fired = connection;
             }
@@ -355,7 +354,7 @@ public class LayerState
         currentNode.start(context);
         for (ConnectionState connection : current.connections)
         {
-            connection.triggerCondition.onNodeStarted(context);
+            connection.triggerCondition.restart(context);
         }
     }
 

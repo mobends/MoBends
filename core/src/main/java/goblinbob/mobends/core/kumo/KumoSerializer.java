@@ -52,7 +52,6 @@ public class KumoSerializer
     private static GsonBuilder builderWithLeafAdapters()
     {
         return new GsonBuilder()
-                .registerTypeAdapter(TriggerConditionTemplate.class, new TriggerConditionTemplateSerializer())
                 .registerTypeAdapter(BranchTemplate.class, new BranchTemplateSerializer())
                 .registerTypeAdapter(PoseItemTemplate.class, new PoseItemSerializer())
                 .registerTypeAdapter(ExpressionTemplate.class, new ExpressionTemplate.Deserializer())

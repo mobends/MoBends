@@ -36,11 +36,8 @@ public class MachineTemplate
     /** Connections out of any node inside the machine. */
     public List<ConnectionTemplate> connections;
 
-    /** Named expressions, visible to everything inside (see misc/kumo-format.md, "Expressions"). */
+    /** Named expressions (numbers and booleans), visible to everything inside (see misc/kumo-format.md, "Expressions"). */
     public Map<String, ExpressionTemplate> expressions;
-
-    /** Named conditions, visible to everything inside (see misc/kumo-format.md, "Conditions"). */
-    public Map<String, TriggerConditionTemplate> conditions;
 
     /** Every node of the machine and of the machines inside it. */
     public List<NodeTemplate> allNodes()

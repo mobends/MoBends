@@ -39,9 +39,9 @@ public class ExtensionsTest
      * arm out, holds it for 20 ticks, then fades back.
      */
     private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"through\", \"nodes\": {"
-            + "\"through\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"raise\", \"transitionDuration\": 5, \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 10}}]},"
+            + "\"through\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"raise\", \"transitionDuration\": 5, \"triggerCondition\": {\"gt\": [\"elapsed\", 10]}}]},"
             + "\"raise\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"rightArm\", \"axis\": \"X\", \"angle\": -90, \"space\": \"OVERRIDE\"}],"
-            + "  \"connections\": [{\"target\": \"back\", \"transitionDuration\": 5, \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 20}}]},"
+            + "  \"connections\": [{\"target\": \"back\", \"transitionDuration\": 5, \"triggerCondition\": {\"gt\": [\"elapsed\", 20]}}]},"
             + "\"back\": {\"type\": \"core:fallthrough\"}"
             + "}}]}";
 
@@ -115,10 +115,10 @@ public class ExtensionsTest
     /** Vanilla from tick 10 to tick 30; a second layer that would go vanilla is disabled by its "when". */
     private static final String VANILLA = "{\"formatVersion\": 2, \"layers\": ["
             + "{\"defaultOnEntry\": \"animated\", \"nodes\": {"
-            + "\"animated\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"vanilla\", \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 10}}]},"
-            + "\"vanilla\": {\"type\": \"core:vanilla\", \"tags\": [\"vanilla\"], \"connections\": [{\"target\": \"again\", \"triggerCondition\": {\"type\": \"core:ticks_passed\", \"ticksToPass\": 20}}]},"
+            + "\"animated\": {\"type\": \"core:fallthrough\", \"connections\": [{\"target\": \"vanilla\", \"triggerCondition\": {\"gt\": [\"elapsed\", 10]}}]},"
+            + "\"vanilla\": {\"type\": \"core:vanilla\", \"tags\": [\"vanilla\"], \"connections\": [{\"target\": \"again\", \"triggerCondition\": {\"gt\": [\"elapsed\", 20]}}]},"
             + "\"again\": {\"type\": \"core:fallthrough\"}}},"
-            + "{\"when\": {\"type\": \"core:state\", \"state\": \"SPRINTING\"}, \"defaultOnEntry\": \"vanilla\", \"nodes\": {\"vanilla\": {\"type\": \"core:vanilla\"}}}"
+            + "{\"when\": \"SPRINTING\", \"defaultOnEntry\": \"vanilla\", \"nodes\": {\"vanilla\": {\"type\": \"core:vanilla\"}}}"
             + "]}";
 
     @Test
