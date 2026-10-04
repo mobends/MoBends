@@ -256,32 +256,10 @@ Still to come:
 
 ## Runtime
 
-### Program and per-entity state
-
-- **Program**: an animator is compiled into an immutable tree (the node and machine graph,
-  expressions, resolved names and field paths, bound operations, bone indices), shared by every
-  entity it was compiled for.
-- **State**: every stateful element gets a slot at compile time: a node's clock, an
-  accumulator's and a spring's values, a spring's velocity, an edge trigger's memory, a layer's
-  current node, the definitions' state and constants. An entity owns only a flat state array and
-  its pose buffers; evaluation takes the entity's state alongside the program.
-- A scope's slots are one contiguous range, reset when the scope is created.
-- **Constant folding.** A constant that reads nothing per entity (no entity value, no state, no
-  `random`) is computed once and lives in the program, not in every entity's state; so is a pure
-  operation with constant arguments. This is the compiler's choice and changes nothing in files.
-
-### What a program is compiled for
-
-A program is cached by everything that changes the compiled result:
-
-- the animator file and its extensions, in order (with their `extends` chains);
-- their trust, and the resource-pack limits in force;
-- the entity class: `field` paths resolve against it and operations bind against it. Names don't
-  depend on the entity: they are declared in files or are built-ins.
-
-The cache is cleared on a resource reload and when the server's policy changes. A path or
-operation that fails on one entity class fails that class's program only; failures are reported
-once per animator file and extensions.
+Program and per-entity state are in `docs/animation.md` (*Program and Per-entity State*). Still
+to come: folding constant definitions (a `constant` that reads nothing per entity) into the
+program, as pure operations with constant arguments already are; today each entity computes them
+when its scope starts.
 
 ---
 
@@ -424,80 +402,6 @@ The data-class memory differs from slots in scope (an entity's life, read by eve
 extension) and rate (some per tick, some per frame); hence entity-level state and the `entity…`
 built-ins.
 
-## Splitting program from state
-
-### How animators are compiled today
-
-Verified 2026-10-03: **an animator is compiled per entity.** Only the parsed template is shared.
-
-- `AnimatorResources` caches the parsed `AnimatorTemplate` per resource location.
-- Every `EntityData` gets its own `KumoAnimatorController` (`EntityData.setAnimator`, called per
-  entity by the type's data factory, `EntityType.java:183-186`).
-- The controller builds its own `KumoAnimatorState` lazily on the first `animate(subject)`
-  (`KumoAnimatorController.ensureLoaded`). That constructor compiles expressions and conditions,
-  so every zombie compiles `biped.json` for itself.
-- The compiled objects hold that entity's runtime state in their fields (a ramp's value, an edge
-  trigger's memory, a node's clock, a layer's current node), which is why they can't be shared.
-- Compiling doesn't see the subject: the constructor takes none, and bones are bound on the first
-  frame (`Skeleton.bind`). But `ensureLoaded` runs inside `animate(subject)`, so passing the
-  subject into compilation is a small change.
-- An entity's class can't change under its animator: when its type changes, its data (and so its
-  animator) is made anew.
-
-### Measurements
-
-Measured with `misc/bench/InstancingBench.java`: two mock engines running a synthetic animator
-shaped like `player.json` (7 layers, 41 nodes, 295 items, 556 condition nodes, 1,043 expression
-nodes). Both do the same work per frame and share the expression classes, so only instancing and
-the layout of state differ. Java 8 (Minecraft 1.12's runtime), Apple M3 Pro, 2026-10-03.
-
-Instancing, all entities' animators:
-
-| entities | unified (today) | split | speedup |
-|---|---|---|---|
-| 1 | 0.03 ms | 0.03 ms (the compile, ~28 µs) | 1× |
-| 10 | 0.27 ms | 0.04 ms | 7× |
-| 100 | 2.7 ms | 0.10 ms | 27× |
-| 1,000 | 26.5 ms | 0.55 ms | 48× |
-| 10,000 | 639 ms | 16 ms | 40× |
-
-One frame, all entities:
-
-| entities | unified | split | speedup |
-|---|---|---|---|
-| 1–100 | 8.5 µs per entity | 8.6 µs per entity | 1.0× |
-| 1,000 | 9.7 ms | 8.9 ms | 1.09× |
-| 10,000 | 108.5 ms | 89.6 ms | 1.21× |
-
-Retained heap for 10,000 animators: 617 MB unified (63 KB per entity), 135 MB split (13.8 KB per
-entity, almost all of it the 7 layers × 5 pose buffers both need; the state slots are about
-0.3 KB).
-
-The wins:
-
-- **No compile hitches.** Instancing is lazy, on an entity's first frame, so entities appearing
-  together (joining a world, loading chunks) compile in the same frame. 100 players cost ~2.7 ms
-  of a 16.7 ms frame today; with a cached program, ~0.1 ms. Instancing goes from ~27 µs to ~1 µs
-  per entity.
-- **About a fifth of the memory.** The unified engine duplicates ~49 KB of compiled tree per
-  entity.
-- **Runtime unchanged at Minecraft's usual entity counts**, 9–21 % faster from about a thousand
-  entities, where the unified trees stop fitting in cache.
-- **Cheaper stateful operations.** Per-use memory falls out of slot allocation; named conditions
-  today get it by copying the condition at every use.
-
-The mock understates today's instancing cost (no Gson trees, `ExpressionScope` chains, eager
-validation or skeleton binding), and its runtime is simpler than KUMO's (names resolved to
-indices in both; no previous node evaluated during a crossfade). Read the ratios, not the
-absolute times.
-
-Run it with
-`javac -d /tmp/bench misc/bench/InstancingBench.java && java -Xmx4g -cp /tmp/bench InstancingBench`
-(about 2 minutes). Options: `--shape` prints the generated animator's shape and exits;
-`-Dseed=N` generates another animator (40, the default, is the one closest to `player.json`);
-`-Dsections=runtime` runs only the runtime measurement; `-Dlookup=string` reads names as today's
-runtime does (below).
-
 ## Moving mobs out of Java
 
 Surveyed 2026-10-03. A model definition can already describe the player's mesh: `ModelPlayer`'s
@@ -608,11 +512,8 @@ the additive and smaller ones.
 
 1. [x] **Resolve names at compile time** in the current runtime: node and layer variables
    numbered, subject names indices, unknown names fail before the animator animates.
-2. [ ] **Split program from state** (deferred until after the format rework, tasks 3–17: converting
-   the condition, ramp and tag classes those tasks delete would be wasted): compile an animator once per animator, extensions, trust and
-   entity class into an immutable program; give every stateful element a slot in one flat
-   per-entity `float[]`, a scope's slots one contiguous range; cache programs and clear the cache
-   on a reload or a policy change (*Runtime*, *Splitting program from state*).
+2. [x] **Split program from state**: an animator compiles once into a program shared by every
+   entity of its class; each entity keeps a flat state (*Runtime*).
 3. [x] **The expression language**: one typed expression tree (number or boolean, checked at load)
    replacing trigger conditions; the language operations; `decreased`, `rose`, `fell`; nothing
    short-circuits. Subject states are names in capitals until the built-ins (task 8); selector
@@ -642,9 +543,9 @@ the additive and smaller ones.
    Java*). The typed template fields were settled otherwise with task 10.
 10. [x] **Prototype the API on `core:spring` and `core:step_turn`**, settling argument passing, what
     bind gets, `PoseWriter` and purity (*Operations and drivers in Java*).
-11. [ ] **Drivers' private state as declared slots**: `core:step_turn`'s planted feet and the
-    spider legs' (with task 2). `out`, `inout`, and the removal of `core:ramp`, `core:set` and
-    `readBeforeAdvance` are done.
+11. [x] **Drivers' private state as declared slots**: `core:step_turn`'s planted feet and the
+    spider's ease-in. The spider's legs keep theirs on `SpiderData` until the generic data class
+    (task 23).
 12. [x] **Registered operations**: `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
     `core:is_flying`; `mobends:use_action`, `mobends:attack_action`, the wolf's and the spider's
     operations, `mobends:spin_attack_enabled` (*Values specific to a mob*). The spider's wall

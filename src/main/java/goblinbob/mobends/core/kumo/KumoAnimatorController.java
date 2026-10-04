@@ -4,6 +4,7 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
+import goblinbob.mobends.core.kumo.state.KumoProgram;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -12,8 +13,11 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -31,6 +35,12 @@ public class KumoAnimatorController
 
     /** The animators (with their extensions) the player has been told failed, until the animation reloads. */
     private static final Set<String> REPORTED = new HashSet<>();
+    /**
+     * The animators compiled, until the animation reloads: one program per animator, extensions and
+     * entity (its class and entity scope), shared by every entity it animates; or why it failed,
+     * so it fails once, not once per entity.
+     */
+    private static final Map<List<Object>, Object> PROGRAMS = new HashMap<>();
 
     @Nullable
     private final EntityTemplate entity;
@@ -66,6 +76,26 @@ public class KumoAnimatorController
         {
             return false;
         }
+        List<Object> key = Arrays.asList(animator, extensions, entity == null ? null : entity.entityClass,
+                entity == null ? null : new IdentityKey(entity.define), entity == null ? null : new IdentityKey(entity.on), entity != null && entity.trusted);
+        Object compiled = PROGRAMS.get(key);
+        if (compiled == null)
+        {
+            compiled = compile();
+            PROGRAMS.put(key, compiled);
+        }
+        if (compiled instanceof Exception)
+        {
+            failed = true;
+            return false;
+        }
+        state = new KumoAnimatorState((KumoProgram) compiled);
+        return true;
+    }
+
+    /** Compiles the animator and its extensions; the program, or why it failed (logged and shown). */
+    private Object compile()
+    {
         try
         {
             AnimatorResources resources = AnimatorResources.INSTANCE;
@@ -87,16 +117,38 @@ public class KumoAnimatorController
                 }
             }
             KumoRegistry.close();
-            state = new KumoAnimatorState(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
-            state.getSkippedExtensions().forEach((index, e) -> skip(loaded.get(index), e));
-            return true;
+            KumoProgram program = new KumoProgram(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
+            program.getSkippedExtensions().forEach((index, e) -> skip(loaded.get(index), e));
+            return program;
         }
         catch (Exception e)
         {
-            failed = true;
             Core.LOG.log(Level.SEVERE, "Could not load the animator " + describe(), e);
             report("could not be loaded", e);
-            return false;
+            return e;
+        }
+    }
+
+    /** A key part equal only to the very same object (a model definition's scope, loaded once). */
+    private static final class IdentityKey
+    {
+        private final Object object;
+
+        IdentityKey(Object object)
+        {
+            this.object = object;
+        }
+
+        @Override
+        public boolean equals(Object other)
+        {
+            return other instanceof IdentityKey && ((IdentityKey) other).object == object;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return System.identityHashCode(object);
         }
     }
 
@@ -127,10 +179,14 @@ public class KumoAnimatorController
         }
     }
 
-    /** Forgets which failures were shown, so they show again if they happen after a reload. */
-    public static void clearReported()
+    /**
+     * Forgets the compiled animators and which failures were shown: after a reload (or a change of
+     * the server's policy), animators compile again from the new files, and failures show again.
+     */
+    public static void clearCaches()
     {
         REPORTED.clear();
+        PROGRAMS.clear();
     }
 
     private String describe()

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The set of bone names an animator touches, resolved once into indices, and bound to a
- * subject's sinks. Templates refer to bones by index after instancing, so the per-frame path
+ * The set of bone names an animator touches, resolved once into indices; an entity's state holds
+ * its sinks for them. Templates refer to bones by index after instancing, so the per-frame path
  * does no string lookups.
  */
 public class Skeleton
@@ -35,8 +35,6 @@ public class Skeleton
 
     private final List<String> names = new ArrayList<>();
     private final Map<String, Integer> indices = new HashMap<>();
-    private IBoneSink[] sinks = new IBoneSink[0];
-    private IKumoSubject boundTo;
 
     public int indexOf(String bone)
     {
@@ -60,23 +58,15 @@ public class Skeleton
         return names.get(index);
     }
 
-    public void bind(IKumoSubject subject)
+    /** The subject's sinks for every bone, by index (null where it has no such bone). */
+    public IBoneSink[] sinksOf(IKumoSubject subject)
     {
-        if (boundTo == subject && sinks.length == names.size())
-        {
-            return;
-        }
-        sinks = new IBoneSink[names.size()];
+        IBoneSink[] sinks = new IBoneSink[names.size()];
         for (int i = 0; i < sinks.length; i++)
         {
             sinks[i] = subject.getBone(names.get(i));
         }
-        boundTo = subject;
-    }
-
-    public IBoneSink sink(int index)
-    {
-        return index < sinks.length ? sinks[index] : null;
+        return sinks;
     }
 
 }

@@ -3,6 +3,7 @@ package goblinbob.mobends.core.kumo.driver;
 import goblinbob.mobends.core.kumo.api.DriverBindArgs;
 import goblinbob.mobends.core.kumo.api.DriverEvaluator;
 import goblinbob.mobends.core.kumo.api.EvalContext;
+import goblinbob.mobends.core.kumo.api.FloatArraySlot;
 import goblinbob.mobends.core.kumo.api.KumoDriver;
 import goblinbob.mobends.core.kumo.api.NumberInput;
 import goblinbob.mobends.core.kumo.api.PoseWriter;
@@ -103,6 +104,12 @@ public class StepTurnDriver implements DriverEvaluator
     /** How far the hips are down past the crouch, for reach (model units). */
     private float walkCrouch;
 
+    /**
+     * The entity's state (see {@link #load}): the fields above and the legs' are a working copy of
+     * it while the driver evaluates, so the compiled driver is shared by every entity.
+     */
+    private final FloatArraySlot state;
+
     private final Quaternion upper = new Quaternion();
     private final Quaternion lower = new Quaternion();
     private final Quaternion below = new Quaternion();
@@ -168,6 +175,147 @@ public class StepTurnDriver implements DriverEvaluator
             StepTurnTemplate.Leg def = template.legs.get(i);
             legs[i] = new Leg(def, args.bone("upper", def.upper), args.bone("lower", def.lower));
         }
+        this.state = args.slots("state", STATE_SIZE + LEG_STATE_SIZE * legs.length, 0);
+    }
+
+    // --- the entity's state ------------------------------------------------------------------------
+
+    /** Floats of state: five flags and counters, four floats, nine doubles (two floats each). */
+    private static final int STATE_SIZE = 5 + 4 + 9 * 2;
+    /** Per leg: nine doubles and three floats. */
+    private static final int LEG_STATE_SIZE = 9 * 2 + 3;
+
+    /**
+     * Reads and writes the state in order. A double is kept as two floats, its float value and
+     * what that leaves (about 48 bits): positions in the world don't round far from the origin.
+     */
+    private final class Cursor
+    {
+        private final EvalContext context;
+        private int index;
+
+        Cursor(EvalContext context)
+        {
+            this.context = context;
+        }
+
+        float read()
+        {
+            return state.get(context, index++);
+        }
+
+        double readDouble()
+        {
+            double high = state.get(context, index++);
+            return high + state.get(context, index++);
+        }
+
+        void write(float value)
+        {
+            state.set(context, index++, value);
+        }
+
+        void write(double value)
+        {
+            float high = (float) value;
+            state.set(context, index++, high);
+            state.set(context, index++, (float) (value - high));
+        }
+
+        void write(boolean value)
+        {
+            write(value ? 1F : 0F);
+        }
+    }
+
+    /** Loads the entity's state into the working fields; a new entity starts from rest. */
+    private void load(EvalContext context)
+    {
+        Cursor in = new Cursor(context);
+        if (in.read() == 0)
+        {
+            placed = wrote = hasLast = false;
+            stepping = -1;
+            sinceLanding = Float.MAX_VALUE;
+            impact = impactVelocity = walkCrouch = 0;
+            shownYaw = turnSpeed = velocityX = velocityZ = lastX = lastZ = speed = headingX = headingZ = 0;
+            for (Leg leg : legs)
+            {
+                leg.x = leg.z = leg.yaw = leg.fromX = leg.fromZ = leg.fromYaw = leg.toX = leg.toZ = leg.toYaw = 0;
+                leg.progress = leg.duration = leg.forward = 0;
+            }
+            return;
+        }
+        placed = in.read() != 0;
+        wrote = in.read() != 0;
+        hasLast = in.read() != 0;
+        stepping = (int) in.read();
+        sinceLanding = in.read();
+        impact = in.read();
+        impactVelocity = in.read();
+        walkCrouch = in.read();
+        shownYaw = in.readDouble();
+        turnSpeed = in.readDouble();
+        velocityX = in.readDouble();
+        velocityZ = in.readDouble();
+        lastX = in.readDouble();
+        lastZ = in.readDouble();
+        speed = in.readDouble();
+        headingX = in.readDouble();
+        headingZ = in.readDouble();
+        for (Leg leg : legs)
+        {
+            leg.x = in.readDouble();
+            leg.z = in.readDouble();
+            leg.yaw = in.readDouble();
+            leg.fromX = in.readDouble();
+            leg.fromZ = in.readDouble();
+            leg.fromYaw = in.readDouble();
+            leg.toX = in.readDouble();
+            leg.toZ = in.readDouble();
+            leg.toYaw = in.readDouble();
+            leg.progress = in.read();
+            leg.duration = in.read();
+            leg.forward = in.read();
+        }
+    }
+
+    private void store(EvalContext context)
+    {
+        Cursor out = new Cursor(context);
+        out.write(true);
+        out.write(placed);
+        out.write(wrote);
+        out.write(hasLast);
+        out.write((float) stepping);
+        out.write(sinceLanding);
+        out.write(impact);
+        out.write(impactVelocity);
+        out.write(walkCrouch);
+        out.write(shownYaw);
+        out.write(turnSpeed);
+        out.write(velocityX);
+        out.write(velocityZ);
+        out.write(lastX);
+        out.write(lastZ);
+        out.write(speed);
+        out.write(headingX);
+        out.write(headingZ);
+        for (Leg leg : legs)
+        {
+            out.write(leg.x);
+            out.write(leg.z);
+            out.write(leg.yaw);
+            out.write(leg.fromX);
+            out.write(leg.fromZ);
+            out.write(leg.fromYaw);
+            out.write(leg.toX);
+            out.write(leg.toZ);
+            out.write(leg.toYaw);
+            out.write(leg.progress);
+            out.write(leg.duration);
+            out.write(leg.forward);
+        }
     }
 
     private static DriverEvaluator bind(StepTurnTemplate template, DriverBindArgs args) throws MalformedKumoTemplateException
@@ -202,6 +350,19 @@ public class StepTurnDriver implements DriverEvaluator
 
     @Override
     public void evaluate(EvalContext context, PoseWriter pose)
+    {
+        load(context);
+        try
+        {
+            pose(context, pose);
+        }
+        finally
+        {
+            store(context);
+        }
+    }
+
+    private void pose(EvalContext context, PoseWriter pose)
     {
         final float w = Math.max(0F, Math.min(1F, weight.get(context)));
         final double bodyYaw = yaw.getDouble(context);
@@ -731,8 +892,7 @@ public class StepTurnDriver implements DriverEvaluator
     @Override
     public void restart(EvalContext context)
     {
-        // Its state is still in Java fields (declared state comes with task 11).
-        placed = false;
+        // Its state started over (the feet are placed anew under the body); the outputs are at rest.
         publish(context, 0, 0, 0, 0, 0);
     }
 

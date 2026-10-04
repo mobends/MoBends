@@ -120,6 +120,33 @@ public class KumoSession
         this.animator = new KumoAnimatorState(data.getEntityScope(), template, trusted, extensions, extensionsTrusted, INSTANCING);
     }
 
+    /** The scenario on an animator already compiled (shared, as the mod shares it between entities of one class). */
+    public KumoSession(Scenario scenario, goblinbob.mobends.core.kumo.state.KumoProgram program)
+    {
+        LabBootstrap.ensure();
+        net.minecraft.entity.Entity.resetIds();
+        this.scenario = scenario;
+        this.world = new World();
+        Minecraft.getMinecraft().world = world;
+        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+
+        EntityLivingBase entity = scenario.kind.createEntity(world);
+        this.scripted = new ScriptedEntity(entity, world);
+        this.data = scenario.kind.createData(entity, scenario.id().hashCode());
+        if (scenario.setup != null)
+        {
+            scenario.setup.accept(this.data);
+        }
+        this.clock = new LabClock(scenario.fps);
+        this.animator = new KumoAnimatorState(program);
+    }
+
+    /** The compiled animator this session runs. */
+    public goblinbob.mobends.core.kumo.state.KumoProgram getProgram()
+    {
+        return animator.getProgram();
+    }
+
     public PoseTrace run() throws MalformedKumoTemplateException
     {
         PoseTrace trace = new PoseTrace(scenario.kind.id(), scenario.name, scenario.fps);

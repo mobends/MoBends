@@ -84,6 +84,31 @@ into `KeyframeAnimation`s and sampled by `ClipSampler` (hemisphere-corrected, so
 run on a node's clock (`nodeTicksElapsed`), on any variable (`entityLimbSwing`, `entityTicksInAir`, ...) or loop with `mod`. JSON is
 the only clip format.
 
+## Program and Per-entity State
+
+An animator is compiled once into a `KumoProgram`: its layers, machines, nodes and items, its
+expressions with their names resolved and operations bound, its bones as indices. Every entity it
+animates shares it; each has a `KumoAnimatorState`, which holds only that entity's
+`EntityState`: a flat `float[]` and `int[]` of slots and its pose buffers.
+
+* While compiling, every stateful element takes its slots in the program's `StateLayout`: a
+  node's clock and pending snaps, a layer's current node (an index), its crossfade and its five
+  pose buffers, an edge trigger's memory, a definition's value, an operation's or a driver's
+  declared state (`core:step_turn` keeps its world positions as two floats each, about 48 bits).
+  Evaluation reads and writes them through the context (`context.getState()`).
+* An entity's state also holds what binds it to its subject on the first frame: its bones' sinks
+  and the indices of the values the animator reads.
+* `KumoAnimatorController` caches programs by animator, extensions and entity (class and entity
+  scope), and the reason one failed, so a broken animator is compiled and reported once; the
+  cache is cleared with every reload (`CoreClient.reloadAnimation`, which a change of the
+  server's policy also runs).
+
+Measured with `misc/bench/InstancingBench.java` (a synthetic animator shaped like `player.json`),
+before the split: instancing 100 entities took 27 times as long as with a shared program
+(1,000: 48 times), a compile hitch of ~2.7 ms in a 16.7 ms frame when 100 players appear at once,
+and the per-entity trees took about five times the memory (63 KB per entity, against 13.8 KB);
+frames ran at the same speed up to about a thousand entities, and 9–21 % faster beyond.
+
 ## Operations in Java
 
 A mod (or Mo' Bends itself) brings logic to animators as **registered operations**, named

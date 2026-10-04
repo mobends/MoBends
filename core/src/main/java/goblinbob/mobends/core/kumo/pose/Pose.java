@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.pose;
 
+import goblinbob.mobends.core.kumo.state.EntityState;
+import javax.annotation.Nullable;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.IRotationSink;
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
@@ -42,6 +44,9 @@ public class Pose
      * poses).
      */
     private final boolean sinkFallback;
+    /** The entity state whose bones this pose reads and writes; null for a scratch pose, which doesn't. */
+    @Nullable
+    private final EntityState owner;
     /**
      * When set, relative offsets and vectors with nothing under them resolve against these values
      * (one per slot) instead of the bones' live targets: see {@code KumoAnimatorState}'s limits.
@@ -57,6 +62,13 @@ public class Pose
 
     public Pose(Skeleton skeleton, boolean sinkFallback)
     {
+        this(skeleton, sinkFallback, null);
+    }
+
+    /** A pose of {@code owner}, an entity's state: it reads and writes that entity's bones (see {@link #writeTo}). */
+    public Pose(Skeleton skeleton, boolean sinkFallback, @Nullable EntityState owner)
+    {
+        this.owner = owner;
         this.sinkFallback = sinkFallback;
         this.skeleton = skeleton;
         this.targets = new BoneTarget[skeleton.size()];
@@ -231,7 +243,7 @@ public class Pose
         {
             return false;
         }
-        IBoneSink sink = skeleton.sink(index);
+        IBoneSink sink = sink(index);
         IRotationSink rotationSink = sink == null ? null : sink.asRotation();
         if (rotationSink == null || !rotationSink.hasOffset())
         {
@@ -254,7 +266,7 @@ public class Pose
         {
             return false;
         }
-        IBoneSink sink = skeleton.sink(index);
+        IBoneSink sink = sink(index);
         IVectorSink vectorSink = sink == null ? null : sink.asVector();
         if (vectorSink == null)
         {
@@ -267,7 +279,7 @@ public class Pose
     /** The live target of a bone's sink (the value beneath the first layer), if it has one. */
     private boolean sinkRotation(int index, Quaternion dest)
     {
-        IBoneSink sink = skeleton.sink(index);
+        IBoneSink sink = sink(index);
         IRotationSink rotationSink = sink == null ? null : sink.asRotation();
         if (rotationSink != null)
         {
@@ -376,7 +388,7 @@ public class Pose
         }
         else if (sinkFallback)
         {
-            IBoneSink sink = skeleton.sink(index);
+            IBoneSink sink = sink(index);
             IRotationSink rotationSink = sink == null ? null : sink.asRotation();
             if (rotationSink != null && rotationSink.hasOffset())
             {
@@ -426,7 +438,7 @@ public class Pose
         }
         else if (sinkFallback)
         {
-            IBoneSink sink = skeleton.sink(index);
+            IBoneSink sink = sink(index);
             IVectorSink vectorSink = sink == null ? null : sink.asVector();
             if (vectorSink != null)
             {
@@ -447,13 +459,22 @@ public class Pose
         target.hasVector = true;
     }
 
-    /** Writes every target that was set this frame into the bound sinks. */
-    public void writeTo(Skeleton skeleton)
+    private IBoneSink sink(int index)
+    {
+        if (owner == null || index >= owner.sinks.length)
+        {
+            return null;
+        }
+        return owner.sinks[index];
+    }
+
+    /** Writes every target that was set this frame into its entity's bones. */
+    public void writeTo()
     {
         for (int i = 0; i < targets.length; i++)
         {
             BoneTarget target = targets[i];
-            IBoneSink sink = skeleton.sink(i);
+            IBoneSink sink = sink(i);
             if (sink == null)
             {
                 continue;

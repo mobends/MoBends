@@ -30,172 +30,59 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A running instance of an animator template for one subject. Each update evaluates every
- * layer into one pose and writes the pose's targets to the subject's bones; the bones' own
- * smoothing then does the damping.
+ * An animator animating one entity: a {@link KumoProgram}, shared by every entity it was compiled
+ * for, and this entity's state. Each update evaluates every layer into one pose and writes the
+ * pose's targets to the subject's bones; the bones' own smoothing then does the damping.
  */
 public class KumoAnimatorState
 {
 
-    private final List<LayerState> layerStates = new ArrayList<>();
-    private final Skeleton skeleton = new Skeleton();
+    private final KumoProgram program;
     private final KumoContext context = new KumoContext();
-    /** Where the compiled animator's per-entity state goes, and this entity's. */
-    private final StateLayout layout;
+    /** This entity's state of the program. */
     private final EntityState entityState;
-    private final VariableTable variables = new VariableTable();
-    /** The animator's scope and each extension's: its definitions and statement lists, one per file. */
-    /** The entity's scope, which its model definition declares; null if it declares none. */
-    @Nullable
-    private final DefinitionScope entityScope;
-    @Nullable
-    private final ScopeLists entityLists;
-    private final List<DefinitionScope> animatorScopes = new ArrayList<>();
-    private final Map<Integer, MalformedKumoTemplateException> skippedExtensions = new LinkedHashMap<>();
-    private final List<List<ScopeLists>> animatorLists = new ArrayList<>();
-    private final Pose pose;
     private boolean started = false;
-    private final boolean[] layerTrusted;
-    private boolean anyUntrusted;
     @Nullable
     private AnimationLimits limits;
-    private Pose trustedPose;
     /** Per slot: the offset (or vector) the trusted layers last gave it. */
     private Vec3f[] lastTrusted;
-    /** Per slot: the slot whose trusted value it is limited around (aliases share one). */
-    private final int[] limitGroup;
-    /** Per slot: whether it is an entity-level vector (see {@link Skeleton#isVectorBone}). */
-    private final boolean[] vectorSlot;
+
+    /** An entity animated by {@code program}. */
+    public KumoAnimatorState(KumoProgram program)
+    {
+        this.program = program;
+        this.entityState = program.layout.newState(program.skeleton);
+        context.setState(entityState);
+    }
 
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
         this(animatorTemplate, Collections.<AnimatorTemplate>emptyList(), dataProvider);
     }
 
-    /**
-     * @param overlays Animators whose layers go on top of the animator's, in order (extensions).
-     *                 Each is its own animator: it sees its own named expressions, not the base's.
-     */
+    /** Compiles the animator for this entity alone (see {@link KumoProgram#KumoProgram}). */
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, List<AnimatorTemplate> overlays, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
         this(animatorTemplate, true, overlays, Collections.nCopies(overlays.size(), true), dataProvider);
     }
 
-    /**
-     * @param trusted         Whether the animator's own file comes from a trusted source (the mod
-     *                        or another mod; see {@link IKumoInstancingContext#isTrusted}).
-     * @param overlaysTrusted The same for each overlay. A layer is trusted when the file declaring
-     *                        it is and every clip it plays is; the others are limited by
-     *                        {@link #setLimits}.
-     */
+    /** Compiles the animator for this entity alone (see {@link KumoProgram#KumoProgram}). */
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, boolean trusted, List<AnimatorTemplate> overlays, List<Boolean> overlaysTrusted,
                              IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
         this(null, animatorTemplate, trusted, overlays, overlaysTrusted, dataProvider);
     }
 
-    /**
-     * @param entity The entity animated: its class, which operations bind against, and the entity
-     *               scope its model definition declares (read as {@code entity.x} by the animator
-     *               and every extension). Null: unknown, with no entity scope.
-     */
+    /** Compiles the animator for this entity alone (see {@link KumoProgram#KumoProgram}). */
     public KumoAnimatorState(@Nullable EntityTemplate entity, AnimatorTemplate animatorTemplate, boolean trusted, List<AnimatorTemplate> overlays,
                              List<Boolean> overlaysTrusted, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
-        // Every scope of the animator, its extensions included, shares one table of the entity's values.
-        ExpressionScope root = ExpressionScope.root(variables).forEntity(entity == null ? null : entity.entityClass);
-        this.layout = root.getLayout();
-        if (entity != null)
-        {
-            entityScope = new DefinitionScope(DefinitionScope.Kind.ENTITY, "the model definition");
-            entityScope.declare(entity.define, entity.trusted);
-            // The only place that reads the entity's fields.
-            ExpressionScope place = root.inside(entityScope).trusted(entity.trusted).readingFieldsOf(entity.entityClass);
-            entityScope.compileIn(place);
-            entityLists = ScopeLists.compile(entityScope, entity.on, place);
-            root = root.inside(entityScope);
-        }
-        else
-        {
-            entityScope = null;
-            entityLists = null;
-        }
-        dataProvider = new ScopedInstancingContext(dataProvider, root);
-        List<LayerTemplate> layers = new ArrayList<>();
-        List<IKumoInstancingContext> layerContexts = new ArrayList<>();
-        List<Boolean> layersTrusted = new ArrayList<>();
-        addAnimator(animatorTemplate, trusted, dataProvider, layers, layerContexts, layersTrusted);
-        instanceLayers(layers, layerContexts);
-        for (int i = 0; i < overlays.size(); i++)
-        {
-            // An extension's animator is a scope of its own: it never sees the extended animator's
-            // names. One that fails to load (it reads an entity. name the model doesn't declare,
-            // say) is left out: the animator and the other extensions still animate.
-            int layerCount = layers.size(), scopeCount = animatorScopes.size();
-            try
-            {
-                addAnimator(overlays.get(i), overlaysTrusted.get(i), dataProvider, layers, layerContexts, layersTrusted);
-                instanceLayers(layers, layerContexts);
-            }
-            catch (MalformedKumoTemplateException e)
-            {
-                truncate(layers, layerCount);
-                truncate(layerContexts, layerCount);
-                truncate(layersTrusted, layerCount);
-                truncate(layerStates, layerCount);
-                truncate(animatorScopes, scopeCount);
-                truncate(animatorLists, scopeCount);
-                skippedExtensions.put(i, e);
-            }
-        }
-        this.layerTrusted = new boolean[layers.size()];
-        for (int i = 0; i < layers.size(); i++)
-        {
-            layerTrusted[i] = layersTrusted.get(i) && playsTrustedClips(layers.get(i), dataProvider);
-            anyUntrusted |= !layerTrusted[i];
-        }
-        if (layers.isEmpty())
-        {
-            throw new MalformedKumoTemplateException("No layers were specified");
-        }
-        // Every bone name is known once the layers are instanced.
-        for (LayerState layer : layerStates)
-        {
-            layer.allocate();
-        }
-        pose = new Pose(skeleton, true);
-        trustedPose = new Pose(skeleton);
-        // "root" and "globalOffset" are two names of the same vector: limited as one.
-        limitGroup = new int[skeleton.size()];
-        vectorSlot = new boolean[skeleton.size()];
-        Map<String, Integer> groups = new HashMap<>();
-        for (int i = 0; i < limitGroup.length; i++)
-        {
-            String name = skeleton.nameOf(i);
-            String key = Skeleton.ROOT.equals(name) ? Skeleton.GLOBAL_OFFSET : name;
-            Integer group = groups.putIfAbsent(key, i);
-            limitGroup[i] = group == null ? i : group;
-            vectorSlot[i] = Skeleton.isVectorBone(name);
-        }
-        entityState = layout.newState(skeleton);
-        context.setState(entityState);
+        this(new KumoProgram(entity, animatorTemplate, trusted, overlays, overlaysTrusted, dataProvider));
     }
 
-    /** Instances the layers added since the last call. */
-    private void instanceLayers(List<LayerTemplate> layers, List<IKumoInstancingContext> contexts) throws MalformedKumoTemplateException
+    public KumoProgram getProgram()
     {
-        for (int i = layerStates.size(); i < layers.size(); i++)
-        {
-            layerStates.add(new LayerState(contexts.get(i), skeleton, layers.get(i)));
-        }
-    }
-
-    private static void truncate(List<?> list, int size)
-    {
-        while (list.size() > size)
-        {
-            list.remove(list.size() - 1);
-        }
+        return program;
     }
 
     /**
@@ -204,85 +91,7 @@ public class KumoAnimatorState
      */
     public Map<Integer, MalformedKumoTemplateException> getSkippedExtensions()
     {
-        return Collections.unmodifiableMap(skippedExtensions);
-    }
-
-    /**
-     * Adds an animator (the main one or an extension): one scope for it and the animators it
-     * {@code extends}, whose definitions and statement lists come first, and its layers after
-     * theirs, each in the place of its own file (trusted or not).
-     */
-    private void addAnimator(AnimatorTemplate template, boolean trusted, IKumoInstancingContext context,
-                             List<LayerTemplate> layers, List<IKumoInstancingContext> contexts, List<Boolean> layersTrusted) throws MalformedKumoTemplateException
-    {
-        List<AnimatorTemplate> chain = new ArrayList<>();
-        List<Boolean> chainTrusted = new ArrayList<>();
-        collectChain(template, trusted, context, 0, chain, chainTrusted);
-
-        DefinitionScope scope = new DefinitionScope(DefinitionScope.Kind.ANIMATOR, "the animator");
-        for (int i = 0; i < chain.size(); i++)
-        {
-            scope.declare(chain.get(i).define, chainTrusted.get(i));
-        }
-        ExpressionScope place = context.getExpressionScope().inside(scope);
-        scope.compileIn(place);
-        List<ScopeLists> lists = new ArrayList<>();
-        for (int i = 0; i < chain.size(); i++)
-        {
-            ExpressionScope filePlace = place.trusted(chainTrusted.get(i));
-            lists.add(ScopeLists.compile(scope, chain.get(i).on, filePlace));
-            if (chain.get(i).layers != null)
-            {
-                for (LayerTemplate layer : chain.get(i).layers)
-                {
-                    layers.add(layer);
-                    contexts.add(context.withScope(filePlace));
-                    layersTrusted.add(chainTrusted.get(i));
-                }
-            }
-        }
-        animatorScopes.add(scope);
-        animatorLists.add(lists);
-    }
-
-    /** The animators {@code template} extends, the outermost first, then {@code template}. */
-    private static void collectChain(AnimatorTemplate template, boolean trusted, IKumoInstancingContext context, int depth,
-                                     List<AnimatorTemplate> chain, List<Boolean> chainTrusted) throws MalformedKumoTemplateException
-    {
-        if (template.extendsAnimator != null)
-        {
-            if (depth > 8)
-            {
-                throw new MalformedKumoTemplateException("Animator 'extends' chain is too deep (cycle?).");
-            }
-            AnimatorTemplate parent = context.getAnimator(template.extendsAnimator);
-            if (parent == null)
-            {
-                throw new MalformedKumoTemplateException(String.format("Cannot resolve the animator to extend: '%s'.", template.extendsAnimator));
-            }
-            collectChain(parent, context.isTrusted(template.extendsAnimator), context, depth + 1, chain, chainTrusted);
-        }
-        chain.add(template);
-        chainTrusted.add(trusted);
-    }
-
-    /** Whether every clip the layer's nodes play comes from a trusted source. */
-    private static boolean playsTrustedClips(LayerTemplate layer, IKumoInstancingContext context)
-    {
-        for (NodeTemplate node : layer.allNodes())
-        {
-            List<PoseItemTemplate> items = new ArrayList<>();
-            if (node instanceof PoseNodeTemplate && ((PoseNodeTemplate) node).pose != null) items.addAll(((PoseNodeTemplate) node).pose);
-            if (node.enterPose != null) items.addAll(node.enterPose);
-            for (PoseItemTemplate item : items)
-            {
-                if (item instanceof ClipItemTemplate && !context.isTrusted(((ClipItemTemplate) item).animationKey))
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return program.getSkippedExtensions();
     }
 
     /**
@@ -298,7 +107,7 @@ public class KumoAnimatorState
     /** Whether any layer comes from an untrusted source. */
     public boolean hasUntrustedLayers()
     {
-        return anyUntrusted;
+        return program.anyUntrusted;
     }
 
     /**
@@ -321,16 +130,16 @@ public class KumoAnimatorState
 
     private void animate(IKumoSubject subject, float deltaTime) throws MalformedKumoTemplateException
     {
-        variables.bind(subject);
-        skeleton.bind(subject);
-
+        bind(subject);
         context.beginFrame(subject, deltaTime);
+        Pose pose = entityState.poses[program.pose];
+        Pose trustedPose = entityState.poses[program.trustedPose];
         pose.clear();
 
-        boolean limiting = limits != null && anyUntrusted;
+        boolean limiting = limits != null && program.anyUntrusted;
         if (limiting && lastTrusted == null)
         {
-            startLimiting();
+            startLimiting(pose);
         }
         else if (!limiting && lastTrusted != null)
         {
@@ -342,18 +151,18 @@ public class KumoAnimatorState
         // lists every frame, before any layer.
         context.enterNode(null);
         context.setLayerState(null);
-        if (entityScope != null)
+        if (program.entityScope != null)
         {
-            if (started) entityScope.updateLive(context);
-            else entityScope.start(context);
-            if (started) entityLists.runUpdate(context);
-            else entityLists.runEnter(context);
+            if (started) program.entityScope.updateLive(context);
+            else program.entityScope.start(context);
+            if (started) program.entityLists.runUpdate(context);
+            else program.entityLists.runEnter(context);
         }
-        for (int i = 0; i < animatorScopes.size(); i++)
+        for (int i = 0; i < program.animatorScopes.size(); i++)
         {
-            if (started) animatorScopes.get(i).updateLive(context);
-            else animatorScopes.get(i).start(context);
-            for (ScopeLists lists : animatorLists.get(i))
+            if (started) program.animatorScopes.get(i).updateLive(context);
+            else program.animatorScopes.get(i).start(context);
+            for (ScopeLists lists : program.animatorLists.get(i))
             {
                 if (started) lists.runUpdate(context);
                 else lists.runEnter(context);
@@ -361,10 +170,10 @@ public class KumoAnimatorState
         }
 
         boolean measured = false;
-        for (int i = 0; i < layerStates.size(); i++)
+        for (int i = 0; i < program.layerStates.size(); i++)
         {
-            LayerState layer = layerStates.get(i);
-            if (limiting && !measured && !layerTrusted[i])
+            LayerState layer = program.layerStates.get(i);
+            if (limiting && !measured && !program.layerTrusted[i])
             {
                 trustedPose.set(pose);
                 measured = true;
@@ -384,7 +193,19 @@ public class KumoAnimatorState
         {
             limit(pose, trustedPose, limits);
         }
-        pose.writeTo(skeleton);
+        pose.writeTo();
+    }
+
+    /** Binds the entity state to {@code subject}, the first time it is animated: its bones, and where it keeps the values the animator reads. */
+    private void bind(IKumoSubject subject) throws MalformedKumoTemplateException
+    {
+        if (entityState.boundTo == subject && entityState.sinks.length == program.skeleton.size())
+        {
+            return;
+        }
+        program.variables.bind(subject, entityState);
+        entityState.sinks = program.skeleton.sinksOf(subject);
+        entityState.boundTo = subject;
     }
 
     /**
@@ -397,8 +218,8 @@ public class KumoAnimatorState
         for (int i = 0; i < pose.size(); i++)
         {
             BoneTarget reference = trusted.get(i);
-            Vec3f last = lastTrusted[limitGroup[i]];
-            if (vectorSlot[i])
+            Vec3f last = lastTrusted[program.limitGroup[i]];
+            if (program.vectorSlot[i])
             {
                 if (reference.hasVector) setWritten(last, reference.vector);
             }
@@ -410,8 +231,8 @@ public class KumoAnimatorState
         for (int i = 0; i < pose.size(); i++)
         {
             BoneTarget target = pose.get(i);
-            Vec3f last = lastTrusted[limitGroup[i]];
-            if (vectorSlot[i])
+            Vec3f last = lastTrusted[program.limitGroup[i]];
+            if (program.vectorSlot[i])
             {
                 if (target.hasVector) clampAround(target.vector, last, limits.maxBodyOffset);
             }
@@ -441,7 +262,7 @@ public class KumoAnimatorState
      * not on its live value, which the untrusted layers have pushed: otherwise that push would
      * carry into the trusted value and grow a little every frame.
      */
-    private void startLimiting()
+    private void startLimiting(Pose pose)
     {
         lastTrusted = new Vec3f[pose.size()];
         Vec3f[] fallback = new Vec3f[pose.size()];
@@ -451,10 +272,10 @@ public class KumoAnimatorState
         }
         for (int i = 0; i < lastTrusted.length; i++)
         {
-            Vec3f last = lastTrusted[limitGroup[i]];
+            Vec3f last = lastTrusted[program.limitGroup[i]];
             fallback[i] = last;
-            IBoneSink sink = skeleton.sink(i);
-            if (sink == null || limitGroup[i] != i) continue;
+            IBoneSink sink = i < entityState.sinks.length ? entityState.sinks[i] : null;
+            if (sink == null || program.limitGroup[i] != i) continue;
             IVectorSink vector = sink.asVector();
             IRotationSink rotation = sink.asRotation();
             if (vector != null) last.set(vector.getVectorTarget());
@@ -496,7 +317,7 @@ public class KumoAnimatorState
     public List<String> getCurrentNodes()
     {
         List<String> nodes = new ArrayList<>();
-        for (LayerState layer : layerStates)
+        for (LayerState layer : program.layerStates)
         {
             nodes.add(layer.getCurrentNode(context).getName());
         }
@@ -506,7 +327,7 @@ public class KumoAnimatorState
     /** True while any layer is in a {@code core:vanilla} node: the entity should be drawn vanilla. */
     public boolean wantsVanilla()
     {
-        for (LayerState layer : layerStates)
+        for (LayerState layer : program.layerStates)
         {
             if (layer.wantsVanilla(context)) return true;
         }
@@ -521,12 +342,12 @@ public class KumoAnimatorState
 
     public List<LayerState> getLayers()
     {
-        return layerStates;
+        return program.layerStates;
     }
 
     public Skeleton getSkeleton()
     {
-        return skeleton;
+        return program.skeleton;
     }
 
 }

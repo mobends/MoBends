@@ -19,8 +19,8 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
     private final SpiderMovingLegsTemplate t;
     private final Expression swing;
     private final Expression groundLevel;
-    /** Never reset: the legs ease in once per entity, the first time the gait plays. */
-    private float startTransition = 0F;
+    /** The entity's state: how far the legs eased in. Never reset: they ease in once per entity, the first time the gait plays. */
+    private final int startTransitionSlot;
 
     public SpiderMovingLegsDriver(Skeleton skeleton, SpiderMovingLegsTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
@@ -32,6 +32,7 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
         this.t = template;
         this.swing = Expression.compile(template.swing, scope, Expression.ZERO);
         this.groundLevel = Expression.compile(template.groundLevel, scope, Expression.ZERO);
+        this.startTransitionSlot = scope.getLayout().floats(1, 0);
     }
 
     public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, SpiderMovingLegsTemplate template) throws MalformedKumoTemplateException
@@ -53,10 +54,12 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
         {
             ground += kneelBounce(context, t.kneelDuration, t.kneelAmplitude, t.kneelLead);
         }
-        if (startTransition < 1.0F)
+        float[] state = context.getState().floats;
+        if (state[startTransitionSlot] < 1.0F)
         {
-            startTransition += context.getDeltaTime() * t.startSpeed;
+            state[startTransitionSlot] += context.getDeltaTime() * t.startSpeed;
         }
+        final float startTransition = state[startTransitionSlot];
 
         for (int i = 0; i < LIMBS; i++)
         {

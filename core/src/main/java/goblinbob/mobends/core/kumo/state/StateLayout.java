@@ -93,7 +93,7 @@ public final class StateLayout
             state.poses = Arrays.copyOf(state.poses, poseCount);
             for (int i = from; i < poseCount; i++)
             {
-                state.poses[i] = new Pose(skeleton, poseSinkFallback[i]);
+                state.poses[i] = new Pose(skeleton, poseSinkFallback[i], state);
             }
         }
     }

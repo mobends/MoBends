@@ -104,7 +104,7 @@ public class CoreClient extends Core<CoreClientConfig>
         AnimationPolicy.INSTANCE.onContentReloaded();
         ModelDefinitions.INSTANCE.clearCache();
         AnimatorResources.INSTANCE.clearCache();
-        KumoAnimatorController.clearReported();
+        KumoAnimatorController.clearCaches();
         EntityDatabase.instance.refresh();
         EntityBenderRegistry.instance.refreshMutators();
         EntityTypeRegistry.INSTANCE.reload();

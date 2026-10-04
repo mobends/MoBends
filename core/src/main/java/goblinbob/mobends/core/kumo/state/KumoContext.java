@@ -84,7 +84,7 @@ public class KumoContext implements IKumoContext
     @Override
     public double resolveVariable(VariableTable.Read read)
     {
-        return read.get(subject);
+        return read.get(this);
     }
 
 }

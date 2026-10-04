@@ -348,7 +348,7 @@ public abstract class Expression
         @Override
         public boolean test(ITriggerConditionContext context)
         {
-            return state.get(context.getSubject());
+            return state.get(context);
         }
     }
 
