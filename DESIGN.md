@@ -146,24 +146,6 @@ program and state split (see *Runtime*), entity state lives in the entity's stat
 next to the animator's. Model definitions get an `extends` when a mob needs to share with
 another; most of what every biped has is a built-in.
 
-## Statements
-
-Statements, their lists and their order are in the spec (*Definitions and statements*). Still to
-come: `nodeIsFadingOut`, with which a statement in the `update` list of a node fading out can opt out
-of setting a state the current node sets too.
-
-### Extensions
-
-An extension's animator is a scope of its own: its `animator.` names are its own, so extensions
-never see or pollute each other's or the extended animator's. What an extension may follow is what
-the type publishes at entity level (`entity.walking`, `entity.onFeet`), an explicit contract between
-a mob's files and the extensions written for it.
-
-An `entity.` name the model doesn't declare is a load error for the extension that reads it: that
-extension is skipped, and the type and the other extensions still animate. There is no fallback
-for a name (a name is a string and carries no modifiers); an extension is written for a mob's
-files.
-
 ## Nodes, transitions and time
 
 The node, layer and time built-ins are in the spec (*Nodes, transitions and time*, *Built-in
@@ -721,9 +703,9 @@ the additive and smaller ones.
 14. [x] **Entity-level definitions in model definitions**: `@define` / `@on` with `field`, `exists`
     and `@fallback`, replacing `variables[]`. Entity state in the entity's state array comes with
     task 2. Vanilla boolean and object fields resolving in production is a task in `TODO.md`.
-15. [ ] **`extends` and extensions as scopes**: the merged `animator.` scope of an `extends` chain;
+15. [x] **`extends` and extensions as scopes**: the merged `animator.` scope of an `extends` chain;
     an extension's own animator scope reading only `entity.` names, skipped when one is missing
-    (*`extends`*, *Extensions*).
+    (spec, *Extensions*).
 16. [x] **Mirroring without `negate`** (`misc/kumo-format.md`, *Mirroring*). The rule's `@when`
     comes with the one-key syntax (task 6).
 17. [x] **Remove tags and `core:action`**, following other layers through definitions.

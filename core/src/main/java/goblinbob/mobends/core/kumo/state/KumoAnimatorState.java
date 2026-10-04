@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +48,7 @@ public class KumoAnimatorState
     @Nullable
     private final ScopeLists entityLists;
     private final List<DefinitionScope> animatorScopes = new ArrayList<>();
+    private final Map<Integer, MalformedKumoTemplateException> skippedExtensions = new LinkedHashMap<>();
     private final List<List<ScopeLists>> animatorLists = new ArrayList<>();
     private final Pose pose;
     private boolean started = false;
@@ -119,10 +121,28 @@ public class KumoAnimatorState
         List<IKumoInstancingContext> layerContexts = new ArrayList<>();
         List<Boolean> layersTrusted = new ArrayList<>();
         addAnimator(animatorTemplate, trusted, dataProvider, layers, layerContexts, layersTrusted);
+        instanceLayers(layers, layerContexts);
         for (int i = 0; i < overlays.size(); i++)
         {
-            // An extension's animator is a scope of its own: it never sees the extended animator's names.
-            addAnimator(overlays.get(i), overlaysTrusted.get(i), dataProvider, layers, layerContexts, layersTrusted);
+            // An extension's animator is a scope of its own: it never sees the extended animator's
+            // names. One that fails to load (it reads an entity. name the model doesn't declare,
+            // say) is left out: the animator and the other extensions still animate.
+            int layerCount = layers.size(), scopeCount = animatorScopes.size();
+            try
+            {
+                addAnimator(overlays.get(i), overlaysTrusted.get(i), dataProvider, layers, layerContexts, layersTrusted);
+                instanceLayers(layers, layerContexts);
+            }
+            catch (MalformedKumoTemplateException e)
+            {
+                truncate(layers, layerCount);
+                truncate(layerContexts, layerCount);
+                truncate(layersTrusted, layerCount);
+                truncate(layerStates, layerCount);
+                truncate(animatorScopes, scopeCount);
+                truncate(animatorLists, scopeCount);
+                skippedExtensions.put(i, e);
+            }
         }
         this.layerTrusted = new boolean[layers.size()];
         for (int i = 0; i < layers.size(); i++)
@@ -134,11 +154,6 @@ public class KumoAnimatorState
         {
             throw new MalformedKumoTemplateException("No layers were specified");
         }
-        for (int i = 0; i < layers.size(); i++)
-        {
-            layerStates.add(new LayerState(layerContexts.get(i), skeleton, layers.get(i)));
-        }
-
         // Every bone name is known once the layers are instanced.
         for (LayerState layer : layerStates)
         {
@@ -158,6 +173,32 @@ public class KumoAnimatorState
             limitGroup[i] = group == null ? i : group;
             vectorSlot[i] = Skeleton.isVectorBone(name);
         }
+    }
+
+    /** Instances the layers added since the last call. */
+    private void instanceLayers(List<LayerTemplate> layers, List<IKumoInstancingContext> contexts) throws MalformedKumoTemplateException
+    {
+        for (int i = layerStates.size(); i < layers.size(); i++)
+        {
+            layerStates.add(new LayerState(contexts.get(i), skeleton, layers.get(i)));
+        }
+    }
+
+    private static void truncate(List<?> list, int size)
+    {
+        while (list.size() > size)
+        {
+            list.remove(list.size() - 1);
+        }
+    }
+
+    /**
+     * The extensions that failed to load and were left out, by their index among the overlays,
+     * with what went wrong.
+     */
+    public Map<Integer, MalformedKumoTemplateException> getSkippedExtensions()
+    {
+        return Collections.unmodifiableMap(skippedExtensions);
     }
 
     /**

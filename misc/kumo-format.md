@@ -1029,8 +1029,13 @@ own animation and with other packs' extensions. Extension files are found like t
   id; the first one goes on top, so its layers are added last. Every extension starts at rank 0;
   only the user sets ranks (see *User control*).
 * An extension's animator is an animator of its own: it can `extends` another, and it has its own
-  `animator.` scope, not that of the animator it extends. What it follows of the mob is what the
-  entity gives every animator (its variables and states).
+  `animator.` scope, not that of the animator it extends, so extensions never see or pollute each
+  other's names or the extended animator's. What it follows of the mob is what the entity gives
+  every animator: the built-ins, and the `entity.` names its model definition declares, a
+  contract between a mob's files and the extensions written for it.
+* An extension that fails to load (it reads an `entity.` name the model doesn't declare, or its
+  file is broken) is left out, with an error shown once: the type's animator and the other
+  extensions still animate. A name has no fallback; an extension is written for a mob's files.
 * An extension targets a type, not an entity: it applies wherever that type is chosen, and not
   when another type wins (see *Precedence*). A type with another model or animator needs its own
   extensions.

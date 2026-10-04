@@ -69,15 +69,26 @@ public class KumoAnimatorController
         try
         {
             AnimatorResources resources = AnimatorResources.INSTANCE;
+            List<ResourceLocation> loaded = new ArrayList<>();
             List<AnimatorTemplate> overlays = new ArrayList<>();
             List<Boolean> overlaysTrusted = new ArrayList<>();
             for (ResourceLocation extension : extensions)
             {
-                overlays.add(resources.loadAnimator(extension));
-                overlaysTrusted.add(resources.isTrusted(extension.toString()));
+                // An extension that fails is left out; the animator and the other extensions still animate.
+                try
+                {
+                    overlays.add(resources.loadAnimator(extension));
+                    overlaysTrusted.add(resources.isTrusted(extension.toString()));
+                    loaded.add(extension);
+                }
+                catch (Exception e)
+                {
+                    skip(extension, e);
+                }
             }
             KumoRegistry.close();
             state = new KumoAnimatorState(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
+            state.getSkippedExtensions().forEach((index, e) -> skip(loaded.get(index), e));
             return true;
         }
         catch (Exception e)
@@ -125,6 +136,16 @@ public class KumoAnimatorController
     private String describe()
     {
         return animator + (extensions.isEmpty() ? "" : " with the extensions " + extensions);
+    }
+
+    private void skip(ResourceLocation extension, Exception e)
+    {
+        Core.LOG.log(Level.SEVERE, "Could not load the extension " + extension + " of the animator " + animator + ": it is left out", e);
+        String key = extension + " on " + animator;
+        if (!REPORTED.contains(key) && ErrorReporter.showErrorToPlayer("The extension " + key + " could not be loaded, and is left out: " + e.getMessage() + " (see the log)."))
+        {
+            REPORTED.add(key);
+        }
     }
 
     private void report(String what, Exception e)
