@@ -604,44 +604,6 @@ Proposed, not yet agreed:
 
 Assumed: the format stays `formatVersion: 2`, since v2 hasn't shipped.
 
-## Migration work
-
-Everything besides the engine that changes with the format (surveyed 2026-10-03):
-
-- **`animation-lab/tools/gen_animators.ts`** (run with `./gradlew generateAnimators` in
-  `animation-lab`) generates 11 animators: `biped`, `zombie`, `skeleton`, `pig_zombie`, `player`,
-  `squid`, `spider`, `zombie_villager`, `quadruped`, `villager`, `chicken`. Its condition helpers
-  (`cmp`, `state`, `AND` / `OR` / `NOT`, `prop`, `dec`, `conn`), clip and driver objects and
-  selectors all change.
-- **Animators not generated:** `iron_golem.json`, `creeper.json`, `cow.json` (hand-edited, per
-  the generator's header), `wolf.json` (not in the generator's list).
-- **Example packs** (`misc/examples/`): the `dance`, `zombie_arms`, `vanilla_swim`, `wave`
-  animators; the type files with selectors (`bendy_tester.json`); their READMEs.
-- **Type files** with selectors: `src/main/resources/assets/mobends/bends/types/*.json`.
-- **Tests with inline animator JSON:** `core`: `KumoAnimatorStateTest`, `KumoSerializerTest`
-  (`TestSubject` parses); `animation-lab`: `ExtensionsTest`, `ClipFrameTest`,
-  `AnimationLimitsTest`, `ExpressionTest` (and its fixture `expressions_parent.json`),
-  `EntityTypesTest`.
-- **Tests on shipped assets:** `KumoParityTest` (against `animation-lab/golden`),
-  `SideEffectParityTest`, `SpinAttackTest`, `DefinedModelsTest`, `StepTurnTest`,
-  `DanceExtensionTest`.
-- **Parity goldens to re-record** (`./gradlew record` in `animation-lab`), where behaviour moves
-  on purpose: the riding scenarios (the measured speed).
-- **Lab bootstrap:** `LabBootstrap` mirrors the mod's registrations (`MinecraftKumoOperations`,
-  the four `mobends:` drivers) and changes with the registration API.
-- **Addon API:** `AddonAnimationRegistry`, `DefaultAddon`, `MinecraftKumoOperations`.
-- **The held-item bones** (`leftHeldItem` / `rightHeldItem`): `BipedEntityData`,
-  `LayerCustomHeldItem`, `SwordTrail`, `gen_animators.ts`, the `biped`, `player`, `skeleton` and
-  `pig_zombie` animators, and 17 clips under `animations/biped`, `animations/player` and
-  `animations/pigzombie`.
-- **Docs:** `misc/kumo-format.md` (most sections), `docs/animation.md`, `docs/content.md` (the
-  authoring recipes), `docs/overview.md` (extension points), `CHANGELOG.md`.
-
-## Open questions about the migration
-
-- **The riding threshold.** A new value for `riding_fast` on the measured speed, picked by running
-  the riding scenario in the lab.
-
 ---
 
 # TODO
@@ -712,16 +674,16 @@ the additive and smaller ones.
 
 **Migrating content**
 
-18. [ ] **The generator** (`animation-lab/tools/gen_animators.ts`) and its 11 animators.
-19. [ ] **The hand-written files**: `iron_golem`, `creeper`, `cow`, `wolf`; the model definitions
-    (`chicken`, `iron_golem`); the type files; the example packs and their READMEs. Includes
-    `comment` → `@comment`, dropping `mirror` from the 13 head-yaw items, and the mob-specific
-    values (the player's swing filter, cape phase, `flightPitch`; the zombie's, the wolf's, the
-    squid's, the spider's) (*Entity values from the data classes*).
-20. [ ] **Tests**: the ones with inline animator JSON and the ones on shipped assets; re-record the
-    goldens where behaviour moves on purpose; pick the riding threshold in the lab
-    (*Migration work*, *Open questions about the migration*).
-21. [ ] **Docs**: `misc/kumo-format.md`, `docs/animation.md`, `docs/content.md`,
+18. [x] **The generator** (`animation-lab/tools/gen_animators.ts`) and its 11 animators.
+19. [ ] **The hand-written files**: done (`iron_golem`, `creeper`, `cow`, `wolf`, the model
+    definitions, the type files, the example packs) but for the mob-specific values a data class
+    keeps or computes: the player's swing filter, cape phase, `flightSpeedFactor`, `flightPitch`
+    and `SPRINT_JUMP_LEG`; the zombie's animation set and walking state; the squid's rotation; the
+    spider's crawl. They move into each mob's files with tasks 22–24 (*Entity values from the data
+    classes*).
+20. [x] **Tests**: the ones with inline animator JSON and the ones on shipped assets; the goldens
+    re-recorded where behaviour moved on purpose (the riding threshold is 0.2 blocks per tick).
+21. [x] **Docs**: `misc/kumo-format.md`, `docs/animation.md`, `docs/content.md`,
     `docs/overview.md`, `CHANGELOG.md`; the entries of this document leave as they land.
 
 **Moving mobs out of Java**
@@ -738,7 +700,9 @@ the additive and smaller ones.
 **Smaller**
 
 25. [ ] **Rename the held-item bones** `renderLeftItemRotation` / `renderRightItemRotation` to
-    `leftHeldItem` / `rightHeldItem` (*Migration work* lists the files).
+    `leftHeldItem` / `rightHeldItem`: `BipedEntityData`, `LayerCustomHeldItem`, `SwordTrail`,
+    `gen_animators.ts`, the `biped`, `player`, `skeleton` and `pig_zombie` animators, and 17 clips
+    under `animations/biped`, `animations/player` and `animations/pigzombie`.
 26. [ ] **The generator writes the format directly**: `gen_animators.ts` builds items, nodes and
     connections the old way and rewrites them in last passes (`oneKeyAnimator`, then
     `kumo_scopes.ts`, which turns bare names into scoped ones); its builders should write the

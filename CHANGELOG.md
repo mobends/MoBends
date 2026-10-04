@@ -11,7 +11,10 @@
 - Mods and resource packs can give a mob, or a single player, a different model and animation with
   entity types in `assets/<namespace>/bends/types/`.
 - Mods and resource packs can animate new mobs without code, with model definitions in
-  `assets/<namespace>/bends/models/`.
+  `assets/<namespace>/bends/models/`. A model definition can compute the mob's own values from
+  its fields, for its animation and every extension to read.
+- Mods can add their own animation logic to the JSON format: operations (values computed in Java,
+  such as whether a mob is wet) and drivers (posing computed in Java), registered from an addon.
 - Zombie villagers are animated.
 - A server's own resource pack can add types and extensions too.
 - Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
