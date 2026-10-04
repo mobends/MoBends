@@ -246,6 +246,7 @@ public class PlayerMutator extends BipedMutator<PlayerData, AbstractClientPlayer
 	 * Called before the first person hand is rendered, so the mutator can pose it
 	 * in any way.
 	 */
+	@Override
 	public void poseForFirstPersonView()
 	{
 		this.body.rotation.identity();

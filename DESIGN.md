@@ -396,24 +396,10 @@ Rendering, where definitions fall short:
 
 - **Layers** (done for the player's: a definition's `layers` section). The sheep's wool and the
   charged creeper's armour still draw their own unanimated copies: they need layers of their own.
-- **Stand-ins for parented bones.** A bone with a `parent` leaves an invisible stand-in in the
-  vanilla field (`DefinedMutator.java:265-286`). Vanilla code that goes through the field then
-  hits the stand-in: held items are placed at the origin (`postRenderArm`), the first-person hand
-  renders nothing, and the skin-part toggles (sleeves, jacket, hat) and armour visibility are
-  ignored. Needed: stand-ins that forward visibility, rendering and `postRender` to the real part.
-- **Items and armour through split segments.** The Java parts pass the transform on to the
-  forearm when an item is attached; defined parts don't. Needed: `postRender` through split
-  segments, or a per-bone post-offset.
-- **Pivots.** The Java biped pivots the body at the hips and offsets its boxes; a definition's
-  `position` moves the pivot and the boxes together. Needed: a pivot that re-bases the boxes.
-- **Overlay parts.** The player's sleeve and trouser layers (`bipedLeftArmwear`, ...) must split
-  and follow the forearm and foreleg. Needed: split segments attached to another bone's segments.
-- **First person.** The arm's rest pose for the first-person hand is Java
-  (`PlayerMutator.poseForFirstPersonView`). Needed: a list of bones to rest in first person.
-- **Slim skins.** Pivots are adopted once from whichever renderer comes first, but the skin
-  variant reads `default` until the skin downloads. Needed: adopt again when the renderer
-  changes.
-- **Renderer settings.** The sneak offset (4 while flying, 5 otherwise) and the sword trail pass.
+- **Stand-ins, split segments, pivots, overlays** (done: `misc/kumo-format.md`, *Model
+  definitions*; the player's definition draws what `PlayerMutator` does, `PlayerGeometryTest`).
+- **First person, slim skins, renderer settings** (done: `renderer.firstPersonRest`, positions
+  adopted again from each renderer, `renderer.sneakOffset`; the sword trail is a component).
 
 Other mobs:
 

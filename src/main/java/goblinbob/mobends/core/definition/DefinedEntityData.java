@@ -24,7 +24,8 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
     private final EntityModelDefinition definition;
     private final Map<String, ModelPartTransform> parts = new LinkedHashMap<>();
     private final ResourceLocation animator;
-    private boolean positionsAdopted;
+    /** What the positions were last adopted from (a mutator, one per renderer), or null. */
+    private Object positionsSource;
 
     public static <E extends EntityLivingBase> DefinedEntityData<E> create(EntityModelDefinition definition, E entity)
     {
@@ -91,8 +92,11 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
         }
     }
 
-    /** Called once by the mutator with the positions read off the vanilla model (and the split pivots). */
-    public void adoptPositions(Map<String, float[]> positions)
+    /**
+     * Called by a mutator with the positions read off its renderer's vanilla model (and the split
+     * pivots): once, and again whenever the entity is drawn by another renderer.
+     */
+    public void adoptPositions(Object source, Map<String, float[]> positions)
     {
         for (Map.Entry<String, float[]> entry : positions.entrySet())
         {
@@ -105,12 +109,12 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
                 part.position.set(p[0], p[1], p[2]);
             }
         }
-        positionsAdopted = true;
+        positionsSource = source;
     }
 
-    public boolean hasAdoptedPositions()
+    public boolean hasAdoptedPositionsOf(Object source)
     {
-        return positionsAdopted;
+        return positionsSource == source;
     }
 
     @Override

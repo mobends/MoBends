@@ -8,6 +8,7 @@ import net.minecraft.client.model.ModelRenderer;
  * (a parent, or the bone it lies over): it draws nothing, but vanilla code that goes through the
  * field still reaches the bone. Its visibility ({@code showModel}, {@code isHidden}: a player's
  * skin-part toggles) is the bone's, and {@code postRender} (a held item, a hat) is the bone's.
+ * While the first-person hand is drawn (vanilla draws the arm's field alone), it draws the bone.
  */
 public class DefinedStandIn extends ModelRenderer
 {
@@ -23,9 +24,22 @@ public class DefinedStandIn extends ModelRenderer
         bone.setVisibleWith(this);
     }
 
+    /** Whether it draws the bone itself (the first-person hand), the bone's parent not being drawn. */
+    private boolean drawsAlone;
+
+    public void setDrawsAlone(boolean drawsAlone)
+    {
+        this.drawsAlone = drawsAlone;
+    }
+
     @Override
     public void render(float scale)
     {
+        if (drawsAlone)
+        {
+            // With its parents' transforms, and its own children (its segments, a sleeve).
+            bone.renderPart(scale);
+        }
     }
 
     @Override

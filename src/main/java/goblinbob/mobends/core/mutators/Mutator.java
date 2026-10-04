@@ -127,6 +127,14 @@ public abstract class Mutator<D extends LivingEntityData<E>, E extends EntityLiv
 
     public abstract void syncUpWithData(D data);
 
+    /**
+     * Called before the first-person hand is drawn through the renderer's model, so the mutator can
+     * put it at rest; the next sync with the entity's data undoes it.
+     */
+    public void poseForFirstPersonView()
+    {
+    }
+
     public D getData(E entity)
     {
         return EntityDatabase.instance.get(entity);

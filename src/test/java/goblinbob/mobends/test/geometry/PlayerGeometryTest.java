@@ -106,6 +106,40 @@ public class PlayerGeometryTest
     }
 
     @Test
+    public void drawsTheFirstPersonHandAsTheJavaPlayerDoes() throws Exception
+    {
+        for (boolean slim : new boolean[] { false, true })
+        {
+            ModelPlayer java = java(slim);
+            ModelPlayer defined = new ModelPlayer(0, slim);
+            DefinedMutator<?> mutator = new DefinedMutator<>(definition());
+            mutator.createParts(defined);
+            // The body is bent, as an animation leaves it; the first-person pose puts it at rest.
+            ((ModelPart) defined.bipedBody).rotation.set(0.3F, 0, 0, 0.95393F).finish();
+            mutator.poseForFirstPersonView();
+            // RenderPlayer.renderRightArm / renderLeftArm: the arm's field, then the sleeve's, alone.
+            for (boolean right : new boolean[] { true, false })
+            {
+                List<String> differences = ModelGeometry.differences(
+                        ModelGeometry.render(right ? java.bipedRightArm : java.bipedLeftArm, right ? java.bipedRightArmwear : java.bipedLeftArmwear),
+                        ModelGeometry.render(right ? defined.bipedRightArm : defined.bipedLeftArm, right ? defined.bipedRightArmwear : defined.bipedLeftArmwear), 1e-3);
+                String which = (right ? "right" : "left") + (slim ? " (slim)" : "");
+                assertTrue(which + ": " + differences.size() + " quads differ:\n" + String.join("\n", differences.subList(0, Math.min(30, differences.size()))),
+                        differences.isEmpty());
+            }
+        }
+    }
+
+    @Test
+    public void drawsNoHandOutsideTheFirstPersonView() throws Exception
+    {
+        ModelPlayer defined = new ModelPlayer(0, false);
+        new DefinedMutator<>(definition()).createParts(defined);
+        // The body draws the arms; their fields draw nothing, or they would be drawn twice.
+        assertTrue(ModelGeometry.render(defined.bipedRightArm, defined.bipedRightArmwear).isEmpty());
+    }
+
+    @Test
     public void attachesWhereTheJavaPlayerAttaches() throws Exception
     {
         for (boolean slim : new boolean[] { false, true })

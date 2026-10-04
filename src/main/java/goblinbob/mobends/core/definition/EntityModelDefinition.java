@@ -57,6 +57,22 @@ public class EntityModelDefinition
      */
     public Map<String, JsonObject> layers;
 
+    /** Optional: how the renderer places the model (see {@link RendererSettings}). */
+    public RendererSettings renderer = new RendererSettings();
+
+    public static class RendererSettings
+    {
+        /** How far up the model is drawn while the entity sneaks, in model units (vanilla lowers a sneaking player). */
+        public float sneakOffset;
+        /** The same while a player sneaks and flies (descends); null for {@link #sneakOffset}. */
+        public Float flyingSneakOffset;
+        /**
+         * The bones whose animated rotation is dropped while the first-person hand is drawn, so the
+         * hand is at rest in front of the camera (the arm's chain, from the body).
+         */
+        public List<String> firstPersonRest = new ArrayList<>();
+    }
+
     /** The entity scope's definitions, read by its animators as {@code entity.x}: the only place that reads the entity's fields. */
     @SerializedName("@define")
     public Map<String, DefinitionTemplate> define;
@@ -121,6 +137,21 @@ public class EntityModelDefinition
             if (bone.parent != null && !seen.contains(bone.parent))
             {
                 throw new MalformedKumoTemplateException("Bone '" + bone.name + "' names a parent '" + bone.parent + "' that is not declared before it.");
+            }
+        }
+        if (renderer == null)
+        {
+            renderer = new RendererSettings();
+        }
+        if (renderer.firstPersonRest == null)
+        {
+            renderer.firstPersonRest = new ArrayList<>();
+        }
+        for (String name : renderer.firstPersonRest)
+        {
+            if (!seen.contains(name))
+            {
+                throw new MalformedKumoTemplateException("'renderer.firstPersonRest' names '" + name + "', which is not a bone.");
             }
         }
         if (components != null)

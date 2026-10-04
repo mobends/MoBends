@@ -6,7 +6,6 @@ import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.RendererState;
 import goblinbob.mobends.core.mutators.Mutator;
-import goblinbob.mobends.standard.mutators.PlayerMutator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderPlayer;
@@ -41,8 +40,8 @@ public class RenderingEventHandler
 
         // Stays in place for the hand; the next render of the renderer puts the right model back.
         Mutator<?, ?, ?> mutator = bender.attachMutation(renderPlayer);
-        if (mutator instanceof PlayerMutator)
-            ((PlayerMutator) mutator).poseForFirstPersonView();
+        if (mutator != null)
+            mutator.poseForFirstPersonView();
     }
 
 }
