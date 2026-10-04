@@ -29,8 +29,8 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
     public ModelPartTransform rightForeLeg;
     public ModelPartTransform leftForeLeg;
 	
-    public SmoothOrientation renderRightItemRotation;
-    public SmoothOrientation renderLeftItemRotation;
+    public SmoothOrientation rightHeldItem;
+    public SmoothOrientation leftHeldItem;
 	
     public SwordTrail swordTrail;
     
@@ -58,8 +58,8 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		this.leftForeArm = new ModelPartTransform(this.leftArm);
 		this.rightForeLeg = new ModelPartTransform(this.rightLeg);
 		this.leftForeLeg = new ModelPartTransform(this.leftLeg);
-		this.renderRightItemRotation = new SmoothOrientation();
-		this.renderLeftItemRotation = new SmoothOrientation();
+		this.rightHeldItem = new SmoothOrientation();
+		this.leftHeldItem = new SmoothOrientation();
 		
 		this.swordTrail = new SwordTrail(() -> SupporterContent.getTrailColorFor(this.entity));
 		
@@ -73,8 +73,8 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
         this.nameToPartMap.put("rightForeArm", rightForeArm);
         this.nameToPartMap.put("leftForeLeg", leftForeLeg);
         this.nameToPartMap.put("rightForeLeg", rightForeLeg);
-        this.nameToPartMap.put("renderRightItemRotation", renderRightItemRotation);
-        this.nameToPartMap.put("renderLeftItemRotation", renderLeftItemRotation);
+        this.nameToPartMap.put("rightHeldItem", rightHeldItem);
+        this.nameToPartMap.put("leftHeldItem", leftHeldItem);
 		
 		this.body.position.set(0F, 12F, 0F);
 		this.head.position.set(0F, -12F, 0F);
@@ -104,8 +104,8 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		this.rightForeLeg.update(ticksPerFrame);
 		this.leftForeLeg.update(ticksPerFrame);
 		
-		this.renderRightItemRotation.update(ticksPerFrame);
-		this.renderLeftItemRotation.update(ticksPerFrame);
+		this.rightHeldItem.update(ticksPerFrame);
+		this.leftHeldItem.update(ticksPerFrame);
 		
 		this.swordTrail.update(ticksPerFrame);
 	}

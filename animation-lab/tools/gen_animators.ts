@@ -136,7 +136,7 @@ const headLook: Obj[] = [
 const kneel = { animationKey: B("kneel"), frame: "entityTicksAfterTouchdown",
                 when: cmp("entityTicksAfterTouchdown", "<", 1 / 0.15), damping: { body: 1 }, vectorModes: { root: "SNAP" } };
 const resetDamping = { root: 0.3, localOffset: 0.3, renderRotation: 0.3, centerRotation: 0.3,
-                       renderRightItemRotation: 0.3, renderLeftItemRotation: 0.3 };
+                       rightHeldItem: 0.3, leftHeldItem: 0.3 };
 
 const stand: Obj = {
   type: "core:pose", 
@@ -251,7 +251,7 @@ const pigZombie: Obj = {
     { when: cmp("entitySwingProgress", ">", 0), defaultOnEntry: "slash",
       mirror: { when: state("entityIsLeftHanded"),
                 pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
-                        ["renderLeftItemRotation", "renderRightItemRotation"]] },
+                        ["leftHeldItem", "rightHeldItem"]] },
       nodes: { slash: {
         type: "core:pose", pose: [
           { animationKey: P("slash"), frame: "entityTicksAfterAttack", mirror: true,
@@ -263,7 +263,7 @@ const pigZombie: Obj = {
           { animationKey: P("slash_still"), bones: ["leftLeg", "rightLeg", "rightForeLeg", "root"], when: AND(state("entityIsStandingStill"), NOT(state("entityIsRiding"))),
             damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
           { animationKey: P("slash_still"), bones: ["renderRotation"], mirror: true, when: AND(state("entityIsStandingStill"), NOT(state("entityIsRiding"))), damping: { renderRotation: 0.3 } },
-          { driver: "core:axis_rotate", bone: "renderRightItemRotation", axis: "X", angle: 50, space: "OVERRIDE", snap: true, mirror: true, damping: { renderRightItemRotation: 0.9 } },
+          { driver: "core:axis_rotate", bone: "rightHeldItem", axis: "X", angle: 50, space: "OVERRIDE", snap: true, mirror: true, damping: { rightHeldItem: 0.9 } },
         ] } } },
   ] };
 
@@ -311,7 +311,7 @@ function when(item: Obj, cond: Obj): Obj {
   return { ...item, when: cond };
 }
 
-const resetItems = { renderRightItemRotation: rotations(), renderLeftItemRotation: rotations() };
+const resetItems = { rightHeldItem: rotations(), leftHeldItem: rotations() };
 poseClip(join(CLIPS, "player", "reset_items.json"), resetItems);
 poseClip(join(CLIPS, "player", "torch_forearm_right.json"), { rightForeArm: rotations(["X", -5]) });
 poseClip(join(CLIPS, "player", "torch_forearm_left.json"), { leftForeArm: rotations(["X", -5]) });
@@ -528,7 +528,7 @@ const pSwimming: Obj = { type: "core:pose", pose: [
   when(drv("leftArm", "Y", "deep", { scale: -90, ease: "ease_in_out", power: 3, min: 0, max: 1 }), deep),
   when(drv("rightArm", "Y", "deep", { scale: 90, ease: "ease_in_out", power: 3, min: 0, max: 1 }), deep),
   when({ animationKey: PL("swim_deep_arm_outer"), frame: looped(scaled("ticks", 0.1625)), space: "PRE" }, deep),
-  when({ animationKey: PL("swim_deep_arms"), frame: looped(scaled("ticks", 0.1625)), damping: { leftForeArm: 0.3, rightForeArm: 0.3, body: 0.5, renderRightItemRotation: 0.3 } }, deep),
+  when({ animationKey: PL("swim_deep_arms"), frame: looped(scaled("ticks", 0.1625)), damping: { leftForeArm: 0.3, rightForeArm: 0.3, body: 0.5, rightHeldItem: 0.3 } }, deep),
   when({ animationKey: PL("swim_deep_legs"), frame: looped(scaled("ticks", 0.4625)), damping: { leftLeg: 0.3, rightLeg: 0.3, leftForeLeg: 0.4, rightForeLeg: 0.4 } }, deep),
   drv("head", "X", "entityHeadPitch", { space: "OVERRIDE" }), drv("head", "Y", "entityHeadYaw"), drv("head", "X", "deep", { scale: -80, ease: "ease_in_out", power: 3, min: 0, max: 1 }),
   drv("renderRotation", "X", "deep", { scale: 80, ease: "ease_in_out", power: 3, min: 0, max: 1, space: "OVERRIDE" }),
@@ -608,7 +608,7 @@ function slashNode(name: string, clipname: string, byAttack: boolean, mainDamp: 
     mirrored(item(["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
                   { damping: { body: 0.9, leftArm: 0.3, leftForeArm: 0.3, rightForeArm: 0.3, localOffset: 0.3 }, vectorModes: { localOffset: "SLIDE" } })),
     mirrored(item(["rightArm"], { damping: { rightArm: mainDamp }, snap: mainSnap })),
-    mirrored(item(["renderRightItemRotation"], { damping: itemDamp ? { renderRightItemRotation: itemDamp } : {}, snap: itemSnap })),
+    mirrored(item(["rightHeldItem"], { damping: itemDamp ? { rightHeldItem: itemDamp } : {}, snap: itemSnap })),
     mirrored(headDamp ? withDamping(drv("head", "X", "entityHeadPitch", { space: "OVERRIDE" }), { head: headDamp }) : drv("head", "X", "entityHeadPitch", { space: "OVERRIDE" })),
     mirrored(item(["head"], { space: "PRE" })),
     // the head looks where the player looks, whichever hand swings: not mirrored
@@ -663,7 +663,7 @@ poseClip(join(CLIPS, "player", "stance_const.json"), {
   rightLeg: rotations(["X", -30], ["Z", 10], ["Y", 25]), leftLeg: rotations(["X", -30], ["Z", -10], ["Y", -25]),
   rightForeLeg: rotations(["X", 30]), leftForeLeg: rotations(["X", 30]),
   rightForeArm: rotations(["X", -20]), leftForeArm: rotations(["X", -60]),
-  renderRightItemRotation: rotations(["X", 65]), renderRotation: rotations(["Y", -30]) }, { root: [0, -2, 0] });
+  rightHeldItem: rotations(["X", 65]), renderRotation: rotations(["Y", -30]) }, { root: [0, -2, 0] });
 const b0frame = looped(scaled("ticks", 1 / 5.0));
 const b1frame = looped(scaled("ticks", 1 / 5.7));
 const stance: Obj = { type: "core:pose", pose: [
@@ -674,16 +674,16 @@ const stance: Obj = { type: "core:pose", pose: [
   swapped({ animationKey: PL("stance_breath1"), frame: b1frame, bones: ["leftArm"], space: "POST" }),
   swapped({ animationKey: PL("stance_breath1"), frame: b1frame, bones: ["rightArm"], space: "PRE" }),
   mirrored({ animationKey: PL("stance_const"), damping: { rightLeg: 0.3, leftLeg: 0.3, rightForeLeg: 0.3, leftForeLeg: 0.3, rightForeArm: 0.3, leftForeArm: 0.3,
-                                                          renderRightItemRotation: 0.3, renderRotation: 0.3, root: [null, 0.6, null] }, vectorModes: { root: "SLIDE" } }),
+                                                          rightHeldItem: 0.3, renderRotation: 0.3, root: [null, 0.6, null] }, vectorModes: { root: "SLIDE" } }),
   { animationKey: PL("stance_kneel"), frame: "entityTicksAfterTouchdown", when: cmp("entityTicksAfterTouchdown", "<", 1 / 0.15), damping: { body: 1 }, vectorModes: { root: "SNAP" } },
   comboReset,
 ] };
-poseClip(join(CLIPS, "player", "stance_sprint_abs.json"), { rightArm: rotations(["Z", 60], ["Y", 60]), renderRightItemRotation: rotations(["X", 45]) });
+poseClip(join(CLIPS, "player", "stance_sprint_abs.json"), { rightArm: rotations(["Z", 60], ["Y", 60]), rightHeldItem: rotations(["X", 45]) });
 poseClip(join(CLIPS, "player", "stance_sprint_pre.json"), { body: rotations(["Y", 20]), head: rotations(["Y", -20]), leftArm: rotations(["Z", -30]) });
 const stanceSprint: Obj = { type: "core:pose", pose: [
   when({ driver: "mobends:sword_trail", velocity: [0, 0, -10] }, prop("attackActionType", "SWORD")),
   localOffsetZero,
-  mirrored({ animationKey: PL("stance_sprint_abs"), damping: { renderRightItemRotation: 0.3 } }),
+  mirrored({ animationKey: PL("stance_sprint_abs"), damping: { rightHeldItem: 0.3 } }),
   mirrored({ animationKey: PL("stance_sprint_pre"), space: "PRE" }),
   comboReset,
 ] };
@@ -867,7 +867,7 @@ const actionLayer: Obj = { when: NOT(state("entityIsSleeping")), defaultOnEntry:
                            // a left-handed player plays the hand-dependent items as their mirror image
                            mirror: { when: state("entityIsLeftHanded"),
                                      pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
-                                             ["renderLeftItemRotation", "renderRightItemRotation"]] } };
+                                             ["leftHeldItem", "rightHeldItem"]] } };
 
 const groundAction = OR("standing", "walking", "sprinting");
 function torchArm(side: string): Obj[] {

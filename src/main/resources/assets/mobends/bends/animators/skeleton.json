@@ -515,7 +515,7 @@
                       "leftForeLeg": 0.3,
                       "rightForeArm": 0.3,
                       "leftForeArm": 0.3,
-                      "renderRightItemRotation": 0.3,
+                      "rightHeldItem": 0.3,
                       "renderRotation": 0.6,
                       "root": [null, 1.2, null]
                     },
@@ -549,7 +549,7 @@
                   },
                   {
                     "core:clip": {"animationKey": "mobends:bends/animations/player/stance_sprint_abs.json"},
-                    "@damping": {"renderRightItemRotation": 0.3},
+                    "@damping": {"rightHeldItem": 0.3},
                     "@mirror": true
                   },
                   {
@@ -591,10 +591,10 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up.json",
-                      "bones": ["renderRightItemRotation"],
+                      "bones": ["rightHeldItem"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@damping": {"renderRightItemRotation": 0.9},
+                    "@damping": {"rightHeldItem": 0.9},
                     "@snap": true,
                     "@mirror": true
                   },
@@ -668,10 +668,10 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward.json",
-                      "bones": ["renderRightItemRotation"],
+                      "bones": ["rightHeldItem"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@damping": {"renderRightItemRotation": 0.9},
+                    "@damping": {"rightHeldItem": 0.9},
                     "@snap": true,
                     "@mirror": true
                   },
@@ -740,7 +740,7 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_down.json",
-                      "bones": ["renderRightItemRotation"]
+                      "bones": ["rightHeldItem"]
                     },
                     "@damping": {},
                     "@snap": true,
@@ -822,7 +822,7 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_outward.json",
-                      "bones": ["renderRightItemRotation"]
+                      "bones": ["rightHeldItem"]
                     },
                     "@damping": {},
                     "@snap": true,
@@ -907,10 +907,10 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
-                      "bones": ["renderRightItemRotation"],
+                      "bones": ["rightHeldItem"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@damping": {"renderRightItemRotation": 0.9},
+                    "@damping": {"rightHeldItem": 0.9},
                     "@snap": false,
                     "@mirror": true
                   },
@@ -1133,7 +1133,7 @@
           ["leftForeArm", "rightForeArm"],
           ["leftLeg", "rightLeg"],
           ["leftForeLeg", "rightForeLeg"],
-          ["renderLeftItemRotation", "renderRightItemRotation"]
+          ["leftHeldItem", "rightHeldItem"]
         ]
       }
     }

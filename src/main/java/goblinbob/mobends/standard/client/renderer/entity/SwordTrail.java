@@ -160,13 +160,13 @@ public class SwordTrail
         {
             newPart.arm.syncUp(entityData.rightArm);
             newPart.foreArm.syncUp(entityData.rightForeArm);
-            newPart.itemRotation.set(entityData.renderRightItemRotation.getSmooth());
+            newPart.itemRotation.set(entityData.rightHeldItem.getSmooth());
         }
         else
         {
             newPart.arm.syncUp(entityData.leftArm);
             newPart.foreArm.syncUp(entityData.leftForeArm);
-            newPart.itemRotation.set(entityData.renderLeftItemRotation.getSmooth());
+            newPart.itemRotation.set(entityData.leftHeldItem.getSmooth());
         }
 
         newPart.renderOffset.set(entityData.globalOffset.getX(),

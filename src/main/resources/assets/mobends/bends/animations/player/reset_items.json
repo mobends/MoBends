@@ -1,1 +1,1 @@
-{"bones":{"renderRightItemRotation":{"keyframes":[{"position":[0,0,0],"rotation":[0,0,0,1]}]},"renderLeftItemRotation":{"keyframes":[{"position":[0,0,0],"rotation":[0,0,0,1]}]}},"duration":0}
+{"bones":{"rightHeldItem":{"keyframes":[{"position":[0,0,0],"rotation":[0,0,0,1]}]},"leftHeldItem":{"keyframes":[{"position":[0,0,0],"rotation":[0,0,0,1]}]}},"duration":0}

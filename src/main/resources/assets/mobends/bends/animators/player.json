@@ -95,8 +95,8 @@
                   "localOffset": 0.3,
                   "renderRotation": 0.6,
                   "centerRotation": 0.3,
-                  "renderRightItemRotation": 0.3,
-                  "renderLeftItemRotation": 0.3,
+                  "rightHeldItem": 0.3,
+                  "leftHeldItem": 0.3,
                   "body": 1,
                   "rightArm": 0.4,
                   "leftArm": 0.4
@@ -139,8 +139,8 @@
                   "localOffset": 0.3,
                   "renderRotation": 0.6,
                   "centerRotation": 0.3,
-                  "renderRightItemRotation": 0.3,
-                  "renderLeftItemRotation": 0.3,
+                  "rightHeldItem": 0.3,
+                  "leftHeldItem": 0.3,
                   "body": 0.5,
                   "head": 0.5,
                   "rightArm": 0.8,
@@ -216,8 +216,8 @@
                   "localOffset": 0.3,
                   "renderRotation": 0.6,
                   "centerRotation": 0.3,
-                  "renderRightItemRotation": 0.3,
-                  "renderLeftItemRotation": 0.3,
+                  "rightHeldItem": 0.3,
+                  "leftHeldItem": 0.3,
                   "body": 0.8,
                   "head": 0.5,
                   "rightArm": 0.8,
@@ -281,8 +281,8 @@
                   "localOffset": 0.3,
                   "renderRotation": 0.6,
                   "centerRotation": 0.7,
-                  "renderRightItemRotation": 0.3,
-                  "renderLeftItemRotation": 0.3,
+                  "rightHeldItem": 0.3,
+                  "leftHeldItem": 0.3,
                   "body": 0.2,
                   "rightArm": 0.05,
                   "leftArm": 0.05,
@@ -1204,7 +1204,7 @@
                   "animationKey": "mobends:bends/animations/player/swim_deep_arms.json",
                   "frame": {"mod": [{"mul": ["ticks", 0.1625]}, "clipLength"]}
                 },
-                "@damping": {"leftForeArm": 0.3, "rightForeArm": 0.3, "body": 0.5, "renderRightItemRotation": 0.3}
+                "@damping": {"leftForeArm": 0.3, "rightForeArm": 0.3, "body": 0.5, "rightHeldItem": 0.3}
               },
               {
                 "@when": {
@@ -1464,8 +1464,8 @@
                   "localOffset": 0.3,
                   "renderRotation": 0.6,
                   "centerRotation": 0.3,
-                  "renderRightItemRotation": 0.3,
-                  "renderLeftItemRotation": 0.3,
+                  "rightHeldItem": 0.3,
+                  "leftHeldItem": 0.3,
                   "head": 1,
                   "rightArm": 0.4,
                   "leftArm": 0.4
@@ -2140,7 +2140,7 @@
                       "leftForeLeg": 0.3,
                       "rightForeArm": 0.3,
                       "leftForeArm": 0.3,
-                      "renderRightItemRotation": 0.3,
+                      "rightHeldItem": 0.3,
                       "renderRotation": 0.6,
                       "root": [null, 1.2, null]
                     },
@@ -2174,7 +2174,7 @@
                   },
                   {
                     "core:clip": {"animationKey": "mobends:bends/animations/player/stance_sprint_abs.json"},
-                    "@damping": {"renderRightItemRotation": 0.3},
+                    "@damping": {"rightHeldItem": 0.3},
                     "@mirror": true
                   },
                   {
@@ -2216,10 +2216,10 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up.json",
-                      "bones": ["renderRightItemRotation"],
+                      "bones": ["rightHeldItem"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@damping": {"renderRightItemRotation": 0.9},
+                    "@damping": {"rightHeldItem": 0.9},
                     "@snap": true,
                     "@mirror": true
                   },
@@ -2293,10 +2293,10 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward.json",
-                      "bones": ["renderRightItemRotation"],
+                      "bones": ["rightHeldItem"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@damping": {"renderRightItemRotation": 0.9},
+                    "@damping": {"rightHeldItem": 0.9},
                     "@snap": true,
                     "@mirror": true
                   },
@@ -2365,7 +2365,7 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_down.json",
-                      "bones": ["renderRightItemRotation"]
+                      "bones": ["rightHeldItem"]
                     },
                     "@damping": {},
                     "@snap": true,
@@ -2447,7 +2447,7 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_outward.json",
-                      "bones": ["renderRightItemRotation"]
+                      "bones": ["rightHeldItem"]
                     },
                     "@damping": {},
                     "@snap": true,
@@ -2532,10 +2532,10 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
-                      "bones": ["renderRightItemRotation"],
+                      "bones": ["rightHeldItem"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@damping": {"renderRightItemRotation": 0.9},
+                    "@damping": {"rightHeldItem": 0.9},
                     "@snap": false,
                     "@mirror": true
                   },
@@ -2758,7 +2758,7 @@
           ["leftForeArm", "rightForeArm"],
           ["leftLeg", "rightLeg"],
           ["leftForeLeg", "rightForeLeg"],
-          ["renderLeftItemRotation", "renderRightItemRotation"]
+          ["leftHeldItem", "rightHeldItem"]
         ]
       }
     },

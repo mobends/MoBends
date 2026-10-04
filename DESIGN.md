@@ -587,11 +587,6 @@ Zombies, skeletons and the rest follow the same steps, plus their own items abov
 
 ## Smaller renames and cleanups
 
-Decided:
-
-- The item bones `renderLeftItemRotation` / `renderRightItemRotation` are renamed
-  `leftHeldItem` / `rightHeldItem`.
-
 Proposed, not yet agreed:
 
 - Singular / plural pairs collapse to the list form (`values`, `entityTypes`, `names`, `uuids`).
@@ -699,10 +694,8 @@ the additive and smaller ones.
 
 **Smaller**
 
-25. [ ] **Rename the held-item bones** `renderLeftItemRotation` / `renderRightItemRotation` to
-    `leftHeldItem` / `rightHeldItem`: `BipedEntityData`, `LayerCustomHeldItem`, `SwordTrail`,
-    `gen_animators.ts`, the `biped`, `player`, `skeleton` and `pig_zombie` animators, and 17 clips
-    under `animations/biped`, `animations/player` and `animations/pigzombie`.
+25. [x] **Rename the held-item bones** `renderLeftItemRotation` / `renderRightItemRotation` to
+    `leftHeldItem` / `rightHeldItem`.
 26. [ ] **The generator writes the format directly**: `gen_animators.ts` builds items, nodes and
     connections the old way and rewrites them in last passes (`oneKeyAnimator`, then
     `kumo_scopes.ts`, which turns bare names into scoped ones); its builders should write the
