@@ -1,11 +1,12 @@
 # KUMO format rework
 
 Working notes for the KUMO animator format and the files around it (type files, model
-definitions), before v2 ships. Two parts:
+definitions), before v2 ships. Two parts, and a task list:
 
 1. **The new design**: how the system works, on its own terms.
 2. **Migrating from the old design**: why it changes, how each old construct maps onto the new
    one, measurements, and the work to get there.
+3. **TODO**: the work, in the order it builds up.
 
 Parts of the format this rework doesn't touch (layers, machines, selectors, connections, pose
 composition, masks, mirroring, `extends`, extensions, trust and resource-pack limits) are as
@@ -1522,3 +1523,106 @@ Everything besides the engine that changes with the format (surveyed 2026-10-03)
 
 - **The riding threshold.** A new value for `riding_fast` on the measured speed, picked by running
   the riding scenario in the lab.
+
+---
+
+# TODO
+
+Ordered by what the rest builds on: each task needs only the ones above it, and the list ends with
+the additive and smaller ones.
+
+**Engine foundations**
+
+1. [ ] **Resolve names at compile time** in the current runtime: node and layer scopes become fixed
+   arrays, subject names indices, a mirrored read a flag; unknown names fail at load. Check the
+   one behaviour change against the parity goldens (*A first step in the current runtime*).
+2. [ ] **Split program from state**: compile an animator once per animator, extensions, trust and
+   entity class into an immutable program; give every stateful element a slot in one flat
+   per-entity `float[]`, a scope's slots one contiguous range; cache programs and clear the cache
+   on a reload or a policy change (*Runtime*, *Splitting program from state*).
+3. [ ] **The expression language**: one typed expression tree (number or boolean, checked at load)
+   replacing expressions, trigger conditions, selector conditions and `variables[]`; the language
+   operations (*Language reference*); per-use state for `decreased`, `rose`, `fell`; nothing
+   short-circuits, `if` included (*Values and expressions*).
+4. [ ] **Scopes and definitions**: entity, animator, layer, machine and node scopes with their
+   lifecycles; `@define` with constant, state and live definitions; scoped names with no lookup
+   and no shadowing; live definitions evaluated once per frame; cycles a load error
+   (*Definitions and scopes*).
+5. [ ] **Statements**: `set`, `@on` lists (`enter`, `update`, `exit`, a transition's own), their order
+   in a frame and on a transition, who may set what, and the trust rule (*Statements*).
+6. [ ] **The one-key syntax**: constructs and nodes as one key plus `@` modifiers, the closed modifier
+   sets, `@define` / `@on` / `@connections` / `@when` on scopes, `{"when", "then"}` branches and
+   connections, `@comment` everywhere, unknown keys a load error (*How constructs are written*).
+
+**Built-ins and operations**
+
+7. [ ] **Node and time built-ins**: the node phases, `nodeTicksElapsed`, `layerTicksElapsed`,
+   `nodeFadeProgress`, `nodeIsFinished`, `clipLength` / `clipDuration`, the clocks
+   (*Nodes, transitions and time*).
+8. [ ] **Entity built-ins**: the `entity…` values, renamed from the data classes; `entitySpeed` /
+   `entityXZSpeed` as interpolated magnitudes; `entityTicksAfterAttack`'s counting for every
+   entity; `entitySwingProgress` interpolated (*Entity built-ins*).
+9. [ ] **The addon API in `core/`**: the opaque entity, float-only state with slot handles, typed
+   template fields for drivers, the selector-safe flag; `registerFunction`,
+   `registerEntityReader`, `registerOperation`; queued registration (*Operations and drivers in
+   Java*).
+10. [ ] **Prototype the API on `core:spring` and `core:step_turn`**, settling argument passing, what
+    bind gets, `PoseWriter` and purity (*To settle while prototyping*).
+11. [ ] **Drivers on declared state**: `out` and `inout`; `core:step_turn`'s and the spider legs'
+    private state as declared slots; `core:accumulate` absorbing the switching ramps; remove
+    `core:ramp`, `core:set` and `readBeforeAdvance` (*Driver outputs, accumulators and springs*).
+12. [ ] **Registered operations**: `field` / `exists` with `@fallback` (model definitions only);
+    `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
+    `core:is_flying`; `mobends:use_action`, `mobends:attack_action`, the wolf's and the spider's
+    operations, `mobends:spin_attack_enabled` (*Values specific to a mob*).
+13. [ ] **Type-file selectors as expressions**: the selector operations (`core:entity_type`,
+    `core:player_name`, `core:player_uuid`, `mobends:skin_variant`) and precedence counted over
+    expressions (*Files*).
+
+**Format features on top**
+
+14. [ ] **Entity-level definitions in model definitions**: `@define` / `@on` with `field`, replacing
+    `variables[]`; entity state in the entity's state array (*Entity-level definitions*).
+15. [ ] **`extends` and extensions as scopes**: the merged `animator.` scope of an `extends` chain;
+    an extension's own animator scope reading only `entity.` names, skipped when one is missing
+    (*`extends`*, *Extensions*).
+16. [ ] **Mirroring without `negate`**: the rule as `@when` + `pairs`, `@mirror` and `@swapSides`
+    unchanged (*Mirroring*).
+17. [ ] **Remove tags and `core:action`**, following other layers through definitions (*Tags are
+    removed*).
+
+**Migrating content**
+
+18. [ ] **The generator** (`animation-lab/tools/gen_animators.ts`) and its 11 animators.
+19. [ ] **The hand-written files**: `iron_golem`, `creeper`, `cow`, `wolf`; the model definitions
+    (`chicken`, `iron_golem`); the type files; the example packs and their READMEs. Includes
+    `comment` → `@comment`, dropping `mirror` from the 13 head-yaw items, and the mob-specific
+    values (the player's swing filter, cape phase, `flightPitch`; the zombie's, the wolf's, the
+    squid's, the spider's) (*Entity values from the data classes*).
+20. [ ] **Tests**: the ones with inline animator JSON and the ones on shipped assets; re-record the
+    goldens where behaviour moves on purpose; pick the riding threshold in the lab
+    (*Migration work*, *Open questions about the migration*).
+21. [ ] **Docs**: `misc/kumo-format.md`, `docs/animation.md`, `docs/content.md`,
+    `docs/overview.md`, `CHANGELOG.md`; the entries of this document leave as they land.
+
+**Moving mobs out of Java**
+
+22. [ ] **The player as files**, in the order of *The plan for the player*: forwarding stand-ins and
+    `postRender` through split segments; pivots and overlay segments; the `layers` section and a
+    bone-name armour wrapper; components instead of casts; renderer settings and the first-person
+    pose; default-model registration under the built-in id; adopting pivots again for slim skins.
+23. [ ] **One generic data class**, with per-mob parts as components declared by the model
+    (*Per-entity data*).
+24. [ ] **Zombies, skeletons and the rest** the same way, plus their own items (*Moving mobs out of
+    Java*).
+
+**Smaller**
+
+25. [ ] **Rename the held-item bones** `renderLeftItemRotation` / `renderRightItemRotation` to
+    `leftHeldItem` / `rightHeldItem` (*Migration work* lists the files).
+26. [ ] **Decide the remaining cleanups**: singular / plural pairs, the reserved `"default"` key,
+    enum casing (*Smaller renames and cleanups*).
+
+**After v2**
+
+27. [ ] **Functions**, as designed in *Functions (after v2)*.
