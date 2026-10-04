@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state;
 
+import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.pose.BoneTarget;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
@@ -14,6 +15,7 @@ import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.Tween;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -27,42 +29,32 @@ public class LayerState
 
     /** The layer's own machine, the outermost. */
     private final MachineState machine;
-    /** The machines around the current node, from the layer's own inwards. */
-    private final List<MachineState> path = new ArrayList<>();
+    /** Every node of the layer, by index, and every machine, the outermost first. */
+    private final List<MachineMember> nodes = new ArrayList<>();
+    private final List<MachineState> machines = new ArrayList<>();
     private final ArmatureMask mask;
     private final LayerTemplate.LayerMode mode;
     private final Skeleton skeleton;
     private final Expression when;
     /** The layer's definitions and statement lists. */
     private final ScopeLists lists;
-    /** Machines the layer left whose last node is still fading out: they are disposed when it is. */
-    private final List<MachineState> pendingExits = new ArrayList<>();
-
     // Sized by allocate(), once every layer of the animator has registered its bones.
     private boolean[] allowed;
-    private Pose currentPose;
-    private Pose previousPose;
-    private Pose snapshotPose;
-    private Pose outputPose;
-    private Pose lastOutput;
     private final Quaternion rotationBeneath = new Quaternion();
     private final Quaternion rotationTemp = new Quaternion();
     private final Vec3f vectorBeneath = new Vec3f();
 
-    private INodeState previousNode;
-    /** The member of {@link #previousNode}, whose scope it is. */
-    private MachineMember previous;
-    private MachineMember current;
-    private INodeState currentNode;
-    private boolean previousIsSnapshot;
-    private float transitionProgress = 0.0F;
-    private float transitionDuration = 0.0F;
-    private ConnectionTemplate.Easing transitionEasing = ConnectionTemplate.Easing.EASE_IN_OUT;
-    private float elapsedTicks = 0.0F;
-    /** Whether the layer's "when" held on the last update. */
-    private boolean enabled = true;
-    /** Whether {@link #start} entered the node this frame, which stands for the frame's decision. */
-    private boolean justStarted;
+    // The entity's state (see StateLayout). Ints: the current node's index, the index of the node
+    // fading out (-1 for none: the previous node), whether the previous node is a frozen snapshot,
+    // the transition's easing, whether start() entered the node this frame (which stands for the
+    // frame's decision), whether the "when" held on the last update; then, per machine, whether
+    // it was left while its last node still fades out (it is disposed when that node is).
+    private final int currentSlot, previousSlot, snapshotSlot, easingSlot, justStartedSlot, enabledSlot, pendingExitSlot;
+    // Floats: the transition's progress and duration, the layer's clock.
+    private final int progressSlot, durationSlot, elapsedSlot;
+    // Pose buffers: the current and the previous node's poses, the frozen snapshot, the blend, and
+    // the last output (what a snapshot freezes).
+    private final int currentPose, previousPose, snapshotPose, outputPose, lastOutput;
 
     public LayerState(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
@@ -84,24 +76,72 @@ public class LayerState
         Map<String, MachineMember> membersByName = new HashMap<>();
         this.machine = new MachineState(context, skeleton, layerTemplate, layerTemplate, membersByName);
         machine.link(membersByName);
+        index(machine);
+
+        StateLayout layout = context.getExpressionScope().getLayout();
         // Where the layer stands until it starts (see start).
-        moveTo(machine.initialNode());
+        this.currentSlot = layout.ints(1, machine.initialNode().index);
+        this.previousSlot = layout.ints(1, -1);
+        this.snapshotSlot = layout.ints(1, 0);
+        this.easingSlot = layout.ints(1, ConnectionTemplate.Easing.EASE_IN_OUT.ordinal());
+        this.justStartedSlot = layout.ints(1, 0);
+        this.enabledSlot = layout.ints(1, 1);
+        this.pendingExitSlot = layout.ints(machines.size(), 0);
+        this.progressSlot = layout.floats(1, 0);
+        this.durationSlot = layout.floats(1, 0);
+        this.elapsedSlot = layout.floats(1, 0);
+        this.currentPose = layout.pose();
+        this.previousPose = layout.pose();
+        this.snapshotPose = layout.pose();
+        this.outputPose = layout.pose();
+        this.lastOutput = layout.pose();
+    }
+
+    /** Numbers the layer's nodes and machines, and notes the machines around each node. */
+    private void index(MachineState machine)
+    {
+        machine.index = machines.size();
+        machines.add(machine);
+        for (MachineMember member : machine.members)
+        {
+            if (member.machine != null)
+            {
+                index(member.machine);
+                continue;
+            }
+            member.index = nodes.size();
+            nodes.add(member);
+            List<MachineState> path = new ArrayList<>();
+            for (MachineState around = member.parent; around != null; around = around.member == null ? null : around.member.parent)
+            {
+                path.add(0, around);
+            }
+            member.path = Collections.unmodifiableList(path);
+        }
     }
 
     /** Sizes the layer's buffers after the skeleton, once it has every bone of the animator. */
     void allocate()
     {
-        currentPose = new Pose(skeleton);
-        previousPose = new Pose(skeleton);
-        snapshotPose = new Pose(skeleton);
-        outputPose = new Pose(skeleton);
-        lastOutput = new Pose(skeleton);
-
         allowed = new boolean[skeleton.size()];
         for (int i = 0; i < skeleton.size(); i++)
         {
             allowed[i] = mask == null || mask.doesAllow(skeleton.nameOf(i));
         }
+    }
+
+    /** The node the layer is in. */
+    private MachineMember current(ITriggerConditionContext context)
+    {
+        return nodes.get(context.getState().ints[currentSlot]);
+    }
+
+    /** The node fading out (or frozen as a snapshot), or null. */
+    @Nullable
+    private MachineMember previous(ITriggerConditionContext context)
+    {
+        int index = context.getState().ints[previousSlot];
+        return index < 0 ? null : nodes.get(index);
     }
 
     /**
@@ -112,75 +152,81 @@ public class LayerState
      */
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
-        context.enterNode(currentNode);
+        context.enterNode(current(context).node);
         lists.enter(context);
         if (when != null)
         {
             when.restart(context);
         }
         List<MachineState> entered = new ArrayList<>();
-        moveTo(descend(enter(machine, context, entered), context, entered));
-        context.enterNode(currentNode);
+        moveTo(descend(enter(machine, context, entered), context, entered), context);
+        context.enterNode(current(context).node);
         startNode(context);
-        justStarted = true;
+        context.getState().ints[justStartedSlot] = 1;
     }
 
     /** Ticks elapsed since the layer started. */
-    public float getElapsedTicks()
+    public float getElapsedTicks(ITriggerConditionContext context)
     {
-        return elapsedTicks;
+        return context.getState().floats[elapsedSlot];
     }
 
     /**
      * The linear progress of the crossfade {@code node} is part of, the same on both sides: 0 when
      * it starts, 1 when it ends, and 1 for a node no crossfade involves.
      */
-    public float getFadeProgress(INodeState node)
+    public float getFadeProgress(INodeState node, ITriggerConditionContext context)
     {
-        if (previousNode == null || (node != currentNode && node != previousNode))
+        MachineMember previous = previous(context);
+        if (previous == null || (node != current(context).node && node != previous.node))
         {
             return 1F;
         }
-        return transitionDuration <= 0 ? 1F : Math.min(transitionProgress / transitionDuration, 1F);
+        float[] floats = context.getState().floats;
+        float duration = floats[durationSlot];
+        return duration <= 0 ? 1F : Math.min(floats[progressSlot] / duration, 1F);
     }
 
     /** Whether {@code node} is the current node, while the crossfade into it runs. */
-    public boolean isFadingIn(INodeState node)
+    public boolean isFadingIn(INodeState node, ITriggerConditionContext context)
     {
-        return node == currentNode && previousNode != null;
+        return node == current(context).node && previous(context) != null;
     }
 
     /** Whether {@code node} is the current node, fully in. */
-    public boolean isActive(INodeState node)
+    public boolean isActive(INodeState node, ITriggerConditionContext context)
     {
-        return node == currentNode && previousNode == null;
+        return node == current(context).node && previous(context) == null;
     }
 
     /** Whether {@code node} is the node the layer left, still posed while the crossfade runs. */
-    public boolean isFadingOut(INodeState node)
+    public boolean isFadingOut(INodeState node, ITriggerConditionContext context)
     {
-        return node == previousNode && node != currentNode && !previousIsSnapshot;
+        MachineMember previous = previous(context);
+        return previous != null && node == previous.node && node != current(context).node && context.getState().ints[snapshotSlot] == 0;
     }
 
-    public INodeState getCurrentNode()
+    public INodeState getCurrentNode(ITriggerConditionContext context)
     {
-        return currentNode;
+        return current(context).node;
     }
 
     /** True while the layer is in a {@code core:vanilla} node (and its "when" holds). */
-    public boolean wantsVanilla()
+    public boolean wantsVanilla(ITriggerConditionContext context)
     {
-        return currentNode.isVanilla() && enabled;
+        return current(context).node.isVanilla() && context.getState().ints[enabledSlot] != 0;
     }
 
     /** Evaluates the layer for this frame and composites its output into {@code animatorPose}. */
     public void update(IKumoContext context, float deltaTime, Pose animatorPose) throws MalformedKumoTemplateException
     {
-        boolean starting = justStarted;
-        justStarted = false;
-        context.enterNode(currentNode);
+        EntityState state = context.getState();
+        boolean starting = state.ints[justStartedSlot] != 0;
+        state.ints[justStartedSlot] = 0;
+        context.enterNode(current(context).node);
 
-        enabled = when == null || when.test(context);
+        boolean enabled = when == null || when.test(context);
+        state.ints[enabledSlot] = enabled ? 1 : 0;
         if (!enabled)
         {
             // Disabled: the layer writes nothing and its clocks pause.
@@ -194,15 +240,20 @@ public class LayerState
         {
             beginTransition(fired, context);
         }
+        MachineMember current = current(context);
+        MachineMember previous = previous(context);
+        boolean snapshot = state.ints[snapshotSlot] != 0;
+        INodeState currentNode = current.node;
+        INodeState previousNode = previous == null ? null : previous.node;
 
         // 2. The scopes' update lists: the layer's, its machines' from the outermost in, the node
         // fading out, the current node.
         lists.update(context);
-        for (MachineState machine : path)
+        for (MachineState machine : current.path)
         {
             machine.update(context);
         }
-        if (previous != null && !previousIsSnapshot)
+        if (previous != null && !snapshot)
         {
             context.enterNode(previousNode);
             previous.scope.update(context);
@@ -211,6 +262,8 @@ public class LayerState
         current.scope.update(context);
 
         // 3. Evaluate, on top of the layers below.
+        Pose currentPose = state.poses[this.currentPose];
+        Pose previousPose = state.poses[this.previousPose];
         currentPose.setBelow(animatorPose);
         previousPose.setBelow(animatorPose);
         context.enterNode(currentNode);
@@ -220,11 +273,12 @@ public class LayerState
         Pose result = currentPose;
         if (previousNode != null)
         {
-            float t = ease(transitionDuration <= 0 ? 1F : transitionProgress / transitionDuration);
+            float duration = state.floats[durationSlot];
+            float t = ease(duration <= 0 ? 1F : state.floats[progressSlot] / duration, context);
             Pose source;
-            if (previousIsSnapshot)
+            if (snapshot)
             {
-                source = snapshotPose;
+                source = state.poses[snapshotPose];
             }
             else
             {
@@ -245,25 +299,26 @@ public class LayerState
                 matchSpaces(source.get(i), currentPose.get(i), animatorPose, i);
                 matchSpaces(currentPose.get(i), source.get(i), animatorPose, i);
             }
-            blend(source, currentPose, t, outputPose);
-            result = outputPose;
+            Pose output = state.poses[outputPose];
+            blend(source, currentPose, t, output);
+            result = output;
         }
 
         // 4. Composite onto the animator pose.
         composite(result, animatorPose);
-        lastOutput.set(result);
+        state.poses[lastOutput].set(result);
 
         // 5. Advance clocks.
-        elapsedTicks += deltaTime;
+        state.floats[elapsedSlot] += deltaTime;
         currentNode.advance(context, deltaTime);
         if (previousNode != null)
         {
-            if (!previousIsSnapshot)
+            if (!snapshot)
             {
                 previousNode.advance(context, deltaTime);
             }
-            transitionProgress += deltaTime;
-            if (transitionProgress >= transitionDuration)
+            state.floats[progressSlot] += deltaTime;
+            if (state.floats[progressSlot] >= state.floats[durationSlot])
             {
                 disposePrevious(context);
             }
@@ -279,6 +334,8 @@ public class LayerState
      */
     private ITransition decide(IKumoContext context) throws MalformedKumoTemplateException
     {
+        MachineMember current = current(context);
+        List<MachineState> path = current.path;
         ITransition fired = null;
         for (int i = 0; i < path.size(); i++)
         {
@@ -322,12 +379,12 @@ public class LayerState
      */
     private void beginTransition(ITransition transition, IKumoContext context) throws MalformedKumoTemplateException
     {
-        List<MachineState> left = new ArrayList<>(path);
-        MachineMember leftMember = current;
-        INodeState leftNode = currentNode;
-        boolean interrupting = previousNode != null;
+        EntityState state = context.getState();
+        MachineMember leftMember = current(context);
+        List<MachineState> left = leftMember.path;
+        INodeState leftNode = leftMember.node;
+        boolean interrupting = previous(context) != null;
         float duration = transition.getDuration();
-
         if (interrupting)
         {
             disposePrevious(context);
@@ -340,8 +397,8 @@ public class LayerState
         List<MachineState> entered = new ArrayList<>();
         MachineMember target = descend(transition.getTarget(), context, entered);
 
-        transitionDuration = duration;
-        transitionEasing = transition.getEasing();
+        state.floats[durationSlot] = duration;
+        state.ints[easingSlot] = transition.getEasing().ordinal();
         boolean restart = target.node == leftNode;
         if (restart && !interrupting && duration > 0.0F)
         {
@@ -351,39 +408,37 @@ public class LayerState
 
         if (duration <= 0.0F || restart)
         {
-            previousNode = null;
-            previous = null;
-            previousIsSnapshot = false;
+            state.ints[previousSlot] = -1;
+            state.ints[snapshotSlot] = 0;
         }
         else if (interrupting)
         {
             // Interrupting a transition: freeze what is on screen and fade from that (no pop).
-            snapshotPose.set(lastOutput);
-            previousNode = leftNode;
-            previous = leftMember;
-            previousIsSnapshot = true;
-            transitionProgress = 0;
+            state.poses[snapshotPose].set(state.poses[lastOutput]);
+            state.ints[previousSlot] = leftMember.index;
+            state.ints[snapshotSlot] = 1;
+            state.floats[progressSlot] = 0;
         }
         else
         {
-            previousNode = leftNode;
-            previous = leftMember;
-            previousIsSnapshot = false;
-            transitionProgress = 0;
+            state.ints[previousSlot] = leftMember.index;
+            state.ints[snapshotSlot] = 0;
+            state.floats[progressSlot] = 0;
         }
 
-        moveTo(target);
+        moveTo(target, context);
+        boolean fadingOut = state.ints[previousSlot] >= 0 && state.ints[snapshotSlot] == 0;
         for (MachineState machine : left)
         {
-            if (!path.contains(machine))
+            if (!target.path.contains(machine))
             {
                 // Disposed once the last of its nodes has faded out.
-                if (previous != null && !previousIsSnapshot) pendingExits.add(machine);
+                if (fadingOut) state.ints[pendingExitSlot + machine.index] = 1;
                 else machine.exit(context);
             }
         }
-        context.enterNode(currentNode);
-        for (MachineState machine : path)
+        context.enterNode(target.node);
+        for (MachineState machine : target.path)
         {
             // Those around a node the transition names directly; the entered ones have started.
             if (!left.contains(machine) && !entered.contains(machine))
@@ -397,18 +452,22 @@ public class LayerState
     /** The node fading out is disposed (its crossfade ended, or a transition cut it short), and the machines it left. */
     private void disposePrevious(IKumoContext context)
     {
-        if (previous != null && !previousIsSnapshot)
+        EntityState state = context.getState();
+        MachineMember previous = previous(context);
+        if (previous != null && state.ints[snapshotSlot] == 0)
         {
             exit(previous, context);
         }
-        previousNode = null;
-        previous = null;
-        previousIsSnapshot = false;
-        for (MachineState machine : pendingExits)
+        state.ints[previousSlot] = -1;
+        state.ints[snapshotSlot] = 0;
+        for (MachineState machine : machines)
         {
-            machine.exit(context);
+            if (state.ints[pendingExitSlot + machine.index] != 0)
+            {
+                state.ints[pendingExitSlot + machine.index] = 0;
+                machine.exit(context);
+            }
         }
-        pendingExits.clear();
     }
 
     /** Runs the {@code exit} list of {@code member}'s node. */
@@ -416,7 +475,7 @@ public class LayerState
     {
         context.enterNode(member.node);
         member.scope.exit(context);
-        context.enterNode(currentNode);
+        context.enterNode(current(context).node);
     }
 
     /** Follows {@code target} into the machines it leads into, entering each, down to a node. */
@@ -447,16 +506,10 @@ public class LayerState
         return branch.getTarget();
     }
 
-    /** Makes {@code node} the current node, with the machines around it as the path. */
-    private void moveTo(MachineMember node)
+    /** Makes {@code node} the current node. */
+    private void moveTo(MachineMember node, ITriggerConditionContext context)
     {
-        current = node;
-        currentNode = node.node;
-        path.clear();
-        for (MachineState machine = node.parent; machine != null; machine = machine.member == null ? null : machine.member.parent)
-        {
-            path.add(0, machine);
-        }
+        context.getState().ints[currentSlot] = node.index;
     }
 
     /**
@@ -465,19 +518,22 @@ public class LayerState
      */
     private void startNode(IKumoContext context) throws MalformedKumoTemplateException
     {
+        MachineMember current = current(context);
         current.scope.enter(context);
-        currentNode.start(context);
+        current.node.start(context);
         for (ConnectionState connection : current.connections)
         {
             connection.when.restart(context);
         }
     }
 
-    private float ease(float t)
+    private static final ConnectionTemplate.Easing[] EASINGS = ConnectionTemplate.Easing.values();
+
+    private float ease(float t, ITriggerConditionContext context)
     {
         if (t < 0) t = 0;
         if (t > 1) t = 1;
-        switch (transitionEasing)
+        switch (EASINGS[context.getState().ints[easingSlot]])
         {
             case EASE_IN:
                 return (float) Tween.easeIn(t, 2.0);

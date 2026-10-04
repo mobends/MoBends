@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state;
 
+import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
@@ -11,9 +12,9 @@ public interface INodeState
     String getName();
 
     /** Ticks since the node was entered. */
-    float getElapsedTicks();
+    float getElapsedTicks(ITriggerConditionContext context);
 
-    boolean isAnimationFinished();
+    boolean isAnimationFinished(ITriggerConditionContext context);
 
     void start(IKumoContext context) throws MalformedKumoTemplateException;
 

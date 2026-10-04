@@ -680,7 +680,7 @@ public class KumoAnimatorStateTest
         subject.variables.put("height", 1D);
         frame(animator, subject);
         // Started over this frame: one tick in, not two.
-        assertEquals(1F, animator.getLayers().get(0).getCurrentNode().getElapsedTicks(), 0F);
+        assertEquals(1F, animator.getLayers().get(0).getCurrentNode(animator.getContext()).getElapsedTicks(animator.getContext()), 0F);
     }
 
     @Test

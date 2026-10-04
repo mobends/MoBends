@@ -9,6 +9,8 @@ import goblinbob.mobends.core.kumo.pose.*;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
+import goblinbob.mobends.core.kumo.state.StateLayout;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.*;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
@@ -34,18 +36,23 @@ public class PoseNode implements INodeState
     private final Skeleton skeleton;
     /** The stateful expressions of the node's items, started over when the node starts. */
     private Expression[] held = new Expression[0];
-    private Pose enterPose;
-    private boolean enterPending;
 
     private boolean fallthrough;
     private boolean vanilla;
 
-    private float elapsed;
-    private boolean snapPending;
+    /** Its state (see StateLayout): its clock, whether the snaps and the enter pose are still to apply. */
+    private final int clockSlot, snapPendingSlot, enterPendingSlot;
+    /** The pose its enter items make when it starts, or -1 without any. */
+    private final int enterPose;
 
-    public PoseNode(String name, List<IPoseItem> items, List<IPoseItem> enterItems, Skeleton skeleton, DampingTemplate layerDamping, DampingTemplate nodeDamping, List<String> snapOnEnter)
+    public PoseNode(String name, List<IPoseItem> items, List<IPoseItem> enterItems, Skeleton skeleton, DampingTemplate layerDamping, DampingTemplate nodeDamping,
+                    List<String> snapOnEnter, StateLayout layout)
     {
         this.name = name;
+        this.clockSlot = layout.floats(3, 0);
+        this.snapPendingSlot = clockSlot + 1;
+        this.enterPendingSlot = clockSlot + 2;
+        this.enterPose = enterItems == null || enterItems.isEmpty() ? -1 : layout.pose();
         this.items = items;
         this.enterItems = enterItems == null ? Collections.<IPoseItem>emptyList() : enterItems;
         this.skeleton = skeleton;
@@ -108,7 +115,8 @@ public class PoseNode implements INodeState
         {
             context.getExpressionScope().endHolding();
         }
-        PoseNode node = new PoseNode(template.name, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        PoseNode node = new PoseNode(template.name, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter,
+                context.getExpressionScope().getLayout());
         node.held = held.toArray(new Expression[0]);
         return node;
     }
@@ -116,7 +124,7 @@ public class PoseNode implements INodeState
     public static PoseNode createFallthrough(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, FallthroughNodeTemplate template) throws MalformedKumoTemplateException
     {
         template.validate();
-        PoseNode node = new PoseNode(template.name, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
+        PoseNode node = new PoseNode(template.name, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null, context.getExpressionScope().getLayout());
         node.fallthrough = true;
         return node;
     }
@@ -124,7 +132,7 @@ public class PoseNode implements INodeState
     public static PoseNode createVanilla(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, VanillaNodeTemplate template) throws MalformedKumoTemplateException
     {
         template.validate();
-        PoseNode node = new PoseNode(template.name, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
+        PoseNode node = new PoseNode(template.name, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null, context.getExpressionScope().getLayout());
         node.vanilla = true;
         return node;
     }
@@ -222,9 +230,9 @@ public class PoseNode implements INodeState
     }
 
     @Override
-    public float getElapsedTicks()
+    public float getElapsedTicks(ITriggerConditionContext context)
     {
-        return elapsed;
+        return context.getState().floats[clockSlot];
     }
 
     @Override
@@ -244,8 +252,9 @@ public class PoseNode implements INodeState
      * items (fallthrough, vanilla) is always finished; one whose items are all untimed never is.
      */
     @Override
-    public boolean isAnimationFinished()
+    public boolean isAnimationFinished(ITriggerConditionContext context)
     {
+        float elapsed = getElapsedTicks(context);
         boolean anyTimed = false;
         for (IPoseItem item : items)
         {
@@ -265,8 +274,9 @@ public class PoseNode implements INodeState
     @Override
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
-        elapsed = 0;
-        snapPending = snapSlots.length > 0;
+        float[] state = context.getState().floats;
+        state[clockSlot] = 0;
+        state[snapPendingSlot] = snapSlots.length > 0 ? 1 : 0;
         for (Expression expression : held)
         {
             expression.restart(context);
@@ -275,28 +285,26 @@ public class PoseNode implements INodeState
         {
             item.onNodeStarted(context);
         }
-        if (!enterItems.isEmpty())
+        if (enterPose >= 0)
         {
-            if (enterPose == null || enterPose.size() != skeleton.size())
-            {
-                enterPose = new Pose(skeleton);
-            }
-            enterPose.clear();
+            Pose entered = context.getState().poses[enterPose];
+            entered.clear();
             for (IPoseItem item : enterItems)
             {
                 item.onNodeStarted(context);
-                item.apply(enterPose, context, 0);
+                item.apply(entered, context, 0);
             }
-            enterPending = true;
+            state[enterPendingSlot] = 1;
         }
     }
 
     @Override
     public void evaluate(IKumoContext context, Pose pose) throws MalformedKumoTemplateException
     {
+        float[] state = context.getState().floats;
         for (IPoseItem item : items)
         {
-            item.apply(pose, context, elapsed);
+            item.apply(pose, context, state[clockSlot]);
         }
 
         // Node-level damping applies to whatever this node wrote and no item damped already.
@@ -323,8 +331,9 @@ public class PoseNode implements INodeState
             }
         }
 
-        if (enterPending)
+        if (state[enterPendingSlot] != 0)
         {
+            Pose enterPose = context.getState().poses[this.enterPose];
             for (int slot = 0; slot < pose.size(); slot++)
             {
                 BoneTarget entered = enterPose.get(slot);
@@ -359,10 +368,10 @@ public class PoseNode implements INodeState
                     }
                 }
             }
-            enterPending = false;
+            state[enterPendingSlot] = 0;
         }
 
-        if (snapPending)
+        if (state[snapPendingSlot] != 0)
         {
             for (int slot : snapSlots)
             {
@@ -370,7 +379,7 @@ public class PoseNode implements INodeState
                 target.snap = true;
                 target.vectorMode = IVectorSink.Mode.SNAP;
             }
-            snapPending = false;
+            state[snapPendingSlot] = 0;
         }
 
         for (int slot = 0; slot < pose.size(); slot++)
@@ -392,7 +401,7 @@ public class PoseNode implements INodeState
     @Override
     public void advance(IKumoContext context, float deltaTime)
     {
-        elapsed += deltaTime;
+        context.getState().floats[clockSlot] += deltaTime;
         for (IPoseItem item : items)
         {
             item.advance(context, deltaTime);

@@ -391,16 +391,16 @@ public abstract class Expression
     static
     {
         // Ticks since the node being evaluated was entered.
-        number("nodeTicksElapsed", context -> context.getCurrentNode() == null ? 0F : context.getCurrentNode().getElapsedTicks());
+        number("nodeTicksElapsed", context -> context.getCurrentNode() == null ? 0F : context.getCurrentNode().getElapsedTicks(context));
         // Ticks since the layer started.
-        number("layerTicksElapsed", context -> context.getLayerState() == null ? 0F : context.getLayerState().getElapsedTicks());
+        number("layerTicksElapsed", context -> context.getLayerState() == null ? 0F : context.getLayerState().getElapsedTicks(context));
         // The linear progress of the crossfade the node is part of: 0 when it starts, 1 when it ends, 1 with none.
-        number("nodeFadeProgress", context -> context.getLayerState() == null ? 1F : context.getLayerState().getFadeProgress(context.getCurrentNode()));
-        bool("nodeIsFadingIn", context -> context.getLayerState() != null && context.getLayerState().isFadingIn(context.getCurrentNode()));
-        bool("nodeIsActive", context -> context.getLayerState() != null && context.getLayerState().isActive(context.getCurrentNode()));
-        bool("nodeIsFadingOut", context -> context.getLayerState() != null && context.getLayerState().isFadingOut(context.getCurrentNode()));
+        number("nodeFadeProgress", context -> context.getLayerState() == null ? 1F : context.getLayerState().getFadeProgress(context.getCurrentNode(), context));
+        bool("nodeIsFadingIn", context -> context.getLayerState() != null && context.getLayerState().isFadingIn(context.getCurrentNode(), context));
+        bool("nodeIsActive", context -> context.getLayerState() != null && context.getLayerState().isActive(context.getCurrentNode(), context));
+        bool("nodeIsFadingOut", context -> context.getLayerState() != null && context.getLayerState().isFadingOut(context.getCurrentNode(), context));
         // The node's timed clips have run (see INodeState#isAnimationFinished).
-        bool("nodeIsFinished", context -> context.getCurrentNode() != null && context.getCurrentNode().isAnimationFinished());
+        bool("nodeIsFinished", context -> context.getCurrentNode() != null && context.getCurrentNode().isAnimationFinished(context));
     }
 
 }

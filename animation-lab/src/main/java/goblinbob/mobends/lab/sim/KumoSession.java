@@ -156,12 +156,9 @@ public class KumoSession
         if (DEBUG_NODES)
         {
             StringBuilder line = new StringBuilder(String.format("frame %d tick %.2f:", frameIndex, clock.getTicks()));
-            for (goblinbob.mobends.core.kumo.state.LayerState layer : animator.getLayers())
+            for (String node : animator.getCurrentNodes())
             {
-                if (layer instanceof goblinbob.mobends.core.kumo.state.LayerState)
-                {
-                    line.append(' ').append(((goblinbob.mobends.core.kumo.state.LayerState) layer).getCurrentNode().getName());
-                }
+                line.append(' ').append(node);
             }
             System.out.println(line);
         }

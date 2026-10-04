@@ -498,7 +498,7 @@ public class KumoAnimatorState
         List<String> nodes = new ArrayList<>();
         for (LayerState layer : layerStates)
         {
-            nodes.add(layer.getCurrentNode().getName());
+            nodes.add(layer.getCurrentNode(context).getName());
         }
         return nodes;
     }
@@ -508,9 +508,15 @@ public class KumoAnimatorState
     {
         for (LayerState layer : layerStates)
         {
-            if (layer.wantsVanilla()) return true;
+            if (layer.wantsVanilla(context)) return true;
         }
         return false;
+    }
+
+    /** The context the animator evaluates in, with this entity's state: for reading the layers' (see {@link #getLayers}). */
+    public KumoContext getContext()
+    {
+        return context;
     }
 
     public List<LayerState> getLayers()

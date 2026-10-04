@@ -35,6 +35,8 @@ public class MachineState
     @Nullable
     Selector selector;
     final List<ConnectionState> connections = new ArrayList<>();
+    /** Its index among its layer's machines, the outermost first. */
+    int index = -1;
 
     private final MachineTemplate template;
     private final ExpressionScope scope;

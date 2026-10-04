@@ -22,6 +22,9 @@ public final class MachineMember
     /** A node's definitions and statement lists (a machine keeps its own in the {@link MachineState}). */
     @Nullable
     final ScopeLists scope;
+    /** A node's index among its layer's nodes (see {@code LayerState}), and the machines around it, from the layer's own inwards. */
+    int index = -1;
+    List<MachineState> path;
 
     MachineMember(String name, @Nullable INodeState node, @Nullable ScopeLists scope, @Nullable MachineState machine, MachineState parent)
     {
