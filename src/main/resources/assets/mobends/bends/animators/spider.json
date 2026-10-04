@@ -2,13 +2,15 @@
   "formatVersion": 2,
   "layers": [
     {
+      "@define": {
+        "resetLimbs": {"state": 1},
+        "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}
+      },
       "defaultOnEntry": "idle",
-      "variables": {"resetLimbs": 1},
-      "@expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
       "select": [
         {"when": {"le": ["health", 0]}, "then": "death"},
         {"when": "BESIDE_CLIMBABLE", "then": "crawl"},
-        {"when": "jumping", "then": "jump"},
+        {"when": "layer.jumping", "then": "jump"},
         {"when": "STANDING_STILL", "then": "idle"},
         {"then": "move"}
       ],
@@ -23,14 +25,16 @@
                   "bodyZ": {"mul": [{"cos": [{"mul": ["ticks", 0.2]}]}, 0.4]},
                   "kneelDuration": 10,
                   "kneelAmplitude": 4,
-                  "kneelLead": 0
+                  "kneelLead": 0,
+                  "out": {"groundLevel": "node.groundLevel"},
+                  "reset": "layer.resetLimbs"
                 }
               },
               {
                 "core:vector": {
                   "bone": "root",
                   "x": {"mul": [{"sin": [{"mul": ["ticks", 0.2]}]}, 0.4]},
-                  "y": {"mul": ["groundLevel", -1]},
+                  "y": {"mul": ["node.groundLevel", -1]},
                   "z": {"mul": [{"cos": [{"mul": ["ticks", 0.2]}]}, -0.4]}
                 },
                 "@snap": true
@@ -48,6 +52,7 @@
               }
             ]
           },
+          "@define": {"groundLevel": {"state": 0}},
           "@tags": ["idle"]
         },
         "move": {
@@ -69,14 +74,16 @@
                     {"phase": 0.7, "minDist": 7, "maxDist": 15, "minRot": 20, "maxRot": 50},
                     {"phase": 0.7, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80},
                     {"phase": 0.4, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80}
-                  ]
+                  ],
+                  "out": {"groundLevel": "node.groundLevel"},
+                  "reset": "layer.resetLimbs"
                 }
               },
               {
                 "core:vector": {
                   "bone": "root",
                   "x": {"mul": [{"mcsin": [{"mul": ["ticks", 0.2]}]}, 0.4]},
-                  "y": {"mul": ["groundLevel", -1]},
+                  "y": {"mul": ["node.groundLevel", -1]},
                   "z": {"mul": [{"mccos": [{"mul": ["ticks", 0.2]}]}, -0.4]}
                 },
                 "@snap": true
@@ -94,6 +101,7 @@
               }
             ]
           },
+          "@define": {"groundLevel": {"state": 0}},
           "@tags": ["move"]
         },
         "jump": {
@@ -253,7 +261,7 @@
               }
             ]
           },
-          "@set": {"resetLimbs": 1},
+          "@on": {"enter": [{"set": ["layer.resetLimbs", 1]}]},
           "@tags": ["jump"]
         },
         "crawl": {
@@ -272,7 +280,8 @@
                     {"phase": 0.7, "minDist": 7, "maxDist": 15, "minRot": 20, "maxRot": 50},
                     {"phase": 0.7, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80},
                     {"phase": 0.4, "minDist": 10, "maxDist": 20, "minRot": 60, "maxRot": 80}
-                  ]
+                  ],
+                  "reset": "layer.resetLimbs"
                 }
               },
               {
@@ -302,9 +311,9 @@
         "death": {
           "core:pose": {
             "pose": [
-              {"core:accumulate": {"name": "wiggleSpeed", "rate": -0.1, "initial": 1, "min": 0}},
+              {"core:accumulate": {"inout": "node.wiggleSpeed", "rate": -0.1, "min": 0}},
               {
-                "core:accumulate": {"name": "wigglePhase", "rate": {"add": [{"mul": ["wiggleSpeed", 2]}, 0.3]}}
+                "core:accumulate": {"inout": "node.wigglePhase", "rate": {"add": [{"mul": ["node.wiggleSpeed", 2]}, 0.3]}}
               },
               {
                 "core:vector": {"bone": "root", "y": 10},
@@ -337,13 +346,14 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/spider/death_wiggle.json",
-                  "frame": {"mod": ["wigglePhase", "clipLength"]},
-                  "weight": {"add": [{"mul": ["wiggleSpeed", 10]}, 10]}
+                  "frame": {"mod": ["node.wigglePhase", "clipLength"]},
+                  "weight": {"add": [{"mul": ["node.wiggleSpeed", 10]}, 10]}
                 },
                 "@space": "PRE"
               }
             ]
           },
+          "@define": {"wiggleSpeed": {"state": 1}, "wigglePhase": {"state": 0}},
           "@tags": ["death"]
         }
       }

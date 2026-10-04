@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.kumo.state.serializer;
 
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import goblinbob.mobends.core.kumo.state.template.BranchTemplate;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
@@ -14,13 +13,12 @@ import java.util.Map;
 public class BranchTemplateSerializer implements JsonDeserializer<BranchTemplate>
 {
 
-    private static final Type SET_TYPE = new TypeToken<Map<String, Float>>() {}.getType();
 
     @Override
     public BranchTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject object = JsonReading.fields(JsonReading.object(json, "A selector branch"), "A selector branch",
-                JsonReading.same("when", "then", "transitionDuration", "transitionEasing", "set"));
+                JsonReading.same("when", "then", "transitionDuration", "transitionEasing", "do"));
         BranchTemplate branch = new BranchTemplate();
 
         JsonElement when = object.get("when");
@@ -57,11 +55,7 @@ public class BranchTemplateSerializer implements JsonDeserializer<BranchTemplate
         {
             branch.transitionEasing = JsonReading.enumValue(ConnectionTemplate.Easing.class, easing, "A selector branch's \"transitionEasing\"");
         }
-        JsonElement set = object.get("set");
-        if (set != null && !set.isJsonNull())
-        {
-            branch.set = context.deserialize(set, SET_TYPE);
-        }
+        branch.run = ScopeSerializers.list(object.get("do"), "A selector branch's \"do\"", context);
         return branch;
     }
 

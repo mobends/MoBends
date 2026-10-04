@@ -2,6 +2,7 @@ package goblinbob.mobends.test.core.kumo;
 
 import com.google.gson.JsonParseException;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
+import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MachineTemplate;
 import org.junit.Test;
@@ -104,29 +105,31 @@ public class KumoSerializerTest
     @Test
     public void aCommentGoesAnywhere()
     {
-        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"@comment\": \"root\", \"layers\": [{\"@comment\": \"layer\","
-                + " \"mirror\": {\"@comment\": \"rule\", \"pairs\": []}, \"select\": [{\"@comment\": \"branch\", \"then\": \"a\"}],"
-                + " \"nodes\": {\"a\": {\"@comment\": \"node\", \"core:pose\": {\"@comment\": \"type\", \"pose\": [{\"@comment\": \"item\","
-                + " \"core:clip\": {\"@comment\": \"clip\", \"animationKey\": \"x\"}}]},"
-                + " \"@connections\": [{\"@comment\": \"connection\", \"when\": true, \"then\": \"a\"}]}}}]}");
+        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"@comment\": \"root\", \"layers\": [{\"@comment\": \"layer\", "
+                + "\"mirror\": {\"@comment\": \"rule\", \"pairs\": []}, \"select\": [{\"then\": \"a\", \"@comment\": \"branch\"}], "
+                + "\"nodes\": {\"a\": {\"@comment\": \"node\", \"core:pose\": {\"@comment\": \"type\", \"pose\": [{\"@comment\": \"item\", "
+                + "\"core:clip\": {\"@comment\": \"clip\", \"animationKey\": \"x\"}}]}, \"@connections\": [{\"when\": true, "
+                + "\"then\": \"a\", \"@comment\": \"connection\"}]}}}]}");
         assertEquals(1, template.layers.get(0).nodes.size());
     }
 
     @Test
-    public void readsMachinesSelectorsAndNamedExpressions()
+    public void readsMachinesSelectorsAndDefinitions()
     {
-        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"@expressions\": {\"still\": \"STANDING_STILL\"}, "
-                + "\"layers\": [{\"select\": [{\"when\": \"still\", \"then\": \"a\", \"transitionDuration\": 2}, "
-                + "{\"then\": [{\"then\": \"m\", \"set\": {\"v\": 1}}]}], \"nodes\": {\"a\": {\"core:pose\": {}}}, "
-                + "\"machines\": {\"m\": {\"defaultOnEntry\": \"c\", \"nodes\": {\"b\": {\"core:pose\": {}}, "
-                + "\"c\": {\"core:pose\": {}}}}}}]}");
+        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"@define\": {\"still\": {\"live\": \"STANDING_STILL\"}}, "
+                + "\"layers\": [{\"@define\": {\"v\": {\"state\": 0}}, \"select\": [{\"when\": \"animator.still\", \"then\": \"a\", "
+                + "\"transitionDuration\": 2}, {\"then\": [{\"then\": \"m\", \"do\": [{\"set\": [\"layer.v\", 1]}]}]}], "
+                + "\"nodes\": {\"a\": {\"core:pose\": {}}}, \"machines\": {\"m\": {\"defaultOnEntry\": \"c\", "
+                + "\"nodes\": {\"b\": {\"core:pose\": {}}, \"c\": {\"core:pose\": {}}}}}}]}");
         LayerTemplate layer = template.layers.get(0);
         assertNull(layer.defaultOnEntry);
-        assertEquals("still", layer.select.get(0).when.json.getAsString());
+        assertEquals("animator.still", layer.select.get(0).when.json.getAsString());
+        assertEquals(DefinitionTemplate.Kind.LIVE, template.define.get("still").kind);
+        assertEquals(DefinitionTemplate.Kind.STATE, layer.define.get("v").kind);
         assertEquals("a", layer.select.get(0).target);
         assertEquals(2F, layer.select.get(0).transitionDuration, 0F);
         assertEquals("m", layer.select.get(1).branches.get(0).target);
-        assertEquals(1F, layer.select.get(1).branches.get(0).set.get("v"), 0F);
+        assertEquals("layer.v", layer.select.get(1).branches.get(0).run.get(0).target);
         MachineTemplate machine = layer.machines.get(0);
         assertEquals("m", machine.name);
         assertEquals("c", machine.defaultOnEntry);

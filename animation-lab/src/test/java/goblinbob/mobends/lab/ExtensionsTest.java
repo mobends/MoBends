@@ -115,10 +115,9 @@ public class ExtensionsTest
     /** Vanilla from tick 10 to tick 30; a second layer that would go vanilla is disabled by its "when". */
     private static final String VANILLA = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"animated\", "
             + "\"nodes\": {\"animated\": {\"core:fallthrough\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 10]}, "
-            + "\"then\": \"vanilla\"}]}, \"vanilla\": {\"core:vanilla\": {}, \"@tags\": [\"vanilla\"], "
-            + "\"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 20]}, \"then\": \"again\"}]}, "
-            + "\"again\": {\"core:fallthrough\": {}}}}, {\"@when\": \"SPRINTING\", \"defaultOnEntry\": \"vanilla\", "
-            + "\"nodes\": {\"vanilla\": {\"core:vanilla\": {}}}}]}";
+            + "\"then\": \"vanilla\"}]}, \"vanilla\": {\"core:vanilla\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", "
+            + "20]}, \"then\": \"again\"}], \"@tags\": [\"vanilla\"]}, \"again\": {\"core:fallthrough\": {}}}}, "
+            + "{\"@when\": \"SPRINTING\", \"defaultOnEntry\": \"vanilla\", \"nodes\": {\"vanilla\": {\"core:vanilla\": {}}}}]}";
 
     @Test
     void aVanillaNodeAsksForVanillaWhileTheAnimatorKeepsRunning() throws Exception

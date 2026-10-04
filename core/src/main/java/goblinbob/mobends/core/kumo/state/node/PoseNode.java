@@ -9,8 +9,6 @@ import goblinbob.mobends.core.kumo.pose.*;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.INodeState;
-import goblinbob.mobends.core.kumo.state.VariableScope;
-import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.*;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
@@ -35,8 +33,6 @@ public class PoseNode implements INodeState
     private final int[] snapSlots;
     private final List<IPoseItem> enterItems;
     private final Skeleton skeleton;
-    private final VariableScope scope = new VariableScope();
-    private VariableTable.Assignments setOnEnter = VariableTable.Assignments.NONE;
     /** The stateful expressions of the node's items, started over when the node starts. */
     private Expression[] held = new Expression[0];
     private Pose enterPose;
@@ -116,7 +112,6 @@ public class PoseNode implements INodeState
         }
         PoseNode node = new PoseNode(template.name, template.tags, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
         node.held = held.toArray(new Expression[0]);
-        node.setOnEnter = context.getExpressionScope().getVariables().layerAssignments(template.set);
         return node;
     }
 
@@ -124,7 +119,6 @@ public class PoseNode implements INodeState
     {
         template.validate();
         PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
-        node.setOnEnter = context.getExpressionScope().getVariables().layerAssignments(template.set);
         node.fallthrough = true;
         return node;
     }
@@ -133,7 +127,6 @@ public class PoseNode implements INodeState
     {
         template.validate();
         PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
-        node.setOnEnter = context.getExpressionScope().getVariables().layerAssignments(template.set);
         node.vanilla = true;
         return node;
     }
@@ -273,17 +266,10 @@ public class PoseNode implements INodeState
     }
 
     @Override
-    public VariableScope getScope()
-    {
-        return scope;
-    }
-
-    @Override
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
         elapsed = 0;
         snapPending = snapSlots.length > 0;
-        setOnEnter.applyTo(context.getLayerScope());
         for (Expression expression : held)
         {
             expression.restart(context);

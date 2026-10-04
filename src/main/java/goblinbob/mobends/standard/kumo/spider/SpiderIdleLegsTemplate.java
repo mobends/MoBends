@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.kumo.spider;
 
+import java.util.Map;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 
@@ -7,7 +8,7 @@ import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
  * {@code {"mobends:spider_idle_legs": {...}}}: the eight legs keep their feet planted in the
  * world (inverse kinematics from the limbs' remembered positions), step back to a neutral spot
  * when stretched too far, and the front pair "feels" the ground periodically. Exposes the
- * computed ground level as the node variable {@code groundLevel}.
+ * computed ground level to the state its {@code out} names.
  */
 public class SpiderIdleLegsTemplate extends DriverItemTemplate
 {
@@ -34,7 +35,10 @@ public class SpiderIdleLegsTemplate extends DriverItemTemplate
     public float feelZ = 1.5F;
     public float feelSpeed = 0.2F;
 
-    /** Layer variable that, when non-zero on node entry, re-plants every foot under the body (and is cleared). */
-    public String resetVariable = "resetLimbs";
+    /** A state that, when non-zero on node entry, re-plants every foot under the body (and is cleared): e.g. {@code layer.resetLimbs}. */
+    public String reset;
+
+    /** Where the computed ground level goes: {@code {"groundLevel": "node.groundLevel"}}. */
+    public Map<String, String> out;
 
 }

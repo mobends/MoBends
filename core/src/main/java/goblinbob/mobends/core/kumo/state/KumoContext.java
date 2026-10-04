@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The KUMO context of one animator: the subject, the frame's delta time, the layer and node
- * being evaluated and their variable scopes.
+ * The KUMO context of one animator: the subject, the frame (its number and delta time), and the
+ * layer and node being evaluated.
  *
  * @author Iwo Plaza
  */
@@ -20,8 +20,8 @@ public class KumoContext implements IKumoContext
     private List<LayerState> layers = Collections.emptyList();
     private LayerState layerState;
     private INodeState currentNode;
-    private VariableScope layerScope = new VariableScope();
-    private VariableScope nodeScope = new VariableScope();
+    /** Counts the frames, so a live definition is computed once in each. */
+    private long frame;
 
     public void setLayers(List<LayerState> layers)
     {
@@ -33,6 +33,7 @@ public class KumoContext implements IKumoContext
     {
         this.subject = subject;
         this.deltaTime = deltaTime;
+        this.frame++;
     }
 
     public void setLayerState(LayerState layerState)
@@ -65,29 +66,21 @@ public class KumoContext implements IKumoContext
     }
 
     @Override
-    public VariableScope getNodeScope()
+    public long getFrame()
     {
-        return nodeScope;
+        return frame;
     }
 
     @Override
-    public VariableScope getLayerScope()
-    {
-        return layerScope;
-    }
-
-    @Override
-    public void enterNode(INodeState node, VariableScope layerScope)
+    public void enterNode(INodeState node)
     {
         this.currentNode = node;
-        this.layerScope = layerScope;
-        this.nodeScope = node.getScope();
     }
 
     @Override
     public double resolveVariable(VariableTable.Read read)
     {
-        return read.get(nodeScope, layerScope, subject);
+        return read.get(subject);
     }
 
     @Override

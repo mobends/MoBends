@@ -43,11 +43,10 @@ public interface IKumoInstancingContext
         throw new IllegalStateException("Expressions are only compiled inside an animator being instanced.");
     }
 
-    /** This context, inside a scope that declares {@code expressions} (see {@link ExpressionScope#child}). */
-    default IKumoInstancingContext withExpressions(@Nullable Map<String, ExpressionTemplate> expressions) throws MalformedKumoTemplateException
+    /** This context, at the place {@code scope} (see {@link ExpressionScope#inside}). */
+    default IKumoInstancingContext withScope(ExpressionScope scope)
     {
-        ExpressionScope scope = getExpressionScope().child(expressions);
-        return scope == getExpressionScope() ? this : new ScopedInstancingContext(this, scope);
+        return new ScopedInstancingContext(this, scope);
     }
 
 }

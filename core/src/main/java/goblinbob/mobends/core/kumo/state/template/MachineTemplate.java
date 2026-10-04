@@ -36,8 +36,10 @@ public class MachineTemplate
     /** Connections out of any node inside the machine. */
     public List<ConnectionTemplate> connections;
 
-    /** Named expressions (numbers and booleans), visible to everything inside (see misc/kumo-format.md, "Expressions"). */
-    public Map<String, ExpressionTemplate> expressions;
+    /** The scope's definitions, by name (JSON {@code @define}). */
+    public Map<String, DefinitionTemplate> define;
+    /** The scope's statement lists (JSON {@code @on}). */
+    public OnTemplate on;
 
     /** Every node of the machine and of the machines inside it. */
     public List<NodeTemplate> allNodes()

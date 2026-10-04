@@ -12,7 +12,8 @@ import java.lang.reflect.Type;
  * appears in (see {@link Expression#compile}):
  * <ul>
  *     <li>a number: a constant;</li>
- *     <li>a string: a name, the innermost named expression with that name, or else a variable;</li>
+ *     <li>{@code true} or {@code false}: a constant condition;</li>
+ *     <li>a string: a scoped name ({@code layer.combo}), or a built-in or the entity's value;</li>
  *     <li>an object with one key: an operation, its value the list of arguments, e.g.
  *     {@code {"add": [{"mul": ["limbSwing", 0.6662]}, 3.14]}}.</li>
  * </ul>

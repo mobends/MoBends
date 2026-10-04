@@ -3,6 +3,7 @@ package goblinbob.mobends.core.kumo.state.template.pose;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@code {"core:step_turn": {...}}}: the body turns by stepping. The driver keeps the yaw the
@@ -39,6 +40,13 @@ public class StepTurnTemplate extends DriverItemTemplate
     /** The variables holding the entity's position in the world, in blocks. */
     public String xVariable = "worldX";
     public String zVariable = "worldZ";
+
+    /**
+     * The states its outputs go to, by output: {@code turnLag}, {@code turnSpeed}, {@code stepLift},
+     * {@code stepImpact}, {@code stride} (see the class comment), e.g.
+     * {@code {"turnSpeed": "node.turnSpeed"}}. An output left out isn't written.
+     */
+    public Map<String, String> out;
 
     /** Turns the whole model about its origin; the driver's counter-rotation is put before what is beneath. */
     public String rotationBone = "renderRotation";

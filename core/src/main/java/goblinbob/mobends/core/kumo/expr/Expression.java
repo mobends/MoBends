@@ -43,7 +43,7 @@ public abstract class Expression
     public static final Expression TRUE = new BooleanConstant(true);
     public static final Expression FALSE = new BooleanConstant(false);
 
-    /** Built in, unless a named expression takes the name: ticks since the current node started. */
+    /** Built in: ticks since the current node started. */
     public static final String ELAPSED_NAME = "elapsed";
     /** Built in: the current node's timed clips have run (see {@link INodeState#isAnimationFinished}). */
     public static final String NODE_IS_FINISHED_NAME = "nodeIsFinished";
@@ -157,10 +157,14 @@ public abstract class Expression
 
     private static Expression compileName(String name, ExpressionScope scope) throws MalformedKumoTemplateException
     {
-        Expression named = scope.resolve(name);
-        if (named != null)
+        if (name.indexOf('.') >= 0)
         {
-            return named;
+            return scope.resolveScoped(name);
+        }
+        Expression value = scope.value(name);
+        if (value != null)
+        {
+            return value;
         }
         if (ELAPSED_NAME.equals(name))
         {

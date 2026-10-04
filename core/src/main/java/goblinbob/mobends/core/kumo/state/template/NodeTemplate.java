@@ -15,7 +15,7 @@ public class NodeTemplate
      * what the type takes.
      */
     public static final java.util.Set<String> SCOPE_FIELDS = new java.util.HashSet<>(java.util.Arrays.asList(
-            "type", "name", "tags", "connections", "set", "expressions"));
+            "type", "name", "tags", "connections", "define", "on"));
 
     private transient String type = "core:pose";
 
@@ -39,11 +39,10 @@ public class NodeTemplate
      */
     public List<PoseItemTemplate> enterPose;
 
-    /** Layer variables to set when the node is entered. */
-    public Map<String, Float> set;
-
-    /** Named expressions (numbers and booleans), visible to everything inside (see misc/kumo-format.md, "Expressions"). */
-    public Map<String, ExpressionTemplate> expressions;
+    /** The scope's definitions, by name (JSON {@code @define}). */
+    public Map<String, DefinitionTemplate> define;
+    /** The scope's statement lists (JSON {@code @on}). */
+    public OnTemplate on;
 
     public String getType()
     {

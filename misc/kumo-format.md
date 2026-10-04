@@ -9,7 +9,8 @@ smooths them.
 {
   "formatVersion": 2,
   "extends": "mobends:bends/animators/biped.json",
-  "@expressions": { ... },
+  "@define": { ... },
+  "@on": { ... },
   "layers": [ ... ]
 }
 ```
@@ -18,8 +19,8 @@ smooths them.
 model definitions); each format is numbered on its own, and all of
 them are at 2. A file written for another version of its format is refused with a message saying
 so (an older one would be upgraded on load, once there is one to upgrade from). `extends` puts a parent animator's layers first; the parent's version is checked too.
-`@expressions` declares named expressions, numbers and conditions (see *Expressions*); layers,
-machines and nodes can declare their own too.
+`@define` declares the animator's definitions and `@on` its statement lists (see *Definitions and
+statements*); layers, machines and nodes have their own too.
 
 ## How it is written
 
@@ -32,11 +33,21 @@ its value is what that takes:
 ```
 
 Every other key starts with `@`: what the engine does with it (an item's `@when`, `@space`,
-`@damping`, ...), or what a scope has whatever else it is (`@connections`, `@expressions`). These
+`@damping`, ...), or what a scope has whatever else it is (`@define`, `@on`, `@connections`). These
 are a closed set, so an addon's driver or node type can have any field of its own without ever
 colliding with them. Structured objects (layers, machines, selector branches, connections, the
 mirror rule) keep fixed keys; their own conditions are `@when` on layers and the mirror rule, and
 `when` on branches and connections, which are `{"when": ..., "then": ...}`.
+
+How the three kinds of construct compare:
+
+| | operation | statement | driver |
+|---|---|---|---|
+| produces | a value | a change to state | a contribution to the pose (and side effects) |
+| written | `{"name": [args]}`, positional | `{"set": ["layer.x", <value>]}` | `{"name": {named fields}}` |
+| appears in | any expression | a scope's `@on` lists, a transition's `do` | a node's `pose` (and `enterPose`) |
+| order | doesn't matter: expressions change nothing | list order | pose-stack order |
+| state | an edge trigger's memory, per place | the state it names | its own, and the states its `inout` / `out` name |
 
 **A key an object doesn't take is an error** when the animator loads, in every object of the
 file: a misspelt key never passes silently. The one key every object takes is **`@comment`**, a
@@ -55,8 +66,7 @@ node is in *Choosing the node*.
 | `mode` | `OVERRIDE` (default: what the layer writes replaces) or `ADDITIVE` |
 | `additiveSpace` | for additive layers: `"PRE"` / `"POST"`, or `{"default": "PRE", "body": "POST"}` |
 | `@when` | a condition (a boolean expression); while it does not hold the layer writes nothing and its clocks pause |
-| `variables` | layer variables and their initial values, e.g. `{"combo": 0}` |
-| `@expressions` | named expressions visible inside the layer (see *Expressions*) |
+| `@define`, `@on` | the layer's definitions and statement lists (see *Definitions and statements*) |
 | `damping` | default damping for the bones the layer writes (nodes and items override) |
 | `mask` | `{"mode": "INCLUDE_ONLY", "includedParts": ["mouth"]}` (or `EXCLUDE_ONLY`): the bones the layer may write |
 | `mirror` | `{"@when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `@mirror` / `@swapSides` follow (see *Mirroring*) |
@@ -73,9 +83,10 @@ node is in *Choosing the node*.
     "snapOnEnter": ["body"],
     "damping": {...}
   },
+  "@define": {"stride": {"live": {"mul": ["limbSwing", 2]}}},
+  "@on": {"enter": [{"set": ["layer.combo", 0]}]},
   "@tags": ["walk"],
-  "@set": {"combo": 0},
-  "@connections": [{"when": "bounced", "then": "jump"}]
+  "@connections": [{"when": "layer.bounced", "then": "jump"}]
 }
 ```
 
@@ -83,9 +94,9 @@ node is in *Choosing the node*.
   `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
   `snapOnEnter`, `damping`); the other two pose nothing and take `{}`.
 * `@tags` are the layer's *actions* (`core:action` sees them, in every layer).
-* `@expressions` declares named expressions visible to the node's items and to the conditions of
-  its connections (see *Expressions*).
-* `@set` assigns layer variables when the node is entered.
+* `@define` and `@on` are the node's definitions and statement lists (see *Definitions and
+  statements*): `node.` names, and what runs when the node is entered, every frame it is posed
+  and when it is left.
 * `@connections` are the node's own ways out (see *Choosing the node*).
 * Operations with a memory (`decreased`, `rose`, `fell`) start over when what they are written on
   is entered: a node for its connections, everything its items compute (their `@when`s and their
@@ -94,7 +105,7 @@ node is in *Choosing the node*.
   its selector and connections as a machine's: the layer is entered when it starts (see
   *Machines*).
 * A `core:fallthrough` node poses nothing, so the layers below show through; it has tags,
-  connections, `@set` and `@expressions` like any node. A transition into or out of it fades between
+  connections, definitions and statement lists like any node. A transition into or out of it fades between
   the layer's pose and the one below: what one side poses and the other doesn't is blended
   against the layers below (a full rotation, offset or vector as they have it; a PRE / POST
   rotation or an additive offset as nothing). It is how an extension lets the animation it
@@ -104,7 +115,7 @@ node is in *Choosing the node*.
   player's first-person hand is vanilla too. The animator keeps running underneath, so its
   layer still decides its node every frame and leaving the node brings the animated model back
   where it would have been. The switch is immediate: the two models can't be blended. It poses nothing
-  and has tags, connections, `@set` and `@expressions` like any node. It is meant for extensions
+  and has tags, connections, definitions and statement lists like any node. It is meant for extensions
   that bring back animations made for the vanilla model (another mod's, say) while a condition
   holds:
 
@@ -134,12 +145,12 @@ has a selector and connections of its own.
 
 ```json
 {
-  "@expressions": {
-    "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}
+  "@define": {
+    "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}
   },
   "select": [
     {"when": "SLEEPING", "then": "sleeping"},
-    {"when": "jumping", "then": [
+    {"when": "layer.jumping", "then": [
       {"when": "FLYING", "then": "flying"},
       {"then": "jump"}
     ]},
@@ -164,16 +175,16 @@ conditions of the branches before it, and those after it only apply when the one
   the layer stays too: leave out the last `then` to let a node hold on until one of the branches
   applies (the iron golem walks from 0.02 blocks a tick and stops under 0.01; in between it keeps
   doing what it was doing).
-* A branch can carry `transitionDuration`, `transitionEasing` and `set`, as a connection does. In
-  a nested list, the branches inside take what their enclosing branches set unless they set it
-  themselves; `set`s add up, the inner ones last.
+* A branch can carry `transitionDuration`, `transitionEasing` and `do`, as a connection does. In
+  a nested list, the branches inside take the transition of their enclosing branches unless they
+  have their own; `do` lists add up, the enclosing ones first.
 * A selector only names the members of its own machine (for a layer: its nodes and machines,
   not those inside its machines).
 
 ### Machines
 
 `machines` is a map of machines by name, next to `nodes`. A machine has `nodes` and `machines` of
-its own, and its own `select`, `@connections`, `defaultOnEntry` and `@expressions`. A layer
+its own, and its own `select`, `@connections`, `defaultOnEntry`, `@define` and `@on`. A layer
 is a machine too, with the extra fields in the table under *Layers*. Every node and machine of a
 layer has a name of its own, whatever machine it is in.
 
@@ -187,7 +198,7 @@ layer has a name of its own, whatever machine it is in.
   has no nodes). A machine it goes to is entered the same way, down to a node.
 * A layer is entered when it starts, on the animator's first frame (whether or not its `@when`
   holds). That is the frame's decision, and there is nothing to crossfade from: a branch's
-  `transitionDuration` and `transitionEasing` don't apply there, its `set` does. The node's
+  `transitionDuration` and `transitionEasing` don't apply there, its `do` does. The node's
   connections, and the selectors again, are checked from the next frame on. So `defaultOnEntry`
   only matters where the selectors choose nothing; to open on a node the selector wouldn't choose
   (an intro), give it a branch of its own, first, and connections out of it.
@@ -199,14 +210,15 @@ of that node, a machine's lead out of any node inside it, and a layer's out of a
 A connection is written like a selector branch:
 
 ```json
-{"when": "attacked", "then": "slash_down", "transitionDuration": 0,
- "transitionEasing": "EASE_IN_OUT", "set": {"combo": 2}}
+{"when": "machine.attacked", "then": "slash_down", "transitionDuration": 0,
+ "transitionEasing": "EASE_IN_OUT", "do": [{"set": ["layer.combo", 2]}]}
 ```
 
 * `when` is its condition, and `then` any node or machine of the layer: a machine is entered as
   above. A connection to where the layer already is starts that node over (a jump bouncing into
   another jump).
-* `set` assigns layer variables when the connection fires. `transitionDuration` (ticks)
+* `do` is a statement list, run when the connection fires (see *Definitions and statements*).
+  `transitionDuration` (ticks)
   crossfades (an interrupted crossfade continues from what was on screen); easings `LINEAR`,
   `EASE_IN`, `EASE_OUT`, `EASE_IN_OUT` (the default), `EXPONENTIAL`. Where one side of a crossfade
   poses a bone absolutely and the other only relatively (PRE / POST, additive), the relative one
@@ -224,9 +236,11 @@ frame it happens:
 
 Every condition of those selectors and connections is evaluated every frame, whatever is chosen
 (edge triggers such as `decreased` stay fresh). When a branch or a connection leads into a
-machine, the transition (its duration, easing and `set`) is that of the branch or the connection;
-the branches the selectors of the machines entered take on the way in add their `set`s, outermost
-first, and the node entered applies its own `set` last. Each selector sees the `set`s before it.
+machine, the transition (its duration and easing) is that of the branch or the connection. What
+runs, in order: the `exit` lists of what the transition disposes of at once, the transition's own
+`do`, then, on the way in, each machine entered (its definitions and `enter` list, then its
+selector, whose branch runs its `do`), and last the node entered. Each selector sees what ran
+before it.
 
 ## Pose items
 
@@ -330,16 +344,27 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | `core:axis_rotate` | `bone`, `axis` (`X`/`Y`/`Z`), `angle` (expression, degrees) |
 | `core:vector` | `bone`, `x`, `y`, `z` (expressions; an axis left out keeps the bone's current target) |
 | `core:offset` | `bone`, `x`, `y`, `z`: a bone's position offset |
-| `core:accumulate` | `name`, `rate` (expression, per tick, any sign), `initial`, `min`, `max`: a node variable that integrates; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
-| `core:set` | `variable`, `value` (expression), `scope` (`layer` / `node`): assigns every frame the item is evaluated |
-| `core:spring` | `name`, `target` (expression), `stiffness` (per tick²), `friction` (per tick), `initial`: a node variable pulled towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through) |
+| `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
+| `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
 | `mobends:cape` | the player's cape physics |
 | `mobends:sword_trail` | `add`, `resetOnEnter`, `resetEachFrame`, `velocity`: feeds the sword trail |
-| `mobends:spider_idle_legs`, `mobends:spider_moving_legs` | the spider's inverse-kinematics gaits (see the templates' fields) |
+| `mobends:spider_idle_legs`, `mobends:spider_moving_legs` | the spider's inverse-kinematics gaits (see the templates' fields); `out` (`groundLevel`), `reset` (a state that, non-zero when the node starts, re-plants the feet, and is cleared) |
 
-Drivers that compute something for later items publish it as a node variable
-(`groundLevel`).
+A driver writes the animator's state only where its fields say: `inout` is the state it steps,
+`out` maps its outputs to the states they go to (`{"groundLevel": "node.groundLevel"}`). Each is a
+number state, declared like any other (see *Definitions and statements*); the driver steps it
+once per frame, in pose-stack order, so the items after it read this frame's value. The value
+lives where its state is declared, and the driver writes it only while its node is posed.
+
+```json
+"@define": {"onFeet": {"state": 0}, "turnSpeed": {"state": 0}, "armLag": {"state": 0}},
+"core:pose": {"pose": [
+  {"core:accumulate": {"inout": "node.onFeet", "rate": {"if": ["layer.jumping", -0.15, 0.15]}, "min": 0, "max": 1}},
+  {"core:step_turn": {"weight": "node.onFeet", "legs": [...], "out": {"turnSpeed": "node.turnSpeed"}}},
+  {"core:spring": {"inout": "node.armLag", "target": "node.turnSpeed", "stiffness": 0.12, "friction": 0.3}}
+]}
+```
 
 ### Turning on the feet
 
@@ -397,8 +422,8 @@ with, the planted foot drags rather than the feet flickering.
   placed anew under the body when it goes up again. Run it in its own layer with an accumulator
   that goes up while the mob is on the ground, so the jump shows beneath it and the body turns back to
   vanilla's yaw while it plays.
-* It reads the variables `yawVariable` (`bodyYaw`), `xVariable` and `zVariable` (`worldX`,
-  `worldZ`), and publishes `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
+* It reads the entity's values `yawVariable` (`bodyYaw`), `xVariable` and `zVariable` (`worldX`,
+  `worldZ`), and its outputs (the states its `out` names) are `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
   head posed by `headYaw` has to add), `turnSpeed` (degrees per tick the shown body turns),
   `stepLift` (0..1 as the stepping foot rises, negative for a foot on the -X side),
   `stepImpact` (peaking at 1 `impactTime` ticks after a landing; quick landings add up smoothly
@@ -419,7 +444,7 @@ JSON tree, so tools can read and write it without a parser.
 |---|---|
 | a number | a constant: `45` |
 | `true`, `false` | a constant condition |
-| a string | a name: the innermost named expression called that, a built-in (`elapsed`, `nodeIsFinished`), a state of the subject if written in capitals (`"ON_GROUND"`), or else a variable (`"headYaw"`) |
+| a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name: a built-in (`elapsed`, `nodeIsFinished`), a state of the entity if written in capitals (`"ON_GROUND"`), or else a variable of the entity (`"headYaw"`) |
 | an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}` |
 
 **Every expression is a number or a boolean**, and which one is checked when the animator loads:
@@ -485,50 +510,91 @@ Mistakes (an unknown operation, a wrong number or kind of arguments, an object w
 key, a number where a boolean goes) are reported when the animator loads, in the operation's own
 words: `'core:holds_item' argument 1 (hand) must be one of main_hand, off_hand, got 'left_hand'`.
 
-**Named expressions** are declared in an `@expressions` object on the animator, a layer, a machine
-or a node, and used by name like variables. They can be numbers or booleans:
+**Bare names** are the built-ins and the entity's values. The built-ins: `elapsed`, the ticks
+since the current node started, and `nodeIsFinished`, which holds once every clip of the current
+node that has a `duration` has run it (a node with no items always is, one whose items all run
+forever never is); and inside a clip's `frame`, `clipLength` and `duration` (see *Clips*). A bare
+name in capitals is a **state** of the entity, a boolean (see the data classes' `registerState`
+calls: `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`, ...); any other is a **variable** of the entity, a
+number (`registerVariable`: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). The entity's
+values are looked up once, when the animator is bound to its entity on the first frame, never by
+name while animating; one the entity doesn't have fails the animator then (logged; the entity
+isn't animated), even if nothing ever reads it.
+
+## Definitions and statements
+
+Every scope (the animator, a layer, a machine, a node) can declare **definitions** in its
+`@define`, read by **scoped name** (`animator.x`, `layer.x`, `machine.x`, `node.x`), and run
+**statements** in its `@on` lists. Expressions never change anything; statements (and drivers,
+see *Drivers*) are the only things that do.
 
 ```json
-"@expressions": {
-  "sway": {"mul": [{"sin": [{"mul": ["ticks", 0.1]}]}, 6]},
-  "reach": {"add": ["sway", -85]},
-  "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]},
-  "attacked": {"decreased": ["ticksAfterAttack"]},
-  "sprintJump": {"and": ["jumping", "SPRINTING"]}
+"@define": {
+  "startYaw": {"constant": "bodyYaw"},
+  "combo":    {"state": 0},
+  "stride":   {"live": {"mul": ["limbSwing", 2]}}
+},
+"@on": {
+  "enter":  [{"set": ["layer.combo", 0]}],
+  "update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]
 }
 ```
 
-* A name is visible in the scope that declares it and in every scope inside it (animator →
-  layer → machine → node); an inner declaration shadows an outer one, and also shadows a variable
-  of the same name.
-* A named expression is resolved where it is declared, not where it is used: `reach` above uses
-  the `sway` of its own scope even if a node declares another `sway`.
-* A named expression that remembers something (`attacked` above) is a copy for each place it is
-  used, with its own memory.
-* An animator that `extends` another sees the parent's named expressions and can shadow them for
-  its own layers; the parent's layers keep using the parent's.
-* Names in one scope can use each other in any order; a name that depends on itself is an error.
-  Every declaration is checked when the animator loads, used or not.
+A definition is an object with one key, its kind, whose value is an expression (a number or a
+boolean, which is the definition's type):
 
-Built-in names: `elapsed`, the ticks since the current node started, and `nodeIsFinished`, which
-holds once every clip of the current node that has a `duration` has run it (a node with no items
-always is, one whose items all run forever never is). A named expression can shadow either.
+| kind | its value | changed by |
+|---|---|---|
+| `constant` | computed once, when its scope is created (a node constant can note the body yaw a turn started from) | nothing |
+| `state` | its initial value, computed when its scope is created | `set` statements, and drivers that write it |
+| `live` | computed once per frame, when it is first read (a live definition that remembers something, such as `{"decreased": [...]}`, every frame its scope exists, so it never misses one) | nothing: it follows what it reads |
 
-A name in capitals is a **state** of the subject, a boolean (see the data classes'
-`registerState` calls: `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`, ...). Any other name nothing
-declares is a **variable**, a number: the node's own (written by its accumulators, springs,
-`core:set` and drivers such as `core:step_turn`) once the node has written it, else the layer's
-(its `variables`, `set`, `@set`, `core:set`) once written, else the subject's (see the data classes'
-`registerVariable` calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). Which of them a name
-can be is worked out once, when the animator is bound to its entity on the first frame, never by
-looking the name up while animating. A name that nothing in the animator writes and the subject
-doesn't have fails the animator then (logged; the entity isn't animated), even if nothing ever
-reads it.
+**Names carry their scope.** There is no lookup through enclosing scopes and no shadowing: the
+prefix says where the value lives, and a name that scope doesn't declare is an error.
 
-A condition's expressions see the named expressions where it is written: a layer's `@when` sees
-the layer's; a selector's and a machine's connections see the machine's (the layer's for its
-own); an item's, a node's connection and the layer's `mirror` rule see those of the node being
-posed.
+* `animator.` is the animator's, shared by every layer; `layer.` the layer the name is written
+  in; `machine.` the innermost machine around the place the name is written (a layer's own nodes
+  and selector are in no machine); `node.` the node the name is written in. A name can only be
+  read where its scope exists: a `node.` name inside its node, a `machine.` name inside its
+  machine. What two scopes share is declared on the smallest scope around both: the layer for its
+  machines, the animator for its layers.
+* A name is one prefix and one name: a definition's own name has no dot.
+* Definitions can read each other in any order; one that depends on itself is an error. Every
+  definition is checked when the animator loads, used or not.
+* An animator that `extends` another shares its `animator.` scope with it: the child reads the
+  parent's names directly, and declaring a name the parent declares is an error. The parent's
+  `@on` lists run before the child's.
+* An extension's animator is a scope of its own: it never sees the names of the animator it
+  extends.
+
+**Scopes are created when they are entered** and disposed when they are left: the animator's on
+its first frame; a layer's when it starts; a machine's on every entry into it, so its definitions
+start over each time, and it is disposed once the last of its nodes has faded out; a node's on
+every entry. A node fading out keeps its scope until its crossfade ends; a node a transition
+leaves without a crossfade, or whose crossfade a transition cuts short, is disposed at once.
+
+**Statement lists**, in a scope's `@on`:
+
+* `enter` runs when the scope is created, right after its definitions take their values;
+* `update` runs every frame the scope exists, a node fading out included (lists run once per
+  frame, not per game tick: a statement that counts or integrates scales by `ticksPerFrame`; an
+  entity that isn't drawn isn't animated, so its lists don't run while it is off screen);
+* `exit` runs when the scope is disposed.
+
+A selector branch and a connection have a list of their own, `do`, run when they move the layer.
+A statement is `{"set": ["<state>", <value>]}`, with an optional `@when`: it sets the state to the
+value (an expression of the state's type) while the condition holds.
+
+**Who may set what.** A statement sets a state of its own scope or of a scope around it (a node
+can set its layer's or its animator's). A file from a resource pack may only set (or have its
+drivers write) a state a file from a resource pack declares: it can't steer the trusted layers,
+whose output the resource-pack limits are measured from (see *Servers*).
+
+**Order.** Every frame, the animator's `update` lists run first (the extensions' after it, in
+their order); then, layer by layer, after the layer has chosen its node and before it is posed:
+the layer's, its machines' from the outermost in, the node fading out, the current node. When
+several write one state in a frame, the last write wins: later layers see it this frame, earlier
+ones the next.
 
 ## Semantics worth knowing
 
@@ -798,8 +864,8 @@ own animation and with other packs' extensions. Extension files are found like t
 * Extensions of one type are ordered like types (`TypeOrder`): by rank, higher first, then by
   id; the first one goes on top, so its layers are added last. Every extension starts at rank 0;
   only the user sets ranks (see *User control*).
-* An extension's animator is an animator of its own: it can `extends` another, and it sees its own
-  named expressions, not those of the animator it extends. Its conditions see every layer, so
+* An extension's animator is an animator of its own: it can `extends` another, and it has its own
+  `animator.` scope, not that of the animator it extends. Its conditions see every layer, so
   `core:action` can follow the extended animator's nodes by their tags.
 * An extension targets a type, not an entity: it applies wherever that type is chosen, and not
   when another type wins (see *Precedence*). A type with another model or animator needs its own

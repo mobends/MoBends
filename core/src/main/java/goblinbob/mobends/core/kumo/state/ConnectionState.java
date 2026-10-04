@@ -15,16 +15,16 @@ public class ConnectionState implements ITransition
     public final Expression when;
     public final float transitionDuration;
     public final ConnectionTemplate.Easing transitionEasing;
-    /** Layer variables assigned when the connection fires. */
-    public final VariableTable.Assignments set;
+    /** The statements run when the connection fires. */
+    public final StatementList run;
 
-    public ConnectionState(MachineMember target, Expression when, float transitionDuration, ConnectionTemplate.Easing transitionEasing, VariableTable.Assignments set)
+    public ConnectionState(MachineMember target, Expression when, float transitionDuration, ConnectionTemplate.Easing transitionEasing, StatementList run)
     {
         this.target = target;
         this.when = when;
         this.transitionDuration = transitionDuration;
         this.transitionEasing = transitionEasing;
-        this.set = set;
+        this.run = run;
     }
 
     public static ConnectionState createFromTemplate(Map<String, MachineMember> membersByName, ConnectionTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
@@ -48,7 +48,7 @@ public class ConnectionState implements ITransition
                 Expression.compileCondition(template.when, scope),
                 template.transitionDuration,
                 template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing,
-                scope.getVariables().layerAssignments(template.set));
+                StatementList.compile(template.run, scope));
     }
 
     @Override
@@ -70,9 +70,9 @@ public class ConnectionState implements ITransition
     }
 
     @Override
-    public VariableTable.Assignments getSet()
+    public StatementList getRun()
     {
-        return set;
+        return run;
     }
 
 }

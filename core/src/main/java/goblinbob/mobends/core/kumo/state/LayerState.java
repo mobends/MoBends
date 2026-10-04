@@ -5,6 +5,7 @@ import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.template.ArmatureMask;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
@@ -32,8 +33,10 @@ public class LayerState
     private final LayerTemplate.LayerMode mode;
     private final Skeleton skeleton;
     private final Expression when;
-    private final VariableScope variables = new VariableScope();
-    private final VariableTable.Assignments initialVariables;
+    /** The layer's definitions and statement lists. */
+    private final ScopeLists lists;
+    /** Machines the layer left whose last node is still fading out: they are disposed when it is. */
+    private final List<MachineState> pendingExits = new ArrayList<>();
 
     // Sized by allocate(), once every layer of the animator has registered its bones.
     private boolean[] allowed;
@@ -47,6 +50,8 @@ public class LayerState
     private final Vec3f vectorBeneath = new Vec3f();
 
     private INodeState previousNode;
+    /** The member of {@link #previousNode}, whose scope it is. */
+    private MachineMember previous;
     private MachineMember current;
     private INodeState currentNode;
     private boolean previousIsSnapshot;
@@ -68,9 +73,13 @@ public class LayerState
         }
         this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
         this.skeleton = skeleton;
-        this.when = Expression.compileCondition(layerTemplate.when, context.getExpressionScope());
-        this.initialVariables = context.getExpressionScope().getVariables().layerAssignments(layerTemplate.variables);
-        initialVariables.applyTo(variables);
+        DefinitionScope definitions = new DefinitionScope(DefinitionScope.Kind.LAYER, "the layer");
+        definitions.declare(layerTemplate.define, context.getExpressionScope().isTrusted());
+        ExpressionScope place = context.getExpressionScope().inside(definitions);
+        definitions.compileIn(place);
+        context = context.withScope(place);
+        this.lists = ScopeLists.compile(definitions, layerTemplate.on, place);
+        this.when = Expression.compileCondition(layerTemplate.when, place);
 
         Map<String, MachineMember> membersByName = new HashMap<>();
         this.machine = new MachineState(context, skeleton, layerTemplate, layerTemplate, membersByName);
@@ -96,20 +105,22 @@ public class LayerState
     }
 
     /**
-     * Starts the layer: its "when" starts over, and its machine is entered as a transition into it
-     * would enter it (see {@link #enter}), with nothing to crossfade from. This takes the place of
-     * the frame's decision.
+     * Starts the layer: its definitions take their values and its {@code enter} list runs, its
+     * "when" starts over, and its machine is entered as a transition into it would enter it (see
+     * {@link #enter}), with nothing to crossfade from. This takes the place of the frame's
+     * decision.
      */
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
-        context.enterNode(currentNode, variables);
+        context.enterNode(currentNode);
+        lists.enter(context);
         if (when != null)
         {
             when.restart(context);
         }
         List<MachineState> entered = new ArrayList<>();
         moveTo(descend(enter(machine, context, entered), context, entered));
-        context.enterNode(currentNode, variables);
+        context.enterNode(currentNode);
         startNode(context);
         justStarted = true;
     }
@@ -142,7 +153,7 @@ public class LayerState
     {
         boolean starting = justStarted;
         justStarted = false;
-        context.enterNode(currentNode, variables);
+        context.enterNode(currentNode);
 
         enabled = when == null || when.test(context);
         if (!enabled)
@@ -159,10 +170,25 @@ public class LayerState
             beginTransition(fired, context);
         }
 
-        // 2. Evaluate, on top of the layers below.
+        // 2. The scopes' update lists: the layer's, its machines' from the outermost in, the node
+        // fading out, the current node.
+        lists.update(context);
+        for (MachineState machine : path)
+        {
+            machine.update(context);
+        }
+        if (previous != null && !previousIsSnapshot)
+        {
+            context.enterNode(previousNode);
+            previous.scope.update(context);
+        }
+        context.enterNode(currentNode);
+        current.scope.update(context);
+
+        // 3. Evaluate, on top of the layers below.
         currentPose.setBelow(animatorPose);
         previousPose.setBelow(animatorPose);
-        context.enterNode(currentNode, variables);
+        context.enterNode(currentNode);
         currentPose.clear();
         currentNode.evaluate(context, currentPose);
 
@@ -177,11 +203,11 @@ public class LayerState
             }
             else
             {
-                context.enterNode(previousNode, variables);
+                context.enterNode(previousNode);
                 previousPose.clear();
                 previousNode.evaluate(context, previousPose);
                 source = previousPose;
-                context.enterNode(currentNode, variables);
+                context.enterNode(currentNode);
             }
             if (currentNode.isFallthrough() || previousNode.isFallthrough())
             {
@@ -198,11 +224,11 @@ public class LayerState
             result = outputPose;
         }
 
-        // 3. Composite onto the animator pose.
+        // 4. Composite onto the animator pose.
         composite(result, animatorPose);
         lastOutput.set(result);
 
-        // 4. Advance clocks.
+        // 5. Advance clocks.
         elapsedTicks += deltaTime;
         currentNode.advance(context, deltaTime);
         if (previousNode != null)
@@ -214,8 +240,7 @@ public class LayerState
             transitionProgress += deltaTime;
             if (transitionProgress >= transitionDuration)
             {
-                previousNode = null;
-                previousIsSnapshot = false;
+                disposePrevious(context);
             }
         }
     }
@@ -264,39 +289,75 @@ public class LayerState
         return fired;
     }
 
+    /**
+     * Moves the layer. What the transition disposes of at once goes first (a node still fading
+     * out, whose crossfade is cut short and frozen, and the node left when nothing fades from it):
+     * their {@code exit} lists run. Then the transition's own {@code do} list, then the
+     * {@code enter} lists of the scopes it enters, from the outermost in.
+     */
     private void beginTransition(ITransition transition, IKumoContext context) throws MalformedKumoTemplateException
     {
-        // Its variables first: the selectors of the machines it enters see them.
-        transition.getSet().applyTo(variables);
+        List<MachineState> left = new ArrayList<>(path);
+        MachineMember leftMember = current;
+        INodeState leftNode = currentNode;
+        boolean interrupting = previousNode != null;
+        float duration = transition.getDuration();
+
+        if (interrupting)
+        {
+            disposePrevious(context);
+        }
+        if (interrupting || duration <= 0.0F)
+        {
+            exit(leftMember, context);
+        }
+        transition.getRun().run(context);
         List<MachineState> entered = new ArrayList<>();
         MachineMember target = descend(transition.getTarget(), context, entered);
 
-        transitionDuration = transition.getDuration();
+        transitionDuration = duration;
         transitionEasing = transition.getEasing();
+        boolean restart = target.node == leftNode;
+        if (restart && !interrupting && duration > 0.0F)
+        {
+            // A node is never run twice at once: it starts over without a crossfade.
+            exit(leftMember, context);
+        }
 
-        if (transitionDuration <= 0.0F || target.node == currentNode)
+        if (duration <= 0.0F || restart)
         {
             previousNode = null;
+            previous = null;
             previousIsSnapshot = false;
         }
-        else if (previousNode != null)
+        else if (interrupting)
         {
             // Interrupting a transition: freeze what is on screen and fade from that (no pop).
             snapshotPose.set(lastOutput);
-            previousNode = currentNode;
+            previousNode = leftNode;
+            previous = leftMember;
             previousIsSnapshot = true;
             transitionProgress = 0;
         }
         else
         {
-            previousNode = currentNode;
+            previousNode = leftNode;
+            previous = leftMember;
             previousIsSnapshot = false;
             transitionProgress = 0;
         }
 
-        List<MachineState> left = new ArrayList<>(path);
         moveTo(target);
-        context.enterNode(currentNode, variables);
+        for (MachineState machine : left)
+        {
+            if (!path.contains(machine))
+            {
+                // Disposed once the last of its nodes has faded out.
+                if (previous != null && !previousIsSnapshot) pendingExits.add(machine);
+                else machine.exit(context);
+            }
+        }
+        context.enterNode(currentNode);
         for (MachineState machine : path)
         {
             // Those around a node the transition names directly; the entered ones have started.
@@ -306,6 +367,31 @@ public class LayerState
             }
         }
         startNode(context);
+    }
+
+    /** The node fading out is disposed (its crossfade ended, or a transition cut it short), and the machines it left. */
+    private void disposePrevious(IKumoContext context)
+    {
+        if (previous != null && !previousIsSnapshot)
+        {
+            exit(previous, context);
+        }
+        previousNode = null;
+        previous = null;
+        previousIsSnapshot = false;
+        for (MachineState machine : pendingExits)
+        {
+            machine.exit(context);
+        }
+        pendingExits.clear();
+    }
+
+    /** Runs the {@code exit} list of {@code member}'s node. */
+    private void exit(MachineMember member, IKumoContext context)
+    {
+        context.enterNode(member.node);
+        member.scope.exit(context);
+        context.enterNode(currentNode);
     }
 
     /** Follows {@code target} into the machines it leads into, entering each, down to a node. */
@@ -332,7 +418,7 @@ public class LayerState
         {
             return machine.defaultOnEntry;
         }
-        branch.getSet().applyTo(variables);
+        branch.getRun().run(context);
         return branch.getTarget();
     }
 
@@ -348,9 +434,13 @@ public class LayerState
         }
     }
 
-    /** Starts the current node, and the conditions of its connections over. */
+    /**
+     * Starts the current node: its definitions take their values and its {@code enter} list runs,
+     * then the node itself starts, and the conditions of its connections start over.
+     */
     private void startNode(IKumoContext context) throws MalformedKumoTemplateException
     {
+        current.scope.enter(context);
         currentNode.start(context);
         for (ConnectionState connection : current.connections)
         {

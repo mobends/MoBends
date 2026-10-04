@@ -5,7 +5,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 
@@ -16,8 +15,7 @@ import java.util.Map;
 public class ConnectionTemplateSerializer implements JsonDeserializer<ConnectionTemplate>
 {
 
-    private static final Type SET_TYPE = new TypeToken<Map<String, Float>>() {}.getType();
-    private static final Map<String, String> KEYS = JsonReading.same("when", "then", "transitionDuration", "transitionEasing", "set");
+    private static final Map<String, String> KEYS = JsonReading.same("when", "then", "transitionDuration", "transitionEasing", "do");
 
     @Override
     public ConnectionTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
@@ -42,10 +40,7 @@ public class ConnectionTemplateSerializer implements JsonDeserializer<Connection
         {
             connection.transitionEasing = JsonReading.enumValue(ConnectionTemplate.Easing.class, object.get("transitionEasing"), "A connection's \"transitionEasing\"");
         }
-        if (object.has("set"))
-        {
-            connection.set = context.deserialize(object.get("set"), SET_TYPE);
-        }
+        connection.run = ScopeSerializers.list(object.get("do"), "A connection's \"do\"", context);
         return connection;
     }
 

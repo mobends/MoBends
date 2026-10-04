@@ -24,7 +24,7 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
 
     public SpiderMovingLegsDriver(Skeleton skeleton, SpiderMovingLegsTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
-        super(skeleton, template.resetVariable, scope);
+        super(skeleton, template.reset, template.out, scope, "mobends:spider_moving_legs");
         if (template.limbs == null || template.limbs.size() != LIMBS)
         {
             throw new MalformedKumoTemplateException("mobends:spider_moving_legs needs exactly 8 'limbs' entries.");
@@ -75,7 +75,7 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
             data.limbs[i].setAngleAndDistance(odd ? sideRotation / 180F * GUtil.PI : GUtil.PI - sideRotation / 180F * GUtil.PI, dist * 0.0625F);
         }
 
-        context.getNodeScope().set(groundLevelOut, ground);
+        publishGroundLevel(ground);
     }
 
 }

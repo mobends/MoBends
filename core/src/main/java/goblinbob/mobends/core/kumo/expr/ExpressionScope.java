@@ -1,6 +1,8 @@
 package goblinbob.mobends.core.kumo.expr;
 
 import com.google.gson.JsonElement;
+import goblinbob.mobends.core.kumo.state.DefinitionScope;
+import goblinbob.mobends.core.kumo.state.StateRef;
 import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
@@ -9,74 +11,83 @@ import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * The named expressions visible at one level of an animator (the animator, a layer, a machine, a
- * node), and the scope around it. A name resolves to the innermost declaration; a named expression
- * is compiled in the scope that declares it, so the names it uses are the ones visible there, not
- * at the place it is used. A named expression that remembers something ({@code decreased},
- * {@code rose}, {@code fell}) is compiled anew for every use, so each use keeps its own memory.
- * Every scope of an animator shares its {@link VariableTable}, where a name no scope declares is
- * read as a variable.
+ * What a place in an animator sees: the scopes around it (the animator, its layer, the innermost
+ * machine around it, its node), whose definitions it reads by scoped name ({@code layer.combo}),
+ * and the built-in values (bare names). There is no lookup through enclosing scopes: the prefix
+ * says which scope a name lives in, and a name that scope doesn't declare is an error.
  */
 public class ExpressionScope
 {
 
     @Nullable
-    private final ExpressionScope parent;
+    private final DefinitionScope animator, layer, machine, node;
     private final VariableTable variables;
+    /** Whether the file this place is in is trusted (see {@link DefinitionScope#state}). */
+    private final boolean trusted;
+    /** Built-in values of this place only (a clip's {@code clipLength}). */
+    private final Map<String, Expression> values;
     /** The lists collecting the stateful expressions compiled for the scope being instanced (a node's items). */
     private final Deque<List<Expression>> holders;
-    private final Map<String, ExpressionTemplate> declared;
-    private final Map<String, Expression> compiled = new HashMap<>();
-    private final Set<String> compiling = new HashSet<>();
 
-    private ExpressionScope(@Nullable ExpressionScope parent, VariableTable variables, Deque<List<Expression>> holders, Map<String, ExpressionTemplate> declared)
+    private ExpressionScope(@Nullable DefinitionScope animator, @Nullable DefinitionScope layer, @Nullable DefinitionScope machine, @Nullable DefinitionScope node,
+                            VariableTable variables, boolean trusted, Map<String, Expression> values, Deque<List<Expression>> holders)
     {
-        this.parent = parent;
+        this.animator = animator;
+        this.layer = layer;
+        this.machine = machine;
+        this.node = node;
         this.variables = variables;
+        this.trusted = trusted;
+        this.values = values;
         this.holders = holders;
-        this.declared = declared;
     }
 
-    /** The outermost scope of an animator: no named expressions, every name is a variable of {@code variables}. */
+    /** The outermost place of an animator: no scope yet, every bare name a built-in or a value of the entity. */
     public static ExpressionScope root(VariableTable variables)
     {
-        return new ExpressionScope(null, variables, new ArrayDeque<>(), Collections.emptyMap());
+        return new ExpressionScope(null, null, null, null, variables, true, Collections.emptyMap(), new ArrayDeque<>());
     }
 
-    /** The variables of the animator this scope belongs to. */
+    /** The entity's values the animator reads, by name. */
     public VariableTable getVariables()
     {
         return variables;
     }
 
-    /**
-     * A scope nested in this one, declaring {@code expressions} (as read from JSON; null or empty
-     * declare nothing, and this scope is returned). Every declaration is compiled right away, so a
-     * mistake is reported when the animator loads even if nothing uses it.
-     */
-    public ExpressionScope child(@Nullable Map<String, ExpressionTemplate> expressions) throws MalformedKumoTemplateException
+    /** This place, inside {@code scope}: for a machine, the innermost machine around it. */
+    public ExpressionScope inside(DefinitionScope scope)
     {
-        if (expressions == null || expressions.isEmpty())
+        switch (scope.kind)
         {
-            return this;
+            case ANIMATOR:
+                return new ExpressionScope(scope, layer, machine, node, variables, trusted, values, holders);
+            case LAYER:
+                return new ExpressionScope(animator, scope, machine, node, variables, trusted, values, holders);
+            case MACHINE:
+                return new ExpressionScope(animator, layer, scope, node, variables, trusted, values, holders);
+            default:
+                return new ExpressionScope(animator, layer, machine, scope, variables, trusted, values, holders);
         }
-        ExpressionScope scope = new ExpressionScope(this, variables, holders, expressions);
-        for (String name : scope.declared.keySet())
-        {
-            scope.compileDeclared(name);
-        }
-        return scope;
+    }
+
+    /** This place, in a file that is trusted or not (see {@link DefinitionScope#state}). */
+    public ExpressionScope trusted(boolean trusted)
+    {
+        return new ExpressionScope(animator, layer, machine, node, variables, trusted, values, holders);
+    }
+
+    public boolean isTrusted()
+    {
+        return trusted;
     }
 
     /**
-     * A scope nested in this one, naming values that are already compiled (e.g. a clip's
-     * {@code clipLength}); null or empty names nothing and returns this scope.
+     * This place, with built-in values of its own (e.g. a clip's {@code clipLength}); null or
+     * empty names nothing and returns this place.
      */
     public ExpressionScope withValues(@Nullable Map<String, Expression> values)
     {
@@ -84,9 +95,9 @@ public class ExpressionScope
         {
             return this;
         }
-        ExpressionScope scope = new ExpressionScope(this, variables, holders, Collections.emptyMap());
-        scope.compiled.putAll(values);
-        return scope;
+        Map<String, Expression> all = new HashMap<>(this.values);
+        all.putAll(values);
+        return new ExpressionScope(animator, layer, machine, node, variables, trusted, all, holders);
     }
 
     /**
@@ -112,60 +123,70 @@ public class ExpressionScope
         }
     }
 
-    /** The named expression {@code name} as seen from this scope, or null if no scope declares it. */
+    /** Compiles a definition's expression here: its scope holds what it remembers, not the place reading it. */
+    public Expression compileDefinition(JsonElement json) throws MalformedKumoTemplateException
+    {
+        return Expression.compileAny(json, this);
+    }
+
+    /** A built-in value of this place only, or null. */
     @Nullable
-    public Expression resolve(String name) throws MalformedKumoTemplateException
+    Expression value(String name)
     {
-        for (ExpressionScope scope = this; scope != null; scope = scope.parent)
-        {
-            if (scope.declared.containsKey(name) || scope.compiled.containsKey(name))
-            {
-                Expression expression = scope.compileDeclared(name);
-                return expression.isStateful() ? scope.compileFresh(name) : expression;
-            }
-        }
-        return null;
+        return values.get(name);
     }
 
-    private Expression compileDeclared(String name) throws MalformedKumoTemplateException
+    /** The read of a scoped name ({@code layer.combo}). */
+    Expression resolveScoped(String name) throws MalformedKumoTemplateException
     {
-        Expression expression = compiled.get(name);
-        if (expression != null)
+        DefinitionScope scope = scopeOf(name);
+        Expression read = scope.read(name.substring(name.indexOf('.') + 1));
+        if (read == null)
         {
-            return expression;
+            throw new MalformedKumoTemplateException(String.format("Unknown name '%s': %s declares no '%s'.", name, scope.getOwner(), name.substring(name.indexOf('.') + 1)));
         }
-        expression = compileFresh(name);
-        compiled.put(name, expression);
-        return expression;
+        return read;
     }
 
-    private Expression compileFresh(String name) throws MalformedKumoTemplateException
+    /** The state {@code name} (a scoped name), for a statement or a driver to write. */
+    public StateRef resolveState(String name, String what) throws MalformedKumoTemplateException
     {
-        if (!compiling.add(name))
+        if (name == null || name.indexOf('.') < 0)
         {
-            throw new MalformedKumoTemplateException("The named expression '" + name + "' depends on itself.");
+            throw new MalformedKumoTemplateException(String.format("%s writes '%s', which is no state: a state is a scoped name, such as 'layer.combo'.", what, name));
         }
-        try
+        DefinitionScope scope = scopeOf(name);
+        StateRef state = scope.state(name.substring(name.indexOf('.') + 1), trusted, what);
+        if (state == null)
         {
-            ExpressionTemplate template = declared.get(name);
-            JsonElement json = template == null ? null : template.json;
-            if (json == null)
-            {
-                throw new MalformedKumoTemplateException("The named expression '" + name + "' is empty.");
-            }
-            try
-            {
-                return Expression.compileAny(json, this);
-            }
-            catch (MalformedKumoTemplateException e)
-            {
-                throw new MalformedKumoTemplateException("In the named expression '" + name + "': " + e.getMessage());
-            }
+            throw new MalformedKumoTemplateException(String.format("%s writes '%s', but %s declares no '%s'.", what, name, scope.getOwner(), name.substring(name.indexOf('.') + 1)));
         }
-        finally
+        return state;
+    }
+
+    private DefinitionScope scopeOf(String name) throws MalformedKumoTemplateException
+    {
+        int dot = name.indexOf('.');
+        String prefix = name.substring(0, dot);
+        if (name.indexOf('.', dot + 1) >= 0)
         {
-            compiling.remove(name);
+            throw new MalformedKumoTemplateException(String.format("A name is one scope and one name: '%s' has more.", name));
         }
+        DefinitionScope scope;
+        switch (prefix)
+        {
+            case "animator": scope = animator; break;
+            case "layer": scope = layer; break;
+            case "machine": scope = machine; break;
+            case "node": scope = node; break;
+            default:
+                throw new MalformedKumoTemplateException(String.format("Unknown scope '%s' in '%s': names start with animator., layer., machine. or node.", prefix, name));
+        }
+        if (scope == null)
+        {
+            throw new MalformedKumoTemplateException(String.format("'%s' is read outside any %s: %s. names are read inside the %s that declares them.", name, prefix, prefix, prefix));
+        }
+        return scope;
     }
 
 }

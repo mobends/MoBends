@@ -26,9 +26,9 @@ public class KumoAnimatorStateTest
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"play\", "
                 + "\"nodes\": {\"play\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"X\", "
-                + "\"angle\": 10}}, {\"core:clip\": {\"animationKey\": \"clip\", \"duration\": 5}}]}, \"@tags\": [\"play\"], "
-                + "\"@connections\": [{\"when\": \"nodeIsFinished\", \"then\": \"done\"}]}, \"done\": {\"core:pose\": {}, "
-                + "\"@tags\": [\"done\"]}}}]}", Collections.singletonMap("clip", STILL_CLIP));
+                + "\"angle\": 10}}, {\"core:clip\": {\"animationKey\": \"clip\", \"duration\": 5}}]}, "
+                + "\"@connections\": [{\"when\": \"nodeIsFinished\", \"then\": \"done\"}], \"@tags\": [\"play\"]}, "
+                + "\"done\": {\"core:pose\": {}, \"@tags\": [\"done\"]}}}]}", Collections.singletonMap("clip", STILL_CLIP));
         TestSubject subject = new TestSubject("arm");
 
         for (int frame = 0; frame < 5; frame++)
@@ -45,7 +45,7 @@ public class KumoAnimatorStateTest
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"loop\", "
                 + "\"nodes\": {\"loop\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"clip\"}}]}, "
-                + "\"@tags\": [\"loop\"], \"@connections\": [{\"when\": \"nodeIsFinished\", \"then\": \"done\"}]}, "
+                + "\"@connections\": [{\"when\": \"nodeIsFinished\", \"then\": \"done\"}], \"@tags\": [\"loop\"]}, "
                 + "\"done\": {\"core:pose\": {}, \"@tags\": [\"done\"]}}}]}", Collections.singletonMap("clip", STILL_CLIP));
         TestSubject subject = new TestSubject("arm");
 
@@ -146,30 +146,180 @@ public class KumoAnimatorStateTest
     }
 
     @Test
-    public void aNodeVariableShadowsTheSubjectsOnlyOnceWritten() throws MalformedKumoTemplateException
+    public void anUpdateStatementRunsBeforeTheNodePoses() throws MalformedKumoTemplateException
     {
-        // The item before the core:set reads the subject's "raise" on the node's first frame; the
-        // set writes the node's own then, which is read from the next frame on.
         KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', "
                 + "'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': {'bone': 'arm', 'axis': 'X', "
-                + "'angle': {'mul': ['raise', 90]}}, '@space': 'OVERRIDE'}, {'core:set': {'variable': 'raise', "
-                + "'value': 0.5, 'scope': 'node'}}]}}}}]}");
+                + "'angle': {'mul': ['node.raise', 90]}}, '@space': 'OVERRIDE'}]}, '@define': {'raise': {'state': 0}}, "
+                + "'@on': {'update': [{'set': ['node.raise', 0.5]}]}}}}]}");
         TestSubject subject = new TestSubject("arm");
-        subject.variables.put("raise", 1.0);
 
         animator.update(subject, 1F);
-        assertRotation(TestSubject.axisAngle(1, 0, 0, 90), subject.target("arm"));
-        animator.update(subject, 1F);
         assertRotation(TestSubject.axisAngle(1, 0, 0, 45), subject.target("arm"));
+    }
+
+    /**
+     * An animator whose first layer runs the lists of nodes a and b, counting into animator
+     * states, and whose second layer poses one bone per count (in degrees about X), so they can
+     * be read whatever the first layer's crossfades do.
+     */
+    private static KumoAnimatorState counting(String nodes, String connection) throws MalformedKumoTemplateException
+    {
+        String count = "{'set': ['animator.%1$s', {'add': ['animator.%1$s', 1]}]}";
+        String lists = "'@on': {'enter': [" + String.format(count, "enters") + "], 'update': [" + String.format(count, "frames")
+                + "], 'exit': [" + String.format(count, "exits") + "]}";
+        return animator("{'formatVersion': 2, '@define': {'enters': {'state': 0}, 'frames': {'state': 0}, 'exits': {'state': 0}, 'taken': {'state': 0}},"
+                + " 'layers': [{'defaultOnEntry': 'a', 'nodes': {"
+                + "  'a': {'core:pose': {}, " + lists + ", '@connections': [{'when': {'gt': ['elapsed', 2]}, 'then': 'b', " + connection
+                + "     'do': [" + String.format(count, "taken") + "]}]},"
+                + "  'b': {'core:pose': {}, " + nodes + "}}},"
+                + " {'defaultOnEntry': 'probe', 'nodes': {'probe': {'core:pose': {'pose': ["
+                + "  {'core:axis_rotate': {'bone': 'enters', 'axis': 'X', 'angle': 'animator.enters'}, '@space': 'OVERRIDE'},"
+                + "  {'core:axis_rotate': {'bone': 'frames', 'axis': 'X', 'angle': 'animator.frames'}, '@space': 'OVERRIDE'},"
+                + "  {'core:axis_rotate': {'bone': 'exits', 'axis': 'X', 'angle': 'animator.exits'}, '@space': 'OVERRIDE'},"
+                + "  {'core:axis_rotate': {'bone': 'taken', 'axis': 'X', 'angle': 'animator.taken'}, '@space': 'OVERRIDE'}]}}}}]}");
+    }
+
+    private static float counted(TestSubject subject, String bone)
+    {
+        Quaternion q = subject.target(bone);
+        return Math.round(Math.toDegrees(2 * Math.atan2(q.x, q.w)));
+    }
+
+    @Test
+    public void aNodesListsRunWhenItIsEnteredEveryFrameAndWhenItIsLeft() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = counting("'@define': {}", "");
+        TestSubject subject = new TestSubject("enters", "frames", "exits", "taken");
+        for (int frame = 0; frame < 3; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertEquals(1, counted(subject, "enters"), 0);
+        assertEquals(3, counted(subject, "frames"), 0);
+        assertEquals(0, counted(subject, "exits"), 0);
+
+        // The fourth frame takes the connection, without a crossfade: a is left at once.
+        animator.update(subject, 1F);
+        assertEquals(1, counted(subject, "exits"), 0);
+        assertEquals(1, counted(subject, "taken"), 0);
+        assertEquals(3, counted(subject, "frames"), 0);
+    }
+
+    @Test
+    public void aNodeFadingOutKeepsItsUpdateListAndExitsWhenItsCrossfadeEnds() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = counting("'@define': {}", "'transitionDuration': 3,");
+        TestSubject subject = new TestSubject("enters", "frames", "exits", "taken");
+        for (int frame = 0; frame < 4; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        // Frame 4 took the connection: a fades out, still updated, not exited yet.
+        assertEquals(4, counted(subject, "frames"), 0);
+        assertEquals(0, counted(subject, "exits"), 0);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        assertEquals(6, counted(subject, "frames"), 0);
+        // The crossfade ended after frame 6 was posed: a exited then.
+        animator.update(subject, 1F);
+        assertEquals(1, counted(subject, "exits"), 0);
+        assertEquals(6, counted(subject, "frames"), 0);
+    }
+
+    @Test
+    public void aTransitionsListRunsBeforeTheScopesItEnters() throws MalformedKumoTemplateException
+    {
+        // b notes animator.taken when it is entered: the connection's do list has run by then.
+        KumoAnimatorState animator = counting("'@define': {'seen': {'state': 0}}, '@on': {'enter': [{'set': ['node.seen', 'animator.taken']}]},"
+                + " 'core:pose': {'pose': [{'core:axis_rotate': {'bone': 'seen', 'axis': 'X', 'angle': 'node.seen'}, '@space': 'OVERRIDE'}]}", "");
+        TestSubject subject = new TestSubject("enters", "frames", "exits", "taken", "seen");
+        for (int frame = 0; frame < 4; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertEquals(1, counted(subject, "seen"), 0);
+    }
+
+    @Test
+    public void aNodesDefinitionsStartOverOnEveryEntryAndALayersKeep() throws MalformedKumoTemplateException
+    {
+        // a counts its frames in node.n and the layer's in layer.n, and leaves for b and back.
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', '@define': {'n': {'state': 0}}, 'nodes': {"
+                + "  'a': {'core:pose': {'pose': ["
+                + "    {'core:axis_rotate': {'bone': 'node', 'axis': 'X', 'angle': 'node.n'}, '@space': 'OVERRIDE'},"
+                + "    {'core:axis_rotate': {'bone': 'layer', 'axis': 'X', 'angle': 'layer.n'}, '@space': 'OVERRIDE'}]},"
+                + "   '@define': {'n': {'state': 0}},"
+                + "   '@on': {'update': [{'set': ['node.n', {'add': ['node.n', 1]}]}, {'set': ['layer.n', {'add': ['layer.n', 1]}]}]},"
+                + "   '@connections': [{'when': {'ge': ['elapsed', 2]}, 'then': 'b'}]},"
+                + "  'b': {'core:pose': {}, '@connections': [{'when': true, 'then': 'a'}]}}}]}");
+        TestSubject subject = new TestSubject("node", "layer");
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F); // to b: nothing writes the bones, they keep their targets
+        assertEquals(2, counted(subject, "node"), 0);
+        animator.update(subject, 1F); // back to a, whose node.n starts over
+        assertEquals(1, counted(subject, "node"), 0);
+        assertEquals(3, counted(subject, "layer"), 0);
+    }
+
+    @Test
+    public void aMachinesDefinitionsStartOverOnEveryEntry() throws MalformedKumoTemplateException
+    {
+        // Inside machine m, its two nodes count into machine.n; m is left for out and entered again.
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'm',"
+                + " 'select': [{'when': 'IN', 'then': 'm'}, {'then': 'out'}],"
+                + " 'nodes': {'out': {'core:pose': {}}},"
+                + " 'machines': {'m': {'defaultOnEntry': 'a', '@define': {'n': {'state': 0}},"
+                + "   '@on': {'update': [{'set': ['machine.n', {'add': ['machine.n', 1]}]}]},"
+                + "   'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': {'bone': 'n', 'axis': 'X', 'angle': 'machine.n'}, '@space': 'OVERRIDE'}]}}}}}}]}");
+        TestSubject subject = new TestSubject("n");
+        subject.states.put("IN", true);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        assertEquals(2, counted(subject, "n"), 0);
+        subject.states.put("IN", false);
+        animator.update(subject, 1F);
+        subject.states.put("IN", true);
+        animator.update(subject, 1F);
+        assertEquals(1, counted(subject, "n"), 0);
+    }
+
+    @Test
+    public void aConstantIsTakenWhenItsScopeIsCreated() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {"
+                + "  'a': {'core:pose': {'pose': [{'core:axis_rotate': {'bone': 'arm', 'axis': 'X', 'angle': 'node.start'}, '@space': 'OVERRIDE'}]},"
+                + "   '@define': {'start': {'constant': 'yaw'}}}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        subject.variables.put("yaw", 20.0);
+        animator.update(subject, 1F);
+        subject.variables.put("yaw", 50.0);
+        animator.update(subject, 1F);
+        assertEquals(20, counted(subject, "arm"), 0);
+    }
+
+    @Test(expected = MalformedKumoTemplateException.class)
+    public void aSetStatementCantSetALiveDefinition() throws MalformedKumoTemplateException
+    {
+        animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', '@define': {'v': {'live': 1}}, 'nodes': {"
+                + "  'a': {'core:pose': {}, '@on': {'enter': [{'set': ['layer.v', 2]}]}}}}]}");
+    }
+
+    @Test(expected = MalformedKumoTemplateException.class)
+    public void aSetStatementsValueHasTheStatesType() throws MalformedKumoTemplateException
+    {
+        animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', '@define': {'v': {'state': 0}}, 'nodes': {"
+                + "  'a': {'core:pose': {}, '@on': {'enter': [{'set': ['layer.v', true]}]}}}}]}");
     }
 
     @Test
     public void aComparisonTakesExpressionsAndSeesTheNodesNamedExpressions() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"walk\", \"nodes\": {\"walk\": {\"core:pose\": {}, "
-                + "\"@tags\": [\"walk\"], \"@expressions\": {\"doubled\": {\"mul\": [\"speed\", 2]}}, "
-                + "\"@connections\": [{\"when\": {\"gt\": [\"doubled\", {\"add\": [\"limit\", 1]}]}, \"then\": \"run\"}]}, "
-                + "\"run\": {\"core:pose\": {}, \"@tags\": [\"run\"]}}}]}");
+                + "\"@define\": {\"doubled\": {\"live\": {\"mul\": [\"speed\", 2]}}}, "
+                + "\"@connections\": [{\"when\": {\"gt\": [\"node.doubled\", {\"add\": [\"limit\", 1]}]}, \"then\": \"run\"}], "
+                + "\"@tags\": [\"walk\"]}, \"run\": {\"core:pose\": {}, \"@tags\": [\"run\"]}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.variables.put("limit", 2D);
 
@@ -186,7 +336,7 @@ public class KumoAnimatorStateTest
     public void decreasedWatchesAnExpression() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"core:pose\": {}, "
-                + "\"@tags\": [\"a\"], \"@connections\": [{\"when\": {\"decreased\": [{\"abs\": [\"x\"]}]}, \"then\": \"b\"}]}, "
+                + "\"@connections\": [{\"when\": {\"decreased\": [{\"abs\": [\"x\"]}]}, \"then\": \"b\"}], \"@tags\": [\"a\"]}, "
                 + "\"b\": {\"core:pose\": {}, \"@tags\": [\"b\"]}}}]}");
         TestSubject subject = new TestSubject("arm");
 
@@ -295,10 +445,10 @@ public class KumoAnimatorStateTest
         return animator.getActions();
     }
 
-    private static final String LOCOMOTION = "{'formatVersion': 2, '@expressions': {'jumping': 'AIRBORNE'}, "
-            + "'layers': [{'defaultOnEntry': 'stand', 'select': [{'when': 'jumping', 'then': [{'when': 'FLYING', "
-            + "'then': 'fly'}, {'when': {'gt': ['fall', 10]}, 'then': 'fall'}]}, {'when': 'STANDING_STILL', "
-            + "'then': 'stand'}, {'when': {'ge': ['speed', 2]}, 'then': 'walk'}], "
+    private static final String LOCOMOTION = "{'formatVersion': 2, '@define': {'jumping': {'live': 'AIRBORNE'}}, "
+            + "'layers': [{'defaultOnEntry': 'stand', 'select': [{'when': 'animator.jumping', "
+            + "'then': [{'when': 'FLYING', 'then': 'fly'}, {'when': {'gt': ['fall', 10]}, 'then': 'fall'}]}, "
+            + "{'when': 'STANDING_STILL', 'then': 'stand'}, {'when': {'ge': ['speed', 2]}, 'then': 'walk'}], "
             + "'nodes': {'stand': {'core:pose': {}, '@tags': ['stand']}, 'walk': {'core:pose': {}, "
             + "'@tags': ['walk']}, 'fly': {'core:pose': {}, '@tags': ['fly']}, 'fall': {'core:pose': {}, "
             + "'@tags': ['fall']}}}]}";
@@ -354,15 +504,16 @@ public class KumoAnimatorStateTest
         assertEquals(Collections.singletonList("fall"), frame(animator, subject));
     }
 
-    private static final String SWORD = "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'idle', 'variables': {'combo': 0, 'entered': 0}, "
-            + "'select': [{'when': 'SWORD', 'then': 'sword', 'set': {'combo': 0}}, {'then': 'idle'}], "
-            + "'nodes': {'idle': {'core:pose': {}, '@tags': ['idle']}}, "
-            + "'machines': {'sword': {'defaultOnEntry': 'sword_idle', "
-            + "'@expressions': {'attacked': {'decreased': ['sinceAttack']}}, "
+    private static final String SWORD = "{'formatVersion': 2, 'layers': [{'@define': {'combo': {'state': 0}, 'entered': {'state': 0}}, "
+            + "'defaultOnEntry': 'idle', 'select': [{'when': 'SWORD', 'then': 'sword', "
+            + "'do': [{'set': ['layer.combo', 0]}]}, {'then': 'idle'}], 'nodes': {'idle': {'core:pose': {}, "
+            + "'@tags': ['idle']}}, 'machines': {'sword': {'defaultOnEntry': 'sword_idle', "
+            + "'@define': {'attacked': {'live': {'decreased': ['sinceAttack']}}}, "
             + "'select': [{'when': {'ge': ['sinceAttack', 10]}, 'then': [{'when': 'STILL', 'then': 'stance', "
-            + "'set': {'entered': 1}}, {'then': 'sword_idle'}]}], '@connections': [{'when': {'and': ['attacked', "
-            + "{'eq': ['combo', 0]}]}, 'then': 'slash_a', 'set': {'combo': 1}}, {'when': {'and': ['attacked', "
-            + "{'eq': ['combo', 1]}]}, 'then': 'slash_b', 'set': {'combo': 0}}], "
+            + "'do': [{'set': ['layer.entered', 1]}]}, {'then': 'sword_idle'}]}], "
+            + "'@connections': [{'when': {'and': ['machine.attacked', {'eq': ['layer.combo', 0]}]}, "
+            + "'then': 'slash_a', 'do': [{'set': ['layer.combo', 1]}]}, {'when': {'and': ['machine.attacked', "
+            + "{'eq': ['layer.combo', 1]}]}, 'then': 'slash_b', 'do': [{'set': ['layer.combo', 0]}]}], "
             + "'nodes': {'sword_idle': {'core:pose': {}, '@tags': ['sword_idle']}, 'stance': {'core:pose': {}, "
             + "'@tags': ['stance']}, 'slash_a': {'core:pose': {}, '@tags': ['slash_a']}, "
             + "'slash_b': {'core:pose': {}, '@tags': ['slash_b']}}}}}]}";
@@ -423,13 +574,13 @@ public class KumoAnimatorStateTest
     @Test
     public void aLayerStartsWhereItsSelectorLeadsWithoutACrossfade() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'variables': {'v': 0}, "
-                + "'select': [{'when': 'GO', 'then': 'b', 'transitionDuration': 10, 'set': {'v': 1}}], "
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'@define': {'v': {'state': 0}}, 'defaultOnEntry': 'a', "
+                + "'select': [{'when': 'GO', 'then': 'b', 'transitionDuration': 10, 'do': [{'set': ['layer.v', 1]}]}], "
                 + "'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': {'bone': 'arm', 'axis': 'X', "
                 + "'angle': 0}, '@space': 'OVERRIDE'}]}, '@tags': ['a']}, "
                 + "'b': {'core:pose': {'pose': [{'core:axis_rotate': {'bone': 'arm', 'axis': 'X', 'angle': 90}, "
-                + "'@space': 'OVERRIDE'}]}, '@tags': ['b'], '@connections': [{'when': {'eq': ['v', 1]}, "
-                + "'then': 'c'}]}, 'c': {'core:pose': {}, '@tags': ['c']}}}]}");
+                + "'@space': 'OVERRIDE'}]}, '@connections': [{'when': {'eq': ['layer.v', 1]}, 'then': 'c'}], "
+                + "'@tags': ['b']}, 'c': {'core:pose': {}, '@tags': ['c']}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.states.put("GO", true);
 
@@ -507,10 +658,10 @@ public class KumoAnimatorStateTest
     public void aNamedExpressionThatRemembersIsACopyPerUse() throws MalformedKumoTemplateException
     {
         // The edge trigger is used twice; were it one instance, the second use would never see the drop.
-        KumoAnimatorState animator = animator("{'formatVersion': 2, '@expressions': {'dropped': {'decreased': ['x']}}, "
-                + "'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {}, '@tags': ['a'], "
-                + "'@connections': [{'when': {'and': ['dropped', 'dropped']}, 'then': 'b'}]}, 'b': {'core:pose': {}, "
-                + "'@tags': ['b']}}}]}");
+        KumoAnimatorState animator = animator("{'formatVersion': 2, '@define': {'dropped': {'live': {'decreased': ['x']}}}, "
+                + "'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {}, "
+                + "'@connections': [{'when': {'and': ['animator.dropped', 'animator.dropped']}, 'then': 'b'}], "
+                + "'@tags': ['a']}, 'b': {'core:pose': {}, '@tags': ['b']}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.variables.put("x", 2D);
         assertEquals(Collections.singletonList("a"), frame(animator, subject));
@@ -521,9 +672,9 @@ public class KumoAnimatorStateTest
     @Test
     public void anInnerNamedExpressionShadowsAnOuterOne() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'formatVersion': 2, '@expressions': {'go': 'NEVER'}, 'layers': [{'@expressions': {'go': 'ALWAYS'}, "
-                + "'select': [{'when': 'go', 'then': 'b'}], 'nodes': {'a': {'core:pose': {}, '@tags': ['a']}, "
-                + "'b': {'core:pose': {}, '@tags': ['b']}}}]}");
+        KumoAnimatorState animator = animator("{'formatVersion': 2, '@define': {'go': {'live': 'NEVER'}}, "
+                + "'layers': [{'@define': {'go': {'live': 'ALWAYS'}}, 'select': [{'when': 'layer.go', 'then': 'b'}], "
+                + "'nodes': {'a': {'core:pose': {}, '@tags': ['a']}, 'b': {'core:pose': {}, '@tags': ['b']}}}]}");
         TestSubject subject = new TestSubject("arm");
         subject.states.put("NEVER", false);
         subject.states.put("ALWAYS", true);
@@ -533,8 +684,8 @@ public class KumoAnimatorStateTest
     @Test(expected = MalformedKumoTemplateException.class)
     public void aNamedExpressionCantUseItself() throws MalformedKumoTemplateException
     {
-        animator("{'formatVersion': 2, '@expressions': {'p': {'not': ['q']}, 'q': 'p'}, "
-                + "'layers': [{'nodes': {'a': {'core:pose': {}}}}]}");
+        animator("{'formatVersion': 2, '@define': {'p': {'live': {'not': ['animator.q']}}, "
+                + "'q': {'live': 'animator.p'}}, 'layers': [{'nodes': {'a': {'core:pose': {}}}}]}");
     }
 
     @Test(expected = MalformedKumoTemplateException.class)

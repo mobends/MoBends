@@ -15,7 +15,7 @@ public interface ITransition
 
     ConnectionTemplate.Easing getEasing();
 
-    /** Layer variables it assigns when it moves the layer. */
-    VariableTable.Assignments getSet();
+    /** The statements it runs when it moves the layer (its {@code do}). */
+    StatementList getRun();
 
 }

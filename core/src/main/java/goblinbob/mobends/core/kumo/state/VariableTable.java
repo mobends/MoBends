@@ -10,17 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The names an animator reads and writes, numbered when it is instanced, so a frame never looks a
- * name up by string. Writers number the node and layer variables they write; every read of a name
- * shares one {@link Read}, which is resolved once every writer is known ({@link #link}) and against
- * the subject's variables ({@link #bind}). A name that nothing writes and the subject doesn't have
- * fails the animator before it animates.
+ * The entity's values an animator reads by bare name (its variables, such as {@code limbSwing}, and
+ * states, such as {@code ON_GROUND}), looked up once, when the animator is bound to the entity on
+ * its first frame ({@link #bind}): a frame never looks a name up by string. A name the entity
+ * doesn't have fails the animator then, before it animates.
  */
 public final class VariableTable
 {
 
-    private final Map<String, Integer> nodeIds = new HashMap<>();
-    private final Map<String, Integer> layerIds = new HashMap<>();
     private final Map<String, Read> reads = new HashMap<>();
     private final Map<String, State> states = new HashMap<>();
     private final List<Read> readList = new ArrayList<>();
@@ -28,49 +25,7 @@ public final class VariableTable
     @Nullable
     private IKumoSubject boundTo;
 
-    /** The number of a node variable, for a writer of it (ramps, accumulators, springs, ...). */
-    public int nodeVariable(String name)
-    {
-        return number(nodeIds, name);
-    }
-
-    /** The number of a layer variable, for a writer of it (a layer's variables, {@code set}, ...). */
-    public int layerVariable(String name)
-    {
-        return number(layerIds, name);
-    }
-
-    private static int number(Map<String, Integer> ids, String name)
-    {
-        Integer id = ids.get(name);
-        if (id == null)
-        {
-            id = ids.size();
-            ids.put(name, id);
-        }
-        return id;
-    }
-
-    /** Values assigned by name, numbered as layer variables. */
-    public Assignments layerAssignments(@Nullable Map<String, Float> values)
-    {
-        if (values == null || values.isEmpty())
-        {
-            return Assignments.NONE;
-        }
-        int[] ids = new int[values.size()];
-        float[] assigned = new float[values.size()];
-        int i = 0;
-        for (Map.Entry<String, Float> entry : values.entrySet())
-        {
-            ids[i] = layerVariable(entry.getKey());
-            assigned[i] = entry.getValue();
-            i++;
-        }
-        return new Assignments(ids, assigned);
-    }
-
-    /** The read of {@code name}: the node's variable if written, else the layer's, else the subject's. */
+    /** The read of the entity's variable {@code name}. */
     public Read read(String name)
     {
         Read read = reads.get(name);
@@ -83,7 +38,7 @@ public final class VariableTable
         return read;
     }
 
-    /** The read of the subject's state {@code name} (e.g. {@code ON_GROUND}). */
+    /** The read of the entity's state {@code name} (e.g. {@code ON_GROUND}). */
     public State state(String name)
     {
         State state = states.get(name);
@@ -97,25 +52,10 @@ public final class VariableTable
     }
 
     /**
-     * Resolves every read against the node and layer variables, once every writer has numbered its
-     * own (the animator does, when its layers are instanced).
-     */
-    public void link()
-    {
-        for (Read read : readList)
-        {
-            Integer node = nodeIds.get(read.name);
-            Integer layer = layerIds.get(read.name);
-            read.nodeId = node == null ? -1 : node;
-            read.layerId = layer == null ? -1 : layer;
-        }
-    }
-
-    /**
-     * Resolves every read against the subject's variables and states. Done for the subject of the
-     * first frame; the animator belongs to it.
+     * Looks every name read up on the subject. Done for the subject of the first frame; the
+     * animator belongs to it.
      *
-     * @throws MalformedKumoTemplateException if a name is no variable of the animator or the subject.
+     * @throws MalformedKumoTemplateException if the entity has no such variable or state.
      */
     void bind(IKumoSubject subject) throws MalformedKumoTemplateException
     {
@@ -125,10 +65,10 @@ public final class VariableTable
         }
         for (Read read : readList)
         {
-            read.subjectIndex = subject.indexOfVariable(read.name);
-            if (read.subjectIndex < 0 && read.nodeId < 0 && read.layerId < 0)
+            read.index = subject.indexOfVariable(read.name);
+            if (read.index < 0)
             {
-                throw new MalformedKumoTemplateException("Unknown variable '" + read.name + "': no node or layer variable, and the entity has none.");
+                throw new MalformedKumoTemplateException("Unknown variable '" + read.name + "': the entity has none (a name the animator declares has a scope, such as 'layer." + read.name + "').");
             }
         }
         for (State state : stateList)
@@ -142,35 +82,26 @@ public final class VariableTable
         boundTo = subject;
     }
 
-    /** One name as read by expressions and drivers, resolved once for the whole animator. */
+    /** One of the entity's variables, looked up once for the whole animator. */
     public static final class Read
     {
 
         public final String name;
-        int nodeId = -1;
-        int layerId = -1;
-        int subjectIndex = -1;
+        int index = -1;
 
         private Read(String name)
         {
             this.name = name;
         }
 
-        /**
-         * The value: the node's variable once written, else the layer's once written, else the
-         * subject's.
-         */
-        public double get(VariableScope node, VariableScope layer, IKumoSubject subject)
+        public double get(IKumoSubject subject)
         {
-            if (nodeId >= 0 && node.has(nodeId)) return node.get(nodeId);
-            if (layerId >= 0 && layer.has(layerId)) return layer.get(layerId);
-            if (subjectIndex >= 0) return subject.getVariable(subjectIndex);
-            throw new IllegalStateException("The variable '" + name + "' is read before anything writes it.");
+            return subject.getVariable(index);
         }
 
     }
 
-    /** One of the subject's states, resolved once for the whole animator. */
+    /** One of the entity's states, looked up once for the whole animator. */
     public static final class State
     {
 
@@ -185,31 +116,6 @@ public final class VariableTable
         public boolean get(IKumoSubject subject)
         {
             return subject.getState(index);
-        }
-
-    }
-
-    /** Layer variables to assign, numbered (a node's, a branch's or a connection's {@code set}). */
-    public static final class Assignments
-    {
-
-        public static final Assignments NONE = new Assignments(new int[0], new float[0]);
-
-        private final int[] ids;
-        private final float[] values;
-
-        private Assignments(int[] ids, float[] values)
-        {
-            this.ids = ids;
-            this.values = values;
-        }
-
-        public void applyTo(VariableScope scope)
-        {
-            for (int i = 0; i < ids.length; i++)
-            {
-                scope.set(ids[i], values[i]);
-            }
         }
 
     }

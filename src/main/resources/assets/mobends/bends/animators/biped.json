@@ -2,11 +2,15 @@
   "formatVersion": 2,
   "layers": [
     {
-      "@expressions": {
-        "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]},
-        "bounced": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}
+      "@define": {
+        "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
+        "bounced": {"live": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}}
       },
-      "select": [{"when": "jumping", "then": "jump"}, {"when": "STANDING_STILL", "then": "stand"}, {"then": "walk"}],
+      "select": [
+        {"when": "layer.jumping", "then": "jump"},
+        {"when": "STANDING_STILL", "then": "stand"},
+        {"then": "walk"}
+      ],
       "nodes": {
         "stand": {
           "core:pose": {
@@ -159,7 +163,7 @@
             ],
             "enterPose": [{"core:clip": {"animationKey": "mobends:bends/animations/biped/jump_enter.json"}}]
           },
-          "@connections": [{"when": "bounced", "then": "jump"}],
+          "@connections": [{"when": "layer.bounced", "then": "jump"}],
           "@tags": ["jump"]
         }
       }

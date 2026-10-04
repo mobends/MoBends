@@ -11,6 +11,8 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { pretty } from "./kumo_format";
+import { toScopes } from "./kumo_scopes";
 
 // Animator data is schemaless JSON built up and patched in place, like the files it becomes.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1262,39 +1264,15 @@ function oneKeyAnimator(doc: Obj): Obj {
   return out;
 }
 
-// ---- formatting: two-space indent, anything that fits in the width on one line -----------------
-const WIDTH = 110;
-function compactJson(v: unknown): string {
-  if (Array.isArray(v)) return "[" + v.map(compactJson).join(", ") + "]";
-  if (v !== null && typeof v === "object") {
-    return "{" + Object.entries(v as Obj).map(([k, x]) => JSON.stringify(k) + ": " + compactJson(x)).join(", ") + "}";
-  }
-  return JSON.stringify(v);
-}
-const isObj = (v: unknown): v is Obj => v !== null && typeof v === "object" && !Array.isArray(v);
-const inline = (v: unknown, indent: number): boolean => compactJson(v).length + indent <= WIDTH;
-function pretty(v: unknown, indent = 0): string {
-  const pad = " ".repeat(indent);
-  if (Array.isArray(v)) {
-    if (v.length === 0) return "[]";
-    if (inline(v, indent)) return compactJson(v);
-    return "[\n" + v.map((x) => pad + "  " + pretty(x, indent + 2)).join(",\n") + "\n" + pad + "]";
-  }
-  if (isObj(v)) {
-    const entries = Object.entries(v);
-    if (entries.length === 0) return "{}";
-    if (inline(v, indent)) return compactJson(v);
-    return "{\n" + entries.map(([k, x]) => pad + "  " + JSON.stringify(k) + ": " + pretty(x, indent + 2)).join(",\n") + "\n" + pad + "}";
-  }
-  return JSON.stringify(v);
-}
-
 for (const [name, built] of animators) {
   // A deep copy: the builders share value objects between items.
   let data = JSON.parse(JSON.stringify(built));
   convertValues(data);
   if (BIPEDS.has(name)) doubleBodyRates(data);
-  data = oneKeyAnimator(data);
+  data = toScopes(oneKeyAnimator(data), (key) => {
+    const parent = new Map(animators).get(key.replace("mobends:bends/animators/", "").replace(".json", ""));
+    return parent ? oneKeyAnimator(JSON.parse(JSON.stringify(parent))) : null;
+  });
   writeFileSync(join(ANIM, name + ".json"), pretty(data) + "\n");
   console.log("wrote", name + ".json");
 }

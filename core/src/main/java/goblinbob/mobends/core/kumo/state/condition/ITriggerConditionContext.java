@@ -29,10 +29,10 @@ public interface ITriggerConditionContext
      */
     boolean isActionActive(String tag);
 
-    /**
-     * Resolves a variable through the scopes: node-local (ramps) once written, layer variables
-     * once written, then the subject.
-     */
+    /** The subject's variable {@code read}. */
     double resolveVariable(VariableTable.Read read);
+
+    /** The number of the frame being evaluated: a live definition is computed once in each. */
+    long getFrame();
 
 }

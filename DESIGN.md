@@ -43,79 +43,22 @@ Pose items and nodes follow the one-key rule, with `@` modifiers and scope keys,
 everywhere and unknown keys refused (`misc/kumo-format.md`, *How it is written*). What is still
 to come:
 
-- **Statements** are written the same way: `{"@when": "nodeIsActive", "set": ["layer.combo", 0]}`,
-  their content an array of positional arguments, `@when` their one modifier.
 - **Operations** take `@fallback` where they declare it:
   `{"mobends:is_sitting": [], "@fallback": false}`.
-- **Definitions** take `@` modifiers too (`@comment` today; see *Three kinds of definitions*).
 - Operations and drivers share one registry namespace: `core:spring` names one thing.
-- Fields only some constructs have stay their own fields (`weight` on clips and
-  `core:step_turn`, `inout` on accumulators and springs).
-
-### Structured objects
-
-The scope keys still to come replace today's `@expressions`, `variables`, `@set` and `@tags`:
-
-| key | on | holds |
-|---|---|---|
-| `@define` | every scope | the scope's definitions (*Definitions and scopes*) |
-| `@on` | every scope | the scope's statement lists (*Statement lists*) |
-
-```json
-"walk": {
-  "core:pose": {"pose": [ ...items... ], "damping": {"body": 0.5}},
-  "@define": {"stride": {"live": {"mul": ["entitySpeed", 2]}}},
-  "@on": {"enter": [{"set": ["animator.onFeet", true]}]},
-  "@connections": [{"when": "animator.jumping", "then": "jump", "transitionDuration": 2}]
-},
-"animated": {"core:fallthrough": {}}
-```
-
-Keys inside the `@` keys need no `@`: they are the format's own (`enter`, `then`) or names the
-file declares (`stride`).
 
 ## Values and expressions
 
-### Forms
-
-| form | example | type |
-|---|---|---|
-| number | `0.5` | number |
-| boolean | `true` | boolean |
-| string | `"minecraft:torch"` | only as an argument an operation declares as a string |
-| scoped name | `"layer.combo"` | the definition's |
-| built-in value | `"nodeTicksElapsed"`, `"nodeIsFadingOut"` | the built-in's |
-| operation | `{"add": [...]}`, `{"mobends:is_sitting": [], "@fallback": false}` | the operation's |
-
-Every place that takes a condition takes a boolean expression: `@when` on pose items,
-statements, layers and the mirror rule; `when` on selector branches and connections.
-
 ### Names
 
-**Built-in values are bare names** (`nodeTicksElapsed`, `partialTicks`, `entityIsOnGround`).
-They are what Mo' Bends provides: always available, no arguments, independent of the entity's
-class. Bare names belong to Mo' Bends; a bare name that isn't a built-in is a load error, and
-adding a built-in never collides with anything a file declares.
+Scoped names are in the spec (*Definitions and statements*). Still to come:
 
-**Everything a file declares carries its scope**: `entity.foo`, `animator.foo`, `layer.foo`,
-`machine.foo`, `node.foo`.
-
-- There is no lookup through enclosing scopes and no shadowing: the prefix says where the value
-  lives.
-- `machine.` is the innermost machine around the place the name is written, the way `node.` is
-  the node being evaluated. If that machine doesn't declare the name, it is a load error, even
-  when an outer machine does: a value machines nested in each other share is declared on the
-  layer.
-- **A name is one prefix and one name**: a definition's own name can't contain a dot, and there
-  are no deeper paths (`machine.sword.foo`, another layer's `layer.arms.foo`). What two scopes
-  share is declared on the smallest scope around both: the layer for its machines, the animator
-  for its layers (*Following another layer's choice*), the entity for extensions. Every name then
-  reads a scope that exists wherever it is read; a node's or machine's scope exists only while
-  the layer is in it. A path naming an outer machine is safe and stays possible, if nested
-  machines ever need it.
-- The separator is a dot, so a scoped name never looks like a registry id (`core:holds_item`).
-- Each name resolves, at compile time, to one slot of the program or of the entity's state.
-- An unknown name, or a name in a scope that doesn't declare it, is a load error.
+- **Bare names are only built-ins** (`nodeTicksElapsed`, `partialTicks`, `entityIsOnGround`):
+  what Mo' Bends provides, always available, no arguments, independent of the entity's class. A
+  bare name that isn't a built-in is a load error, and adding a built-in never collides with
+  anything a file declares. Today a bare name is also any variable or state the entity's data
+  class registers (task 8 renames them).
+- `entity.` names, declared by the mob's model definition (*Entity-level definitions*).
 
 ### Operations
 
@@ -188,15 +131,6 @@ pack can't read arbitrary fields. The restriction can be lifted later without br
 - Interpolating between ticks is written out:
   `{"lerp": [{"field": ["oFlap"]}, {"field": ["wingRotation"]}, "partialTicks"]}`.
 
-### Stateful operations
-
-`decreased`, `rose` and `fell` are in the spec (*Expressions*), each place one is written keeping
-its own memory. What changes with definitions: a place inside a definition belongs to the scope
-that declares the definition, so one memory however many places read it, reset with that scope
-(*Three kinds of definitions*); today a named expression that remembers is compiled anew for each
-use. The compiler may skip an operand of `and`, `or` and `if` that contains no stateful operation,
-since the result is the same.
-
 ### Functions (after v2)
 
 Functions are not in v2, but the format keeps room for them. A function is a definition with
@@ -232,52 +166,14 @@ Both are load errors in v2, so adding functions breaks no file.
 
 ## Definitions and scopes
 
-### Scopes
-
-The scopes are the entity, the animator, a layer, a machine and a node. A scope is **created
-when it is entered** and **disposed when it is left**, once no transition needs it any more (a
-node fading out keeps its scope until the crossfade ends):
-
-- the entity's when its data is created; an animator's when it is created;
-- a layer's when the layer starts; a machine's on every entry into it, so its definitions
-  start over each time, and it is disposed once the last of its nodes has faded out;
-- a node's on every entry, so its definitions start over each time.
-
-Machines have no clock and no phases of their own: the layer crossfades between nodes, never
-between machines. A machine that needs a clock keeps one as `machine.` state advanced in its
-`update` list. If that becomes common, a built-in is added, named for its scope the way
+Definitions, scopes and their lifecycles are in the spec (*Definitions and statements*). Machines
+have no clock and no phases of their own: the layer crossfades between nodes, never between
+machines. A machine that needs a clock keeps one as `machine.` state advanced in its `update`
+list. If that becomes common, a built-in is added, named for its scope the way
 `nodeTicksElapsed` and `layerTicksElapsed` are (`machineTicksElapsed`), not an operation taking
-the scope as an argument.
-
-### Three kinds of definitions
-
-Every scope can declare definitions of three kinds:
-
-| kind | value | changed by |
-|---|---|---|
-| **constant** | computed once, when its scope is created; may snapshot other definitions' values at that moment (a node constant can capture the body yaw a turn started from) | nothing: read-only |
-| **state** | an initial value computed when its scope is created | `set` statements |
-| **live** | evaluated once per frame, every frame its scope exists, whether or not anything reads it (so a stateful operation inside it steps once per frame and never misses one; a live definition without one may be evaluated lazily) | nothing: derived |
-
-A scope declares them in `@define`, keyed by name. Each definition is written like a construct:
-an object with exactly one key, its kind, whose value is the expression:
-
-```json
-"@define": {
-  "startYaw": {"constant": "entityBodyYaw"},
-  "combo":    {"state": 0},
-  "stride":   {"live": {"mul": ["entitySpeed", 2]}}
-}
-```
-
-- A name is declared once per scope, whatever its kind; a definition with two kinds breaks the
-  one-key rule and is a load error.
-- A definition's other keys are `@` modifiers, as on constructs. Only `@comment` is defined;
-  they are where per-definition rules go if any are needed (an `@override` for `extends`, what a
-  type publishes to its extensions).
-- Related definitions sit together whatever their kind, and a reader finds one by its name.
-
-Definitions may refer to each other in any order; cycles are a load error.
+the scope as an argument. A definition's other keys are `@` modifiers (only `@comment` today):
+they are where per-definition rules go if any are needed (an `@override` for `extends`, what a
+type publishes to its extensions).
 
 ### Entity-level definitions
 
@@ -314,59 +210,10 @@ to the animator's.
 
 ## Statements
 
-### State changes only through statements
-
-A statement is `{"set": ["layer.combo", <expression>]}`, optionally with `@when`. Statements
-appear only in statement lists; an expression never changes state, so the order and number of
-times expressions are evaluated never matter.
-
-### Statement lists
-
-Every scope can have three, in its `@on` object:
-
-- `enter`: run when the scope is created, right after its definitions are initialised;
-- `update`: run every frame the scope exists, **including while a node is fading out**;
-- `exit`: run when the scope is disposed (for a node fading out, when the crossfade ends).
-
-```json
-"@on": {
-  "enter": [{"set": ["layer.combo", 0]}],
-  "update": [{"set": ["node.phase", {"add": ["node.phase", "ticksPerFrame"]}]}]
-}
-```
-
-Selector branches and connections have a list of their own, run when they are taken.
-
-**Lists run per frame.** There are no per-tick lists: a statement that counts or integrates
-scales by `ticksPerFrame`. Sensing that must happen once per game tick is Mo' Bends' job, behind
-the `entity…` built-ins. A `tick` list can be added if something needs one. An entity that isn't
-rendered isn't animated, so its frame-counted state doesn't advance and can miss an edge while
-it is off screen; for animation that doesn't matter.
-
-**Order in a frame.** The entity's `update` list runs first, then the animator's, then each
-extension animator's in extension order. Then, layer by layer, after the layer has chosen its node
-and before it poses: the layer's list, its machines' (outermost first), the node fading out (if
-any), then the current node.
-
-**Order on a transition.** The `exit` lists of the scopes disposed at once run first (the node
-being left during a crossfade, machines left), then the taken branch's or connection's own list,
-then the `enter` lists of the scopes it enters, outermost first.
-
-### Who may set what
-
-A scope may `set` its own state and the state of the scopes around it: a node may set its
-layer's, its animator's or the entity's state, and so may an extension's layers. A value meant to
-be private is declared in a smaller scope. During a crossfade both nodes may set the same layer or
-entity state; `nodeIsFadingOut` lets a statement opt out.
-
-- **Trust.** An untrusted file may only set state declared by an untrusted file. Otherwise an
-  untrusted extension could steer the trusted layers through a value they read, and the
-  resource-pack limits, which clamp untrusted layers against the trusted pose, would no longer
-  hold. Model definitions are trusted-only, so in practice an untrusted extension sets only its
-  own animator's, layers' and nodes' state.
-- **Order of writes.** When several layers set one value in a frame, the last write wins: later
-  layers see it this frame, earlier ones next frame. Extension order is the user's ranking, so
-  re-ranking extensions can change what they see.
+Statements, their lists and their order are in the spec (*Definitions and statements*). Still to
+come: the entity's `update` list, which runs first in a frame (*Entity-level definitions*), and
+`nodeIsFadingOut`, with which a statement in the `update` list of a node fading out can opt out
+of setting a state the current node sets too.
 
 ### Following another layer's choice
 
@@ -392,19 +239,6 @@ node:
     "stand": {"core:pose": {...}, "@on": {"enter": [{"set": ["animator.onFeet", true]}]}}
   }
   ```
-
-### `extends`
-
-An animator that `extends` another shares one `animator.` scope with it: `extends` is one animator
-split across files, and the child names the file it depends on.
-
-- The parent's `@define` and `@on` merge into the child's, the parent's first, as its layers are.
-  The child reads the parent's names directly (`cow.json` reads `quadruped.json`'s
-  `animator.walking`).
-- Redeclaring a parent's name is a load error (no shadowing). If a child ever needs to replace a
-  value, that is a definition modifier (`@override`), added when needed.
-- The parent's statement lists run before the child's, for `enter`, `update` and `exit` alike.
-- A renamed parent definition fails the child at load, as a renamed node does.
 
 ### Extensions
 
@@ -468,63 +302,8 @@ Neither needs state.
 
 ## Pose items
 
-A pose item is an entry in a node's `pose` list that contributes to the pose, composing onto the
-items before it: `{"<kind>": {fields}}`, with the pose-item modifiers `@when`, `@space`,
-`@damping`, `@snap`, `@mirror`, `@swapSides`, `@vectorModes` (and `@comment`).
-
-- A **clip** (`core:clip`) plays keyframes. Built-in values for its `frame`: `clipLength` (the
-  clip's length in its own units) and `clipDuration` (the item's `duration`).
-- A **driver** is a pose item defined in Java: `core:axis_rotate`, `core:vector`, `core:offset`,
-  `core:step_turn`, `core:accumulate`, `core:spring`, `mobends:cape`, `mobends:sword_trail`,
-  the spider legs. Drivers take named fields, any number (`core:step_turn` has about 30). A
-  driver may have side effects beyond the pose: `mobends:sword_trail` poses no bone and feeds the
-  trail the renderer draws.
-
-How the three constructs compare:
-
-| | operation | statement | driver |
-|---|---|---|---|
-| produces | a value | a change to state | a contribution to the pose (and side effects) |
-| written | `{"name": [args]}`, positional, about 3 at most | `{"set": [...]}` | `{"name": {named fields}}` |
-| appears in | any expression | a scope's `enter` / `update` / `exit` list, a transition's list | a node's `pose` (and `enterPose`) |
-| order | doesn't matter | list order | pose-list order |
-| state | optional, per use | the state it names | optional, private (and may write declared state) |
-
-### Driver outputs, accumulators and springs
-
-A driver writes declared state only through fields that name it:
-
-- **`out`**: an object mapping the driver's output names to declared number states, which the
-  driver writes every frame it runs. `core:step_turn`'s outputs are `turnLag`, `turnSpeed`,
-  `stepLift`, `stepImpact` and `stride`; an output left out isn't written.
-- **`inout`**: the one state a driver reads and steps (accumulators and springs).
-
-Each named target must be a `state` definition of type number (not a live definition or a
-constant), checked at load.
-
-`core:accumulate` and `core:spring` step their state once per frame, in pose-list order, so
-they can follow what a driver before them computed in the same frame (springs following
-`core:step_turn`'s outputs):
-
-```json
-"@define": {"onFeet": {"state": 0}, "turnSpeed": {"state": 0}, "armLag": {"state": 0}},
-"core:pose": {"pose": [
-  {"core:accumulate": {"inout": "node.onFeet", "min": 0, "max": 1,
-                       "rate": {"if": ["animator.jumping", -0.15, 0.15]}}},
-  {"core:step_turn": {"weight": "node.onFeet", "legs": [...], "out": {"turnSpeed": "node.turnSpeed"}}},
-  {"core:spring": {"inout": "node.armLag", "target": "node.turnSpeed", "stiffness": 0.12, "friction": 0.3}}
-]}
-```
-
-- `core:accumulate`: `inout`; `rate` (an expression, per tick, any sign); `min`, `max`
-  (unbounded when left out). With `min` 0 and `max` 1 it is a ramp.
-- `core:spring`: `inout`; `target` (an expression); `stiffness` (per tick²); `friction` (per
-  tick). Its velocity is internal: a hidden slot of the spring, reset when the spring's node is
-  entered, even when its value is `layer.` or `entity.` state and persists.
-- **The value lives where its state is declared; the driver steps it while its node is posed.**
-  A driver may name any scope's state, but runs only while its node is current or fading out. A
-  value that must change every frame whatever the node is a `set` in an `update` list, or a
-  built-in.
+Pose items, their modifiers and the drivers' `inout` and `out` are in the spec. Still to come: a
+clip's `duration` read in its `frame` as `clipDuration` (today `duration`), next to `clipLength`.
 
 ## Entity values
 
@@ -812,43 +591,21 @@ until tags go). Still to do: type-file selectors (`core:entity_type`, ..., and t
 
 ### Named values become definitions
 
-Every old named value becomes a definition:
+Named expressions are live definitions, layer and node variables states, `set` maps and
+`core:set` statements (done). Still to do:
 
 | old | new |
 |---|---|
-| named expressions and named conditions (`expressions`, `conditions`) | live definitions |
-| layer `variables`; `set` maps of nodes, branches and connections | state; `set` statements in `enter` and transition lists |
 | layer `variables` written only inside one machine (`player.json`'s and `skeleton.json`'s `combo` in `sword`, `fist` in `fists`) | `machine.` state; the layer's branches into the machines reset them to 0, which a machine's state does on entry anyway |
-| node variables written by ramps, accumulators, springs, `core:set` | state written by drivers and statements |
 | a model definition's `variables[]` (`field` / `prevField` / `scale` / `offset` / `fn` / `add` / `product`) | entity live definitions over `field` |
 | subject variables and states registered in Java (`registerVariable`, `registerState`), properties (`getProperty`) | built-ins and registered operations (*Entity values from the data classes*) |
-
-What a string meant in an expression depended on what happened to be declared: a named
-expression, else a node variable once written, else a layer variable, else the subject's
-variable. Names now carry their scope.
 
 The old `field` list in model definitions meant fallback names (the first that exists); a `field`
 path now means a chain of fields, and fallbacks are the `fallback` option.
 
 ### Scope keys under `@`
 
-Nodes follow the one-key rule and connections are `{when, then}` (done). Until definitions,
-statements and the removal of tags, a scope's named expressions are `@expressions`, a node's
-`set` is `@set` and its tags `@tags`; then:
-
-| today | new |
-|---|---|
-| `@expressions`, layer `variables` | `@define` (*Named values become definitions*) |
-| a node's `@set` | a `set` statement in the `enter` list of `@on` |
-| `@tags` | removed (*Tags are removed*) |
-
-### Statements
-
-The old statement-like pieces were scattered: `set` maps of constants on a node (applied when it
-starts), a branch and a connection (when taken; nested branches add theirs, outermost first, the
-node's last); a layer's `variables`; `core:set`, a pose item assigning an expression every frame;
-ramps, accumulators and springs, updating every frame in pose-stack order. They become `set`
-statements in `enter`, `update`, `exit` and transition lists; `core:set` goes away.
+Done but for a node's `@tags`, which go with tags (*Tags are removed*).
 
 ### Ramps, springs and accumulators
 
@@ -857,13 +614,6 @@ over the node's clock, named in the node's expressions, and the switching ramps 
 `deep`) accumulators clamped to 0..1 with a signed rate; `readBeforeAdvance` went with them. A
 ramp stepped before the items after it read it, so the eating and shield animations moved a frame
 later, and `deep`, which read before advancing, a frame earlier (their goldens re-recorded).
-
-**Accumulators and springs** keep their behaviour, but step a declared state named by `inout`
-instead of a `name` with its own `initial`.
-
-**Driver outputs are named.** `core:step_turn` wrote `turnLag`, `turnSpeed`, `stepLift`,
-`stepImpact` and `stride` into the node scope by fixed names (`StepTurnDriver.publish`), and the
-spider drivers `groundLevel`. They now write the declared states their `out` field names.
 
 ### Tags are removed
 
@@ -894,7 +644,9 @@ The 12 old drivers did three jobs:
 
 - **pose writers** (`core:axis_rotate`, `core:vector`, `core:offset`, `core:step_turn`, the
   spider legs, `mobends:cape`): stay drivers;
-- **value updaters** (`core:ramp`, `core:accumulate`, `core:spring`, `core:set`): see above;
+- **value updaters** (`core:ramp`, `core:accumulate`, `core:spring`, `core:set`): the ramp and
+  `core:set` are gone, accumulators and springs step a declared state (`inout`), as
+  `core:step_turn` and the spider legs write their outputs to one (`out`) (done);
 - **side effects** (`mobends:sword_trail`): stays a driver.
 
 Their private state moves from Java fields (`StepTurnDriver`'s planted feet, `SpiderData`'s
@@ -1233,10 +985,7 @@ Everything besides the engine that changes with the format (surveyed 2026-10-03)
   `SideEffectParityTest`, `SpinAttackTest`, `DefinedModelsTest`, `StepTurnTest`,
   `DanceExtensionTest`.
 - **Parity goldens to re-record** (`./gradlew record` in `animation-lab`), where behaviour moves
-  on purpose: the riding scenarios (the measured speed); anything
-  reading a node variable before its writer first writes it (`core:step_turn`, the spider drivers
-  and `core:set` write on their first evaluation, and until then the read falls through to the
-  layer's or the subject's value of that name; a declared state reads its initial value).
+  on purpose: the riding scenarios (the measured speed).
 - **Lab bootstrap:** `LabBootstrap` mirrors the mod's registrations (`MinecraftKumoOperations`,
   the four `mobends:` drivers) and changes with the registration API.
 - **Addon API:** `AddonAnimationRegistry`, `DefaultAddon`, `MinecraftKumoOperations`.
@@ -1272,16 +1021,15 @@ the additive and smaller ones.
    replacing trigger conditions; the language operations; `decreased`, `rose`, `fell`; nothing
    short-circuits. Subject states are names in capitals until the built-ins (task 8); selector
    conditions are task 13, `variables[]` and `field` task 14.
-4. [ ] **Scopes and definitions**: entity, animator, layer, machine and node scopes with their
+4. [x] **Scopes and definitions**: animator, layer, machine and node scopes with their
    lifecycles; `@define` with constant, state and live definitions; scoped names with no lookup
-   and no shadowing; live definitions evaluated once per frame; cycles a load error
-   (*Definitions and scopes*).
-5. [ ] **Statements**: `set`, `@on` lists (`enter`, `update`, `exit`, a transition's own), their order
-   in a frame and on a transition, who may set what, and the trust rule (*Statements*).
+   and no shadowing; live definitions computed once per frame; cycles a load error. The entity
+   scope comes with task 14.
+5. [x] **Statements**: `set`, `@on` lists (`enter`, `update`, `exit`) and a transition's `do`, their
+   order in a frame and on a transition, who may set what, and the trust rule.
 6. [x] **The one-key syntax**: pose items and nodes as one key plus `@` modifiers, `@connections`
    and `@when` on scopes, `{"when", "then"}` connections, `@comment` everywhere, unknown keys a
-   load error. Statements and `@fallback` come with tasks 5 and 12; `@define` / `@on` with 4 and
-   5 (until then `@expressions`, `@set`, `@tags`).
+   load error. `@fallback` comes with task 12, the removal of `@tags` with 17.
 
 **Built-ins and operations**
 
@@ -1297,9 +1045,9 @@ the additive and smaller ones.
    Java*).
 10. [ ] **Prototype the API on `core:spring` and `core:step_turn`**, settling argument passing, what
     bind gets, `PoseWriter` and purity (*To settle while prototyping*).
-11. [ ] **Drivers on declared state**: `out` and `inout`; `core:step_turn`'s and the spider legs'
-    private state as declared slots; remove `core:set` (*Driver outputs, accumulators and
-    springs*). `core:ramp` and `readBeforeAdvance` are gone.
+11. [ ] **Drivers' private state as declared slots**: `core:step_turn`'s planted feet and the
+    spider legs' (with task 2). `out`, `inout`, and the removal of `core:ramp`, `core:set` and
+    `readBeforeAdvance` are done.
 12. [ ] **Registered operations**: `field` / `exists` with `@fallback` (model definitions only);
     `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
     `core:is_flying`; `mobends:use_action`, `mobends:attack_action`, the wolf's and the spider's
@@ -1350,8 +1098,9 @@ the additive and smaller ones.
 25. [ ] **Rename the held-item bones** `renderLeftItemRotation` / `renderRightItemRotation` to
     `leftHeldItem` / `rightHeldItem` (*Migration work* lists the files).
 26. [ ] **The generator writes the format directly**: `gen_animators.ts` builds items, nodes and
-    connections the old way and rewrites them in a last pass (`oneKeyAnimator`); its builders
-    should write the one-key syntax themselves.
+    connections the old way and rewrites them in last passes (`oneKeyAnimator`, then
+    `kumo_scopes.ts`, which turns bare names into scoped ones); its builders should write the
+    format themselves, and `kumo_scopes.ts` then goes.
 27. [ ] **Decide the remaining cleanups**: singular / plural pairs, the reserved `"default"` key,
     enum casing (*Smaller renames and cleanups*).
 

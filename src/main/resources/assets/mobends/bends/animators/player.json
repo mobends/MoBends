@@ -10,9 +10,9 @@
       }
     },
     {
-      "@expressions": {
-        "jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]},
-        "bounced": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}
+      "@define": {
+        "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
+        "bounced": {"live": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}}
       },
       "select": [
         {"when": "SLEEPING", "then": "sleeping"},
@@ -21,7 +21,7 @@
         {"when": "CLIMBING", "then": "ladder"},
         {"when": "IN_WATER", "then": "swimming"},
         {
-          "when": "jumping",
+          "when": "layer.jumping",
           "then": [
             {"when": "FLYING", "then": "flying"},
             {"when": {"gt": ["ticksFalling", 10]}, "then": "falling"},
@@ -269,7 +269,7 @@
             ],
             "enterPose": [{"core:clip": {"animationKey": "mobends:bends/animations/biped/jump_enter.json"}}]
           },
-          "@connections": [{"when": "bounced", "then": "jump"}],
+          "@connections": [{"when": "layer.bounced", "then": "jump"}],
           "@tags": ["jump"]
         },
         "sprint_jump_right": {
@@ -300,7 +300,7 @@
                 "core:axis_rotate": {
                   "bone": "rightForeLeg",
                   "axis": "X",
-                  "angle": {"add": [{"mul": [{"pow": [{"clamp": ["relax", 0, 1]}, 0.25]}, -80]}, 80]}
+                  "angle": {"add": [{"mul": [{"pow": [{"clamp": ["node.relax", 0, 1]}, 0.25]}, -80]}, 80]}
                 },
                 "@space": "OVERRIDE"
               },
@@ -308,7 +308,7 @@
                 "core:axis_rotate": {
                   "bone": "leftForeLeg",
                   "axis": "X",
-                  "angle": {"mul": [{"pow": [{"clamp": ["relax", 0, 1]}, 0.25]}, 70]}
+                  "angle": {"mul": [{"pow": [{"clamp": ["node.relax", 0, 1]}, 0.25]}, 70]}
                 },
                 "@space": "OVERRIDE"
               },
@@ -322,8 +322,8 @@
               }
             ]
           },
-          "@connections": [{"when": "bounced", "then": "sprint_jump_right"}],
-          "@expressions": {"relax": {"linstep": ["elapsed", 0, 10]}},
+          "@define": {"relax": {"live": {"linstep": ["elapsed", 0, 10]}}},
+          "@connections": [{"when": "layer.bounced", "then": "sprint_jump_right"}],
           "@tags": ["sprint_jump"]
         },
         "sprint_jump_left": {
@@ -354,7 +354,7 @@
                 "core:axis_rotate": {
                   "bone": "leftForeLeg",
                   "axis": "X",
-                  "angle": {"add": [{"mul": [{"pow": [{"clamp": ["relax", 0, 1]}, 0.25]}, -80]}, 80]}
+                  "angle": {"add": [{"mul": [{"pow": [{"clamp": ["node.relax", 0, 1]}, 0.25]}, -80]}, 80]}
                 },
                 "@space": "OVERRIDE"
               },
@@ -362,7 +362,7 @@
                 "core:axis_rotate": {
                   "bone": "rightForeLeg",
                   "axis": "X",
-                  "angle": {"mul": [{"pow": [{"clamp": ["relax", 0, 1]}, 0.25]}, 70]}
+                  "angle": {"mul": [{"pow": [{"clamp": ["node.relax", 0, 1]}, 0.25]}, 70]}
                 },
                 "@space": "OVERRIDE"
               },
@@ -376,8 +376,8 @@
               }
             ]
           },
-          "@connections": [{"when": "bounced", "then": "sprint_jump_left"}],
-          "@expressions": {"relax": {"linstep": ["elapsed", 0, 10]}},
+          "@define": {"relax": {"live": {"linstep": ["elapsed", 0, 10]}}},
+          "@connections": [{"when": "layer.bounced", "then": "sprint_jump_left"}],
           "@tags": ["sprint_jump"]
         },
         "falling": {
@@ -755,7 +755,7 @@
             "pose": [
               {
                 "core:accumulate": {
-                  "name": "deep",
+                  "inout": "node.deep",
                   "rate": {
                     "if": [
                       {
@@ -838,7 +838,7 @@
                 "core:axis_rotate": {
                   "bone": "leftArm",
                   "axis": "Y",
-                  "angle": {"mul": [{"easeInOut": [{"clamp": ["deep", 0, 1]}, 3]}, -90]}
+                  "angle": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, -90]}
                 },
                 "@space": "PRE"
               },
@@ -858,7 +858,7 @@
                 "core:axis_rotate": {
                   "bone": "rightArm",
                   "axis": "Y",
-                  "angle": {"mul": [{"easeInOut": [{"clamp": ["deep", 0, 1]}, 3]}, 90]}
+                  "angle": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, 90]}
                 },
                 "@space": "PRE"
               },
@@ -925,7 +925,7 @@
                 "core:axis_rotate": {
                   "bone": "head",
                   "axis": "X",
-                  "angle": {"mul": [{"easeInOut": [{"clamp": ["deep", 0, 1]}, 3]}, -80]}
+                  "angle": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, -80]}
                 },
                 "@space": "PRE"
               },
@@ -933,21 +933,22 @@
                 "core:axis_rotate": {
                   "bone": "renderRotation",
                   "axis": "X",
-                  "angle": {"mul": [{"easeInOut": [{"clamp": ["deep", 0, 1]}, 3]}, 80]}
+                  "angle": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, 80]}
                 },
                 "@space": "OVERRIDE"
               },
               {
                 "core:vector": {
                   "bone": "root",
-                  "y": {"mul": [{"easeInOut": [{"clamp": ["deep", 0, 1]}, 3]}, 14]},
-                  "z": {"mul": [{"easeInOut": [{"clamp": ["deep", 0, 1]}, 3]}, -20]}
+                  "y": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, 14]},
+                  "z": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, -20]}
                 },
                 "@damping": {"root": [null, 1.4, 1.4]},
                 "@vectorModes": {"root": "SLIDE"}
               }
             ]
           },
+          "@define": {"deep": {"state": 0}},
           "@tags": ["swimming"]
         },
         "ladder": {
@@ -1333,8 +1334,8 @@
     },
     {
       "@when": {"not": ["SLEEPING"]},
+      "@define": {"combo": {"state": 0}, "fist": {"state": 0}},
       "defaultOnEntry": "idle",
-      "variables": {"combo": 0, "fist": 0},
       "select": [
         {
           "when": {"mobends:use_action": ["food"]},
@@ -1370,8 +1371,16 @@
             ]
           },
           "then": [
-            {"when": {"mobends:attack_action": ["sword"]}, "then": "sword", "set": {"combo": 0}},
-            {"when": {"mobends:attack_action": ["fists"]}, "then": "fists", "set": {"fist": 0}},
+            {
+              "when": {"mobends:attack_action": ["sword"]},
+              "then": "sword",
+              "do": [{"set": ["layer.combo", 0]}]
+            },
+            {
+              "when": {"mobends:attack_action": ["fists"]},
+              "then": "fists",
+              "do": [{"set": ["layer.fist", 0]}]
+            },
             {"when": {"mobends:attack_action": ["tool"]}, "then": "tool"}
           ]
         }
@@ -1448,10 +1457,13 @@
           "core:pose": {
             "pose": [
               {
-                "core:clip": {"animationKey": "mobends:bends/animations/player/eat_arm_right.json", "frame": "bringUp"}
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/player/eat_arm_right.json",
+                  "frame": "node.bringUp"
+                }
               },
               {
-                "core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": {"mul": ["bringUp", -45]}},
+                "core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": {"mul": ["node.bringUp", -45]}},
                 "@space": "OVERRIDE"
               },
               {
@@ -1463,7 +1475,7 @@
               }
             ]
           },
-          "@expressions": {"bringUp": {"linstep": ["elapsed", 0, 6.666666666666667]}},
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}},
           "@tags": ["eating"]
         },
         "bow_right": {
@@ -1543,26 +1555,26 @@
           "core:pose": {
             "pose": [
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"mul": ["bringUp", -45]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"mul": ["node.bringUp", -45]}},
                 "@space": "OVERRIDE"
               },
               {
-                "core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": {"mul": ["bringUp", -45]}},
+                "core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": {"mul": ["node.bringUp", -45]}},
                 "@space": "OVERRIDE"
               }
             ]
           },
-          "@expressions": {"bringUp": {"linstep": ["elapsed", 0, 1.4285714285714286]}},
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}},
           "@tags": ["shield"]
         },
         "eat_left": {
           "core:pose": {
             "pose": [
               {
-                "core:clip": {"animationKey": "mobends:bends/animations/player/eat_arm_left.json", "frame": "bringUp"}
+                "core:clip": {"animationKey": "mobends:bends/animations/player/eat_arm_left.json", "frame": "node.bringUp"}
               },
               {
-                "core:axis_rotate": {"bone": "leftForeArm", "axis": "X", "angle": {"mul": ["bringUp", -45]}},
+                "core:axis_rotate": {"bone": "leftForeArm", "axis": "X", "angle": {"mul": ["node.bringUp", -45]}},
                 "@space": "OVERRIDE"
               },
               {
@@ -1574,7 +1586,7 @@
               }
             ]
           },
-          "@expressions": {"bringUp": {"linstep": ["elapsed", 0, 6.666666666666667]}},
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}},
           "@tags": ["eating"]
         },
         "bow_left": {
@@ -1654,23 +1666,23 @@
           "core:pose": {
             "pose": [
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"mul": ["bringUp", 45]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"mul": ["node.bringUp", 45]}},
                 "@space": "OVERRIDE"
               },
               {
-                "core:axis_rotate": {"bone": "leftForeArm", "axis": "X", "angle": {"mul": ["bringUp", -45]}},
+                "core:axis_rotate": {"bone": "leftForeArm", "axis": "X", "angle": {"mul": ["node.bringUp", -45]}},
                 "@space": "OVERRIDE"
               }
             ]
           },
-          "@expressions": {"bringUp": {"linstep": ["elapsed", 0, 1.4285714285714286]}},
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}},
           "@tags": ["shield"]
         }
       },
       "machines": {
         "sword": {
           "defaultOnEntry": "sword_idle",
-          "@expressions": {"attacked": {"decreased": ["ticksAfterAttack"]}},
+          "@define": {"attacked": {"live": {"decreased": ["ticksAfterAttack"]}}},
           "select": [
             {
               "when": {
@@ -1694,30 +1706,41 @@
             {"when": {"ge": ["ticksAfterAttack", 10]}, "then": "sword_idle"}
           ],
           "@connections": [
-            {"when": {"and": ["attacked", {"eq": ["combo", 0]}]}, "then": "slash_up", "set": {"combo": 1}},
-            {"when": {"and": ["attacked", {"eq": ["combo", 1]}]}, "then": "slash_down", "set": {"combo": 2}},
-            {"when": {"and": ["attacked", {"eq": ["combo", 2]}]}, "then": "slash_inward", "set": {"combo": 3}},
             {
-              "when": {"and": ["attacked", {"eq": ["combo", 3]}]},
-              "then": "slash_outward",
-              "set": {"combo": 4}
-            },
-            {
-              "when": {"and": ["attacked", {"eq": ["combo", 4]}, "CAN_SPIN_ATTACK"]},
-              "then": "slash_whirl",
-              "set": {"combo": 0}
-            },
-            {
-              "when": {"and": ["attacked", {"eq": ["combo", 4]}, {"not": ["CAN_SPIN_ATTACK"]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 0]}]},
               "then": "slash_up",
-              "set": {"combo": 1}
+              "do": [{"set": ["layer.combo", 1]}]
+            },
+            {
+              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 1]}]},
+              "then": "slash_down",
+              "do": [{"set": ["layer.combo", 2]}]
+            },
+            {
+              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 2]}]},
+              "then": "slash_inward",
+              "do": [{"set": ["layer.combo", 3]}]
+            },
+            {
+              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 3]}]},
+              "then": "slash_outward",
+              "do": [{"set": ["layer.combo", 4]}]
+            },
+            {
+              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 4]}, "CAN_SPIN_ATTACK"]},
+              "then": "slash_whirl",
+              "do": [{"set": ["layer.combo", 0]}]
+            },
+            {
+              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 4]}, {"not": ["CAN_SPIN_ATTACK"]}]},
+              "then": "slash_up",
+              "do": [{"set": ["layer.combo", 1]}]
             }
           ],
           "nodes": {
             "sword_idle": {
-              "core:pose": {
-                "pose": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "core:set": {"variable": "combo", "value": 0}}]
-              }
+              "core:pose": {"pose": []},
+              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
             },
             "stance": {
               "core:pose": {
@@ -1795,10 +1818,10 @@
                     },
                     "@damping": {"body": 1},
                     "@vectorModes": {"root": "SNAP"}
-                  },
-                  {"@when": {"gt": ["ticksAfterAttack", 20]}, "core:set": {"variable": "combo", "value": 0}}
+                  }
                 ]
               },
+              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]},
               "@tags": ["attack_stance"]
             },
             "stance_sprint": {
@@ -1822,10 +1845,10 @@
                     "core:clip": {"animationKey": "mobends:bends/animations/player/stance_sprint_pre.json"},
                     "@space": "PRE",
                     "@mirror": true
-                  },
-                  {"@when": {"gt": ["ticksAfterAttack", 20]}, "core:set": {"variable": "combo", "value": 0}}
+                  }
                 ]
               },
+              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]},
               "@tags": ["attack_stance_sprint"]
             },
             "slash_up": {
@@ -2233,7 +2256,7 @@
         },
         "fists": {
           "defaultOnEntry": "punch_left",
-          "@expressions": {"attacked": {"decreased": ["ticksAfterAttack"]}},
+          "@define": {"attacked": {"live": {"decreased": ["ticksAfterAttack"]}}},
           "select": [
             {
               "when": {"and": [{"ge": ["ticksAfterAttack", 10]}, {"lt": ["ticksAfterAttack", 60]}]},
@@ -2242,8 +2265,16 @@
             {"when": {"ge": ["ticksAfterAttack", 60]}, "then": "fists_idle"}
           ],
           "@connections": [
-            {"when": {"and": ["attacked", {"eq": ["fist", 0]}]}, "then": "punch_right", "set": {"fist": 1}},
-            {"when": {"and": ["attacked", {"eq": ["fist", 1]}]}, "then": "punch_left", "set": {"fist": 0}}
+            {
+              "when": {"and": ["machine.attacked", {"eq": ["layer.fist", 0]}]},
+              "then": "punch_right",
+              "do": [{"set": ["layer.fist", 1]}]
+            },
+            {
+              "when": {"and": ["machine.attacked", {"eq": ["layer.fist", 1]}]},
+              "then": "punch_left",
+              "do": [{"set": ["layer.fist", 0]}]
+            }
           ],
           "nodes": {
             "fists_idle": {"core:pose": {"pose": []}},

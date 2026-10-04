@@ -5,10 +5,12 @@ import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.BranchTemplate;
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
+import goblinbob.mobends.core.kumo.state.template.StatementTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +36,11 @@ public class Selector
      */
     public static Selector create(List<BranchTemplate> templates, MachineState machine, Map<String, MachineMember> membersByName, ExpressionScope scope) throws MalformedKumoTemplateException
     {
-        return new Selector(createBranches(templates, machine, membersByName, scope, 0F, ConnectionTemplate.Easing.EASE_IN_OUT, null));
+        return new Selector(createBranches(templates, machine, membersByName, scope, 0F, ConnectionTemplate.Easing.EASE_IN_OUT, Collections.<StatementTemplate>emptyList()));
     }
 
     private static List<Branch> createBranches(List<BranchTemplate> templates, MachineState machine, Map<String, MachineMember> membersByName, ExpressionScope scope,
-                                               float duration, ConnectionTemplate.Easing easing, @Nullable Map<String, Float> set) throws MalformedKumoTemplateException
+                                               float duration, ConnectionTemplate.Easing easing, List<StatementTemplate> enclosing) throws MalformedKumoTemplateException
     {
         List<Branch> branches = new ArrayList<>();
         for (BranchTemplate template : templates)
@@ -50,17 +52,18 @@ public class Selector
             Expression when = Expression.compileCondition(template.when, scope);
             float branchDuration = template.transitionDuration == null ? duration : template.transitionDuration;
             ConnectionTemplate.Easing branchEasing = template.transitionEasing == null ? easing : template.transitionEasing;
-            Map<String, Float> branchSet = set;
-            if (template.set != null && !template.set.isEmpty())
+            // What the enclosing branches run, then its own.
+            List<StatementTemplate> run = enclosing;
+            if (template.run != null && !template.run.isEmpty())
             {
-                branchSet = set == null ? new HashMap<String, Float>() : new HashMap<>(set);
-                branchSet.putAll(template.set);
+                run = new ArrayList<>(enclosing);
+                run.addAll(template.run);
             }
 
             if (template.branches != null)
             {
-                branches.add(new Branch(when, null, createBranches(template.branches, machine, membersByName, scope, branchDuration, branchEasing, branchSet),
-                                        branchDuration, branchEasing, scope.getVariables().layerAssignments(branchSet)));
+                branches.add(new Branch(when, null, createBranches(template.branches, machine, membersByName, scope, branchDuration, branchEasing, run),
+                                        branchDuration, branchEasing, StatementList.compile(run, scope)));
                 continue;
             }
             MachineMember target = membersByName.get(template.target);
@@ -72,7 +75,7 @@ public class Selector
             {
                 throw new MalformedKumoTemplateException(String.format("A selector branch of %s leads to '%s', which isn't one of its own nodes or machines.", machine.describe(), template.target));
             }
-            branches.add(new Branch(when, target, null, branchDuration, branchEasing, scope.getVariables().layerAssignments(branchSet)));
+            branches.add(new Branch(when, target, null, branchDuration, branchEasing, StatementList.compile(run, scope)));
         }
         return branches;
     }
@@ -139,17 +142,17 @@ public class Selector
         private final List<Branch> branches;
         private final float duration;
         private final ConnectionTemplate.Easing easing;
-        private final VariableTable.Assignments set;
+        private final StatementList run;
 
         private Branch(@Nullable Expression when, @Nullable MachineMember target, @Nullable List<Branch> branches,
-                       float duration, ConnectionTemplate.Easing easing, VariableTable.Assignments set)
+                       float duration, ConnectionTemplate.Easing easing, StatementList run)
         {
             this.when = when;
             this.target = target;
             this.branches = branches;
             this.duration = duration;
             this.easing = easing;
-            this.set = set;
+            this.run = run;
         }
 
         @Override
@@ -171,9 +174,9 @@ public class Selector
         }
 
         @Override
-        public VariableTable.Assignments getSet()
+        public StatementList getRun()
         {
-            return set;
+            return run;
         }
 
     }

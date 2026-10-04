@@ -25,7 +25,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
 
     public SpiderIdleLegsDriver(Skeleton skeleton, SpiderIdleLegsTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
-        super(skeleton, template.resetVariable, scope);
+        super(skeleton, template.reset, template.out, scope, "mobends:spider_idle_legs");
         this.partialTicks = scope.getVariables().read("partialTicks");
         this.ticksExisted = scope.getVariables().read("ticksExisted");
         if (template.feelLimbs != null)
@@ -85,7 +85,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
             }
         }
 
-        context.getNodeScope().set(groundLevelOut, ground);
+        publishGroundLevel(ground);
     }
 
 }

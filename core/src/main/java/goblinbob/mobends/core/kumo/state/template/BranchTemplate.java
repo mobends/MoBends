@@ -25,7 +25,7 @@ public class BranchTemplate
 
     public ConnectionTemplate.Easing transitionEasing;
 
-    /** Layer variables assigned when the branch moves the layer (after its enclosing branches' ones). */
-    public Map<String, Float> set;
+    /** Statements run when the branch is taken (JSON {@code do}), after its enclosing branches' ones. */
+    public List<StatementTemplate> run;
 
 }

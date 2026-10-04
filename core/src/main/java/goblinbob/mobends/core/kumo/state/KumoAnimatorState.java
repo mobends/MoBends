@@ -39,6 +39,9 @@ public class KumoAnimatorState
     private final Skeleton skeleton = new Skeleton();
     private final KumoContext context = new KumoContext();
     private final VariableTable variables = new VariableTable();
+    /** The animator's scope and each extension's: its definitions and statement lists, one per file. */
+    private final List<DefinitionScope> animatorScopes = new ArrayList<>();
+    private final List<List<ScopeLists>> animatorLists = new ArrayList<>();
     private final Pose pose;
     private boolean started = false;
     private final boolean[] layerTrusted;
@@ -77,15 +80,16 @@ public class KumoAnimatorState
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, boolean trusted, List<AnimatorTemplate> overlays, List<Boolean> overlaysTrusted,
                              IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
-        // Every scope of the animator, its extensions included, shares one table of variables.
+        // Every scope of the animator, its extensions included, shares one table of the entity's values.
         dataProvider = new ScopedInstancingContext(dataProvider, ExpressionScope.root(variables));
         List<LayerTemplate> layers = new ArrayList<>();
         List<IKumoInstancingContext> layerContexts = new ArrayList<>();
         List<Boolean> layersTrusted = new ArrayList<>();
-        collectLayers(animatorTemplate, trusted, dataProvider, 0, layers, layerContexts, layersTrusted);
+        addAnimator(animatorTemplate, trusted, dataProvider, layers, layerContexts, layersTrusted);
         for (int i = 0; i < overlays.size(); i++)
         {
-            collectLayers(overlays.get(i), overlaysTrusted.get(i), dataProvider, 0, layers, layerContexts, layersTrusted);
+            // An extension's animator is a scope of its own: it never sees the extended animator's names.
+            addAnimator(overlays.get(i), overlaysTrusted.get(i), dataProvider, layers, layerContexts, layersTrusted);
         }
         this.layerTrusted = new boolean[layers.size()];
         for (int i = 0; i < layers.size(); i++)
@@ -99,12 +103,9 @@ public class KumoAnimatorState
         }
         for (int i = 0; i < layers.size(); i++)
         {
-            LayerTemplate template = layers.get(i);
-            IKumoInstancingContext layerContext = layerContexts.get(i).withExpressions(template.expressions);
-            layerStates.add(new LayerState(layerContext, skeleton, template));
+            layerStates.add(new LayerState(layerContexts.get(i), skeleton, layers.get(i)));
         }
         context.setLayers(layerStates);
-        variables.link();
 
         // Every bone name is known once the layers are instanced.
         for (LayerState layer : layerStates)
@@ -128,17 +129,47 @@ public class KumoAnimatorState
     }
 
     /**
-     * Collects the parent's layers (via "extends") first, then this animator's own, each with the
-     * context it is instanced in: it sees the named expressions of the animator that declares it and
-     * of that animator's parents, so a child animator can use and shadow its parent's, never the
-     * other way around.
-     *
-     * @return The context of this animator's own declarations.
+     * Adds an animator (the main one or an extension): one scope for it and the animators it
+     * {@code extends}, whose definitions and statement lists come first, and its layers after
+     * theirs, each in the place of its own file (trusted or not).
      */
-    private static IKumoInstancingContext collectLayers(AnimatorTemplate template, boolean trusted, IKumoInstancingContext context, int depth,
-                                                        List<LayerTemplate> layers, List<IKumoInstancingContext> contexts, List<Boolean> layersTrusted) throws MalformedKumoTemplateException
+    private void addAnimator(AnimatorTemplate template, boolean trusted, IKumoInstancingContext context,
+                             List<LayerTemplate> layers, List<IKumoInstancingContext> contexts, List<Boolean> layersTrusted) throws MalformedKumoTemplateException
     {
-        IKumoInstancingContext animatorContext = context;
+        List<AnimatorTemplate> chain = new ArrayList<>();
+        List<Boolean> chainTrusted = new ArrayList<>();
+        collectChain(template, trusted, context, 0, chain, chainTrusted);
+
+        DefinitionScope scope = new DefinitionScope(DefinitionScope.Kind.ANIMATOR, "the animator");
+        for (int i = 0; i < chain.size(); i++)
+        {
+            scope.declare(chain.get(i).define, chainTrusted.get(i));
+        }
+        ExpressionScope place = context.getExpressionScope().inside(scope);
+        scope.compileIn(place);
+        List<ScopeLists> lists = new ArrayList<>();
+        for (int i = 0; i < chain.size(); i++)
+        {
+            ExpressionScope filePlace = place.trusted(chainTrusted.get(i));
+            lists.add(ScopeLists.compile(scope, chain.get(i).on, filePlace));
+            if (chain.get(i).layers != null)
+            {
+                for (LayerTemplate layer : chain.get(i).layers)
+                {
+                    layers.add(layer);
+                    contexts.add(context.withScope(filePlace));
+                    layersTrusted.add(chainTrusted.get(i));
+                }
+            }
+        }
+        animatorScopes.add(scope);
+        animatorLists.add(lists);
+    }
+
+    /** The animators {@code template} extends, the outermost first, then {@code template}. */
+    private static void collectChain(AnimatorTemplate template, boolean trusted, IKumoInstancingContext context, int depth,
+                                     List<AnimatorTemplate> chain, List<Boolean> chainTrusted) throws MalformedKumoTemplateException
+    {
         if (template.extendsAnimator != null)
         {
             if (depth > 8)
@@ -150,19 +181,10 @@ public class KumoAnimatorState
             {
                 throw new MalformedKumoTemplateException(String.format("Cannot resolve the animator to extend: '%s'.", template.extendsAnimator));
             }
-            animatorContext = collectLayers(parent, context.isTrusted(template.extendsAnimator), context, depth + 1, layers, contexts, layersTrusted);
+            collectChain(parent, context.isTrusted(template.extendsAnimator), context, depth + 1, chain, chainTrusted);
         }
-        animatorContext = animatorContext.withExpressions(template.expressions);
-        if (template.layers != null)
-        {
-            for (LayerTemplate layer : template.layers)
-            {
-                layers.add(layer);
-                contexts.add(animatorContext);
-                layersTrusted.add(trusted);
-            }
-        }
-        return animatorContext;
+        chain.add(template);
+        chainTrusted.add(trusted);
     }
 
     /** Whether every clip the layer's nodes play comes from a trusted source. */
@@ -237,6 +259,20 @@ public class KumoAnimatorState
             lastTrusted = null;
             pose.setFallbackValues(null);
         }
+        // The animators' scopes: created on the first frame, then their update lists every frame,
+        // before any layer.
+        context.enterNode(null);
+        for (int i = 0; i < animatorScopes.size(); i++)
+        {
+            if (started) animatorScopes.get(i).updateLive(context);
+            else animatorScopes.get(i).start(context);
+            for (ScopeLists lists : animatorLists.get(i))
+            {
+                if (started) lists.runUpdate(context);
+                else lists.runEnter(context);
+            }
+        }
+
         boolean measured = false;
         for (int i = 0; i < layerStates.size(); i++)
         {

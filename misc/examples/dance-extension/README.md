@@ -9,8 +9,8 @@ the sway, and the head nods. Walking or jumping stops the dance; it fades out an
 * `assets/mobends_dance/bends/extensions/`: the two extensions. An extension extends one type,
   so each mob gets its own file; both point at the same animator, which only uses bones cows and
   chickens both have (`head`, and the entity-level `globalOffset` and `renderRotation`).
-* `assets/mobends_dance/bends/animators/dance.json`: the layer. Named expressions on the animator
-  (`beat`, `sway`, `bounce`) keep the moves on one clock. The whole-body moves set the offset and
+* `assets/mobends_dance/bends/animators/dance.json`: the layer. Live definitions on the animator
+  (`animator.beat`, `animator.sway`, `animator.bounce`) keep the moves on one clock. The whole-body moves set the offset and
   tilt outright (nothing in the mobs' own animation touches them), so the `rest` node puts them
   back instead of being a `core:fallthrough` node. The nod is a `POST` rotation on top of the
   head the mob's own animation poses.

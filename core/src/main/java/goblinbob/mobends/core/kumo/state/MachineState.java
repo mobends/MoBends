@@ -38,6 +38,9 @@ public class MachineState
 
     private final MachineTemplate template;
     private final ExpressionScope scope;
+    /** A machine's own definitions and statement lists; null for a layer's own (they are the layer's). */
+    @Nullable
+    private final ScopeLists lists;
     /** Per node member: its template and the scope its connections see, for {@link #link}. */
     private final List<NodeTemplate> nodeTemplates = new ArrayList<>();
     private final List<ExpressionScope> nodeScopes = new ArrayList<>();
@@ -46,12 +49,27 @@ public class MachineState
      * Instances the machine's nodes and machines, and registers them by name; {@link #link} then
      * creates the selectors and connections, once every name of the layer is known.
      *
-     * @param context the context of the machine's own declarations
+     * @param context the place the machine is in (for a layer's own machine, the layer, whose
+     *                definitions it shares)
      */
     MachineState(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, MachineTemplate template, Map<String, MachineMember> membersByName) throws MalformedKumoTemplateException
     {
         this.name = template.name;
         this.template = template;
+        boolean trusted = context.getExpressionScope().isTrusted();
+        if (template.name != null)
+        {
+            DefinitionScope definitions = new DefinitionScope(DefinitionScope.Kind.MACHINE, describe());
+            definitions.declare(template.define, trusted);
+            ExpressionScope place = context.getExpressionScope().inside(definitions);
+            definitions.compileIn(place);
+            context = context.withScope(place);
+            this.lists = ScopeLists.compile(definitions, template.on, place);
+        }
+        else
+        {
+            this.lists = null;
+        }
         this.scope = context.getExpressionScope();
 
         List<NodeTemplate> nodes = template.nodes == null ? Collections.<NodeTemplate>emptyList() : template.nodes;
@@ -63,11 +81,14 @@ public class MachineState
 
         for (NodeTemplate nodeTemplate : nodes)
         {
-            IKumoInstancingContext nodeContext = context.withExpressions(nodeTemplate.expressions);
-            INodeState node = NodeRegistry.INSTANCE.createFromTemplate(nodeContext, skeleton, layer, nodeTemplate);
-            register(membersByName, new MachineMember(nodeTemplate.name, node, null, this));
+            DefinitionScope definitions = new DefinitionScope(DefinitionScope.Kind.NODE, String.format("the node '%s'", nodeTemplate.name));
+            definitions.declare(nodeTemplate.define, trusted);
+            ExpressionScope place = scope.inside(definitions);
+            definitions.compileIn(place);
+            INodeState node = NodeRegistry.INSTANCE.createFromTemplate(context.withScope(place), skeleton, layer, nodeTemplate);
+            register(membersByName, new MachineMember(nodeTemplate.name, node, ScopeLists.compile(definitions, nodeTemplate.on, place), null, this));
             nodeTemplates.add(nodeTemplate);
-            nodeScopes.add(nodeContext.getExpressionScope());
+            nodeScopes.add(place);
         }
         for (MachineTemplate machineTemplate : machines)
         {
@@ -75,9 +96,8 @@ public class MachineState
             {
                 throw new MalformedKumoTemplateException(String.format("%s has a null machine.", describe()));
             }
-            IKumoInstancingContext machineContext = context.withExpressions(machineTemplate.expressions);
-            MachineState machine = new MachineState(machineContext, skeleton, layer, machineTemplate, membersByName);
-            machine.member = new MachineMember(machineTemplate.name, null, machine, this);
+            MachineState machine = new MachineState(context, skeleton, layer, machineTemplate, membersByName);
+            machine.member = new MachineMember(machineTemplate.name, null, null, machine, this);
             register(membersByName, machine.member);
         }
     }
@@ -154,9 +174,16 @@ public class MachineState
         return member;
     }
 
-    /** Starts the conditions of the selector and connections over: the machine was entered. */
+    /**
+     * The machine was entered: its definitions take their values and its {@code enter} list runs,
+     * then the conditions of its selector and connections start over.
+     */
     void start(ITriggerConditionContext context)
     {
+        if (lists != null)
+        {
+            lists.enter(context);
+        }
         if (selector != null)
         {
             selector.start(context);
@@ -164,6 +191,24 @@ public class MachineState
         for (ConnectionState connection : connections)
         {
             connection.when.restart(context);
+        }
+    }
+
+    /** A frame the layer is in the machine (see {@link ScopeLists#update}). */
+    void update(ITriggerConditionContext context)
+    {
+        if (lists != null)
+        {
+            lists.update(context);
+        }
+    }
+
+    /** The machine was left, and the last of its nodes has faded out. */
+    void exit(ITriggerConditionContext context)
+    {
+        if (lists != null)
+        {
+            lists.exit(context);
         }
     }
 

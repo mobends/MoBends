@@ -19,7 +19,8 @@ runtime is put together.
 | `PoseNode` | `core/kumo/state/node` | A node: an ordered *pose stack* of items (clips, drivers), each with an optional `when`, a composition space and damping. |
 | `Pose` | `core/kumo/pose` | Per-bone rotation / offset / vector targets for one frame, bound to the subject's sinks by index. |
 | `Expression`, `ExpressionOperations` | `core/kumo/expr` | The expression language: every value and condition an animator computes, typed (number or boolean) and checked when the animator loads. |
-| `ExpressionScope` | `core/kumo/expr` | Named expressions, scoped lexically (animator → layer → machine → node). |
+| `ExpressionScope` | `core/kumo/expr` | What a place in an animator sees: the scopes around it, whose definitions it reads by scoped name (`layer.combo`), and the built-ins. |
+| `DefinitionScope`, `ScopeLists` | `core/kumo/state` | A scope's definitions (constant, state, live) and their values for the entity, and its `enter` / `update` / `exit` statement lists. |
 | `VariableTable` | `core/kumo/state` | The names an animator reads and writes, numbered when it is instanced and resolved against the entity on its first frame. |
 | `KumoAnimatorController` | `core/kumo` (mod) | Animates one entity data: loads the animator (and its extensions) through `AnimatorResources` and updates it each frame. A broken asset, or one that fails while animating, is logged once and the entity simply doesn't animate. |
 
@@ -63,8 +64,9 @@ itself is the outermost machine. Each has its runtime counterpart (`MachineState
    first; the first met fires.
 
 Every condition on the path is evaluated each frame, and nothing short-circuits, so edge
-triggers (`decreased`, `rose`, `fell`) never miss a frame. A named expression with an edge trigger
-is compiled anew for each use, so two uses keep separate memories.
+triggers (`decreased`, `rose`, `fell`) never miss a frame. A live definition is computed once a
+frame (one that remembers something, every frame its scope exists), so its memory is one,
+however many places read it.
 
 ## Where an Entity's Animator Comes From
 

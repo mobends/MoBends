@@ -1,7 +1,11 @@
 {
   "formatVersion": 2,
   "@comment": "One layer on top of a mob's own animator: while it stands still it bounces on every beat (120 BPM, a beat every 10 ticks), sways to one side per beat, tilts with the sway and nods. Every dancing mob keeps the same beat: it follows the game's tick clock.",
-  "@expressions": {"beat": {"mul": ["ticks", 0.31415927]}, "sway": {"sin": ["beat"]}, "bounce": {"abs": [{"sin": ["beat"]}]}},
+  "@define": {
+    "beat": {"live": {"mul": ["ticks", 0.31415927]}},
+    "sway": {"live": {"sin": ["animator.beat"]}},
+    "bounce": {"live": {"abs": [{"sin": ["animator.beat"]}]}}
+  },
   "layers": [
     {
       "select": [
@@ -26,16 +30,21 @@
           "core:pose": {
             "pose": [
               {
-                "core:vector": {"bone": "globalOffset", "x": {"mul": ["sway", 1.5]}, "y": {"mul": ["bounce", 2.5]}, "z": 0},
+                "core:vector": {
+                  "bone": "globalOffset",
+                  "x": {"mul": ["animator.sway", 1.5]},
+                  "y": {"mul": ["animator.bounce", 2.5]},
+                  "z": 0
+                },
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "Z", "angle": {"mul": ["sway", -8]}},
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "Z", "angle": {"mul": ["animator.sway", -8]}},
                 "@space": "OVERRIDE",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"mul": [{"sub": [1, "bounce"]}, 15]}},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"mul": [{"sub": [1, "animator.bounce"]}, 15]}},
                 "@space": "POST"
               }
             ]

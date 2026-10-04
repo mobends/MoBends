@@ -19,11 +19,15 @@ public final class MachineMember
     public final MachineState parent;
     /** A node's own connections (a machine keeps its own in the {@link MachineState}). */
     final List<ConnectionState> connections = new ArrayList<>();
+    /** A node's definitions and statement lists (a machine keeps its own in the {@link MachineState}). */
+    @Nullable
+    final ScopeLists scope;
 
-    MachineMember(String name, @Nullable INodeState node, @Nullable MachineState machine, MachineState parent)
+    MachineMember(String name, @Nullable INodeState node, @Nullable ScopeLists scope, @Nullable MachineState machine, MachineState parent)
     {
         this.name = name;
         this.node = node;
+        this.scope = scope;
         this.machine = machine;
         this.parent = parent;
     }

@@ -6,11 +6,14 @@ import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
-import goblinbob.mobends.core.kumo.state.VariableScope;
+import goblinbob.mobends.core.kumo.state.StateRef;
 import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.standard.data.SpiderData;
+
+import javax.annotation.Nullable;
+import java.util.Map;
 
 /** Shared plumbing of the spider leg drivers: bone slots, the kneel bounce, the reset hook, leg writes. */
 public abstract class SpiderLegsDriverBase implements IPoseItem
@@ -20,11 +23,13 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
 
     protected final int[] upperSlots = new int[LIMBS];
     protected final int[] lowerSlots = new int[LIMBS];
-    /** The layer variable that, set, puts the legs back to rest when a node starts; -1 for none. */
-    protected final int resetVariable;
+    /** The state that, set, puts the legs back to rest when a node starts; null for none. */
+    @Nullable
+    protected final StateRef reset;
     private final VariableTable.Read ticksAfterTouchdown;
-    /** The node variable the drivers publish the ground level in. */
-    protected final int groundLevelOut;
+    /** The state the drivers publish the ground level in; null for none. */
+    @Nullable
+    private final StateRef groundLevelOut;
 
     private final Quaternion yaw = new Quaternion();
     private final Quaternion bend = new Quaternion();
@@ -33,11 +38,15 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     protected final SpiderData.IKResult ik = new SpiderData.IKResult();
     protected final double[] angles = new double[2];
 
-    protected SpiderLegsDriverBase(Skeleton skeleton, String resetVariable, ExpressionScope scope) throws MalformedKumoTemplateException
+    protected SpiderLegsDriverBase(Skeleton skeleton, @Nullable String reset, @Nullable Map<String, String> out, ExpressionScope scope, String driver) throws MalformedKumoTemplateException
     {
         VariableTable variables = scope.getVariables();
         this.ticksAfterTouchdown = variables.read("ticksAfterTouchdown");
-        this.groundLevelOut = variables.nodeVariable("groundLevel");
+        if (out != null && !out.keySet().stream().allMatch("groundLevel"::equals))
+        {
+            throw new MalformedKumoTemplateException(driver + " has one output, 'groundLevel'.");
+        }
+        this.groundLevelOut = out == null || out.get("groundLevel") == null ? null : scope.resolveState(out.get("groundLevel"), driver + "'s output 'groundLevel'");
         for (int i = 0; i < LIMBS; i++)
         {
             upperSlots[i] = skeleton.indexOf("leg" + (i + 1));
@@ -47,12 +56,21 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
                 throw new MalformedKumoTemplateException("The spider leg drivers need bones leg1..8 and foreLeg1..8.");
             }
         }
-        this.resetVariable = resetVariable == null ? -1 : variables.layerVariable(resetVariable);
+        this.reset = reset == null ? null : scope.resolveState(reset, driver + "'s 'reset'");
     }
 
     protected static SpiderData subject(IKumoContext context)
     {
         return context.getSubject() instanceof SpiderData ? (SpiderData) context.getSubject() : null;
+    }
+
+    /** Publishes the ground level, if the driver has somewhere to. */
+    protected void publishGroundLevel(double ground)
+    {
+        if (groundLevelOut != null)
+        {
+            groundLevelOut.set(ground);
+        }
     }
 
     /** The landing bounce: a damped sine over the touchdown progress. */
@@ -87,14 +105,13 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     public void onNodeStarted(IKumoContext context)
     {
         SpiderData data = subject(context);
-        VariableScope layer = context.getLayerScope();
-        if (data != null && resetVariable >= 0 && layer.has(resetVariable) && layer.get(resetVariable) != 0)
+        if (data != null && reset != null && reset.get(context) != 0)
         {
             for (SpiderData.Limb limb : data.limbs)
             {
                 limb.resetPosition();
             }
-            layer.set(resetVariable, 0);
+            reset.set(0);
         }
     }
 

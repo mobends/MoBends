@@ -177,9 +177,9 @@ applies when the ones before it don't, so each branch states only its own condit
 stays in a node for as long as the tree keeps choosing it:
 
 ```json
-"@expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
+"@define": {"jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}},
 "select": [
-  {"when": "jumping", "then": "jump"},
+  {"when": "layer.jumping", "then": "jump"},
   {"when": "STANDING_STILL", "then": "stand"},
   {"then": "walk"}
 ]
@@ -188,7 +188,8 @@ stays in a node for as long as the tree keeps choosing it:
 A branch whose `then` is a list decides inside it (the player's airborne states: flying, falling,
 sprint-jumping, jumping). Leave out the last `then` to let a node hold on until a branch applies:
 a mob that starts walking above one speed and stops below a lower one keeps doing what it did in
-between. Name the conditions you use more than once (`@expressions`, then the name as a string).
+between. Name the conditions you use more than once: a live definition in the layer's `@define`,
+read as `layer.jumping`.
 A condition is an expression that is true or false: a state in capitals (`STANDING_STILL`), a
 comparison (`{"lt": ["ticksAfterTouchdown", 1]}`), `and`, `or`, `not` (see
 `misc/kumo-format.md`, *Expressions*).
@@ -217,17 +218,18 @@ variable the data class sets, and let it override or add to the base:
 Group the nodes of a sequence in a machine. The layer's selector picks the machine; the machine's
 own selector picks where to rest inside it, and its connections, which lead out of any of its
 nodes, play the sequence. To react to each new attack, use `decreased` on
-`ticksAfterAttack` (it drops to 0 on every swing) and count with layer variables set by the
+`ticksAfterAttack` (it drops to 0 on every swing) and count with a state of the layer set by the
 connection that fires:
 
 ```json
-"select": [{"when": {"mobends:attack_action": ["sword"]}, "then": "sword", "set": {"combo": 0}}],
+"@define": {"combo": {"state": 0}},
+"select": [{"when": {"mobends:attack_action": ["sword"]}, "then": "sword", "do": [{"set": ["layer.combo", 0]}]}],
 "machines": {"sword": {
   "defaultOnEntry": "sword_idle",
-  "@expressions": {"attacked": {"decreased": ["ticksAfterAttack"]}},
+  "@define": {"attacked": {"live": {"decreased": ["ticksAfterAttack"]}}},
   "select": [{"when": {"ge": ["ticksAfterAttack", 10]}, "then": "sword_idle"}],
   "@connections": [
-    {"when": {"and": ["attacked", {"eq": ["combo", 0]}]}, "then": "slash_up", "set": {"combo": 1}},
+    {"when": {"and": ["machine.attacked", {"eq": ["layer.combo", 0]}]}, "then": "slash_up", "do": [{"set": ["layer.combo", 1]}]},
     …
   ],
   "nodes": {"sword_idle": {…}, "slash_up": {…}, …}}}
@@ -235,8 +237,8 @@ connection that fires:
 
 The slashes aren't in the machine's selector, which chooses nothing while a slash plays (the
 first ten ticks), so the slash holds until the selector chooses `sword_idle` or the next attack
-fires a connection. Declare the variables on the layer (`"variables": {"combo": 0}`), and reset
-them with a `core:set` driver or a node's `@set` once the combo window has passed.
+fires a connection. Reset the count once the combo window has passed, with a statement in an
+`update` list: `{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}`.
 
 ### Left- and right-handed
 
@@ -257,13 +259,13 @@ turned by `headYaw` looks the same way for either hand.
 
 To raise an arm over a few ticks instead of snapping, weight a later item by a value that goes
 from 0 to 1. Over the first ticks of a node, that is a function of the node's clock:
-`{"linstep": ["elapsed", 0, 10]}` rises over ten ticks. Name it in the node's `@expressions` when
+`{"linstep": ["elapsed", 0, 10]}` rises over ten ticks. Name it in the node's `@define` when
 several items read it:
 
 ```json
 "raise": {
-  "core:pose": {"pose": [{"core:clip": {"animationKey": "…/raise.json", "weight": "lift"}}]},
-  "@expressions": {"lift": {"linstep": ["elapsed", 0, 10]}}
+  "core:pose": {"pose": [{"core:clip": {"animationKey": "…/raise.json", "weight": "node.lift"}}]},
+  "@define": {"lift": {"live": {"linstep": ["elapsed", 0, 10]}}}
 }
 ```
 
@@ -271,8 +273,11 @@ To go up while a condition holds and back down when it doesn't, accumulate a rat
 follows the condition, clamped to 0..1:
 
 ```json
-{"core:accumulate": {"name": "raise", "rate": {"if": ["SNEAKING", 0.1, -0.1]}, "min": 0, "max": 1}},
-{"core:clip": {"animationKey": "…/raise.json", "weight": "raise"}}
+"@define": {"raise": {"state": 0}},
+"core:pose": {"pose": [
+  {"core:accumulate": {"inout": "node.raise", "rate": {"if": ["SNEAKING", 0.1, -0.1]}, "min": 0, "max": 1}},
+  {"core:clip": {"animationKey": "…/raise.json", "weight": "node.raise"}}
+]}
 ```
 
 `core:accumulate` integrates any rate (a phase that slows down as it decays), and a procedural

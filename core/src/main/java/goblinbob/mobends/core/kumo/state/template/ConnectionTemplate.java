@@ -2,6 +2,7 @@ package goblinbob.mobends.core.kumo.state.template;
 
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
+import java.util.List;
 import java.util.Map;
 
 public class ConnectionTemplate
@@ -18,8 +19,8 @@ public class ConnectionTemplate
 
     public Easing transitionEasing = Easing.EASE_IN_OUT;
 
-    /** Layer variables assigned when this connection fires (before the target node starts). */
-    public Map<String, Float> set;
+    /** Statements run when the connection fires (JSON {@code do}), before the scopes it enters start. */
+    public List<StatementTemplate> run;
 
     public enum Easing
     {

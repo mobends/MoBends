@@ -2,8 +2,12 @@
   "formatVersion": 2,
   "layers": [
     {
-      "@expressions": {"jumping": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
-      "select": [{"when": "jumping", "then": "jump"}, {"when": "STANDING_STILL", "then": "stand"}, {"then": "walk"}],
+      "@define": {"jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}},
+      "select": [
+        {"when": "layer.jumping", "then": "jump"},
+        {"when": "STANDING_STILL", "then": "stand"},
+        {"then": "walk"}
+      ],
       "nodes": {
         "stand": {
           "core:pose": {

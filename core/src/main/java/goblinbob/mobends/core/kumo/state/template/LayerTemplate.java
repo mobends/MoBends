@@ -25,8 +25,6 @@ public class LayerTemplate extends MachineTemplate
     /** Optional condition; while it does not hold the layer writes nothing (bones hold their targets). */
     public ExpressionTemplate when;
 
-    /** Layer variables with their initial values (e.g. a combo counter); nodes can set them on entry. */
-    public Map<String, Float> variables;
 
     /** Left-right mirroring rule for items that set {@code "@mirror": true}. */
     public MirrorTemplate mirror;

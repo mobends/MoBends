@@ -3,15 +3,16 @@ package goblinbob.mobends.core.kumo.state.template.pose;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 /**
- * {@code {"core:spring": {...}}}: a node-local variable that follows {@code target} like a mass
- * on a spring, so it lags, overshoots and settles: follow-through of limbs that hang (arms that
- * swing after the body turns, a head that nods after a landing). Starts at {@code initial}, at
- * rest, when the node is entered.
+ * {@code {"core:spring": {...}}}: a state (named by {@code inout}) that follows {@code target}
+ * like a mass on a spring, so it lags, overshoots and settles: follow-through of limbs that hang
+ * (arms that swing after the body turns, a head that nods after a landing). Its velocity is the
+ * spring's own, at rest when the node is entered; the value starts where its state does.
  */
 public class SpringTemplate extends DriverItemTemplate
 {
 
-    public String name;
+    /** The state it steps (a number state, e.g. {@code node.armLag}). */
+    public String inout;
 
     /** What the value is pulled towards; an expression. */
     public ExpressionTemplate target;
@@ -24,7 +25,5 @@ public class SpringTemplate extends DriverItemTemplate
      * {@code damping}, which every item has for the bones it writes.)
      */
     public float friction = 0.4F;
-
-    public float initial = 0;
 
 }

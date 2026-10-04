@@ -1,7 +1,6 @@
 package goblinbob.mobends.test.core.math;
 
 import goblinbob.mobends.core.kumo.pose.PoseMath;
-import goblinbob.mobends.core.kumo.state.VariableScope;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import org.junit.Test;
@@ -67,24 +66,6 @@ public class SmoothingTest
         Quaternion product = new Quaternion();
         Quaternion.mul(q, inverse, product);
         assertEquals(0F, angleBetween(new Quaternion(), product), 0.1F);
-    }
-
-    @Test
-    public void variableScopeGrowsAndKeepsValues()
-    {
-        VariableScope scope = new VariableScope();
-        for (int i = 0; i < 10; i++)
-        {
-            scope.set(i, i);
-        }
-        scope.set(3, 30);
-        assertEquals(30, scope.get(3), 0);
-        assertEquals(9, scope.get(9), 0);
-        assertFalse(scope.has(12));
-        assertEquals(0, scope.get(12), 0);
-        scope.set(20, 5);
-        assertTrue(scope.has(20));
-        assertFalse("growing doesn't write the variables in between", scope.has(15));
     }
 
 }

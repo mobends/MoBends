@@ -9,7 +9,6 @@ import goblinbob.mobends.core.kumo.state.template.pose.AccumulateTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.AxisRotateTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.OffsetTemplate;
-import goblinbob.mobends.core.kumo.state.template.pose.SetTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.SpringTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.StepTurnTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.VectorTemplate;
@@ -32,7 +31,6 @@ public class DriverRegistry
     {
         register("core:axis_rotate", AxisRotateDriver::create, AxisRotateTemplate.class);
         register("core:vector", VectorDriver::create, VectorTemplate.class);
-        register("core:set", SetDriver::create, SetTemplate.class);
         register("core:accumulate", AccumulateDriver::create, AccumulateTemplate.class);
         register("core:offset", OffsetDriver::create, OffsetTemplate.class);
         register("core:spring", SpringDriver::create, SpringTemplate.class);
