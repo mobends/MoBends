@@ -9,7 +9,7 @@
       "additiveSpace": "POST",
       "@define": {"step": {"live": {"mul": ["limbSwing", 0.6662, 2]}}},
       "select": [
-        {"when": {"core:action": ["walk"]}, "then": "walk", "transitionDuration": 4},
+        {"when": "animator.walking", "then": "walk", "transitionDuration": 4},
         {"then": "still", "transitionDuration": 4}
       ],
       "nodes": {

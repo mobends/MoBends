@@ -85,7 +85,6 @@ node is in *Choosing the node*.
   },
   "@define": {"stride": {"live": {"mul": ["limbSwing", 2]}}},
   "@on": {"enter": [{"set": ["layer.combo", 0]}]},
-  "@tags": ["walk"],
   "@connections": [{"when": "layer.bounced", "then": "jump"}]
 }
 ```
@@ -93,7 +92,6 @@ node is in *Choosing the node*.
 * The node's one key without `@` is its type: `core:pose`, `core:fallthrough` or
   `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
   `snapOnEnter`, `damping`); the other two pose nothing and take `{}`.
-* `@tags` are the layer's *actions* (`core:action` sees them, in every layer).
 * `@define` and `@on` are the node's definitions and statement lists (see *Definitions and
   statements*): `node.` names, and what runs when the node is entered, every frame it is posed
   and when it is left.
@@ -104,7 +102,7 @@ node is in *Choosing the node*.
   its connections, before its selector chooses. A layer's own `@when` starts with the layer, and
   its selector and connections as a machine's: the layer is entered when it starts (see
   *Machines*).
-* A `core:fallthrough` node poses nothing, so the layers below show through; it has tags,
+* A `core:fallthrough` node poses nothing, so the layers below show through; it has
   connections, definitions and statement lists like any node. A transition into or out of it fades between
   the layer's pose and the one below: what one side poses and the other doesn't is blended
   against the layers below (a full rotation, offset or vector as they have it; a PRE / POST
@@ -115,12 +113,12 @@ node is in *Choosing the node*.
   player's first-person hand is vanilla too. The animator keeps running underneath, so its
   layer still decides its node every frame and leaving the node brings the animated model back
   where it would have been. The switch is immediate: the two models can't be blended. It poses nothing
-  and has tags, connections, definitions and statement lists like any node. It is meant for extensions
+  and has connections, definitions and statement lists like any node. It is meant for extensions
   that bring back animations made for the vanilla model (another mod's, say) while a condition
   holds:
 
   ```json
-  "select": [{"when": {"core:action": ["..."]}, "then": "theirs"}, {"then": "animated"}],
+  "select": [{"when": "IN_WATER", "then": "theirs"}, {"then": "animated"}],
   "nodes": {
     "animated": {"core:fallthrough": {}},
     "theirs": {"core:vanilla": {}}
@@ -502,7 +500,6 @@ connections, a layer for its `@when`. `{"decreased": ["ticksAfterAttack"]}` hold
 | `core:holds_any_item` | `[hand]` | the hand holds anything |
 | `core:active_hand_side` | `[side]`: `left` or `right` | the hand on that side is using an item |
 | `core:equipment_name` | `[slot, pattern]`: `mainhand`, `offhand`, `head`, `chest`, `legs`, `feet`, and a regular expression | the display name of what a player has in the slot matches the pattern as a whole |
-| `core:action` | `[tag]` | any layer's current node carries the tag |
 | `mobends:use_action` | `[action]`: `food`, `bow` or `shield` | the item in use is used as that (Mo' Bends' classification, which the config can change) |
 | `mobends:attack_action` | `[action]`: `fists`, `sword` or `tool` | the held item attacks as that |
 
@@ -584,6 +581,18 @@ leaves without a crossfade, or whose crossfade a transition cuts short, is dispo
 A selector branch and a connection have a list of their own, `do`, run when they move the layer.
 A statement is `{"set": ["<state>", <value>]}`, with an optional `@when`: it sets the state to the
 value (an expression of the state's type) while the condition holds.
+
+**Following another layer's choice.** A layer that depends on what another layer chose reads a
+definition, never the other layer's node:
+
+* A choice without memory (a function of the frame's state, such as a selector whose every list
+  ends with a branch that always holds) is a live definition both layers read: the choosing
+  layer's selector, and every layer that follows it. The player's upper-body layers follow its
+  locomotion through `animator.standing`, `animator.walking` and `animator.sprinting`, each the
+  conditions under which the locomotion selector chooses that node.
+* A choice with memory (a selector that holds its node in a dead band, connections, timers) is a
+  state the choosing layer publishes, set in the `enter` lists of its nodes (not their `exit`
+  lists, which run only when a crossfade ends): the iron golem's `animator.inJump`.
 
 **Who may set what.** A statement sets a state of its own scope or of a scope around it (a node
 can set its layer's or its animator's). A file from a resource pack may only set (or have its
@@ -865,8 +874,8 @@ own animation and with other packs' extensions. Extension files are found like t
   id; the first one goes on top, so its layers are added last. Every extension starts at rank 0;
   only the user sets ranks (see *User control*).
 * An extension's animator is an animator of its own: it can `extends` another, and it has its own
-  `animator.` scope, not that of the animator it extends. Its conditions see every layer, so
-  `core:action` can follow the extended animator's nodes by their tags.
+  `animator.` scope, not that of the animator it extends. What it follows of the mob is what the
+  entity gives every animator (its variables and states).
 * An extension targets a type, not an entity: it applies wherever that type is chosen, and not
   when another type wins (see *Precedence*). A type with another model or animator needs its own
   extensions.

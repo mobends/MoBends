@@ -21,8 +21,8 @@ public class NodeTemplateSerializer implements JsonDeserializer<NodeTemplate>
 {
 
     /** The keys every node has whatever its type, and the template fields they are read into. */
-    private static final Map<String, String> SCOPE_KEYS = JsonReading.with(JsonReading.with(JsonReading.with(JsonReading.with(
-            JsonReading.same(), "@connections", "connections"), "@define", "define"), "@on", "on"), "@tags", "tags");
+    private static final Map<String, String> SCOPE_KEYS = JsonReading.with(JsonReading.with(JsonReading.with(
+            JsonReading.same(), "@connections", "connections"), "@define", "define"), "@on", "on");
 
     @Override
     public NodeTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException

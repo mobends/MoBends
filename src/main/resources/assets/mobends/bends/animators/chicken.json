@@ -1,10 +1,10 @@
 {
   "formatVersion": 2,
+  "@define": {"jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}},
   "layers": [
     {
-      "@define": {"jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}},
       "select": [
-        {"when": "layer.jumping", "then": "jump"},
+        {"when": "animator.jumping", "then": "jump"},
         {"when": "STANDING_STILL", "then": "stand"},
         {"then": "walk"}
       ],
@@ -40,8 +40,7 @@
                 "@damping": {"leftWing": 1}
               }
             ]
-          },
-          "@tags": ["stand"]
+          }
         },
         "walk": {
           "core:pose": {
@@ -71,8 +70,7 @@
                 "@damping": {"leftWing": 1}
               }
             ]
-          },
-          "@tags": ["walk"]
+          }
         },
         "jump": {
           "core:pose": {
@@ -98,8 +96,7 @@
                 "@damping": {"leftWing": 1}
               }
             ]
-          },
-          "@tags": ["jump"]
+          }
         }
       }
     }

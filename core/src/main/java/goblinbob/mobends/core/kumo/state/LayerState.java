@@ -84,7 +84,7 @@ public class LayerState
         Map<String, MachineMember> membersByName = new HashMap<>();
         this.machine = new MachineState(context, skeleton, layerTemplate, layerTemplate, membersByName);
         machine.link(membersByName);
-        // Until the layer starts (see start), what the layers before it see of it (core:action).
+        // Where the layer stands until it starts (see start).
         moveTo(machine.initialNode());
     }
 
@@ -129,12 +129,6 @@ public class LayerState
     public float getElapsedTicks()
     {
         return elapsedTicks;
-    }
-
-    /** The tags of the layer's current node. */
-    public Collection<String> getActions()
-    {
-        return currentNode.getTags();
     }
 
     public INodeState getCurrentNode()

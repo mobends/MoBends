@@ -1,5 +1,50 @@
 {
   "formatVersion": 2,
+  "@define": {
+    "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
+    "bounced": {"live": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}},
+    "standing": {
+      "live": {
+        "and": [
+          {"not": ["SLEEPING"]},
+          {"not": ["RIDING"]},
+          {"not": ["ELYTRA_FLYING"]},
+          {"not": ["CLIMBING"]},
+          {"not": ["IN_WATER"]},
+          {"not": ["animator.jumping"]},
+          "STANDING_STILL"
+        ]
+      }
+    },
+    "walking": {
+      "live": {
+        "and": [
+          {"not": ["SLEEPING"]},
+          {"not": ["RIDING"]},
+          {"not": ["ELYTRA_FLYING"]},
+          {"not": ["CLIMBING"]},
+          {"not": ["IN_WATER"]},
+          {"not": ["animator.jumping"]},
+          {"not": ["STANDING_STILL"]},
+          {"not": ["SPRINTING"]}
+        ]
+      }
+    },
+    "sprinting": {
+      "live": {
+        "and": [
+          {"not": ["SLEEPING"]},
+          {"not": ["RIDING"]},
+          {"not": ["ELYTRA_FLYING"]},
+          {"not": ["CLIMBING"]},
+          {"not": ["IN_WATER"]},
+          {"not": ["animator.jumping"]},
+          {"not": ["STANDING_STILL"]},
+          "SPRINTING"
+        ]
+      }
+    }
+  },
   "layers": [
     {
       "defaultOnEntry": "reset",
@@ -10,10 +55,6 @@
       }
     },
     {
-      "@define": {
-        "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
-        "bounced": {"live": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}}
-      },
       "select": [
         {"when": "SLEEPING", "then": "sleeping"},
         {"when": "RIDING", "then": [{"when": "RIDING_LIVING", "then": "riding"}, {"then": "sitting"}]},
@@ -21,7 +62,7 @@
         {"when": "CLIMBING", "then": "ladder"},
         {"when": "IN_WATER", "then": "swimming"},
         {
-          "when": "layer.jumping",
+          "when": "animator.jumping",
           "then": [
             {"when": "FLYING", "then": "flying"},
             {"when": {"gt": ["ticksFalling", 10]}, "then": "falling"},
@@ -73,8 +114,7 @@
                 "core:clip": {"animationKey": "mobends:bends/animations/biped/stand_enter.json"}
               }
             ]
-          },
-          "@tags": ["stand"]
+          }
         },
         "walk": {
           "core:pose": {
@@ -145,8 +185,7 @@
                 "@space": "POST"
               }
             ]
-          },
-          "@tags": ["walk"]
+          }
         },
         "sprint": {
           "core:pose": {
@@ -211,8 +250,7 @@
                 "@space": "POST"
               }
             ]
-          },
-          "@tags": ["sprint"]
+          }
         },
         "jump": {
           "core:pose": {
@@ -269,8 +307,7 @@
             ],
             "enterPose": [{"core:clip": {"animationKey": "mobends:bends/animations/biped/jump_enter.json"}}]
           },
-          "@connections": [{"when": "layer.bounced", "then": "jump"}],
-          "@tags": ["jump"]
+          "@connections": [{"when": "animator.bounced", "then": "jump"}]
         },
         "sprint_jump_right": {
           "core:pose": {
@@ -323,8 +360,7 @@
             ]
           },
           "@define": {"relax": {"live": {"linstep": ["elapsed", 0, 10]}}},
-          "@connections": [{"when": "layer.bounced", "then": "sprint_jump_right"}],
-          "@tags": ["sprint_jump"]
+          "@connections": [{"when": "animator.bounced", "then": "sprint_jump_right"}]
         },
         "sprint_jump_left": {
           "core:pose": {
@@ -377,8 +413,7 @@
             ]
           },
           "@define": {"relax": {"live": {"linstep": ["elapsed", 0, 10]}}},
-          "@connections": [{"when": "layer.bounced", "then": "sprint_jump_left"}],
-          "@tags": ["sprint_jump"]
+          "@connections": [{"when": "animator.bounced", "then": "sprint_jump_left"}]
         },
         "falling": {
           "core:pose": {
@@ -412,8 +447,7 @@
                 "@damping": {"head": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]}}
               }
             ]
-          },
-          "@tags": ["falling"]
+          }
         },
         "flying": {
           "core:pose": {
@@ -747,8 +781,7 @@
                 "@space": "POST"
               }
             ]
-          },
-          "@tags": ["flying"]
+          }
         },
         "swimming": {
           "core:pose": {
@@ -948,8 +981,7 @@
               }
             ]
           },
-          "@define": {"deep": {"state": 0}},
-          "@tags": ["swimming"]
+          "@define": {"deep": {"state": 0}}
         },
         "ladder": {
           "core:pose": {
@@ -1007,8 +1039,7 @@
                 "@damping": {"leftForeArm": 0.5, "rightForeArm": 0.5}
               }
             ]
-          },
-          "@tags": ["ladder_climb"]
+          }
         },
         "elytra": {
           "core:pose": {
@@ -1053,8 +1084,7 @@
                 "@space": "PRE"
               }
             ]
-          },
-          "@tags": ["elytra"]
+          }
         },
         "riding": {
           "core:pose": {
@@ -1112,8 +1142,7 @@
                 "@space": "PRE"
               }
             ]
-          },
-          "@tags": ["riding"]
+          }
         },
         "sitting": {
           "core:pose": {
@@ -1125,8 +1154,7 @@
               {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
               {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
             ]
-          },
-          "@tags": ["sitting"]
+          }
         },
         "sleeping": {
           "core:pose": {
@@ -1150,18 +1178,12 @@
                 "@vectorModes": {"root": "SLIDE", "localOffset": "SLIDE"}
               }
             ]
-          },
-          "@tags": ["sleeping"]
+          }
         }
       }
     },
     {
-      "@when": {
-        "and": [
-          "SNEAKING",
-          {"or": [{"core:action": ["stand"]}, {"core:action": ["walk"]}, {"core:action": ["sprint"]}]}
-        ]
-      },
+      "@when": {"and": ["SNEAKING", {"or": ["animator.standing", "animator.walking", "animator.sprinting"]}]},
       "defaultOnEntry": "sneak",
       "nodes": {
         "sneak": {
@@ -1212,15 +1234,14 @@
                 "@space": "PRE"
               }
             ]
-          },
-          "@tags": ["sneak"]
+          }
         }
       }
     },
     {
       "@when": {
         "and": [
-          {"or": [{"core:action": ["stand"]}, {"core:action": ["walk"]}]},
+          {"or": ["animator.standing", "animator.walking"]},
           {
             "or": [
               {"core:holds_item": ["main_hand", "minecraft:torch"]},
@@ -1327,8 +1348,7 @@
                 "core:clip": {"animationKey": "mobends:bends/animations/player/torch_forearm_right.json"}
               }
             ]
-          },
-          "@tags": ["torch_holding"]
+          }
         }
       }
     },
@@ -1450,8 +1470,7 @@
                 "@swapSides": true
               }
             ]
-          },
-          "@tags": ["tool"]
+          }
         },
         "eat_right": {
           "core:pose": {
@@ -1475,8 +1494,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}},
-          "@tags": ["eating"]
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}}
         },
         "bow_right": {
           "core:pose": {
@@ -1548,8 +1566,7 @@
                 "@space": "OVERRIDE"
               }
             ]
-          },
-          "@tags": ["bow"]
+          }
         },
         "shield_right": {
           "core:pose": {
@@ -1564,8 +1581,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}},
-          "@tags": ["shield"]
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}}
         },
         "eat_left": {
           "core:pose": {
@@ -1586,8 +1602,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}},
-          "@tags": ["eating"]
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}}
         },
         "bow_left": {
           "core:pose": {
@@ -1659,8 +1674,7 @@
                 "@space": "OVERRIDE"
               }
             ]
-          },
-          "@tags": ["bow"]
+          }
         },
         "shield_left": {
           "core:pose": {
@@ -1675,8 +1689,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}},
-          "@tags": ["shield"]
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}}
         }
       },
       "machines": {
@@ -1821,8 +1834,7 @@
                   }
                 ]
               },
-              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]},
-              "@tags": ["attack_stance"]
+              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
             },
             "stance_sprint": {
               "core:pose": {
@@ -1848,8 +1860,7 @@
                   }
                 ]
               },
-              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]},
-              "@tags": ["attack_stance_sprint"]
+              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
             },
             "slash_up": {
               "core:pose": {
@@ -1923,8 +1934,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["attack_slash_up"]
+              }
             },
             "slash_inward": {
               "core:pose": {
@@ -1998,8 +2008,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["attack_slash_inward"]
+              }
             },
             "slash_down": {
               "core:pose": {
@@ -2075,8 +2084,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["attack_slash_down"]
+              }
             },
             "slash_outward": {
               "core:pose": {
@@ -2155,8 +2163,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["attack_slash_outward"]
+              }
             },
             "slash_whirl": {
               "core:pose": {
@@ -2249,8 +2256,7 @@
                     "@damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3}
                   }
                 ]
-              },
-              "@tags": ["attack_whirl_slash"]
+              }
             }
           }
         },
@@ -2311,8 +2317,7 @@
                     "@damping": {"body": 0.6}
                   }
                 ]
-              },
-              "@tags": ["punch"]
+              }
             },
             "punch_left": {
               "core:pose": {
@@ -2347,8 +2352,7 @@
                     "@damping": {"body": 0.6}
                   }
                 ]
-              },
-              "@tags": ["punch"]
+              }
             },
             "fist_guard": {
               "core:pose": {
@@ -2403,8 +2407,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["fist_guard"]
+              }
             }
           }
         }

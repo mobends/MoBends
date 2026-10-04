@@ -172,7 +172,7 @@ public class DefinedModelsTest
             }
             if (frame == 140)
             {
-                walked = animator.getActions().contains("walk");
+                walked = animator.getCurrentNodes().contains("walk");
             }
         }
         assertTrue(moved > 0.05, name + ": the leg '" + leg + "' did not move while walking (max quaternion change " + moved + ")");

@@ -215,31 +215,6 @@ come: the entity's `update` list, which runs first in a frame (*Entity-level def
 `nodeIsFadingOut`, with which a statement in the `update` list of a node fading out can opt out
 of setting a state the current node sets too.
 
-### Following another layer's choice
-
-A layer that depends on what another layer chose reads a definition, never the other layer's
-node:
-
-- **A choice without memory** (a function of current inputs) is a live definition, used by the
-  choosing layer's selector and by every layer that follows it:
-
-  ```json
-  "@define": {"walking": {"live": {"and": [{"not": ["animator.jumping"]}, {"not": ["entityIsStandingStill"]}]}}},
-  "select": [{"when": "animator.jumping", "then": "jump"}, {"when": "animator.walking", "then": "walk"}, {"then": "stand"}]
-  ```
-- **A choice with memory** (a selector that holds its node in a dead band, connections, timers)
-  is state the choosing layer publishes, set when the node is entered (or in the taken branch's
-  own list). Not in the `exit` list: that runs only when the crossfade ends.
-
-  ```json
-  "@define": {"onFeet": {"state": true}},
-  "nodes": {
-    "jump":  {"core:pose": {...}, "@on": {"enter": [{"set": ["animator.onFeet", false]}]}},
-    "walk":  {"core:pose": {...}, "@on": {"enter": [{"set": ["animator.onFeet", true]}]}},
-    "stand": {"core:pose": {...}, "@on": {"enter": [{"set": ["animator.onFeet", true]}]}}
-  }
-  ```
-
 ### Extensions
 
 An extension's animator is a scope of its own: its `animator.` names are its own, so extensions
@@ -603,10 +578,6 @@ Named expressions are live definitions, layer and node variables states, `set` m
 The old `field` list in model definitions meant fallback names (the first that exists); a `field`
 path now means a chain of fields, and fallbacks are the `fallback` option.
 
-### Scope keys under `@`
-
-Done but for a node's `@tags`, which go with tags (*Tags are removed*).
-
 ### Ramps, springs and accumulators
 
 `core:ramp` is gone (done): the timer ramps (`relax`, `bringUp`, `bringUpPrev`) are `linstep`
@@ -614,29 +585,6 @@ over the node's clock, named in the node's expressions, and the switching ramps 
 `deep`) accumulators clamped to 0..1 with a signed rate; `readBeforeAdvance` went with them. A
 ramp stepped before the items after it read it, so the eating and shield animations moved a frame
 later, and `deep`, which read before advancing, a frame earlier (their goldens re-recorded).
-
-### Tags are removed
-
-A node's `tags` were its layer's *actions*; `core:action` (`{"type": "core:action", "tag": "jump"}`)
-held while any layer's current node had the tag (`KumoContext.isActionActive`, over
-`LayerState.getActions()`, the current node's tags). It let one layer follow another's choice, and
-extensions follow the animator they extend. Its quirks: a node fading out no longer counted; a
-disabled layer (its `when` false) still did; a layer reading a later layer's tags saw that layer's
-node from the previous frame; a misspelt or renamed tag silently never held.
-
-`tags` and `core:action` go away for definitions (*Following another layer's choice*), and
-extensions follow what the type publishes at entity level (*Extensions*). The 12 shipped uses:
-
-| where | tag | what for | becomes |
-|---|---|---|---|
-| `player.json` (5) | `stand`, `walk`, `sprint` | the upper-body layers follow the locomotion layer | live definitions shared with the locomotion selector (its chain has no connections out of these nodes) |
-| `pig_zombie.json` (4) | `stand`, `walk` | the hunch layer's selector and two items | live definitions |
-| `skeleton.json` (1) | `walk` | a layer `when` | a live definition |
-| `cow.json` (1) | `walk` | its selector follows `quadruped.json`'s walk node, which it `extends` | a live definition (`quadruped`'s selector is `jumping → jump; STANDING_STILL → stand; else walk`, no memory) |
-| `iron_golem.json` (1) | `jump` | the `onFeet` ramp falls while the jump node is current | state published by the locomotion layer: its selector holds walk or stand in a dead band (`walkStart` / `walkStop`), and its jump node leaves through a connection |
-
-`cow.json` shares `quadruped.json`'s `animator.` scope (*`extends`*), so it reads the walk
-definition `quadruped.json` declares.
 
 ### Drivers
 
@@ -1029,7 +977,7 @@ the additive and smaller ones.
    order in a frame and on a transition, who may set what, and the trust rule.
 6. [x] **The one-key syntax**: pose items and nodes as one key plus `@` modifiers, `@connections`
    and `@when` on scopes, `{"when", "then"}` connections, `@comment` everywhere, unknown keys a
-   load error. `@fallback` comes with task 12, the removal of `@tags` with 17.
+   load error. `@fallback` comes with task 12.
 
 **Built-ins and operations**
 
@@ -1065,8 +1013,7 @@ the additive and smaller ones.
     (*`extends`*, *Extensions*).
 16. [x] **Mirroring without `negate`** (`misc/kumo-format.md`, *Mirroring*). The rule's `@when`
     comes with the one-key syntax (task 6).
-17. [ ] **Remove tags and `core:action`**, following other layers through definitions (*Tags are
-    removed*).
+17. [x] **Remove tags and `core:action`**, following other layers through definitions.
 
 **Migrating content**
 

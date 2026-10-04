@@ -109,7 +109,7 @@ public class DanceExtensionTest
 
             if (frame >= 30 && frame < 90)
             {
-                assertTrue(animator.getActions().contains("dance"), mob + ": not dancing on frame " + frame);
+                assertTrue(animator.getCurrentNodes().contains("dance"), mob + ": not dancing on frame " + frame);
                 minX = Math.min(minX, data.globalOffset.getX());
                 maxX = Math.max(maxX, data.globalOffset.getX());
                 minY = Math.min(minY, data.globalOffset.getY());
@@ -119,7 +119,7 @@ public class DanceExtensionTest
         assertTrue(maxY > 2 && minY > -0.01, String.format("%s bounces up on the beat: y in [%.2f, %.2f]", mob, minY, maxY));
         assertTrue(maxX > 1.2 && minX < -1.2, String.format("%s sways both ways: x in [%.2f, %.2f]", mob, minX, maxX));
 
-        assertTrue(!animator.getActions().contains("dance"), mob + ": still dancing while walking");
+        assertTrue(!animator.getCurrentNodes().contains("dance"), mob + ": still dancing while walking");
         assertEquals(0, data.globalOffset.getX(), 1e-3, mob + ": back in place after the dance");
         assertEquals(0, data.globalOffset.getY(), 1e-3, mob + ": back in place after the dance");
     }

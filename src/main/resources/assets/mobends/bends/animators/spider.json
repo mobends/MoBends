@@ -52,8 +52,7 @@
               }
             ]
           },
-          "@define": {"groundLevel": {"state": 0}},
-          "@tags": ["idle"]
+          "@define": {"groundLevel": {"state": 0}}
         },
         "move": {
           "core:pose": {
@@ -101,8 +100,7 @@
               }
             ]
           },
-          "@define": {"groundLevel": {"state": 0}},
-          "@tags": ["move"]
+          "@define": {"groundLevel": {"state": 0}}
         },
         "jump": {
           "core:pose": {
@@ -261,8 +259,7 @@
               }
             ]
           },
-          "@on": {"enter": [{"set": ["layer.resetLimbs", 1]}]},
-          "@tags": ["jump"]
+          "@on": {"enter": [{"set": ["layer.resetLimbs", 1]}]}
         },
         "crawl": {
           "core:pose": {
@@ -305,8 +302,7 @@
                 "@vectorModes": {"localOffset": "SLIDE"}
               }
             ]
-          },
-          "@tags": ["crawl"]
+          }
         },
         "death": {
           "core:pose": {
@@ -353,8 +349,7 @@
               }
             ]
           },
-          "@define": {"wiggleSpeed": {"state": 1}, "wigglePhase": {"state": 0}},
-          "@tags": ["death"]
+          "@define": {"wiggleSpeed": {"state": 1}, "wigglePhase": {"state": 0}}
         }
       }
     }

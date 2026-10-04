@@ -33,11 +33,11 @@ public class SpinAttackTest
         for (int frame = 0; frame < scenario.frameCount() && frame * 20F / Scenarios.FPS < 90; frame++)
         {
             session.step();
-            for (String action : session.animator.getActions())
+            for (String node : session.animator.getCurrentNodes())
             {
-                if ((action.startsWith("attack_slash") || action.startsWith("attack_whirl")) && (slashes.isEmpty() || !slashes.get(slashes.size() - 1).equals(action)))
+                if (node.startsWith("slash_") && (slashes.isEmpty() || !slashes.get(slashes.size() - 1).equals(node)))
                 {
-                    slashes.add(action);
+                    slashes.add(node);
                 }
             }
         }
@@ -49,7 +49,7 @@ public class SpinAttackTest
     {
         List<String> slashes = slashes();
         assertEquals(5, slashes.size(), slashes.toString());
-        assertEquals("attack_whirl_slash", slashes.get(4));
+        assertEquals("slash_whirl", slashes.get(4));
     }
 
     @Test

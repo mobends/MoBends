@@ -1,13 +1,15 @@
 {
   "formatVersion": 2,
+  "@define": {
+    "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
+    "bounced": {"live": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}},
+    "standing": {"live": {"and": [{"not": ["animator.jumping"]}, "STANDING_STILL"]}},
+    "walking": {"live": {"and": [{"not": ["animator.jumping"]}, {"not": ["STANDING_STILL"]}]}}
+  },
   "layers": [
     {
-      "@define": {
-        "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
-        "bounced": {"live": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}}
-      },
       "select": [
-        {"when": "layer.jumping", "then": "jump"},
+        {"when": "animator.jumping", "then": "jump"},
         {"when": "STANDING_STILL", "then": "stand"},
         {"then": "walk"}
       ],
@@ -48,8 +50,7 @@
                 "core:clip": {"animationKey": "mobends:bends/animations/biped/stand_enter.json"}
               }
             ]
-          },
-          "@tags": ["stand"]
+          }
         },
         "walk": {
           "core:pose": {
@@ -105,8 +106,7 @@
                 "@vectorModes": {"root": "SNAP"}
               }
             ]
-          },
-          "@tags": ["walk"]
+          }
         },
         "jump": {
           "core:pose": {
@@ -163,8 +163,7 @@
             ],
             "enterPose": [{"core:clip": {"animationKey": "mobends:bends/animations/biped/jump_enter.json"}}]
           },
-          "@connections": [{"when": "layer.bounced", "then": "jump"}],
-          "@tags": ["jump"]
+          "@connections": [{"when": "animator.bounced", "then": "jump"}]
         }
       }
     }

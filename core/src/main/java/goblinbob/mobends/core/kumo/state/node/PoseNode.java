@@ -26,7 +26,6 @@ public class PoseNode implements INodeState
 {
 
     private final String name;
-    private final List<String> tags;
     private final List<IPoseItem> items;
     private final int[] dampingSlots;
     private final float[][] dampingValues;
@@ -44,10 +43,9 @@ public class PoseNode implements INodeState
     private float elapsed;
     private boolean snapPending;
 
-    public PoseNode(String name, List<String> tags, List<IPoseItem> items, List<IPoseItem> enterItems, Skeleton skeleton, DampingTemplate layerDamping, DampingTemplate nodeDamping, List<String> snapOnEnter)
+    public PoseNode(String name, List<IPoseItem> items, List<IPoseItem> enterItems, Skeleton skeleton, DampingTemplate layerDamping, DampingTemplate nodeDamping, List<String> snapOnEnter)
     {
         this.name = name;
-        this.tags = tags == null ? Collections.<String>emptyList() : tags;
         this.items = items;
         this.enterItems = enterItems == null ? Collections.<IPoseItem>emptyList() : enterItems;
         this.skeleton = skeleton;
@@ -110,7 +108,7 @@ public class PoseNode implements INodeState
         {
             context.getExpressionScope().endHolding();
         }
-        PoseNode node = new PoseNode(template.name, template.tags, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
+        PoseNode node = new PoseNode(template.name, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter);
         node.held = held.toArray(new Expression[0]);
         return node;
     }
@@ -118,7 +116,7 @@ public class PoseNode implements INodeState
     public static PoseNode createFallthrough(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, FallthroughNodeTemplate template) throws MalformedKumoTemplateException
     {
         template.validate();
-        PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
+        PoseNode node = new PoseNode(template.name, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
         node.fallthrough = true;
         return node;
     }
@@ -126,7 +124,7 @@ public class PoseNode implements INodeState
     public static PoseNode createVanilla(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, VanillaNodeTemplate template) throws MalformedKumoTemplateException
     {
         template.validate();
-        PoseNode node = new PoseNode(template.name, template.tags, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
+        PoseNode node = new PoseNode(template.name, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null);
         node.vanilla = true;
         return node;
     }
@@ -216,12 +214,6 @@ public class PoseNode implements INodeState
     public String getName()
     {
         return name;
-    }
-
-    @Override
-    public Collection<String> getTags()
-    {
-        return tags;
     }
 
     @Override

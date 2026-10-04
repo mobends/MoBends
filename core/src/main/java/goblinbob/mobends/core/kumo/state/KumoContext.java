@@ -2,8 +2,6 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.kumo.IKumoSubject;
 
-import java.util.Collections;
-import java.util.List;
 
 /**
  * The KUMO context of one animator: the subject, the frame (its number and delta time), and the
@@ -16,17 +14,10 @@ public class KumoContext implements IKumoContext
 
     private IKumoSubject subject;
     private float deltaTime;
-    /** The animator's layers, for {@link #isActionActive}. */
-    private List<LayerState> layers = Collections.emptyList();
     private LayerState layerState;
     private INodeState currentNode;
     /** Counts the frames, so a live definition is computed once in each. */
     private long frame;
-
-    public void setLayers(List<LayerState> layers)
-    {
-        this.layers = layers;
-    }
 
     /** Starts a frame of {@code subject}. */
     public void beginFrame(IKumoSubject subject, float deltaTime)
@@ -81,19 +72,6 @@ public class KumoContext implements IKumoContext
     public double resolveVariable(VariableTable.Read read)
     {
         return read.get(subject);
-    }
-
-    @Override
-    public boolean isActionActive(String tag)
-    {
-        for (LayerState layer : layers)
-        {
-            if (layer.getActions().contains(tag))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

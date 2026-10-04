@@ -3,7 +3,7 @@
   "extends": "mobends:bends/animators/biped.json",
   "layers": [
     {
-      "@when": {"and": [{"core:action": ["walk"]}, "STRAFING"]},
+      "@when": {"and": ["animator.walking", "STRAFING"]},
       "defaultOnEntry": "strafe",
       "nodes": {
         "strafe": {
@@ -25,8 +25,7 @@
                 "@space": "POST"
               }
             ]
-          },
-          "@tags": ["strafe"]
+          }
         }
       }
     },
@@ -147,8 +146,7 @@
                 "@swapSides": true
               }
             ]
-          },
-          "@tags": ["tool"]
+          }
         },
         "eat_right": {
           "core:pose": {
@@ -172,8 +170,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}},
-          "@tags": ["eating"]
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}}
         },
         "bow_right": {
           "core:pose": {
@@ -245,8 +242,7 @@
                 "@space": "OVERRIDE"
               }
             ]
-          },
-          "@tags": ["bow"]
+          }
         },
         "shield_right": {
           "core:pose": {
@@ -261,8 +257,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}},
-          "@tags": ["shield"]
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}}
         },
         "eat_left": {
           "core:pose": {
@@ -283,8 +278,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}},
-          "@tags": ["eating"]
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 6.666666666666667]}}}
         },
         "bow_left": {
           "core:pose": {
@@ -356,8 +350,7 @@
                 "@space": "OVERRIDE"
               }
             ]
-          },
-          "@tags": ["bow"]
+          }
         },
         "shield_left": {
           "core:pose": {
@@ -372,8 +365,7 @@
               }
             ]
           },
-          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}},
-          "@tags": ["shield"]
+          "@define": {"bringUp": {"live": {"linstep": ["elapsed", 0, 1.4285714285714286]}}}
         }
       },
       "machines": {
@@ -518,8 +510,7 @@
                   }
                 ]
               },
-              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]},
-              "@tags": ["attack_stance"]
+              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
             },
             "stance_sprint": {
               "core:pose": {
@@ -545,8 +536,7 @@
                   }
                 ]
               },
-              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]},
-              "@tags": ["attack_stance_sprint"]
+              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
             },
             "slash_up": {
               "core:pose": {
@@ -620,8 +610,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["attack_slash_up"]
+              }
             },
             "slash_inward": {
               "core:pose": {
@@ -695,8 +684,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["attack_slash_inward"]
+              }
             },
             "slash_down": {
               "core:pose": {
@@ -772,8 +760,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["attack_slash_down"]
+              }
             },
             "slash_outward": {
               "core:pose": {
@@ -852,8 +839,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["attack_slash_outward"]
+              }
             },
             "slash_whirl": {
               "core:pose": {
@@ -946,8 +932,7 @@
                     "@damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3}
                   }
                 ]
-              },
-              "@tags": ["attack_whirl_slash"]
+              }
             }
           }
         },
@@ -1008,8 +993,7 @@
                     "@damping": {"body": 0.6}
                   }
                 ]
-              },
-              "@tags": ["punch"]
+              }
             },
             "punch_left": {
               "core:pose": {
@@ -1044,8 +1028,7 @@
                     "@damping": {"body": 0.6}
                   }
                 ]
-              },
-              "@tags": ["punch"]
+              }
             },
             "fist_guard": {
               "core:pose": {
@@ -1100,8 +1083,7 @@
                     "@mirror": true
                   }
                 ]
-              },
-              "@tags": ["fist_guard"]
+              }
             }
           }
         }

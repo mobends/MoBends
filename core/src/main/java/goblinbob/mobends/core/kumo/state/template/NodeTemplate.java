@@ -15,15 +15,12 @@ public class NodeTemplate
      * what the type takes.
      */
     public static final java.util.Set<String> SCOPE_FIELDS = new java.util.HashSet<>(java.util.Arrays.asList(
-            "type", "name", "tags", "connections", "define", "on"));
+            "type", "name", "connections", "define", "on"));
 
     private transient String type = "core:pose";
 
     /** The node's name, used by selectors, connections and {@code defaultOnEntry}. */
     public String name;
-
-    /** Exposed as the layer's current actions ({@code core:action} conditions test them). */
-    public List<String> tags;
 
     public List<ConnectionTemplate> connections;
 

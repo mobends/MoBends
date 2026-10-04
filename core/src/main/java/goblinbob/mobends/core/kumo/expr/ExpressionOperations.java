@@ -285,8 +285,6 @@ public final class ExpressionOperations
                 new PropertyIs(handProperty(args.string(0)), null));
         register("core:active_hand_side", params(choice("side", "left", "right")), false, args ->
                 new PropertyIs("activeHandSide", args.string(0).toUpperCase()));
-        // Until tags are removed: whether any layer's current node carries the tag.
-        register("core:action", params(string("tag")), false, args -> new Action(args.string(0)));
     }
 
     private ExpressionOperations()
@@ -732,22 +730,6 @@ public final class ExpressionOperations
         {
             String actual = context.getSubject().getProperty(property);
             return value == null ? actual != null : value.equals(actual);
-        }
-    }
-
-    private static final class Action extends Expression.BooleanExpression
-    {
-        private final String tag;
-
-        Action(String tag)
-        {
-            this.tag = tag;
-        }
-
-        @Override
-        public boolean test(ITriggerConditionContext context)
-        {
-            return context.isActionActive(tag);
         }
     }
 

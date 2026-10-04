@@ -10,8 +10,6 @@ public interface INodeState
 
     String getName();
 
-    Collection<String> getTags();
-
     /** Ticks since the node was entered. */
     float getElapsedTicks();
 

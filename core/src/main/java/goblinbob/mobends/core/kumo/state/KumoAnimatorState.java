@@ -105,7 +105,6 @@ public class KumoAnimatorState
         {
             layerStates.add(new LayerState(layerContexts.get(i), skeleton, layers.get(i)));
         }
-        context.setLayers(layerStates);
 
         // Every bone name is known once the layers are instanced.
         for (LayerState layer : layerStates)
@@ -405,15 +404,15 @@ public class KumoAnimatorState
         if (!Float.isNaN(value.z)) value.z = Float.isInfinite(dz) ? center.z : center.z + dz * k;
     }
 
-    /** The tags of every layer's current node, in layer order. */
-    public List<String> getActions()
+    /** The name of every layer's current node, in layer order (for tests and debugging). */
+    public List<String> getCurrentNodes()
     {
-        List<String> actions = new ArrayList<>();
+        List<String> nodes = new ArrayList<>();
         for (LayerState layer : layerStates)
         {
-            actions.addAll(layer.getActions());
+            nodes.add(layer.getCurrentNode().getName());
         }
-        return actions;
+        return nodes;
     }
 
     /** True while any layer is in a {@code core:vanilla} node: the entity should be drawn vanilla. */

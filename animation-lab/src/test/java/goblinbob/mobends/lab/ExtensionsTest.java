@@ -116,7 +116,7 @@ public class ExtensionsTest
     private static final String VANILLA = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"animated\", "
             + "\"nodes\": {\"animated\": {\"core:fallthrough\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", 10]}, "
             + "\"then\": \"vanilla\"}]}, \"vanilla\": {\"core:vanilla\": {}, \"@connections\": [{\"when\": {\"gt\": [\"elapsed\", "
-            + "20]}, \"then\": \"again\"}], \"@tags\": [\"vanilla\"]}, \"again\": {\"core:fallthrough\": {}}}}, "
+            + "20]}, \"then\": \"again\"}]}, \"again\": {\"core:fallthrough\": {}}}}, "
             + "{\"@when\": \"SPRINTING\", \"defaultOnEntry\": \"vanilla\", \"nodes\": {\"vanilla\": {\"core:vanilla\": {}}}}]}";
 
     @Test
@@ -140,7 +140,7 @@ public class ExtensionsTest
             else if (tick > 12 && tick < 29)
             {
                 assertTrue(vanilla, "vanilla on tick " + tick);
-                assertTrue(session.animator.getActions().contains("vanilla"));
+                assertTrue(session.animator.getCurrentNodes().contains("vanilla"));
                 if (legWhenVanillaStarted == null) legWhenVanillaStarted = leg.clone();
                 else legMovedWhileVanilla |= angleBetween(legWhenVanillaStarted, leg) > 5;
             }

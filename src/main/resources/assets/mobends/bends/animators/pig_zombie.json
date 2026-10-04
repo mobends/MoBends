@@ -5,7 +5,7 @@
     {
       "mode": "ADDITIVE",
       "additiveSpace": {"default": "PRE", "root": "OVERRIDE"},
-      "@when": {"or": [{"core:action": ["stand"]}, {"core:action": ["walk"]}]},
+      "@when": {"or": ["animator.standing", "animator.walking"]},
       "defaultOnEntry": "hunch",
       "nodes": {
         "hunch": {
@@ -20,13 +20,13 @@
                 "@space": "PRE"
               },
               {
-                "@when": {"core:action": ["stand"]},
+                "@when": "animator.standing",
                 "core:clip": {"animationKey": "mobends:bends/animations/pigzombie/stand_offset.json"},
                 "@damping": {"root": [null, 1.2, null]},
                 "@vectorModes": {"root": "RETARGET"}
               },
               {
-                "@when": {"core:action": ["walk"]},
+                "@when": "animator.walking",
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/pigzombie/walk_bob.json",
                   "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
@@ -35,8 +35,7 @@
                 "@vectorModes": {"root": "RETARGET"}
               }
             ]
-          },
-          "@tags": ["hunch"]
+          }
         }
       }
     },
@@ -103,8 +102,7 @@
                 "@damping": {"renderRightItemRotation": 0.9}
               }
             ]
-          },
-          "@tags": ["attack", "attack_slash_inward"]
+          }
         }
       }
     }

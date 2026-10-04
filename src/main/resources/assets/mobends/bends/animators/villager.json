@@ -1,10 +1,10 @@
 {
   "formatVersion": 2,
+  "@define": {"jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}},
   "layers": [
     {
-      "@define": {"jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}},
       "select": [
-        {"when": "layer.jumping", "then": "jump"},
+        {"when": "animator.jumping", "then": "jump"},
         {"when": "STANDING_STILL", "then": "stand"},
         {"then": "walk"}
       ],
@@ -30,8 +30,7 @@
               },
               {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
             ]
-          },
-          "@tags": ["stand"]
+          }
         },
         "walk": {
           "core:pose": {
@@ -51,8 +50,7 @@
               },
               {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
             ]
-          },
-          "@tags": ["walk"]
+          }
         },
         "jump": {
           "core:pose": {
@@ -68,8 +66,7 @@
               },
               {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
             ]
-          },
-          "@tags": ["jump"]
+          }
         }
       }
     }

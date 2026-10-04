@@ -1,5 +1,6 @@
 {
   "formatVersion": 2,
+  "@define": {"inJump": {"state": false}},
   "layers": [
     {
       "@comment": "Golems wander at about 0.0496 blocks a tick, just under the MOVING_HORIZONTALLY dead zone (0.05), so the walk goes by the golem's own speed thresholds, apart to keep it from flickering. Between the two thresholds the selector chooses nothing, so the golem keeps standing or walking; landing between them, it walks (the jump's connection).",
@@ -50,7 +51,7 @@
               }
             ]
           },
-          "@tags": ["stand"]
+          "@on": {"enter": [{"set": ["animator.inJump", false]}]}
         },
         "walk": {
           "core:pose": {
@@ -86,7 +87,7 @@
               }
             ]
           },
-          "@tags": ["walk"]
+          "@on": {"enter": [{"set": ["animator.inJump", false]}]}
         },
         "jump": {
           "core:pose": {
@@ -120,13 +121,13 @@
               }
             ]
           },
+          "@on": {"enter": [{"set": ["animator.inJump", true]}]},
           "@connections": [
             {
               "when": {"and": [{"not": ["layer.jumping"]}, {"ge": ["xzMotionMagnitude", "layer.walkStop"]}]},
               "then": "walk"
             }
-          ],
-          "@tags": ["jump"]
+          ]
         }
       }
     },
@@ -138,12 +139,7 @@
           "core:pose": {
             "pose": [
               {
-                "core:accumulate": {
-                  "inout": "node.onFeet",
-                  "rate": {"if": [{"core:action": ["jump"]}, -0.15, 0.15]},
-                  "min": 0,
-                  "max": 1
-                }
+                "core:accumulate": {"inout": "node.onFeet", "rate": {"if": ["animator.inJump", -0.15, 0.15]}, "min": 0, "max": 1}
               },
               {
                 "core:axis_rotate": {"bone": "renderRotation", "axis": "Z", "angle": "node.vanillaRock"},

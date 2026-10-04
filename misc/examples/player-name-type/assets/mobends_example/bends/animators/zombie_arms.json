@@ -27,8 +27,7 @@
               {"core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": 0}, "@space": "OVERRIDE"},
               {"core:axis_rotate": {"bone": "leftForeArm", "axis": "X", "angle": 0}, "@space": "OVERRIDE"}
             ]
-          },
-          "@tags": ["zombie_arms"]
+          }
         }
       }
     }
