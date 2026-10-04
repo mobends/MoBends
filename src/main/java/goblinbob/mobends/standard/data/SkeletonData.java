@@ -15,6 +15,12 @@ public class SkeletonData extends BipedEntityData<EntitySkeleton>
 	}
 
 	@Override
+	protected ResourceLocation getModelDefinition()
+	{
+		return new ResourceLocation(ModStatics.MODID, "bends/models/skeleton.json");
+	}
+
+	@Override
 	protected ResourceLocation getDefaultAnimator()
 	{
 		return ANIMATOR;

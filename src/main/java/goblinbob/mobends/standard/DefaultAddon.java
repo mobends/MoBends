@@ -41,20 +41,24 @@ public class DefaultAddon implements IAddon
 	@Override
 	public void registerContent(AddonAnimationRegistry registry)
 	{
-		// The player is its model definition, bends/models/player.json. Start the game with
-		// -Dmobends.javaPlayer=true for the Java model it replaces (PlayerBender), to compare them.
-		if (Boolean.getBoolean("mobends.javaPlayer"))
+		// These mobs are their model definitions (bends/models/). Start the game with
+		// -Dmobends.javaModels=true for the Java models they replace, to compare them.
+		if (Boolean.getBoolean("mobends.javaModels"))
+		{
 			registry.registerEntity(new PlayerBender());
+			registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>());
+			registry.registerNewEntity(EntitySkeleton.class, SkeletonData::new, SkeletonMutator::new, new BipedRenderer<>());
+			registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>());
+			registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>());
+		}
 		else
+		{
 			registry.registerDefinedEntity("player");
-		
-		registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>());
-
-		registry.registerNewEntity(EntitySkeleton.class, SkeletonData::new, SkeletonMutator::new, new BipedRenderer<>());
-
-		registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>());
-
-		registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>());
+			registry.registerDefinedEntity("zombie");
+			registry.registerDefinedEntity("skeleton");
+			registry.registerDefinedEntity("zombie_villager");
+			registry.registerDefinedEntity("pig_zombie");
+		}
 
 		registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>());
 

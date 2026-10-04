@@ -13,8 +13,9 @@
 - Mods and resource packs can animate new mobs without code, with model definitions in
   `assets/<namespace>/bends/models/`. A model definition can compute the mob's own values from
   its fields, for its animation and every extension to read.
-- The player is a model definition (`bends/models/player.json`) like the other mobs, so mods and
-  resource packs can change its geometry, layers and values without code.
+- The player, zombies, zombie villagers, zombie pigmen and skeletons are model definitions
+  (`bends/models/`) like the other mobs, so mods and resource packs can change their geometry,
+  layers and values without code.
 - Mods can add their own animation logic to the JSON format: operations (values computed in Java,
   such as whether a mob is wet) and drivers (posing computed in Java), registered from an addon.
 - Zombie villagers are animated.
@@ -55,6 +56,8 @@
   the whole mod.
 - Holding a sword no longer leaves face culling off for whatever renders next.
 - The right arm of zombies, skeletons and pig zombies is no longer slightly too deep.
+- The player's left shin, the skeleton's left arm and the zombie villager's body show their own
+  skin, as in vanilla (they showed another part's, or a zombie's body over a villager's skin).
 
 ### Removed
 

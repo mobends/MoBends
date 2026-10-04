@@ -52,11 +52,18 @@ public class DefinedModelsTest
     private static final Path BENDS = LabPaths.root().resolve("../src/main/resources/assets/mobends/bends");
 
     /** The model definitions the mod registers as default models (DefaultAddon.registerContent), by bender key. */
-    private static final Map<String, ResourceLocation> DEFAULT_MODELS = Collections.singletonMap("mobends:player",
-            new ResourceLocation("mobends", "bends/models/player.json"));
+    private static final Map<String, ResourceLocation> DEFAULT_MODELS = new TreeMap<>();
+
+    static
+    {
+        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie" })
+        {
+            DEFAULT_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
+        }
+    }
 
     /** The models whose animator moves the limbs while standing. */
-    private static final Set<String> IDLE_MOVES = Collections.singleton("mobends:player");
+    private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:pig_zombie"));
 
     /** The model definitions the shipped type files name, by type id, and the default models. */
     private static Map<String, ResourceLocation> definedModels() throws Exception
@@ -204,7 +211,7 @@ public class DefinedModelsTest
         assertTrue(walked, name + ": the animator is not in its walk node while walking");
 
         // Having stopped, every split segment settles back where it stood before walking (not necessarily straight: a creeper leans at rest).
-        // The player's idle never stands still (it breathes and sways its arms), so it has no pose to settle back to.
+        // A biped's idle never stands still (it breathes and sways its arms), so it has no pose to settle back to.
         if (IDLE_MOVES.contains(name)) return;
         for (BoneDefinition bone : definition.bones)
         {

@@ -568,7 +568,7 @@ built-in's type is its own, whatever its case.
 | `ticks` | the local player's age in ticks plus `partialTicks`: the same for every entity; it restarts when the local player respawns or changes dimension |
 | `partialTicks` | the progress between two game ticks, 0..1 |
 | `ticksPerFrame` | the ticks this frame lasted, at most 1; 0 while the game is paused |
-| `random` | a random number, 0..1, new on every read |
+| `random` | a random number, 0..1, new on every read, from the entity's own generator |
 
 **The entity's values** are named `entity…`: the ones that hold for every animated entity (every
 one is an `EntityLivingBase`), whatever its class. What depends on the class is a registered
@@ -864,10 +864,13 @@ its own animator's `@define`), so two extensions never collide on an `entity.` n
 definitions have no `extends` (yet). A model definition from a resource pack is untrusted: an
 untrusted animator may set its state, never a trusted one's.
 
-The player is a model definition too (`player`): the default model of its entity class rather
-than a type file's (an addon registers it with `registerDefinedEntity`). Its body bends at the
-hips, its limbs at elbows and knees, its sleeves and trousers ride them, and it declares the
-components, layers, renderer settings and entity values the player's animator and layers use.
+The player, the zombie, the skeleton, the zombie villager and the zombie pigman are model
+definitions too (`player`, `zombie`, `skeleton`, `zombie_villager`, `pig_zombie`): the default
+models of their entity classes rather than a type file's (an addon registers them with
+`registerDefinedEntity`). Their bodies bend at the hips, their limbs at elbows and knees (the
+player's sleeves and trousers ride them), and they declare the components, layers, renderer
+settings and entity values their animators and layers use (the zombie's animation set and
+walking style).
 The other shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
 `villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
 elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: stand / walk /

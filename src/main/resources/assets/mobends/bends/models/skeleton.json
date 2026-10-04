@@ -1,0 +1,32 @@
+{
+  "formatVersion": 2,
+  "@comment": "The skeleton: thin limbs that turn where vanilla's do, with elbows and knees.",
+  "entity": "net.minecraft.entity.monster.EntitySkeleton",
+  "model": "net.minecraft.client.model.ModelSkeleton",
+  "animator": "mobends:bends/animators/skeleton.json",
+  "bones": [
+    {"name": "body", "vanilla": {"field": "bipedBody"}, "pivot": [0, 12, 0]},
+    {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body"},
+    {"name": "headwear", "vanilla": {"field": "bipedHeadwear"}, "parent": "head"},
+    {"name": "rightArm", "vanilla": {"field": "bipedRightArm"}, "parent": "body",
+     "split": {"axis": "y", "at": [0.5], "names": ["rightForeArm"], "hinge": "back"}, "inflate": [[0.01, 0, 0.01], [0, 0, 0]]},
+    {"name": "leftArm", "vanilla": {"field": "bipedLeftArm"}, "parent": "body",
+     "split": {"axis": "y", "at": [0.5], "names": ["leftForeArm"], "hinge": "back"}, "inflate": [[0.01, 0, 0.01], [0, 0, 0]]},
+    {"name": "rightLeg", "vanilla": {"field": "bipedRightLeg"}, 
+     "split": {"axis": "y", "at": [0.5], "names": ["rightForeLeg"], "hinge": "front", "caps": true}, "inflate": [[0, 0, 0], [0.01, 0, 0.01]]},
+    {"name": "leftLeg", "vanilla": {"field": "bipedLeftLeg"}, 
+     "split": {"axis": "y", "at": [0.5], "names": ["leftForeLeg"], "hinge": "front", "caps": true}, "inflate": [[0, 0, 0], [0.01, 0, 0.01]]}
+  ],
+  "components": {
+    "rightHeldItem": "core:orientation",
+    "leftHeldItem": "core:orientation",
+    "swordTrail": "mobends:sword_trail"
+  },
+  "smoothness": {"root": 2, "renderRotation": 2},
+  "renderer": {"sneakOffset": 5},
+  "layers": {
+    "mobends:armor": {},
+    "mobends:held_item": {},
+    "mobends:custom_head": {"bone": "head"}
+  }
+}

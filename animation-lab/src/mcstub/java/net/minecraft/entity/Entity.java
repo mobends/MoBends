@@ -26,7 +26,7 @@ public class Entity
     public Entity ridingEntity;
     public boolean riderShouldSit = true;
 
-    private final int entityId;
+    private int entityId;
 
     public Entity(World world)
     {
@@ -36,6 +36,7 @@ public class Entity
     }
 
     public int getEntityId() { return entityId; }
+    public void setEntityId(int id) { this.entityId = id; }
 
     /** Lab only: makes entity ids deterministic per scenario. */
     public static void resetIds() { nextId = 1; }

@@ -1,7 +1,10 @@
 package goblinbob.mobends.core.data;
 
+import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IBendsModel;
+import goblinbob.mobends.core.definition.EntityModelDefinition;
+import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.bind.BoneSinks;
@@ -31,8 +34,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.logging.Level;
 
 public abstract class EntityData<E extends Entity> implements IBendsModel, IKumoSubject
 {
@@ -44,6 +49,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     protected double prevMotionX, prevMotionY, prevMotionZ;
     protected double motionX, motionY, motionZ;
     protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
+    /** Draws the {@code random} built-in: the entity's own, so a test can seed it. */
+    private Random random = new Random();
     /** What the data carries besides its bones, by name (see {@link EntityComponent}). */
     private final Map<String, EntityComponent> components = new LinkedHashMap<>();
 
@@ -103,7 +110,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         registerVariable("ticks", DataUpdateHandler::getTicks);
         registerVariable("partialTicks", () -> DataUpdateHandler.partialTicks);
         registerVariable("ticksPerFrame", () -> DataUpdateHandler.ticksPerFrame);
-        registerVariable("random", Math::random);
+        // Read through the field, which the lab replaces with a seeded one.
+        registerVariable("random", () -> random.nextDouble());
         registerVariable("entityId", () -> entity != null ? entity.getEntityId() : 0);
         registerVariable("entityMotionY", () -> motionY);
         registerVariable("entityPrevMotionY", () -> prevMotionY);
@@ -321,13 +329,48 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     protected abstract ResourceLocation getDefaultAnimator();
 
     /**
+     * The model definition whose entity scope a Java model's animator reads, when the mob has
+     * one (the Java models kept to compare with the defined ones); null for none.
+     */
+    @Nullable
+    protected ResourceLocation getModelDefinition()
+    {
+        return null;
+    }
+
+    /** The model definition {@link #getModelDefinition()} names, or null (logged if it can't be read). */
+    @Nullable
+    protected EntityModelDefinition loadModelDefinition()
+    {
+        ResourceLocation location = getModelDefinition();
+        if (location == null)
+        {
+            return null;
+        }
+        try
+        {
+            return ModelDefinitions.INSTANCE.load(location);
+        }
+        catch (Exception e)
+        {
+            Core.LOG.log(Level.WARNING, "Could not load the model definition " + location + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * The entity its animators animate: its class, and the entity scope they read ({@code entity.x}),
      * which only a model definition declares.
      */
     @Nullable
     public EntityTemplate getEntityScope()
     {
-        return entity == null ? null : new EntityTemplate(entity.getClass());
+        if (entity == null)
+        {
+            return null;
+        }
+        EntityModelDefinition definition = loadModelDefinition();
+        return definition == null ? new EntityTemplate(entity.getClass()) : definition.entityScope(entity.getClass());
     }
 
     /**

@@ -15,6 +15,12 @@ public class PigZombieData extends BipedEntityData<EntityPigZombie>
 	}
 
 	@Override
+	protected ResourceLocation getModelDefinition()
+	{
+		return new ResourceLocation(ModStatics.MODID, "bends/models/pig_zombie.json");
+	}
+
+	@Override
 	protected ResourceLocation getDefaultAnimator()
 	{
 		return ANIMATOR;

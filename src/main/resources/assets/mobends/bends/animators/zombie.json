@@ -5,7 +5,7 @@
     {
       "mode": "additive",
       "additiveSpace": {"@default": "pre", "body": "post", "root": "override"},
-      "@when": {"eq": ["animationSet", 0]},
+      "@when": {"eq": ["entity.animationSet", 0]},
       "defaultOnEntry": "lean",
       "nodes": {
         "lean": {
@@ -17,7 +17,7 @@
                 "@vectorModes": {"root": "retarget"}
               },
               {
-                "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"eq": ["currentWalkingState", 1]}]},
+                "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"eq": ["entity.walkingState", 1]}]},
                 "core:clip": {"animationKey": "mobends:bends/animations/zombie/lean_arms_up.json"},
                 "@space": "override"
               }
@@ -27,7 +27,7 @@
       }
     },
     {
-      "@when": {"eq": ["animationSet", 1]},
+      "@when": {"eq": ["entity.animationSet", 1]},
       "defaultOnEntry": "stumble",
       "nodes": {
         "stumble": {

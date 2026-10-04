@@ -1,0 +1,44 @@
+{
+  "formatVersion": 2,
+  "@comment": "The zombie villager: the zombie's biped with the villager's head and nose. Its entity scope: which of the two animation sets it has (the same on every client), and its walking style, picked at random every 4 to 5 seconds.",
+  "entity": "net.minecraft.entity.monster.EntityZombieVillager",
+  "model": "net.minecraft.client.model.ModelZombieVillager",
+  "animator": "mobends:bends/animators/zombie_villager.json",
+  "bones": [
+    {"name": "body", "vanilla": {"field": "bipedBody"}, "pivot": [0, 12, 0]},
+    {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body"},
+    {"name": "headwear", "vanilla": {"field": "bipedHeadwear"}, "parent": "head"},
+    {"name": "rightArm", "vanilla": {"field": "bipedRightArm"}, "parent": "body",
+     "split": {"axis": "y", "at": [0.5], "names": ["rightForeArm"], "hinge": "back"}, "inflate": [[0.01, 0, 0.01], [0, 0, 0]]},
+    {"name": "leftArm", "vanilla": {"field": "bipedLeftArm"}, "parent": "body",
+     "split": {"axis": "y", "at": [0.5], "names": ["leftForeArm"], "hinge": "back"}, "inflate": [[0.01, 0, 0.01], [0, 0, 0]]},
+    {"name": "rightLeg", "vanilla": {"field": "bipedRightLeg"}, "pivot": [0, 12, 0],
+     "split": {"axis": "y", "at": [0.5], "names": ["rightForeLeg"], "hinge": "front", "caps": true}, "inflate": [[0, 0, 0], [0.01, 0, 0.01]]},
+    {"name": "leftLeg", "vanilla": {"field": "bipedLeftLeg"}, "pivot": [0, 12, 0],
+     "split": {"axis": "y", "at": [0.5], "names": ["leftForeLeg"], "hinge": "front", "caps": true}, "inflate": [[0, 0, 0], [0.01, 0, 0.01]]}
+  ],
+  "components": {
+    "rightHeldItem": "core:orientation",
+    "leftHeldItem": "core:orientation",
+    "swordTrail": "mobends:sword_trail"
+  },
+  "smoothness": {"root": 2, "renderRotation": 2},
+  "renderer": {"sneakOffset": 5},
+  "layers": {
+    "mobends:armor": {},
+    "mobends:held_item": {},
+    "mobends:custom_head": {"bone": "head"}
+  },
+  "@define": {
+    "animationSet": {"constant": {"mod": [{"floor": [{"mul": ["entityId", 3.61352]}]}, 2]}},
+    "walkingState": {"state": 0},
+    "ticksBeforeWalkingStateChange": {"state": 0}
+  },
+  "@on": {
+    "update": [
+      {"set": ["entity.ticksBeforeWalkingStateChange", {"sub": ["entity.ticksBeforeWalkingStateChange", "ticksPerFrame"]}]},
+      {"@when": {"le": ["entity.ticksBeforeWalkingStateChange", 0]}, "set": ["entity.walkingState", {"floor": [{"mul": ["random", 2]}]}]},
+      {"@when": {"le": ["entity.ticksBeforeWalkingStateChange", 0]}, "set": ["entity.ticksBeforeWalkingStateChange", {"add": [80, {"floor": [{"mul": ["random", 20]}]}]}]}
+    ]
+  }
+}

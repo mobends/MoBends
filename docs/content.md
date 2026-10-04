@@ -56,7 +56,7 @@ builds:
   vanilla part, found by identity so it works in an obfuscated game;
 * `DefinedRenderer`, made by `DefinedBenders` for every model definition a type file names, and
   for those an addon registers as the default model of their entity class
-  (`AddonAnimationRegistry.registerDefinedEntity`; the player's is).
+  (`AddonAnimationRegistry.registerDefinedEntity`; the player's, zombies' and skeleton's are).
 
 A definition also declares its *components* (the sword trail, held-item orientations, the cape's
 ripple), the renderer *layers* that replace vanilla's unanimated ones (armour, held items, head,

@@ -313,7 +313,6 @@ to do: the values a mob's data class keeps or computes itself, which move into i
 |---|---|
 | spider: `crawlProgress` (2), `crawlRenderYaw` (1) | spider state, and `mobends:spider_wall_rotation` |
 | squid: `squidRotation` (2), `SQUID_ROTATION_LOW` (2), `SQUID_PREV_ROTATION_LOW` (2) | `field` reads in the squid's files |
-| zombie: `animationSet` (2), `currentWalkingState` (1) | zombie state: a constant from `entityId`; a random value on a timer |
 
 The capitals rule for a bare name goes with the last of them.
 
@@ -373,10 +372,11 @@ fields are in the generated tables, each skin variant's `RenderPlayer` gets its 
 `split` makes elbows and knees. What it can't do is everything around the mesh.
 
 Registration (done): an addon registers a definition as the default model of its entity class,
-under the key it names (`AddonAnimationRegistry.registerDefinedEntity`); the player is
-`registerDefinedEntity("player")`, and `-Dmobends.javaPlayer=true` brings back `PlayerBender` to
-compare. Left: deleting `PlayerBender`, `PlayerMutator` and `PlayerData` once the defined player
-is checked in the game.
+under the key it names (`AddonAnimationRegistry.registerDefinedEntity`); the player, zombie,
+skeleton, zombie villager and pig zombie are registered this way, and
+`-Dmobends.javaModels=true` brings back their Java models to compare. Left: deleting those Java
+models (benders, mutators, renderers, data classes) once the defined ones are checked in the
+game.
 
 Data that code casts to: the biped's and the player's are gone (done: layers and drivers read
 bones by name, and the sword trail, held-item orientations and cape ripple are components, see
@@ -403,7 +403,11 @@ Rendering, where definitions fall short:
 
 Other mobs:
 
-- **Zombies, skeletons:** the biped points above.
+- **Zombies, skeletons** (done: `zombie`, `skeleton`, `zombie_villager`, `pig_zombie`; the zombie's
+  animation set and walking style are its entity scope, and the `random` built-in draws from the
+  entity's own generator, which the lab seeds). The zombie villager is drawn as vanilla's
+  villager-shaped model (the Java one drew a zombie's biped over that texture), and the
+  skeleton's left arm is mirrored as vanilla's (the Java one wasn't).
 - **Spider:** longer legs rebuilt from constants (definitions can't resize geometry), leg IK state
   on `SpiderData`.
 - **Squid:** close; needs the comparisons and a section offset.
@@ -513,8 +517,8 @@ the additive and smaller ones.
 19. [ ] **The hand-written files**: done (`iron_golem`, `creeper`, `cow`, `wolf`, the model
     definitions, the type files, the example packs, the player's values: its definition's entity
     scope, `attackComboTicks` and the `capeWave` component) but for the mob-specific values a data
-    class keeps or computes: the zombie's animation set and walking state; the squid's rotation;
-    the spider's crawl. They move into each mob's files with tasks 22–24 (*Entity values from the data
+    class keeps or computes: the squid's rotation; the spider's crawl (the zombie's animation set
+    and walking state are its definition's). They move into each mob's files with tasks 22–24 (*Entity values from the data
     classes*).
 20. [x] **Tests**: the ones with inline animator JSON and the ones on shipped assets; the goldens
     re-recorded where behaviour moved on purpose (the riding threshold is 0.2 blocks per tick).
@@ -532,7 +536,8 @@ the additive and smaller ones.
 23. [ ] **One generic data class**, with per-mob parts as components declared by the model
     (*Per-entity data*).
 24. [ ] **Zombies, skeletons and the rest** the same way, plus their own items (*Moving mobs out of
-    Java*).
+    Java*). Done: zombies, skeletons, zombie villagers, pig zombies. Left: the spider, squid and
+    wolf.
 
 **Smaller**
 

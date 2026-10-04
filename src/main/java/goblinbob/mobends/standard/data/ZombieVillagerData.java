@@ -15,6 +15,12 @@ public class ZombieVillagerData extends ZombieDataBase<EntityZombieVillager>
 	}
 	
 	@Override
+	protected ResourceLocation getModelDefinition()
+	{
+		return new ResourceLocation(ModStatics.MODID, "bends/models/zombie_villager.json");
+	}
+
+	@Override
 	protected ResourceLocation getDefaultAnimator()
 	{
 		return ANIMATOR;

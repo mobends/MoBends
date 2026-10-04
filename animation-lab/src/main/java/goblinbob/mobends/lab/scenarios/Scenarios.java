@@ -1,6 +1,5 @@
 package goblinbob.mobends.lab.scenarios;
 
-import goblinbob.mobends.lab.sim.Determinism;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.Scenario;
 import net.minecraft.init.Items;
@@ -44,13 +43,13 @@ public class Scenarios
             }));
         }
 
-        // The scenarios above get an animation-set-1 (stumbling) zombie from its entity id; this one
-        // forces set 0 (leaning) so both zombie variants are covered.
+        // The scenarios above get an animation-set-1 (stumbling) zombie from its entity id (2); this one
+        // gives it id 3, for set 0 (leaning), so both zombie variants are covered.
         add(new Scenario(EntityKind.ZOMBIE, "lean_walk_jump", FPS, 150, (tick, in) -> {
             if (between(tick, 20, 90)) walk(in, WALK_SPEED);
             if (tick == 60) in.jump = true;
             lookAround(in, tick);
-        }, data -> Determinism.setField(data, "animationSet", 0)));
+        }, data -> data.getEntity().setEntityId(3)));
 
         add(new Scenario(EntityKind.SKELETON, "strafe", FPS, 140, (tick, in) -> {
             if (between(tick, 20, 60)) in.strafeSpeed = WALK_SPEED;

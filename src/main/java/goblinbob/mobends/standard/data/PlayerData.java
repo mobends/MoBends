@@ -1,19 +1,13 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.ModStatics;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
-import goblinbob.mobends.core.definition.ModelDefinitions;
-import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.util.ResourceLocation;
-
-import javax.annotation.Nullable;
-import java.util.logging.Level;
 
 /**
  * The Java player's data. What the player's animator reads of the entity (its sprint-jump leg,
@@ -38,25 +32,10 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		return ANIMATOR;
 	}
 
-	@Nullable
-	private static EntityModelDefinition definition()
-	{
-		try
-		{
-			return ModelDefinitions.INSTANCE.load(DEFINITION);
-		}
-		catch (Exception e)
-		{
-			Core.LOG.log(Level.WARNING, "Could not load the player's model definition: " + e.getMessage());
-			return null;
-		}
-	}
-
 	@Override
-	public EntityTemplate getEntityScope()
+	protected ResourceLocation getModelDefinition()
 	{
-		EntityModelDefinition definition = definition();
-		return entity == null || definition == null ? super.getEntityScope() : definition.entityScope(entity.getClass());
+		return DEFINITION;
 	}
 
 	@Override
@@ -66,7 +45,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		
 		Render<AbstractClientPlayer> render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
 
-		EntityModelDefinition definition = definition();
+		EntityModelDefinition definition = loadModelDefinition();
 		setAttackComboTicks(definition == null ? 0 : definition.attackComboTicks);
 		addComponent("capeWave", new CapeWave(entity));
 		cape = new ModelPartTransform(body);

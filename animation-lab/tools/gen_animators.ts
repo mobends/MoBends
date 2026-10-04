@@ -266,11 +266,11 @@ const zombie: Obj = {
   extends: "mobends:bends/animators/biped.json",
   layers: [
     { mode: "additive", additiveSpace: { "@default": "pre", body: "post", root: "override" },
-      "@when": cmp("animationSet", "==", 0), defaultOnEntry: "lean", nodes: { lean: poseNode([
+      "@when": cmp("entity.animationSet", "==", 0), defaultOnEntry: "lean", nodes: { lean: poseNode([
           clip(Z("lean"), {}, { damping: { root: [null, 0.6, null] }, vectorModes: { root: "retarget" } }),
-          clip(Z("lean_arms_up"), {}, { space: "override", when: AND(NOT(state("entityIsStandingStill")), cmp("currentWalkingState", "==", 1)) }),
+          clip(Z("lean_arms_up"), {}, { space: "override", when: AND(NOT(state("entityIsStandingStill")), cmp("entity.walkingState", "==", 1)) }),
         ]) } },
-    { "@when": cmp("animationSet", "==", 1), defaultOnEntry: "stumble", nodes: { stumble: poseNode([
+    { "@when": cmp("entity.animationSet", "==", 1), defaultOnEntry: "stumble", nodes: { stumble: poseNode([
           clip(Z("stumble_base"), { frame: limbFrame }, { damping: { rightLeg: 1, leftLeg: 1, rightArm: 1, leftArm: 1, body: 0.5 } }),
           clip(Z("stumble_swing"), { frame: limbFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
           clip(Z("stumble_head"), { frame: limbFrame }, { space: "pre" }),
