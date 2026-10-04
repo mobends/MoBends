@@ -52,6 +52,8 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
     private final List<Slot> slots = new ArrayList<>();
     /** The stand-ins of bones drawn inside a parent, which draw the bone for the first-person hand. */
     private final List<DefinedStandIn> parentedStandIns = new ArrayList<>();
+    /** Every part made, bones, segments and overlay pieces. */
+    private final List<DefinedModelPart> drawnParts = new ArrayList<>();
     private boolean resolved;
 
     private static class Slot
@@ -234,6 +236,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         parts.clear();
         positions.clear();
         parentedStandIns.clear();
+        drawnParts.clear();
         // Per bone, in model units: where it turns, and how far its boxes move into its frame
         // (from where the vanilla part turned), and its segments' origins in its own frame.
         Map<String, float[]> pivots = new HashMap<>();
@@ -263,7 +266,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             pivots.put(bone.name, pivot);
             shifts.put(bone.name, shift);
 
-            DefinedModelPart part = new DefinedModelPart(model);
+            DefinedModelPart part = newPart(model);
             copyLook(vanilla, part, true);
             float[] position = parent == null ? pivot : subtract(pivot, pivots.get(bone.parent));
             part.setPosition(position[0], position[1], position[2]);
@@ -295,7 +298,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 DefinedModelPart previous = part;
                 for (String name : bone.split.names)
                 {
-                    DefinedModelPart segment = new DefinedModelPart(model);
+                    DefinedModelPart segment = newPart(model);
                     copyLook(vanilla, segment, false);
                     segment.setParent(previous);
                     previous.addChild(segment);
@@ -347,6 +350,20 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             }
         }
 
+        // Arrows stuck in the mob go into a random part of the box list: the posed parts, not the
+        // vanilla ones, which nothing poses any more.
+        for (ModelRenderer vanilla : vanillaParts.values())
+        {
+            model.boxList.remove(vanilla);
+        }
+        for (DefinedModelPart part : drawnParts)
+        {
+            if (!part.cubeList.isEmpty())
+            {
+                new DefinedBoxAnchor(model, part);
+            }
+        }
+
         // Hand the parts to the vanilla model. A bone rendered inside another leaves a stand-in where
         // the vanilla renderer looks, so it is not drawn twice, but is still reached through it.
         for (Slot slot : slots)
@@ -393,7 +410,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         List<DefinedModelPart> pieces = new ArrayList<>();
         for (DefinedModelPart segment : underSegments)
         {
-            DefinedModelPart piece = new DefinedModelPart(model);
+            DefinedModelPart piece = newPart(model);
             copyLook(vanilla, piece, pieces.isEmpty());
             piece.setParent(segment);
             segment.addChild(piece);
@@ -422,6 +439,13 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             }
             addSplitBoxes(source, bone, under.split, pieces, originsOf.get(bone.overlay), first);
         }
+    }
+
+    private DefinedModelPart newPart(ModelBase model)
+    {
+        DefinedModelPart part = new DefinedModelPart(model);
+        drawnParts.add(part);
+        return part;
     }
 
     /** A box the definition declares itself (see {@link BoneDefinition.BoxDefinition}). */

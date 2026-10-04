@@ -20,10 +20,19 @@ public class MutatedBox extends net.minecraft.client.model.ModelBox
     public static final int FRONT = 4;
     public static final int BACK = 5;
 
+    /** Where the box is, in its part's frame (vanilla's {@code posX1} ... stay 0 for a mutated box). */
+    public final float minX, minY, minZ, maxX, maxY, maxZ;
+
     public MutatedBox(ModelRenderer renderer, IVec3fRead min, IVec3fRead max, BoxFactory.TextureFace[] faces, byte faceVisibilityFlag)
     {
         super(renderer, 0, 0, 0, 0, 0, 0, 0, 0, 0, false);
         this.faceVisibilityFlag = faceVisibilityFlag;
+        this.minX = min.getX();
+        this.minY = min.getY();
+        this.minZ = min.getZ();
+        this.maxX = max.getX();
+        this.maxY = max.getY();
+        this.maxZ = max.getZ();
 
         float x0 = min.getX();
         float y0 = min.getY();
@@ -75,6 +84,12 @@ public class MutatedBox extends net.minecraft.client.model.ModelBox
     {
         super(modelRenderer, texU, texV, x, y, z, (int) width, (int) height, (int) length, inflation);
         this.faceVisibilityFlag = faceVisibilityFlag;
+        this.minX = x - inflation;
+        this.minY = y - inflation;
+        this.minZ = z - inflation;
+        this.maxX = x + width + inflation;
+        this.maxY = y + height + inflation;
+        this.maxZ = z + length + inflation;
         float f4 = x + (float) width;
         float f5 = y + (float) height;
         float f6 = z + (float) length;

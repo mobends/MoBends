@@ -106,10 +106,10 @@ type publishes to its extensions).
 
 ### Entity-level definitions
 
-The entity scope is in the spec (*Model definitions*, *Reading the entity*). Still to come: with
-program and state split (see *Runtime*), entity state lives in the entity's state array
-next to the animator's. Model definitions get an `extends` when a mob needs to share with
-another; most of what every biped has is a built-in.
+The entity scope is in the spec (*Model definitions*, *Reading the entity*). Its state lives in
+the entity's state array next to the animator's (done, with the program and state split). Model
+definitions get an `extends` when a mob needs to share with another; not yet: the five bipeds'
+definitions repeat their bones, components and layers, which an `extends` would share.
 
 ## Nodes, transitions and time
 
@@ -210,13 +210,15 @@ registration works. Notes on how they were settled:
 - A driver has one hook, `DriverEvaluator.restart`, for `core:step_turn`, whose state is still
   in Java fields: it publishes its outputs at rest when its node is entered.
 
-Still to come:
-
-- **Driver state.** `core:step_turn`'s planted feet and the spider's legs move into declared
-  state, arrays included (task 11); Mo' Bends' other drivers (`core:axis_rotate`, `core:vector`,
-  `core:offset`, `core:accumulate`, the cape, the sword trail, the spider's) move to the API with
-  theirs. Feet are positions in the world, which floats round far from the origin (a float has
-  1/16 of a block at a million blocks out): declared state keeps them relative to the entity.
+**Driver state** (done). `core:step_turn`'s planted feet are declared state (task 11), kept
+relative to the entity (a float has 1/16 of a block at a million blocks out); the spider's feet,
+which both its leg drivers share, are a component of the entity's data (`mobends:spider_legs`).
+No driver keeps per-entity state in Java fields any more, so every program is shared. The other
+drivers stay `IPoseItem`s rather than moving to the public API: the core pose writers
+(`core:axis_rotate`, `core:vector`, `core:offset`, `core:accumulate`) use the pose's internals
+(which bones an item wrote, for mirroring and the item modifiers), and Mo' Bends' (the cape, the
+sword trail, the spider's legs) read the entity's data, which the API's `EvalContext` doesn't
+give; moving them would change nothing they do.
 
 ## Runtime
 
@@ -314,8 +316,8 @@ is counted; `entityTicksAfterAttack` stays the one counter, filtered for the pla
 
 ### Addon API
 
-Drivers keep their Gson template classes, with the typed field set; `IPoseItem`'s `onNodeStarted` / `advance`
-and the state in Java fields give way to declared state.
+Drivers keep their Gson template classes, with the typed field set; the state in Java fields gave
+way to declared state and components (see *Operations and drivers in Java*).
 
 ## Background: what data classes do
 
@@ -380,14 +382,16 @@ definitions, built-ins and operations cover; the zombie's needs `entityId` and a
 
 Rendering, where definitions fall short:
 
-- **Layers** (done for the player's: a definition's `layers` section). The sheep's wool and the
-  charged creeper's armour still draw their own unanimated copies: they need layers of their own.
+- **Layers** (done for the player's, the bipeds' and the wolf's: a definition's `layers`
+  section). Open: the sheep's wool and the charged creeper's armour still draw their own
+  unanimated copies; they need layers of their own (and the sheep a definition).
 - **Stand-ins, split segments, pivots, overlays** (done: `misc/kumo-format.md`, *Model
   definitions*; the player's definition draws what `PlayerMutator` does, `PlayerGeometryTest`).
-- **Stuck arrows.** `LayerArrow` picks a random part from the model's `boxList`, which still
-  holds the vanilla parts (defined parts aren't registered there), so arrows stuck in a defined
-  mob sit on its unanimated vanilla pose; the Java player's parts were in the list. Needed: the
-  bones' parts in the list, with `postRender` matching the box coordinates of the part picked.
+- **Stuck arrows** (done). `LayerArrow` picks a random part from the model's `boxList`, a box of
+  it, and a point on it. A definition replaces its bones' vanilla parts there with anchors, one
+  per part with boxes, whose `postRender` is the part's posed transform and whose boxes are where
+  the part's are (a mutated box leaves vanilla's bounds at 0, so the Java models' arrows stuck at
+  their parts' pivots).
 - **First person, slim skins, renderer settings** (done: `renderer.firstPersonRest`, positions
   adopted again from each renderer, `renderer.sneakOffset`; the sword trail is a component).
 
