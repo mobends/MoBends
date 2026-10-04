@@ -188,6 +188,19 @@ public abstract class Expression
             {
                 throw new MalformedKumoTemplateException("An operation is an object with exactly one key, the operation's name: " + describe(json));
             }
+            if (entry.getKey().indexOf('.') >= 0 && entry.getKey().indexOf(':') < 0)
+            {
+                // {"animator.wobble": [...]}: a function, by its scoped name.
+                if (fallback != null)
+                {
+                    throw new MalformedKumoTemplateException("A function takes no \"@fallback\": " + describe(json));
+                }
+                if (!entry.getValue().isJsonArray())
+                {
+                    throw new MalformedKumoTemplateException("The arguments of '" + entry.getKey() + "' have to be a list: " + describe(json));
+                }
+                return FunctionCall.compile(entry.getKey(), entry.getValue().getAsJsonArray(), scope, json);
+            }
             ExpressionOperations.Operation operation = ExpressionOperations.get(entry.getKey());
             if (operation == null)
             {
@@ -211,6 +224,12 @@ public abstract class Expression
         if (scope.isSelector())
         {
             throw new MalformedKumoTemplateException(String.format("A type file's selector reads no names ('%s'): it runs before the entity has any data.", name));
+        }
+        if (name.startsWith("arg."))
+        {
+            // A function's parameter: its argument, compiled where the call is written.
+            FunctionCall.Argument argument = scope.argument(name.substring(4));
+            return compileAny(argument.json, argument.scope);
         }
         if (name.indexOf('.') >= 0)
         {

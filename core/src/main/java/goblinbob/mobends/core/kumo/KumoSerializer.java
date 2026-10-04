@@ -56,6 +56,7 @@ public class KumoSerializer
                 .registerTypeAdapter(BranchTemplate.class, new BranchTemplateSerializer())
                 .registerTypeAdapter(ConnectionTemplate.class, new ConnectionTemplateSerializer())
                 .registerTypeAdapter(DefinitionTemplate.class, new ScopeSerializers.Definition())
+                .registerTypeAdapter(FunctionTemplate.class, new ScopeSerializers.Function())
                 .registerTypeAdapter(OnTemplate.class, new ScopeSerializers.On())
                 .registerTypeAdapter(StatementTemplate.class, new ScopeSerializers.Statement())
                 .registerTypeAdapter(MirrorTemplate.class, new MirrorTemplateSerializer())

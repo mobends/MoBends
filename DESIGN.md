@@ -95,39 +95,6 @@ Each parameter has a kind, checked at load:
 class: when the operation can't bind to the class, the fallback (any expression of the same type)
 is compiled instead. Without one, that is a load error. (`field` already works this way.)
 
-### Functions (after v2)
-
-Functions are not in v2, but the format keeps room for them. A function is a definition with
-parameters, for an expression repeated with different inputs:
-
-```json
-"@functions": {
-  "wobble": {"params": {"t": "number", "amount": "number"},
-             "body": {"mul": [{"sin": [{"mul": ["arg.t", 6.28]}]}, "arg.amount"]}}
-},
-...
-{"core:axis_rotate": {"bone": "head", "axis": "z",
-                      "angle": {"animator.wobble": [{"div": ["nodeTicksElapsed", 20]}, 5]}}}
-```
-
-The intended design:
-
-- **A call is inlined**: it behaves exactly as if the body were written out at the call site
-  with the arguments substituted. The body is type-checked once, where it is declared. So every
-  call site gets its own slots for the body's stateful operations, a body has no `set` (it is an
-  expression), and recursion is a load error.
-- **Called by scoped name** as the operation key (`{"animator.wobble": [...]}`). The scope says
-  where it is declared, and the key can't collide with language (bare) or registered (`ns:id`)
-  names.
-- **Parameters** are read as `arg.t`, declared with the kinds operations have (number, boolean,
-  constant number, string, choice), and passed positionally.
-- **Declared** under `@functions` on the animator, layers and machines. A body reads its
-  parameters, built-ins and the definitions of its declaring scope. Files share functions only
-  through `extends`.
-
-**Reserved until then:** the `@functions` key, and operation keys of the form `<scope>.<name>`.
-Both are load errors in v2, so adding functions breaks no file.
-
 ## Definitions and scopes
 
 Definitions, scopes and their lifecycles are in the spec (*Definitions and statements*). Machines
@@ -599,4 +566,4 @@ the additive and smaller ones.
 
 **After v2**
 
-28. [ ] **Functions**, as designed in *Functions (after v2)*.
+28. [x] **Functions** (`misc/kumo-format.md`, *Functions*).

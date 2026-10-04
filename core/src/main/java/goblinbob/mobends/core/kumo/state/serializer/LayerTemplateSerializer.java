@@ -18,8 +18,9 @@ public class LayerTemplateSerializer implements JsonDeserializer<LayerTemplate>
 {
 
     /** The keys of a machine, and the template fields they are read into. */
-    private static final Map<String, String> MACHINE_KEYS = JsonReading.with(JsonReading.with(JsonReading.with(
-            JsonReading.same("nodes", "machines", "select", "defaultOnEntry"), "@connections", "connections"), "@define", "define"), "@on", "on");
+    private static final Map<String, String> MACHINE_KEYS = JsonReading.with(JsonReading.with(JsonReading.with(JsonReading.with(
+            JsonReading.same("nodes", "machines", "select", "defaultOnEntry"), "@connections", "connections"), "@define", "define"), "@on", "on"),
+            "@functions", "functions");
     /** A layer's: a machine's, and the layer's own. */
     private static final Map<String, String> LAYER_KEYS = JsonReading.with(withAll(MACHINE_KEYS,
             "mode", "additiveSpace", "damping", "mask", "mirror"), "@when", "when");

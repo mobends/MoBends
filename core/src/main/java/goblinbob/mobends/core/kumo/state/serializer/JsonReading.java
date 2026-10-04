@@ -19,6 +19,16 @@ final class JsonReading
 
     private JsonReading() {}
 
+    /** {@code json} as a list, or an error naming {@code what}. */
+    static com.google.gson.JsonArray array(JsonElement json, String what)
+    {
+        if (json == null || !json.isJsonArray())
+        {
+            throw new JsonParseException(String.format("%s has to be a list.", what));
+        }
+        return json.getAsJsonArray();
+    }
+
     static JsonObject object(JsonElement json, String what)
     {
         if (json == null || !json.isJsonObject())

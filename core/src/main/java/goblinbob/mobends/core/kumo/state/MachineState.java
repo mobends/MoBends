@@ -63,6 +63,7 @@ public class MachineState
         {
             DefinitionScope definitions = new DefinitionScope(DefinitionScope.Kind.MACHINE, describe());
             definitions.declare(template.define, trusted);
+            definitions.declareFunctions(template.functions);
             ExpressionScope place = context.getExpressionScope().inside(definitions);
             definitions.compileIn(place);
             context = context.withScope(place);

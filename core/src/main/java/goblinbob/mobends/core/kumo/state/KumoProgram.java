@@ -200,6 +200,7 @@ public final class KumoProgram
         for (int i = 0; i < chain.size(); i++)
         {
             scope.declare(chain.get(i).define, chainTrusted.get(i));
+            scope.declareFunctions(chain.get(i).functions);
         }
         ExpressionScope place = context.getExpressionScope().inside(scope);
         scope.compileIn(place);

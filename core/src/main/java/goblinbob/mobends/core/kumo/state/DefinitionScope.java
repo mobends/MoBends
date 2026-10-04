@@ -2,6 +2,8 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.expr.FunctionCall;
+import goblinbob.mobends.core.kumo.state.template.FunctionTemplate;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -55,6 +57,8 @@ public final class DefinitionScope
     private final List<Boolean> trusted = new ArrayList<>();
     /** Where the definitions are compiled: the names visible to them. */
     private ExpressionScope compileScope;
+    /** The scope's functions, by name (see {@link FunctionCall}). */
+    private final Map<String, FunctionTemplate> functions = new LinkedHashMap<>();
 
     // Compiled, by index.
     private Expression[] compiled = new Expression[0];
@@ -108,13 +112,53 @@ public final class DefinitionScope
         types = java.util.Arrays.copyOf(types, count);
     }
 
+    /** Declares {@code declared} (a file's {@code @functions}; null declares nothing). */
+    public void declareFunctions(@Nullable Map<String, FunctionTemplate> declared) throws MalformedKumoTemplateException
+    {
+        if (declared == null)
+        {
+            return;
+        }
+        for (Map.Entry<String, FunctionTemplate> entry : declared.entrySet())
+        {
+            String name = entry.getKey();
+            if (name.indexOf('.') >= 0)
+            {
+                throw new MalformedKumoTemplateException(String.format("A function's name can't contain a dot: '%s' (in %s).", name, owner));
+            }
+            if (functions.containsKey(name) || indices.containsKey(name))
+            {
+                throw new MalformedKumoTemplateException(String.format("'%s.%s' is declared twice (in %s): a function and a definition can't share a name, nor can two functions, even across 'extends'.",
+                        kind.prefix, name, owner));
+            }
+            functions.put(name, entry.getValue());
+        }
+    }
+
+    /** The function {@code name}, compiled where this scope's definitions are; null if the scope declares none. */
+    @Nullable
+    public FunctionCall.Declared function(String name)
+    {
+        FunctionTemplate template = functions.get(name);
+        return template == null ? null : new FunctionCall.Declared(kind.prefix + "." + name, template, compileScope);
+    }
+
     /**
      * Where the definitions are compiled, and then every one is: a mistake is reported when the
-     * animator loads, used or not.
+     * animator loads, used or not. So is every function's body, once, with stand-ins for its
+     * arguments.
      */
     public void compileIn(ExpressionScope scope) throws MalformedKumoTemplateException
     {
         this.compileScope = scope;
+        for (Map.Entry<String, FunctionTemplate> entry : functions.entrySet())
+        {
+            if (indices.containsKey(entry.getKey()))
+            {
+                throw new MalformedKumoTemplateException(String.format("'%s.%s' is both a definition and a function (in %s).", kind.prefix, entry.getKey(), owner));
+            }
+            FunctionCall.check(function(entry.getKey()));
+        }
         valueSlot = scope.getLayout().floats(names.size(), 0);
         statusSlot = scope.getLayout().ints(names.size(), UNSET);
         frameSlot = scope.getLayout().ints(names.size(), -1);

@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
+import goblinbob.mobends.core.kumo.state.template.FunctionTemplate;
 import goblinbob.mobends.core.kumo.state.template.OnTemplate;
 import goblinbob.mobends.core.kumo.state.template.StatementTemplate;
 
@@ -93,6 +94,55 @@ public final class ScopeSerializers
             statements.add(context.deserialize(element, StatementTemplate.class));
         }
         return statements;
+    }
+
+    /**
+     * {@code {"params": {"t": "number", "hand": {"choice": ["main_hand", "off_hand"]}}, "body": <expression>}}:
+     * a parameter is {@code number}, {@code boolean}, {@code constant} (a number written out),
+     * {@code string}, or a choice of strings.
+     */
+    public static class Function implements JsonDeserializer<FunctionTemplate>
+    {
+        private static final java.util.Set<String> KINDS = new java.util.HashSet<>(java.util.Arrays.asList("number", "boolean", "constant", "string"));
+
+        @Override
+        public FunctionTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+        {
+            JsonObject object = JsonReading.fields(JsonReading.object(json, "A function"), "A function", JsonReading.same("params", "body"));
+            JsonElement body = object.get("body");
+            if (body == null || body.isJsonNull())
+            {
+                throw new JsonParseException("A function needs a \"body\", the expression it is.");
+            }
+            java.util.LinkedHashMap<String, FunctionTemplate.Param> params = new java.util.LinkedHashMap<>();
+            JsonElement declared = object.get("params");
+            if (declared != null && !declared.isJsonNull())
+            {
+                for (java.util.Map.Entry<String, JsonElement> entry : JsonReading.object(declared, "A function's \"params\"").entrySet())
+                {
+                    String what = "The parameter '" + entry.getKey() + "'";
+                    JsonElement kind = entry.getValue();
+                    if (kind.isJsonPrimitive() && KINDS.contains(kind.getAsString()))
+                    {
+                        params.put(entry.getKey(), new FunctionTemplate.Param(kind.getAsString(), null));
+                    }
+                    else if (kind.isJsonObject() && kind.getAsJsonObject().size() == 1 && kind.getAsJsonObject().has("choice"))
+                    {
+                        List<String> choices = new ArrayList<>();
+                        for (JsonElement choice : JsonReading.array(kind.getAsJsonObject().get("choice"), what + "'s choices"))
+                        {
+                            choices.add(JsonReading.string(choice, what + "'s choices"));
+                        }
+                        params.put(entry.getKey(), new FunctionTemplate.Param("choice", choices));
+                    }
+                    else
+                    {
+                        throw new JsonParseException(what + " is \"number\", \"boolean\", \"constant\", \"string\" or {\"choice\": [...]}, not " + kind + ".");
+                    }
+                }
+            }
+            return new FunctionTemplate(params, body);
+        }
     }
 
     /** {@code {"@when": <condition>, "set": ["layer.combo", <value>]}}. */

@@ -42,6 +42,10 @@ public class ExpressionScope
     private final Deque<List<Expression>> holders;
     /** Where the animator's per-entity state goes: every stateful element compiled here takes its slots in it. */
     private final StateLayout layout;
+    /** Inside a function's body: its arguments, by parameter name (see {@link FunctionCall}); else empty. */
+    private Map<String, FunctionCall.Argument> arguments = Collections.emptyMap();
+    /** The functions whose bodies are being compiled around this place, the outermost first: a call to one of them would never end. */
+    private List<String> calling = Collections.emptyList();
 
     private ExpressionScope(@Nullable DefinitionScope entity, @Nullable DefinitionScope animator, @Nullable DefinitionScope layer, @Nullable DefinitionScope machine,
                             @Nullable DefinitionScope node, @Nullable Class<?> entityClass, boolean readsFields, boolean selector, VariableTable variables,
@@ -80,6 +84,50 @@ public class ExpressionScope
     public boolean isSelector()
     {
         return selector;
+    }
+
+    /** This place, as a function's body: its arguments, the call {@code function} being added to the calls compiling around it. */
+    public ExpressionScope withArguments(Map<String, FunctionCall.Argument> arguments, String function, List<String> callingAround)
+    {
+        ExpressionScope body = new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout);
+        body.arguments = arguments;
+        List<String> calls = new java.util.ArrayList<>(callingAround);
+        calls.add(function);
+        body.calling = Collections.unmodifiableList(calls);
+        return body;
+    }
+
+    /** The functions whose bodies are being compiled around this place, the outermost first. */
+    public List<String> getCalling()
+    {
+        return calling;
+    }
+
+    /** The argument of parameter {@code name} of the function whose body this is. */
+    FunctionCall.Argument argument(String name) throws MalformedKumoTemplateException
+    {
+        if (calling.isEmpty())
+        {
+            throw new MalformedKumoTemplateException(String.format("'arg.%s' is read outside a function: arg. names are a function's parameters, read in its body.", name));
+        }
+        FunctionCall.Argument argument = arguments.get(name);
+        if (argument == null)
+        {
+            throw new MalformedKumoTemplateException(String.format("'%s' has no parameter '%s'.", calling.get(calling.size() - 1), name));
+        }
+        return argument;
+    }
+
+    /** The function {@code name} (a scoped name, {@code animator.wobble}). */
+    FunctionCall.Declared resolveFunction(String name) throws MalformedKumoTemplateException
+    {
+        DefinitionScope scope = scopeOf(name);
+        FunctionCall.Declared function = scope.function(name.substring(name.indexOf('.') + 1));
+        if (function == null)
+        {
+            throw new MalformedKumoTemplateException(String.format("Unknown function '%s': %s declares no '%s' in its \"@functions\".", name, scope.getOwner(), name.substring(name.indexOf('.') + 1)));
+        }
+        return function;
     }
 
     /** Where the animator's per-entity state goes (see {@link StateLayout}). */

@@ -33,7 +33,7 @@ its value is what that takes:
 ```
 
 Every other key starts with `@`: what the engine does with it (an item's `@when`, `@space`,
-`@damping`, ...), or what a scope has whatever else it is (`@define`, `@on`, `@connections`). These
+`@damping`, ...), or what a scope has whatever else it is (`@define`, `@functions`, `@on`, `@connections`). These
 are a closed set, so an addon's driver or node type can have any field of its own without ever
 colliding with them. Structured objects (layers, machines, selector branches, connections, the
 mirror rule) keep fixed keys; their own conditions are `@when` on layers and the mirror rule, and
@@ -741,6 +741,39 @@ extensions' after it, in their order); then, layer by layer, after the layer has
 the layer's, its machines' from the outermost in, the node fading out, the current node. When
 several write one state in a frame, the last write wins: later layers see it this frame, earlier
 ones the next.
+
+### Functions
+
+A scope can declare **functions** in its `@functions` (the animator, a layer, a machine): an
+expression repeated with different inputs, written once.
+
+```json
+"@functions": {
+  "wobble": {"params": {"t": "number", "amount": "constant"},
+             "body": {"mul": [{"sin": [{"mul": ["arg.t", 6.28]}]}, "arg.amount"]}}
+},
+...
+{"core:axis_rotate": {"bone": "head", "axis": "z",
+                      "angle": {"animator.wobble": [{"div": ["nodeTicksElapsed", 20]}, 5]}}}
+```
+
+* **A call is its body written out** at the call site, with the arguments in place. Every place
+  a body reads an argument is the argument written out, so every call, and every read, keeps its
+  own memory for edge triggers. A body is an expression: it sets nothing.
+* **Called by scoped name**, as the operation's key: `{"animator.wobble": [...]}`, `layer.x` for
+  a layer's, `machine.x` for a machine's (the innermost around the call, as for names). Arguments
+  are positional.
+* **Parameters** are read in the body as `arg.<name>`, and take the kinds operations' arguments
+  have: `number` and `boolean` (any expression of that type, written at the call site, which
+  reads the call site's names), `constant` (a number written out), `string`, and
+  `{"choice": [...]}` (one of those strings). The written-out ones are put in the body as they
+  are, so they can stand where an operation takes a string or a constant.
+* **A body reads** its parameters, the built-ins, and the names of the scope declaring it: an
+  animator's function can't read a layer's names, wherever it is called. It is checked once, where
+  it is declared, used or not.
+* A function that calls itself, through any number of others, is a load error. A function and a
+  definition of one scope can't share a name, nor can two functions (across `extends` too, which
+  is how files share functions).
 
 ## Semantics worth knowing
 

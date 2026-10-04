@@ -67,6 +67,7 @@ public class LayerState
         this.skeleton = skeleton;
         DefinitionScope definitions = new DefinitionScope(DefinitionScope.Kind.LAYER, "the layer");
         definitions.declare(layerTemplate.define, context.getExpressionScope().isTrusted());
+        definitions.declareFunctions(layerTemplate.functions);
         ExpressionScope place = context.getExpressionScope().inside(definitions);
         definitions.compileIn(place);
         context = context.withScope(place);

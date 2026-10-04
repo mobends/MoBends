@@ -12,7 +12,8 @@ import java.util.Map;
 public class AnimatorTemplateSerializer implements JsonDeserializer<AnimatorTemplate>
 {
 
-    private static final Map<String, String> KEYS = JsonReading.with(JsonReading.with(JsonReading.same("formatVersion", "extends", "layers"), "@define", "define"), "@on", "on");
+    private static final Map<String, String> KEYS = JsonReading.with(JsonReading.with(JsonReading.with(JsonReading.same("formatVersion", "extends", "layers"), "@define", "define"), "@on", "on"),
+            "@functions", "functions");
 
     @Override
     public AnimatorTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException

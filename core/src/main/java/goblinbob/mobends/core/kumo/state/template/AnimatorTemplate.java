@@ -27,6 +27,8 @@ public class AnimatorTemplate
 
     /** The scope's definitions, by name (JSON {@code @define}). */
     public Map<String, DefinitionTemplate> define;
+    /** The scope's functions, by name (JSON {@code @functions}). */
+    public Map<String, FunctionTemplate> functions;
     /** The scope's statement lists (JSON {@code @on}). */
     public OnTemplate on;
 
