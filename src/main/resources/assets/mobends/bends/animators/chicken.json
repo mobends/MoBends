@@ -1,11 +1,11 @@
 {
   "formatVersion": 2,
-  "@define": {"jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}},
+  "@define": {"jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}}},
   "layers": [
     {
       "select": [
         {"when": "animator.jumping", "then": "jump"},
-        {"when": "STANDING_STILL", "then": "stand"},
+        {"when": "entityIsStandingStill", "then": "stand"},
         {"then": "walk"}
       ],
       "nodes": {
@@ -24,11 +24,14 @@
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "PRE",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              },
               {
                 "core:axis_rotate": {"bone": "rightWing", "axis": "Z", "angle": "entity.wingAngle"},
                 "@space": "OVERRIDE",
@@ -48,17 +51,20 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/chicken/walk.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
-                  "weight": "limbSwingAmount"
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "entityLimbSwingAmount"
                 },
                 "@damping": {"rightLeg": 0.8, "foreRightLeg": 0.8, "leftLeg": 0.8, "foreLeftLeg": 0.8}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "OVERRIDE",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              },
               {
                 "core:axis_rotate": {"bone": "rightWing", "axis": "Z", "angle": "entity.wingAngle"},
                 "@space": "OVERRIDE",
@@ -80,11 +86,14 @@
                 "@damping": {"rightLeg": 0.3, "foreRightLeg": 0.3, "leftLeg": 0.3, "foreLeftLeg": 0.3}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "OVERRIDE",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              },
               {
                 "core:axis_rotate": {"bone": "rightWing", "axis": "Z", "angle": "entity.wingAngle"},
                 "@space": "OVERRIDE",

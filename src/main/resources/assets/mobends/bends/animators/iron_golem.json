@@ -7,12 +7,12 @@
       "@define": {
         "walkStart": {"live": 0.02},
         "walkStop": {"live": 0.01},
-        "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}
+        "jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}}
       },
       "select": [
         {"when": "layer.jumping", "then": "jump"},
-        {"when": {"ge": ["xzMotionMagnitude", "layer.walkStart"]}, "then": "walk"},
-        {"when": {"lt": ["xzMotionMagnitude", "layer.walkStop"]}, "then": "stand"}
+        {"when": {"ge": ["entityXZSpeed", "layer.walkStart"]}, "then": "walk"},
+        {"when": {"lt": ["entityXZSpeed", "layer.walkStop"]}, "then": "stand"}
       ],
       "nodes": {
         "stand": {
@@ -39,11 +39,11 @@
                 "@damping": {"head": 0.5, "body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "PRE",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
@@ -75,11 +75,11 @@
                 "@damping": {"body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "OVERRIDE",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
@@ -109,11 +109,11 @@
                 "@damping": {"body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "OVERRIDE",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
@@ -124,7 +124,7 @@
           "@on": {"enter": [{"set": ["animator.inJump", true]}]},
           "@connections": [
             {
-              "when": {"and": [{"not": ["layer.jumping"]}, {"ge": ["xzMotionMagnitude", "layer.walkStop"]}]},
+              "when": {"and": [{"not": ["layer.jumping"]}, {"ge": ["entityXZSpeed", "layer.walkStop"]}]},
               "then": "walk"
             }
           ]
@@ -213,7 +213,7 @@
                 "core:axis_rotate": {
                   "bone": "head",
                   "axis": "Y",
-                  "angle": {"sub": [{"clamp": [{"add": ["headYaw", "node.turnLag"]}, -85, 85]}, "headYaw"]}
+                  "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}
                 },
                 "@space": "PRE"
               },
@@ -288,7 +288,7 @@
                   6.5,
                   {
                     "div": [
-                      {"sub": [{"abs": [{"sub": [{"mod": [{"add": ["limbSwing", 6]}, 13]}, 6.5]}]}, 3.25]},
+                      {"sub": [{"abs": [{"sub": [{"mod": [{"add": ["entityLimbSwing", 6]}, 13]}, 6.5]}]}, 3.25]},
                       3.25
                     ]
                   },

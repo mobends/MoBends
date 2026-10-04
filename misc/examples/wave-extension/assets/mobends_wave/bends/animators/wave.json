@@ -4,7 +4,7 @@
   "layers": [
     {
       "select": [
-        {"when": "STANDING_STILL", "then": "wave", "transitionDuration": 8},
+        {"when": "entityIsStandingStill", "then": "wave", "transitionDuration": 8},
         {"then": "through", "transitionDuration": 8}
       ],
       "nodes": {

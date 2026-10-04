@@ -36,10 +36,10 @@ public class StepTurnTemplate extends DriverItemTemplate
     public ExpressionTemplate weight;
 
     /** The variable holding the yaw the body is to face, in degrees. */
-    public String yawVariable = "bodyYaw";
+    public String yawVariable = "entityBodyYaw";
     /** The variables holding the entity's position in the world, in blocks. */
-    public String xVariable = "worldX";
-    public String zVariable = "worldZ";
+    public String xVariable = "entityWorldX";
+    public String zVariable = "entityWorldZ";
 
     /**
      * The states its outputs go to, by output: {@code turnLag}, {@code turnSpeed}, {@code stepLift},

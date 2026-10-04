@@ -117,7 +117,7 @@ public class ExtensionsTest
             + "\"nodes\": {\"animated\": {\"core:fallthrough\": {}, "
             + "\"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 10]}, \"then\": \"vanilla\"}]}, "
             + "\"vanilla\": {\"core:vanilla\": {}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 20]}, "
-            + "\"then\": \"again\"}]}, \"again\": {\"core:fallthrough\": {}}}}, {\"@when\": \"SPRINTING\", "
+            + "\"then\": \"again\"}]}, \"again\": {\"core:fallthrough\": {}}}}, {\"@when\": \"entityIsSprinting\", "
             + "\"defaultOnEntry\": \"vanilla\", \"nodes\": {\"vanilla\": {\"core:vanilla\": {}}}}]}";
 
     @Test

@@ -115,9 +115,9 @@ vanilla legs swing at. Split the cycle into the pose that is always there and th
 weight the swing by how fast the entity walks, so a slow walk swings less:
 
 ```json
-{"core:clip": {"animationKey": "…/walk_base.json",  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}}},
-{"core:clip": {"animationKey": "…/walk_swing.json", "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
-               "weight": "limbSwingAmount"}, "@space": "POST"}
+{"core:clip": {"animationKey": "…/walk_base.json",  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}}},
+{"core:clip": {"animationKey": "…/walk_swing.json", "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
+               "weight": "entityLimbSwingAmount"}, "@space": "POST"}
 ```
 
 `weight` scales angles, which is exact for rotations about one axis; keep swings to one axis per
@@ -129,12 +129,12 @@ Put the look on top of the clip with two drivers, yaw in the parent's space and 
 head's own space, after any clip that poses the head:
 
 ```json
-{"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},   "@space": "PRE"},
-{"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
+{"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},   "@space": "PRE"},
+{"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"}, "@space": "POST"}
 ```
 
 A slight body twist towards the look is a third driver on `body` with
-`{"clamp": [{"mul": ["headYaw", -0.1]}, -10, 10]}`.
+`{"clamp": [{"mul": ["entityHeadYaw", -0.1]}, -10, 10]}`.
 
 ### A one-shot on an entity event
 
@@ -142,13 +142,13 @@ For something that follows an event the entity counts (landing, attacking, takin
 clip with the counter as its frame, only while the counter is small:
 
 ```json
-{"@when": {"lt": ["ticksAfterTouchdown", 6.67]},
- "core:clip": {"animationKey": "…/kneel.json", "frame": "ticksAfterTouchdown"},
+{"@when": {"lt": ["entityTicksAfterTouchdown", 6.67]},
+ "core:clip": {"animationKey": "…/kneel.json", "frame": "entityTicksAfterTouchdown"},
  "@vectorModes": {"root": "SNAP"}}
 ```
 
 The clip holds its last keyframe once the frame passes its end, so the `@when` decides when it
-lets go. Counters include `ticksAfterTouchdown`, `ticksInAir`, `ticksAfterAttack`.
+lets go. Counters include `entityTicksAfterTouchdown`, `entityTicksInAir`, `entityTicksAfterAttack`.
 
 ### Starting a state in a pose
 
@@ -179,10 +179,10 @@ applies when the ones before it don't, so each branch states only its own condit
 stays in a node for as long as the tree keeps choosing it:
 
 ```json
-"@define": {"jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}},
+"@define": {"jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}}},
 "select": [
   {"when": "layer.jumping", "then": "jump"},
-  {"when": "STANDING_STILL", "then": "stand"},
+  {"when": "entityIsStandingStill", "then": "stand"},
   {"then": "walk"}
 ]
 ```
@@ -192,8 +192,8 @@ sprint-jumping, jumping). Leave out the last `then` to let a node hold on until 
 a mob that starts walking above one speed and stops below a lower one keeps doing what it did in
 between. Name the conditions you use more than once: a live definition in the layer's `@define`,
 read as `layer.jumping`.
-A condition is an expression that is true or false: a state in capitals (`STANDING_STILL`), a
-comparison (`{"lt": ["ticksAfterTouchdown", 1]}`), `and`, `or`, `not` (see
+A condition is an expression that is true or false: a built-in such as `entityIsStandingStill`, a
+comparison (`{"lt": ["entityTicksAfterTouchdown", 1]}`), `and`, `or`, `not` (see
 `misc/kumo-format.md`, *Expressions*).
 Use `transitionDuration` (ticks) on a branch to crossfade; an interrupted crossfade continues from
 what is on screen.
@@ -220,7 +220,7 @@ variable the data class sets, and let it override or add to the base:
 Group the nodes of a sequence in a machine. The layer's selector picks the machine; the machine's
 own selector picks where to rest inside it, and its connections, which lead out of any of its
 nodes, play the sequence. To react to each new attack, use `decreased` on
-`ticksAfterAttack` (it drops to 0 on every swing) and count with a state of the layer set by the
+`entityTicksAfterAttack` (it drops to 0 on every swing) and count with a state of the layer set by the
 connection that fires:
 
 ```json
@@ -228,8 +228,8 @@ connection that fires:
 "select": [{"when": {"mobends:attack_action": ["sword"]}, "then": "sword", "do": [{"set": ["layer.combo", 0]}]}],
 "machines": {"sword": {
   "defaultOnEntry": "sword_idle",
-  "@define": {"attacked": {"live": {"decreased": ["ticksAfterAttack"]}}},
-  "select": [{"when": {"ge": ["ticksAfterAttack", 10]}, "then": "sword_idle"}],
+  "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}},
+  "select": [{"when": {"ge": ["entityTicksAfterAttack", 10]}, "then": "sword_idle"}],
   "@connections": [
     {"when": {"and": ["machine.attacked", {"eq": ["layer.combo", 0]}]}, "then": "slash_up", "do": [{"set": ["layer.combo", 1]}]},
     …
@@ -240,7 +240,7 @@ connection that fires:
 The slashes aren't in the machine's selector, which chooses nothing while a slash plays (the
 first ten ticks), so the slash holds until the selector chooses `sword_idle` or the next attack
 fires a connection. Reset the count once the combo window has passed, with a statement in an
-`update` list: `{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}`.
+`update` list: `{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}`.
 
 ### Left- and right-handed
 
@@ -248,14 +248,14 @@ Author for the right hand, then give the layer a mirror rule and mark the items 
 hand:
 
 ```json
-"mirror": {"@when": "LEFT_HANDED",
+"mirror": {"@when": "entityIsLeftHanded",
            "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"]]}
 ```
 
 An item with `"@mirror": true` plays as its mirror image for left-handed entities. Use
 `"@swapSides": true` for motion that only moves to the other arm without flipping (a breathing
 sway of the main arm). Leave the items that follow where the entity looks unmarked: the head
-turned by `headYaw` looks the same way for either hand.
+turned by `entityHeadYaw` looks the same way for either hand.
 
 ### Easing a motion in and out
 
@@ -277,7 +277,7 @@ follows the condition, clamped to 0..1:
 ```json
 "@define": {"raise": {"state": 0}},
 "core:pose": {"pose": [
-  {"core:accumulate": {"inout": "node.raise", "rate": {"if": ["SNEAKING", 0.1, -0.1]}, "min": 0, "max": 1}},
+  {"core:accumulate": {"inout": "node.raise", "rate": {"if": ["entityIsSneaking", 0.1, -0.1]}, "min": 0, "max": 1}},
   {"core:clip": {"animationKey": "…/raise.json", "weight": "node.raise"}}
 ]}
 ```
@@ -293,7 +293,7 @@ node, so the entity's own animation shows, and crossfade into your node when it 
 
 ```json
 "select": [
-  {"when": "STANDING_STILL", "then": "wave", "transitionDuration": 8},
+  {"when": "entityIsStandingStill", "then": "wave", "transitionDuration": 8},
   {"then": "through", "transitionDuration": 8}
 ],
 "nodes": {

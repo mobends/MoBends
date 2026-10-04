@@ -297,7 +297,7 @@ public class StepTurnTest
                 float rockAngle = entity.limbSwingAmount >= 0.01 ? 6.5F * (Math.abs((data.limbSwing + 6) % 13 - 6.5F) - 3.25F) / 3.25F : 0F;
                 rock.setFromAxisAngle(0, 0, 1, (float) Math.toRadians(-rockAngle));
                 double[] forward = rotate(render, 0, 0, 1);
-                double bodyYaw = data.getVariable("bodyYaw");
+                double bodyYaw = data.getVariable("entityBodyYaw");
                 shownYaw = bodyYaw - Math.toDegrees(Math.atan2(forward[0], forward[2]));
                 // Once running: how far the body turns and the hips move in one frame.
                 if (!Double.isNaN(lastShown) && clock.getTick() >= 60)
@@ -313,7 +313,7 @@ public class StepTurnTest
                 double yaw = Math.toRadians(bodyYaw), cos = Math.cos(yaw), sin = Math.sin(yaw);
                 double shown = Math.toRadians(shownYaw), cosS = Math.cos(shown), sinS = Math.sin(shown);
                 double[] offset = {data.localOffset.getX(), data.localOffset.getY(), data.localOffset.getZ()};
-                double px = data.getVariable("worldX"), pz = data.getVariable("worldZ");
+                double px = data.getVariable("entityWorldX"), pz = data.getVariable("entityWorldZ");
 
                 for (int i = 0; i < 2; i++)
                 {

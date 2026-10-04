@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 
 /**
  * A definition as written in a scope's {@code @define}: an object with one key, its kind, whose
- * value is the expression ({@code {"live": {"mul": ["limbSwing", 2]}}}).
+ * value is the expression ({@code {"live": {"mul": ["entityLimbSwing", 2]}}}).
  */
 public class DefinitionTemplate
 {

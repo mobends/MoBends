@@ -28,6 +28,8 @@ public final class MinecraftKumoOperations
 
     public static void register()
     {
+        EntityBuiltIns.register();
+
         // {"core:equipment_name": ["head", "^Notch.*"]}: whether the display name of what a player
         // wears or holds in the slot matches the pattern (as a whole).
         String[] slots = new String[EntityEquipmentSlot.values().length];

@@ -10,9 +10,7 @@ public class EntityPlayer extends EntityLivingBase
     public double prevChasingPosX, prevChasingPosY, prevChasingPosZ;
     public float cameraYaw, prevCameraYaw;
     public float distanceWalkedModified, prevDistanceWalkedModified;
-    public int ticksElytraFlying;
 
     public EntityPlayer(World world) { super(world); }
 
-    public int getTicksElytraFlying() { return ticksElytraFlying; }
 }

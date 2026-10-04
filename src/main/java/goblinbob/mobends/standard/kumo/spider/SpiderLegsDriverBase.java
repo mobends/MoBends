@@ -41,7 +41,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     protected SpiderLegsDriverBase(Skeleton skeleton, @Nullable String reset, @Nullable Map<String, String> out, ExpressionScope scope, String driver) throws MalformedKumoTemplateException
     {
         VariableTable variables = scope.getVariables();
-        this.ticksAfterTouchdown = variables.read("ticksAfterTouchdown");
+        this.ticksAfterTouchdown = variables.read("entityTicksAfterTouchdown");
         if (out != null && !out.keySet().stream().allMatch("groundLevel"::equals))
         {
             throw new MalformedKumoTemplateException(driver + " has one output, 'groundLevel'.");

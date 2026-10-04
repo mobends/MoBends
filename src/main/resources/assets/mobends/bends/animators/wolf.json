@@ -20,7 +20,7 @@
             ]
           },
           "@connections": [
-            {"when": "MOVING_HORIZONTALLY", "then": "walk", "transitionDuration": 4},
+            {"when": {"not": ["entityIsStandingStill"]}, "then": "walk", "transitionDuration": 4},
             {"when": "SITTING", "then": "sit_down", "transitionDuration": 3}
           ]
         },
@@ -30,7 +30,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/wolf/walking.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662, 4]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662, 4]}, "clipLength"]}
                 },
                 "@space": "OVERRIDE",
                 "@snap": true
@@ -38,7 +38,7 @@
             ]
           },
           "@connections": [
-            {"when": "STANDING_STILL", "then": "idle", "transitionDuration": 4},
+            {"when": "entityIsStandingStill", "then": "idle", "transitionDuration": 4},
             {"when": "SITTING", "then": "sit_down", "transitionDuration": 1}
           ]
         },
@@ -137,12 +137,12 @@
           "core:pose": {
             "pose": [
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "POST",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "POST",
                 "@snap": true
               },

@@ -29,7 +29,7 @@ start with `@`**. That key names what it is (`core:clip`, `core:axis_rotate`, `c
 its value is what that takes:
 
 ```json
-{"@when": "SWINGING", "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": -30}, "@space": "PRE"}
+{"@when": "entityIsSwinging", "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": -30}, "@space": "PRE"}
 ```
 
 Every other key starts with `@`: what the engine does with it (an item's `@when`, `@space`,
@@ -83,7 +83,7 @@ node is in *Choosing the node*.
     "snapOnEnter": ["body"],
     "damping": {...}
   },
-  "@define": {"stride": {"live": {"mul": ["limbSwing", 2]}}},
+  "@define": {"stride": {"live": {"mul": ["entityLimbSwing", 2]}}},
   "@on": {"enter": [{"set": ["layer.combo", 0]}]},
   "@connections": [{"when": "layer.bounced", "then": "jump"}]
 }
@@ -118,7 +118,7 @@ node is in *Choosing the node*.
   holds:
 
   ```json
-  "select": [{"when": "IN_WATER", "then": "theirs"}, {"then": "animated"}],
+  "select": [{"when": "entityIsInWater", "then": "theirs"}, {"then": "animated"}],
   "nodes": {
     "animated": {"core:fallthrough": {}},
     "theirs": {"core:vanilla": {}}
@@ -126,7 +126,7 @@ node is in *Choosing the node*.
   ```
 
   The example pack `misc/examples/vanilla-swim-extension` makes players vanilla while they are in
-  water: one layer with `"@when": "IN_WATER"` and a single `core:vanilla` node.
+  water: one layer with `"@when": "entityIsInWater"` and a single `core:vanilla` node.
 
   Rendering: the render puts the mutated model in place and animates as usual, then, if the
   animator asks for vanilla, puts the vanilla renderer state back before the model is drawn (the
@@ -144,15 +144,15 @@ has a selector and connections of its own.
 ```json
 {
   "@define": {
-    "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}}
+    "jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}}
   },
   "select": [
-    {"when": "SLEEPING", "then": "sleeping"},
+    {"when": "entityIsSleeping", "then": "sleeping"},
     {"when": "layer.jumping", "then": [
       {"when": "FLYING", "then": "flying"},
       {"then": "jump"}
     ]},
-    {"when": "STANDING_STILL", "then": "stand"},
+    {"when": "entityIsStandingStill", "then": "stand"},
     {"then": "walk", "transitionDuration": 4}
   ],
   "nodes": {"stand": {...}, "walk": {...}, "jump": {...}, "flying": {...}, "sleeping": {...}}
@@ -257,7 +257,7 @@ holds the item's own fields. The modifiers, the same for every item:
 | `@swapSides` | like `@mirror`, but only the paired bones swap; rotations and offsets are kept |
 
 ```json
-{"@when": "SWINGING", "core:clip": {"animationKey": "mobends:bends/animations/player/tool_arm.json", "frame": "swingProgress"},
+{"@when": "entityIsSwinging", "core:clip": {"animationKey": "mobends:bends/animations/player/tool_arm.json", "frame": "entitySwingProgress"},
  "@snap": true, "@swapSides": true}
 ```
 
@@ -267,7 +267,7 @@ A layer's `mirror` rule says when its mirrored items mirror, and which bones pai
 
 ```json
 "mirror": {
-  "@when": "LEFT_HANDED",
+  "@when": "entityIsLeftHanded",
   "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"],
             ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"]]
 }
@@ -289,9 +289,9 @@ What an item does mirrored follows from how it is marked:
 - **`@mirror`** for motion that belongs to a side: swings, clips, a head turned toward the weapon
   (`head`, Y, `-30` becomes `+30`).
 - **Neither** for an item on an unpaired bone that follows a world direction. The head turned by
-  `headYaw` must look where the entity looks, so it isn't mirrored.
+  `entityHeadYaw` must look where the entity looks, so it isn't mirrored.
 - **`@swapSides`** for an item on a paired bone that follows a world direction: the right arm
-  turned by `headYaw` becomes the left arm turned by the same angle, still pointing where the
+  turned by `entityHeadYaw` becomes the left arm turned by the same angle, still pointing where the
   entity looks.
 - An item that mixes the two is split into two items.
 
@@ -302,8 +302,8 @@ with `negate` is now a load error.)
 
 ```json
 {"core:clip": {"animationKey": "mobends:bends/animations/biped/walk_base.json",
-               "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
-               "weight": "limbSwingAmount", "bones": ["leftLeg", "rightLeg"]}}
+               "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
+               "weight": "entityLimbSwingAmount", "bones": ["leftLeg", "rightLeg"]}}
 ```
 
 A clip's own fields are `animationKey`, `frame`, `duration`, `weight` and `bones`.
@@ -422,9 +422,9 @@ with, the planted foot drags rather than the feet flickering.
   placed anew under the body when it goes up again. Run it in its own layer with an accumulator
   that goes up while the mob is on the ground, so the jump shows beneath it and the body turns back to
   vanilla's yaw while it plays.
-* It reads the entity's values `yawVariable` (`bodyYaw`), `xVariable` and `zVariable` (`worldX`,
-  `worldZ`), and its outputs (the states its `out` names) are `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
-  head posed by `headYaw` has to add), `turnSpeed` (degrees per tick the shown body turns),
+* It reads the entity's values `yawVariable` (`entityBodyYaw`), `xVariable` and `zVariable` (`entityWorldX`,
+  `entityWorldZ`), and its outputs (the states its `out` names) are `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
+  head posed by `entityHeadYaw` has to add), `turnSpeed` (degrees per tick the shown body turns),
   `stepLift` (0..1 as the stepping foot rises, negative for a foot on the -X side),
   `stepImpact` (peaking at 1 `impactTime` ticks after a landing; quick landings add up smoothly
   rather than starting it over) and `stride` (model units the
@@ -444,12 +444,12 @@ JSON tree, so tools can read and write it without a parser.
 |---|---|
 | a number | a constant: `45` |
 | `true`, `false` | a constant condition |
-| a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name: a built-in (`nodeTicksElapsed`, `nodeIsFinished`, see *Nodes, transitions and time*), a state of the entity if written in capitals (`"ON_GROUND"`), or else a variable of the entity (`"headYaw"`) |
+| a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name: a built-in (`nodeTicksElapsed`, `entityIsOnGround`, `partialTicks`, see *Built-in values*), or a value specific to a mob, the entity's own (see there) |
 | an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}`. Its other keys are modifiers: `@comment` on any operation, `@fallback` on one that takes it (`field`) |
 
 **Every expression is a number or a boolean**, and which one is checked when the animator loads:
-a number where a condition goes (`"@when": "limbSwing"`), or a boolean where a number goes
-(`{"add": ["ON_GROUND", 1]}`), is an error. Arithmetic is in single precision (`float`); strings
+a number where a condition goes (`"@when": "entityLimbSwing"`), or a boolean where a number goes
+(`{"add": ["entityIsOnGround", 1]}`), is an error. Arithmetic is in single precision (`float`); strings
 are never values, only arguments some operations take written out (an item id, a hand).
 
 Operations nest freely:
@@ -460,7 +460,7 @@ Operations nest freely:
   {"mul": [{"sin": [{"mul": ["ticks", 0.37]}]}, 2]},
   -85
 ]},
-"@when": {"and": ["ON_GROUND", {"not": ["SNEAKING"]}, {"lt": ["ticksAfterAttack", 10]}]}
+"@when": {"and": ["entityIsOnGround", {"not": ["entityIsSneaking"]}, {"lt": ["entityTicksAfterAttack", 10]}]}
 ```
 
 | operation | arguments | value |
@@ -492,7 +492,7 @@ Operations nest freely:
 is written keeps its own memory (two uses keep two memories), and it starts over, noting the
 value as it is then, when the scope holding the place starts: a node for its items' and
 connections' expressions (and its layer's mirror rule), a machine for its selector and
-connections, a layer for its `@when`. `{"decreased": ["ticksAfterAttack"]}` holds on a new attack.
+connections, a layer for its `@when`. `{"decreased": ["entityTicksAfterAttack"]}` holds on a new attack.
 
 ### Reading the entity: `field`
 
@@ -540,15 +540,61 @@ Mistakes (an unknown operation, a wrong number or kind of arguments, an object w
 key, a number where a boolean goes) are reported when the animator loads, in the operation's own
 words: `'core:holds_item' argument 1 (hand) must be one of main_hand, off_hand, got 'left_hand'`.
 
-**Bare names** are the built-ins and the entity's values. The built-ins are the node's and the
-layer's clocks and phases (see *Nodes, transitions and time*), and inside a clip's `frame`,
-`clipLength` and `clipDuration` (see *Clips*). A bare
-name in capitals is a **state** of the entity, a boolean (see the data classes' `registerState`
-calls: `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`, ...); any other is a **variable** of the entity, a
-number (`registerVariable`: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). The entity's
-values are looked up once, when the animator is bound to its entity on the first frame, never by
-name while animating; one the entity doesn't have fails the animator then (logged; the entity
-isn't animated), even if nothing ever reads it.
+### Built-in values
+
+**Bare names are built-ins**: what Mo' Bends provides, always there, with no arguments. They are
+the node's and the layer's clocks and phases (see *Nodes, transitions and time*), inside a clip's
+`frame` its `clipLength` and `clipDuration` (see *Clips*), the time, and the entity's values. A
+built-in's type is its own, whatever its case.
+
+| built-in | value |
+|---|---|
+| `ticks` | the local player's age in ticks plus `partialTicks`: the same for every entity; it restarts when the local player respawns or changes dimension |
+| `partialTicks` | the progress between two game ticks, 0..1 |
+| `ticksPerFrame` | the ticks this frame lasted, at most 1; 0 while the game is paused |
+| `random` | a random number, 0..1, new on every read |
+
+**The entity's values** are named `entity…`: the ones that hold for every animated entity (every
+one is an `EntityLivingBase`), whatever its class. What depends on the class is a registered
+operation, or a definition of the mob's model definition (see *Model definitions*).
+
+| built-ins | from |
+|---|---|
+| `entityLimbSwing`, `entityLimbSwingAmount`, `entitySwingProgress`, `entityHeadYaw`, `entityHeadPitch` | the arguments the vanilla renderer passes to every model (`entitySwingProgress` is vanilla's swing progress interpolated by `partialTicks`, as `getSwingProgress` does) |
+| `entityIsSprinting`, `entityIsSneaking`, `entityIsAlive`, `entityIsInWater`, `entityIsRiding` | `Entity` |
+| `entityIsChild`, `entityIsLeftHanded`, `entityHealth`, `entityIsSwinging`, `entityIsSleeping`, `entityIsElytraFlying` | `EntityLivingBase` (false or 0 unless a subclass says otherwise; `entityIsSleeping` holds only while alive) |
+| `entityId` | vanilla's entity id (a number to vary entities by) |
+| `entityTicksExisted`, `entityTicksElytraFlying` | vanilla's age and glide time |
+| `entityItemUseTicks`, `entityItemUseTicksLeft` | ticks the item in use has been used so far, and ticks left (vanilla's `getItemInUseMaxCount` and `getItemInUseCount`) |
+| `entityIsOnGround`, `entityIsClimbing` | Mo' Bends' own detection: collision boxes and stairs, with liftoff detection; ladders |
+| `entityTicksInAir`, `entityTicksAfterTouchdown`, `entityTicksFalling`, `entityClimbingCycle` | Mo' Bends' counters over that detection |
+| `entityTicksAfterAttack` | ticks since the last counted swing (below) |
+| `entityIsUnderwater`, `entityLedgeHeight`, `entityClimbingRotation` | Mo' Bends' block checks around the entity |
+| `entityIsDrawingBow`, `entityIsRidingLiving` | the held items; whether what the entity rides is living |
+| `entityIsStandingStill`, `entityIsStrafing` | Mo' Bends' measured motion |
+| `entityMotionY`, `entityPrevMotionY`, `entityInterpolatedMotionY`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity (vanilla's motion fields read 0 for the entities the server moves). `entitySpeed` and `entityXZSpeed` are magnitudes interpolated by `partialTicks`; a rider's include what carries it |
+| `entityBodyYaw`, `entityWorldX`, `entityWorldY`, `entityWorldZ` | the body yaw and the position, interpolated as the renderer does (`core:step_turn`'s default inputs) |
+| `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` | relative to the ridden entity (0 unless riding something living) |
+| `entityClimbingRenderYaw`, `entityClimbingBodyYaw`, `entityClimbingHeadYaw` | the yaws while climbing |
+
+Values left out are added when something needs them; adding a built-in never breaks a file.
+
+**`entityTicksAfterAttack`** counts swings for every entity: once per game tick it checks
+vanilla's `isSwingInProgress`, counts a swing when one starts, and again whenever more than 5
+ticks have passed while it keeps going (holding attack, mining). The counter goes back to 0 on a
+counted swing and grows by `ticksPerFrame` every frame. `{"decreased": ["entityTicksAfterAttack"]}`
+is the edge of a counted swing (`{"rose": ["entityIsSwinging"]}` would miss the re-counts of a
+swing that keeps going). The player's ignores a swing within 6 ticks of the last counted one
+while its main hand holds an item, so a sword combo isn't restarted.
+
+**Values specific to a mob** are, until they become registered operations, the entity's own,
+named by its data class (the wolf's `SITTING` and `tailRotation`, the squid's `squidRotation`): a
+bare name that isn't a built-in, a **state** (a boolean) if written in capitals, else a
+**variable** (a number).
+
+The entity's values are looked up once, when the animator is bound to its entity on the first
+frame, never by name while animating; one the entity doesn't have fails the animator then
+(logged; the entity isn't animated), even if nothing ever reads it.
 
 ## Nodes, transitions and time
 
@@ -599,13 +645,13 @@ see *Drivers*) are the only things that do.
 
 ```json
 "@define": {
-  "startYaw": {"constant": "bodyYaw"},
+  "startYaw": {"constant": "entityBodyYaw"},
   "combo":    {"state": 0},
-  "stride":   {"live": {"mul": ["limbSwing", 2]}}
+  "stride":   {"live": {"mul": ["entityLimbSwing", 2]}}
 },
 "@on": {
   "enter":  [{"set": ["layer.combo", 0]}],
-  "update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]
+  "update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}]
 }
 ```
 

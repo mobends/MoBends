@@ -1,5 +1,6 @@
 package goblinbob.mobends.test.core.kumo;
 
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
@@ -735,6 +736,20 @@ public class KumoAnimatorStateTest
     {
         animator("{'formatVersion': 2, 'layers': [{'nodes': {'a': {'core:pose': {}}}, "
                 + "'machines': {'m': {'nodes': {'a': {'core:pose': {}}}}}}]}");
+    }
+
+    @Test
+    public void aRegisteredSubjectBuiltInHasItsTypeWhateverItsCase() throws MalformedKumoTemplateException
+    {
+        Expression.registerSubjectBuiltIn("testIsRaised", Expression.Type.BOOLEAN);
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', "
+                + "'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': {'bone': 'arm', 'axis': 'X', "
+                + "'angle': {'if': ['testIsRaised', 90, 0]}}, '@space': 'OVERRIDE'}]}}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        subject.states.put("testIsRaised", true);
+
+        animator.update(subject, 1F);
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 90), subject.target("arm"));
     }
 
 }

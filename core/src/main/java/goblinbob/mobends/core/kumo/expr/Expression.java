@@ -48,7 +48,13 @@ public abstract class Expression
      * misc/kumo-format.md, *Nodes, transitions and time*).
      */
     private static final Map<String, Expression> BUILT_INS = new HashMap<>();
-    /** A name in capitals is one of the subject's states, a boolean (e.g. {@code ON_GROUND}). */
+    /** The built-ins the host provides for every subject (see {@link #registerSubjectBuiltIn}): their types. */
+    private static final Map<String, Type> SUBJECT_BUILT_INS = new HashMap<>();
+    /**
+     * Any other bare name in capitals is one of the subject's states, a boolean (e.g. the wolf's
+     * {@code SITTING}); in lower case, one of its variables, a number. The values specific to a
+     * mob become registered operations, and then a bare name is only a built-in.
+     */
     private static final Pattern STATE_NAME = Pattern.compile("[A-Z][A-Z0-9_]*");
 
     public abstract Type getType();
@@ -68,6 +74,17 @@ public abstract class Expression
     /** Starts the memory of the stateful operations in the expression over. */
     public void restart(ITriggerConditionContext context)
     {
+    }
+
+    /**
+     * Makes {@code name} a built-in the host provides for every subject it animates (Mo' Bends'
+     * {@code entityIsOnGround}, {@code partialTicks}): a bare name, read from the subject as its
+     * state (a boolean, see {@link goblinbob.mobends.core.kumo.IKumoSubject#indexOfState}) or its
+     * variable (a number) of that name.
+     */
+    public static void registerSubjectBuiltIn(String name, Type type)
+    {
+        SUBJECT_BUILT_INS.put(name, type);
     }
 
     public static Expression constant(float value)
@@ -198,6 +215,11 @@ public abstract class Expression
         if (builtIn != null)
         {
             return builtIn;
+        }
+        Type subjectBuiltIn = SUBJECT_BUILT_INS.get(name);
+        if (subjectBuiltIn != null)
+        {
+            return subjectBuiltIn == Type.BOOLEAN ? new State(scope.getVariables().state(name)) : new Variable(scope.getVariables().read(name));
         }
         if (STATE_NAME.matcher(name).matches())
         {

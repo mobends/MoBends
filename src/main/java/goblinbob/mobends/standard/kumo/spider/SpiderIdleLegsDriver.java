@@ -27,7 +27,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
     {
         super(skeleton, template.reset, template.out, scope, "mobends:spider_idle_legs");
         this.partialTicks = scope.getVariables().read("partialTicks");
-        this.ticksExisted = scope.getVariables().read("ticksExisted");
+        this.ticksExisted = scope.getVariables().read("entityTicksExisted");
         if (template.feelLimbs != null)
         {
             for (int limb : template.feelLimbs)

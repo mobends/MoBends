@@ -12,7 +12,7 @@ runtime is put together.
 
 | Piece | Where | Role |
 |-------|-------|------|
-| `IKumoSubject` | `core/kumo` | All KUMO knows about an entity: bones resolved by name into rotation/vector sinks, plus named numeric variables and boolean states, and the entity itself for `field` (read through `EntityFields`, which the mod backs with its generated accessors). `EntityData` implements it; data classes register what they expose (`limbSwing`, `headYaw`, `ticksAfterTouchdown`, `SITTING`, ...). |
+| `IKumoSubject` | `core/kumo` | All KUMO knows about an entity: bones resolved by name into rotation/vector sinks, plus named numeric variables and boolean states, and the entity itself for `field` (read through `EntityFields`, which the mod backs with its generated accessors). `EntityData` implements it; data classes register what they expose (`entityLimbSwing`, `entityHeadYaw`, `entityTicksAfterTouchdown`, `SITTING`, ...). |
 | `KumoAnimatorState` | `core/kumo/state` | One running animator: its layers, their trust, the resource-pack limits. |
 | `LayerState` | `core/kumo/state` | A layer: decides its node each frame, cross-fades between nodes, and composites onto the animator's pose as `OVERRIDE` or `ADDITIVE`. |
 | `MachineState` | `core/kumo/state` | A machine (the layer's own, and any nested one): its members, its selector (`Selector`) and its connections. |
@@ -81,5 +81,5 @@ is cleared by `CoreClient.reloadAnimation()` after a resource reload.
 Keyframe clips (`assets/<namespace>/bends/animations/**.json`) are loaded by `AnimatorResources`
 into `KeyframeAnimation`s and sampled by `ClipSampler` (hemisphere-corrected, so a track crossing
 ±180° takes the short way). A clip item's `frame` is an expression in clip units, so a clip can
-run on a node's clock (`nodeTicksElapsed`), on any variable (`limbSwing`, `ticksInAir`, ...) or loop with `mod`. JSON is
+run on a node's clock (`nodeTicksElapsed`), on any variable (`entityLimbSwing`, `entityTicksInAir`, ...) or loop with `mod`. JSON is
 the only clip format.

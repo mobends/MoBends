@@ -53,11 +53,10 @@ to come:
 
 Scoped names are in the spec (*Definitions and statements*). Still to come:
 
-- **Bare names are only built-ins** (`nodeTicksElapsed`, `partialTicks`, `entityIsOnGround`):
-  what Mo' Bends provides, always available, no arguments, independent of the entity's class. A
-  bare name that isn't a built-in is a load error, and adding a built-in never collides with
-  anything a file declares. Today a bare name is also any variable or state the entity's data
-  class registers (task 8 renames them).
+- **Bare names are only built-ins** (spec, *Built-in values*): a bare name that isn't a
+  built-in is a load error, and adding a built-in never collides with anything a file declares.
+  Today a bare name is also a value specific to a mob that its data class registers (a state if
+  in capitals), until those become operations (task 12).
 
 ### Operations
 
@@ -174,11 +173,8 @@ files.
 
 ## Nodes, transitions and time
 
-The node and layer built-ins are in the spec (*Nodes, transitions and time*). Still to come, with
-the entity built-ins: `ticks` (the local player's age in ticks plus `partialTicks`, the same for
-every entity; it restarts when the local player respawns or changes dimension), `partialTicks`
-(progress between two game ticks, 0..1), `ticksPerFrame` (ticks this frame lasted, capped at 1, 0
-while paused) and `random` (0..1), today the entity's variables of those names.
+The node, layer and time built-ins are in the spec (*Nodes, transitions and time*, *Built-in
+values*).
 
 ## Pose items
 
@@ -186,41 +182,10 @@ Pose items, their modifiers and the drivers' `inout` and `out` are in the spec.
 
 ## Entity values
 
-**The rule:** a value that holds for every entity is a built-in, named `entity…`; one that
-depends on the entity's class is a namespaced operation (`core:` for vanilla classes, `mobends:`
-for Mo' Bends' own content). Every animated entity is an `EntityLivingBase` (addons can only
-register living entities), so "every entity" means anything vanilla declares on `Entity` or
-`EntityLivingBase`, or that Mo' Bends computes for every living entity.
-
-### Entity built-ins
-
-| built-ins | from |
-|---|---|
-| `entityLimbSwing`, `entityLimbSwingAmount`, `entitySwingProgress`, `entityHeadYaw`, `entityHeadPitch` | the arguments the vanilla renderer passes to every model, captured by the mutator (`entitySwingProgress` is vanilla's swing progress interpolated by `partialTicks`) |
-| `entityIsSprinting`, `entityIsSneaking`, `entityIsAlive`, `entityIsInWater`, `entityIsRiding` | `Entity` |
-| `entityIsChild`, `entityIsLeftHanded`, `entityHealth`, `entityIsSwinging`, `entityIsSleeping`, `entityIsElytraFlying` | `EntityLivingBase` (false or 0 unless a subclass says otherwise) |
-| `entityId` | vanilla's entity id (per-entity variety) |
-| `entityTicksExisted`, `entityTicksElytraFlying` | vanilla's age and glide time |
-| `entityItemUseTicks`, `entityItemUseTicksLeft` | ticks the item in use has been used so far, and ticks left |
-| `entityIsOnGround`, `entityIsClimbing` | Mo' Bends' own detection: collision boxes and stairs, with liftoff detection; ladders |
-| `entityTicksInAir`, `entityTicksAfterTouchdown`, `entityTicksFalling`, `entityClimbingCycle` | Mo' Bends' counters over that detection |
-| `entityTicksAfterAttack` | ticks since the last counted swing (below) |
-| `entityIsUnderwater`, `entityLedgeHeight`, `entityClimbingRotation` | Mo' Bends' block checks around the entity |
-| `entityIsDrawingBow`, `entityIsRidingLiving` | the held items; what the entity rides |
-| `entityIsStandingStill`, `entityIsStrafing` | Mo' Bends' measured motion |
-| `entityMotionY`, `entityPrevMotionY`, `entityInterpolatedMotionY`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity. `entitySpeed` and `entityXZSpeed` are the magnitudes interpolated by `partialTicks` (`getInterpolatedMotionMagnitude`, `getInterpolatedXZMotionMagnitude`) |
-| `entityBodyYaw`, `entityWorldX/Y/Z` | the body yaw and position, interpolated as the renderer does (`core:step_turn`'s default inputs) |
-| `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` | relative to the ridden entity (0 unless riding something living) |
-| `entityClimbingRenderYaw`, `entityClimbingBodyYaw`, `entityClimbingHeadYaw` | the yaws while climbing |
-
-Values left out are added when something needs them; adding a built-in never breaks a file.
-
-**`entityTicksAfterAttack`** counts swings for every entity: once per game tick it checks
-vanilla's `isSwingInProgress`, counts a swing when one starts, and again whenever more than 5
-ticks have passed while it keeps going (holding attack, mining). The counter goes back to 0 on a
-counted swing and grows by `ticksPerFrame` every frame. `{"decreased": ["entityTicksAfterAttack"]}`
-is the edge of a counted swing (`{"rose": ["entityIsSwinging"]}` would miss the re-counts of a
-swing that keeps going).
+The rule and the entity built-ins are in the spec (*Built-in values*). Still to come: the
+player's swing filter moves from `PlayerData` to its model definition, and its animator reads
+`entity.ticksAfterAttack` (*Values specific to a mob*), once the player has one (*Moving mobs
+out of Java*).
 
 ### Values specific to a mob
 
@@ -286,8 +251,7 @@ The language operations are in the spec (*Expressions*), `mcsin` and `mccos` amo
 the language's rather than `core:`), and `field` and `exists`, which only model definitions
 write (spec, *Reading the entity*).
 
-Built-in values: the clocks and node phases (*Clocks and time*, *Node phases*), `clipLength` and
-`clipDuration`, the `entity…` built-ins (*Entity built-ins*).
+The built-in values are in the spec too (*Built-in values*).
 
 ## Operations and drivers in Java
 
@@ -500,56 +464,11 @@ The 12 old drivers did three jobs:
 Their private state moves from Java fields (`StepTurnDriver`'s planted feet, `SpiderData`'s
 `Limb` objects) into declared state.
 
-### Built-ins and time
-
-| old | new |
-|---|---|
-| `ticks`, `partialTicks`, `ticksPerFrame`, `random` (subject variables) | built-ins, same names and meaning (`ticks` is still the local player's age, as in `DataUpdateHandler`) |
-
 ### Entity values from the data classes
 
-Every old subject variable, state and property, with its uses in the shipped animators where
-counted.
-
-**Built-ins, renamed:**
-
-| old | new |
-|---|---|
-| `limbSwing`, `limbSwingAmount`, `swingProgress`, `headYaw`, `headPitch` | `entityLimbSwing`, `entityLimbSwingAmount`, `entitySwingProgress`, `entityHeadYaw`, `entityHeadPitch` |
-| `SPRINTING`, `SNEAKING`, `ALIVE`, `CHILD`, `LEFT_HANDED`, `health` | `entityIsSprinting`, `entityIsSneaking`, `entityIsAlive`, `entityIsChild`, `entityIsLeftHanded`, `entityHealth` |
-| `ON_GROUND`, `CLIMBING`, `UNDERWATER`, `ledgeHeight`, `climbingRotation` | `entityIsOnGround`, `entityIsClimbing`, `entityIsUnderwater`, `entityLedgeHeight`, `entityClimbingRotation` |
-| `DRAWING_BOW`, `RIDING_LIVING` | `entityIsDrawingBow`, `entityIsRidingLiving` |
-| `SWINGING` (18), `IN_WATER` (2), `RIDING` (23), `SLEEPING` (2), `ELYTRA_FLYING` (1) | `entityIsSwinging`, `entityIsInWater`, `entityIsRiding`, `entityIsSleeping`, `entityIsElytraFlying` |
-| `STANDING_STILL` (65), `STRAFING` (1) | `entityIsStandingStill`, `entityIsStrafing` |
-| `motionY` (4), `prevMotionY` (2), `interpolatedMotionY` (16), `motionMagnitude` (16), `xzMotionMagnitude` (3), `forwardMomentum` (5), `sidewaysMomentum` (4) | `entityMotionY`, `entityPrevMotionY`, `entityInterpolatedMotionY`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` |
-| `bodyYaw`, `worldX/Y/Z` (`core:step_turn`'s defaults) | `entityBodyYaw`, `entityWorldX/Y/Z` |
-| `ridingRelativeHeadYaw` (1), `ridingRelativeYaw` (1) | `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` |
-| `climbingRenderYaw` (1), `climbingBodyYaw` (4), `climbingHeadYaw` (1), `climbingCycle` (1) | `entityClimbingRenderYaw`, `entityClimbingBodyYaw`, `entityClimbingHeadYaw`, `entityClimbingCycle` |
-| `ticksExisted`, `ticksInAir`, `ticksAfterTouchdown`, `ticksFalling`, `ticksAfterAttack` | `entityTicksExisted`, `entityTicksInAir`, `entityTicksAfterTouchdown`, `entityTicksFalling`, `entityTicksAfterAttack` |
-| `itemUseMaxCount`, `itemUseCount` | `entityItemUseTicks`, `entityItemUseTicksLeft`: named for what they hold, not after vanilla's backwards `getItemInUseMaxCount` (ticks used so far) and `getItemInUseCount` (ticks left) |
-| (new) | `entityId`, `entityTicksElytraFlying` |
-
-- `swingProgress` was the mutator's interpolated value (vanilla's `getSwingProgress(partialTicks)`,
-  a straight line between the last tick's value and this tick's, wrapping when a new swing
-  starts); the old `entitySwingProgress` was vanilla's raw field, used once. The name goes to the
-  interpolated value, and the one raw use switches to it (reading the raw field would only keep
-  its jitter).
-- The old `entityXZSpeed` (3 uses) read vanilla's `motionX`/`motionZ`, which the server doesn't
-  send for other entities: they read 0 for every player but the local one. It is dropped; its
-  uses (the player's `riding` node, choosing `riding_fast` above 0.01, ported from the old
-  `RidingAnimationBit`) move to the measured `entityXZSpeed`, with a new threshold: the measured
-  speed includes the mount carrying the rider, so 0.01 would pick `riding_fast` whenever the
-  mount moves. (So the old split only ever worked for the local player.)
-
-**Dropped, written out where used:**
-
-| old (uses) | instead |
-|---|---|
-| `AIRBORNE` (8), `MOVING_HORIZONTALLY` (12) | `{"not": ["entityIsOnGround"]}`, `{"not": ["entityIsStandingStill"]}` |
-| `headYawAbs` (4) | `{"abs": ["entityHeadYaw"]}` |
-| `aimedBowTicks` (16) | `{"min": ["entityItemUseTicks", 15]}`, as an animator definition |
-| the biped's `CAN_SPIN_ATTACK` (always true) | nothing |
-| `rotationYaw`, `motionX/Z`, `prevMotionX/Z`, `movementAngle` (0) | nothing until needed |
+The values every entity has are built-ins (spec, *Built-in values*; task 8). Still to do: the
+values specific to a mob, and the biped's `CAN_SPIN_ATTACK` (always true), which goes with the
+player's.
 
 **Specific to a mob:**
 
@@ -563,13 +482,11 @@ counted.
 | player: `flightSpeedFactor` (4), `flightPitch` (2), `CAN_SPIN_ATTACK` (4), `SPRINT_JUMP_LEG`, the cape phase | player definitions and state (`flightPitch` is a live definition over the motion built-ins, *Values specific to a mob*); `mobends:spin_attack_enabled` |
 | zombie: `animationSet` (2), `currentWalkingState` (1) | zombie state: a constant from `entityId`; a random value on a timer |
 
-**The swing filter.** `LivingEntityData.updateClient` counted swings for every living entity
-(once per tick: when `isSwingInProgress` and either not counted yet or more than 5 ticks since,
-`onAttack()`), `onAttack` reset `ticksAfterAttack`, and `LivingEntityData.update` advanced it by
-`ticksPerFrame` every frame. `PlayerData.onAttack` additionally ignored a swing within 6 ticks of
-the last one while the main hand held an item. The built-in keeps the shared counting; the
-player's filter moves to its model definition (see *Values specific to a mob*), and `player.json` reads
-`entity.ticksAfterAttack` instead of the built-in.
+**The swing filter.** `PlayerData.onAttack` ignores a swing within 6 ticks of the last counted one
+while the main hand holds an item, so the player's `entityTicksAfterAttack` differs from every
+other entity's. The filter moves to the player's model definition (see *Values specific to a
+mob*), `player.json` reads `entity.ticksAfterAttack`, and the built-in counts the same for every
+entity.
 
 ### Addon API
 
@@ -804,13 +721,12 @@ Everything besides the engine that changes with the format (surveyed 2026-10-03)
   `animation-lab`) generates 11 animators: `biped`, `zombie`, `skeleton`, `pig_zombie`, `player`,
   `squid`, `spider`, `zombie_villager`, `quadruped`, `villager`, `chicken`. Its condition helpers
   (`cmp`, `state`, `AND` / `OR` / `NOT`, `prop`, `dec`, `conn`), clip and driver objects and
-  selectors all change. It also holds the riding node's speed threshold, which needs a new value.
+  selectors all change.
 - **Animators not generated:** `iron_golem.json`, `creeper.json`, `cow.json` (hand-edited, per
   the generator's header), `wolf.json` (not in the generator's list).
 - **Example packs** (`misc/examples/`): the `dance`, `zombie_arms`, `vanilla_swim`, `wave`
   animators; the type files with selectors (`bendy_tester.json`); their READMEs.
 - **Type files** with selectors: `src/main/resources/assets/mobends/bends/types/*.json`.
-- **Model definitions** using `variables[]`: `chicken.json`, `iron_golem.json`.
 - **Tests with inline animator JSON:** `core`: `KumoAnimatorStateTest`, `KumoSerializerTest`
   (`TestSubject` parses); `animation-lab`: `ExtensionsTest`, `ClipFrameTest`,
   `AnimationLimitsTest`, `ExpressionTest` (and its fixture `expressions_parent.json`),
@@ -870,9 +786,10 @@ the additive and smaller ones.
 7. [x] **Node and time built-ins**: the node phases, `nodeTicksElapsed`, `layerTicksElapsed`,
    `nodeFadeProgress`, `nodeIsFinished`, `clipLength` / `clipDuration`. `ticks`, `partialTicks`,
    `ticksPerFrame` and `random` come with task 8.
-8. [ ] **Entity built-ins**: the `entity…` values, renamed from the data classes; `entitySpeed` /
-   `entityXZSpeed` as interpolated magnitudes; `entityTicksAfterAttack`'s counting for every
-   entity; `entitySwingProgress` interpolated (*Entity built-ins*).
+8. [x] **Entity built-ins**: the `entity…` values, renamed from the data classes; `entitySpeed` /
+   `entityXZSpeed` as interpolated magnitudes; `entitySwingProgress` interpolated; `ticks`,
+   `partialTicks`, `ticksPerFrame`, `random`. The player's swing filter moves with its model
+   definition (*Values specific to a mob*).
 9. [ ] **The addon API in `core/`**: the opaque entity, float-only state with slot handles, typed
    template fields for drivers, the selector-safe flag; `registerFunction`,
    `registerEntityReader`, `registerOperation`; queued registration (*Operations and drivers in

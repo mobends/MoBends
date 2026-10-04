@@ -9,7 +9,7 @@
   "layers": [
     {
       "select": [
-        {"when": {"and": ["STANDING_STILL", "ON_GROUND"]}, "then": "dance", "transitionDuration": 6},
+        {"when": {"and": ["entityIsStandingStill", "entityIsOnGround"]}, "then": "dance", "transitionDuration": 6},
         {"then": "rest", "transitionDuration": 6}
       ],
       "nodes": {

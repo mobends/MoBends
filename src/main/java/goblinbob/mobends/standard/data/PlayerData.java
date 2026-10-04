@@ -44,8 +44,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	{
 		super.registerKumoBindings();
 		registerState("FLYING", this::isFlying);
-		registerState("SLEEPING", () -> entity != null && entity.isEntityAlive() && entity.isPlayerSleeping());
-		registerState("ELYTRA_FLYING", () -> entity != null && entity.getTicksElytraFlying() > 4);
 		registerState("SPRINT_JUMP_LEG", () -> sprintJumpLeg);
 		// The sword combo ends with a whirl, unless the player turned it off or is riding.
 		registerState("CAN_SPIN_ATTACK", () -> ModConfig.performSpinAttack && entity != null && !entity.isRiding());

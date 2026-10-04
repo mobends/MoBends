@@ -50,53 +50,53 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     {
         super.registerKumoBindings();
 
-        registerVariable("limbSwing", () -> limbSwing);
-        registerVariable("limbSwingAmount", () -> limbSwingAmount);
-        registerVariable("swingProgress", () -> swingProgress);
-        registerVariable("entitySwingProgress", () -> entity != null ? entity.swingProgress : 0);
-        registerVariable("headYaw", () -> headYaw);
-        registerVariable("headPitch", () -> headPitch);
-        registerVariable("ticksInAir", () -> ticksInAir);
-        registerVariable("ticksAfterTouchdown", () -> ticksAfterTouchdown);
-        registerVariable("ticksAfterAttack", () -> ticksAfterAttack);
-        registerVariable("ticksFalling", () -> ticksFalling);
-        registerVariable("climbingCycle", () -> climbingCycle);
-        registerVariable("health", () -> entity != null ? entity.getHealth() : 0);
-        registerVariable("ledgeHeight", this::getLedgeHeight);
-        registerVariable("climbingRotation", this::getClimbingRotation);
-        registerVariable("itemUseCount", () -> entity != null ? entity.getItemInUseCount() : 0);
-        registerVariable("itemUseMaxCount", () -> entity != null ? entity.getItemInUseMaxCount() : 0);
+        // The arguments the renderer passes the model, captured by the mutator (the swing progress
+        // interpolated by partialTicks, as vanilla's getSwingProgress does).
+        registerVariable("entityLimbSwing", () -> limbSwing);
+        registerVariable("entityLimbSwingAmount", () -> limbSwingAmount);
+        registerVariable("entitySwingProgress", () -> swingProgress);
+        registerVariable("entityHeadYaw", () -> headYaw);
+        registerVariable("entityHeadPitch", () -> headPitch);
+        registerVariable("entityTicksInAir", () -> ticksInAir);
+        registerVariable("entityTicksAfterTouchdown", () -> ticksAfterTouchdown);
+        registerVariable("entityTicksAfterAttack", () -> ticksAfterAttack);
+        registerVariable("entityTicksFalling", () -> ticksFalling);
+        registerVariable("entityClimbingCycle", () -> climbingCycle);
+        registerVariable("entityHealth", () -> entity != null ? entity.getHealth() : 0);
+        registerVariable("entityLedgeHeight", this::getLedgeHeight);
+        registerVariable("entityClimbingRotation", this::getClimbingRotation);
+        // Vanilla's names are backwards: getItemInUseMaxCount is the ticks used so far.
+        registerVariable("entityItemUseTicks", () -> entity != null ? entity.getItemInUseMaxCount() : 0);
+        registerVariable("entityItemUseTicksLeft", () -> entity != null ? entity.getItemInUseCount() : 0);
+        registerVariable("entityTicksElytraFlying", () -> entity != null ? entity.getTicksElytraFlying() : 0);
 
-        registerState("CLIMBING", this::isClimbing);
-        registerState("DRAWING_BOW", this::isDrawingBow);
-        registerState("SWINGING", () -> entity != null && entity.isSwingInProgress);
-        registerState("CHILD", () -> entity != null && entity.isChild());
-        registerState("RIDING_LIVING", () -> entity != null && entity.getRidingEntity() instanceof EntityLivingBase);
-        registerState("LEFT_HANDED", () -> entity != null && entity.getPrimaryHand() == EnumHandSide.LEFT);
+        registerState("entityIsClimbing", this::isClimbing);
+        registerState("entityIsDrawingBow", this::isDrawingBow);
+        registerState("entityIsSwinging", () -> entity != null && entity.isSwingInProgress);
+        registerState("entityIsChild", () -> entity != null && entity.isChild());
+        registerState("entityIsRidingLiving", () -> entity != null && entity.getRidingEntity() instanceof EntityLivingBase);
+        registerState("entityIsLeftHanded", () -> entity != null && entity.getPrimaryHand() == EnumHandSide.LEFT);
+        registerState("entityIsSleeping", () -> entity != null && entity.isEntityAlive() && entity.isPlayerSleeping());
+        registerState("entityIsElytraFlying", () -> entity != null && entity.isElytraFlying());
 
-        // Derived inputs, exposed so animators can use them directly.
-        registerVariable("rotationYaw", () -> entity != null ? entity.rotationYaw : 0);
         // The yaw vanilla turns the body to, interpolated as the renderer does.
-        registerVariable("bodyYaw", () -> entity != null ? GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, DataUpdateHandler.partialTicks) : 0);
-        registerVariable("headYawAbs", () -> Math.abs(headYaw));
-        registerVariable("climbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation()) : 0);
-        registerVariable("climbingBodyYaw", () -> entity != null
+        registerVariable("entityBodyYaw", () -> entity != null ? GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, DataUpdateHandler.partialTicks) : 0);
+        registerVariable("entityClimbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation()) : 0);
+        registerVariable("entityClimbingBodyYaw", () -> entity != null
                 ? MathHelper.wrapDegrees(headYaw + MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation())) : 0);
-        registerVariable("climbingHeadYaw", () -> {
+        registerVariable("entityClimbingHeadYaw", () -> {
             if (entity == null) return 0;
             float renderRotationY = MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation());
             return Math.max(-90F, Math.min(90F, MathHelper.wrapDegrees(headYaw + renderRotationY)));
         });
-        registerVariable("ridingRelativeHeadYaw", () -> {
+        registerVariable("entityRidingRelativeHeadYaw", () -> {
             if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
             return MathHelper.wrapDegrees(entity.rotationYaw - ((EntityLivingBase) entity.getRidingEntity()).renderYawOffset);
         });
-        registerVariable("ridingRelativeYaw", () -> {
+        registerVariable("entityRidingRelativeYaw", () -> {
             if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
             return MathHelper.wrapDegrees(entity.rotationYaw - headYaw - ((EntityLivingBase) entity.getRidingEntity()).renderYawOffset);
         });
-        registerVariable("entityXZSpeed", () -> entity != null ? Math.sqrt(entity.motionX * entity.motionX + entity.motionZ * entity.motionZ) : 0);
-        registerVariable("aimedBowTicks", () -> entity != null ? Math.min(entity.getItemInUseMaxCount(), 15) : 0);
     }
 
     // --- string-valued inputs -----------------------------------------------------------------

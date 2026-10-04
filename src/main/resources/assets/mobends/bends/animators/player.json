@@ -1,46 +1,46 @@
 {
   "formatVersion": 2,
   "@define": {
-    "jumping": {"live": {"or": ["AIRBORNE", {"lt": ["ticksAfterTouchdown", 1]}]}},
-    "bounced": {"live": {"and": [{"lt": ["prevMotionY", 0]}, {"gt": ["motionY", 0]}]}},
+    "jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}},
+    "bounced": {"live": {"and": [{"lt": ["entityPrevMotionY", 0]}, {"gt": ["entityMotionY", 0]}]}},
     "standing": {
       "live": {
         "and": [
-          {"not": ["SLEEPING"]},
-          {"not": ["RIDING"]},
-          {"not": ["ELYTRA_FLYING"]},
-          {"not": ["CLIMBING"]},
-          {"not": ["IN_WATER"]},
+          {"not": ["entityIsSleeping"]},
+          {"not": ["entityIsRiding"]},
+          {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+          {"not": ["entityIsClimbing"]},
+          {"not": ["entityIsInWater"]},
           {"not": ["animator.jumping"]},
-          "STANDING_STILL"
+          "entityIsStandingStill"
         ]
       }
     },
     "walking": {
       "live": {
         "and": [
-          {"not": ["SLEEPING"]},
-          {"not": ["RIDING"]},
-          {"not": ["ELYTRA_FLYING"]},
-          {"not": ["CLIMBING"]},
-          {"not": ["IN_WATER"]},
+          {"not": ["entityIsSleeping"]},
+          {"not": ["entityIsRiding"]},
+          {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+          {"not": ["entityIsClimbing"]},
+          {"not": ["entityIsInWater"]},
           {"not": ["animator.jumping"]},
-          {"not": ["STANDING_STILL"]},
-          {"not": ["SPRINTING"]}
+          {"not": ["entityIsStandingStill"]},
+          {"not": ["entityIsSprinting"]}
         ]
       }
     },
     "sprinting": {
       "live": {
         "and": [
-          {"not": ["SLEEPING"]},
-          {"not": ["RIDING"]},
-          {"not": ["ELYTRA_FLYING"]},
-          {"not": ["CLIMBING"]},
-          {"not": ["IN_WATER"]},
+          {"not": ["entityIsSleeping"]},
+          {"not": ["entityIsRiding"]},
+          {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+          {"not": ["entityIsClimbing"]},
+          {"not": ["entityIsInWater"]},
           {"not": ["animator.jumping"]},
-          {"not": ["STANDING_STILL"]},
-          "SPRINTING"
+          {"not": ["entityIsStandingStill"]},
+          "entityIsSprinting"
         ]
       }
     }
@@ -56,25 +56,28 @@
     },
     {
       "select": [
-        {"when": "SLEEPING", "then": "sleeping"},
-        {"when": "RIDING", "then": [{"when": "RIDING_LIVING", "then": "riding"}, {"then": "sitting"}]},
-        {"when": "ELYTRA_FLYING", "then": "elytra"},
-        {"when": "CLIMBING", "then": "ladder"},
-        {"when": "IN_WATER", "then": "swimming"},
+        {"when": "entityIsSleeping", "then": "sleeping"},
+        {
+          "when": "entityIsRiding",
+          "then": [{"when": "entityIsRidingLiving", "then": "riding"}, {"then": "sitting"}]
+        },
+        {"when": {"gt": ["entityTicksElytraFlying", 4]}, "then": "elytra"},
+        {"when": "entityIsClimbing", "then": "ladder"},
+        {"when": "entityIsInWater", "then": "swimming"},
         {
           "when": "animator.jumping",
           "then": [
             {"when": "FLYING", "then": "flying"},
-            {"when": {"gt": ["ticksFalling", 10]}, "then": "falling"},
+            {"when": {"gt": ["entityTicksFalling", 10]}, "then": "falling"},
             {
-              "when": "SPRINTING",
+              "when": "entityIsSprinting",
               "then": [{"when": "SPRINT_JUMP_LEG", "then": "sprint_jump_right"}, {"then": "sprint_jump_left"}]
             },
             {"then": "jump"}
           ]
         },
-        {"when": "STANDING_STILL", "then": "stand"},
-        {"when": "SPRINTING", "then": "sprint"},
+        {"when": "entityIsStandingStill", "then": "stand"},
+        {"when": "entityIsSprinting", "then": "sprint"},
         {"then": "walk"}
       ],
       "nodes": {
@@ -99,18 +102,24 @@
                 },
                 "@vectorModes": {"root": "SLIDE", "localOffset": "SLIDE"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
               {
-                "@when": {"lt": ["ticksAfterTouchdown", 6.666666666666667]},
-                "core:clip": {"animationKey": "mobends:bends/animations/biped/kneel.json", "frame": "ticksAfterTouchdown"},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              },
+              {
+                "@when": {"lt": ["entityTicksAfterTouchdown", 6.666666666666667]},
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/kneel.json",
+                  "frame": "entityTicksAfterTouchdown"
+                },
                 "@damping": {"body": 1},
                 "@vectorModes": {"root": "SNAP"}
               }
             ],
             "enterPose": [
               {
-                "@when": {"lt": ["ticksAfterTouchdown", 3.3333333333333335]},
+                "@when": {"lt": ["entityTicksAfterTouchdown", 3.3333333333333335]},
                 "core:clip": {"animationKey": "mobends:bends/animations/biped/stand_enter.json"}
               }
             ]
@@ -122,7 +131,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/biped/walk_base.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@damping": {
                   "root": [0.6, 1.2, 0.6],
@@ -145,43 +154,49 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/biped/walk_forelegs.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@damping": {"leftForeLeg": 0.5, "rightForeLeg": 0.5}
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/biped/walk_swing.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
-                  "weight": "limbSwingAmount"
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "entityLimbSwingAmount"
                 },
                 "@space": "POST"
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "Z", "angle": {"clamp": [{"mul": ["headYaw", -0.1]}, -10, 10]}},
+                "core:axis_rotate": {"bone": "body", "axis": "Z", "angle": {"clamp": [{"mul": ["entityHeadYaw", -0.1]}, -10, 10]}},
                 "@space": "PRE"
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
               {
-                "@when": {"lt": ["ticksAfterTouchdown", 6.666666666666667]},
-                "core:clip": {"animationKey": "mobends:bends/animations/biped/kneel.json", "frame": "ticksAfterTouchdown"},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              },
+              {
+                "@when": {"lt": ["entityTicksAfterTouchdown", 6.666666666666667]},
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/biped/kneel.json",
+                  "frame": "entityTicksAfterTouchdown"
+                },
                 "@damping": {"body": 1},
                 "@vectorModes": {"root": "SNAP"}
               },
               {
-                "@when": {"lt": ["ticksAfterAttack", 10]},
+                "@when": {"lt": ["entityTicksAfterAttack", 10]},
                 "core:clip": {"animationKey": "mobends:bends/animations/player/riding_head.json"},
                 "@damping": {"head": 0.5}
               },
               {
-                "@when": {"lt": ["ticksAfterAttack", 10]},
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@when": {"lt": ["entityTicksAfterAttack", 10]},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "PRE"
               },
               {
-                "@when": {"lt": ["ticksAfterAttack", 10]},
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@when": {"lt": ["entityTicksAfterAttack", 10]},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "POST"
               }
             ]
@@ -193,7 +208,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/sprint_base.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.53296]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.53296]}, "clipLength"]}
                 },
                 "@damping": {
                   "root": [0.2, 1.8, 0.2],
@@ -216,37 +231,40 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/sprint_forearms.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.53296]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.53296]}, "clipLength"]}
                 },
                 "@damping": {"leftForeArm": 0.3, "rightForeArm": 0.3}
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/sprint_swing.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.53296]}, "clipLength"]},
-                  "weight": "limbSwingAmount"
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.53296]}, "clipLength"]},
+                  "weight": "entityLimbSwingAmount"
                 },
                 "@space": "POST"
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "Z", "angle": {"clamp": [{"mul": ["headYaw", -0.3]}, -10, 10]}},
+                "core:axis_rotate": {"bone": "body", "axis": "Z", "angle": {"clamp": [{"mul": ["entityHeadYaw", -0.3]}, -10, 10]}},
                 "@space": "PRE"
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
               {
-                "@when": {"lt": ["ticksAfterAttack", 10]},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              },
+              {
+                "@when": {"lt": ["entityTicksAfterAttack", 10]},
                 "core:clip": {"animationKey": "mobends:bends/animations/player/riding_head.json"},
                 "@damping": {"head": 0.5}
               },
               {
-                "@when": {"lt": ["ticksAfterAttack", 10]},
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@when": {"lt": ["entityTicksAfterAttack", 10]},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "PRE"
               },
               {
-                "@when": {"lt": ["ticksAfterAttack", 10]},
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@when": {"lt": ["entityTicksAfterAttack", 10]},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "POST"
               }
             ]
@@ -256,7 +274,7 @@
           "core:pose": {
             "pose": [
               {
-                "core:clip": {"animationKey": "mobends:bends/animations/biped/jump.json", "frame": "ticksInAir"},
+                "core:clip": {"animationKey": "mobends:bends/animations/biped/jump.json", "frame": "entityTicksInAir"},
                 "@damping": {
                   "root": 0.6,
                   "localOffset": 0.3,
@@ -272,35 +290,38 @@
                 },
                 "@vectorModes": {"root": "SLIDE"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
               {
-                "@when": "MOVING_HORIZONTALLY",
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              },
+              {
+                "@when": {"not": ["entityIsStandingStill"]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/biped/jump_moving_base.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@damping": {"rightLeg": 1, "leftLeg": 1, "leftForeArm": 0.3, "rightForeArm": 0.3}
               },
               {
-                "@when": "MOVING_HORIZONTALLY",
+                "@when": {"not": ["entityIsStandingStill"]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/biped/jump_moving_forelegs.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@damping": {"leftForeLeg": 0.3, "rightForeLeg": 0.3}
               },
               {
-                "@when": "MOVING_HORIZONTALLY",
+                "@when": {"not": ["entityIsStandingStill"]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/biped/jump_moving_swing.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
-                  "weight": "limbSwingAmount"
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "entityLimbSwingAmount"
                 },
                 "@space": "POST"
               },
               {
-                "@when": "STANDING_STILL",
+                "@when": "entityIsStandingStill",
                 "core:clip": {"animationKey": "mobends:bends/animations/biped/jump_still.json"},
                 "@damping": {"rightLeg": 0.3, "leftLeg": 0.3, "rightForeLeg": 0.3, "leftForeLeg": 0.3}
               }
@@ -329,7 +350,7 @@
                 "core:axis_rotate": {
                   "bone": "body",
                   "axis": "X",
-                  "angle": {"add": [{"mul": [{"clamp": ["motionY", -0.2, 0.2]}, -100]}, 20]}
+                  "angle": {"add": [{"mul": [{"clamp": ["entityMotionY", -0.2, 0.2]}, -100]}, 20]}
                 },
                 "@space": "POST"
               },
@@ -350,11 +371,11 @@
                 "@space": "OVERRIDE"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"add": ["headPitch", -20]}},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"add": ["entityHeadPitch", -20]}},
                 "@space": "OVERRIDE"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": {"add": ["headYaw", -20]}},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": {"add": ["entityHeadYaw", -20]}},
                 "@space": "PRE"
               }
             ]
@@ -382,7 +403,7 @@
                 "core:axis_rotate": {
                   "bone": "body",
                   "axis": "X",
-                  "angle": {"add": [{"mul": [{"clamp": ["motionY", -0.2, 0.2]}, -100]}, 20]}
+                  "angle": {"add": [{"mul": [{"clamp": ["entityMotionY", -0.2, 0.2]}, -100]}, 20]}
                 },
                 "@space": "POST"
               },
@@ -403,11 +424,11 @@
                 "@space": "OVERRIDE"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"add": ["headPitch", -20]}},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"add": ["entityHeadPitch", -20]}},
                 "@space": "OVERRIDE"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": {"add": ["headYaw", 20]}},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": {"add": ["entityHeadYaw", 20]}},
                 "@space": "PRE"
               }
             ]
@@ -422,29 +443,34 @@
                 "core:clip": {"animationKey": "mobends:bends/animations/player/falling_rest.json"},
                 "@damping": {"centerRotation": 0.3, "body": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "OVERRIDE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "OVERRIDE"
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/falling.json",
                   "frame": {"mod": [{"mul": ["ticks", 0.5]}, "clipLength"]}
                 },
                 "@damping": {
-                  "leftArm": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
-                  "rightArm": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
-                  "leftForeArm": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
-                  "rightForeArm": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
-                  "leftLeg": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
-                  "rightLeg": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
-                  "leftForeLeg": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
-                  "rightForeLeg": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
-                  "renderRotation": {"mul": [{"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]}, 2]}
+                  "leftArm": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
+                  "rightArm": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
+                  "leftForeArm": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
+                  "rightForeArm": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
+                  "leftLeg": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
+                  "rightLeg": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
+                  "leftForeLeg": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
+                  "rightForeLeg": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]},
+                  "renderRotation": {
+                    "mul": [{"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]}, 2]
+                  }
                 }
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/player/falling_head.json"},
                 "@space": "PRE",
-                "@damping": {"head": {"clamp": [{"add": [{"mul": ["ticksFalling", 0.01125]}, -0.1125]}, 0, 0.9]}}
+                "@damping": {"head": {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]}}
               }
             ]
           }
@@ -458,7 +484,13 @@
                 "@vectorModes": {"root": "SLIDE"}
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
                 "core:clip": {"animationKey": "mobends:bends/animations/player/fly_sprint.json"},
                 "@damping": {
                   "centerRotation": 1,
@@ -475,87 +507,193 @@
                 }
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
                 "core:axis_rotate": {"bone": "centerRotation", "axis": "X", "angle": "flightPitch"},
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "centerRotation", "axis": "Z", "angle": "headYaw"},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {"bone": "centerRotation", "axis": "Z", "angle": "entityHeadYaw"},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": {"clamp": [{"mul": ["headPitch", 0.8]}, -60, 0]}},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": {"clamp": [{"mul": ["entityHeadPitch", 0.8]}, -60, 0]}},
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"clamp": [{"mul": ["headPitch", -0.8]}, 0, 60]}},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"clamp": [{"mul": ["entityHeadPitch", -0.8]}, 0, 60]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
                 "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"mul": ["flightPitch", -1]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"clamp": [{"mul": ["headPitch", -0.8]}, 0, 60]}},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {
+                  "bone": "leftArm",
+                  "axis": "X",
+                  "angle": {"clamp": [{"mul": ["entityHeadPitch", -0.8]}, 0, 60]}
+                },
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
                 "core:axis_rotate": {"bone": "leftArm", "axis": "Z", "angle": -60},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
                 "core:axis_rotate": {"bone": "leftArm", "axis": "Z", "angle": {"mul": ["flightSpeedFactor", 55]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "leftArm", "axis": "Z", "angle": {"mul": ["headYawAbs", -0.5]}},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {"bone": "leftArm", "axis": "Z", "angle": {"mul": [{"abs": ["entityHeadYaw"]}, -0.5]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"clamp": [{"mul": ["headPitch", -0.8]}, 0, 60]}},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {
+                  "bone": "rightArm",
+                  "axis": "X",
+                  "angle": {"clamp": [{"mul": ["entityHeadPitch", -0.8]}, 0, 60]}
+                },
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
                 "core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": 60},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
                 "core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": {"mul": ["flightSpeedFactor", -55]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]},
-                "core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": {"mul": ["headYawAbs", 0.5]}},
+                "@when": {
+                  "and": [
+                    "entityIsSprinting",
+                    {"not": ["entityIsDrawingBow"]},
+                    {"ge": ["entityTicksAfterAttack", 10]}
+                  ]
+                },
+                "core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": {"mul": [{"abs": ["entityHeadYaw"]}, 0.5]}},
                 "@space": "PRE"
               },
               {
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"lt": ["motionMagnitude", 0.1]}
+                    {"lt": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:clip": {
@@ -568,9 +706,17 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"lt": ["motionMagnitude", 0.1]}
+                    {"lt": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:clip": {
@@ -583,9 +729,17 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"lt": ["motionMagnitude", 0.1]}
+                    {"lt": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:clip": {"animationKey": "mobends:bends/animations/player/fly_hover_rest.json"},
@@ -595,33 +749,57 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"lt": ["motionMagnitude", 0.1]}
+                    {"lt": ["entitySpeed", 0.1]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "OVERRIDE"
               },
               {
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"lt": ["motionMagnitude", 0.1]}
+                    {"lt": ["entitySpeed", 0.1]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "PRE"
               },
               {
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:clip": {"animationKey": "mobends:bends/animations/player/fly_moving.json"},
@@ -631,15 +809,23 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:axis_rotate": {
                   "bone": "centerRotation",
                   "axis": "X",
-                  "angle": {"mul": [{"clamp": ["forwardMomentum", -1, 1]}, 50]}
+                  "angle": {"mul": [{"clamp": ["entityForwardMomentum", -1, 1]}, 50]}
                 },
                 "@space": "PRE"
               },
@@ -647,15 +833,23 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:axis_rotate": {
                   "bone": "leftArm",
                   "axis": "X",
-                  "angle": {"mul": [{"clamp": ["forwardMomentum", -1, 1]}, 90]}
+                  "angle": {"mul": [{"clamp": ["entityForwardMomentum", -1, 1]}, 90]}
                 },
                 "@space": "OVERRIDE"
               },
@@ -663,15 +857,23 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:axis_rotate": {
                   "bone": "leftArm",
                   "axis": "Z",
-                  "angle": {"add": [{"mul": [{"clamp": ["sidewaysMomentum", -1, 1]}, -80]}, -20]}
+                  "angle": {"add": [{"mul": [{"clamp": ["entitySidewaysMomentum", -1, 1]}, -80]}, -20]}
                 },
                 "@space": "POST"
               },
@@ -679,15 +881,23 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:axis_rotate": {
                   "bone": "rightArm",
                   "axis": "X",
-                  "angle": {"mul": [{"clamp": ["forwardMomentum", -1, 1]}, 90]}
+                  "angle": {"mul": [{"clamp": ["entityForwardMomentum", -1, 1]}, 90]}
                 },
                 "@space": "OVERRIDE"
               },
@@ -695,15 +905,23 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:axis_rotate": {
                   "bone": "rightArm",
                   "axis": "Z",
-                  "angle": {"add": [{"mul": [{"clamp": ["sidewaysMomentum", -1, 1]}, -80]}, 20]}
+                  "angle": {"add": [{"mul": [{"clamp": ["entitySidewaysMomentum", -1, 1]}, -80]}, 20]}
                 },
                 "@space": "POST"
               },
@@ -711,15 +929,23 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:axis_rotate": {
                   "bone": "leftLeg",
                   "axis": "Z",
-                  "angle": {"add": [{"mul": [{"clamp": ["sidewaysMomentum", -1, 1]}, -40]}, -5]}
+                  "angle": {"add": [{"mul": [{"clamp": ["entitySidewaysMomentum", -1, 1]}, -40]}, -5]}
                 },
                 "@space": "POST"
               },
@@ -727,15 +953,23 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
                 "core:axis_rotate": {
                   "bone": "rightLeg",
                   "axis": "Z",
-                  "angle": {"add": [{"mul": [{"clamp": ["sidewaysMomentum", -1, 1]}, -40]}, 5]}
+                  "angle": {"add": [{"mul": [{"clamp": ["entitySidewaysMomentum", -1, 1]}, -40]}, 5]}
                 },
                 "@space": "POST"
               },
@@ -743,24 +977,44 @@
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "OVERRIDE"
               },
               {
                 "@when": {
                   "and": [
                     {
-                      "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                      "not": [
+                        {
+                          "and": [
+                            "entityIsSprinting",
+                            {"not": ["entityIsDrawingBow"]},
+                            {"ge": ["entityTicksAfterAttack", 10]}
+                          ]
+                        }
+                      ]
                     },
-                    {"ge": ["motionMagnitude", 0.1]}
+                    {"ge": ["entitySpeed", 0.1]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"mul": [{"clamp": ["forwardMomentum", -1, 1]}, -50]}},
+                "core:axis_rotate": {
+                  "bone": "head",
+                  "axis": "X",
+                  "angle": {"mul": [{"clamp": ["entityForwardMomentum", -1, 1]}, -50]}
+                },
                 "@space": "PRE"
               },
               {
@@ -769,15 +1023,23 @@
                     {
                       "and": [
                         {
-                          "not": [{"and": ["SPRINTING", {"not": ["DRAWING_BOW"]}, {"ge": ["ticksAfterAttack", 10]}]}]
+                          "not": [
+                            {
+                              "and": [
+                                "entityIsSprinting",
+                                {"not": ["entityIsDrawingBow"]},
+                                {"ge": ["entityTicksAfterAttack", 10]}
+                              ]
+                            }
+                          ]
                         },
-                        {"ge": ["motionMagnitude", 0.1]}
+                        {"ge": ["entitySpeed", 0.1]}
                       ]
                     },
-                    {"not": ["DRAWING_BOW"]}
+                    {"not": ["entityIsDrawingBow"]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "centerRotation", "axis": "Y", "angle": {"mul": ["headYaw", -1]}},
+                "core:axis_rotate": {"bone": "centerRotation", "axis": "Y", "angle": {"mul": ["entityHeadYaw", -1]}},
                 "@space": "POST"
               }
             ]
@@ -795,10 +1057,10 @@
                         "not": [
                           {
                             "or": [
-                              "STANDING_STILL",
-                              "DRAWING_BOW",
-                              {"lt": ["ticksAfterAttack", 10]},
-                              {"not": ["UNDERWATER"]}
+                              "entityIsStandingStill",
+                              "entityIsDrawingBow",
+                              {"lt": ["entityTicksAfterAttack", 10]},
+                              {"not": ["entityIsUnderwater"]}
                             ]
                           }
                         ]
@@ -818,7 +1080,12 @@
               },
               {
                 "@when": {
-                  "or": ["STANDING_STILL", "DRAWING_BOW", {"lt": ["ticksAfterAttack", 10]}, {"not": ["UNDERWATER"]}]
+                  "or": [
+                    "entityIsStandingStill",
+                    "entityIsDrawingBow",
+                    {"lt": ["entityTicksAfterAttack", 10]},
+                    {"not": ["entityIsUnderwater"]}
+                  ]
                 },
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/swim_surface_arms.json",
@@ -828,7 +1095,12 @@
               },
               {
                 "@when": {
-                  "or": ["STANDING_STILL", "DRAWING_BOW", {"lt": ["ticksAfterAttack", 10]}, {"not": ["UNDERWATER"]}]
+                  "or": [
+                    "entityIsStandingStill",
+                    "entityIsDrawingBow",
+                    {"lt": ["entityTicksAfterAttack", 10]},
+                    {"not": ["entityIsUnderwater"]}
+                  ]
                 },
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/swim_surface_legs.json",
@@ -841,10 +1113,10 @@
                   "not": [
                     {
                       "or": [
-                        "STANDING_STILL",
-                        "DRAWING_BOW",
-                        {"lt": ["ticksAfterAttack", 10]},
-                        {"not": ["UNDERWATER"]}
+                        "entityIsStandingStill",
+                        "entityIsDrawingBow",
+                        {"lt": ["entityTicksAfterAttack", 10]},
+                        {"not": ["entityIsUnderwater"]}
                       ]
                     }
                   ]
@@ -860,10 +1132,10 @@
                   "not": [
                     {
                       "or": [
-                        "STANDING_STILL",
-                        "DRAWING_BOW",
-                        {"lt": ["ticksAfterAttack", 10]},
-                        {"not": ["UNDERWATER"]}
+                        "entityIsStandingStill",
+                        "entityIsDrawingBow",
+                        {"lt": ["entityTicksAfterAttack", 10]},
+                        {"not": ["entityIsUnderwater"]}
                       ]
                     }
                   ]
@@ -880,10 +1152,10 @@
                   "not": [
                     {
                       "or": [
-                        "STANDING_STILL",
-                        "DRAWING_BOW",
-                        {"lt": ["ticksAfterAttack", 10]},
-                        {"not": ["UNDERWATER"]}
+                        "entityIsStandingStill",
+                        "entityIsDrawingBow",
+                        {"lt": ["entityTicksAfterAttack", 10]},
+                        {"not": ["entityIsUnderwater"]}
                       ]
                     }
                   ]
@@ -900,10 +1172,10 @@
                   "not": [
                     {
                       "or": [
-                        "STANDING_STILL",
-                        "DRAWING_BOW",
-                        {"lt": ["ticksAfterAttack", 10]},
-                        {"not": ["UNDERWATER"]}
+                        "entityIsStandingStill",
+                        "entityIsDrawingBow",
+                        {"lt": ["entityTicksAfterAttack", 10]},
+                        {"not": ["entityIsUnderwater"]}
                       ]
                     }
                   ]
@@ -919,10 +1191,10 @@
                   "not": [
                     {
                       "or": [
-                        "STANDING_STILL",
-                        "DRAWING_BOW",
-                        {"lt": ["ticksAfterAttack", 10]},
-                        {"not": ["UNDERWATER"]}
+                        "entityIsStandingStill",
+                        "entityIsDrawingBow",
+                        {"lt": ["entityTicksAfterAttack", 10]},
+                        {"not": ["entityIsUnderwater"]}
                       ]
                     }
                   ]
@@ -938,10 +1210,10 @@
                   "not": [
                     {
                       "or": [
-                        "STANDING_STILL",
-                        "DRAWING_BOW",
-                        {"lt": ["ticksAfterAttack", 10]},
-                        {"not": ["UNDERWATER"]}
+                        "entityIsStandingStill",
+                        "entityIsDrawingBow",
+                        {"lt": ["entityTicksAfterAttack", 10]},
+                        {"not": ["entityIsUnderwater"]}
                       ]
                     }
                   ]
@@ -952,8 +1224,11 @@
                 },
                 "@damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.4, "rightForeLeg": 0.4}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "OVERRIDE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "OVERRIDE"
+              },
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
               {
                 "core:axis_rotate": {
                   "bone": "head",
@@ -989,7 +1264,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/ladder.json",
-                  "frame": {"mod": ["climbingCycle", "clipLength"]}
+                  "frame": {"mod": ["entityClimbingCycle", "clipLength"]}
                 },
                 "@damping": {
                   "body": 0.5,
@@ -1010,31 +1285,41 @@
                 "@damping": {"centerRotation": 0.3, "renderRotation": 1.2}
               },
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "Y", "angle": "climbingRenderYaw"},
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "Y", "angle": "entityClimbingRenderYaw"},
                 "@space": "OVERRIDE"
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "OVERRIDE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "climbingHeadYaw"}, "@space": "PRE"},
               {
-                "@when": {"ge": ["ledgeHeight", 0.6]},
-                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": {"add": [{"mul": ["ledgeHeight", 50]}, -30]}},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "OVERRIDE"
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityClimbingHeadYaw"},
+                "@space": "PRE"
+              },
+              {
+                "@when": {"ge": ["entityLedgeHeight", 0.6]},
+                "core:axis_rotate": {"bone": "body", "axis": "X", "angle": {"add": [{"mul": ["entityLedgeHeight", 50]}, -30]}},
                 "@space": "OVERRIDE",
                 "@damping": {"body": 0.5}
               },
               {
-                "@when": {"ge": ["ledgeHeight", 0.6]},
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": [{"mul": ["ledgeHeight", 40]}, -124]}},
+                "@when": {"ge": ["entityLedgeHeight", 0.6]},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": [{"mul": ["entityLedgeHeight", 40]}, -124]}},
                 "@space": "OVERRIDE",
                 "@damping": {"leftArm": 0.5}
               },
               {
-                "@when": {"ge": ["ledgeHeight", 0.6]},
-                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": [{"mul": ["ledgeHeight", 40]}, -124]}},
+                "@when": {"ge": ["entityLedgeHeight", 0.6]},
+                "core:axis_rotate": {
+                  "bone": "rightArm",
+                  "axis": "X",
+                  "angle": {"add": [{"mul": ["entityLedgeHeight", 40]}, -124]}
+                },
                 "@space": "OVERRIDE",
                 "@damping": {"rightArm": 0.5}
               },
               {
-                "@when": {"ge": ["ledgeHeight", 0.6]},
+                "@when": {"ge": ["entityLedgeHeight", 0.6]},
                 "core:clip": {"animationKey": "mobends:bends/animations/player/ladder_ledge_forearms.json"},
                 "@damping": {"leftForeArm": 0.5, "rightForeArm": 0.5}
               }
@@ -1063,7 +1348,10 @@
                 },
                 "@vectorModes": {"root": "SLIDE"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "OVERRIDE"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
+                "@space": "OVERRIDE"
+              },
               {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": -90}, "@space": "PRE"},
               {"core:axis_rotate": {"bone": "leftArm", "axis": "Z", "angle": -60}, "@space": "PRE"},
               {
@@ -1071,7 +1359,7 @@
                 "@space": "PRE"
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "Z", "angle": {"mul": ["headYawAbs", -0.5]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "Z", "angle": {"mul": [{"abs": ["entityHeadYaw"]}, -0.5]}},
                 "@space": "PRE"
               },
               {"core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": 60}, "@space": "PRE"},
@@ -1080,7 +1368,7 @@
                 "@space": "PRE"
               },
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": {"mul": ["headYawAbs", 0.5]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "Z", "angle": {"mul": [{"abs": ["entityHeadYaw"]}, 0.5]}},
                 "@space": "PRE"
               }
             ]
@@ -1094,36 +1382,39 @@
                 "@damping": {"centerRotation": 0.3, "body": 0.5, "localOffset": 0.3},
                 "@vectorModes": {"localOffset": "SLIDE"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              },
               {
                 "core:axis_rotate": {
                   "bone": "body",
                   "axis": "Z",
-                  "angle": {"clamp": [{"mul": ["ridingRelativeHeadYaw", -0.25]}, -20, 20]}
+                  "angle": {"clamp": [{"mul": ["entityRidingRelativeHeadYaw", -0.25]}, -20, 20]}
                 },
                 "@space": "OVERRIDE"
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/riding_legs.json",
-                  "frame": {"add": ["ridingRelativeYaw", 180]}
+                  "frame": {"add": ["entityRidingRelativeYaw", 180]}
                 }
               },
               {
-                "@when": "MOVING_HORIZONTALLY",
+                "@when": {"not": ["entityIsStandingStill"]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/riding_moving.json",
                   "bones": ["body", "leftArm", "rightArm", "leftForeArm", "rightForeArm"]
                 }
               },
               {
-                "@when": {"and": ["MOVING_HORIZONTALLY", {"le": ["entityXZSpeed", 0.01]}]},
+                "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"le": ["entityXZSpeed", 0.2]}]},
                 "core:clip": {"animationKey": "mobends:bends/animations/player/riding_moving_head.json"},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": ["MOVING_HORIZONTALLY", {"gt": ["entityXZSpeed", 0.01]}]},
+                "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"gt": ["entityXZSpeed", 0.2]}]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/riding_fast.json",
                   "bones": ["body", "leftArm", "rightArm", "root"],
@@ -1133,7 +1424,7 @@
                 "@vectorModes": {"root": "RETARGET"}
               },
               {
-                "@when": {"and": ["MOVING_HORIZONTALLY", {"gt": ["entityXZSpeed", 0.01]}]},
+                "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"gt": ["entityXZSpeed", 0.2]}]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/riding_fast.json",
                   "bones": ["head"],
@@ -1151,8 +1442,11 @@
                 "core:clip": {"animationKey": "mobends:bends/animations/player/sitting.json"},
                 "@damping": {"centerRotation": 0.3, "body": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
-              {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"}
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
+                "@space": "POST"
+              }
             ]
           }
         },
@@ -1183,7 +1477,7 @@
       }
     },
     {
-      "@when": {"and": ["SNEAKING", {"or": ["animator.standing", "animator.walking", "animator.sprinting"]}]},
+      "@when": {"and": ["entityIsSneaking", {"or": ["animator.standing", "animator.walking", "animator.sprinting"]}]},
       "defaultOnEntry": "sneak",
       "nodes": {
         "sneak": {
@@ -1192,7 +1486,7 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/sneak_base.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@damping": {
                   "rightLeg": 1,
@@ -1207,29 +1501,29 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/sneak_forelegs.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@damping": {"leftForeLeg": 0.3, "rightForeLeg": 0.3}
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/sneak_swing.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]},
-                  "weight": "limbSwingAmount"
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "entityLimbSwingAmount"
                 },
                 "@space": "POST"
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/sneak_body.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@space": "POST"
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/sneak_head.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@space": "PRE"
               }
@@ -1256,31 +1550,37 @@
           "core:pose": {
             "pose": [
               {
-                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, {"not": ["LEFT_HANDED"]}]},
-                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": [{"mul": ["headPitch", 0.5]}, -90]}},
+                "@when": {
+                  "and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, {"not": ["entityIsLeftHanded"]}]
+                },
+                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": [{"mul": ["entityHeadPitch", 0.5]}, -90]}},
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, {"not": ["LEFT_HANDED"]}]},
-                "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"mul": ["headYaw", 0.7]}},
+                "@when": {
+                  "and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, {"not": ["entityIsLeftHanded"]}]
+                },
+                "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"mul": ["entityHeadYaw", 0.7]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, {"not": ["LEFT_HANDED"]}]},
+                "@when": {
+                  "and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, {"not": ["entityIsLeftHanded"]}]
+                },
                 "core:clip": {"animationKey": "mobends:bends/animations/player/torch_forearm_right.json"}
               },
               {
-                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, "LEFT_HANDED"]},
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": [{"mul": ["headPitch", 0.5]}, -90]}},
+                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, "entityIsLeftHanded"]},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": [{"mul": ["entityHeadPitch", 0.5]}, -90]}},
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, "LEFT_HANDED"]},
-                "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"mul": ["headYaw", 0.7]}},
+                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, "entityIsLeftHanded"]},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"mul": ["entityHeadYaw", 0.7]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, "LEFT_HANDED"]},
+                "@when": {"and": [{"core:holds_item": ["main_hand", "minecraft:torch"]}, "entityIsLeftHanded"]},
                 "core:clip": {"animationKey": "mobends:bends/animations/player/torch_forearm_left.json"}
               },
               {
@@ -1288,10 +1588,10 @@
                   "and": [
                     {"not": [{"core:holds_item": ["main_hand", "minecraft:torch"]}]},
                     {"core:holds_item": ["off_hand", "minecraft:torch"]},
-                    {"not": ["LEFT_HANDED"]}
+                    {"not": ["entityIsLeftHanded"]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": [{"mul": ["headPitch", 0.5]}, -90]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": [{"mul": ["entityHeadPitch", 0.5]}, -90]}},
                 "@space": "OVERRIDE"
               },
               {
@@ -1299,10 +1599,10 @@
                   "and": [
                     {"not": [{"core:holds_item": ["main_hand", "minecraft:torch"]}]},
                     {"core:holds_item": ["off_hand", "minecraft:torch"]},
-                    {"not": ["LEFT_HANDED"]}
+                    {"not": ["entityIsLeftHanded"]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"mul": ["headYaw", 0.7]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"mul": ["entityHeadYaw", 0.7]}},
                 "@space": "PRE"
               },
               {
@@ -1310,7 +1610,7 @@
                   "and": [
                     {"not": [{"core:holds_item": ["main_hand", "minecraft:torch"]}]},
                     {"core:holds_item": ["off_hand", "minecraft:torch"]},
-                    {"not": ["LEFT_HANDED"]}
+                    {"not": ["entityIsLeftHanded"]}
                   ]
                 },
                 "core:clip": {"animationKey": "mobends:bends/animations/player/torch_forearm_left.json"}
@@ -1320,10 +1620,10 @@
                   "and": [
                     {"not": [{"core:holds_item": ["main_hand", "minecraft:torch"]}]},
                     {"core:holds_item": ["off_hand", "minecraft:torch"]},
-                    "LEFT_HANDED"
+                    "entityIsLeftHanded"
                   ]
                 },
-                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": [{"mul": ["headPitch", 0.5]}, -90]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": [{"mul": ["entityHeadPitch", 0.5]}, -90]}},
                 "@space": "OVERRIDE"
               },
               {
@@ -1331,10 +1631,10 @@
                   "and": [
                     {"not": [{"core:holds_item": ["main_hand", "minecraft:torch"]}]},
                     {"core:holds_item": ["off_hand", "minecraft:torch"]},
-                    "LEFT_HANDED"
+                    "entityIsLeftHanded"
                   ]
                 },
-                "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"mul": ["headYaw", 0.7]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"mul": ["entityHeadYaw", 0.7]}},
                 "@space": "PRE"
               },
               {
@@ -1342,7 +1642,7 @@
                   "and": [
                     {"not": [{"core:holds_item": ["main_hand", "minecraft:torch"]}]},
                     {"core:holds_item": ["off_hand", "minecraft:torch"]},
-                    "LEFT_HANDED"
+                    "entityIsLeftHanded"
                   ]
                 },
                 "core:clip": {"animationKey": "mobends:bends/animations/player/torch_forearm_right.json"}
@@ -1353,7 +1653,7 @@
       }
     },
     {
-      "@when": {"not": ["SLEEPING"]},
+      "@when": {"not": ["entityIsSleeping"]},
       "@define": {"combo": {"state": 0}, "fist": {"state": 0}},
       "defaultOnEntry": "idle",
       "select": [
@@ -1411,60 +1711,69 @@
           "core:pose": {
             "pose": [
               {
-                "@when": "SWINGING",
+                "@when": "entityIsSwinging",
                 "core:clip": {"animationKey": "mobends:bends/animations/player/tool_rest.json"},
                 "@damping": {"centerRotation": 0.3, "localOffset": 0.3},
                 "@vectorModes": {"localOffset": "SLIDE"},
                 "@mirror": true
               },
               {
-                "@when": "SWINGING",
-                "core:clip": {"animationKey": "mobends:bends/animations/player/tool_body.json", "frame": "swingProgress"},
+                "@when": "entityIsSwinging",
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/player/tool_body.json",
+                  "frame": "entitySwingProgress"
+                },
                 "@damping": {"body": 0.8},
                 "@mirror": true
               },
               {
-                "@when": {"and": ["SNEAKING", "SWINGING"]},
+                "@when": {"and": ["entityIsSneaking", "entityIsSwinging"]},
                 "core:clip": {"animationKey": "mobends:bends/animations/player/tool_sneak_body.json"},
                 "@space": "PRE",
                 "@mirror": true
               },
               {
-                "@when": {"and": [{"not": ["SNEAKING"]}, "SWINGING"]},
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "@when": {"and": [{"not": ["entityIsSneaking"]}, "entityIsSwinging"]},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "OVERRIDE",
                 "@damping": {"head": 0.8},
                 "@mirror": true
               },
               {
-                "@when": {"and": ["SNEAKING", "SWINGING"]},
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"add": ["headPitch", -20]}},
+                "@when": {"and": ["entityIsSneaking", "entityIsSwinging"]},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": {"add": ["entityHeadPitch", -20]}},
                 "@space": "OVERRIDE",
                 "@damping": {"head": 0.8},
                 "@mirror": true
               },
               {
-                "@when": "SWINGING",
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"},
+                "@when": "entityIsSwinging",
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "PRE"
               },
               {
-                "@when": "SWINGING",
-                "core:clip": {"animationKey": "mobends:bends/animations/player/tool_head.json", "frame": "swingProgress"},
+                "@when": "entityIsSwinging",
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/player/tool_head.json",
+                  "frame": "entitySwingProgress"
+                },
                 "@space": "PRE",
                 "@mirror": true
               },
               {
-                "@when": "SWINGING",
-                "core:clip": {"animationKey": "mobends:bends/animations/player/tool_arm.json", "frame": "swingProgress"},
+                "@when": "entityIsSwinging",
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/player/tool_arm.json",
+                  "frame": "entitySwingProgress"
+                },
                 "@snap": true,
                 "@swapSides": true
               },
               {
-                "@when": "SWINGING",
+                "@when": "entityIsSwinging",
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/tool_arm_post.json",
-                  "frame": "swingProgress"
+                  "frame": "entitySwingProgress"
                 },
                 "@space": "POST",
                 "@swapSides": true
@@ -1505,39 +1814,39 @@
                 "@vectorModes": {"localOffset": "SLIDE"}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "OVERRIDE",
                 "@damping": {"head": 0.5}
               },
               {
-                "@when": {"not": ["CLIMBING"]},
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": {"add": [{"mul": ["aimedBowTicks", -5]}, 50]}},
+                "@when": {"not": ["entityIsClimbing"]},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": {"add": [{"mul": ["node.aimedBowTicks", -5]}, 50]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"not": ["CLIMBING"]},
-                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": {"add": [{"mul": ["aimedBowTicks", 5]}, -50]}},
+                "@when": {"not": ["entityIsClimbing"]},
+                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": {"add": [{"mul": ["node.aimedBowTicks", 5]}, -50]}},
                 "@space": "OVERRIDE",
                 "@damping": {"body": 0.8}
               },
               {
-                "@when": {"not": ["CLIMBING"]},
-                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "headYaw"},
+                "@when": {"not": ["entityIsClimbing"]},
+                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "PRE"
               },
               {
-                "@when": "CLIMBING",
-                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "climbingBodyYaw"},
+                "@when": "entityIsClimbing",
+                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "entityClimbingBodyYaw"},
                 "@space": "OVERRIDE",
                 "@damping": {"body": 0.8}
               },
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": ["headPitch", -90]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": ["entityHeadPitch", -90]}},
                 "@space": "OVERRIDE",
                 "@damping": {"rightArm": 0.8}
               },
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"add": [{"mul": ["aimedBowTicks", -5]}, 50]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"add": [{"mul": ["node.aimedBowTicks", -5]}, 50]}},
                 "@space": "PRE"
               },
               {
@@ -1548,12 +1857,12 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/bow_offarm_right.json",
-                  "frame": {"add": ["headPitch", 90]}
+                  "frame": {"add": ["entityHeadPitch", 90]}
                 },
                 "@space": "PRE"
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"max": [{"add": ["headPitch", -90]}, -160]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"max": [{"add": ["entityHeadPitch", -90]}, -160]}},
                 "@space": "PRE"
               },
               {
@@ -1562,11 +1871,12 @@
                 "@damping": {"rightForeArm": 1}
               },
               {
-                "core:axis_rotate": {"bone": "leftForeArm", "axis": "X", "angle": {"mul": ["aimedBowTicks", -3]}},
+                "core:axis_rotate": {"bone": "leftForeArm", "axis": "X", "angle": {"mul": ["node.aimedBowTicks", -3]}},
                 "@space": "OVERRIDE"
               }
             ]
-          }
+          },
+          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}}
         },
         "shield_right": {
           "core:pose": {
@@ -1613,39 +1923,39 @@
                 "@vectorModes": {"localOffset": "SLIDE"}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "OVERRIDE",
                 "@damping": {"head": 0.5}
               },
               {
-                "@when": {"not": ["CLIMBING"]},
-                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": {"add": [{"mul": ["aimedBowTicks", 5]}, -50]}},
+                "@when": {"not": ["entityIsClimbing"]},
+                "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": {"add": [{"mul": ["node.aimedBowTicks", 5]}, -50]}},
                 "@space": "PRE"
               },
               {
-                "@when": {"not": ["CLIMBING"]},
-                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": {"add": [{"mul": ["aimedBowTicks", -5]}, 50]}},
+                "@when": {"not": ["entityIsClimbing"]},
+                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": {"add": [{"mul": ["node.aimedBowTicks", -5]}, 50]}},
                 "@space": "OVERRIDE",
                 "@damping": {"body": 0.8}
               },
               {
-                "@when": {"not": ["CLIMBING"]},
-                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "headYaw"},
+                "@when": {"not": ["entityIsClimbing"]},
+                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "entityHeadYaw"},
                 "@space": "PRE"
               },
               {
-                "@when": "CLIMBING",
-                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "climbingBodyYaw"},
+                "@when": "entityIsClimbing",
+                "core:axis_rotate": {"bone": "body", "axis": "Y", "angle": "entityClimbingBodyYaw"},
                 "@space": "OVERRIDE",
                 "@damping": {"body": 0.8}
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": ["headPitch", -90]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": ["entityHeadPitch", -90]}},
                 "@space": "OVERRIDE",
                 "@damping": {"leftArm": 0.8}
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"add": [{"mul": ["aimedBowTicks", 5]}, -50]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"add": [{"mul": ["node.aimedBowTicks", 5]}, -50]}},
                 "@space": "PRE"
               },
               {
@@ -1656,12 +1966,12 @@
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/bow_offarm_left.json",
-                  "frame": {"add": ["headPitch", 90]}
+                  "frame": {"add": ["entityHeadPitch", 90]}
                 },
                 "@space": "PRE"
               },
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"max": [{"add": ["headPitch", -90]}, -160]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"max": [{"add": ["entityHeadPitch", -90]}, -160]}},
                 "@space": "PRE"
               },
               {
@@ -1670,11 +1980,12 @@
                 "@damping": {"leftForeArm": 1}
               },
               {
-                "core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": {"mul": ["aimedBowTicks", -3]}},
+                "core:axis_rotate": {"bone": "rightForeArm", "axis": "X", "angle": {"mul": ["node.aimedBowTicks", -3]}},
                 "@space": "OVERRIDE"
               }
             ]
-          }
+          },
+          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}}
         },
         "shield_left": {
           "core:pose": {
@@ -1695,13 +2006,19 @@
       "machines": {
         "sword": {
           "defaultOnEntry": "sword_idle",
-          "@define": {"attacked": {"live": {"decreased": ["ticksAfterAttack"]}}},
+          "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}},
           "select": [
             {
               "when": {
                 "and": [
-                  {"and": [{"ge": ["ticksAfterAttack", 10]}, {"lt": ["ticksAfterAttack", 60]}, "ON_GROUND"]},
-                  "SPRINTING"
+                  {
+                    "and": [
+                      {"ge": ["entityTicksAfterAttack", 10]},
+                      {"lt": ["entityTicksAfterAttack", 60]},
+                      "entityIsOnGround"
+                    ]
+                  },
+                  "entityIsSprinting"
                 ]
               },
               "then": "stance_sprint"
@@ -1709,14 +2026,20 @@
             {
               "when": {
                 "and": [
-                  {"and": [{"ge": ["ticksAfterAttack", 10]}, {"lt": ["ticksAfterAttack", 60]}, "ON_GROUND"]},
-                  {"not": ["SPRINTING"]},
-                  "STANDING_STILL"
+                  {
+                    "and": [
+                      {"ge": ["entityTicksAfterAttack", 10]},
+                      {"lt": ["entityTicksAfterAttack", 60]},
+                      "entityIsOnGround"
+                    ]
+                  },
+                  {"not": ["entityIsSprinting"]},
+                  "entityIsStandingStill"
                 ]
               },
               "then": "stance"
             },
-            {"when": {"ge": ["ticksAfterAttack", 10]}, "then": "sword_idle"}
+            {"when": {"ge": ["entityTicksAfterAttack", 10]}, "then": "sword_idle"}
           ],
           "@connections": [
             {
@@ -1753,7 +2076,7 @@
           "nodes": {
             "sword_idle": {
               "core:pose": {"pose": []},
-              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
+              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
             },
             "stance": {
               "core:pose": {
@@ -1824,17 +2147,17 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"lt": ["ticksAfterTouchdown", 6.666666666666667]},
+                    "@when": {"lt": ["entityTicksAfterTouchdown", 6.666666666666667]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/stance_kneel.json",
-                      "frame": "ticksAfterTouchdown"
+                      "frame": "entityTicksAfterTouchdown"
                     },
                     "@damping": {"body": 1},
                     "@vectorModes": {"root": "SNAP"}
                   }
                 ]
               },
-              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
+              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
             },
             "stance_sprint": {
               "core:pose": {
@@ -1860,20 +2183,20 @@
                   }
                 ]
               },
-              "@on": {"update": [{"@when": {"gt": ["ticksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
+              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
             },
             "slash_up": {
               "core:pose": {
                 "pose": [
                   {
-                    "@when": {"and": [{"lt": ["ticksAfterAttack", 4]}, {"mobends:attack_action": ["sword"]}]},
+                    "@when": {"and": [{"lt": ["entityTicksAfterAttack", 4]}, {"mobends:attack_action": ["sword"]}]},
                     "mobends:sword_trail": {"resetOnEnter": true}
                   },
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up.json",
                       "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"body": 0.9, "leftArm": 0.3, "leftForeArm": 0.3, "rightForeArm": 0.3, "localOffset": 0.3},
                     "@vectorModes": {"localOffset": "SLIDE"},
@@ -1883,7 +2206,7 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up.json",
                       "bones": ["rightArm"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"rightArm": 0.9},
                     "@snap": false,
@@ -1893,14 +2216,14 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up.json",
                       "bones": ["renderRightItemRotation"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"renderRightItemRotation": 0.9},
                     "@snap": true,
                     "@mirror": true
                   },
                   {
-                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                     "@space": "OVERRIDE",
                     "@damping": {"head": 0.9},
                     "@mirror": true
@@ -1909,14 +2232,17 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up.json",
                       "bones": ["head"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@space": "PRE",
                     "@mirror": true
                   },
-                  {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
+                    "@space": "PRE"
+                  },
+                  {
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up_still.json",
                       "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
@@ -1925,7 +2251,7 @@
                     "@vectorModes": {"root": "SLIDE"}
                   },
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up_still.json",
                       "bones": ["renderRotation"]
@@ -1940,14 +2266,14 @@
               "core:pose": {
                 "pose": [
                   {
-                    "@when": {"and": [{"lt": ["ticksAfterAttack", 4]}, {"mobends:attack_action": ["sword"]}]},
+                    "@when": {"and": [{"lt": ["entityTicksAfterAttack", 4]}, {"mobends:attack_action": ["sword"]}]},
                     "mobends:sword_trail": {"resetOnEnter": true}
                   },
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward.json",
                       "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"body": 0.9, "leftArm": 0.3, "leftForeArm": 0.3, "rightForeArm": 0.3, "localOffset": 0.3},
                     "@vectorModes": {"localOffset": "SLIDE"},
@@ -1957,7 +2283,7 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward.json",
                       "bones": ["rightArm"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"rightArm": 0.9},
                     "@snap": false,
@@ -1967,14 +2293,14 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward.json",
                       "bones": ["renderRightItemRotation"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"renderRightItemRotation": 0.9},
                     "@snap": true,
                     "@mirror": true
                   },
                   {
-                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                     "@space": "OVERRIDE",
                     "@damping": {"head": 0.9},
                     "@mirror": true
@@ -1983,14 +2309,17 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward.json",
                       "bones": ["head"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@space": "PRE",
                     "@mirror": true
                   },
-                  {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
+                    "@space": "PRE"
+                  },
+                  {
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward_still.json",
                       "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
@@ -1999,7 +2328,7 @@
                     "@vectorModes": {"root": "SLIDE"}
                   },
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward_still.json",
                       "bones": ["renderRotation"]
@@ -2014,7 +2343,7 @@
               "core:pose": {
                 "pose": [
                   {
-                    "@when": {"and": [{"lt": ["ticksAfterAttack", 4]}, {"mobends:attack_action": ["sword"]}]},
+                    "@when": {"and": [{"lt": ["entityTicksAfterAttack", 4]}, {"mobends:attack_action": ["sword"]}]},
                     "mobends:sword_trail": {"resetOnEnter": true}
                   },
                   {
@@ -2042,7 +2371,7 @@
                     "@mirror": true
                   },
                   {
-                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                     "@space": "OVERRIDE",
                     "@damping": {"head": 0.9},
                     "@mirror": true
@@ -2052,9 +2381,12 @@
                     "@space": "PRE",
                     "@mirror": true
                   },
-                  {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
+                    "@space": "PRE"
+                  },
+                  {
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_down_still.json",
                       "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
@@ -2069,7 +2401,7 @@
                     "@vectorModes": {"root": "SLIDE"}
                   },
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_down_still.json",
                       "bones": ["renderRotation"]
@@ -2078,7 +2410,7 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": -30},
                     "@space": "PRE",
                     "@mirror": true
@@ -2090,7 +2422,7 @@
               "core:pose": {
                 "pose": [
                   {
-                    "@when": {"and": [{"lt": ["ticksAfterAttack", 4]}, {"mobends:attack_action": ["sword"]}]},
+                    "@when": {"and": [{"lt": ["entityTicksAfterAttack", 4]}, {"mobends:attack_action": ["sword"]}]},
                     "mobends:sword_trail": {"resetOnEnter": true}
                   },
                   {
@@ -2121,7 +2453,7 @@
                     "@mirror": true
                   },
                   {
-                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                     "@space": "OVERRIDE",
                     "@damping": {"head": 0.9},
                     "@mirror": true
@@ -2131,9 +2463,12 @@
                     "@space": "PRE",
                     "@mirror": true
                   },
-                  {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
+                    "@space": "PRE"
+                  },
+                  {
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_outward_still.json",
                       "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
@@ -2148,7 +2483,7 @@
                     "@vectorModes": {"root": "SLIDE"}
                   },
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_outward_still.json",
                       "bones": ["renderRotation"]
@@ -2157,7 +2492,7 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": -30},
                     "@space": "PRE",
                     "@mirror": true
@@ -2169,7 +2504,7 @@
               "core:pose": {
                 "pose": [
                   {
-                    "@when": {"lt": ["ticksAfterAttack", 0.5]},
+                    "@when": {"lt": ["entityTicksAfterAttack", 0.5]},
                     "mobends:sword_trail": {"add": false, "resetEachFrame": true}
                   },
                   {"mobends:sword_trail": {}},
@@ -2177,7 +2512,7 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
                       "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"body": 0.9, "leftArm": 0.3, "leftForeArm": 0.3, "rightForeArm": 0.3, "localOffset": 0.3},
                     "@vectorModes": {"localOffset": "SLIDE"},
@@ -2187,7 +2522,7 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
                       "bones": ["rightArm"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"rightArm": 0.3},
                     "@snap": true,
@@ -2197,7 +2532,7 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
                       "bones": ["renderRightItemRotation"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"renderRightItemRotation": 0.9},
                     "@snap": false,
@@ -2207,7 +2542,7 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
                       "bones": ["root"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@damping": {"root": [null, 1.2, null]},
                     "@vectorModes": {"root": "SLIDE"}
@@ -2216,12 +2551,12 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
                       "bones": ["renderRotation"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@snap": true
                   },
                   {
-                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                    "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                     "@space": "OVERRIDE",
                     "@mirror": true
                   },
@@ -2229,14 +2564,17 @@
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
                       "bones": ["head"],
-                      "frame": "ticksAfterAttack"
+                      "frame": "entityTicksAfterAttack"
                     },
                     "@space": "PRE",
                     "@mirror": true
                   },
-                  {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
                   {
-                    "@when": "STANDING_STILL",
+                    "core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"},
+                    "@space": "PRE"
+                  },
+                  {
+                    "@when": "entityIsStandingStill",
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl_still.json",
                       "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
@@ -2251,7 +2589,7 @@
                     "@vectorModes": {"root": "SLIDE"}
                   },
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/slash_whirl_still.json"},
                     "@damping": {"leftLeg": 0.3, "rightLeg": 0.3, "leftForeLeg": 0.3, "rightForeLeg": 0.3}
                   }
@@ -2262,13 +2600,13 @@
         },
         "fists": {
           "defaultOnEntry": "punch_left",
-          "@define": {"attacked": {"live": {"decreased": ["ticksAfterAttack"]}}},
+          "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}},
           "select": [
             {
-              "when": {"and": [{"ge": ["ticksAfterAttack", 10]}, {"lt": ["ticksAfterAttack", 60]}]},
+              "when": {"and": [{"ge": ["entityTicksAfterAttack", 10]}, {"lt": ["entityTicksAfterAttack", 60]}]},
               "then": "fist_guard"
             },
-            {"when": {"ge": ["ticksAfterAttack", 60]}, "then": "fists_idle"}
+            {"when": {"ge": ["entityTicksAfterAttack", 60]}, "then": "fists_idle"}
           ],
           "@connections": [
             {
@@ -2292,7 +2630,7 @@
                     "@damping": {"rightArm": 0.9, "leftArm": 0.3, "rightForeArm": 0.9, "leftForeArm": 0.3, "body": 0.6}
                   },
                   {
-                    "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": ["headPitch", -90]}},
+                    "core:axis_rotate": {"bone": "rightArm", "axis": "X", "angle": {"add": ["entityHeadPitch", -90]}},
                     "@space": "PRE"
                   },
                   {
@@ -2300,7 +2638,7 @@
                     "@space": "PRE"
                   },
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_still.json"},
                     "@damping": {
                       "rightLeg": 0.3,
@@ -2312,7 +2650,7 @@
                     "@vectorModes": {"root": "SLIDE"}
                   },
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_right_still.json"},
                     "@damping": {"body": 0.6}
                   }
@@ -2327,7 +2665,7 @@
                     "@damping": {"leftArm": 0.9, "rightArm": 0.3, "leftForeArm": 0.9, "rightForeArm": 0.3, "body": 0.6}
                   },
                   {
-                    "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": ["headPitch", -90]}},
+                    "core:axis_rotate": {"bone": "leftArm", "axis": "X", "angle": {"add": ["entityHeadPitch", -90]}},
                     "@space": "PRE"
                   },
                   {
@@ -2335,7 +2673,7 @@
                     "@space": "PRE"
                   },
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_still.json"},
                     "@damping": {
                       "rightLeg": 0.3,
@@ -2347,7 +2685,7 @@
                     "@vectorModes": {"root": "SLIDE"}
                   },
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_left_still.json"},
                     "@damping": {"body": 0.6}
                   }
@@ -2358,7 +2696,7 @@
               "core:pose": {
                 "pose": [
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/fist_guard_abs.json",
                       "bones": [
@@ -2387,7 +2725,7 @@
                     "@vectorModes": {"root": "SLIDE"}
                   },
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/fist_guard_abs.json",
                       "bones": ["renderRotation"]
@@ -2396,12 +2734,12 @@
                     "@mirror": true
                   },
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/fist_guard_pre.json", "bones": ["body"]},
                     "@space": "PRE"
                   },
                   {
-                    "@when": "STANDING_STILL",
+                    "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/fist_guard_pre.json", "bones": ["head"]},
                     "@space": "PRE",
                     "@mirror": true
@@ -2413,7 +2751,7 @@
         }
       },
       "mirror": {
-        "@when": "LEFT_HANDED",
+        "@when": "entityIsLeftHanded",
         "pairs": [
           ["leftArm", "rightArm"],
           ["leftForeArm", "rightForeArm"],

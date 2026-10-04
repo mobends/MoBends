@@ -38,6 +38,10 @@ public class EntityLivingBase extends Entity
     public int getItemInUseCount() { return itemInUseCount; }
     public int getItemInUseMaxCount() { return itemInUseMaxCount; }
     public boolean isPlayerSleeping() { return playerSleeping; }
+    /** Vanilla counts these while the elytra flag is set; the lab sets the count, and the flag follows it. */
+    public int ticksElytraFlying;
+    public int getTicksElytraFlying() { return ticksElytraFlying; }
+    public boolean isElytraFlying() { return ticksElytraFlying > 0; }
 
     public ItemStack getItemStackFromSlot(EntityEquipmentSlot slot)
     {

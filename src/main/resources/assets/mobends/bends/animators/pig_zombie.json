@@ -29,7 +29,7 @@
                 "@when": "animator.walking",
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/pigzombie/walk_bob.json",
-                  "frame": {"mod": [{"mul": ["limbSwing", 0.6662]}, "clipLength"]}
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@damping": {"root": [null, 1.2, null]},
                 "@vectorModes": {"root": "RETARGET"}
@@ -43,7 +43,7 @@
       "@when": {"gt": ["entitySwingProgress", 0]},
       "defaultOnEntry": "slash",
       "mirror": {
-        "@when": "LEFT_HANDED",
+        "@when": "entityIsLeftHanded",
         "pairs": [
           ["leftArm", "rightArm"],
           ["leftForeArm", "rightForeArm"],
@@ -57,7 +57,10 @@
           "core:pose": {
             "pose": [
               {
-                "core:clip": {"animationKey": "mobends:bends/animations/pigzombie/slash.json", "frame": "ticksAfterAttack"},
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/pigzombie/slash.json",
+                  "frame": "entityTicksAfterAttack"
+                },
                 "@mirror": true,
                 "@damping": {
                   "body": 0.9,
@@ -70,14 +73,14 @@
                 },
                 "@vectorModes": {"localOffset": "SLIDE"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "headYaw"}, "@space": "PRE"},
+              {"core:axis_rotate": {"bone": "head", "axis": "Y", "angle": "entityHeadYaw"}, "@space": "PRE"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"},
+                "core:axis_rotate": {"bone": "head", "axis": "X", "angle": "entityHeadPitch"},
                 "@space": "POST",
                 "@mirror": true
               },
               {
-                "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/pigzombie/slash_still.json",
                   "bones": ["leftLeg", "rightLeg", "rightForeLeg", "root"]
@@ -86,7 +89,7 @@
                 "@vectorModes": {"root": "RETARGET"}
               },
               {
-                "@when": {"and": ["STANDING_STILL", {"not": ["RIDING"]}]},
+                "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/pigzombie/slash_still.json",
                   "bones": ["renderRotation"]

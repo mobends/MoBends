@@ -95,39 +95,34 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
      */
     protected void registerKumoBindings()
     {
+        // The built-ins every entity has (see EntityBuiltIns, which declares their types).
         registerVariable("ticks", DataUpdateHandler::getTicks);
         registerVariable("partialTicks", () -> DataUpdateHandler.partialTicks);
         registerVariable("ticksPerFrame", () -> DataUpdateHandler.ticksPerFrame);
         registerVariable("random", Math::random);
-        registerVariable("motionX", () -> motionX);
-        registerVariable("motionY", () -> motionY);
-        registerVariable("motionZ", () -> motionZ);
-        registerVariable("prevMotionX", () -> prevMotionX);
-        registerVariable("prevMotionY", () -> prevMotionY);
-        registerVariable("prevMotionZ", () -> prevMotionZ);
-        registerVariable("motionMagnitude", this::getInterpolatedMotionMagnitude);
-        registerVariable("interpolatedMotionY", this::getInterpolatedMotionY);
-        registerVariable("ticksExisted", () -> entity != null ? entity.ticksExisted : 0);
-        registerVariable("xzMotionMagnitude", this::getInterpolatedXZMotionMagnitude);
-        registerVariable("forwardMomentum", this::getForwardMomentum);
-        registerVariable("sidewaysMomentum", this::getSidewaysMomentum);
-        registerVariable("movementAngle", this::getMovementAngle);
+        registerVariable("entityId", () -> entity != null ? entity.getEntityId() : 0);
+        registerVariable("entityMotionY", () -> motionY);
+        registerVariable("entityPrevMotionY", () -> prevMotionY);
+        registerVariable("entityInterpolatedMotionY", this::getInterpolatedMotionY);
+        registerVariable("entitySpeed", this::getInterpolatedMotionMagnitude);
+        registerVariable("entityXZSpeed", this::getInterpolatedXZMotionMagnitude);
+        registerVariable("entityForwardMomentum", this::getForwardMomentum);
+        registerVariable("entitySidewaysMomentum", this::getSidewaysMomentum);
+        registerVariable("entityTicksExisted", () -> entity != null ? entity.ticksExisted : 0);
         // Interpolated like the renderer does, in doubles: step_turn plants feet in the world.
-        registerVariable("worldX", () -> entity != null ? entity.prevPosX + (entity.posX - entity.prevPosX) * DataUpdateHandler.partialTicks : 0);
-        registerVariable("worldY", () -> entity != null ? entity.prevPosY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks : 0);
-        registerVariable("worldZ", () -> entity != null ? entity.prevPosZ + (entity.posZ - entity.prevPosZ) * DataUpdateHandler.partialTicks : 0);
+        registerVariable("entityWorldX", () -> entity != null ? entity.prevPosX + (entity.posX - entity.prevPosX) * DataUpdateHandler.partialTicks : 0);
+        registerVariable("entityWorldY", () -> entity != null ? entity.prevPosY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks : 0);
+        registerVariable("entityWorldZ", () -> entity != null ? entity.prevPosZ + (entity.posZ - entity.prevPosZ) * DataUpdateHandler.partialTicks : 0);
 
-        registerState("ON_GROUND", this::isOnGround);
-        registerState("AIRBORNE", () -> !isOnGround());
-        registerState("STANDING_STILL", this::isStillHorizontally);
-        registerState("MOVING_HORIZONTALLY", () -> !isStillHorizontally());
-        registerState("SPRINTING", () -> entity != null && entity.isSprinting());
-        registerState("SNEAKING", () -> entity != null && entity.isSneaking());
-        registerState("IN_WATER", () -> entity != null && entity.isInWater());
-        registerState("UNDERWATER", this::isUnderwater);
-        registerState("RIDING", () -> entity != null && entity.isRiding());
-        registerState("ALIVE", () -> entity != null && entity.isEntityAlive());
-        registerState("STRAFING", this::isStrafing);
+        registerState("entityIsOnGround", this::isOnGround);
+        registerState("entityIsStandingStill", this::isStillHorizontally);
+        registerState("entityIsSprinting", () -> entity != null && entity.isSprinting());
+        registerState("entityIsSneaking", () -> entity != null && entity.isSneaking());
+        registerState("entityIsInWater", () -> entity != null && entity.isInWater());
+        registerState("entityIsUnderwater", this::isUnderwater);
+        registerState("entityIsRiding", () -> entity != null && entity.isRiding());
+        registerState("entityIsAlive", () -> entity != null && entity.isEntityAlive());
+        registerState("entityIsStrafing", this::isStrafing);
     }
 
     /** Exposes a number to animators; registering a name again replaces it. */

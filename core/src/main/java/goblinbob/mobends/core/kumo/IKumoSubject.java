@@ -29,8 +29,8 @@ public interface IKumoSubject
     }
 
     /**
-     * @return the index of the numeric variable {@code name} (e.g. "limbSwing", "headYaw",
-     *         "ticksInAir") for {@link #getVariable(int)}, or -1 if the subject has none. Animators
+     * @return the index of the numeric variable {@code name} (e.g. "entityLimbSwing", "entityHeadYaw",
+     *         "entityTicksInAir") for {@link #getVariable(int)}, or -1 if the subject has none. Animators
      *         look every name up once, when they are bound to the subject.
      */
     int indexOfVariable(String name);
@@ -48,7 +48,7 @@ public interface IKumoSubject
     }
 
     /**
-     * @return the index of the boolean state {@code name} (e.g. "ON_GROUND", "SPRINTING") for
+     * @return the index of the boolean state {@code name} (e.g. "entityIsOnGround", "entityIsSprinting") for
      *         {@link #getState(int)}, or -1 if the subject has none.
      */
     int indexOfState(String name);

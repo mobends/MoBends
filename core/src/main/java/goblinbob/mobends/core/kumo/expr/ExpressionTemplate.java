@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
  *     <li>{@code true} or {@code false}: a constant condition;</li>
  *     <li>a string: a scoped name ({@code layer.combo}), or a built-in or the entity's value;</li>
  *     <li>an object with one key: an operation, its value the list of arguments, e.g.
- *     {@code {"add": [{"mul": ["limbSwing", 0.6662]}, 3.14]}}.</li>
+ *     {@code {"add": [{"mul": ["entityLimbSwing", 0.6662]}, 3.14]}}.</li>
  * </ul>
  */
 public class ExpressionTemplate
