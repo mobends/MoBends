@@ -225,7 +225,7 @@ const pigZombie: Obj = {
           { animationKey: P("walk_bob"), frame: limbFrame, when: action("walk"), damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
         ] } } },
     { when: cmp("entitySwingProgress", ">", 0), defaultOnEntry: "slash",
-      mirror: { when: state("LEFT_HANDED"), negate: ["headYaw"],
+      mirror: { when: state("LEFT_HANDED"),
                 pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
                         ["renderLeftItemRotation", "renderRightItemRotation"]] },
       nodes: { slash: {
@@ -234,7 +234,8 @@ const pigZombie: Obj = {
           { animationKey: P("slash"), frame: "ticksAfterAttack", mirror: true,
             damping: { body: 0.9, head: 0.9, rightArm: 0.9, leftArm: 0.3, rightForeArm: 0.3, leftForeArm: 0.3, localOffset: 0.3 },
             vectorModes: { localOffset: "SLIDE" } },
-          ...headLook.map((x) => ({ ...x, mirror: true })),
+          // the head looks where the zombie looks, whichever hand it uses: not mirrored
+          headLook[0], { ...headLook[1], mirror: true },
           // the still-standing legs are the same for both hands; the render rotation is not
           { animationKey: P("slash_still"), bones: ["leftLeg", "rightLeg", "rightForeLeg", "root"], when: AND(state("STANDING_STILL"), NOT(state("RIDING"))),
             damping: { root: [null, 0.6, null] }, vectorModes: { root: "RETARGET" } },
@@ -575,7 +576,8 @@ function slashNode(name: string, clipname: string, byAttack: boolean, mainDamp: 
     mirrored(item(["renderRightItemRotation"], { damping: itemDamp ? { renderRightItemRotation: itemDamp } : {}, snap: itemSnap })),
     mirrored(headDamp ? withDamping(drv("head", "X", "headPitch", { space: "OVERRIDE" }), { head: headDamp }) : drv("head", "X", "headPitch", { space: "OVERRIDE" })),
     mirrored(item(["head"], { space: "PRE" })),
-    mirrored(drv("head", "Y", "headYaw")),
+    // the head looks where the player looks, whichever hand swings: not mirrored
+    drv("head", "Y", "headYaw"),
     when({ animationKey: PL(clipname + "_still"), bones: ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"],
            damping: { leftLeg: 0.3, rightLeg: 0.3, leftForeLeg: 0.3, rightForeLeg: 0.3, root: [null, 0.6, null] },
            vectorModes: { root: "SLIDE" } }, stillCond),
@@ -717,7 +719,12 @@ const tool: Obj = { type: "core:pose", tags: ["tool"], pose: [
   { animationKey: PL("tool_head"), frame: swingFrame, space: "PRE" },
   { animationKey: PL("tool_arm"), frame: swingFrame, snap: true },
   { animationKey: PL("tool_arm_post"), frame: swingFrame, space: "POST" },
-].map((x) => (JSON.stringify(x).includes("tool_arm") ? swapped : mirrored)(alsoWhen(x, state("SWINGING")))) };
+].map((x) => {
+  const item = alsoWhen(x, state("SWINGING"));
+  // the head looks where the player looks, whichever hand swings: not mirrored
+  if (x.driver && x.bone === "head" && x.axis === "Y") return item;
+  return (JSON.stringify(x).includes("tool_arm") ? swapped : mirrored)(item);
+}) };
 
 // --- item use: eating, bow, shield; one node per active hand ---------------------------------------------
 function useNodes(): Record<string, Obj> {
@@ -823,7 +830,7 @@ const actionLayer: Obj = { when: NOT(state("SLEEPING")), defaultOnEntry: "idle",
                            nodes: { idle: { type: "core:pose", pose: [] }, tool, ...useNodes() },
                            machines: { sword: swordMachine, fists: fistsMachine },
                            // a left-handed player plays the hand-dependent items as their mirror image
-                           mirror: { when: state("LEFT_HANDED"), negate: ["headYaw"],
+                           mirror: { when: state("LEFT_HANDED"),
                                      pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
                                              ["renderLeftItemRotation", "renderRightItemRotation"]] } };
 

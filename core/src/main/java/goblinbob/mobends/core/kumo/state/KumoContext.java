@@ -4,7 +4,6 @@ import goblinbob.mobends.core.kumo.IKumoSubject;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The KUMO context of one animator: the subject, the frame's delta time, the layer and node
@@ -23,8 +22,6 @@ public class KumoContext implements IKumoContext
     private INodeState currentNode;
     private VariableScope layerScope = new VariableScope();
     private VariableScope nodeScope = new VariableScope();
-    /** Variables read as their negation while a mirrored item is evaluated. */
-    private Set<String> negatedVariables;
 
     public void setLayers(List<LayerState> layers)
     {
@@ -88,21 +85,11 @@ public class KumoContext implements IKumoContext
     }
 
     @Override
-    public Set<String> setNegatedVariables(Set<String> names)
-    {
-        Set<String> previous = negatedVariables;
-        negatedVariables = names;
-        return previous;
-    }
-
-    @Override
     public double resolveVariable(String name)
     {
-        double value;
-        if (nodeScope.has(name)) value = nodeScope.get(name);
-        else if (layerScope.has(name)) value = layerScope.get(name);
-        else value = subject.getVariable(name);
-        return negatedVariables != null && negatedVariables.contains(name) ? -value : value;
+        if (nodeScope.has(name)) return nodeScope.get(name);
+        if (layerScope.has(name)) return layerScope.get(name);
+        return subject.getVariable(name);
     }
 
     @Override

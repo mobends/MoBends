@@ -8,18 +8,15 @@ import goblinbob.mobends.core.kumo.state.template.MirrorTemplate;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-/** Runtime form of {@link MirrorTemplate}: the condition, the slot pairing and the negated variables. */
+/** Runtime form of {@link MirrorTemplate}: the condition and the slot pairing. */
 public class LayerMirror
 {
 
     private final Skeleton skeleton;
     private final ITriggerCondition when;
     private final List<List<String>> pairs;
-    private final Set<String> negated;
     private int[] pairOf = new int[0];
 
     public LayerMirror(Skeleton skeleton, MirrorTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
@@ -27,7 +24,11 @@ public class LayerMirror
         this.skeleton = skeleton;
         this.when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, scope);
         this.pairs = template.pairs == null ? Collections.emptyList() : template.pairs;
-        this.negated = template.negate == null ? Collections.emptySet() : new HashSet<>(template.negate);
+        if (template.negate != null)
+        {
+            throw new MalformedKumoTemplateException("A mirror rule no longer negates inputs (\"negate\"): an item that follows a world direction, "
+                    + "such as the head turned by headYaw, isn't mirrored, or only swaps sides (\"swapSides\").");
+        }
         for (List<String> pair : this.pairs)
         {
             if (pair == null || pair.size() != 2)
@@ -52,11 +53,6 @@ public class LayerMirror
     public boolean isActive(ITriggerConditionContext context) throws MalformedKumoTemplateException
     {
         return when == null || when.isConditionMet(context);
-    }
-
-    public Set<String> getNegatedVariables()
-    {
-        return negated;
     }
 
     /** Slot -> its mirror slot (itself for unpaired bones); rebuilt when the skeleton grew. */

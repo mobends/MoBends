@@ -37,7 +37,7 @@ node is in *Choosing the node*.
 | `expressions`, `conditions` | named expressions and conditions visible inside the layer (see *Expressions*, *Conditions*) |
 | `damping` | default damping for the bones the layer writes (nodes and items override) |
 | `mask` | `{"mode": "INCLUDE_ONLY", "includedParts": ["mouth"]}` (or `EXCLUDE_ONLY`): the bones the layer may write |
-| `mirror` | `{"when": <condition>, "pairs": [["leftArm","rightArm"], ...], "negate": ["headYaw"]}`: the rule items with `"mirror"` / `"swapSides"` follow |
+| `mirror` | `{"when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `"mirror"` / `"swapSides"` follow (see *Mirroring*) |
 | `nodes`, `machines` | the layer's nodes and machines, as maps by name |
 | `select`, `connections`, `defaultOnEntry` | how the layer picks its node (see *Choosing the node*) |
 
@@ -212,8 +212,45 @@ A node's `pose` is a stack; later items compose over earlier ones. Common fields
 | `damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate |
 | `vectorModes` | for offset vectors: `SLIDE` (tween restarted when the target changes), `RETARGET` (exponential approach re-aimed every frame), `SNAP` |
 | `snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
-| `mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations negated, the layer's `negate` inputs negated) |
-| `swapSides` | like `mirror`, but only the paired bones swap; rotations and inputs are kept |
+| `mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
+| `swapSides` | like `mirror`, but only the paired bones swap; rotations and offsets are kept |
+
+### Mirroring
+
+A layer's `mirror` rule says when its mirrored items mirror, and which bones pair up:
+
+```json
+"mirror": {
+  "when": {"type": "core:state", "state": "LEFT_HANDED"},
+  "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"],
+            ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"]]
+}
+```
+
+While the rule's `when` holds, an item with `mirror` or `swapSides` runs on a reflection of the
+pose built so far, and its result is reflected back. Reflecting twice gives back the original, so
+the item's composition rules don't change. An item that sets either without a rule on its layer
+is a load error.
+
+| | paired bones swap | Y and Z rotations, X offset negated |
+|---|---|---|
+| `mirror` | yes | yes: the item's left-right mirror image |
+| `swapSides` | yes | no: the same motion, moved to the other side |
+
+**Values are never negated**: every variable and expression reads the same, mirrored or not.
+What an item does mirrored follows from how it is marked:
+
+- **`mirror`** for motion that belongs to a side: swings, clips, a head turned toward the weapon
+  (`head`, Y, `-30` becomes `+30`).
+- **Neither** for an item on an unpaired bone that follows a world direction. The head turned by
+  `headYaw` must look where the entity looks, so it isn't mirrored.
+- **`swapSides`** for an item on a paired bone that follows a world direction: the right arm
+  turned by `headYaw` becomes the left arm turned by the same angle, still pointing where the
+  entity looks.
+- An item that mixes the two is split into two items.
+
+(Earlier versions negated a rule's `negate` list of variables inside mirrored items; a rule
+with `negate` is now a load error.)
 
 ### Clips
 
@@ -392,8 +429,7 @@ and used by name like variables:
 `elapsed` is built in: the ticks since the current node started (a named expression can
 shadow it). A name nothing declares is a **variable**, resolved every frame through the node scope (ramps,
 accumulators), the layer scope, then the subject (see the data classes' `registerVariable`
-calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). A layer's mirror rule `negate`s
-variables, not named expressions; expressions built from a negated variable follow it.
+calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...).
 
 ### Conditions
 

@@ -2,7 +2,6 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 
-import java.util.Set;
 
 /**
  * This is a context which should provide all data necessary during the animation process.
@@ -23,12 +22,5 @@ public interface IKumoContext extends ITriggerConditionContext
 
     /** Makes {@code node} the current node, with its own scope and its layer's {@code layerScope}. */
     void enterNode(INodeState node, VariableScope layerScope);
-
-    /**
-     * Makes the named variables read as their negation (see {@code MirroredPoseItem}).
-     *
-     * @return the previously negated set, to restore afterwards (null for none)
-     */
-    Set<String> setNegatedVariables(Set<String> names);
 
 }

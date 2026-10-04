@@ -236,6 +236,34 @@ public class KumoAnimatorStateTest
                 + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {\"type\": \"core:and\"}}]}}}]}");
     }
 
+    @Test
+    public void aMirroredItemReadsItsInputsAsTheyAre() throws MalformedKumoTemplateException
+    {
+        // The pose is reflected around the item, not its inputs: an unpaired bone turned about Y
+        // turns the other way, and an unmarked item follows the input as it is.
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a',"
+                + " 'mirror': {'when': {'type': 'core:state', 'state': 'LEFT_HANDED'}, 'pairs': []},"
+                + " 'nodes': {'a': {'pose': ["
+                + "  {'driver': 'core:axis_rotate', 'bone': 'head', 'axis': 'Y', 'angle': 'yaw', 'mirror': true},"
+                + "  {'driver': 'core:axis_rotate', 'bone': 'neck', 'axis': 'Y', 'angle': 'yaw'}]}}}]}");
+        TestSubject subject = new TestSubject("head", "neck");
+        subject.variables.put("yaw", 30.0);
+        subject.states.put("LEFT_HANDED", true);
+
+        animator.update(subject, 1F);
+
+        assertRotation(TestSubject.axisAngle(0, 1, 0, -30), subject.target("head"));
+        assertRotation(TestSubject.axisAngle(0, 1, 0, 30), subject.target("neck"));
+    }
+
+    @Test(expected = MalformedKumoTemplateException.class)
+    public void aMirrorRuleCantNegateInputs() throws MalformedKumoTemplateException
+    {
+        animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a',"
+                + " 'mirror': {'when': {'type': 'core:state', 'state': 'LEFT_HANDED'}, 'pairs': [], 'negate': ['yaw']},"
+                + " 'nodes': {'a': {}}}]}");
+    }
+
     /** An animator from JSON written with single quotes. */
     private static KumoAnimatorState animator(String json) throws MalformedKumoTemplateException
     {

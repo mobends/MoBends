@@ -10,8 +10,8 @@ definitions), before v2 ships. Two parts, and a task list:
 
 Parts of the format this rework doesn't touch (layers, machines, selectors, connections, pose
 composition, masks, mirroring, `extends`, extensions, trust and resource-pack limits) are as
-specified in `misc/kumo-format.md`, with conditions written as expressions, nodes and connections
-written as in *Structured objects*, and mirroring as in *Mirroring*. When a decision here
+specified in `misc/kumo-format.md`, with conditions written as expressions, and nodes and
+connections written as in *Structured objects*. When a decision here
 is implemented, the spec is updated and the entry can leave this document.
 
 ---
@@ -577,43 +577,6 @@ they can follow what a driver before them computed in the same frame (springs fo
   value that must change every frame whatever the node is a `set` in an `update` list, or a
   built-in.
 
-### Mirroring
-
-A layer's mirror rule says when its mirrored items mirror, and which bones pair up:
-
-```json
-"mirror": {
-  "@when": "entityIsLeftHanded",
-  "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"],
-            ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
-            ["leftHeldItem", "rightHeldItem"]]
-}
-```
-
-While the rule's `@when` holds, an item with a mirror modifier runs on a reflection of the pose
-built so far, and its result is reflected back. Reflecting twice gives back the original, so the
-item's composition rules don't change.
-
-| | paired bones swap | Y and Z rotations, X offset negated |
-|---|---|---|
-| `@mirror` | yes | yes: the item's left-right mirror image |
-| `@swapSides` | yes | no: the same motion, moved to the other side |
-
-**Values are never negated.** Every value means the same everywhere, mirrored or not; the rule
-has no `negate` list. What an item does mirrored follows from its modifier:
-
-- **`@mirror`** for motion that belongs to a side: swings, clips, a head turned toward the
-  weapon (`head`, Y, `-30` becomes `+30`).
-- **No modifier** for an item on an unpaired bone that follows a world direction. The head
-  turned by `entityHeadYaw` must look where the entity looks, so it isn't mirrored.
-- **`@swapSides`** for an item on a paired bone that follows a world direction: the right arm
-  turned by `entityHeadYaw` becomes the left arm turned by the same angle, still pointing where
-  the entity looks.
-- An item that mixes the two is split into two items.
-
-If an input that has to be negated inside one mirrored item turns up, a built-in (`isMirrored`)
-can be added without breaking a file.
-
 ## Entity values
 
 **The rule:** a value that holds for every entity is a built-in, named `entity…`; one that
@@ -1082,25 +1045,6 @@ The 12 old drivers did three jobs:
 Their private state moves from Java fields (`StepTurnDriver`'s planted feet, `SpiderData`'s
 `Limb` objects) into declared state.
 
-### Mirroring loses `negate`
-
-A mirror rule's `negate` list made the named variables read negated inside mirrored items
-(`KumoContext.resolveVariable`), and named expressions built from them followed, since they were
-re-evaluated on every read. With names resolved to slots and live definitions evaluated once per
-frame, that would need mirrored variants of definitions, and values that mean different things
-in different places.
-
-Every shipped use cancels out. The three rules (`player`, `skeleton`, `pig_zombie`) negate only
-`headYaw`, and the only mirrored items reading it are
-`{"driver": "core:axis_rotate", "bone": "head", "axis": "Y", "angle": "headYaw", "space": "PRE", "mirror": true}`
-(6 in `player`, 6 in `skeleton`, 1 in `pig_zombie`). The head has no pair, so reflecting the
-pose, turning by `−headYaw` and reflecting back is turning by `headYaw`: the item does what it
-would with no `mirror` at all. They were marked only because the items around them are.
-
-So `negate` goes away (*Mirroring*), and those 13 items lose `"mirror": true`, with an identical
-pose. The rule's `when` becomes `@when`, and the item bones `renderLeftItemRotation` /
-`renderRightItemRotation` in its pairs are renamed (*Smaller renames and cleanups*).
-
 ### Built-ins and time
 
 | old | new |
@@ -1344,7 +1288,7 @@ Today every read of a name happens by string, every frame:
 - A variable (`Expression.Variable`) calls `KumoContext.resolveVariable(name)`, which runs
   `has(name)` then `get(name)` on the node's `VariableScope` (each a linear scan comparing
   strings), the same two on the layer's, then `subject.getVariable(name)`: a `HashMap` lookup and
-  a supplier call. A mirrored item adds a `HashSet` lookup for the negated names.
+  a supplier call.
 - A state (`StateCondition`) calls `subject.getState(name)`: a `HashMap` lookup and a supplier
   call.
 - An unknown name is found on the first frame it is read, not at load.
@@ -1358,8 +1302,6 @@ Every name can be resolved once, when the animator is compiled:
 - **Subject names** become indices too: `IKumoSubject` gains a way to look a name up once
   (`indexOfVariable(name)` / `indexOfState(name)`) and read by index; `EntityData` keeps its
   suppliers in arrays.
-- **Mirroring**: whether a read is negated is known per item, so it becomes a flag on the compiled
-  read.
 - Unknown names fail at load.
 
 One behaviour changes: a node variable shadows a layer or subject name today only once it has
@@ -1586,8 +1528,8 @@ the additive and smaller ones.
 15. [ ] **`extends` and extensions as scopes**: the merged `animator.` scope of an `extends` chain;
     an extension's own animator scope reading only `entity.` names, skipped when one is missing
     (*`extends`*, *Extensions*).
-16. [ ] **Mirroring without `negate`**: the rule as `@when` + `pairs`, `@mirror` and `@swapSides`
-    unchanged (*Mirroring*).
+16. [x] **Mirroring without `negate`** (`misc/kumo-format.md`, *Mirroring*). The rule's `@when`
+    comes with the one-key syntax (task 6).
 17. [ ] **Remove tags and `core:action`**, following other layers through definitions (*Tags are
     removed*).
 

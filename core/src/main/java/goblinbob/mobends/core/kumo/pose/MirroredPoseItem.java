@@ -3,11 +3,9 @@ package goblinbob.mobends.core.kumo.pose;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
-import java.util.Set;
 
 /**
- * Evaluates the wrapped item on a mirror image of the pose, with the layer's yaw-like variables
- * negated, and mirrors the result back; mirroring is an involution, so the item's own
+ * Evaluates the wrapped item on a mirror image of the pose and mirrors the result back; mirroring is an involution, so the item's own
  * composition semantics are untouched. Without the layer condition it is the plain item.
  */
 public class MirroredPoseItem implements IPoseItem
@@ -42,22 +40,7 @@ public class MirroredPoseItem implements IPoseItem
         }
         int[] pairOf = mirror.pairing();
         scratch.mirrorFrom(pose, pairOf, flip);
-        if (!flip)
-        {
-            item.apply(scratch, context, elapsedTicks);
-        }
-        else
-        {
-            Set<String> previous = context.setNegatedVariables(mirror.getNegatedVariables());
-            try
-            {
-                item.apply(scratch, context, elapsedTicks);
-            }
-            finally
-            {
-                context.setNegatedVariables(previous);
-            }
-        }
+        item.apply(scratch, context, elapsedTicks);
         pose.mirrorFrom(scratch, pairOf, flip);
     }
 

@@ -245,13 +245,13 @@ hand:
 
 ```json
 "mirror": {"when": {"type": "core:state", "state": "LEFT_HANDED"},
-           "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"]],
-           "negate": ["headYaw"]}
+           "pairs": [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"]]}
 ```
 
 An item with `"mirror": true` plays as its mirror image for left-handed entities. Use
 `"swapSides": true` for motion that only moves to the other arm without flipping (a breathing
-sway of the main arm).
+sway of the main arm). Leave the items that follow where the entity looks unmarked: the head
+turned by `headYaw` looks the same way for either hand.
 
 ### Easing a motion in and out
 

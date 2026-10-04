@@ -99,9 +99,6 @@
           "type": "core:state",
           "state": "LEFT_HANDED"
         },
-        "negate": [
-          "headYaw"
-        ],
         "pairs": [
           [
             "leftArm",
@@ -155,8 +152,7 @@
               "bone": "head",
               "axis": "Y",
               "angle": "headYaw",
-              "space": "PRE",
-              "mirror": true
+              "space": "PRE"
             },
             {
               "driver": "core:axis_rotate",

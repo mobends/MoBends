@@ -4409,8 +4409,7 @@
               "when": {
                 "type": "core:state",
                 "state": "SWINGING"
-              },
-              "mirror": true
+              }
             },
             {
               "animationKey": "mobends:bends/animations/player/tool_head.json",
@@ -5561,8 +5560,7 @@
                   "bone": "head",
                   "axis": "Y",
                   "angle": "headYaw",
-                  "space": "PRE",
-                  "mirror": true
+                  "space": "PRE"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/slash_up_still.json",
@@ -5725,8 +5723,7 @@
                   "bone": "head",
                   "axis": "Y",
                   "angle": "headYaw",
-                  "space": "PRE",
-                  "mirror": true
+                  "space": "PRE"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/slash_inward_still.json",
@@ -5883,8 +5880,7 @@
                   "bone": "head",
                   "axis": "Y",
                   "angle": "headYaw",
-                  "space": "PRE",
-                  "mirror": true
+                  "space": "PRE"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/slash_down_still.json",
@@ -6069,8 +6065,7 @@
                   "bone": "head",
                   "axis": "Y",
                   "angle": "headYaw",
-                  "space": "PRE",
-                  "mirror": true
+                  "space": "PRE"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/slash_outward_still.json",
@@ -6277,8 +6272,7 @@
                   "bone": "head",
                   "axis": "Y",
                   "angle": "headYaw",
-                  "space": "PRE",
-                  "mirror": true
+                  "space": "PRE"
                 },
                 {
                   "animationKey": "mobends:bends/animations/player/slash_whirl_still.json",
@@ -6626,9 +6620,6 @@
           "type": "core:state",
           "state": "LEFT_HANDED"
         },
-        "negate": [
-          "headYaw"
-        ],
         "pairs": [
           [
             "leftArm",
