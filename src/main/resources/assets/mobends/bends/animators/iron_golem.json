@@ -137,7 +137,14 @@
         "planted": {
           "core:pose": {
             "pose": [
-              {"core:ramp": {"name": "onFeet", "speed": 0.15, "when": {"not": [{"core:action": ["jump"]}]}}},
+              {
+                "core:accumulate": {
+                  "name": "onFeet",
+                  "rate": {"if": [{"core:action": ["jump"]}, -0.15, 0.15]},
+                  "min": 0,
+                  "max": 1
+                }
+              },
               {
                 "core:axis_rotate": {"bone": "renderRotation", "axis": "Z", "angle": "vanillaRock"},
                 "@space": "OVERRIDE",

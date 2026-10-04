@@ -15,7 +15,7 @@ public class PoseItemTemplate
     /** Composition space of this item's rotations. Null = OVERRIDE for clips, PRE for drivers. */
     public Pose.Space space;
 
-    /** Optional condition; the item is skipped while it does not hold (a ramp goes down instead). */
+    /** Optional condition; the item is skipped while it does not hold. */
     public ExpressionTemplate when;
 
     /** Damping for the bones this item writes. */

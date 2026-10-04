@@ -89,7 +89,7 @@ node is in *Choosing the node*.
 * `@connections` are the node's own ways out (see *Choosing the node*).
 * Operations with a memory (`decreased`, `rose`, `fell`) start over when what they are written on
   is entered: a node for its connections, everything its items compute (their `@when`s and their
-  own fields, ramps' `when`s included) and the layer's mirror rule; a machine for its selector and
+  own fields) and the layer's mirror rule; a machine for its selector and
   its connections, before its selector chooses. A layer's own `@when` starts with the layer, and
   its selector and connections as a machine's: the layer is entered when it starts (see
   *Machines*).
@@ -330,8 +330,7 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | `core:axis_rotate` | `bone`, `axis` (`X`/`Y`/`Z`), `angle` (expression, degrees) |
 | `core:vector` | `bone`, `x`, `y`, `z` (expressions; an axis left out keeps the bone's current target) |
 | `core:offset` | `bone`, `x`, `y`, `z`: a bone's position offset |
-| `core:ramp` | `name`, `speed`, `downSpeed` (null = speed, 0 = never down), `when` (its up/down switch, a field of its own: a ramp takes no `@when`), `initial`, `readBeforeAdvance`: a node variable moving 0..1 |
-| `core:accumulate` | `name`, `rate` (expression, per tick), `initial`, `min`, `max`: a node variable that integrates |
+| `core:accumulate` | `name`, `rate` (expression, per tick, any sign), `initial`, `min`, `max`: a node variable that integrates; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
 | `core:set` | `variable`, `value` (expression), `scope` (`layer` / `node`): assigns every frame the item is evaluated |
 | `core:spring` | `name`, `target` (expression), `stiffness` (per tick²), `friction` (per tick), `initial`: a node variable pulled towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through) |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
@@ -395,8 +394,8 @@ with, the planted foot drags rather than the feet flickering.
   back by whatever lies beneath in the rotation bone, so a counter-rotation there (of vanilla
   rocking the model) doesn't carry the hips off.
 * `weight` (an expression, 0..1) blends the driver in. At 0 it writes nothing, and the feet are
-  placed anew under the body when it goes up again. Run it in its own layer with a ramp that goes
-  up while the mob is on the ground, so the jump shows beneath it and the body turns back to
+  placed anew under the body when it goes up again. Run it in its own layer with an accumulator
+  that goes up while the mob is on the ground, so the jump shows beneath it and the body turns back to
   vanilla's yaw while it plays.
 * It reads the variables `yawVariable` (`bodyYaw`), `xVariable` and `zVariable` (`worldX`,
   `worldZ`), and publishes `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
@@ -517,7 +516,7 @@ always is, one whose items all run forever never is). A named expression can sha
 
 A name in capitals is a **state** of the subject, a boolean (see the data classes'
 `registerState` calls: `ON_GROUND`, `SPRINTING`, `LEFT_HANDED`, ...). Any other name nothing
-declares is a **variable**, a number: the node's own (written by its ramps, accumulators, springs,
+declares is a **variable**, a number: the node's own (written by its accumulators, springs,
 `core:set` and drivers such as `core:step_turn`) once the node has written it, else the layer's
 (its `variables`, `set`, `@set`, `core:set`) once written, else the subject's (see the data classes'
 `registerVariable` calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...). Which of them a name

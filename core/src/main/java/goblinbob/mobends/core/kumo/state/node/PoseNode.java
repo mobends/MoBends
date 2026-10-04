@@ -3,7 +3,6 @@ package goblinbob.mobends.core.kumo.state.node;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
-import goblinbob.mobends.core.kumo.driver.RampDriver;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.pose.*;
@@ -156,9 +155,8 @@ public class PoseNode implements INodeState
     private static IPoseItem createPlainItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
         IPoseItem item = createUnconditionalItem(context, skeleton, spaces, template);
-        // A ramp's "when" is its own up/down switch; every other item is skipped while its
-        // condition does not hold.
-        if (template.when == null || item instanceof RampDriver)
+        // The item is skipped while its condition does not hold.
+        if (template.when == null)
         {
             return item;
         }

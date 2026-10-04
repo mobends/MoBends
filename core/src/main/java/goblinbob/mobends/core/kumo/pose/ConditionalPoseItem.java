@@ -6,7 +6,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 
 /**
  * Applies the wrapped item only while its {@code when} condition holds, so every item kind
- * supports the condition the same way (except ramps, whose {@code when} is their own switch). The
+ * supports the condition the same way. The
  * node holding the item starts the condition's memory over (see {@code PoseNode}).
  */
 public class ConditionalPoseItem implements IPoseItem

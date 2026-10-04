@@ -852,45 +852,11 @@ statements in `enter`, `update`, `exit` and transition lists; `core:set` goes aw
 
 ### Ramps, springs and accumulators
 
-The old items, all pose items whose value was a node variable, reset to `initial` on every entry
-and stepped once per frame the node was posed (also while fading out; not while the layer's
-`when` was false):
-
-| | arguments | value |
-|---|---|---|
-| `core:ramp` | `name`; `speed` (per tick, default 0.1); `downSpeed` (default `speed`, 0 = never down); `when` (up while it holds, down otherwise; none = always up); `initial` (0); `readBeforeAdvance` | 0..1 |
-| `core:accumulate` | `name`; `rate` (expression, per tick); `initial` (0); `min`, `max` | unbounded unless clamped |
-| `core:spring` | `name`; `target` (expression); `stiffness` (per tick², 0.2); `friction` (per tick, 0.4); `initial` (0); velocity hidden | follows `target` |
-
-Items after one read this frame's value, items before it last frame's (`readBeforeAdvance`
-flipped that for the items after). A ramp ignored the item `when`; an accumulator or spring with
-a `when` froze while it didn't hold. Only 7 of the 22 shipped uses need state: the 2 switching
-ramps, the golem's 4 springs and the spider's `wigglePhase`.
-
-**Timer ramps become `linstep`.** 14 of the 16 shipped ramps (`relax`, `bringUp`, `bringUpPrev`
-in `player.json` and `skeleton.json`) have `downSpeed: 0` and no `when`: they only rise from 0 at
-`speed` per tick from the node's entry.
-
-| old | new |
-|---|---|
-| `{"driver": "core:ramp", "name": "relax", "speed": 0.1, "downSpeed": 0}`, read as `"relax"` | `{"linstep": ["nodeTicksElapsed", 0, 10]}` |
-| `bringUp`, `speed` 0.7 (shield) | `{"linstep": ["nodeTicksElapsed", 0, 1.43]}` |
-| `bringUp`, `speed` 0.15 (eating) | `{"linstep": ["nodeTicksElapsed", 0, 6.67]}` |
-| `bringUpPrev` (the same with `readBeforeAdvance`), read by `{"core:compare": bringUpPrev >= 1}` | `{"ge": ["nodeTicksElapsed", 6.67]}` |
-
-- Written once per node as a live definition where several items read it.
-- A ramp stepped before the items after it read it, so its value ran one frame ahead of the
-  `linstep` of the same clock (`clamp((nodeTicksElapsed + ticksPerFrame) × speed)`): these
-  animations shift by one frame. Pauses and restarts are unchanged.
-
-**Switching ramps merge into `core:accumulate`.** `onFeet` (iron golem) and `deep` (swimming
-player) become accumulators clamped to 0..1 with a signed `rate`; `core:ramp` goes away with its
-`when`, `speed`, `downSpeed` and `readBeforeAdvance`.
-
-**`readBeforeAdvance` is dropped.** It was added when porting the old Java animation bits, to
-match frame for frame the ones that computed their eased value before advancing their ramp
-(`b595999`, "kumo: New animation system"). It only shifts a value by one frame; nothing depends
-on it beyond the parity goldens. Its 5 uses: `bringUpPrev` (×4, gone with `linstep`) and `deep`.
+`core:ramp` is gone (done): the timer ramps (`relax`, `bringUp`, `bringUpPrev`) are `linstep`
+over the node's clock, named in the node's expressions, and the switching ramps (`onFeet`,
+`deep`) accumulators clamped to 0..1 with a signed rate; `readBeforeAdvance` went with them. A
+ramp stepped before the items after it read it, so the eating and shield animations moved a frame
+later, and `deep`, which read before advancing, a frame earlier (their goldens re-recorded).
 
 **Accumulators and springs** keep their behaviour, but step a declared state named by `inout`
 instead of a `name` with its own `initial`.
@@ -1267,8 +1233,7 @@ Everything besides the engine that changes with the format (surveyed 2026-10-03)
   `SideEffectParityTest`, `SpinAttackTest`, `DefinedModelsTest`, `StepTurnTest`,
   `DanceExtensionTest`.
 - **Parity goldens to re-record** (`./gradlew record` in `animation-lab`), where behaviour moves
-  on purpose: the eating, shield and sprint-jump scenarios (`linstep`, one frame); the swimming
-  `deep` ramp (`readBeforeAdvance` dropped); the riding scenarios (the measured speed); anything
+  on purpose: the riding scenarios (the measured speed); anything
   reading a node variable before its writer first writes it (`core:step_turn`, the spider drivers
   and `core:set` write on their first evaluation, and until then the read falls through to the
   layer's or the subject's value of that name; a declared state reads its initial value).
@@ -1333,8 +1298,8 @@ the additive and smaller ones.
 10. [ ] **Prototype the API on `core:spring` and `core:step_turn`**, settling argument passing, what
     bind gets, `PoseWriter` and purity (*To settle while prototyping*).
 11. [ ] **Drivers on declared state**: `out` and `inout`; `core:step_turn`'s and the spider legs'
-    private state as declared slots; `core:accumulate` absorbing the switching ramps; remove
-    `core:ramp`, `core:set` and `readBeforeAdvance` (*Driver outputs, accumulators and springs*).
+    private state as declared slots; remove `core:set` (*Driver outputs, accumulators and
+    springs*). `core:ramp` and `readBeforeAdvance` are gone.
 12. [ ] **Registered operations**: `field` / `exists` with `@fallback` (model definitions only);
     `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
     `core:is_flying`; `mobends:use_action`, `mobends:attack_action`, the wolf's and the spider's

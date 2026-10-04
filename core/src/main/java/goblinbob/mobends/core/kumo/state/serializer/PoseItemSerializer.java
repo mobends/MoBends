@@ -15,7 +15,6 @@ import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
-import goblinbob.mobends.core.kumo.state.template.pose.RampTemplate;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -89,10 +88,6 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
         JsonElement when = object.get("@when");
         if (when != null && !when.isJsonNull())
         {
-            if (item instanceof RampTemplate)
-            {
-                throw new JsonParseException("A ramp has no \"@when\": its own \"when\" is its up and down switch.");
-            }
             item.when = new ExpressionTemplate(when);
         }
         if (object.has("@space"))
@@ -117,11 +112,6 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
     private static <T extends PoseItemTemplate> T read(JsonObject content, Class<T> type, String what)
     {
         Map<String, String> keys = JsonReading.ownFields(type, type == ClipItemTemplate.class ? PoseItemTemplate.class : DriverItemTemplate.class);
-        if (type == RampTemplate.class || RampTemplate.class.isAssignableFrom(type))
-        {
-            // A ramp's own "when", its up and down switch.
-            keys.put("when", "when");
-        }
         return KumoSerializer.INSTANCE.leafGson.fromJson(JsonReading.fields(content, what, keys), type);
     }
 

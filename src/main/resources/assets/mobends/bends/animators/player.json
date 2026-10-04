@@ -275,7 +275,6 @@
         "sprint_jump_right": {
           "core:pose": {
             "pose": [
-              {"core:ramp": {"name": "relax", "speed": 0.1, "downSpeed": 0}},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/player/sprint_jump_right.json"},
                 "@damping": {
@@ -324,12 +323,12 @@
             ]
           },
           "@connections": [{"when": "bounced", "then": "sprint_jump_right"}],
+          "@expressions": {"relax": {"linstep": ["elapsed", 0, 10]}},
           "@tags": ["sprint_jump"]
         },
         "sprint_jump_left": {
           "core:pose": {
             "pose": [
-              {"core:ramp": {"name": "relax", "speed": 0.1, "downSpeed": 0}},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/player/sprint_jump_left.json"},
                 "@damping": {
@@ -378,6 +377,7 @@
             ]
           },
           "@connections": [{"when": "bounced", "then": "sprint_jump_left"}],
+          "@expressions": {"relax": {"linstep": ["elapsed", 0, 10]}},
           "@tags": ["sprint_jump"]
         },
         "falling": {
@@ -754,22 +754,28 @@
           "core:pose": {
             "pose": [
               {
-                "core:ramp": {
+                "core:accumulate": {
                   "name": "deep",
-                  "speed": 0.1,
-                  "when": {
-                    "not": [
+                  "rate": {
+                    "if": [
                       {
-                        "or": [
-                          "STANDING_STILL",
-                          "DRAWING_BOW",
-                          {"lt": ["ticksAfterAttack", 10]},
-                          {"not": ["UNDERWATER"]}
+                        "not": [
+                          {
+                            "or": [
+                              "STANDING_STILL",
+                              "DRAWING_BOW",
+                              {"lt": ["ticksAfterAttack", 10]},
+                              {"not": ["UNDERWATER"]}
+                            ]
+                          }
                         ]
-                      }
+                      },
+                      0.1,
+                      -0.1
                     ]
                   },
-                  "readBeforeAdvance": true
+                  "min": 0,
+                  "max": 1
                 }
               },
               {
@@ -1441,8 +1447,6 @@
         "eat_right": {
           "core:pose": {
             "pose": [
-              {"core:ramp": {"name": "bringUp", "speed": 0.15, "downSpeed": 0}},
-              {"core:ramp": {"name": "bringUpPrev", "speed": 0.15, "downSpeed": 0, "readBeforeAdvance": true}},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/player/eat_arm_right.json", "frame": "bringUp"}
               },
@@ -1451,7 +1455,7 @@
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"ge": ["bringUpPrev", 1]},
+                "@when": {"ge": ["elapsed", 6.666666666666667]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/eat_head_right.json",
                   "frame": {"mod": ["ticks", "clipLength"]}
@@ -1459,6 +1463,7 @@
               }
             ]
           },
+          "@expressions": {"bringUp": {"linstep": ["elapsed", 0, 6.666666666666667]}},
           "@tags": ["eating"]
         },
         "bow_right": {
@@ -1537,7 +1542,6 @@
         "shield_right": {
           "core:pose": {
             "pose": [
-              {"core:ramp": {"name": "bringUp", "speed": 0.7, "downSpeed": 0}},
               {
                 "core:axis_rotate": {"bone": "rightArm", "axis": "Y", "angle": {"mul": ["bringUp", -45]}},
                 "@space": "OVERRIDE"
@@ -1548,13 +1552,12 @@
               }
             ]
           },
+          "@expressions": {"bringUp": {"linstep": ["elapsed", 0, 1.4285714285714286]}},
           "@tags": ["shield"]
         },
         "eat_left": {
           "core:pose": {
             "pose": [
-              {"core:ramp": {"name": "bringUp", "speed": 0.15, "downSpeed": 0}},
-              {"core:ramp": {"name": "bringUpPrev", "speed": 0.15, "downSpeed": 0, "readBeforeAdvance": true}},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/player/eat_arm_left.json", "frame": "bringUp"}
               },
@@ -1563,7 +1566,7 @@
                 "@space": "OVERRIDE"
               },
               {
-                "@when": {"ge": ["bringUpPrev", 1]},
+                "@when": {"ge": ["elapsed", 6.666666666666667]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/eat_head_left.json",
                   "frame": {"mod": ["ticks", "clipLength"]}
@@ -1571,6 +1574,7 @@
               }
             ]
           },
+          "@expressions": {"bringUp": {"linstep": ["elapsed", 0, 6.666666666666667]}},
           "@tags": ["eating"]
         },
         "bow_left": {
@@ -1649,7 +1653,6 @@
         "shield_left": {
           "core:pose": {
             "pose": [
-              {"core:ramp": {"name": "bringUp", "speed": 0.7, "downSpeed": 0}},
               {
                 "core:axis_rotate": {"bone": "leftArm", "axis": "Y", "angle": {"mul": ["bringUp", 45]}},
                 "@space": "OVERRIDE"
@@ -1660,6 +1663,7 @@
               }
             ]
           },
+          "@expressions": {"bringUp": {"linstep": ["elapsed", 0, 1.4285714285714286]}},
           "@tags": ["shield"]
         }
       },

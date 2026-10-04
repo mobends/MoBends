@@ -458,8 +458,10 @@ const pFalling: Obj = { type: "core:pose", tags: ["falling"], pose: [
 function sprintJumpNode(leg: string): Obj {
   const m = leg === "right" ? 1 : -1;
   const [mainFl, offFl] = leg === "right" ? ["rightForeLeg", "leftForeLeg"] : ["leftForeLeg", "rightForeLeg"];
-  return { type: "core:pose", tags: ["sprint_jump"], pose: [
-    { driver: "core:ramp", name: "relax", speed: 0.1, downSpeed: 0 },
+  return { type: "core:pose", tags: ["sprint_jump"],
+    // the legs relax over the first ten ticks
+    expressions: { relax: { linstep: ["elapsed", 0, 10] } },
+    pose: [
     { animationKey: PL(`sprint_jump_${leg}`), damping: { centerRotation: 0.3, root: 0.5, body: 0.3, rightLeg: 0.8, leftLeg: 0.8, rightArm: 0.3, leftArm: 0.3 }, vectorModes: { root: "SLIDE" } },
     // body lean from the vertical motion, applied *inside* the Y twist (orientX then rotateY)
     drv("body", "X", "motionY", { scale: -100, offset: 20, min: -0.2, max: 0.2, clampFirst: true, space: "POST" }),
@@ -494,7 +496,8 @@ const surface = OR(state("STANDING_STILL"), state("DRAWING_BOW"), cmp("ticksAfte
 const deep = NOT(surface);
 const deepT = { variable: "deep", ease: "ease_in_out", power: 3, min: 0, max: 1 };
 const pSwimming: Obj = { type: "core:pose", tags: ["swimming"], pose: [
-  { driver: "core:ramp", name: "deep", speed: 0.1, when: deep, readBeforeAdvance: true },
+  // 0 at the surface, going to 1 over ten ticks under it, and back
+  { driver: "core:accumulate", name: "deep", rate: { if: [deep, 0.1, -0.1] }, min: 0, max: 1 },
   { animationKey: PL("swim_common"), damping: { head: 1, renderRotation: 0.7, localOffset: 0.3 }, vectorModes: { localOffset: "SLIDE" } },
   when({ animationKey: PL("swim_surface_arms"), frame: looped(scaled("ticks", 0.0825)), damping: { leftArm: 0.3, rightArm: 0.3, leftForeArm: 0.3, rightForeArm: 0.3 } }, surface),
   when({ animationKey: PL("swim_surface_legs"), frame: looped(scaled("ticks", 0.2625)), damping: { leftLeg: 0.3, rightLeg: 0.3, leftForeLeg: 0.4, rightForeLeg: 0.4 } }, surface),
@@ -744,12 +747,12 @@ function useNodes(): Record<string, Obj> {
     const eatSamples = range(65).map((k) => k / 64);
     curveClip(join(CLIPS, "player", `eat_arm_${side}.json`), (b) => ({ [arm]: rotations(["X", b * -80], ["Z", 45 * b * h]) }), eatSamples, 1);
     cycleClip(join(CLIPS, "player", `eat_head_${side}.json`), (p) => ({ head: rotations(["X", mcCos(p) * 5], ["Y", 15 * h]) }));
-    nodes[`eat_${side}`] = { type: "core:pose", tags: ["eating"], pose: [
-      { driver: "core:ramp", name: "bringUp", speed: 0.15, downSpeed: 0 },
-      { driver: "core:ramp", name: "bringUpPrev", speed: 0.15, downSpeed: 0, readBeforeAdvance: true },
+    // the arm comes up over 1 / 0.15 ticks, then the head chews
+    const eatUp = 1 / 0.15;
+    nodes[`eat_${side}`] = { type: "core:pose", tags: ["eating"], expressions: { bringUp: { linstep: ["elapsed", 0, eatUp] } }, pose: [
       { animationKey: PL(`eat_arm_${side}`), frame: "bringUp" },
       drv(fore, "X", "bringUp", { scale: -45, space: "OVERRIDE" }),
-      when({ animationKey: PL(`eat_head_${side}`), frame: looped("ticks") }, cmp("bringUpPrev", ">=", 1)),
+      when({ animationKey: PL(`eat_head_${side}`), frame: looped("ticks") }, cmp("elapsed", ">=", eatUp)),
     ] };
     // bow: the off arm's Z part is a curve over the head pitch
     const pitchSamples = range(65).map((k) => -90 + 180 * k / 64);
@@ -772,8 +775,7 @@ function useNodes(): Record<string, Obj> {
       withDamping(drv(fore, "X", null, { const: 0, space: "OVERRIDE" }), { [fore]: 1 }),
       drv(otherFore, "X", "aimedBowTicks", { scale: -3, space: "OVERRIDE" }),
     ] };
-    nodes[`shield_${side}`] = { type: "core:pose", tags: ["shield"], pose: [
-      { driver: "core:ramp", name: "bringUp", speed: 0.7, downSpeed: 0 },
+    nodes[`shield_${side}`] = { type: "core:pose", tags: ["shield"], expressions: { bringUp: { linstep: ["elapsed", 0, 1 / 0.7] } }, pose: [
       drv(arm, "Y", "bringUp", { scale: -45 * h, space: "OVERRIDE" }),
       drv(fore, "X", "bringUp", { scale: -45, space: "OVERRIDE" }),
     ] };
@@ -1198,8 +1200,7 @@ function oneKeyItem(o: Obj): Obj {
   const kind: string = driver ?? "core:clip";
   const own: Obj = {}, mods: Obj = {};
   for (const [k, v] of Object.entries(rest)) {
-    if (k === "when" && kind === "core:ramp") own[k] = v; // a ramp's own up/down switch
-    else if (k in MODIFIERS) mods[MODIFIERS[k]] = v;
+    if (k in MODIFIERS) mods[MODIFIERS[k]] = v;
     else own[k] = v;
   }
   const out: Obj = {};

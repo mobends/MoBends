@@ -255,16 +255,28 @@ turned by `headYaw` looks the same way for either hand.
 
 ### Easing a motion in and out
 
-A `core:ramp` driver is a node variable that moves from 0 to 1 while its `when` holds and back
-otherwise; use it as a later item's `weight` to raise an arm over a few ticks instead of snapping:
+To raise an arm over a few ticks instead of snapping, weight a later item by a value that goes
+from 0 to 1. Over the first ticks of a node, that is a function of the node's clock:
+`{"linstep": ["elapsed", 0, 10]}` rises over ten ticks. Name it in the node's `@expressions` when
+several items read it:
 
 ```json
-{"core:ramp": {"name": "raise", "speed": 0.1, "when": "SNEAKING"}},
+"raise": {
+  "core:pose": {"pose": [{"core:clip": {"animationKey": "…/raise.json", "weight": "lift"}}]},
+  "@expressions": {"lift": {"linstep": ["elapsed", 0, 10]}}
+}
+```
+
+To go up while a condition holds and back down when it doesn't, accumulate a rate whose sign
+follows the condition, clamped to 0..1:
+
+```json
+{"core:accumulate": {"name": "raise", "rate": {"if": ["SNEAKING", 0.1, -0.1]}, "min": 0, "max": 1}},
 {"core:clip": {"animationKey": "…/raise.json", "weight": "raise"}}
 ```
 
-`core:accumulate` integrates a rate instead (a phase that slows down as it decays), and a
-procedural motion can skip clips entirely: a driver's `angle` is any expression, e.g.
+`core:accumulate` integrates any rate (a phase that slows down as it decays), and a procedural
+motion can skip clips entirely: a driver's `angle` is any expression, e.g.
 `{"mul": [{"sin": [{"mul": ["elapsed", 0.5]}]}, 25]}`.
 
 ### An overlay from a resource pack
