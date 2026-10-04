@@ -784,6 +784,52 @@ registry.registerOperation(Operation.named("distance_to_nearest")
   `eq` compares two numbers or two booleans. That stays internal; addon operations have fixed
   types.
 
+### Where the API lives
+
+The operation and driver API is part of `core/`, the engine shared by every Minecraft version, so
+it can't name a Minecraft type (`Entity`, `Item`, `ResourceLocation`). Each Minecraft version's
+mod layer adds entity-typed helpers on top (`registerEntityReader`, the `Entity`-typed
+`distance_to_nearest` above), and `AddonAnimationRegistry` adds the mod id.
+
+### Decided
+
+- **The entity in core** is an opaque `Object` and its `Class<?>`. Bind checks applicability
+  with `isAssignableFrom` and returns the evaluator, or says the operation doesn't apply. The mod
+  layer's helpers do the typed cast, so addon code never casts.
+- **State is floats only.** A boolean is 0 or 1, and state holds no objects, which keeps an
+  entity's state one flat `float[]`. A signature declares its slots and gets back handles,
+  `FloatSlot` or `FloatArraySlot` (sized at bind: four legs keep four of each per-leg value);
+  evaluate reads and writes through them on the entity's state. Everything drivers keep in Java
+  fields today (`StepTurnDriver`'s planted feet, the spider's legs) is positions and angles.
+  Whatever bind computes that isn't per entity (an `Item` looked up from `minecraft:torch`, a
+  compiled `Pattern`) is captured in the evaluator, which is part of the program.
+- **Driver fields are Gson template classes**, as today, with field types restricted to a fixed
+  set: `NumberExpr`, `BoolExpr`, `StateRef` (for `inout` and `out` targets), `BoneRef`,
+  primitives, enums, and lists of nested templates (`core:step_turn`'s `legs`). The loader
+  reflects over the class to check kinds, word the errors and generate the docs. Operations keep
+  their builder signature: they have a few positional arguments, drivers many named, nested
+  fields.
+- **Selector-safe operations** carry a flag in their signature: they bind against the entity
+  class and evaluate against the selector context (player name, UUID, skin variant), not entity
+  data. Any other operation in a type file's selector is a load error. This replaces
+  `registerSelectorCondition`.
+
+### To settle while prototyping
+
+Settled by porting `core:spring` and `core:step_turn` to the new API, which will show any gap:
+
+- **Arguments at evaluate** are passed already evaluated, through a reused view (`args.number(0)`,
+  `args.bool(1)`) that doesn't allocate. Nothing short-circuits, so an operation never needs its
+  arguments lazily.
+- **What bind gets**: the constant arguments (`args.string(i)`, `args.choice(i)`,
+  `args.constant(i)`), the entity class, `args.error(i, message)` for errors in the operation's
+  own words, and, for drivers, bone lookup from name to index.
+- **How much of the pose drivers see**: a narrow `PoseWriter` (by bone index, in a space:
+  `PRE`, `POST`, `OVERRIDE`) rather than `Pose`, so the pose buffers can change without breaking
+  addons.
+- **Purity**: `registerFunction` implies it; the full builder opts in with `.pure()`. A pure
+  operation that isn't only loses constant folding.
+
 ## Runtime
 
 ### Program and per-entity state
@@ -815,8 +861,9 @@ once per animator file and extensions.
 
 ## Open questions
 
-- **Addon API types.** The exact Java types (`Operation`, `Kind`, the bind arguments, the
-  evaluation context) are settled while implementing.
+- **Addon API details.** Argument passing at evaluate, what bind gets, the pose drivers see,
+  and purity, to settle while porting `core:spring` and `core:step_turn` (*To settle while
+  prototyping*).
 
 ---
 
@@ -1163,13 +1210,17 @@ needs no string type.
 
 ### Addon API
 
-`AddonAnimationRegistry.registerTriggerCondition` goes away. Expression operations had no
-registry method: addons could only call the global `ExpressionOperations.register`, with no mod
-id, types, entity class or state. They get registry methods (*Operations and drivers in Java*).
+`AddonAnimationRegistry.registerTriggerCondition` goes away, and so does
+`registerSelectorCondition` (selector operations are flagged operations). Expression operations
+had no registry method: addons could only call the global `ExpressionOperations.register`, with no
+mod id, types, entity class or state. They get registry methods (*Operations and drivers in
+Java*). Drivers keep their Gson template classes, with the typed field set; `IPoseItem`'s
+`onNodeStarted` / `advance` and the state in Java fields give way to declared state.
 
 Registration timing is broken today: `Addons.registerAddon` calls `registerContent` only if
 `CoreClient` already exists, and nothing calls it later, so an addon registered too early is
-silently dropped.
+silently dropped. The new registry queues registrations and replays them once the core exists,
+and rejects a registration made after the first animator has loaded.
 
 ## Background: what data classes do
 
