@@ -1005,10 +1005,10 @@ const spMove: Obj = poseNode([
 ], { define: { groundLevel: variable(0) } });
 poseClip(join(CLIPS, "spider", "crawl_rest.json"), { centerRotation: rotations() }, { localOffset: [0, -10, 0] });
 const spCrawl: Obj = poseNode([
-  item("mobends:spider_moving_legs", { swing: value("crawlProgress", { scale: 5 }), groundLevel: value("crawlProgress", { scale: 3, fn: "mcsin", mul: 1.2 }), limbs: spiderLimbs,
+  item("mobends:spider_moving_legs", { swing: value("entityDistanceMoved", { scale: 5 }), groundLevel: value("entityDistanceMoved", { scale: 3, fn: "mcsin", mul: 1.2 }), limbs: spiderLimbs,
                                        ...spiderLegsState(false) }),
   ...spiderHead,
-  withDamping(drv("renderRotation", "X", null, { const: -90, space: "override" }), { renderRotation: 0.6 }), drv("renderRotation", "Y", "crawlRenderYaw"),
+  withDamping(drv("renderRotation", "X", null, { const: -90, space: "override" }), { renderRotation: 0.6 }), drv("renderRotation", "Y", "entity.crawlYaw"),
   clip(SP("crawl_rest"), {}, { damping: { localOffset: 0.5 }, vectorModes: { localOffset: "slide" } }),
 ]);
 // jump: legs fan out to their natural yaw and bend with the vertical motion

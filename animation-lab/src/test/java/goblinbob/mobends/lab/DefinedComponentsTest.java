@@ -2,7 +2,6 @@ package goblinbob.mobends.lab;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.OrientationComponent;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
@@ -39,9 +38,7 @@ public class DefinedComponentsTest
     @Test
     void thePlayersDefinitionGivesItsDataTheComponentsTheLayersRead() throws Exception
     {
-        // Registered by the mod's default addon in the game.
-        EntityComponents.register("mobends:sword_trail", data -> new SwordTrail(() -> null));
-        EntityComponents.register("mobends:cape_wave", data -> new CapeWave(data.getEntity()));
+        // The mod's default addon registers the components (here LabBootstrap).
         LabBootstrap.ensure();
         World world = new World();
         Minecraft.getMinecraft().world = world;

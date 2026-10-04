@@ -18,6 +18,7 @@ import goblinbob.mobends.standard.kumo.MoBendsOperations;
 import goblinbob.mobends.standard.kumo.SwordTrailDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate;
+import goblinbob.mobends.standard.kumo.spider.SpiderLegs;
 import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate;
 import goblinbob.mobends.standard.main.ModConfig;
@@ -51,6 +52,7 @@ public class DefaultAddon implements IAddon
 			registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>());
 			registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>());
 			registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>());
+			registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>());
 		}
 		else
 		{
@@ -60,9 +62,8 @@ public class DefaultAddon implements IAddon
 			registry.registerDefinedEntity("zombie_villager");
 			registry.registerDefinedEntity("pig_zombie");
 			registry.registerDefinedEntity("squid");
+			registry.registerDefinedEntity("spider");
 		}
-
-		registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>());
 
 		registry.registerNewEntity(EntityWolf.class, WolfData::new, WolfMutator::new, new WolfRenderer<>());
 
@@ -77,6 +78,7 @@ public class DefaultAddon implements IAddon
 		// What model definitions can switch on (their "components" and "layers").
 		registry.registerComponent("sword_trail", data -> new SwordTrail(() -> SupporterContent.getTrailColorFor(data.getEntity())));
 		registry.registerComponent("cape_wave", data -> new CapeWave(data.getEntity()));
+		registry.registerComponent("spider_legs", SpiderLegs::new);
 		registry.registerLayer("armor", LayerBipedArmor.class, (renderer, options, bones) -> new LayerCustomBipedArmor(renderer));
 		registry.registerLayer("held_item", LayerHeldItem.class, (renderer, options, bones) -> new LayerCustomHeldItem(renderer));
 		registry.registerLayer("custom_head", LayerCustomHead.class, (renderer, options, bones) -> new LayerCustomHead(bones.apply(

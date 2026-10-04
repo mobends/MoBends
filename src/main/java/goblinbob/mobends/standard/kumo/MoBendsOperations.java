@@ -17,6 +17,9 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 
 /**
  * The {@code mobends:} operations: Mo' Bends' own classifications and settings, and what the
@@ -94,6 +97,27 @@ public final class MoBendsOperations
 
         // The spider's: it is beside a block it climbs.
         KumoRegistry.registerEntityBooleanReader("mobends:is_beside_climbable", EntitySpider.class, EntitySpider::isBesideClimbableBlock);
+        // The horizontal angle of the wall the spider climbs, 0 when it climbs none.
+        KumoRegistry.registerEntityFloatReader("mobends:spider_wall_rotation", EntitySpider.class, MoBendsOperations::wallRotation);
+    }
+
+    private static final EnumFacing[] WALLS = { EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST, EnumFacing.EAST };
+
+    private static float wallRotation(EntitySpider spider)
+    {
+        if (!spider.isOnLadder())
+        {
+            return 0;
+        }
+        BlockPos position = new BlockPos(Math.floor(spider.posX), Math.floor(spider.posY), Math.floor(spider.posZ));
+        for (EnumFacing wall : WALLS)
+        {
+            if (spider.world.getBlockState(position.add(wall.getDirectionVec())).getBlock() != Blocks.AIR)
+            {
+                return wall.getHorizontalAngle();
+            }
+        }
+        return 0;
     }
 
 }

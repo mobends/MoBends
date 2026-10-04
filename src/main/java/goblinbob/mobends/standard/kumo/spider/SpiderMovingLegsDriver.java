@@ -9,7 +9,6 @@ import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.GUtil;
-import goblinbob.mobends.standard.data.SpiderData;
 import net.minecraft.util.math.MathHelper;
 
 /** See {@link SpiderMovingLegsTemplate}. */
@@ -43,8 +42,8 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
     @Override
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
-        SpiderData data = subject(context);
-        if (data == null)
+        SpiderLegs legs = legs(context);
+        if (legs == null)
         {
             return;
         }
@@ -75,7 +74,7 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
             boolean settled = startTransition >= 1.0F;
             writeLeg(pose, i, odd, odd ? sideRotation : -sideRotation, angles, settled ? 1F : startTransition, settled);
 
-            data.limbs[i].setAngleAndDistance(odd ? sideRotation / 180F * GUtil.PI : GUtil.PI - sideRotation / 180F * GUtil.PI, dist * 0.0625F);
+            legs.limbs[i].setAngleAndDistance(odd ? sideRotation / 180F * GUtil.PI : GUtil.PI - sideRotation / 180F * GUtil.PI, dist * 0.0625F);
         }
 
         publishGroundLevel(ground, context);

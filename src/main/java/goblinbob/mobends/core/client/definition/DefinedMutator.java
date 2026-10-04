@@ -3,7 +3,10 @@ package goblinbob.mobends.core.client.definition;
 import com.google.gson.JsonObject;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.model.BoxFactory;
+import goblinbob.mobends.core.client.model.BoxSide;
+import goblinbob.mobends.core.client.model.FaceRotation;
 import goblinbob.mobends.core.client.model.ModelPart;
+import goblinbob.mobends.core.client.model.MutatedBox;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.BoxSplitter;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -23,9 +26,11 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -296,9 +301,16 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             segmentsOf.put(bone.name, segments);
             List<float[]> origins = new ArrayList<>();
             origins.add(new float[3]);
+            if (bone.boxes != null)
+            {
+                for (BoneDefinition.BoxDefinition box : bone.boxes)
+                {
+                    part.addBox(createBox(box, part));
+                }
+            }
             if (vanilla != null)
             {
-                for (ModelBox box : vanilla.cubeList)
+                for (ModelBox box : bone.boxes != null ? Collections.<ModelBox>emptyList() : vanilla.cubeList)
                 {
                     BoxFactory source = sourceBox(vanilla, box, shift);
                     if (bone.split == null)
@@ -403,6 +415,56 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             }
             addSplitBoxes(source, bone, under.split, pieces, originsOf.get(bone.overlay), first);
         }
+    }
+
+    /** A box the definition declares itself (see {@link BoneDefinition.BoxDefinition}). */
+    private static MutatedBox createBox(BoneDefinition.BoxDefinition box, DefinedModelPart part)
+    {
+        BoxFactory factory = new BoxFactory(box.from[0], box.from[1], box.from[2], box.size[0], box.size[1], box.size[2], 0).withUVs(box.uv[0], box.uv[1]);
+        if (box.drawnSize != null)
+        {
+            factory.resize(box.drawnSize[0], box.drawnSize[1], box.drawnSize[2]);
+        }
+        if (box.offset != null)
+        {
+            factory.offset(box.offset[0], box.offset[1], box.offset[2]);
+        }
+        if (box.inflate != null)
+        {
+            factory.inflate(box.inflate[0], box.inflate[1], box.inflate[2]);
+        }
+        if (box.hide != null)
+        {
+            for (String face : box.hide)
+            {
+                factory.hideFace(side(face));
+            }
+        }
+        if (box.faces != null)
+        {
+            for (Map.Entry<String, BoneDefinition.FaceDefinition> face : box.faces.entrySet())
+            {
+                if (face.getValue().uvOffset != null)
+                {
+                    factory.offsetTextureQuad(side(face.getKey()), face.getValue().uvOffset[0], face.getValue().uvOffset[1]);
+                }
+                if (face.getValue().rotate != null)
+                {
+                    factory.rotateTextureQuad(side(face.getKey()), FaceRotation.valueOf(face.getValue().rotate.toUpperCase(Locale.ROOT)));
+                }
+            }
+        }
+        // A box takes its mirroring from the part it is made for.
+        boolean mirror = part.mirror;
+        part.mirror = box.mirror;
+        MutatedBox created = factory.create(part);
+        part.mirror = mirror;
+        return created;
+    }
+
+    private static BoxSide side(String face)
+    {
+        return BoxSide.valueOf(face.toUpperCase(Locale.ROOT));
     }
 
     /** A vanilla box, inflated as vanilla has it, moved {@code shift} into the bone's frame. */

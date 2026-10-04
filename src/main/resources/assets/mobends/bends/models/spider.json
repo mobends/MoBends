@@ -1,0 +1,50 @@
+{
+  "formatVersion": 2,
+  "@comment": "The spider: legs of two segments, each half of vanilla's leg texture stretched to 12 units (so they reach the ground as the leg drivers place the feet). The legs component is where the feet are planted; the entity scope turns the body against the wall it climbs.",
+  "entity": "net.minecraft.entity.monster.EntitySpider",
+  "model": "net.minecraft.client.model.ModelSpider",
+  "animator": "mobends:bends/animators/spider.json",
+  "bones": [
+    {"name": "head", "vanilla": {"field": "spiderHead"}},
+    {"name": "neck", "vanilla": {"field": "spiderNeck"}},
+    {"name": "body", "vanilla": {"field": "spiderBody"}},
+    {"name": "leg1", "vanilla": {"field": "spiderLeg1"},
+     "boxes": [{"uv": [26, 0], "from": [-11, -1, -1], "size": [8, 2, 2], "drawnSize": [12, 2, 2]}]},
+    {"name": "foreLeg1", "parent": "leg1", "position": [-11, -1, 0],
+     "boxes": [{"uv": [18, 0], "from": [-12, 0, -1], "size": [8, 2, 2], "drawnSize": [12, 1.99, 1.99], "offset": [0, 0, 0.005]}]},
+    {"name": "leg2", "vanilla": {"field": "spiderLeg2"},
+     "boxes": [{"uv": [18, 0], "from": [-1, -1, -1], "size": [8, 2, 2], "drawnSize": [12, 2, 2]}]},
+    {"name": "foreLeg2", "parent": "leg2", "position": [11, -1, 0],
+     "boxes": [{"uv": [26, 0], "from": [0, 0, -1], "size": [8, 2, 2], "drawnSize": [12, 1.99, 1.99], "offset": [0, 0, 0.005]}]},
+    {"name": "leg3", "vanilla": {"field": "spiderLeg3"},
+     "boxes": [{"uv": [26, 0], "from": [-11, -1, -1], "size": [8, 2, 2], "drawnSize": [12, 2, 2]}]},
+    {"name": "foreLeg3", "parent": "leg3", "position": [-11, -1, 0],
+     "boxes": [{"uv": [18, 0], "from": [-12, 0, -1], "size": [8, 2, 2], "drawnSize": [12, 1.99, 1.99], "offset": [0, 0, 0.005]}]},
+    {"name": "leg4", "vanilla": {"field": "spiderLeg4"},
+     "boxes": [{"uv": [18, 0], "from": [-1, -1, -1], "size": [8, 2, 2], "drawnSize": [12, 2, 2]}]},
+    {"name": "foreLeg4", "parent": "leg4", "position": [11, -1, 0],
+     "boxes": [{"uv": [26, 0], "from": [0, 0, -1], "size": [8, 2, 2], "drawnSize": [12, 1.99, 1.99], "offset": [0, 0, 0.005]}]},
+    {"name": "leg5", "vanilla": {"field": "spiderLeg5"},
+     "boxes": [{"uv": [26, 0], "from": [-11, -1, -1], "size": [8, 2, 2], "drawnSize": [12, 2, 2]}]},
+    {"name": "foreLeg5", "parent": "leg5", "position": [-11, -1, 0],
+     "boxes": [{"uv": [18, 0], "from": [-12, 0, -1], "size": [8, 2, 2], "drawnSize": [12, 1.99, 1.99], "offset": [0, 0, 0.005]}]},
+    {"name": "leg6", "vanilla": {"field": "spiderLeg6"},
+     "boxes": [{"uv": [18, 0], "from": [-1, -1, -1], "size": [8, 2, 2], "drawnSize": [12, 2, 2]}]},
+    {"name": "foreLeg6", "parent": "leg6", "position": [11, -1, 0],
+     "boxes": [{"uv": [26, 0], "from": [0, 0, -1], "size": [8, 2, 2], "drawnSize": [12, 1.99, 1.99], "offset": [0, 0, 0.005]}]},
+    {"name": "leg7", "vanilla": {"field": "spiderLeg7"},
+     "boxes": [{"uv": [26, 0], "from": [-11, -1, -1], "size": [8, 2, 2], "drawnSize": [12, 2, 2]}]},
+    {"name": "foreLeg7", "parent": "leg7", "position": [-11, -1, 0],
+     "boxes": [{"uv": [18, 0], "from": [-12, 0, -1], "size": [8, 2, 2], "drawnSize": [12, 1.99, 1.99], "offset": [0, 0, 0.005]}]},
+    {"name": "leg8", "vanilla": {"field": "spiderLeg8"},
+     "boxes": [{"uv": [18, 0], "from": [-1, -1, -1], "size": [8, 2, 2], "drawnSize": [12, 2, 2]}]},
+    {"name": "foreLeg8", "parent": "leg8", "position": [11, -1, 0],
+     "boxes": [{"uv": [26, 0], "from": [0, 0, -1], "size": [8, 2, 2], "drawnSize": [12, 1.99, 1.99], "offset": [0, 0, 0.005]}]}
+  ],
+  "components": {
+    "legs": "mobends:spider_legs"
+  },
+  "@define": {
+    "crawlYaw": {"live": {"sub": [{"mod": [{"add": [{"sub": [{"lerp": [{"field": ["prevRotationYaw"]}, {"field": ["rotationYaw"]}, "partialTicks"]}, {"mobends:spider_wall_rotation": []}]}, 180]}, 360]}, 180]}}
+  }
+}

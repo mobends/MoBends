@@ -135,8 +135,8 @@ Class-specific logic is a registered operation; class-specific memory is `entity
 mob's model definition.
 
 The registered operations are in the spec (*Expressions*), `core:is_flying`, the wolf's and the
-spider's among them. Still to come: `mobends:spider_wall_rotation` (the wall the spider crawls
-on, which its crawl yaw is measured from), and the type-file selector operations (`core:entity_type`,
+spider's among them, `mobends:spider_wall_rotation` (the wall the spider crawls on, which its
+crawl yaw is measured from; done), and the type-file selector operations (`core:entity_type`,
 `core:player_name`, `core:player_uuid`, `mobends:skin_variant`; task 13), which need no entity
 data.
 
@@ -170,7 +170,8 @@ Other mob-specific values in their files:
 - wolf: `tailWag` (over `mobends:wolf_interested_angle`, `entityTicksExisted`, `partialTicks`);
 - zombie: its animation set (a constant from `entityId`) and walking style (a random value
   re-rolled every 80–100 ticks);
-- spider: crawl progress and render yaw (state, or `mobends:` operations).
+- spider: crawl progress and render yaw (done: the `entityDistanceMoved` built-in, and
+  `entity.crawlYaw` over `mobends:spider_wall_rotation`).
 
 ### Per-entity data
 
@@ -311,7 +312,6 @@ to do: the values a mob's data class keeps or computes itself, which move into i
 
 | old (uses) | new |
 |---|---|
-| spider: `crawlProgress` (2), `crawlRenderYaw` (1) | spider state, and `mobends:spider_wall_rotation` |
 
 The capitals rule for a bare name goes with the last of them.
 
@@ -379,7 +379,7 @@ game.
 
 Data that code casts to: the biped's and the player's are gone (done: layers and drivers read
 bones by name, and the sword trail, held-item orientations and cape ripple are components, see
-`docs/animation.md`). Left: `SpiderData` (the spider leg drivers) and `WolfData`
+`docs/animation.md`); so is the spider's (its legs are a component). Left: `WolfData`
 (`LayerWolfMisc`). With every cast gone, one generic data class serves every entity (*Per-entity
 data*).
 
@@ -407,8 +407,8 @@ Other mobs:
   entity's own generator, which the lab seeds). The zombie villager is drawn as vanilla's
   villager-shaped model (the Java one drew a zombie's biped over that texture), and the
   skeleton's left arm is mirrored as vanilla's (the Java one wasn't).
-- **Spider:** longer legs rebuilt from constants (definitions can't resize geometry), leg IK state
-  on `SpiderData`.
+- **Spider** (done: `spider`; its longer legs are boxes it declares, `boxes` with a stretched
+  `drawnSize`, and its feet are the `mobends:spider_legs` component the leg drivers share).
 - **Squid** (done: `squid`; its tentacles are vanilla's, cut into nine sections, where the Java
   squid moved them a unit in and down; its phase reads `field`s).
 - **Wolf:** nose, mouth and ears are cut from one part's boxes (needs bones built from selected
@@ -489,12 +489,12 @@ the additive and smaller ones.
 10. [x] **Prototype the API on `core:spring` and `core:step_turn`**, settling argument passing, what
     bind gets, `PoseWriter` and purity (*Operations and drivers in Java*).
 11. [x] **Drivers' private state as declared slots**: `core:step_turn`'s planted feet and the
-    spider's ease-in. The spider's legs keep theirs on `SpiderData` until the generic data class
-    (task 23).
+    spider's ease-in. The spider's legs, which both its leg drivers share, became a component
+    (`mobends:spider_legs`, task 24).
 12. [x] **Registered operations**: `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
     `core:is_flying`; `mobends:use_action`, `mobends:attack_action`, the wolf's and the spider's
-    operations, `mobends:spin_attack_enabled` (*Values specific to a mob*). The spider's wall
-    rotation goes with its crawl state, into its own files.
+    operations, `mobends:spin_attack_enabled` (*Values specific to a mob*), and later
+    `mobends:spider_wall_rotation`.
 13. [x] **Type-file selectors as expressions**: the selector operations (`core:entity_type`,
     `core:player_name`, `core:player_uuid`, `mobends:skin_variant`) and precedence counted over
     expressions (*Files*).
@@ -514,12 +514,11 @@ the additive and smaller ones.
 **Migrating content**
 
 18. [x] **The generator** (`animation-lab/tools/gen_animators.ts`) and its 11 animators.
-19. [ ] **The hand-written files**: done (`iron_golem`, `creeper`, `cow`, `wolf`, the model
-    definitions, the type files, the example packs, the player's values: its definition's entity
-    scope, `attackComboTicks` and the `capeWave` component) but for the mob-specific values a data
-    class keeps or computes: the spider's crawl (the zombie's and the squid's are their
-    definitions'). They move into each mob's files with tasks 22–24 (*Entity values from the data
-    classes*).
+19. [x] **The hand-written files**: `iron_golem`, `creeper`, `cow`, `wolf`, the model
+    definitions, the type files, the example packs, and the mob-specific values the data classes
+    kept or computed: the player's, zombie's, squid's and spider's are their definitions' entity
+    scopes, components and settings, the wolf's operations (*Entity values from the data
+    classes*). No data class registers values of its own any more.
 20. [x] **Tests**: the ones with inline animator JSON and the ones on shipped assets; the goldens
     re-recorded where behaviour moved on purpose (the riding threshold is 0.2 blocks per tick).
 21. [x] **Docs**: `misc/kumo-format.md`, `docs/animation.md`, `docs/content.md`,
@@ -536,8 +535,8 @@ the additive and smaller ones.
 23. [ ] **One generic data class**, with per-mob parts as components declared by the model
     (*Per-entity data*).
 24. [ ] **Zombies, skeletons and the rest** the same way, plus their own items (*Moving mobs out of
-    Java*). Done: zombies, skeletons, zombie villagers, pig zombies, the squid. Left: the spider
-    and the wolf.
+    Java*). Done: zombies, skeletons, zombie villagers, pig zombies, the squid, the spider. Left:
+    the wolf.
 
 **Smaller**
 

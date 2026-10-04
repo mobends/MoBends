@@ -10,7 +10,7 @@ import goblinbob.mobends.core.kumo.state.StateRef;
 import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
-import goblinbob.mobends.standard.data.SpiderData;
+import goblinbob.mobends.core.data.EntityData;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -19,7 +19,7 @@ import java.util.Map;
 public abstract class SpiderLegsDriverBase implements IPoseItem
 {
 
-    protected static final int LIMBS = SpiderData.LIMBS;
+    protected static final int LIMBS = SpiderLegs.LIMBS;
 
     protected final int[] upperSlots = new int[LIMBS];
     protected final int[] lowerSlots = new int[LIMBS];
@@ -35,7 +35,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     private final Quaternion bend = new Quaternion();
     private final Quaternion upper = new Quaternion();
     /** Per-frame scratch for the IK. */
-    protected final SpiderData.IKResult ik = new SpiderData.IKResult();
+    protected final SpiderLegs.IKResult ik = new SpiderLegs.IKResult();
     protected final double[] angles = new double[2];
 
     protected SpiderLegsDriverBase(Skeleton skeleton, @Nullable String reset, @Nullable Map<String, String> out, ExpressionScope scope, String driver) throws MalformedKumoTemplateException
@@ -59,9 +59,11 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
         this.reset = reset == null ? null : scope.resolveState(reset, driver + "'s 'reset'");
     }
 
-    protected static SpiderData subject(IKumoContext context)
+    /** The entity's {@code legs} component, which these drivers move; null if it has none. */
+    @Nullable
+    protected static SpiderLegs legs(IKumoContext context)
     {
-        return context.getSubject() instanceof SpiderData ? (SpiderData) context.getSubject() : null;
+        return context.getSubject() instanceof EntityData ? ((EntityData<?>) context.getSubject()).getComponent("legs", SpiderLegs.class) : null;
     }
 
     /** Publishes the ground level, if the driver has somewhere to. */
@@ -104,10 +106,10 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     @Override
     public void onNodeStarted(IKumoContext context)
     {
-        SpiderData data = subject(context);
-        if (data != null && reset != null && reset.get(context) != 0)
+        SpiderLegs legs = legs(context);
+        if (legs != null && reset != null && reset.get(context) != 0)
         {
-            for (SpiderData.Limb limb : data.limbs)
+            for (SpiderLegs.Limb limb : legs.limbs)
             {
                 limb.resetPosition();
             }

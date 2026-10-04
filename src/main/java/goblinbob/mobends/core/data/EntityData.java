@@ -48,6 +48,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     protected double positionX, positionY, positionZ;
     protected double prevMotionX, prevMotionY, prevMotionZ;
     protected double motionX, motionY, motionZ;
+    /** How far the entity has moved, in blocks, summed tick by tick: {@code entityDistanceMoved}. */
+    protected float prevDistanceMoved, distanceMoved;
     protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
     /** Draws the {@code random} built-in: the entity's own, so a test can seed it. */
     private Random random = new Random();
@@ -121,6 +123,7 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         registerVariable("entityForwardMomentum", this::getForwardMomentum);
         registerVariable("entitySidewaysMomentum", this::getSidewaysMomentum);
         registerVariable("entityTicksExisted", () -> entity != null ? entity.ticksExisted : 0);
+        registerVariable("entityDistanceMoved", () -> GUtil.lerp(prevDistanceMoved, distanceMoved, DataUpdateHandler.partialTicks));
         // Interpolated like the renderer does, in doubles: step_turn plants feet in the world.
         registerVariable("entityWorldX", () -> entity != null ? entity.prevPosX + (entity.posX - entity.prevPosX) * DataUpdateHandler.partialTicks : 0);
         registerVariable("entityWorldY", () -> entity != null ? entity.prevPosY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks : 0);
@@ -523,6 +526,14 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         this.positionX = this.entity.posX;
         this.positionY = this.entity.posY;
         this.positionZ = this.entity.posZ;
+
+        this.prevDistanceMoved = this.distanceMoved;
+        this.distanceMoved += MathHelper.sqrt(this.motionX * this.motionX + this.motionY * this.motionY + this.motionZ * this.motionZ);
+
+        for (EntityComponent component : components.values())
+        {
+            component.updateClient();
+        }
     }
 
     @Override

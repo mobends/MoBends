@@ -3,7 +3,9 @@ package goblinbob.mobends.core.definition;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /** One bone of an {@link EntityModelDefinition}. */
 public class BoneDefinition
@@ -60,6 +62,13 @@ public class BoneDefinition
     /** Cut the vanilla boxes into segments, each a further bone (a knee, an elbow, tentacle joints). */
     public SplitDefinition split;
 
+    /**
+     * The bone's own boxes, drawn instead of its vanilla part's (a spider's longer legs, a wolf's
+     * nose cut out of its head). Its vanilla part, if it has one, still gives the texture size and
+     * the fields the bone takes over. Can't be split or laid over another bone.
+     */
+    public List<BoxDefinition> boxes;
+
     /** The bone's own name, then the names of the extra segments. */
     public List<String> segmentNames()
     {
@@ -105,8 +114,83 @@ public class BoneDefinition
             if (split.hingeAxis() == split.axisIndex())
                 throw new MalformedKumoTemplateException("Bone '" + name + "': a split along " + split.axis + " can't hinge at its " + split.hinge + ", which is on the same axis.");
         }
+        if (boxes != null)
+        {
+            if (split != null || overlay != null)
+                throw new MalformedKumoTemplateException("Bone '" + name + "': a bone with its own 'boxes' can't be split or laid over another.");
+            for (BoxDefinition box : boxes)
+            {
+                box.validate(name);
+            }
+        }
         if (vanilla != null && vanilla.field == null && vanilla.index < 0)
             throw new MalformedKumoTemplateException("Bone '" + name + "': 'vanilla' needs a 'field' name and/or a box-list 'index'.");
+    }
+
+    /**
+     * A box, as vanilla's {@code addBox} makes one: {@code uv} is where its texture starts, {@code from}
+     * its corner and {@code size} its size, in model units and texture pixels both. The rest is
+     * optional.
+     */
+    public static class BoxDefinition
+    {
+        /** The six faces, by name: their texture can be moved ({@code uvOffset}) and turned ({@code rotate}), and they can be hidden. */
+        public static final List<String> FACES = Arrays.asList("left", "right", "top", "bottom", "front", "back");
+        /** How a face's texture can be turned. */
+        public static final List<String> ROTATIONS = Arrays.asList("identity", "clockwise", "counter_clockwise", "half_turn");
+
+        public int[] uv;
+        public float[] from;
+        public int[] size;
+        /** The size it is drawn at, when not {@code size}: its texture stretched over it (from {@code from}). */
+        public float[] drawnSize;
+        /** Moves it, after it is sized. */
+        public float[] offset;
+        /** Grows it on every side, [x, y, z]. */
+        public float[] inflate;
+        /** Mirrors its texture, as a vanilla part's {@code mirror} does. */
+        public boolean mirror;
+        /** Faces not drawn. */
+        public List<String> hide;
+        /** Per face: its texture moved and turned. */
+        public Map<String, FaceDefinition> faces;
+
+        void validate(String bone) throws MalformedKumoTemplateException
+        {
+            String where = "Bone '" + bone + "': a box";
+            if (uv == null || uv.length != 2) throw new MalformedKumoTemplateException(where + " needs 'uv': [u, v].");
+            if (from == null || from.length != 3) throw new MalformedKumoTemplateException(where + " needs 'from': [x, y, z].");
+            if (size == null || size.length != 3) throw new MalformedKumoTemplateException(where + " needs 'size': [x, y, z].");
+            if (drawnSize != null && drawnSize.length != 3) throw new MalformedKumoTemplateException(where + ": 'drawnSize' is [x, y, z].");
+            if (offset != null && offset.length != 3) throw new MalformedKumoTemplateException(where + ": 'offset' is [x, y, z].");
+            if (inflate != null && inflate.length != 3) throw new MalformedKumoTemplateException(where + ": 'inflate' is [x, y, z].");
+            if (hide != null)
+            {
+                for (String face : hide)
+                {
+                    if (!FACES.contains(face)) throw new MalformedKumoTemplateException(where + " hides '" + face + "', which is no face (" + String.join(", ", FACES) + ").");
+                }
+            }
+            if (faces != null)
+            {
+                for (Map.Entry<String, FaceDefinition> face : faces.entrySet())
+                {
+                    if (!FACES.contains(face.getKey())) throw new MalformedKumoTemplateException(where + " has no face '" + face.getKey() + "' (" + String.join(", ", FACES) + ").");
+                    FaceDefinition f = face.getValue();
+                    if (f.uvOffset != null && f.uvOffset.length != 2) throw new MalformedKumoTemplateException(where + ": a face's 'uvOffset' is [u, v].");
+                    if (f.rotate != null && !ROTATIONS.contains(f.rotate))
+                        throw new MalformedKumoTemplateException(where + ": a face's 'rotate' is one of " + String.join(", ", ROTATIONS) + ", not '" + f.rotate + "'.");
+                }
+            }
+        }
+    }
+
+    public static class FaceDefinition
+    {
+        /** Moves the face's texture by [u, v] pixels. */
+        public int[] uvOffset;
+        /** Turns the face's texture: identity, clockwise, counter_clockwise or half_turn. */
+        public String rotate;
     }
 
     public static class VanillaPart

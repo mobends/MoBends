@@ -290,8 +290,8 @@
             "pose": [
               {
                 "mobends:spider_moving_legs": {
-                  "swing": {"mul": ["crawlProgress", 5]},
-                  "groundLevel": {"mul": [{"mcsin": [{"mul": ["crawlProgress", 3]}]}, 1.2]},
+                  "swing": {"mul": ["entityDistanceMoved", 5]},
+                  "groundLevel": {"mul": [{"mcsin": [{"mul": ["entityDistanceMoved", 3]}]}, 1.2]},
                   "limbs": [
                     {"phase": 0, "minDist": 20, "maxDist": 10, "minRot": -80, "maxRot": -50},
                     {"phase": 0.3, "minDist": 20, "maxDist": 10, "minRot": -80, "maxRot": -50},
@@ -317,7 +317,7 @@
                 "@damping": {"renderRotation": 0.6}
               },
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "y", "angle": "crawlRenderYaw"},
+                "core:axis_rotate": {"bone": "renderRotation", "axis": "y", "angle": "entity.crawlYaw"},
                 "@space": "pre"
               },
               {

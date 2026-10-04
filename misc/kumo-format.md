@@ -551,6 +551,7 @@ another class, it takes its `@fallback`, or the animator fails to load. (Mods ad
 | `mobends:wolf_shake_angle` | `[offset]`, a number written out: how far behind the head the part shakes (vanilla's: head 0, mane −0.08, tail −0.2) | the part's roll while shaking off water, in degrees (a number) | wolves |
 | `mobends:wolf_tail_rotation` | none | the tail's raise, as vanilla's model has it, in degrees (a number) | wolves |
 | `mobends:is_beside_climbable` | none | the spider is against a wall it climbs | spiders |
+| `mobends:spider_wall_rotation` | none | the horizontal angle, in degrees, of the wall the spider climbs; 0 when it climbs none | spiders |
 
 Mistakes (an unknown operation, a wrong number or kind of arguments, an object with more than one
 key, a number where a boolean goes) are reported when the animator loads, in the operation's own
@@ -581,6 +582,7 @@ operation, or a definition of the mob's model definition (see *Model definitions
 | `entityIsChild`, `entityIsLeftHanded`, `entityHealth`, `entityIsSwinging`, `entityIsSleeping`, `entityIsElytraFlying` | `EntityLivingBase` (false or 0 unless a subclass says otherwise; `entityIsSleeping` holds only while alive) |
 | `entityId` | vanilla's entity id (a number to vary entities by) |
 | `entityTicksExisted`, `entityTicksElytraFlying` | vanilla's age and glide time |
+| `entityDistanceMoved` | how far the entity has moved, in blocks, summed tick by tick and interpolated by `partialTicks` (the spider's crawl cycle) |
 | `entityItemUseTicks`, `entityItemUseTicksLeft` | ticks the item in use has been used so far, and ticks left (vanilla's `getItemInUseMaxCount` and `getItemInUseCount`) |
 | `entityIsOnGround`, `entityIsClimbing` | Mo' Bends' own detection: collision boxes and stairs, with liftoff detection; ladders |
 | `entityTicksInAir`, `entityTicksAfterTouchdown`, `entityTicksFalling`, `entityClimbingCycle` | Mo' Bends' counters over that detection |
@@ -605,10 +607,9 @@ that many ticks of the last counted one while the main hand holds an item, so a 
 restarted (the player's is 6).
 
 **Values specific to a mob** are its model definition's (`entity.flightPitch`, see *Model
-definitions*), or, until they move into the mob's own files, the entity's own, named by its data
-class (the spider's `crawlProgress`): a
-bare name that isn't a built-in, a **state** (a boolean) if written in capitals, else a
-**variable** (a number).
+definitions*). An addon's Java data class can still expose its own under a bare name that isn't a
+built-in, a **state** (a boolean) if written in capitals, else a **variable** (a number); Mo'
+Bends' own have none left.
 
 The entity's values are looked up once, when the animator is bound to its entity on the first
 frame, never by name while animating; one the entity doesn't have fails the animator then
@@ -848,11 +849,12 @@ The chicken's definition also declares the values its animator reads, over the e
 | `bones[].inflate` | extra inflation of the boxes on top of the vanilla one, `[x, y, z]` per segment (the bone's own first): a hair, so faces that meet don't flicker |
 | `bones[].restRotation` | constant X, Y, Z degrees the vanilla model held the part at (`setRotationAngles` constants), applied before the animated rotation |
 | `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. `hinge` puts the joints on an edge of the cut instead of its middle: `front` / `back` (-Z / +Z) or `top` / `bottom` (-Y / +Y). A joint hinges on the side opposite to where it bends (a knee at the front, an elbow at the back), so the segments stay joined when it bends. `caps: true` draws the faces at the cuts, closing each segment (a bent knee shows no gap). What vanilla attaches to the bone (`postRender`) follows every segment: a held item follows the forearm. |
-| `components` | what the entity's data carries besides its bones, name to kind: `core:orientation` (a smoothed rotation animators pose as a bone, such as `rightHeldItem`), `mobends:sword_trail` (`swordTrail`), `mobends:cape_wave` (`capeWave`). Layers and drivers find them by these names. A component can't have a bone's name |
+| `components` | what the entity's data carries besides its bones, name to kind: `core:orientation` (a smoothed rotation animators pose as a bone, such as `rightHeldItem`), `mobends:sword_trail` (`swordTrail`), `mobends:cape_wave` (`capeWave`), `mobends:spider_legs` (`legs`: where the spider's feet are planted, which its leg drivers share). Layers and drivers find them by these names. A component can't have a bone's name |
 | `layers` | the renderer layers the model draws with, id to options: `mobends:armor`, `mobends:held_item`, `mobends:custom_head` (`{"bone": "head"}`), `mobends:cape`, `mobends:elytra` replace vanilla's (which draw their own unanimated copies of the model); `mobends:accessories` is added. Armour follows the bones named as a biped's (`body`, `head`, `leftArm`, `leftForeArm`, ...), the held item `rightHeldItem` / `leftHeldItem`, the cape `body` and `cape`. A vanilla layer no entry replaces is kept |
 | `attackComboTicks` | a swing within this many ticks of the last counted one, while the main hand holds an item, isn't counted: it continues a sword combo (see `entityTicksAfterAttack`); 0, the default, counts every swing |
 | `smoothness` | the damping a bone starts with, kept until an animator sets one, by name: a bone, a component, or `root` (the model's offset), `localOffset`, `renderRotation`, `centerRotation`. The player's animator is tuned for `root` and `renderRotation` at 2 |
 | `renderer` | how the model is drawn: `sneakOffset` (model units the model is raised while the entity sneaks: vanilla lowers a sneaking player, and the bent sneak pose needs it higher), `flyingSneakOffset` (the same while a player flies; default `sneakOffset`), `firstPersonRest` (bones whose animated rotation is dropped while the first-person hand is drawn: the arm's chain from the body). Vanilla draws the first-person hand through the arm's field alone, so its stand-in draws the arm then, with its parents' transforms |
+| `bones[].boxes` | the bone's own boxes, drawn instead of its vanilla part's (which still gives the texture size): each `{"uv": [u, v], "from": [x, y, z], "size": [x, y, z]}` as vanilla's `addBox` takes them, in the bone's frame, plus optionally `drawnSize` (the size it is drawn at, its texture stretched over it), `offset`, `inflate` ([x, y, z]), `mirror`, `hide` (faces: `left`, `right`, `top`, `bottom`, `front`, `back`) and `faces` (per face, `uvOffset` [u, v] and `rotate`: `clockwise`, `counter_clockwise`, `half_turn`). The spider's longer legs; a bone with no vanilla part of its own (a spider's foreleg). Can't be split or an overlay |
 | `@define`, `@on` | the entity scope: what the mob exposes to its animators and extensions (`entity.wingAngle`) and remembers across frames, as an animator's scopes declare theirs (see *Definitions and statements*). The only place `field` and `exists` are written (see *Reading the entity*) |
 | `@comment` | a note, ignored |
 
@@ -864,14 +866,15 @@ its own animator's `@define`), so two extensions never collide on an `entity.` n
 definitions have no `extends` (yet). A model definition from a resource pack is untrusted: an
 untrusted animator may set its state, never a trusted one's.
 
-The player, the zombie, the skeleton, the zombie villager, the zombie pigman and the squid are
-model definitions too (`player`, `zombie`, `skeleton`, `zombie_villager`, `pig_zombie`,
-`squid`): the default
+The player, the zombie, the skeleton, the zombie villager, the zombie pigman, the squid and the
+spider are model definitions too (`player`, `zombie`, `skeleton`, `zombie_villager`, `pig_zombie`,
+`squid`, `spider`): the default
 models of their entity classes rather than a type file's (an addon registers them with
 `registerDefinedEntity`). Their bodies bend at the hips, their limbs at elbows and knees (the
 player's sleeves and trousers ride them), and they declare the components, layers, renderer
 settings and entity values their animators and layers use (the zombie's animation set and
-walking style, the squid's tentacle phase). The squid's tentacles are cut into nine sections.
+walking style, the squid's tentacle phase, the spider's crawl). The squid's tentacles are cut
+into nine sections; the spider's legs are boxes it declares, longer than vanilla's.
 The other shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
 `villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
 elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: stand / walk /

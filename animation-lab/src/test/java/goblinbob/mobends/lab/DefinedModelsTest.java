@@ -56,7 +56,7 @@ public class DefinedModelsTest
 
     static
     {
-        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie", "squid" })
+        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie", "squid", "spider" })
         {
             DEFAULT_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
         }
@@ -64,6 +64,9 @@ public class DefinedModelsTest
 
     /** The models that swim rather than walk: they are only built and checked against their animator. */
     private static final Set<String> SWIMMERS = Collections.singleton("mobends:squid");
+
+    /** The node a model's animator walks in, when it isn't "walk". */
+    private static final Map<String, String> WALK_NODES = Collections.singletonMap("mobends:spider", "move");
 
     /** The models whose animator moves the limbs while standing. */
     private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:pig_zombie"));
@@ -209,7 +212,7 @@ public class DefinedModelsTest
             }
             if (frame == 140)
             {
-                walked = animator.getCurrentNodes().contains("walk");
+                walked = animator.getCurrentNodes().contains(WALK_NODES.getOrDefault(name, "walk"));
             }
         }
         assertTrue(moved > 0.05, name + ": the leg '" + leg + "' did not move while walking (max quaternion change " + moved + ")");

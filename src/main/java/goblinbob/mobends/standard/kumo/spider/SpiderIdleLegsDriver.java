@@ -10,7 +10,6 @@ import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.GUtil;
-import goblinbob.mobends.standard.data.SpiderData;
 
 /** See {@link SpiderIdleLegsTemplate}. */
 public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
@@ -52,8 +51,8 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
     @Override
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
-        SpiderData data = subject(context);
-        if (data == null)
+        SpiderLegs legs = legs(context);
+        if (legs == null)
         {
             return;
         }
@@ -64,7 +63,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
 
         for (int i = 0; i < LIMBS; i++)
         {
-            SpiderData.Limb limb = data.limbs[i];
+            SpiderLegs.Limb limb = legs.limbs[i];
             limb.solveIK(bx, bz, pt, ik);
             double deviation = GUtil.getRadianDifference(limb.getNeutralYaw(), ik.xzAngle + Math.PI / 2);
             if (deviation > 0.9 || ik.xzDistance * 0.0625 > 1.2)
@@ -81,7 +80,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
         {
             for (int limb : t.feelLimbs)
             {
-                data.limbs[limb].adjustToLocalPosition(t.feelX, t.feelZ, t.feelSpeed);
+                legs.limbs[limb].adjustToLocalPosition(t.feelX, t.feelZ, t.feelSpeed);
             }
         }
 

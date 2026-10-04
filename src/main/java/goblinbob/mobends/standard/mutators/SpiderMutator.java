@@ -3,6 +3,7 @@ package goblinbob.mobends.standard.mutators;
 import goblinbob.mobends.core.client.model.ModelPart;
 import goblinbob.mobends.core.mutators.Mutator;
 import goblinbob.mobends.standard.data.SpiderData;
+import goblinbob.mobends.standard.kumo.spider.SpiderLegs;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelSpider;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -25,7 +26,7 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 	@Override
 	public boolean createParts(ModelSpider original)
 	{
-		final float legLength = SpiderData.LEG_SEGMENT_LENGTH;
+		final float legLength = SpiderLegs.LEG_SEGMENT_LENGTH;
 
 		original.spiderHead = this.spiderHead = new ModelPart(original, 32, 4);
 		this.spiderHead.setPosition(0.0F, 15.0F, -3.0F);
@@ -39,20 +40,20 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
         this.spiderBody.setPosition(0.0F, 15.0F, 9.0F);
         this.spiderBody.addBox(-5.0F, -4.0F, -6.0F, 10, 8, 12, 0.0F);
         
-		this.spiderUpperLimbs = new ModelPart[SpiderData.LIMBS];
-		this.spiderLowerLimbs = new ModelPart[SpiderData.LIMBS];
+		this.spiderUpperLimbs = new ModelPart[SpiderLegs.LIMBS];
+		this.spiderLowerLimbs = new ModelPart[SpiderLegs.LIMBS];
 
-		for (int i = 0; i < SpiderData.LIMBS; ++i)
+		for (int i = 0; i < SpiderLegs.LIMBS; ++i)
 		{
 			boolean odd = i % 2 == 1;
 
 			this.spiderUpperLimbs[i] = new ModelPart(original, odd ? 18 : 26, 0);
-			this.spiderUpperLimbs[i].setPosition(odd ? SpiderData.HIP_X : -SpiderData.HIP_X, SpiderData.HIP_Y, SpiderData.hipZ(i));
+			this.spiderUpperLimbs[i].setPosition(odd ? SpiderLegs.HIP_X : -SpiderLegs.HIP_X, SpiderLegs.HIP_Y, SpiderLegs.hipZ(i));
 			this.spiderUpperLimbs[i].developBox(odd ? -1F : (-legLength + 1F), -1.0F, -1.0F, 8, 2, 2, 0.0F)
 				.setWidth(legLength).create();
 			
 			this.spiderLowerLimbs[i] = new ModelPart(original, odd ? 26 : 18, 0);
-			this.spiderLowerLimbs[i].setPosition(odd ? SpiderData.KNEE_X : -SpiderData.KNEE_X, SpiderData.KNEE_Y, 0F);
+			this.spiderLowerLimbs[i].setPosition(odd ? SpiderLegs.KNEE_X : -SpiderLegs.KNEE_X, SpiderLegs.KNEE_Y, 0F);
 			this.spiderLowerLimbs[i].developBox(odd ? 0F : -legLength, 0F, -1F, 8, 2, 2, 0F)
 				.offset(0F, 0F, 0.005F)
 				.resize(legLength, 1.99F, 1.99F).create();
@@ -79,10 +80,10 @@ public class SpiderMutator extends Mutator<SpiderData, EntitySpider, ModelSpider
 		spiderNeck.syncUp(data.spiderNeck);
 		spiderBody.syncUp(data.spiderBody);
 		
-		for (int i = 0; i < SpiderData.LIMBS; ++i)
+		for (int i = 0; i < SpiderLegs.LIMBS; ++i)
 		{
-			this.spiderUpperLimbs[i].syncUp(data.limbs[i].upperPart);
-			this.spiderLowerLimbs[i].syncUp(data.limbs[i].lowerPart);
+			this.spiderUpperLimbs[i].syncUp(data.upperLimbs[i]);
+			this.spiderLowerLimbs[i].syncUp(data.lowerLimbs[i]);
 		}
 	}
 	

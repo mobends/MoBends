@@ -16,7 +16,7 @@ public final class EntityBuiltIns
 
     public static final List<String> NUMBERS = Collections.unmodifiableList(Arrays.asList(
             "ticks", "partialTicks", "ticksPerFrame", "random",
-            "entityId", "entityTicksExisted",
+            "entityId", "entityTicksExisted", "entityDistanceMoved",
             "entityLimbSwing", "entityLimbSwingAmount", "entitySwingProgress", "entityHeadYaw", "entityHeadPitch",
             "entityHealth", "entityItemUseTicks", "entityItemUseTicksLeft", "entityTicksElytraFlying",
             "entityTicksInAir", "entityTicksAfterTouchdown", "entityTicksFalling", "entityTicksAfterAttack",

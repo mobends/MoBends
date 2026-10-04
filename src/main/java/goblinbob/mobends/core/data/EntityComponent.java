@@ -12,6 +12,11 @@ public interface EntityComponent
     /** Moves it on by a frame; called with the parts' update. */
     void update(float ticksPerFrame);
 
+    /** Moves it on by a game tick, after the entity's motion is measured. */
+    default void updateClient()
+    {
+    }
+
     /** Draws it in the entity's frame, before the model is drawn (a sword trail). Most draw nothing. */
     default void renderLocal(float scale)
     {
