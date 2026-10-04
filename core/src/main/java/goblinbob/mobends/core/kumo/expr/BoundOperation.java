@@ -117,7 +117,7 @@ final class BoundOperation
         @Override
         public FloatSlot slot(String name, float initial)
         {
-            DeclaredSlot slot = new DeclaredSlot(1, initial);
+            DeclaredSlot slot = new DeclaredSlot(args.layout(), 1, initial);
             slots.add(slot);
             return slot;
         }
@@ -125,7 +125,7 @@ final class BoundOperation
         @Override
         public FloatArraySlot slots(String name, int size, float initial)
         {
-            DeclaredSlot slot = new DeclaredSlot(size, initial);
+            DeclaredSlot slot = new DeclaredSlot(args.layout(), size, initial);
             slots.add(slot);
             return slot;
         }
@@ -141,7 +141,7 @@ final class BoundOperation
         boolean test(@Nullable ITriggerConditionContext context);
     }
 
-    private static final class Frame implements EvalArgs, EvalContext
+    private static final class Frame implements EvalArgs, EvalContext, DeclaredSlot.Access
     {
         private final Expression[] expressions;
         private final float[] numbers;
@@ -198,7 +198,7 @@ final class BoundOperation
 
         void restart(ITriggerConditionContext context)
         {
-            for (DeclaredSlot slot : slots) slot.reset();
+            for (DeclaredSlot slot : slots) slot.reset(context.getState());
             for (Expression expression : expressions)
             {
                 if (expression != null && expression.isStateful()) expression.restart(context);
@@ -234,6 +234,12 @@ final class BoundOperation
         public float deltaTime()
         {
             return context instanceof IKumoContext ? ((IKumoContext) context).getDeltaTime() : 0;
+        }
+
+        @Override
+        public goblinbob.mobends.core.kumo.state.EntityState state()
+        {
+            return context.getState();
         }
     }
 

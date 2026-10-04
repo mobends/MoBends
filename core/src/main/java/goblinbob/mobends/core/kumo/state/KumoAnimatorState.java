@@ -40,6 +40,9 @@ public class KumoAnimatorState
     private final List<LayerState> layerStates = new ArrayList<>();
     private final Skeleton skeleton = new Skeleton();
     private final KumoContext context = new KumoContext();
+    /** Where the compiled animator's per-entity state goes, and this entity's. */
+    private final StateLayout layout;
+    private final EntityState entityState;
     private final VariableTable variables = new VariableTable();
     /** The animator's scope and each extension's: its definitions and statement lists, one per file. */
     /** The entity's scope, which its model definition declares; null if it declares none. */
@@ -101,6 +104,7 @@ public class KumoAnimatorState
     {
         // Every scope of the animator, its extensions included, shares one table of the entity's values.
         ExpressionScope root = ExpressionScope.root(variables).forEntity(entity == null ? null : entity.entityClass);
+        this.layout = root.getLayout();
         if (entity != null)
         {
             entityScope = new DefinitionScope(DefinitionScope.Kind.ENTITY, "the model definition");
@@ -173,6 +177,8 @@ public class KumoAnimatorState
             limitGroup[i] = group == null ? i : group;
             vectorSlot[i] = Skeleton.isVectorBone(name);
         }
+        entityState = layout.newState(skeleton);
+        context.setState(entityState);
     }
 
     /** Instances the layers added since the last call. */

@@ -42,7 +42,7 @@ public class AccumulateDriver implements IPoseItem
         float value = (float) state.get(context) + rate.get(context) * context.getDeltaTime();
         if (value < min) value = min;
         if (value > max) value = max;
-        state.set(value);
+        state.set(value, context);
     }
 
     @Override

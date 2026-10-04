@@ -18,6 +18,19 @@ public class KumoContext implements IKumoContext
     private INodeState currentNode;
     /** Counts the frames, so a live definition is computed once in each. */
     private long frame;
+    private EntityState state;
+
+    /** Animates the entity whose state {@code state} is. */
+    public void setState(EntityState state)
+    {
+        this.state = state;
+    }
+
+    @Override
+    public EntityState getState()
+    {
+        return state;
+    }
 
     /** Starts a frame of {@code subject}. */
     public void beginFrame(IKumoSubject subject, float deltaTime)

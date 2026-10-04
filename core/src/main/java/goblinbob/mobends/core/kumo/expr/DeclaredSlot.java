@@ -3,61 +3,74 @@ package goblinbob.mobends.core.kumo.expr;
 import goblinbob.mobends.core.kumo.api.EvalContext;
 import goblinbob.mobends.core.kumo.api.FloatArraySlot;
 import goblinbob.mobends.core.kumo.api.FloatSlot;
+import goblinbob.mobends.core.kumo.state.EntityState;
+import goblinbob.mobends.core.kumo.state.StateLayout;
 
 import java.util.Arrays;
 
 /**
- * State an operation or a driver declared, kept here for its one use: an animator is compiled
- * for each entity it animates (until program and state split, when it moves into the entity's
- * state array and the handle reads it through the context).
+ * State an operation or a driver declared: floats in the entity's state (see {@link StateLayout}),
+ * read through the context it evaluates against.
  */
 public final class DeclaredSlot implements FloatSlot, FloatArraySlot
 {
 
-    private final float[] values;
+    /** What an operation or a driver evaluates against, inside the engine: it reaches the entity's state. */
+    public interface Access
+    {
+        EntityState state();
+    }
+
+    private final int offset;
+    private final int size;
     private final float initial;
 
-    public DeclaredSlot(int size, float initial)
+    public DeclaredSlot(StateLayout layout, int size, float initial)
     {
-        this.values = new float[size];
+        this.offset = layout.floats(size, initial);
+        this.size = size;
         this.initial = initial;
-        Arrays.fill(values, initial);
     }
 
     /** Back to the initial values: the scope holding the use started. */
-    public void reset()
+    public void reset(EntityState state)
     {
-        Arrays.fill(values, initial);
+        Arrays.fill(state.floats, offset, offset + size, initial);
+    }
+
+    private static float[] floats(EvalContext context)
+    {
+        return ((Access) context).state().floats;
     }
 
     @Override
     public float get(EvalContext context)
     {
-        return values[0];
+        return floats(context)[offset];
     }
 
     @Override
     public void set(EvalContext context, float value)
     {
-        values[0] = value;
+        floats(context)[offset] = value;
     }
 
     @Override
     public int size()
     {
-        return values.length;
+        return size;
     }
 
     @Override
     public float get(EvalContext context, int index)
     {
-        return values[index];
+        return floats(context)[offset + index];
     }
 
     @Override
     public void set(EvalContext context, int index, float value)
     {
-        values[index] = value;
+        floats(context)[offset + index] = value;
     }
 
 }

@@ -6,7 +6,10 @@ import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.DefinitionScope;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
+import goblinbob.mobends.core.kumo.state.EntityState;
 import goblinbob.mobends.core.kumo.state.KumoContext;
+import goblinbob.mobends.core.kumo.state.StateLayout;
 import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
@@ -32,7 +35,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ExpressionTest
 {
 
-    private final KumoContext context = new KumoContext();
+    /** A context whose entity state grows as the test compiles expressions, which take their slots. */
+    private final KumoContext context = new KumoContext()
+    {
+        private final EntityState state = new StateLayout().newState(new Skeleton());
+
+        @Override
+        public EntityState getState()
+        {
+            root.getLayout().grow(state, new Skeleton());
+            return state;
+        }
+    };
     private final VariableTable variables = new VariableTable();
     /** A layer declaring the states x = 3 and ticks = 42, which the expressions read. */
     private final DefinitionScope layer = new DefinitionScope(DefinitionScope.Kind.LAYER, "the layer");
@@ -136,7 +150,7 @@ public class ExpressionTest
 
     private void setX(float value) throws MalformedKumoTemplateException
     {
-        root.resolveState("layer.x", "the test").set(value);
+        root.resolveState("layer.x", "the test").set(value, context);
     }
 
     @Test

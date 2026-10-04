@@ -65,11 +65,11 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     }
 
     /** Publishes the ground level, if the driver has somewhere to. */
-    protected void publishGroundLevel(double ground)
+    protected void publishGroundLevel(double ground, IKumoContext context)
     {
         if (groundLevelOut != null)
         {
-            groundLevelOut.set(ground);
+            groundLevelOut.set(ground, context);
         }
     }
 
@@ -111,7 +111,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
             {
                 limb.resetPosition();
             }
-            reset.set(0);
+            reset.set(0, context);
         }
     }
 

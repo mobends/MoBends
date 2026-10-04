@@ -40,7 +40,7 @@ import java.util.Map;
  * A use of a registered driver ({@link KumoDriver}) as a pose item: its inputs are evaluated for
  * the frame, then its evaluator poses through a {@link PoseWriter}.
  */
-final class BoundDriver implements IPoseItem, EvalContext, PoseWriter
+final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredSlot.Access
 {
 
     private final DriverEvaluator evaluator;
@@ -82,7 +82,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter
         this.context = context;
         for (DeclaredSlot slot : slots)
         {
-            slot.reset();
+            slot.reset(context.getState());
         }
         evaluator.restart(this);
     }
@@ -105,6 +105,12 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter
     public float deltaTime()
     {
         return context instanceof IKumoContext ? ((IKumoContext) context).getDeltaTime() : 0;
+    }
+
+    @Override
+    public goblinbob.mobends.core.kumo.state.EntityState state()
+    {
+        return context.getState();
     }
 
     // --- PoseWriter -------------------------------------------------------------------------------
@@ -334,7 +340,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter
                 @Override
                 public void set(EvalContext context, float value)
                 {
-                    ref.set(value);
+                    ref.set(value, ((BoundDriver) context).context);
                 }
             };
         }
@@ -342,7 +348,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter
         @Override
         public FloatSlot slot(String name, float initial)
         {
-            DeclaredSlot slot = new DeclaredSlot(1, initial);
+            DeclaredSlot slot = new DeclaredSlot(scope.getLayout(), 1, initial);
             slots.add(slot);
             return slot;
         }
@@ -350,7 +356,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter
         @Override
         public FloatArraySlot slots(String name, int size, float initial)
         {
-            DeclaredSlot slot = new DeclaredSlot(size, initial);
+            DeclaredSlot slot = new DeclaredSlot(scope.getLayout(), size, initial);
             slots.add(slot);
             return slot;
         }

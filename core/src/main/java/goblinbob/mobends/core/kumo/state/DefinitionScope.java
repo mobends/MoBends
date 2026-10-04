@@ -44,7 +44,7 @@ public final class DefinitionScope
         }
     }
 
-    private static final byte UNSET = 0, COMPUTING = 1, SET = 2;
+    private static final int UNSET = 0, COMPUTING = 1, SET = 2;
 
     public final Kind kind;
     /** What declares it, for messages: "the layer", "the node 'walk'". */
@@ -61,10 +61,9 @@ public final class DefinitionScope
     private Expression.Type[] types = new Expression.Type[0];
     private final List<String> compiling = new ArrayList<>();
 
-    // The entity's values, by index.
-    private double[] values = new double[0];
-    private byte[] status = new byte[0];
-    private long[] liveFrame = new long[0];
+    // Where the entity's values are, in its state (see StateLayout): the values (floats), then, by
+    // index too, whether each is set (ints) and the frame a live one was computed in (ints).
+    private int valueSlot, statusSlot, frameSlot;
 
     public DefinitionScope(Kind kind, String owner)
     {
@@ -107,9 +106,6 @@ public final class DefinitionScope
         int count = names.size();
         compiled = java.util.Arrays.copyOf(compiled, count);
         types = java.util.Arrays.copyOf(types, count);
-        values = java.util.Arrays.copyOf(values, count);
-        status = java.util.Arrays.copyOf(status, count);
-        liveFrame = java.util.Arrays.copyOf(liveFrame, count);
     }
 
     /**
@@ -119,6 +115,9 @@ public final class DefinitionScope
     public void compileIn(ExpressionScope scope) throws MalformedKumoTemplateException
     {
         this.compileScope = scope;
+        valueSlot = scope.getLayout().floats(names.size(), 0);
+        statusSlot = scope.getLayout().ints(names.size(), UNSET);
+        frameSlot = scope.getLayout().ints(names.size(), -1);
         for (int i = 0; i < names.size(); i++)
         {
             compile(i);
@@ -214,10 +213,11 @@ public final class DefinitionScope
      */
     public void start(ITriggerConditionContext context)
     {
+        int[] ints = context.getState().ints;
         for (int i = 0; i < compiled.length; i++)
         {
-            status[i] = UNSET;
-            liveFrame[i] = -1;
+            ints[statusSlot + i] = UNSET;
+            ints[frameSlot + i] = -1;
             if (compiled[i].isStateful())
             {
                 compiled[i].restart(context);
@@ -246,32 +246,34 @@ public final class DefinitionScope
 
     double value(int index, ITriggerConditionContext context)
     {
+        EntityState state = context.getState();
         if (templates.get(index).kind == DefinitionTemplate.Kind.LIVE)
         {
-            long frame = context.getFrame();
-            if (liveFrame[index] != frame)
+            int frame = (int) context.getFrame();
+            if (state.ints[frameSlot + index] != frame)
             {
-                liveFrame[index] = frame;
-                values[index] = evaluate(index, context);
+                state.ints[frameSlot + index] = frame;
+                state.floats[valueSlot + index] = evaluate(index, context);
             }
-            return values[index];
+            return state.floats[valueSlot + index];
         }
-        if (status[index] == UNSET)
+        if (state.ints[statusSlot + index] == UNSET)
         {
-            status[index] = COMPUTING;
-            values[index] = evaluate(index, context);
-            status[index] = SET;
+            state.ints[statusSlot + index] = COMPUTING;
+            state.floats[valueSlot + index] = evaluate(index, context);
+            state.ints[statusSlot + index] = SET;
         }
-        return values[index];
+        return state.floats[valueSlot + index];
     }
 
-    void set(int index, double value)
+    void set(int index, double value, ITriggerConditionContext context)
     {
-        values[index] = value;
-        status[index] = SET;
+        EntityState state = context.getState();
+        state.floats[valueSlot + index] = (float) value;
+        state.ints[statusSlot + index] = SET;
     }
 
-    private double evaluate(int index, ITriggerConditionContext context)
+    private float evaluate(int index, ITriggerConditionContext context)
     {
         Expression expression = compiled[index];
         return expression.getType() == Expression.Type.BOOLEAN ? (expression.test(context) ? 1 : 0) : expression.get(context);

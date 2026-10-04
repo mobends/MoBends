@@ -105,10 +105,12 @@ public final class ExpressionOperations
         private final Class<?> entityClass;
         private final boolean readsFields;
         private final boolean inSelector;
+        private final goblinbob.mobends.core.kumo.state.StateLayout layout;
 
         Arguments(String operation, Param[] params, Expression[] expressions, String[] strings, float[] constants, @Nullable Expression fallback,
-                  @Nullable Class<?> entityClass, boolean readsFields, boolean inSelector)
+                  @Nullable Class<?> entityClass, boolean readsFields, boolean inSelector, goblinbob.mobends.core.kumo.state.StateLayout layout)
         {
+            this.layout = layout;
             this.inSelector = inSelector;
             this.operation = operation;
             this.params = params;
@@ -131,6 +133,12 @@ public final class ExpressionOperations
         public Class<?> entityClass()
         {
             return entityClass;
+        }
+
+        /** Where the animator's per-entity state goes: a stateful operation takes its slots here. */
+        public goblinbob.mobends.core.kumo.state.StateLayout layout()
+        {
+            return layout;
         }
 
         /** Whether the operation is written in a type file's selector. */
@@ -266,7 +274,7 @@ public final class ExpressionOperations
             Expression fallback = fallbackJson == null ? null : Expression.compileAny(fallbackJson, scope);
             try
             {
-                return factory.create(new Arguments(name, params, expressions, strings, constants, fallback, scope.getEntityClass(), scope.getFieldsOf() != null, scope.isSelector()));
+                return factory.create(new Arguments(name, params, expressions, strings, constants, fallback, scope.getEntityClass(), scope.getFieldsOf() != null, scope.isSelector(), scope.getLayout()));
             }
             catch (MalformedKumoTemplateException e)
             {
@@ -352,9 +360,9 @@ public final class ExpressionOperations
             return args.expression(1).getType() == Expression.Type.NUMBER ? new IfNumber(args.expressions()) : new IfBoolean(args.expressions());
         });
 
-        register("decreased", params(number("value")), false, args -> new Decreased(args.expression(0)));
-        register("rose", params(bool("condition")), false, args -> new Edge(args.expression(0), true));
-        register("fell", params(bool("condition")), false, args -> new Edge(args.expression(0), false));
+        register("decreased", params(number("value")), false, args -> new Decreased(args.expression(0), args.layout().floats(2, 0)));
+        register("rose", params(bool("condition")), false, args -> new Edge(args.expression(0), true, args.layout().floats(2, 0)));
+        register("fell", params(bool("condition")), false, args -> new Edge(args.expression(0), false, args.layout().floats(2, 0)));
 
         // The entity's own fields, read only by its model definition's definitions.
         registerWithFallback("field", params(string("field")), true, ExpressionOperations::field);
@@ -865,12 +873,13 @@ public final class ExpressionOperations
     private static final class Decreased extends Expression.BooleanExpression
     {
         private final Expression value;
-        private float last;
-        private boolean primed;
+        /** Its state: the last value, then whether there is one (1). */
+        private final int slot;
 
-        Decreased(Expression value)
+        Decreased(Expression value, int slot)
         {
             this.value = value;
+            this.slot = slot;
         }
 
         @Override
@@ -883,17 +892,19 @@ public final class ExpressionOperations
         public void restart(ITriggerConditionContext context)
         {
             value.restart(context);
-            last = value.get(context);
-            primed = true;
+            float[] state = context.getState().floats;
+            state[slot] = value.get(context);
+            state[slot + 1] = 1;
         }
 
         @Override
         public boolean test(ITriggerConditionContext context)
         {
             float current = value.get(context);
-            boolean decreased = primed && current < last;
-            last = current;
-            primed = true;
+            float[] state = context.getState().floats;
+            boolean decreased = state[slot + 1] != 0 && current < state[slot];
+            state[slot] = current;
+            state[slot + 1] = 1;
             return decreased;
         }
     }
@@ -903,13 +914,14 @@ public final class ExpressionOperations
     {
         private final Expression condition;
         private final boolean rising;
-        private boolean last;
-        private boolean primed;
+        /** Its state: the last value (0 or 1), then whether there is one (1). */
+        private final int slot;
 
-        Edge(Expression condition, boolean rising)
+        Edge(Expression condition, boolean rising, int slot)
         {
             this.condition = condition;
             this.rising = rising;
+            this.slot = slot;
         }
 
         @Override
@@ -922,17 +934,19 @@ public final class ExpressionOperations
         public void restart(ITriggerConditionContext context)
         {
             condition.restart(context);
-            last = condition.test(context);
-            primed = true;
+            float[] state = context.getState().floats;
+            state[slot] = condition.test(context) ? 1 : 0;
+            state[slot + 1] = 1;
         }
 
         @Override
         public boolean test(ITriggerConditionContext context)
         {
             boolean current = condition.test(context);
-            boolean edge = primed && current != last && current == rising;
-            last = current;
-            primed = true;
+            float[] state = context.getState().floats;
+            boolean edge = state[slot + 1] != 0 && current != (state[slot] != 0) && current == rising;
+            state[slot] = current ? 1 : 0;
+            state[slot + 1] = 1;
             return edge;
         }
     }

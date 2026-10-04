@@ -75,7 +75,7 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
             data.limbs[i].setAngleAndDistance(odd ? sideRotation / 180F * GUtil.PI : GUtil.PI - sideRotation / 180F * GUtil.PI, dist * 0.0625F);
         }
 
-        publishGroundLevel(ground);
+        publishGroundLevel(ground, context);
     }
 
 }

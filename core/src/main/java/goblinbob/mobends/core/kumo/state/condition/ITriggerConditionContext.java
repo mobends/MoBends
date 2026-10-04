@@ -30,4 +30,7 @@ public interface ITriggerConditionContext
     /** The number of the frame being evaluated: a live definition is computed once in each. */
     long getFrame();
 
+    /** The state of the entity being animated (see {@link goblinbob.mobends.core.kumo.state.StateLayout}). */
+    goblinbob.mobends.core.kumo.state.EntityState getState();
+
 }

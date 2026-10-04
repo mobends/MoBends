@@ -85,7 +85,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
             }
         }
 
-        publishGroundLevel(ground);
+        publishGroundLevel(ground, context);
     }
 
 }

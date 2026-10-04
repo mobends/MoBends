@@ -26,9 +26,9 @@ public final class StateRef
         return scope.value(index, context);
     }
 
-    public void set(double value)
+    public void set(double value, ITriggerConditionContext context)
     {
-        scope.set(index, value);
+        scope.set(index, value, context);
     }
 
 }

@@ -215,6 +215,13 @@ public final class SelectorExpression implements ISelectorCondition
         }
 
         @Override
+        public goblinbob.mobends.core.kumo.state.EntityState getState()
+        {
+            // A selector keeps no state: it holds no edge trigger.
+            return null;
+        }
+
+        @Override
         public IBoneSink getBone(String name)
         {
             return null;
