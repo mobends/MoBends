@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.addon;
 
+import goblinbob.mobends.core.kumo.api.KumoDriver;
 import goblinbob.mobends.core.kumo.api.KumoOperation;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.kumo.api.NumberFunctions;
@@ -130,7 +131,18 @@ public class AddonAnimationRegistry
     }
 
     /**
-     * Registers a pose driver usable from animator JSON as "modid:key".
+     * Registers a pose driver usable from animator JSON as "modid:name" (the driver is named
+     * without the mod id): see {@link KumoDriver}.
+     */
+    public <T extends DriverItemTemplate> void registerDriver(KumoDriver<T> driver)
+    {
+        Addons.checkRegistrationOpen();
+        KumoRegistry.registerDriver(driver.renamed(namespaced(driver.name)));
+    }
+
+    /**
+     * Registers a pose driver usable from animator JSON as "modid:key", the internal way: Mo'
+     * Bends' own drivers move to {@link #registerDriver(KumoDriver)} with their declared state.
      */
     public <T extends DriverItemTemplate> void registerDriver(String key, IDriverFactory<T> factory, Class<T> templateType)
     {

@@ -1,0 +1,359 @@
+package goblinbob.mobends.core.kumo.driver;
+
+import goblinbob.mobends.core.kumo.api.BooleanInput;
+import goblinbob.mobends.core.kumo.api.DriverBindArgs;
+import goblinbob.mobends.core.kumo.api.DriverEvaluator;
+import goblinbob.mobends.core.kumo.api.EvalContext;
+import goblinbob.mobends.core.kumo.api.FloatArraySlot;
+import goblinbob.mobends.core.kumo.api.FloatSlot;
+import goblinbob.mobends.core.kumo.api.KumoDriver;
+import goblinbob.mobends.core.kumo.api.NumberInput;
+import goblinbob.mobends.core.kumo.api.PoseWriter;
+import goblinbob.mobends.core.kumo.api.StateHandle;
+import goblinbob.mobends.core.kumo.bind.IVectorSink;
+import goblinbob.mobends.core.kumo.expr.DeclaredSlot;
+import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
+import goblinbob.mobends.core.kumo.pose.IPoseItem;
+import goblinbob.mobends.core.kumo.pose.Pose;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
+import goblinbob.mobends.core.kumo.state.IKumoContext;
+import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
+import goblinbob.mobends.core.kumo.state.StateRef;
+import goblinbob.mobends.core.kumo.state.VariableTable;
+import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
+import goblinbob.mobends.core.math.Quaternion;
+import goblinbob.mobends.core.math.vector.Vec3f;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * A use of a registered driver ({@link KumoDriver}) as a pose item: its inputs are evaluated for
+ * the frame, then its evaluator poses through a {@link PoseWriter}.
+ */
+final class BoundDriver implements IPoseItem, EvalContext, PoseWriter
+{
+
+    private final DriverEvaluator evaluator;
+    private final List<Input> inputs;
+    private final List<DeclaredSlot> slots;
+    private ITriggerConditionContext context;
+    private Pose pose;
+
+    private BoundDriver(DriverEvaluator evaluator, Binding binding)
+    {
+        this.evaluator = evaluator;
+        this.inputs = binding.inputs;
+        this.slots = binding.slots;
+    }
+
+    static <T extends DriverItemTemplate> IPoseItem create(KumoDriver<T> driver, IKumoInstancingContext context, Skeleton skeleton, T template) throws MalformedKumoTemplateException
+    {
+        Binding binding = new Binding(driver.name, context.getExpressionScope(), skeleton);
+        DriverEvaluator evaluator = driver.binder.bind(template, binding);
+        return new BoundDriver(evaluator, binding);
+    }
+
+    @Override
+    public void apply(Pose pose, IKumoContext context, float elapsedTicks)
+    {
+        this.context = context;
+        this.pose = pose;
+        // Every input, every frame: an edge trigger in one never misses a frame.
+        for (Input input : inputs)
+        {
+            input.evaluate(context);
+        }
+        evaluator.evaluate(this, this);
+    }
+
+    @Override
+    public void onNodeStarted(IKumoContext context)
+    {
+        this.context = context;
+        for (DeclaredSlot slot : slots)
+        {
+            slot.reset();
+        }
+        evaluator.restart(this);
+    }
+
+    @Override
+    public void advance(IKumoContext context, float deltaTime)
+    {
+    }
+
+    // --- EvalContext ------------------------------------------------------------------------------
+
+    @Nullable
+    @Override
+    public Object entity()
+    {
+        return context == null ? null : context.getSubject().getEntity();
+    }
+
+    @Override
+    public float deltaTime()
+    {
+        return context instanceof IKumoContext ? ((IKumoContext) context).getDeltaTime() : 0;
+    }
+
+    // --- PoseWriter -------------------------------------------------------------------------------
+
+    @Override
+    public void rotationSoFar(int bone, Quaternion dest)
+    {
+        pose.rotationSoFar(bone, dest);
+    }
+
+    @Override
+    public void offsetSoFar(int bone, Vec3f dest)
+    {
+        pose.offsetSoFar(bone, dest);
+    }
+
+    @Override
+    public void vectorSoFar(int bone, Vec3f dest)
+    {
+        pose.vectorSoFar(bone, dest);
+    }
+
+    @Override
+    public void rotate(int bone, Quaternion rotation, Pose.Space space)
+    {
+        pose.composeRotation(bone, rotation, space);
+    }
+
+    @Override
+    public void offset(int bone, float x, float y, float z, Pose.Space space)
+    {
+        pose.composeOffset(bone, x, y, z, space);
+    }
+
+    @Override
+    public void vector(int bone, float x, float y, float z, Pose.Space space)
+    {
+        pose.composeVector(bone, x, y, z, space);
+    }
+
+    @Override
+    public void snapRotation(int bone)
+    {
+        pose.get(bone).snap = true;
+    }
+
+    @Override
+    public void snapVector(int bone)
+    {
+        pose.get(bone).vectorMode = IVectorSink.Mode.SNAP;
+    }
+
+    // --- binding ----------------------------------------------------------------------------------
+
+    private interface Input
+    {
+        void evaluate(ITriggerConditionContext context);
+    }
+
+    private static final class ExpressionInput implements Input, NumberInput
+    {
+        private final Expression expression;
+        private float number;
+        private boolean bool;
+
+        ExpressionInput(Expression expression)
+        {
+            this.expression = expression;
+        }
+
+        @Override
+        public void evaluate(ITriggerConditionContext context)
+        {
+            if (expression.getType() == Expression.Type.BOOLEAN) bool = expression.test(context);
+            else number = expression.get(context);
+        }
+
+        @Override
+        public float get(EvalContext context)
+        {
+            return number;
+        }
+
+        @Override
+        public double getDouble(EvalContext context)
+        {
+            return number;
+        }
+    }
+
+    private static final class Binding implements DriverBindArgs
+    {
+        private final String driver;
+        private final ExpressionScope scope;
+        private final Skeleton skeleton;
+        final List<Input> inputs = new ArrayList<>();
+        final List<DeclaredSlot> slots = new ArrayList<>();
+
+        Binding(String driver, ExpressionScope scope, Skeleton skeleton)
+        {
+            this.driver = driver;
+            this.scope = scope;
+            this.skeleton = skeleton;
+        }
+
+        @Nullable
+        @Override
+        public Class<?> entityClass()
+        {
+            return scope.getEntityClass();
+        }
+
+        @Override
+        public MalformedKumoTemplateException error(String message)
+        {
+            return new MalformedKumoTemplateException("'" + driver + "' " + message);
+        }
+
+        private MalformedKumoTemplateException missing(String field)
+        {
+            return error("needs '" + field + "'.");
+        }
+
+        @Override
+        public NumberInput number(String field, @Nullable ExpressionTemplate expression, float otherwise) throws MalformedKumoTemplateException
+        {
+            ExpressionInput input = new ExpressionInput(compile(field, expression, Expression.Type.NUMBER, Expression.constant(otherwise)));
+            inputs.add(input);
+            return input;
+        }
+
+        @Override
+        public NumberInput number(String field, @Nullable ExpressionTemplate expression) throws MalformedKumoTemplateException
+        {
+            if (expression == null) throw missing(field);
+            return number(field, expression, 0);
+        }
+
+        @Override
+        public BooleanInput bool(String field, @Nullable ExpressionTemplate expression, boolean otherwise) throws MalformedKumoTemplateException
+        {
+            ExpressionInput input = new ExpressionInput(compile(field, expression, Expression.Type.BOOLEAN, otherwise ? Expression.TRUE : Expression.FALSE));
+            inputs.add(input);
+            return context -> input.bool;
+        }
+
+        private Expression compile(String field, @Nullable ExpressionTemplate expression, Expression.Type type, Expression otherwise) throws MalformedKumoTemplateException
+        {
+            if (expression == null) return otherwise;
+            try
+            {
+                return Expression.compile(expression.json, scope, type);
+            }
+            catch (MalformedKumoTemplateException e)
+            {
+                throw error("'" + field + "': " + e.getMessage());
+            }
+        }
+
+        @Override
+        public NumberInput entityValue(String field, String name) throws MalformedKumoTemplateException
+        {
+            if (name == null) throw missing(field);
+            VariableTable.Read read = scope.getVariables().read(name);
+            final double[] value = new double[1];
+            inputs.add(context -> value[0] = context.resolveVariable(read));
+            return new NumberInput()
+            {
+                @Override
+                public float get(EvalContext context)
+                {
+                    return (float) value[0];
+                }
+
+                @Override
+                public double getDouble(EvalContext context)
+                {
+                    return value[0];
+                }
+            };
+        }
+
+        @Override
+        public int bone(String field, @Nullable String name) throws MalformedKumoTemplateException
+        {
+            if (name == null) throw missing(field);
+            return skeleton.indexOf(name);
+        }
+
+        @Override
+        public StateHandle inout(String field, @Nullable String state) throws MalformedKumoTemplateException
+        {
+            if (state == null) throw error("needs '" + field + "' (the state it steps).");
+            return handle(state, "'" + driver + "'");
+        }
+
+        @Override
+        public Outputs outputs(@Nullable Map<String, String> out, String... outputs) throws MalformedKumoTemplateException
+        {
+            Map<String, StateHandle> handles = new HashMap<>();
+            for (Map.Entry<String, String> entry : (out == null ? Collections.<String, String>emptyMap() : out).entrySet())
+            {
+                if (!Arrays.asList(outputs).contains(entry.getKey()))
+                {
+                    throw error(String.format("has no output '%s' (it has %s).", entry.getKey(), String.join(", ", outputs)));
+                }
+                handles.put(entry.getKey(), handle(entry.getValue(), "'" + driver + "''s output '" + entry.getKey() + "'"));
+            }
+            return handles::get;
+        }
+
+        private StateHandle handle(String state, String what) throws MalformedKumoTemplateException
+        {
+            StateRef ref = scope.resolveState(state, what);
+            if (ref.type != Expression.Type.NUMBER)
+            {
+                throw new MalformedKumoTemplateException(String.format("%s writes '%s', which is a boolean: it writes numbers.", what, state));
+            }
+            return new StateHandle()
+            {
+                @Override
+                public float get(EvalContext context)
+                {
+                    return (float) ref.get(((BoundDriver) context).context);
+                }
+
+                @Override
+                public void set(EvalContext context, float value)
+                {
+                    ref.set(value);
+                }
+            };
+        }
+
+        @Override
+        public FloatSlot slot(String name, float initial)
+        {
+            DeclaredSlot slot = new DeclaredSlot(1, initial);
+            slots.add(slot);
+            return slot;
+        }
+
+        @Override
+        public FloatArraySlot slots(String name, int size, float initial)
+        {
+            DeclaredSlot slot = new DeclaredSlot(size, initial);
+            slots.add(slot);
+            return slot;
+        }
+    }
+
+}

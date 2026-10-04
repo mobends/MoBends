@@ -133,6 +133,47 @@ registry.registerOperation(KumoOperation.named("distance_to_nearest")
   keeps its own, back to its initial values whenever the scope holding that place starts (a node,
   when it is entered).
 
+**Drivers** are registered the same way, with named fields instead of positional arguments: a
+Gson template class (extending `DriverItemTemplate`) holds the fields as written, and the binder
+turns them into what it evaluates with, each named by its field for the errors:
+
+```java
+public class WagTemplate extends DriverItemTemplate
+{
+    public String bone;
+    public ExpressionTemplate speed;
+    public Map<String, String> out;
+}
+
+registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args) -> {
+    int bone = args.bone("bone", template.bone);                        // a bone, by index
+    NumberInput speed = args.number("speed", template.speed, 1);        // an expression, or 1
+    StateHandle phase = args.outputs(template.out, "phase").get("phase"); // an output, if mapped
+    FloatSlot t = args.slot("t", 0);                                    // declared state
+    Quaternion rotation = new Quaternion();
+    return (context, pose) -> {
+        t.set(context, t.get(context) + speed.get(context) * context.deltaTime());
+        if (phase != null) phase.set(context, t.get(context));
+        PoseMath.axisAngleDegrees(0, 1, 0, 30 * MathHelper.sin(t.get(context)), rotation);
+        pose.rotate(bone, rotation, Pose.Space.PRE);
+    };
+}));
+```
+
+* Inputs (`number`, `bool`) are expressions, evaluated for the frame before the driver runs, every
+  one of them. `entityValue` reads a built-in in double precision, for positions in the world.
+* A driver writes states two ways: the state it steps, named by `inout` (`args.inout`), and its
+  **outputs**, which a file maps to states in `out` (`args.outputs`, which refuses an output the
+  driver doesn't have). Either way, a file from a resource pack can't name a trusted file's state.
+* It poses through a `PoseWriter`: the bones by index, what the items before it made of them
+  (`rotationSoFar`, `vectorSoFar`, ...), writes composed in a space, and `snapRotation` /
+  `snapVector` to jump a bone past its damping this frame. A narrow view, so the pose buffers can
+  change without breaking drivers.
+* Its declared state starts over when its node is entered. `DriverEvaluator.restart` runs then
+  too, for what isn't declared state yet (`core:step_turn` publishes its outputs at rest).
+
+`core:spring` and `core:step_turn` are written this way (`SpringDriver`, `StepTurnDriver`).
+
 Registration closes when the first animator loads (`KumoRegistry.close()`): what an animator was
 compiled against can't change under it. An addon registered before the client core exists has its
 content registered as soon as it does.

@@ -1,19 +1,15 @@
 package goblinbob.mobends.core.kumo.driver;
 
-import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.Collections;
-import java.util.Arrays;
-import goblinbob.mobends.core.kumo.bind.IVectorSink;
-import goblinbob.mobends.core.kumo.expr.Expression;
-import goblinbob.mobends.core.kumo.pose.IPoseItem;
+import goblinbob.mobends.core.kumo.api.DriverBindArgs;
+import goblinbob.mobends.core.kumo.api.DriverEvaluator;
+import goblinbob.mobends.core.kumo.api.EvalContext;
+import goblinbob.mobends.core.kumo.api.KumoDriver;
+import goblinbob.mobends.core.kumo.api.NumberInput;
+import goblinbob.mobends.core.kumo.api.PoseWriter;
+import goblinbob.mobends.core.kumo.api.StateHandle;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
-import goblinbob.mobends.core.kumo.state.IKumoContext;
-import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
-import goblinbob.mobends.core.kumo.state.StateRef;
-import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.StepTurnTemplate;
 import goblinbob.mobends.core.math.Quaternion;
@@ -36,7 +32,7 @@ import goblinbob.mobends.core.math.vector.Vec3f;
  * back by what lies beneath in the rotation bone (an animator's counter-rotation of vanilla's own
  * rocking) to end up where it is meant in the shown frame.
  */
-public class StepTurnDriver implements IPoseItem
+public class StepTurnDriver implements DriverEvaluator
 {
 
     public static final String TURN_LAG = "turnLag";
@@ -73,8 +69,10 @@ public class StepTurnDriver implements IPoseItem
     /** Ticks over which the hips ease back up from a walking crouch. */
     private static final float CROUCH_EASE = 6F;
 
+    public static final KumoDriver<StepTurnTemplate> DRIVER = KumoDriver.of("core:step_turn", StepTurnTemplate.class, StepTurnDriver::bind);
+
     private final StepTurnTemplate t;
-    private final Expression weight;
+    private final NumberInput weight;
     private final int rotationSlot;
     private final int offsetSlot;
     private final Leg[] legs;
@@ -83,9 +81,9 @@ public class StepTurnDriver implements IPoseItem
     private boolean placed;
     /** Whether anything was written last frame, so the frame the weight reaches 0 hands the offset and rotation back. */
     /** The body yaw and the position it follows. */
-    private final VariableTable.Read yaw, x, z;
+    private final NumberInput yaw, x, z;
     /** The states it publishes to (see {@link #STRIDE} and the others); null where it publishes nothing. */
-    private final StateRef strideOut, turnLagOut, turnSpeedOut, stepLiftOut, stepImpactOut;
+    private final StateHandle strideOut, turnLagOut, turnSpeedOut, stepLiftOut, stepImpactOut;
     private boolean wrote;
     /** The yaw the body is shown at, and how fast it turns (degrees, degrees per tick). */
     private double shownYaw;
@@ -149,39 +147,30 @@ public class StepTurnDriver implements IPoseItem
         }
     }
 
-    public StepTurnDriver(Skeleton skeleton, StepTurnTemplate template, Expression weight, IKumoInstancingContext context) throws MalformedKumoTemplateException
+    private StepTurnDriver(StepTurnTemplate template, DriverBindArgs args) throws MalformedKumoTemplateException
     {
-        VariableTable variables = context.getExpressionScope().getVariables();
         this.t = template;
-        this.weight = weight;
-        this.yaw = variables.read(template.yawVariable);
-        this.x = variables.read(template.xVariable);
-        this.z = variables.read(template.zVariable);
-        Map<String, String> out = template.out == null ? Collections.<String, String>emptyMap() : template.out;
-        for (String output : out.keySet())
-        {
-            if (!Arrays.asList(STRIDE, TURN_LAG, TURN_SPEED, STEP_LIFT, STEP_IMPACT).contains(output))
-            {
-                throw new MalformedKumoTemplateException(String.format("core:step_turn has no output '%s' (it has %s, %s, %s, %s and %s).",
-                        output, TURN_LAG, TURN_SPEED, STEP_LIFT, STEP_IMPACT, STRIDE));
-            }
-        }
-        this.strideOut = output(context, out, STRIDE);
-        this.turnLagOut = output(context, out, TURN_LAG);
-        this.turnSpeedOut = output(context, out, TURN_SPEED);
-        this.stepLiftOut = output(context, out, STEP_LIFT);
-        this.stepImpactOut = output(context, out, STEP_IMPACT);
-        this.rotationSlot = skeleton.indexOf(template.rotationBone);
-        this.offsetSlot = skeleton.indexOf(template.offsetBone);
+        this.weight = args.number("weight", template.weight, 1);
+        this.yaw = args.entityValue("yawVariable", template.yawVariable);
+        this.x = args.entityValue("xVariable", template.xVariable);
+        this.z = args.entityValue("zVariable", template.zVariable);
+        DriverBindArgs.Outputs out = args.outputs(template.out, TURN_LAG, TURN_SPEED, STEP_LIFT, STEP_IMPACT, STRIDE);
+        this.strideOut = out.get(STRIDE);
+        this.turnLagOut = out.get(TURN_LAG);
+        this.turnSpeedOut = out.get(TURN_SPEED);
+        this.stepLiftOut = out.get(STEP_LIFT);
+        this.stepImpactOut = out.get(STEP_IMPACT);
+        this.rotationSlot = args.bone("rotationBone", template.rotationBone);
+        this.offsetSlot = args.bone("offsetBone", template.offsetBone);
         this.legs = new Leg[template.legs.size()];
         for (int i = 0; i < legs.length; i++)
         {
             StepTurnTemplate.Leg def = template.legs.get(i);
-            legs[i] = new Leg(def, skeleton.indexOf(def.upper), skeleton.indexOf(def.lower));
+            legs[i] = new Leg(def, args.bone("upper", def.upper), args.bone("lower", def.lower));
         }
     }
 
-    public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, StepTurnTemplate template) throws MalformedKumoTemplateException
+    private static DriverEvaluator bind(StepTurnTemplate template, DriverBindArgs args) throws MalformedKumoTemplateException
     {
         if (template.legs == null || template.legs.isEmpty())
         {
@@ -203,14 +192,7 @@ public class StepTurnDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:step_turn: 'stepDuration', 'turnThreshold', 'driftThreshold', 'unitsPerBlock', 'impactTime', 'strideLength', 'runStrideLength', 'minStepDuration', 'velocitySmoothing' and 'runFacingSmoothing' must be positive.");
         }
-        return new StepTurnDriver(skeleton, template, Expression.compile(template.weight, context.getExpressionScope(), Expression.ONE), context);
-    }
-
-    @Nullable
-    private static StateRef output(IKumoInstancingContext context, Map<String, String> out, String output) throws MalformedKumoTemplateException
-    {
-        String state = out.get(output);
-        return state == null ? null : DriverStates.number(context, state, "core:step_turn's output '" + output + "'");
+        return new StepTurnDriver(template, args);
     }
 
     private static boolean isVector(float[] v)
@@ -219,13 +201,13 @@ public class StepTurnDriver implements IPoseItem
     }
 
     @Override
-    public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
+    public void evaluate(EvalContext context, PoseWriter pose)
     {
         final float w = Math.max(0F, Math.min(1F, weight.get(context)));
-        final double bodyYaw = context.resolveVariable(yaw);
-        final double px = context.resolveVariable(x);
-        final double pz = context.resolveVariable(z);
-        measureVelocity(px, pz, context.getDeltaTime());
+        final double bodyYaw = yaw.getDouble(context);
+        final double px = x.getDouble(context);
+        final double pz = z.getDouble(context);
+        measureVelocity(px, pz, context.deltaTime());
 
         if (w <= 0)
         {
@@ -234,12 +216,12 @@ public class StepTurnDriver implements IPoseItem
             {
                 // Hand the whole-model bones back as they are beneath.
                 pose.rotationSoFar(rotationSlot, below);
-                pose.composeRotation(rotationSlot, below, Pose.Space.OVERRIDE);
+                pose.rotate(rotationSlot, below, Pose.Space.OVERRIDE);
                 pose.vectorSoFar(offsetSlot, offsetBelow);
-                pose.composeVector(offsetSlot, offsetBelow.x, offsetBelow.y, offsetBelow.z, Pose.Space.OVERRIDE);
+                pose.vector(offsetSlot, offsetBelow.x, offsetBelow.y, offsetBelow.z, Pose.Space.OVERRIDE);
                 wrote = false;
             }
-            publish(0, 0, 0, 0, 0);
+            publish(context, 0, 0, 0, 0, 0);
             return;
         }
 
@@ -247,11 +229,11 @@ public class StepTurnDriver implements IPoseItem
         {
             place(bodyYaw, px, pz);
         }
-        for (float remaining = Math.min(context.getDeltaTime(), MAX_FRAME); remaining > 0; remaining -= MAX_STEP)
+        for (float remaining = Math.min(context.deltaTime(), MAX_FRAME); remaining > 0; remaining -= MAX_STEP)
         {
             simulate(Math.min(remaining, MAX_STEP), bodyYaw, px, pz);
         }
-        updateWalkCrouch(px, pz, context.getDeltaTime());
+        updateWalkCrouch(px, pz, context.deltaTime());
 
         // The hips: lowered, dipping after a landing, shifted and rolled over the planted feet while one is up.
         final float impact = this.impact;
@@ -285,18 +267,18 @@ public class StepTurnDriver implements IPoseItem
         pose.rotationSoFar(rotationSlot, below);
         Quaternion.mul(turn, roll, blended);
         Quaternion.mul(blended, below, blended);
-        pose.composeRotation(rotationSlot, blended, Pose.Space.OVERRIDE);
-        pose.get(rotationSlot).snap = true;
+        pose.rotate(rotationSlot, blended, Pose.Space.OVERRIDE);
+        pose.snapRotation(rotationSlot);
 
         // The offset is in the shown body's frame, where the model's Y and Z are flipped, turned
         // back by what lies beneath in the rotation bone (applied to it before this rotation's roll).
         final double[] hip = rotateInverse(below, hipX, -hipY, 0);
         pose.vectorSoFar(offsetSlot, offsetBelow);
-        pose.composeVector(offsetSlot, offsetBelow.x + (float) hip[0], offsetBelow.y + (float) hip[1], offsetBelow.z + (float) hip[2], Pose.Space.OVERRIDE);
-        pose.get(offsetSlot).vectorMode = IVectorSink.Mode.SNAP;
+        pose.vector(offsetSlot, offsetBelow.x + (float) hip[0], offsetBelow.y + (float) hip[1], offsetBelow.z + (float) hip[2], Pose.Space.OVERRIDE);
+        pose.snapVector(offsetSlot);
         wrote = true;
 
-        publish(lag * w, (float) turnSpeed * w, lift * w, impact * w, stride * w);
+        publish(context, lag * w, (float) turnSpeed * w, lift * w, impact * w, stride * w);
     }
 
     /** {@code v} turned by the inverse of {@code q}. */
@@ -411,7 +393,7 @@ public class StepTurnDriver implements IPoseItem
         return untilLanding + (stepDurationNow() + 2 * pauseNow()) * 0.5F;
     }
 
-    private void poseLeg(Pose pose, Leg leg, boolean inAir, double px, double pz, double cosD, double sinD, float hipX, float hipY, double cosR, double sinR, float w)
+    private void poseLeg(PoseWriter pose, Leg leg, boolean inAir, double px, double pz, double cosD, double sinD, float hipX, float hipY, double cosR, double sinR, float w)
     {
         double footX = leg.x, footZ = leg.z, footYaw = leg.yaw, footLift = 0;
         if (inAir)
@@ -441,17 +423,17 @@ public class StepTurnDriver implements IPoseItem
     }
 
     /** At full weight the bone snaps to the IK, so planted feet don't slide; below it, it blends from what's beneath with the bone's damping. */
-    private void writeBlended(Pose pose, int slot, Quaternion rotation, float w)
+    private void writeBlended(PoseWriter pose, int slot, Quaternion rotation, float w)
     {
         if (w >= 1F)
         {
-            pose.composeRotation(slot, rotation, Pose.Space.OVERRIDE);
-            pose.get(slot).snap = true;
+            pose.rotate(slot, rotation, Pose.Space.OVERRIDE);
+            pose.snapRotation(slot);
             return;
         }
         pose.rotationSoFar(slot, below);
         PoseMath.slerp(below, rotation, w, blended);
-        pose.composeRotation(slot, blended, Pose.Space.OVERRIDE);
+        pose.rotate(slot, blended, Pose.Space.OVERRIDE);
     }
 
     private void simulate(float dt, double bodyYaw, double px, double pz)
@@ -729,13 +711,13 @@ public class StepTurnDriver implements IPoseItem
         return x * x * (3 - 2 * x);
     }
 
-    private void publish(float lag, float speed, float lift, float impact, float stride)
+    private void publish(EvalContext context, float lag, float speed, float lift, float impact, float stride)
     {
-        if (strideOut != null) strideOut.set(stride);
-        if (turnLagOut != null) turnLagOut.set(lag);
-        if (turnSpeedOut != null) turnSpeedOut.set(speed);
-        if (stepLiftOut != null) stepLiftOut.set(lift);
-        if (stepImpactOut != null) stepImpactOut.set(impact);
+        if (strideOut != null) strideOut.set(context, stride);
+        if (turnLagOut != null) turnLagOut.set(context, lag);
+        if (turnSpeedOut != null) turnSpeedOut.set(context, speed);
+        if (stepLiftOut != null) stepLiftOut.set(context, lift);
+        if (stepImpactOut != null) stepImpactOut.set(context, impact);
     }
 
     private static double wrapDegrees(double degrees)
@@ -747,15 +729,11 @@ public class StepTurnDriver implements IPoseItem
     }
 
     @Override
-    public void onNodeStarted(IKumoContext context)
+    public void restart(EvalContext context)
     {
+        // Its state is still in Java fields (declared state comes with task 11).
         placed = false;
-        publish(0, 0, 0, 0, 0);
-    }
-
-    @Override
-    public void advance(IKumoContext context, float deltaTime)
-    {
+        publish(context, 0, 0, 0, 0, 0);
     }
 
 }

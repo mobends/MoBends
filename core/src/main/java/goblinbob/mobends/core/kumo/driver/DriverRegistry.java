@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.driver;
 
+import goblinbob.mobends.core.kumo.api.KumoDriver;
 import goblinbob.mobends.core.kumo.TypeRegistry;
 import goblinbob.mobends.core.kumo.pose.IPoseItem;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
@@ -33,13 +34,27 @@ public class DriverRegistry
         register("core:vector", VectorDriver::create, VectorTemplate.class);
         register("core:accumulate", AccumulateDriver::create, AccumulateTemplate.class);
         register("core:offset", OffsetDriver::create, OffsetTemplate.class);
-        register("core:spring", SpringDriver::create, SpringTemplate.class);
-        register("core:step_turn", StepTurnDriver::create, StepTurnTemplate.class);
+        register(SpringDriver.DRIVER);
+        register(StepTurnDriver.DRIVER);
     }
 
     public <T extends DriverItemTemplate> void register(String key, IDriverFactory<T> factory, Class<T> templateType)
     {
         registry.register(key, templateType, factory);
+    }
+
+    /** Adds a driver registered through the API (see {@link goblinbob.mobends.core.kumo.api.KumoRegistry#registerDriver}). */
+    public <T extends DriverItemTemplate> void register(KumoDriver<T> driver)
+    {
+        if (driver.name.indexOf(':') <= 0)
+        {
+            throw new IllegalArgumentException("A driver's name is namespaced ('mymod:" + driver.name + "').");
+        }
+        if (registry.getTemplateClass(driver.name) != null)
+        {
+            throw new IllegalArgumentException("The driver '" + driver.name + "' is already registered.");
+        }
+        registry.register(driver.name, driver.template, (IDriverFactory<T>) (context, skeleton, template) -> BoundDriver.create(driver, context, skeleton, template));
     }
 
     @Nullable

@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.api;
 
+import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionOperations;
 import goblinbob.mobends.core.kumo.expr.ExpressionOperations.Kind;
@@ -42,6 +43,13 @@ public final class KumoRegistry
     {
         checkOpen();
         ExpressionOperations.register(operation);
+    }
+
+    /** Registers a driver, {@code {"mymod:wag": {...}}}; see {@link KumoDriver}. */
+    public static void registerDriver(KumoDriver<?> driver)
+    {
+        checkOpen();
+        DriverRegistry.INSTANCE.register(driver);
     }
 
     /** {@code {"mymod:smoothstep": [t]}}: computed once, when the animator loads, if its argument is written out. */

@@ -72,7 +72,7 @@ final class BoundOperation
     private static final class Binding implements BindArgs
     {
         private final ExpressionOperations.Arguments args;
-        final List<Slot> slots = new ArrayList<>();
+        final List<DeclaredSlot> slots = new ArrayList<>();
 
         Binding(ExpressionOperations.Arguments args)
         {
@@ -113,7 +113,7 @@ final class BoundOperation
         @Override
         public FloatSlot slot(String name, float initial)
         {
-            Slot slot = new Slot(1, initial);
+            DeclaredSlot slot = new DeclaredSlot(1, initial);
             slots.add(slot);
             return slot;
         }
@@ -121,58 +121,9 @@ final class BoundOperation
         @Override
         public FloatArraySlot slots(String name, int size, float initial)
         {
-            Slot slot = new Slot(size, initial);
+            DeclaredSlot slot = new DeclaredSlot(size, initial);
             slots.add(slot);
             return slot;
-        }
-    }
-
-    /** State an operation declared, here for its use (an animator is compiled per entity). */
-    private static final class Slot implements FloatSlot, FloatArraySlot
-    {
-        private final float[] values;
-        private final float initial;
-
-        Slot(int size, float initial)
-        {
-            this.values = new float[size];
-            this.initial = initial;
-            Arrays.fill(values, initial);
-        }
-
-        void reset()
-        {
-            Arrays.fill(values, initial);
-        }
-
-        @Override
-        public float get(EvalContext context)
-        {
-            return values[0];
-        }
-
-        @Override
-        public void set(EvalContext context, float value)
-        {
-            values[0] = value;
-        }
-
-        @Override
-        public int size()
-        {
-            return values.length;
-        }
-
-        @Override
-        public float get(EvalContext context, int index)
-        {
-            return values[index];
-        }
-
-        @Override
-        public void set(EvalContext context, int index, float value)
-        {
-            values[index] = value;
         }
     }
 
@@ -191,7 +142,7 @@ final class BoundOperation
         private final Expression[] expressions;
         private final float[] numbers;
         private final boolean[] booleans;
-        private final List<Slot> slots;
+        private final List<DeclaredSlot> slots;
         private final boolean stateful;
         private ITriggerConditionContext context;
 
@@ -243,7 +194,7 @@ final class BoundOperation
 
         void restart(ITriggerConditionContext context)
         {
-            for (Slot slot : slots) slot.reset();
+            for (DeclaredSlot slot : slots) slot.reset();
             for (Expression expression : expressions)
             {
                 if (expression != null && expression.isStateful()) expression.restart(context);

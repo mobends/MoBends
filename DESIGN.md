@@ -265,34 +265,28 @@ registration works. Notes on how they were settled:
   each use keeps its values itself, an animator being compiled per entity.
 - An entity of unknown class (a test with no entity) is one no entity reader applies to.
 
+- Drivers settled on fields that stay as written (`ExpressionTemplate`, bone and state names as
+  strings), turned into inputs, bones and states by the binder through `DriverBindArgs`, which
+  names the field in its errors; not on typed template fields (`NumberExpr`, `BoolExpr`,
+  `BoneRef`) checked by reflection. That leaves generating a driver's documentation from its
+  template class for later, if it is wanted: the binder knows each field's kind, the template
+  class doesn't.
+- A driver has one hook, `DriverEvaluator.restart`, for `core:step_turn`, whose state is still
+  in Java fields: it publishes its outputs at rest when its node is entered.
+
 Still to come:
 
-- **Drivers** are registered the same way (signature, bind, evaluate, state) but take named
-  fields. Their private state (`core:step_turn`'s planted feet, the spider's legs) is declared
-  state, arrays included. A driver's signature names its outputs, which a file maps to states in
-  `out`, and whether it takes an `inout` state. A stateful driver gets initial values for its
-  state and no enter / exit hooks; hooks are added if something needs them.
-- **Driver fields are Gson template classes**, as today, with field types restricted to a fixed
-  set: `NumberExpr`, `BoolExpr`, `StateRef` (for `inout` and `out` targets), `BoneRef`,
-  primitives, enums, and lists of nested templates (`core:step_turn`'s `legs`). The loader
-  reflects over the class to check kinds, word the errors and generate the docs. Operations keep
-  their builder signature: they have a few positional arguments, drivers many named, nested
-  fields.
+- **Driver state.** `core:step_turn`'s planted feet and the spider's legs move into declared
+  state, arrays included (task 11); Mo' Bends' other drivers (`core:axis_rotate`, `core:vector`,
+  `core:offset`, `core:accumulate`, the cape, the sword trail, the spider's) move to the API with
+  theirs. Feet are positions in the world, which floats round far from the origin (a float has
+  1/16 of a block at a million blocks out): declared state keeps them relative to the entity.
 - **Selector-safe operations** are flagged (`selectorSafe()`): they bind against the entity class
   and evaluate against the selector context (player name, UUID, skin variant), not entity data.
   Any other operation in a type file's selector is a load error. This replaces
   `registerSelectorCondition` (task 13).
 - Mo' Bends' own operations move to the API (task 12); `core:holds_item` and the others are still
   registered the internal way.
-
-### To settle while prototyping drivers
-
-Settled by porting `core:spring` and `core:step_turn` to the API, which will show any gap:
-
-- **What bind gets** besides an operation's: bone lookup from name to index.
-- **How much of the pose drivers see**: a narrow `PoseWriter` (by bone index, in a space:
-  `PRE`, `POST`, `OVERRIDE`) rather than `Pose`, so the pose buffers can change without breaking
-  addons.
 
 ## Runtime
 
@@ -726,9 +720,9 @@ the additive and smaller ones.
 9. [x] **The addon API in `core/`**: the opaque entity, float-only state with slot handles, typed
    template fields for drivers, the selector-safe flag; `registerFunction`,
    `registerEntityReader`, `registerOperation`; queued registration (*Operations and drivers in
-   Java*). Done for operations; the driver half (typed template fields) goes with task 10.
-10. [ ] **Prototype the API on `core:spring` and `core:step_turn`**, settling argument passing, what
-    bind gets, `PoseWriter` and purity (*To settle while prototyping*).
+   Java*). The typed template fields were settled otherwise with task 10.
+10. [x] **Prototype the API on `core:spring` and `core:step_turn`**, settling argument passing, what
+    bind gets, `PoseWriter` and purity (*Operations and drivers in Java*).
 11. [ ] **Drivers' private state as declared slots**: `core:step_turn`'s planted feet and the
     spider legs' (with task 2). `out`, `inout`, and the removal of `core:ramp`, `core:set` and
     `readBeforeAdvance` are done.
