@@ -21,6 +21,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,24 +178,40 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         resolve(model);
         parts.clear();
         positions.clear();
+        // Per bone, in model units: where it turns, and how far its boxes move into its frame
+        // (from where the vanilla part turned), and its segments' origins in its own frame.
+        Map<String, float[]> pivots = new HashMap<>();
+        Map<String, float[]> shifts = new HashMap<>();
+        Map<String, List<DefinedModelPart>> segmentsOf = new HashMap<>();
+        Map<String, List<float[]>> originsOf = new HashMap<>();
         for (BoneDefinition bone : definition.bones)
         {
-            ModelRenderer vanilla = vanillaParts.get(bone.name);
-            ModelPart parent = bone.parent == null ? null : parts.get(bone.parent);
-            DefinedModelPart part = new DefinedModelPart(model);
-            if (vanilla != null)
+            if (bone.overlay != null)
             {
-                part.mirror = vanilla.mirror;
-                part.textureWidth = vanilla.textureWidth;
-                part.textureHeight = vanilla.textureHeight;
-                part.offsetX = vanilla.offsetX;
-                part.offsetY = vanilla.offsetY;
-                part.offsetZ = vanilla.offsetZ;
+                createOverlay(model, bone, pivots, shifts, segmentsOf, originsOf);
+                continue;
             }
-            float[] position = bone.position != null ? bone.position
-                    : vanilla != null ? new float[] { vanilla.rotationPointX, vanilla.rotationPointY, vanilla.rotationPointZ }
-                    : new float[] { 0, 0, 0 };
+            ModelRenderer vanilla = vanillaParts.get(bone.name);
+            DefinedModelPart parent = bone.parent == null ? null : (DefinedModelPart) parts.get(bone.parent);
+            float[] turnsAt = vanilla != null ? new float[] { vanilla.rotationPointX, vanilla.rotationPointY, vanilla.rotationPointZ } : new float[3];
+            float[] pivot;
+            if (bone.position != null)
+            {
+                pivot = parent == null ? bone.position.clone() : add(pivots.get(bone.parent), bone.position);
+            }
+            else
+            {
+                pivot = bone.pivot != null ? bone.pivot.clone() : turnsAt;
+            }
+            float[] shift = bone.pivot != null && bone.position == null ? subtract(turnsAt, bone.pivot) : new float[3];
+            pivots.put(bone.name, pivot);
+            shifts.put(bone.name, shift);
+
+            DefinedModelPart part = new DefinedModelPart(model);
+            copyLook(vanilla, part, true);
+            float[] position = parent == null ? pivot : subtract(pivot, pivots.get(bone.parent));
             part.setPosition(position[0], position[1], position[2]);
+            part.setPostShift(shift[0], shift[1], shift[2]);
             positions.put(bone.name, position);
             if (bone.restRotation != null)
             {
@@ -208,41 +225,38 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             parts.put(bone.name, part);
 
             // Geometry: the vanilla boxes, split into segments where asked.
-            List<ModelPart> segments = new ArrayList<>();
+            List<DefinedModelPart> segments = new ArrayList<>();
             segments.add(part);
             if (bone.split != null)
             {
-                ModelPart previous = part;
+                DefinedModelPart previous = part;
                 for (String name : bone.split.names)
                 {
                     DefinedModelPart segment = new DefinedModelPart(model);
-                    if (vanilla != null)
-                    {
-                        segment.mirror = vanilla.mirror;
-                        segment.textureWidth = vanilla.textureWidth;
-                        segment.textureHeight = vanilla.textureHeight;
-                    }
+                    copyLook(vanilla, segment, false);
                     segment.setParent(previous);
                     previous.addChild(segment);
+                    part.addSegment(segment);
                     parts.put(name, segment);
                     segments.add(segment);
                     previous = segment;
                 }
             }
+            segmentsOf.put(bone.name, segments);
+            List<float[]> origins = new ArrayList<>();
+            origins.add(new float[3]);
             if (vanilla != null)
             {
                 for (ModelBox box : vanilla.cubeList)
                 {
-                    BoxFactory source = new BoxFactory(vanilla, box);
-                    // Keep the vanilla inflation (a villager's robe is its body box, scaled up by half a unit).
-                    float inflation = BoxFactory.inflationOf(box);
-                    source.inflate(inflation, inflation, inflation);
+                    BoxFactory source = sourceBox(vanilla, box, shift);
                     if (bone.split == null)
                     {
+                        inflate(source, bone, 0);
                         part.addBox(source.create(part));
                         continue;
                     }
-                    addSplitBoxes(source, bone, segments);
+                    origins = addSplitBoxes(source, bone, bone.split, segments, null, null);
                 }
                 if (vanilla.childModels != null)
                 {
@@ -252,6 +266,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                     }
                 }
             }
+            originsOf.put(bone.name, origins);
             if (bone.split != null && positions.get(bone.split.names.get(0)) == null)
             {
                 // A split of a bone without boxes: the segments sit on the bone.
@@ -262,22 +277,20 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             }
         }
 
-        // Hand the parts to the vanilla model. A bone rendered inside its parent leaves an invisible
-        // stand-in where the vanilla renderer looks, so it is not drawn twice.
+        // Hand the parts to the vanilla model. A bone rendered inside another leaves a stand-in where
+        // the vanilla renderer looks, so it is not drawn twice, but is still reached through it.
         for (Slot slot : slots)
         {
             String bone = boneOf(slot.vanilla);
-            ModelPart part = bone == null ? null : parts.get(bone);
+            DefinedModelPart part = bone == null ? null : (DefinedModelPart) parts.get(bone);
             if (part == null)
             {
                 continue;
             }
             BoneDefinition definitionOf = definition.bone(bone);
-            if (definitionOf != null && definitionOf.parent != null)
+            if (definitionOf != null && (definitionOf.parent != null || definitionOf.overlay != null))
             {
-                ModelPart standIn = new DefinedModelPart(model);
-                standIn.showModel = false;
-                slot.set(standIn);
+                slot.set(new DefinedStandIn(model, part));
             }
             else
             {
@@ -287,7 +300,111 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         return true;
     }
 
-    private void addSplitBoxes(BoxFactory source, BoneDefinition bone, List<ModelPart> segments)
+    /**
+     * A bone laid over another: its boxes, in the frame of the bone it lies over (as vanilla turns
+     * them both about that bone's point), split as that bone is, each piece riding its segment.
+     */
+    private void createOverlay(ModelBase model, BoneDefinition bone, Map<String, float[]> pivots, Map<String, float[]> shifts,
+                               Map<String, List<DefinedModelPart>> segmentsOf, Map<String, List<float[]>> originsOf)
+    {
+        BoneDefinition under = definition.bone(bone.overlay);
+        ModelRenderer vanilla = vanillaParts.get(bone.name);
+        List<DefinedModelPart> underSegments = segmentsOf.get(bone.overlay);
+        float[] shift = shifts.get(bone.overlay);
+        pivots.put(bone.name, pivots.get(bone.overlay));
+        shifts.put(bone.name, shift);
+
+        List<DefinedModelPart> pieces = new ArrayList<>();
+        for (DefinedModelPart segment : underSegments)
+        {
+            DefinedModelPart piece = new DefinedModelPart(model);
+            copyLook(vanilla, piece, pieces.isEmpty());
+            piece.setParent(segment);
+            segment.addChild(piece);
+            if (!pieces.isEmpty())
+            {
+                pieces.get(0).addSegment(piece);
+            }
+            pieces.add(piece);
+        }
+        DefinedModelPart first = pieces.get(0);
+        first.setPostShift(shift[0], shift[1], shift[2]);
+        parts.put(bone.name, first);
+        positions.put(bone.name, new float[3]);
+        if (vanilla == null)
+        {
+            return;
+        }
+        for (ModelBox box : vanilla.cubeList)
+        {
+            BoxFactory source = sourceBox(vanilla, box, shift);
+            if (under.split == null)
+            {
+                inflate(source, bone, 0);
+                first.addBox(source.create(first));
+                continue;
+            }
+            addSplitBoxes(source, bone, under.split, pieces, originsOf.get(bone.overlay), first);
+        }
+    }
+
+    /** A vanilla box, inflated as vanilla has it, moved {@code shift} into the bone's frame. */
+    private static BoxFactory sourceBox(ModelRenderer vanilla, ModelBox box, float[] shift)
+    {
+        BoxFactory source = new BoxFactory(vanilla, box);
+        // Keep the vanilla inflation (a villager's robe is its body box, scaled up by half a unit).
+        float inflation = BoxFactory.inflationOf(box);
+        source.inflate(inflation, inflation, inflation);
+        source.min.add(shift[0], shift[1], shift[2]);
+        source.max.add(shift[0], shift[1], shift[2]);
+        return source;
+    }
+
+    private static void inflate(BoxFactory box, BoneDefinition bone, int segment)
+    {
+        if (bone.inflate != null && segment < bone.inflate.length)
+        {
+            float[] by = bone.inflate[segment];
+            box.inflate(by[0], by[1], by[2]);
+        }
+    }
+
+    private static void copyLook(ModelRenderer vanilla, DefinedModelPart part, boolean withOffset)
+    {
+        if (vanilla == null)
+        {
+            return;
+        }
+        part.mirror = vanilla.mirror;
+        part.textureWidth = vanilla.textureWidth;
+        part.textureHeight = vanilla.textureHeight;
+        if (withOffset)
+        {
+            part.offsetX = vanilla.offsetX;
+            part.offsetY = vanilla.offsetY;
+            part.offsetZ = vanilla.offsetZ;
+        }
+    }
+
+    private static float[] add(float[] a, float[] b)
+    {
+        return new float[] { a[0] + b[0], a[1] + b[1], a[2] + b[2] };
+    }
+
+    private static float[] subtract(float[] a, float[] b)
+    {
+        return new float[] { a[0] - b[0], a[1] - b[1], a[2] - b[2] };
+    }
+
+    /**
+     * Cuts {@code source} as {@code split} says into {@code segments}, one piece each. With
+     * {@code origins} (an overlay's), the pieces go into the frames of the segments of the bone it
+     * lies over, whose origins those are; else the segments are placed at the cuts.
+     *
+     * @return the segments' origins in the bone's frame
+     */
+    private List<float[]> addSplitBoxes(BoxFactory source, BoneDefinition bone, BoneDefinition.SplitDefinition split, List<DefinedModelPart> segments,
+                                        List<float[]> origins, DefinedModelPart overlay)
     {
         float[] min = { source.min.x, source.min.y, source.min.z };
         float[] max = { source.max.x, source.max.y, source.max.z };
@@ -297,11 +414,19 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             BoxFactory.TextureFace face = source.faces[f];
             faces[f] = new float[] { face.uPos, face.vPos, face.uSize, face.vSize };
         }
-        List<BoxSplitter.Segment> pieces = BoxSplitter.split(min, max, faces, bone.split.axisIndex(), bone.split.at, bone.split.hingeAxis(), bone.split.hingeSide());
+        List<BoxSplitter.Segment> pieces = BoxSplitter.split(min, max, faces, split.axisIndex(), split.at, split.hingeAxis(), split.hingeSide(),
+                // A sleeve stays open at the joint it lies over.
+                split.caps && origins == null);
+        List<float[]> own = new ArrayList<>();
+        float[] origin = new float[3];
         for (int k = 0; k < pieces.size(); k++)
         {
             BoxSplitter.Segment piece = pieces.get(k);
-            ModelPart target = segments.get(k);
+            origin = add(origin, piece.pivot);
+            own.add(origin);
+            // Where the piece's frame is in the frame of the segment it goes into.
+            float[] into = origins == null ? new float[3] : subtract(origin, origins.get(k));
+            DefinedModelPart target = segments.get(k);
             BoxFactory.TextureFace[] pieceFaces = new BoxFactory.TextureFace[6];
             for (int f = 0; f < 6; f++)
             {
@@ -312,13 +437,15 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 face.vSize = Math.round(piece.faces[f][3]);
                 pieceFaces[f] = face;
             }
-            BoxFactory factory = new BoxFactory(new Vec3f(piece.min[0], piece.min[1], piece.min[2]), new Vec3f(piece.max[0], piece.max[1], piece.max[2]), pieceFaces);
+            BoxFactory factory = new BoxFactory(new Vec3f(piece.min[0] + into[0], piece.min[1] + into[1], piece.min[2] + into[2]),
+                    new Vec3f(piece.max[0] + into[0], piece.max[1] + into[1], piece.max[2] + into[2]), pieceFaces);
             factory.faceVisibilityFlag = (byte) piece.visibility;
             factory.mirrored = source.mirrored;
+            inflate(factory, bone, k);
             target.addBox(factory.create(target));
-            if (k > 0)
+            if (k > 0 && origins == null)
             {
-                String name = bone.split.names.get(k - 1);
+                String name = split.names.get(k - 1);
                 if (positions.get(name) == null)
                 {
                     target.setPosition(piece.pivot[0], piece.pivot[1], piece.pivot[2]);
@@ -326,6 +453,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 }
             }
         }
+        return own;
     }
 
     private String boneOf(ModelRenderer vanilla)

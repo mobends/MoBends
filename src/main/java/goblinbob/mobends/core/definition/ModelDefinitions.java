@@ -47,6 +47,15 @@ public class ModelDefinitions
         return load(locationOf(modId, name));
     }
 
+    /** Reads a definition from {@code json} (a model definition file's content), validated. */
+    public static EntityModelDefinition parse(com.google.gson.JsonElement json) throws MalformedKumoTemplateException
+    {
+        EntityModelDefinition definition = GSON.fromJson(goblinbob.mobends.core.util.FormatVersion.check(json, "model definition", EntityModelDefinition.FORMAT_VERSION),
+                EntityModelDefinition.class);
+        definition.validate();
+        return definition;
+    }
+
     /** Loads the definition at {@code location}, e.g. {@code yourmod:bends/models/beast.json}. */
     public EntityModelDefinition load(ResourceLocation location) throws IOException, MalformedKumoTemplateException
     {

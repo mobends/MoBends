@@ -48,7 +48,7 @@ public class BoxSplitterTest
     {
         float[] min = { -2, 0, -2 }, max = { 2, 12, 2 };
         float[][] faces = new float[6][4];
-        List<BoxSplitter.Segment> segments = BoxSplitter.split(min, max, faces, 1, new float[] { 0.5F }, 2, -1);
+        List<BoxSplitter.Segment> segments = BoxSplitter.split(min, max, faces, 1, new float[] { 0.5F }, 2, -1, false);
         BoxSplitter.Segment upper = segments.get(0), lower = segments.get(1);
 
         assertEquals(-2, upper.min[2]); assertEquals(2, upper.max[2], "the first segment keeps the bone's frame");
@@ -58,7 +58,7 @@ public class BoxSplitterTest
         assertEquals(-2, lower.min[0]); assertEquals(2, lower.max[0], "and is unchanged across");
 
         // Further joints of the same limb stay on the edge: no more offset between them.
-        List<BoxSplitter.Segment> three = BoxSplitter.split(min, max, faces, 1, new float[] { 1F / 3, 2F / 3 }, 2, 1);
+        List<BoxSplitter.Segment> three = BoxSplitter.split(min, max, faces, 1, new float[] { 1F / 3, 2F / 3 }, 2, 1, false);
         assertEquals(2, three.get(1).pivot[2], "an elbow hinges at the back");
         assertEquals(0, three.get(2).pivot[2]);
         assertEquals(-4, three.get(2).min[2]); assertEquals(0, three.get(2).max[2]);

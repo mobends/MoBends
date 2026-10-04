@@ -100,6 +100,10 @@ public class EntityModelDefinition
                     throw new MalformedKumoTemplateException("Duplicate bone name '" + name + "'.");
                 }
             }
+            if (bone.overlay != null && (!seen.contains(bone.overlay) || bone(bone.overlay) == null))
+            {
+                throw new MalformedKumoTemplateException("Bone '" + bone.name + "' lies over '" + bone.overlay + "', which is not a bone declared before it.");
+            }
             if (bone.parent != null && !seen.contains(bone.parent))
             {
                 throw new MalformedKumoTemplateException("Bone '" + bone.name + "' names a parent '" + bone.parent + "' that is not declared before it.");

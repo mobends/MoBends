@@ -46,15 +46,19 @@ public final class BoxSplitter
      */
     public static List<Segment> split(float[] min, float[] max, float[][] faces, int axis, float[] fractions)
     {
-        return split(min, max, faces, axis, fractions, -1, 0);
+        return split(min, max, faces, axis, fractions, -1, 0, false);
     }
 
     /**
      * @param hingeAxis the axis (other than {@code axis}) whose edge the joints sit on, or -1 for
      *                  the middle of the cut (the bone's own origin on the other axes)
      * @param hingeSide -1 for the low edge of the box on {@code hingeAxis}, 1 for the high one
+     * @param caps      whether the faces at the cuts are drawn, closing each segment (a knee shows no
+     *                  gap when it bends): a segment's face at its low cut is textured as the box's
+     *                  own low end would be, were the segment a box of its own whose texture starts
+     *                  where its strip of the sides does
      */
-    public static List<Segment> split(float[] min, float[] max, float[][] faces, int axis, float[] fractions, int hingeAxis, int hingeSide)
+    public static List<Segment> split(float[] min, float[] max, float[][] faces, int axis, float[] fractions, int hingeAxis, int hingeSide, boolean caps)
     {
         float length = max[axis] - min[axis];
         int count = fractions.length + 1;
@@ -106,9 +110,19 @@ public final class BoxSplitter
                 segment.faces[face][coord] = start + size * from;
                 segment.faces[face][coord + 2] = size * (to - from);
             }
-            // End caps only on the outer segments.
-            if (k > 0) segment.visibility &= ~(1 << CAPS[axis][0]);
-            if (k < count - 1) segment.visibility &= ~(1 << CAPS[axis][1]);
+            if (caps)
+            {
+                if (k > 0)
+                {
+                    segment.faces[CAPS[axis][0]][1] += cuts[k] - min[axis];
+                }
+            }
+            else
+            {
+                // End caps only on the outer segments.
+                if (k > 0) segment.visibility &= ~(1 << CAPS[axis][0]);
+                if (k < count - 1) segment.visibility &= ~(1 << CAPS[axis][1]);
+            }
             segments.add(segment);
         }
         return segments;

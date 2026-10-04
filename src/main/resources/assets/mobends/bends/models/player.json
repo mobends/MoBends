@@ -1,0 +1,25 @@
+{
+  "formatVersion": 2,
+  "@comment": "The player. The body bends at the hips and carries the head and arms; elbows and knees split the limbs, and the sleeves and trousers ride them.",
+  "entity": "net.minecraft.client.entity.AbstractClientPlayer",
+  "model": "net.minecraft.client.model.ModelPlayer",
+  "animator": "mobends:bends/animators/player.json",
+  "bones": [
+    {"name": "body", "vanilla": {"field": "bipedBody"}, "pivot": [0, 12, 0]},
+    {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body"},
+    {"name": "headwear", "vanilla": {"field": "bipedHeadwear"}, "parent": "head"},
+    {"name": "bodywear", "vanilla": {"field": "bipedBodyWear"}, "overlay": "body"},
+    {"name": "rightArm", "vanilla": {"field": "bipedRightArm"}, "parent": "body",
+     "split": {"axis": "y", "at": [0.5], "names": ["rightForeArm"], "hinge": "back"}, "inflate": [[0.01, 0, 0.01], [0, 0, 0]]},
+    {"name": "leftArm", "vanilla": {"field": "bipedLeftArm"}, "parent": "body",
+     "split": {"axis": "y", "at": [0.5], "names": ["leftForeArm"], "hinge": "back"}, "inflate": [[0.01, 0, 0.01], [0, 0, 0]]},
+    {"name": "rightArmwear", "vanilla": {"field": "bipedRightArmwear"}, "overlay": "rightArm", "inflate": [[0.0025, 0, 0.0025], [0.005, 0, 0.005]]},
+    {"name": "leftArmwear", "vanilla": {"field": "bipedLeftArmwear"}, "overlay": "leftArm", "inflate": [[0.0025, 0, 0.0025], [0.005, 0, 0.005]]},
+    {"name": "rightLeg", "vanilla": {"field": "bipedRightLeg"}, "pivot": [0, 12, 0],
+     "split": {"axis": "y", "at": [0.5], "names": ["rightForeLeg"], "hinge": "front", "caps": true}, "inflate": [[0, 0, 0], [0.01, 0, 0.01]]},
+    {"name": "leftLeg", "vanilla": {"field": "bipedLeftLeg"}, "pivot": [0, 12, 0],
+     "split": {"axis": "y", "at": [0.5], "names": ["leftForeLeg"], "hinge": "front", "caps": true}, "inflate": [[0, 0, 0], [0.01, 0, 0.01]]},
+    {"name": "rightLegwear", "vanilla": {"field": "bipedRightLegwear"}, "overlay": "rightLeg", "inflate": [[0, 0, 0], [0.005, 0, 0.005]]},
+    {"name": "leftLegwear", "vanilla": {"field": "bipedLeftLegwear"}, "overlay": "leftLeg", "inflate": [[0, 0, 0], [0.005, 0, 0.005]]}
+  ]
+}

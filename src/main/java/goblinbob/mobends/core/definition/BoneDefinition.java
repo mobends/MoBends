@@ -19,12 +19,37 @@ public class BoneDefinition
 
     /**
      * Optional parent bone. A bone with a parent renders inside it (its vanilla part is replaced by
-     * an invisible stand-in) and its {@code position} is relative to the parent.
+     * an invisible stand-in, which passes the vanilla model's visibility and {@code postRender} on
+     * to the bone) and its {@code position} is relative to the parent.
      */
     public String parent;
 
-    /** Pivot in model units; default: the vanilla part's rotation point. */
+    /**
+     * Where the bone sits, in model units: relative to its parent if it has one. Default: where its
+     * {@link #pivot} (or else its vanilla part's rotation point) is, relative to the parent's.
+     * Moves the boxes with it.
+     */
     public float[] position;
+
+    /**
+     * Where the bone turns, in model units (as a vanilla rotation point is), when it isn't where
+     * the vanilla part turns: the boxes stay where they are (a body that bends at the hips, not
+     * the neck). What vanilla attaches to the part ({@code postRender}: a held item, a hat) stays
+     * where vanilla puts it.
+     */
+    public float[] pivot;
+
+    /**
+     * Another bone this one is laid over (a sleeve over an arm): it turns with that bone, at its
+     * pivot, and its boxes are split as that bone's are, each piece following that bone's segment.
+     */
+    public String overlay;
+
+    /**
+     * Extra inflation of the boxes, per segment ([x, y, z] each, the bone's own first), on top of
+     * the vanilla one: a hair, so faces that meet don't flicker.
+     */
+    public float[][] inflate;
 
     /**
      * Constant rotation (degrees X, Y, Z) applied before the animated one, for parts the vanilla
@@ -52,6 +77,16 @@ public class BoneDefinition
         if (name == null) throw new MalformedKumoTemplateException("A bone needs a 'name'.");
         if (position != null && position.length != 3) throw new MalformedKumoTemplateException("Bone '" + name + "': 'position' needs three components.");
         if (restRotation != null && restRotation.length != 3) throw new MalformedKumoTemplateException("Bone '" + name + "': 'restRotation' needs three angles.");
+        if (pivot != null && pivot.length != 3) throw new MalformedKumoTemplateException("Bone '" + name + "': 'pivot' needs three components.");
+        if (overlay != null && (parent != null || position != null || pivot != null || split != null))
+            throw new MalformedKumoTemplateException("Bone '" + name + "': an 'overlay' takes the bone it lies over's place and segments: it has no 'parent', 'position', 'pivot' or 'split' of its own.");
+        if (inflate != null)
+        {
+            for (float[] segment : inflate)
+            {
+                if (segment == null || segment.length != 3) throw new MalformedKumoTemplateException("Bone '" + name + "': 'inflate' is a list of [x, y, z], one per segment.");
+            }
+        }
         if (split != null)
         {
             if (split.at == null || split.at.length == 0) throw new MalformedKumoTemplateException("Bone '" + name + "': 'split' needs 'at' fractions.");
@@ -98,6 +133,11 @@ public class BoneDefinition
          * stay joined there.
          */
         public String hinge;
+        /**
+         * Whether the faces at the cuts are drawn, closing each segment, so a bent joint shows no
+         * gap (see {@link BoxSplitter#split}). Default: they are hidden.
+         */
+        public boolean caps;
 
         public int axisIndex()
         {
