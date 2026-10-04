@@ -13,16 +13,17 @@ import goblinbob.mobends.core.kumo.state.template.pose.AccumulateTemplate;
 public class AccumulateDriver implements IPoseItem
 {
 
-    private final String name;
+    /** The node variable it writes. */
+    private final int variable;
     private final Expression rate;
     private final float initial;
     private final float min;
     private final float max;
     private float value;
 
-    public AccumulateDriver(String name, Expression rate, float initial, float min, float max)
+    public AccumulateDriver(int variable, Expression rate, float initial, float min, float max)
     {
-        this.name = name;
+        this.variable = variable;
         this.rate = rate;
         this.initial = initial;
         this.min = min;
@@ -35,7 +36,7 @@ public class AccumulateDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:accumulate needs a 'name' and a 'rate'.");
         }
-        return new AccumulateDriver(template.name, Expression.compile(template.rate, context.getExpressionScope(), null), template.initial, template.min, template.max);
+        return new AccumulateDriver(context.getExpressionScope().getVariables().nodeVariable(template.name), Expression.compile(template.rate, context.getExpressionScope(), null), template.initial, template.min, template.max);
     }
 
     @Override
@@ -44,14 +45,14 @@ public class AccumulateDriver implements IPoseItem
         value += rate.get(context) * context.getDeltaTime();
         if (value < min) value = min;
         if (value > max) value = max;
-        context.getNodeScope().set(name, value);
+        context.getNodeScope().set(variable, value);
     }
 
     @Override
     public void onNodeStarted(IKumoContext context)
     {
         value = initial;
-        context.getNodeScope().set(name, initial);
+        context.getNodeScope().set(variable, initial);
     }
 
     @Override

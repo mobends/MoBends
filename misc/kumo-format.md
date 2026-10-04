@@ -427,9 +427,14 @@ and used by name like variables:
   Every declaration is checked when the animator loads, used or not.
 
 `elapsed` is built in: the ticks since the current node started (a named expression can
-shadow it). A name nothing declares is a **variable**, resolved every frame through the node scope (ramps,
-accumulators), the layer scope, then the subject (see the data classes' `registerVariable`
-calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...).
+shadow it). A name nothing declares is a **variable**: the node's own (written by its ramps,
+accumulators, springs, `core:set` and drivers such as `core:step_turn`) once the node has written
+it, else the layer's (its `variables`, `set`, `core:set`) once written, else the subject's (see
+the data classes' `registerVariable` calls: `limbSwing`, `headYaw`, `ticksAfterAttack`, ...).
+Which of them a name can be is worked out once, when the animator is bound to its entity on the
+first frame, never by looking the name up while animating. A name that nothing in the animator
+writes and the subject doesn't have fails the animator then (logged; the entity isn't animated),
+even if nothing ever reads it.
 
 ### Conditions
 
@@ -443,7 +448,8 @@ such as `mainHandItem`, `useActionType`, `activeHandSide`), `core:equipment_name
 (`namePattern`, `slot`), `core:animation_finished` (met once every clip of the current node
 that has a `duration` has run it; a node with no items always is, one whose items all run
 forever never is), and `core:and` / `core:or` / `core:not`. A condition that names a variable or
-state the subject doesn't have fails the animator (logged; the entity isn't animated). A
+state the subject doesn't have fails the animator on its first frame, whether or not it is ever
+evaluated (logged; the entity isn't animated). A
 condition's expressions see the named expressions where it is written: a layer's `when` sees
 the layer's; a selector's and a machine's connections see the machine's (the layer's for its
 own); an item's, a node's connection and the layer's `mirror` rule see those of the node being

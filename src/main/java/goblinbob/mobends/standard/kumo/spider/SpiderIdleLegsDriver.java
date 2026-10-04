@@ -5,6 +5,7 @@ import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -19,10 +20,14 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
     private final Expression groundLevel;
     private final Expression bodyX;
     private final Expression bodyZ;
+    private final VariableTable.Read partialTicks;
+    private final VariableTable.Read ticksExisted;
 
     public SpiderIdleLegsDriver(Skeleton skeleton, SpiderIdleLegsTemplate template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
-        super(skeleton, template.resetVariable);
+        super(skeleton, template.resetVariable, scope);
+        this.partialTicks = scope.getVariables().read("partialTicks");
+        this.ticksExisted = scope.getVariables().read("ticksExisted");
         if (template.feelLimbs != null)
         {
             for (int limb : template.feelLimbs)
@@ -52,7 +57,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
         {
             return;
         }
-        final float pt = (float) context.resolveVariable("partialTicks");
+        final float pt = (float) context.resolveVariable(partialTicks);
         double ground = groundLevel.get(context) + kneelBounce(context, t.kneelDuration, t.kneelAmplitude, t.kneelLead);
         final double bx = bodyX.get(context);
         final double bz = bodyZ.get(context);
@@ -72,7 +77,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
         }
 
         // The front limbs reach out now and then, as if feeling the ground.
-        if (t.feelLimbs != null && t.feelInterval > 0 && ((int) context.resolveVariable("ticksExisted")) % t.feelInterval < t.feelDuration)
+        if (t.feelLimbs != null && t.feelInterval > 0 && ((int) context.resolveVariable(ticksExisted)) % t.feelInterval < t.feelDuration)
         {
             for (int limb : t.feelLimbs)
             {
@@ -80,7 +85,7 @@ public class SpiderIdleLegsDriver extends SpiderLegsDriverBase
             }
         }
 
-        context.getNodeScope().set("groundLevel", ground);
+        context.getNodeScope().set(groundLevelOut, ground);
     }
 
 }

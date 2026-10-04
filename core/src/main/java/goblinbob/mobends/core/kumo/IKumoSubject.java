@@ -20,10 +20,14 @@ public interface IKumoSubject
     IBoneSink getBone(String name);
 
     /**
-     * @return the current value of a numeric variable (e.g. "limbSwing", "headYaw", "ticksInAir").
-     * @throws IllegalArgumentException if the variable is unknown (the animator fails)
+     * @return the index of the numeric variable {@code name} (e.g. "limbSwing", "headYaw",
+     *         "ticksInAir") for {@link #getVariable(int)}, or -1 if the subject has none. Animators
+     *         look every name up once, when they are bound to the subject.
      */
-    double getVariable(String name);
+    int indexOfVariable(String name);
+
+    /** @return the current value of the variable at {@code index} (see {@link #indexOfVariable}). */
+    double getVariable(int index);
 
     /**
      * @return a string-valued input (e.g. "mainHandItem" = "minecraft:torch", "attackActionType" =
@@ -35,9 +39,12 @@ public interface IKumoSubject
     }
 
     /**
-     * @return whether a boolean state holds (e.g. "ON_GROUND", "SPRINTING").
-     * @throws IllegalArgumentException if the state is unknown (the animator fails)
+     * @return the index of the boolean state {@code name} (e.g. "ON_GROUND", "SPRINTING") for
+     *         {@link #getState(int)}, or -1 if the subject has none.
      */
-    boolean getState(String name);
+    int indexOfState(String name);
+
+    /** @return whether the state at {@code index} holds (see {@link #indexOfState}). */
+    boolean getState(int index);
 
 }

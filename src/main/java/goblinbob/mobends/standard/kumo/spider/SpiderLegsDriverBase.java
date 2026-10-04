@@ -5,7 +5,9 @@ import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.VariableScope;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.standard.data.SpiderData;
@@ -18,7 +20,11 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
 
     protected final int[] upperSlots = new int[LIMBS];
     protected final int[] lowerSlots = new int[LIMBS];
-    protected final String resetVariable;
+    /** The layer variable that, set, puts the legs back to rest when a node starts; -1 for none. */
+    protected final int resetVariable;
+    private final VariableTable.Read ticksAfterTouchdown;
+    /** The node variable the drivers publish the ground level in. */
+    protected final int groundLevelOut;
 
     private final Quaternion yaw = new Quaternion();
     private final Quaternion bend = new Quaternion();
@@ -27,8 +33,11 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     protected final SpiderData.IKResult ik = new SpiderData.IKResult();
     protected final double[] angles = new double[2];
 
-    protected SpiderLegsDriverBase(Skeleton skeleton, String resetVariable) throws MalformedKumoTemplateException
+    protected SpiderLegsDriverBase(Skeleton skeleton, String resetVariable, ExpressionScope scope) throws MalformedKumoTemplateException
     {
+        VariableTable variables = scope.getVariables();
+        this.ticksAfterTouchdown = variables.read("ticksAfterTouchdown");
+        this.groundLevelOut = variables.nodeVariable("groundLevel");
         for (int i = 0; i < LIMBS; i++)
         {
             upperSlots[i] = skeleton.indexOf("leg" + (i + 1));
@@ -38,7 +47,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
                 throw new MalformedKumoTemplateException("The spider leg drivers need bones leg1..8 and foreLeg1..8.");
             }
         }
-        this.resetVariable = resetVariable;
+        this.resetVariable = resetVariable == null ? -1 : variables.layerVariable(resetVariable);
     }
 
     protected static SpiderData subject(IKumoContext context)
@@ -47,9 +56,9 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     }
 
     /** The landing bounce: a damped sine over the touchdown progress. */
-    protected static double kneelBounce(IKumoContext context, float duration, float amplitude, float lead)
+    protected double kneelBounce(IKumoContext context, float duration, float amplitude, float lead)
     {
-        float touchdown = Math.min((float) context.resolveVariable("ticksAfterTouchdown") / duration, 1.0F);
+        float touchdown = Math.min((float) context.resolveVariable(ticksAfterTouchdown) / duration, 1.0F);
         if (touchdown >= 1.0F)
         {
             return 0;
@@ -79,7 +88,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     {
         SpiderData data = subject(context);
         VariableScope layer = context.getLayerScope();
-        if (data != null && resetVariable != null && layer.has(resetVariable) && layer.get(resetVariable) != 0)
+        if (data != null && resetVariable >= 0 && layer.has(resetVariable) && layer.get(resetVariable) != 0)
         {
             for (SpiderData.Limb limb : data.limbs)
             {

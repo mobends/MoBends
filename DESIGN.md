@@ -1279,52 +1279,6 @@ Run it with
 `-Dsections=runtime` runs only the runtime measurement; `-Dlookup=string` reads names as today's
 runtime does (below).
 
-## A first step in the current runtime: resolve names at compile time
-
-Independent of the format rework and of the split, so it can land first; both build on it.
-
-Today every read of a name happens by string, every frame:
-
-- A variable (`Expression.Variable`) calls `KumoContext.resolveVariable(name)`, which runs
-  `has(name)` then `get(name)` on the node's `VariableScope` (each a linear scan comparing
-  strings), the same two on the layer's, then `subject.getVariable(name)`: a `HashMap` lookup and
-  a supplier call.
-- A state (`StateCondition`) calls `subject.getState(name)`: a `HashMap` lookup and a supplier
-  call.
-- An unknown name is found on the first frame it is read, not at load.
-
-Every name can be resolved once, when the animator is compiled:
-
-- **Node and layer variables are known from the template.** Every writer names them statically:
-  ramps, accumulators and springs (`name`), `core:set` (`variable`), `core:step_turn` (`turnLag`,
-  `turnSpeed`, `stepLift`, `stepImpact`, `stride`), the spider drivers (`groundLevel`), a layer's
-  `variables` and the `set` maps. So `VariableScope` can become a fixed array.
-- **Subject names** become indices too: `IKumoSubject` gains a way to look a name up once
-  (`indexOfVariable(name)` / `indexOfState(name)`) and read by index; `EntityData` keeps its
-  suppliers in arrays.
-- Unknown names fail at load.
-
-One behaviour changes: a node variable shadows a layer or subject name today only once it has
-been written (`VariableScope.has`), and a written name stays for the node's life. Ramps,
-accumulators and springs write on entry, but `core:step_turn`, the spider drivers and `core:set`
-write on their first evaluation, so an item before them reads the layer's or the subject's value
-of that name. Resolved statically, the read always goes to the node's slot (0 until written).
-Nothing shipped is known to rely on the old behaviour; to check against the parity goldens.
-
-Measured with `-Dlookup=string` (the node scope holding two names, the layer one, the subject a
-map of 48 variables and 24 states), against reads by index:
-
-| entities | by index | by name (today) | cost of names |
-|---|---|---|---|
-| 1 | 8.8 µs per entity | 9.1 µs | +4 % |
-| 10 | 8.5 µs | 9.9 µs | +17 % |
-| 100 | 8.6 µs | 10.2 µs | +18 % |
-| 1,000 | 9.6 µs | 10.9 µs | +13 % |
-| 10,000 | 10.3 µs | 12.7 µs | +23 % |
-
-(Unified engine, one frame; the split engine shows the same.) The gain is real but modest; the
-bigger win is that unknown names fail at load.
-
 ## Moving mobs out of Java
 
 Surveyed 2026-10-03. A model definition can already describe the player's mesh: `ModelPlayer`'s
@@ -1450,7 +1404,9 @@ Everything besides the engine that changes with the format (surveyed 2026-10-03)
 - **Parity goldens to re-record** (`./gradlew record` in `animation-lab`), where behaviour moves
   on purpose: the eating, shield and sprint-jump scenarios (`linstep`, one frame); the swimming
   `deep` ramp (`readBeforeAdvance` dropped); the riding scenarios (the measured speed); anything
-  reading node variables before their writer (*A first step in the current runtime*).
+  reading a node variable before its writer first writes it (`core:step_turn`, the spider drivers
+  and `core:set` write on their first evaluation, and until then the read falls through to the
+  layer's or the subject's value of that name; a declared state reads its initial value).
 - **Lab bootstrap:** `LabBootstrap` mirrors the mod's registrations (`MinecraftKumoOperations`,
   the four `mobends:` drivers) and changes with the registration API.
 - **Addon API:** `AddonAnimationRegistry`, `DefaultAddon`, `MinecraftKumoOperations`.
@@ -1475,9 +1431,8 @@ the additive and smaller ones.
 
 **Engine foundations**
 
-1. [ ] **Resolve names at compile time** in the current runtime: node and layer scopes become fixed
-   arrays, subject names indices, a mirrored read a flag; unknown names fail at load. Check the
-   one behaviour change against the parity goldens (*A first step in the current runtime*).
+1. [x] **Resolve names at compile time** in the current runtime: node and layer variables
+   numbered, subject names indices, unknown names fail before the animator animates.
 2. [ ] **Split program from state**: compile an animator once per animator, extensions, trust and
    entity class into an immutable program; give every stateful element a slot in one flat
    per-entity `float[]`, a scope's slots one contiguous range; cache programs and clear the cache

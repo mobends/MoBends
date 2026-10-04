@@ -8,6 +8,7 @@ import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.kumo.pose.BoneTarget;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -37,6 +38,7 @@ public class KumoAnimatorState
     private final List<LayerState> layerStates = new ArrayList<>();
     private final Skeleton skeleton = new Skeleton();
     private final KumoContext context = new KumoContext();
+    private final VariableTable variables = new VariableTable();
     private final Pose pose;
     private boolean started = false;
     private final boolean[] layerTrusted;
@@ -75,6 +77,8 @@ public class KumoAnimatorState
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, boolean trusted, List<AnimatorTemplate> overlays, List<Boolean> overlaysTrusted,
                              IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
+        // Every scope of the animator, its extensions included, shares one table of variables.
+        dataProvider = new ScopedInstancingContext(dataProvider, ExpressionScope.root(variables));
         List<LayerTemplate> layers = new ArrayList<>();
         List<IKumoInstancingContext> layerContexts = new ArrayList<>();
         List<Boolean> layersTrusted = new ArrayList<>();
@@ -100,6 +104,7 @@ public class KumoAnimatorState
             layerStates.add(new LayerState(layerContext, skeleton, template));
         }
         context.setLayers(layerStates);
+        variables.link();
 
         // Every bone name is known once the layers are instanced.
         for (LayerState layer : layerStates)
@@ -215,6 +220,7 @@ public class KumoAnimatorState
 
     private void animate(IKumoSubject subject, float deltaTime) throws MalformedKumoTemplateException
     {
+        variables.bind(subject);
         skeleton.bind(subject);
 
         context.beginFrame(subject, deltaTime);

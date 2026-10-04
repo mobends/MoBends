@@ -21,7 +21,7 @@ public class TriggerConditionRegistry
         register("core:or", OrCondition::new, OrCondition.Template.class);
         register("core:and", AndCondition::new, AndCondition.Template.class);
         register("core:not", NotCondition::new, NotCondition.Template.class);
-        register("core:state", (template, scope) -> new StateCondition(template), StateCondition.Template.class);
+        register("core:state", StateCondition::new, StateCondition.Template.class);
         register("core:ticks_passed", (template, scope) -> new TicksPassedCondition(template), TicksPassedCondition.Template.class);
         register("core:compare", CompareCondition::new, CompareCondition.Template.class);
         register("core:action", (template, scope) -> new ActionCondition(template), ActionCondition.Template.class);

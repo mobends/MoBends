@@ -112,38 +112,54 @@ public class KumoAnimatorStateTest
     }
 
     @Test
-    public void anUnknownVariableFailsTheAnimatorInsteadOfEscaping()
+    public void anUnknownVariableFailsTheAnimatorBeforeItAnimates() throws MalformedKumoTemplateException
     {
+        // Read only by a node the layer never reaches: still found on the first frame.
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {},"
+                + "\"b\": {\"pose\": [{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": \"noSuchVariable\"}]}}}]}");
         try
         {
-            KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"pose\": ["
-                    + "{\"driver\": \"core:axis_rotate\", \"bone\": \"arm\", \"axis\": \"X\", \"angle\": \"noSuchVariable\"}]}}}]}");
             animator.update(new TestSubject("arm"), 1F);
             fail("The animator should have failed.");
         }
         catch (MalformedKumoTemplateException e)
         {
-            assertTrue(e.getCause() instanceof IllegalArgumentException);
+            assertTrue(e.getMessage(), e.getMessage().contains("'noSuchVariable'"));
         }
     }
 
     @Test
-    public void anUnknownStateFailsTheAnimatorInsteadOfEscaping()
+    public void anUnknownStateFailsTheAnimatorBeforeItAnimates() throws MalformedKumoTemplateException
     {
+        // Entering the layer is the first frame's decision: its connections aren't checked then.
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {"
+                + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {\"type\": \"core:state\", \"state\": \"FLYING\"}}]}}}]}");
         try
         {
-            KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {"
-                    + "\"connections\": [{\"target\": \"a\", \"triggerCondition\": {\"type\": \"core:state\", \"state\": \"FLYING\"}}]}}}]}");
-            TestSubject subject = new TestSubject("arm");
-            // Entering the layer is the first frame's decision: its connections are checked from the second.
-            animator.update(subject, 1F);
-            animator.update(subject, 1F);
+            animator.update(new TestSubject("arm"), 1F);
             fail("The animator should have failed.");
         }
         catch (MalformedKumoTemplateException e)
         {
-            assertTrue(e.getCause() instanceof IllegalArgumentException);
+            assertTrue(e.getMessage(), e.getMessage().contains("'FLYING'"));
         }
+    }
+
+    @Test
+    public void aNodeVariableShadowsTheSubjectsOnlyOnceWritten() throws MalformedKumoTemplateException
+    {
+        // The item before the core:set reads the subject's "raise" on the node's first frame; the
+        // set writes the node's own then, which is read from the next frame on.
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'pose': ["
+                + "  {'driver': 'core:axis_rotate', 'bone': 'arm', 'axis': 'X', 'angle': {'mul': ['raise', 90]}, 'space': 'OVERRIDE'},"
+                + "  {'driver': 'core:set', 'variable': 'raise', 'value': 0.5, 'scope': 'node'}]}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        subject.variables.put("raise", 1.0);
+
+        animator.update(subject, 1F);
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 90), subject.target("arm"));
+        animator.update(subject, 1F);
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 45), subject.target("arm"));
     }
 
     @Test

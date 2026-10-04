@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import goblinbob.mobends.core.kumo.state.INodeState;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
@@ -57,7 +58,7 @@ public abstract class Expression
                 String name = primitive.getAsString();
                 Expression named = scope.resolve(name);
                 if (named != null) return named;
-                return ELAPSED_NAME.equals(name) ? ELAPSED : new Variable(name);
+                return ELAPSED_NAME.equals(name) ? ELAPSED : new Variable(scope.getVariables().read(name));
             }
             throw new MalformedKumoTemplateException("Not an expression: " + describe(json) + " (expected a number, a name or an operation).");
         }
@@ -117,17 +118,17 @@ public abstract class Expression
 
     static final class Variable extends Expression
     {
-        private final String name;
+        private final VariableTable.Read read;
 
-        Variable(String name)
+        Variable(VariableTable.Read read)
         {
-            this.name = name;
+            this.read = read;
         }
 
         @Override
         public float get(ITriggerConditionContext context)
         {
-            return (float) context.resolveVariable(name);
+            return (float) context.resolveVariable(read);
         }
     }
 

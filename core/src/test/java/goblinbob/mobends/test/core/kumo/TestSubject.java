@@ -14,6 +14,8 @@ import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.Vec3f;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,26 +48,48 @@ class TestSubject implements IKumoSubject
         return bone == null ? null : new OrientationSink(bone, new Vec3f());
     }
 
+    // The names a test sets, numbered as animators look them up. A name set after the animator
+    // has bound to the subject isn't seen.
+    private final List<String> variableNames = new ArrayList<>();
+    private final List<String> stateNames = new ArrayList<>();
+
     @Override
-    public double getVariable(String name)
+    public int indexOfVariable(String name)
     {
-        Double value = variables.get(name);
-        if (value == null)
-        {
-            throw new IllegalArgumentException("Unknown variable: " + name);
-        }
-        return value;
+        return indexOf(variableNames, variables.containsKey(name), name);
     }
 
     @Override
-    public boolean getState(String name)
+    public double getVariable(int index)
     {
-        Boolean value = states.get(name);
-        if (value == null)
+        return variables.get(variableNames.get(index));
+    }
+
+    @Override
+    public int indexOfState(String name)
+    {
+        return indexOf(stateNames, states.containsKey(name), name);
+    }
+
+    @Override
+    public boolean getState(int index)
+    {
+        return states.get(stateNames.get(index));
+    }
+
+    private static int indexOf(List<String> names, boolean exists, String name)
+    {
+        if (!exists)
         {
-            throw new IllegalArgumentException("Unknown state: " + name);
+            return -1;
         }
-        return value;
+        int index = names.indexOf(name);
+        if (index < 0)
+        {
+            index = names.size();
+            names.add(name);
+        }
+        return index;
     }
 
     static AnimatorTemplate animator(String json)

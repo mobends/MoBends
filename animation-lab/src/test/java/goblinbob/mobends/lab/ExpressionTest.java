@@ -7,7 +7,7 @@ import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.KumoContext;
-import goblinbob.mobends.core.kumo.state.VariableScope;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.Tween;
@@ -31,11 +31,13 @@ public class ExpressionTest
 {
 
     private final KumoContext context = new KumoContext();
+    private final VariableTable variables = new VariableTable();
+    private final ExpressionScope root = ExpressionScope.root(variables);
 
     public ExpressionTest()
     {
-        context.getLayerScope().set("x", 3);
-        context.getLayerScope().set("ticks", 42);
+        context.getLayerScope().set(variables.layerVariable("x"), 3);
+        context.getLayerScope().set(variables.layerVariable("ticks"), 42);
     }
 
     private static JsonElement json(String text)
@@ -45,12 +47,14 @@ public class ExpressionTest
 
     private float eval(String text, ExpressionScope scope) throws MalformedKumoTemplateException
     {
-        return Expression.compile(json(text), scope).get(context);
+        Expression expression = Expression.compile(json(text), scope);
+        variables.link();
+        return expression.get(context);
     }
 
     private float eval(String text) throws MalformedKumoTemplateException
     {
-        return eval(text, ExpressionScope.ROOT);
+        return eval(text, root);
     }
 
     private static Map<String, ExpressionTemplate> declare(String... nameAndJson)
@@ -123,7 +127,7 @@ public class ExpressionTest
     @Test
     void namedExpressionsAreLexicallyScoped() throws Exception
     {
-        ExpressionScope outer = ExpressionScope.ROOT.child(declare("a", "2", "b", "{\"mul\": [\"a\", 3]}"));
+        ExpressionScope outer = root.child(declare("a", "2", "b", "{\"mul\": [\"a\", 3]}"));
         ExpressionScope inner = outer.child(declare("a", "10"));
 
         assertEquals(6F, eval("\"b\"", outer));
@@ -131,7 +135,7 @@ public class ExpressionTest
         assertEquals(6F, eval("\"b\"", inner), "a named expression sees the names of the scope declaring it");
         assertEquals(13F, eval("{\"add\": [\"a\", \"x\"]}", inner), "undeclared names stay variables");
 
-        ExpressionScope shadowsVariable = ExpressionScope.ROOT.child(declare("x", "100"));
+        ExpressionScope shadowsVariable = root.child(declare("x", "100"));
         assertEquals(100F, eval("\"x\"", shadowsVariable), "a named expression shadows a variable of the same name");
     }
 
@@ -139,11 +143,11 @@ public class ExpressionTest
     void namedExpressionsAreCheckedWhenDeclared()
     {
         MalformedKumoTemplateException cycle = assertThrows(MalformedKumoTemplateException.class,
-                () -> ExpressionScope.ROOT.child(declare("p", "{\"add\": [\"q\", 1]}", "q", "\"p\"")));
+                () -> root.child(declare("p", "{\"add\": [\"q\", 1]}", "q", "\"p\"")));
         assertTrue(cycle.getMessage().contains("depends on itself"), cycle.getMessage());
 
         MalformedKumoTemplateException unused = assertThrows(MalformedKumoTemplateException.class,
-                () -> ExpressionScope.ROOT.child(declare("unused", "{\"nope\": [1]}")));
+                () -> root.child(declare("unused", "{\"nope\": [1]}")));
         assertTrue(unused.getMessage().contains("'unused'") && unused.getMessage().contains("Unknown operation 'nope'"), unused.getMessage());
     }
 

@@ -9,6 +9,7 @@ import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.VariableScope;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.StepTurnTemplate;
 import goblinbob.mobends.core.math.Quaternion;
@@ -77,6 +78,10 @@ public class StepTurnDriver implements IPoseItem
     /** Whether the feet stand somewhere; false while the weight is 0, so they're placed anew under the body. */
     private boolean placed;
     /** Whether anything was written last frame, so the frame the weight reaches 0 hands the offset and rotation back. */
+    /** The body yaw and the position it follows. */
+    private final VariableTable.Read yaw, x, z;
+    /** The node variables it publishes (see {@link #STRIDE} and the others). */
+    private final int strideOut, turnLagOut, turnSpeedOut, stepLiftOut, stepImpactOut;
     private boolean wrote;
     /** The yaw the body is shown at, and how fast it turns (degrees, degrees per tick). */
     private double shownYaw;
@@ -140,10 +145,18 @@ public class StepTurnDriver implements IPoseItem
         }
     }
 
-    public StepTurnDriver(Skeleton skeleton, StepTurnTemplate template, Expression weight) throws MalformedKumoTemplateException
+    public StepTurnDriver(Skeleton skeleton, StepTurnTemplate template, Expression weight, VariableTable variables) throws MalformedKumoTemplateException
     {
         this.t = template;
         this.weight = weight;
+        this.yaw = variables.read(template.yawVariable);
+        this.x = variables.read(template.xVariable);
+        this.z = variables.read(template.zVariable);
+        this.strideOut = variables.nodeVariable(STRIDE);
+        this.turnLagOut = variables.nodeVariable(TURN_LAG);
+        this.turnSpeedOut = variables.nodeVariable(TURN_SPEED);
+        this.stepLiftOut = variables.nodeVariable(STEP_LIFT);
+        this.stepImpactOut = variables.nodeVariable(STEP_IMPACT);
         this.rotationSlot = skeleton.indexOf(template.rotationBone);
         this.offsetSlot = skeleton.indexOf(template.offsetBone);
         this.legs = new Leg[template.legs.size()];
@@ -176,7 +189,7 @@ public class StepTurnDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:step_turn: 'stepDuration', 'turnThreshold', 'driftThreshold', 'unitsPerBlock', 'impactTime', 'strideLength', 'runStrideLength', 'minStepDuration', 'velocitySmoothing' and 'runFacingSmoothing' must be positive.");
         }
-        return new StepTurnDriver(skeleton, template, Expression.compile(template.weight, context.getExpressionScope(), Expression.ONE));
+        return new StepTurnDriver(skeleton, template, Expression.compile(template.weight, context.getExpressionScope(), Expression.ONE), context.getExpressionScope().getVariables());
     }
 
     private static boolean isVector(float[] v)
@@ -188,9 +201,9 @@ public class StepTurnDriver implements IPoseItem
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
         final float w = Math.max(0F, Math.min(1F, weight.get(context)));
-        final double bodyYaw = context.resolveVariable(t.yawVariable);
-        final double px = context.resolveVariable(t.xVariable);
-        final double pz = context.resolveVariable(t.zVariable);
+        final double bodyYaw = context.resolveVariable(yaw);
+        final double px = context.resolveVariable(x);
+        final double pz = context.resolveVariable(z);
         measureVelocity(px, pz, context.getDeltaTime());
 
         if (w <= 0)
@@ -695,13 +708,13 @@ public class StepTurnDriver implements IPoseItem
         return x * x * (3 - 2 * x);
     }
 
-    private static void publish(VariableScope scope, float lag, float speed, float lift, float impact, float stride)
+    private void publish(VariableScope scope, float lag, float speed, float lift, float impact, float stride)
     {
-        scope.set(STRIDE, stride);
-        scope.set(TURN_LAG, lag);
-        scope.set(TURN_SPEED, speed);
-        scope.set(STEP_LIFT, lift);
-        scope.set(STEP_IMPACT, impact);
+        scope.set(strideOut, stride);
+        scope.set(turnLagOut, lag);
+        scope.set(turnSpeedOut, speed);
+        scope.set(stepLiftOut, lift);
+        scope.set(stepImpactOut, impact);
     }
 
     private static double wrapDegrees(double degrees)

@@ -10,7 +10,6 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,7 @@ public class Selector
             if (template.branches != null)
             {
                 branches.add(new Branch(when, null, createBranches(template.branches, machine, membersByName, scope, branchDuration, branchEasing, branchSet),
-                                        branchDuration, branchEasing, branchSet));
+                                        branchDuration, branchEasing, scope.getVariables().layerAssignments(branchSet)));
                 continue;
             }
             MachineMember target = membersByName.get(template.target);
@@ -74,7 +73,7 @@ public class Selector
             {
                 throw new MalformedKumoTemplateException(String.format("A selector branch of %s leads to '%s', which isn't one of its own nodes or machines.", machine.describe(), template.target));
             }
-            branches.add(new Branch(when, target, null, branchDuration, branchEasing, branchSet));
+            branches.add(new Branch(when, target, null, branchDuration, branchEasing, scope.getVariables().layerAssignments(branchSet)));
         }
         return branches;
     }
@@ -141,18 +140,17 @@ public class Selector
         private final List<Branch> branches;
         private final float duration;
         private final ConnectionTemplate.Easing easing;
-        @Nullable
-        private final Map<String, Float> set;
+        private final VariableTable.Assignments set;
 
         private Branch(@Nullable ITriggerCondition when, @Nullable MachineMember target, @Nullable List<Branch> branches,
-                       float duration, ConnectionTemplate.Easing easing, @Nullable Map<String, Float> set)
+                       float duration, ConnectionTemplate.Easing easing, VariableTable.Assignments set)
         {
             this.when = when;
             this.target = target;
             this.branches = branches;
             this.duration = duration;
             this.easing = easing;
-            this.set = set == null ? null : Collections.unmodifiableMap(set);
+            this.set = set;
         }
 
         @Override
@@ -173,9 +171,8 @@ public class Selector
             return easing;
         }
 
-        @Nullable
         @Override
-        public Map<String, Float> getSet()
+        public VariableTable.Assignments getSet()
         {
             return set;
         }

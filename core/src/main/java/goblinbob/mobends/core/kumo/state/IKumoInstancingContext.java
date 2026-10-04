@@ -35,10 +35,13 @@ public interface IKumoInstancingContext
         return true;
     }
 
-    /** The named expressions visible where a template is being instanced. */
+    /**
+     * The named expressions visible where a template is being instanced. Only the contexts an
+     * animator instances its layers in have one (see {@link KumoAnimatorState}).
+     */
     default ExpressionScope getExpressionScope()
     {
-        return ExpressionScope.ROOT;
+        throw new IllegalStateException("Expressions are only compiled inside an animator being instanced.");
     }
 
     /** This context, inside a scope that declares {@code expressions} (see {@link ExpressionScope#child}). */

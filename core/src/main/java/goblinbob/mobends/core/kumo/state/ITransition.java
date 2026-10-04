@@ -2,8 +2,6 @@ package goblinbob.mobends.core.kumo.state;
 
 import goblinbob.mobends.core.kumo.state.template.ConnectionTemplate;
 
-import javax.annotation.Nullable;
-import java.util.Map;
 
 /** What moves a layer: a connection, or a selector branch that leads somewhere else. */
 public interface ITransition
@@ -17,8 +15,7 @@ public interface ITransition
 
     ConnectionTemplate.Easing getEasing();
 
-    /** Layer variables it assigns when it moves the layer; may be null. */
-    @Nullable
-    Map<String, Float> getSet();
+    /** Layer variables it assigns when it moves the layer. */
+    VariableTable.Assignments getSet();
 
 }

@@ -16,10 +16,10 @@ public class ConnectionState implements ITransition
     public final ITriggerCondition triggerCondition;
     public final float transitionDuration;
     public final ConnectionTemplate.Easing transitionEasing;
-    /** Layer variables assigned when the connection fires; may be null. */
-    public final Map<String, Float> set;
+    /** Layer variables assigned when the connection fires. */
+    public final VariableTable.Assignments set;
 
-    public ConnectionState(MachineMember target, ITriggerCondition triggerCondition, float transitionDuration, ConnectionTemplate.Easing transitionEasing, Map<String, Float> set)
+    public ConnectionState(MachineMember target, ITriggerCondition triggerCondition, float transitionDuration, ConnectionTemplate.Easing transitionEasing, VariableTable.Assignments set)
     {
         this.target = target;
         this.triggerCondition = triggerCondition;
@@ -49,7 +49,7 @@ public class ConnectionState implements ITransition
                 TriggerConditionRegistry.INSTANCE.createFromTemplate(template.triggerCondition, scope),
                 template.transitionDuration,
                 template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing,
-                template.set);
+                scope.getVariables().layerAssignments(template.set));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ConnectionState implements ITransition
     }
 
     @Override
-    public Map<String, Float> getSet()
+    public VariableTable.Assignments getSet()
     {
         return set;
     }

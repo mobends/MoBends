@@ -1,68 +1,38 @@
 package goblinbob.mobends.core.kumo.state;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
- * A small named-number store: layer variables (combo counters) and node-local ramps. Scopes hold a
- * handful of names and are read and written every frame, so the values are kept unboxed and
- * looked up by a linear scan.
+ * The variables of a layer (combo counters) or a node (ramps), by their number in the animator's
+ * {@link VariableTable}. A variable exists once written, and stays for the scope's life.
  */
 public class VariableScope
 {
 
-    private final List<String> names = new ArrayList<>();
-    private double[] values = new double[4];
+    private double[] values = new double[0];
+    private boolean[] written = new boolean[0];
 
-    private int indexOf(String name)
+    public boolean has(int id)
     {
-        for (int i = 0; i < names.size(); i++)
+        return id < written.length && written[id];
+    }
+
+    /** The value, 0 if never written. */
+    public double get(int id)
+    {
+        return id < values.length ? values[id] : 0;
+    }
+
+    public void set(int id, double value)
+    {
+        if (id >= values.length)
         {
-            if (names.get(i).equals(name))
-            {
-                return i;
-            }
+            int size = Math.max(id + 1, values.length * 2);
+            values = Arrays.copyOf(values, size);
+            written = Arrays.copyOf(written, size);
         }
-        return -1;
-    }
-
-    public boolean has(String name)
-    {
-        return indexOf(name) >= 0;
-    }
-
-    public double get(String name)
-    {
-        int index = indexOf(name);
-        return index < 0 ? 0 : values[index];
-    }
-
-    public void set(String name, double value)
-    {
-        int index = indexOf(name);
-        if (index < 0)
-        {
-            index = names.size();
-            names.add(name);
-            if (index == values.length)
-            {
-                values = Arrays.copyOf(values, index * 2);
-            }
-        }
-        values[index] = value;
-    }
-
-    public void putAll(Map<String, Float> initial)
-    {
-        if (initial != null)
-        {
-            for (Map.Entry<String, Float> entry : initial.entrySet())
-            {
-                set(entry.getKey(), entry.getValue());
-            }
-        }
+        values[id] = value;
+        written[id] = true;
     }
 
 }

@@ -23,6 +23,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,10 +42,12 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     protected double motionX, motionY, motionZ;
     protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
 
-    /** Named numeric inputs exposed to KUMO animators (see {@link #registerVariable}). */
-    private final Map<String, DoubleSupplier> kumoVariables = new HashMap<>();
-    /** Named boolean inputs exposed to KUMO animators (see {@link #registerState}). */
-    private final Map<String, BooleanSupplier> kumoStates = new HashMap<>();
+    /** Named numeric inputs exposed to KUMO animators (see {@link #registerVariable}), by index. */
+    private final Map<String, Integer> kumoVariableIndices = new HashMap<>();
+    private final List<DoubleSupplier> kumoVariables = new ArrayList<>();
+    /** Named boolean inputs exposed to KUMO animators (see {@link #registerState}), by index. */
+    private final Map<String, Integer> kumoStateIndices = new HashMap<>();
+    private final List<BooleanSupplier> kumoStates = new ArrayList<>();
 
     public SmoothVector3f globalOffset;
     public SmoothVector3f localOffset;
@@ -126,14 +129,30 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         registerState("STRAFING", this::isStrafing);
     }
 
+    /** Exposes a number to animators; registering a name again replaces it. */
     protected final void registerVariable(String name, DoubleSupplier supplier)
     {
-        kumoVariables.put(name, supplier);
+        register(kumoVariableIndices, kumoVariables, name, supplier);
     }
 
+    /** Exposes a boolean to animators; registering a name again replaces it. */
     protected final void registerState(String name, BooleanSupplier supplier)
     {
-        kumoStates.put(name, supplier);
+        register(kumoStateIndices, kumoStates, name, supplier);
+    }
+
+    private static <T> void register(Map<String, Integer> indices, List<T> suppliers, String name, T supplier)
+    {
+        Integer index = indices.get(name);
+        if (index == null)
+        {
+            indices.put(name, suppliers.size());
+            suppliers.add(supplier);
+        }
+        else
+        {
+            suppliers.set(index, supplier);
+        }
     }
 
     @Override
@@ -152,25 +171,40 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     }
 
     @Override
-    public double getVariable(String name)
+    public int indexOfVariable(String name)
     {
-        DoubleSupplier supplier = kumoVariables.get(name);
-        if (supplier == null)
-        {
-            throw new IllegalArgumentException("Unknown animation variable: " + name);
-        }
-        return supplier.getAsDouble();
+        Integer index = kumoVariableIndices.get(name);
+        return index == null ? -1 : index;
     }
 
     @Override
-    public boolean getState(String name)
+    public double getVariable(int index)
     {
-        BooleanSupplier supplier = kumoStates.get(name);
-        if (supplier == null)
+        return kumoVariables.get(index).getAsDouble();
+    }
+
+    /** The current value of the variable {@code name}. */
+    public double getVariable(String name)
+    {
+        int index = indexOfVariable(name);
+        if (index < 0)
         {
-            throw new IllegalArgumentException("Unknown animation state: " + name);
+            throw new IllegalArgumentException("Unknown animation variable: " + name);
         }
-        return supplier.getAsBoolean();
+        return getVariable(index);
+    }
+
+    @Override
+    public int indexOfState(String name)
+    {
+        Integer index = kumoStateIndices.get(name);
+        return index == null ? -1 : index;
+    }
+
+    @Override
+    public boolean getState(int index)
+    {
+        return kumoStates.get(index).getAsBoolean();
     }
 
     public void initModelPose()

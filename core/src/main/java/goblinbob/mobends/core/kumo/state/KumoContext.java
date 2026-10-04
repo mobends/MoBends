@@ -85,11 +85,9 @@ public class KumoContext implements IKumoContext
     }
 
     @Override
-    public double resolveVariable(String name)
+    public double resolveVariable(VariableTable.Read read)
     {
-        if (nodeScope.has(name)) return nodeScope.get(name);
-        if (layerScope.has(name)) return layerScope.get(name);
-        return subject.getVariable(name);
+        return read.get(nodeScope, layerScope, subject);
     }
 
     @Override

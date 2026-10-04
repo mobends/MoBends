@@ -34,6 +34,7 @@ public class LayerState
     private final Skeleton skeleton;
     private final ITriggerCondition when;
     private final VariableScope variables = new VariableScope();
+    private final VariableTable.Assignments initialVariables;
 
     // Sized by allocate(), once every layer of the animator has registered its bones.
     private boolean[] allowed;
@@ -69,7 +70,8 @@ public class LayerState
         this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
         this.skeleton = skeleton;
         this.when = layerTemplate.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(layerTemplate.when, context.getExpressionScope());
-        this.variables.putAll(layerTemplate.variables);
+        this.initialVariables = context.getExpressionScope().getVariables().layerAssignments(layerTemplate.variables);
+        initialVariables.applyTo(variables);
 
         Map<String, MachineMember> membersByName = new HashMap<>();
         this.machine = new MachineState(context, skeleton, layerTemplate, layerTemplate, membersByName);
@@ -266,7 +268,7 @@ public class LayerState
     private void beginTransition(ITransition transition, IKumoContext context) throws MalformedKumoTemplateException
     {
         // Its variables first: the selectors of the machines it enters see them.
-        setVariables(transition.getSet());
+        transition.getSet().applyTo(variables);
         List<MachineState> entered = new ArrayList<>();
         MachineMember target = descend(transition.getTarget(), context, entered);
 
@@ -331,19 +333,8 @@ public class LayerState
         {
             return machine.defaultOnEntry;
         }
-        setVariables(branch.getSet());
+        branch.getSet().applyTo(variables);
         return branch.getTarget();
-    }
-
-    private void setVariables(Map<String, Float> set)
-    {
-        if (set != null)
-        {
-            for (Map.Entry<String, Float> entry : set.entrySet())
-            {
-                variables.set(entry.getKey(), entry.getValue());
-            }
-        }
     }
 
     /** Makes {@code node} the current node, with the machines around it as the path. */

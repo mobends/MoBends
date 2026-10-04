@@ -19,7 +19,8 @@ import goblinbob.mobends.core.kumo.state.template.pose.RampTemplate;
 public class RampDriver implements IPoseItem
 {
 
-    private final String name;
+    /** The node variable it writes. */
+    private final int variable;
     private final float upSpeed;
     private final float downSpeed;
     private final ITriggerCondition when;
@@ -27,9 +28,9 @@ public class RampDriver implements IPoseItem
     private final float initial;
     private float value;
 
-    public RampDriver(String name, float upSpeed, float downSpeed, ITriggerCondition when, boolean readBeforeAdvance, float initial)
+    public RampDriver(int variable, float upSpeed, float downSpeed, ITriggerCondition when, boolean readBeforeAdvance, float initial)
     {
-        this.name = name;
+        this.variable = variable;
         this.upSpeed = upSpeed;
         this.downSpeed = downSpeed;
         this.when = when;
@@ -44,7 +45,7 @@ public class RampDriver implements IPoseItem
             throw new MalformedKumoTemplateException("core:ramp needs a 'name'.");
         }
         ITriggerCondition when = template.when == null ? null : TriggerConditionRegistry.INSTANCE.createFromTemplate(template.when, context.getExpressionScope());
-        return new RampDriver(template.name, template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when, template.readBeforeAdvance, template.initial);
+        return new RampDriver(context.getExpressionScope().getVariables().nodeVariable(template.name), template.speed, template.downSpeed == null ? template.speed : template.downSpeed, when, template.readBeforeAdvance, template.initial);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class RampDriver implements IPoseItem
         // they read the value from before this frame's step.
         if (readBeforeAdvance)
         {
-            context.getNodeScope().set(name, value);
+            context.getNodeScope().set(variable, value);
         }
         boolean up = when == null || when.isConditionMet(context);
         float dt = context.getDeltaTime();
@@ -68,7 +69,7 @@ public class RampDriver implements IPoseItem
         }
         if (!readBeforeAdvance)
         {
-            context.getNodeScope().set(name, value);
+            context.getNodeScope().set(variable, value);
         }
     }
 
@@ -80,7 +81,7 @@ public class RampDriver implements IPoseItem
             when.onNodeStarted(context);
         }
         value = initial;
-        context.getNodeScope().set(name, initial);
+        context.getNodeScope().set(variable, initial);
     }
 
     @Override

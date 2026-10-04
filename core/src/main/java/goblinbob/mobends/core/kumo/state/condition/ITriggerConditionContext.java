@@ -3,6 +3,7 @@ package goblinbob.mobends.core.kumo.state.condition;
 import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.state.LayerState;
 import goblinbob.mobends.core.kumo.state.INodeState;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 
 public interface ITriggerConditionContext
 {
@@ -29,9 +30,9 @@ public interface ITriggerConditionContext
     boolean isActionActive(String tag);
 
     /**
-     * Resolves a variable through the scopes: node-local (ramps), layer variables, then the
-     * subject. Throws if none has it.
+     * Resolves a variable through the scopes: node-local (ramps) once written, layer variables
+     * once written, then the subject.
      */
-    double resolveVariable(String name);
+    double resolveVariable(VariableTable.Read read);
 
 }

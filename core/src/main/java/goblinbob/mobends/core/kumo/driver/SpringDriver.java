@@ -16,7 +16,8 @@ public class SpringDriver implements IPoseItem
     /** The integration step, in ticks: small enough to stay stable for any stiffness an animator would use. */
     private static final float MAX_STEP = 0.25F;
 
-    private final String name;
+    /** The node variable it writes. */
+    private final int variable;
     private final Expression target;
     private final float stiffness;
     private final float friction;
@@ -24,9 +25,9 @@ public class SpringDriver implements IPoseItem
     private float value;
     private float velocity;
 
-    public SpringDriver(String name, Expression target, float stiffness, float friction, float initial)
+    public SpringDriver(int variable, Expression target, float stiffness, float friction, float initial)
     {
-        this.name = name;
+        this.variable = variable;
         this.target = target;
         this.stiffness = stiffness;
         this.friction = friction;
@@ -43,7 +44,7 @@ public class SpringDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:spring's 'stiffness' and 'friction' can't be negative.");
         }
-        return new SpringDriver(template.name, Expression.compile(template.target, context.getExpressionScope(), null),
+        return new SpringDriver(context.getExpressionScope().getVariables().nodeVariable(template.name), Expression.compile(template.target, context.getExpressionScope(), null),
                 template.stiffness, template.friction, template.initial);
     }
 
@@ -60,7 +61,7 @@ public class SpringDriver implements IPoseItem
             value += velocity * dt;
             remaining -= dt;
         }
-        context.getNodeScope().set(name, value);
+        context.getNodeScope().set(variable, value);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class SpringDriver implements IPoseItem
     {
         value = initial;
         velocity = 0;
-        context.getNodeScope().set(name, initial);
+        context.getNodeScope().set(variable, initial);
     }
 
     @Override

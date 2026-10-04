@@ -75,13 +75,16 @@ public class SmoothingTest
         VariableScope scope = new VariableScope();
         for (int i = 0; i < 10; i++)
         {
-            scope.set("v" + i, i);
+            scope.set(i, i);
         }
-        scope.set("v3", 30);
-        assertEquals(30, scope.get("v3"), 0);
-        assertEquals(9, scope.get("v9"), 0);
-        assertFalse(scope.has("missing"));
-        assertEquals(0, scope.get("missing"), 0);
+        scope.set(3, 30);
+        assertEquals(30, scope.get(3), 0);
+        assertEquals(9, scope.get(9), 0);
+        assertFalse(scope.has(12));
+        assertEquals(0, scope.get(12), 0);
+        scope.set(20, 5);
+        assertTrue(scope.has(20));
+        assertFalse("growing doesn't write the variables in between", scope.has(15));
     }
 
 }

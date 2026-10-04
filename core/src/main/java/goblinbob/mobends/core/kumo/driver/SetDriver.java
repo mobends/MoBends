@@ -7,6 +7,7 @@ import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.VariableScope;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.SetTemplate;
 
@@ -17,11 +18,12 @@ import goblinbob.mobends.core.kumo.state.template.pose.SetTemplate;
 public class SetDriver implements IPoseItem
 {
 
-    private final String variable;
+    /** The number of the variable it writes, in the node's or the layer's scope. */
+    private final int variable;
     private final Expression value;
     private final boolean nodeScope;
 
-    public SetDriver(String variable, Expression value, boolean nodeScope)
+    public SetDriver(int variable, Expression value, boolean nodeScope)
     {
         this.variable = variable;
         this.value = value;
@@ -47,7 +49,9 @@ public class SetDriver implements IPoseItem
         {
             throw new MalformedKumoTemplateException("core:set has an unknown 'scope' '" + template.scope + "' (expected \"layer\" or \"node\").");
         }
-        return new SetDriver(template.variable, Expression.compile(template.value, context.getExpressionScope(), null), nodeScope);
+        VariableTable variables = context.getExpressionScope().getVariables();
+        int variable = nodeScope ? variables.nodeVariable(template.variable) : variables.layerVariable(template.variable);
+        return new SetDriver(variable, Expression.compile(template.value, context.getExpressionScope(), null), nodeScope);
     }
 
     @Override

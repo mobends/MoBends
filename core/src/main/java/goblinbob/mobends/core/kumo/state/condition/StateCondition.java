@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.kumo.state.condition;
 
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 
@@ -13,22 +15,22 @@ import goblinbob.mobends.core.kumo.state.template.TriggerConditionTemplate;
 public class StateCondition implements ITriggerCondition
 {
 
-    private final String state;
+    private final VariableTable.State state;
 
-    public StateCondition(Template template) throws MalformedKumoTemplateException
+    public StateCondition(Template template, ExpressionScope scope) throws MalformedKumoTemplateException
     {
         if (template.state == null)
         {
             throw new MalformedKumoTemplateException("No 'state' property given for trigger condition.");
         }
 
-        this.state = template.state;
+        this.state = scope.getVariables().state(template.state);
     }
 
     @Override
     public boolean isConditionMet(ITriggerConditionContext context)
     {
-        return context.getSubject().getState(state);
+        return state.get(context.getSubject());
     }
 
     public static class Template extends TriggerConditionTemplate
