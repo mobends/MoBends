@@ -1,11 +1,15 @@
 package goblinbob.mobends.standard.client.renderer.entity;
 
+import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
+import goblinbob.mobends.core.data.EntityComponent;
+import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.util.IColorRead;
-import goblinbob.mobends.standard.data.BipedEntityData;
+import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
@@ -17,7 +21,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.function.Supplier;
 
-public class SwordTrail
+/**
+ * {@code mobends:sword_trail}: the streak a swung sword leaves, fed by the {@code mobends:sword_trail}
+ * driver and drawn in the entity's frame.
+ */
+public class SwordTrail implements EntityComponent
 {
     protected final Supplier<IColorRead> baseColor;
     protected LinkedList<TrailPart> trailPartList = new LinkedList<>();
@@ -148,25 +156,36 @@ public class SwordTrail
         GlStateManager.enableLighting();
     }
 
-    public void add(BipedEntityData<?> entityData, float velocityX, float velocityY, float velocityZ)
+    /**
+     * Notes the arm holding the main hand's item where it is now ({@code body}, then
+     * {@code rightArm}, {@code rightForeArm} and {@code rightHeldItem}, or the left ones), moving
+     * by the velocity as it fades. An entity without those parts leaves no trail.
+     */
+    public void add(LivingEntityData<?> entityData, float velocityX, float velocityY, float velocityZ)
     {
         final EntityLivingBase entity = entityData.getEntity();
         final EnumHandSide primaryHand = entity.getPrimaryHand();
-        final TrailPart newPart = new TrailPart(primaryHand, this.baseColor.get(), velocityX, velocityY, velocityZ);
-
-        newPart.body.syncUp(entityData.body);
-
-        if (primaryHand == EnumHandSide.RIGHT)
+        final String side = primaryHand == EnumHandSide.RIGHT ? "right" : "left";
+        final Object body = entityData.getPartForName("body");
+        final Object arm = entityData.getPartForName(side + "Arm");
+        final Object foreArm = entityData.getPartForName(side + "ForeArm");
+        final Object item = entityData.getPartForName(side + "HeldItem");
+        if (!(body instanceof IModelPart) || !(arm instanceof IModelPart) || !(foreArm instanceof IModelPart))
         {
-            newPart.arm.syncUp(entityData.rightArm);
-            newPart.foreArm.syncUp(entityData.rightForeArm);
-            newPart.itemRotation.set(entityData.rightHeldItem.getSmooth());
+            return;
+        }
+
+        final TrailPart newPart = new TrailPart(primaryHand, this.baseColor.get(), velocityX, velocityY, velocityZ);
+        newPart.body.syncUp((IModelPart) body);
+        newPart.arm.syncUp((IModelPart) arm);
+        newPart.foreArm.syncUp((IModelPart) foreArm);
+        if (item instanceof SmoothOrientation)
+        {
+            newPart.itemRotation.set(((SmoothOrientation) item).getSmooth());
         }
         else
         {
-            newPart.arm.syncUp(entityData.leftArm);
-            newPart.foreArm.syncUp(entityData.leftForeArm);
-            newPart.itemRotation.set(entityData.leftHeldItem.getSmooth());
+            newPart.itemRotation.setIdentity();
         }
 
         newPart.renderOffset.set(entityData.globalOffset.getX(),
@@ -178,11 +197,26 @@ public class SwordTrail
         trailPartList.add(newPart);
     }
 
-    public void add(BipedEntityData<?> entityData)
+    public void add(LivingEntityData<?> entityData)
     {
         add(entityData, 0, 0, 0);
     }
 
+    @Override
+    public void renderLocal(float scale)
+    {
+        if (!ModConfig.showSwordTrail)
+        {
+            return;
+        }
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(scale, scale, scale);
+        render();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.popMatrix();
+    }
+
+    @Override
 	public void update(float ticksPerFrame)
     {
     	final Iterator<TrailPart> it = trailPartList.iterator();

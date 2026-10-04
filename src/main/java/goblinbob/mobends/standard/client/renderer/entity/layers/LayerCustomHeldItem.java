@@ -4,7 +4,6 @@ import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.util.GlHelper;
-import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
@@ -80,13 +79,12 @@ public class LayerCustomHeldItem implements LayerRenderer<EntityLivingBase>
     	((ModelBiped)this.livingEntityRenderer.getMainModel()).postRenderArm(0.0625F, handSide);
     	
     	EntityData<?> entityData = EntityDatabase.instance.get(entity);
-    	if (entityData instanceof BipedEntityData)
+    	// How the item turns in the hand: the entity's rightHeldItem or leftHeldItem, if it has one.
+    	Object itemRotation = entityData == null ? null : entityData.getPartForName(handSide == EnumHandSide.RIGHT ? "rightHeldItem" : "leftHeldItem");
+    	if (itemRotation instanceof SmoothOrientation)
     	{
-    		BipedEntityData<?> bipedData = (BipedEntityData<?>) entityData;
-    		SmoothOrientation itemRotation = handSide == EnumHandSide.RIGHT ? bipedData.rightHeldItem : bipedData.leftHeldItem;
-    		
     		GlStateManager.translate(0, 8F * 0.0625F, 0);
-    		GlHelper.rotate(itemRotation.getSmooth());
+    		GlHelper.rotate(((SmoothOrientation) itemRotation).getSmooth());
             GlStateManager.translate(0, -8F * 0.0625F, 0);
     	}
     }

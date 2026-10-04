@@ -7,12 +7,14 @@ import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
-import goblinbob.mobends.standard.data.BipedEntityData;
+import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 
 /**
  * {@code {"mobends:sword_trail": {...}}}: feeds the sword trail effect with the current arm
  * pose every frame the item is evaluated (gate it with {@code when}), optionally with a
- * velocity offset, and can clear the trail when its node is entered. Writes no bones.
+ * velocity offset, and can clear the trail when its node is entered. Writes no bones; feeds the
+ * entity's {@code swordTrail} component, if it has one.
  */
 public class SwordTrailDriver implements IPoseItem
 {
@@ -39,22 +41,34 @@ public class SwordTrailDriver implements IPoseItem
         return new SwordTrailDriver(template.velocity, template.add, template.resetOnEnter, template.resetEachFrame);
     }
 
-    private static BipedEntityData<?> biped(IKumoContext context)
+    /** The entity's data, if it has a sword trail (its {@code swordTrail} component). */
+    private static LivingEntityData<?> data(IKumoContext context)
     {
-        return context.getSubject() instanceof BipedEntityData ? (BipedEntityData<?>) context.getSubject() : null;
+        if (!(context.getSubject() instanceof LivingEntityData))
+        {
+            return null;
+        }
+        LivingEntityData<?> data = (LivingEntityData<?>) context.getSubject();
+        return trail(data) == null ? null : data;
+    }
+
+    private static SwordTrail trail(LivingEntityData<?> data)
+    {
+        return data.getComponent("swordTrail", SwordTrail.class);
     }
 
     @Override
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
-        BipedEntityData<?> data = biped(context);
-        if (data == null || data.swordTrail == null)
+        LivingEntityData<?> data = data(context);
+        if (data == null)
         {
             return;
         }
+        SwordTrail swordTrail = trail(data);
         if (resetEachFrame)
         {
-            data.swordTrail.reset();
+            swordTrail.reset();
         }
         if (!add)
         {
@@ -62,21 +76,21 @@ public class SwordTrailDriver implements IPoseItem
         }
         if (velocity != null)
         {
-            data.swordTrail.add(data, velocity[0], velocity[1], velocity[2]);
+            swordTrail.add(data, velocity[0], velocity[1], velocity[2]);
         }
         else
         {
-            data.swordTrail.add(data);
+            swordTrail.add(data);
         }
     }
 
     @Override
     public void onNodeStarted(IKumoContext context)
     {
-        BipedEntityData<?> data = biped(context);
-        if (resetOnEnter && data != null && data.swordTrail != null)
+        LivingEntityData<?> data = data(context);
+        if (resetOnEnter && data != null)
         {
-            data.swordTrail.reset();
+            trail(data).reset();
         }
     }
 

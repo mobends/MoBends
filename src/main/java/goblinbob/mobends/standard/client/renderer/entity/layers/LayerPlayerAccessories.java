@@ -6,7 +6,7 @@ import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.supporters.*;
 import goblinbob.mobends.core.util.BenderHelper;
 import goblinbob.mobends.core.util.Color;
-import goblinbob.mobends.standard.data.PlayerData;
+import goblinbob.mobends.core.data.LivingEntityData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -27,13 +27,13 @@ import java.util.Set;
 
 public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlayer>
 {
-    private final RenderLivingBase<? extends AbstractClientPlayer> renderPlayer;
+    private final RenderLivingBase<?> renderPlayer;
     private final RenderItem itemRenderer;
     private final ModelManager modelManager;
     private final TextureManager textureManager;
     private final ItemStack emptyItemStack = new ItemStack(Items.AIR);
 
-    public LayerPlayerAccessories(RenderLivingBase<? extends AbstractClientPlayer> renderPlayer)
+    public LayerPlayerAccessories(RenderLivingBase<?> renderPlayer)
     {
         Minecraft mc = Minecraft.getMinecraft();
         this.renderPlayer = renderPlayer;
@@ -47,8 +47,11 @@ public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlaye
     {
         Set<Map.Entry<String, AccessoryDetails>> accessories = SupporterContent.getAccessories();
 
-        final PlayerData data = BenderHelper.getData(player, renderPlayer);
-        assert data != null;
+        final LivingEntityData<?> data = BenderHelper.getData(player, renderPlayer);
+        if (data == null)
+        {
+            return;
+        }
 
         Map<String, AccessorySettings> settingsMap = SupporterContent.getAccessorySettingsMapFor(player);
 
@@ -59,7 +62,7 @@ public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlaye
         }
     }
 
-    private void renderAccessory(AbstractClientPlayer player, PlayerData data, AccessoryDetails accessory, AccessorySettings settings, float scale)
+    private void renderAccessory(AbstractClientPlayer player, LivingEntityData<?> data, AccessoryDetails accessory, AccessorySettings settings, float scale)
     {
         if (!settings.isUnlocked() || settings.isHidden())
         {
@@ -72,7 +75,7 @@ public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlaye
         }
     }
 
-    private void renderPart(AbstractClientPlayer player, PlayerData data, AccessoryPart part, AccessorySettings settings, float scale)
+    private void renderPart(AbstractClientPlayer player, LivingEntityData<?> data, AccessoryPart part, AccessorySettings settings, float scale)
     {
         SimpleBakedModel simpleBakedModel = AssetModels.INSTANCE.getModel(part.getModelPath());
 
@@ -137,7 +140,7 @@ public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlaye
         tessellator.draw();
     }
 
-    private void applyBindPointTransform(PlayerData data, BindPoint bindPoint, float scale)
+    private void applyBindPointTransform(LivingEntityData<?> data, BindPoint bindPoint, float scale)
     {
         IModelPart modelPart = bindPoint.partOf(data);
 

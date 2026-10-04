@@ -204,6 +204,25 @@ registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args)
 
 `core:spring` and `core:step_turn` are written this way (`SpringDriver`, `StepTurnDriver`).
 
+## Components and Layers for Model Definitions
+
+What a model definition can switch on besides bones is registered the same way:
+
+* **Components** (`registerComponent`) are what an entity's data carries besides its bones: the
+  sword trail (`mobends:sword_trail`), how a held item turns in the hand (`core:orientation`),
+  the cape's ripple (`mobends:cape_wave`). A definition names them (`"components":
+  {"swordTrail": "mobends:sword_trail"}`); the layers and drivers that use one look it up by that
+  name (`EntityData.getComponent`), whatever class the data is. A component is updated with the
+  parts, may draw in the entity's frame (`renderLocal`, the sword trail), and an
+  `OrientationComponent` is a bone animators pose. The Java bipeds register theirs under the same
+  names.
+* **Layers** (`registerLayer`) replace a vanilla layer class on the renderer (vanilla's armour,
+  held-item and head layers draw their own unanimated copy of the model) or are added after the
+  renderer's own (the supporter accessories). The factory gets the definition's options for the
+  layer and finds bones by name. Mo' Bends' layers read bones by name too: armour follows
+  `body`, `head`, the arms and legs and their fore segments; the held item `rightHeldItem` /
+  `leftHeldItem`; the cape `body` and `cape`; the elytra `body`.
+
 Registration closes when the first animator loads (`KumoRegistry.close()`): what an animator was
 compiled against can't change under it. An addon registered before the client core exists has its
 content registered as soon as it does.

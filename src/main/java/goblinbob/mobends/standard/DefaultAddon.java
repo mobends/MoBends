@@ -2,8 +2,15 @@ package goblinbob.mobends.standard;
 
 import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.addon.IAddon;
+import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
+import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomBipedArmor;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomCape;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomElytra;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomHeldItem;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerPlayerAccessories;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.*;
 import goblinbob.mobends.standard.data.*;
 import goblinbob.mobends.standard.kumo.CapeDriver;
@@ -15,6 +22,12 @@ import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate;
 import goblinbob.mobends.standard.main.ModConfig;
 import goblinbob.mobends.standard.mutators.*;
+import net.minecraft.client.renderer.entity.RenderPlayer;
+import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
+import net.minecraft.client.renderer.entity.layers.LayerCape;
+import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
+import net.minecraft.client.renderer.entity.layers.LayerElytra;
+import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
@@ -51,6 +64,17 @@ public class DefaultAddon implements IAddon
 		registry.registerDriver("spider_idle_legs", SpiderIdleLegsDriver::create, SpiderIdleLegsTemplate.class);
 		registry.registerDriver("spider_moving_legs", SpiderMovingLegsDriver::create, SpiderMovingLegsTemplate.class);
 		MoBendsOperations.register();
+
+		// What model definitions can switch on (their "components" and "layers").
+		registry.registerComponent("sword_trail", data -> new SwordTrail(() -> SupporterContent.getTrailColorFor(data.getEntity())));
+		registry.registerComponent("cape_wave", data -> new CapeWave(data.getEntity()));
+		registry.registerLayer("armor", LayerBipedArmor.class, (renderer, options, bones) -> new LayerCustomBipedArmor(renderer));
+		registry.registerLayer("held_item", LayerHeldItem.class, (renderer, options, bones) -> new LayerCustomHeldItem(renderer));
+		registry.registerLayer("custom_head", LayerCustomHead.class, (renderer, options, bones) -> new LayerCustomHead(bones.apply(
+				options.has("bone") ? options.get("bone").getAsString() : "head")));
+		registry.registerLayer("cape", LayerCape.class, (renderer, options, bones) -> new LayerCustomCape((RenderPlayer) renderer));
+		registry.registerLayer("elytra", LayerElytra.class, (renderer, options, bones) -> new LayerCustomElytra((RenderPlayer) renderer));
+		registry.registerLayer("accessories", null, (renderer, options, bones) -> new LayerPlayerAccessories(renderer));
 	}
 
 	@Override

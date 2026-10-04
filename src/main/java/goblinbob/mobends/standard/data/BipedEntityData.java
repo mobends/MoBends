@@ -2,7 +2,7 @@ package goblinbob.mobends.standard.data;
 
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.core.math.SmoothOrientation;
+import goblinbob.mobends.core.data.OrientationComponent;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.UseActionType;
@@ -29,8 +29,8 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
     public ModelPartTransform rightForeLeg;
     public ModelPartTransform leftForeLeg;
 	
-    public SmoothOrientation rightHeldItem;
-    public SmoothOrientation leftHeldItem;
+    public OrientationComponent rightHeldItem;
+    public OrientationComponent leftHeldItem;
 	
     public SwordTrail swordTrail;
     
@@ -58,10 +58,13 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		this.leftForeArm = new ModelPartTransform(this.leftArm);
 		this.rightForeLeg = new ModelPartTransform(this.rightLeg);
 		this.leftForeLeg = new ModelPartTransform(this.leftLeg);
-		this.rightHeldItem = new SmoothOrientation();
-		this.leftHeldItem = new SmoothOrientation();
+		this.rightHeldItem = new OrientationComponent();
+		this.leftHeldItem = new OrientationComponent();
 		
 		this.swordTrail = new SwordTrail(() -> SupporterContent.getTrailColorFor(this.entity));
+		addComponent("rightHeldItem", rightHeldItem);
+		addComponent("leftHeldItem", leftHeldItem);
+		addComponent("swordTrail", swordTrail);
 		
 		this.nameToPartMap.put("body", body);
 		this.nameToPartMap.put("head", head);
@@ -73,8 +76,6 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
         this.nameToPartMap.put("rightForeArm", rightForeArm);
         this.nameToPartMap.put("leftForeLeg", leftForeLeg);
         this.nameToPartMap.put("rightForeLeg", rightForeLeg);
-        this.nameToPartMap.put("rightHeldItem", rightHeldItem);
-        this.nameToPartMap.put("leftHeldItem", leftHeldItem);
 		
 		this.body.position.set(0F, 12F, 0F);
 		this.head.position.set(0F, -12F, 0F);
@@ -103,11 +104,6 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 		this.leftForeArm.update(ticksPerFrame);
 		this.rightForeLeg.update(ticksPerFrame);
 		this.leftForeLeg.update(ticksPerFrame);
-		
-		this.rightHeldItem.update(ticksPerFrame);
-		this.leftHeldItem.update(ticksPerFrame);
-		
-		this.swordTrail.update(ticksPerFrame);
 	}
 	
 	@Override

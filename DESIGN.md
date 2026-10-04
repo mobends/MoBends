@@ -382,16 +382,10 @@ Registration:
   built-in type, and types or extensions without a `model` can't reach them. Needed: a way for a
   definition or type file to be the default for its entity class, under the built-in id.
 
-Data that code casts to:
-
-- `BipedEntityData`: the held-item and armour layers, `ArmorWrapper`, the sword trail driver and
-  renderer;
-- `PlayerData`: the cape driver and layer, elytra, the supporter accessories layer;
-- `SpiderData`: the spider leg drivers; `WolfData`: `LayerWolfMisc`.
-
-Needed: these read bones by name (as `BindPoint` already does) and per-entity parts as components
-a definition switches on (sword trail, cape, item orientations `rightHeldItem` /
-`leftHeldItem`). With every cast gone, one generic data class serves every entity (*Per-entity
+Data that code casts to: the biped's and the player's are gone (done: layers and drivers read
+bones by name, and the sword trail, held-item orientations and cape ripple are components, see
+`docs/animation.md`). Left: `SpiderData` (the spider leg drivers) and `WolfData`
+(`LayerWolfMisc`). With every cast gone, one generic data class serves every entity (*Per-entity
 data*).
 
 State and logic (the player's states, counters, sprint-jump leg, cape phase, swing filter and
@@ -400,11 +394,8 @@ definitions, built-ins and operations cover; the zombie's needs `entityId` and a
 
 Rendering, where definitions fall short:
 
-- **Layers.** `DefinedMutator.swapLayer` does nothing (`DefinedMutator.java:169-172`), so a
-  defined mob keeps vanilla's armour, held-item and head layers, which draw their own unanimated
-  model copies (the sheep's wool and the charged creeper's armour are the same problem). The
-  player also needs the cape, elytra and accessories layers. Needed: a `layers` section mapping
-  vanilla layers to animated replacements, and an armour wrapper that finds parts by bone name.
+- **Layers** (done for the player's: a definition's `layers` section). The sheep's wool and the
+  charged creeper's armour still draw their own unanimated copies: they need layers of their own.
 - **Stand-ins for parented bones.** A bone with a `parent` leaves an invisible stand-in in the
   vanilla field (`DefinedMutator.java:265-286`). Vanilla code that goes through the field then
   hits the stand-in: held items are placed at the origin (`postRenderArm`), the first-person hand

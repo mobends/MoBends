@@ -1,6 +1,5 @@
 package goblinbob.mobends.standard.client.renderer.entity;
 
-import goblinbob.mobends.standard.data.PlayerData;
 import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
@@ -36,9 +35,9 @@ public class BendsCapeRenderer
         this.slabs[0].rotationPointY = 0;
     }
 
-    public void applyAnimation(PlayerData playerData)
+    /** Ripples the cape at {@code phase} (see {@link goblinbob.mobends.standard.data.CapeWave}). */
+    public void applyAnimation(double phase)
     {
-    	double phase = playerData.getCapeWavePhase();
 
         for (int i = 0; i < SLAB_AMOUNT; i++)
         {

@@ -1,6 +1,5 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import net.minecraft.util.math.MathHelper;
 import goblinbob.mobends.core.ModStatics;
@@ -17,7 +16,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 {
 	protected boolean sprintJumpLeg = false;
 	protected boolean sprintJumpLegSwitched = false;
-	protected float capeWavePhase = 0;
 
 	public ModelPartTransform cape;
 
@@ -32,11 +30,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 	protected ResourceLocation getDefaultAnimator()
 	{
 		return ANIMATOR;
-	}
-
-	public float getCapeWavePhase()
-	{
-		return capeWavePhase;
 	}
 
 	@Override
@@ -68,6 +61,7 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 		
 		Render<AbstractClientPlayer> render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(this.entity);
 
+		addComponent("capeWave", new CapeWave(entity));
 		cape = new ModelPartTransform(body);
 		nameToPartMap.put("cape", cape);
 		cape.position.set(0F, 0F, 0F);
@@ -102,12 +96,6 @@ public class PlayerData extends BipedEntityData<AbstractClientPlayer>
 			sprintJumpLeg = !sprintJumpLeg;
 			sprintJumpLegSwitched = true;
 		}
-
-		// The cape ripples faster while flying fast.
-		final float capeWaveSpeed = isFlying() && entity.isSprinting() ? 4.0F : 1.0F;
-		this.capeWavePhase += capeWaveSpeed * DataUpdateHandler.ticksPerFrame;
-		if (this.capeWavePhase > 380.0F)
-			this.capeWavePhase -= 380.0F;
 	}
 
 	@Override

@@ -2,15 +2,16 @@ package goblinbob.mobends.standard.client.model.armor;
 
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
+import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
-import goblinbob.mobends.standard.data.BipedEntityData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,18 +70,18 @@ public class ArmorWrapper extends ModelBiped
 
         // Mutating by default, but not applying yet.
         this.partWrappers = new ArrayList<>();
-        this.bodyParts = registerWrapper(original, bipedBody, bodySetter, data -> data.body).offsetInner(0, -12.0F, 0);
-        this.headParts = registerWrapper(original, bipedHead, headSetter, data -> data.head)
+        this.bodyParts = registerWrapper(original, bipedBody, bodySetter, part("body")).offsetInner(0, -12.0F, 0);
+        this.headParts = registerWrapper(original, bipedHead, headSetter, part("head"))
             .setParent(this.bodyTransform);
-        this.headwearParts = registerWrapper(original, bipedHeadwear, headwearSetter, data -> data.head)
+        this.headwearParts = registerWrapper(original, bipedHeadwear, headwearSetter, part("head"))
             .setParent(this.bodyTransform);
-        this.leftArmParts  = registerWrapper(original, bipedLeftArm,  leftArmSetter,  data -> data.leftArm,  data -> data.leftForeArm, 4.0F, 0.001F)
+        this.leftArmParts  = registerWrapper(original, bipedLeftArm,  leftArmSetter,  part("leftArm"), part("leftForeArm"), 4.0F, 0.001F)
             .offsetLower(0, -4.0F, -2.0F).setParent(this.bodyTransform);
-        this.rightArmParts = registerWrapper(original, bipedRightArm, rightArmSetter, data -> data.rightArm, data -> data.rightForeArm, 4.0F, 0.001F)
+        this.rightArmParts = registerWrapper(original, bipedRightArm, rightArmSetter, part("rightArm"), part("rightForeArm"), 4.0F, 0.001F)
             .offsetLower(0, -4.0F, -2.0F).setParent(this.bodyTransform);
-        this.leftLegParts  = registerWrapper(original, bipedLeftLeg,  leftLegSetter,  data -> data.leftLeg,  data -> data.leftForeLeg, 6.0F, 0F)
+        this.leftLegParts  = registerWrapper(original, bipedLeftLeg,  leftLegSetter,  part("leftLeg"), part("leftForeLeg"), 6.0F, 0F)
             .offsetLower(1.9F, -6.0F, 2.0F).offsetInner(1.9F, 0, 0);
-        this.rightLegParts = registerWrapper(original, bipedRightLeg, rightLegSetter, data -> data.rightLeg, data -> data.rightForeLeg, 6.0F, 0F)
+        this.rightLegParts = registerWrapper(original, bipedRightLeg, rightLegSetter, part("rightLeg"), part("rightForeLeg"), 6.0F, 0F)
             .offsetLower(-1.9F, -6.0F, 2.0F).offsetInner(-1.9F, 0, 0);
     }
 
@@ -116,14 +117,12 @@ public class ArmorWrapper extends ModelBiped
             return;
 
         EntityData<?> entityData = EntityDatabase.instance.get(entityLiving);
-        if (!(entityData instanceof BipedEntityData))
+        if (!fits(entityData))
             return;
 
-        final BipedEntityData<?> dataBiped = (BipedEntityData<?>) entityData;
-
         // Syncing up the model with animated data.
-        this.bodyTransform.syncUp(dataBiped.body);
-        this.partWrappers.forEach(group -> group.syncUp(dataBiped));
+        this.bodyTransform.syncUp((IModelPart) entityData.getPartForName("body"));
+        this.partWrappers.forEach(group -> group.syncUp(entityData));
 
         this.apply();
 
@@ -176,6 +175,31 @@ public class ArmorWrapper extends ModelBiped
         }
 
         this.applied = false;
+    }
+
+    /** The bones the wrapper follows, by name: a biped's, as {@code BipedEntityData} and the player's model definition name them. */
+    private static final String[] BONES = { "body", "head", "leftArm", "leftForeArm", "rightArm", "rightForeArm", "leftLeg", "leftForeLeg", "rightLeg", "rightForeLeg" };
+
+    /** Whether armour can follow the entity's animation: its data has every bone the wrapper follows. */
+    public static boolean fits(@Nullable EntityData<?> data)
+    {
+        if (data == null)
+        {
+            return false;
+        }
+        for (String bone : BONES)
+        {
+            if (!(data.getPartForName(bone) instanceof IModelPart))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static IPartWrapper.DataPartSelector part(String name)
+    {
+        return data -> (IModelPart) data.getPartForName(name);
     }
 
     public static ArmorWrapper createFor(ModelBiped src)

@@ -25,8 +25,10 @@ import net.minecraft.util.math.Vec3d;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -42,6 +44,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     protected double prevMotionX, prevMotionY, prevMotionZ;
     protected double motionX, motionY, motionZ;
     protected final HashMap<String, Object> nameToPartMap = new HashMap<>();
+    /** What the data carries besides its bones, by name (see {@link EntityComponent}). */
+    private final Map<String, EntityComponent> components = new LinkedHashMap<>();
 
     /** Named numeric inputs exposed to KUMO animators (see {@link #registerVariable}), by index. */
     private final Map<String, Integer> kumoVariableIndices = new HashMap<>();
@@ -223,6 +227,33 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         this.localOffset.update(ticksPerFrame);
         this.renderRotation.update(ticksPerFrame);
         this.centerRotation.update(ticksPerFrame);
+        for (EntityComponent component : components.values())
+        {
+            component.update(ticksPerFrame);
+        }
+    }
+
+    /**
+     * Gives the data a component under {@code name}, updated with the parts. Animators can pose it
+     * by that name if it is something a bone can be (an {@link OrientationComponent}).
+     */
+    protected final void addComponent(String name, EntityComponent component)
+    {
+        components.put(name, component);
+        nameToPartMap.put(name, component);
+    }
+
+    /** The component named {@code name}, or null if there is none of that type. */
+    @Nullable
+    public <T> T getComponent(String name, Class<T> type)
+    {
+        EntityComponent component = components.get(name);
+        return type.isInstance(component) ? type.cast(component) : null;
+    }
+
+    public Collection<EntityComponent> getComponents()
+    {
+        return components.values();
     }
 
     public boolean calcOnGround()

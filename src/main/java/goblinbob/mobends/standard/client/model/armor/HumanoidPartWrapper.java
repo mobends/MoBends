@@ -1,7 +1,7 @@
 package goblinbob.mobends.standard.client.model.armor;
 
 import goblinbob.mobends.core.client.model.IModelPart;
-import goblinbob.mobends.standard.data.BipedEntityData;
+import goblinbob.mobends.core.data.EntityData;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 
@@ -42,7 +42,7 @@ public class HumanoidPartWrapper implements IPartWrapper
     }
 
     @Override
-    public void syncUp(BipedEntityData<?> data)
+    public void syncUp(EntityData<?> data)
     {
         partContainer.syncUp(dataPartSelector.selectPart(data));
     }

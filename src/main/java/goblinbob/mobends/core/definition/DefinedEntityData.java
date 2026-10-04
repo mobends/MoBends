@@ -1,6 +1,8 @@
 package goblinbob.mobends.core.definition;
 
+import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
+import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import net.minecraft.entity.EntityLivingBase;
@@ -72,6 +74,19 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
                 parts.put(names.get(i), part);
                 nameToPartMap.put(names.get(i), part);
                 previous = part;
+            }
+        }
+        if (definition.components != null)
+        {
+            for (Map.Entry<String, String> component : definition.components.entrySet())
+            {
+                EntityComponents.Factory factory = EntityComponents.get(component.getValue());
+                if (factory == null)
+                {
+                    Core.LOG.warning("Model definition for " + definition.entity + ": there is no component '" + component.getValue() + "' (for '" + component.getKey() + "').");
+                    continue;
+                }
+                addComponent(component.getKey(), factory.create(this));
             }
         }
     }

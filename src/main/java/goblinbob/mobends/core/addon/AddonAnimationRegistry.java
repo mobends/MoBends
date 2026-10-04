@@ -8,6 +8,8 @@ import goblinbob.mobends.core.bender.DefaultEntityBender;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.MutatedRenderer;
+import goblinbob.mobends.core.client.definition.DefinedLayers;
+import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.driver.IDriverFactory;
@@ -16,6 +18,7 @@ import goblinbob.mobends.core.mutators.IMutatorFactory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 
+import javax.annotation.Nullable;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
@@ -146,6 +149,27 @@ public class AddonAnimationRegistry
     {
         Addons.checkRegistrationOpen();
         DriverRegistry.INSTANCE.register(namespaced(key), factory, templateType);
+    }
+
+    /**
+     * Registers a component model definitions can give an entity's data, as "modid:key" (their
+     * {@code components}: {@code {"swordTrail": "mobends:sword_trail"}}).
+     */
+    public void registerComponent(String key, EntityComponents.Factory factory)
+    {
+        Addons.checkRegistrationOpen();
+        EntityComponents.register(namespaced(key), factory);
+    }
+
+    /**
+     * Registers a renderer layer model definitions can ask for, as "modid:key" (their
+     * {@code layers}). It replaces the renderer's layers of class {@code replaces}, or, with null,
+     * is added after them.
+     */
+    public void registerLayer(String key, @Nullable Class<?> replaces, DefinedLayers.Factory factory)
+    {
+        Addons.checkRegistrationOpen();
+        DefinedLayers.register(namespaced(key), replaces, factory);
     }
 
     private String namespaced(String key)

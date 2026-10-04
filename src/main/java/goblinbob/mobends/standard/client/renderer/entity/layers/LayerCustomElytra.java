@@ -1,7 +1,8 @@
 package goblinbob.mobends.standard.client.renderer.entity.layers;
 
 import goblinbob.mobends.core.util.BenderHelper;
-import goblinbob.mobends.standard.data.PlayerData;
+import goblinbob.mobends.core.client.model.IModelPart;
+import goblinbob.mobends.core.data.LivingEntityData;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelElytra;
 import net.minecraft.client.renderer.GlStateManager;
@@ -33,8 +34,12 @@ public class LayerCustomElytra implements LayerRenderer<AbstractClientPlayer>
 
     public void doRenderLayer(AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
-        final PlayerData data = BenderHelper.getData(player, renderPlayer);
-        assert data != null;
+        final LivingEntityData<?> data = BenderHelper.getData(player, renderPlayer);
+        final Object body = data == null ? null : data.getPartForName("body");
+        if (!(body instanceof IModelPart))
+        {
+            return;
+        }
 
         ItemStack itemstack = player.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
 
@@ -59,7 +64,7 @@ public class LayerCustomElytra implements LayerRenderer<AbstractClientPlayer>
 
             GlStateManager.pushMatrix();
             //GlStateManager.translate(0.0F, 0.0F, 0.225F);
-            data.body.applyCharacterTransform(0.0625F);
+            ((IModelPart) body).applyCharacterTransform(0.0625F);
             //GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
             //GlStateManager.translate(0.0F, 0.0F, 0.125F);
             GlStateManager.translate(0.0F, -12.0F * scale, 0.0F);

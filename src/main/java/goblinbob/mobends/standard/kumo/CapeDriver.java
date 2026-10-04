@@ -10,13 +10,14 @@ import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.math.Quaternion;
-import goblinbob.mobends.standard.data.PlayerData;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import goblinbob.mobends.core.data.LivingEntityData;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 
 /**
  * The player's cape ({@code {"mobends:cape": {...}}}): the vanilla chasing-position physics,
- * written as the cape's rotation. Its wave is {@link PlayerData}'s.
+ * written as the cape's rotation, for any player. Its ripple is the entity's {@code capeWave}
+ * component ({@link goblinbob.mobends.standard.data.CapeWave}).
  */
 public class CapeDriver implements IPoseItem
 {
@@ -40,12 +41,11 @@ public class CapeDriver implements IPoseItem
     @Override
     public void apply(Pose pose, IKumoContext context, float elapsedTicks) throws MalformedKumoTemplateException
     {
-        if (!(context.getSubject() instanceof PlayerData))
+        if (!(context.getSubject() instanceof LivingEntityData) || !(((LivingEntityData<?>) context.getSubject()).getEntity() instanceof EntityPlayer))
         {
             return;
         }
-        PlayerData data = (PlayerData) context.getSubject();
-        AbstractClientPlayer player = data.getEntity();
+        EntityPlayer player = (EntityPlayer) ((LivingEntityData<?>) context.getSubject()).getEntity();
 
         final double partialTicks = DataUpdateHandler.partialTicks;
         double d0 = player.prevChasingPosX + (player.chasingPosX - player.prevChasingPosX) * partialTicks - (player.prevPosX + (player.posX - player.prevPosX) * partialTicks);
@@ -72,7 +72,7 @@ public class CapeDriver implements IPoseItem
             f1 += 25.0F;
         }
 
-        if (data.isFlying() && player.isSprinting())
+        if (player.capabilities.isFlying && player.isSprinting())
         {
             // Streams straight back.
             rotation.setIdentity();

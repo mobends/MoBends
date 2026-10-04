@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client;
 
+import goblinbob.mobends.core.data.EntityComponent;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.Minecraft;
@@ -63,12 +64,15 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
     }
 
     /**
-     * Used to render accessories for that entity, e.g. Sword trails. Also used to transform the entity, like offset or
-     * rotate it.
+     * Draws what goes in the entity's frame before the model: by default its data's components
+     * (a sword trail, see {@link EntityComponent#renderLocal}).
      */
     protected void renderLocalAccessories(T entity, EntityData<?> data, float partialTicks)
     {
-        // No default behaviour
+        for (EntityComponent component : data.getComponents())
+        {
+            component.renderLocal(scale);
+        }
     }
 
     protected void transformLocally(T entity, EntityData<?> data, float partialTicks)

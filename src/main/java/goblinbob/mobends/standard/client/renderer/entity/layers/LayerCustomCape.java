@@ -2,7 +2,9 @@ package goblinbob.mobends.standard.client.renderer.entity.layers;
 
 import goblinbob.mobends.core.util.BenderHelper;
 import goblinbob.mobends.standard.client.renderer.entity.BendsCapeRenderer;
-import goblinbob.mobends.standard.data.PlayerData;
+import goblinbob.mobends.core.client.model.IModelPart;
+import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.standard.data.CapeWave;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
@@ -29,8 +31,14 @@ public class LayerCustomCape implements LayerRenderer<AbstractClientPlayer>
 
     public void doRenderLayer(AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
-        final PlayerData data = BenderHelper.getData(player, playerRenderer);
-        assert data != null;
+        final LivingEntityData<?> data = BenderHelper.getData(player, playerRenderer);
+        // The cape hangs from the body's bone and turns with the cape's.
+        final Object body = data == null ? null : data.getPartForName("body");
+        final Object cape = data == null ? null : data.getPartForName("cape");
+        if (!(body instanceof IModelPart) || !(cape instanceof IModelPart))
+        {
+            return;
+        }
 
         if (player.hasPlayerInfo() && !player.isInvisible() && player.isWearing(EnumPlayerModelParts.CAPE) && player.getLocationCape() != null)
         {
@@ -54,12 +62,13 @@ public class LayerCustomCape implements LayerRenderer<AbstractClientPlayer>
                     }
                 }
 
-                data.body.applyLocalTransform(0.0625F);
+                ((IModelPart) body).applyLocalTransform(0.0625F);
                 GlStateManager.translate(0.0F, -12.0F * scale, 2.2F * scale);
-                data.cape.applyLocalTransform(0.0625F);
+                ((IModelPart) cape).applyLocalTransform(0.0625F);
                 GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
 
-                capeRenderer.applyAnimation(data);
+                final CapeWave wave = data.getComponent("capeWave", CapeWave.class);
+                capeRenderer.applyAnimation(wave == null ? 0 : wave.getPhase());
                 capeRenderer.render(0.0625F);
 
                 GlStateManager.popMatrix();

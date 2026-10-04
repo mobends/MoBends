@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.definition;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
@@ -42,6 +43,19 @@ public class EntityModelDefinition
     public float childScale = 0.5F;
 
     public List<BoneDefinition> bones = new ArrayList<>();
+
+    /**
+     * Optional: what the entity's data carries besides its bones, as name to kind
+     * ({@code {"swordTrail": "mobends:sword_trail"}}); see {@code EntityComponents}.
+     */
+    public Map<String, String> components;
+
+    /**
+     * Optional: the renderer layers the model draws with, as id to options
+     * ({@code {"mobends:custom_head": {"bone": "head"}}}); see {@code DefinedLayers}. A vanilla
+     * layer no entry replaces is kept as it is.
+     */
+    public Map<String, JsonObject> layers;
 
     /** The entity scope's definitions, read by its animators as {@code entity.x}: the only place that reads the entity's fields. */
     @SerializedName("@define")
@@ -107,6 +121,16 @@ public class EntityModelDefinition
             if (bone.parent != null && !seen.contains(bone.parent))
             {
                 throw new MalformedKumoTemplateException("Bone '" + bone.name + "' names a parent '" + bone.parent + "' that is not declared before it.");
+            }
+        }
+        if (components != null)
+        {
+            for (String name : components.keySet())
+            {
+                if (seen.contains(name))
+                {
+                    throw new MalformedKumoTemplateException("The component '" + name + "' has the name of a bone.");
+                }
             }
         }
     }

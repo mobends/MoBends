@@ -3,8 +3,8 @@ package goblinbob.mobends.standard.client.renderer.entity.layers;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
+import goblinbob.mobends.standard.client.model.armor.ArmorWrapper;
 import goblinbob.mobends.standard.client.model.armor.MalformedArmorModelException;
-import goblinbob.mobends.standard.data.BipedEntityData;
 import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -72,7 +72,7 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
     	
     	final ModelBiped suggestedModel = net.minecraftforge.client.ForgeHooksClient.getArmorModel(entity, itemStack, slot, model);
 
-        boolean shouldBeMutated = !ModConfig.shouldKeepArmorAsVanilla(itemStack.getItem()) && (entityData != null && entityData instanceof BipedEntityData);
+        boolean shouldBeMutated = !ModConfig.shouldKeepArmorAsVanilla(itemStack.getItem()) && ArmorWrapper.fits(entityData);
 
         try
         {

@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.definition;
 
+import com.google.gson.JsonObject;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.model.BoxFactory;
 import goblinbob.mobends.core.client.model.ModelPart;
@@ -15,6 +16,7 @@ import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
+import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 
 import java.lang.reflect.Array;
@@ -167,9 +169,55 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
 
     // --- the mutator contract -----------------------------------------------------------------
 
+    /** Replaces a vanilla layer the definition's {@code layers} name a replacement for. */
     @Override
     public void swapLayer(RenderLivingBase<? extends E> renderer, int index)
     {
+        if (definition.layers == null)
+        {
+            return;
+        }
+        LayerRenderer<?> layer = layerRenderers.get(index);
+        for (Map.Entry<String, JsonObject> entry : definition.layers.entrySet())
+        {
+            DefinedLayers.Kind kind = DefinedLayers.get(entry.getKey());
+            if (kind != null && kind.replaces != null && kind.replaces.isInstance(layer))
+            {
+                layerRenderers.set(index, kind.factory.create(renderer, options(entry), parts::get));
+                return;
+            }
+        }
+    }
+
+    /** Mutates the renderer, then adds the definition's layers that replace none of its own. */
+    @Override
+    public boolean mutate(RenderLivingBase<? extends E> renderer)
+    {
+        if (!super.mutate(renderer))
+        {
+            return false;
+        }
+        if (definition.layers != null && layerRenderers != null)
+        {
+            for (Map.Entry<String, JsonObject> entry : definition.layers.entrySet())
+            {
+                DefinedLayers.Kind kind = DefinedLayers.get(entry.getKey());
+                if (kind == null)
+                {
+                    Core.LOG.log(Level.WARNING, "Model definition for " + definition.entity + ": there is no layer '" + entry.getKey() + "'");
+                }
+                else if (kind.replaces == null)
+                {
+                    layerRenderers.add(kind.factory.create(renderer, options(entry), parts::get));
+                }
+            }
+        }
+        return true;
+    }
+
+    private static JsonObject options(Map.Entry<String, JsonObject> entry)
+    {
+        return entry.getValue() == null ? new JsonObject() : entry.getValue();
     }
 
     @Override
