@@ -22,3 +22,6 @@ run-arm64/jdk8-arm64/
 run-arm64/lib/
 run-arm64/natives/
 run-arm64/sidefix/
+
+# Minecraft logs from the mod's own tests
+/logs/

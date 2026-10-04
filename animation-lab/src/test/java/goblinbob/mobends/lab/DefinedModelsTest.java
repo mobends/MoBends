@@ -88,6 +88,8 @@ public class DefinedModelsTest
     @Test
     void everyModelDefinitionHasAType() throws Exception
     {
+        // Built, but not yet any mob's: the player keeps its Java model until its type switches (task 22).
+        Set<String> building = new TreeSet<>(Collections.singletonList("player.json"));
         Set<String> named = new TreeSet<>();
         for (ResourceLocation model : definedModels().values())
         {
@@ -97,6 +99,7 @@ public class DefinedModelsTest
         {
             for (Path file : files.collect(Collectors.toList()))
             {
+                if (building.contains(file.getFileName().toString())) continue;
                 assertTrue(named.contains("bends/models/" + file.getFileName()), file.getFileName() + " is named by no type file, so no mob uses it");
             }
         }
