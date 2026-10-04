@@ -11,7 +11,6 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * A value computed every frame: a tree of operations over constants and names, compiled once from
@@ -50,12 +49,6 @@ public abstract class Expression
     private static final Map<String, Expression> BUILT_INS = new HashMap<>();
     /** The built-ins the host provides for every subject (see {@link #registerSubjectBuiltIn}): their types. */
     private static final Map<String, Type> SUBJECT_BUILT_INS = new HashMap<>();
-    /**
-     * Any other bare name in capitals is one of the subject's states, a boolean (e.g. the wolf's
-     * {@code SITTING}); in lower case, one of its variables, a number. The values specific to a
-     * mob become registered operations, and then a bare name is only a built-in.
-     */
-    private static final Pattern STATE_NAME = Pattern.compile("[A-Z][A-Z0-9_]*");
 
     public abstract Type getType();
 
@@ -250,11 +243,8 @@ public abstract class Expression
         {
             return subjectBuiltIn == Type.BOOLEAN ? new State(scope.getVariables().state(name)) : new Variable(scope.getVariables().read(name));
         }
-        if (STATE_NAME.matcher(name).matches())
-        {
-            return new State(scope.getVariables().state(name));
-        }
-        return new Variable(scope.getVariables().read(name));
+        throw new MalformedKumoTemplateException(String.format("Unknown name '%s': a bare name is a built-in (see the format's Built-in values); "
+                + "a definition is read by its scoped name (entity.%s, animator.%s, layer.%s, ...).", name, name, name, name));
     }
 
     static String describe(JsonElement json)

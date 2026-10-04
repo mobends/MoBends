@@ -5,6 +5,7 @@ import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,6 +13,12 @@ import static org.junit.Assert.*;
 /** What reads nothing per entity is computed once, when the animator loads. */
 public class ConstantFoldingTest
 {
+
+    @BeforeClass
+    public static void declareNames()
+    {
+        TestSubject.declareNames();
+    }
 
     private static Expression compile(String json) throws MalformedKumoTemplateException
     {

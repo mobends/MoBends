@@ -4,6 +4,7 @@ import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.KumoProgram;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -13,6 +14,12 @@ import static org.junit.Assert.*;
 /** One compiled program animates many entities, each with a state of its own. */
 public class ProgramSharingTest
 {
+
+    @BeforeClass
+    public static void declareNames()
+    {
+        TestSubject.declareNames();
+    }
 
     /**
      * Something of every kind of state: a layer moving between nodes on a definition, crossfades,

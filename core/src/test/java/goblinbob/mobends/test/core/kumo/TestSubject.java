@@ -6,6 +6,7 @@ import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.OrientationSink;
+import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
@@ -22,6 +23,27 @@ import java.util.Map;
 /** A subject with plain rotation bones and settable variables, and helpers to run animators on it. */
 class TestSubject implements IKumoSubject
 {
+
+    /**
+     * The bare names the tests' subjects provide, declared as the host declares its built-ins: a
+     * bare name that isn't a built-in fails the animator when it loads.
+     */
+    static void declareNames()
+    {
+        for (String name : new String[] { "height", "speed", "sinceAttack", "x", "yaw", "limit", "fall" })
+        {
+            Expression.registerSubjectBuiltIn(name, Expression.Type.NUMBER);
+        }
+        for (String name : new String[] { "GO", "OUT", "IN", "LEFT_HANDED", "NEVER", "AIRBORNE", "SWORD", "LATE", "ALWAYS", "FLYING", "STILL", "STANDING_STILL" })
+        {
+            Expression.registerSubjectBuiltIn(name, Expression.Type.BOOLEAN);
+        }
+    }
+
+    static
+    {
+        declareNames();
+    }
 
     final Map<String, SmoothOrientation> bones = new HashMap<>();
     final Map<String, Double> variables = new HashMap<>();

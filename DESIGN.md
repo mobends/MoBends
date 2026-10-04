@@ -45,12 +45,10 @@ to come:
 
 ### Names
 
-Scoped names are in the spec (*Definitions and statements*). Still to come:
-
-- **Bare names are only built-ins** (spec, *Built-in values*): a bare name that isn't a
-  built-in is a load error, and adding a built-in never collides with anything a file declares.
-  Today a bare name is also a value specific to a mob that its data class registers (a state if
-  in capitals), until those become operations (task 12).
+Scoped names are in the spec (*Definitions and statements*). **Bare names are only built-ins**
+(done; spec, *Built-in values*): a bare name that isn't a built-in is a load error, and adding a
+built-in never collides with anything a file declares. The capitals rule went with the last value
+a data class registered.
 
 ### Operations
 
@@ -124,10 +122,8 @@ Pose items, their modifiers and the drivers' `inout` and `out` are in the spec.
 
 ## Entity values
 
-The rule and the entity built-ins are in the spec (*Built-in values*). Still to come: the
-player's swing filter moves from `PlayerData` to its model definition, and its animator reads
-`entity.ticksAfterAttack` (*Values specific to a mob*), once the player has one (*Moving mobs
-out of Java*).
+The rule and the entity built-ins are in the spec (*Built-in values*). The player's swing filter
+is its model definition's (done, see *The swing filter* below).
 
 ### Values specific to a mob
 
@@ -301,23 +297,20 @@ Their private state moves from Java fields (`StepTurnDriver`'s planted feet, `Sp
 ### Entity values from the data classes
 
 The values every entity has are built-ins (spec, *Built-in values*; task 8), and the wolf's, the
-spider's climbing, the player's flying and the spin-attack setting are operations (task 12). Still
-to do: the values a mob's data class keeps or computes itself, which move into its own files
-(its model definition: *Moving mobs out of Java*).
+spider's climbing and wall, the player's flying and the spin-attack setting are operations
+(task 12). The values a mob's data class kept or computed itself are its model definition's
+(done): the player's flight and sprint-jump leg, the zombie's animation set and walking style,
+the squid's tentacle phase, the spider's crawl yaw (its crawl progress is the
+`entityDistanceMoved` built-in), the cape's ripple and the spider's feet (components).
 
-**Specific to a mob, still to do** (the player's are done: its definition's `@define` and `@on`,
-`attackComboTicks`, the `capeWave` component):
-
-| old (uses) | new |
-|---|---|
-
-The capitals rule for a bare name goes with the last of them.
-
-**The swing filter.** `PlayerData.onAttack` ignores a swing within 6 ticks of the last counted one
-while the main hand holds an item, so the player's `entityTicksAfterAttack` differs from every
-other entity's. The filter moves to the player's model definition (see *Values specific to a
-mob*), `player.json` reads `entity.ticksAfterAttack`, and the built-in counts the same for every
-entity.
+**The swing filter** (done, differently from planned). `PlayerData.onAttack` ignored a swing within
+6 ticks of the last counted one while the main hand held an item. The plan was entity state in
+the player's definition, read as `entity.ticksAfterAttack`, with the built-in the same for every
+entity. But swings are counted once per game tick, from the counter itself (a swing that keeps
+going is counted again after 5 ticks of the filtered count), and statements run once per frame:
+state over the unfiltered built-in would count a held swing again at about 11 ticks instead of 7.
+So the filter is a setting of the model definition, `attackComboTicks`, applied where the swing
+is counted; `entityTicksAfterAttack` stays the one counter, filtered for the player.
 
 ### Addon API
 

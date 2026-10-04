@@ -4,6 +4,7 @@ import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -13,6 +14,12 @@ import static org.junit.Assert.*;
 
 public class KumoAnimatorStateTest
 {
+
+    @BeforeClass
+    public static void declareNames()
+    {
+        TestSubject.declareNames();
+    }
 
     private static final String STILL_CLIP = "{\"bones\": {\"arm\": {\"keyframes\": [{\"rotation\": [0, 0, 0, 1]}, {\"rotation\": [0, 0, 0, 1]}]}}}";
 
@@ -110,37 +117,27 @@ public class KumoAnimatorStateTest
     }
 
     @Test
-    public void anUnknownVariableFailsTheAnimatorBeforeItAnimates() throws MalformedKumoTemplateException
+    public void anUnknownBareNameFailsTheAnimatorWhenItLoads()
     {
-        // Read only by a node the layer never reaches: still found on the first frame.
-        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"core:pose\": {}}, "
+        // Read only by a node the layer never reaches, and only in a connection: still an error.
+        String[] animators = {
+            "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"core:pose\": {}}, "
                 + "\"b\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"arm\", \"axis\": \"x\", "
-                + "\"angle\": \"noSuchVariable\"}}]}}}}]}");
-        try
+                + "\"angle\": \"noSuchVariable\"}}]}}}}]}",
+            "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"core:pose\": {}, "
+                + "\"@connections\": [{\"when\": \"NO_SUCH_STATE\", \"then\": \"a\"}]}}}]}" };
+        String[] names = { "'noSuchVariable'", "'NO_SUCH_STATE'" };
+        for (int i = 0; i < animators.length; i++)
         {
-            animator.update(new TestSubject("arm"), 1F);
-            fail("The animator should have failed.");
-        }
-        catch (MalformedKumoTemplateException e)
-        {
-            assertTrue(e.getMessage(), e.getMessage().contains("'noSuchVariable'"));
-        }
-    }
-
-    @Test
-    public void anUnknownStateFailsTheAnimatorBeforeItAnimates() throws MalformedKumoTemplateException
-    {
-        // Entering the layer is the first frame's decision: its connections aren't checked then.
-        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"core:pose\": {}, "
-                + "\"@connections\": [{\"when\": \"FLYING\", \"then\": \"a\"}]}}}]}");
-        try
-        {
-            animator.update(new TestSubject("arm"), 1F);
-            fail("The animator should have failed.");
-        }
-        catch (MalformedKumoTemplateException e)
-        {
-            assertTrue(e.getMessage(), e.getMessage().contains("'FLYING'"));
+            try
+            {
+                TestSubject.instance(animators[i]);
+                fail("The animator should have failed to load.");
+            }
+            catch (MalformedKumoTemplateException e)
+            {
+                assertTrue(e.getMessage(), e.getMessage().contains(names[i]) && e.getMessage().contains("built-in"));
+            }
         }
     }
 

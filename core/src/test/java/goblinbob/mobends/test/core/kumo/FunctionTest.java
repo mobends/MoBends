@@ -3,6 +3,7 @@ package goblinbob.mobends.test.core.kumo;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -10,6 +11,12 @@ import static org.junit.Assert.*;
 /** Functions: a call is its body written out at the call site, with the arguments in place. */
 public class FunctionTest
 {
+
+    @BeforeClass
+    public static void declareNames()
+    {
+        TestSubject.declareNames();
+    }
 
     /** The arm's angle about X, in degrees. */
     private static float angle(TestSubject subject)

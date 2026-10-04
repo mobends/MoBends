@@ -450,7 +450,7 @@ JSON tree, so tools can read and write it without a parser.
 |---|---|
 | a number | a constant: `45` |
 | `true`, `false` | a constant condition |
-| a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name: a built-in (`nodeTicksElapsed`, `entityIsOnGround`, `partialTicks`, see *Built-in values*), or a value specific to a mob, the entity's own (see there) |
+| a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name, which is always a built-in (`nodeTicksElapsed`, `entityIsOnGround`, `partialTicks`, see *Built-in values*) |
 | an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}`. Its other keys are modifiers: `@comment` on any operation, `@fallback` on one that takes it (`field`) |
 
 **Every expression is a number or a boolean**, and which one is checked when the animator loads:
@@ -607,13 +607,11 @@ that many ticks of the last counted one while the main hand holds an item, so a 
 restarted (the player's is 6).
 
 **Values specific to a mob** are its model definition's (`entity.flightPitch`, see *Model
-definitions*). An addon's Java data class can still expose its own under a bare name that isn't a
-built-in, a **state** (a boolean) if written in capitals, else a **variable** (a number); Mo'
-Bends' own have none left.
+definitions*) or registered operations. **A bare name is only a built-in**: one that isn't is an
+error when the animator loads, so a built-in added later never collides with a file's names.
 
 The entity's values are looked up once, when the animator is bound to its entity on the first
-frame, never by name while animating; one the entity doesn't have fails the animator then
-(logged; the entity isn't animated), even if nothing ever reads it.
+frame, never by name while animating.
 
 ## Nodes, transitions and time
 
