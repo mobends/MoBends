@@ -1,11 +1,11 @@
 package goblinbob.mobends.standard.client.renderer.entity.layers;
 
 import goblinbob.mobends.core.client.Mesh;
+import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.util.MeshBuilder;
-import goblinbob.mobends.standard.data.WolfData;
 import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -16,6 +16,7 @@ import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
+/** The wolf's mouth, inside and tongue: textured planes hung from its {@code head}, {@code nose}, {@code mouth} and {@code tongue} bones. */
 public class LayerWolfMisc implements LayerRenderer<EntityWolf>
 {
 
@@ -61,58 +62,66 @@ public class LayerWolfMisc implements LayerRenderer<EntityWolf>
 
     public void doRenderLayer(EntityWolf wolf, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
-        final EntityData<?> entityData = EntityDatabase.instance.get(wolf);
-        if (entityData instanceof WolfData)
+        final EntityData<?> data = EntityDatabase.instance.get(wolf);
+        // The mouth hangs from the head, the head from the body, by the bones' names.
+        final IModelPart body = part(data, "body"), head = part(data, "head"), nose = part(data, "nose"), mouth = part(data, "mouth"), tongueBone = part(data, "tongue");
+        if (body == null || head == null || nose == null || mouth == null || tongueBone == null)
         {
-            final WolfData data = (WolfData) entityData;
-
-            textureManager.bindTexture(WOLF_MISC_TEXTURE);
-
-            boolean isChild = wolf.isChild();
-
-            GlStateManager.pushMatrix();
-            if (isChild)
-            {
-                GlStateManager.translate(0.0F, 10.0F * scale, 0.0F * scale);
-                data.body.applyLocalTransform(scale * 0.5F);
-            }
-            else
-            {
-                data.body.applyLocalTransform(scale);
-            }
-            data.head.applyLocalTransform(scale);
-
-            GlStateManager.enableCull();
-            // Mouth inside
-            GlStateManager.pushMatrix();
-            GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
-            GlStateManager.scale(scale, scale, scale);
-            mouthInside.display();
-            GlStateManager.popMatrix();
-
-            // Mouth bottom
-            GlStateManager.pushMatrix();
-            data.nose.applyLocalTransform(scale);
-            GlStateManager.scale(scale, scale, scale);
-            mouthTop.display();
-            GlStateManager.popMatrix();
-
-            // Mouth top
-            GlStateManager.pushMatrix();
-            data.mouth.applyLocalTransform(scale);
-            GlStateManager.scale(scale, scale, scale);
-            mouthBottom.display();
-            GlStateManager.popMatrix();
-
-            // Tongue
-            GlStateManager.pushMatrix();
-            data.tongue.applyLocalTransform(scale);
-            GlStateManager.scale(scale, scale, scale);
-            tongue.display();
-            GlStateManager.popMatrix();
-
-            GlStateManager.popMatrix();
+            return;
         }
+
+        textureManager.bindTexture(WOLF_MISC_TEXTURE);
+
+        boolean isChild = wolf.isChild();
+
+        GlStateManager.pushMatrix();
+        if (isChild)
+        {
+            GlStateManager.translate(0.0F, 10.0F * scale, 0.0F * scale);
+            body.applyLocalTransform(scale * 0.5F);
+        }
+        else
+        {
+            body.applyLocalTransform(scale);
+        }
+        head.applyLocalTransform(scale);
+
+        GlStateManager.enableCull();
+        // Mouth inside
+        GlStateManager.pushMatrix();
+        GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.scale(scale, scale, scale);
+        mouthInside.display();
+        GlStateManager.popMatrix();
+
+        // Mouth bottom
+        GlStateManager.pushMatrix();
+        nose.applyLocalTransform(scale);
+        GlStateManager.scale(scale, scale, scale);
+        mouthTop.display();
+        GlStateManager.popMatrix();
+
+        // Mouth top
+        GlStateManager.pushMatrix();
+        mouth.applyLocalTransform(scale);
+        GlStateManager.scale(scale, scale, scale);
+        mouthBottom.display();
+        GlStateManager.popMatrix();
+
+        // Tongue
+        GlStateManager.pushMatrix();
+        tongueBone.applyLocalTransform(scale);
+        GlStateManager.scale(scale, scale, scale);
+        tongue.display();
+        GlStateManager.popMatrix();
+
+        GlStateManager.popMatrix();
+    }
+
+    private static IModelPart part(EntityData<?> data, String name)
+    {
+        Object part = data == null ? null : data.getPartForName(name);
+        return part instanceof IModelPart ? (IModelPart) part : null;
     }
 
     @Override

@@ -79,9 +79,22 @@ public class DefinedModelPart extends ModelPart
         return this;
     }
 
+    /** Drawn where vanilla draws its part, through its parents' transforms, not by its parent (see {@code BoneDefinition#drawnAlone}). */
+    private boolean drawnAlone;
+
+    public void setDrawnAlone(boolean drawnAlone)
+    {
+        this.drawnAlone = drawnAlone;
+    }
+
     @Override
     public void render(float scale)
     {
+        if (drawnAlone)
+        {
+            renderPart(scale);
+            return;
+        }
         if (getParent() != null)
         {
             renderJustPart(scale);

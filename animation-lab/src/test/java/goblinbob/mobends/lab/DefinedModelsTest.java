@@ -56,7 +56,7 @@ public class DefinedModelsTest
 
     static
     {
-        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie", "squid", "spider" })
+        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie", "squid", "spider", "wolf" })
         {
             DEFAULT_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
         }

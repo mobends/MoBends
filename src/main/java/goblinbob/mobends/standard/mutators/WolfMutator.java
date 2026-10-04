@@ -49,12 +49,22 @@ public class WolfMutator extends Mutator<WolfData, EntityWolf, ModelWolf>
 
     }
 
+    /** Mutates the renderer, then adds the mouth layer. */
+    @Override
+    public boolean mutate(RenderLivingBase<? extends EntityWolf> renderer)
+    {
+        if (!super.mutate(renderer))
+        {
+            return false;
+        }
+        layerRenderers.remove(layerMisc);
+        layerRenderers.add(layerMisc = new LayerWolfMisc());
+        return true;
+    }
+
     @Override
     public boolean createParts(ModelWolf original)
     {
-        layerRenderers.remove(layerMisc);
-        layerRenderers.add(layerMisc = new LayerWolfMisc());
-
         // Body
         original.wolfBody = wolfBody = new ModelPart(original, 18, 14)
                 .setPosition(0.0F, 13.0F, 8.0F);

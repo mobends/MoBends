@@ -372,15 +372,15 @@ fields are in the generated tables, each skin variant's `RenderPlayer` gets its 
 
 Registration (done): an addon registers a definition as the default model of its entity class,
 under the key it names (`AddonAnimationRegistry.registerDefinedEntity`); the player, zombie,
-skeleton, zombie villager, pig zombie and squid are registered this way, and
+skeleton, zombie villager, pig zombie, squid, spider and wolf are registered this way, and
 `-Dmobends.javaModels=true` brings back their Java models to compare. Left: deleting those Java
 models (benders, mutators, renderers, data classes) once the defined ones are checked in the
 game.
 
 Data that code casts to: the biped's and the player's are gone (done: layers and drivers read
 bones by name, and the sword trail, held-item orientations and cape ripple are components, see
-`docs/animation.md`); so is the spider's (its legs are a component). Left: `WolfData`
-(`LayerWolfMisc`). With every cast gone, one generic data class serves every entity (*Per-entity
+`docs/animation.md`); so are the spider's (its legs are a component) and the wolf's
+(`LayerWolfMisc` reads bones by name). With every cast gone, one generic data class serves every entity (*Per-entity
 data*).
 
 State and logic (the player's states, counters, sprint-jump leg, cape phase, swing filter and
@@ -411,8 +411,9 @@ Other mobs:
   `drawnSize`, and its feet are the `mobends:spider_legs` component the leg drivers share).
 - **Squid** (done: `squid`; its tentacles are vanilla's, cut into nine sections, where the Java
   squid moved them a unit in and down; its phase reads `field`s).
-- **Wolf:** nose, mouth and ears are cut from one part's boxes (needs bones built from selected
-  boxes), texture rotations for the body and mane, and extra textured meshes (`LayerWolfMisc`).
+- **Wolf** (done: `wolf`; its body, mane, nose, mouth and ears are boxes it declares, with the
+  body's and mane's textures turned per face; a pup's head is `drawnAlone` with `childBones`;
+  its mouth layer is `mobends:wolf_misc`).
 
 The plan for the player:
 
@@ -526,17 +527,19 @@ the additive and smaller ones.
 
 **Moving mobs out of Java**
 
-22. [ ] **The player as files**, in the order of *The plan for the player*: forwarding stand-ins and
+22. [x] **The player as files**, in the order of *The plan for the player*: forwarding stand-ins and
     `postRender` through split segments; pivots and overlay segments; the `layers` section and a
     bone-name armour wrapper; components instead of casts; renderer settings and the first-person
     pose; default-model registration under the built-in id; adopting pivots again for slim skins.
-    All done, and the player is its definition; left: checking it in the game, then deleting the
-    Java player (*Registration*).
-23. [ ] **One generic data class**, with per-mob parts as components declared by the model
-    (*Per-entity data*).
-24. [ ] **Zombies, skeletons and the rest** the same way, plus their own items (*Moving mobs out of
-    Java*). Done: zombies, skeletons, zombie villagers, pig zombies, the squid, the spider. Left:
-    the wolf.
+23. [x] **One generic data class**, with per-mob parts as components declared by the model
+    (*Per-entity data*): every mob's data is `DefinedEntityData`, and nothing casts to a mob's
+    data class; the Java ones serve only the Java models kept to compare.
+24. [x] **Zombies, skeletons and the rest** the same way, plus their own items (*Moving mobs out of
+    Java*): zombies, skeletons, zombie villagers, pig zombies, the squid, the spider, the wolf.
+    `DefinedParityTest` replays every golden scenario on the definitions' data.
+29. [ ] **Delete the Java models** (benders, mutators, renderers, data classes, `PlayerBender`) once
+    the defined ones are checked in the game; until then `-Dmobends.javaModels=true` brings them
+    back to compare (*Registration*).
 
 **Smaller**
 

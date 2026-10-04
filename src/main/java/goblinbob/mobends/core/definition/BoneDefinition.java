@@ -27,6 +27,13 @@ public class BoneDefinition
     public String parent;
 
     /**
+     * A bone with a parent that is drawn where vanilla draws its part, through its parents'
+     * transforms, rather than inside its parent: a wolf pup's head, which vanilla draws outside the
+     * pup's half-size body.
+     */
+    public boolean drawnAlone;
+
+    /**
      * Where the bone sits, in model units: relative to its parent if it has one. Default: where its
      * {@link #pivot} (or else its vanilla part's rotation point) is, relative to the parent's.
      * Moves the boxes with it.
@@ -89,6 +96,8 @@ public class BoneDefinition
         if (pivot != null && pivot.length != 3) throw new MalformedKumoTemplateException("Bone '" + name + "': 'pivot' needs three components.");
         if (overlay != null && (parent != null || position != null || pivot != null || split != null))
             throw new MalformedKumoTemplateException("Bone '" + name + "': an 'overlay' takes the bone it lies over's place and segments: it has no 'parent', 'position', 'pivot' or 'split' of its own.");
+        if (drawnAlone && (parent == null || vanilla == null))
+            throw new MalformedKumoTemplateException("Bone '" + name + "': only a bone with a 'parent' and a 'vanilla' part, which vanilla draws, can be 'drawnAlone'.");
         if (inflate != null)
         {
             for (float[] segment : inflate)

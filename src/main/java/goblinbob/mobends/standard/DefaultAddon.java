@@ -11,6 +11,7 @@ import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomCape;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomElytra;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomHeldItem;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerPlayerAccessories;
+import goblinbob.mobends.standard.client.renderer.entity.layers.LayerWolfMisc;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.*;
 import goblinbob.mobends.standard.data.*;
 import goblinbob.mobends.standard.kumo.CapeDriver;
@@ -53,6 +54,7 @@ public class DefaultAddon implements IAddon
 			registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>());
 			registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>());
 			registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>());
+			registry.registerNewEntity(EntityWolf.class, WolfData::new, WolfMutator::new, new WolfRenderer<>());
 		}
 		else
 		{
@@ -63,9 +65,8 @@ public class DefaultAddon implements IAddon
 			registry.registerDefinedEntity("pig_zombie");
 			registry.registerDefinedEntity("squid");
 			registry.registerDefinedEntity("spider");
+			registry.registerDefinedEntity("wolf");
 		}
-
-		registry.registerNewEntity(EntityWolf.class, WolfData::new, WolfMutator::new, new WolfRenderer<>());
 
 		// Mobs described as data (cows, pigs, villagers, ...) come from the type files in bends/types/.
 
@@ -86,6 +87,7 @@ public class DefaultAddon implements IAddon
 		registry.registerLayer("cape", LayerCape.class, (renderer, options, bones) -> new LayerCustomCape((RenderPlayer) renderer));
 		registry.registerLayer("elytra", LayerElytra.class, (renderer, options, bones) -> new LayerCustomElytra((RenderPlayer) renderer));
 		registry.registerLayer("accessories", null, (renderer, options, bones) -> new LayerPlayerAccessories(renderer));
+		registry.registerLayer("wolf_misc", null, (renderer, options, bones) -> new LayerWolfMisc());
 	}
 
 	@Override

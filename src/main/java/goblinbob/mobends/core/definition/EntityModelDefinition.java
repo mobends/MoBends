@@ -70,6 +70,19 @@ public class EntityModelDefinition
      */
     public Map<String, Float> smoothness;
 
+    /**
+     * Optional: how bones change on a baby, by name, besides the whole model's {@link #childScale}:
+     * the scale of their offsets from their parents, and an offset before their parents' transforms
+     * (a wolf pup's head).
+     */
+    public Map<String, ChildBone> childBones;
+
+    public static class ChildBone
+    {
+        public float offsetScale = 1;
+        public float[] globalOffset;
+    }
+
     /** Optional: how the renderer places the model (see {@link RendererSettings}). */
     public RendererSettings renderer = new RendererSettings();
 
@@ -155,6 +168,17 @@ public class EntityModelDefinition
         if (renderer == null)
         {
             renderer = new RendererSettings();
+        }
+        if (childBones != null)
+        {
+            for (Map.Entry<String, ChildBone> entry : childBones.entrySet())
+            {
+                if (!seen.contains(entry.getKey()))
+                    throw new MalformedKumoTemplateException("'childBones' names '" + entry.getKey() + "', which is not a bone.");
+                float[] offset = entry.getValue().globalOffset;
+                if (offset != null && offset.length != 3)
+                    throw new MalformedKumoTemplateException("'childBones." + entry.getKey() + ".globalOffset' is [x, y, z].");
+            }
         }
         if (renderer.firstPersonRest == null)
         {

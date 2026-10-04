@@ -276,7 +276,14 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             if (parent != null)
             {
                 part.setParent(parent);
-                parent.addChild(part);
+                if (bone.drawnAlone)
+                {
+                    part.setDrawnAlone(true);
+                }
+                else
+                {
+                    parent.addChild(part);
+                }
             }
             parts.put(bone.name, part);
 
@@ -351,7 +358,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 continue;
             }
             BoneDefinition definitionOf = definition.bone(bone);
-            if (definitionOf != null && (definitionOf.parent != null || definitionOf.overlay != null))
+            if (definitionOf != null && !definitionOf.drawnAlone && (definitionOf.parent != null || definitionOf.overlay != null))
             {
                 DefinedStandIn standIn = new DefinedStandIn(model, part);
                 if (definitionOf.overlay == null)

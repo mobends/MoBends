@@ -157,6 +157,23 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
     }
 
     @Override
+    public void update(float partialTicks)
+    {
+        super.update(partialTicks);
+        if (definition.childBones != null && entity != null)
+        {
+            boolean child = entity.isChild();
+            for (Map.Entry<String, EntityModelDefinition.ChildBone> entry : definition.childBones.entrySet())
+            {
+                ModelPartTransform part = parts.get(entry.getKey());
+                float[] offset = entry.getValue().globalOffset;
+                part.offsetScale = child ? entry.getValue().offsetScale : 1;
+                part.globalOffset.set(child && offset != null ? offset[0] : 0, child && offset != null ? offset[1] : 0, child && offset != null ? offset[2] : 0);
+            }
+        }
+    }
+
+    @Override
     protected ResourceLocation getDefaultAnimator()
     {
         return animator;
