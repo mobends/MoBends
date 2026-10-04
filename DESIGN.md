@@ -283,12 +283,6 @@ The cache is cleared on a resource reload and when the server's policy changes. 
 operation that fails on one entity class fails that class's program only; failures are reported
 once per animator file and extensions.
 
-## Open questions
-
-- **Addon API details.** Argument passing at evaluate, what bind gets, the pose drivers see,
-  and purity, to settle while porting `core:spring` and `core:step_turn` (*To settle while
-  prototyping*).
-
 ---
 
 # Part 2: Migrating from the old design
@@ -587,17 +581,21 @@ Zombies, skeletons and the rest follow the same steps, plus their own items abov
 
 ## Smaller renames and cleanups
 
-Proposed, not yet agreed:
+Decided:
 
-- Singular / plural pairs collapse to the list form (`values`, `entityTypes`, `names`, `uuids`).
-- The reserved `"default"` key in damping and additive-space maps can't be a bone name. Either
-  move it out of the bone map (`{"default": 0.3, "bones": {...}}`), or spell it `@default`
-  (`{"@default": 0.3, "body": 0.5}`), extending `@` to mean "a key the format reserves".
-- Enum casing (`EASE_IN_OUT`, `PRE`) vs lower-case registry ids (`core:axis_rotate`).
+- Singular / plural pairs: none are left. Selectors became expressions, whose arguments are
+  always lists (`{"core:player_name": ["Notch", "jeb_"]}`).
+- The reserved `"default"` key of per-bone maps (damping, `additiveSpace`) is spelled `@default`
+  (`{"@default": "PRE", "body": "POST"}`): `@` keys are the format's own, so no bone name is
+  reserved.
+- Every fixed set of words is lower_snake_case, as operation choices and registry ids are:
+  spaces (`pre`, `post`, `override`), axes (`x`, `y`, `z`), vector modes (`slide`, `retarget`,
+  `snap`), hinges (`front`, `back`, `top`, `bottom`), layer modes (`additive`), mask modes
+  (`include_only`), easings (`ease_in_out`).
 
 ## Format version
 
-Assumed: the format stays `formatVersion: 2`, since v2 hasn't shipped.
+Decided: the format stays `formatVersion: 2`, since v2 hasn't shipped.
 
 ---
 
@@ -700,8 +698,8 @@ the additive and smaller ones.
     connections the old way and rewrites them in last passes (`oneKeyAnimator`, then
     `kumo_scopes.ts`, which turns bare names into scoped ones); its builders should write the
     format themselves, and `kumo_scopes.ts` then goes.
-27. [ ] **Decide the remaining cleanups**: singular / plural pairs, the reserved `"default"` key,
-    enum casing (*Smaller renames and cleanups*).
+27. [ ] **The remaining cleanups**, as decided (*Smaller renames and cleanups*): `@default`, and
+    lower-case enum values.
 
 **After v2**
 
