@@ -270,12 +270,10 @@ until tags go), and in type-file selectors (task 13).
 ### Named values become definitions
 
 Named expressions are live definitions, layer and node variables states, `set` maps and
-`core:set` statements (done). Still to do:
-
-| old | new |
-|---|---|
-| layer `variables` written only inside one machine (`player.json`'s and `skeleton.json`'s `combo` in `sword`, `fist` in `fists`) | `machine.` state; the layer's branches into the machines reset them to 0, which a machine's state does on entry anyway |
-| subject variables and states registered in Java (`registerVariable`, `registerState`), properties (`getProperty`) | built-ins and registered operations (*Entity values from the data classes*) |
+`core:set` statements (done), and so are the rest (done): the player's and skeleton's `combo` and
+`fist`, written only inside one machine, are `machine.` state, which starts over on entry as the
+layer's branches into the machines used to reset it; the values the data classes registered are
+built-ins, operations and model definitions' (*Entity values from the data classes*).
 
 
 ### Ramps, springs and accumulators

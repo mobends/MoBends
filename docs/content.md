@@ -227,18 +227,17 @@ variable the data class sets, and let it override or add to the base:
 Group the nodes of a sequence in a machine. The layer's selector picks the machine; the machine's
 own selector picks where to rest inside it, and its connections, which lead out of any of its
 nodes, play the sequence. To react to each new attack, use `decreased` on
-`entityTicksAfterAttack` (it drops to 0 on every swing) and count with a state of the layer set by the
-connection that fires:
+`entityTicksAfterAttack` (it drops to 0 on every swing) and count with a state of the machine set
+by the connection that fires; it starts over at 0 whenever the layer enters the machine:
 
 ```json
-"@define": {"combo": {"state": 0}},
-"select": [{"when": {"mobends:attack_action": ["sword"]}, "then": "sword", "do": [{"set": ["layer.combo", 0]}]}],
+"select": [{"when": {"mobends:attack_action": ["sword"]}, "then": "sword"}],
 "machines": {"sword": {
   "defaultOnEntry": "sword_idle",
-  "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}},
+  "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}, "combo": {"state": 0}},
   "select": [{"when": {"ge": ["entityTicksAfterAttack", 10]}, "then": "sword_idle"}],
   "@connections": [
-    {"when": {"and": ["machine.attacked", {"eq": ["layer.combo", 0]}]}, "then": "slash_up", "do": [{"set": ["layer.combo", 1]}]},
+    {"when": {"and": ["machine.attacked", {"eq": ["machine.combo", 0]}]}, "then": "slash_up", "do": [{"set": ["machine.combo", 1]}]},
     …
   ],
   "nodes": {"sword_idle": {…}, "slash_up": {…}, …}}}
@@ -247,7 +246,7 @@ connection that fires:
 The slashes aren't in the machine's selector, which chooses nothing while a slash plays (the
 first ten ticks), so the slash holds until the selector chooses `sword_idle` or the next attack
 fires a connection. Reset the count once the combo window has passed, with a statement in an
-`update` list: `{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}`.
+`update` list: `{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["machine.combo", 0]}`.
 
 ### Left- and right-handed
 

@@ -620,7 +620,7 @@ const stanceWindow = AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60), state("entityIsO
 const stanceSprintCond = AND(stanceWindow, state("entityIsSprinting"));
 const stanceStillCond = AND(stanceWindow, NOT(state("entityIsSprinting")), state("entityIsStandingStill"));
 /** The combo starts over a while after the last attack. */
-const comboReset = set("layer.combo", 0, cmp(tAA, ">", 20));
+const comboReset = set("machine.combo", 0, cmp(tAA, ">", 20));
 const localOffsetZero = clip(PL("localoffset_zero"), {}, { damping: { localOffset: 0.3 }, vectorModes: { localOffset: "slide" } });
 poseClip(join(CLIPS, "player", "localoffset_zero.json"), {}, { localOffset: [0, 0, 0] });
 
@@ -841,9 +841,9 @@ const useBranches: Obj[] = useTypes.map(([base, typ]) => ({
 const attackBranch: Obj = {
   when: prop("useActionType", null, true),
   then: [
-    // a fresh SwordAction or PunchingAction starts its count over
-    { when: prop("attackActionType", "SWORD"), then: "sword", do: [set("layer.combo", 0)] },
-    { when: prop("attackActionType", "FISTS"), then: "fists", do: [set("layer.fist", 0)] },
+    // a fresh SwordAction or PunchingAction starts its count over: the machine's state does on entry
+    { when: prop("attackActionType", "SWORD"), then: "sword" },
+    { when: prop("attackActionType", "FISTS"), then: "fists" },
     { when: prop("attackActionType", "TOOL"), then: "tool" },
   ],
 };
@@ -853,17 +853,17 @@ const slashOrder = ["slash_up", "slash_down", "slash_inward", "slash_outward", "
 // The sword combo ends with a whirl, where the animator allows it (animator.canSpinAttack).
 const canSpin = "animator.canSpinAttack";
 const slashByCombo = [
-  ...slashOrder.map((n, k) => conn(n, AND("machine.attacked", cmp("layer.combo", "==", k), ...(k === 4 ? [canSpin] : [])), [set("layer.combo", (k + 1) % 5)])),
-  conn(slashOrder[0], AND("machine.attacked", cmp("layer.combo", "==", 4), NOT(canSpin)), [set("layer.combo", 1)]),
+  ...slashOrder.map((n, k) => conn(n, AND("machine.attacked", cmp("machine.combo", "==", k), ...(k === 4 ? [canSpin] : [])), [set("machine.combo", (k + 1) % 5)])),
+  conn(slashOrder[0], AND("machine.attacked", cmp("machine.combo", "==", 4), NOT(canSpin)), [set("machine.combo", 1)]),
 ];
-const punchConns = [conn("punch_right", AND("machine.attacked", cmp("layer.fist", "==", 0)), [set("layer.fist", 1)]),
-                    conn("punch_left", AND("machine.attacked", cmp("layer.fist", "==", 1)), [set("layer.fist", 0)])];
+const punchConns = [conn("punch_right", AND("machine.attacked", cmp("machine.fist", "==", 0)), [set("machine.fist", 1)]),
+                    conn("punch_left", AND("machine.attacked", cmp("machine.fist", "==", 1)), [set("machine.fist", 0)])];
 
 // No move plays until the next attack; the stance while in its window. A slash isn't in the
 // selector, which chooses nothing for ten ticks after an attack, so it plays until then.
 const swordMachine: Obj = {
   defaultOnEntry: "sword_idle",
-  "@define": { attacked: live(dec) },
+  "@define": { attacked: live(dec), combo: variable(0) },
   select: [
     { when: stanceSprintCond, then: "stance_sprint" },
     { when: stanceStillCond, then: "stance" },
@@ -875,7 +875,7 @@ const swordMachine: Obj = {
 // A fresh PunchingAction starts with the left fist; after a punch the guard, then the fists rest.
 const fistsMachine: Obj = {
   defaultOnEntry: "punch_left",
-  "@define": { attacked: live(dec) },
+  "@define": { attacked: live(dec), fist: variable(0) },
   select: [
     { when: AND(cmp(tAA, ">=", 10), cmp(tAA, "<", 60)), then: "fist_guard" },
     { when: cmp(tAA, ">=", 60), then: "fists_idle" },
@@ -885,7 +885,7 @@ const fistsMachine: Obj = {
 };
 
 // Idle only until the first item or attack: nothing leads back to it.
-const actionLayer: Obj = { "@when": NOT(state("entityIsSleeping")), "@define": { combo: variable(0), fist: variable(0) }, defaultOnEntry: "idle",
+const actionLayer: Obj = { "@when": NOT(state("entityIsSleeping")), defaultOnEntry: "idle",
                            select: [...useBranches, attackBranch],
                            nodes: { idle: poseNode([]), tool, ...useNodes() },
                            machines: { sword: swordMachine, fists: fistsMachine },

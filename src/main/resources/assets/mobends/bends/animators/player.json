@@ -1655,7 +1655,6 @@
     },
     {
       "@when": {"not": ["entityIsSleeping"]},
-      "@define": {"combo": {"state": 0}, "fist": {"state": 0}},
       "defaultOnEntry": "idle",
       "select": [
         {
@@ -1692,16 +1691,8 @@
             ]
           },
           "then": [
-            {
-              "when": {"mobends:attack_action": ["sword"]},
-              "then": "sword",
-              "do": [{"set": ["layer.combo", 0]}]
-            },
-            {
-              "when": {"mobends:attack_action": ["fists"]},
-              "then": "fists",
-              "do": [{"set": ["layer.fist", 0]}]
-            },
+            {"when": {"mobends:attack_action": ["sword"]}, "then": "sword"},
+            {"when": {"mobends:attack_action": ["fists"]}, "then": "fists"},
             {"when": {"mobends:attack_action": ["tool"]}, "then": "tool"}
           ]
         }
@@ -2007,7 +1998,7 @@
       "machines": {
         "sword": {
           "defaultOnEntry": "sword_idle",
-          "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}},
+          "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}, "combo": {"state": 0}},
           "select": [
             {
               "when": {
@@ -2044,40 +2035,40 @@
           ],
           "@connections": [
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 0]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 0]}]},
               "then": "slash_up",
-              "do": [{"set": ["layer.combo", 1]}]
+              "do": [{"set": ["machine.combo", 1]}]
             },
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 1]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 1]}]},
               "then": "slash_down",
-              "do": [{"set": ["layer.combo", 2]}]
+              "do": [{"set": ["machine.combo", 2]}]
             },
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 2]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 2]}]},
               "then": "slash_inward",
-              "do": [{"set": ["layer.combo", 3]}]
+              "do": [{"set": ["machine.combo", 3]}]
             },
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 3]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 3]}]},
               "then": "slash_outward",
-              "do": [{"set": ["layer.combo", 4]}]
+              "do": [{"set": ["machine.combo", 4]}]
             },
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 4]}, "animator.canSpinAttack"]},
+              "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 4]}, "animator.canSpinAttack"]},
               "then": "slash_whirl",
-              "do": [{"set": ["layer.combo", 0]}]
+              "do": [{"set": ["machine.combo", 0]}]
             },
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 4]}, {"not": ["animator.canSpinAttack"]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 4]}, {"not": ["animator.canSpinAttack"]}]},
               "then": "slash_up",
-              "do": [{"set": ["layer.combo", 1]}]
+              "do": [{"set": ["machine.combo", 1]}]
             }
           ],
           "nodes": {
             "sword_idle": {
               "core:pose": {"pose": []},
-              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
+              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["machine.combo", 0]}]}
             },
             "stance": {
               "core:pose": {
@@ -2158,7 +2149,7 @@
                   }
                 ]
               },
-              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
+              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["machine.combo", 0]}]}
             },
             "stance_sprint": {
               "core:pose": {
@@ -2184,7 +2175,7 @@
                   }
                 ]
               },
-              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["layer.combo", 0]}]}
+              "@on": {"update": [{"@when": {"gt": ["entityTicksAfterAttack", 20]}, "set": ["machine.combo", 0]}]}
             },
             "slash_up": {
               "core:pose": {
@@ -2601,7 +2592,7 @@
         },
         "fists": {
           "defaultOnEntry": "punch_left",
-          "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}},
+          "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}, "fist": {"state": 0}},
           "select": [
             {
               "when": {"and": [{"ge": ["entityTicksAfterAttack", 10]}, {"lt": ["entityTicksAfterAttack", 60]}]},
@@ -2611,14 +2602,14 @@
           ],
           "@connections": [
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.fist", 0]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["machine.fist", 0]}]},
               "then": "punch_right",
-              "do": [{"set": ["layer.fist", 1]}]
+              "do": [{"set": ["machine.fist", 1]}]
             },
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.fist", 1]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["machine.fist", 1]}]},
               "then": "punch_left",
-              "do": [{"set": ["layer.fist", 0]}]
+              "do": [{"set": ["machine.fist", 0]}]
             }
           ],
           "nodes": {
