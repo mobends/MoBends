@@ -57,6 +57,19 @@ public class EntityModelDefinition
      */
     public Map<String, JsonObject> layers;
 
+    /**
+     * Optional: a swing within this many ticks of the last counted one, while the main hand holds
+     * an item, isn't counted (it continues a sword combo); 0 counts every swing.
+     */
+    public float attackComboTicks;
+
+    /**
+     * Optional: the damping a bone starts with, kept until an animator sets one, by name: a bone,
+     * a component, or the entity's {@code root} (its offset), {@code localOffset},
+     * {@code renderRotation} or {@code centerRotation}.
+     */
+    public Map<String, Float> smoothness;
+
     /** Optional: how the renderer places the model (see {@link RendererSettings}). */
     public RendererSettings renderer = new RendererSettings();
 

@@ -29,6 +29,8 @@
     "swordTrail": "mobends:sword_trail",
     "capeWave": "mobends:cape_wave"
   },
+  "attackComboTicks": 6,
+  "smoothness": {"root": 2, "renderRotation": 2},
   "renderer": {
     "@comment": "Vanilla lowers a sneaking player; the bent sneak pose needs it higher.",
     "sneakOffset": 5,
@@ -42,5 +44,21 @@
     "mobends:cape": {},
     "mobends:elytra": {},
     "mobends:accessories": {}
+  },
+  "@define": {
+    "flightSpeedFactor": {"live": {"div": [{"clamp": ["entitySpeed", 0, 0.2]}, 0.2]}},
+    "flightPitch": {"live": {"mul": [{"atan2": ["entityXZSpeed", "entityMotionY"]}, 57.29578, "entity.flightSpeedFactor"]}},
+    "liftedOff": {"live": {"or": [{"fell": ["entityIsOnGround"]}, {"decreased": ["entityTicksInAir"]}]}},
+    "sprintJumpLeg": {"state": false},
+    "sprintJumpLegSwitched": {"state": false}
+  },
+  "@on": {
+    "update": [
+      {"@when": {"and": ["entity.liftedOff", {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", {"not": ["entity.sprintJumpLeg"]}]},
+      {"@when": "entity.liftedOff", "set": ["entity.sprintJumpLegSwitched", true]},
+      {"@when": {"lt": ["entityMotionY", 0]}, "set": ["entity.sprintJumpLegSwitched", false]},
+      {"@when": {"and": [{"gt": ["entityMotionY", 0]}, {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", {"not": ["entity.sprintJumpLeg"]}]},
+      {"@when": {"gt": ["entityMotionY", 0]}, "set": ["entity.sprintJumpLegSwitched", true]}
+    ]
   }
 }

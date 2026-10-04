@@ -306,13 +306,13 @@ spider's climbing, the player's flying and the spin-attack setting are operation
 to do: the values a mob's data class keeps or computes itself, which move into its own files
 (its model definition: *Moving mobs out of Java*).
 
-**Specific to a mob, still to do:**
+**Specific to a mob, still to do** (the player's are done: its definition's `@define` and `@on`,
+`attackComboTicks`, the `capeWave` component):
 
 | old (uses) | new |
 |---|---|
 | spider: `crawlProgress` (2), `crawlRenderYaw` (1) | spider state, and `mobends:spider_wall_rotation` |
 | squid: `squidRotation` (2), `SQUID_ROTATION_LOW` (2), `SQUID_PREV_ROTATION_LOW` (2) | `field` reads in the squid's files |
-| player: `flightSpeedFactor` (4), `flightPitch` (2), `SPRINT_JUMP_LEG`, the cape phase | player definitions and state (`flightPitch` is a live definition over the motion built-ins, *Values specific to a mob*) |
 | zombie: `animationSet` (2), `currentWalkingState` (1) | zombie state: a constant from `entityId`; a random value on a timer |
 
 The capitals rule for a bare name goes with the last of them.
@@ -511,10 +511,10 @@ the additive and smaller ones.
 
 18. [x] **The generator** (`animation-lab/tools/gen_animators.ts`) and its 11 animators.
 19. [ ] **The hand-written files**: done (`iron_golem`, `creeper`, `cow`, `wolf`, the model
-    definitions, the type files, the example packs) but for the mob-specific values a data class
-    keeps or computes: the player's swing filter, cape phase, `flightSpeedFactor`, `flightPitch`
-    and `SPRINT_JUMP_LEG`; the zombie's animation set and walking state; the squid's rotation; the
-    spider's crawl. They move into each mob's files with tasks 22–24 (*Entity values from the data
+    definitions, the type files, the example packs, the player's values: its definition's entity
+    scope, `attackComboTicks` and the `capeWave` component) but for the mob-specific values a data
+    class keeps or computes: the zombie's animation set and walking state; the squid's rotation;
+    the spider's crawl. They move into each mob's files with tasks 22–24 (*Entity values from the data
     classes*).
 20. [x] **Tests**: the ones with inline animator JSON and the ones on shipped assets; the goldens
     re-recorded where behaviour moved on purpose (the riding threshold is 0.2 blocks per tick).

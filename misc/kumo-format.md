@@ -600,11 +600,13 @@ vanilla's `isSwingInProgress`, counts a swing when one starts, and again wheneve
 ticks have passed while it keeps going (holding attack, mining). The counter goes back to 0 on a
 counted swing and grows by `ticksPerFrame` every frame. `{"decreased": ["entityTicksAfterAttack"]}`
 is the edge of a counted swing (`{"rose": ["entityIsSwinging"]}` would miss the re-counts of a
-swing that keeps going). The player's ignores a swing within 6 ticks of the last counted one
-while its main hand holds an item, so a sword combo isn't restarted.
+swing that keeps going). A model definition's `attackComboTicks` leaves a swing uncounted within
+that many ticks of the last counted one while the main hand holds an item, so a sword combo isn't
+restarted (the player's is 6).
 
-**Values specific to a mob** are, until they move into the mob's own files, the entity's own,
-named by its data class (the squid's `squidRotation`, the spider's `crawlProgress`): a
+**Values specific to a mob** are its model definition's (`entity.flightPitch`, see *Model
+definitions*), or, until they move into the mob's own files, the entity's own, named by its data
+class (the squid's `squidRotation`, the spider's `crawlProgress`): a
 bare name that isn't a built-in, a **state** (a boolean) if written in capitals, else a
 **variable** (a number).
 
@@ -848,6 +850,8 @@ The chicken's definition also declares the values its animator reads, over the e
 | `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. `hinge` puts the joints on an edge of the cut instead of its middle: `front` / `back` (-Z / +Z) or `top` / `bottom` (-Y / +Y). A joint hinges on the side opposite to where it bends (a knee at the front, an elbow at the back), so the segments stay joined when it bends. `caps: true` draws the faces at the cuts, closing each segment (a bent knee shows no gap). What vanilla attaches to the bone (`postRender`) follows every segment: a held item follows the forearm. |
 | `components` | what the entity's data carries besides its bones, name to kind: `core:orientation` (a smoothed rotation animators pose as a bone, such as `rightHeldItem`), `mobends:sword_trail` (`swordTrail`), `mobends:cape_wave` (`capeWave`). Layers and drivers find them by these names. A component can't have a bone's name |
 | `layers` | the renderer layers the model draws with, id to options: `mobends:armor`, `mobends:held_item`, `mobends:custom_head` (`{"bone": "head"}`), `mobends:cape`, `mobends:elytra` replace vanilla's (which draw their own unanimated copies of the model); `mobends:accessories` is added. Armour follows the bones named as a biped's (`body`, `head`, `leftArm`, `leftForeArm`, ...), the held item `rightHeldItem` / `leftHeldItem`, the cape `body` and `cape`. A vanilla layer no entry replaces is kept |
+| `attackComboTicks` | a swing within this many ticks of the last counted one, while the main hand holds an item, isn't counted: it continues a sword combo (see `entityTicksAfterAttack`); 0, the default, counts every swing |
+| `smoothness` | the damping a bone starts with, kept until an animator sets one, by name: a bone, a component, or `root` (the model's offset), `localOffset`, `renderRotation`, `centerRotation`. The player's animator is tuned for `root` and `renderRotation` at 2 |
 | `renderer` | how the model is drawn: `sneakOffset` (model units the model is raised while the entity sneaks: vanilla lowers a sneaking player, and the bent sneak pose needs it higher), `flyingSneakOffset` (the same while a player flies; default `sneakOffset`), `firstPersonRest` (bones whose animated rotation is dropped while the first-person hand is drawn: the arm's chain from the body). Vanilla draws the first-person hand through the arm's field alone, so its stand-in draws the arm then, with its parents' transforms |
 | `@define`, `@on` | the entity scope: what the mob exposes to its animators and extensions (`entity.wingAngle`) and remembers across frames, as an animator's scopes declare theirs (see *Definitions and statements*). The only place `field` and `exists` are written (see *Reading the entity*) |
 | `@comment` | a note, ignored |

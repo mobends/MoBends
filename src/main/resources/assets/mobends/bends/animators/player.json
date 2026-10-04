@@ -72,7 +72,7 @@
             {"when": {"gt": ["entityTicksFalling", 10]}, "then": "falling"},
             {
               "when": "entityIsSprinting",
-              "then": [{"when": "SPRINT_JUMP_LEG", "then": "sprint_jump_right"}, {"then": "sprint_jump_left"}]
+              "then": [{"when": "entity.sprintJumpLeg", "then": "sprint_jump_right"}, {"then": "sprint_jump_left"}]
             },
             {"then": "jump"}
           ]
@@ -515,7 +515,7 @@
                     {"ge": ["entityTicksAfterAttack", 10]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "centerRotation", "axis": "x", "angle": "flightPitch"},
+                "core:axis_rotate": {"bone": "centerRotation", "axis": "x", "angle": "entity.flightPitch"},
                 "@space": "override"
               },
               {
@@ -581,7 +581,7 @@
                     {"ge": ["entityTicksAfterAttack", 10]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": ["flightPitch", -1]}},
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": ["entity.flightPitch", -1]}},
                 "@space": "pre"
               },
               {
@@ -618,7 +618,7 @@
                     {"ge": ["entityTicksAfterAttack", 10]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": {"mul": ["flightSpeedFactor", 55]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": {"mul": ["entity.flightSpeedFactor", 55]}},
                 "@space": "pre"
               },
               {
@@ -666,7 +666,7 @@
                     {"ge": ["entityTicksAfterAttack", 10]}
                   ]
                 },
-                "core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": {"mul": ["flightSpeedFactor", -55]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": {"mul": ["entity.flightSpeedFactor", -55]}},
                 "@space": "pre"
               },
               {
@@ -1356,7 +1356,7 @@
               {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": -90}, "@space": "pre"},
               {"core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": -60}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": {"mul": ["flightSpeedFactor", 55]}},
+                "core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": {"mul": ["entity.flightSpeedFactor", 55]}},
                 "@space": "pre"
               },
               {
@@ -1365,7 +1365,7 @@
               },
               {"core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": 60}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": {"mul": ["flightSpeedFactor", -55]}},
+                "core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": {"mul": ["entity.flightSpeedFactor", -55]}},
                 "@space": "pre"
               },
               {

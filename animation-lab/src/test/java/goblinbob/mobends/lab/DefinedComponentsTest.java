@@ -58,6 +58,9 @@ public class DefinedComponentsTest
         assertNotNull(data.getBone("rightHeldItem"));
         assertNotNull(data.getPart("cape"), "the cape hangs from a bone of its own");
 
+        // The biped's animators are tuned for its offset and turn smoothed at twice the usual rate.
+        assertEquals(2, data.globalOffset.smoothness.x, 0);
+
         // Components move on with the parts.
         CapeWave wave = data.getComponent("capeWave", CapeWave.class);
         data.updateParts(1);

@@ -433,7 +433,7 @@ const playerSelect: Obj[] = [
     { when: { "core:is_flying": [] }, then: "flying" },
     { when: cmp("entityTicksFalling", ">", 10), then: "falling" },
     // the sprint jump leads with the leg the entity data picked
-    { when: state("entityIsSprinting"), then: [{ when: state("SPRINT_JUMP_LEG"), then: "sprint_jump_right" }, { then: "sprint_jump_left" }] },
+    { when: state("entityIsSprinting"), then: [{ when: state("entity.sprintJumpLeg"), then: "sprint_jump_right" }, { then: "sprint_jump_left" }] },
     { then: "jump" },
   ] },
   { when: state("entityIsStandingStill"), then: "stand" },
@@ -472,8 +472,8 @@ const pElytra: Obj = poseNode([
   clip(PL("elytra"), {}, { damping: { head: 1, body: 0.7, leftArm: 0.7, rightArm: 0.7, leftForeArm: 0.7, rightForeArm: 0.7,
                                            leftLeg: 0.7, rightLeg: 0.7, leftForeLeg: 0.7, rightForeLeg: 0.7, centerRotation: 1, renderRotation: 0.7, root: 0.7 }, vectorModes: { root: "slide" } }),
   drv("head", "Y", "entityHeadYaw", { space: "override" }), drv("head", "X", null, { const: -90 }),
-  drv("leftArm", "Z", null, { const: -60 }), drv("leftArm", "Z", "flightSpeedFactor", { scale: 55 }), drv("leftArm", "Z", { abs: ["entityHeadYaw"] }, { scale: -0.5 }),
-  drv("rightArm", "Z", null, { const: 60 }), drv("rightArm", "Z", "flightSpeedFactor", { scale: -55 }), drv("rightArm", "Z", { abs: ["entityHeadYaw"] }, { scale: 0.5 }),
+  drv("leftArm", "Z", null, { const: -60 }), drv("leftArm", "Z", "entity.flightSpeedFactor", { scale: 55 }), drv("leftArm", "Z", { abs: ["entityHeadYaw"] }, { scale: -0.5 }),
+  drv("rightArm", "Z", null, { const: 60 }), drv("rightArm", "Z", "entity.flightSpeedFactor", { scale: -55 }), drv("rightArm", "Z", { abs: ["entityHeadYaw"] }, { scale: 0.5 }),
 ]);
 
 const flySprint = AND(state("entityIsSprinting"), NOT(state("entityIsDrawingBow")), cmp("entityTicksAfterAttack", ">=", 10));
@@ -488,12 +488,12 @@ const pFlying: Obj = poseNode([
   // sprint-flying
   when(clip(PL("fly_sprint"), {}, { damping: { centerRotation: 1, head: 1, body: 0.7, leftArm: 0.7, rightArm: 0.7, leftForeArm: 0.7, rightForeArm: 0.7,
                                                     leftLeg: 0.7, rightLeg: 0.7, leftForeLeg: 0.7, rightForeLeg: 0.7 } }), flySprint),
-  when(drv("centerRotation", "X", "flightPitch", { space: "override" }), flySprint), when(drv("centerRotation", "Z", "entityHeadYaw"), flySprint),
+  when(drv("centerRotation", "X", "entity.flightPitch", { space: "override" }), flySprint), when(drv("centerRotation", "Z", "entityHeadYaw"), flySprint),
   when(bodyRotXDrv("body", 1, "override"), flySprint),
   when(drv("head", "Y", "entityHeadYaw", { space: "override" }), flySprint), when(drv("head", "X", "entityHeadPitch"), flySprint),
-  when(bodyRotXDrv("head", -1, "pre"), flySprint), when(drv("head", "X", "flightPitch", { scale: -1 }), flySprint),
-  when(bodyRotXDrv("leftArm", -1, "override"), flySprint), when(drv("leftArm", "Z", null, { const: -60 }), flySprint), when(drv("leftArm", "Z", "flightSpeedFactor", { scale: 55 }), flySprint), when(drv("leftArm", "Z", { abs: ["entityHeadYaw"] }, { scale: -0.5 }), flySprint),
-  when(bodyRotXDrv("rightArm", -1, "override"), flySprint), when(drv("rightArm", "Z", null, { const: 60 }), flySprint), when(drv("rightArm", "Z", "flightSpeedFactor", { scale: -55 }), flySprint), when(drv("rightArm", "Z", { abs: ["entityHeadYaw"] }, { scale: 0.5 }), flySprint),
+  when(bodyRotXDrv("head", -1, "pre"), flySprint), when(drv("head", "X", "entity.flightPitch", { scale: -1 }), flySprint),
+  when(bodyRotXDrv("leftArm", -1, "override"), flySprint), when(drv("leftArm", "Z", null, { const: -60 }), flySprint), when(drv("leftArm", "Z", "entity.flightSpeedFactor", { scale: 55 }), flySprint), when(drv("leftArm", "Z", { abs: ["entityHeadYaw"] }, { scale: -0.5 }), flySprint),
+  when(bodyRotXDrv("rightArm", -1, "override"), flySprint), when(drv("rightArm", "Z", null, { const: 60 }), flySprint), when(drv("rightArm", "Z", "entity.flightSpeedFactor", { scale: -55 }), flySprint), when(drv("rightArm", "Z", { abs: ["entityHeadYaw"] }, { scale: 0.5 }), flySprint),
   // hovering
   when(clip(PL("fly_hover_arms"), { frame: looped(scaled("ticks", 0.0825)) }, { damping: { leftArm: 0.3, rightArm: 0.3, leftForeArm: 0.3, rightForeArm: 0.3 } }), flyHover),
   when(clip(PL("fly_hover_legs"), { frame: looped(scaled("ticks", 0.125)) }, { damping: { leftLeg: 0.3, rightLeg: 0.3, leftForeLeg: 0.4, rightForeLeg: 0.4 } }), flyHover),

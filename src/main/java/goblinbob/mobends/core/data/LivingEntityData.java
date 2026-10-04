@@ -1,11 +1,13 @@
 package goblinbob.mobends.core.data;
 
+
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockVine;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -21,6 +23,8 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     protected float ticksInAir;
     protected float ticksAfterTouchdown;
     protected float ticksAfterAttack;
+    /** See {@link #setAttackComboTicks}. */
+    protected float attackComboTicks;
     protected float ticksFalling;
     protected float climbingCycle = 0F;
     protected boolean alreadyAttacked = false;
@@ -196,9 +200,28 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         this.ticksInAir = 0.0F;
     }
 
+    /**
+     * Counts a swing: {@code entityTicksAfterAttack} goes back to 0, unless the swing continues a
+     * combo (see {@link #attackComboTicks}).
+     */
     public void onAttack()
     {
+        if (attackComboTicks > 0 && ticksAfterAttack <= attackComboTicks
+                && entity.getHeldItem(EnumHand.MAIN_HAND).getItem() != Items.AIR)
+        {
+            return;
+        }
         this.ticksAfterAttack = 0.0F;
+    }
+
+    /**
+     * A swing within this many ticks of the last counted one, while the main hand holds an item,
+     * isn't counted: it continues the combo instead of starting a new one (the animator reacts to
+     * {@code entityTicksAfterAttack} going back to 0). Punches always count; 0 counts every swing.
+     */
+    public void setAttackComboTicks(float attackComboTicks)
+    {
+        this.attackComboTicks = attackComboTicks;
     }
 
     public float getClimbingRotation()

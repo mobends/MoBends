@@ -4,7 +4,9 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
+import goblinbob.mobends.core.math.SmoothOrientation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
@@ -77,6 +79,7 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
                 previous = part;
             }
         }
+        setAttackComboTicks(definition.attackComboTicks);
         if (definition.components != null)
         {
             for (Map.Entry<String, String> component : definition.components.entrySet())
@@ -90,6 +93,42 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
                 addComponent(component.getKey(), factory.create(this));
             }
         }
+        if (definition.smoothness != null)
+        {
+            for (Map.Entry<String, Float> entry : definition.smoothness.entrySet())
+            {
+                if (!setSmoothness(entry.getKey(), entry.getValue()))
+                {
+                    Core.LOG.warning("Model definition for " + definition.entity + ": 'smoothness' names '" + entry.getKey() + "', which is nothing that turns or moves.");
+                }
+            }
+        }
+    }
+
+    private boolean setSmoothness(String name, float smoothness)
+    {
+        if (Skeleton.ROOT.equals(name) || Skeleton.GLOBAL_OFFSET.equals(name))
+        {
+            globalOffset.smoothness.set(smoothness, smoothness, smoothness);
+            return true;
+        }
+        if (Skeleton.LOCAL_OFFSET.equals(name))
+        {
+            localOffset.smoothness.set(smoothness, smoothness, smoothness);
+            return true;
+        }
+        Object part = getPartForName(name);
+        if (part instanceof ModelPartTransform)
+        {
+            ((ModelPartTransform) part).rotation.setSmoothness(smoothness);
+            return true;
+        }
+        if (part instanceof SmoothOrientation)
+        {
+            ((SmoothOrientation) part).setSmoothness(smoothness);
+            return true;
+        }
+        return false;
     }
 
     /**
