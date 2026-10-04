@@ -56,11 +56,14 @@ public class DefinedModelsTest
 
     static
     {
-        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie" })
+        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie", "squid" })
         {
             DEFAULT_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
         }
     }
+
+    /** The models that swim rather than walk: they are only built and checked against their animator. */
+    private static final Set<String> SWIMMERS = Collections.singleton("mobends:squid");
 
     /** The models whose animator moves the limbs while standing. */
     private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:pig_zombie"));
@@ -150,6 +153,8 @@ public class DefinedModelsTest
         {
             assertNotNull(data.getBone(skeleton.nameOf(i)), name + ": the animator drives '" + skeleton.nameOf(i) + "', which the definition does not declare");
         }
+
+        if (SWIMMERS.contains(name)) return;
 
         // A leg (its first segment, if it is split) must move once the mob walks: a bone named a leg (a creeper's body is split, its legs aren't), else one with a split.
         String leg = definition.bones.stream().filter(b -> b.name.toLowerCase().contains("leg")).map(b -> b.name).findFirst()

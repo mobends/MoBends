@@ -312,7 +312,6 @@ to do: the values a mob's data class keeps or computes itself, which move into i
 | old (uses) | new |
 |---|---|
 | spider: `crawlProgress` (2), `crawlRenderYaw` (1) | spider state, and `mobends:spider_wall_rotation` |
-| squid: `squidRotation` (2), `SQUID_ROTATION_LOW` (2), `SQUID_PREV_ROTATION_LOW` (2) | `field` reads in the squid's files |
 
 The capitals rule for a bare name goes with the last of them.
 
@@ -373,7 +372,7 @@ fields are in the generated tables, each skin variant's `RenderPlayer` gets its 
 
 Registration (done): an addon registers a definition as the default model of its entity class,
 under the key it names (`AddonAnimationRegistry.registerDefinedEntity`); the player, zombie,
-skeleton, zombie villager and pig zombie are registered this way, and
+skeleton, zombie villager, pig zombie and squid are registered this way, and
 `-Dmobends.javaModels=true` brings back their Java models to compare. Left: deleting those Java
 models (benders, mutators, renderers, data classes) once the defined ones are checked in the
 game.
@@ -410,7 +409,8 @@ Other mobs:
   skeleton's left arm is mirrored as vanilla's (the Java one wasn't).
 - **Spider:** longer legs rebuilt from constants (definitions can't resize geometry), leg IK state
   on `SpiderData`.
-- **Squid:** close; needs the comparisons and a section offset.
+- **Squid** (done: `squid`; its tentacles are vanilla's, cut into nine sections, where the Java
+  squid moved them a unit in and down; its phase reads `field`s).
 - **Wolf:** nose, mouth and ears are cut from one part's boxes (needs bones built from selected
   boxes), texture rotations for the body and mane, and extra textured meshes (`LayerWolfMisc`).
 
@@ -517,8 +517,8 @@ the additive and smaller ones.
 19. [ ] **The hand-written files**: done (`iron_golem`, `creeper`, `cow`, `wolf`, the model
     definitions, the type files, the example packs, the player's values: its definition's entity
     scope, `attackComboTicks` and the `capeWave` component) but for the mob-specific values a data
-    class keeps or computes: the squid's rotation; the spider's crawl (the zombie's animation set
-    and walking state are its definition's). They move into each mob's files with tasks 22–24 (*Entity values from the data
+    class keeps or computes: the spider's crawl (the zombie's and the squid's are their
+    definitions'). They move into each mob's files with tasks 22–24 (*Entity values from the data
     classes*).
 20. [x] **Tests**: the ones with inline animator JSON and the ones on shipped assets; the goldens
     re-recorded where behaviour moved on purpose (the riding threshold is 0.2 blocks per tick).
@@ -536,8 +536,8 @@ the additive and smaller ones.
 23. [ ] **One generic data class**, with per-mob parts as components declared by the model
     (*Per-entity data*).
 24. [ ] **Zombies, skeletons and the rest** the same way, plus their own items (*Moving mobs out of
-    Java*). Done: zombies, skeletons, zombie villagers, pig zombies. Left: the spider, squid and
-    wolf.
+    Java*). Done: zombies, skeletons, zombie villagers, pig zombies, the squid. Left: the spider
+    and the wolf.
 
 **Smaller**
 

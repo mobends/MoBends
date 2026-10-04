@@ -8,8 +8,8 @@
           "core:pose": {
             "pose": [
               {
-                "@when": "SQUID_PREV_ROTATION_LOW",
-                "core:clip": {"animationKey": "mobends:bends/animations/squid/swim_base.json", "frame": "squidRotation"},
+                "@when": "entity.prevRotationLow",
+                "core:clip": {"animationKey": "mobends:bends/animations/squid/swim_base.json", "frame": "entity.rotation"},
                 "@damping": {
                   "tentacle_0_0": 0.1,
                   "tentacle_1_0": 0.1,
@@ -22,7 +22,7 @@
                 }
               },
               {
-                "@when": {"not": ["SQUID_PREV_ROTATION_LOW"]},
+                "@when": {"not": ["entity.prevRotationLow"]},
                 "core:clip": {"animationKey": "mobends:bends/animations/squid/swim_base_rest.json"},
                 "@damping": {
                   "tentacle_0_0": 0.1,
@@ -36,10 +36,10 @@
                 }
               },
               {
-                "@when": "SQUID_ROTATION_LOW",
+                "@when": "entity.rotationLow",
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/squid/swim_sections.json",
-                  "frame": "squidRotation"
+                  "frame": "entity.rotation"
                 },
                 "@damping": {
                   "tentacle_0_1": 0.1,
@@ -109,7 +109,7 @@
                 }
               },
               {
-                "@when": {"not": ["SQUID_ROTATION_LOW"]},
+                "@when": {"not": ["entity.rotationLow"]},
                 "core:clip": {"animationKey": "mobends:bends/animations/squid/swim_sections_rest.json"},
                 "@damping": {
                   "tentacle_0_1": 0.1,

@@ -606,7 +606,7 @@ restarted (the player's is 6).
 
 **Values specific to a mob** are its model definition's (`entity.flightPitch`, see *Model
 definitions*), or, until they move into the mob's own files, the entity's own, named by its data
-class (the squid's `squidRotation`, the spider's `crawlProgress`): a
+class (the spider's `crawlProgress`): a
 bare name that isn't a built-in, a **state** (a boolean) if written in capitals, else a
 **variable** (a number).
 
@@ -864,13 +864,14 @@ its own animator's `@define`), so two extensions never collide on an `entity.` n
 definitions have no `extends` (yet). A model definition from a resource pack is untrusted: an
 untrusted animator may set its state, never a trusted one's.
 
-The player, the zombie, the skeleton, the zombie villager and the zombie pigman are model
-definitions too (`player`, `zombie`, `skeleton`, `zombie_villager`, `pig_zombie`): the default
+The player, the zombie, the skeleton, the zombie villager, the zombie pigman and the squid are
+model definitions too (`player`, `zombie`, `skeleton`, `zombie_villager`, `pig_zombie`,
+`squid`): the default
 models of their entity classes rather than a type file's (an addon registers them with
 `registerDefinedEntity`). Their bodies bend at the hips, their limbs at elbows and knees (the
 player's sleeves and trousers ride them), and they declare the components, layers, renderer
 settings and entity values their animators and layers use (the zombie's animation set and
-walking style).
+walking style, the squid's tentacle phase). The squid's tentacles are cut into nine sections.
 The other shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
 `villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
 elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: stand / walk /

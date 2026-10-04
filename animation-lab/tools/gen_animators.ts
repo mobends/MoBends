@@ -964,12 +964,12 @@ curveClip(join(CLIPS, "squid", "swim_sections.json"), (t) => squidSections(t, tr
 poseClip(join(CLIPS, "squid", "swim_sections_rest.json"), squidSections(0, false));
 const squidBaseDamp = Object.fromEntries(range(8).map((i) => [`tentacle_${i}_0`, 0.1]));
 const squidSectionDamp = Object.fromEntries(range(8).flatMap((i) => range(9, 1).map((j) => [`tentacle_${i}_${j}`, 0.1])));
-const squidFrame = "squidRotation";
+const squidFrame = "entity.rotation";
 const squid: Obj = { formatVersion: 2, layers: [{ defaultOnEntry: "swim", nodes: { swim: poseNode([
-  when(clip(SQ("swim_base"), { frame: squidFrame }, { damping: squidBaseDamp }), state("SQUID_PREV_ROTATION_LOW")),
-  when(clip(SQ("swim_base_rest"), {}, { damping: squidBaseDamp }), NOT(state("SQUID_PREV_ROTATION_LOW"))),
-  when(clip(SQ("swim_sections"), { frame: squidFrame }, { damping: squidSectionDamp }), state("SQUID_ROTATION_LOW")),
-  when(clip(SQ("swim_sections_rest"), {}, { damping: squidSectionDamp }), NOT(state("SQUID_ROTATION_LOW"))),
+  when(clip(SQ("swim_base"), { frame: squidFrame }, { damping: squidBaseDamp }), state("entity.prevRotationLow")),
+  when(clip(SQ("swim_base_rest"), {}, { damping: squidBaseDamp }), NOT(state("entity.prevRotationLow"))),
+  when(clip(SQ("swim_sections"), { frame: squidFrame }, { damping: squidSectionDamp }), state("entity.rotationLow")),
+  when(clip(SQ("swim_sections_rest"), {}, { damping: squidSectionDamp }), NOT(state("entity.rotationLow"))),
 ]) } }] };
 
 

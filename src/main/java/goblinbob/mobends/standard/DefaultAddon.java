@@ -50,6 +50,7 @@ public class DefaultAddon implements IAddon
 			registry.registerNewEntity(EntitySkeleton.class, SkeletonData::new, SkeletonMutator::new, new BipedRenderer<>());
 			registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>());
 			registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>());
+			registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>());
 		}
 		else
 		{
@@ -58,11 +59,10 @@ public class DefaultAddon implements IAddon
 			registry.registerDefinedEntity("skeleton");
 			registry.registerDefinedEntity("zombie_villager");
 			registry.registerDefinedEntity("pig_zombie");
+			registry.registerDefinedEntity("squid");
 		}
 
 		registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>());
-
-		registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>());
 
 		registry.registerNewEntity(EntityWolf.class, WolfData::new, WolfMutator::new, new WolfRenderer<>());
 

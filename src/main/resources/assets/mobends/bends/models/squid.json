@@ -1,0 +1,31 @@
+{
+  "formatVersion": 2,
+  "@comment": "The squid: each tentacle cut into nine sections that curl one after another, hinged on their back edge. Its animator's clips turn every tentacle to where vanilla points it. Its entity scope reads the tentacle phase vanilla animates with.",
+  "entity": "net.minecraft.entity.passive.EntitySquid",
+  "model": "net.minecraft.client.model.ModelSquid",
+  "animator": "mobends:bends/animators/squid.json",
+  "bones": [
+    {"name": "body", "vanilla": {"field": "squidBody"}},
+    {"name": "tentacle_0_0", "vanilla": {"field": "squidTentacles", "element": 0},
+     "split": {"axis": "y", "at": [0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889], "names": ["tentacle_0_1", "tentacle_0_2", "tentacle_0_3", "tentacle_0_4", "tentacle_0_5", "tentacle_0_6", "tentacle_0_7", "tentacle_0_8"], "hinge": "back", "caps": true}},
+    {"name": "tentacle_1_0", "vanilla": {"field": "squidTentacles", "element": 1},
+     "split": {"axis": "y", "at": [0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889], "names": ["tentacle_1_1", "tentacle_1_2", "tentacle_1_3", "tentacle_1_4", "tentacle_1_5", "tentacle_1_6", "tentacle_1_7", "tentacle_1_8"], "hinge": "back", "caps": true}},
+    {"name": "tentacle_2_0", "vanilla": {"field": "squidTentacles", "element": 2},
+     "split": {"axis": "y", "at": [0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889], "names": ["tentacle_2_1", "tentacle_2_2", "tentacle_2_3", "tentacle_2_4", "tentacle_2_5", "tentacle_2_6", "tentacle_2_7", "tentacle_2_8"], "hinge": "back", "caps": true}},
+    {"name": "tentacle_3_0", "vanilla": {"field": "squidTentacles", "element": 3},
+     "split": {"axis": "y", "at": [0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889], "names": ["tentacle_3_1", "tentacle_3_2", "tentacle_3_3", "tentacle_3_4", "tentacle_3_5", "tentacle_3_6", "tentacle_3_7", "tentacle_3_8"], "hinge": "back", "caps": true}},
+    {"name": "tentacle_4_0", "vanilla": {"field": "squidTentacles", "element": 4},
+     "split": {"axis": "y", "at": [0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889], "names": ["tentacle_4_1", "tentacle_4_2", "tentacle_4_3", "tentacle_4_4", "tentacle_4_5", "tentacle_4_6", "tentacle_4_7", "tentacle_4_8"], "hinge": "back", "caps": true}},
+    {"name": "tentacle_5_0", "vanilla": {"field": "squidTentacles", "element": 5},
+     "split": {"axis": "y", "at": [0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889], "names": ["tentacle_5_1", "tentacle_5_2", "tentacle_5_3", "tentacle_5_4", "tentacle_5_5", "tentacle_5_6", "tentacle_5_7", "tentacle_5_8"], "hinge": "back", "caps": true}},
+    {"name": "tentacle_6_0", "vanilla": {"field": "squidTentacles", "element": 6},
+     "split": {"axis": "y", "at": [0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889], "names": ["tentacle_6_1", "tentacle_6_2", "tentacle_6_3", "tentacle_6_4", "tentacle_6_5", "tentacle_6_6", "tentacle_6_7", "tentacle_6_8"], "hinge": "back", "caps": true}},
+    {"name": "tentacle_7_0", "vanilla": {"field": "squidTentacles", "element": 7},
+     "split": {"axis": "y", "at": [0.111111, 0.222222, 0.333333, 0.444444, 0.555556, 0.666667, 0.777778, 0.888889], "names": ["tentacle_7_1", "tentacle_7_2", "tentacle_7_3", "tentacle_7_4", "tentacle_7_5", "tentacle_7_6", "tentacle_7_7", "tentacle_7_8"], "hinge": "back", "caps": true}}
+  ],
+  "@define": {
+    "rotation": {"live": {"lerp": [{"field": ["prevSquidRotation"]}, {"field": ["squidRotation"]}, "partialTicks"]}},
+    "rotationLow": {"live": {"lt": [{"field": ["squidRotation"]}, 3.1415927]}},
+    "prevRotationLow": {"live": {"lt": [{"field": ["prevSquidRotation"]}, 3.1415927]}}
+  }
+}

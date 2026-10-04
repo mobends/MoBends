@@ -13,7 +13,7 @@
 - Mods and resource packs can animate new mobs without code, with model definitions in
   `assets/<namespace>/bends/models/`. A model definition can compute the mob's own values from
   its fields, for its animation and every extension to read.
-- The player, zombies, zombie villagers, zombie pigmen and skeletons are model definitions
+- The player, zombies, zombie villagers, zombie pigmen, skeletons and squids are model definitions
   (`bends/models/`) like the other mobs, so mods and resource packs can change their geometry,
   layers and values without code.
 - Mods can add their own animation logic to the JSON format: operations (values computed in Java,

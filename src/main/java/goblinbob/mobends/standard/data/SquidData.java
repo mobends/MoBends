@@ -1,7 +1,5 @@
 package goblinbob.mobends.standard.data;
 
-import goblinbob.mobends.core.client.event.DataUpdateHandler;
-import goblinbob.mobends.core.util.GUtil;
 
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
@@ -30,15 +28,11 @@ public class SquidData extends LivingEntityData<EntitySquid>
 		return ANIMATOR;
 	}
 
+	/** Its tentacle phase is the model definition's entity scope, as for the defined squid. */
 	@Override
-	protected void registerKumoBindings()
+	protected ResourceLocation getModelDefinition()
 	{
-		super.registerKumoBindings();
-		// The tentacle phase the vanilla model animates with (interpolated), and whether it has
-		// wrapped around yet this cycle.
-		registerVariable("squidRotation", () -> entity.prevSquidRotation + (entity.squidRotation - entity.prevSquidRotation) * DataUpdateHandler.partialTicks);
-		registerState("SQUID_ROTATION_LOW", () -> entity.squidRotation < GUtil.PI);
-		registerState("SQUID_PREV_ROTATION_LOW", () -> entity.prevSquidRotation < GUtil.PI);
+		return new ResourceLocation(ModStatics.MODID, "bends/models/squid.json");
 	}
 
 	@Override
