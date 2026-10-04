@@ -191,15 +191,11 @@ out of Java*).
 Class-specific logic is a registered operation; class-specific memory is `entity.` state in the
 mob's model definition.
 
-The held-item, use-action and equipment operations are in the spec (*Expressions*). The others:
-
-| operation | |
-|---|---|
-| `core:is_flying` | `EntityPlayer` flying |
-| `mobends:is_sitting`, `mobends:wolf_interested_angle`, `mobends:wolf_shake_angle` [offset], `mobends:wolf_tail_rotation` | the wolf |
-| `mobends:is_beside_climbable`, `mobends:spider_wall_rotation` | the spider |
-| `mobends:spin_attack_enabled` | the player's spin-attack config option |
-| `core:entity_type`, `core:player_name`, `core:player_uuid`, `mobends:skin_variant` | type-file selectors only (no entity data exists yet) |
+The registered operations are in the spec (*Expressions*), `core:is_flying`, the wolf's and the
+spider's among them. Still to come: `mobends:spider_wall_rotation` (the wall the spider crawls
+on, which its crawl yaw is measured from), and the type-file selector operations (`core:entity_type`,
+`core:player_name`, `core:player_uuid`, `mobends:skin_variant`; task 13), which need no entity
+data.
 
 The player's state, for example. Its swing counter ignores a swing within 6 ticks of the last
 counted one while the main hand holds an item, so a sword combo isn't restarted:
@@ -285,8 +281,6 @@ Still to come:
   and evaluate against the selector context (player name, UUID, skin variant), not entity data.
   Any other operation in a type file's selector is a load error. This replaces
   `registerSelectorCondition` (task 13).
-- Mo' Bends' own operations move to the API (task 12); `core:holds_item` and the others are still
-  registered the internal way.
 
 ## Runtime
 
@@ -400,21 +394,21 @@ Their private state moves from Java fields (`StepTurnDriver`'s planted feet, `Sp
 
 ### Entity values from the data classes
 
-The values every entity has are built-ins (spec, *Built-in values*; task 8). Still to do: the
-values specific to a mob, and the biped's `CAN_SPIN_ATTACK` (always true), which goes with the
-player's.
+The values every entity has are built-ins (spec, *Built-in values*; task 8), and the wolf's, the
+spider's climbing, the player's flying and the spin-attack setting are operations (task 12). Still
+to do: the values a mob's data class keeps or computes itself, which move into its own files
+(its model definition: *Moving mobs out of Java*).
 
-**Specific to a mob:**
+**Specific to a mob, still to do:**
 
 | old (uses) | new |
 |---|---|
-| `FLYING` (1) | `core:is_flying` |
-| `core:equipment_name` (a condition) | `core:equipment_name` [slot, pattern] |
-| wolf: `SITTING`, `interestedAngle`, `shakeAngleHead` / `Mane` / `Tail`, `tailRotation`, `tailWag` (1) | `mobends:is_sitting`, `mobends:wolf_interested_angle`, `mobends:wolf_shake_angle`, `mobends:wolf_tail_rotation`; `tailWag` a wolf definition |
-| spider: `BESIDE_CLIMBABLE`, wall facing, `crawlProgress` (2), `crawlRenderYaw` (1) | `mobends:is_beside_climbable`, `mobends:spider_wall_rotation`; spider state or operations |
+| spider: `crawlProgress` (2), `crawlRenderYaw` (1) | spider state, and `mobends:spider_wall_rotation` |
 | squid: `squidRotation` (2), `SQUID_ROTATION_LOW` (2), `SQUID_PREV_ROTATION_LOW` (2) | `field` reads in the squid's files |
-| player: `flightSpeedFactor` (4), `flightPitch` (2), `CAN_SPIN_ATTACK` (4), `SPRINT_JUMP_LEG`, the cape phase | player definitions and state (`flightPitch` is a live definition over the motion built-ins, *Values specific to a mob*); `mobends:spin_attack_enabled` |
+| player: `flightSpeedFactor` (4), `flightPitch` (2), `SPRINT_JUMP_LEG`, the cape phase | player definitions and state (`flightPitch` is a live definition over the motion built-ins, *Values specific to a mob*) |
 | zombie: `animationSet` (2), `currentWalkingState` (1) | zombie state: a constant from `entityId`; a random value on a timer |
+
+The capitals rule for a bare name goes with the last of them.
 
 **The swing filter.** `PlayerData.onAttack` ignores a swing within 6 ticks of the last counted one
 while the main hand holds an item, so the player's `entityTicksAfterAttack` differs from every
@@ -726,9 +720,10 @@ the additive and smaller ones.
 11. [ ] **Drivers' private state as declared slots**: `core:step_turn`'s planted feet and the
     spider legs' (with task 2). `out`, `inout`, and the removal of `core:ramp`, `core:set` and
     `readBeforeAdvance` are done.
-12. [ ] **Registered operations**: `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
+12. [x] **Registered operations**: `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
     `core:is_flying`; `mobends:use_action`, `mobends:attack_action`, the wolf's and the spider's
-    operations, `mobends:spin_attack_enabled` (*Values specific to a mob*).
+    operations, `mobends:spin_attack_enabled` (*Values specific to a mob*). The spider's wall
+    rotation goes with its crawl state, into its own files.
 13. [ ] **Type-file selectors as expressions**: the selector operations (`core:entity_type`,
     `core:player_name`, `core:player_uuid`, `mobends:skin_variant`) and precedence counted over
     expressions (*Files*).

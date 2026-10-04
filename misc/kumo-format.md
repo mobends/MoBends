@@ -149,7 +149,7 @@ has a selector and connections of its own.
   "select": [
     {"when": "entityIsSleeping", "then": "sleeping"},
     {"when": "layer.jumping", "then": [
-      {"when": "FLYING", "then": "flying"},
+      {"when": {"core:is_flying": []}, "then": "flying"},
       {"then": "jump"}
     ]},
     {"when": "entityIsStandingStill", "then": "stand"},
@@ -525,16 +525,26 @@ definition declares and stay portable: how a mob provides a value stays in its o
 
 `@fallback` is refused on an operation that takes none (one that can always be computed).
 
-**Registered operations** have a namespaced name, and take arguments of their own kinds:
+**Registered operations** have a namespaced name, and take arguments of their own kinds. Each
+applies to the entities of a class (and its subclasses): written in an animator for an entity of
+another class, it takes its `@fallback`, or the animator fails to load. (Mods add their own: see
+`docs/animation.md`, *Operations in Java*.)
 
-| operation | arguments | holds while |
-|---|---|---|
-| `core:holds_item` | `[hand, item]`: `main_hand` or `off_hand`, an item id | the hand holds that item |
-| `core:holds_any_item` | `[hand]` | the hand holds anything |
-| `core:active_hand_side` | `[side]`: `left` or `right` | the hand on that side is using an item |
-| `core:equipment_name` | `[slot, pattern]`: `mainhand`, `offhand`, `head`, `chest`, `legs`, `feet`, and a regular expression | the display name of what a player has in the slot matches the pattern as a whole |
-| `mobends:use_action` | `[action]`: `food`, `bow` or `shield` | the item in use is used as that (Mo' Bends' classification, which the config can change) |
-| `mobends:attack_action` | `[action]`: `fists`, `sword` or `tool` | the held item attacks as that |
+| operation | arguments | value | applies to |
+|---|---|---|---|
+| `core:holds_item` | `[hand, item]`: `main_hand` or `off_hand`, an item id | the hand holds that item | living entities |
+| `core:holds_any_item` | `[hand]` | the hand holds anything | living entities |
+| `core:active_hand_side` | `[side]`: `left` or `right` | the hand on that side is using an item | living entities |
+| `core:equipment_name` | `[slot, pattern]`: `mainhand`, `offhand`, `head`, `chest`, `legs`, `feet`, and a regular expression | the display name of what the entity has in the slot matches the pattern as a whole | living entities |
+| `core:is_flying` | none | the player flies (creative or spectator flight, not an elytra) | players |
+| `mobends:use_action` | `[action]`: `food`, `bow` or `shield` | the item in use is used as that (Mo' Bends' classification, which the config can change) | living entities |
+| `mobends:attack_action` | `[action]`: `fists`, `sword` or `tool` | the held item attacks as that | living entities |
+| `mobends:spin_attack_enabled` | none | the config lets the sword combo end with a spin | every entity |
+| `mobends:is_sitting` | none | the wolf sits | wolves |
+| `mobends:wolf_interested_angle` | none | the head's tilt while begging, in degrees (a number) | wolves |
+| `mobends:wolf_shake_angle` | `[offset]`, a number written out: how far behind the head the part shakes (vanilla's: head 0, mane −0.08, tail −0.2) | the part's roll while shaking off water, in degrees (a number) | wolves |
+| `mobends:wolf_tail_rotation` | none | the tail's raise, as vanilla's model has it, in degrees (a number) | wolves |
+| `mobends:is_beside_climbable` | none | the spider is against a wall it climbs | spiders |
 
 Mistakes (an unknown operation, a wrong number or kind of arguments, an object with more than one
 key, a number where a boolean goes) are reported when the animator loads, in the operation's own
@@ -587,8 +597,8 @@ is the edge of a counted swing (`{"rose": ["entityIsSwinging"]}` would miss the 
 swing that keeps going). The player's ignores a swing within 6 ticks of the last counted one
 while its main hand holds an item, so a sword combo isn't restarted.
 
-**Values specific to a mob** are, until they become registered operations, the entity's own,
-named by its data class (the wolf's `SITTING` and `tailRotation`, the squid's `squidRotation`): a
+**Values specific to a mob** are, until they move into the mob's own files, the entity's own,
+named by its data class (the squid's `squidRotation`, the spider's `crawlProgress`): a
 bare name that isn't a built-in, a **state** (a boolean) if written in capitals, else a
 **variable** (a number).
 

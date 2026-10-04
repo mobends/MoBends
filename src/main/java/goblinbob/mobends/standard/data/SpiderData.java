@@ -59,7 +59,6 @@ public class SpiderData extends LivingEntityData<EntitySpider>
             final float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * DataUpdateHandler.partialTicks;
             return MathHelper.wrapDegrees(yaw - getCrawlingRotation());
         });
-        registerState("BESIDE_CLIMBABLE", entity::isBesideClimbableBlock);
     }
 
     public float getInterpolatedCrawlProgress()

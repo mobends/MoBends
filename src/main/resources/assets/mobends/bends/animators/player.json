@@ -43,7 +43,8 @@
           "entityIsSprinting"
         ]
       }
-    }
+    },
+    "canSpinAttack": {"live": {"and": [{"mobends:spin_attack_enabled": []}, {"not": ["entityIsRiding"]}]}}
   },
   "layers": [
     {
@@ -67,7 +68,7 @@
         {
           "when": "animator.jumping",
           "then": [
-            {"when": "FLYING", "then": "flying"},
+            {"when": {"core:is_flying": []}, "then": "flying"},
             {"when": {"gt": ["entityTicksFalling", 10]}, "then": "falling"},
             {
               "when": "entityIsSprinting",
@@ -2063,12 +2064,12 @@
               "do": [{"set": ["layer.combo", 4]}]
             },
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 4]}, "CAN_SPIN_ATTACK"]},
+              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 4]}, "animator.canSpinAttack"]},
               "then": "slash_whirl",
               "do": [{"set": ["layer.combo", 0]}]
             },
             {
-              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 4]}, {"not": ["CAN_SPIN_ATTACK"]}]},
+              "when": {"and": ["machine.attacked", {"eq": ["layer.combo", 4]}, {"not": ["animator.canSpinAttack"]}]},
               "then": "slash_up",
               "do": [{"set": ["layer.combo", 1]}]
             }

@@ -1,6 +1,11 @@
 {
   "formatVersion": 2,
   "@comment": "The wolf: keyframe clips for the body and the mouth, and the vanilla expressions as drivers on top.",
+  "@define": {
+    "tailWag": {"@comment": "Vanilla's tail wag: the interested angle (in radians) times a wave over the wolf's age.",
+                "live": {"mul": [{"div": [{"mobends:wolf_interested_angle": []}, 57.29578]},
+                                 {"mcsin": [{"add": ["entityTicksExisted", "partialTicks"]}]}, 20]}}
+  },
   "layers": [
     {
       "@comment": "The body clips. Every clip is hard-set (snap): the wolf's clips were authored without smoothing.",
@@ -21,7 +26,7 @@
           },
           "@connections": [
             {"when": {"not": ["entityIsStandingStill"]}, "then": "walk", "transitionDuration": 4},
-            {"when": "SITTING", "then": "sit_down", "transitionDuration": 3}
+            {"when": {"mobends:is_sitting": []}, "then": "sit_down", "transitionDuration": 3}
           ]
         },
         "walk": {
@@ -39,7 +44,7 @@
           },
           "@connections": [
             {"when": "entityIsStandingStill", "then": "idle", "transitionDuration": 4},
-            {"when": "SITTING", "then": "sit_down", "transitionDuration": 1}
+            {"when": {"mobends:is_sitting": []}, "then": "sit_down", "transitionDuration": 1}
           ]
         },
         "sit_down": {
@@ -71,7 +76,7 @@
               }
             ]
           },
-          "@connections": [{"when": {"not": ["SITTING"]}, "then": "stand_up", "transitionDuration": 1}]
+          "@connections": [{"when": {"not": [{"mobends:is_sitting": []}]}, "then": "stand_up", "transitionDuration": 1}]
         },
         "stand_up": {
           "core:pose": {
@@ -147,32 +152,32 @@
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Z", "angle": "interestedAngle"},
+                "core:axis_rotate": {"bone": "head", "axis": "Z", "angle": {"mobends:wolf_interested_angle": []}},
                 "@space": "POST",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "Z", "angle": "shakeAngleHead"},
+                "core:axis_rotate": {"bone": "head", "axis": "Z", "angle": {"mobends:wolf_shake_angle": [0]}},
                 "@space": "POST",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "mane", "axis": "Z", "angle": "shakeAngleMane"},
+                "core:axis_rotate": {"bone": "mane", "axis": "Z", "angle": {"mobends:wolf_shake_angle": [-0.08]}},
                 "@space": "POST",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "Z", "angle": "shakeAngleTail"},
+                "core:axis_rotate": {"bone": "tail", "axis": "Z", "angle": {"mobends:wolf_shake_angle": [-0.2]}},
                 "@space": "POST",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "Z", "angle": "tailWag"},
+                "core:axis_rotate": {"bone": "tail", "axis": "Z", "angle": "animator.tailWag"},
                 "@space": "POST",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "X", "angle": {"add": ["tailRotation", -90]}},
+                "core:axis_rotate": {"bone": "tail", "axis": "X", "angle": {"add": [{"mobends:wolf_tail_rotation": []}, -90]}},
                 "@space": "POST",
                 "@snap": true
               },

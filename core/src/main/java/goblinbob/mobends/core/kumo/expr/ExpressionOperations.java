@@ -347,14 +347,6 @@ public final class ExpressionOperations
         register("rose", params(bool("condition")), false, args -> new Edge(args.expression(0), true));
         register("fell", params(bool("condition")), false, args -> new Edge(args.expression(0), false));
 
-        // What the subject holds and uses, as its string properties tell.
-        register("core:holds_item", params(choice("hand", "main_hand", "off_hand"), string("item")), false, args ->
-                new PropertyIs(handProperty(args.string(0)), args.string(1)));
-        register("core:holds_any_item", params(choice("hand", "main_hand", "off_hand")), false, args ->
-                new PropertyIs(handProperty(args.string(0)), null));
-        register("core:active_hand_side", params(choice("side", "left", "right")), false, args ->
-                new PropertyIs("activeHandSide", args.string(0).toUpperCase()));
-
         // The entity's own fields, read only by its model definition's definitions.
         registerWithFallback("field", params(string("field")), true, ExpressionOperations::field);
         register("exists", params(string("field")), true, args -> {
@@ -499,11 +491,6 @@ public final class ExpressionOperations
             }
             return new Equality(args.expression(0), args.expression(1), equal);
         });
-    }
-
-    private static String handProperty(String hand)
-    {
-        return "main_hand".equals(hand) ? "mainHandItem" : "offHandItem";
     }
 
     public static float wrapDegrees(float degrees)
@@ -930,27 +917,6 @@ public final class ExpressionOperations
             last = current;
             primed = true;
             return edge;
-        }
-    }
-
-    /** Whether a string property of the subject is {@code value} (with a null value: is set at all). */
-    private static final class PropertyIs extends Expression.BooleanExpression
-    {
-        private final String property;
-        @Nullable
-        private final String value;
-
-        PropertyIs(String property, @Nullable String value)
-        {
-            this.property = property;
-            this.value = value;
-        }
-
-        @Override
-        public boolean test(ITriggerConditionContext context)
-        {
-            String actual = context.getSubject().getProperty(property);
-            return value == null ? actual != null : value.equals(actual);
         }
     }
 

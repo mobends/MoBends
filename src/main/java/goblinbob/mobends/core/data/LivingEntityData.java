@@ -99,38 +99,6 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         });
     }
 
-    // --- string-valued inputs -----------------------------------------------------------------
-
-    @Override
-    public String getProperty(String name)
-    {
-        if (entity == null) return null;
-        switch (name)
-        {
-            case "mainHandItem": return itemName(entity.getHeldItemMainhand());
-            case "offHandItem": return itemName(entity.getHeldItemOffhand());
-            case "activeItem": return itemName(entity.getActiveItemStack());
-            case "mainHandUseAction": return useAction(entity.getHeldItemMainhand());
-            case "offHandUseAction": return useAction(entity.getHeldItemOffhand());
-            case "activeHand": return entity.getActiveHand() == EnumHand.MAIN_HAND ? "MAIN_HAND" : "OFF_HAND";
-            case "primaryHand": return entity.getPrimaryHand().name();
-            case "activeHandSide": return (entity.getActiveHand() == EnumHand.MAIN_HAND ? entity.getPrimaryHand() : entity.getPrimaryHand().opposite()).name();
-            default: return null;
-        }
-    }
-
-    private static String itemName(ItemStack stack)
-    {
-        if (stack == null || stack.isEmpty()) return null;
-        net.minecraft.util.ResourceLocation key = Item.REGISTRY.getNameForObject(stack.getItem());
-        return key == null ? null : key.toString();
-    }
-
-    private static String useAction(ItemStack stack)
-    {
-        if (stack == null || stack.isEmpty()) return null;
-        return stack.getItemUseAction().name();
-    }
 
     public void setClimbing(boolean flag)
     {

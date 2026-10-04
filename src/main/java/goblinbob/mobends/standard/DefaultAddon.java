@@ -7,7 +7,7 @@ import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
 import goblinbob.mobends.standard.client.renderer.entity.mutated.*;
 import goblinbob.mobends.standard.data.*;
 import goblinbob.mobends.standard.kumo.CapeDriver;
-import goblinbob.mobends.standard.kumo.ItemActionOperations;
+import goblinbob.mobends.standard.kumo.MoBendsOperations;
 import goblinbob.mobends.standard.kumo.SwordTrailDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate;
@@ -23,7 +23,6 @@ import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.EntityZombieVillager;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityWolf;
-import goblinbob.mobends.core.kumo.expr.ExpressionOperations;
 
 public class DefaultAddon implements IAddon
 {
@@ -53,9 +52,7 @@ public class DefaultAddon implements IAddon
 		registry.registerDriver("spider_idle_legs", SpiderIdleLegsDriver::create, SpiderIdleLegsTemplate.class);
 		registry.registerDriver("spider_moving_legs", SpiderMovingLegsDriver::create, SpiderMovingLegsTemplate.class);
 		registry.registerSelectorCondition("skin_variant", SkinVariantCondition::create);
-		// They read the bipeds' item properties, not the entity, so they aren't registered operations yet (task 12).
-		ExpressionOperations.register("mobends:use_action", ItemActionOperations.USE_ACTION, false, ItemActionOperations::useAction);
-		ExpressionOperations.register("mobends:attack_action", ItemActionOperations.ATTACK_ACTION, false, ItemActionOperations::attackAction);
+		MoBendsOperations.register();
 	}
 
 	@Override

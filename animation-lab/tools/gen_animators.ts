@@ -181,7 +181,8 @@ const jump: Obj = {
 // The layers of the animators extending it follow the locomotion through these, not its nodes.
 const biped: Obj = {
   formatVersion: 2,
-  expressions: { jumping, bounced, standing: chooses(locomotionSelect, "stand"), walking: chooses(locomotionSelect, "walk") },
+  expressions: { jumping, bounced, standing: chooses(locomotionSelect, "stand"), walking: chooses(locomotionSelect, "walk"),
+                 canSpinAttack: true },
   layers: [
     { select: locomotionSelect, nodes: { stand, walk, jump } },
   ] };
@@ -378,7 +379,7 @@ const playerSelect: Obj[] = [
   { when: state("entityIsClimbing"), then: "ladder" },
   { when: state("entityIsInWater"), then: "swimming" },
   { when: "jumping", then: [
-    { when: state("FLYING"), then: "flying" },
+    { when: { "core:is_flying": [] }, then: "flying" },
     { when: cmp("entityTicksFalling", ">", 10), then: "falling" },
     // the sprint jump leads with the leg the entity data picked
     { when: state("entityIsSprinting"), then: [{ when: state("SPRINT_JUMP_LEG"), then: "sprint_jump_right" }, { then: "sprint_jump_left" }] },
@@ -825,7 +826,8 @@ const attackBranch: Obj = {
 const slashOrder = ["slash_up", "slash_down", "slash_inward", "slash_outward", "slash_whirl"];
 // The fifth slash is the whirl, when the player allows it (ModConfig.performSpinAttack) and isn't
 // riding; otherwise the combo starts over.
-const canSpin = state("CAN_SPIN_ATTACK");
+// The sword combo ends with a whirl, where the animator allows it (animator.canSpinAttack).
+const canSpin = "canSpinAttack";
 const slashByCombo = [
   ...slashOrder.map((n, k) => conn(n, AND("attacked", cmp("combo", "==", k), ...(k === 4 ? [canSpin] : [])), { combo: (k + 1) % 5 })),
   conn(slashOrder[0], AND("attacked", cmp("combo", "==", 4), NOT(canSpin)), { combo: 1 }),
@@ -879,7 +881,9 @@ const torchOff = prop("offHandItem", "minecraft:torch");
 const player: Obj = {
   formatVersion: 2,
   expressions: { jumping, bounced, standing: chooses(playerSelect, "stand"), walking: chooses(playerSelect, "walk"),
-                 sprinting: chooses(playerSelect, "sprint") },
+                 sprinting: chooses(playerSelect, "sprint"),
+                 // unless the player turned it off, or is riding
+                 canSpinAttack: AND({ "mobends:spin_attack_enabled": [] }, NOT(state("entityIsRiding"))) },
   layers: [
     // item rotations are reset every frame before the layers run (keeps their damping)
     { defaultOnEntry: "reset", nodes: { reset: { type: "core:pose", pose: [{ animationKey: PL("reset_items") }] } } },
@@ -1027,7 +1031,7 @@ const spDeath: Obj = { type: "core:pose", pose: [
 const spider: Obj = { formatVersion: 2, layers: [{ defaultOnEntry: "idle", variables: { resetLimbs: 1 }, expressions: { jumping },
   select: [
     { when: cmp("entityHealth", "<=", 0), then: "death" },
-    { when: state("BESIDE_CLIMBABLE"), then: "crawl" },
+    { when: { "mobends:is_beside_climbable": [] }, then: "crawl" },
     { when: "jumping", then: "jump" },
     { when: state("entityIsStandingStill"), then: "idle" },
     { then: "move" },

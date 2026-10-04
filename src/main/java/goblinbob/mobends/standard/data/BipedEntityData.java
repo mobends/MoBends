@@ -40,14 +40,6 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	}
 
 	@Override
-	protected void registerKumoBindings()
-	{
-		super.registerKumoBindings();
-		// The sword combo ends with a whirl (players can turn it off).
-		registerState("CAN_SPIN_ATTACK", () -> true);
-	}
-
-	@Override
 	public void initModelPose()
 	{
 		super.initModelPose();
@@ -122,28 +114,6 @@ public abstract class BipedEntityData<E extends EntityLivingBase> extends Living
 	public E getEntity()
 	{
 		return this.entity;
-	}
-	/** The item action types the animators' action layers read, derived from the held and active items. */
-	@Override
-	public String getProperty(String name)
-	{
-		switch (name)
-		{
-			case "useActionType":
-			{
-				UseActionType type = ItemActions.getItemUseAction(entity.getActiveItemStack().getItem(),
-						ItemActions.armPoseOf(entity, entity.getHeldItemMainhand()),
-						ItemActions.armPoseOf(entity, entity.getHeldItemOffhand()));
-				return type == null ? null : type.name();
-			}
-			case "attackActionType":
-			{
-				AttackActionType type = ItemActions.getItemAttackAction(entity.getHeldItemMainhand().getItem());
-				return type == null ? null : type.name();
-			}
-			default:
-				return super.getProperty(name);
-		}
 	}
 
 }

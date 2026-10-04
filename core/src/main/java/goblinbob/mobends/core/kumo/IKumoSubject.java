@@ -6,8 +6,8 @@ import javax.annotation.Nullable;
 
 /**
  * Everything KUMO needs to know about the thing it animates. Deliberately Minecraft-agnostic:
- * bones are resolved by name into sinks, and all entity state arrives as named variables (numbers)
- * and named states (booleans).
+ * bones are resolved by name into sinks, entity state arrives as named variables (numbers) and
+ * named states (booleans), and operations read the entity itself.
  *
  * @author Iwo Plaza
  */
@@ -21,7 +21,7 @@ public interface IKumoSubject
      */
     IBoneSink getBone(String name);
 
-    /** The object {@code field} reads (the entity), or null if there is none. */
+    /** The entity, which operations and {@code field} read, or null if there is none. */
     @Nullable
     default Object getEntity()
     {
@@ -37,15 +37,6 @@ public interface IKumoSubject
 
     /** @return the current value of the variable at {@code index} (see {@link #indexOfVariable}). */
     double getVariable(int index);
-
-    /**
-     * @return a string-valued input (e.g. "mainHandItem" = "minecraft:torch", "attackActionType" =
-     *         "SWORD"), or null if the subject has no such property or it is currently unset.
-     */
-    default String getProperty(String name)
-    {
-        return null;
-    }
 
     /**
      * @return the index of the boolean state {@code name} (e.g. "entityIsOnGround", "entityIsSprinting") for

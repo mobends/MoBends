@@ -9,7 +9,7 @@
       "defaultOnEntry": "idle",
       "select": [
         {"when": {"le": ["entityHealth", 0]}, "then": "death"},
-        {"when": "BESIDE_CLIMBABLE", "then": "crawl"},
+        {"when": {"mobends:is_beside_climbable": []}, "then": "crawl"},
         {"when": "layer.jumping", "then": "jump"},
         {"when": "entityIsStandingStill", "then": "idle"},
         {"then": "move"}
