@@ -849,7 +849,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | `bones[].restRotation` | constant X, Y, Z degrees the vanilla model held the part at (`setRotationAngles` constants), applied before the animated rotation |
 | `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. `hinge` puts the joints on an edge of the cut instead of its middle: `front` / `back` (-Z / +Z) or `top` / `bottom` (-Y / +Y). A joint hinges on the side opposite to where it bends (a knee at the front, an elbow at the back), so the segments stay joined when it bends. `caps: true` draws the faces at the cuts, closing each segment (a bent knee shows no gap). What vanilla attaches to the bone (`postRender`) follows every segment: a held item follows the forearm. |
 | `components` | what the entity's data carries besides its bones, name to kind: `core:orientation` (a smoothed rotation animators pose as a bone, such as `rightHeldItem`), `mobends:sword_trail` (`swordTrail`), `mobends:cape_wave` (`capeWave`), `mobends:spider_legs` (`legs`: where the spider's feet are planted, which its leg drivers share). Layers and drivers find them by these names. A component can't have a bone's name |
-| `layers` | the renderer layers the model draws with, id to options: `mobends:armor`, `mobends:held_item`, `mobends:custom_head` (`{"bone": "head"}`), `mobends:cape`, `mobends:elytra` replace vanilla's (which draw their own unanimated copies of the model); `mobends:accessories` and `mobends:wolf_misc` (the wolf's mouth and tongue, hung from its `head`, `nose`, `mouth` and `tongue` bones) are added. Armour follows the bones named as a biped's (`body`, `head`, `leftArm`, `leftForeArm`, ...), the held item `rightHeldItem` / `leftHeldItem`, the cape `body` and `cape`. A vanilla layer no entry replaces is kept |
+| `layers` | the renderer layers the model draws with, id to options: `mobends:armor`, `mobends:held_item`, `mobends:custom_head` (`{"bone": "head"}`), `mobends:cape`, `mobends:elytra` replace vanilla's (which draw their own unanimated copies of the model); `mobends:creeper_charge` and `mobends:sheep_wool` replace the layers that draw their own copy of the model (a charged creeper's armour, the sheep's wool): the copy is mutated by the same definition and posed from the entity's data before the vanilla layer draws it; `mobends:accessories` and `mobends:wolf_misc` (the wolf's mouth and tongue, hung from its `head`, `nose`, `mouth` and `tongue` bones) are added. Armour follows the bones named as a biped's (`body`, `head`, `leftArm`, `leftForeArm`, ...), the held item `rightHeldItem` / `leftHeldItem`, the cape `body` and `cape`. A vanilla layer no entry replaces is kept |
 | `attackComboTicks` | a swing within this many ticks of the last counted one, while the main hand holds an item, isn't counted: it continues a sword combo (see `entityTicksAfterAttack`); 0, the default, counts every swing |
 | `smoothness` | the damping a bone starts with, kept until an animator sets one, by name: a bone, a component, or `root` (the model's offset), `localOffset`, `renderRotation`, `centerRotation`. The player's animator is tuned for `root` and `renderRotation` at 2 |
 | `renderer` | how the model is drawn: `sneakOffset` (model units the model is raised while the entity sneaks: vanilla lowers a sneaking player, and the bent sneak pose needs it higher), `flyingSneakOffset` (the same while a player flies; default `sneakOffset`), `firstPersonRest` (bones whose animated rotation is dropped while the first-person hand is drawn: the arm's chain from the body). Vanilla draws the first-person hand through the arm's field alone, so its stand-in draws the arm then, with its parents' transforms |
@@ -877,8 +877,8 @@ settings and entity values their animators and layers use (the zombie's animatio
 walking style, the squid's tentacle phase, the spider's crawl). The squid's tentacles are cut
 into nine sections; the spider's legs are boxes it declares, longer than vanilla's, and so are the
 wolf's body, mane, nose, mouth and ears.
-The other shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
-`villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
+The other shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `sheep`, `creeper`,
+`chicken`, `villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
 elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: stand / walk /
 jump with a smooth look, made by the lab's `tools/gen_animators.ts`). The golem's (`iron_golem`:
 its attack from its timer, turning on its feet), the creeper's (`creeper`: leaning at the waist)
@@ -908,9 +908,9 @@ A vanilla field the tables lack falls back to reflection too, which works in dev
 field, or a step through a vanilla object field (`ridingEntity`), is found in development only:
 in the game it takes its `@fallback`.
 
-Layers that keep their own copy of a model
-(the sheep's wool, a charged creeper's armour) still animate vanilla-style, so the sheep is not
-listed yet.
+Layers that draw their own copy of the model (the sheep's wool, a charged creeper's armour) are
+replaced by `mobends:sheep_wool` and `mobends:creeper_charge` (see `layers`), which mutate the
+copy by the mob's definition and pose it as the mob is.
 
 # Entity types and selectors
 

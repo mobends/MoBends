@@ -1,0 +1,19 @@
+{
+  "formatVersion": 2,
+  "@comment": "The sheep: a quadruped with knees, as the cow. Its wool is a copy of the model the wool layer draws, animated as the sheep is.",
+  "entity": "net.minecraft.entity.passive.EntitySheep",
+  "model": "net.minecraft.client.model.ModelQuadruped",
+  "animator": "mobends:bends/animators/quadruped.json",
+  "childScale": 0.5,
+  "bones": [
+    {"name": "head", "vanilla": {"field": "head"}},
+    {"name": "body", "vanilla": {"field": "body"}, "restRotation": [90, 0, 0]},
+    {"name": "leg1", "vanilla": {"field": "leg1"}, "split": {"axis": "y", "at": [0.5], "names": ["foreLeg1"], "hinge": "front"}},
+    {"name": "leg2", "vanilla": {"field": "leg2"}, "split": {"axis": "y", "at": [0.5], "names": ["foreLeg2"], "hinge": "front"}},
+    {"name": "leg3", "vanilla": {"field": "leg3"}, "split": {"axis": "y", "at": [0.5], "names": ["foreLeg3"], "hinge": "front"}},
+    {"name": "leg4", "vanilla": {"field": "leg4"}, "split": {"axis": "y", "at": [0.5], "names": ["foreLeg4"], "hinge": "front"}}
+  ],
+  "layers": {
+    "mobends:sheep_wool": {}
+  }
+}

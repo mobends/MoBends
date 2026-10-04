@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:sheep",
+  "selector": {"core:entity_type": ["minecraft:sheep"]},
+  "model": "mobends:bends/models/sheep.json"
+}

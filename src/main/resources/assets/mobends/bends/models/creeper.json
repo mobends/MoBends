@@ -57,5 +57,8 @@
         "index": 6
       }
     }
-  ]
+  ],
+  "layers": {
+    "mobends:creeper_charge": {}
+  }
 }

@@ -63,9 +63,9 @@ ripple), the renderer *layers* that replace vanilla's unanimated ones (armour, h
 cape, elytra), renderer settings (the sneak offset, the bones at rest in first person) and its
 attack combo window (see `misc/kumo-format.md`, *Model definitions*).
 
-**Limitation.** Render layers that copy the model's angles and have no animated replacement yet
-(the sheep's wool, the charged creeper's armour) still animate vanilla-style, which is why the
-sheep has no definition.
+Render layers that draw their own copy of the model (the sheep's wool, a charged creeper's
+armour) are replaced by `AnimatedCopyLayer`s (`mobends:sheep_wool`, `mobends:creeper_charge`),
+which mutate the copy by the same definition and pose it as the mob is.
 
 ### Vanilla field names in production
 

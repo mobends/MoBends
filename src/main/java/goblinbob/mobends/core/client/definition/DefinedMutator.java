@@ -192,7 +192,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             DefinedLayers.Kind kind = DefinedLayers.get(entry.getKey());
             if (kind != null && kind.replaces != null && kind.replaces.isInstance(layer))
             {
-                layerRenderers.set(index, kind.factory.create(renderer, options(entry), parts::get));
+                layerRenderers.set(index, kind.factory.create(new DefinedLayers.Context(renderer, options(entry), parts::get, definition, layer)));
                 return;
             }
         }
@@ -217,7 +217,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 }
                 else if (kind.replaces == null)
                 {
-                    layerRenderers.add(kind.factory.create(renderer, options(entry), parts::get));
+                    layerRenderers.add(kind.factory.create(new DefinedLayers.Context(renderer, options(entry), parts::get, definition, null)));
                 }
             }
         }
@@ -665,6 +665,12 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         {
             standIn.setDrawsAlone(false);
         }
+        syncUpParts(data);
+    }
+
+    /** Poses the parts as the entity's data has its bones, leaving the data's positions alone (a layer's copy of the model). */
+    public void syncUpParts(DefinedEntityData<E> data)
+    {
         for (Map.Entry<String, ModelPart> entry : parts.entrySet())
         {
             entry.getValue().syncUp(data.getPart(entry.getKey()));

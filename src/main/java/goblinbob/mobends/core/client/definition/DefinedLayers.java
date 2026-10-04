@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.client.definition;
 
 import com.google.gson.JsonObject;
+import goblinbob.mobends.core.definition.EntityModelDefinition;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
@@ -22,11 +23,33 @@ public final class DefinedLayers
     @FunctionalInterface
     public interface Factory
     {
-        /**
-         * The layer for {@code renderer}, configured by the definition's {@code options} for it;
-         * {@code bones} finds the mutated part of a bone by name (null if there is none).
-         */
-        LayerRenderer<?> create(RenderLivingBase<?> renderer, JsonObject options, Function<String, ModelRenderer> bones);
+        /** The layer for the context's renderer. */
+        LayerRenderer<?> create(Context context);
+    }
+
+    /** What a layer is made with. */
+    public static final class Context
+    {
+        public final RenderLivingBase<?> renderer;
+        /** The definition's options for the layer. */
+        public final JsonObject options;
+        /** Finds the mutated part of a bone by name (null if there is none). */
+        public final Function<String, ModelRenderer> bones;
+        /** The model definition asking for the layer. */
+        public final EntityModelDefinition definition;
+        /** The vanilla layer it replaces; null for a layer added after the renderer's own. */
+        @Nullable
+        public final LayerRenderer<?> replaced;
+
+        public Context(RenderLivingBase<?> renderer, JsonObject options, Function<String, ModelRenderer> bones, EntityModelDefinition definition,
+                       @Nullable LayerRenderer<?> replaced)
+        {
+            this.renderer = renderer;
+            this.options = options;
+            this.bones = bones;
+            this.definition = definition;
+            this.replaced = replaced;
+        }
     }
 
     public static final class Kind

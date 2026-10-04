@@ -2,6 +2,7 @@ package goblinbob.mobends.standard;
 
 import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.addon.IAddon;
+import goblinbob.mobends.core.client.definition.AnimatedCopyLayer;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.standard.client.model.armor.ArmorModelFactory;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrailManager;
@@ -27,9 +28,11 @@ import goblinbob.mobends.standard.mutators.*;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
+import net.minecraft.client.renderer.entity.layers.LayerCreeperCharge;
 import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerElytra;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
+import net.minecraft.client.renderer.entity.layers.LayerSheepWool;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
@@ -80,14 +83,17 @@ public class DefaultAddon implements IAddon
 		registry.registerComponent("sword_trail", data -> new SwordTrail(() -> SupporterContent.getTrailColorFor(data.getEntity())));
 		registry.registerComponent("cape_wave", data -> new CapeWave(data.getEntity()));
 		registry.registerComponent("spider_legs", SpiderLegs::new);
-		registry.registerLayer("armor", LayerBipedArmor.class, (renderer, options, bones) -> new LayerCustomBipedArmor(renderer));
-		registry.registerLayer("held_item", LayerHeldItem.class, (renderer, options, bones) -> new LayerCustomHeldItem(renderer));
-		registry.registerLayer("custom_head", LayerCustomHead.class, (renderer, options, bones) -> new LayerCustomHead(bones.apply(
-				options.has("bone") ? options.get("bone").getAsString() : "head")));
-		registry.registerLayer("cape", LayerCape.class, (renderer, options, bones) -> new LayerCustomCape((RenderPlayer) renderer));
-		registry.registerLayer("elytra", LayerElytra.class, (renderer, options, bones) -> new LayerCustomElytra((RenderPlayer) renderer));
-		registry.registerLayer("accessories", null, (renderer, options, bones) -> new LayerPlayerAccessories(renderer));
-		registry.registerLayer("wolf_misc", null, (renderer, options, bones) -> new LayerWolfMisc());
+		registry.registerLayer("armor", LayerBipedArmor.class, context -> new LayerCustomBipedArmor(context.renderer));
+		registry.registerLayer("held_item", LayerHeldItem.class, context -> new LayerCustomHeldItem(context.renderer));
+		registry.registerLayer("custom_head", LayerCustomHead.class, context -> new LayerCustomHead(context.bones.apply(
+				context.options.has("bone") ? context.options.get("bone").getAsString() : "head")));
+		registry.registerLayer("cape", LayerCape.class, context -> new LayerCustomCape((RenderPlayer) context.renderer));
+		registry.registerLayer("elytra", LayerElytra.class, context -> new LayerCustomElytra((RenderPlayer) context.renderer));
+		registry.registerLayer("accessories", null, context -> new LayerPlayerAccessories(context.renderer));
+		registry.registerLayer("wolf_misc", null, context -> new LayerWolfMisc());
+		// Layers that draw their own copy of the model, drawn animated.
+		registry.registerLayer("creeper_charge", LayerCreeperCharge.class, AnimatedCopyLayer::new);
+		registry.registerLayer("sheep_wool", LayerSheepWool.class, AnimatedCopyLayer::new);
 	}
 
 	@Override

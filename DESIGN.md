@@ -383,8 +383,9 @@ definitions, built-ins and operations cover; the zombie's needs `entityId` and a
 Rendering, where definitions fall short:
 
 - **Layers** (done for the player's, the bipeds' and the wolf's: a definition's `layers`
-  section). Open: the sheep's wool and the charged creeper's armour still draw their own
-  unanimated copies; they need layers of their own (and the sheep a definition).
+  section; done for the sheep's wool and the charged creeper's armour: `AnimatedCopyLayer`
+  mutates the copy a layer draws by the mob's definition and poses it from the entity's data;
+  the sheep has a definition). The sheep's grass-eating head is vanilla's only.
 - **Stand-ins, split segments, pivots, overlays** (done: `misc/kumo-format.md`, *Model
   definitions*; the player's definition draws what `PlayerMutator` does, `PlayerGeometryTest`).
 - **Stuck arrows** (done). `LayerArrow` picks a random part from the model's `boxList`, a box of
