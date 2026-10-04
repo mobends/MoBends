@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "comment": "Uses ModelCow; the mushrooms follow the head through its post-render transform.",
+  "@comment": "Uses ModelCow; the mushrooms follow the head through its post-render transform.",
   "entity": "net.minecraft.entity.passive.EntityMooshroom",
   "model": "net.minecraft.client.model.ModelQuadruped",
   "animator": "mobends:bends/animators/cow.json",

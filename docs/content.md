@@ -48,7 +48,9 @@ and rest rotations, and *splits*: a vanilla box cut into segments along an axis,
 bone with the matching strip of texture (how the quadrupeds get knees). From a definition the mod
 builds:
 
-* `DefinedEntityData` — one transform per bone, the declared variables, the animator;
+* `DefinedEntityData` — one transform per bone, the animator, and the entity scope the
+  definition's `@define` / `@on` declare (`entity.` names, which only it may compute from the
+  entity's fields with `field`; `DefinedEntityFields` resolves them);
 * `DefinedMutator` — copies each vanilla part's boxes into bends parts, splits them
   (`BoxSplitter`), applies rest rotations, and replaces every field or array slot that held the
   vanilla part, found by identity so it works in an obfuscated game;

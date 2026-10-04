@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "comment": "The body is cut at the waist, hinged at the back so the chest can lean forward over the lower half without opening a gap.",
+  "@comment": "The body is cut at the waist, hinged at the back so the chest can lean forward over the lower half without opening a gap.",
   "entity": "net.minecraft.entity.monster.EntityCreeper",
   "model": "net.minecraft.client.model.ModelCreeper",
   "animator": "mobends:bends/animators/creeper.json",

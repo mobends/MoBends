@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "comment": "ModelPolarBear re-creates its head and body like the cow's.",
+  "@comment": "ModelPolarBear re-creates its head and body like the cow's.",
   "entity": "net.minecraft.entity.monster.EntityPolarBear",
   "model": "net.minecraft.client.model.ModelQuadruped",
   "animator": "mobends:bends/animators/quadruped.json",

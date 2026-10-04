@@ -70,9 +70,7 @@ public final class PackTrust
      */
     public static InputStream open(ResourceLocation location) throws IOException
     {
-        ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
-        boolean trustedOnly = policy == ResourcePackPolicy.DENY || (policy == ResourcePackPolicy.LIMITED && isGeometry(location));
-        if (!trustedOnly || isTrusted(location))
+        if (!trustedOnly(location) || isTrusted(location))
         {
             return Minecraft.getMinecraft().getResourceManager().getResource(location).getInputStream();
         }
@@ -97,6 +95,19 @@ public final class PackTrust
             throw new FileNotFoundException(location + " (only a resource pack supplies it, and the server doesn't allow that)");
         }
         return trusted.getInputStream();
+    }
+
+    /** Whether {@link #open} skips the resource packs' versions of {@code location}, as the server's policy says. */
+    private static boolean trustedOnly(ResourceLocation location)
+    {
+        ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
+        return policy == ResourcePackPolicy.DENY || (policy == ResourcePackPolicy.LIMITED && isGeometry(location));
+    }
+
+    /** Whether the version of {@code location} that {@link #open} reads is trusted. */
+    public static boolean opensTrusted(ResourceLocation location)
+    {
+        return trustedOnly(location) || isTrusted(location);
     }
 
     /** Model definitions: they decide a model's geometry. */

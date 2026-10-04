@@ -26,6 +26,8 @@ class TestSubject implements IKumoSubject
     final Map<String, SmoothOrientation> bones = new HashMap<>();
     final Map<String, Double> variables = new HashMap<>();
     final Map<String, Boolean> states = new HashMap<>();
+    /** What {@code field} reads. */
+    Object entity;
 
     TestSubject(String... boneNames)
     {
@@ -46,6 +48,12 @@ class TestSubject implements IKumoSubject
     {
         SmoothOrientation bone = bones.get(name);
         return bone == null ? null : new OrientationSink(bone, new Vec3f());
+    }
+
+    @Override
+    public Object getEntity()
+    {
+        return entity;
     }
 
     // The names a test sets, numbered as animators look them up. A name set after the animator

@@ -445,7 +445,7 @@ JSON tree, so tools can read and write it without a parser.
 | a number | a constant: `45` |
 | `true`, `false` | a constant condition |
 | a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name: a built-in (`nodeTicksElapsed`, `nodeIsFinished`, see *Nodes, transitions and time*), a state of the entity if written in capitals (`"ON_GROUND"`), or else a variable of the entity (`"headYaw"`) |
-| an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}` |
+| an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}`. Its other keys are modifiers: `@comment` on any operation, `@fallback` on one that takes it (`field`) |
 
 **Every expression is a number or a boolean**, and which one is checked when the animator loads:
 a number where a condition goes (`"@when": "limbSwing"`), or a boolean where a number goes
@@ -493,6 +493,37 @@ is written keeps its own memory (two uses keep two memories), and it starts over
 value as it is then, when the scope holding the place starts: a node for its items' and
 connections' expressions (and its layer's mirror rule), a machine for its selector and
 connections, a layer for its `@when`. `{"decreased": ["ticksAfterAttack"]}` holds on a new attack.
+
+### Reading the entity: `field`
+
+`{"field": ["ridingEntity", "motionX"]}` reads the entity's `ridingEntity.motionX`: the arguments
+are a **path**, one field per step, starting at the entity.
+
+**`field` is written only in a model definition's `@define` and `@on`** (see *Model
+definitions*); anywhere else it is a load error. Animators read the `entity.` names a model
+definition declares and stay portable: how a mob provides a value stays in its own files.
+
+* Resolved when the animator loads: each step is looked up on the declared type of the step
+  before it, starting at the entity's class and walking up superclasses. The last field must be a
+  number or a boolean, which is the expression's type. Fields are named by their development
+  (MCP) names (see *Field names*).
+* `@fallback` takes any expression of the same type: another field, a name, a constant, an
+  operation. If the path can't be resolved on the entity's class, the fallback is compiled
+  instead; if a step is `null` while animating (not riding anything), the fallback is evaluated
+  for that frame (without one, the value is 0, or false). Without a fallback, a path that can't be
+  resolved is a load error.
+
+  ```json
+  {"field": ["destPos"], "@fallback": {"field": ["flapTarget"]}}
+  {"field": ["ridingEntity", "renderYawOffset"], "@fallback": 0}
+  {"field": ["isCharging"], "@fallback": false}
+  ```
+* `{"exists": [path...]}` holds while every step of the path is there (none of them `null`); a
+  path the entity's class doesn't have never holds.
+* Interpolating between ticks is written out:
+  `{"lerp": [{"field": ["oFlap"]}, {"field": ["wingRotation"]}, "partialTicks"]}`.
+
+`@fallback` is refused on an operation that takes none (one that can always be computed).
 
 **Registered operations** have a namespaced name, and take arguments of their own kinds:
 
@@ -560,8 +591,9 @@ Neither needs state.
 
 ## Definitions and statements
 
-Every scope (the animator, a layer, a machine, a node) can declare **definitions** in its
-`@define`, read by **scoped name** (`animator.x`, `layer.x`, `machine.x`, `node.x`), and run
+Every scope (the entity, the animator, a layer, a machine, a node) can declare **definitions** in
+its `@define`, read by **scoped name** (`entity.x`, `animator.x`, `layer.x`, `machine.x`,
+`node.x`), and run
 **statements** in its `@on` lists. Expressions never change anything; statements (and drivers,
 see *Drivers*) are the only things that do.
 
@@ -589,6 +621,9 @@ boolean, which is the definition's type):
 **Names carry their scope.** There is no lookup through enclosing scopes and no shadowing: the
 prefix says where the value lives, and a name that scope doesn't declare is an error.
 
+* `entity.` is the entity's, declared by its model definition only (see *Model definitions*) and
+  read by its animator and every extension; an entity whose model has no definition has no
+  `entity.` names.
 * `animator.` is the animator's, shared by every layer; `layer.` the layer the name is written
   in; `machine.` the innermost machine around the place the name is written (a layer's own nodes
   and selector are in no machine); `node.` the node the name is written in. A name can only be
@@ -604,8 +639,8 @@ prefix says where the value lives, and a name that scope doesn't declare is an e
 * An extension's animator is a scope of its own: it never sees the names of the animator it
   extends.
 
-**Scopes are created when they are entered** and disposed when they are left: the animator's on
-its first frame; a layer's when it starts; a machine's on every entry into it, so its definitions
+**Scopes are created when they are entered** and disposed when they are left: the entity's and
+the animator's on its first frame; a layer's when it starts; a machine's on every entry into it, so its definitions
 start over each time, and it is disposed once the last of its nodes has faded out; a node's on
 every entry. A node fading out keeps its scope until its crossfade ends; a node a transition
 leaves without a crossfade, or whose crossfade a transition cuts short, is disposed at once.
@@ -639,8 +674,8 @@ can set its layer's or its animator's). A file from a resource pack may only set
 drivers write) a state a file from a resource pack declares: it can't steer the trusted layers,
 whose output the resource-pack limits are measured from (see *Servers*).
 
-**Order.** Every frame, the animator's `update` lists run first (the extensions' after it, in
-their order); then, layer by layer, after the layer has chosen its node and before it is posed:
+**Order.** Every frame, the entity's `update` list runs first, then the animator's (the
+extensions' after it, in their order); then, layer by layer, after the layer has chosen its node and before it is posed:
 the layer's, its machines' from the outermost in, the node fading out, the current node. When
 several write one state in a frame, the last write wins: later layers see it this frame, earlier
 ones the next.
@@ -689,10 +724,17 @@ From the definition the mod builds the data class (`DefinedEntityData`), the mut
     {"name": "body", "vanilla": {"field": "body", "index": 7}, "restRotation": [90, 0, 0]},
     {"name": "leg1", "vanilla": {"field": "leg1", "index": 2},
      "split": {"axis": "Y", "at": [0.5], "names": ["foreLeg1"]}}
-  ],
-  "variables": [
-    {"name": "flapWave", "field": ["wingRotation"], "prevField": ["oFlap"], "fn": "mcsin", "add": 1}
   ]
+}
+```
+
+The chicken's definition also declares the values its animator reads, over the entity's fields:
+
+```json
+"@define": {
+  "flapWave":  {"live": {"add": [{"mcsin": [{"lerp": [{"field": ["oFlap"]}, {"field": ["wingRotation"]}, "partialTicks"]}]}, 1]}},
+  "flapSpeed": {"live": {"lerp": [{"field": ["oFlapSpeed"]}, {"field": ["destPos"]}, "partialTicks"]}},
+  "wingAngle": {"live": {"mul": ["entity.flapWave", "entity.flapSpeed", 57.29578]}}
 }
 ```
 
@@ -706,7 +748,16 @@ From the definition the mod builds the data class (`DefinedEntityData`), the mut
 | `bones[].position` | pivot override; default: the vanilla rotation point |
 | `bones[].restRotation` | constant X, Y, Z degrees the vanilla model held the part at (`setRotationAngles` constants), applied before the animated rotation |
 | `bones[].split` | cuts the part's boxes along `axis` at the `at` fractions; each cut adds a bone named in `names`, a child of the previous segment pivoting at the cut, with the matching strip of the texture. Knees, elbows, tail and tentacle joints. `hinge` puts the joints on an edge of the cut instead of its middle: `FRONT` / `BACK` (-Z / +Z) or `TOP` / `BOTTOM` (-Y / +Y). A joint hinges on the side opposite to where it bends (a knee at the front, an elbow at the back), so the segments stay joined when it bends. |
-| `variables[]` | animator variables from numeric entity fields: `field` (candidate names, the first found is used), optional `prevField` for partial-tick interpolation, `scale`, `offset`, `fn`, `add`, or a `product` of other variables |
+| `@define`, `@on` | the entity scope: what the mob exposes to its animators and extensions (`entity.wingAngle`) and remembers across frames, as an animator's scopes declare theirs (see *Definitions and statements*). The only place `field` and `exists` are written (see *Reading the entity*) |
+| `@comment` | a note, ignored |
+
+**The entity scope is the model definition's alone.** It is the one file every type, animator and
+extension of the model shares: several types can choose one model (a pack's type for one player
+name and the default type), and if types declared entity values, which `entity.` names exist
+would depend on which type won. Extensions declare none (what an extension needs for itself is in
+its own animator's `@define`), so two extensions never collide on an `entity.` name. Model
+definitions have no `extends` (yet). A model definition from a resource pack is untrusted: an
+untrusted animator may set its state, never a trusted one's.
 
 The shipped definitions (`cow`, `mooshroom`, `polar_bear`, `pig`, `creeper`, `chicken`,
 `villager`, `witch`, `iron_golem`) give every leg a knee but the creeper's (and the golem's arms an
@@ -735,6 +786,9 @@ for each class:
   reflection under the same name, since mods are not obfuscated.
 
 A vanilla field the tables lack falls back to reflection too, which works in development only.
+`field` finds fields the same way. The tables hold numeric fields only, so a vanilla boolean
+field, or a step through a vanilla object field (`ridingEntity`), is found in development only:
+in the game it takes its `@fallback`.
 
 Layers that keep their own copy of a model
 (the sheep's wool, a charged creeper's armour) still animate vanilla-style, so the sheep is not

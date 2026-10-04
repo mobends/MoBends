@@ -8,6 +8,7 @@ import goblinbob.mobends.core.kumo.bind.BoneSinks;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.VectorSink;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
+import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.util.GUtil;
@@ -293,13 +294,20 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     /** The animator the entity has when its type doesn't choose another. */
     protected abstract ResourceLocation getDefaultAnimator();
 
+    /** The entity scope its animators read ({@code entity.x}), declared by a model definition; null if none. */
+    @Nullable
+    public EntityTemplate getEntityScope()
+    {
+        return null;
+    }
+
     /**
      * Animates this entity with its type's animator and extensions: {@code animator} (null for
      * the default one), with the layers of each of {@code extensions} on top.
      */
     public void setAnimator(@Nullable ResourceLocation animator, List<ResourceLocation> extensions)
     {
-        this.animator = new KumoAnimatorController(animator != null ? animator : getDefaultAnimator(), extensions);
+        this.animator = new KumoAnimatorController(getEntityScope(), animator != null ? animator : getDefaultAnimator(), extensions);
     }
 
     /** Runs the entity's animator for this frame. */

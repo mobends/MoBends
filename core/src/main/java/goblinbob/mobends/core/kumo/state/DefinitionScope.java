@@ -29,6 +29,7 @@ public final class DefinitionScope
 
     public enum Kind
     {
+        ENTITY("entity"),
         ANIMATOR("animator"),
         LAYER("layer"),
         MACHINE("machine"),

@@ -94,6 +94,20 @@ public final class DefinedFields
         return null;
     }
 
+    /** The generated accessor of the numeric field {@code name} that {@code type} or a superclass declares, or null. */
+    public static ToDoubleFunction<Object> vanillaNumber(Class<?> type, String name)
+    {
+        for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass())
+        {
+            ToDoubleFunction<Object> generated = vanillaNumbers.get(c.getName(), name);
+            if (generated != null)
+            {
+                return generated;
+            }
+        }
+        return null;
+    }
+
     private static Field declared(Class<?> c, String name)
     {
         try

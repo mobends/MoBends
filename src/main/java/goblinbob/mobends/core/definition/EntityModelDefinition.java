@@ -1,16 +1,21 @@
 package goblinbob.mobends.core.definition;
 
+import com.google.gson.annotations.SerializedName;
+import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
+import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.OnTemplate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * A mob described as data (`assets/mobends/bends/models/<mob>.json`): which entity, which vanilla
  * model parts become bones (optionally split into more segments for extra joints), which animator
- * drives them, and which entity fields the animator can read. The generic data class, mutator and
+ * drives them, and the entity scope its animators read ({@code entity.x}). The generic data class, mutator and
  * renderer are built from it, so a mob that never had a Mo' Bends treatment needs only this file
  * and an animator.
  */
@@ -38,8 +43,21 @@ public class EntityModelDefinition
 
     public List<BoneDefinition> bones = new ArrayList<>();
 
-    /** Entity fields exposed as animator variables. */
-    public List<VariableDefinition> variables = new ArrayList<>();
+    /** The entity scope's definitions, read by its animators as {@code entity.x}: the only place that reads the entity's fields. */
+    @SerializedName("@define")
+    public Map<String, DefinitionTemplate> define;
+    /** The entity scope's statement lists. */
+    @SerializedName("@on")
+    public OnTemplate on;
+
+    /** Whether the definition comes from a trusted source (set when it is loaded). */
+    public transient boolean trusted = true;
+
+    /** The entity scope this definition declares for an entity of {@code type}. */
+    public EntityTemplate entityScope(Class<?> type)
+    {
+        return new EntityTemplate(type, define, on, trusted);
+    }
 
 
     /** Every bone name, split segments included, in declaration order. */
@@ -86,10 +104,6 @@ public class EntityModelDefinition
             {
                 throw new MalformedKumoTemplateException("Bone '" + bone.name + "' names a parent '" + bone.parent + "' that is not declared before it.");
             }
-        }
-        for (VariableDefinition variable : variables)
-        {
-            variable.validate();
         }
     }
 

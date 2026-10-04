@@ -19,6 +19,11 @@ public final class PackTrust
         return true;
     }
 
+    public static boolean opensTrusted(ResourceLocation location)
+    {
+        return true;
+    }
+
     public static InputStream open(ResourceLocation location) throws IOException
     {
         return ClasspathResources.open(location);

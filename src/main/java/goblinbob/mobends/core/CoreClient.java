@@ -9,7 +9,9 @@ import goblinbob.mobends.core.client.event.*;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.connection.ConnectionManager;
 import goblinbob.mobends.core.data.EntityDatabase;
+import goblinbob.mobends.core.definition.DefinedEntityFields;
 import goblinbob.mobends.core.definition.DefinedFields;
+import goblinbob.mobends.core.kumo.expr.EntityFields;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.kumo.AnimationLimits;
@@ -78,6 +80,7 @@ public class CoreClient extends Core<CoreClientConfig>
 
         // Model definitions find vanilla fields through accessors generated against them (see DefinedFields).
         DefinedFields.install(VanillaEntityFields::get, VanillaModelParts::get);
+        EntityFields.install(new DefinedEntityFields());
 
         // Resource packs' animation is limited as the server says.
         AnimationLimits.setProvider(AnimationPolicy.INSTANCE::limits);

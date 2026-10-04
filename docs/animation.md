@@ -12,7 +12,7 @@ runtime is put together.
 
 | Piece | Where | Role |
 |-------|-------|------|
-| `IKumoSubject` | `core/kumo` | All KUMO knows about an entity: bones resolved by name into rotation/vector sinks, plus named numeric variables and boolean states. `EntityData` implements it; data classes register what they expose (`limbSwing`, `headYaw`, `ticksAfterTouchdown`, `SITTING`, ...). |
+| `IKumoSubject` | `core/kumo` | All KUMO knows about an entity: bones resolved by name into rotation/vector sinks, plus named numeric variables and boolean states, and the entity itself for `field` (read through `EntityFields`, which the mod backs with its generated accessors). `EntityData` implements it; data classes register what they expose (`limbSwing`, `headYaw`, `ticksAfterTouchdown`, `SITTING`, ...). |
 | `KumoAnimatorState` | `core/kumo/state` | One running animator: its layers, their trust, the resource-pack limits. |
 | `LayerState` | `core/kumo/state` | A layer: decides its node each frame, cross-fades between nodes, and composites onto the animator's pose as `OVERRIDE` or `ADDITIVE`. |
 | `MachineState` | `core/kumo/state` | A machine (the layer's own, and any nested one): its members, its selector (`Selector`) and its connections. |

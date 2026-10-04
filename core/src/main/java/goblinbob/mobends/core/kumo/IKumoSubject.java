@@ -2,6 +2,8 @@ package goblinbob.mobends.core.kumo;
 
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 
+import javax.annotation.Nullable;
+
 /**
  * Everything KUMO needs to know about the thing it animates. Deliberately Minecraft-agnostic:
  * bones are resolved by name into sinks, and all entity state arrives as named variables (numbers)
@@ -18,6 +20,13 @@ public interface IKumoSubject
      * @return the sink, or null if the subject has no part with that name.
      */
     IBoneSink getBone(String name);
+
+    /** The object {@code field} reads (the entity), or null if there is none. */
+    @Nullable
+    default Object getEntity()
+    {
+        return null;
+    }
 
     /**
      * @return the index of the numeric variable {@code name} (e.g. "limbSwing", "headYaw",

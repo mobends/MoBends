@@ -43,8 +43,8 @@ Pose items and nodes follow the one-key rule, with `@` modifiers and scope keys,
 everywhere and unknown keys refused (`misc/kumo-format.md`, *How it is written*). What is still
 to come:
 
-- **Operations** take `@fallback` where they declare it:
-  `{"mobends:is_sitting": [], "@fallback": false}`.
+- **Registered operations** take `@fallback` where they declare it, as `field` does (spec,
+  *Reading the entity*): `{"mobends:is_sitting": [], "@fallback": false}`.
 - Operations and drivers share one registry namespace: `core:spring` names one thing.
 
 ## Values and expressions
@@ -58,7 +58,6 @@ Scoped names are in the spec (*Definitions and statements*). Still to come:
   bare name that isn't a built-in is a load error, and adding a built-in never collides with
   anything a file declares. Today a bare name is also any variable or state the entity's data
   class registers (task 8 renames them).
-- `entity.` names, declared by the mob's model definition (*Entity-level definitions*).
 
 ### Operations
 
@@ -99,37 +98,9 @@ Each parameter has a kind, checked at load:
 - An operation takes a few arguments (about three at most). Anything with more configuration is
   a typed object instead: a driver or a statement.
 
-**`@fallback`** is the modifier of operations that may not apply to the entity's class: when the
-operation can't bind to the class, the fallback (any expression of the same type) is compiled
-instead. Without one, that is a load error.
-
-### Reading the entity: `field`
-
-`{"field": ["ridingEntity", "motionX"]}` reads `entity.ridingEntity.motionX`: the array is a
-**path**, one field per step, starting at the entity.
-
-**`field` is written only in entity-level definitions** (a model definition's `@define` and
-`@on`); anywhere else it is a load error. Animators read `entity.` names and stay portable: how a
-mob provides a value stays in its own files. Model definitions are trusted-only, so a resource
-pack can't read arbitrary fields. The restriction can be lifted later without breaking a file.
-
-- Resolved at load: each step is looked up on the declared type of the step before it, starting
-  at the entity's class and walking up superclasses. The last field must be a number or a
-  boolean, which is the expression's type.
-- Fields are named by their development (MCP) names. Vanilla classes go through generated
-  accessors (`GenVanillaFields.kt`), anything else through reflection.
-- `@fallback` takes any expression of the same type: another field, a name, a constant, an
-  operation. If the path can't be resolved on the entity's class, the fallback is compiled
-  instead; if a step is `null` at runtime (not riding anything), the fallback is evaluated for
-  that frame. Without a fallback, a path that can't be resolved is a load error.
-
-  ```json
-  {"field": ["destPos"], "@fallback": {"field": ["flapTarget"]}}
-  {"field": ["ridingEntity", "renderYawOffset"], "@fallback": 0}
-  {"field": ["isCharging"], "@fallback": false}
-  ```
-- Interpolating between ticks is written out:
-  `{"lerp": [{"field": ["oFlap"]}, {"field": ["wingRotation"]}, "partialTicks"]}`.
+**`@fallback`** is also the modifier of registered operations that may not apply to the entity's
+class: when the operation can't bind to the class, the fallback (any expression of the same type)
+is compiled instead. Without one, that is a load error. (`field` already works this way.)
 
 ### Functions (after v2)
 
@@ -177,42 +148,16 @@ type publishes to its extensions).
 
 ### Entity-level definitions
 
-The entity scope holds what a mob exposes and remembers. **Only the mob's model definition
-declares it**, in its `@define` (and `@on`):
-
-- It names the entity class, which `field` reads and operations bind against.
-- It is the one file every type, animator and extension for that model shares. Several types can
-  choose one model (a pack's type for one player name and the default type); if types declared
-  entity values, which `entity.` names exist would depend on which type won, and a file reading
-  `entity.foo` would load for one entity and fail for another of the same class. Type files stay
-  selectors: they run before entity data exists.
-- Extensions don't declare entity definitions: what an extension needs for itself is in its own
-  animator's `@define`. Two extensions can't collide on an `entity.` name, and a duplicate name is
-  a load error within one file.
-- Model definitions have no `extends` yet. Most of what every biped has is a built-in; sharing
-  between definitions is added when a mob needs it.
-
-What it declares:
-
-- **live** definitions over `field`, e.g. the chicken's wings:
-
-  ```json
-  "@define": {
-    "flapWave":  {"live": {"add": [{"mcsin": [{"lerp": [{"field": ["oFlap"]}, {"field": ["wingRotation"]}, "partialTicks"]}]}, 1]}},
-    "flapSpeed": {"live": {"lerp": [{"field": ["oFlapSpeed"]}, {"field": ["destPos"]}, "partialTicks"]}},
-    "wingAngle": {"live": {"mul": ["entity.flapWave", "entity.flapSpeed", 57.29578]}}
-  }
-  ```
-- **state** a mob keeps across frames, updated with `set` (see *Entity values*).
-
-With program and state split (see *Runtime*), entity state lives in the entity's state array next
-to the animator's.
+The entity scope is in the spec (*Model definitions*, *Reading the entity*). Still to come: the
+entity class is also what registered operations bind against (*Operations and drivers in Java*),
+and with program and state split (see *Runtime*), entity state lives in the entity's state array
+next to the animator's. Model definitions get an `extends` when a mob needs to share with
+another; most of what every biped has is a built-in.
 
 ## Statements
 
 Statements, their lists and their order are in the spec (*Definitions and statements*). Still to
-come: the entity's `update` list, which runs first in a frame (*Entity-level definitions*), and
-`nodeIsFadingOut`, with which a statement in the `update` list of a node fading out can opt out
+come: `nodeIsFadingOut`, with which a statement in the `update` list of a node fading out can opt out
 of setting a state the current node sets too.
 
 ### Extensions
@@ -338,9 +283,8 @@ for a component instead (`data.getComponent(SwordTrail.class)`). This is the end
 ## Language reference
 
 The language operations are in the spec (*Expressions*), `mcsin` and `mccos` among them (pure, so
-the language's rather than `core:`). Still to come: `field` [path] (+ `@fallback`) and `exists`
-[path] (whether a field path reaches a non-null object), written only in model definitions
-(*Reading the entity*).
+the language's rather than `core:`), and `field` and `exists`, which only model definitions
+write (spec, *Reading the entity*).
 
 Built-in values: the clocks and node phases (*Clocks and time*, *Node phases*), `clipLength` and
 `clipDuration`, the `entity…` built-ins (*Entity built-ins*).
@@ -531,11 +475,8 @@ Named expressions are live definitions, layer and node variables states, `set` m
 | old | new |
 |---|---|
 | layer `variables` written only inside one machine (`player.json`'s and `skeleton.json`'s `combo` in `sword`, `fist` in `fists`) | `machine.` state; the layer's branches into the machines reset them to 0, which a machine's state does on entry anyway |
-| a model definition's `variables[]` (`field` / `prevField` / `scale` / `offset` / `fn` / `add` / `product`) | entity live definitions over `field` |
 | subject variables and states registered in Java (`registerVariable`, `registerState`), properties (`getProperty`) | built-ins and registered operations (*Entity values from the data classes*) |
 
-The old `field` list in model definitions meant fallback names (the first that exists); a `field`
-path now means a chain of fields, and fallbacks are the `fallback` option.
 
 ### Ramps, springs and accumulators
 
@@ -922,7 +863,7 @@ the additive and smaller ones.
    order in a frame and on a transition, who may set what, and the trust rule.
 6. [x] **The one-key syntax**: pose items and nodes as one key plus `@` modifiers, `@connections`
    and `@when` on scopes, `{"when", "then"}` connections, `@comment` everywhere, unknown keys a
-   load error. `@fallback` comes with task 12.
+   load error. `@fallback` came with `field` (task 14).
 
 **Built-ins and operations**
 
@@ -941,8 +882,7 @@ the additive and smaller ones.
 11. [ ] **Drivers' private state as declared slots**: `core:step_turn`'s planted feet and the
     spider legs' (with task 2). `out`, `inout`, and the removal of `core:ramp`, `core:set` and
     `readBeforeAdvance` are done.
-12. [ ] **Registered operations**: `field` / `exists` with `@fallback` (model definitions only);
-    `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
+12. [ ] **Registered operations**: `core:holds_item`, `core:holds_any_item`, `core:active_hand_side`, `core:equipment_name`,
     `core:is_flying`; `mobends:use_action`, `mobends:attack_action`, the wolf's and the spider's
     operations, `mobends:spin_attack_enabled` (*Values specific to a mob*).
 13. [ ] **Type-file selectors as expressions**: the selector operations (`core:entity_type`,
@@ -951,8 +891,10 @@ the additive and smaller ones.
 
 **Format features on top**
 
-14. [ ] **Entity-level definitions in model definitions**: `@define` / `@on` with `field`, replacing
-    `variables[]`; entity state in the entity's state array (*Entity-level definitions*).
+14. [x] **Entity-level definitions in model definitions**: `@define` / `@on` with `field`, `exists`
+    and `@fallback`, replacing `variables[]`. Entity state in the entity's state array comes with
+    task 2. The generated vanilla accessors read numeric fields only; booleans and object steps
+    (`ridingEntity`) need them too before a shipped mob reads one.
 15. [ ] **`extends` and extensions as scopes**: the merged `animator.` scope of an `extends` chain;
     an extension's own animator scope reading only `entity.` names, skipped when one is missing
     (*`extends`*, *Extensions*).

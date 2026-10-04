@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "comment": "The pig's snout is an extra box of the head.",
+  "@comment": "The pig's snout is an extra box of the head.",
   "entity": "net.minecraft.entity.passive.EntityPig",
   "model": "net.minecraft.client.model.ModelQuadruped",
   "animator": "mobends:bends/animators/quadruped.json",

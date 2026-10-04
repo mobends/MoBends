@@ -1112,8 +1112,8 @@ const quadruped = walkerAnimator("quadruped", quadLegs, [["head", 2.0], ["body",
 // the cow's layer, which extends it, follows the walk through it
 quadruped.expressions.walking = chooses(locomotionSelect, "walk");
 const villager = walkerAnimator("villager", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 1.5], ["arms", 2.0]]);
-const chickenWings = [withDamping(drv("rightWing", "Z", "wingAngle", { space: "OVERRIDE" }), { rightWing: 1 }),
-                      withDamping(drv("leftWing", "Z", "wingAngle", { scale: -1, space: "OVERRIDE" }), { leftWing: 1 })];
+const chickenWings = [withDamping(drv("rightWing", "Z", "entity.wingAngle", { space: "OVERRIDE" }), { rightWing: 1 }),
+                      withDamping(drv("leftWing", "Z", "entity.wingAngle", { scale: -1, space: "OVERRIDE" }), { leftWing: 1 })];
 const chicken = walkerAnimator("chicken", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 2.0]], chickenWings);
 
 const animators: [string, Obj][] = [

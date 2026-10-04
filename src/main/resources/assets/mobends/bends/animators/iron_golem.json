@@ -45,8 +45,8 @@
               },
               {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
               {
-                "@when": {"gt": ["attackTimer", 0]},
-                "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "attackTimer"},
+                "@when": {"gt": ["entity.attackTimer", 0]},
+                "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
                 "@damping": {"rightArm": 0.8, "leftArm": 0.8, "rightForeArm": 0.6, "leftForeArm": 0.6}
               }
             ]
@@ -81,8 +81,8 @@
               },
               {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
               {
-                "@when": {"gt": ["attackTimer", 0]},
-                "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "attackTimer"},
+                "@when": {"gt": ["entity.attackTimer", 0]},
+                "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
                 "@damping": {"rightArm": 0.8, "leftArm": 0.8, "rightForeArm": 0.6, "leftForeArm": 0.6}
               }
             ]
@@ -115,8 +115,8 @@
               },
               {"core:axis_rotate": {"bone": "head", "axis": "X", "angle": "headPitch"}, "@space": "POST"},
               {
-                "@when": {"gt": ["attackTimer", 0]},
-                "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "attackTimer"},
+                "@when": {"gt": ["entity.attackTimer", 0]},
+                "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
                 "@damping": {"rightArm": 0.8, "leftArm": 0.8, "rightForeArm": 0.6, "leftForeArm": 0.6}
               }
             ]
@@ -292,7 +292,7 @@
                       3.25
                     ]
                   },
-                  {"clamp": [{"floor": [{"mul": ["rawLimbSwingAmount", 100]}]}, 0, 1]}
+                  {"clamp": [{"floor": [{"mul": ["entity.rawLimbSwingAmount", 100]}]}, 0, 1]}
                 ]
               }
             }

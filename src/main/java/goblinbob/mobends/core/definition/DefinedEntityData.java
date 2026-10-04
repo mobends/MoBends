@@ -1,20 +1,18 @@
 package goblinbob.mobends.core.definition;
 
-import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.DoubleSupplier;
-import java.util.function.ToDoubleFunction;
 
 /**
  * The entity data of a mob described by an {@link EntityModelDefinition}: one transform per bone
- * (split segments included), the definition's entity-field variables, and its animator.
+ * (split segments included), the definition's entity scope, and its animator.
  * Positions default to the definition's; the mutator hands over the vanilla rotation points and
  * split pivots the first time it syncs.
  */
@@ -38,10 +36,6 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
         super(entity);
         this.definition = definition;
         this.animator = new ResourceLocation(definition.animator);
-        for (VariableDefinition variable : definition.variables)
-        {
-            registerVariable(variable.name, supplierFor(variable));
-        }
     }
 
     public EntityModelDefinition getDefinition()
@@ -111,6 +105,12 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
     }
 
     @Override
+    public EntityTemplate getEntityScope()
+    {
+        return entity == null ? null : definition.entityScope(entity.getClass());
+    }
+
+    @Override
     public void updateParts(float ticksPerFrame)
     {
         super.updateParts(ticksPerFrame);
@@ -118,56 +118,6 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
         {
             part.update(ticksPerFrame);
         }
-    }
-
-    // --- entity fields as variables ---------------------------------------------------------------
-
-    private DoubleSupplier supplierFor(VariableDefinition variable)
-    {
-        if (variable.product != null && variable.product.size() >= 2)
-        {
-            return () -> {
-                double value = 1;
-                for (String name : variable.product)
-                {
-                    value *= getVariable(name);
-                }
-                return shape(variable, value);
-            };
-        }
-        ToDoubleFunction<Object> current = entity == null ? null : DefinedFields.number(entity.getClass(), variable.field);
-        ToDoubleFunction<Object> previous = entity == null || variable.prevField == null ? null : DefinedFields.number(entity.getClass(), variable.prevField);
-        if (current == null)
-        {
-            return () -> variable.offset;
-        }
-        return () -> {
-            double now = current.applyAsDouble(entity);
-            if (previous != null)
-            {
-                double before = previous.applyAsDouble(entity);
-                now = before + (now - before) * DataUpdateHandler.partialTicks;
-            }
-            return shape(variable, now);
-        };
-    }
-
-    private static double shape(VariableDefinition variable, double raw)
-    {
-        double value = raw * variable.scale + variable.offset;
-        if (variable.fn != null)
-        {
-            switch (variable.fn.toLowerCase())
-            {
-                case "sin": value = Math.sin(value); break;
-                case "cos": value = Math.cos(value); break;
-                case "mcsin": value = net.minecraft.util.math.MathHelper.sin((float) value); break;
-                case "mccos": value = net.minecraft.util.math.MathHelper.cos((float) value); break;
-                case "abs": value = Math.abs(value); break;
-                default: break;
-            }
-        }
-        return value + variable.add;
     }
 
 }

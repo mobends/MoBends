@@ -117,7 +117,7 @@ public class KumoSession
             scenario.setup.accept(this.data);
         }
         this.clock = new LabClock(scenario.fps);
-        this.animator = new KumoAnimatorState(template, trusted, extensions, extensionsTrusted, INSTANCING);
+        this.animator = new KumoAnimatorState(data.getEntityScope(), template, trusted, extensions, extensionsTrusted, INSTANCING);
     }
 
     public PoseTrace run() throws MalformedKumoTemplateException

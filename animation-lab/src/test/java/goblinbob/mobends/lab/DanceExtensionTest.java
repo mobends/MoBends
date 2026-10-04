@@ -16,7 +16,7 @@ import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.monster.EntityZombie;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.junit.jupiter.api.Test;
@@ -71,17 +71,17 @@ public class DanceExtensionTest
         World world = new World();
         Minecraft.getMinecraft().world = world;
         Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        EntityZombie entity = new EntityZombie(world);
+        EntityLivingBase entity = DefinedModelsTest.entityOf(definition, world);
         ScriptedEntity scripted = new ScriptedEntity(entity, world);
-        DefinedEntityData<EntityZombie> data = DefinedEntityData.create(definition, entity);
+        DefinedEntityData<EntityLivingBase> data = DefinedEntityData.create(definition, entity);
 
         AnimatorTemplate dance;
         try (Reader reader = Files.newBufferedReader(PACK.resolve("animators/dance.json")))
         {
             dance = KumoSerializer.INSTANCE.gson.fromJson(reader, AnimatorTemplate.class);
         }
-        KumoAnimatorState animator = new KumoAnimatorState(
-                KumoSession.loadAnimator(definition.animator), Collections.singletonList(dance), KumoSession.INSTANCING);
+        KumoAnimatorState animator = new KumoAnimatorState(definition.entityScope(entity.getClass()),
+                KumoSession.loadAnimator(definition.animator), true, Collections.singletonList(dance), Collections.singletonList(true), KumoSession.INSTANCING);
 
         LabClock clock = new LabClock(30);
         EntityInputs inputs = new EntityInputs();

@@ -136,12 +136,35 @@ public abstract class Expression
         }
         if (json.isJsonObject())
         {
-            JsonObject object = json.getAsJsonObject();
-            if (object.size() != 1)
+            // One key, the operation's name, and the modifiers: "@comment" anywhere, "@fallback"
+            // where the operation takes one.
+            Map.Entry<String, JsonElement> entry = null;
+            JsonElement fallback = null;
+            for (Map.Entry<String, JsonElement> key : json.getAsJsonObject().entrySet())
+            {
+                if (key.getKey().equals("@comment"))
+                {
+                    continue;
+                }
+                if (key.getKey().equals("@fallback"))
+                {
+                    fallback = key.getValue();
+                    continue;
+                }
+                if (key.getKey().startsWith("@"))
+                {
+                    throw new MalformedKumoTemplateException("Unknown modifier '" + key.getKey() + "' on an operation (it takes \"@comment\", or \"@fallback\" where the operation does): " + describe(json));
+                }
+                if (entry != null)
+                {
+                    throw new MalformedKumoTemplateException("An operation is an object with exactly one key, the operation's name: " + describe(json));
+                }
+                entry = key;
+            }
+            if (entry == null)
             {
                 throw new MalformedKumoTemplateException("An operation is an object with exactly one key, the operation's name: " + describe(json));
             }
-            Map.Entry<String, JsonElement> entry = object.entrySet().iterator().next();
             ExpressionOperations.Operation operation = ExpressionOperations.get(entry.getKey());
             if (operation == null)
             {
@@ -151,7 +174,11 @@ public abstract class Expression
             {
                 throw new MalformedKumoTemplateException("The arguments of '" + entry.getKey() + "' have to be a list: " + describe(json));
             }
-            return operation.compile(entry.getKey(), entry.getValue().getAsJsonArray(), scope, json);
+            if (fallback != null && !operation.takesFallback)
+            {
+                throw new MalformedKumoTemplateException("'" + entry.getKey() + "' takes no \"@fallback\": it can always be computed. In " + describe(json));
+            }
+            return operation.compile(entry.getKey(), entry.getValue().getAsJsonArray(), fallback, scope, json);
         }
         throw new MalformedKumoTemplateException("Not an expression: " + describe(json) + " (expected a number, a boolean, a name or an operation).");
     }

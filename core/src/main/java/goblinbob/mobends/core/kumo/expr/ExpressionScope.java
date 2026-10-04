@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * What a place in an animator sees: the scopes around it (the animator, its layer, the innermost
- * machine around it, its node), whose definitions it reads by scoped name ({@code layer.combo}),
+ * What a place in an animator sees: the scopes around it (the entity, the animator, its layer, the
+ * innermost machine around it, its node), whose definitions it reads by scoped name ({@code layer.combo}),
  * and the built-in values (bare names). There is no lookup through enclosing scopes: the prefix
  * says which scope a name lives in, and a name that scope doesn't declare is an error.
  */
@@ -24,7 +24,10 @@ public class ExpressionScope
 {
 
     @Nullable
-    private final DefinitionScope animator, layer, machine, node;
+    private final DefinitionScope entity, animator, layer, machine, node;
+    /** The entity's class, where {@code field} may read it (an entity definition); null elsewhere. */
+    @Nullable
+    private final Class<?> fieldsOf;
     private final VariableTable variables;
     /** Whether the file this place is in is trusted (see {@link DefinitionScope#state}). */
     private final boolean trusted;
@@ -33,9 +36,12 @@ public class ExpressionScope
     /** The lists collecting the stateful expressions compiled for the scope being instanced (a node's items). */
     private final Deque<List<Expression>> holders;
 
-    private ExpressionScope(@Nullable DefinitionScope animator, @Nullable DefinitionScope layer, @Nullable DefinitionScope machine, @Nullable DefinitionScope node,
-                            VariableTable variables, boolean trusted, Map<String, Expression> values, Deque<List<Expression>> holders)
+    private ExpressionScope(@Nullable DefinitionScope entity, @Nullable DefinitionScope animator, @Nullable DefinitionScope layer, @Nullable DefinitionScope machine,
+                            @Nullable DefinitionScope node, @Nullable Class<?> fieldsOf, VariableTable variables, boolean trusted, Map<String, Expression> values,
+                            Deque<List<Expression>> holders)
     {
+        this.entity = entity;
+        this.fieldsOf = fieldsOf;
         this.animator = animator;
         this.layer = layer;
         this.machine = machine;
@@ -49,7 +55,7 @@ public class ExpressionScope
     /** The outermost place of an animator: no scope yet, every bare name a built-in or a value of the entity. */
     public static ExpressionScope root(VariableTable variables)
     {
-        return new ExpressionScope(null, null, null, null, variables, true, Collections.emptyMap(), new ArrayDeque<>());
+        return new ExpressionScope(null, null, null, null, null, null, variables, true, Collections.emptyMap(), new ArrayDeque<>());
     }
 
     /** The entity's values the animator reads, by name. */
@@ -63,21 +69,36 @@ public class ExpressionScope
     {
         switch (scope.kind)
         {
+            case ENTITY:
+                return new ExpressionScope(scope, animator, layer, machine, node, fieldsOf, variables, trusted, values, holders);
             case ANIMATOR:
-                return new ExpressionScope(scope, layer, machine, node, variables, trusted, values, holders);
+                return new ExpressionScope(entity, scope, layer, machine, node, fieldsOf, variables, trusted, values, holders);
             case LAYER:
-                return new ExpressionScope(animator, scope, machine, node, variables, trusted, values, holders);
+                return new ExpressionScope(entity, animator, scope, machine, node, fieldsOf, variables, trusted, values, holders);
             case MACHINE:
-                return new ExpressionScope(animator, layer, scope, node, variables, trusted, values, holders);
+                return new ExpressionScope(entity, animator, layer, scope, node, fieldsOf, variables, trusted, values, holders);
             default:
-                return new ExpressionScope(animator, layer, machine, scope, variables, trusted, values, holders);
+                return new ExpressionScope(entity, animator, layer, machine, scope, fieldsOf, variables, trusted, values, holders);
         }
+    }
+
+    /** This place, where {@code field} reads an entity of {@code type}: an entity definition. */
+    public ExpressionScope readingFieldsOf(Class<?> type)
+    {
+        return new ExpressionScope(entity, animator, layer, machine, node, type, variables, trusted, values, holders);
+    }
+
+    /** The entity's class, if {@code field} may read it here (an entity definition), else null. */
+    @Nullable
+    public Class<?> getFieldsOf()
+    {
+        return fieldsOf;
     }
 
     /** This place, in a file that is trusted or not (see {@link DefinitionScope#state}). */
     public ExpressionScope trusted(boolean trusted)
     {
-        return new ExpressionScope(animator, layer, machine, node, variables, trusted, values, holders);
+        return new ExpressionScope(entity, animator, layer, machine, node, fieldsOf, variables, trusted, values, holders);
     }
 
     public boolean isTrusted()
@@ -97,7 +118,7 @@ public class ExpressionScope
         }
         Map<String, Expression> all = new HashMap<>(this.values);
         all.putAll(values);
-        return new ExpressionScope(animator, layer, machine, node, variables, trusted, all, holders);
+        return new ExpressionScope(entity, animator, layer, machine, node, fieldsOf, variables, trusted, all, holders);
     }
 
     /**
@@ -175,12 +196,13 @@ public class ExpressionScope
         DefinitionScope scope;
         switch (prefix)
         {
+            case "entity": scope = entity; break;
             case "animator": scope = animator; break;
             case "layer": scope = layer; break;
             case "machine": scope = machine; break;
             case "node": scope = node; break;
             default:
-                throw new MalformedKumoTemplateException(String.format("Unknown scope '%s' in '%s': names start with animator., layer., machine. or node.", prefix, name));
+                throw new MalformedKumoTemplateException(String.format("Unknown scope '%s' in '%s': names start with entity., animator., layer., machine. or node.", prefix, name));
         }
         if (scope == null)
         {

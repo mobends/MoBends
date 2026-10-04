@@ -18,6 +18,7 @@ import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -29,6 +30,7 @@ import org.junit.jupiter.api.TestFactory;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +69,22 @@ public class DefinedModelsTest
         return models;
     }
 
+    /**
+     * An entity of the definition's class, which its entity scope reads; a zombie when the class has
+     * no stub here (any living entity will do then, as long as the scope reads no field).
+     */
+    static EntityLivingBase entityOf(EntityModelDefinition definition, World world) throws Exception
+    {
+        try
+        {
+            return (EntityLivingBase) Class.forName(definition.entity).getConstructor(World.class).newInstance(world);
+        }
+        catch (ClassNotFoundException e)
+        {
+            return new EntityZombie(world);
+        }
+    }
+
     @Test
     void everyModelDefinitionHasAType() throws Exception
     {
@@ -100,10 +118,9 @@ public class DefinedModelsTest
         World world = new World();
         Minecraft.getMinecraft().world = world;
         Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        // Any living entity will do as the subject: the definition's own entity class has no stub here.
-        EntityZombie entity = new EntityZombie(world);
+        EntityLivingBase entity = entityOf(definition, world);
         ScriptedEntity scripted = new ScriptedEntity(entity, world);
-        DefinedEntityData<EntityZombie> data = DefinedEntityData.create(definition, entity);
+        DefinedEntityData<EntityLivingBase> data = DefinedEntityData.create(definition, entity);
 
         for (String bone : definition.allBoneNames())
         {
@@ -112,7 +129,8 @@ public class DefinedModelsTest
         }
 
         AnimatorTemplate template = KumoSession.loadAnimator(definition.animator);
-        KumoAnimatorState animator = new KumoAnimatorState(template, KumoSession.INSTANCING);
+        KumoAnimatorState animator = new KumoAnimatorState(definition.entityScope(entity.getClass()), template, true,
+                Collections.emptyList(), Collections.emptyList(), KumoSession.INSTANCING);
         Skeleton skeleton = animator.getSkeleton();
         for (int i = 0; i < skeleton.size(); i++)
         {

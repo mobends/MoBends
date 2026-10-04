@@ -15,7 +15,7 @@ import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.monster.EntityZombie;
+import net.minecraft.entity.monster.EntityIronGolem;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -224,9 +224,9 @@ public class StepTurnTest
     private static class Golem
     {
         final EntityInputs inputs = new EntityInputs();
-        final EntityZombie entity;
+        final EntityIronGolem entity;
         final ScriptedEntity scripted;
-        final DefinedEntityData<EntityZombie> data;
+        final DefinedEntityData<EntityIronGolem> data;
         final KumoAnimatorState animator;
 
         double shownYaw;
@@ -253,10 +253,11 @@ public class StepTurnTest
             World world = new World();
             Minecraft.getMinecraft().world = world;
             Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-            entity = new EntityZombie(world);
+            entity = new EntityIronGolem(world);
             scripted = new ScriptedEntity(entity, world);
             data = DefinedEntityData.create(definition, entity);
-            animator = new KumoAnimatorState(KumoSession.loadAnimator(definition.animator), KumoSession.INSTANCING);
+            animator = new KumoAnimatorState(definition.entityScope(entity.getClass()), KumoSession.loadAnimator(definition.animator), true,
+                    java.util.Collections.emptyList(), java.util.Collections.emptyList(), KumoSession.INSTANCING);
         }
 
         void run(int ticks, IntConsumer script) throws Exception

@@ -11,6 +11,7 @@ import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
+import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.PoseNodeTemplate;
@@ -40,6 +41,11 @@ public class KumoAnimatorState
     private final KumoContext context = new KumoContext();
     private final VariableTable variables = new VariableTable();
     /** The animator's scope and each extension's: its definitions and statement lists, one per file. */
+    /** The entity's scope, which its model definition declares; null if it declares none. */
+    @Nullable
+    private final DefinitionScope entityScope;
+    @Nullable
+    private final ScopeLists entityLists;
     private final List<DefinitionScope> animatorScopes = new ArrayList<>();
     private final List<List<ScopeLists>> animatorLists = new ArrayList<>();
     private final Pose pose;
@@ -80,8 +86,34 @@ public class KumoAnimatorState
     public KumoAnimatorState(AnimatorTemplate animatorTemplate, boolean trusted, List<AnimatorTemplate> overlays, List<Boolean> overlaysTrusted,
                              IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
+        this(null, animatorTemplate, trusted, overlays, overlaysTrusted, dataProvider);
+    }
+
+    /**
+     * @param entity The entity scope its model definition declares (null: none), read as
+     *               {@code entity.x} by the animator and every extension.
+     */
+    public KumoAnimatorState(@Nullable EntityTemplate entity, AnimatorTemplate animatorTemplate, boolean trusted, List<AnimatorTemplate> overlays,
+                             List<Boolean> overlaysTrusted, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
+    {
         // Every scope of the animator, its extensions included, shares one table of the entity's values.
-        dataProvider = new ScopedInstancingContext(dataProvider, ExpressionScope.root(variables));
+        ExpressionScope root = ExpressionScope.root(variables);
+        if (entity != null)
+        {
+            entityScope = new DefinitionScope(DefinitionScope.Kind.ENTITY, "the model definition");
+            entityScope.declare(entity.define, entity.trusted);
+            // The only place that reads the entity's fields.
+            ExpressionScope place = root.inside(entityScope).trusted(entity.trusted).readingFieldsOf(entity.entityClass);
+            entityScope.compileIn(place);
+            entityLists = ScopeLists.compile(entityScope, entity.on, place);
+            root = root.inside(entityScope);
+        }
+        else
+        {
+            entityScope = null;
+            entityLists = null;
+        }
+        dataProvider = new ScopedInstancingContext(dataProvider, root);
         List<LayerTemplate> layers = new ArrayList<>();
         List<IKumoInstancingContext> layerContexts = new ArrayList<>();
         List<Boolean> layersTrusted = new ArrayList<>();
@@ -258,10 +290,17 @@ public class KumoAnimatorState
             lastTrusted = null;
             pose.setFallbackValues(null);
         }
-        // The animators' scopes: created on the first frame, then their update lists every frame,
-        // before any layer.
+        // The entity's scope, then the animators': created on the first frame, then their update
+        // lists every frame, before any layer.
         context.enterNode(null);
         context.setLayerState(null);
+        if (entityScope != null)
+        {
+            if (started) entityScope.updateLive(context);
+            else entityScope.start(context);
+            if (started) entityLists.runUpdate(context);
+            else entityLists.runEnter(context);
+        }
         for (int i = 0; i < animatorScopes.size(); i++)
         {
             if (started) animatorScopes.get(i).updateLive(context);

@@ -85,13 +85,33 @@ public final class ExpressionOperations
         private final Param[] params;
         private final Expression[] expressions;
         private final String[] strings;
+        @Nullable
+        private final Expression fallback;
+        @Nullable
+        private final Class<?> fieldsOf;
 
-        Arguments(String operation, Param[] params, Expression[] expressions, String[] strings)
+        Arguments(String operation, Param[] params, Expression[] expressions, String[] strings, @Nullable Expression fallback, @Nullable Class<?> fieldsOf)
         {
             this.operation = operation;
             this.params = params;
             this.expressions = expressions;
             this.strings = strings;
+            this.fallback = fallback;
+            this.fieldsOf = fieldsOf;
+        }
+
+        /** The {@code @fallback} written with the operation, or null (only for an operation that takes one). */
+        @Nullable
+        public Expression fallback()
+        {
+            return fallback;
+        }
+
+        /** The entity's class where the operation may read its fields (an entity definition), else null. */
+        @Nullable
+        public Class<?> fieldsOf()
+        {
+            return fieldsOf;
         }
 
         public int count()
@@ -134,12 +154,15 @@ public final class ExpressionOperations
         private final Param[] params;
         /** Whether the last parameter repeats: the operation takes {@code params.length} or more arguments. */
         private final boolean repeatsLast;
+        /** Whether it takes a {@code @fallback}: what it is when it can't be computed. */
+        final boolean takesFallback;
         private final Factory factory;
 
-        Operation(Param[] params, boolean repeatsLast, Factory factory)
+        Operation(Param[] params, boolean repeatsLast, boolean takesFallback, Factory factory)
         {
             this.params = params;
             this.repeatsLast = repeatsLast;
+            this.takesFallback = takesFallback;
             this.factory = factory;
         }
 
@@ -150,7 +173,7 @@ public final class ExpressionOperations
             return repeatsLast ? count + " or more arguments" : arguments;
         }
 
-        Expression compile(String name, JsonArray json, ExpressionScope scope, JsonElement whole) throws MalformedKumoTemplateException
+        Expression compile(String name, JsonArray json, @Nullable JsonElement fallbackJson, ExpressionScope scope, JsonElement whole) throws MalformedKumoTemplateException
         {
             int count = json.size();
             if (repeatsLast ? count < params.length : count != params.length)
@@ -187,9 +210,10 @@ public final class ExpressionOperations
                         }
                 }
             }
+            Expression fallback = fallbackJson == null ? null : Expression.compileAny(fallbackJson, scope);
             try
             {
-                return factory.create(new Arguments(name, params, expressions, strings));
+                return factory.create(new Arguments(name, params, expressions, strings, fallback, scope.getFieldsOf()));
             }
             catch (MalformedKumoTemplateException e)
             {
@@ -285,6 +309,60 @@ public final class ExpressionOperations
                 new PropertyIs(handProperty(args.string(0)), null));
         register("core:active_hand_side", params(choice("side", "left", "right")), false, args ->
                 new PropertyIs("activeHandSide", args.string(0).toUpperCase()));
+
+        // The entity's own fields, read only by its model definition's definitions.
+        registerWithFallback("field", params(string("field")), true, ExpressionOperations::field);
+        register("exists", params(string("field")), true, args -> {
+            EntityFields.Path path = resolveField(args);
+            return path == null ? Expression.FALSE : new FieldExists(path);
+        });
+    }
+
+    private static Expression field(Arguments args) throws MalformedKumoTemplateException
+    {
+        EntityFields.Path path = resolveField(args);
+        Expression fallback = args.fallback();
+        if (path == null)
+        {
+            if (fallback == null)
+            {
+                throw new MalformedKumoTemplateException(String.format("The entity has no field '%s' (and the 'field' has no \"@fallback\").", fieldPath(args)));
+            }
+            return fallback;
+        }
+        if (fallback != null && fallback.getType() != path.type())
+        {
+            throw new MalformedKumoTemplateException(String.format("The field '%s' is %s, but its \"@fallback\" is %s.", fieldPath(args),
+                    path.type().description, fallback.getType().description));
+        }
+        return path.type() == Expression.Type.BOOLEAN ? new FieldBoolean(path, fallback) : new FieldNumber(path, fallback);
+    }
+
+    /** The path a {@code field} or an {@code exists} names, or null if the entity has none such. */
+    @Nullable
+    private static EntityFields.Path resolveField(Arguments args) throws MalformedKumoTemplateException
+    {
+        if (args.fieldsOf() == null)
+        {
+            throw new MalformedKumoTemplateException("The entity's fields are read only in a model definition's \"@define\" (as entity.* definitions).");
+        }
+        String[] steps = new String[args.count()];
+        for (int i = 0; i < steps.length; i++)
+        {
+            steps[i] = args.string(i);
+        }
+        return EntityFields.Holder.fields.resolve(args.fieldsOf(), Arrays.asList(steps));
+    }
+
+    private static String fieldPath(Arguments args)
+    {
+        StringBuilder path = new StringBuilder();
+        for (int i = 0; i < args.count(); i++)
+        {
+            if (i > 0) path.append('.');
+            path.append(args.string(i));
+        }
+        return path.toString();
     }
 
     private ExpressionOperations()
@@ -304,7 +382,16 @@ public final class ExpressionOperations
      */
     public static void register(String name, Param[] params, boolean repeatsLast, Factory factory)
     {
-        OPERATIONS.put(name, new Operation(params, repeatsLast, factory));
+        OPERATIONS.put(name, new Operation(params, repeatsLast, false, factory));
+    }
+
+    /**
+     * Adds an operation that may be written with a {@code @fallback}: what it is when it can't be
+     * computed (see {@link Arguments#fallback}).
+     */
+    public static void registerWithFallback(String name, Param[] params, boolean repeatsLast, Factory factory)
+    {
+        OPERATIONS.put(name, new Operation(params, repeatsLast, true, factory));
     }
 
     @Nullable
@@ -579,6 +666,77 @@ public final class ExpressionOperations
                 result = all ? result && value : result || value;
             }
             return result;
+        }
+    }
+
+    /** The object a field path reads from on this frame's entity, or null where a step is null. */
+    @Nullable
+    private static Object fieldOwner(EntityFields.Path path, ITriggerConditionContext context)
+    {
+        Object entity = context.getSubject().getEntity();
+        return entity == null ? null : path.owner(entity);
+    }
+
+    /** A number field; its fallback (or 0) where a step of its path is null. */
+    private static final class FieldNumber extends NumberOp
+    {
+        private final EntityFields.Path path;
+
+        FieldNumber(EntityFields.Path path, @Nullable Expression fallback)
+        {
+            super(fallback == null ? new Expression[0] : new Expression[] { fallback });
+            this.path = path;
+        }
+
+        @Override
+        public float get(ITriggerConditionContext context)
+        {
+            Object owner = fieldOwner(path, context);
+            if (owner == null)
+            {
+                return arguments.length == 0 ? 0 : arguments[0].get(context);
+            }
+            return (float) path.number(owner);
+        }
+    }
+
+    /** A boolean field; its fallback (or false) where a step of its path is null. */
+    private static final class FieldBoolean extends BooleanOp
+    {
+        private final EntityFields.Path path;
+
+        FieldBoolean(EntityFields.Path path, @Nullable Expression fallback)
+        {
+            super(fallback == null ? new Expression[0] : new Expression[] { fallback });
+            this.path = path;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            Object owner = fieldOwner(path, context);
+            if (owner == null)
+            {
+                return arguments.length != 0 && arguments[0].test(context);
+            }
+            return path.bool(owner);
+        }
+    }
+
+    /** Whether every step of a field path is there (none null) on this frame. */
+    private static final class FieldExists extends BooleanOp
+    {
+        private final EntityFields.Path path;
+
+        FieldExists(EntityFields.Path path)
+        {
+            this.path = path;
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            return fieldOwner(path, context) != null;
         }
     }
 

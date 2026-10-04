@@ -70,5 +70,5 @@
       }
     }
   ],
-  "comment": "ModelWitch extends the villager model; the hat and mole are children of the head."
+  "@comment": "ModelWitch extends the villager model; the hat and mole are children of the head."
 }

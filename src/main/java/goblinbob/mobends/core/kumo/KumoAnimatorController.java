@@ -4,6 +4,7 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
+import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.ErrorReporter;
 import net.minecraft.util.ResourceLocation;
@@ -30,15 +31,21 @@ public class KumoAnimatorController
     /** The animators (with their extensions) the player has been told failed, until the animation reloads. */
     private static final Set<String> REPORTED = new HashSet<>();
 
+    @Nullable
+    private final EntityTemplate entity;
     private final ResourceLocation animator;
     private final List<ResourceLocation> extensions;
     @Nullable
     private KumoAnimatorState state;
     private boolean failed;
 
-    /** {@code animator}, with the layers of each of {@code extensions} on top, in order. */
-    public KumoAnimatorController(ResourceLocation animator, List<ResourceLocation> extensions)
+    /**
+     * {@code animator}, with the layers of each of {@code extensions} on top, in order, all of
+     * them reading {@code entity} (the scope a model definition declares; null for none).
+     */
+    public KumoAnimatorController(@Nullable EntityTemplate entity, ResourceLocation animator, List<ResourceLocation> extensions)
     {
+        this.entity = entity;
         this.animator = animator;
         this.extensions = extensions;
     }
@@ -68,7 +75,7 @@ public class KumoAnimatorController
                 overlays.add(resources.loadAnimator(extension));
                 overlaysTrusted.add(resources.isTrusted(extension.toString()));
             }
-            state = new KumoAnimatorState(resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
+            state = new KumoAnimatorState(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
             return true;
         }
         catch (Exception e)

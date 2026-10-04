@@ -98,34 +98,9 @@
       }
     }
   ],
-  "variables": [
-    {
-      "name": "flapWave",
-      "field": [
-        "wingRotation"
-      ],
-      "prevField": [
-        "oFlap"
-      ],
-      "fn": "mcsin",
-      "add": 1
-    },
-    {
-      "name": "flapSpeed",
-      "field": [
-        "destPos"
-      ],
-      "prevField": [
-        "oFlapSpeed"
-      ]
-    },
-    {
-      "name": "wingAngle",
-      "product": [
-        "flapWave",
-        "flapSpeed"
-      ],
-      "scale": 57.29578
-    }
-  ]
+  "@define": {
+    "flapWave": {"live": {"add": [{"mcsin": [{"lerp": [{"field": ["oFlap"]}, {"field": ["wingRotation"]}, "partialTicks"]}]}, 1]}},
+    "flapSpeed": {"live": {"lerp": [{"field": ["oFlapSpeed"]}, {"field": ["destPos"]}, "partialTicks"]}},
+    "wingAngle": {"live": {"mul": ["entity.flapWave", "entity.flapSpeed", 57.29578]}}
+  }
 }
