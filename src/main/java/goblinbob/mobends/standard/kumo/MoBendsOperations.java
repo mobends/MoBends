@@ -75,10 +75,10 @@ public final class MoBendsOperations
                 }));
 
         // The wolf's own: vanilla's angles, in degrees, interpolated by partialTicks where vanilla does.
-        KumoRegistry.registerEntityCondition("mobends:is_sitting", EntityWolf.class, EntityWolf::isSitting);
-        KumoRegistry.registerEntityNumber("mobends:wolf_interested_angle", EntityWolf.class,
+        KumoRegistry.registerEntityBooleanReader("mobends:is_sitting", EntityWolf.class, EntityWolf::isSitting);
+        KumoRegistry.registerEntityFloatReader("mobends:wolf_interested_angle", EntityWolf.class,
                 wolf -> wolf.getInterestedAngle(DataUpdateHandler.partialTicks) * GUtil.RAD_TO_DEG);
-        KumoRegistry.registerEntityNumber("mobends:wolf_tail_rotation", EntityWolf.class, wolf -> wolf.getTailRotation() * GUtil.RAD_TO_DEG);
+        KumoRegistry.registerEntityFloatReader("mobends:wolf_tail_rotation", EntityWolf.class, wolf -> wolf.getTailRotation() * GUtil.RAD_TO_DEG);
         // {"mobends:wolf_shake_angle": [-0.08]}: how far a part shakes off water, a part further back lagging by its offset.
         KumoRegistry.registerOperation(KumoOperation.named("mobends:wolf_shake_angle")
                 .param("offset", Kind.CONSTANT)
@@ -93,7 +93,7 @@ public final class MoBendsOperations
                 }));
 
         // The spider's: it is beside a block it climbs.
-        KumoRegistry.registerEntityCondition("mobends:is_beside_climbable", EntitySpider.class, EntitySpider::isBesideClimbableBlock);
+        KumoRegistry.registerEntityBooleanReader("mobends:is_beside_climbable", EntitySpider.class, EntitySpider::isBesideClimbableBlock);
     }
 
 }

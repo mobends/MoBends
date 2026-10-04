@@ -82,7 +82,7 @@ public class AddonAnimationRegistry
     /**
      * Registers an operation animators can use in their expressions, as "modid:name" (the
      * operation is named without the mod id, in snake_case). See {@link KumoOperation} for the
-     * signature, and {@link #registerFunction} and {@link #registerEntityNumber} for the
+     * signature, and {@link #registerFunction} and {@link #registerEntityFloatReader} for the
      * shorter ways.
      */
     public void registerOperation(KumoOperation operation)
@@ -115,17 +115,17 @@ public class AddonAnimationRegistry
      * {@code type} is where it applies: an entity of another class takes the operation's
      * {@code @fallback}, or its animator fails to load.
      */
-    public <E extends Entity> void registerEntityNumber(String key, Class<E> type, ToDoubleFunction<? super E> reader)
+    public <E extends Entity> void registerEntityFloatReader(String key, Class<E> type, ToDoubleFunction<? super E> reader)
     {
         Addons.checkRegistrationOpen();
-        KumoRegistry.registerEntityNumber(namespaced(key), type, reader);
+        KumoRegistry.registerEntityFloatReader(namespaced(key), type, reader);
     }
 
-    /** Registers whether the entity is something, as "modid:key"; see {@link #registerEntityNumber}. */
-    public <E extends Entity> void registerEntityCondition(String key, Class<E> type, Predicate<? super E> reader)
+    /** Registers whether the entity is something, as "modid:key"; see {@link #registerEntityFloatReader}. */
+    public <E extends Entity> void registerEntityBooleanReader(String key, Class<E> type, Predicate<? super E> reader)
     {
         Addons.checkRegistrationOpen();
-        KumoRegistry.registerEntityCondition(namespaced(key), type, reader);
+        KumoRegistry.registerEntityBooleanReader(namespaced(key), type, reader);
     }
 
     /**

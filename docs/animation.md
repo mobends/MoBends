@@ -98,8 +98,8 @@ registry.registerFunction("smoothstep", t -> t * t * (3 - 2 * t));
 
 // Reads the entity. The class is where it applies: an entity of another class takes the
 // operation's @fallback, or the animator fails to load. The reader never casts.
-registry.registerEntityCondition("is_wet", Entity.class, entity -> entity.isWet());
-registry.registerEntityNumber("air", EntityLivingBase.class, entity -> entity.getAir());
+registry.registerEntityBooleanReader("is_wet", Entity.class, entity -> entity.isWet());
+registry.registerEntityFloatReader("air", EntityLivingBase.class, entity -> entity.getAir());
 
 // Everything else: the full signature, bind and evaluate, and declared state.
 registry.registerOperation(KumoOperation.named("distance_to_nearest")

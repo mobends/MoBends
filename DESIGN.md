@@ -229,7 +229,7 @@ The built-in values are in the spec too (*Built-in values*).
 Registered operations are in `docs/animation.md` (*Operations in Java*), and so is how
 registration works. Notes on how they were settled:
 
-- The entity readers are `registerEntityNumber` and `registerEntityCondition`, not one
+- The entity readers are `registerEntityFloatReader` and `registerEntityBooleanReader`, not one
   `registerEntityReader`: a lambda returning a boolean and one returning a number can't overload
   one name in Java.
 - A slot is a handle that reads through the context (`slot.get(context)`), so the operations

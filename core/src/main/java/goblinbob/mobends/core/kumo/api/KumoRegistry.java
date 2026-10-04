@@ -77,7 +77,7 @@ public final class KumoRegistry
      * applies: an entity of another class takes the {@code @fallback}, or the animator fails to
      * load. The reader gets the entity as a {@code type}; it never casts.
      */
-    public static <E> void registerEntityNumber(String name, Class<E> type, ToDoubleFunction<? super E> reader)
+    public static <E> void registerEntityFloatReader(String name, Class<E> type, ToDoubleFunction<? super E> reader)
     {
         registerOperation(KumoOperation.named(name).returns(Expression.Type.NUMBER).withFallback()
                 .bind(args -> applies(type, args) ? (NumberEvaluator) (context, values) -> {
@@ -86,8 +86,8 @@ public final class KumoRegistry
                 } : null));
     }
 
-    /** {@code {"mymod:is_wet": []}}: whether the entity is something; see {@link #registerEntityNumber}. */
-    public static <E> void registerEntityCondition(String name, Class<E> type, Predicate<? super E> reader)
+    /** {@code {"mymod:is_wet": []}}: whether the entity is something; see {@link #registerEntityFloatReader}. */
+    public static <E> void registerEntityBooleanReader(String name, Class<E> type, Predicate<? super E> reader)
     {
         registerOperation(KumoOperation.named(name).returns(Expression.Type.BOOLEAN).withFallback()
                 .bind(args -> applies(type, args) ? (BooleanEvaluator) (context, values) -> {

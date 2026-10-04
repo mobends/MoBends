@@ -43,8 +43,8 @@ public class OperationApiTest
             doubled++;
             return a * 2;
         });
-        KumoRegistry.registerEntityNumber("test:wetness", Mob.class, mob -> mob.wetness);
-        KumoRegistry.registerEntityCondition("test:is_soaked", Mob.class, mob -> mob.wetness > 3);
+        KumoRegistry.registerEntityFloatReader("test:wetness", Mob.class, mob -> mob.wetness);
+        KumoRegistry.registerEntityBooleanReader("test:is_soaked", Mob.class, mob -> mob.wetness > 3);
         // Counts the frames since the scope holding it started, by a constant step.
         KumoRegistry.registerOperation(KumoOperation.named("test:count")
                 .param("step", Kind.CONSTANT)

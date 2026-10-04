@@ -113,7 +113,7 @@ public final class MinecraftKumoOperations
                 }));
 
         // {"core:is_flying": []}: a player flying (creative or spectator flight, not an elytra).
-        KumoRegistry.registerEntityCondition("core:is_flying", EntityPlayer.class, player -> player.capabilities.isFlying);
+        KumoRegistry.registerEntityBooleanReader("core:is_flying", EntityPlayer.class, player -> player.capabilities.isFlying);
 
         // What a type file's selector reads: the entity alone, any entity (false where it doesn't apply).
         // {"core:entity_type": ["minecraft:zombie", "minecraft:husk"]}: the entity's registry id is one of these.
