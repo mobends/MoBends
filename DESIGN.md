@@ -365,10 +365,8 @@ fields are in the generated tables, each skin variant's `RenderPlayer` gets its 
 
 Registration (done): an addon registers a definition as the default model of its entity class,
 under the key it names (`AddonAnimationRegistry.registerDefinedEntity`); the player, zombie,
-skeleton, zombie villager, pig zombie, squid, spider and wolf are registered this way, and
-`-Dmobends.javaModels=true` brings back their Java models to compare. Left: deleting those Java
-models (benders, mutators, renderers, data classes) once the defined ones are checked in the
-game.
+skeleton, zombie villager, pig zombie, squid, spider and wolf are registered this way. Their Java
+models (benders, mutators, renderers, data classes) are deleted, checked in the game first.
 
 Data that code casts to: the biped's and the player's are gone (done: layers and drivers read
 bones by name, and the sword trail, held-item orientations and cape ripple are components, see
@@ -387,7 +385,8 @@ Rendering, where definitions fall short:
   mutates the copy a layer draws by the mob's definition and poses it from the entity's data;
   the sheep has a definition). The sheep's grass-eating head is vanilla's only.
 - **Stand-ins, split segments, pivots, overlays** (done: `misc/kumo-format.md`, *Model
-  definitions*; the player's definition draws what `PlayerMutator` does, `PlayerGeometryTest`).
+  definitions*; the player's definition drew what `PlayerMutator` did, checked quad by quad
+  before the Java models were deleted).
 - **Stuck arrows** (done). `LayerArrow` picks a random part from the model's `boxList`, a box of
   it, and a point on it. A definition replaces its bones' vanilla parts there with anchors, one
   per part with boxes, whose `postRender` is the part's posed transform and whose boxes are where
@@ -529,13 +528,13 @@ the additive and smaller ones.
     pose; default-model registration under the built-in id; adopting pivots again for slim skins.
 23. [x] **One generic data class**, with per-mob parts as components declared by the model
     (*Per-entity data*): every mob's data is `DefinedEntityData`, and nothing casts to a mob's
-    data class; the Java ones serve only the Java models kept to compare.
+    data class; the Java ones are deleted (task 29).
 24. [x] **Zombies, skeletons and the rest** the same way, plus their own items (*Moving mobs out of
     Java*): zombies, skeletons, zombie villagers, pig zombies, the squid, the spider, the wolf.
-    `DefinedParityTest` replays every golden scenario on the definitions' data.
-29. [ ] **Delete the Java models** (benders, mutators, renderers, data classes, `PlayerBender`) once
-    the defined ones are checked in the game; until then `-Dmobends.javaModels=true` brings them
-    back to compare (*Registration*).
+    `KumoParityTest` replays every golden scenario on the definitions' data.
+29. [x] **Delete the Java models** (benders, mutators, renderers, data classes, `PlayerBender`),
+    with `-Dmobends.javaModels` and the tests that compared them to the definitions; the defined
+    ones were checked in the game (*Registration*).
 
 **Smaller**
 

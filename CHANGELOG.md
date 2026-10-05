@@ -16,6 +16,8 @@
   its fields, for its animation and every extension to read.
 - Every mob Mo' Bends animates, the player included, is a model definition (`bends/models/`),
   so mods and resource packs can change their geometry, layers and values without code.
+- A model definition can extend another and change only what differs, as the zombie villager and
+  the pig zombie extend the zombie.
 - Mods can add their own animation logic to the JSON format: operations (values computed in Java,
   such as whether a mob is wet) and drivers (posing computed in Java), registered from an addon.
 - Zombie villagers are animated.
@@ -56,8 +58,13 @@
   the whole mod.
 - Holding a sword no longer leaves face culling off for whatever renders next.
 - The right arm of zombies, skeletons and pig zombies is no longer slightly too deep.
-- The player's left shin, the skeleton's left arm and the zombie villager's body show their own
-  skin, as in vanilla (they showed another part's, or a zombie's body over a villager's skin).
+- The player's left shin shows the left leg's skin; it showed the right leg's, so a skin with
+  different legs had its left shin swapped.
+- The skeleton's left arm and the zombie villager's body show their own skin, as in vanilla (the
+  arm showed its skin back to front, and the villager a zombie's body over a villager's skin).
+- Arrows stuck in an animated mob stay on its parts as they move, instead of floating at the
+  parts' joints.
+- The squid's tentacles sit around its body where vanilla puts them.
 
 ### Removed
 
@@ -70,7 +77,10 @@ are gone, and every mob runs on the new KUMO engine (layers, pose nodes, express
 Renderers are now swapped per render instead of mutated and demutated. Addons that register
 mutators, previewers, value sources or bends pack hooks need updating: entity data names its
 animator (`getDefaultAnimator`) instead of returning a controller, `registerNewEntity` no longer
-takes alterable parts, and animation editors can no longer be registered. Every asset file
+takes alterable parts, and animation editors can no longer be registered. The Java models of the
+player and the other mobs (`PlayerBender`, the mutators, the mutated renderers and the data
+classes such as `PlayerData` and `BipedEntityData`) are gone: every mob's data is a
+`DefinedEntityData`, whose bones and components are found by name. Every asset file
 (animators, types, extensions, model definitions) carries a `formatVersion`; one written for
 another version of its format is refused with a message saying so. Bender keys are resource
 locations (`mobends:zombie` instead of `mobends-minecraft:zombie`); which mobs you turned off

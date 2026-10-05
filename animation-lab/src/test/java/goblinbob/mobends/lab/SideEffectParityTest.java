@@ -4,7 +4,7 @@ import goblinbob.mobends.lab.scenarios.Animators;
 import goblinbob.mobends.lab.scenarios.Scenarios;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.Scenario;
-import goblinbob.mobends.standard.data.BipedEntityData;
+import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,8 +28,8 @@ public class SideEffectParityTest
         Scenario scenario = Scenarios.byId(id);
         KumoSession kumo = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(scenario.kind)));
         kumo.run();
-        BipedEntityData<?> data = (BipedEntityData<?>) kumo.data;
-        assertEquals(samples, data.swordTrail.samples, id + ": trail samples");
-        assertEquals(resets, data.swordTrail.resets, id + ": trail resets");
+        SwordTrail trail = kumo.data.getComponent("swordTrail", SwordTrail.class);
+        assertEquals(samples, trail.samples, id + ": trail samples");
+        assertEquals(resets, trail.resets, id + ": trail resets");
     }
 }

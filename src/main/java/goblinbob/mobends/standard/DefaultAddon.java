@@ -13,8 +13,7 @@ import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomElytr
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerCustomHeldItem;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerPlayerAccessories;
 import goblinbob.mobends.standard.client.renderer.entity.layers.LayerWolfMisc;
-import goblinbob.mobends.standard.client.renderer.entity.mutated.*;
-import goblinbob.mobends.standard.data.*;
+import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.standard.kumo.CapeDriver;
 import goblinbob.mobends.standard.kumo.MoBendsOperations;
 import goblinbob.mobends.standard.kumo.SwordTrailDriver;
@@ -24,7 +23,6 @@ import goblinbob.mobends.standard.kumo.spider.SpiderLegs;
 import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate;
 import goblinbob.mobends.standard.main.ModConfig;
-import goblinbob.mobends.standard.mutators.*;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerBipedArmor;
 import net.minecraft.client.renderer.entity.layers.LayerCape;
@@ -33,43 +31,21 @@ import net.minecraft.client.renderer.entity.layers.LayerCustomHead;
 import net.minecraft.client.renderer.entity.layers.LayerElytra;
 import net.minecraft.client.renderer.entity.layers.LayerHeldItem;
 import net.minecraft.client.renderer.entity.layers.LayerSheepWool;
-import net.minecraft.entity.monster.EntityPigZombie;
-import net.minecraft.entity.monster.EntitySkeleton;
-import net.minecraft.entity.monster.EntitySpider;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.monster.EntityZombieVillager;
-import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.entity.passive.EntityWolf;
 
 public class DefaultAddon implements IAddon
 {
 	@Override
 	public void registerContent(AddonAnimationRegistry registry)
 	{
-		// These mobs are their model definitions (bends/models/). Start the game with
-		// -Dmobends.javaModels=true for the Java models they replace, to compare them.
-		if (Boolean.getBoolean("mobends.javaModels"))
-		{
-			registry.registerEntity(new PlayerBender());
-			registry.registerNewEntity(EntityZombie.class, ZombieData::new, ZombieMutator::new, new ZombieRenderer<>());
-			registry.registerNewEntity(EntitySkeleton.class, SkeletonData::new, SkeletonMutator::new, new BipedRenderer<>());
-			registry.registerNewEntity(EntityZombieVillager.class, ZombieVillagerData::new, ZombieVillagerMutator::new, new ZombieRenderer<>());
-			registry.registerNewEntity(EntityPigZombie.class, PigZombieData::new, PigZombieMutator::new, new ZombieRenderer<>());
-			registry.registerNewEntity(EntitySquid.class, SquidData::new, SquidMutator::new, new SquidRenderer<>());
-			registry.registerNewEntity(EntitySpider.class, SpiderData::new, SpiderMutator::new, new SpiderRenderer<>());
-			registry.registerNewEntity(EntityWolf.class, WolfData::new, WolfMutator::new, new WolfRenderer<>());
-		}
-		else
-		{
-			registry.registerDefinedEntity("player");
-			registry.registerDefinedEntity("zombie");
-			registry.registerDefinedEntity("skeleton");
-			registry.registerDefinedEntity("zombie_villager");
-			registry.registerDefinedEntity("pig_zombie");
-			registry.registerDefinedEntity("squid");
-			registry.registerDefinedEntity("spider");
-			registry.registerDefinedEntity("wolf");
-		}
+		// These mobs are their model definitions (bends/models/).
+		registry.registerDefinedEntity("player");
+		registry.registerDefinedEntity("zombie");
+		registry.registerDefinedEntity("skeleton");
+		registry.registerDefinedEntity("zombie_villager");
+		registry.registerDefinedEntity("pig_zombie");
+		registry.registerDefinedEntity("squid");
+		registry.registerDefinedEntity("spider");
+		registry.registerDefinedEntity("wolf");
 
 		// Mobs described as data (cows, pigs, villagers, ...) come from the type files in bends/types/.
 

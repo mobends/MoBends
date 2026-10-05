@@ -177,7 +177,7 @@ public class ArmorWrapper extends ModelBiped
         this.applied = false;
     }
 
-    /** The bones the wrapper follows, by name: a biped's, as {@code BipedEntityData} and the player's model definition name them. */
+    /** The bones the wrapper follows, by name: a biped's, as the player's model definition names them. */
     private static final String[] BONES = { "body", "head", "leftArm", "leftForeArm", "rightArm", "rightForeArm", "leftLeg", "leftForeLeg", "rightLeg", "rightForeLeg" };
 
     /** Whether armour can follow the entity's animation: its data has every bone the wrapper follows. */

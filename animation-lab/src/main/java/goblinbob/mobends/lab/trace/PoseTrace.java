@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PoseTrace
 {
@@ -62,6 +63,19 @@ public class PoseTrace
                 if (cur.g == null) cur.g = prev.g;
                 if (cur.s == null) cur.s = prev.s;
             }
+        }
+    }
+
+    /**
+     * Drops the bones {@code golden} didn't record: the definitions have bones the Java data
+     * classes it was recorded from didn't (the hat layer).
+     */
+    public void retainBonesOf(PoseTrace golden)
+    {
+        Set<String> recorded = golden.frames.get(0).bones.keySet();
+        for (FramePose frame : frames)
+        {
+            frame.bones.keySet().retainAll(recorded);
         }
     }
 }

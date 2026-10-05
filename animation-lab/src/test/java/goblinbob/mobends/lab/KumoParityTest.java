@@ -17,9 +17,10 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The regression gate: for every scenario, the entity's animator must reproduce the golden trace
- * within tolerance. The goldens were recorded from the original procedural animation code; when an
- * animator changes on purpose, `gradle record` accepts its new output for the named scenarios.
+ * The regression gate: for every scenario, the entity's animator, on the data its model definition
+ * makes, must reproduce the golden trace within tolerance. The goldens were recorded from the
+ * original procedural animation code; when an animator changes on purpose, `gradle record` accepts
+ * its new output for the named scenarios.
  */
 public class KumoParityTest
 {
@@ -41,6 +42,7 @@ public class KumoParityTest
     {
         PoseTrace golden = TraceIO.read(TraceIO.fileFor(LabPaths.golden(), scenario.kind.id(), scenario.name));
         PoseTrace actual = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(scenario.kind))).run();
+        actual.retainBonesOf(golden);
         ComparisonReport report = PoseComparator.compare(scenario.id(), golden, actual);
         System.out.println(report.toMarkdown());
         assertTrue(report.isWithin(MAX_ANGLE_DEG, MAX_OFFSET),

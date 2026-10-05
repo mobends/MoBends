@@ -1,7 +1,10 @@
 package goblinbob.mobends.lab.sim;
 
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.standard.data.*;
+import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.core.definition.EntityModelDefinition;
+import goblinbob.mobends.core.definition.ModelDefinitions;
+import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityPigZombie;
@@ -9,37 +12,40 @@ import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.monster.EntityZombieVillager;
-import goblinbob.mobends.standard.data.ZombieVillagerData;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
+import java.io.IOException;
 import java.util.function.Function;
 
 /**
- * The animated entity types of the mod, with factories for the stub entity and the mod's data class.
+ * The animated entity types of the mod, with factories for the stub entity and the data its model
+ * definition makes.
  */
 public enum EntityKind
 {
-    PLAYER("mobends:player", AbstractClientPlayer::new, e -> new PlayerData((AbstractClientPlayer) e)),
-    ZOMBIE("mobends:zombie", EntityZombie::new, e -> new ZombieData((EntityZombie) e)),
-    ZOMBIE_VILLAGER("mobends:zombie_villager", EntityZombieVillager::new, e -> new ZombieVillagerData((EntityZombieVillager) e)),
-    SKELETON("mobends:skeleton", EntitySkeleton::new, e -> new SkeletonData((EntitySkeleton) e)),
-    PIG_ZOMBIE("mobends:zombie_pigman", EntityPigZombie::new, e -> new PigZombieData((EntityPigZombie) e)),
-    SPIDER("mobends:spider", EntitySpider::new, e -> new SpiderData((EntitySpider) e)),
-    SQUID("mobends:squid", EntitySquid::new, e -> new SquidData((EntitySquid) e)),
-    WOLF("mobends:wolf", EntityWolf::new, e -> new WolfData((EntityWolf) e));
+    PLAYER("mobends:player", "player", AbstractClientPlayer::new),
+    ZOMBIE("mobends:zombie", "zombie", EntityZombie::new),
+    ZOMBIE_VILLAGER("mobends:zombie_villager", "zombie_villager", EntityZombieVillager::new),
+    SKELETON("mobends:skeleton", "skeleton", EntitySkeleton::new),
+    PIG_ZOMBIE("mobends:zombie_pigman", "pig_zombie", EntityPigZombie::new),
+    SPIDER("mobends:spider", "spider", EntitySpider::new),
+    SQUID("mobends:squid", "squid", EntitySquid::new),
+    WOLF("mobends:wolf", "wolf", EntityWolf::new);
 
     /** The key the mod registers the entity bender under. */
     public final String benderKey;
+    /** The mob's model definition, in {@code bends/models/}. */
+    public final String definition;
     private final Function<World, EntityLivingBase> entityFactory;
-    private final Function<EntityLivingBase, LivingEntityData<?>> dataFactory;
 
-    EntityKind(String benderKey, Function<World, EntityLivingBase> entityFactory, Function<EntityLivingBase, LivingEntityData<?>> dataFactory)
+    EntityKind(String benderKey, String definition, Function<World, EntityLivingBase> entityFactory)
     {
         this.benderKey = benderKey;
+        this.definition = definition;
         this.entityFactory = entityFactory;
-        this.dataFactory = dataFactory;
     }
 
     public EntityLivingBase createEntity(World world)
@@ -47,10 +53,22 @@ public enum EntityKind
         return entityFactory.apply(world);
     }
 
+    public EntityModelDefinition loadDefinition()
+    {
+        LabBootstrap.ensure();
+        try
+        {
+            return ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", "bends/models/" + definition + ".json"));
+        }
+        catch (IOException | MalformedKumoTemplateException e)
+        {
+            throw new IllegalStateException("cannot load the model definition " + definition, e);
+        }
+    }
+
     public LivingEntityData<?> createData(EntityLivingBase entity, long seed)
     {
-        LivingEntityData<?> data = dataFactory.apply(entity);
-        data.initialize();
+        LivingEntityData<?> data = DefinedEntityData.create(loadDefinition(), entity);
         Determinism.seedRandoms(data, seed);
         return data;
     }

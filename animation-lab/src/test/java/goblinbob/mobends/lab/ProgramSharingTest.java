@@ -46,7 +46,9 @@ public class ProgramSharingTest
                 shared++;
             }
             PoseTrace golden = TraceIO.read(TraceIO.fileFor(LabPaths.golden(), scenario.kind.id(), scenario.name));
-            ComparisonReport report = PoseComparator.compare(scenario.id(), golden, session.run());
+            PoseTrace actual = session.run();
+            actual.retainBonesOf(golden);
+            ComparisonReport report = PoseComparator.compare(scenario.id(), golden, actual);
             assertTrue(report.isWithin(KumoParityTest.MAX_ANGLE_DEG, KumoParityTest.MAX_OFFSET),
                     String.format("%s deviates on a shared program (worst %.3f deg / %.4f offset)", scenario.id(), report.worstAngleDeg(), report.worstOffset()));
         }

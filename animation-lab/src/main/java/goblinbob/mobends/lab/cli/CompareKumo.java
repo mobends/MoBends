@@ -28,6 +28,7 @@ public class CompareKumo
 
             PoseTrace golden = TraceIO.read(TraceIO.fileFor(root, scenario.kind.id(), scenario.name));
             PoseTrace actual = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(scenario.kind))).run();
+            actual.retainBonesOf(golden);
             ComparisonReport report = PoseComparator.compare(scenario.id(), golden, actual);
             System.out.println(report.toMarkdown());
 

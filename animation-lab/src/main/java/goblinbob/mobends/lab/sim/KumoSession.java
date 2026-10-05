@@ -20,11 +20,10 @@ import net.minecraft.world.World;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
- * Replays a scenario through a KUMO animator: the entity's data class updates from the scripted
- * inputs, the animator poses it, and each frame's bones are captured.
+ * Replays a scenario through a KUMO animator: the data the entity's model definition makes updates
+ * from the scripted inputs, the animator poses it, and each frame's bones are captured.
  */
 public class KumoSession
 {
@@ -119,31 +118,6 @@ public class KumoSession
         }
         this.clock = new LabClock(scenario.fps);
         this.animator = new KumoAnimatorState(data.getEntityScope(), template, trusted, extensions, extensionsTrusted, INSTANCING);
-    }
-
-    /**
-     * The scenario with the entity's data made by {@code dataFactory} (initialized), instead of its
-     * kind's Java data class: a mob's model definition's data, say.
-     */
-    public KumoSession(Scenario scenario, AnimatorTemplate template, Function<EntityLivingBase, LivingEntityData<?>> dataFactory) throws MalformedKumoTemplateException
-    {
-        LabBootstrap.ensure();
-        net.minecraft.entity.Entity.resetIds();
-        this.scenario = scenario;
-        this.world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-
-        EntityLivingBase entity = scenario.kind.createEntity(world);
-        this.scripted = new ScriptedEntity(entity, world);
-        this.data = dataFactory.apply(entity);
-        Determinism.seedRandoms(this.data, scenario.id().hashCode());
-        if (scenario.setup != null)
-        {
-            scenario.setup.accept(this.data);
-        }
-        this.clock = new LabClock(scenario.fps);
-        this.animator = new KumoAnimatorState(data.getEntityScope(), template, true, java.util.Collections.emptyList(), java.util.Collections.emptyList(), INSTANCING);
     }
 
     /** The scenario on an animator already compiled (shared, as the mod shares it between entities of one class). */

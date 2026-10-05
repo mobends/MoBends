@@ -75,7 +75,7 @@ public class MathHelper
     /**
      * The game uses a fast table-based approximation here. The exact version is used in the lab;
      * the difference is far below the parity tolerances and only affects the player's flying
-     * variables ({@code PlayerData}'s momentum angles).
+     * variables (the player's flight pitch).
      */
     public static double atan2(double y, double x) { return Math.atan2(y, x); }
 

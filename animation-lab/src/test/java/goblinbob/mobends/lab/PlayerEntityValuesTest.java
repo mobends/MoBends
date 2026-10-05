@@ -1,16 +1,19 @@
 package goblinbob.mobends.lab;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
+import goblinbob.mobends.core.data.OrientationComponent;
+import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.lab.sim.EntityInputs;
+import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.LabClock;
 import goblinbob.mobends.lab.sim.ScriptedEntity;
-import goblinbob.mobends.standard.data.PlayerData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -23,22 +26,22 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * The values the player's animator reads of the entity, which its model definition now declares
- * (entity.sprintJumpLeg, entity.flightSpeedFactor, entity.flightPitch), are what PlayerData
- * computed in Java. The goldens don't cover the sprint-jump leg or the flight pitch.
+ * The values the player's animator reads of the entity, which its model definition declares
+ * (entity.sprintJumpLeg, entity.flightSpeedFactor, entity.flightPitch), are what the player's Java
+ * data class computed. The goldens don't cover the sprint-jump leg or the flight pitch.
  */
 public class PlayerEntityValuesTest
 {
 
-    /** PlayerData as it was: the leg switches on every liftoff, and when rising after falling. */
-    static class Reference extends PlayerData
+    /** The definition's data, computing the values as the Java data class did: the leg switches on every liftoff, and when rising after falling. */
+    static class Reference extends DefinedEntityData<AbstractClientPlayer>
     {
         boolean leg;
         boolean switched;
 
-        Reference(AbstractClientPlayer player)
+        Reference(EntityModelDefinition definition, AbstractClientPlayer player)
         {
-            super(player);
+            super(definition, player);
         }
 
         @Override
@@ -94,7 +97,7 @@ public class PlayerEntityValuesTest
     }
 
     @Test
-    void theDefinitionComputesWhatPlayerDataDid() throws Exception
+    void theDefinitionComputesWhatTheJavaDataClassDid() throws Exception
     {
         LabBootstrap.ensure();
         net.minecraft.entity.Entity.resetIds();
@@ -103,7 +106,7 @@ public class PlayerEntityValuesTest
         Minecraft.getMinecraft().player = new EntityPlayerSP(world);
         AbstractClientPlayer player = new AbstractClientPlayer(world);
         ScriptedEntity scripted = new ScriptedEntity(player, world);
-        Reference data = new Reference(player);
+        Reference data = new Reference(EntityKind.PLAYER.loadDefinition(), player);
         data.initialize();
         AnimatorTemplate probe = KumoSerializer.INSTANCE.gson.fromJson(PROBE, AnimatorTemplate.class);
         KumoAnimatorState animator = new KumoAnimatorState(data.getEntityScope(), probe, true,
@@ -140,9 +143,9 @@ public class PlayerEntityValuesTest
             data.update(clock.getPartialTicks());
             animator.update(data, DataUpdateHandler.ticksPerFrame);
 
-            assertTurnedBy(data.flightPitch(), data.rightHeldItem.getEnd(), "frame " + frame + ": flightPitch");
-            assertTurnedBy(data.leg ? 90 : 0, data.leftHeldItem.getEnd(), "frame " + frame + ": sprintJumpLeg");
-            assertTurnedBy(data.flightSpeedFactor() * 100, data.head.rotation.getEnd(), "frame " + frame + ": flightSpeedFactor");
+            assertTurnedBy(data.flightPitch(), ((OrientationComponent) data.getPartForName("rightHeldItem")).getEnd(), "frame " + frame + ": flightPitch");
+            assertTurnedBy(data.leg ? 90 : 0, ((OrientationComponent) data.getPartForName("leftHeldItem")).getEnd(), "frame " + frame + ": sprintJumpLeg");
+            assertTurnedBy(data.flightSpeedFactor() * 100, data.getPart("head").rotation.getEnd(), "frame " + frame + ": flightSpeedFactor");
             if (data.leg != lastLeg)
             {
                 legChanges++;
