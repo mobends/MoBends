@@ -88,3 +88,13 @@ forge-1.12               1.12.2
 4. [ ] **Switch the default branch** on GitHub to `main`, and archive the 1.16 branches
    (`2.X/forge-1.16`, `master-1.16.3`) as tags (`archive/2.X-forge-1.16`, `archive/master-1.16.3`).
 5. [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
+
+### Other tasks
+
+- [ ] Send a checksum to the ping server to better differentiate between the official releases and forks.
+- [ ] Make `field` resolve every vanilla field in production. The generated accessors
+  (`VanillaEntityFields`) cover numeric fields only, so a vanilla boolean field (`isCharging`) or a
+  step through a vanilla object field (`ridingEntity`) is found by reflection, under its
+  development name: it resolves in development only, and in the game takes its `@fallback`.
+  Generating accessors for boolean and object fields too (`GenVanillaFields.kt`) might be the
+  answer. Nothing shipped reads one yet.
