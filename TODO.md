@@ -11,6 +11,16 @@ editor, which is in the works. It opens the `officialAnimationEditorUrl` of
 - [ ] Decide how animations made in the editor get into the game (a resource pack to download, or
       something the mod fetches).
 
+## Animations
+
+- [ ] A jumping / airborne animation for the iron golem.
+- [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.
+
+## Mo' Bends menu
+
+- [ ] Improve the look of the *Settings* submenu (`GuiSettingsWindow`, `GuiBenderList`): each mob
+      shown with an orthographic render of it as a thumbnail (clipped to its frame), its name, etc.
+
 ## Multiple Minecraft versions and loaders
 
 The plan is to build every modern Minecraft version and loader from one source tree, sharing the
