@@ -149,7 +149,10 @@ registry.registerOperation(KumoOperation.named("distance_to_nearest")
   `selectorSafe(stable)`, for an operation that reads the entity alone, and says whether its
   answer for one entity can change during the entity's life).
   Arguments are checked when the animator loads, and mistakes are reported in the operation's own
-  words (`args.error(i, ...)`).
+  words (`args.error(i, ...)`). An operation takes a few arguments, about three at most: anything
+  with more configuration is a driver, with named fields. The entity readers are two methods
+  (`registerEntityFloatReader`, `registerEntityBooleanReader`) because a lambda returning a
+  number and one returning a boolean can't overload one name in Java.
 * **Bind** runs once per use, when the animator is loaded for an entity class (`args.entityClass()`):
   it reads the written-out arguments (`string(i)`, `constant(i)`), does its one-time work (an item
   looked up, a pattern compiled) and returns a `NumberEvaluator` or a `BooleanEvaluator`, or null
@@ -203,6 +206,15 @@ registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args)
   too, for what isn't declared state yet (`core:step_turn` publishes its outputs at rest).
 
 `core:spring` and `core:step_turn` are written this way (`SpringDriver`, `StepTurnDriver`).
+A template's fields stay as written (`ExpressionTemplate`, bone and state names as strings) and
+the binder (`DriverBindArgs`) gives each its kind, so generating a driver's documentation from
+its template class would need the binder's knowledge. The other drivers stay `IPoseItem`s: the
+core pose writers (`core:axis_rotate`, `core:vector`, `core:offset`, `core:accumulate`) use the
+pose's internals (which bones an item wrote, for mirroring and the item modifiers), and Mo'
+Bends' own (the cape, the sword trail, the spider's legs) read the entity's components, which
+the API's `EvalContext` doesn't give. No driver keeps per-entity state in Java fields, so every
+program is shared; what several drivers share per entity is a component (the spider's feet,
+`mobends:spider_legs`).
 
 ## Components and Layers for Model Definitions
 
@@ -214,8 +226,7 @@ What a model definition can switch on besides bones is registered the same way:
   {"swordTrail": "mobends:sword_trail"}`); the layers and drivers that use one look it up by that
   name (`EntityData.getComponent`), whatever class the data is. A component is updated with the
   parts, may draw in the entity's frame (`renderLocal`, the sword trail), and an
-  `OrientationComponent` is a bone animators pose. The Java bipeds register theirs under the same
-  names.
+  `OrientationComponent` is a bone animators pose.
 * **Layers** (`registerLayer`) replace a vanilla layer class on the renderer (vanilla's armour,
   held-item and head layers draw their own unanimated copy of the model) or are added after the
   renderer's own (the supporter accessories). The factory gets the definition's options for the

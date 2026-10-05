@@ -98,3 +98,11 @@ forge-1.12               1.12.2
   development name: it resolves in development only, and in the game takes its `@fallback`.
   Generating accessors for boolean and object fields too (`GenVanillaFields.kt`) might be the
   answer. Nothing shipped reads one yet.
+- [ ] Add a `machineTicksElapsed` built-in if machines that keep their own clock become common.
+  Today a machine that needs one keeps it as `machine.` state advanced in its `update` list; the
+  built-in would be named for its scope, as `nodeTicksElapsed` and `layerTicksElapsed` are, not
+  an operation taking the scope as an argument.
+- [ ] Consider an `@override` modifier on definitions, so an animator that `extends` another can
+  redeclare one of the parent's `animator.` names (today that is an error). A definition's other
+  `@` keys are where such per-definition rules go, as might what a type publishes to its
+  extensions.

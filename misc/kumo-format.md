@@ -51,7 +51,7 @@ How the three kinds of construct compare:
 
 **The format's words are lower case**: every fixed set of values (`@space` `pre`, an `axis` `x`,
 a layer `mode` `additive`, a `transitionEasing` `ease_in_out`, a hinge `front`) is written in
-lower_snake_case, as operation names and their choices are; `"PRE"` is an error. A map from bones
+lower_snake_case, as registered names and operations' choices are; `"PRE"` is an error. A map from bones
 to values (`@damping`, `additiveSpace`) names the value for every other bone `@default`, so any
 bone name can be a key.
 
@@ -192,6 +192,9 @@ its own, and its own `select`, `@connections`, `defaultOnEntry`, `@define` and `
 is a machine too, with the extra fields in the table under *Layers*. Every node and machine of a
 layer has a name of its own, whatever machine it is in.
 
+* A machine has no clock and no phases of its own: the layer crossfades between nodes, never
+  between machines. A machine that needs a clock keeps one as `machine.` state advanced in its
+  `update` list.
 * The layer is in one node at a time, and so in every machine around it. Each of them checks its
   selector, from the layer inwards: an outer selector decides between the machines, an inner one
   between what is inside one.
@@ -451,7 +454,15 @@ JSON tree, so tools can read and write it without a parser.
 | a number | a constant: `45` |
 | `true`, `false` | a constant condition |
 | a string | a name: a definition, by its scoped name (`"layer.combo"`, see *Definitions and statements*), or a bare name, which is always a built-in (`nodeTicksElapsed`, `entityIsOnGround`, `partialTicks`, see *Built-in values*) |
-| an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}`. Its other keys are modifiers: `@comment` on any operation, `@fallback` on one that takes it (`field`) |
+| an object with one key | an operation; the key is its name, the value the list of its arguments (always a list): `{"sin": ["t"]}`. Its other keys are modifiers: `@comment` on any operation, `@fallback` on one that takes it (`field`, and the registered operations that declare one) |
+
+**Bare operation names are the language's** (`add`, `if`, `rose`): a fixed set, Mo' Bends' only,
+spelled in camelCase (`wrapDegrees`, `easeInOut`). **`namespace:id` names are registered** Java
+logic, spelled in snake_case as Minecraft's registry ids are, and the namespace says who
+registered it: `core:` is what Mo' Bends registers directly (operations on vanilla classes, node
+types, drivers), `mobends:` Mo' Bends' own content, registered through the addon API, and an
+addon's names carry its mod id. Operations and drivers share one namespace: `core:spring` names
+one thing.
 
 **Every expression is a number or a boolean**, and which one is checked when the animator loads:
 a number where a condition goes (`"@when": "entityLimbSwing"`), or a boolean where a number goes

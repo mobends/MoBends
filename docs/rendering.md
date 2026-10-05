@@ -40,6 +40,12 @@ animation keeps running underneath.
 Mobs described by model definitions use `DefinedMutator` and `DefinedRenderer`; see
 [content.md](content.md).
 
+**Stuck arrows.** `LayerArrow` picks a random part from the model's `boxList`, a box of it, and a
+point on it. A definition replaces its bones' vanilla parts in that list with
+`DefinedBoxAnchor`s, one per part with boxes: an anchor draws nothing, its boxes are where the
+part's are (a mutated box leaves vanilla's bounds at 0), and its `postRender` is the part's posed
+transform, so an arrow sticks where the part is drawn (`ArrowAnchorTest`).
+
 ## Skeleton / Model Parts
 
 `IModelPart` — a node in the animated skeleton:
