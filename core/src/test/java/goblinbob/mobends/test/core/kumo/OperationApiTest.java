@@ -4,11 +4,13 @@ import goblinbob.mobends.core.kumo.api.FloatSlot;
 import goblinbob.mobends.core.kumo.api.KumoOperation;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.kumo.api.NumberEvaluator;
+import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionOperations.Kind;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import org.junit.Test;
 
@@ -222,6 +224,29 @@ public class OperationApiTest
         catch (IllegalArgumentException e)
         {
             assertTrue(e.getMessage(), e.getMessage().contains("already registered"));
+        }
+    }
+
+    @Test
+    public void operationsAndDriversShareOneNamespace()
+    {
+        try
+        {
+            KumoRegistry.registerFunction("core:spring", a -> a);
+            fail("An operation registers under a driver's name.");
+        }
+        catch (IllegalArgumentException e)
+        {
+            assertTrue(e.getMessage(), e.getMessage().contains("already registered as a driver"));
+        }
+        try
+        {
+            DriverRegistry.INSTANCE.register("test:double", (context, skeleton, template) -> null, DriverItemTemplate.class);
+            fail("A driver registers under an operation's name.");
+        }
+        catch (IllegalArgumentException e)
+        {
+            assertTrue(e.getMessage(), e.getMessage().contains("already registered as an operation"));
         }
     }
 

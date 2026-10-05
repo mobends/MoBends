@@ -468,7 +468,7 @@ public final class ExpressionOperations
 
     /**
      * Adds a registered operation (see {@link goblinbob.mobends.core.kumo.api.KumoRegistry}): its
-     * name must be namespaced, and not taken.
+     * name must be namespaced, and not taken by an operation or a driver.
      */
     public static void register(goblinbob.mobends.core.kumo.api.KumoOperation operation)
     {
@@ -479,6 +479,11 @@ public final class ExpressionOperations
         if (OPERATIONS.containsKey(operation.name))
         {
             throw new IllegalArgumentException("The operation '" + operation.name + "' is already registered.");
+        }
+        if (goblinbob.mobends.core.kumo.driver.DriverRegistry.INSTANCE.getTemplateClass(operation.name) != null)
+        {
+            // Operations and drivers share one namespace: core:spring names one thing.
+            throw new IllegalArgumentException("'" + operation.name + "' is already registered as a driver.");
         }
         OPERATIONS.put(operation.name, new Operation(operation.compilerParams(), operation.repeatsLast, operation.takesFallback,
                 args -> BoundOperation.compile(operation, args)));

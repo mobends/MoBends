@@ -2,6 +2,7 @@ package goblinbob.mobends.core.kumo.driver;
 
 import goblinbob.mobends.core.kumo.api.KumoDriver;
 import goblinbob.mobends.core.kumo.TypeRegistry;
+import goblinbob.mobends.core.kumo.expr.ExpressionOperations;
 import goblinbob.mobends.core.kumo.pose.IPoseItem;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
@@ -40,6 +41,7 @@ public class DriverRegistry
 
     public <T extends DriverItemTemplate> void register(String key, IDriverFactory<T> factory, Class<T> templateType)
     {
+        checkNotAnOperation(key);
         registry.register(key, templateType, factory);
     }
 
@@ -54,7 +56,17 @@ public class DriverRegistry
         {
             throw new IllegalArgumentException("The driver '" + driver.name + "' is already registered.");
         }
+        checkNotAnOperation(driver.name);
         registry.register(driver.name, driver.template, (IDriverFactory<T>) (context, skeleton, template) -> BoundDriver.create(driver, context, skeleton, template));
+    }
+
+    /** Operations and drivers share one namespace: {@code core:spring} names one thing. */
+    private static void checkNotAnOperation(String key)
+    {
+        if (ExpressionOperations.registered(key) != null)
+        {
+            throw new IllegalArgumentException("'" + key + "' is already registered as an operation.");
+        }
     }
 
     @Nullable
