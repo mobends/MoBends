@@ -106,11 +106,11 @@ animates shares it; each has a `KumoAnimatorState`, which holds only that entity
   cache is cleared with every reload (`CoreClient.reloadAnimation`, which a change of the
   server's policy also runs).
 
-Measured with `misc/bench/InstancingBench.java` (a synthetic animator shaped like `player.json`),
-before the split: instancing 100 entities took 27 times as long as with a shared program
-(1,000: 48 times), a compile hitch of ~2.7 ms in a 16.7 ms frame when 100 players appear at once,
-and the per-entity trees took about five times the memory (63 KB per entity, against 13.8 KB);
-frames ran at the same speed up to about a thousand entities, and 9–21 % faster beyond.
+Measured on a synthetic animator shaped like `player.json`, before the split: instancing 100
+entities took 27 times as long as with a shared program (1,000: 48 times), a compile hitch of
+~2.7 ms in a 16.7 ms frame when 100 players appear at once, and the per-entity trees took about five
+times the memory (63 KB per entity, against 13.8 KB); frames ran at the same speed up to about a
+thousand entities, and 9–21 % faster beyond.
 
 ## Operations in Java
 
