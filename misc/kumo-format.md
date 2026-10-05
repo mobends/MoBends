@@ -554,6 +554,7 @@ another class, it takes its `@fallback`, or the animator fails to load. (Mods ad
 | `core:active_hand_side` | `[side]`: `left` or `right` | the hand on that side is using an item | living entities |
 | `core:equipment_name` | `[slot, pattern]`: `mainhand`, `offhand`, `head`, `chest`, `legs`, `feet`, and a regular expression | the display name of what the entity has in the slot matches the pattern as a whole | living entities |
 | `core:is_flying` | none | the player flies (creative or spectator flight, not an elytra) | players |
+| `core:ledge_ahead` | none | a block in front of the entity's feet, at most 1.5 blocks high, with room for the entity on top: what it climbs onto as it jumps (front is the way it moves, or faces when it doesn't). Read as it lifts off, it tells a vault from a jump | living entities |
 | `mobends:use_action` | `[action]`: `food`, `bow` or `shield` | the item in use is used as that (Mo' Bends' classification, which the config can change) | living entities |
 | `mobends:attack_action` | `[action]`: `fists`, `sword` or `tool` | the held item attacks as that | living entities |
 | `mobends:spin_attack_enabled` | none | the config lets the sword combo end with a spin | every entity |

@@ -14,4 +14,10 @@ public class AxisAlignedBB
     {
         return new AxisAlignedBB(minX + x, minY + y, minZ + z, maxX + x, maxY + y, maxZ + z);
     }
+
+    /** Whether the boxes overlap (touching faces don't), as vanilla's {@code intersects}. */
+    public boolean intersects(AxisAlignedBB other)
+    {
+        return minX < other.maxX && maxX > other.minX && minY < other.maxY && maxY > other.minY && minZ < other.maxZ && maxZ > other.minZ;
+    }
 }

@@ -6,5 +6,10 @@ import net.minecraft.world.World;
 public class EntityIronGolem extends EntityLivingBase
 {
     private int attackTimer;
-    public EntityIronGolem(World world) { super(world); }
+    public EntityIronGolem(World world)
+    {
+        super(world);
+        width = 1.4F;
+        height = 2.7F;
+    }
 }

@@ -33,7 +33,7 @@ bun tools/trace_diff.ts player/sword_combo rightArm --from 80 --to 100
 ## How a frame is replayed
 
 `KumoSession` drives a `ScriptedEntity` (a small vanilla-like integrator: gravity, drag, limb
-swing, arm swing, ladders, water, mounts) at a fixed frame rate, and per frame does what the mod
+swing, arm swing, ladders, water, stone to climb onto, mounts) at a fixed frame rate, and per frame does what the mod
 does: tick the entity, `data.updateClient()`, `data.update(partialTicks)`, feed the vanilla model
 inputs, run the animator, then capture every named bone's smoothed rotation and target, offsets
 and the entity-level offset vectors into a trace. Determinism comes from reset entity ids and

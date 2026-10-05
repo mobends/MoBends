@@ -16,6 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.HashSet;
 import java.util.Locale;
@@ -114,6 +116,9 @@ public final class MinecraftKumoOperations
 
         // {"core:is_flying": []}: a player flying (creative or spectator flight, not an elytra).
         KumoRegistry.registerEntityBooleanReader("core:is_flying", EntityPlayer.class, player -> player.capabilities.isFlying);
+        // {"core:ledge_ahead": []}: a block in front of the entity's feet it can climb onto (what a
+        // mob jumps onto as it walks), read once on liftoff to tell a vault from a jump.
+        KumoRegistry.registerEntityBooleanReader("core:ledge_ahead", EntityLivingBase.class, MinecraftKumoOperations::ledgeAhead);
 
         // What a type file's selector reads: the entity alone, any entity (false where it doesn't apply).
         // {"core:entity_type": ["minecraft:zombie", "minecraft:husk"]}: the entity's registry id is one of these.
@@ -171,6 +176,45 @@ public final class MinecraftKumoOperations
     public static boolean applies(Class<?> type, BindArgs args)
     {
         return args.entityClass() != null && type.isAssignableFrom(args.entityClass());
+    }
+
+    /** How far in front of the entity {@code core:ledge_ahead} looks, in blocks. */
+    private static final double LEDGE_REACH = 0.5D;
+    /** The highest ledge {@code core:ledge_ahead} counts, above the feet: a jump's height. */
+    private static final double LEDGE_MAX_HEIGHT = 1.5D;
+
+    /**
+     * Whether a block stands in front of the entity's feet, no higher than {@link #LEDGE_MAX_HEIGHT},
+     * with room for the entity on top. Front is the way the entity moves, or faces when it doesn't
+     * (pressed against the block it is about to climb).
+     */
+    public static boolean ledgeAhead(EntityLivingBase entity)
+    {
+        if (entity.world == null) return false;
+        double dx = entity.posX - entity.prevPosX;
+        double dz = entity.posZ - entity.prevPosZ;
+        double length = Math.sqrt(dx * dx + dz * dz);
+        if (length < 0.01D)
+        {
+            float yaw = entity.renderYawOffset * 0.017453292F;
+            dx = -MathHelper.sin(yaw);
+            dz = MathHelper.cos(yaw);
+            length = 1;
+        }
+        dx *= LEDGE_REACH / length;
+        dz *= LEDGE_REACH / length;
+
+        AxisAlignedBB box = entity.getEntityBoundingBox();
+        AxisAlignedBB ahead = box.offset(dx, 0, dz);
+        // Above the ground the entity stands on (a hair over its feet), up to a jump's height.
+        AxisAlignedBB feet = new AxisAlignedBB(ahead.minX, box.minY + 0.01D, ahead.minZ, ahead.maxX, box.minY + LEDGE_MAX_HEIGHT, ahead.maxZ);
+        double top = box.minY;
+        for (AxisAlignedBB hit : entity.world.getCollisionBoxes(entity, feet))
+        {
+            top = Math.max(top, hit.maxY);
+        }
+        if (top <= box.minY + 0.01D || top > box.minY + LEDGE_MAX_HEIGHT) return false;
+        return entity.world.getCollisionBoxes(entity, ahead.offset(0, top - box.minY + 0.01D, 0)).isEmpty();
     }
 
     private static EnumHand hand(String hand)

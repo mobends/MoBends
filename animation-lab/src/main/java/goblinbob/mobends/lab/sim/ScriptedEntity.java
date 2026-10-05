@@ -5,12 +5,14 @@ import net.minecraft.entity.monster.EntitySpider;
 import net.minecraft.entity.passive.EntitySquid;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 /**
  * Applies {@link EntityInputs} to a stub entity once per tick, reproducing the handful of vanilla
- * behaviours the animation code depends on: position integration with gravity and a flat floor,
+ * behaviours the animation code depends on: position integration with gravity, a flat floor and
+ * stone blocks to stand on (walking into one stops the entity; it has to jump onto it),
  * limb swing accumulation, arm swing progress, and the prev/current pairs used for interpolation.
  */
 public class ScriptedEntity
@@ -66,6 +68,14 @@ public class ScriptedEntity
         float yawRad = in.bodyYaw * 0.017453292F;
         double dx = -MathHelper.sin(yawRad) * in.forwardSpeed + MathHelper.cos(yawRad) * in.strafeSpeed;
         double dz = MathHelper.cos(yawRad) * in.forwardSpeed + MathHelper.sin(yawRad) * in.strafeSpeed;
+        AxisAlignedBB box = e.getEntityBoundingBox();
+        AxisAlignedBB moved = box.offset(dx, 0, dz);
+        if (!world.stoneIn(new AxisAlignedBB(moved.minX, moved.minY + 0.01D, moved.minZ, moved.maxX, moved.maxY, moved.maxZ)).isEmpty())
+        {
+            dx = 0;
+            dz = 0;
+        }
+        double ground = world.groundUnder(box, e.posY + 1e-6);
 
         // Vertical motion.
         if (in.noGravity)
@@ -74,7 +84,7 @@ public class ScriptedEntity
         }
         else
         {
-            boolean grounded = e.posY <= world.floorY + 1e-6;
+            boolean grounded = e.posY <= ground + 1e-6;
             if (in.jump && grounded)
             {
                 velocityY = JUMP_IMPULSE;
@@ -96,9 +106,11 @@ public class ScriptedEntity
         e.posX += dx;
         e.posZ += dz;
         e.posY += velocityY;
-        if (!in.noGravity && e.posY < world.floorY)
+        // What it lands on: the floor, or stone whose top its feet were above.
+        ground = world.groundUnder(e.getEntityBoundingBox(), Math.max(e.prevPosY, e.posY) + 1e-6);
+        if (!in.noGravity && e.posY < ground)
         {
-            e.posY = world.floorY;
+            e.posY = ground;
             velocityY = 0;
         }
 
