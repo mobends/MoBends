@@ -21,6 +21,9 @@
 - Mods can add their own animation logic to the JSON format: operations (values computed in Java,
   such as whether a mob is wet) and drivers (posing computed in Java), registered from an addon.
 - Zombie villagers are animated.
+- Iron golems jump: the push-off snaps their legs straight, they bend as the golem flies and the
+  heavy arms lag behind; jumping onto a block, the golem vaults it, propping itself up on its
+  hands; landing, it gives under its weight.
 - A server's own resource pack can add types and extensions too.
 - Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
   several apply to the same mob.

@@ -7,6 +7,7 @@ import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityIronGolem;
 import net.minecraft.entity.monster.EntityPigZombie;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntitySpider;
@@ -33,7 +34,8 @@ public enum EntityKind
     PIG_ZOMBIE("mobends:zombie_pigman", "pig_zombie", EntityPigZombie::new),
     SPIDER("mobends:spider", "spider", EntitySpider::new),
     SQUID("mobends:squid", "squid", EntitySquid::new),
-    WOLF("mobends:wolf", "wolf", EntityWolf::new);
+    WOLF("mobends:wolf", "wolf", EntityWolf::new),
+    IRON_GOLEM("mobends:villager_golem", "iron_golem", EntityIronGolem::new);
 
     /** The key the mod registers the entity bender under. */
     public final String benderKey;

@@ -8,6 +8,8 @@ public class Scripts
     public static final double WALK_SPEED = 0.15D;
     public static final double SPRINT_SPEED = 0.26D;
     public static final double SNEAK_SPEED = 0.06D;
+    /** An iron golem walking somewhere (its wander is about 0.05 blocks a tick). */
+    public static final double GOLEM_SPEED = 0.1D;
 
     public static void walk(EntityInputs in, double speed)
     {

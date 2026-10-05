@@ -13,7 +13,6 @@ editor, which is in the works. It opens the `officialAnimationEditorUrl` of
 
 ## Animations
 
-- [ ] A jumping / airborne animation for the iron golem.
 - [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.
 
 ## Mo' Bends menu

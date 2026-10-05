@@ -1,6 +1,7 @@
 package goblinbob.mobends.lab.scenarios;
 
 import goblinbob.mobends.lab.sim.EntityKind;
+import goblinbob.mobends.lab.sim.LabWorlds;
 import goblinbob.mobends.lab.sim.Scenario;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -335,6 +336,22 @@ public class Scenarios
             }
             lookAround(in, tick);
         }));
+
+        // --- Iron golem -------------------------------------------------------------------------
+        // Jumps in the open: standing, then walking.
+        add(new Scenario(EntityKind.IRON_GOLEM, "jump_stand_walk", FPS, 140, (tick, in) -> {
+            if (tick == 20) in.jump = true;
+            if (between(tick, 60, 130)) walk(in, GOLEM_SPEED);
+            if (tick == 90) in.jump = true;
+        }));
+
+        // A block two wide across its path: it walks into it (at tick 38), jumps onto it (vaulting),
+        // walks across and steps off the far side (falling, an open-field jump).
+        add(new Scenario(EntityKind.IRON_GOLEM, "vault_ledge", FPS, 140, (tick, in) -> {
+            if (between(tick, 20, 110)) walk(in, GOLEM_SPEED);
+            if (tick == 42) in.jump = true;
+            lookAround(in, tick);
+        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4)));
 
         // --- Squid ------------------------------------------------------------------------------
         add(new Scenario(EntityKind.SQUID, "swim", FPS, 120, (tick, in) -> {
