@@ -18,6 +18,7 @@ import goblinbob.mobends.core.util.Tween;
 import goblinbob.mobends.lab.scenarios.Scenarios;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
+import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.Scenario;
 import goblinbob.mobends.lab.trace.FramePose;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,8 @@ public class ExpressionTest
 
     public ExpressionTest() throws MalformedKumoTemplateException
     {
+        // The core: operations (core:holds_item) are the mod's: registered here, not by whichever test ran first.
+        LabBootstrap.ensure();
         layer.declare(define("x", "{\"state\": 3}", "ticks", "{\"state\": 42}"), true);
         root = ExpressionScope.root(variables).inside(layer);
         layer.compileIn(root);
