@@ -42,12 +42,15 @@ public interface DriverBindArgs
     /** The bone {@code name}, as the index the {@link PoseWriter} takes. */
     int bone(String field, @Nullable String name) throws MalformedKumoTemplateException;
 
-    /** The number state the driver steps, named by its {@code inout} field. */
+    /** The number state the driver steps, named by its {@code inout} field; a state of another type is an error. */
     StateHandle inout(String field, @Nullable String state) throws MalformedKumoTemplateException;
 
+    /** The double state the driver steps, named by its {@code inout} field; a state of another type is an error. */
+    DoubleStateHandle doubleInout(String field, @Nullable String state) throws MalformedKumoTemplateException;
+
     /**
-     * The driver's outputs, as its {@code out} field maps them to number states (null: none).
-     * An output not among {@code outputs} is an error.
+     * The driver's outputs, as its {@code out} field maps them to states (null: none). An output
+     * not among {@code outputs} is an error; the driver says which type each is when it gets it.
      */
     Outputs outputs(@Nullable Map<String, String> out, String... outputs) throws MalformedKumoTemplateException;
 
@@ -66,9 +69,13 @@ public interface DriverBindArgs
     /** The states a driver's outputs go to. */
     interface Outputs
     {
-        /** The state {@code output} goes to, or null if the file maps it to none. */
+        /** The number state {@code output} goes to, or null if the file maps it to none; a state of another type is an error. */
         @Nullable
-        StateHandle get(String output);
+        StateHandle get(String output) throws MalformedKumoTemplateException;
+
+        /** The double state {@code output} goes to, or null if the file maps it to none; a state of another type is an error. */
+        @Nullable
+        DoubleStateHandle getDouble(String output) throws MalformedKumoTemplateException;
     }
 
 }

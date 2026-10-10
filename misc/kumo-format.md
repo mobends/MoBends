@@ -363,7 +363,9 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 
 A driver writes the animator's state only where its fields say: `inout` is the state it steps,
 `out` maps its outputs to the states they go to (`{"groundLevel": "node.groundLevel"}`). Each is a
-number state, declared like any other (see *Definitions and statements*); the driver steps it
+state declared like any other (see *Definitions and statements*), of the type the driver writes
+there: a number, unless the driver's documentation says a double (a position in the world,
+`{"state": {"toDouble": [0]}}`); a state of the other type is a load error. The driver steps it
 once per frame, in pose-stack order, so the items after it read this frame's value. The value
 lives where its state is declared, and the driver writes it only while its node is posed.
 

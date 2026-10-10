@@ -4,6 +4,7 @@ import goblinbob.mobends.core.kumo.api.BooleanInput;
 import goblinbob.mobends.core.kumo.api.DoubleArraySlot;
 import goblinbob.mobends.core.kumo.api.DoubleInput;
 import goblinbob.mobends.core.kumo.api.DoubleSlot;
+import goblinbob.mobends.core.kumo.api.DoubleStateHandle;
 import goblinbob.mobends.core.kumo.api.DriverBindArgs;
 import goblinbob.mobends.core.kumo.api.DriverEvaluator;
 import goblinbob.mobends.core.kumo.api.EvalContext;
@@ -288,32 +289,71 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
         @Override
         public StateHandle inout(String field, @Nullable String state) throws MalformedKumoTemplateException
         {
+            return numberHandle(inoutState(field, state), "'" + driver + "'");
+        }
+
+        @Override
+        public DoubleStateHandle doubleInout(String field, @Nullable String state) throws MalformedKumoTemplateException
+        {
+            return doubleHandle(inoutState(field, state), "'" + driver + "'");
+        }
+
+        private StateRef inoutState(String field, @Nullable String state) throws MalformedKumoTemplateException
+        {
             if (state == null) throw error("needs '" + field + "' (the state it steps).");
-            return handle(state, "'" + driver + "'");
+            return scope.resolveState(state, "'" + driver + "'");
         }
 
         @Override
         public Outputs outputs(@Nullable Map<String, String> out, String... outputs) throws MalformedKumoTemplateException
         {
-            Map<String, StateHandle> handles = new HashMap<>();
+            // Every state the file names is resolved now; its type is checked as the driver gets it.
+            Map<String, StateRef> states = new HashMap<>();
             for (Map.Entry<String, String> entry : (out == null ? Collections.<String, String>emptyMap() : out).entrySet())
             {
                 if (!Arrays.asList(outputs).contains(entry.getKey()))
                 {
                     throw error(String.format("has no output '%s' (it has %s).", entry.getKey(), String.join(", ", outputs)));
                 }
-                handles.put(entry.getKey(), handle(entry.getValue(), "'" + driver + "''s output '" + entry.getKey() + "'"));
+                states.put(entry.getKey(), scope.resolveState(entry.getValue(), outputName(entry.getKey())));
             }
-            return handles::get;
+            return new Outputs()
+            {
+                @Nullable
+                @Override
+                public StateHandle get(String output) throws MalformedKumoTemplateException
+                {
+                    StateRef ref = states.get(output);
+                    return ref == null ? null : numberHandle(ref, outputName(output));
+                }
+
+                @Nullable
+                @Override
+                public DoubleStateHandle getDouble(String output) throws MalformedKumoTemplateException
+                {
+                    StateRef ref = states.get(output);
+                    return ref == null ? null : doubleHandle(ref, outputName(output));
+                }
+            };
         }
 
-        private StateHandle handle(String state, String what) throws MalformedKumoTemplateException
+        private String outputName(String output)
         {
-            StateRef ref = scope.resolveState(state, what);
-            if (ref.type != Expression.Type.NUMBER)
+            return "'" + driver + "''s output '" + output + "'";
+        }
+
+        private static void requireType(StateRef ref, Expression.Type type, String what) throws MalformedKumoTemplateException
+        {
+            if (ref.type != type)
             {
-                throw new MalformedKumoTemplateException(String.format("%s writes '%s', which is %s: it writes numbers.", what, state, ref.type.description));
+                throw new MalformedKumoTemplateException(String.format("%s writes '%s', which is %s: it writes %ss.", what, ref.name, ref.type.description,
+                        type == Expression.Type.DOUBLE ? "double" : "number"));
             }
+        }
+
+        private static StateHandle numberHandle(StateRef ref, String what) throws MalformedKumoTemplateException
+        {
+            requireType(ref, Expression.Type.NUMBER, what);
             return new StateHandle()
             {
                 @Override
@@ -324,6 +364,25 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
 
                 @Override
                 public void set(EvalContext context, float value)
+                {
+                    ref.set(value, ((BoundDriver) context).context);
+                }
+            };
+        }
+
+        private static DoubleStateHandle doubleHandle(StateRef ref, String what) throws MalformedKumoTemplateException
+        {
+            requireType(ref, Expression.Type.DOUBLE, what);
+            return new DoubleStateHandle()
+            {
+                @Override
+                public double get(EvalContext context)
+                {
+                    return ref.get(((BoundDriver) context).context);
+                }
+
+                @Override
+                public void set(EvalContext context, double value)
                 {
                     ref.set(value, ((BoundDriver) context).context);
                 }

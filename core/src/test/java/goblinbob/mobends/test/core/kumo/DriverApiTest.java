@@ -1,5 +1,8 @@
 package goblinbob.mobends.test.core.kumo;
 
+import goblinbob.mobends.core.kumo.api.DoubleInput;
+import goblinbob.mobends.core.kumo.api.DoubleSlot;
+import goblinbob.mobends.core.kumo.api.DoubleStateHandle;
 import goblinbob.mobends.core.kumo.api.DriverBindArgs;
 import goblinbob.mobends.core.kumo.api.DriverEvaluator;
 import goblinbob.mobends.core.kumo.api.FloatSlot;
@@ -33,9 +36,28 @@ public class DriverApiTest
         public Map<String, String> out;
     }
 
+    /** Steps a double state ({@code inout}) by a double, and publishes where it started ({@code out}: {@code start}). */
+    public static class TrackTemplate extends DriverItemTemplate
+    {
+        public ExpressionTemplate by;
+        public String inout;
+        public Map<String, String> out;
+    }
+
     static
     {
         KumoRegistry.registerDriver(KumoDriver.of("test:raise", RaiseTemplate.class, DriverApiTest::bind));
+        KumoRegistry.registerDriver(KumoDriver.of("test:track", TrackTemplate.class, (template, args) -> {
+            DoubleInput by = args.doubleNumber("by", template.by);
+            DoubleStateHandle position = args.doubleInout("inout", template.inout);
+            DoubleStateHandle start = args.outputs(template.out, "start").getDouble("start");
+            DoubleSlot first = args.doubleSlot("first", Double.NaN);
+            return (context, pose) -> {
+                if (Double.isNaN(first.get(context))) first.set(context, position.get(context));
+                if (start != null) start.set(context, first.get(context));
+                position.set(context, position.get(context) + by.get(context));
+            };
+        }));
     }
 
     private static DriverEvaluator bind(RaiseTemplate template, DriverBindArgs args) throws MalformedKumoTemplateException
@@ -64,7 +86,7 @@ public class DriverApiTest
 
     private static String animator(String raise, int restartAfter)
     {
-        return "{'formatVersion': 2, '@define': {'total': {'state': 0}, 'frames': {'state': 0}}, 'layers': [{'defaultOnEntry': 'a', "
+        return "{'formatVersion': 2, '@define': {'total': {'state': 0}, 'frames': {'state': 0}, 'position': {'state': {'toDouble': [0]}}}, 'layers': [{'defaultOnEntry': 'a', "
                 + "'nodes': {'a': {'core:pose': {'pose': [{'test:raise': " + raise + "}, "
                 + "{'core:axis_rotate': {'bone': 'leg', 'axis': 'x', 'angle': {'add': ['animator.total', {'mul': ['animator.frames', 10]}]}}, '@space': 'override'}]}, "
                 + "'@connections': [{'when': {'ge': ['nodeTicksElapsed', " + restartAfter + "]}, 'then': 'a'}]}}}]}";
@@ -107,6 +129,51 @@ public class DriverApiTest
         expectError("{'bone': 'arm', 'angle': 1}", "'test:raise' needs 'inout' (the state it steps).");
         expectError("{'bone': 'arm', 'angle': 1, 'inout': 'animator.total', 'out': {'laps': 'animator.frames'}}", "'test:raise' has no output 'laps' (it has frames).");
         expectError("{'bone': 'arm', 'angle': true, 'inout': 'animator.total'}", "'test:raise' 'angle': Expected a number");
+    }
+
+    /** Far from the origin, where a float steps by a whole block: the doubles keep the quarters. */
+    private static String tracking(String track)
+    {
+        return "{'formatVersion': 2, '@define': {'position': {'state': {'toDouble': [10000000]}}, 'start': {'state': {'toDouble': [0]}}, 'total': {'state': 0}}, "
+                + "'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'test:track': " + track + "}, "
+                + "{'core:axis_rotate': {'bone': 'arm', 'axis': 'x', 'angle': {'mul': [{'toFloat': [{'sub': ['animator.position', 'animator.start']}]}, 100]}}, "
+                + "'@space': 'override'}]}}}}]}";
+    }
+
+    @Test
+    public void aDriverStepsAndPublishesDoubles() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance(tracking("{'by': 0.25, 'inout': 'animator.position', 'out': {'start': 'animator.start'}}"));
+        TestSubject subject = new TestSubject("arm");
+        // Three frames, three quarters on from ten million (the rotation after the driver reads this frame's step).
+        for (int i = 0; i < 3; i++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertEquals(75, angle(subject, "arm"), 1e-3);
+    }
+
+    @Test
+    public void aDriversStatesAreOfTheTypeItWrites()
+    {
+        expectTrackError("{'by': 0.25, 'inout': 'animator.total'}", "'test:track' writes 'animator.total', which is a number: it writes doubles.");
+        expectTrackError("{'by': 0.25, 'inout': 'animator.position', 'out': {'start': 'animator.total'}}",
+                "'test:track''s output 'start' writes 'animator.total', which is a number: it writes doubles.");
+        expectError("{'bone': 'arm', 'angle': 1, 'inout': 'animator.total', 'out': {'frames': 'animator.position'}}",
+                "'test:raise''s output 'frames' writes 'animator.position', which is a double: it writes numbers.");
+    }
+
+    private static void expectTrackError(String track, String message)
+    {
+        try
+        {
+            TestSubject.instance(tracking(track));
+            fail("Loads: " + track);
+        }
+        catch (MalformedKumoTemplateException e)
+        {
+            assertTrue(e.getMessage(), e.getMessage().contains(message));
+        }
     }
 
     private static void expectError(String raise, String message)

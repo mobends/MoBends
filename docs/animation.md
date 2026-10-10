@@ -200,9 +200,11 @@ registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args)
 * Inputs (`number`, `doubleNumber`, `bool`) are expressions, evaluated for the frame before the
   driver runs, every one of them. A position in the world is a `doubleNumber` (`DoubleInput`),
   `entityWorldX` by default, which a file can replace with any double expression.
-* A driver writes states two ways: the state it steps, named by `inout` (`args.inout`), and its
-  **outputs**, which a file maps to states in `out` (`args.outputs`, which refuses an output the
-  driver doesn't have). Either way, a file from a resource pack can't name a trusted file's state.
+* A driver writes states two ways: the state it steps, named by `inout` (`args.inout`, or
+  `args.doubleInout` for a double), and its **outputs**, which a file maps to states in `out`
+  (`args.outputs`, which refuses an output the driver doesn't have; then `get` for a number,
+  `getDouble` for a double). A state of another type than the driver asks for is a load error.
+  Either way, a file from a resource pack can't name a trusted file's state.
 * It poses through a `PoseWriter`: the bones by index, what the items before it made of them
   (`rotationSoFar`, `vectorSoFar`, ...), writes composed in a space, and `snapRotation` /
   `snapVector` to jump a bone past its damping this frame. A narrow view, so the pose buffers can
