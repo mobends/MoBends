@@ -65,8 +65,9 @@ public final class DefinitionScope
     private Expression.Type[] types = new Expression.Type[0];
     private final List<String> compiling = new ArrayList<>();
 
-    // Where the entity's values are, in its state (see StateLayout): the values (floats), then, by
-    // index too, whether each is set (ints) and the frame a live one was computed in (ints).
+    // Where the entity's values are, in its state (see StateLayout): the values (doubles, which hold
+    // a number or a boolean exactly too), then, by index too, whether each is set (ints) and the
+    // frame a live one was computed in (ints).
     private int valueSlot, statusSlot, frameSlot;
 
     public DefinitionScope(Kind kind, String owner)
@@ -159,7 +160,7 @@ public final class DefinitionScope
             }
             FunctionCall.check(function(entry.getKey()));
         }
-        valueSlot = scope.getLayout().floats(names.size(), 0);
+        valueSlot = scope.getLayout().doubles(names.size(), 0);
         statusSlot = scope.getLayout().ints(names.size(), UNSET);
         frameSlot = scope.getLayout().ints(names.size(), -1);
         for (int i = 0; i < names.size(); i++)
@@ -188,7 +189,12 @@ public final class DefinitionScope
             // Reads nothing per entity: its value is the program's, not every entity's.
             return compiled[index];
         }
-        return types[index] == Expression.Type.BOOLEAN ? new BooleanRead(this, index) : new NumberRead(this, index);
+        switch (types[index])
+        {
+            case BOOLEAN: return new BooleanRead(this, index);
+            case DOUBLE: return new DoubleRead(this, index);
+            default: return new NumberRead(this, index);
+        }
     }
 
     /**
@@ -302,30 +308,36 @@ public final class DefinitionScope
             if (state.ints[frameSlot + index] != frame)
             {
                 state.ints[frameSlot + index] = frame;
-                state.floats[valueSlot + index] = evaluate(index, context);
+                state.doubles[valueSlot + index] = evaluate(index, context);
             }
-            return state.floats[valueSlot + index];
+            return state.doubles[valueSlot + index];
         }
         if (state.ints[statusSlot + index] == UNSET)
         {
             state.ints[statusSlot + index] = COMPUTING;
-            state.floats[valueSlot + index] = evaluate(index, context);
+            state.doubles[valueSlot + index] = evaluate(index, context);
             state.ints[statusSlot + index] = SET;
         }
-        return state.floats[valueSlot + index];
+        return state.doubles[valueSlot + index];
     }
 
     void set(int index, double value, ITriggerConditionContext context)
     {
         EntityState state = context.getState();
-        state.floats[valueSlot + index] = (float) value;
+        // A number state holds what a float would: whoever writes it, it reads the same.
+        state.doubles[valueSlot + index] = types[index] == Expression.Type.DOUBLE ? value : (float) value;
         state.ints[statusSlot + index] = SET;
     }
 
-    private float evaluate(int index, ITriggerConditionContext context)
+    private double evaluate(int index, ITriggerConditionContext context)
     {
         Expression expression = compiled[index];
-        return expression.getType() == Expression.Type.BOOLEAN ? (expression.test(context) ? 1 : 0) : expression.get(context);
+        switch (expression.getType())
+        {
+            case BOOLEAN: return expression.test(context) ? 1 : 0;
+            case DOUBLE: return expression.getDouble(context);
+            default: return expression.get(context);
+        }
     }
 
     private static final class NumberRead extends Expression.NumberExpression
@@ -343,6 +355,24 @@ public final class DefinitionScope
         public float get(ITriggerConditionContext context)
         {
             return (float) scope.value(index, context);
+        }
+    }
+
+    private static final class DoubleRead extends Expression.DoubleExpression
+    {
+        private final DefinitionScope scope;
+        private final int index;
+
+        DoubleRead(DefinitionScope scope, int index)
+        {
+            this.scope = scope;
+            this.index = index;
+        }
+
+        @Override
+        public double getDouble(ITriggerConditionContext context)
+        {
+            return scope.value(index, context);
         }
     }
 

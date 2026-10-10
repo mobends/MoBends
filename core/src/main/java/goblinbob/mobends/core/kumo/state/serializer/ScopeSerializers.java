@@ -98,12 +98,12 @@ public final class ScopeSerializers
 
     /**
      * {@code {"params": {"t": "number", "hand": {"choice": ["main_hand", "off_hand"]}}, "body": <expression>}}:
-     * a parameter is {@code number}, {@code boolean}, {@code constant} (a number written out),
-     * {@code string}, or a choice of strings.
+     * a parameter is {@code number}, {@code double}, {@code boolean}, {@code constant} (a number
+     * written out), {@code string}, or a choice of strings.
      */
     public static class Function implements JsonDeserializer<FunctionTemplate>
     {
-        private static final java.util.Set<String> KINDS = new java.util.HashSet<>(java.util.Arrays.asList("number", "boolean", "constant", "string"));
+        private static final java.util.Set<String> KINDS = new java.util.HashSet<>(java.util.Arrays.asList("number", "double", "boolean", "constant", "string"));
 
         @Override
         public FunctionTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
@@ -137,7 +137,7 @@ public final class ScopeSerializers
                     }
                     else
                     {
-                        throw new JsonParseException(what + " is \"number\", \"boolean\", \"constant\", \"string\" or {\"choice\": [...]}, not " + kind + ".");
+                        throw new JsonParseException(what + " is \"number\", \"double\", \"boolean\", \"constant\", \"string\" or {\"choice\": [...]}, not " + kind + ".");
                     }
                 }
             }

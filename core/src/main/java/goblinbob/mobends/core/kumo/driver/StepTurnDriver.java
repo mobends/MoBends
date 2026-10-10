@@ -3,6 +3,8 @@ package goblinbob.mobends.core.kumo.driver;
 import goblinbob.mobends.core.kumo.api.DriverBindArgs;
 import goblinbob.mobends.core.kumo.api.DriverEvaluator;
 import goblinbob.mobends.core.kumo.api.EvalContext;
+import goblinbob.mobends.core.kumo.api.DoubleArraySlot;
+import goblinbob.mobends.core.kumo.api.DoubleInput;
 import goblinbob.mobends.core.kumo.api.FloatArraySlot;
 import goblinbob.mobends.core.kumo.api.KumoDriver;
 import goblinbob.mobends.core.kumo.api.NumberInput;
@@ -82,7 +84,8 @@ public class StepTurnDriver implements DriverEvaluator
     private boolean placed;
     /** Whether anything was written last frame, so the frame the weight reaches 0 hands the offset and rotation back. */
     /** The body yaw and the position it follows. */
-    private final NumberInput yaw, x, z;
+    private final NumberInput yaw;
+    private final DoubleInput x, z;
     /** The states it publishes to (see {@link #STRIDE} and the others); null where it publishes nothing. */
     private final StateHandle strideOut, turnLagOut, turnSpeedOut, stepLiftOut, stepImpactOut;
     private boolean wrote;
@@ -106,9 +109,11 @@ public class StepTurnDriver implements DriverEvaluator
 
     /**
      * The entity's state (see {@link #load}): the fields above and the legs' are a working copy of
-     * it while the driver evaluates, so the compiled driver is shared by every entity.
+     * it while the driver evaluates, so the compiled driver is shared by every entity. The doubles
+     * are kept as doubles: positions in the world don't round far from the origin.
      */
     private final FloatArraySlot state;
+    private final DoubleArraySlot doubleState;
 
     private final Quaternion upper = new Quaternion();
     private final Quaternion lower = new Quaternion();
@@ -158,9 +163,9 @@ public class StepTurnDriver implements DriverEvaluator
     {
         this.t = template;
         this.weight = args.number("weight", template.weight, 1);
-        this.yaw = args.entityValue("yawVariable", template.yawVariable);
-        this.x = args.entityValue("xVariable", template.xVariable);
-        this.z = args.entityValue("zVariable", template.zVariable);
+        this.yaw = args.number("yaw", template.yaw);
+        this.x = args.doubleNumber("x", template.x);
+        this.z = args.doubleNumber("z", template.z);
         DriverBindArgs.Outputs out = args.outputs(template.out, TURN_LAG, TURN_SPEED, STEP_LIFT, STEP_IMPACT, STRIDE);
         this.strideOut = out.get(STRIDE);
         this.turnLagOut = out.get(TURN_LAG);
@@ -176,23 +181,24 @@ public class StepTurnDriver implements DriverEvaluator
             legs[i] = new Leg(def, args.bone("upper", def.upper), args.bone("lower", def.lower));
         }
         this.state = args.slots("state", STATE_SIZE + LEG_STATE_SIZE * legs.length, 0);
+        this.doubleState = args.doubleSlots("doubleState", DOUBLE_STATE_SIZE + LEG_DOUBLE_STATE_SIZE * legs.length, 0);
     }
 
     // --- the entity's state ------------------------------------------------------------------------
 
-    /** Floats of state: five flags and counters, four floats, nine doubles (two floats each). */
-    private static final int STATE_SIZE = 5 + 4 + 9 * 2;
-    /** Per leg: nine doubles and three floats. */
-    private static final int LEG_STATE_SIZE = 9 * 2 + 3;
+    /** State: five flags and counters, four floats, nine doubles. */
+    private static final int STATE_SIZE = 5 + 4;
+    private static final int DOUBLE_STATE_SIZE = 9;
+    /** Per leg: three floats, nine doubles. */
+    private static final int LEG_STATE_SIZE = 3;
+    private static final int LEG_DOUBLE_STATE_SIZE = 9;
 
-    /**
-     * Reads and writes the state in order. A double is kept as two floats, its float value and
-     * what that leaves (about 48 bits): positions in the world don't round far from the origin.
-     */
+    /** Reads and writes the state in order: the floats and the doubles each in their own slots. */
     private final class Cursor
     {
         private final EvalContext context;
         private int index;
+        private int doubleIndex;
 
         Cursor(EvalContext context)
         {
@@ -206,8 +212,7 @@ public class StepTurnDriver implements DriverEvaluator
 
         double readDouble()
         {
-            double high = state.get(context, index++);
-            return high + state.get(context, index++);
+            return doubleState.get(context, doubleIndex++);
         }
 
         void write(float value)
@@ -217,9 +222,7 @@ public class StepTurnDriver implements DriverEvaluator
 
         void write(double value)
         {
-            float high = (float) value;
-            state.set(context, index++, high);
-            state.set(context, index++, (float) (value - high));
+            doubleState.set(context, doubleIndex++, value);
         }
 
         void write(boolean value)
@@ -365,9 +368,9 @@ public class StepTurnDriver implements DriverEvaluator
     private void pose(EvalContext context, PoseWriter pose)
     {
         final float w = Math.max(0F, Math.min(1F, weight.get(context)));
-        final double bodyYaw = yaw.getDouble(context);
-        final double px = x.getDouble(context);
-        final double pz = z.getDouble(context);
+        final double bodyYaw = yaw.get(context);
+        final double px = x.get(context);
+        final double pz = z.get(context);
         measureVelocity(px, pz, context.deltaTime());
 
         if (w <= 0)

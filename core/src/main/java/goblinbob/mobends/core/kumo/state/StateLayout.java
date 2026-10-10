@@ -8,14 +8,16 @@ import java.util.Arrays;
 /**
  * Where an animator's per-entity state goes, decided while it is compiled: every stateful element
  * (a node's clock, a layer's current node, an edge trigger's memory, a definition's value, a
- * driver's declared state) takes slots here, and the compiled animator holds only their indices.
- * An entity's {@link EntityState} has the slots' values.
+ * driver's declared state) takes slots here (floats, doubles or ints), and the compiled animator
+ * holds only their indices. An entity's {@link EntityState} has the slots' values.
  */
 public final class StateLayout
 {
 
     private float[] floatInitials = new float[16];
     private int floatCount;
+    private double[] doubleInitials = new double[16];
+    private int doubleCount;
     private int[] intInitials = new int[16];
     private int intCount;
     private boolean[] poseSinkFallback = new boolean[4];
@@ -31,6 +33,19 @@ public final class StateLayout
         Arrays.fill(floatInitials, floatCount, floatCount + count, initial);
         int first = floatCount;
         floatCount += count;
+        return first;
+    }
+
+    /** {@code count} double slots (positions in the world, which a float would round), each {@code initial}; the first one's index. */
+    public int doubles(int count, double initial)
+    {
+        if (doubleCount + count > doubleInitials.length)
+        {
+            doubleInitials = Arrays.copyOf(doubleInitials, Math.max(doubleInitials.length * 2, doubleCount + count));
+        }
+        Arrays.fill(doubleInitials, doubleCount, doubleCount + count, initial);
+        int first = doubleCount;
+        doubleCount += count;
         return first;
     }
 
@@ -80,6 +95,12 @@ public final class StateLayout
             int from = state.floats.length;
             state.floats = Arrays.copyOf(state.floats, floatCount);
             System.arraycopy(floatInitials, from, state.floats, from, floatCount - from);
+        }
+        if (state.doubles.length < doubleCount)
+        {
+            int from = state.doubles.length;
+            state.doubles = Arrays.copyOf(state.doubles, doubleCount);
+            System.arraycopy(doubleInitials, from, state.doubles, from, doubleCount - from);
         }
         if (state.ints.length < intCount)
         {

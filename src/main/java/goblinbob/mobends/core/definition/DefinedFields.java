@@ -23,15 +23,18 @@ public final class DefinedFields
 
     /** Installed by the client (the lab runs without them, on reflection alone). */
     private static Table<ToDoubleFunction<Object>> vanillaNumbers = (owner, name) -> null;
+    private static Table<Class<?>> vanillaNumberTypes = (owner, name) -> null;
     private static Table<Function<Object, Object>> vanillaParts = (owner, name) -> null;
 
     private DefinedFields()
     {
     }
 
-    public static void install(Table<ToDoubleFunction<Object>> numbers, Table<Function<Object, Object>> parts)
+    /** {@code numberTypes}: the declared type of each field {@code numbers} reads (a primitive). */
+    public static void install(Table<ToDoubleFunction<Object>> numbers, Table<Class<?>> numberTypes, Table<Function<Object, Object>> parts)
     {
         vanillaNumbers = numbers;
+        vanillaNumberTypes = numberTypes;
         vanillaParts = parts;
     }
 
@@ -103,6 +106,20 @@ public final class DefinedFields
             if (generated != null)
             {
                 return generated;
+            }
+        }
+        return null;
+    }
+
+    /** The declared type of the field {@link #vanillaNumber} finds, or null. */
+    public static Class<?> vanillaNumberType(Class<?> type, String name)
+    {
+        for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass())
+        {
+            Class<?> declared = vanillaNumberTypes.get(c.getName(), name);
+            if (declared != null)
+            {
+                return declared;
             }
         }
         return null;

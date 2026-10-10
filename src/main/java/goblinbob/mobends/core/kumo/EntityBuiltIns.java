@@ -9,7 +9,8 @@ import java.util.List;
 /**
  * The built-ins every animated entity has, which {@code EntityData} and {@code LivingEntityData}
  * provide under these names: the time, and the {@code entity…} values that hold for every living
- * entity (see misc/kumo-format.md, *Entity built-ins*).
+ * entity (see misc/kumo-format.md, *Entity built-ins*). The position in the world is in doubles:
+ * a float rounds it far from the origin.
  */
 public final class EntityBuiltIns
 {
@@ -24,8 +25,10 @@ public final class EntityBuiltIns
             "entityClimbingRenderYaw", "entityClimbingBodyYaw", "entityClimbingHeadYaw",
             "entityMotionY", "entityPrevMotionY", "entityInterpolatedMotionY", "entitySpeed", "entityXZSpeed",
             "entityForwardMomentum", "entitySidewaysMomentum",
-            "entityBodyYaw", "entityWorldX", "entityWorldY", "entityWorldZ",
-            "entityRidingRelativeHeadYaw", "entityRidingRelativeYaw"));
+            "entityBodyYaw", "entityRidingRelativeHeadYaw", "entityRidingRelativeYaw"));
+
+    public static final List<String> DOUBLES = Collections.unmodifiableList(Arrays.asList(
+            "entityWorldX", "entityWorldY", "entityWorldZ"));
 
     public static final List<String> BOOLEANS = Collections.unmodifiableList(Arrays.asList(
             "entityIsOnGround", "entityIsStandingStill", "entityIsSprinting", "entityIsSneaking", "entityIsStrafing",
@@ -42,6 +45,10 @@ public final class EntityBuiltIns
         for (String name : NUMBERS)
         {
             Expression.registerSubjectBuiltIn(name, Expression.Type.NUMBER);
+        }
+        for (String name : DOUBLES)
+        {
+            Expression.registerSubjectBuiltIn(name, Expression.Type.DOUBLE);
         }
         for (String name : BOOLEANS)
         {

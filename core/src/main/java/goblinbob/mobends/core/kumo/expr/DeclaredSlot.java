@@ -12,7 +12,7 @@ import java.util.Arrays;
  * State an operation or a driver declared: floats in the entity's state (see {@link StateLayout}),
  * read through the context it evaluates against.
  */
-public final class DeclaredSlot implements FloatSlot, FloatArraySlot
+public final class DeclaredSlot implements DeclaredState, FloatSlot, FloatArraySlot
 {
 
     /** What an operation or a driver evaluates against, inside the engine: it reaches the entity's state. */
@@ -32,7 +32,7 @@ public final class DeclaredSlot implements FloatSlot, FloatArraySlot
         this.initial = initial;
     }
 
-    /** Back to the initial values: the scope holding the use started. */
+    @Override
     public void reset(EntityState state)
     {
         Arrays.fill(state.floats, offset, offset + size, initial);

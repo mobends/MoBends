@@ -19,7 +19,7 @@ public final class DriverStates
         StateRef state = context.getExpressionScope().resolveState(name, driver);
         if (state.type != Expression.Type.NUMBER)
         {
-            throw new MalformedKumoTemplateException(String.format("%s writes '%s', which is a boolean: it writes numbers.", driver, name));
+            throw new MalformedKumoTemplateException(String.format("%s writes '%s', which is %s: it writes numbers.", driver, name, state.type.description));
         }
         return state;
     }

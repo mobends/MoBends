@@ -30,10 +30,14 @@ public interface DriverBindArgs
     BooleanInput bool(String field, @Nullable ExpressionTemplate expression, boolean otherwise) throws MalformedKumoTemplateException;
 
     /**
-     * The built-in {@code name} (as {@code "entityWorldX"}), read in double precision: for
-     * positions in the world, which a float would round.
+     * The double expression {@code expression} (a position in the world, which a float would
+     * round: {@code "entityWorldX"}), or {@code otherwise} where the field is left out. A constant
+     * number written there is taken as a double.
      */
-    NumberInput entityValue(String field, String name) throws MalformedKumoTemplateException;
+    DoubleInput doubleNumber(String field, @Nullable ExpressionTemplate expression, double otherwise) throws MalformedKumoTemplateException;
+
+    /** The double expression {@code expression}; a field that has to be there. */
+    DoubleInput doubleNumber(String field, @Nullable ExpressionTemplate expression) throws MalformedKumoTemplateException;
 
     /** The bone {@code name}, as the index the {@link PoseWriter} takes. */
     int bone(String field, @Nullable String name) throws MalformedKumoTemplateException;
@@ -52,6 +56,12 @@ public interface DriverBindArgs
 
     /** Numbers the driver keeps between frames; see {@link BindArgs#slots}. */
     FloatArraySlot slots(String name, int size, float initial);
+
+    /** A double the driver keeps between frames; see {@link BindArgs#doubleSlot}. */
+    DoubleSlot doubleSlot(String name, double initial);
+
+    /** Doubles the driver keeps between frames; see {@link BindArgs#doubleSlots}. */
+    DoubleArraySlot doubleSlots(String name, int size, double initial);
 
     /** The states a driver's outputs go to. */
     interface Outputs

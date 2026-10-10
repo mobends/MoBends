@@ -10,11 +10,15 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * The operations an expression can use, by name: {@code {"<name>": [arguments...]}}. Each declares
- * its parameters, checked when the expression is compiled: a number or boolean expression, or a
- * string written out (an item id, one of a fixed set of choices). Bare names are the language;
+ * its parameters, checked when the expression is compiled: a number, double or boolean expression,
+ * or a string written out (an item id, one of a fixed set of choices). The arithmetic the language
+ * has for doubles ({@code add}, {@code lt}, {@code if}, ...) takes numbers or doubles, never both:
+ * {@link Kind#NUMERIC}. Bare names are the language;
  * {@code namespace:id} names are registered ({@code core:} by the engine, others by the host and
  * addons). Angles for {@code sin}, {@code cos} and {@code atan2} are in radians, for
  * {@code wrapDegrees} and {@code lerpAngle} in degrees.
@@ -29,8 +33,17 @@ public final class ExpressionOperations
     public enum Kind
     {
         NUMBER,
+        DOUBLE,
         BOOLEAN,
-        /** A number or a boolean expression; the operation checks how its arguments' types go together. */
+        /**
+         * A number or a double, the same for every such argument of the operation: a constant
+         * number among doubles becomes one (see {@link Expression#adopt}), anything else mixed is an error.
+         */
+        NUMERIC,
+        /**
+         * A number, double or boolean expression; the operation checks how its arguments' types go
+         * together. Numbers and doubles among them are made the same as for {@link #NUMERIC}.
+         */
         ANY,
         /** A number written out, such as a window size: known when the animator loads. */
         CONSTANT,
@@ -58,6 +71,16 @@ public final class ExpressionOperations
     public static Param number(String name)
     {
         return new Param(name, Kind.NUMBER);
+    }
+
+    public static Param doubleParam(String name)
+    {
+        return new Param(name, Kind.DOUBLE);
+    }
+
+    public static Param numeric(String name)
+    {
+        return new Param(name, Kind.NUMERIC);
     }
 
     public static Param bool(String name)
@@ -262,15 +285,27 @@ public final class ExpressionOperations
                         }
                         constants[i] = argument.getAsFloat();
                         break;
-                    default:
+                    case NUMERIC:
                         expressions[i] = Expression.compileAny(argument, scope);
-                        Expression.Type type = param.kind == Kind.NUMBER ? Expression.Type.NUMBER : param.kind == Kind.BOOLEAN ? Expression.Type.BOOLEAN : null;
-                        if (type != null && expressions[i].getType() != type)
+                        if (!Expression.isNumeric(expressions[i].getType()))
                         {
-                            throw new MalformedKumoTemplateException(where + " must be " + type.description + ", got " + expressions[i].getType().description + ": " + Expression.describe(whole));
+                            throw new MalformedKumoTemplateException(where + " must be a number or a double, got " + expressions[i].getType().description + ": " + Expression.describe(whole));
+                        }
+                        break;
+                    case ANY:
+                        expressions[i] = Expression.compileAny(argument, scope);
+                        break;
+                    default:
+                        Expression.Type type = param.kind == Kind.NUMBER ? Expression.Type.NUMBER : param.kind == Kind.DOUBLE ? Expression.Type.DOUBLE : Expression.Type.BOOLEAN;
+                        expressions[i] = Expression.adopt(Expression.compileAny(argument, scope), type);
+                        if (expressions[i].getType() != type)
+                        {
+                            throw new MalformedKumoTemplateException(where + " must be " + type.description + ", got " + expressions[i].getType().description
+                                    + Expression.conversion(type, expressions[i].getType()) + ": " + Expression.describe(whole));
                         }
                 }
             }
+            unifyPrecision(name, expressions, whole);
             Expression fallback = fallbackJson == null ? null : Expression.compileAny(fallbackJson, scope);
             try
             {
@@ -280,6 +315,43 @@ public final class ExpressionOperations
             catch (MalformedKumoTemplateException e)
             {
                 throw new MalformedKumoTemplateException(e.getMessage() + " In " + Expression.describe(whole));
+            }
+        }
+
+        /**
+         * Makes the numeric arguments of a {@link Kind#NUMERIC} or {@link Kind#ANY} parameter one
+         * precision: doubles if any is, a constant number among them becoming one. A number that isn't
+         * constant among doubles is an error: precision is never lost, nor gained, without saying so.
+         */
+        private void unifyPrecision(String name, Expression[] expressions, JsonElement whole) throws MalformedKumoTemplateException
+        {
+            int firstDouble = -1;
+            for (int i = 0; i < expressions.length; i++)
+            {
+                Kind kind = params[Math.min(i, params.length - 1)].kind;
+                if ((kind == Kind.NUMERIC || kind == Kind.ANY) && expressions[i].getType() == Expression.Type.DOUBLE)
+                {
+                    firstDouble = i;
+                    break;
+                }
+            }
+            if (firstDouble < 0)
+            {
+                return;
+            }
+            for (int i = 0; i < expressions.length; i++)
+            {
+                Kind kind = params[Math.min(i, params.length - 1)].kind;
+                if (kind != Kind.NUMERIC && kind != Kind.ANY || expressions[i].getType() != Expression.Type.NUMBER)
+                {
+                    continue;
+                }
+                expressions[i] = Expression.adopt(expressions[i], Expression.Type.DOUBLE);
+                if (expressions[i].getType() != Expression.Type.DOUBLE)
+                {
+                    throw new MalformedKumoTemplateException(String.format("'%s' mixes a double (argument %d) and a number (argument %d): convert one with toDouble or toFloat. In %s",
+                            name, firstDouble + 1, i + 1, Expression.describe(whole)));
+                }
             }
         }
     }
@@ -307,7 +379,12 @@ public final class ExpressionOperations
 
     private static Expression fold(Expression constant)
     {
-        return constant.getType() == Expression.Type.BOOLEAN ? (constant.test(null) ? Expression.TRUE : Expression.FALSE) : Expression.constant(constant.get(null));
+        switch (constant.getType())
+        {
+            case BOOLEAN: return constant.test(null) ? Expression.TRUE : Expression.FALSE;
+            case DOUBLE: return Expression.doubleConstant(constant.getDouble(null));
+            default: return Expression.constant(constant.get(null));
+        }
     }
 
     private static final Map<String, Operation> OPERATIONS = new HashMap<>();
@@ -323,24 +400,27 @@ public final class ExpressionOperations
             SIN_TABLE[i] = (float) Math.sin((double) i * Math.PI * 2.0D / 65536.0D);
         }
 
-        // Folded left to right: {"sub": [a, b, c]} is (a - b) - c.
-        fold("add", (a, b) -> a + b);
-        fold("sub", (a, b) -> a - b);
-        fold("mul", (a, b) -> a * b);
-        fold("div", (a, b) -> a / b);
-        fold("min", (a, b) -> b < a ? b : a);
-        fold("max", (a, b) -> b > a ? b : a);
+        // Folded left to right: {"sub": [a, b, c]} is (a - b) - c. These, mod, neg, abs, floor,
+        // ceil, clamp, lerp, the comparisons, eq, ne, if and decreased take numbers or doubles.
+        fold("add", (a, b) -> a + b, (a, b) -> a + b);
+        fold("sub", (a, b) -> a - b, (a, b) -> a - b);
+        fold("mul", (a, b) -> a * b, (a, b) -> a * b);
+        fold("div", (a, b) -> a / b, (a, b) -> a / b);
+        fold("min", (a, b) -> b < a ? b : a, (a, b) -> b < a ? b : a);
+        fold("max", (a, b) -> b > a ? b : a, (a, b) -> b > a ? b : a);
 
         // Floored: the result takes the divisor's sign, so {"mod": [-1, 20]} is 19.
-        binary("mod", (a, b) -> a - (float) Math.floor(a / b) * b);
+        register("mod", params(numeric("a"), numeric("b")), false, args -> args.expression(0).getType() == Expression.Type.DOUBLE
+                ? new DoubleFold(args.expressions(), (a, b) -> a - Math.floor(a / b) * b)
+                : new Fold(args.expressions(), (a, b) -> a - (float) Math.floor(a / b) * b));
         binary("pow", (a, b) -> (float) Math.pow(a, b));
         binary("atan2", (y, x) -> (float) Math.atan2(y, x));
 
-        unary("neg", a -> -a);
-        unary("abs", Math::abs);
+        unary("neg", a -> -a, a -> -a);
+        unary("abs", Math::abs, Math::abs);
         unary("sqrt", a -> (float) Math.sqrt(a));
-        unary("floor", a -> (float) Math.floor(a));
-        unary("ceil", a -> (float) Math.ceil(a));
+        unary("floor", a -> (float) Math.floor(a), Math::floor);
+        unary("ceil", a -> (float) Math.ceil(a), Math::ceil);
         unary("sin", a -> (float) Math.sin(a));
         unary("cos", a -> (float) Math.cos(a));
         // Minecraft's table-based sine and cosine, which vanilla models use: values match them exactly.
@@ -352,8 +432,12 @@ public final class ExpressionOperations
             if (value < min) value = min;
             if (value > max) value = max;
             return value;
+        }, (value, min, max) -> {
+            if (value < min) value = min;
+            if (value > max) value = max;
+            return value;
         });
-        ternary("lerp", "from", "to", "t", (from, to, t) -> from + (to - from) * t);
+        ternary("lerp", "from", "to", "t", (from, to, t) -> from + (to - from) * t, (from, to, t) -> from + (to - from) * t);
         // The short way round: from 350 to 10 goes through 0.
         ternary("lerpAngle", "from", "to", "t", (from, to, t) -> from + wrapDegrees(to - from) * t);
         // 0 below edge0, 1 above edge1, linear (smooth) between.
@@ -384,10 +468,19 @@ public final class ExpressionOperations
                 throw new MalformedKumoTemplateException("'if' needs two branches of the same type, got " + args.expression(1).getType().description
                         + " and " + args.expression(2).getType().description + ".");
             }
-            return args.expression(1).getType() == Expression.Type.NUMBER ? new IfNumber(args.expressions()) : new IfBoolean(args.expressions());
+            switch (args.expression(1).getType())
+            {
+                case NUMBER: return new IfNumber(args.expressions());
+                case DOUBLE: return new IfDouble(args.expressions());
+                default: return new IfBoolean(args.expressions());
+            }
         });
 
-        register("decreased", params(number("value")), false, args -> new Decreased(args.expression(0), args.layout().floats(2, 0)));
+        // The precision of a value, said out loud: a double becomes a number (rounded), a number a double.
+        register("toDouble", params(number("value")), false, args -> new ToDouble(args.expression(0)));
+        register("toFloat", params(doubleParam("value")), false, args -> new ToFloat(args.expression(0)));
+
+        register("decreased", params(numeric("value")), false, args -> new Decreased(args.expression(0), args.layout().doubles(1, 0), args.layout().floats(1, 0)));
         register("rose", params(bool("condition")), false, args -> new Edge(args.expression(0), true, args.layout().floats(2, 0)));
         register("fell", params(bool("condition")), false, args -> new Edge(args.expression(0), false, args.layout().floats(2, 0)));
 
@@ -411,12 +504,21 @@ public final class ExpressionOperations
             }
             return fallback;
         }
+        if (fallback != null)
+        {
+            fallback = Expression.adopt(fallback, path.type());
+        }
         if (fallback != null && fallback.getType() != path.type())
         {
             throw new MalformedKumoTemplateException(String.format("The field '%s' is %s, but its \"@fallback\" is %s.", fieldPath(args),
                     path.type().description, fallback.getType().description));
         }
-        return path.type() == Expression.Type.BOOLEAN ? new FieldBoolean(path, fallback) : new FieldNumber(path, fallback);
+        switch (path.type())
+        {
+            case BOOLEAN: return new FieldBoolean(path, fallback);
+            case DOUBLE: return new FieldDouble(path, fallback);
+            default: return new FieldNumber(path, fallback);
+        }
     }
 
     /** The path a {@code field} or an {@code exists} names, or null if the entity has none such. */
@@ -523,9 +625,23 @@ public final class ExpressionOperations
         register(name, params(number("a"), number("b")), false, args -> new Fold(args.expressions(), function));
     }
 
-    private static void fold(String name, BinaryFunction function)
+    /** Adds a one-argument operation on a number or a double. */
+    private static void unary(String name, UnaryFunction function, DoubleUnaryOperator doubles)
     {
-        register(name, params(number("a"), number("b")), true, args -> new Fold(args.expressions(), function));
+        register(name, params(numeric("value")), false, args -> args.expression(0).getType() == Expression.Type.DOUBLE
+                ? new DoubleUnary(args.expression(0), doubles) : new Unary(args.expression(0), function));
+    }
+
+    private static void fold(String name, BinaryFunction function, DoubleBinaryOperator doubles)
+    {
+        register(name, params(numeric("a"), numeric("b")), true, args -> args.expression(0).getType() == Expression.Type.DOUBLE
+                ? new DoubleFold(args.expressions(), doubles) : new Fold(args.expressions(), function));
+    }
+
+    private static void ternary(String name, String a, String b, String c, TernaryFunction function, DoubleTernaryFunction doubles)
+    {
+        register(name, params(numeric(a), numeric(b), numeric(c)), false, args -> args.expression(0).getType() == Expression.Type.DOUBLE
+                ? new DoubleTernary(args.expressions(), doubles) : new Ternary(args.expressions(), function));
     }
 
     private static void ternary(String name, String a, String b, String c, TernaryFunction function)
@@ -533,9 +649,10 @@ public final class ExpressionOperations
         register(name, params(number(a), number(b), number(c)), false, args -> new Ternary(args.expressions(), function));
     }
 
+    /** Compares two numbers or two doubles (a number compares as the double it is exactly). */
     private static void compare(String name, Comparison comparison)
     {
-        register(name, params(number("a"), number("b")), false, args -> new Compare(args.expression(0), args.expression(1), comparison));
+        register(name, params(numeric("a"), numeric("b")), false, args -> new Compare(args.expression(0), args.expression(1), comparison));
     }
 
     private static void equality(String name, boolean equal)
@@ -543,7 +660,7 @@ public final class ExpressionOperations
         register(name, params(any("a"), any("b")), false, args -> {
             if (args.expression(0).getType() != args.expression(1).getType())
             {
-                throw new MalformedKumoTemplateException("'" + name + "' compares two numbers or two booleans, got " + args.expression(0).getType().description
+                throw new MalformedKumoTemplateException("'" + name + "' compares two numbers, two doubles or two booleans, got " + args.expression(0).getType().description
                         + " and " + args.expression(1).getType().description + ".");
             }
             return new Equality(args.expression(0), args.expression(1), equal);
@@ -587,9 +704,15 @@ public final class ExpressionOperations
     }
 
     @FunctionalInterface
+    private interface DoubleTernaryFunction
+    {
+        double apply(double a, double b, double c);
+    }
+
+    @FunctionalInterface
     private interface Comparison
     {
-        boolean test(float a, float b);
+        boolean test(double a, double b);
     }
 
     static boolean anyStateful(Expression... expressions)
@@ -616,6 +739,31 @@ public final class ExpressionOperations
         private final boolean stateful;
 
         NumberOp(Expression... arguments)
+        {
+            this.arguments = arguments;
+            this.stateful = anyStateful(arguments);
+        }
+
+        @Override
+        public boolean isStateful()
+        {
+            return stateful;
+        }
+
+        @Override
+        public void restart(ITriggerConditionContext context)
+        {
+            restartAll(context, arguments);
+        }
+    }
+
+    /** A double operation over its arguments. */
+    private abstract static class DoubleOp extends Expression.DoubleExpression
+    {
+        final Expression[] arguments;
+        private final boolean stateful;
+
+        DoubleOp(Expression... arguments)
         {
             this.arguments = arguments;
             this.stateful = anyStateful(arguments);
@@ -715,6 +863,90 @@ public final class ExpressionOperations
         }
     }
 
+    private static final class DoubleUnary extends DoubleOp
+    {
+        private final DoubleUnaryOperator function;
+
+        DoubleUnary(Expression argument, DoubleUnaryOperator function)
+        {
+            super(argument);
+            this.function = function;
+        }
+
+        @Override
+        public double getDouble(ITriggerConditionContext context)
+        {
+            return function.applyAsDouble(arguments[0].getDouble(context));
+        }
+    }
+
+    private static final class DoubleFold extends DoubleOp
+    {
+        private final DoubleBinaryOperator function;
+
+        DoubleFold(Expression[] arguments, DoubleBinaryOperator function)
+        {
+            super(arguments);
+            this.function = function;
+        }
+
+        @Override
+        public double getDouble(ITriggerConditionContext context)
+        {
+            double value = arguments[0].getDouble(context);
+            for (int i = 1; i < arguments.length; i++)
+            {
+                value = function.applyAsDouble(value, arguments[i].getDouble(context));
+            }
+            return value;
+        }
+    }
+
+    private static final class DoubleTernary extends DoubleOp
+    {
+        private final DoubleTernaryFunction function;
+
+        DoubleTernary(Expression[] arguments, DoubleTernaryFunction function)
+        {
+            super(arguments);
+            this.function = function;
+        }
+
+        @Override
+        public double getDouble(ITriggerConditionContext context)
+        {
+            return function.apply(arguments[0].getDouble(context), arguments[1].getDouble(context), arguments[2].getDouble(context));
+        }
+    }
+
+    private static final class ToDouble extends DoubleOp
+    {
+        ToDouble(Expression argument)
+        {
+            super(argument);
+        }
+
+        @Override
+        public double getDouble(ITriggerConditionContext context)
+        {
+            return arguments[0].get(context);
+        }
+    }
+
+    private static final class ToFloat extends NumberOp
+    {
+        ToFloat(Expression argument)
+        {
+            super(argument);
+        }
+
+        @Override
+        public float get(ITriggerConditionContext context)
+        {
+            return (float) arguments[0].getDouble(context);
+        }
+    }
+
     private static final class Compare extends BooleanOp
     {
         private final Comparison comparison;
@@ -728,7 +960,7 @@ public final class ExpressionOperations
         @Override
         public boolean test(ITriggerConditionContext context)
         {
-            return comparison.test(arguments[0].get(context), arguments[1].get(context));
+            return comparison.test(arguments[0].getDouble(context), arguments[1].getDouble(context));
         }
     }
 
@@ -747,7 +979,7 @@ public final class ExpressionOperations
         {
             boolean same = arguments[0].getType() == Expression.Type.BOOLEAN
                     ? arguments[0].test(context) == arguments[1].test(context)
-                    : arguments[0].get(context) == arguments[1].get(context);
+                    : arguments[0].getDouble(context) == arguments[1].getDouble(context);
             return same == equal;
         }
     }
@@ -804,6 +1036,29 @@ public final class ExpressionOperations
                 return arguments.length == 0 ? 0 : arguments[0].get(context);
             }
             return (float) path.number(owner);
+        }
+    }
+
+    /** A double field; its fallback (or 0) where a step of its path is null. */
+    private static final class FieldDouble extends DoubleOp
+    {
+        private final EntityFields.Path path;
+
+        FieldDouble(EntityFields.Path path, @Nullable Expression fallback)
+        {
+            super(fallback == null ? new Expression[0] : new Expression[] { fallback });
+            this.path = path;
+        }
+
+        @Override
+        public double getDouble(ITriggerConditionContext context)
+        {
+            Object owner = fieldOwner(path, context);
+            if (owner == null)
+            {
+                return arguments.length == 0 ? 0 : arguments[0].getDouble(context);
+            }
+            return path.number(owner);
         }
     }
 
@@ -879,6 +1134,24 @@ public final class ExpressionOperations
         }
     }
 
+    /** {@code if} between doubles: both branches are evaluated. */
+    private static final class IfDouble extends DoubleOp
+    {
+        IfDouble(Expression[] arguments)
+        {
+            super(arguments);
+        }
+
+        @Override
+        public double getDouble(ITriggerConditionContext context)
+        {
+            boolean condition = arguments[0].test(context);
+            double then = arguments[1].getDouble(context);
+            double otherwise = arguments[2].getDouble(context);
+            return condition ? then : otherwise;
+        }
+    }
+
     /** {@code if} between booleans: both branches are evaluated. */
     private static final class IfBoolean extends BooleanOp
     {
@@ -900,18 +1173,19 @@ public final class ExpressionOperations
     /**
      * Holds on the frame its value is lower than on the previous evaluation (e.g.
      * {@code ticksAfterAttack} going back to 0 on a new attack). On a restart it notes the value
-     * as it is then.
+     * as it is then. A number or a double: the last value is kept as a double, which a number is exactly.
      */
     private static final class Decreased extends Expression.BooleanExpression
     {
         private final Expression value;
-        /** Its state: the last value, then whether there is one (1). */
-        private final int slot;
+        /** Its state: the last value (a double slot), and whether there is one (1, a float slot). */
+        private final int lastSlot, hasSlot;
 
-        Decreased(Expression value, int slot)
+        Decreased(Expression value, int lastSlot, int hasSlot)
         {
             this.value = value;
-            this.slot = slot;
+            this.lastSlot = lastSlot;
+            this.hasSlot = hasSlot;
         }
 
         @Override
@@ -924,19 +1198,19 @@ public final class ExpressionOperations
         public void restart(ITriggerConditionContext context)
         {
             value.restart(context);
-            float[] state = context.getState().floats;
-            state[slot] = value.get(context);
-            state[slot + 1] = 1;
+            context.getState().doubles[lastSlot] = value.getDouble(context);
+            context.getState().floats[hasSlot] = 1;
         }
 
         @Override
         public boolean test(ITriggerConditionContext context)
         {
-            float current = value.get(context);
-            float[] state = context.getState().floats;
-            boolean decreased = state[slot + 1] != 0 && current < state[slot];
-            state[slot] = current;
-            state[slot + 1] = 1;
+            double current = value.getDouble(context);
+            double[] last = context.getState().doubles;
+            float[] has = context.getState().floats;
+            boolean decreased = has[hasSlot] != 0 && current < last[lastSlot];
+            last[lastSlot] = current;
+            has[hasSlot] = 1;
             return decreased;
         }
     }

@@ -20,7 +20,8 @@ public class DefinedEntityFields extends ReflectedEntityFields
         ToDoubleFunction<Object> generated = DefinedFields.vanillaNumber(type, name);
         if (generated != null)
         {
-            return new Step(double.class, generated::applyAsDouble, generated);
+            // Its declared type: a double or a long is a double to an animator, the others a number.
+            return new Step(DefinedFields.vanillaNumberType(type, name), generated::applyAsDouble, generated);
         }
         return super.step(type, name);
     }

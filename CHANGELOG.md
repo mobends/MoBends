@@ -26,6 +26,8 @@
   it: it plants its hands on the top, hauls itself up the side, gets a knee up and steps on.
 - Animations can draw a mob at a point in the world while its real position moves on (the
   `core:anchor` driver), to stage a sequence such as climbing onto a block.
+- Animations can compute positions in the world in double precision (`entityWorldX`, `toDouble`,
+  `toFloat`), so mobs far from the world's origin animate as smoothly as those near it.
 - A server's own resource pack can add types and extensions too.
 - Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
   several apply to the same mob.

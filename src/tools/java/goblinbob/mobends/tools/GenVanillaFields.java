@@ -23,7 +23,8 @@ import java.util.zip.ZipFile;
  *     <li>goblinbob/mobends/core/vanilla/VanillaModelParts.java: every ModelRenderer / ModelRenderer[]
  *     field of every vanilla model,</li>
  *     <li>goblinbob/mobends/core/vanilla/VanillaEntityFields.java: every numeric field of Entity,
- *     EntityLivingBase and the living entities,</li>
+ *     EntityLivingBase and the living entities, and its declared type (a double or a long is a
+ *     double to an animator, the others a number),</li>
  *     <li>the generated section of META-INF/accesstransformer.cfg, making the non-public ones readable.</li>
  * </ul>
  *
@@ -44,6 +45,18 @@ public final class GenVanillaFields
     private static final String ENTITY = "net/minecraft/entity/Entity";
     private static final String LIVING = "net/minecraft/entity/EntityLivingBase";
     private static final Set<String> NUMERIC = new HashSet<>(Arrays.asList("F", "D", "I", "J", "S", "B"));
+    /** The Java type each numeric descriptor names. */
+    private static final Map<String, String> PRIMITIVES = new HashMap<>();
+
+    static
+    {
+        PRIMITIVES.put("F", "float");
+        PRIMITIVES.put("D", "double");
+        PRIMITIVES.put("I", "int");
+        PRIMITIVES.put("J", "long");
+        PRIMITIVES.put("S", "short");
+        PRIMITIVES.put("B", "byte");
+    }
 
     private static final class ClassInfo
     {
@@ -76,13 +89,15 @@ public final class GenVanillaFields
         final String owner;
         final String mcp;
         final String srg;
+        final String descriptor;
         final boolean isPublic;
 
-        Found(String owner, String mcp, String srg, boolean isPublic)
+        Found(String owner, String mcp, String srg, String descriptor, boolean isPublic)
         {
             this.owner = owner;
             this.mcp = mcp;
             this.srg = srg;
+            this.descriptor = descriptor;
             this.isPublic = isPublic;
         }
 
@@ -155,11 +170,11 @@ public final class GenVanillaFields
         writeJava(new File(java, "VanillaModelParts.java"), stamp, "Function<Object, Object>", "m", parts,
                 "Every model part (ModelRenderer or ModelRenderer[]) field of the vanilla models, read directly so the names are\n" +
                 " * checked at compile time and reobfuscated for production.",
-                "java.util.function.Function");
+                "java.util.function.Function", false);
         writeJava(new File(java, "VanillaEntityFields.java"), stamp, "ToDoubleFunction<Object>", "e", numbers,
                 "Every numeric field of the vanilla living entities (and Entity), read directly so the names are checked at compile\n" +
                 " * time and reobfuscated for production.",
-                "java.util.function.ToDoubleFunction");
+                "java.util.function.ToDoubleFunction", true);
         List<Found> all = new ArrayList<>(parts);
         all.addAll(numbers);
         writeAccessTransformer(new File(project, "src/main/resources/META-INF/accesstransformer.cfg"), stamp, all);
@@ -188,7 +203,7 @@ public final class GenVanillaFields
             if ((field.access & (Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC)) != 0 || !accept.test(field.descriptor))
                 continue;
             String mcp = ownerMappings != null && ownerMappings.containsKey(field.name) ? ownerMappings.get(field.name) : field.name;
-            found.add(new Found(owner, mcp, field.name, (field.access & Opcodes.ACC_PUBLIC) != 0));
+            found.add(new Found(owner, mcp, field.name, field.descriptor, (field.access & Opcodes.ACC_PUBLIC) != 0));
         }
         return found;
     }
@@ -246,14 +261,30 @@ public final class GenVanillaFields
         return classes;
     }
 
-    private static void writeJava(File file, String stamp, String accessor, String argument, List<Found> fields, String doc, String importName) throws IOException
+    /** {@code withTypes}: also the declared type of each field ({@code type}), a primitive. */
+    private static void writeJava(File file, String stamp, String accessor, String argument, List<Found> fields, String doc, String importName, boolean withTypes) throws IOException
     {
         String className = file.getName().replaceFirst("\\.java$", "");
         StringJoiner cases = new StringJoiner("\n");
+        StringJoiner typeCases = new StringJoiner("\n");
         for (Found field : fields)
         {
             cases.add("            case \"" + field.ownerName() + "#" + field.mcp + "\": return " + argument + " -> ((" + field.javaName() + ") " + argument + ")." + field.mcp + ";");
+            typeCases.add("            case \"" + field.ownerName() + "#" + field.mcp + "\": return " + PRIMITIVES.get(field.descriptor) + ".class;");
         }
+        String types = !withTypes ? "" : "\n"
+                + "    /**\n"
+                + "     * The declared type of the field {@code name} declared by {@code owner} (a binary class name), or null when\n"
+                + "     * that class declares no such field.\n"
+                + "     */\n"
+                + "    public static Class<?> type(String owner, String name)\n"
+                + "    {\n"
+                + "        switch (owner + '#' + name)\n"
+                + "        {\n"
+                + typeCases + "\n"
+                + "            default: return null;\n"
+                + "        }\n"
+                + "    }\n";
         String text = "// Generated by generateVanillaFields (src/tools) " + stamp + ". Do not edit; regenerate instead.\n"
                 + "package goblinbob.mobends.core.vanilla;\n"
                 + "\n"
@@ -281,6 +312,7 @@ public final class GenVanillaFields
                 + "            default: return null;\n"
                 + "        }\n"
                 + "    }\n"
+                + types
                 + "\n"
                 + "}\n";
         Files.write(file.toPath(), text.getBytes(StandardCharsets.UTF_8));

@@ -14,8 +14,10 @@ import java.util.Map;
 
 /**
  * A value computed every frame: a tree of operations over constants and names, compiled once from
- * its JSON form ({@link ExpressionTemplate}). Every expression is a number or a boolean, checked
- * when it is compiled; arithmetic is in {@code float}.
+ * its JSON form ({@link ExpressionTemplate}). Every expression is a number (a {@code float}), a
+ * double or a boolean, checked when it is compiled. Numbers and doubles never mix: {@code toDouble}
+ * and {@code toFloat} convert, and only a constant takes the precision of what it is used with
+ * (see {@link #adopt}).
  * <p>
  * A few operations remember something between frames ({@code decreased}, {@code rose},
  * {@code fell}): each place they are written keeps its own memory, which {@link #restart} starts
@@ -26,10 +28,13 @@ public abstract class Expression
 
     public enum Type
     {
+        /** A {@code float}. */
         NUMBER("a number"),
+        /** A {@code double}: a position in the world, which a float would round far from the origin. */
+        DOUBLE("a double"),
         BOOLEAN("a boolean");
 
-        final String description;
+        public final String description;
 
         Type(String description)
         {
@@ -55,6 +60,12 @@ public abstract class Expression
     /** The value of a number expression (a boolean reads 1 or 0). */
     public abstract float get(ITriggerConditionContext context);
 
+    /** The value of a double expression; a number reads as it is (exactly), a boolean 1 or 0. */
+    public double getDouble(ITriggerConditionContext context)
+    {
+        return get(context);
+    }
+
     /** The value of a boolean expression. */
     public abstract boolean test(ITriggerConditionContext context);
 
@@ -79,7 +90,7 @@ public abstract class Expression
      * Makes {@code name} a built-in the host provides for every subject it animates (Mo' Bends'
      * {@code entityIsOnGround}, {@code partialTicks}): a bare name, read from the subject as its
      * state (a boolean, see {@link goblinbob.mobends.core.kumo.IKumoSubject#indexOfState}) or its
-     * variable (a number) of that name.
+     * variable (a number or a double, which the subject keeps in double precision) of that name.
      */
     public static void registerSubjectBuiltIn(String name, Type type)
     {
@@ -88,7 +99,32 @@ public abstract class Expression
 
     public static Expression constant(float value)
     {
-        return new Constant(value);
+        return new Constant(value, value);
+    }
+
+    public static Expression doubleConstant(double value)
+    {
+        return new DoubleConstant(value);
+    }
+
+    /** Whether {@code type} is a number or a double. */
+    public static boolean isNumeric(Type type)
+    {
+        return type == Type.NUMBER || type == Type.DOUBLE;
+    }
+
+    /**
+     * {@code expression} where {@code type} is expected: a constant number (one written out, or
+     * computed from them when the animator loads) becomes a double where a double is, at the value
+     * it was written as. Anything else is as it is, for the caller to check.
+     */
+    public static Expression adopt(Expression expression, Type type)
+    {
+        if (type != Type.DOUBLE || expression.getType() != Type.NUMBER || !expression.isConstant())
+        {
+            return expression;
+        }
+        return doubleConstant(expression instanceof Constant ? ((Constant) expression).written : expression.get(null));
     }
 
     /**
@@ -116,7 +152,7 @@ public abstract class Expression
     /** Compiles an expression that has to be of type {@code expected}. */
     public static Expression compile(JsonElement json, ExpressionScope scope, Type expected) throws MalformedKumoTemplateException
     {
-        Expression expression = compileAny(json, scope);
+        Expression expression = adopt(compileAny(json, scope), expected);
         requireType(expression, expected, json);
         scope.held(expression);
         return expression;
@@ -126,8 +162,16 @@ public abstract class Expression
     {
         if (expression.getType() != expected)
         {
-            throw new MalformedKumoTemplateException("Expected " + expected.description + ", got " + expression.getType().description + ": " + describe(json));
+            throw new MalformedKumoTemplateException("Expected " + expected.description + ", got " + expression.getType().description + conversion(expected, expression.getType()) + ": " + describe(json));
         }
+    }
+
+    /** How to make {@code got} into {@code expected}, for an error, where there is a way. */
+    static String conversion(Type expected, Type got)
+    {
+        if (expected == Type.NUMBER && got == Type.DOUBLE) return " (convert it with toFloat)";
+        if (expected == Type.DOUBLE && got == Type.NUMBER) return " (convert it with toDouble)";
+        return "";
     }
 
     /** Compiles an expression of either type. */
@@ -142,7 +186,7 @@ public abstract class Expression
             JsonPrimitive primitive = json.getAsJsonPrimitive();
             if (primitive.isNumber())
             {
-                return constant(primitive.getAsFloat());
+                return new Constant(primitive.getAsFloat(), primitive.getAsDouble());
             }
             if (primitive.isBoolean())
             {
@@ -221,8 +265,7 @@ public abstract class Expression
         if (name.startsWith("arg."))
         {
             // A function's parameter: its argument, compiled where the call is written.
-            FunctionCall.Argument argument = scope.argument(name.substring(4));
-            return compileAny(argument.json, argument.scope);
+            return scope.argument(name.substring(4)).compile();
         }
         if (name.indexOf('.') >= 0)
         {
@@ -241,7 +284,12 @@ public abstract class Expression
         Type subjectBuiltIn = SUBJECT_BUILT_INS.get(name);
         if (subjectBuiltIn != null)
         {
-            return subjectBuiltIn == Type.BOOLEAN ? new State(scope.getVariables().state(name)) : new Variable(scope.getVariables().read(name));
+            switch (subjectBuiltIn)
+            {
+                case BOOLEAN: return new State(scope.getVariables().state(name));
+                case DOUBLE: return new DoubleVariable(scope.getVariables().read(name));
+                default: return new Variable(scope.getVariables().read(name));
+            }
         }
         throw new MalformedKumoTemplateException(String.format("Unknown name '%s': a bare name is a built-in (see the format's Built-in values); "
                 + "a definition is read by its scoped name (entity.%s, animator.%s, layer.%s, ...).", name, name, name, name));
@@ -269,6 +317,31 @@ public abstract class Expression
         }
     }
 
+    /** An expression whose value is a double. */
+    public abstract static class DoubleExpression extends Expression
+    {
+        @Override
+        public final Type getType()
+        {
+            return Type.DOUBLE;
+        }
+
+        @Override
+        public abstract double getDouble(ITriggerConditionContext context);
+
+        @Override
+        public float get(ITriggerConditionContext context)
+        {
+            return (float) getDouble(context);
+        }
+
+        @Override
+        public boolean test(ITriggerConditionContext context)
+        {
+            return getDouble(context) != 0;
+        }
+    }
+
     /** An expression whose value is a boolean. */
     public abstract static class BooleanExpression extends Expression
     {
@@ -288,14 +361,39 @@ public abstract class Expression
     static final class Constant extends NumberExpression
     {
         private final float value;
+        /** The value as it was written, which a double takes if this constant becomes one (see {@link #adopt}). */
+        private final double written;
 
-        Constant(float value)
+        Constant(float value, double written)
+        {
+            this.value = value;
+            this.written = written;
+        }
+
+        @Override
+        public float get(ITriggerConditionContext context)
+        {
+            return value;
+        }
+
+        @Override
+        public boolean isConstant()
+        {
+            return true;
+        }
+    }
+
+    static final class DoubleConstant extends DoubleExpression
+    {
+        private final double value;
+
+        DoubleConstant(double value)
         {
             this.value = value;
         }
 
         @Override
-        public float get(ITriggerConditionContext context)
+        public double getDouble(ITriggerConditionContext context)
         {
             return value;
         }
@@ -342,6 +440,22 @@ public abstract class Expression
         public float get(ITriggerConditionContext context)
         {
             return (float) context.resolveVariable(read);
+        }
+    }
+
+    static final class DoubleVariable extends DoubleExpression
+    {
+        private final VariableTable.Read read;
+
+        DoubleVariable(VariableTable.Read read)
+        {
+            this.read = read;
+        }
+
+        @Override
+        public double getDouble(ITriggerConditionContext context)
+        {
+            return context.resolveVariable(read);
         }
     }
 

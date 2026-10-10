@@ -1,6 +1,9 @@
 package goblinbob.mobends.core.kumo.driver;
 
 import goblinbob.mobends.core.kumo.api.BooleanInput;
+import goblinbob.mobends.core.kumo.api.DoubleArraySlot;
+import goblinbob.mobends.core.kumo.api.DoubleInput;
+import goblinbob.mobends.core.kumo.api.DoubleSlot;
 import goblinbob.mobends.core.kumo.api.DriverBindArgs;
 import goblinbob.mobends.core.kumo.api.DriverEvaluator;
 import goblinbob.mobends.core.kumo.api.EvalContext;
@@ -11,7 +14,9 @@ import goblinbob.mobends.core.kumo.api.NumberInput;
 import goblinbob.mobends.core.kumo.api.PoseWriter;
 import goblinbob.mobends.core.kumo.api.StateHandle;
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
+import goblinbob.mobends.core.kumo.expr.DeclaredDoubleSlot;
 import goblinbob.mobends.core.kumo.expr.DeclaredSlot;
+import goblinbob.mobends.core.kumo.expr.DeclaredState;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
@@ -21,7 +26,6 @@ import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.StateRef;
-import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
@@ -45,7 +49,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
 
     private final DriverEvaluator evaluator;
     private final List<Input> inputs;
-    private final List<DeclaredSlot> slots;
+    private final List<DeclaredState> slots;
     private ITriggerConditionContext context;
     private Pose pose;
 
@@ -80,7 +84,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
     public void onNodeStarted(IKumoContext context)
     {
         this.context = context;
-        for (DeclaredSlot slot : slots)
+        for (DeclaredState slot : slots)
         {
             slot.reset(context.getState());
         }
@@ -170,10 +174,11 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
         void evaluate(ITriggerConditionContext context);
     }
 
-    private static final class ExpressionInput implements Input, NumberInput
+    private static final class ExpressionInput implements Input
     {
         private final Expression expression;
-        private float number;
+        /** A number or a double: a number is held exactly, and read back as the float it is. */
+        private double number;
         private boolean bool;
 
         ExpressionInput(Expression expression)
@@ -185,19 +190,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
         public void evaluate(ITriggerConditionContext context)
         {
             if (expression.getType() == Expression.Type.BOOLEAN) bool = expression.test(context);
-            else number = expression.get(context);
-        }
-
-        @Override
-        public float get(EvalContext context)
-        {
-            return number;
-        }
-
-        @Override
-        public double getDouble(EvalContext context)
-        {
-            return number;
+            else number = expression.getDouble(context);
         }
     }
 
@@ -207,7 +200,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
         private final ExpressionScope scope;
         private final Skeleton skeleton;
         final List<Input> inputs = new ArrayList<>();
-        final List<DeclaredSlot> slots = new ArrayList<>();
+        final List<DeclaredState> slots = new ArrayList<>();
 
         Binding(String driver, ExpressionScope scope, Skeleton skeleton)
         {
@@ -239,7 +232,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
         {
             ExpressionInput input = new ExpressionInput(compile(field, expression, Expression.Type.NUMBER, Expression.constant(otherwise)));
             inputs.add(input);
-            return input;
+            return context -> (float) input.number;
         }
 
         @Override
@@ -247,6 +240,21 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
         {
             if (expression == null) throw missing(field);
             return number(field, expression, 0);
+        }
+
+        @Override
+        public DoubleInput doubleNumber(String field, @Nullable ExpressionTemplate expression, double otherwise) throws MalformedKumoTemplateException
+        {
+            ExpressionInput input = new ExpressionInput(compile(field, expression, Expression.Type.DOUBLE, Expression.doubleConstant(otherwise)));
+            inputs.add(input);
+            return context -> input.number;
+        }
+
+        @Override
+        public DoubleInput doubleNumber(String field, @Nullable ExpressionTemplate expression) throws MalformedKumoTemplateException
+        {
+            if (expression == null) throw missing(field);
+            return doubleNumber(field, expression, 0);
         }
 
         @Override
@@ -268,29 +276,6 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
             {
                 throw error("'" + field + "': " + e.getMessage());
             }
-        }
-
-        @Override
-        public NumberInput entityValue(String field, String name) throws MalformedKumoTemplateException
-        {
-            if (name == null) throw missing(field);
-            VariableTable.Read read = scope.getVariables().read(name);
-            final double[] value = new double[1];
-            inputs.add(context -> value[0] = context.resolveVariable(read));
-            return new NumberInput()
-            {
-                @Override
-                public float get(EvalContext context)
-                {
-                    return (float) value[0];
-                }
-
-                @Override
-                public double getDouble(EvalContext context)
-                {
-                    return value[0];
-                }
-            };
         }
 
         @Override
@@ -327,7 +312,7 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
             StateRef ref = scope.resolveState(state, what);
             if (ref.type != Expression.Type.NUMBER)
             {
-                throw new MalformedKumoTemplateException(String.format("%s writes '%s', which is a boolean: it writes numbers.", what, state));
+                throw new MalformedKumoTemplateException(String.format("%s writes '%s', which is %s: it writes numbers.", what, state, ref.type.description));
             }
             return new StateHandle()
             {
@@ -357,6 +342,22 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
         public FloatArraySlot slots(String name, int size, float initial)
         {
             DeclaredSlot slot = new DeclaredSlot(scope.getLayout(), size, initial);
+            slots.add(slot);
+            return slot;
+        }
+
+        @Override
+        public DoubleSlot doubleSlot(String name, double initial)
+        {
+            DeclaredDoubleSlot slot = new DeclaredDoubleSlot(scope.getLayout(), 1, initial);
+            slots.add(slot);
+            return slot;
+        }
+
+        @Override
+        public DoubleArraySlot doubleSlots(String name, int size, double initial)
+        {
+            DeclaredDoubleSlot slot = new DeclaredDoubleSlot(scope.getLayout(), size, initial);
             slots.add(slot);
             return slot;
         }

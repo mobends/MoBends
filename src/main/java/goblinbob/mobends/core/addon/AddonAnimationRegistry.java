@@ -154,6 +154,16 @@ public class AddonAnimationRegistry
         KumoRegistry.registerEntityFloatReader(namespaced(key), type, reader);
     }
 
+    /**
+     * Registers a double read from the entity, as "modid:key": a position in the world, say, which
+     * a float would round; see {@link #registerEntityFloatReader}.
+     */
+    public <E extends Entity> void registerEntityDoubleReader(String key, Class<E> type, ToDoubleFunction<? super E> reader)
+    {
+        Addons.checkRegistrationOpen();
+        KumoRegistry.registerEntityDoubleReader(namespaced(key), type, reader);
+    }
+
     /** Registers whether the entity is something, as "modid:key"; see {@link #registerEntityFloatReader}. */
     public <E extends Entity> void registerEntityBooleanReader(String key, Class<E> type, Predicate<? super E> reader)
     {

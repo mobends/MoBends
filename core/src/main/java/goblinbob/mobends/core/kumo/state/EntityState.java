@@ -13,6 +13,7 @@ public final class EntityState
 {
 
     public float[] floats = new float[0];
+    public double[] doubles = new double[0];
     public int[] ints = new int[0];
     public Pose[] poses = new Pose[0];
 

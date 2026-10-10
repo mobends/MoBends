@@ -18,7 +18,7 @@ runtime is put together.
 | `MachineState` | `core/kumo/state` | A machine (the layer's own, and any nested one): its members, its selector (`Selector`) and its connections. |
 | `PoseNode` | `core/kumo/state/node` | A node: an ordered *pose stack* of items (clips, drivers), each with an optional `when`, a composition space and damping. |
 | `Pose` | `core/kumo/pose` | Per-bone rotation / offset / vector targets for one frame, bound to the subject's sinks by index. |
-| `Expression`, `ExpressionOperations` | `core/kumo/expr` | The expression language: every value and condition an animator computes, typed (number or boolean) and checked when the animator loads. |
+| `Expression`, `ExpressionOperations` | `core/kumo/expr` | The expression language: every value and condition an animator computes, typed (number, double or boolean) and checked when the animator loads. |
 | `ExpressionScope` | `core/kumo/expr` | What a place in an animator sees: the scopes around it, whose definitions it reads by scoped name (`layer.combo`), and the built-ins. |
 | `DefinitionScope`, `ScopeLists` | `core/kumo/state` | A scope's definitions (constant, state, live) and their values for the entity, and its `enter` / `update` / `exit` statement lists. |
 | `VariableTable` | `core/kumo/state` | The names an animator reads and writes, numbered when it is instanced and resolved against the entity on its first frame. |
@@ -89,13 +89,14 @@ the only clip format.
 An animator is compiled once into a `KumoProgram`: its layers, machines, nodes and items, its
 expressions with their names resolved and operations bound, its bones as indices. Every entity it
 animates shares it; each has a `KumoAnimatorState`, which holds only that entity's
-`EntityState`: a flat `float[]` and `int[]` of slots and its pose buffers.
+`EntityState`: a flat `float[]`, `double[]` and `int[]` of slots and its pose buffers.
 
 * While compiling, every stateful element takes its slots in the program's `StateLayout`: a
   node's clock and pending snaps, a layer's current node (an index), its crossfade and its five
   pose buffers, an edge trigger's memory, a definition's value, an operation's or a driver's
-  declared state (`core:step_turn` keeps its world positions as two floats each, about 48 bits).
-  Evaluation reads and writes them through the context (`context.getState()`).
+  declared state (`core:step_turn` keeps its world positions in doubles). A definition's value is
+  a double whatever its type, which holds a number or a boolean exactly. Evaluation reads and
+  writes them through the context (`context.getState()`).
 * What reads nothing per entity is computed once, when the program compiles: a language operation
   of constant arguments (`{"mul": [{"add": [1, 2]}, 4]}`), a registered pure one, and a `constant`
   definition of them, which then takes no slot.
@@ -141,8 +142,8 @@ registry.registerOperation(KumoOperation.named("distance_to_nearest")
         }));
 ```
 
-* **The signature** (`KumoOperation`) declares the parameters (`NUMBER` and `BOOLEAN` take any
-  expression of that type, `CONSTANT` a number written out, `STRING` a string written out, and
+* **The signature** (`KumoOperation`) declares the parameters (`NUMBER`, `DOUBLE` and `BOOLEAN`
+  take any expression of that type, a constant where a double goes taking it as one, `CONSTANT` a number written out, `STRING` a string written out, and
   `choice(...)` one of a set; the last may repeat), the result type, whether it takes a
   `@fallback`, whether it is **pure** (same arguments, same result: with constant arguments it is
   computed once, at load) and whether a type file's selector may use it (**selector-safe**:
@@ -150,19 +151,22 @@ registry.registerOperation(KumoOperation.named("distance_to_nearest")
   answer for one entity can change during the entity's life).
   Arguments are checked when the animator loads, and mistakes are reported in the operation's own
   words (`args.error(i, ...)`). An operation takes a few arguments, about three at most: anything
-  with more configuration is a driver, with named fields. The entity readers are two methods
-  (`registerEntityFloatReader`, `registerEntityBooleanReader`) because a lambda returning a
-  number and one returning a boolean can't overload one name in Java.
+  with more configuration is a driver, with named fields. The entity readers are three methods
+  (`registerEntityFloatReader`, `registerEntityDoubleReader`, `registerEntityBooleanReader`)
+  because lambdas returning a number and a boolean can't overload one name in Java, and a float
+  and a double reader take the same lambda.
 * **Bind** runs once per use, when the animator is loaded for an entity class (`args.entityClass()`):
   it reads the written-out arguments (`string(i)`, `constant(i)`), does its one-time work (an item
-  looked up, a pattern compiled) and returns a `NumberEvaluator` or a `BooleanEvaluator`, or null
+  looked up, a pattern compiled) and returns a `NumberEvaluator`, a `DoubleEvaluator` or a
+  `BooleanEvaluator` (the one its result type says), or null
   where the operation doesn't apply to the class (its `@fallback` is used, or the load fails).
 * **Evaluate** runs every frame with the entity (`context.entity()`, an instance of the bound
   class), the frame's length (`context.deltaTime()`) and the arguments, already evaluated
-  (`values.number(i)`, `values.bool(i)`: nothing short-circuits). Both views are reused from frame
+  (`values.number(i)`, `values.doubleNumber(i)`, `values.bool(i)`: nothing short-circuits). Both views are reused from frame
   to frame, so evaluating allocates nothing.
-* **State** is declared at bind, floats only (a boolean is 0 or 1): `args.slot(name, initial)` or,
-  sized by what bind saw, `args.slots(name, size, initial)`. Every place the operation is written
+* **State** is declared at bind, floats (a boolean is 0 or 1): `args.slot(name, initial)` or,
+  sized by what bind saw, `args.slots(name, size, initial)`; and doubles, for positions in the
+  world: `args.doubleSlot(name, initial)`, `args.doubleSlots(name, size, initial)`. Every place the operation is written
   keeps its own, back to its initial values whenever the scope holding that place starts (a node,
   when it is entered).
 
@@ -193,8 +197,9 @@ registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args)
 }));
 ```
 
-* Inputs (`number`, `bool`) are expressions, evaluated for the frame before the driver runs, every
-  one of them. `entityValue` reads a built-in in double precision, for positions in the world.
+* Inputs (`number`, `doubleNumber`, `bool`) are expressions, evaluated for the frame before the
+  driver runs, every one of them. A position in the world is a `doubleNumber` (`DoubleInput`),
+  `entityWorldX` by default, which a file can replace with any double expression.
 * A driver writes states two ways: the state it steps, named by `inout` (`args.inout`), and its
   **outputs**, which a file maps to states in `out` (`args.outputs`, which refuses an output the
   driver doesn't have). Either way, a file from a resource pack can't name a trusted file's state.

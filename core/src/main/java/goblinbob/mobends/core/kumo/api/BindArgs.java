@@ -33,4 +33,10 @@ public interface BindArgs
     /** {@code size} numbers it keeps (one per leg, say), each {@code initial} whenever the scope holding it starts. */
     FloatArraySlot slots(String name, int size, float initial);
 
+    /** A double it keeps between frames (a position in the world, which a float would round); see {@link #slot}. */
+    DoubleSlot doubleSlot(String name, double initial);
+
+    /** {@code size} doubles it keeps between frames; see {@link #slots}. */
+    DoubleArraySlot doubleSlots(String name, int size, double initial);
+
 }

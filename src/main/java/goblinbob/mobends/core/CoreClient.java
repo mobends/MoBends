@@ -79,7 +79,7 @@ public class CoreClient extends Core<CoreClientConfig>
         resourceManager.registerReloadListener(manager -> reloadAnimation());
 
         // Model definitions find vanilla fields through accessors generated against them (see DefinedFields).
-        DefinedFields.install(VanillaEntityFields::get, VanillaModelParts::get);
+        DefinedFields.install(VanillaEntityFields::get, VanillaEntityFields::type, VanillaModelParts::get);
         EntityFields.install(new DefinedEntityFields());
 
         // Resource packs' animation is limited as the server says.

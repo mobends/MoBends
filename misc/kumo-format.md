@@ -356,7 +356,7 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
 | `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
-| `core:anchor` | `block` (`{"x", "y", "z"}`, expressions, an axis left out 0), `offset` (the same), `weight` (0..1, default 1), `out` (`positionDifference`): draws the entity's origin (where `entityWorldX`, `entityWorldY`, `entityWorldZ` are) at a point in the world, whatever the entity does meanwhile. The point is in `block`, relative to the block the entity's feet are in when the node starts (read then), at `offset` from that block's lowest corner, in blocks (read every frame, so the point can move; outside 0..1 is outside the block). `positionDifference` is how far the entity really is from the point, in blocks, whatever the weight: what tells a staged sequence (climbing onto a block) to give up. It moves the whole model (`root`, or its `bone`) past its damping |
+| `core:anchor` | `point` (`{"x", "y", "z"}`, double expressions, in blocks; an axis left out follows the entity), `weight` (0..1, default 1), `out` (`positionDifference`): draws the entity's origin (where `x`, `y`, `z` are: doubles, `entityWorldX`, `entityWorldY`, `entityWorldZ` unless written) at a point in the world, whatever the entity does meanwhile. The point is read every frame, so it can move along a path; one taken when the node starts is a node constant (`{"constant": {"floor": ["entityWorldX"]}}`, the block the feet are in). `positionDifference` is how far the entity really is from the point, in blocks, whatever the weight: what tells a staged sequence (climbing onto a block) to give up. It moves the whole model (`root`, or its `bone`) past its damping, turned by the body's `yaw` (`entityBodyYaw`) |
 | `mobends:cape` | the player's cape physics |
 | `mobends:sword_trail` | `add`, `resetOnEnter`, `resetEachFrame`, `velocity`: feeds the sword trail |
 | `mobends:spider_idle_legs`, `mobends:spider_moving_legs` | the spider's inverse-kinematics gaits (see the templates' fields); `out` (`groundLevel`), `reset` (a state that, non-zero when the node starts, re-plants the feet, and is cleared) |
@@ -432,8 +432,8 @@ with, the planted foot drags rather than the feet flickering.
   placed anew under the body when it goes up again. Run it in its own layer with an accumulator
   that goes up while the mob is on the ground, so the jump shows beneath it and the body turns back to
   vanilla's yaw while it plays.
-* It reads the entity's values `yawVariable` (`entityBodyYaw`), `xVariable` and `zVariable` (`entityWorldX`,
-  `entityWorldZ`), and its outputs (the states its `out` names) are `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
+* It reads `yaw` (a number expression, `entityBodyYaw` unless written), `x` and `z` (double
+  expressions, `entityWorldX` and `entityWorldZ`), and its outputs (the states its `out` names) are `turnLag` (degrees vanilla's body yaw is ahead of the shown one: what a
   head posed by `entityHeadYaw` has to add), `turnSpeed` (degrees per tick the shown body turns),
   `stepLift` (0..1 as the stepping foot rises, negative for a foot on the -X side),
   `stepImpact` (peaking at 1 `impactTime` ticks after a landing; quick landings add up smoothly
@@ -465,10 +465,27 @@ types, drivers), `mobends:` Mo' Bends' own content, registered through the addon
 addon's names carry its mod id. Operations and drivers share one namespace: `core:spring` names
 one thing.
 
-**Every expression is a number or a boolean**, and which one is checked when the animator loads:
-a number where a condition goes (`"@when": "entityLimbSwing"`), or a boolean where a number goes
-(`{"add": ["entityIsOnGround", 1]}`), is an error. Arithmetic is in single precision (`float`); strings
-are never values, only arguments some operations take written out (an item id, a hand).
+**Every expression is a number, a double or a boolean**, and which one is checked when the
+animator loads: a number where a condition goes (`"@when": "entityLimbSwing"`), or a boolean where
+a number goes (`{"add": ["entityIsOnGround", 1]}`), is an error. A number is in single precision
+(`float`); strings are never values, only arguments some operations take written out (an item
+id, a hand).
+
+**Doubles** are for positions in the world: ten million blocks out, a float steps by a whole
+block. `entityWorldX`, `entityWorldY` and `entityWorldZ` are doubles, and so is a `field` of a
+`double` or `long` Java field. Numbers and doubles never mix:
+
+* `toDouble` makes a number a double, and `toFloat` a double a number (rounded). Do the
+  subtraction in doubles, then make the difference a number:
+  `{"toFloat": [{"sub": ["entityWorldX", "node.startX"]}]}`.
+* `add`, `sub`, `mul`, `div`, `min`, `max`, `mod`, `neg`, `abs`, `floor`, `ceil`, `clamp`,
+  `lerp`, the comparisons, `eq`, `ne`, `if` and `decreased` take numbers or doubles, the same
+  for all their number arguments, and are doubles over doubles. Every other operation takes
+  numbers only, and every pose item's value is a number.
+* **A constant takes the precision of what it is used with**: a number written out (or an
+  operation of them, computed when the animator loads) among doubles, or where a double goes,
+  is the double it was written as (`0.1`, not the float `0.1` widened). Anything else mixed is
+  an error: `{"add": ["entityWorldX", "entityLimbSwing"]}` says to convert one.
 
 Operations nest freely:
 
@@ -501,6 +518,7 @@ Operations nest freely:
 | `not` | one boolean | boolean |
 | `if` | `[condition, then, else]`, the two branches of one type | the branches' |
 | `decreased` | one number: holds on the frame it is lower than on the previous evaluation | boolean |
+| `toDouble`, `toFloat` | one number / one double: the same value as a double / as a number (rounded to a float) | double / number |
 | `rose`, `fell` | one boolean: holds on the frame it turns true / false | boolean |
 
 **Nothing short-circuits**: `and`, `or` and `if` evaluate every argument, both branches of an
@@ -523,7 +541,8 @@ definition declares and stay portable: how a mob provides a value stays in its o
 
 * Resolved when the animator loads: each step is looked up on the declared type of the step
   before it, starting at the entity's class and walking up superclasses. The last field must be a
-  number or a boolean, which is the expression's type. Fields are named by their development
+  number or a boolean; a `double` or `long` field is a double, any other number a number, and
+  that is the expression's type. Fields are named by their development
   (MCP) names (see *Field names*).
 * `@fallback` takes any expression of the same type: another field, a name, a constant, an
   operation. If the path can't be resolved on the entity's class, the fallback is compiled
@@ -604,7 +623,7 @@ operation, or a definition of the mob's model definition (see *Model definitions
 | `entityIsDrawingBow`, `entityIsRidingLiving` | the held items; whether what the entity rides is living |
 | `entityIsStandingStill`, `entityIsStrafing` | Mo' Bends' measured motion |
 | `entityMotionY`, `entityPrevMotionY`, `entityInterpolatedMotionY`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity (vanilla's motion fields read 0 for the entities the server moves). `entitySpeed` and `entityXZSpeed` are magnitudes interpolated by `partialTicks`; a rider's include what carries it |
-| `entityBodyYaw`, `entityWorldX`, `entityWorldY`, `entityWorldZ` | the body yaw and the position, interpolated as the renderer does (`core:step_turn`'s default inputs) |
+| `entityBodyYaw`, `entityWorldX`, `entityWorldY`, `entityWorldZ` | the body yaw and the position, interpolated as the renderer does (`core:step_turn`'s and `core:anchor`'s default inputs). The position is in doubles (see *Expressions*) |
 | `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` | relative to the ridden entity (0 unless riding something living) |
 | `entityClimbingRenderYaw`, `entityClimbingBodyYaw`, `entityClimbingHeadYaw` | the yaws while climbing |
 
@@ -685,8 +704,9 @@ see *Drivers*) are the only things that do.
 }
 ```
 
-A definition is an object with one key, its kind, whose value is an expression (a number or a
-boolean, which is the definition's type):
+A definition is an object with one key, its kind, whose value is an expression (a number, a
+double or a boolean, which is the definition's type; `{"state": 0}` is a number, and
+`{"state": {"toDouble": [0]}}` a double):
 
 | kind | its value | changed by |
 |---|---|---|
@@ -778,8 +798,9 @@ expression repeated with different inputs, written once.
   a layer's, `machine.x` for a machine's (the innermost around the call, as for names). Arguments
   are positional.
 * **Parameters** are read in the body as `arg.<name>`, and take the kinds operations' arguments
-  have: `number` and `boolean` (any expression of that type, written at the call site, which
-  reads the call site's names), `constant` (a number written out), `string`, and
+  have: `number`, `double` and `boolean` (any expression of that type, written at the call site,
+  which reads the call site's names; a constant passed for a `double` is one), `constant` (a
+  number written out), `string`, and
   `{"choice": [...]}` (one of those strings). The written-out ones are put in the body as they
   are, so they can stand where an operation takes a string or a constant.
 * **A body reads** its parameters, the built-ins, and the names of the scope declaring it: an

@@ -102,13 +102,20 @@ public class ReflectedEntityFields implements EntityFields
         return null;
     }
 
-    /** What a field of {@code type} is read as, or null if it is neither a number nor a boolean. */
+    /**
+     * What a field of {@code type} is read as, or null if it is neither a number nor a boolean: a
+     * {@code double} or a {@code long} as a double, which holds it (a long up to 2^53) exactly.
+     */
     @Nullable
-    private static Expression.Type typeOf(Class<?> type)
+    protected static Expression.Type typeOf(Class<?> type)
     {
         if (type == boolean.class || type == Boolean.class)
         {
             return Expression.Type.BOOLEAN;
+        }
+        if (type == double.class || type == Double.class || type == long.class || type == Long.class)
+        {
+            return Expression.Type.DOUBLE;
         }
         if (type.isPrimitive() && type != char.class && type != void.class || Number.class.isAssignableFrom(type))
         {

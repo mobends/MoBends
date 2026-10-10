@@ -2,6 +2,9 @@ package goblinbob.mobends.core.kumo.expr;
 
 import goblinbob.mobends.core.kumo.api.BindArgs;
 import goblinbob.mobends.core.kumo.api.BooleanEvaluator;
+import goblinbob.mobends.core.kumo.api.DoubleArraySlot;
+import goblinbob.mobends.core.kumo.api.DoubleEvaluator;
+import goblinbob.mobends.core.kumo.api.DoubleSlot;
 import goblinbob.mobends.core.kumo.api.EvalArgs;
 import goblinbob.mobends.core.kumo.api.EvalContext;
 import goblinbob.mobends.core.kumo.api.Evaluator;
@@ -37,7 +40,7 @@ final class BoundOperation
         }
         Binding binding = new Binding(args);
         Evaluator evaluator = operation.binder.bind(binding);
-        Expression fallback = args.fallback();
+        Expression fallback = args.fallback() == null ? null : Expression.adopt(args.fallback(), operation.returns);
         if (fallback != null && fallback.getType() != operation.returns)
         {
             throw new MalformedKumoTemplateException(String.format("'%s' is %s, but its \"@fallback\" is %s.", operation.name,
@@ -54,20 +57,33 @@ final class BoundOperation
             }
             return fallback;
         }
-        boolean number = evaluator instanceof NumberEvaluator;
-        boolean matches = number ? operation.returns == Expression.Type.NUMBER
-                : evaluator instanceof BooleanEvaluator && operation.returns == Expression.Type.BOOLEAN;
-        if (!matches)
+        Call call;
+        if (evaluator instanceof NumberEvaluator && operation.returns == Expression.Type.NUMBER)
+        {
+            call = new NumberCall(args, binding, (NumberEvaluator) evaluator);
+        }
+        else if (evaluator instanceof DoubleEvaluator && operation.returns == Expression.Type.DOUBLE)
+        {
+            call = new DoubleCall(args, binding, (DoubleEvaluator) evaluator);
+        }
+        else if (evaluator instanceof BooleanEvaluator && operation.returns == Expression.Type.BOOLEAN)
+        {
+            call = new BooleanCall(args, binding, (BooleanEvaluator) evaluator);
+        }
+        else
         {
             throw new IllegalStateException("Operation '" + operation.name + "' returns " + operation.returns.description + ", but its binder made a "
                     + evaluator.getClass().getSimpleName() + ".");
         }
-        Call call = number ? new NumberCall(args, binding, (NumberEvaluator) evaluator)
-                : new BooleanCall(args, binding, (BooleanEvaluator) evaluator);
         if (operation.pure && binding.slots.isEmpty() && call.constantArguments())
         {
             // Same arguments, same result: computed once.
-            return number ? Expression.constant(call.get(null)) : (call.test(null) ? Expression.TRUE : Expression.FALSE);
+            switch (operation.returns)
+            {
+                case NUMBER: return Expression.constant(((Expression) call).get(null));
+                case DOUBLE: return Expression.doubleConstant(((Expression) call).getDouble(null));
+                default: return ((Expression) call).test(null) ? Expression.TRUE : Expression.FALSE;
+            }
         }
         return (Expression) call;
     }
@@ -76,7 +92,7 @@ final class BoundOperation
     private static final class Binding implements BindArgs
     {
         private final ExpressionOperations.Arguments args;
-        final List<DeclaredSlot> slots = new ArrayList<>();
+        final List<DeclaredState> slots = new ArrayList<>();
 
         Binding(ExpressionOperations.Arguments args)
         {
@@ -129,24 +145,37 @@ final class BoundOperation
             slots.add(slot);
             return slot;
         }
+
+        @Override
+        public DoubleSlot doubleSlot(String name, double initial)
+        {
+            DeclaredDoubleSlot slot = new DeclaredDoubleSlot(args.layout(), 1, initial);
+            slots.add(slot);
+            return slot;
+        }
+
+        @Override
+        public DoubleArraySlot doubleSlots(String name, int size, double initial)
+        {
+            DeclaredDoubleSlot slot = new DeclaredDoubleSlot(args.layout(), size, initial);
+            slots.add(slot);
+            return slot;
+        }
     }
 
-    /** The parts both kinds of call share: the arguments, evaluated into a reused view, and the state. */
+    /** The part every kind of call shares: the arguments, evaluated into a reused view, and the state. */
     private interface Call
     {
         boolean constantArguments();
-
-        float get(@Nullable ITriggerConditionContext context);
-
-        boolean test(@Nullable ITriggerConditionContext context);
     }
 
     private static final class Frame implements EvalArgs, EvalContext, DeclaredSlot.Access
     {
         private final Expression[] expressions;
-        private final float[] numbers;
+        /** The number and double arguments: a number is held exactly, and read back as the float it is. */
+        private final double[] numbers;
         private final boolean[] booleans;
-        private final List<DeclaredSlot> slots;
+        private final List<DeclaredState> slots;
         private final boolean stateful;
         private ITriggerConditionContext context;
 
@@ -154,7 +183,7 @@ final class BoundOperation
         {
             int count = args.count();
             this.expressions = Arrays.copyOf(args.expressions(), count);
-            this.numbers = new float[count];
+            this.numbers = new double[count];
             this.booleans = new boolean[count];
             for (int i = 0; i < count; i++)
             {
@@ -191,14 +220,14 @@ final class BoundOperation
                 Expression expression = expressions[i];
                 if (expression == null) continue;
                 if (expression.getType() == Expression.Type.BOOLEAN) booleans[i] = expression.test(context);
-                else numbers[i] = expression.get(context);
+                else numbers[i] = expression.getDouble(context);
             }
             return this;
         }
 
         void restart(ITriggerConditionContext context)
         {
-            for (DeclaredSlot slot : slots) slot.reset(context.getState());
+            for (DeclaredState slot : slots) slot.reset(context.getState());
             for (Expression expression : expressions)
             {
                 if (expression != null && expression.isStateful()) expression.restart(context);
@@ -213,6 +242,12 @@ final class BoundOperation
 
         @Override
         public float number(int index)
+        {
+            return (float) numbers[index];
+        }
+
+        @Override
+        public double doubleNumber(int index)
         {
             return numbers[index];
         }
@@ -256,6 +291,43 @@ final class BoundOperation
 
         @Override
         public float get(@Nullable ITriggerConditionContext context)
+        {
+            Frame frame = this.frame.evaluate(context);
+            return evaluator.evaluate(frame, frame);
+        }
+
+        @Override
+        public boolean constantArguments()
+        {
+            return frame.constantArguments();
+        }
+
+        @Override
+        public boolean isStateful()
+        {
+            return frame.stateful;
+        }
+
+        @Override
+        public void restart(ITriggerConditionContext context)
+        {
+            frame.restart(context);
+        }
+    }
+
+    private static final class DoubleCall extends Expression.DoubleExpression implements Call
+    {
+        private final Frame frame;
+        private final DoubleEvaluator evaluator;
+
+        DoubleCall(ExpressionOperations.Arguments args, Binding binding, DoubleEvaluator evaluator)
+        {
+            this.frame = new Frame(args, binding);
+            this.evaluator = evaluator;
+        }
+
+        @Override
+        public double getDouble(@Nullable ITriggerConditionContext context)
         {
             Frame frame = this.frame.evaluate(context);
             return evaluator.evaluate(frame, frame);

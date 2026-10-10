@@ -189,10 +189,10 @@ public class ExpressionTest
     @Test
     void typesAreCheckedWhenCompiling()
     {
-        assertMalformed("'add' argument 2 (b) must be a number, got a boolean", "{\"add\": [1, true]}");
+        assertMalformed("'add' argument 2 (b) must be a number or a double, got a boolean", "{\"add\": [1, true]}");
         assertMalformed("'not' argument 1 (condition) must be a boolean, got a number", "{\"if\": [{\"not\": [1]}, 1, 2]}");
         assertMalformed("'if' needs two branches of the same type", "{\"if\": [true, 1, false]}");
-        assertMalformed("'eq' compares two numbers or two booleans", "{\"if\": [{\"eq\": [1, true]}, 1, 2]}");
+        assertMalformed("'eq' compares two numbers, two doubles or two booleans", "{\"if\": [{\"eq\": [1, true]}, 1, 2]}");
         assertMalformed("'core:holds_item' argument 1 (hand) must be one of main_hand, off_hand, got 'left_hand'",
                 "{\"if\": [{\"core:holds_item\": [\"left_hand\", \"minecraft:torch\"]}, 1, 2]}");
         assertMalformed("'core:holds_item' argument 2 (item) must be a string", "{\"if\": [{\"core:holds_item\": [\"main_hand\", 3]}, 1, 2]}");

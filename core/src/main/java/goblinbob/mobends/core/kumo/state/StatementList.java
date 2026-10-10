@@ -86,7 +86,7 @@ public final class StatementList
         {
             if (when == null || when.test(context))
             {
-                target.set(value.getType() == Expression.Type.BOOLEAN ? (value.test(context) ? 1 : 0) : value.get(context), context);
+                target.set(value.getType() == Expression.Type.BOOLEAN ? (value.test(context) ? 1 : 0) : value.getDouble(context), context);
             }
         }
     }

@@ -34,6 +34,10 @@ class TestSubject implements IKumoSubject
         {
             Expression.registerSubjectBuiltIn(name, Expression.Type.NUMBER);
         }
+        for (String name : new String[] { "worldX", "worldZ" })
+        {
+            Expression.registerSubjectBuiltIn(name, Expression.Type.DOUBLE);
+        }
         for (String name : new String[] { "GO", "OUT", "IN", "LEFT_HANDED", "NEVER", "AIRBORNE", "SWORD", "LATE", "ALWAYS", "FLYING", "STILL", "STANDING_STILL" })
         {
             Expression.registerSubjectBuiltIn(name, Expression.Type.BOOLEAN);

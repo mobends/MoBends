@@ -12,6 +12,9 @@ public interface EvalArgs
     /** A number or constant argument. */
     float number(int index);
 
+    /** A double argument. */
+    double doubleNumber(int index);
+
     /** A boolean argument. */
     boolean bool(int index);
 

@@ -38,16 +38,24 @@ public final class FunctionCall
         }
     }
 
-    /** An argument read as an expression: its JSON, and the place it is written in. */
+    /** An argument read as an expression: its JSON, the place it is written in, and its parameter's type. */
     public static final class Argument
     {
         final JsonElement json;
         final ExpressionScope scope;
+        final Expression.Type type;
 
-        Argument(JsonElement json, ExpressionScope scope)
+        Argument(JsonElement json, ExpressionScope scope, Expression.Type type)
         {
             this.json = json;
             this.scope = scope;
+            this.type = type;
+        }
+
+        /** The argument, compiled where the call is written: a constant number for a double parameter becomes one. */
+        Expression compile() throws MalformedKumoTemplateException
+        {
+            return Expression.adopt(Expression.compileAny(json, scope), type);
         }
     }
 
@@ -64,6 +72,7 @@ public final class FunctionCall
             switch (param.kind)
             {
                 case "boolean": standIns.add(new JsonPrimitive(false)); break;
+                case "double": standIns.add(new JsonParser().parse("{\"toDouble\": [0]}")); break;
                 case "string": standIns.add(new JsonPrimitive("")); break;
                 case "choice": standIns.add(new JsonPrimitive(param.choices.isEmpty() ? "" : param.choices.get(0))); break;
                 default: standIns.add(new JsonPrimitive(0)); break;
@@ -109,14 +118,17 @@ public final class FunctionCall
             switch (param.kind)
             {
                 case "number":
+                case "double":
                 case "boolean":
-                    Expression.Type type = "number".equals(param.kind) ? Expression.Type.NUMBER : Expression.Type.BOOLEAN;
-                    Expression checked = Expression.compileAny(argument, callSite);
+                    Expression.Type type = "number".equals(param.kind) ? Expression.Type.NUMBER : "double".equals(param.kind) ? Expression.Type.DOUBLE : Expression.Type.BOOLEAN;
+                    Argument bind = new Argument(argument, callSite, type);
+                    Expression checked = bind.compile();
                     if (checked.getType() != type)
                     {
-                        throw new MalformedKumoTemplateException(where + " must be " + type.description + ", got " + checked.getType().description + ": " + Expression.describe(whole));
+                        throw new MalformedKumoTemplateException(where + " must be " + type.description + ", got " + checked.getType().description
+                                + Expression.conversion(type, checked.getType()) + ": " + Expression.describe(whole));
                     }
-                    bound.put(entry.getKey(), new Argument(argument, callSite));
+                    bound.put(entry.getKey(), bind);
                     break;
                 case "constant":
                     if (!argument.isJsonPrimitive() || !argument.getAsJsonPrimitive().isNumber())

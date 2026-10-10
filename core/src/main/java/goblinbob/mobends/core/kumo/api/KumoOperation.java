@@ -119,13 +119,13 @@ public final class KumoOperation
         }
 
         /**
-         * A parameter: {@link Kind#NUMBER} or {@link Kind#BOOLEAN} (any expression of that type,
-         * evaluated every frame), {@link Kind#CONSTANT} (a number written out), or
-         * {@link Kind#STRING} (a string written out); see {@link #choice} for a choice.
+         * A parameter: {@link Kind#NUMBER}, {@link Kind#DOUBLE} or {@link Kind#BOOLEAN} (any
+         * expression of that type, evaluated every frame), {@link Kind#CONSTANT} (a number written
+         * out), or {@link Kind#STRING} (a string written out); see {@link #choice} for a choice.
          */
         public Builder param(String name, Kind kind)
         {
-            if (kind == Kind.ANY || kind == Kind.CHOICE)
+            if (kind == Kind.ANY || kind == Kind.NUMERIC || kind == Kind.CHOICE)
             {
                 throw new IllegalArgumentException("A registered operation's parameter has a fixed type, and a choice its choices (choice()): '" + name + "' is " + kind + ".");
             }

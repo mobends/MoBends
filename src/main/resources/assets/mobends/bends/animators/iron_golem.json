@@ -186,26 +186,25 @@
               "@on": {"enter": [{"set": ["animator.inJump", true]}]}
             },
             "climb": {
-              "@comment": "Lifting off against a ledge (a block in front of its feet), it climbs onto it, slower than its own jump: core:anchor draws it where the climb has got to, in the coordinates of the block ahead (u into the block from its near face, h up from the ground), while the entity itself is already up there. The arms swing up and slam the hands down on the top, well ahead; the arms are solved for that spot every frame (two bones, elbows back, the lean of the whole golem counted in), so they pull and then push, and stay straight, pushing, once the shoulders are out of reach. Reaching, it steps half a block in towards the block (closer than the entity can stand), then hauls itself up the face, leaning into it, the right knee comes up onto the top, then the left; the hands let go and the arms swing back on springs, overshooting and settling, heavy; it walks onto the middle of the block and is handed back to where it really is. It gives up, gliding back to the entity, if the entity gets far from where it is drawn (knocked away, or hurrying on once it is up: further than the climb's own lag, 1.6 blocks while it rises, 0.8 once it is up) or attacks. Lengths are in blocks, as ModelIronGolem has them: the shoulder above the feet, the middle of the golem (what centerRotation turns about), the upper arm (shoulder to elbow), the forearm (elbow to the hand's end).",
+              "@comment": "Lifting off against a ledge (a block in front of its feet), it climbs onto it, slower than its own jump: core:anchor draws it where the climb has got to, in the coordinates of the block ahead (u into the block from its near face, h up from the ground; the block is taken in doubles, which a position far from the origin needs), while the entity itself is already up there. The arms swing up and slam the hands down on the top, well ahead; the arms are solved for that spot every frame (two bones, elbows back, the lean of the whole golem counted in), so they pull and then push, and stay straight, pushing, once the shoulders are out of reach. Reaching, it steps half a block in towards the block (closer than the entity can stand), then hauls itself up the face, leaning into it, the right knee comes up onto the top, then the left; the hands let go and the arms swing back on springs, overshooting and settling, heavy; it walks onto the middle of the block and is handed back to where it really is. It gives up, gliding back to the entity, if the entity gets far from where it is drawn (knocked away, or hurrying on once it is up: further than the climb's own lag, 1.6 blocks while it rises, 0.8 once it is up) or attacks. Lengths are in blocks, as ModelIronGolem has them: the shoulder above the feet, the middle of the golem (what centerRotation turns about), the upper arm (shoulder to elbow), the forearm (elbow to the hand's end).",
               "core:pose": {
                 "pose": [
                   {
                     "core:anchor": {
-                      "block": {"x": "node.dirX", "z": "node.dirZ"},
-                      "offset": {
+                      "point": {
                         "x": {
                           "if": [
                             {"eq": ["node.dirX", 0]},
-                            {"sub": ["entityWorldX", "node.blockX"]},
-                            {"if": [{"gt": ["node.dirX", 0]}, "node.u", {"sub": [1, "node.u"]}]}
+                            "entityWorldX",
+                            {"add": ["node.blockX", {"toDouble": [{"if": [{"gt": ["node.dirX", 0]}, "node.u", {"sub": [1, "node.u"]}]}]}]}
                           ]
                         },
-                        "y": "node.h",
+                        "y": {"add": ["node.blockY", {"toDouble": ["node.h"]}]},
                         "z": {
                           "if": [
                             {"eq": ["node.dirZ", 0]},
-                            {"sub": ["entityWorldZ", "node.blockZ"]},
-                            {"if": [{"gt": ["node.dirZ", 0]}, "node.u", {"sub": [1, "node.u"]}]}
+                            "entityWorldZ",
+                            {"add": ["node.blockZ", {"toDouble": [{"if": [{"gt": ["node.dirZ", 0]}, "node.u", {"sub": [1, "node.u"]}]}]}]}
                           ]
                         }
                       },
@@ -388,19 +387,19 @@
                 "dirZ": {
                   "constant": {"if": [{"eq": ["node.dirX", 0]}, {"if": [{"gt": [{"cos": ["node.yaw"]}, 0]}, 1, -1]}, 0]}
                 },
-                "blockX": {"constant": {"add": [{"floor": ["entityWorldX"]}, "node.dirX"]}},
-                "blockZ": {"constant": {"add": [{"floor": ["entityWorldZ"]}, "node.dirZ"]}},
+                "blockX": {"constant": {"add": [{"floor": ["entityWorldX"]}, {"toDouble": ["node.dirX"]}]}},
+                "blockY": {"constant": {"floor": ["entityWorldY"]}},
+                "blockZ": {"constant": {"add": [{"floor": ["entityWorldZ"]}, {"toDouble": ["node.dirZ"]}]}},
                 "startU": {
                   "constant": {
                     "sub": [
-                      {"add": [{"mul": ["entityWorldX", "node.dirX"]}, {"mul": ["entityWorldZ", "node.dirZ"]}]},
                       {
                         "add": [
-                          {"mul": ["node.blockX", "node.dirX"]},
-                          {"mul": ["node.blockZ", "node.dirZ"]},
-                          {"if": [{"gt": [{"add": ["node.dirX", "node.dirZ"]}, 0]}, 0, -1]}
+                          {"mul": [{"toFloat": [{"sub": ["entityWorldX", "node.blockX"]}]}, "node.dirX"]},
+                          {"mul": [{"toFloat": [{"sub": ["entityWorldZ", "node.blockZ"]}]}, "node.dirZ"]}
                         ]
-                      }
+                      },
+                      {"if": [{"gt": [{"add": ["node.dirX", "node.dirZ"]}, 0]}, 0, -1]}
                     ]
                   }
                 },

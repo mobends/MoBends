@@ -29,6 +29,10 @@ class EntityBuiltInsTest
             {
                 assertTrue(data.indexOfVariable(name) >= 0, kind + " has no number '" + name + "'");
             }
+            for (String name : EntityBuiltIns.DOUBLES)
+            {
+                assertTrue(data.indexOfVariable(name) >= 0, kind + " has no double '" + name + "'");
+            }
             for (String name : EntityBuiltIns.BOOLEANS)
             {
                 assertTrue(data.indexOfState(name) >= 0, kind + " has no boolean '" + name + "'");

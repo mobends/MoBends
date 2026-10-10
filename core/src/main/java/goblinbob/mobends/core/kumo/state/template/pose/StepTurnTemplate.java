@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state.template.pose;
 
+import com.google.gson.JsonPrimitive;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 import java.util.List;
@@ -35,11 +36,11 @@ public class StepTurnTemplate extends DriverItemTemplate
      */
     public ExpressionTemplate weight;
 
-    /** The variable holding the yaw the body is to face, in degrees. */
-    public String yawVariable = "entityBodyYaw";
-    /** The variables holding the entity's position in the world, in blocks. */
-    public String xVariable = "entityWorldX";
-    public String zVariable = "entityWorldZ";
+    /** The yaw the body is to face, in degrees: a number. */
+    public ExpressionTemplate yaw = new ExpressionTemplate(new JsonPrimitive("entityBodyYaw"));
+    /** The entity's position in the world, in blocks: doubles. */
+    public ExpressionTemplate x = new ExpressionTemplate(new JsonPrimitive("entityWorldX"));
+    public ExpressionTemplate z = new ExpressionTemplate(new JsonPrimitive("entityWorldZ"));
 
     /**
      * The states its outputs go to, by output: {@code turnLag}, {@code turnSpeed}, {@code stepLift},

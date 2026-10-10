@@ -86,6 +86,16 @@ public final class KumoRegistry
                 } : null));
     }
 
+    /** {@code {"mymod:anchor_x": []}}: a double read from the entity; see {@link #registerEntityFloatReader}. */
+    public static <E> void registerEntityDoubleReader(String name, Class<E> type, ToDoubleFunction<? super E> reader)
+    {
+        registerOperation(KumoOperation.named(name).returns(Expression.Type.DOUBLE).withFallback()
+                .bind(args -> applies(type, args) ? (DoubleEvaluator) (context, values) -> {
+                    Object entity = context.entity();
+                    return entity == null ? 0 : reader.applyAsDouble(type.cast(entity));
+                } : null));
+    }
+
     /** {@code {"mymod:is_wet": []}}: whether the entity is something; see {@link #registerEntityFloatReader}. */
     public static <E> void registerEntityBooleanReader(String name, Class<E> type, Predicate<? super E> reader)
     {
