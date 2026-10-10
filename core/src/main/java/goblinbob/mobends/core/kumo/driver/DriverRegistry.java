@@ -37,6 +37,7 @@ public class DriverRegistry
         register("core:offset", OffsetDriver::create, OffsetTemplate.class);
         register(SpringDriver.DRIVER);
         register(StepTurnDriver.DRIVER);
+        register(AnchorDriver.DRIVER);
     }
 
     public <T extends DriverItemTemplate> void register(String key, IDriverFactory<T> factory, Class<T> templateType)

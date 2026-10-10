@@ -22,8 +22,10 @@
   such as whether a mob is wet) and drivers (posing computed in Java), registered from an addon.
 - Zombie villagers are animated.
 - Iron golems jump: the push-off snaps their legs straight, they bend as the golem flies and the
-  heavy arms lag behind; jumping onto a block, the golem vaults it, propping itself up on its
-  hands; landing, it gives under its weight.
+  heavy arms lag behind; landing, it gives under its weight. Jumping onto a block, the golem climbs
+  it: it plants its hands on the top, hauls itself up the side, gets a knee up and steps on.
+- Animations can draw a mob at a point in the world while its real position moves on (the
+  `core:anchor` driver), to stage a sequence such as climbing onto a block.
 - A server's own resource pack can add types and extensions too.
 - Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
   several apply to the same mob.

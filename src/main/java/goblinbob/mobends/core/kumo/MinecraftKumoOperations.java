@@ -117,7 +117,7 @@ public final class MinecraftKumoOperations
         // {"core:is_flying": []}: a player flying (creative or spectator flight, not an elytra).
         KumoRegistry.registerEntityBooleanReader("core:is_flying", EntityPlayer.class, player -> player.capabilities.isFlying);
         // {"core:ledge_ahead": []}: a block in front of the entity's feet it can climb onto (what a
-        // mob jumps onto as it walks), read once on liftoff to tell a vault from a jump.
+        // mob jumps onto as it walks), read once on liftoff to tell a climb from a jump.
         KumoRegistry.registerEntityBooleanReader("core:ledge_ahead", EntityLivingBase.class, MinecraftKumoOperations::ledgeAhead);
 
         // What a type file's selector reads: the entity alone, any entity (false where it doesn't apply).

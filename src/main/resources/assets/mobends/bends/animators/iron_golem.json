@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "@define": {"inJump": {"state": false}},
+  "@define": {"inJump": {"state": false}, "climbing": {"state": false}},
   "layers": [
     {
       "@comment": "Golems wander at about 0.0496 blocks a tick, just under the MOVING_HORIZONTALLY dead zone (0.05), so the walk goes by the golem's own speed thresholds, apart to keep it from flickering. Between the two thresholds the selector chooses nothing, so the golem keeps standing or walking; landing between them, it walks (the airborne machine's connection).",
@@ -10,7 +10,7 @@
         "jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}}
       },
       "select": [
-        {"when": "layer.jumping", "then": "airborne"},
+        {"when": {"or": ["layer.jumping", "animator.climbing"]}, "then": "airborne"},
         {"when": {"ge": ["entityXZSpeed", "layer.walkStart"]}, "then": "walk"},
         {"when": {"lt": ["entityXZSpeed", "layer.walkStop"]}, "then": "stand"}
       ],
@@ -92,9 +92,9 @@
       },
       "machines": {
         "airborne": {
-          "@comment": "In the air: a vault when it lifted off with a ledge ahead to climb onto (read once, as it leaves the ground), a jump otherwise.",
-          "@define": {"vault": {"constant": {"core:ledge_ahead": []}}},
-          "select": [{"when": "machine.vault", "then": "vault"}, {"then": "jump"}],
+          "@comment": "In the air, and climbing: a climb when it lifted off with a ledge ahead to climb onto (read once, as it leaves the ground), a jump otherwise. The climb outlasts the jump: the layer stays here while animator.climbing holds.",
+          "@define": {"climb": {"constant": {"core:ledge_ahead": []}}},
+          "select": [{"when": "machine.climb", "then": "climb"}, {"then": "jump"}],
           "nodes": {
             "jump": {
               "@comment": "As the player's: the push-off snaps the legs straight, then they bend slowly as it flies. The arms are heavy: pressed in and swung back while it rises, they flare out and swing forward as it falls, lagging the motion on springs, and the torso leans into the fall.",
@@ -185,53 +185,139 @@
               "@define": {"flare": {"state": 0}, "swing": {"state": 0}, "lean": {"state": 0}},
               "@on": {"enter": [{"set": ["animator.inJump", true]}]}
             },
-            "vault": {
-              "@comment": "Lifting off against a ledge (a block in front of its feet), it vaults onto it. The push-off snaps the legs straight; the hands slam down on the ledge, a little past its edge, and stay there while it rises: the arms are solved for the hands' spot every frame (two bones, elbows back), so they unfold and push it up; out of reach, they stay straight, pushing at the spot, until the feet are over the ledge. Then the hands let go and the arms swing back behind it on springs, overshooting and settling, heavy. The knees tuck to clear the edge and reach down for the top once the feet are over it. The ledge is taken to be a full block above the ground it left, and the hands' spot as far ahead as the edge is from the shoulders when the golem is pressed against it. Lengths are in blocks, as ModelIronGolem has them: the shoulder above the feet, the upper arm (shoulder to elbow), the forearm (elbow to the hand's end).",
+            "climb": {
+              "@comment": "Lifting off against a ledge (a block in front of its feet), it climbs onto it, slower than its own jump: core:anchor draws it where the climb has got to, in the coordinates of the block ahead (u into the block from its near face, h up from the ground), while the entity itself is already up there. The arms swing up and slam the hands down on the top, well ahead; the arms are solved for that spot every frame (two bones, elbows back, the lean of the whole golem counted in), so they pull and then push, and stay straight, pushing, once the shoulders are out of reach. Reaching, it steps half a block in towards the block (closer than the entity can stand), then hauls itself up the face, leaning into it, the right knee comes up onto the top, then the left; the hands let go and the arms swing back on springs, overshooting and settling, heavy; it walks onto the middle of the block and is handed back to where it really is. It gives up, gliding back to the entity, if the entity gets far from where it is drawn (knocked away, or hurrying on once it is up: further than the climb's own lag, 1.6 blocks while it rises, 0.8 once it is up) or attacks. Lengths are in blocks, as ModelIronGolem has them: the shoulder above the feet, the middle of the golem (what centerRotation turns about), the upper arm (shoulder to elbow), the forearm (elbow to the hand's end).",
               "core:pose": {
                 "pose": [
                   {
-                    "core:spring": {
-                      "inout": "node.tuck",
-                      "target": {"if": ["node.overLedge", 0, 1]},
-                      "stiffness": 0.3,
-                      "friction": 0.5
+                    "core:anchor": {
+                      "block": {"x": "node.dirX", "z": "node.dirZ"},
+                      "offset": {
+                        "x": {
+                          "if": [
+                            {"eq": ["node.dirX", 0]},
+                            {"sub": ["entityWorldX", "node.blockX"]},
+                            {"if": [{"gt": ["node.dirX", 0]}, "node.u", {"sub": [1, "node.u"]}]}
+                          ]
+                        },
+                        "y": "node.h",
+                        "z": {
+                          "if": [
+                            {"eq": ["node.dirZ", 0]},
+                            {"sub": ["entityWorldZ", "node.blockZ"]},
+                            {"if": [{"gt": ["node.dirZ", 0]}, "node.u", {"sub": [1, "node.u"]}]}
+                          ]
+                        }
+                      },
+                      "weight": {"sub": [1, {"smoothstep": ["nodeTicksElapsed", 15, 19]}]},
+                      "out": {"positionDifference": "node.drift"}
                     }
-                  },
-                  {
-                    "@when": "node.released",
-                    "core:spring": {"inout": "node.armX", "target": 30, "stiffness": 0.15, "friction": 0.2}
-                  },
-                  {
-                    "@when": "node.released",
-                    "core:spring": {"inout": "node.foreX", "target": -6, "stiffness": 0.18, "friction": 0.3}
                   },
                   {
                     "core:spring": {
                       "inout": "node.lean",
-                      "target": {"if": ["node.released", -3, 7]},
-                      "stiffness": 0.12,
-                      "friction": 0.3
+                      "target": {
+                        "add": [
+                          0,
+                          {"mul": [8, {"smoothstep": ["nodeTicksElapsed", 0, 3]}]},
+                          {"mul": [16, {"smoothstep": ["nodeTicksElapsed", 3, 8]}]},
+                          {"mul": [-14, {"smoothstep": ["nodeTicksElapsed", 8, 12]}]},
+                          {"mul": [-10, {"smoothstep": ["nodeTicksElapsed", 12, 15]}]}
+                        ]
+                      },
+                      "stiffness": 0.25,
+                      "friction": 0.35
                     }
                   },
                   {
-                    "core:axis_rotate": {"bone": "rightLeg", "axis": "x", "angle": {"mul": ["node.tuck", -70]}},
-                    "@space": "override",
-                    "@damping": {"rightLeg": 0.8}
+                    "@when": "node.released",
+                    "core:spring": {
+                      "inout": "node.armX",
+                      "target": {"add": [30, {"mul": [-30, {"smoothstep": ["nodeTicksElapsed", 10, 15]}]}]},
+                      "stiffness": 0.2,
+                      "friction": 0.25
+                    }
                   },
                   {
-                    "core:axis_rotate": {"bone": "leftLeg", "axis": "x", "angle": {"mul": ["node.tuck", -58]}},
-                    "@space": "override",
-                    "@damping": {"leftLeg": 0.8}
+                    "@when": "node.released",
+                    "core:spring": {"inout": "node.foreX", "target": -6, "stiffness": 0.2, "friction": 0.3}
                   },
                   {
-                    "core:axis_rotate": {"bone": "rightForeLeg", "axis": "x", "angle": {"mul": ["node.tuck", 95]}},
+                    "core:axis_rotate": {"bone": "centerRotation", "axis": "x", "angle": "node.lean"},
                     "@space": "override",
-                    "@damping": {"rightForeLeg": 0.8}
+                    "@damping": {"centerRotation": 0.8}
                   },
                   {
-                    "core:axis_rotate": {"bone": "leftForeLeg", "axis": "x", "angle": {"mul": ["node.tuck", 80]}},
+                    "core:axis_rotate": {
+                      "bone": "rightLeg",
+                      "axis": "x",
+                      "angle": {
+                        "add": [
+                          0,
+                          {"mul": [-20, {"smoothstep": ["nodeTicksElapsed", 0, 3]}]},
+                          {"mul": [-80, {"smoothstep": ["nodeTicksElapsed", 3, 7]}]},
+                          {"mul": [40, {"smoothstep": ["nodeTicksElapsed", 7, 10]}]},
+                          {"mul": [45, {"smoothstep": ["nodeTicksElapsed", 10, 13]}]},
+                          {"mul": [15, {"smoothstep": ["nodeTicksElapsed", 13, 16]}]}
+                        ]
+                      }
+                    },
                     "@space": "override",
-                    "@damping": {"leftForeLeg": 0.8}
+                    "@damping": {"rightLeg": 0.6}
+                  },
+                  {
+                    "core:axis_rotate": {
+                      "bone": "rightForeLeg",
+                      "axis": "x",
+                      "angle": {
+                        "add": [
+                          0,
+                          {"mul": [30, {"smoothstep": ["nodeTicksElapsed", 0, 3]}]},
+                          {"mul": [80, {"smoothstep": ["nodeTicksElapsed", 3, 7]}]},
+                          {"mul": [-40, {"smoothstep": ["nodeTicksElapsed", 7, 10]}]},
+                          {"mul": [-50, {"smoothstep": ["nodeTicksElapsed", 10, 13]}]},
+                          {"mul": [-20, {"smoothstep": ["nodeTicksElapsed", 13, 16]}]}
+                        ]
+                      }
+                    },
+                    "@space": "override",
+                    "@damping": {"rightForeLeg": 0.6}
+                  },
+                  {
+                    "core:axis_rotate": {
+                      "bone": "leftLeg",
+                      "axis": "x",
+                      "angle": {
+                        "add": [
+                          0,
+                          {"mul": [-10, {"smoothstep": ["nodeTicksElapsed", 0, 3]}]},
+                          {"mul": [25, {"smoothstep": ["nodeTicksElapsed", 3, 7]}]},
+                          {"mul": [-85, {"smoothstep": ["nodeTicksElapsed", 7, 10]}]},
+                          {"mul": [30, {"smoothstep": ["nodeTicksElapsed", 10, 13]}]},
+                          {"mul": [40, {"smoothstep": ["nodeTicksElapsed", 13, 16]}]}
+                        ]
+                      }
+                    },
+                    "@space": "override",
+                    "@damping": {"leftLeg": 0.6}
+                  },
+                  {
+                    "core:axis_rotate": {
+                      "bone": "leftForeLeg",
+                      "axis": "x",
+                      "angle": {
+                        "add": [
+                          0,
+                          {"mul": [15, {"smoothstep": ["nodeTicksElapsed", 0, 3]}]},
+                          {"mul": [-5, {"smoothstep": ["nodeTicksElapsed", 3, 7]}]},
+                          {"mul": [90, {"smoothstep": ["nodeTicksElapsed", 7, 10]}]},
+                          {"mul": [-50, {"smoothstep": ["nodeTicksElapsed", 10, 13]}]},
+                          {"mul": [-50, {"smoothstep": ["nodeTicksElapsed", 13, 16]}]}
+                        ]
+                      }
+                    },
+                    "@space": "override",
+                    "@damping": {"leftForeLeg": 0.6}
                   },
                   {
                     "core:clip": {
@@ -242,6 +328,8 @@
                   },
                   {"core:axis_rotate": {"bone": "rightArm", "axis": "x", "angle": "node.armX"}, "@space": "pre"},
                   {"core:axis_rotate": {"bone": "leftArm", "axis": "x", "angle": "node.armX"}, "@space": "pre"},
+                  {"core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": 4}, "@space": "pre"},
+                  {"core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": -4}, "@space": "pre"},
                   {
                     "core:axis_rotate": {"bone": "rightForeArm", "axis": "x", "angle": "node.foreX"},
                     "@space": "post"
@@ -251,7 +339,7 @@
                     "@space": "post"
                   },
                   {
-                    "core:axis_rotate": {"bone": "body", "axis": "x", "angle": "node.lean"},
+                    "core:axis_rotate": {"bone": "body", "axis": "x", "angle": 0},
                     "@space": "override",
                     "@damping": {"body": 0.5}
                   },
@@ -260,35 +348,123 @@
                     "@space": "override",
                     "@damping": {"head": 0.5}
                   },
-                  {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
-                ],
-                "enterPose": [
                   {
-                    "core:clip": {
-                      "animationKey": "mobends:bends/animations/iron_golem/rest.json",
-                      "bones": ["rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg"]
-                    }
+                    "core:axis_rotate": {
+                      "bone": "head",
+                      "axis": "x",
+                      "angle": {
+                        "add": [
+                          "entityHeadPitch",
+                          {
+                            "add": [
+                              0,
+                              {"mul": [25, {"smoothstep": ["nodeTicksElapsed", 0, 3]}]},
+                              {"mul": [-15, {"smoothstep": ["nodeTicksElapsed", 3, 10]}]},
+                              {"mul": [-10, {"smoothstep": ["nodeTicksElapsed", 10, 14]}]}
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "@space": "post"
                   }
                 ]
               },
               "@define": {
                 "shoulderHeight": {"constant": 1.9375},
+                "middle": {"constant": 1.35},
                 "upperArm": {"constant": 0.78125},
                 "foreArm": {"constant": 0.9375},
-                "ledgeTop": {"constant": {"add": [{"floor": ["entityWorldY"]}, 1]}},
-                "startX": {"constant": "entityWorldX"},
-                "startZ": {"constant": "entityWorldZ"},
                 "yaw": {"constant": {"mul": ["entityBodyYaw", 0.0174533]}},
-                "travel": {
-                  "live": {
-                    "add": [
-                      {"mul": [{"sub": ["entityWorldX", "node.startX"]}, {"neg": [{"sin": ["node.yaw"]}]}]},
-                      {"mul": [{"sub": ["entityWorldZ", "node.startZ"]}, {"cos": ["node.yaw"]}]}
+                "dirX": {
+                  "constant": {
+                    "if": [
+                      {"gt": [{"abs": [{"sin": ["node.yaw"]}]}, {"abs": [{"cos": ["node.yaw"]}]}]},
+                      {"if": [{"gt": [{"neg": [{"sin": ["node.yaw"]}]}, 0]}, 1, -1]},
+                      0
                     ]
                   }
                 },
-                "handAhead": {"live": {"sub": [0.95, "node.travel"]}},
-                "handBelow": {"live": {"sub": ["node.shoulderHeight", {"sub": ["node.ledgeTop", "entityWorldY"]}]}},
+                "dirZ": {
+                  "constant": {"if": [{"eq": ["node.dirX", 0]}, {"if": [{"gt": [{"cos": ["node.yaw"]}, 0]}, 1, -1]}, 0]}
+                },
+                "blockX": {"constant": {"add": [{"floor": ["entityWorldX"]}, "node.dirX"]}},
+                "blockZ": {"constant": {"add": [{"floor": ["entityWorldZ"]}, "node.dirZ"]}},
+                "startU": {
+                  "constant": {
+                    "sub": [
+                      {"add": [{"mul": ["entityWorldX", "node.dirX"]}, {"mul": ["entityWorldZ", "node.dirZ"]}]},
+                      {
+                        "add": [
+                          {"mul": ["node.blockX", "node.dirX"]},
+                          {"mul": ["node.blockZ", "node.dirZ"]},
+                          {"if": [{"gt": [{"add": ["node.dirX", "node.dirZ"]}, 0]}, 0, -1]}
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "u": {
+                  "live": {
+                    "add": [
+                      "node.startU",
+                      {
+                        "mul": [
+                          {"sub": [{"add": ["node.startU", 0.5]}, "node.startU"]},
+                          {"smoothstep": ["nodeTicksElapsed", 0, 3]}
+                        ]
+                      },
+                      {
+                        "mul": [
+                          {"sub": [{"add": ["node.startU", 0.55]}, {"add": ["node.startU", 0.5]}]},
+                          {"smoothstep": ["nodeTicksElapsed", 3, 9]}
+                        ]
+                      },
+                      {
+                        "mul": [
+                          {"sub": [{"add": ["node.startU", 0.85]}, {"add": ["node.startU", 0.55]}]},
+                          {"smoothstep": ["nodeTicksElapsed", 9, 12]}
+                        ]
+                      },
+                      {
+                        "mul": [
+                          {"sub": [0.5, {"add": ["node.startU", 0.85]}]},
+                          {"smoothstep": ["nodeTicksElapsed", 12, 17]}
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "h": {
+                  "live": {
+                    "add": [
+                      0,
+                      {"mul": [0.05, {"smoothstep": ["nodeTicksElapsed", 0, 4]}]},
+                      {"mul": [0.95, {"smoothstep": ["nodeTicksElapsed", 4, 11]}]}
+                    ]
+                  }
+                },
+                "handU": {"constant": 0.6},
+                "leanRad": {"live": {"mul": ["node.lean", 0.0174533]}},
+                "shoulderU": {
+                  "live": {
+                    "add": [
+                      "node.u",
+                      {"mul": [{"sub": ["node.shoulderHeight", "node.middle"]}, {"sin": ["node.leanRad"]}]}
+                    ]
+                  }
+                },
+                "shoulderH": {
+                  "live": {
+                    "add": [
+                      "node.h",
+                      "node.middle",
+                      {"mul": [{"sub": ["node.shoulderHeight", "node.middle"]}, {"cos": ["node.leanRad"]}]}
+                    ]
+                  }
+                },
+                "handAhead": {"live": {"sub": ["node.handU", "node.shoulderU"]}},
+                "handBelow": {"live": {"sub": ["node.shoulderH", 1]}},
                 "handDistance": {
                   "live": {
                     "sqrt": [
@@ -366,7 +542,7 @@
                           }
                         ]
                       },
-                      {"mul": [57.29578, {"atan2": ["node.handAhead", "node.handBelow"]}]}
+                      {"sub": [{"mul": [57.29578, {"atan2": ["node.handAhead", "node.handBelow"]}]}, "node.lean"]}
                     ]
                   }
                 },
@@ -388,26 +564,53 @@
                     ]
                   }
                 },
-                "overLedge": {"live": {"gt": ["entityWorldY", {"sub": ["node.ledgeTop", 0.05]}]}},
+                "grip": {"live": {"smoothstep": ["nodeTicksElapsed", 1, 4]}},
+                "drift": {"state": 0},
                 "released": {"state": false},
                 "armX": {"state": 0},
                 "foreX": {"state": 0},
-                "tuck": {"state": 0},
                 "lean": {"state": 0}
               },
               "@on": {
-                "enter": [{"set": ["animator.inJump", true]}],
+                "enter": [{"set": ["animator.inJump", true]}, {"set": ["animator.climbing", true]}],
                 "update": [
-                  {"@when": "node.overLedge", "set": ["node.released", true]},
-                  {"@when": {"not": ["node.released"]}, "set": ["node.armX", "node.plantArm"]},
-                  {"@when": {"not": ["node.released"]}, "set": ["node.foreX", "node.plantForeArm"]}
+                  {"@when": {"ge": ["nodeTicksElapsed", 10]}, "set": ["node.released", true]},
+                  {
+                    "@when": {"not": ["node.released"]},
+                    "set": ["node.armX", {"sub": ["node.plantArm", {"mul": [35, {"sub": [1, "node.grip"]}]}]}]
+                  },
+                  {
+                    "@when": {"not": ["node.released"]},
+                    "set": [
+                      "node.foreX",
+                      {
+                        "add": [{"mul": ["node.plantForeArm", "node.grip"]}, {"mul": [-10, {"sub": [1, "node.grip"]}]}]
+                      }
+                    ]
+                  },
+                  {
+                    "@when": {
+                      "or": [
+                        {"ge": ["nodeTicksElapsed", 19]},
+                        {"gt": ["node.drift", {"if": [{"gt": ["nodeTicksElapsed", 9]}, 0.8, 1.6]}]},
+                        {"gt": ["entity.attackTimer", 0]}
+                      ]
+                    },
+                    "set": ["animator.climbing", false]
+                  }
                 ]
               }
             }
           },
           "@connections": [
             {
-              "when": {"and": [{"not": ["layer.jumping"]}, {"ge": ["entityXZSpeed", "layer.walkStop"]}]},
+              "when": {
+                "and": [
+                  {"not": ["animator.climbing"]},
+                  {"not": ["layer.jumping"]},
+                  {"ge": ["entityXZSpeed", "layer.walkStop"]}
+                ]
+              },
               "then": "walk"
             }
           ]
@@ -415,7 +618,7 @@
       }
     },
     {
-      "@comment": "The golem stands and walks on its feet: step_turn plants them in the world, turns the body only as far as they have stepped (the leg on the side of the turn first) and, walking, steps the foot left behind to where the body will be, shifting and rolling the weight over the planted one. It is off while the golem jumps, given up within two ticks of liftoff so the jump's push-off shows. Vanilla rocks the whole golem side to side while it walks (RenderIronGolem.applyRotations: 6.5° on a triangle wave of the limb swing, while limbSwingAmount >= 0.01); the render rotation turns it back first. The upper body reacts, as much as it stands on its feet: the torso leads a turn, the arms lag behind it, swing against the legs and out when a foot lands, the head keeps looking where the golem looks. Landing, the whole golem gives under its weight (a kick on a spring): it sinks, the knees and elbows bend, the arms swing out, the torso and head nod.",
+      "@comment": "The golem stands and walks on its feet: step_turn plants them in the world, turns the body only as far as they have stepped (the leg on the side of the turn first) and, walking, steps the foot left behind to where the body will be, shifting and rolling the weight over the planted one. It is off while the golem jumps, given up within two ticks of liftoff so the jump's push-off shows. Vanilla rocks the whole golem side to side while it walks (RenderIronGolem.applyRotations: 6.5° on a triangle wave of the limb swing, while limbSwingAmount >= 0.01); the render rotation turns it back first. The upper body reacts, as much as it stands on its feet: the torso leads a turn, the arms lag behind it, swing against the legs and out when a foot lands, the head keeps looking where the golem looks. Landing, the whole golem gives under its weight (a kick on a spring): it sinks, the knees and elbows bend, the arms swing out, the torso and head nod. Not while climbing, whose anchor holds the whole model where it is drawn and leans it; after a climb, the whole model glides back to the entity, upright.",
       "defaultOnEntry": "planted",
       "nodes": {
         "planted": {
@@ -584,7 +787,17 @@
                 },
                 "@space": "pre"
               },
-              {"core:vector": {"bone": "root", "y": {"mul": ["node.landKick", -1.5]}}},
+              {
+                "@when": {"not": ["animator.climbing"]},
+                "core:axis_rotate": {"bone": "centerRotation", "axis": "x", "angle": 0},
+                "@space": "override",
+                "@damping": {"centerRotation": 0.3}
+              },
+              {
+                "@when": {"not": ["animator.climbing"]},
+                "core:vector": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1.5]}, "z": 0},
+                "@damping": {"root": [0.2, null, 0.2]}
+              },
               {
                 "core:axis_rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.landKick", 5]}},
                 "@space": "post"
@@ -656,7 +869,14 @@
             "landing": {"state": 0},
             "landKick": {"state": 0}
           },
-          "@on": {"update": [{"@when": {"decreased": ["entityTicksAfterTouchdown"]}, "set": ["node.landing", 1]}]}
+          "@on": {
+            "update": [
+              {
+                "@when": {"and": [{"decreased": ["entityTicksAfterTouchdown"]}, {"not": ["animator.climbing"]}]},
+                "set": ["node.landing", 1]
+              }
+            ]
+          }
         }
       }
     }

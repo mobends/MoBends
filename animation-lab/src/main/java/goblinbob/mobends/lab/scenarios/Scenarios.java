@@ -345,13 +345,20 @@ public class Scenarios
             if (tick == 90) in.jump = true;
         }));
 
-        // A block two wide across its path: it walks into it (at tick 38), jumps onto it (vaulting),
+        // A block two wide across its path: it walks into it (at tick 38), jumps onto it (climbing),
         // walks across and steps off the far side (falling, an open-field jump).
-        add(new Scenario(EntityKind.IRON_GOLEM, "vault_ledge", FPS, 140, (tick, in) -> {
+        add(new Scenario(EntityKind.IRON_GOLEM, "climb_ledge", FPS, 140, (tick, in) -> {
             if (between(tick, 20, 110)) walk(in, GOLEM_SPEED);
             if (tick == 42) in.jump = true;
             lookAround(in, tick);
         }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4)));
+
+        // The same climb, but once up it hurries on: far from where the climb draws it, the climb
+        // gives up and the golem glides back to where it is.
+        add(new Scenario(EntityKind.IRON_GOLEM, "climb_given_up", FPS, 100, (tick, in) -> {
+            if (between(tick, 20, 90)) walk(in, tick > 50 ? SPRINT_SPEED : GOLEM_SPEED);
+            if (tick == 42) in.jump = true;
+        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 8)));
 
         // --- Squid ------------------------------------------------------------------------------
         add(new Scenario(EntityKind.SQUID, "swim", FPS, 120, (tick, in) -> {
