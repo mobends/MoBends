@@ -18,7 +18,7 @@ import java.util.Map;
  * A scriptable stand-in for the client world: a sparse block map and a flat floor. Stone in the
  * map is solid (a full cube), as the floor is; every other block is passable.
  */
-public class World
+public class World implements IBlockAccess
 {
     public boolean isRemote = true;
 
@@ -43,6 +43,11 @@ public class World
         IBlockState state = blocks.get(key(pos.getX(), pos.getY(), pos.getZ()));
         if (state != null) return state;
         return pos.getY() < floorY ? Blocks.STONE.getDefaultState() : Blocks.AIR.getDefaultState();
+    }
+
+    public boolean isAirBlock(BlockPos pos)
+    {
+        return getBlockState(pos).getBlock() == Blocks.AIR;
     }
 
     public List<AxisAlignedBB> getCollisionBoxes(Entity entity, AxisAlignedBB box)

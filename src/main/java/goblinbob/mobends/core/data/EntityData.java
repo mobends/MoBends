@@ -115,7 +115,9 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         // Read through the field, which the lab replaces with a seeded one.
         registerVariable("random", () -> random.nextDouble());
         registerVariable("entityId", () -> entity != null ? entity.getEntityId() : 0);
+        registerVariable("entityMotionX", () -> motionX);
         registerVariable("entityMotionY", () -> motionY);
+        registerVariable("entityMotionZ", () -> motionZ);
         registerVariable("entityPrevMotionY", () -> prevMotionY);
         registerVariable("entityInterpolatedMotionY", this::getInterpolatedMotionY);
         registerVariable("entitySpeed", this::getInterpolatedMotionMagnitude);

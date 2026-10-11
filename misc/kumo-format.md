@@ -360,6 +360,9 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | `core:two_bone_ik`, `core:three_bone_ik` | `segments` (each a `bone` and its rest `pivot`; after the first, `bend` and `bendDirection`), `end`, `target` (`{"x", "y", "z"}`, double expressions, in the world), `weight` (0..1, default 1), `parents`, `out` (`stretch`): puts the end of a chain of two or three bones (an arm, a leg) on a point in the world, each joint pointing a way in the world (see *Reaching into the world*) |
 | `core:raycast` | `from` (`{"x", "y", "z"}`, double expressions, in the world), `direction` (number expressions, any length), `distance` (blocks), `liquids` (default false), `debug` (default false: draws the ray), `out` (`hitX`, `hitY`, `hitZ`: doubles; `normalX`, `normalY`, `normalZ`): casts a ray through the blocks every frame, and says where it hit and which way the surface faces (see *Reaching into the world*) |
 | `core:raycast_array` | `core:raycast`'s fields, and `count` (rays, 1 to 64, default 16), `spread` (degrees from `direction` to the edge of the cone, default 15), `surface` (number expressions: only hits on surfaces facing that way count): casts a spread of rays round `direction` and keeps the hit closest to it, with `core:raycast`'s outputs (see *Reaching into the world*) |
+| `core:block_below` | `distance` (blocks), `solid` (default false), `out` (`blockX`, `blockY`, `blockZ`: doubles; `found`): the block the entity stands on, or the first one under its feet no more than `distance` below them (see *Reaching into the world*) |
+| `core:block_gradient` | `at` (`{"x", "y", "z"}`, double expressions, in the world), `solid` (default false), `out` (`gradientX`, `gradientY`, `gradientZ`, `normalX`, `normalY`, `normalZ`): which way the ground rises round a block, from the 3x3x3 blocks round it, and which way it faces (see *Reaching into the world*) |
+| `core:step_up` | `direction` (number expressions, `x` and `z`), `distance` (blocks), `height` (blocks), `solid` (default false), `debug` (default false), `out` (`found`; `stepX`, `stepY`, `stepZ`: doubles; `faceX`, `faceZ`): the step one block up ahead, with room on it for something `height` tall, that a mob walking that way would climb onto (see *Reaching into the world*) |
 | `mobends:cape` | the player's cape physics |
 | `mobends:sword_trail` | `add`, `resetOnEnter`, `resetEachFrame`, `velocity`: feeds the sword trail |
 | `mobends:spider_idle_legs`, `mobends:spider_moving_legs` | the spider's inverse-kinematics gaits (see the templates' fields); `out` (`groundLevel`), `reset` (a state that, non-zero when the node starts, re-plants the feet, and is cleared) |
@@ -482,6 +485,33 @@ a hand put on a ledge, a foot on a step.
   `{"y": 1}` keeps tops, so a ray striking the ledge's face near the middle doesn't win over one
   that found its top. Where none count, the outputs are a miss along `direction`. It casts every
   ray every frame its node is posed.
+* **`core:block_below`** finds the ground under the entity: down the column of blocks its
+  position is in, from the block its feet are in (on a block's top, the one under it), the first
+  block whose top is no more than `distance` blocks below its feet. Its outputs are the block
+  (`blockX`, `blockY`, `blockZ`, double states) and `found`, 1 or 0; where it finds none, the block
+  is the one the feet are in. Any block but air counts, or, with `solid`, only blocks something
+  collides with (not water, tall grass or a torch).
+* **`core:block_gradient`** looks at the 3x3x3 blocks round `at` (the block from
+  `core:block_below`) and says which way the ground rises there: the blocks that count (as
+  `core:block_below`'s `solid` says) lean the surface away from them, as a plane fitted through
+  them would. `normalX`, `normalY`, `normalZ` is which way it faces, a unit vector: straight up on
+  flat ground. `gradientX`, `gradientY`, `gradientZ` is the way up it, the direction of quickest
+  ascent: zero on flat ground, and beside a step up, pointing at the step (and up); its length is
+  the sine of the slope. Where nothing round the block counts (or it is buried), every output is
+  zero. It sees a step only next to the block in the middle.
+
+* **`core:step_up`** looks for a step to climb onto, ahead of the entity: from its position it
+  goes along `direction` (across the ground; `{"x": "entityMotionX", "z": "entityMotionZ"}` is the
+  way it walks), column of blocks by column, for up to `distance` blocks. The first column with a
+  block at the height of its feet is the step; one whose ground is gone first (a drop) ends the
+  search. The step counts if it is one block up, with `height` blocks of room on it and room above
+  the entity's head to rise onto it. Its outputs are `found` (1 or 0), the step's block (`stepX`,
+  `stepY`, `stepZ`, double states) and the way into its near face (`faceX`, `faceZ`: one is 1 or -1,
+  the other 0), the face the search went through, so walking into a ledge at an angle it is still
+  the ledge's face. Where it finds none it writes only `found`, so the others keep the last step it
+  found. With `"debug": true` it draws the search half a block above the feet: green up to a step,
+  red up to a block it can't climb, grey where it found nothing. The iron golem looks ahead with
+  it as it walks, and climbs when it jumps close to the last step it found.
 * With **`"debug": true`**, either draws its rays over the world, through blocks and the model, as
   it casts them: the hit that is the output green, with a cross where it hit and a cyan tick along
   the surface's normal; `core:raycast_array`'s other hits yellow, its hits on a surface facing the
@@ -690,7 +720,7 @@ operation, or a definition of the mob's model definition (see *Model definitions
 | `entityIsUnderwater`, `entityLedgeHeight`, `entityClimbingRotation` | Mo' Bends' block checks around the entity |
 | `entityIsDrawingBow`, `entityIsRidingLiving` | the held items; whether what the entity rides is living |
 | `entityIsStandingStill`, `entityIsStrafing` | Mo' Bends' measured motion |
-| `entityMotionY`, `entityPrevMotionY`, `entityInterpolatedMotionY`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity (vanilla's motion fields read 0 for the entities the server moves). `entitySpeed` and `entityXZSpeed` are magnitudes interpolated by `partialTicks`; a rider's include what carries it |
+| `entityMotionX`, `entityMotionY`, `entityMotionZ`, `entityPrevMotionY`, `entityInterpolatedMotionY`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity (vanilla's motion fields read 0 for the entities the server moves). `entitySpeed` and `entityXZSpeed` are magnitudes interpolated by `partialTicks`; a rider's include what carries it |
 | `entityBodyYaw`, `entityWorldX`, `entityWorldY`, `entityWorldZ` | the body yaw and the position, interpolated as the renderer does (`core:step_turn`'s, `core:anchor`'s and the IK's default inputs). The position is in doubles (see *Expressions*) |
 | `entityHeight` | the entity's height, in blocks (vanilla's `height`): what the renderer turns `centerRotation` about half of |
 | `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` | relative to the ridden entity (0 unless riding something living) |

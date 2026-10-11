@@ -23,7 +23,7 @@ public final class EntityBuiltIns
             "entityTicksInAir", "entityTicksAfterTouchdown", "entityTicksFalling", "entityTicksAfterAttack",
             "entityLedgeHeight", "entityClimbingRotation", "entityClimbingCycle",
             "entityClimbingRenderYaw", "entityClimbingBodyYaw", "entityClimbingHeadYaw",
-            "entityMotionY", "entityPrevMotionY", "entityInterpolatedMotionY", "entitySpeed", "entityXZSpeed",
+            "entityMotionX", "entityMotionY", "entityMotionZ", "entityPrevMotionY", "entityInterpolatedMotionY", "entitySpeed", "entityXZSpeed",
             "entityForwardMomentum", "entitySidewaysMomentum",
             "entityBodyYaw", "entityRidingRelativeHeadYaw", "entityRidingRelativeYaw", "entityHeight"));
 

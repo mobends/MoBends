@@ -106,50 +106,110 @@ class GolemClimbTest
     }
 
     @Test
-    void aHandWithNothingToGrabDoesntReach() throws Exception
+    void aLedgeOffToOneSideTurnsItTowardsTheLedge() throws Exception
     {
-        // The ledge only on the left (x 0..2): under the right hand (x -0.2) there is a gap.
+        // The ledge only on the left (x 0..2): square on, the right hand (x -0.2) would be over a
+        // gap, but the ground rises towards the ledge's side, so the golem turns that way, and
+        // the right hand comes over the ledge and grabs its top.
         Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_gap", Scenarios.FPS, 140, (tick, in) -> {
             if (tick >= 20 && tick < 110) Scripts.walk(in, Scripts.GOLEM_SPEED);
             if (tick == 42) in.jump = true;
         }, data -> LabWorlds.placeStone(data.getEntity().world, 0, 0, 3, 2, 0, 4));
-        boolean leftHeld = false;
+        double[] grabbed = null;
         for (double[] frame : climb(scenario))
         {
             if (!planted(frame)) continue;
-            assertEquals(0, GolemHands.distance(left(frame), LEFT_SPOT), 0.005, "the left hand at tick " + frame[0]);
-            leftHeld = true;
-            assertTrue(GolemHands.distance(right(frame), RIGHT_SPOT) > 0.2, "the right hand stays off the gap");
+            double[] right = right(frame);
+            if (grabbed == null) grabbed = right;
+            assertTrue(right[0] >= 0 && right[0] <= 2, "the right hand over the ledge, at x " + right[0]);
+            assertEquals(1, right[1], 0.005, "the right hand on the top at tick " + frame[0]);
+            assertEquals(0, GolemHands.distance(right, grabbed), 0.005, "the right hand held at tick " + frame[0]);
+            assertTrue(left(frame)[0] > right[0], "the left hand to its left at tick " + frame[0]);
         }
-        assertTrue(leftHeld);
+        assertTrue(grabbed != null, "it climbs");
     }
 
     @Test
-    void aLedgeFurtherThanExpectedIsStillFound() throws Exception
+    void aJumpShortOfTheLedgeStillClimbsOntoIt() throws Exception
     {
-        // It jumps before reaching the face, 0.4 short of it: the climb takes the block next to
-        // the one its feet are in, a block short of the ledge, and aims the rays at air in front of
-        // it. The spread finds the top just past the real edge.
+        // It jumps before reaching the face, 0.4 short of it (1.1 from it): the step it walked
+        // towards is the climb's, so the hands go on its top where climb_ledge's do.
         Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_early", Scenarios.FPS, 140, (tick, in) -> {
             if (tick >= 20 && tick < 110) Scripts.walk(in, Scripts.GOLEM_SPEED);
             if (tick == 34) in.jump = true;
         }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4));
-        double[][] first = new double[2][];
         int held = 0;
         for (double[] frame : climb(scenario))
         {
             if (!planted(frame)) continue;
             held++;
-            double[][] hands = {right(frame), left(frame)};
-            for (int h = 0; h < 2; h++)
-            {
-                if (first[h] == null) first[h] = hands[h];
-                assertEquals(1, hands[h][1], 0.005, "on the top");
-                assertTrue(hands[h][2] >= 3 && hands[h][2] < 3.2, "just past the edge: " + hands[h][2]);
-                assertEquals(0, GolemHands.distance(hands[h], first[h]), 0.005, "holds still");
-            }
+            assertEquals(0, GolemHands.distance(right(frame), RIGHT_SPOT), 0.005, "the right hand at tick " + frame[0]);
+            assertEquals(0, GolemHands.distance(left(frame), LEFT_SPOT), 0.005, "the left hand at tick " + frame[0]);
         }
         assertTrue(held >= 6, "it holds on: " + held + " frames");
+    }
+
+    @Test
+    void backingAwayFromTheLedgeItJumps() throws Exception
+    {
+        // It walks into the face, as climb_ledge does, then backs off and jumps.
+        Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_backing_away", Scenarios.FPS, 100, (tick, in) -> {
+            if (tick >= 20 && tick < 40) Scripts.walk(in, Scripts.GOLEM_SPEED);
+            if (tick >= 42 && tick < 60) Scripts.walk(in, -Scripts.GOLEM_SPEED);
+            if (tick == 46) in.jump = true;
+        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4));
+        assertTrue(climb(scenario).isEmpty(), "no climb");
+    }
+
+    @Test
+    void walkingAlongALedgeItJumps() throws Exception
+    {
+        // Facing +X, along the face of a ledge beside it (its near face at z 2, 0.8 from its side).
+        Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_along", Scenarios.FPS, 80, (tick, in) -> {
+            in.bodyYaw = -90;
+            if (tick >= 20 && tick < 60) Scripts.walk(in, Scripts.GOLEM_SPEED);
+            if (tick == 40) in.jump = true;
+        }, data -> LabWorlds.placeStone(data.getEntity().world, -10, 0, 2, 10, 0, 3));
+        assertTrue(climb(scenario).isEmpty(), "no climb");
+    }
+
+    @Test
+    void aWallTooHighOrWithoutRoomOnItIsAJump() throws Exception
+    {
+        String[] cases = {"wall", "ceiling"};
+        for (String which : cases)
+        {
+            Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_" + which, Scenarios.FPS, 100, (tick, in) -> {
+                if (tick >= 20 && tick < 90) Scripts.walk(in, Scripts.GOLEM_SPEED);
+                if (tick == 42) in.jump = true;
+            }, data -> {
+                LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, which.equals("wall") ? 1 : 0, 4);
+                if (which.equals("ceiling")) LabWorlds.placeStone(data.getEntity().world, -2, 3, 3, 2, 3, 4);
+            });
+            assertTrue(climb(scenario).isEmpty(), "no climb at the " + which);
+        }
+    }
+
+    @Test
+    void walkingAwayFromTheLedgeItGivesUpEarly() throws Exception
+    {
+        // climb_ledge, but a few ticks into the climb it backs away from the ledge.
+        double kept = climbLength(Scenarios.byId("iron_golem/climb_ledge"));
+        Scenario scenario = new Scenario(EntityKind.IRON_GOLEM, "climb_backing_off", Scenarios.FPS, 140, (tick, in) -> {
+            if (tick >= 20 && tick < 110) Scripts.walk(in, tick >= 44 ? -Scripts.GOLEM_SPEED : Scripts.GOLEM_SPEED);
+            if (tick == 42) in.jump = true;
+        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4));
+        double given = climbLength(scenario);
+        assertTrue(kept >= 15, "climb_ledge climbs on: " + kept + " ticks");
+        assertTrue(given >= 3 && given < 10, "given up before it is drawn up onto the ledge: " + given + " ticks");
+    }
+
+    /** How many ticks the climb lasts. */
+    private static double climbLength(Scenario scenario) throws Exception
+    {
+        List<double[]> frames = climb(scenario);
+        assertFalse(frames.isEmpty(), "it climbs");
+        return frames.get(frames.size() - 1)[0];
     }
 
     @Test

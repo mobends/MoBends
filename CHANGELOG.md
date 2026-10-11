@@ -33,6 +33,11 @@
   or a leg on a point in the world, each joint pointing a way in the world. Climbing onto a block,
   the iron golem grabs the top where its hands find it and holds on while it hauls itself up. With `"debug": true`, the
   rays are drawn over the world, colored by what they hit, to see what an animation finds.
+- Animations can read the ground: `core:block_below` finds the block under the feet,
+  `core:block_gradient` which way the ground rises round it, and `core:step_up` the step one block
+  up ahead, with room on it. The iron golem looks ahead for a step as it walks, and climbs when it
+  jumps close to one it is walking towards (a jump otherwise); it gives up early, mid-air, if it
+  backs away from the ledge.
 - A server's own resource pack can add types and extensions too.
 - Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
   several apply to the same mob.

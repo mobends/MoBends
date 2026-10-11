@@ -1,13 +1,58 @@
 {
   "formatVersion": 2,
-  "@define": {"inJump": {"state": false}, "climbing": {"state": false}},
+  "@define": {
+    "inJump": {"state": false},
+    "climbing": {"state": false}
+  },
   "layers": [
     {
-      "@comment": "Golems wander at about 0.0496 blocks a tick, just under the MOVING_HORIZONTALLY dead zone (0.05), so the walk goes by the golem's own speed thresholds, apart to keep it from flickering. Between the two thresholds the selector chooses nothing, so the golem keeps standing or walking; landing between them, it walks (the airborne machine's connection).",
+      "@comment": "Golems wander at about 0.0496 blocks a tick, just under the MOVING_HORIZONTALLY dead zone (0.05), so the walk goes by the golem's own speed thresholds, apart to keep it from flickering. Between the two thresholds the selector chooses nothing, so the golem keeps standing or walking; landing between them, it walks (the airborne machine's connection). The climb candidate: walking, the golem looks ahead the way it moves for a step one block up with room on it (core:step_up, in the walk), and keeps the last it found: the step's block, the way into its face, and when it last saw it (climbSeenAt, in ticks). Where it hasn't seen it for more than staleThreshold ticks, the step has gone stale, and the golem doesn't count on it any more. On the ground, every frame, climbReady says whether that step is still the one it would climb onto: it isn't stale, its feet are within half a block of the step's foot (on the ground one below its top; loosely, as on the client the drawn position, smoothed over the server's updates, can rise before entityIsOnGround says it left the ground), no further than climbReach blocks from the face (pressed against it, the golem is 0.7 from it), and it isn't moving away from it. As it lifts off, climbReady is the last the ground said, and the airborne machine takes the climb or the jump by it.",
       "@define": {
         "walkStart": {"live": 0.02},
         "walkStop": {"live": 0.01},
-        "jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}}
+        "jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}},
+        "climbFound": {"state": false},
+        "climbX": {"state": {"toDouble": [0]}},
+        "climbY": {"state": {"toDouble": [0]}},
+        "climbZ": {"state": {"toDouble": [0]}},
+        "climbFaceX": {"state": 0},
+        "climbFaceZ": {"state": 0},
+        "climbGradientX": {"state": 0},
+        "climbGradientZ": {"state": 0},
+        "climbSeenAt": {"state": 0},
+        "staleThreshold": {"live": 20},
+        "climbReach": {"live": 1.5},
+        "climbFaceDistance": {
+          "live": {
+            "add": [
+              {"mul": [{"toFloat": [{"sub": ["layer.climbX", "entityWorldX"]}]}, "layer.climbFaceX"]},
+              {"mul": [{"toFloat": [{"sub": ["layer.climbZ", "entityWorldZ"]}]}, "layer.climbFaceZ"]},
+              {"if": [{"lt": [{"add": ["layer.climbFaceX", "layer.climbFaceZ"]}, 0]}, -1, 0]}
+            ]
+          }
+        },
+        "climbReady": {"state": false}
+      },
+      "@on": {
+        "update": [
+          {
+            "@when": {"not": ["layer.jumping"]},
+            "set": [
+              "layer.climbReady",
+              {
+                "and": [
+                  "layer.climbFound",
+                  {"ge": [{"sub": ["ticks", "layer.climbSeenAt"]}, 0]},
+                  {"le": [{"sub": ["ticks", "layer.climbSeenAt"]}, "layer.staleThreshold"]},
+                  {"lt": [{"abs": [{"toFloat": [{"sub": ["entityWorldY", "layer.climbY"]}]}]}, 0.5]},
+                  {"ge": ["layer.climbFaceDistance", 0]},
+                  {"le": ["layer.climbFaceDistance", "layer.climbReach"]},
+                  {"ge": [{"add": [{"mul": ["entityMotionX", "layer.climbFaceX"]}, {"mul": ["entityMotionZ", "layer.climbFaceZ"]}]}, -0.01]}
+                ]
+              }
+            ]
+          }
+        ]
       },
       "select": [
         {"when": {"or": ["layer.jumping", "animator.climbing"]}, "then": "airborne"},
@@ -57,6 +102,32 @@
           "core:pose": {
             "pose": [
               {
+                "@when": {"gt": ["entityXZSpeed", 0.005]},
+                "core:step_up": {
+                  "direction": {"x": "entityMotionX", "z": "entityMotionZ"},
+                  "distance": 3,
+                  "height": 2.7,
+                  "solid": true,
+                  "out": {
+                    "found": "node.stepFound",
+                    "stepX": "node.stepX", "stepY": "node.stepY", "stepZ": "node.stepZ",
+                    "faceX": "node.faceX", "faceZ": "node.faceZ"
+                  }
+                }
+              },
+              {
+                "@when": {"gt": ["node.stepFound", 0]},
+                "core:block_gradient": {
+                  "at": {
+                    "x": {"sub": ["node.stepX", {"toDouble": ["node.faceX"]}]},
+                    "y": {"sub": ["node.stepY", 1]},
+                    "z": {"sub": ["node.stepZ", {"toDouble": ["node.faceZ"]}]}
+                  },
+                  "solid": true,
+                  "out": {"gradientX": "node.gradientX", "gradientZ": "node.gradientZ"}
+                }
+              },
+              {
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/rest.json"},
                 "@damping": {
                   "rightArm": 0.5,
@@ -87,13 +158,37 @@
               }
             ]
           },
-          "@on": {"enter": [{"set": ["animator.inJump", false]}]}
+          "@define": {
+            "stepFound": {"state": 0},
+            "stepX": {"state": {"toDouble": [0]}},
+            "stepY": {"state": {"toDouble": [0]}},
+            "stepZ": {"state": {"toDouble": [0]}},
+            "faceX": {"state": 0},
+            "faceZ": {"state": 0},
+            "gradientX": {"state": 0},
+            "gradientZ": {"state": 0}
+          },
+          "@on": {
+            "enter": [{"set": ["animator.inJump", false]}],
+            "update": [
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbFound", true]},
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbX", "node.stepX"]},
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbY", "node.stepY"]},
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbZ", "node.stepZ"]},
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbFaceX", "node.faceX"]},
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbFaceZ", "node.faceZ"]},
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbGradientX", "node.gradientX"]},
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbGradientZ", "node.gradientZ"]},
+              {"@when": {"gt": ["node.stepFound", 0]}, "set": ["layer.climbSeenAt", "ticks"]}
+            ]
+          }
         }
       },
       "machines": {
         "airborne": {
-          "@comment": "In the air, and climbing: a climb when it lifted off with a ledge ahead to climb onto (read once, as it leaves the ground), a jump otherwise. The climb outlasts the jump: the layer stays here while animator.climbing holds.",
-          "@define": {"climb": {"constant": {"core:ledge_ahead": []}}},
+          "@comment": "In the air, and climbing: a climb when it lifted off with a climb candidate ready (the layer's climbReady, as the ground left it: walking towards a step one block up with room on it, close to its face), a jump otherwise. The climb outlasts the jump: the layer stays here while animator.climbing holds.",
+          "@define": {"climb": {"state": false}},
+          "@on": {"enter": [{"set": ["machine.climb", "layer.climbReady"]}]},
           "select": [{"when": "machine.climb", "then": "climb"}, {"then": "jump"}],
           "nodes": {
             "jump": {
@@ -186,7 +281,7 @@
               "@on": {"enter": [{"set": ["animator.inJump", true]}]}
             },
             "climb": {
-              "@comment": "Lifting off against a ledge (a block in front of its feet), it climbs onto it, slower than its own jump: core:anchor draws it where the climb has got to, in the coordinates of the block ahead (u into the block from its near face, h up from the ground; the block is taken in doubles, which a position far from the origin needs), while the entity itself is already up there; across the climb it holds where it lifted off until the hands let go (a golem walking into the block at an angle slides along it, and would pull away from its hands), then follows the entity. Each hand looks for the top it can grab with a ray cast from its shoulder as it lifts off, ahead and down onto the ledge, aimed at three quarters of a block past the near edge on a block's top (core:raycast_array: a spread of rays round that aim, keeping the closest that finds a top, so a ledge a little off where it is expected is still found), so it clears the edge, and going on up to 5 blocks for a lower top. A golem that walks into the block at an angle squares up to it as it lifts off (the whole model turned about its middle, back as the climb hands it back), so the rays go the way it then faces and each hand grabs ahead of its shoulder; the hands reach out along the rays and slam down on what they find, and core:two_bone_ik keeps them there every frame, wherever the climb draws the golem and however it leans, the elbows pointing back and out; once the shoulders are out of reach they stay straight, pushing. A hand whose rays find no top to grab above the ground it stood on (a wide gap beside the ledge, or a face too high to reach over) doesn't reach. Reaching, it steps half a block in towards the block (closer than the entity can stand), then hauls itself up the face, leaning into it, the right knee comes up onto the top, then the left; the hands let go and the arms swing back on springs, overshooting and settling, heavy; it walks onto the middle of the block and is handed back to where it really is. It gives up, gliding back to the entity, if the entity gets far from where it is drawn (knocked away, or hurrying on once it is up: further than the climb's own lag, 1.6 blocks while it rises, 0.8 once it is up) or attacks. The arm's pivots are ModelIronGolem's, as the split cuts them (the elbow on the back of the arm, half way down; the hand at the bottom of the arm, off to its side).",
+              "@comment": "Lifting off towards the climb candidate (a step one block up with room on it, which the walk found ahead of it; see the layer), it climbs onto it, slower than its own jump: core:anchor draws it where the climb has got to, in the coordinates of the block ahead (u into the block from its near face, h up from the ground; the block is taken in doubles, which a position far from the origin needs), while the entity itself is already up there; across the climb it holds where it lifted off until the hands let go (a golem walking into the block at an angle slides along it, and would pull away from its hands), then follows the entity. Each hand looks for the top it can grab with a ray cast from its shoulder as it lifts off, ahead and down onto the ledge, aimed at three quarters of a block past the near edge on a block's top (core:raycast_array: a spread of rays round that aim, keeping the closest that finds a top, so a ledge a little off where it is expected is still found), so it clears the edge, and going on up to 5 blocks for a lower top. As it lifts off, it turns to face up the ground (the whole model turned about its middle, back as the climb hands it back): the way the ground rises round the cell in front of the step's face (core:block_gradient, which the walk samples with the candidate), straight at the face beside a straight ledge, towards the ledge's side beside one that ends; where the ground rises no way, or more than 60 degrees off the face, it squares up to the face. The rays go the way it then faces and each hand grabs ahead of its shoulder; the hands reach out along the rays and slam down on what they find, and core:two_bone_ik keeps them there every frame, wherever the climb draws the golem and however it leans, the elbows pointing back and out; once the shoulders are out of reach they stay straight, pushing. A hand whose rays find no top to grab above the ground it stood on (a wide gap beside the ledge, or a face too high to reach over) doesn't reach. Reaching, it steps in to 0.2 blocks from the face (closer than the entity can stand, which is 0.7; lifting off further back, it steps in further: its waypoints are measured from the face, not from where it lifted off), then hauls itself up the face, leaning into it, the right knee comes up onto the top, then the left; the hands let go and the arms swing back on springs, overshooting and settling, heavy; it walks onto the middle of the block and is handed back to where it really is. It gives up, gliding back to the entity, if the entity gets far from where it is drawn (knocked away, or hurrying on once it is up: further than the climb's own lag, 1.6 blocks while it rises, 0.8 once it is up) or attacks. Between ticks 3 and 10, before the climb draws it up onto the block, it also gives up if it moves away from the ledge; still in the air, the airborne machine then hands it to the jump. The arm's pivots are ModelIronGolem's, as the split cuts them (the elbow on the back of the arm, half way down; the hand at the bottom of the arm, off to its side).",
               "core:pose": {
                 "pose": [
                   {
@@ -443,22 +538,11 @@
                 ]
               },
               "@define": {
-                "yaw": {"constant": {"mul": ["entityBodyYaw", 0.0174533]}},
-                "dirX": {
-                  "constant": {
-                    "if": [
-                      {"gt": [{"abs": [{"sin": ["node.yaw"]}]}, {"abs": [{"cos": ["node.yaw"]}]}]},
-                      {"if": [{"gt": [{"neg": [{"sin": ["node.yaw"]}]}, 0]}, 1, -1]},
-                      0
-                    ]
-                  }
-                },
-                "dirZ": {
-                  "constant": {"if": [{"eq": ["node.dirX", 0]}, {"if": [{"gt": [{"cos": ["node.yaw"]}, 0]}, 1, -1]}, 0]}
-                },
-                "blockX": {"constant": {"add": [{"floor": ["entityWorldX"]}, {"toDouble": ["node.dirX"]}]}},
-                "blockY": {"constant": {"floor": ["entityWorldY"]}},
-                "blockZ": {"constant": {"add": [{"floor": ["entityWorldZ"]}, {"toDouble": ["node.dirZ"]}]}},
+                "dirX": {"constant": "layer.climbFaceX"},
+                "dirZ": {"constant": "layer.climbFaceZ"},
+                "blockX": {"constant": "layer.climbX"},
+                "blockY": {"constant": "layer.climbY"},
+                "blockZ": {"constant": "layer.climbZ"},
                 "startU": {
                   "constant": {
                     "sub": [
@@ -478,25 +562,25 @@
                       "node.startU",
                       {
                         "mul": [
-                          {"sub": [{"add": ["node.startU", 0.5]}, "node.startU"]},
+                          {"sub": [-0.2, "node.startU"]},
                           {"smoothstep": ["nodeTicksElapsed", 0, 3]}
                         ]
                       },
                       {
                         "mul": [
-                          {"sub": [{"add": ["node.startU", 0.55]}, {"add": ["node.startU", 0.5]}]},
+                          {"sub": [-0.15, -0.2]},
                           {"smoothstep": ["nodeTicksElapsed", 3, 9]}
                         ]
                       },
                       {
                         "mul": [
-                          {"sub": [{"add": ["node.startU", 0.85]}, {"add": ["node.startU", 0.55]}]},
+                          {"sub": [0.15, -0.15]},
                           {"smoothstep": ["nodeTicksElapsed", 9, 12]}
                         ]
                       },
                       {
                         "mul": [
-                          {"sub": [0.5, {"add": ["node.startU", 0.85]}]},
+                          {"sub": [0.5, 0.15]},
                           {"smoothstep": ["nodeTicksElapsed", 12, 17]}
                         ]
                       }
@@ -514,21 +598,35 @@
                 },
                 "shoulderSpread": {"constant": 0.6875},
                 "shoulderY": {"constant": {"add": ["node.blockY", 1.94]}},
-                "faceX": {"constant": "node.dirX"},
-                "faceZ": {"constant": "node.dirZ"},
-                "leftX": {"constant": "node.dirZ"},
-                "leftZ": {"constant": {"neg": ["node.dirX"]}},
-                "axisYaw": {
-                  "constant": {"if": [{"eq": ["node.dirX", 0]}, {"if": [{"gt": ["node.dirZ", 0]}, 0, 3.14159265]}, {"mul": ["node.dirX", -1.5707963]}]}
+                "gradientLength": {
+                  "constant": {"sqrt": [{"add": [{"mul": ["layer.climbGradientX", "layer.climbGradientX"]}, {"mul": ["layer.climbGradientZ", "layer.climbGradientZ"]}]}]}
                 },
+                "alongGradient": {
+                  "constant": {
+                    "and": [
+                      {"gt": ["node.gradientLength", 0.05]},
+                      {
+                        "gt": [
+                          {"add": [{"mul": ["layer.climbGradientX", "node.dirX"]}, {"mul": ["layer.climbGradientZ", "node.dirZ"]}]},
+                          {"mul": [0.5, "node.gradientLength"]}
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "faceX": {"constant": {"if": ["node.alongGradient", {"div": ["layer.climbGradientX", "node.gradientLength"]}, "node.dirX"]}},
+                "faceZ": {"constant": {"if": ["node.alongGradient", {"div": ["layer.climbGradientZ", "node.gradientLength"]}, "node.dirZ"]}},
+                "leftX": {"constant": "node.faceZ"},
+                "leftZ": {"constant": {"neg": ["node.faceX"]}},
+                "faceYaw": {"constant": {"atan2": [{"neg": ["node.faceX"]}, "node.faceZ"]}},
                 "squareUp": {
                   "live": {
                     "mul": [
                       57.29578,
                       {
                         "atan2": [
-                          {"sin": [{"sub": [{"mul": ["entityBodyYaw", 0.0174533]}, "node.axisYaw"]}]},
-                          {"cos": [{"sub": [{"mul": ["entityBodyYaw", 0.0174533]}, "node.axisYaw"]}]}
+                          {"sin": [{"sub": [{"mul": ["entityBodyYaw", 0.0174533]}, "node.faceYaw"]}]},
+                          {"cos": [{"sub": [{"mul": ["entityBodyYaw", 0.0174533]}, "node.faceYaw"]}]}
                         ]
                       },
                       {"smoothstep": ["nodeTicksElapsed", 0, 3]},
@@ -633,6 +731,19 @@
                   "live": {"mul": [{"smoothstep": ["nodeTicksElapsed", 0, 2]}, {"sub": [1, {"smoothstep": ["nodeTicksElapsed", 10, 13]}]}]}
                 },
                 "drift": {"state": 0},
+                "away": {
+                  "live": {"lt": [{"add": [{"mul": ["entityMotionX", "node.dirX"]}, {"mul": ["entityMotionZ", "node.dirZ"]}]}, -0.01]}
+                },
+                "over": {
+                  "live": {
+                    "or": [
+                      {"ge": ["nodeTicksElapsed", 19]},
+                      {"gt": ["node.drift", {"if": [{"gt": ["nodeTicksElapsed", 9]}, 0.8, 1.6]}]},
+                      {"and": [{"ge": ["nodeTicksElapsed", 3]}, {"lt": ["nodeTicksElapsed", 10]}, "node.away"]},
+                      {"gt": ["entity.attackTimer", 0]}
+                    ]
+                  }
+                },
                 "released": {"state": false},
                 "armX": {"state": 0},
                 "foreX": {"state": 0},
@@ -642,16 +753,8 @@
                 "enter": [{"set": ["animator.inJump", true]}, {"set": ["animator.climbing", true]}],
                 "update": [
                   {"@when": {"ge": ["nodeTicksElapsed", 10]}, "set": ["node.released", true]},
-                  {
-                    "@when": {
-                      "or": [
-                        {"ge": ["nodeTicksElapsed", 19]},
-                        {"gt": ["node.drift", {"if": [{"gt": ["nodeTicksElapsed", 9]}, 0.8, 1.6]}]},
-                        {"gt": ["entity.attackTimer", 0]}
-                      ]
-                    },
-                    "set": ["animator.climbing", false]
-                  }
+                  {"@when": "node.over", "set": ["animator.climbing", false]},
+                  {"@when": "node.over", "set": ["machine.climb", false]}
                 ]
               }
             }

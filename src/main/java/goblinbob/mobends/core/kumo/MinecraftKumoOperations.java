@@ -123,6 +123,12 @@ public final class MinecraftKumoOperations
         KumoRegistry.registerDriver(RaycastDriver.DRIVER);
         // {"core:raycast_array": {...}}: a spread of rays round a direction, keeping the hit closest to it.
         KumoRegistry.registerDriver(RaycastArrayDriver.DRIVER);
+        // {"core:block_below": {...}}: the block the entity stands on, or the first below its feet.
+        KumoRegistry.registerDriver(BlockBelowDriver.DRIVER);
+        // {"core:block_gradient": {...}}: which way the ground rises round a block, and its normal.
+        KumoRegistry.registerDriver(BlockGradientDriver.DRIVER);
+        // {"core:step_up": {...}}: the step up ahead, one block high with room on it, that a mob walking that way would climb.
+        KumoRegistry.registerDriver(StepUpDriver.DRIVER);
 
         // What a type file's selector reads: the entity alone, any entity (false where it doesn't apply).
         // {"core:entity_type": ["minecraft:zombie", "minecraft:husk"]}: the entity's registry id is one of these.
