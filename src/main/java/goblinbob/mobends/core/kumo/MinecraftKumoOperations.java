@@ -189,24 +189,15 @@ public final class MinecraftKumoOperations
 
     /**
      * Whether a block stands in front of the entity's feet, no higher than {@link #LEDGE_MAX_HEIGHT},
-     * with room for the entity on top. Front is the way the entity moves, or faces when it doesn't
-     * (pressed against the block it is about to climb).
+     * with room for the entity on top. Front is the way the body faces (not the way it moves: one
+     * walking into the block at an angle slides along it).
      */
     public static boolean ledgeAhead(EntityLivingBase entity)
     {
         if (entity.world == null) return false;
-        double dx = entity.posX - entity.prevPosX;
-        double dz = entity.posZ - entity.prevPosZ;
-        double length = Math.sqrt(dx * dx + dz * dz);
-        if (length < 0.01D)
-        {
-            float yaw = entity.renderYawOffset * 0.017453292F;
-            dx = -MathHelper.sin(yaw);
-            dz = MathHelper.cos(yaw);
-            length = 1;
-        }
-        dx *= LEDGE_REACH / length;
-        dz *= LEDGE_REACH / length;
+        float yaw = entity.renderYawOffset * 0.017453292F;
+        double dx = -MathHelper.sin(yaw) * LEDGE_REACH;
+        double dz = MathHelper.cos(yaw) * LEDGE_REACH;
 
         AxisAlignedBB box = entity.getEntityBoundingBox();
         AxisAlignedBB ahead = box.offset(dx, 0, dz);

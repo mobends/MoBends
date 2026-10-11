@@ -67,15 +67,19 @@ class LedgeAheadTest
     }
 
     @Test
-    void frontIsTheWayItMoves()
+    void frontIsTheWayItFacesNotTheWayItMoves()
     {
         World world = new World();
         LabWorlds.placeStone(world, -1, 0, 3, 1, 0, 3);
-        EntityIronGolem golem = golem(world);
-        // Facing away, but moving towards the block.
-        golem.renderYawOffset = 180;
-        golem.prevPosZ = golem.posZ - 0.1D;
-        assertTrue(MinecraftKumoOperations.ledgeAhead(golem));
+        // Facing the block, sliding along it (as a golem walking into it at an angle does).
+        EntityIronGolem sliding = golem(world);
+        sliding.prevPosX = sliding.posX - 0.1D;
+        assertTrue(MinecraftKumoOperations.ledgeAhead(sliding));
+        // Facing away, moving towards it.
+        EntityIronGolem backing = golem(world);
+        backing.renderYawOffset = 180;
+        backing.prevPosZ = backing.posZ - 0.1D;
+        assertFalse(MinecraftKumoOperations.ledgeAhead(backing));
     }
 
 }
