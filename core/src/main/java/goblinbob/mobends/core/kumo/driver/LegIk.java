@@ -91,7 +91,7 @@ public final class LegIk
         return angle;
     }
 
-    private static double pickBend(double first, double second, float bend)
+    static double pickBend(double first, double second, float bend)
     {
         final boolean firstAllowed = first * bend >= -1e-6;
         final boolean secondAllowed = second * bend >= -1e-6;
@@ -106,7 +106,7 @@ public final class LegIk
         return secondAllowed ? second : 0;
     }
 
-    private static double wrapPi(double angle)
+    static double wrapPi(double angle)
     {
         angle %= Math.PI * 2;
         if (angle > Math.PI) angle -= Math.PI * 2;

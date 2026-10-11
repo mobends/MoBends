@@ -38,6 +38,8 @@ public class DriverRegistry
         register(SpringDriver.DRIVER);
         register(StepTurnDriver.DRIVER);
         register(AnchorDriver.DRIVER);
+        register(ChainIkDriver.TWO_BONE);
+        register(ChainIkDriver.THREE_BONE);
     }
 
     public <T extends DriverItemTemplate> void register(String key, IDriverFactory<T> factory, Class<T> templateType)

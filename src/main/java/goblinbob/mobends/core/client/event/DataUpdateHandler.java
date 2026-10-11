@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.event;
 
 import goblinbob.mobends.core.addon.Addons;
 import goblinbob.mobends.core.data.EntityDatabase;
+import goblinbob.mobends.core.kumo.RayGizmos;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -39,6 +40,7 @@ public class DataUpdateHandler
             DataUpdateHandler.ticksPerFrame = Math.min(Math.max(0F, newTicks - DataUpdateHandler.ticks), 1F);
             DataUpdateHandler.ticks = newTicks;
 
+            RayGizmos.beginFrame();
             EntityDatabase.instance.updateRender(event.renderTickTime);
             Addons.onRenderTick(event.renderTickTime);
         }

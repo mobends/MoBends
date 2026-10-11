@@ -28,6 +28,11 @@
   `core:anchor` driver), to stage a sequence such as climbing onto a block.
 - Animations can compute positions in the world in double precision (`entityWorldX`, `toDouble`,
   `toFloat`), so mobs far from the world's origin animate as smoothly as those near it.
+- Animations can reach for the world: `core:raycast` finds where a ray through the blocks hits and
+  which way the surface faces (`core:raycast_array` casts a spread of them and keeps the closest hit), and `core:two_bone_ik` / `core:three_bone_ik` put the end of an arm
+  or a leg on a point in the world, each joint pointing a way in the world. Climbing onto a block,
+  the iron golem grabs the top where its hands find it and holds on while it hauls itself up. With `"debug": true`, the
+  rays are drawn over the world, colored by what they hit, to see what an animation finds.
 - A server's own resource pack can add types and extensions too.
 - Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
   several apply to the same mob.

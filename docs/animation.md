@@ -3,8 +3,8 @@
 Every animated entity is driven by an **animator asset**
 (`assets/<namespace>/bends/animators/*.json`) running on the KUMO engine in the `core/` module.
 There is no hand-written per-entity animation code any more: what used to be controllers and
-animation bits is data, and the few things that must stay code (the spider's leg IK, turning and walking on planted feet, the sword
-trail, the cape) are *drivers* an animator places like any other item. The asset format is
+animation bits is data, and the few things that must stay code (the spider's leg IK, turning and walking on planted feet, reaching
+for a point in the world, casting rays through the blocks, the sword trail, the cape) are *drivers* an animator places like any other item. The asset format is
 documented in [`misc/kumo-format.md`](../misc/kumo-format.md); this page is about how the
 runtime is put together.
 
@@ -212,7 +212,7 @@ registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args)
 * Its declared state starts over when its node is entered. `DriverEvaluator.restart` runs then
   too, for what isn't declared state yet (`core:step_turn` publishes its outputs at rest).
 
-`core:spring` and `core:step_turn` are written this way (`SpringDriver`, `StepTurnDriver`).
+`core:spring`, `core:step_turn`, `core:anchor` and the IK (`core:two_bone_ik`, `core:three_bone_ik`, solved by `ChainIk`) are written this way (`SpringDriver`, `StepTurnDriver`, `AnchorDriver`, `ChainIkDriver`), and so are `core:raycast` and `core:raycast_array` (`RaycastDriver`, `RaycastArrayDriver`), which the mod registers with its other `core:` operations because it reads the world.
 A template's fields stay as written (`ExpressionTemplate`, bone and state names as strings) and
 the binder (`DriverBindArgs`) gives each its kind, so generating a driver's documentation from
 its template class would need the binder's knowledge. The other drivers stay `IPoseItem`s: the

@@ -128,6 +128,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         registerVariable("entityWorldX", () -> entity != null ? entity.prevPosX + (entity.posX - entity.prevPosX) * DataUpdateHandler.partialTicks : 0);
         registerVariable("entityWorldY", () -> entity != null ? entity.prevPosY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks : 0);
         registerVariable("entityWorldZ", () -> entity != null ? entity.prevPosZ + (entity.posZ - entity.prevPosZ) * DataUpdateHandler.partialTicks : 0);
+        // What the renderer turns centerRotation about half of.
+        registerVariable("entityHeight", () -> entity != null ? entity.height : 0);
 
         registerState("entityIsOnGround", this::isOnGround);
         registerState("entityIsStandingStill", this::isStillHorizontally);

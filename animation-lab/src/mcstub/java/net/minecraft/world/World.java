@@ -3,8 +3,11 @@ package net.minecraft.world;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,6 +81,58 @@ public class World
             if (cube.maxY <= maxY) ground = Math.max(ground, cube.maxY);
         }
         return ground;
+    }
+
+    /**
+     * The first solid face the segment from {@code start} to {@code end} crosses (the stone cubes
+     * and the top of the floor), or null; the flags are vanilla's, and every solid block here has
+     * a box, so they change nothing.
+     */
+    public RayTraceResult rayTraceBlocks(Vec3d start, Vec3d end, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock)
+    {
+        double dx = end.x - start.x, dy = end.y - start.y, dz = end.z - start.z;
+        double best = Double.POSITIVE_INFINITY;
+        EnumFacing side = null;
+        // The floor: everything below floorY is solid, so a ray going down meets its top.
+        if (dy < 0 && start.y >= floorY && end.y < floorY)
+        {
+            best = (floorY - start.y) / dy;
+            side = EnumFacing.UP;
+        }
+        // A hair larger, so a ray along a face still finds the cube.
+        AxisAlignedBB around = new AxisAlignedBB(Math.min(start.x, end.x) - 1e-7, Math.min(start.y, end.y) - 1e-7, Math.min(start.z, end.z) - 1e-7,
+                Math.max(start.x, end.x) + 1e-7, Math.max(start.y, end.y) + 1e-7, Math.max(start.z, end.z) + 1e-7);
+        for (AxisAlignedBB cube : stoneIn(around))
+        {
+            // Slabs: where the ray enters the cube, and through which face.
+            double enter = 0, leave = 1;
+            EnumFacing face = null;
+            double[] from = {start.x, start.y, start.z}, along = {dx, dy, dz};
+            double[] min = {cube.minX, cube.minY, cube.minZ}, max = {cube.maxX, cube.maxY, cube.maxZ};
+            EnumFacing[][] faces = {{EnumFacing.WEST, EnumFacing.EAST}, {EnumFacing.DOWN, EnumFacing.UP}, {EnumFacing.NORTH, EnumFacing.SOUTH}};
+            boolean misses = false;
+            for (int i = 0; i < 3 && !misses; i++)
+            {
+                if (Math.abs(along[i]) < 1e-12)
+                {
+                    misses = from[i] < min[i] || from[i] > max[i];
+                    continue;
+                }
+                double t0 = (min[i] - from[i]) / along[i], t1 = (max[i] - from[i]) / along[i];
+                EnumFacing near = along[i] > 0 ? faces[i][0] : faces[i][1];
+                if (t0 > t1) { double t = t0; t0 = t1; t1 = t; }
+                if (t0 > enter) { enter = t0; face = near; }
+                leave = Math.min(leave, t1);
+                misses = enter > leave;
+            }
+            if (!misses && face != null && enter < best)
+            {
+                best = enter;
+                side = face;
+            }
+        }
+        if (side == null) return null;
+        return new RayTraceResult(new Vec3d(start.x + dx * best, start.y + dy * best, start.z + dz * best), side);
     }
 
     public void addEntity(Entity entity) { entities.add(entity); }

@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * The {@code core:} operations: what vanilla's classes tell, which the Minecraft-free core can't
- * read itself, and the entity built-ins. Must run before any animator is loaded.
+ * The {@code core:} operations (and the rays, {@code core:raycast} and {@code core:raycast_array}): what vanilla's classes tell, which the
+ * Minecraft-free core can't read itself, and the entity built-ins. Must run before any animator is loaded.
  */
 public final class MinecraftKumoOperations
 {
@@ -119,6 +119,10 @@ public final class MinecraftKumoOperations
         // {"core:ledge_ahead": []}: a block in front of the entity's feet it can climb onto (what a
         // mob jumps onto as it walks), read once on liftoff to tell a climb from a jump.
         KumoRegistry.registerEntityBooleanReader("core:ledge_ahead", EntityLivingBase.class, MinecraftKumoOperations::ledgeAhead);
+        // {"core:raycast": {...}}: a ray cast through the blocks, where it hit and which way the surface faces.
+        KumoRegistry.registerDriver(RaycastDriver.DRIVER);
+        // {"core:raycast_array": {...}}: a spread of rays round a direction, keeping the hit closest to it.
+        KumoRegistry.registerDriver(RaycastArrayDriver.DRIVER);
 
         // What a type file's selector reads: the entity alone, any entity (false where it doesn't apply).
         // {"core:entity_type": ["minecraft:zombie", "minecraft:husk"]}: the entity's registry id is one of these.

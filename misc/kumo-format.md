@@ -357,6 +357,9 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
 | `core:anchor` | `point` (`{"x", "y", "z"}`, double expressions, in blocks; an axis left out follows the entity), `weight` (0..1, default 1), `out` (`positionDifference`): draws the entity's origin (where `x`, `y`, `z` are: doubles, `entityWorldX`, `entityWorldY`, `entityWorldZ` unless written) at a point in the world, whatever the entity does meanwhile. The point is read every frame, so it can move along a path; one taken when the node starts is a node constant (`{"constant": {"floor": ["entityWorldX"]}}`, the block the feet are in). `positionDifference` is how far the entity really is from the point, in blocks, whatever the weight: what tells a staged sequence (climbing onto a block) to give up. It moves the whole model (`root`, or its `bone`) past its damping, turned by the body's `yaw` (`entityBodyYaw`) |
+| `core:two_bone_ik`, `core:three_bone_ik` | `segments` (each a `bone` and its rest `pivot`; after the first, `bend` and `bendDirection`), `end`, `target` (`{"x", "y", "z"}`, double expressions, in the world), `weight` (0..1, default 1), `parents`, `out` (`stretch`): puts the end of a chain of two or three bones (an arm, a leg) on a point in the world, each joint pointing a way in the world (see *Reaching into the world*) |
+| `core:raycast` | `from` (`{"x", "y", "z"}`, double expressions, in the world), `direction` (number expressions, any length), `distance` (blocks), `liquids` (default false), `debug` (default false: draws the ray), `out` (`hitX`, `hitY`, `hitZ`: doubles; `normalX`, `normalY`, `normalZ`): casts a ray through the blocks every frame, and says where it hit and which way the surface faces (see *Reaching into the world*) |
+| `core:raycast_array` | `core:raycast`'s fields, and `count` (rays, 1 to 64, default 16), `spread` (degrees from `direction` to the edge of the cone, default 15), `surface` (number expressions: only hits on surfaces facing that way count): casts a spread of rays round `direction` and keeps the hit closest to it, with `core:raycast`'s outputs (see *Reaching into the world*) |
 | `mobends:cape` | the player's cape physics |
 | `mobends:sword_trail` | `add`, `resetOnEnter`, `resetEachFrame`, `velocity`: feeds the sword trail |
 | `mobends:spider_idle_legs`, `mobends:spider_moving_legs` | the spider's inverse-kinematics gaits (see the templates' fields); `out` (`groundLevel`), `reset` (a state that, non-zero when the node starts, re-plants the feet, and is cleared) |
@@ -444,6 +447,69 @@ with, the planted foot drags rather than the feet flickering.
   scaled by the weight, for the items after it to make the upper body react. `iron_golem.json`
   does it with springs, and turns back vanilla's rocking of a walking golem
   (`RenderIronGolem.applyRotations`) in the render rotation beneath the driver.
+
+### Reaching into the world
+
+`core:raycast` and `core:raycast_array` find what to reach for and `core:two_bone_ik` / `core:three_bone_ik` reach for it:
+a hand put on a ledge, a foot on a step.
+
+```json
+{"core:raycast": {"from": {"x": "node.handX", "y": {"add": ["node.blockY", 1.75]}, "z": "node.handZ"},
+                  "direction": {"y": -1}, "distance": 1.5,
+                  "out": {"hitX": "node.hitX", "hitY": "node.hitY", "hitZ": "node.hitZ", "normalY": "node.hitUp"}}},
+{"core:two_bone_ik": {"segments": [{"bone": "rightArm", "pivot": [0, -7, 0]},
+                                   {"bone": "rightForeArm", "pivot": [0, 12.5, 3], "bend": -1,
+                                    "bendDirection": {"x": 0, "y": 0, "z": -1}}],
+                      "end": [-11, 15, -3],
+                      "target": {"x": "node.hitX", "y": "node.hitY", "z": "node.hitZ"},
+                      "weight": {"if": [{"gt": ["node.hitUp", 0.5]}, 1, 0]}}}
+```
+
+* **`core:raycast`** casts a ray from `from` (doubles, in the world) along `direction` for
+  `distance` blocks, as vanilla casts one for what the crosshair is on: through the blocks' own
+  shapes, past the ones that don't collide (grass, flowers), and through water and lava unless
+  `liquids` is true. Its outputs are where it hit (`hitX`, `hitY`, `hitZ`, double states) and which
+  way the face it hit looks (`normalX`, `normalY`, `normalZ`, a unit vector along an axis). Where it
+  hits nothing, the hit is the end of the ray and the normal is zero: `{"gt": ["node.hitUp", 0.5]}`
+  is "it found a top to stand on". It casts every frame its node is posed, in pose-stack order, so
+  the items after it read this frame's hit.
+* **`core:raycast_array`** is `core:raycast` as a shotgun spread: `count` rays in a cone `spread`
+  degrees round `direction`, the same pattern every frame (the first along `direction`, then each a
+  little further out, turning round it by the golden angle, the last at the cone's edge). Of the
+  rays that hit something it keeps the one closest to `direction`, so where one ray would miss a
+  ledge that is a little off where it was expected, a ray beside it finds it. With `surface`
+  (number expressions, any length) only hits on a surface facing that way, within 60°, count:
+  `{"y": 1}` keeps tops, so a ray striking the ledge's face near the middle doesn't win over one
+  that found its top. Where none count, the outputs are a miss along `direction`. It casts every
+  ray every frame its node is posed.
+* With **`"debug": true`**, either draws its rays over the world, through blocks and the model, as
+  it casts them: the hit that is the output green, with a cross where it hit and a cyan tick along
+  the surface's normal; `core:raycast_array`'s other hits yellow, its hits on a surface facing the
+  wrong way red; misses grey, their whole length. A paused game keeps the last frame's rays.
+* **`core:two_bone_ik`** and **`core:three_bone_ik`** put the `end` of a chain of bones on `target`,
+  a point in the world (doubles). `segments` lists the chain's bones from the one nearest the body,
+  each with where it turns at rest (`pivot`, model units, +Y down, -Z forward: the first's in the
+  model, the others' from the one before; a split's joint sits on its cut, at the hinge), and `end`
+  is the point that reaches, from the last segment's pivot. A joint is a hinge about the X axis of
+  the segment before it, as a split's joints are, so the segments stay joined: `bend` is 1 for a
+  joint that brings the end round to +Z (a knee), -1 to -Z (an elbow), and it never bends the other
+  way past its rest pose. `bendDirection` (number expressions, any length, in the world) is where
+  the joint points, the side it sticks out to: an elbow pointing back and out. Left out, or along
+  the line to the target, the joint points the way it is posed so far. Of three segments, the
+  joints bend about as much as each other, each pointing its own way; where the two ways aren't in
+  one plane the middle segment twists about its own length. Out of reach the chain points at the
+  target, as straight as it gets, and `stretch` says how many blocks it falls short.
+* The chain is put where the renderer draws it: from the entity's position (`x`, `y`, `z`,
+  `entityWorldX`, ...) and body yaw (`yaw`, `entityBodyYaw`), through the bones as the items before
+  it have posed them: the whole-model offset (`rootBone`, `root`), `centerRotation` (about half the
+  entity's `height`, `entityHeight`), `renderRotation`, `localOffset`, and the bones it hangs from,
+  `parents` (each a `bone` and its `pivot`, outermost first: a player's arms hang from its body).
+  So the end stays on the target wherever the entity is drawn: leaning, or held at a point by
+  `core:anchor`. Write it after what moves the model, and snap what it reads (a damped bone is
+  drawn behind its target, and the end would lag with it). `modelScale` is the renderer's scale of
+  the model (vanilla draws the player at 0.9375); the bones are assumed to have no `restRotation`.
+* `weight` (0..1) blends it in from what lies beneath. At 1 the bones snap to it, so the end
+  doesn't slide; at 0 it writes nothing (and still says its `stretch`).
 
 ### Expressions
 
@@ -625,7 +691,8 @@ operation, or a definition of the mob's model definition (see *Model definitions
 | `entityIsDrawingBow`, `entityIsRidingLiving` | the held items; whether what the entity rides is living |
 | `entityIsStandingStill`, `entityIsStrafing` | Mo' Bends' measured motion |
 | `entityMotionY`, `entityPrevMotionY`, `entityInterpolatedMotionY`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity (vanilla's motion fields read 0 for the entities the server moves). `entitySpeed` and `entityXZSpeed` are magnitudes interpolated by `partialTicks`; a rider's include what carries it |
-| `entityBodyYaw`, `entityWorldX`, `entityWorldY`, `entityWorldZ` | the body yaw and the position, interpolated as the renderer does (`core:step_turn`'s and `core:anchor`'s default inputs). The position is in doubles (see *Expressions*) |
+| `entityBodyYaw`, `entityWorldX`, `entityWorldY`, `entityWorldZ` | the body yaw and the position, interpolated as the renderer does (`core:step_turn`'s, `core:anchor`'s and the IK's default inputs). The position is in doubles (see *Expressions*) |
+| `entityHeight` | the entity's height, in blocks (vanilla's `height`): what the renderer turns `centerRotation` about half of |
 | `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` | relative to the ridden entity (0 unless riding something living) |
 | `entityClimbingRenderYaw`, `entityClimbingBodyYaw`, `entityClimbingHeadYaw` | the yaws while climbing |
 

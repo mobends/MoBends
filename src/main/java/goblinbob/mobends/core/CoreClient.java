@@ -71,6 +71,7 @@ public class CoreClient extends Core<CoreClientConfig>
         MinecraftForge.EVENT_BUS.register(new DataUpdateHandler());
         MinecraftForge.EVENT_BUS.register(new KeyboardHandler());
         MinecraftForge.EVENT_BUS.register(new WorldJoinHandler());
+        MinecraftForge.EVENT_BUS.register(new RayGizmoRenderer());
 
         // Registering a listener to whenever resources have been reloaded.
         IReloadableResourceManager resourceManager = (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();

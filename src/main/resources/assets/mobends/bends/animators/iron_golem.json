@@ -186,7 +186,7 @@
               "@on": {"enter": [{"set": ["animator.inJump", true]}]}
             },
             "climb": {
-              "@comment": "Lifting off against a ledge (a block in front of its feet), it climbs onto it, slower than its own jump: core:anchor draws it where the climb has got to, in the coordinates of the block ahead (u into the block from its near face, h up from the ground; the block is taken in doubles, which a position far from the origin needs), while the entity itself is already up there. The arms swing up and slam the hands down on the top, well ahead; the arms are solved for that spot every frame (two bones, elbows back, the lean of the whole golem counted in), so they pull and then push, and stay straight, pushing, once the shoulders are out of reach. Reaching, it steps half a block in towards the block (closer than the entity can stand), then hauls itself up the face, leaning into it, the right knee comes up onto the top, then the left; the hands let go and the arms swing back on springs, overshooting and settling, heavy; it walks onto the middle of the block and is handed back to where it really is. It gives up, gliding back to the entity, if the entity gets far from where it is drawn (knocked away, or hurrying on once it is up: further than the climb's own lag, 1.6 blocks while it rises, 0.8 once it is up) or attacks. Lengths are in blocks, as ModelIronGolem has them: the shoulder above the feet, the middle of the golem (what centerRotation turns about), the upper arm (shoulder to elbow), the forearm (elbow to the hand's end).",
+              "@comment": "Lifting off against a ledge (a block in front of its feet), it climbs onto it, slower than its own jump: core:anchor draws it where the climb has got to, in the coordinates of the block ahead (u into the block from its near face, h up from the ground; the block is taken in doubles, which a position far from the origin needs), while the entity itself is already up there; across the climb it holds where it lifted off until the hands let go (a golem walking into the block at an angle slides along it, and would pull away from its hands), then follows the entity. Each hand looks for the top it can grab with a ray cast from its shoulder as it lifts off, ahead and down onto the ledge, aimed at three quarters of a block past the near edge on a block's top (core:raycast_array: a spread of rays round that aim, keeping the closest that finds a top, so a ledge a little off where it is expected is still found), so it clears the edge, and going on up to 5 blocks for a lower top. A golem that walks into the block at an angle squares up to it as it lifts off (the whole model turned about its middle, back as the climb hands it back), so the rays go the way it then faces and each hand grabs ahead of its shoulder; the hands reach out along the rays and slam down on what they find, and core:two_bone_ik keeps them there every frame, wherever the climb draws the golem and however it leans, the elbows pointing back and out; once the shoulders are out of reach they stay straight, pushing. A hand whose rays find no top to grab above the ground it stood on (a wide gap beside the ledge, or a face too high to reach over) doesn't reach. Reaching, it steps half a block in towards the block (closer than the entity can stand), then hauls itself up the face, leaning into it, the right knee comes up onto the top, then the left; the hands let go and the arms swing back on springs, overshooting and settling, heavy; it walks onto the middle of the block and is handed back to where it really is. It gives up, gliding back to the entity, if the entity gets far from where it is drawn (knocked away, or hurrying on once it is up: further than the climb's own lag, 1.6 blocks while it rises, 0.8 once it is up) or attacks. The arm's pivots are ModelIronGolem's, as the split cuts them (the elbow on the back of the arm, half way down; the hand at the bottom of the arm, off to its side).",
               "core:pose": {
                 "pose": [
                   {
@@ -195,7 +195,7 @@
                         "x": {
                           "if": [
                             {"eq": ["node.dirX", 0]},
-                            "entityWorldX",
+                            {"add": ["node.startX", {"mul": [{"sub": ["entityWorldX", "node.startX"]}, {"toDouble": ["node.follow"]}]}]},
                             {"add": ["node.blockX", {"toDouble": [{"if": [{"gt": ["node.dirX", 0]}, "node.u", {"sub": [1, "node.u"]}]}]}]}
                           ]
                         },
@@ -203,13 +203,35 @@
                         "z": {
                           "if": [
                             {"eq": ["node.dirZ", 0]},
-                            "entityWorldZ",
+                            {"add": ["node.startZ", {"mul": [{"sub": ["entityWorldZ", "node.startZ"]}, {"toDouble": ["node.follow"]}]}]},
                             {"add": ["node.blockZ", {"toDouble": [{"if": [{"gt": ["node.dirZ", 0]}, "node.u", {"sub": [1, "node.u"]}]}]}]}
                           ]
                         }
                       },
                       "weight": {"sub": [1, {"smoothstep": ["nodeTicksElapsed", 15, 19]}]},
                       "out": {"positionDifference": "node.drift"}
+                    }
+                  },
+                  {
+                    "core:raycast_array": {
+                      "from": {"x": "node.rightShoulderX", "y": "node.shoulderY", "z": "node.rightShoulderZ"},
+                      "direction": {"x": {"mul": ["node.faceX", "node.rightRun"]}, "y": {"neg": ["node.topBelow"]}, "z": {"mul": ["node.faceZ", "node.rightRun"]}},
+                      "distance": "node.rightRayLength",
+                      "count": 16,
+                      "spread": 15,
+                      "surface": {"y": 1},
+                      "out": {"hitX": "node.rightHitX", "hitY": "node.rightHitY", "hitZ": "node.rightHitZ", "normalY": "node.rightHitUp"}
+                    }
+                  },
+                  {
+                    "core:raycast_array": {
+                      "from": {"x": "node.leftShoulderX", "y": "node.shoulderY", "z": "node.leftShoulderZ"},
+                      "direction": {"x": {"mul": ["node.faceX", "node.leftRun"]}, "y": {"neg": ["node.topBelow"]}, "z": {"mul": ["node.faceZ", "node.leftRun"]}},
+                      "distance": "node.leftRayLength",
+                      "count": 16,
+                      "spread": 15,
+                      "surface": {"y": 1},
+                      "out": {"hitX": "node.leftHitX", "hitY": "node.leftHitY", "hitZ": "node.leftHitZ", "normalY": "node.leftHitUp"}
                     }
                   },
                   {
@@ -244,7 +266,12 @@
                   {
                     "core:axis_rotate": {"bone": "centerRotation", "axis": "x", "angle": "node.lean"},
                     "@space": "override",
-                    "@damping": {"centerRotation": 0.8}
+                    "@snap": true
+                  },
+                  {
+                    "core:axis_rotate": {"bone": "centerRotation", "axis": "y", "angle": "node.squareUp"},
+                    "@space": "pre",
+                    "@snap": true
                   },
                   {
                     "core:axis_rotate": {
@@ -338,6 +365,52 @@
                     "@space": "post"
                   },
                   {
+                    "core:two_bone_ik": {
+                      "segments": [
+                        {"bone": "rightArm", "pivot": [0, -7, 0]},
+                        {
+                          "bone": "rightForeArm",
+                          "pivot": [0, 12.5, 3],
+                          "bend": -1,
+                          "bendDirection": {
+                            "x": {"sub": [{"neg": ["node.faceX"]}, {"mul": ["node.leftX", 0.5]}]},
+                            "z": {"sub": [{"neg": ["node.faceZ"]}, {"mul": ["node.leftZ", 0.5]}]}
+                          }
+                        }
+                      ],
+                      "end": [-11, 15, -3],
+                      "target": {
+                        "x": {"sub": ["node.rightHitX", {"toDouble": [{"mul": ["node.slam", "node.faceX"]}]}]},
+                        "y": {"add": ["node.rightHitY", {"toDouble": [{"mul": ["node.slam", "node.approachDrop"]}]}]},
+                        "z": {"sub": ["node.rightHitZ", {"toDouble": [{"mul": ["node.slam", "node.faceZ"]}]}]}
+                      },
+                      "weight": {"if": ["node.rightGrabs", "node.hold", 0]}
+                    }
+                  },
+                  {
+                    "core:two_bone_ik": {
+                      "segments": [
+                        {"bone": "leftArm", "pivot": [0, -7, 0]},
+                        {
+                          "bone": "leftForeArm",
+                          "pivot": [0, 12.5, 3],
+                          "bend": -1,
+                          "bendDirection": {
+                            "x": {"add": [{"neg": ["node.faceX"]}, {"mul": ["node.leftX", 0.5]}]},
+                            "z": {"add": [{"neg": ["node.faceZ"]}, {"mul": ["node.leftZ", 0.5]}]}
+                          }
+                        }
+                      ],
+                      "end": [11, 15, -3],
+                      "target": {
+                        "x": {"sub": ["node.leftHitX", {"toDouble": [{"mul": ["node.slam", "node.faceX"]}]}]},
+                        "y": {"add": ["node.leftHitY", {"toDouble": [{"mul": ["node.slam", "node.approachDrop"]}]}]},
+                        "z": {"sub": ["node.leftHitZ", {"toDouble": [{"mul": ["node.slam", "node.faceZ"]}]}]}
+                      },
+                      "weight": {"if": ["node.leftGrabs", "node.hold", 0]}
+                    }
+                  },
+                  {
                     "core:axis_rotate": {"bone": "body", "axis": "x", "angle": 0},
                     "@space": "override",
                     "@damping": {"body": 0.5}
@@ -370,10 +443,6 @@
                 ]
               },
               "@define": {
-                "shoulderHeight": {"constant": 1.9375},
-                "middle": {"constant": 1.35},
-                "upperArm": {"constant": 0.78125},
-                "foreArm": {"constant": 0.9375},
                 "yaw": {"constant": {"mul": ["entityBodyYaw", 0.0174533]}},
                 "dirX": {
                   "constant": {
@@ -443,127 +512,126 @@
                     ]
                   }
                 },
-                "handU": {"constant": 0.6},
-                "leanRad": {"live": {"mul": ["node.lean", 0.0174533]}},
-                "shoulderU": {
+                "shoulderSpread": {"constant": 0.6875},
+                "shoulderY": {"constant": {"add": ["node.blockY", 1.94]}},
+                "faceX": {"constant": "node.dirX"},
+                "faceZ": {"constant": "node.dirZ"},
+                "leftX": {"constant": "node.dirZ"},
+                "leftZ": {"constant": {"neg": ["node.dirX"]}},
+                "axisYaw": {
+                  "constant": {"if": [{"eq": ["node.dirX", 0]}, {"if": [{"gt": ["node.dirZ", 0]}, 0, 3.14159265]}, {"mul": ["node.dirX", -1.5707963]}]}
+                },
+                "squareUp": {
                   "live": {
-                    "add": [
-                      "node.u",
-                      {"mul": [{"sub": ["node.shoulderHeight", "node.middle"]}, {"sin": ["node.leanRad"]}]}
+                    "mul": [
+                      57.29578,
+                      {
+                        "atan2": [
+                          {"sin": [{"sub": [{"mul": ["entityBodyYaw", 0.0174533]}, "node.axisYaw"]}]},
+                          {"cos": [{"sub": [{"mul": ["entityBodyYaw", 0.0174533]}, "node.axisYaw"]}]}
+                        ]
+                      },
+                      {"smoothstep": ["nodeTicksElapsed", 0, 3]},
+                      {"sub": [1, {"smoothstep": ["nodeTicksElapsed", 15, 19]}]}
                     ]
                   }
                 },
-                "shoulderH": {
-                  "live": {
-                    "add": [
-                      "node.h",
-                      "node.middle",
-                      {"mul": [{"sub": ["node.shoulderHeight", "node.middle"]}, {"cos": ["node.leanRad"]}]}
+                "startX": {"constant": "entityWorldX"},
+                "startZ": {"constant": "entityWorldZ"},
+                "follow": {"live": {"smoothstep": ["nodeTicksElapsed", 10, 14]}},
+                "rightShoulderX": {"constant": {"sub": ["node.startX", {"toDouble": [{"mul": ["node.leftX", "node.shoulderSpread"]}]}]}},
+                "rightShoulderZ": {"constant": {"sub": ["node.startZ", {"toDouble": [{"mul": ["node.leftZ", "node.shoulderSpread"]}]}]}},
+                "leftShoulderX": {"constant": {"add": ["node.startX", {"toDouble": [{"mul": ["node.leftX", "node.shoulderSpread"]}]}]}},
+                "leftShoulderZ": {"constant": {"add": ["node.startZ", {"toDouble": [{"mul": ["node.leftZ", "node.shoulderSpread"]}]}]}},
+                "grabDepth": {"constant": 0.75},
+                "topBelow": {"constant": 0.94},
+                "approachDrop": {"constant": 0.75},
+                "maxRayLength": {"constant": 5},
+                "facing": {"constant": {"add": [{"mul": ["node.faceX", "node.dirX"]}, {"mul": ["node.faceZ", "node.dirZ"]}]}},
+                "faceAlong": {
+                  "constant": {
+                    "if": [
+                      {"eq": ["node.dirX", 0]},
+                      {"if": [{"gt": ["node.dirZ", 0]}, "node.blockZ", {"sub": [-1, "node.blockZ"]}]},
+                      {"if": [{"gt": ["node.dirX", 0]}, "node.blockX", {"sub": [-1, "node.blockX"]}]}
                     ]
                   }
                 },
-                "handAhead": {"live": {"sub": ["node.handU", "node.shoulderU"]}},
-                "handBelow": {"live": {"sub": ["node.shoulderH", 1]}},
-                "handDistance": {
-                  "live": {
-                    "sqrt": [
+                "rightRun": {
+                  "constant": {
+                    "div": [
                       {
                         "add": [
-                          {"mul": ["node.handAhead", "node.handAhead"]},
-                          {"mul": ["node.handBelow", "node.handBelow"]}
-                        ]
-                      }
-                    ]
-                  }
-                },
-                "armReach": {
-                  "live": {"min": ["node.handDistance", {"mul": [0.999, {"add": ["node.upperArm", "node.foreArm"]}]}]}
-                },
-                "elbowCos": {
-                  "live": {
-                    "clamp": [
-                      {
-                        "div": [
                           {
-                            "sub": [
-                              {
-                                "add": [
-                                  {"mul": ["node.upperArm", "node.upperArm"]},
-                                  {"mul": ["node.foreArm", "node.foreArm"]}
-                                ]
-                              },
-                              {"mul": ["node.armReach", "node.armReach"]}
-                            ]
-                          },
-                          {"mul": [2, "node.upperArm", "node.foreArm"]}
-                        ]
-                      },
-                      -1,
-                      1
-                    ]
-                  }
-                },
-                "shoulderCos": {
-                  "live": {
-                    "clamp": [
-                      {
-                        "div": [
-                          {
-                            "add": [
+                            "toFloat": [
                               {
                                 "sub": [
-                                  {"mul": ["node.upperArm", "node.upperArm"]},
-                                  {"mul": ["node.foreArm", "node.foreArm"]}
+                                  "node.faceAlong",
+                                  {
+                                    "add": [
+                                      {"mul": ["node.rightShoulderX", {"toDouble": ["node.dirX"]}]},
+                                      {"mul": ["node.rightShoulderZ", {"toDouble": ["node.dirZ"]}]}
+                                    ]
+                                  }
                                 ]
-                              },
-                              {"mul": ["node.armReach", "node.armReach"]}
+                              }
                             ]
                           },
-                          {"mul": [2, "node.upperArm", "node.armReach"]}
+                          "node.grabDepth"
                         ]
                       },
-                      -1,
-                      1
+                      "node.facing"
                     ]
                   }
                 },
-                "plantArm": {
-                  "live": {
-                    "sub": [
+                "rightRayLength": {"constant": "node.maxRayLength"},
+                "leftRun": {
+                  "constant": {
+                    "div": [
                       {
-                        "mul": [
-                          57.29578,
+                        "add": [
                           {
-                            "atan2": [
-                              {"sqrt": [{"sub": [1, {"mul": ["node.shoulderCos", "node.shoulderCos"]}]}]},
-                              "node.shoulderCos"
+                            "toFloat": [
+                              {
+                                "sub": [
+                                  "node.faceAlong",
+                                  {
+                                    "add": [
+                                      {"mul": ["node.leftShoulderX", {"toDouble": ["node.dirX"]}]},
+                                      {"mul": ["node.leftShoulderZ", {"toDouble": ["node.dirZ"]}]}
+                                    ]
+                                  }
+                                ]
+                              }
                             ]
-                          }
+                          },
+                          "node.grabDepth"
                         ]
                       },
-                      {"sub": [{"mul": [57.29578, {"atan2": ["node.handAhead", "node.handBelow"]}]}, "node.lean"]}
+                      "node.facing"
                     ]
                   }
                 },
-                "plantForeArm": {
-                  "live": {
-                    "sub": [
-                      {
-                        "mul": [
-                          57.29578,
-                          {
-                            "atan2": [
-                              {"sqrt": [{"sub": [1, {"mul": ["node.elbowCos", "node.elbowCos"]}]}]},
-                              "node.elbowCos"
-                            ]
-                          }
-                        ]
-                      },
-                      180
-                    ]
-                  }
+                "leftRayLength": {"constant": "node.maxRayLength"},
+                "rightHitX": {"state": {"toDouble": [0]}},
+                "rightHitY": {"state": {"toDouble": [0]}},
+                "rightHitZ": {"state": {"toDouble": [0]}},
+                "rightHitUp": {"state": 0},
+                "rightGrabs": {
+                  "live": {"and": [{"gt": ["node.rightHitUp", 0.5]}, {"gt": [{"toFloat": [{"sub": ["node.rightHitY", "node.blockY"]}]}, 0.25]}]}
+                },
+                "leftHitX": {"state": {"toDouble": [0]}},
+                "leftHitY": {"state": {"toDouble": [0]}},
+                "leftHitZ": {"state": {"toDouble": [0]}},
+                "leftHitUp": {"state": 0},
+                "leftGrabs": {
+                  "live": {"and": [{"gt": ["node.leftHitUp", 0.5]}, {"gt": [{"toFloat": [{"sub": ["node.leftHitY", "node.blockY"]}]}, 0.25]}]}
                 },
                 "grip": {"live": {"smoothstep": ["nodeTicksElapsed", 1, 4]}},
+                "slam": {"live": {"mul": [0.5, {"sub": [1, "node.grip"]}]}},
+                "hold": {
+                  "live": {"mul": [{"smoothstep": ["nodeTicksElapsed", 0, 2]}, {"sub": [1, {"smoothstep": ["nodeTicksElapsed", 10, 13]}]}]}
+                },
                 "drift": {"state": 0},
                 "released": {"state": false},
                 "armX": {"state": 0},
@@ -574,19 +642,6 @@
                 "enter": [{"set": ["animator.inJump", true]}, {"set": ["animator.climbing", true]}],
                 "update": [
                   {"@when": {"ge": ["nodeTicksElapsed", 10]}, "set": ["node.released", true]},
-                  {
-                    "@when": {"not": ["node.released"]},
-                    "set": ["node.armX", {"sub": ["node.plantArm", {"mul": [35, {"sub": [1, "node.grip"]}]}]}]
-                  },
-                  {
-                    "@when": {"not": ["node.released"]},
-                    "set": [
-                      "node.foreX",
-                      {
-                        "add": [{"mul": ["node.plantForeArm", "node.grip"]}, {"mul": [-10, {"sub": [1, "node.grip"]}]}]
-                      }
-                    ]
-                  },
                   {
                     "@when": {
                       "or": [
