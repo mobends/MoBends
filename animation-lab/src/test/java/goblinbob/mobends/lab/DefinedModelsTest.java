@@ -62,6 +62,20 @@ public class DefinedModelsTest
         }
     }
 
+    /**
+     * Models still being refined: their type files live in the development resource pack
+     * (misc/dev-pack), so no mob uses them in a release yet, but they are checked all the same.
+     */
+    private static final Map<String, ResourceLocation> UNRELEASED_MODELS = new TreeMap<>();
+
+    static
+    {
+        for (String name : new String[] { "cow", "sheep" })
+        {
+            UNRELEASED_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
+        }
+    }
+
     /** The models that swim rather than walk: they are only built and checked against their animator. */
     private static final Set<String> SWIMMERS = Collections.singleton("mobends:squid");
 
@@ -71,10 +85,11 @@ public class DefinedModelsTest
     /** The models whose animator moves the limbs while standing. */
     private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:pig_zombie"));
 
-    /** The model definitions the shipped type files name, by type id, and the default models. */
+    /** The model definitions the shipped type files name, by type id, the default models and the unreleased ones. */
     private static Map<String, ResourceLocation> definedModels() throws Exception
     {
         Map<String, ResourceLocation> models = new TreeMap<>(DEFAULT_MODELS);
+        models.putAll(UNRELEASED_MODELS);
         try (Stream<Path> files = Files.list(BENDS.resolve("types")))
         {
             for (Path file : files.sorted().collect(Collectors.toList()))
