@@ -100,7 +100,6 @@ forge-1.12               1.12.2
 
 ### Other tasks
 
-- [ ] Send a checksum to the ping server to better differentiate between the official releases and forks.
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
   (`VanillaEntityFields`) cover numeric fields only, so a vanilla boolean field (`isCharging`) or a
   step through a vanilla object field (`ridingEntity`) is found by reflection, under its

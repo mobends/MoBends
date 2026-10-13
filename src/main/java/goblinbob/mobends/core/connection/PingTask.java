@@ -3,7 +3,6 @@ package goblinbob.mobends.core.connection;
 import goblinbob.mobends.core.Core;
 import com.google.gson.JsonObject;
 import goblinbob.mobends.core.util.ConnectionHelper;
-import goblinbob.mobends.core.ModStatics;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -19,11 +18,13 @@ public class PingTask implements Runnable
      * The delay between pings in seconds.
      */
     private final float interval;
+    private final String checksum;
 
-    public PingTask(String apiUrl, float interval)
+    public PingTask(String apiUrl, float interval, String checksum)
     {
         this.apiUrl = apiUrl;
         this.interval = interval;
+        this.checksum = checksum;
     }
 
     @Override
@@ -46,9 +47,7 @@ public class PingTask implements Runnable
 
     private void sendPing()
     {
-        JsonObject body = new JsonObject();
-        body.addProperty("app", "mobends");
-        body.addProperty("version", ModStatics.VERSION_STRING);
+        JsonObject body = ConnectionManager.createActivityBody(checksum);
 
         try
         {
