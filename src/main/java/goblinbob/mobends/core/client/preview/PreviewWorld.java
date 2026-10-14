@@ -63,6 +63,10 @@ public class PreviewWorld extends World
     {
         entity.setEntityId(nextEntityId--);
         entity.setPositionAndRotation(0.5D, FLOOR_Y, 0.5D, 0F, 0F);
+        // The constructor turns the head a random way, and nothing ticks the entity to catch the
+        // previous yaw up: the head would turn between the two with the partial ticks.
+        entity.rotationYawHead = entity.prevRotationYawHead = 0F;
+        entity.renderYawOffset = entity.prevRenderYawOffset = 0F;
         entity.prevPosX = entity.lastTickPosX = entity.posX;
         entity.prevPosY = entity.lastTickPosY = entity.posY;
         entity.prevPosZ = entity.lastTickPosZ = entity.posZ;
