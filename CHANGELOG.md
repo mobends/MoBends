@@ -4,9 +4,8 @@
 
 ### Added
 
-- Cows, mooshrooms, polar bears, pigs, sheep, creepers, chickens, villagers, witches and iron
-  golems are animated, with bending knees (and elbows for the iron golem); a sheep's wool and a
-  charged creeper's armour move with them.
+- Creepers, villagers, witches and iron golems are animated, with bending knees (and elbows for
+  the iron golem); a charged creeper's armour moves with it.
 - Mods and resource packs can add animations on top of a mob's own with extensions in
   `assets/<namespace>/bends/extensions/`, for example making players wave.
 - Mods and resource packs can give a mob, or a single player, a different model and animation with

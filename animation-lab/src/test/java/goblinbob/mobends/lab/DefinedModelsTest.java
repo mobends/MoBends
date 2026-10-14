@@ -70,7 +70,7 @@ public class DefinedModelsTest
 
     static
     {
-        for (String name : new String[] { "cow", "sheep" })
+        for (String name : new String[] { "chicken", "cow", "mooshroom", "pig", "polar_bear", "sheep" })
         {
             UNRELEASED_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
         }
