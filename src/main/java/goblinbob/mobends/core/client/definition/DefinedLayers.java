@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -35,18 +36,21 @@ public final class DefinedLayers
         public final JsonObject options;
         /** Finds the mutated part of a bone by name (null if there is none). */
         public final Function<String, ModelRenderer> bones;
+        /** Finds the origins of a bone's segments in its frame, the first being its own (null if it has none). */
+        public final Function<String, List<float[]>> segmentOrigins;
         /** The model definition asking for the layer. */
         public final EntityModelDefinition definition;
         /** The vanilla layer it replaces; null for a layer added after the renderer's own. */
         @Nullable
         public final LayerRenderer<?> replaced;
 
-        public Context(RenderLivingBase<?> renderer, JsonObject options, Function<String, ModelRenderer> bones, EntityModelDefinition definition,
-                       @Nullable LayerRenderer<?> replaced)
+        public Context(RenderLivingBase<?> renderer, JsonObject options, Function<String, ModelRenderer> bones,
+                       Function<String, List<float[]>> segmentOrigins, EntityModelDefinition definition, @Nullable LayerRenderer<?> replaced)
         {
             this.renderer = renderer;
             this.options = options;
             this.bones = bones;
+            this.segmentOrigins = segmentOrigins;
             this.definition = definition;
             this.replaced = replaced;
         }
