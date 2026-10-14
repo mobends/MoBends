@@ -42,6 +42,9 @@ public abstract class EntityBender<T extends EntityLivingBase>
 
 	private IEntityDataFactory<T> dataFactory;
 	private boolean animate;
+	/** The resource pack whose type brought this bender, or null if it isn't a resource pack's. */
+	@Nullable
+	private String resourcePack;
 
 	private static class Mutation
 	{
@@ -119,6 +122,18 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	public String getLocalizedName()
 	{
 		return I18n.format(this.unlocalizedName);
+	}
+
+	/** The resource pack whose type brought this bender (a mob it animates), or null if it isn't a resource pack's. */
+	@Nullable
+	public String getResourcePack()
+	{
+		return this.resourcePack;
+	}
+
+	public void setResourcePack(@Nullable String resourcePack)
+	{
+		this.resourcePack = resourcePack;
 	}
 
 	/**

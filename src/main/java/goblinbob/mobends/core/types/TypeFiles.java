@@ -58,6 +58,7 @@ final class TypeFiles
             else
             {
                 EntityBenderRegistry.instance.registerTypeBender(model, config);
+                model.setResourcePack(file.resourcePack);
             }
         }
         else if (definition.model != null)

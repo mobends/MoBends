@@ -3,6 +3,7 @@ package goblinbob.mobends.core.types;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.PackTrust;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.AbstractResourcePack;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.LegacyV2Adapter;
@@ -51,10 +52,14 @@ final class TypeFileDiscovery
         final String json;
         /** False for a file from a resource pack the player enabled (see {@code PackTrust}). */
         final boolean trusted;
+        /** The name of the resource pack (enabled, or the server's) the file came from; null for a mod's. */
+        @Nullable
+        final String resourcePack;
 
-        TypeFile(String source, String json, boolean trusted)
+        TypeFile(String source, String json, boolean trusted, @Nullable String resourcePack)
         {
             this.trusted = trusted;
+            this.resourcePack = resourcePack;
             this.source = source;
             this.json = json;
         }
@@ -81,32 +86,35 @@ final class TypeFileDiscovery
         {
             if (!packRoots.contains(canonical(root)))
             {
-                read("classpath", root, true, pattern, files, folder);
+                read("classpath", root, true, null, pattern, files, folder);
             }
         }
+        IResourcePack serverPack = Minecraft.getMinecraft().getResourcePackRepository().getServerResourcePack();
         Set<File> visited = new HashSet<>();
         for (IResourcePack pack : packs)
         {
             File root = rootOf(pack);
             if (root != null && visited.add(canonical(root)))
             {
-                read(pack.getPackName(), root, !PackTrust.isUserPack(pack), pattern, files, folder);
+                boolean userPack = PackTrust.isUserPack(pack);
+                String resourcePack = userPack ? pack.getPackName() : pack == serverPack ? I18n.format("mobends.gui.settings.server_pack") : null;
+                read(pack.getPackName(), root, !userPack, resourcePack, pattern, files, folder);
             }
         }
         return files;
     }
 
-    private static void read(String packName, File root, boolean trusted, Pattern pattern, List<TypeFile> files, String folder)
+    private static void read(String packName, File root, boolean trusted, @Nullable String resourcePack, Pattern pattern, List<TypeFile> files, String folder)
     {
         try
         {
             if (root.isDirectory())
             {
-                readFolder(packName, root, trusted, pattern, files);
+                readFolder(packName, root, trusted, resourcePack, pattern, files);
             }
             else if (root.isFile())
             {
-                readZip(packName, root, trusted, pattern, files);
+                readZip(packName, root, trusted, resourcePack, pattern, files);
             }
         }
         catch (IOException e)
@@ -195,7 +203,7 @@ final class TypeFileDiscovery
         return null;
     }
 
-    private static void readFolder(String packName, File root, boolean trusted, Pattern pattern, List<TypeFile> files) throws IOException
+    private static void readFolder(String packName, File root, boolean trusted, @Nullable String resourcePack, Pattern pattern, List<TypeFile> files) throws IOException
     {
         Path rootPath = root.toPath();
         Path assets = rootPath.resolve("assets");
@@ -213,7 +221,7 @@ final class TypeFileDiscovery
         }
         for (Path path : paths)
         {
-            files.add(new TypeFile(packName + "/" + relative(rootPath, path), new String(Files.readAllBytes(path), StandardCharsets.UTF_8), trusted));
+            files.add(new TypeFile(packName + "/" + relative(rootPath, path), new String(Files.readAllBytes(path), StandardCharsets.UTF_8), trusted, resourcePack));
         }
     }
 
@@ -222,7 +230,7 @@ final class TypeFileDiscovery
         return root.relativize(path).toString().replace(File.separatorChar, '/');
     }
 
-    private static void readZip(String packName, File zip, boolean trusted, Pattern pattern, List<TypeFile> files) throws IOException
+    private static void readZip(String packName, File zip, boolean trusted, @Nullable String resourcePack, Pattern pattern, List<TypeFile> files) throws IOException
     {
         try (ZipFile zipFile = new ZipFile(zip))
         {
@@ -241,7 +249,7 @@ final class TypeFileDiscovery
             {
                 try (InputStream stream = zipFile.getInputStream(entry))
                 {
-                    files.add(new TypeFile(packName + "/" + entry.getName(), IOUtils.toString(stream, StandardCharsets.UTF_8), trusted));
+                    files.add(new TypeFile(packName + "/" + entry.getName(), IOUtils.toString(stream, StandardCharsets.UTF_8), trusted, resourcePack));
                 }
             }
         }

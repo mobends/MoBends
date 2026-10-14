@@ -179,14 +179,19 @@ public class GuiBenderSettings implements IGuiListElement
     }
 
     /**
-     * The mod that adds the mob, followed by the one that animates it ("Twilight Forest · via Some
-     * Addon") unless that is the same mod, or Mo' Bends.
+     * The mod that adds the mob, followed by the resource pack that animates it ("Minecraft · from
+     * Some Pack"), or else by the mod that does ("Twilight Forest · via Some Addon") unless that is
+     * the same mod, or Mo' Bends.
      */
     private static String sourceOf(EntityBender<?> bender)
     {
         final Class<? extends EntityLivingBase> entityClass = EntityPreview.concreteClassOf(bender.entityClass);
         final ResourceLocation entityId = entityClass == null ? null : EntityList.getKey(entityClass);
         final String entityMod = entityId == null ? "minecraft" : entityId.getResourceDomain();
+        if (bender.getResourcePack() != null)
+        {
+            return I18n.format("mobends.gui.settings.from_pack", modName(entityMod), bender.getResourcePack());
+        }
         final String benderMod = new ResourceLocation(bender.getKey()).getResourceDomain();
         if (benderMod.equals(ModStatics.MODID) || benderMod.equals(entityMod))
         {
