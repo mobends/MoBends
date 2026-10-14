@@ -19,8 +19,14 @@ public class GuiBenderList extends GuiList<GuiBenderSettings>
 
     public GuiBenderList(int x, int y, int width, int height)
     {
-        super(x, y, width, height, 5, 3, 3, 15);
+        super(x, y, width, height, 3, 3, 3, 3);
         this.elements = new LinkedList<>();
+    }
+
+    /** How wide a row is: the list but its padding and the scroll bar. */
+    public int getRowWidth()
+    {
+        return this.width - this.scrollBarWidth - 2 * this.paddingLeft;
     }
 
     @Override
@@ -28,6 +34,20 @@ public class GuiBenderList extends GuiList<GuiBenderSettings>
     {
         Minecraft.getMinecraft().getTextureManager().bindTexture(LIST_TEXTURE);
         Draw.borderBox(0, 0, this.width, this.height, 4, 36, 117);
+    }
+
+    @Override
+    protected void drawContent(float partialTicks)
+    {
+        // Rows scrolled out of view aren't drawn, so their mobs aren't rendered.
+        final float scroll = getScrollAmount(partialTicks);
+        for (GuiBenderSettings element : elements)
+        {
+            if (element.getY() + element.getHeight() > scroll && element.getY() < scroll + this.height)
+            {
+                element.draw(partialTicks);
+            }
+        }
     }
 
     @Override

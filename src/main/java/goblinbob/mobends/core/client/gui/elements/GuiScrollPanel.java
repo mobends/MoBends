@@ -146,7 +146,7 @@ public abstract class GuiScrollPanel extends GuiElement
     @Override
     public void draw(float partialTicks)
     {
-        final float scroll = GUtil.lerp(this.prevScrollAmount, this.scrollAmount, partialTicks);
+        final float scroll = getScrollAmount(partialTicks);
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(this.getViewX(), this.getViewY(), 0);
@@ -155,13 +155,12 @@ public abstract class GuiScrollPanel extends GuiElement
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(0, -scroll, 0);
-        UIScissorHelper.INSTANCE.setUIBounds((int) this.getAbsoluteX(), (int) this.getAbsoluteY(), this.width - this.scrollBarWidth, this.height);
-        UIScissorHelper.INSTANCE.enable();
+        UIScissorHelper.INSTANCE.push(this.getAbsoluteX(), this.getAbsoluteY(), this.width - this.scrollBarWidth, this.height);
 
         this.drawChildren(partialTicks);
         this.drawContent(partialTicks);
 
-        UIScissorHelper.INSTANCE.disable();
+        UIScissorHelper.INSTANCE.pop();
         GlStateManager.popMatrix();
 
         this.drawForeground(partialTicks);
@@ -200,6 +199,12 @@ public abstract class GuiScrollPanel extends GuiElement
     public int getScrollAmount()
     {
         return scrollAmount;
+    }
+
+    /** How far the content is scrolled, as drawn this frame. */
+    public float getScrollAmount(float partialTicks)
+    {
+        return GUtil.lerp(this.prevScrollAmount, this.scrollAmount, partialTicks);
     }
 
     protected int getScrollHandleY()

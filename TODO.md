@@ -17,7 +17,7 @@ editor, which is in the works. It opens the `officialAnimationEditorUrl` of
 
 ## Mo' Bends menu
 
-- [ ] Improve the look of the *Settings* submenu (`GuiSettingsWindow`, `GuiBenderList`): each mob
+- [x] Improve the look of the *Settings* submenu (`GuiSettingsWindow`, `GuiBenderList`): each mob
       shown with an orthographic render of it as a thumbnail (clipped to its frame), its name, etc.
 
 ## Multiple Minecraft versions and loaders

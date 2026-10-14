@@ -22,6 +22,7 @@ mobends.config.item_attack_classifications.tooltip=A list of "item=classificatio
 mobends.config.keep_armor_as_vanilla=Keep armor as vanilla
 mobends.config.keep_entity_as_vanilla=Keep entity as vanilla
 mobends.gui.reset=Reset
+mobends.gui.settings.via=%s · via %s
 mobends.gui.typeorder.button=Order (%d)
 mobends.gui.typeorder.title=Order: %s
 mobends.gui.typeorder.hint=When several types apply, the highest one wins.

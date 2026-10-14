@@ -3,6 +3,7 @@ package goblinbob.mobends.core.client.event;
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.RendererState;
+import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
@@ -64,6 +65,16 @@ public class EntityRenderHandler
         {
             final LivingEntityData<EntityLivingBase> data = EntityDatabase.instance.get(living);
             entityBender.beforeRender(data, living, pt);
+        }
+    }
+
+    /** The previews of the Settings window are drawn without the name above them. */
+    @SubscribeEvent
+    public void beforeLivingSpecials(RenderLivingEvent.Specials.Pre<? extends EntityLivingBase> event)
+    {
+        if (event.getEntity().world instanceof PreviewWorld)
+        {
+            event.setCanceled(true);
         }
     }
 

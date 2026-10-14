@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.bender;
 
 import goblinbob.mobends.core.Core;
+import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import net.minecraft.entity.EntityLivingBase;
@@ -157,6 +158,12 @@ public class EntityBenderRegistry
     @Nullable
     public EntityTypeRegistry.Selection getSelection(EntityLivingBase entity)
     {
+        if (entity.world instanceof PreviewWorld)
+        {
+            // A preview of the Settings window shows its bender, whatever type wins in the game.
+            return ((PreviewWorld) entity.world).getSelection(entity);
+        }
+
         CachedCandidates cached = entityToCandidatesMap.get(entity);
         if (cached == null || cached.entity.get() != entity)
         {

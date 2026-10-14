@@ -6,6 +6,8 @@ import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
 import goblinbob.mobends.core.client.gui.elements.GuiCompactTextField;
+import goblinbob.mobends.core.client.preview.EntityPreview;
+import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
@@ -17,7 +19,10 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GuiSettingsWindow extends GuiScreen
 {
@@ -25,14 +30,24 @@ public class GuiSettingsWindow extends GuiScreen
     public static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(ModStatics.MODID,
             "textures/gui/settings_window.png");
     public static final int EDITOR_WIDTH = 280;
+    /** The least height; the window grows with the screen up to the max, clear of its edges and the back button. */
     public static final int EDITOR_HEIGHT = 177;
+    private static final int MAX_EDITOR_HEIGHT = 400;
+    private static final int SCREEN_MARGIN = 40;
     private static final int COMPONENT_BUTTON_BACK = 0;
     private static final int COMPONENT_QUERY_INPUT = 1;
 
     private int x, y;
+    private int editorHeight = EDITOR_HEIGHT;
 
     private GuiCompactTextField filterQueryInput;
     private final GuiBenderList bendsSettingsListUI = new GuiBenderList(0, 0, EDITOR_WIDTH - 10, EDITOR_HEIGHT - 10 - 20);
+
+    /** Where the mobs of the rows stand, closed with the window; null if it can't be made. */
+    @Nullable
+    private final PreviewWorld previewWorld = makePreviewWorld();
+    /** Each bender's mob, kept while searching. */
+    private final Map<EntityBender<?>, EntityPreview> previews = new HashMap<>();
 
     private String query;
 
@@ -50,14 +65,16 @@ public class GuiSettingsWindow extends GuiScreen
 
         Keyboard.enableRepeatEvents(true);
 
+        this.editorHeight = Math.max(EDITOR_HEIGHT, Math.min(MAX_EDITOR_HEIGHT, this.height - 2 * SCREEN_MARGIN));
         this.x = (this.width - EDITOR_WIDTH) / 2;
-        this.y = (this.height - EDITOR_HEIGHT) / 2;
+        this.y = (this.height - editorHeight) / 2;
 
         buttonList.clear();
         buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
         filterQueryInput = new GuiCompactTextField(COMPONENT_QUERY_INPUT, this.fontRenderer, x + 6, y + 6, 150, 16);
         filterQueryInput.setFocused(true);
         filterQueryInput.setPlaceholderText(I18n.format("mobends.gui.search"));
+        bendsSettingsListUI.setHeight(editorHeight - 10 - 20);
         bendsSettingsListUI.initGui(this.x + 9, this.y + 9 + 20);
     }
 
@@ -68,7 +85,7 @@ public class GuiSettingsWindow extends GuiScreen
 
         mc.getTextureManager().bindTexture(BACKGROUND_TEXTURE);
         // Container
-        Draw.borderBox(x + 4, y + 4, EDITOR_WIDTH, EDITOR_HEIGHT, 4, 36, 126);
+        Draw.borderBox(x + 4, y + 4, EDITOR_WIDTH, editorHeight, 4, 36, 126);
         // Title background
         Draw.texturedModalRect(x, y - 13, 101, 0, 4, 16);
         Draw.texturedModalRect(x + 4, y - 13, EDITOR_WIDTH - 16, 16, 105, 0, 1, 16);
@@ -159,6 +176,29 @@ public class GuiSettingsWindow extends GuiScreen
         this.mc.displayGuiScreen(new GuiBendsMenu());
     }
 
+    @Override
+    public void onGuiClosed()
+    {
+        super.onGuiClosed();
+
+        if (previewWorld != null)
+            previewWorld.close();
+    }
+
+    @Nullable
+    private static PreviewWorld makePreviewWorld()
+    {
+        try
+        {
+            return new PreviewWorld();
+        }
+        catch (Throwable e)
+        {
+            Core.LOG.warning("Unable to make the world of the mob previews: " + e);
+            return null;
+        }
+    }
+
     public boolean doesGuiPauseGame()
     {
         return false;
@@ -171,7 +211,8 @@ public class GuiSettingsWindow extends GuiScreen
         {
             final int typeCount = EntityTypeRegistry.INSTANCE.getTypesFor(bender).size();
             final int extensionCount = EntityTypeRegistry.INSTANCE.getExtensionsFor(bender).size();
-            bendsSettingsListUI.addElement(new GuiBenderSettings(bender, typeCount, () -> {
+            final EntityPreview preview = previews.computeIfAbsent(bender, b -> new EntityPreview(previewWorld, b));
+            bendsSettingsListUI.addElement(new GuiBenderSettings(bendsSettingsListUI, bender, preview, typeCount, () -> {
                 Core.saveConfiguration();
                 this.mc.displayGuiScreen(GuiOrderWindow.forTypes(bender));
             }, extensionCount, () -> {

@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.data;
 
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
+import goblinbob.mobends.core.client.preview.PreviewWorld;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -83,7 +84,10 @@ public class EntityDatabase
 
             LivingEntityData<?> entityData = entry.getValue();
             EntityLivingBase entityInData = entityData.getEntity();
-            Entity entity = Minecraft.getMinecraft().world.getEntityByID(entry.getKey());
+            // A preview (see PreviewWorld) is in its own world, for as long as that is open.
+            Entity entity = entityInData.world instanceof PreviewWorld
+                    ? entityInData.world.getEntityByID(entry.getKey())
+                    : Minecraft.getMinecraft().world.getEntityByID(entry.getKey());
             if (entity == null || entityInData != entity)
             {
                 EntityBenderRegistry.instance.clearCache(entityInData);

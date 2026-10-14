@@ -285,6 +285,35 @@ public class EntityTypeRegistry
         return found;
     }
 
+    /**
+     * The selection that animates the entity with {@code bender}: of the bender's types (see
+     * {@link #getTypesFor}), the first whose selector holds for the entity, or else the first that
+     * can apply to it at all. Null if none gives it that bender. For previews, which show a bender
+     * whatever type would win for the entity.
+     */
+    @Nullable
+    public Selection selectionAs(EntityBender<?> bender, EntityLivingBase entity)
+    {
+        Selection fallback = null;
+        for (EntityType type : getTypesFor(bender))
+        {
+            Selection selection = type.selectionFor(entity);
+            if (selection == null || selection.bender != bender)
+            {
+                continue;
+            }
+            if (type.matches(entity))
+            {
+                return selection;
+            }
+            if (fallback == null)
+            {
+                fallback = selection;
+            }
+        }
+        return fallback;
+    }
+
     /** Ranks the types so {@code order} holds (the first gets precedence) and stores the ranks in the config. */
     public void setOrder(List<EntityType> order)
     {

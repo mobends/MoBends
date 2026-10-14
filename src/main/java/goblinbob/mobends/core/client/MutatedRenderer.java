@@ -31,9 +31,10 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 
         Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
         double viewX = entityX, viewY = entityY, viewZ = entityZ;
-        if (viewEntity != null)
+        // Drawn from where the view is, unless that is in another world (the Main Menu, or the
+        // previews of the Settings window, drawn where they are).
+        if (viewEntity != null && viewEntity.world == entity.world)
         {
-            // Checking in case of Main Menu or GUI rendering.
             viewX = viewEntity.prevPosX + (viewEntity.posX - viewEntity.prevPosX) * partialTicks;
             viewY = viewEntity.prevPosY + (viewEntity.posY - viewEntity.prevPosY) * partialTicks;
             viewZ = viewEntity.prevPosZ + (viewEntity.posZ - viewEntity.prevPosZ) * partialTicks;
