@@ -362,7 +362,11 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 {
                     for (ModelRenderer child : vanilla.childModels)
                     {
-                        part.addChild(child);
+                        // A child the definition declares is a bone of its own (the villager's nose).
+                        if (!vanillaParts.containsValue(child))
+                        {
+                            part.addChild(child);
+                        }
                     }
                 }
             }
