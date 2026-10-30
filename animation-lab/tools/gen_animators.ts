@@ -2,8 +2,8 @@
 /**
  * Generates the animator JSON files (biped, zombie, skeleton, pig zombie, player, squid, spider and
  * most of the mobs described by model definitions) and the hand-authored clips they use. The iron
- * golem's and the creeper's animators and clips, and the cow's animator, are edited by hand
- * instead.
+ * golem's, the creeper's and the villager's animators and clips, and the cow's animator, are edited
+ * by hand instead.
  *
  * The animators are plain data; this script only spares us from writing the shared structure by
  * hand and from computing the quaternions of hand-authored constant poses. Run it through
@@ -1143,14 +1143,13 @@ const quadLegs: Leg[] = [["leg1", "foreLeg1", 0.0], ["leg2", "foreLeg2", Math.PI
 const quadruped = walkerAnimator("quadruped", quadLegs, [["head", 2.0], ["body", 1.0]]);
 // the cow's layer, which extends it, follows the walk through it
 quadruped["@define"].walking = live(chooses(locomotionSelect, "walk"));
-const villager = walkerAnimator("villager", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 1.5], ["arms", 2.0]]);
 const chickenWings = [withDamping(drv("rightWing", "Z", "entity.wingAngle", { space: "override" }), { rightWing: 1 }),
                       withDamping(drv("leftWing", "Z", "entity.wingAngle", { scale: -1, space: "override" }), { leftWing: 1 })];
 const chicken = walkerAnimator("chicken", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 2.0]], chickenWings);
 
 const animators: [string, Obj][] = [
   ["biped", biped], ["zombie", zombie], ["skeleton", skeleton], ["pig_zombie", pigZombie], ["player", player], ["squid", squid], ["spider", spider], ["zombie_villager", zombieVillager],
-  ["quadruped", quadruped], ["villager", villager], ["chicken", chicken],
+  ["quadruped", quadruped], ["chicken", chicken],
 ];
 // ---- biped body rates ------------------------------------------------------------------------
 // The rates above are the ones the procedural bits set, but biped entity data used to advance

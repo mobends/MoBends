@@ -85,6 +85,13 @@ public class DefinedModelsTest
     /** The models whose animator moves the limbs while standing. */
     private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:pig_zombie"));
 
+    /**
+     * The models that stand on their feet where the walk left them (core:step_turn's
+     * placeFromPose), their legs bent as far as the feet are apart: VillagerStepTurnTest checks
+     * where the feet end up.
+     */
+    private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch"));
+
     /** The model definitions the shipped type files name, by type id, the default models and the unreleased ones. */
     private static Map<String, ResourceLocation> definedModels() throws Exception
     {
@@ -235,7 +242,7 @@ public class DefinedModelsTest
 
         // Having stopped, every split segment settles back where it stood before walking (not necessarily straight: a creeper leans at rest).
         // A biped's idle never stands still (it breathes and sways its arms), so it has no pose to settle back to.
-        if (IDLE_MOVES.contains(name)) return;
+        if (IDLE_MOVES.contains(name) || STAND_WHERE_THEY_STOPPED.contains(name)) return;
         for (BoneDefinition bone : definition.bones)
         {
             if (bone.split == null) continue;

@@ -14,7 +14,15 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/villager/rest.json"},
-                "@damping": {"rightLeg": 0.5, "foreRightLeg": 0.5, "leftLeg": 0.5, "foreLeftLeg": 0.5}
+                "@damping": {"rightLeg": 0.5, "foreRightLeg": 0.5, "leftLeg": 0.5, "foreLeftLeg": 0.5, "body": 0.5, "arms": 0.5}
+              },
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/villager/walk.json",
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "entityLimbSwingAmount"
+                },
+                "@damping": {"rightLeg": 10, "foreRightLeg": 10, "leftLeg": 10, "foreLeftLeg": 10}
               },
               {
                 "core:clip": {
@@ -39,12 +47,24 @@
           "core:pose": {
             "pose": [
               {
+                "core:clip": {"animationKey": "mobends:bends/animations/villager/rest.json"},
+                "@damping": {"rightLeg": 0.5, "foreRightLeg": 0.5, "leftLeg": 0.5, "foreLeftLeg": 0.5, "body": 0.5, "arms": 0.5}
+              },
+              {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/villager/walk.json",
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
-                "@damping": {"rightLeg": 0.8, "foreRightLeg": 0.8, "leftLeg": 0.8, "foreLeftLeg": 0.8}
+                "@damping": {"rightLeg": 10, "foreRightLeg": 10, "leftLeg": 10, "foreLeftLeg": 10}
+              },
+              {
+                "core:axis_rotate": {"bone": "body", "axis": "y", "angle": "node.twist"},
+                "@space": "pre"
+              },
+              {
+                "core:axis_rotate": {"bone": "arms", "axis": "y", "angle": "node.twist"},
+                "@space": "pre"
               },
               {
                 "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
@@ -56,11 +76,18 @@
                 "@space": "post"
               }
             ]
+          },
+          "@define": {
+            "twist": {"live": {"mul": [{"cos": [{"mul": ["entityLimbSwing", 0.6662]}]}, 5, "entityLimbSwingAmount"]}}
           }
         },
         "jump": {
           "core:pose": {
             "pose": [
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/villager/rest.json", "bones": ["body", "arms"]},
+                "@damping": {"body": 0.5, "arms": 0.5}
+              },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/villager/jump.json"},
                 "@damping": {"rightLeg": 0.3, "foreRightLeg": 0.3, "leftLeg": 0.3, "foreLeftLeg": 0.3}
@@ -74,6 +101,199 @@
                 "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "post"
               }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "@comment": "The villager walks by a clip that swings its legs (the feet slide, as vanilla's do), and stands and turns on its feet as the iron golem does: core:step_turn plants them in the world and turns the body only as far as they have stepped, light on them (quick steps, little weight shifted or rolled over the planted foot, the body following its feet on a stiffer spring). It is off while the villager walks or jumps; when it stops, the driver comes back on at once, with each foot planted where the walk left it, a foot in the air coming down where it is (placeFromPose: the stand node plays the walk too, weighted by the limb swing, which winds down over the ticks after it stops, so the pose beneath is still the walk's as the driver comes in; the walk's legs aren't smoothed, as vanilla's aren't, so they are drawn where the driver plants the feet), and a foot further than finishDrift from its place steps back under the body; nearer, it stays where the walk left it. It doesn't crouch (crouch, walkCrouch), so the villager stands as high as it walks, the hips going down only as far as feet planted apart need to reach (at most walkCrouch), easing down over crouchDrop ticks. RenderVillager draws the model at 0.9375 of its size, and a baby's at half that again, so a block is 16 / 0.9375 model units for a grown villager and twice that for a baby, which has its own, quicker driver. Standing, the upper body reacts lightly: the folded arms and the torso swing a little against the legs, the head keeps looking where the villager looks and nods as a foot lands. Landing, it gives a little (a kick on a spring).",
+      "defaultOnEntry": "planted",
+      "nodes": {
+        "planted": {
+          "core:pose": {
+            "pose": [
+              {
+                "core:accumulate": {"inout": "node.onFeet", "rate": {"if": [{"or": ["animator.jumping", {"not": ["entityIsStandingStill"]}]}, -0.5, 4]}, "min": 0, "max": 1}
+              },
+              {"core:accumulate": {"inout": "node.landing", "rate": -0.35, "min": 0, "max": 1}},
+              {
+                "core:spring": {"inout": "node.landKick", "target": "node.landing", "stiffness": 0.4, "friction": 0.4}
+              },
+              {
+                "@when": {"not": ["entityIsChild"]},
+                "core:step_turn": {
+                  "weight": "node.onFeet",
+                  "unitsPerBlock": 17.0667,
+                  "legs": [
+                    {"upper": "rightLeg", "lower": "foreRightLeg", "hip": [-2, 12, 0], "knee": [0, 6, -2], "foot": [0, 6, 2]},
+                    {"upper": "leftLeg", "lower": "foreLeftLeg", "hip": [2, 12, 0], "knee": [0, 6, -2], "foot": [0, 6, 2]}
+                  ],
+                  "turnThreshold": 15,
+                  "maxStepAngle": 45,
+                  "stepDuration": 5,
+                  "stepHeight": 2.5,
+                  "stepPause": 1,
+                  "strideLength": 10,
+                  "minStepDuration": 2.5,
+                  "finishDrift": 4,
+                  "driftThreshold": 5,
+                  "settleAngle": 4,
+                  "resetDistance": 20,
+                  "placeFromPose": true,
+                  "bodyStiffness": 0.22,
+                  "bodyDamping": 0.7,
+                  "runSpeed": 0.1,
+                  "runBodyStiffness": 1.5,
+                  "runBodyDamping": 2.5,
+                  "runStrideLength": 17,
+                  "runStepHeight": 3,
+                  "runFacingSmoothing": 3,
+                  "crouch": 0,
+                  "walkCrouch": 1,
+                  "crouchDrop": 4,
+                  "impactDepth": 0.6,
+                  "impactTime": 1.5,
+                  "weightShift": 0.6,
+                  "weightRoll": 1.5,
+                  "out": {
+                    "turnLag": "node.turnLag",
+                    "turnSpeed": "node.turnSpeed",
+                    "stepLift": "node.stepLift",
+                    "stepImpact": "node.stepImpact",
+                    "stride": "node.stride"
+                  }
+                }
+              },
+              {
+                "@when": "entityIsChild",
+                "core:step_turn": {
+                  "weight": "node.onFeet",
+                  "unitsPerBlock": 34.1333,
+                  "legs": [
+                    {"upper": "rightLeg", "lower": "foreRightLeg", "hip": [-2, 12, 0], "knee": [0, 6, -2], "foot": [0, 6, 2]},
+                    {"upper": "leftLeg", "lower": "foreLeftLeg", "hip": [2, 12, 0], "knee": [0, 6, -2], "foot": [0, 6, 2]}
+                  ],
+                  "turnThreshold": 15,
+                  "maxStepAngle": 45,
+                  "stepDuration": 4,
+                  "stepHeight": 2.5,
+                  "stepPause": 1,
+                  "strideLength": 10,
+                  "minStepDuration": 2,
+                  "finishDrift": 4,
+                  "driftThreshold": 5,
+                  "settleAngle": 4,
+                  "resetDistance": 24,
+                  "placeFromPose": true,
+                  "bodyStiffness": 0.3,
+                  "bodyDamping": 0.8,
+                  "runSpeed": 0.05,
+                  "runBodyStiffness": 2,
+                  "runBodyDamping": 3,
+                  "runStrideLength": 18,
+                  "runStepHeight": 3,
+                  "runFacingSmoothing": 3,
+                  "crouch": 0,
+                  "walkCrouch": 1,
+                  "crouchDrop": 4,
+                  "impactDepth": 0.5,
+                  "impactTime": 1.2,
+                  "weightShift": 0.4,
+                  "weightRoll": 1,
+                  "out": {
+                    "turnLag": "node.turnLag",
+                    "turnSpeed": "node.turnSpeed",
+                    "stepLift": "node.stepLift",
+                    "stepImpact": "node.stepImpact",
+                    "stride": "node.stride"
+                  }
+                }
+              },
+              {
+                "core:spring": {"inout": "node.jolt", "target": "node.stepImpact", "stiffness": 0.45, "friction": 0.6}
+              },
+              {
+                "core:spring": {"inout": "node.swing", "target": "node.stride", "stiffness": 0.2, "friction": 0.35}
+              },
+              {
+                "core:spring": {"inout": "node.lag", "target": "node.turnSpeed", "stiffness": 0.2, "friction": 0.4}
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "head",
+                  "axis": "y",
+                  "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}
+                },
+                "@space": "pre"
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", 3]}, "node.onFeet"]}},
+                "@space": "post"
+              },
+              {
+                "core:axis_rotate": {"bone": "body", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
+                "@space": "pre"
+              },
+              {
+                "core:axis_rotate": {"bone": "arms", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
+                "@space": "pre"
+              },
+              {
+                "core:axis_rotate": {"bone": "arms", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", -4]}, "node.onFeet"]}},
+                "@space": "post"
+              },
+              {
+                "core:vector": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1]}, "z": 0},
+                "@damping": {"root": [0.3, null, 0.3]}
+              },
+              {
+                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.landKick", 3]}},
+                "@space": "post"
+              },
+              {
+                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": ["node.landKick", 4]}},
+                "@space": "post"
+              },
+              {
+                "core:axis_rotate": {"bone": "arms", "axis": "x", "angle": {"mul": ["node.landKick", -6]}},
+                "@space": "post"
+              },
+              {
+                "core:axis_rotate": {"bone": "rightLeg", "axis": "x", "angle": {"mul": ["node.landKick", -12]}},
+                "@space": "pre"
+              },
+              {
+                "core:axis_rotate": {"bone": "leftLeg", "axis": "x", "angle": {"mul": ["node.landKick", -12]}},
+                "@space": "pre"
+              },
+              {
+                "core:axis_rotate": {"bone": "foreRightLeg", "axis": "x", "angle": {"mul": ["node.landKick", 20]}},
+                "@space": "post"
+              },
+              {
+                "core:axis_rotate": {"bone": "foreLeftLeg", "axis": "x", "angle": {"mul": ["node.landKick", 20]}},
+                "@space": "post"
+              }
+            ]
+          },
+          "@define": {
+            "onFeet": {"state": 0},
+            "turnLag": {"state": 0},
+            "turnSpeed": {"state": 0},
+            "stepLift": {"state": 0},
+            "stepImpact": {"state": 0},
+            "stride": {"state": 0},
+            "jolt": {"state": 0},
+            "swing": {"state": 0},
+            "lag": {"state": 0},
+            "twist": {"live": {"clamp": [{"add": [{"mul": ["node.turnLag", 0.3]}, {"mul": ["node.lag", -1.5]}, {"mul": ["node.swing", 0.8]}]}, -12, 12]}},
+            "landing": {"state": 0},
+            "landKick": {"state": 0}
+          },
+          "@on": {
+            "update": [
+              {"@when": {"decreased": ["entityTicksAfterTouchdown"]}, "set": ["node.landing", 1]}
             ]
           }
         }
