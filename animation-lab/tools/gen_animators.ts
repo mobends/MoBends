@@ -883,14 +883,16 @@ const groundAction = OR("animator.standing", "animator.walking", "animator.sprin
 // knees (split at half, hinged at the front) sit under it; the soles are 1.9 to the side.
 const playerLeg = (upper: string, lower: string, side: number): Obj =>
   ({ upper, lower, hip: [0, 12, 0], knee: [0, 6, -2], foot: [1.9 * side, 6, 2] });
-// Standing still on the ground, not sneaking (the sneak poses the legs), well after an attack (the
-// sword's stance, the slashes, the punches and the fist guard pose the legs and turn the whole
+// The sword's stance, as the action layer takes it: on its feet too, wider apart.
+const inStance = AND(prop("attackActionType", "SWORD"), stanceStillCond);
+// Standing still on the ground, not sneaking (the sneak poses the legs), well after an attack or in
+// the sword's stance (the slashes, the punches and the fist guard pose the legs and turn the whole
 // model, and a swing turns vanilla's body to the head), not aiming a bow (the arms aim from the
 // body), and once a landing's kneel is over (it lowers the whole model).
-const onFeet = AND("animator.standing", NOT(state("entityIsSneaking")), cmp(tAA, ">=", 60), NOT(state("entityIsDrawingBow")),
+const onFeet = AND("animator.standing", NOT(state("entityIsSneaking")), OR(cmp(tAA, ">=", 60), inStance), NOT(state("entityIsDrawingBow")),
                    cmp("entityTicksAfterTouchdown", ">=", 6.666666666666667));
 const plantedLayer: Obj = {
-  "@comment": "The player stands on its feet as the villager and the zombie do: while it stands still (see onFeet), core:step_turn plants them in the world and turns the body only as far as they have stepped. It walks, runs and does the rest by its clips, the driver off; it comes back on at once when the player stands, each foot planted where the legs are drawn (placeFromPose), a foot further than finishDrift from its place stepping back under the body; it goes off over two ticks as the player sets off, and at once otherwise (an attack, the sneak, a bow), whatever comes next smoothing the legs and the whole model from where the driver drew them. RenderPlayer draws the model at 0.9375 of its size, so a block is 16 / 0.9375 model units. The head keeps looking where the player looks.",
+  "@comment": "The player stands on its feet as the villager and the zombie do: while it stands still (see onFeet), and in the sword's stance, its feet wider apart, core:step_turn plants them in the world and turns the body only as far as they have stepped. It walks, runs and does the rest by its clips, the driver off; it comes back on at once when the player stands, each foot planted where the legs are drawn (placeFromPose), a foot further than finishDrift from its place stepping back under the body; it goes off over two ticks as the player sets off, and at once otherwise (an attack, the sneak, a bow), whatever comes next smoothing the legs and the whole model from where the driver drew them. RenderPlayer draws the model at 0.9375 of its size, so a block is 16 / 0.9375 model units. The head keeps looking where the player looks.",
   defaultOnEntry: "planted",
   nodes: { planted: poseNode([
     // On at once; off over two ticks as it sets off (the hips ease back up with it), and at once
@@ -902,6 +904,13 @@ const plantedLayer: Obj = {
       unitsPerBlock: 17.0667,
       legs: [playerLeg("rightLeg", "rightForeLeg", -1), playerLeg("leftLeg", "leftForeLeg", 1)],
       placeFromPose: true,
+      // In the sword's stance the feet stand wide apart, the left one ahead (the right one for a
+      // left-handed player, whose stance is mirrored); its lowering (the root) and its side-on turn
+      // (the render rotation, eased in) are followed, the feet staying planted.
+      spread: { if: [inStance, 4, 0] },
+      stagger: { if: [inStance, { if: [state("entityIsLeftHanded"), -3, 3] }, 0] },
+      followRoot: true, rootTicks: 1.7,
+      beneathTurnTicks: 3,
       // Turning in few, large steps: a foot steps once the body is 40° past it (squaring up only past
       // 25° after a step), up to 120° at a time, the next lifting before the body has caught up, the
       // body following its feet on a stiff spring (a stiffness of 1.6 and a damping of 2.2 over

@@ -2754,7 +2754,7 @@
       }
     },
     {
-      "@comment": "The player stands on its feet as the villager and the zombie do: while it stands still (see onFeet), core:step_turn plants them in the world and turns the body only as far as they have stepped. It walks, runs and does the rest by its clips, the driver off; it comes back on at once when the player stands, each foot planted where the legs are drawn (placeFromPose), a foot further than finishDrift from its place stepping back under the body; it goes off over two ticks as the player sets off, and at once otherwise (an attack, the sneak, a bow), whatever comes next smoothing the legs and the whole model from where the driver drew them. RenderPlayer draws the model at 0.9375 of its size, so a block is 16 / 0.9375 model units. The head keeps looking where the player looks.",
+      "@comment": "The player stands on its feet as the villager and the zombie do: while it stands still (see onFeet), and in the sword's stance, its feet wider apart, core:step_turn plants them in the world and turns the body only as far as they have stepped. It walks, runs and does the rest by its clips, the driver off; it comes back on at once when the player stands, each foot planted where the legs are drawn (placeFromPose), a foot further than finishDrift from its place stepping back under the body; it goes off over two ticks as the player sets off, and at once otherwise (an attack, the sneak, a bow), whatever comes next smoothing the legs and the whole model from where the driver drew them. RenderPlayer draws the model at 0.9375 of its size, so a block is 16 / 0.9375 model units. The head keeps looking where the player looks.",
       "defaultOnEntry": "planted",
       "nodes": {
         "planted": {
@@ -2769,7 +2769,29 @@
                         "and": [
                           "animator.standing",
                           {"not": ["entityIsSneaking"]},
-                          {"ge": ["entityTicksAfterAttack", 60]},
+                          {
+                            "or": [
+                              {"ge": ["entityTicksAfterAttack", 60]},
+                              {
+                                "and": [
+                                  {"mobends:attack_action": ["sword"]},
+                                  {
+                                    "and": [
+                                      {
+                                        "and": [
+                                          {"ge": ["entityTicksAfterAttack", 10]},
+                                          {"lt": ["entityTicksAfterAttack", 60]},
+                                          "entityIsOnGround"
+                                        ]
+                                      },
+                                      {"not": ["entityIsSprinting"]},
+                                      "entityIsStandingStill"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          },
                           {"not": ["entityIsDrawingBow"]},
                           {"ge": ["entityTicksAfterTouchdown", 6.666666666666667]}
                         ]
@@ -2803,6 +2825,57 @@
                     }
                   ],
                   "placeFromPose": true,
+                  "spread": {
+                    "if": [
+                      {
+                        "and": [
+                          {"mobends:attack_action": ["sword"]},
+                          {
+                            "and": [
+                              {
+                                "and": [
+                                  {"ge": ["entityTicksAfterAttack", 10]},
+                                  {"lt": ["entityTicksAfterAttack", 60]},
+                                  "entityIsOnGround"
+                                ]
+                              },
+                              {"not": ["entityIsSprinting"]},
+                              "entityIsStandingStill"
+                            ]
+                          }
+                        ]
+                      },
+                      4,
+                      0
+                    ]
+                  },
+                  "stagger": {
+                    "if": [
+                      {
+                        "and": [
+                          {"mobends:attack_action": ["sword"]},
+                          {
+                            "and": [
+                              {
+                                "and": [
+                                  {"ge": ["entityTicksAfterAttack", 10]},
+                                  {"lt": ["entityTicksAfterAttack", 60]},
+                                  "entityIsOnGround"
+                                ]
+                              },
+                              {"not": ["entityIsSprinting"]},
+                              "entityIsStandingStill"
+                            ]
+                          }
+                        ]
+                      },
+                      {"if": ["entityIsLeftHanded", -3, 3]},
+                      0
+                    ]
+                  },
+                  "followRoot": true,
+                  "rootTicks": 1.7,
+                  "beneathTurnTicks": 3,
                   "turnThreshold": 40,
                   "finishThreshold": 25,
                   "finishWindow": 30,

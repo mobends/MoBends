@@ -160,6 +160,39 @@ public class PlayerStepTurnTest
         }
     }
 
+    @Test
+    void standsWideInTheSwordStance() throws Exception
+    {
+        PlantedFeetRig player = player();
+        player.measureFrom = 41;
+        // Standing, then attacking with a sword at tick 30: the stance from tick 40 to 90.
+        double[] spread = {0, 0};
+        player.onFrame = time -> {
+            if (Math.abs(time - 25) < 0.2)
+            {
+                spread[0] = player.feetApart();
+            }
+            if (Math.abs(time - 80) < 0.2)
+            {
+                spread[1] = player.feetApart();
+            }
+        };
+        player.run(160, tick -> {
+            player.inputs.mainHand = new net.minecraft.item.ItemStack(net.minecraft.init.Items.IRON_SWORD);
+            player.inputs.attack = tick == 30;
+        });
+        // In the stance the feet stand more than twice as far apart, planted as the stance lowers and
+        // turns the whole model side-on.
+        assertTrue(spread[1] > 2 * spread[0], "in the stance, the feet were " + spread[1] + " apart, against " + spread[0] + " standing");
+        assertTrue(player.maxSlide < 0.02, "a planted foot slid " + player.maxSlide + " blocks");
+        for (int i = 0; i < 2; i++)
+        {
+            assertEquals(GROUND, player.soleY[i], 0.3, "foot " + i + " isn't on the ground");
+            // After it, back within reach of their places.
+            assertTrue(player.offRest[i] < SETTLE_RADIUS + 0.5, "foot " + i + " stopped " + player.offRest[i] + " units off its place");
+        }
+    }
+
     private static PlantedFeetRig player() throws Exception
     {
         return new PlantedFeetRig("bends/models/player.json", AbstractClientPlayer::new, false, 0, 0.9375,

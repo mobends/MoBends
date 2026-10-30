@@ -73,12 +73,20 @@ class PlantedFeetRig
      */
     final double offsetUnits;
 
+    /** How far apart the first two soles are, across the ground, in model units. */
+    double feetApart()
+    {
+        return Math.hypot(soleX[1] - soleX[0], soleZ[1] - soleZ[0]) * unitsPerBlock;
+    }
+
     /** Called every frame once the animator has posed it, with the time in ticks. */
     DoubleConsumer onFrame = time -> {};
     /** The tick from which steps and slides are counted. */
     int measureFrom;
 
     double shownYaw;
+    /** Where each sole is in the world, in blocks. */
+    final double[] soleX, soleZ;
     final double[] soleY;
     /** How far each sole is from under its hip, in model units, in the shown frame. */
     final double[] offRest;
@@ -119,6 +127,8 @@ class PlantedFeetRig
                 Collections.emptyList(), Collections.emptyList(), KumoSession.INSTANCING);
         this.legs = legs;
         soleY = new double[legs.length];
+        soleX = new double[legs.length];
+        soleZ = new double[legs.length];
         offRest = new double[legs.length];
         double drawn = child ? scale * definition.childScale : scale;
         unitsPerBlock = 16 / drawn;
@@ -186,6 +196,8 @@ class PlantedFeetRig
                 double wx = px + (o[0] * cos - o[2] * sin) / unitsPerBlock, wz = pz + (o[0] * sin + o[2] * cos) / unitsPerBlock;
                 my = ORIGIN - (o[1] + rootY);
                 soleY[i] = my;
+                soleX[i] = wx;
+                soleZ[i] = wz;
                 double[] now = {wx * unitsPerBlock, my, wz * unitsPerBlock};
                 if (lastSole[i] != null)
                 {
