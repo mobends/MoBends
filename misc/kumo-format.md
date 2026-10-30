@@ -426,6 +426,16 @@ whatever poses them as the mob stops (a stand node) doesn't matter, hanging from
 lower, as they are from then on: a walk that lowers the whole mob by as much (the leaning zombie's)
 is taken over without a jump.
 
+`spread` and `stagger` (number expressions, read every frame) move where the feet stand at rest:
+`spread` model units out from under each hip, `stagger` the +X side's feet ahead (towards -Z) and
+the -X side's behind. As they change, the feet step to their new places once far enough off (the
+player's sword stance stands wider). With `followRoot` the legs reach as far down as `rootBone`
+(`root`) lowers the whole model, so a lowered stance or a landing's dip keeps the feet on the
+ground: the root as the layers before the driver put it (an extension after it doesn't steer it),
+eased over `rootTicks` as the root's own smoothing eases it. A turn of the whole model beneath the driver, in the rotation bone (a stance turning
+side-on), is followed too: the feet stay planted as it turns, and `beneathTurnTicks` eases it in
+from where it is drawn when the driver comes in.
+
 ```json
 {"core:step_turn": {"weight": "standing",
   "legs": [{"upper": "leftLeg", "lower": "leftForeLeg", "hip": [-4, 11, 0], "knee": [0, 5, -3], "foot": [-0.5, 8, 2.5]},

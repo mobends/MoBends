@@ -76,8 +76,11 @@ public class StepTurnDriver implements DriverEvaluator
 
     private final StepTurnTemplate t;
     private final NumberInput weight;
+    private final NumberInput spread, stagger;
     private final int rotationSlot;
     private final int offsetSlot;
+    /** The bone that offsets the whole model, where the legs follow it ({@link StepTurnTemplate#followRoot}); -1 otherwise. */
+    private final int rootSlot;
     private final Leg[] legs;
 
     /** Whether the feet stand somewhere; false while the weight is 0, so they're placed anew under the body. */
@@ -106,6 +109,21 @@ public class StepTurnDriver implements DriverEvaluator
     private boolean hasLast;
     /** How far the hips are down past the crouch, for reach (model units). */
     private float walkCrouch;
+    /**
+     * The angle (degrees) of the turn of the whole model beneath the driver, as it is shown: eased
+     * towards the one beneath ({@link StepTurnTemplate#beneathTurnTicks}).
+     */
+    private float beneathYaw;
+
+    /**
+     * How far the root lowers the whole model (model units), as the driver follows it: eased towards
+     * where the layers before it put the root ({@link StepTurnTemplate#rootTicks}).
+     */
+    private float rootDrop;
+    /** This frame's spread and stagger of the feet's places. */
+    private float spreadNow, staggerNow;
+    private final Vec3f rootSoFar = new Vec3f();
+    private final Quaternion correction = new Quaternion();
 
     /**
      * The entity's state (see {@link #load}): the fields above and the legs' are a working copy of
@@ -168,6 +186,8 @@ public class StepTurnDriver implements DriverEvaluator
     {
         this.t = template;
         this.weight = args.number("weight", template.weight, 1);
+        this.spread = args.number("spread", template.spread, 0);
+        this.stagger = args.number("stagger", template.stagger, 0);
         this.yaw = args.number("yaw", template.yaw);
         this.x = args.doubleNumber("x", template.x);
         this.z = args.doubleNumber("z", template.z);
@@ -179,6 +199,7 @@ public class StepTurnDriver implements DriverEvaluator
         this.stepImpactOut = out.get(STEP_IMPACT);
         this.rotationSlot = args.bone("rotationBone", template.rotationBone);
         this.offsetSlot = args.bone("offsetBone", template.offsetBone);
+        this.rootSlot = template.followRoot ? args.bone("rootBone", template.rootBone) : -1;
         this.legs = new Leg[template.legs.size()];
         for (int i = 0; i < legs.length; i++)
         {
@@ -191,8 +212,8 @@ public class StepTurnDriver implements DriverEvaluator
 
     // --- the entity's state ------------------------------------------------------------------------
 
-    /** State: five flags and counters, four floats, nine doubles. */
-    private static final int STATE_SIZE = 5 + 4;
+    /** State: five flags and counters, six floats, nine doubles. */
+    private static final int STATE_SIZE = 5 + 6;
     private static final int DOUBLE_STATE_SIZE = 9;
     /** Per leg: four floats, nine doubles. */
     private static final int LEG_STATE_SIZE = 4;
@@ -245,7 +266,7 @@ public class StepTurnDriver implements DriverEvaluator
             placed = wrote = hasLast = false;
             stepping = -1;
             sinceLanding = Float.MAX_VALUE;
-            impact = impactVelocity = walkCrouch = 0;
+            impact = impactVelocity = walkCrouch = beneathYaw = rootDrop = 0;
             shownYaw = turnSpeed = velocityX = velocityZ = lastX = lastZ = speed = headingX = headingZ = 0;
             for (Leg leg : legs)
             {
@@ -262,6 +283,8 @@ public class StepTurnDriver implements DriverEvaluator
         impact = in.read();
         impactVelocity = in.read();
         walkCrouch = in.read();
+        beneathYaw = in.read();
+        rootDrop = in.read();
         shownYaw = in.readDouble();
         turnSpeed = in.readDouble();
         velocityX = in.readDouble();
@@ -301,6 +324,8 @@ public class StepTurnDriver implements DriverEvaluator
         out.write(impact);
         out.write(impactVelocity);
         out.write(walkCrouch);
+        out.write(beneathYaw);
+        out.write(rootDrop);
         out.write(shownYaw);
         out.write(turnSpeed);
         out.write(velocityX);
@@ -345,6 +370,14 @@ public class StepTurnDriver implements DriverEvaluator
         {
             throw new MalformedKumoTemplateException("core:step_turn needs a 'rotationBone' and an 'offsetBone' that is an offset vector (localOffset).");
         }
+        if (template.followRoot && (template.rootBone == null || !Skeleton.isVectorBone(template.rootBone)))
+        {
+            throw new MalformedKumoTemplateException("core:step_turn: 'followRoot' needs a 'rootBone' that is an offset vector (root).");
+        }
+        if (template.beneathTurnTicks < 0 || template.rootTicks < 0)
+        {
+            throw new MalformedKumoTemplateException("core:step_turn: 'beneathTurnTicks' and 'rootTicks' can't be negative.");
+        }
         if (template.stepDuration <= 0 || template.turnThreshold <= 0 || template.driftThreshold <= 0 || template.unitsPerBlock <= 0 || template.crouchDrop <= 0 || template.impactTime <= 0
                 || template.strideLength <= 0 || template.runStrideLength <= 0 || template.minStepDuration <= 0 || template.velocitySmoothing <= 0 || template.runFacingSmoothing <= 0)
         {
@@ -379,6 +412,8 @@ public class StepTurnDriver implements DriverEvaluator
         final double px = x.get(context);
         final double pz = z.get(context);
         measureVelocity(px, pz, context.deltaTime());
+        spreadNow = spread.get(context);
+        staggerNow = stagger.get(context);
 
         if (w <= 0)
         {
@@ -394,6 +429,42 @@ public class StepTurnDriver implements DriverEvaluator
             }
             publish(context, 0, 0, 0, 0, 0);
             return;
+        }
+
+        // How far the root lowers the whole model, as the layers before the driver put it (not as
+        // drawn: what layers after it do, such as an untrusted extension, mustn't steer it), eased
+        // as the root is smoothed: the legs reach that much further down.
+        if (rootSlot >= 0)
+        {
+            pose.vectorSoFar(rootSlot, rootSoFar);
+            final float target = -rootSoFar.y;
+            final float ease = t.rootTicks > 0 && placed ? Math.min(1F, context.deltaTime() / t.rootTicks) : 1F;
+            rootDrop += (target - rootDrop) * ease;
+        }
+        else
+        {
+            rootDrop = 0F;
+        }
+        // The turn of the whole model beneath: taken from where it is drawn as the driver comes in,
+        // then eased towards the one beneath.
+        pose.rotationSoFar(rotationSlot, below);
+        final float beneathTarget = yawAngle(below);
+        if (!placed)
+        {
+            if (t.beneathTurnTicks > 0)
+            {
+                pose.rotationDrawn(rotationSlot, blended);
+                beneathYaw = yawAngle(blended);
+            }
+            else
+            {
+                beneathYaw = beneathTarget;
+            }
+        }
+        else
+        {
+            final float ease = t.beneathTurnTicks > 0 ? Math.min(1F, context.deltaTime() / t.beneathTurnTicks) : 1F;
+            beneathYaw += (float) wrapDegrees(beneathTarget - beneathYaw) * ease;
         }
 
         if (!placed && t.placeFromPose)
@@ -426,12 +497,12 @@ public class StepTurnDriver implements DriverEvaluator
         final double rollRad = Math.toRadians(t.weightRoll * shift * w);
         final double cosR = Math.cos(rollRad), sinR = Math.sin(rollRad);
 
-        final double yawRad = Math.toRadians(shownYaw);
+        final double yawRad = Math.toRadians(modelYaw());
         final double cosD = Math.cos(yawRad), sinD = Math.sin(yawRad);
         float stride = 0F;
         for (int i = 0; i < legs.length; i++)
         {
-            poseLeg(pose, legs[i], i == stepping, px, pz, cosD, sinD, hipX, hipY, cosR, sinR, w);
+            poseLeg(pose, legs[i], i == stepping, px, pz, cosD, sinD, hipX, hipY + rootDrop, cosR, sinR, w);
             stride += legs[i].side * legs[i].forward;
         }
         stride /= legs.length;
@@ -440,7 +511,11 @@ public class StepTurnDriver implements DriverEvaluator
         final float lag = (float) wrapDegrees(bodyYaw - shownYaw);
         PoseMath.axisAngleDegrees(0, 1, 0, lag * w, turn);
         PoseMath.axisAngleDegrees(0, 0, 1, (float) -Math.toDegrees(rollRad), roll);
+        // The turn beneath as it is shown (eased), in place of the one beneath (read again: the legs
+        // used the same scratch).
         pose.rotationSoFar(rotationSlot, below);
+        PoseMath.axisAngleDegrees(0, 1, 0, (float) wrapDegrees(beneathYaw - beneathTarget), correction);
+        Quaternion.mul(correction, below, below);
         Quaternion.mul(turn, roll, blended);
         Quaternion.mul(blended, below, blended);
         pose.rotate(rotationSlot, blended, Pose.Space.OVERRIDE);
@@ -586,13 +661,13 @@ public class StepTurnDriver implements DriverEvaluator
         final double mx = wx * cosD + wz * sinD;
         final double mz = wx * sinD - wz * cosD;
         final double my = leg.restY - footLift;
-        leg.forward = (float) (leg.restZ - mz);
+        leg.forward = (float) (restZ(leg) - mz);
         // Back into the model: unrolled about the entity's origin, then off the shifted, lowered hips.
         final double ry = my - ORIGIN_Y;
         final double ux = mx * cosR + ry * sinR;
         final double uy = -mx * sinR + ry * cosR + ORIGIN_Y;
         final float[] hip = leg.def.hip;
-        LegIk.solve(leg.def.knee, leg.def.foot, leg.def.bend, Math.toRadians(wrapDegrees(footYaw - shownYaw)),
+        LegIk.solve(leg.def.knee, leg.def.foot, leg.def.bend, Math.toRadians(wrapDegrees(footYaw - modelYaw())),
                 ux - (hip[0] + hipX), uy - (hip[1] + hipY), mz - hip[2], upper, lower);
         writeBlended(pose, leg.upperSlot, upper, w);
         writeBlended(pose, leg.lowerSlot, lower, w);
@@ -733,7 +808,7 @@ public class StepTurnDriver implements DriverEvaluator
      */
     private void updateWalkCrouch(double px, double pz, float dt)
     {
-        final double yawRad = Math.toRadians(shownYaw);
+        final double yawRad = Math.toRadians(modelYaw());
         final double cosD = Math.cos(yawRad), sinD = Math.sin(yawRad);
         double needed = t.walkCrouch * walking();
         for (int i = 0; i < legs.length; i++)
@@ -749,7 +824,9 @@ public class StepTurnDriver implements DriverEvaluator
             final double reach = leg.length * REACH;
             // The highest the hip may be over the ground for the leg to reach its foot.
             final double height = Math.sqrt(Math.max(0, reach * reach - dx * dx - dz * dz));
-            needed = Math.max(needed, leg.restY - leg.def.hip[1] - t.crouch - height);
+            // A root lowering the whole model takes the hips down too; one raising it doesn't bring
+            // them down to reach (that would only work against it).
+            needed = Math.max(needed, leg.restY - leg.def.hip[1] - t.crouch - Math.max(0F, rootDrop) - height);
         }
         final float target = (float) Math.min(t.walkCrouch, needed);
         walkCrouch += (target - walkCrouch) * Math.min(1F, dt / (target > walkCrouch ? t.crouchDrop : CROUCH_EASE));
@@ -764,10 +841,10 @@ public class StepTurnDriver implements DriverEvaluator
         {
             return Float.MAX_VALUE;
         }
-        final double yawRad = Math.toRadians(shownYaw);
+        final double yawRad = Math.toRadians(modelYaw());
         final double cosD = Math.cos(yawRad), sinD = Math.sin(yawRad);
         // As low as the hips go for reach.
-        final float hipY = t.crouch + t.walkCrouch;
+        final float hipY = t.crouch + t.walkCrouch + rootDrop;
         // Which way the body goes, in the model.
         final double forwardX = (velocityX * cosD + velocityZ * sinD) / velocity;
         final double forwardZ = (velocityX * sinD - velocityZ * cosD) / velocity;
@@ -804,7 +881,8 @@ public class StepTurnDriver implements DriverEvaluator
      */
     private void aim(Leg leg, double yaw, double px, double pz, float leadTicks)
     {
-        final double yawRad = Math.toRadians(yaw);
+        // Under the hips as they will be drawn: at the body's yaw, turned by what is beneath.
+        final double yawRad = Math.toRadians(yaw - beneathYaw);
         final double cosG = Math.cos(yawRad), sinG = Math.sin(yawRad);
         double aheadX = velocityX * leadTicks, aheadZ = velocityZ * leadTicks;
         final double ahead = Math.hypot(aheadX, aheadZ) * t.unitsPerBlock;
@@ -814,8 +892,8 @@ public class StepTurnDriver implements DriverEvaluator
             aheadX *= stride / ahead;
             aheadZ *= stride / ahead;
         }
-        leg.toX = px + aheadX + (leg.restX * cosG + leg.restZ * sinG) / t.unitsPerBlock;
-        leg.toZ = pz + aheadZ + (leg.restX * sinG - leg.restZ * cosG) / t.unitsPerBlock;
+        leg.toX = px + aheadX + (restX(leg) * cosG + restZ(leg) * sinG) / t.unitsPerBlock;
+        leg.toZ = pz + aheadZ + (restX(leg) * sinG - restZ(leg) * cosG) / t.unitsPerBlock;
         leg.toYaw = yaw;
     }
 
@@ -839,12 +917,12 @@ public class StepTurnDriver implements DriverEvaluator
         sinceLanding = Float.MAX_VALUE;
         impact = 0F;
         impactVelocity = 0F;
-        final double yawRad = Math.toRadians(shownYaw);
+        final double yawRad = Math.toRadians(modelYaw());
         final double cosD = Math.cos(yawRad), sinD = Math.sin(yawRad);
         for (Leg leg : legs)
         {
-            leg.x = px + (leg.restX * cosD + leg.restZ * sinD) / t.unitsPerBlock;
-            leg.z = pz + (leg.restX * sinD - leg.restZ * cosD) / t.unitsPerBlock;
+            leg.x = px + (restX(leg) * cosD + restZ(leg) * sinD) / t.unitsPerBlock;
+            leg.z = pz + (restX(leg) * sinD - restZ(leg) * cosD) / t.unitsPerBlock;
             leg.yaw = shownYaw;
             leg.drop = 0F;
         }
@@ -859,7 +937,7 @@ public class StepTurnDriver implements DriverEvaluator
      */
     private void plantAsPosed(PoseWriter pose, double px, double pz)
     {
-        final double yawRad = Math.toRadians(shownYaw);
+        final double yawRad = Math.toRadians(modelYaw());
         final double cosD = Math.cos(yawRad), sinD = Math.sin(yawRad);
         for (Leg leg : legs)
         {
@@ -872,7 +950,7 @@ public class StepTurnDriver implements DriverEvaluator
             leg.x = px + (mx * cosD + mz * sinD) / t.unitsPerBlock;
             leg.z = pz + (mx * sinD - mz * cosD) / t.unitsPerBlock;
             // The hips as low as the crouch puts them from now on: where the walk is taken to have drawn them.
-            leg.drop = (float) (leg.restY - (leg.def.hip[1] + t.crouch + sole[1]));
+            leg.drop = (float) (leg.restY - (leg.def.hip[1] + t.crouch + rootDrop + sole[1]));
         }
         sinceLanding = 0F;
         // The pose beneath walked it until now: the feet settle under a body that has stopped,
@@ -880,6 +958,34 @@ public class StepTurnDriver implements DriverEvaluator
         // height the walk drew them at (not a crouch left over from before the walk).
         velocityX = velocityZ = speed = 0;
         walkCrouch = 0F;
+    }
+
+    /**
+     * The yaw the model is drawn at: the shown body's, turned by what is beneath it in the rotation
+     * bone (a turn about the model's Y axis is one the other way in yaw: the model's frame is a
+     * reflection of the world's).
+     */
+    private double modelYaw()
+    {
+        return shownYaw - beneathYaw;
+    }
+
+    /** Where a foot stands at rest in the model, X: out from under its hip by the spread. */
+    private float restX(Leg leg)
+    {
+        return leg.restX + leg.side * spreadNow;
+    }
+
+    /** Where a foot stands at rest in the model, Z: staggered, the +X side's ahead (towards -Z). */
+    private float restZ(Leg leg)
+    {
+        return leg.restZ - leg.side * staggerNow;
+    }
+
+    /** The angle (degrees) a rotation turns about Y, taking it as a turn about Y. */
+    private static float yawAngle(Quaternion q)
+    {
+        return (float) Math.toDegrees(2 * Math.atan2(q.y, q.w));
     }
 
     /** {@code v} turned by {@code q}. */
@@ -894,7 +1000,7 @@ public class StepTurnDriver implements DriverEvaluator
     /** Whether a planted foot got so far from under the body that stepping back makes no sense. */
     private boolean tooFar(double px, double pz)
     {
-        final double yawRad = Math.toRadians(shownYaw);
+        final double yawRad = Math.toRadians(modelYaw());
         final double cosD = Math.cos(yawRad), sinD = Math.sin(yawRad);
         for (int i = 0; i < legs.length; i++)
         {
@@ -904,8 +1010,8 @@ public class StepTurnDriver implements DriverEvaluator
                 continue;
             }
             final Leg leg = legs[i];
-            final double restX = px + (leg.restX * cosD + leg.restZ * sinD) / t.unitsPerBlock;
-            final double restZ = pz + (leg.restX * sinD - leg.restZ * cosD) / t.unitsPerBlock;
+            final double restX = px + (restX(leg) * cosD + restZ(leg) * sinD) / t.unitsPerBlock;
+            final double restZ = pz + (restX(leg) * sinD - restZ(leg) * cosD) / t.unitsPerBlock;
             if (Math.hypot(restX - leg.x, restZ - leg.z) * t.unitsPerBlock > t.resetDistance)
             {
                 return true;

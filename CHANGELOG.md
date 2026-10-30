@@ -38,7 +38,9 @@
   planted where the walk left them, and step back under the body if they are out of place.
   `crouchDrop` sets how quickly the hips go down for reach. The feet are taken where the legs are
   drawn (drivers can read a bone's smoothed rotation, `rotationDrawn`), so a smoothed walk is
-  taken over without a jump.
+  taken over without a jump. `spread` and `stagger` move where the feet stand, `followRoot` keeps
+  them on the ground under a lowered whole model, and a turn of the whole model beneath the driver
+  is followed (eased in over `beneathTurnTicks`), the feet staying planted.
 - Animations can draw a mob at a point in the world while its real position moves on (the
   `core:anchor` driver), to stage a sequence such as climbing onto a block.
 - Animations can compute positions in the world in double precision (`entityWorldX`, `toDouble`,

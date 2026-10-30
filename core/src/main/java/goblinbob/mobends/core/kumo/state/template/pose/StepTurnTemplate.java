@@ -86,6 +86,34 @@ public class StepTurnTemplate extends DriverItemTemplate
      */
     public boolean placeFromPose = false;
 
+    /**
+     * Model units each foot's place moves out from under its hip (a number expression, read every
+     * frame: a wider stance as it changes, the feet stepping to it once they are far enough off).
+     */
+    public ExpressionTemplate spread;
+    /**
+     * Model units the feet on the +X side stand ahead of their place (towards -Z) and those on the
+     * -X side behind it, staggered (a number expression, read every frame; negative the other way).
+     */
+    public ExpressionTemplate stagger;
+    /**
+     * Whether the legs reach as far down as {@link #rootBone} lowers the whole model, so the feet
+     * stay on the ground under a lowered stance or a landing's dip. The root is taken as the layers
+     * before the driver put it (what comes after, an untrusted extension, doesn't steer it), eased
+     * over {@link #rootTicks} as it is smoothed.
+     */
+    public boolean followRoot = false;
+    /** The vector bone that offsets the whole model, read where {@link #followRoot} is on. */
+    public String rootBone = "root";
+    /** Ticks over which the root's lowering is eased in, as its own smoothing eases it (0: at once). */
+    public float rootTicks = 0F;
+    /**
+     * Ticks over which a turn of the whole model beneath the driver (in the rotation bone, a
+     * stance turning side-on) is eased in from where it is drawn when the driver comes in, and
+     * after; the feet stay planted as it turns. 0 takes it as it is.
+     */
+    public float beneathTurnTicks = 0F;
+
     /** Ticks a step takes. */
     public float stepDuration = 8F;
     /** How high a foot lifts, in model units. */
