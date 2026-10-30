@@ -93,7 +93,7 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
     private static final int COMPONENT_BUTTON_RESET = 1;
 
     private final Source<T> source;
-    private final EntryList entryList = new EntryList(0, 0, GuiSettingsWindow.EDITOR_WIDTH - 10, GuiSettingsWindow.EDITOR_HEIGHT - 10 - 20);
+    private final EntryList entryList = new EntryList(0, 0, GuiSettingsWindow.EDITOR_WIDTH - 10, GuiSettingsWindow.EDITOR_HEIGHT - 10);
     private List<T> entries;
 
     private int x, y;
@@ -144,7 +144,7 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
         buttonList.clear();
         buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
         buttonList.add(new GuiButton(COMPONENT_BUTTON_RESET, width - 70, height - 30, 60, 20, I18n.format("mobends.gui.reset")));
-        entryList.initGui(this.x + 9, this.y + 9 + 20);
+        entryList.initGui(this.x + 9, this.y + 9);
     }
 
     @Override
@@ -163,7 +163,7 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
         entryList.draw(DataUpdateHandler.partialTicks);
 
         fontRenderer.drawStringWithShadow(source.getTitle(), this.x + 6, this.y - 9, 0xffffff);
-        fontRenderer.drawStringWithShadow(fontRenderer.trimStringToWidth(source.getHint(), GuiSettingsWindow.EDITOR_WIDTH - 12), this.x + 9, this.y + 13, 0xcccccc);
+        fontRenderer.drawStringWithShadow(fontRenderer.trimStringToWidth(source.getHint(), GuiSettingsWindow.EDITOR_WIDTH - 12), this.x + 9, this.y + GuiSettingsWindow.EDITOR_HEIGHT + 12, 0xcccccc);
 
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
