@@ -28,6 +28,9 @@
   they stop, their feet stay where the walk left them, a foot left well out of place stepping
   back under them. Witches, which move as villagers do, too. A villager's nose wobbles with each
   step.
+- Zombies and zombie villagers stand on their feet too: standing, the feet stay planted and they
+  turn by stepping, heavily; they walk (or stumble) as before, and stop with their feet where the
+  walk left them. A leaning zombie stands crouched with its feet on the ground.
 - `core:step_turn` can take over from a walk posed beneath it (`placeFromPose`): the feet are
   planted where the walk left them, and step back under the body if they are out of place.
   `crouchDrop` sets how quickly the hips go down for reach. The feet are taken where the legs are

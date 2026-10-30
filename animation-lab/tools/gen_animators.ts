@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 /**
- * Generates the animator JSON files (biped, zombie, skeleton, pig zombie, player, squid, spider and
+ * Generates the animator JSON files (biped, skeleton, pig zombie, player, squid, spider and
  * most of the mobs described by model definitions) and the hand-authored clips they use. The iron
- * golem's, the creeper's and the villager's animators and clips, and the cow's animator, are edited
- * by hand instead.
+ * golem's, the creeper's and the villager's animators and clips, and the cow's, the zombie's and the
+ * zombie villager's animators, are edited by hand instead.
  *
  * The animators are plain data; this script only spares us from writing the shared structure by
  * hand and from computing the quaternions of hand-authored constant poses. Run it through
@@ -257,24 +257,6 @@ const biped: Obj = {
                walking: live(chooses(locomotionSelect, "walk")), canSpinAttack: live(true) },
   layers: [
     { select: locomotionSelect, nodes: { stand, walk, jump } },
-  ] };
-
-// ---- zombie: animation sets -----------------------------------------------------------------------
-const Z = (n: string) => clipKey("zombie", n);
-const zombie: Obj = {
-  formatVersion: 2,
-  extends: "mobends:bends/animators/biped.json",
-  layers: [
-    { mode: "additive", additiveSpace: { "@default": "pre", body: "post", root: "override" },
-      "@when": cmp("entity.animationSet", "==", 0), defaultOnEntry: "lean", nodes: { lean: poseNode([
-          clip(Z("lean"), {}, { damping: { root: [null, 0.6, null] }, vectorModes: { root: "retarget" } }),
-          clip(Z("lean_arms_up"), {}, { space: "override", when: AND(NOT(state("entityIsStandingStill")), cmp("entity.walkingState", "==", 1)) }),
-        ]) } },
-    { "@when": cmp("entity.animationSet", "==", 1), defaultOnEntry: "stumble", nodes: { stumble: poseNode([
-          clip(Z("stumble_base"), { frame: limbFrame }, { damping: { rightLeg: 1, leftLeg: 1, rightArm: 1, leftArm: 1, body: 0.5 } }),
-          clip(Z("stumble_swing"), { frame: limbFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
-          clip(Z("stumble_head"), { frame: limbFrame }, { space: "pre" }),
-        ]) } },
   ] };
 
 // ---- skeleton: strafing legs ------------------------------------------------------------------------
@@ -1069,8 +1051,6 @@ const skeletonActions = structuredClone(actionLayer);
 delete skeletonActions["@when"]; // only players sleep
 skeleton.layers.push(skeletonActions);
 
-// the zombie villager's controller is the zombie's
-const zombieVillager: Obj = { formatVersion: 2, extends: "mobends:bends/animators/zombie.json" };
 
 
 // ---- mobs described by model definitions (bends/models/*.json): generic walkers ---------------------
@@ -1148,14 +1128,14 @@ const chickenWings = [withDamping(drv("rightWing", "Z", "entity.wingAngle", { sp
 const chicken = walkerAnimator("chicken", [["rightLeg", "foreRightLeg", 0.0], ["leftLeg", "foreLeftLeg", Math.PI]], [["head", 2.0]], chickenWings);
 
 const animators: [string, Obj][] = [
-  ["biped", biped], ["zombie", zombie], ["skeleton", skeleton], ["pig_zombie", pigZombie], ["player", player], ["squid", squid], ["spider", spider], ["zombie_villager", zombieVillager],
+  ["biped", biped], ["skeleton", skeleton], ["pig_zombie", pigZombie], ["player", player], ["squid", squid], ["spider", spider],
   ["quadruped", quadruped], ["chicken", chicken],
 ];
 // ---- biped body rates ------------------------------------------------------------------------
 // The rates above are the ones the procedural bits set, but biped entity data used to advance
 // "root" and "renderRotation" twice per frame, so on bipeds those two moved at twice the rate.
 // The smoothing is linear, so asking for the doubled rate once per frame looks exactly the same.
-const BIPEDS = new Set(["biped", "zombie", "skeleton", "pig_zombie", "player", "zombie_villager"]);
+const BIPEDS = new Set(["biped", "skeleton", "pig_zombie", "player"]);
 const DOUBLED_BONES = ["root", "globalOffset", "renderRotation"];
 
 function doubled(rate: unknown): unknown {

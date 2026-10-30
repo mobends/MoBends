@@ -59,6 +59,228 @@
           }
         }
       }
+    },
+    {
+      "@comment": "The zombie stands on its feet as the villager does: it walks by its clips (the biped's walk, or the stumble), its feet sliding, and while it stands core:step_turn plants them in the world and turns the body only as far as they have stepped, heavily (slow steps, the weight shifted and rolled over the planted foot). The driver is off while it walks or jumps and comes back on at once when it stops, each foot planted where the legs are drawn (placeFromPose: as the walk left them, smoothed), a foot further than finishDrift from its place stepping back under the body. The leaning zombie (animation set 0) stands 3 lower, its knees bent: its lean lowers the whole model (root), which the driver doesn't know of, so while the driver is on the lowering is its crouch instead, the root's taken back as the crouch comes in (and held a moment after it has gone, so the root is all the way down as the crouch lets go). A baby is drawn at half the size, so it has its own, quicker drivers.",
+      "defaultOnEntry": "planted",
+      "nodes": {
+        "planted": {
+          "core:pose": {
+            "pose": [
+              {
+                "core:accumulate": {
+                  "inout": "node.onFeet",
+                  "rate": {"if": [{"or": ["animator.jumping", {"not": ["entityIsStandingStill"]}]}, -0.5, 4]},
+                  "min": 0,
+                  "max": 1
+                }
+              },
+              {
+                "core:accumulate": {
+                  "inout": "node.rootHeld",
+                  "rate": {"if": [{"gt": ["node.onFeet", 0]}, 10, -1.5]},
+                  "min": 0,
+                  "max": 1
+                }
+              },
+              {
+                "@when": {"and": [{"eq": ["entity.animationSet", 0]}, {"gt": ["node.rootHeld", 0]}]},
+                "core:vector": {"bone": "root", "y": {"mul": [-3, {"sub": [1, "node.onFeet"]}]}},
+                "@vectorModes": {"root": "snap"}
+              },
+              {
+                "@when": {"and": [{"eq": ["entity.animationSet", 0]}, {"not": ["entityIsChild"]}]},
+                "core:step_turn": {
+                  "weight": "node.onFeet",
+                  "unitsPerBlock": 16,
+                  "legs": [
+                    {
+                      "upper": "rightLeg",
+                      "lower": "rightForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [-1.9, 6, 2]
+                    },
+                    {
+                      "upper": "leftLeg",
+                      "lower": "leftForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [1.9, 6, 2]
+                    }
+                  ],
+                  "placeFromPose": true,
+                  "turnThreshold": 20,
+                  "maxStepAngle": 40,
+                  "stepDuration": 8,
+                  "stepHeight": 2.5,
+                  "stepPause": 2,
+                  "strideLength": 12,
+                  "minStepDuration": 3,
+                  "finishDrift": 4,
+                  "driftThreshold": 5,
+                  "settleAngle": 4,
+                  "resetDistance": 20,
+                  "bodyStiffness": 0.12,
+                  "bodyDamping": 0.55,
+                  "crouch": 3,
+                  "walkCrouch": 1,
+                  "crouchDrop": 4,
+                  "impactDepth": 0.8,
+                  "impactTime": 2.5,
+                  "weightShift": 0.8,
+                  "weightRoll": 2,
+                  "out": {"turnLag": "node.turnLag"}
+                }
+              },
+              {
+                "@when": {"and": [{"eq": ["entity.animationSet", 0]}, "entityIsChild"]},
+                "core:step_turn": {
+                  "weight": "node.onFeet",
+                  "unitsPerBlock": 32,
+                  "legs": [
+                    {
+                      "upper": "rightLeg",
+                      "lower": "rightForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [-1.9, 6, 2]
+                    },
+                    {
+                      "upper": "leftLeg",
+                      "lower": "leftForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [1.9, 6, 2]
+                    }
+                  ],
+                  "placeFromPose": true,
+                  "turnThreshold": 20,
+                  "maxStepAngle": 40,
+                  "stepDuration": 5,
+                  "stepHeight": 2.5,
+                  "stepPause": 2,
+                  "strideLength": 12,
+                  "minStepDuration": 2,
+                  "finishDrift": 4,
+                  "driftThreshold": 5,
+                  "settleAngle": 4,
+                  "resetDistance": 20,
+                  "bodyStiffness": 0.2,
+                  "bodyDamping": 0.7,
+                  "crouch": 3,
+                  "walkCrouch": 1,
+                  "crouchDrop": 4,
+                  "impactDepth": 0.8,
+                  "impactTime": 2.5,
+                  "weightShift": 0.8,
+                  "weightRoll": 2,
+                  "out": {"turnLag": "node.turnLag"}
+                }
+              },
+              {
+                "@when": {"and": [{"eq": ["entity.animationSet", 1]}, {"not": ["entityIsChild"]}]},
+                "core:step_turn": {
+                  "weight": "node.onFeet",
+                  "unitsPerBlock": 16,
+                  "legs": [
+                    {
+                      "upper": "rightLeg",
+                      "lower": "rightForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [-1.9, 6, 2]
+                    },
+                    {
+                      "upper": "leftLeg",
+                      "lower": "leftForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [1.9, 6, 2]
+                    }
+                  ],
+                  "placeFromPose": true,
+                  "turnThreshold": 20,
+                  "maxStepAngle": 40,
+                  "stepDuration": 8,
+                  "stepHeight": 2.5,
+                  "stepPause": 2,
+                  "strideLength": 12,
+                  "minStepDuration": 3,
+                  "finishDrift": 4,
+                  "driftThreshold": 5,
+                  "settleAngle": 4,
+                  "resetDistance": 20,
+                  "bodyStiffness": 0.12,
+                  "bodyDamping": 0.55,
+                  "crouch": 0,
+                  "walkCrouch": 1,
+                  "crouchDrop": 4,
+                  "impactDepth": 0.8,
+                  "impactTime": 2.5,
+                  "weightShift": 0.8,
+                  "weightRoll": 2,
+                  "out": {"turnLag": "node.turnLag"}
+                }
+              },
+              {
+                "@when": {"and": [{"eq": ["entity.animationSet", 1]}, "entityIsChild"]},
+                "core:step_turn": {
+                  "weight": "node.onFeet",
+                  "unitsPerBlock": 32,
+                  "legs": [
+                    {
+                      "upper": "rightLeg",
+                      "lower": "rightForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [-1.9, 6, 2]
+                    },
+                    {
+                      "upper": "leftLeg",
+                      "lower": "leftForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [1.9, 6, 2]
+                    }
+                  ],
+                  "placeFromPose": true,
+                  "turnThreshold": 20,
+                  "maxStepAngle": 40,
+                  "stepDuration": 5,
+                  "stepHeight": 2.5,
+                  "stepPause": 2,
+                  "strideLength": 12,
+                  "minStepDuration": 2,
+                  "finishDrift": 4,
+                  "driftThreshold": 5,
+                  "settleAngle": 4,
+                  "resetDistance": 20,
+                  "bodyStiffness": 0.2,
+                  "bodyDamping": 0.7,
+                  "crouch": 0,
+                  "walkCrouch": 1,
+                  "crouchDrop": 4,
+                  "impactDepth": 0.8,
+                  "impactTime": 2.5,
+                  "weightShift": 0.8,
+                  "weightRoll": 2,
+                  "out": {"turnLag": "node.turnLag"}
+                }
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "head",
+                  "axis": "y",
+                  "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}
+                },
+                "@space": "pre"
+              }
+            ]
+          },
+          "@define": {"onFeet": {"state": 0}, "rootHeld": {"state": 0}, "turnLag": {"state": 0}}
+        }
+      }
     }
   ]
 }

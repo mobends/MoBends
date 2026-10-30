@@ -17,14 +17,18 @@ The lab compiles the Minecraft-free sources (`core/`, the data classes) against 
 the Minecraft classes they touch. It cannot cover client code: mutators and renderers, resource
 pack discovery, the settings screens and the server sync are only checked in game.
 
-## The One Golden That No Longer Matches 1.2.2
+## The Goldens That No Longer Match 1.2.2
 
 The wolf already ran on the first version of KUMO in 1.2.2, so `wolf/idle_walk_sit` was
 re-recorded from the new engine three times on purpose: non-looping clips now reach their last
 keyframe (the last three frames of standing up); transitions are decided before posing, so a
 state change shows on the frame it happens; and the old movement node sampled `limbSwing` one
-frame late, while the walk now reads the current value (up to 9.5° on a leg). Every other
-golden is the original code's output.
+frame late, while the walk now reads the current value (up to 9.5° on a leg).
+
+The iron golem's goldens were re-recorded as it learned to jump and climb, and the zombie's and
+the zombie villager's when they came to stand on their feet (`core:step_turn` takes the legs over
+whenever they stand still; their walk is unchanged). Every other golden is the original code's
+output.
 
 ## Where the Animators Deliberately Differ From the Original Code
 
