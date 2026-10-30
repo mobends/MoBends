@@ -406,7 +406,7 @@ behind; walking, the feet don't wait for the body to settle. The faster it goes,
 steps (down to `minStepDuration`) and the pauses after them, so a foot travels at most
 `strideLength` model units a step, and a step in the air hurries when a planted foot is about to
 be left out of its leg's reach (setting off, say). The hips go down a further `walkCrouch` while
-walking, for reach.
+walking, for reach, or as far as feet planted apart need, easing down over `crouchDrop` ticks.
 
 Going `runSpeed` blocks a tick or faster (easing in from 80% of it; 0, the default, never), it
 runs: the body turns the way it goes (not vanilla's yaw) instead of waiting for its feet, on a
@@ -417,6 +417,13 @@ apart from the direction, so a mob swinging round keeps running, and the way it 
 over `runFacingSmoothing` ticks, so a path zigzagging between blocks doesn't swing the body about.
 A hurried step never takes less than 60% of `minStepDuration`: faster than the legs can keep up
 with, the planted foot drags rather than the feet flickering.
+
+With `placeFromPose`, a foot is planted where the pose beneath puts it when the weight goes up
+from 0, rather than at rest under the body, and the feet step back under the body as after a
+landing: a mob that walks by a clip and stands on its feet (the villager) settles from wherever
+the walk left its legs. It reads the pose beneath as this frame's items leave it, before damping,
+so the walk has to go on beneath while the driver comes in (a clip weighted by
+`entityLimbSwingAmount` winds down over the ticks after the mob stops).
 
 ```json
 {"core:step_turn": {"weight": "standing",

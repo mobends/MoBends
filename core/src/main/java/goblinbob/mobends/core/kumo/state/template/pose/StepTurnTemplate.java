@@ -75,6 +75,15 @@ public class StepTurnTemplate extends DriverItemTemplate
     public float finishDrift = 1.5F;
     /** A foot further than this from its place (model units) makes every foot be placed anew at once (a knockback, a teleport). */
     public float resetDistance = 16F;
+    /**
+     * Whether a foot is planted where the pose beneath puts it when the weight goes up from 0,
+     * instead of at rest under the body; it then steps back under the body as after a landing
+     * (within {@link #finishDrift}). For a walk posed by a clip beneath, which the driver takes
+     * over once the mob stops, wherever the feet then are. It reads the pose beneath as this
+     * frame's items leave it, before damping, so the walk has to go on beneath as the driver comes
+     * in (a clip weighted by {@code entityLimbSwingAmount}, which winds down after the mob stops).
+     */
+    public boolean placeFromPose = false;
 
     /** Ticks a step takes. */
     public float stepDuration = 8F;
@@ -122,6 +131,11 @@ public class StepTurnTemplate extends DriverItemTemplate
      * the legs reach farther ahead and behind.
      */
     public float walkCrouch = 1F;
+    /**
+     * Ticks over which the hips ease down into the walking crouch, or as far as feet planted apart
+     * need to reach (they ease back up over 6).
+     */
+    public float crouchDrop = 1F;
     /** How far the hips dip when a foot lands, in model units. */
     public float impactDepth = 1.5F;
     /** Ticks after landing at which the dip is deepest. */

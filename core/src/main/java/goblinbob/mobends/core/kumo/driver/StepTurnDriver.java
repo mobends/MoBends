@@ -67,10 +67,10 @@ public class StepTurnDriver implements DriverEvaluator
     private static final float MIN_REMAINING = 1F;
     /** The shortest a hurried step gets, as a share of the shortest step. */
     private static final float MIN_HURRIED = 0.6F;
-    /** Ticks over which the hips ease down into a walking crouch. */
-    private static final float CROUCH_DROP = 1F;
     /** Ticks over which the hips ease back up from a walking crouch. */
     private static final float CROUCH_EASE = 6F;
+    /** Ticks a foot planted as posed takes to come down from a step's height to the ground. */
+    private static final float DROP_TICKS = 2F;
 
     public static final KumoDriver<StepTurnTemplate> DRIVER = KumoDriver.of("core:step_turn", StepTurnTemplate.class, StepTurnDriver::bind);
 
@@ -144,6 +144,8 @@ public class StepTurnDriver implements DriverEvaluator
         float duration;
         /** Model units the foot is ahead of its rest this frame. */
         float forward;
+        /** Model units a foot planted where the pose beneath put it still has to come down to the ground. */
+        float drop;
 
         Leg(StepTurnTemplate.Leg def, int upperSlot, int lowerSlot)
         {
@@ -189,8 +191,8 @@ public class StepTurnDriver implements DriverEvaluator
     /** State: five flags and counters, four floats, nine doubles. */
     private static final int STATE_SIZE = 5 + 4;
     private static final int DOUBLE_STATE_SIZE = 9;
-    /** Per leg: three floats, nine doubles. */
-    private static final int LEG_STATE_SIZE = 3;
+    /** Per leg: four floats, nine doubles. */
+    private static final int LEG_STATE_SIZE = 4;
     private static final int LEG_DOUBLE_STATE_SIZE = 9;
 
     /** Reads and writes the state in order: the floats and the doubles each in their own slots. */
@@ -245,7 +247,7 @@ public class StepTurnDriver implements DriverEvaluator
             for (Leg leg : legs)
             {
                 leg.x = leg.z = leg.yaw = leg.fromX = leg.fromZ = leg.fromYaw = leg.toX = leg.toZ = leg.toYaw = 0;
-                leg.progress = leg.duration = leg.forward = 0;
+                leg.progress = leg.duration = leg.forward = leg.drop = 0;
             }
             return;
         }
@@ -280,6 +282,7 @@ public class StepTurnDriver implements DriverEvaluator
             leg.progress = in.read();
             leg.duration = in.read();
             leg.forward = in.read();
+            leg.drop = in.read();
         }
     }
 
@@ -318,6 +321,7 @@ public class StepTurnDriver implements DriverEvaluator
             out.write(leg.progress);
             out.write(leg.duration);
             out.write(leg.forward);
+            out.write(leg.drop);
         }
     }
 
@@ -338,10 +342,10 @@ public class StepTurnDriver implements DriverEvaluator
         {
             throw new MalformedKumoTemplateException("core:step_turn needs a 'rotationBone' and an 'offsetBone' that is an offset vector (localOffset).");
         }
-        if (template.stepDuration <= 0 || template.turnThreshold <= 0 || template.driftThreshold <= 0 || template.unitsPerBlock <= 0 || template.impactTime <= 0
+        if (template.stepDuration <= 0 || template.turnThreshold <= 0 || template.driftThreshold <= 0 || template.unitsPerBlock <= 0 || template.crouchDrop <= 0 || template.impactTime <= 0
                 || template.strideLength <= 0 || template.runStrideLength <= 0 || template.minStepDuration <= 0 || template.velocitySmoothing <= 0 || template.runFacingSmoothing <= 0)
         {
-            throw new MalformedKumoTemplateException("core:step_turn: 'stepDuration', 'turnThreshold', 'driftThreshold', 'unitsPerBlock', 'impactTime', 'strideLength', 'runStrideLength', 'minStepDuration', 'velocitySmoothing' and 'runFacingSmoothing' must be positive.");
+            throw new MalformedKumoTemplateException("core:step_turn: 'stepDuration', 'turnThreshold', 'driftThreshold', 'unitsPerBlock', 'crouchDrop', 'impactTime', 'strideLength', 'runStrideLength', 'minStepDuration', 'velocitySmoothing' and 'runFacingSmoothing' must be positive.");
         }
         return new StepTurnDriver(template, args);
     }
@@ -389,7 +393,12 @@ public class StepTurnDriver implements DriverEvaluator
             return;
         }
 
-        if (!placed || tooFar(px, pz))
+        if (!placed && t.placeFromPose)
+        {
+            place(bodyYaw, px, pz);
+            plantAsPosed(pose, px, pz);
+        }
+        else if (!placed || tooFar(px, pz))
         {
             place(bodyYaw, px, pz);
         }
@@ -559,7 +568,7 @@ public class StepTurnDriver implements DriverEvaluator
 
     private void poseLeg(PoseWriter pose, Leg leg, boolean inAir, double px, double pz, double cosD, double sinD, float hipX, float hipY, double cosR, double sinR, float w)
     {
-        double footX = leg.x, footZ = leg.z, footYaw = leg.yaw, footLift = 0;
+        double footX = leg.x, footZ = leg.z, footYaw = leg.yaw, footLift = leg.drop;
         if (inAir)
         {
             final double along = smooth(Math.min(1F, leg.progress / REACH_AT));
@@ -646,9 +655,17 @@ public class StepTurnDriver implements DriverEvaluator
         turnSpeed += (error * stiffness - turnSpeed * damping) * dt;
         shownYaw = wrapDegrees(shownYaw + turnSpeed * dt);
 
+        // A foot planted as posed comes down where it is; no foot lifts until it's down.
+        boolean dropping = false;
+        for (Leg leg : legs)
+        {
+            leg.drop = Math.max(0F, leg.drop - dt * t.stepHeight / DROP_TICKS);
+            dropping |= leg.drop > 0F;
+        }
+
         // Walking, the feet don't wait for the body to settle.
         final boolean settled = speed() > MOVING_SPEED || Math.abs(wrapDegrees(feetYaw() - shownYaw)) <= t.settleAngle;
-        if (stepping < 0 && sinceLanding >= pauseNow() && settled)
+        if (stepping < 0 && !dropping && sinceLanding >= pauseNow() && settled)
         {
             startStep(facing, px, pz);
         }
@@ -730,7 +747,7 @@ public class StepTurnDriver implements DriverEvaluator
             needed = Math.max(needed, leg.restY - leg.def.hip[1] - t.crouch - height);
         }
         final float target = (float) Math.min(t.walkCrouch, needed);
-        walkCrouch += (target - walkCrouch) * Math.min(1F, dt / (target > walkCrouch ? CROUCH_DROP : CROUCH_EASE));
+        walkCrouch += (target - walkCrouch) * Math.min(1F, dt / (target > walkCrouch ? t.crouchDrop : CROUCH_EASE));
     }
 
     /** Ticks until the moving body leaves a planted foot out of its leg's reach, as far as can be told from its speed. */
@@ -824,8 +841,48 @@ public class StepTurnDriver implements DriverEvaluator
             leg.x = px + (leg.restX * cosD + leg.restZ * sinD) / t.unitsPerBlock;
             leg.z = pz + (leg.restX * sinD - leg.restZ * cosD) / t.unitsPerBlock;
             leg.yaw = shownYaw;
+            leg.drop = 0F;
         }
         placed = true;
+    }
+
+    /**
+     * Plants every foot where the legs beneath put its sole (a body just {@link #place}d, shown at
+     * the entity's yaw), a foot off the ground coming down where it is, and opens the finish
+     * window, so the feet step back under the body as after a landing: under where it stands, its
+     * velocity measured anew from here.
+     */
+    private void plantAsPosed(PoseWriter pose, double px, double pz)
+    {
+        final double yawRad = Math.toRadians(shownYaw);
+        final double cosD = Math.cos(yawRad), sinD = Math.sin(yawRad);
+        for (Leg leg : legs)
+        {
+            pose.rotationSoFar(leg.upperSlot, upper);
+            pose.rotationSoFar(leg.lowerSlot, lower);
+            final float[] knee = leg.def.knee, foot = leg.def.foot;
+            final double[] shin = rotate(lower, foot[0], foot[1], foot[2]);
+            final double[] sole = rotate(upper, knee[0] + shin[0], knee[1] + shin[1], knee[2] + shin[2]);
+            final double mx = leg.def.hip[0] + sole[0], mz = leg.def.hip[2] + sole[2];
+            leg.x = px + (mx * cosD + mz * sinD) / t.unitsPerBlock;
+            leg.z = pz + (mx * sinD - mz * cosD) / t.unitsPerBlock;
+            leg.drop = (float) Math.max(0, leg.restY - (leg.def.hip[1] + sole[1]));
+        }
+        sinceLanding = 0F;
+        // The pose beneath walked it until now: the feet settle under a body that has stopped,
+        // not where the walk's lingering velocity would lead them, and the hips start at the
+        // height the walk drew them at (not a crouch left over from before the walk).
+        velocityX = velocityZ = speed = 0;
+        walkCrouch = 0F;
+    }
+
+    /** {@code v} turned by {@code q}. */
+    private static double[] rotate(Quaternion q, double x, double y, double z)
+    {
+        // v + 2w(u × v) + 2u × (u × v)
+        final double cx = q.y * z - q.z * y, cy = q.z * x - q.x * z, cz = q.x * y - q.y * x;
+        final double ccx = q.y * cz - q.z * cy, ccy = q.z * cx - q.x * cz, ccz = q.x * cy - q.y * cx;
+        return new double[] {x + 2 * (q.w * cx + ccx), y + 2 * (q.w * cy + ccy), z + 2 * (q.w * cz + ccz)};
     }
 
     /** Whether a planted foot got so far from under the body that stepping back makes no sense. */
