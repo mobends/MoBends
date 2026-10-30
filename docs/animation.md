@@ -206,7 +206,8 @@ registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args)
   `getDouble` for a double). A state of another type than the driver asks for is a load error.
   Either way, a file from a resource pack can't name a trusted file's state.
 * It poses through a `PoseWriter`: the bones by index, what the items before it made of them
-  (`rotationSoFar`, `vectorSoFar`, ...), writes composed in a space, and `snapRotation` /
+  (`rotationSoFar`, `vectorSoFar`, ...), how a bone is drawn (`rotationDrawn`: smoothed, as of the
+  last frame), writes composed in a space, and `snapRotation` /
   `snapVector` to jump a bone past its damping this frame. A narrow view, so the pose buffers can
   change without breaking drivers.
 * Its declared state starts over when its node is entered. `DriverEvaluator.restart` runs then

@@ -69,7 +69,7 @@ public class StepTurnDriver implements DriverEvaluator
     private static final float MIN_HURRIED = 0.6F;
     /** Ticks over which the hips ease back up from a walking crouch. */
     private static final float CROUCH_EASE = 6F;
-    /** Ticks a foot planted as posed takes to come down from a step's height to the ground. */
+    /** Ticks a foot planted as drawn takes to come down to the ground from a step's height (or up from as deep). */
     private static final float DROP_TICKS = 2F;
 
     public static final KumoDriver<StepTurnTemplate> DRIVER = KumoDriver.of("core:step_turn", StepTurnTemplate.class, StepTurnDriver::bind);
@@ -144,7 +144,10 @@ public class StepTurnDriver implements DriverEvaluator
         float duration;
         /** Model units the foot is ahead of its rest this frame. */
         float forward;
-        /** Model units a foot planted where the pose beneath put it still has to come down to the ground. */
+        /**
+         * Model units a foot planted where the legs were drawn still has to come down to the ground
+         * (negative: up to it, from below).
+         */
         float drop;
 
         Leg(StepTurnTemplate.Leg def, int upperSlot, int lowerSlot)
@@ -655,12 +658,14 @@ public class StepTurnDriver implements DriverEvaluator
         turnSpeed += (error * stiffness - turnSpeed * damping) * dt;
         shownYaw = wrapDegrees(shownYaw + turnSpeed * dt);
 
-        // A foot planted as posed comes down where it is; no foot lifts until it's down.
+        // A foot planted as drawn comes down (or up) to the ground where it is; no foot lifts until
+        // it's there.
         boolean dropping = false;
         for (Leg leg : legs)
         {
-            leg.drop = Math.max(0F, leg.drop - dt * t.stepHeight / DROP_TICKS);
-            dropping |= leg.drop > 0F;
+            final float change = dt * t.stepHeight / DROP_TICKS;
+            leg.drop = leg.drop > 0F ? Math.max(0F, leg.drop - change) : Math.min(0F, leg.drop + change);
+            dropping |= leg.drop != 0F;
         }
 
         // Walking, the feet don't wait for the body to settle.
@@ -847,8 +852,8 @@ public class StepTurnDriver implements DriverEvaluator
     }
 
     /**
-     * Plants every foot where the legs beneath put its sole (a body just {@link #place}d, shown at
-     * the entity's yaw), a foot off the ground coming down where it is, and opens the finish
+     * Plants every foot where the legs are drawn with its sole (a body just {@link #place}d, shown at
+     * the entity's yaw), a foot off the ground (or in it) going to it where it is, and opens the finish
      * window, so the feet step back under the body as after a landing: under where it stands, its
      * velocity measured anew from here.
      */
@@ -858,15 +863,16 @@ public class StepTurnDriver implements DriverEvaluator
         final double cosD = Math.cos(yawRad), sinD = Math.sin(yawRad);
         for (Leg leg : legs)
         {
-            pose.rotationSoFar(leg.upperSlot, upper);
-            pose.rotationSoFar(leg.lowerSlot, lower);
+            pose.rotationDrawn(leg.upperSlot, upper);
+            pose.rotationDrawn(leg.lowerSlot, lower);
             final float[] knee = leg.def.knee, foot = leg.def.foot;
             final double[] shin = rotate(lower, foot[0], foot[1], foot[2]);
             final double[] sole = rotate(upper, knee[0] + shin[0], knee[1] + shin[1], knee[2] + shin[2]);
             final double mx = leg.def.hip[0] + sole[0], mz = leg.def.hip[2] + sole[2];
             leg.x = px + (mx * cosD + mz * sinD) / t.unitsPerBlock;
             leg.z = pz + (mx * sinD - mz * cosD) / t.unitsPerBlock;
-            leg.drop = (float) Math.max(0, leg.restY - (leg.def.hip[1] + sole[1]));
+            // The hips as low as the crouch puts them from now on: where the walk is taken to have drawn them.
+            leg.drop = (float) (leg.restY - (leg.def.hip[1] + t.crouch + sole[1]));
         }
         sinceLanding = 0F;
         // The pose beneath walked it until now: the feet settle under a body that has stopped,

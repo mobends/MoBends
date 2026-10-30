@@ -10,6 +10,15 @@ public interface IRotationSink extends IBoneSink
     Quaternion getRotationTarget();
 
     /**
+     * @return the rotation the bone is drawn at, smoothed towards its targets (as of the last
+     *         frame); a sink that doesn't smooth is drawn at its target.
+     */
+    default Quaternion getRotationShown()
+    {
+        return getRotationTarget();
+    }
+
+    /**
      * Sets a new rotation target.
      *
      * @param smoothness the damping rate per tick; NaN keeps whatever the bone had before.

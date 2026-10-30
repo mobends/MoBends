@@ -40,6 +40,12 @@ public class OrientationSink implements IRotationSink
     }
 
     @Override
+    public Quaternion getRotationShown()
+    {
+        return rotation.getSmooth();
+    }
+
+    @Override
     public void setRotationTarget(Quaternion target, float smoothness, boolean snap, Quaternion snapFrom)
     {
         if (!Float.isNaN(smoothness))

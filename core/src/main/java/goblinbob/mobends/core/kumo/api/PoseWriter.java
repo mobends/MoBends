@@ -15,6 +15,13 @@ public interface PoseWriter
     /** The bone's rotation as the items before this one left it. */
     void rotationSoFar(int bone, Quaternion dest);
 
+    /**
+     * The bone's rotation as it is drawn: smoothed towards its targets, as of the last frame (where
+     * the items before this one write it with damping, it lags what they leave it at). A bone the
+     * subject doesn't have is as the items before this one left it.
+     */
+    void rotationDrawn(int bone, Quaternion dest);
+
     /** The bone's offset as the items before this one left it. */
     void offsetSoFar(int bone, Vec3f dest);
 

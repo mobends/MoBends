@@ -127,6 +127,12 @@ final class BoundDriver implements IPoseItem, EvalContext, PoseWriter, DeclaredS
     }
 
     @Override
+    public void rotationDrawn(int bone, Quaternion dest)
+    {
+        pose.rotationDrawn(bone, dest);
+    }
+
+    @Override
     public void offsetSoFar(int bone, Vec3f dest)
     {
         pose.offsetSoFar(bone, dest);

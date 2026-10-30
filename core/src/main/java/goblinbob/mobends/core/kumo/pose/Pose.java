@@ -276,6 +276,22 @@ public class Pose
         return true;
     }
 
+    /**
+     * The rotation a slot is drawn at: its sink's, smoothed towards its targets (as of the last
+     * frame), or, without a sink, what it has so far this frame.
+     */
+    public void rotationDrawn(int index, Quaternion dest)
+    {
+        IBoneSink sink = sink(index);
+        IRotationSink rotationSink = sink == null ? null : sink.asRotation();
+        if (rotationSink == null)
+        {
+            rotationSoFar(index, dest);
+            return;
+        }
+        dest.set(rotationSink.getRotationShown());
+    }
+
     /** The live target of a bone's sink (the value beneath the first layer), if it has one. */
     private boolean sinkRotation(int index, Quaternion dest)
     {

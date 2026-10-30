@@ -418,12 +418,13 @@ over `runFacingSmoothing` ticks, so a path zigzagging between blocks doesn't swi
 A hurried step never takes less than 60% of `minStepDuration`: faster than the legs can keep up
 with, the planted foot drags rather than the feet flickering.
 
-With `placeFromPose`, a foot is planted where the pose beneath puts it when the weight goes up
+With `placeFromPose`, a foot is planted where the legs are drawn with it when the weight goes up
 from 0, rather than at rest under the body, and the feet step back under the body as after a
 landing: a mob that walks by a clip and stands on its feet (the villager) settles from wherever
-the walk left its legs. It reads the pose beneath as this frame's items leave it, before damping,
-so the walk has to go on beneath while the driver comes in (a clip weighted by
-`entityLimbSwingAmount` winds down over the ticks after the mob stops).
+the walk left its legs. It reads the legs as they are drawn (smoothed, as of the last frame), so
+whatever poses them as the mob stops (a stand node) doesn't matter, hanging from hips `crouch`
+lower, as they are from then on: a walk that lowers the whole mob by as much (the leaning zombie's)
+is taken over without a jump.
 
 ```json
 {"core:step_turn": {"weight": "standing",
