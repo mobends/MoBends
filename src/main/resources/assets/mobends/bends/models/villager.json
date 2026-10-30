@@ -12,6 +12,20 @@
       }
     },
     {
+      "name": "nose",
+      "@comment": "A child of the head in ModelVillager. It hinges where its top meets the face, so it swings out from it.",
+      "vanilla": {
+        "field": "villagerNose",
+        "index": 1
+      },
+      "parent": "head",
+      "pivot": [
+        0,
+        -3,
+        -4
+      ]
+    },
+    {
       "name": "body",
       "vanilla": {
         "field": "villagerBody",

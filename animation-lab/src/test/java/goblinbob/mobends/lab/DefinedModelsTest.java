@@ -82,6 +82,12 @@ public class DefinedModelsTest
     /** The node a model's animator walks in, when it isn't "walk". */
     private static final Map<String, String> WALK_NODES = Collections.singletonMap("mobends:spider", "move");
 
+    /**
+     * Bones a model's animator drives that the model leaves to vanilla: the witch shares the
+     * villager's animator, but keeps ModelWitch's own nose (it twitches, and lifts while drinking).
+     */
+    private static final Map<String, Set<String>> VANILLA_BONES = Collections.singletonMap("mobends:witch", Collections.singleton("nose"));
+
     /** The models whose animator moves the limbs while standing. */
     private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:pig_zombie"));
 
@@ -176,6 +182,7 @@ public class DefinedModelsTest
         Skeleton skeleton = animator.getSkeleton();
         for (int i = 0; i < skeleton.size(); i++)
         {
+            if (VANILLA_BONES.getOrDefault(name, Collections.emptySet()).contains(skeleton.nameOf(i))) continue;
             assertNotNull(data.getBone(skeleton.nameOf(i)), name + ": the animator drives '" + skeleton.nameOf(i) + "', which the definition does not declare");
         }
 

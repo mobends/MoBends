@@ -107,7 +107,7 @@
       }
     },
     {
-      "@comment": "The villager walks by a clip that swings its legs (the feet slide, as vanilla's do), and stands and turns on its feet as the iron golem does: core:step_turn plants them in the world and turns the body only as far as they have stepped, light on them (quick steps, little weight shifted or rolled over the planted foot, the body following its feet on a stiffer spring). It is off while the villager walks or jumps; when it stops, the driver comes back on at once, with each foot planted where the walk left it, a foot in the air coming down where it is (placeFromPose: the stand node plays the walk too, weighted by the limb swing, which winds down over the ticks after it stops, so the pose beneath is still the walk's as the driver comes in; the walk's legs aren't smoothed, as vanilla's aren't, so they are drawn where the driver plants the feet), and a foot further than finishDrift from its place steps back under the body; nearer, it stays where the walk left it. It doesn't crouch (crouch, walkCrouch), so the villager stands as high as it walks, the hips going down only as far as feet planted apart need to reach (at most walkCrouch), easing down over crouchDrop ticks. RenderVillager draws the model at 0.9375 of its size, and a baby's at half that again, so a block is 16 / 0.9375 model units for a grown villager and twice that for a baby, which has its own, quicker driver. Standing, the upper body reacts lightly: the folded arms and the torso swing a little against the legs, the head keeps looking where the villager looks and nods as a foot lands. Landing, it gives a little (a kick on a spring).",
+      "@comment": "The villager walks by a clip that swings its legs (the feet slide, as vanilla's do), and stands and turns on its feet as the iron golem does: core:step_turn plants them in the world and turns the body only as far as they have stepped, light on them (quick steps, little weight shifted or rolled over the planted foot, the body following its feet on a stiffer spring). It is off while the villager walks or jumps; when it stops, the driver comes back on at once, with each foot planted where the walk left it, a foot in the air coming down where it is (placeFromPose: the stand node plays the walk too, weighted by the limb swing, which winds down over the ticks after it stops, so the pose beneath is still the walk's as the driver comes in; the walk's legs aren't smoothed, as vanilla's aren't, so they are drawn where the driver plants the feet), and a foot further than finishDrift from its place steps back under the body; nearer, it stays where the walk left it. It doesn't crouch (crouch, walkCrouch), so the villager stands as high as it walks, the hips going down only as far as feet planted apart need to reach (at most walkCrouch), easing down over crouchDrop ticks. RenderVillager draws the model at 0.9375 of its size, and a baby's at half that again, so a block is 16 / 0.9375 model units for a grown villager and twice that for a baby, which has its own, quicker driver. The nose hangs from the face on a loose spring: each step kicks it out (the walk's footfalls, a pulse twice a stride, and the driver's steps landing, stepImpact) and it swings back, hardly into the face; it sways sideways with the stride and the stepping foot. Standing, the upper body reacts lightly: the folded arms and the torso swing a little against the legs, the head keeps looking where the villager looks and nods as a foot lands. Landing, it gives a little (a kick on a spring).",
       "defaultOnEntry": "planted",
       "nodes": {
         "planted": {
@@ -217,6 +217,41 @@
                 "core:spring": {"inout": "node.swing", "target": "node.stride", "stiffness": 0.2, "friction": 0.35}
               },
               {
+                "core:spring": {
+                  "inout": "node.noseX",
+                  "target": {
+                    "add": [
+                      {"mul": [{"max": [0, {"sub": [0.5, {"abs": [{"cos": [{"mul": ["entityLimbSwing", 0.6662]}]}]}]}]}, "entityLimbSwingAmount", -28]},
+                      {"mul": ["node.stepImpact", -5]},
+                      {"mul": ["node.landKick", -12]}
+                    ]
+                  },
+                  "stiffness": 1.6,
+                  "friction": 0.35
+                }
+              },
+              {
+                "core:spring": {
+                  "inout": "node.noseZ",
+                  "target": {
+                    "add": [
+                      {"mul": [{"sin": [{"mul": ["entityLimbSwing", 0.6662]}]}, "entityLimbSwingAmount", 6]},
+                      {"mul": ["node.stepLift", 5]}
+                    ]
+                  },
+                  "stiffness": 0.5,
+                  "friction": 0.35
+                }
+              },
+              {
+                "core:axis_rotate": {"bone": "nose", "axis": "x", "angle": {"clamp": ["node.noseX", -25, 2]}},
+                "@space": "override"
+              },
+              {
+                "core:axis_rotate": {"bone": "nose", "axis": "z", "angle": {"clamp": ["node.noseZ", -12, 12]}},
+                "@space": "post"
+              },
+              {
                 "core:spring": {"inout": "node.lag", "target": "node.turnSpeed", "stiffness": 0.2, "friction": 0.4}
               },
               {
@@ -287,6 +322,8 @@
             "jolt": {"state": 0},
             "swing": {"state": 0},
             "lag": {"state": 0},
+            "noseX": {"state": 0},
+            "noseZ": {"state": 0},
             "twist": {"live": {"clamp": [{"add": [{"mul": ["node.turnLag", 0.3]}, {"mul": ["node.lag", -1.5]}, {"mul": ["node.swing", 0.8]}]}, -12, 12]}},
             "landing": {"state": 0},
             "landKick": {"state": 0}

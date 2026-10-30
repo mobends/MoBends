@@ -26,7 +26,8 @@
 - Villagers stand on their feet, as iron golems do: standing, the feet stay planted on the ground
   and they turn by stepping, with quick, light steps. They walk with a swing of the legs, and when
   they stop, their feet stay where the walk left them, a foot left well out of place stepping
-  back under them. Witches, which move as villagers do, too.
+  back under them. Witches, which move as villagers do, too. A villager's nose wobbles with each
+  step.
 - `core:step_turn` can take over from a walk posed beneath it (`placeFromPose`): the feet are
   planted where the walk left them, and step back under the body if they are out of place.
   `crouchDrop` sets how quickly the hips go down for reach.

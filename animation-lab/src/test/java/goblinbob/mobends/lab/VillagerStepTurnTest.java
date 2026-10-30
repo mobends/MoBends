@@ -126,6 +126,56 @@ public class VillagerStepTurnTest
     }
 
     @Test
+    void wobblesItsNoseWithEachStep() throws Exception
+    {
+        // Walking, the nose swings out at every footfall (twice a stride: about 12 ticks a stride at
+        // a wander), a few degrees, and hardly back into the face.
+        Villager walker = new Villager(false);
+        walker.recordNose = true;
+        walker.run(260, tick -> walker.inputs.forwardSpeed = tick >= 40 && tick < 160 ? WANDER : 0);
+        int flicks = 0;
+        double out = 0, in = 0;
+        for (int f = 1; f + 1 < walker.nose.size(); f++)
+        {
+            double[] before = walker.nose.get(f - 1), now = walker.nose.get(f), after = walker.nose.get(f + 1);
+            if (now[0] >= 60 && now[0] < 160)
+            {
+                out = Math.max(out, -now[1]);
+                in = Math.max(in, now[1]);
+                // A swing out peaking: the most outward (negative) frame round it, and well out.
+                if (now[1] < before[1] && now[1] <= after[1] && now[1] < -3)
+                {
+                    flicks++;
+                }
+            }
+        }
+        assertTrue(flicks >= 100 / 12.4 * 2 * 0.8, "the nose swung out " + flicks + " times in 100 ticks of walking");
+        assertTrue(out > 4 && out < 10, "the nose swung out " + out + "°");
+        assertTrue(in < 2.5, "the nose swung " + in + "° into the face");
+        // Standing still a while, it hangs at rest.
+        double last = walker.nose.get(walker.nose.size() - 1)[1];
+        assertEquals(0, last, 1, "the nose still hangs at " + last + "° after standing");
+
+        // Turning on the spot, the steps the driver takes wobble it too.
+        Villager turner = new Villager(false);
+        turner.recordNose = true;
+        turner.run(160, tick -> {
+            float body = tick < 60 ? 0 : Math.min(60, (tick - 60) * 6);
+            turner.inputs.bodyYaw = body;
+            turner.inputs.headYaw = (tick < 50 ? 0 : 60) - body;
+        });
+        double turning = 0;
+        for (double[] frame : turner.nose)
+        {
+            if (frame[0] >= 60)
+            {
+                turning = Math.max(turning, -frame[1]);
+            }
+        }
+        assertTrue(turning > 2 && turning < 8, "turning, the nose swung out " + turning + "°");
+    }
+
+    @Test
     void turnsBySteppingWithoutSlidingItsFeet() throws Exception
     {
         for (boolean child : new boolean[] {false, true})
@@ -190,6 +240,9 @@ public class VillagerStepTurnTest
 
         /** The tick from which steps and slides are counted. */
         int measureFrom;
+        /** Whether to record the nose's swing about X (degrees, out is negative) every frame, with the tick. */
+        boolean recordNose;
+        final java.util.List<double[]> nose = new java.util.ArrayList<>();
         /**
          * The most a sole moved in one frame (model units): from {@link #measureFrom} on, and over
          * the ten ticks before it.
@@ -274,6 +327,11 @@ public class VillagerStepTurnTest
                     maxHipDrop = Math.max(maxHipDrop, Math.abs(hipY));
                 }
                 lastHipY = hipY;
+                if (recordNose)
+                {
+                    Quaternion q = data.getPart("nose").rotation.getSmooth();
+                    nose.add(new double[] {clock.getTick() + pt, Math.toDegrees(2 * Math.atan2(q.x, q.w))});
+                }
                 maxTorsoAngle = Math.max(maxTorsoAngle, angle(data.getPart("body").rotation.getSmooth()));
                 Quaternion arms = data.getPart("arms").rotation.getSmooth();
                 if (armsAtRest == null)
