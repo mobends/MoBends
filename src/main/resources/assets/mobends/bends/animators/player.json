@@ -2754,6 +2754,95 @@
       }
     },
     {
+      "@comment": "The player stands on its feet as the villager and the zombie do: while it stands still (see onFeet), core:step_turn plants them in the world and turns the body only as far as they have stepped. It walks, runs and does the rest by its clips, the driver off; it comes back on at once when the player stands, each foot planted where the legs are drawn (placeFromPose), a foot further than finishDrift from its place stepping back under the body; it goes off over two ticks as the player sets off, and at once otherwise (an attack, the sneak, a bow), whatever comes next smoothing the legs and the whole model from where the driver drew them. RenderPlayer draws the model at 0.9375 of its size, so a block is 16 / 0.9375 model units. The head keeps looking where the player looks.",
+      "defaultOnEntry": "planted",
+      "nodes": {
+        "planted": {
+          "core:pose": {
+            "pose": [
+              {
+                "core:accumulate": {
+                  "inout": "node.onFeet",
+                  "rate": {
+                    "if": [
+                      {
+                        "and": [
+                          "animator.standing",
+                          {"not": ["entityIsSneaking"]},
+                          {"ge": ["entityTicksAfterAttack", 60]},
+                          {"not": ["entityIsDrawingBow"]},
+                          {"ge": ["entityTicksAfterTouchdown", 6.666666666666667]}
+                        ]
+                      },
+                      4,
+                      {"if": ["entityIsStandingStill", -4, -0.5]}
+                    ]
+                  },
+                  "min": 0,
+                  "max": 1
+                }
+              },
+              {
+                "core:step_turn": {
+                  "weight": "node.onFeet",
+                  "unitsPerBlock": 17.0667,
+                  "legs": [
+                    {
+                      "upper": "rightLeg",
+                      "lower": "rightForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [-1.9, 6, 2]
+                    },
+                    {
+                      "upper": "leftLeg",
+                      "lower": "leftForeLeg",
+                      "hip": [0, 12, 0],
+                      "knee": [0, 6, -2],
+                      "foot": [1.9, 6, 2]
+                    }
+                  ],
+                  "placeFromPose": true,
+                  "turnThreshold": 40,
+                  "finishThreshold": 25,
+                  "finishWindow": 30,
+                  "maxStepAngle": 120,
+                  "stepDuration": 4.5,
+                  "stepHeight": 3,
+                  "stepPause": 0,
+                  "strideLength": 12,
+                  "minStepDuration": 3,
+                  "finishDrift": 4,
+                  "driftThreshold": 5,
+                  "settleAngle": 35,
+                  "resetDistance": 20,
+                  "bodyStiffness": 0.711,
+                  "bodyDamping": 1.467,
+                  "crouch": 0,
+                  "walkCrouch": 1,
+                  "crouchDrop": 4,
+                  "impactDepth": 0.6,
+                  "impactTime": 3,
+                  "weightShift": 0.6,
+                  "weightRoll": 1.5,
+                  "out": {"turnLag": "node.turnLag"}
+                }
+              },
+              {
+                "core:axis_rotate": {
+                  "bone": "head",
+                  "axis": "y",
+                  "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}
+                },
+                "@space": "pre"
+              }
+            ]
+          },
+          "@define": {"onFeet": {"state": 0}, "turnLag": {"state": 0}}
+        }
+      }
+    },
+    {
       "defaultOnEntry": "cape",
       "nodes": {"cape": {"core:pose": {"pose": [{"mobends:cape": {"bone": "cape"}}]}}}
     }

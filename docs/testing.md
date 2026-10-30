@@ -25,9 +25,10 @@ keyframe (the last three frames of standing up); transitions are decided before 
 state change shows on the frame it happens; and the old movement node sampled `limbSwing` one
 frame late, while the walk now reads the current value (up to 9.5° on a leg).
 
-The iron golem's goldens were re-recorded as it learned to jump and climb, and the zombie's and
-the zombie villager's when they came to stand on their feet (`core:step_turn` takes the legs over
-whenever they stand still; their walk is unchanged). Every other golden is the original code's
+The iron golem's goldens were re-recorded as it learned to jump and climb, and the zombie's, the
+zombie villager's and the player's when they came to stand on their feet (`core:step_turn` takes
+the legs over whenever they stand still, and the player's only where nothing else poses them; how
+they move otherwise is unchanged). Every other golden is the original code's
 output.
 
 ## Where the Animators Deliberately Differ From the Original Code

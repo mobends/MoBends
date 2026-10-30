@@ -877,6 +877,46 @@ const actionLayer: Obj = { "@when": NOT(state("entityIsSleeping")), defaultOnEnt
                                              ["leftHeldItem", "rightHeldItem"]] } };
 
 const groundAction = OR("animator.standing", "animator.walking", "animator.sprinting");
+
+// --- standing on its feet: core:step_turn while the player stands still ------------------------------
+// The player's legs as the IK sees them: the biped's legs turn at the middle of the hips, and their
+// knees (split at half, hinged at the front) sit under it; the soles are 1.9 to the side.
+const playerLeg = (upper: string, lower: string, side: number): Obj =>
+  ({ upper, lower, hip: [0, 12, 0], knee: [0, 6, -2], foot: [1.9 * side, 6, 2] });
+// Standing still on the ground, not sneaking (the sneak poses the legs), well after an attack (the
+// sword's stance, the slashes, the punches and the fist guard pose the legs and turn the whole
+// model, and a swing turns vanilla's body to the head), not aiming a bow (the arms aim from the
+// body), and once a landing's kneel is over (it lowers the whole model).
+const onFeet = AND("animator.standing", NOT(state("entityIsSneaking")), cmp(tAA, ">=", 60), NOT(state("entityIsDrawingBow")),
+                   cmp("entityTicksAfterTouchdown", ">=", 6.666666666666667));
+const plantedLayer: Obj = {
+  "@comment": "The player stands on its feet as the villager and the zombie do: while it stands still (see onFeet), core:step_turn plants them in the world and turns the body only as far as they have stepped. It walks, runs and does the rest by its clips, the driver off; it comes back on at once when the player stands, each foot planted where the legs are drawn (placeFromPose), a foot further than finishDrift from its place stepping back under the body; it goes off over two ticks as the player sets off, and at once otherwise (an attack, the sneak, a bow), whatever comes next smoothing the legs and the whole model from where the driver drew them. RenderPlayer draws the model at 0.9375 of its size, so a block is 16 / 0.9375 model units. The head keeps looking where the player looks.",
+  defaultOnEntry: "planted",
+  nodes: { planted: poseNode([
+    // On at once; off over two ticks as it sets off (the hips ease back up with it), and at once
+    // otherwise, as an attack, a ladder or the sneak take over: what poses the legs and the whole model
+    // then smooths them from where the driver drew them (fading out, it would snap them on its way).
+    item("core:accumulate", { inout: "node.onFeet", rate: { if: [onFeet, 4, { if: [state("entityIsStandingStill"), -4, -0.5] }] }, min: 0, max: 1 }),
+    item("core:step_turn", {
+      weight: "node.onFeet",
+      unitsPerBlock: 17.0667,
+      legs: [playerLeg("rightLeg", "rightForeLeg", -1), playerLeg("leftLeg", "leftForeLeg", 1)],
+      placeFromPose: true,
+      // Turning in few, large steps: a foot steps once the body is 40° past it (squaring up only past
+      // 25° after a step), up to 120° at a time, the next lifting before the body has caught up, the
+      // body following its feet on a stiff spring (a stiffness of 1.6 and a damping of 2.2 over
+      // 3-tick steps, played 1.5 times slower).
+      turnThreshold: 40, finishThreshold: 25, finishWindow: 30, maxStepAngle: 120,
+      stepDuration: 4.5, stepHeight: 3, stepPause: 0, strideLength: 12, minStepDuration: 3,
+      finishDrift: 4, driftThreshold: 5, settleAngle: 35, resetDistance: 20,
+      bodyStiffness: 0.711, bodyDamping: 1.467,
+      crouch: 0, walkCrouch: 1, crouchDrop: 4,
+      impactDepth: 0.6, impactTime: 3, weightShift: 0.6, weightRoll: 1.5,
+      out: { turnLag: "node.turnLag" },
+    }),
+    item("core:axis_rotate", { bone: "head", axis: "y", angle: { sub: [{ clamp: [{ add: ["entityHeadYaw", "node.turnLag"] }, -85, 85] }, "entityHeadYaw"] } }, { space: "pre" }),
+  ], { define: { onFeet: variable(0), turnLag: variable(0) } }) },
+};
 function torchArm(side: string): Obj[] {
   const arm = side + "Arm";
   return [drv(arm, "X", "entityHeadPitch", { scale: 0.5, offset: -90, space: "override" }), drv(arm, "Y", "entityHeadYaw", { scale: 0.7 }),
@@ -913,6 +953,8 @@ const player: Obj = {
         ]) } },
     // items and attacks (the BipedActionController)
     actionLayer,
+    // standing on its feet
+    plantedLayer,
     // the cape is physics, kept as a driver
     { defaultOnEntry: "cape", nodes: { cape: poseNode([item("mobends:cape", { bone: "cape" })]) } },
   ] };

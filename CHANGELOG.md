@@ -31,6 +31,9 @@
 - Zombies and zombie villagers stand on their feet too: standing, the feet stay planted and they
   turn by stepping, heavily; they walk (or stumble) as before, and stop with their feet where the
   walk left them. A leaning zombie stands crouched with its feet on the ground.
+- Players stand on their feet too: standing still, the feet stay planted and they turn by stepping,
+  and stop with their feet where the walk or the sprint left them. Sneaking, fighting, aiming a bow
+  and the rest pose the legs as before.
 - `core:step_turn` can take over from a walk posed beneath it (`placeFromPose`): the feet are
   planted where the walk left them, and step back under the body if they are out of place.
   `crouchDrop` sets how quickly the hips go down for reach. The feet are taken where the legs are
