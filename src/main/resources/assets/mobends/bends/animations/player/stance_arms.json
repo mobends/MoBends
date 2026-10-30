@@ -1,1 +1,1 @@
-{"bones":{"rightArm":{"keyframes":[{"position":[0,0,0],"rotation":[0,0,0.5,0.8660254]}]},"leftArm":{"keyframes":[{"position":[0,0,0],"rotation":[0,0,-0.5,0.8660254]}]}},"duration":0}
+{"formatVersion":2,"bones":{"rightArm":{"keyframes":[{"position":[0,0,0],"rotation":[0,0,0.5,0.8660254]}]},"leftArm":{"keyframes":[{"position":[0,0,0],"rotation":[0,0,-0.5,0.8660254]}]}},"duration":0}

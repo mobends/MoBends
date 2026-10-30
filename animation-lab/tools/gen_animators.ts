@@ -37,7 +37,7 @@ function clipKey(folder: string, name: string): string {
 
 function writeClip(path: string, data: Obj): void {
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, JSON.stringify(data));
+  writeFileSync(path, JSON.stringify({ formatVersion: 2, ...data }));
 }
 
 // ---- condition helpers ----------------------------------------------------------------------

@@ -49,7 +49,7 @@ public class AnimatorResources implements IKumoInstancingContext
         KeyframeAnimation clip = clips.get(location);
         if (clip == null)
         {
-            clip = GsonResources.read(location, CLIP_GSON, KeyframeAnimation.class);
+            clip = GsonResources.read(location, CLIP_GSON, KeyframeAnimation.class, "clip", KeyframeAnimation.FORMAT_VERSION);
             clips.put(location, clip);
         }
         return clip;

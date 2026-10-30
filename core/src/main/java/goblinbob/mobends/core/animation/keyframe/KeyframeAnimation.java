@@ -5,6 +5,15 @@ import java.util.Map;
 public class KeyframeAnimation
 {
 
+    /**
+     * The version of the clip format this build reads (see {@code FormatVersion}). Bump it whenever
+     * the format changes in a way old clips can't be read as they are.
+     */
+    public static final int FORMAT_VERSION = 2;
+
+    /** The format the file was written for (required in clip files; see {@link #FORMAT_VERSION}). */
+    public int formatVersion;
+
     public Map<String, Bone> bones;
 
     /**

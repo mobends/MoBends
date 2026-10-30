@@ -15,8 +15,8 @@ smooths them.
 }
 ```
 
-`formatVersion` is required, in animators and in every other Mo' Bends file (types, extensions,
-model definitions); each format is numbered on its own, and all of
+`formatVersion` is required, in animators and in every other Mo' Bends file (clips, types,
+extensions, model definitions); each format is numbered on its own, and all of
 them are at 2. A file written for another version of its format is refused with a message saying
 so (an older one would be upgraded on load, once there is one to upgrade from). `extends` puts a parent animator's layers first; the parent's version is checked too.
 `@define` declares the animator's definitions and `@on` its statement lists (see *Definitions and
@@ -336,7 +336,7 @@ A clip's own fields are `animationKey`, `frame`, `duration`, `weight` and `bones
 it blends from what the bone has so far this frame (from the layers below and the items before)
 to the clip, or from the rest pose where nothing has written the bone yet. `bones` restricts the
 clip.
-Clip files (`animations/...json`) hold `bones` with keyframes (`position`, `rotation` as a
+Clip files (`animations/...json`) hold their `formatVersion` (2), `bones` with keyframes (`position`, `rotation` as a
 quaternion `[x, y, z, w]`; each may be left out for no offset, no rotation),
 and optionally `duration`, `interpolation: "step"` and explicit keyframe `times` (in the clip's
 units). Keyframes straddling the ±180° wrap interpolate the short way.

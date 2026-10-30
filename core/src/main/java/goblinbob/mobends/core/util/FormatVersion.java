@@ -5,8 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 /**
- * The {@code formatVersion} every Mo' Bends asset file carries (animators, types, extensions, model
- * definitions), each format numbered on its own. This is where a file written for an older format
+ * The {@code formatVersion} every Mo' Bends asset file carries (animators, clips, types, extensions,
+ * model definitions), each format numbered on its own. This is where a file written for an older format
  * would be upgraded, on the JSON, one version at a time; until a format changes, anything but its
  * current version is refused with a message saying why.
  */
