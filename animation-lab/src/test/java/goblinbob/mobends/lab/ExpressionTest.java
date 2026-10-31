@@ -336,9 +336,9 @@ public class ExpressionTest
         // arm by it. The child reads it too, through a layer and a node definition.
         AnimatorTemplate child = KumoSerializer.INSTANCE.gson.fromJson("{\"formatVersion\": 2, \"extends\": \"mobends_test:bends/animators/expressions_parent.json\", "
                 + "\"layers\": [{\"defaultOnEntry\": \"child\", \"@define\": {\"lift\": {\"live\": {\"mul\": [\"animator.base\", "
-                + "0.5]}}}, \"nodes\": {\"child\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", "
+                + "0.5]}}}, \"nodes\": {\"child\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"rightArm\", "
                 + "\"axis\": \"x\", \"angle\": \"animator.base\"}, \"@space\": \"override\"}, "
-                + "{\"core:axis_rotate\": {\"bone\": \"rightLeg\", \"axis\": \"x\", \"angle\": \"node.legs\"}, "
+                + "{\"core:rotate\": {\"bone\": \"rightLeg\", \"axis\": \"x\", \"angle\": \"node.legs\"}, "
                 + "\"@space\": \"override\"}]}, \"@define\": {\"legs\": {\"live\": {\"add\": [\"layer.lift\", 1]}}}}}}]}", AnimatorTemplate.class);
 
         Scenario scenario = new Scenario(EntityKind.PLAYER, "expression_scopes", Scenarios.FPS, 10, (tick, in) -> {});

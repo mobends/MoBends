@@ -36,7 +36,7 @@ public class EntityScopeTest
     /** Poses the bone 'arm' about X by {@code angle} degrees. */
     private static String posing(String angle)
     {
-        return "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': "
+        return "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:rotate': "
                 + "{'bone': 'arm', 'axis': 'x', 'angle': " + angle + "}, '@space': 'override'}]}}}}]}";
     }
 
@@ -197,7 +197,7 @@ public class EntityScopeTest
         KumoAnimatorState animator = animator(entity(Mob.class, "{'frames': {'state': 0}}",
                 "{'update': [{'set': ['entity.frames', {'add': ['entity.frames', 1]}]}]}", true),
                 "{'formatVersion': 2, '@define': {'seen': {'state': -1}}, '@on': {'update': [{'set': ['animator.seen', 'entity.frames']}]}, "
-                        + "'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': "
+                        + "'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:rotate': "
                         + "{'bone': 'arm', 'axis': 'x', 'angle': {'mul': ['animator.seen', 10]}}, '@space': 'override'}]}}}}]}");
         TestSubject subject = subjectOf(new Mob());
 

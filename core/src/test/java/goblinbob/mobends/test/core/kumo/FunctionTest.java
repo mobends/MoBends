@@ -29,7 +29,7 @@ public class FunctionTest
     private static String animator(String functions, String layerFunctions, String angle)
     {
         return "{'formatVersion': 2, '@define': {'base': {'constant': 3}}, '@functions': " + functions + ", 'layers': [{'@functions': " + layerFunctions + ", "
-                + "'@define': {'step': {'state': 2}}, 'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': "
+                + "'@define': {'step': {'state': 2}}, 'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:rotate': "
                 + "{'bone': 'arm', 'axis': 'x', 'angle': " + angle + "}, '@space': 'override'}]}}}}]}";
     }
 

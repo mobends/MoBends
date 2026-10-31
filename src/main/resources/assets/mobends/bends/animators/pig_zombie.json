@@ -73,9 +73,9 @@
                 },
                 "@vectorModes": {"localOffset": "slide"}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
+              {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "post",
                 "@mirror": true
               },
@@ -98,7 +98,7 @@
                 "@damping": {"renderRotation": 0.6}
               },
               {
-                "core:axis_rotate": {"bone": "rightHeldItem", "axis": "x", "angle": 50},
+                "core:rotate": {"bone": "rightHeldItem", "axis": "x", "angle": 50},
                 "@space": "override",
                 "@snap": true,
                 "@mirror": true,

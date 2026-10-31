@@ -32,12 +32,12 @@
                 "@damping": {"head": 0.5, "arms": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "post"
               }
             ]
@@ -59,20 +59,20 @@
                 "@damping": {"rightLeg": 10, "foreRightLeg": 10, "leftLeg": 10, "foreLeftLeg": 10}
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "y", "angle": "node.twist"},
+                "core:rotate": {"bone": "body", "axis": "y", "angle": "node.twist"},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "arms", "axis": "y", "angle": "node.twist"},
+                "core:rotate": {"bone": "arms", "axis": "y", "angle": "node.twist"},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "post"
               }
             ]
@@ -93,12 +93,12 @@
                 "@damping": {"rightLeg": 0.3, "foreRightLeg": 0.3, "leftLeg": 0.3, "foreLeftLeg": 0.3}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
                 "@damping": {"head": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "post"
               }
             ]
@@ -244,18 +244,18 @@
                 }
               },
               {
-                "core:axis_rotate": {"bone": "nose", "axis": "x", "angle": {"clamp": ["node.noseX", -25, 2]}},
+                "core:rotate": {"bone": "nose", "axis": "x", "angle": {"clamp": ["node.noseX", -25, 2]}},
                 "@space": "override"
               },
               {
-                "core:axis_rotate": {"bone": "nose", "axis": "z", "angle": {"clamp": ["node.noseZ", -12, 12]}},
+                "core:rotate": {"bone": "nose", "axis": "z", "angle": {"clamp": ["node.noseZ", -12, 12]}},
                 "@space": "post"
               },
               {
                 "core:spring": {"inout": "node.lag", "target": "node.turnSpeed", "stiffness": 0.2, "friction": 0.4}
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "head",
                   "axis": "y",
                   "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}
@@ -263,51 +263,51 @@
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", 3]}, "node.onFeet"]}},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", 3]}, "node.onFeet"]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
+                "core:rotate": {"bone": "body", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "arms", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
+                "core:rotate": {"bone": "arms", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "arms", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", -4]}, "node.onFeet"]}},
+                "core:rotate": {"bone": "arms", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", -4]}, "node.onFeet"]}},
                 "@space": "post"
               },
               {
-                "core:vector": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1]}, "z": 0},
+                "core:translate": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1]}, "z": 0},
                 "@damping": {"root": [0.3, null, 0.3]}
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.landKick", 3]}},
+                "core:rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.landKick", 3]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": ["node.landKick", 4]}},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": {"mul": ["node.landKick", 4]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "arms", "axis": "x", "angle": {"mul": ["node.landKick", -6]}},
+                "core:rotate": {"bone": "arms", "axis": "x", "angle": {"mul": ["node.landKick", -6]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "rightLeg", "axis": "x", "angle": {"mul": ["node.landKick", -12]}},
+                "core:rotate": {"bone": "rightLeg", "axis": "x", "angle": {"mul": ["node.landKick", -12]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "leftLeg", "axis": "x", "angle": {"mul": ["node.landKick", -12]}},
+                "core:rotate": {"bone": "leftLeg", "axis": "x", "angle": {"mul": ["node.landKick", -12]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "foreRightLeg", "axis": "x", "angle": {"mul": ["node.landKick", 20]}},
+                "core:rotate": {"bone": "foreRightLeg", "axis": "x", "angle": {"mul": ["node.landKick", 20]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "foreLeftLeg", "axis": "x", "angle": {"mul": ["node.landKick", 20]}},
+                "core:rotate": {"bone": "foreLeftLeg", "axis": "x", "angle": {"mul": ["node.landKick", 20]}},
                 "@space": "post"
               }
             ]

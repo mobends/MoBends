@@ -85,7 +85,7 @@
               },
               {
                 "@when": {"and": [{"eq": ["entity.animationSet", 0]}, {"gt": ["node.rootHeld", 0]}]},
-                "core:vector": {"bone": "root", "y": {"mul": [-3, {"sub": [1, "node.onFeet"]}]}},
+                "core:translate": {"bone": "root", "y": {"mul": [-3, {"sub": [1, "node.onFeet"]}]}},
                 "@vectorModes": {"root": "snap"}
               },
               {
@@ -269,7 +269,7 @@
                 }
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "head",
                   "axis": "y",
                   "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}

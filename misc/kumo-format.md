@@ -25,11 +25,11 @@ statements*); layers, machines and nodes have their own too.
 ## How it is written
 
 Pose items and nodes are written the same way: an object with **exactly one key that doesn't
-start with `@`**. That key names what it is (`core:clip`, `core:axis_rotate`, `core:pose`), and
+start with `@`**. That key names what it is (`core:clip`, `core:rotate`, `core:pose`), and
 its value is what that takes:
 
 ```json
-{"@when": "entityIsSwinging", "core:axis_rotate": {"bone": "head", "axis": "y", "angle": -30}, "@space": "pre"}
+{"@when": "entityIsSwinging", "core:rotate": {"bone": "head", "axis": "y", "angle": -30}, "@space": "pre"}
 ```
 
 Every other key starts with `@`: what the engine does with it (an item's `@when`, `@space`,
@@ -252,7 +252,7 @@ before it.
 ## Pose items
 
 A node's `pose` is a stack; later items compose over earlier ones. An item is a clip
-(`core:clip`) or a driver (`core:axis_rotate`, ...): its one key without `@` names it, and its value
+(`core:clip`) or a driver (`core:rotate`, ...): its one key without `@` names it, and its value
 holds the item's own fields. The modifiers, the same for every item:
 
 | modifier | meaning |
@@ -260,7 +260,7 @@ holds the item's own fields. The modifiers, the same for every item:
 | `@when` | a condition; the item is skipped while it does not hold |
 | `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. |
 | `@damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate |
-| `@vectorModes` | for offset vectors: `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
+| `@vectorModes` | for offset vectors (and a `core:translate`'s part offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
 | `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `@mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
 | `@swapSides` | like `@mirror`, but only the paired bones swap; rotations and offsets are kept |
@@ -350,9 +350,8 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 
 | driver | fields |
 |---|---|
-| `core:axis_rotate` | `bone`, `axis` (`x`/`y`/`z`), `angle` (expression, degrees) |
-| `core:vector` | `bone`, `x`, `y`, `z` (expressions; an axis left out keeps the bone's current target) |
-| `core:offset` | `bone`, `x`, `y`, `z`: a bone's position offset |
+| `core:rotate` | `bone`, `axis` (`x`/`y`/`z`), `angle` (expression, degrees) |
+| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or an entity-level vector (`root` / `globalOffset`, `localOffset`). Default space `override`; there an axis left out keeps the bone's current value, in `pre` / `post` it moves by nothing. On a part, the item's `@damping`, `@vectorModes` and `@snap` go to the offset, not the rotation: damped, it's smoothed like a vector, and undamped it's applied as is |
 | `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
 | `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
@@ -904,7 +903,7 @@ expression repeated with different inputs, written once.
              "body": {"mul": [{"sin": [{"mul": ["arg.t", 6.28]}]}, "arg.amount"]}}
 },
 ...
-{"core:axis_rotate": {"bone": "head", "axis": "z",
+{"core:rotate": {"bone": "head", "axis": "z",
                       "angle": {"animator.wobble": [{"div": ["nodeTicksElapsed", 20]}, 5]}}}
 ```
 

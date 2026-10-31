@@ -18,7 +18,7 @@
           "core:pose": {
             "pose": [
               {
-                "core:offset": {
+                "core:translate": {
                   "bone": "body",
                   "x": 0,
                   "y": {"mul": [{"cos": ["layer.step"]}, 0.4, "entityLimbSwingAmount"]},
@@ -28,7 +28,7 @@
                 "@damping": {"body": 1}
               },
               {
-                "core:offset": {
+                "core:translate": {
                   "bone": "head",
                   "x": 0,
                   "y": {"mul": [{"cos": [{"sub": ["layer.step", 0.9]}]}, 0.5, "entityLimbSwingAmount"]},
@@ -37,7 +37,7 @@
                 "@space": "override"
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "head",
                   "axis": "x",
                   "angle": {"mul": [{"cos": [{"sub": ["layer.step", 1.6]}]}, 4, "entityLimbSwingAmount"]}

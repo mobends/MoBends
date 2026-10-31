@@ -30,7 +30,10 @@ public class BoneTarget
     public boolean hasSnapFrom;
     public final Quaternion snapFrom = new Quaternion();
 
-    /** Vector value the interpolation restarts from (a snap write followed by a retarget in one frame). */
+    /**
+     * Vector (or, on a part, offset) value the interpolation restarts from (a snap write followed by
+     * a retarget in one frame).
+     */
     public boolean hasVectorStart;
     public final Vec3f vectorStart = new Vec3f();
 
@@ -43,16 +46,23 @@ public class BoneTarget
     /** Damping per tick; NaN keeps whatever the bone had. For vectors per axis. */
     public float smoothness = Float.NaN;
     public final Vec3f vectorSmoothness = new Vec3f(Float.NaN, Float.NaN, Float.NaN);
+    /**
+     * A part's offset damping per tick, per axis. Unlike a rotation's it lasts one frame: an axis
+     * with no damping (NaN) is applied as is.
+     */
+    public final Vec3f offsetSmoothness = new Vec3f(Float.NaN, Float.NaN, Float.NaN);
 
     /** Jump to the rotation target this frame instead of smoothing. */
     public boolean snap;
     /**
-     * Set when a vector write replaced a different target written earlier in the same frame: the
-     * sink restarts the slide from the current value on these axes (an exponential approach
-     * instead of a linear tween).
+     * Set when a vector (or, on a part, offset) write replaced a different target written earlier
+     * in the same frame: the sink restarts the slide from the current value on these axes (an
+     * exponential approach instead of a linear tween).
      */
     public boolean restartX, restartY, restartZ;
     public IVectorSink.Mode vectorMode = IVectorSink.Mode.RETARGET;
+    /** How a part's offset target is applied, as {@link #vectorMode} for a vector. */
+    public IVectorSink.Mode offsetMode = IVectorSink.Mode.RETARGET;
 
     public void clear()
     {
@@ -67,9 +77,11 @@ public class BoneTarget
         hasVector = false;
         smoothness = Float.NaN;
         vectorSmoothness.set(Float.NaN, Float.NaN, Float.NaN);
+        offsetSmoothness.set(Float.NaN, Float.NaN, Float.NaN);
         snap = false;
         restartX = restartY = restartZ = false;
         vectorMode = IVectorSink.Mode.RETARGET;
+        offsetMode = IVectorSink.Mode.RETARGET;
     }
 
     /** Reflects the target across the YZ plane: rotations (x, -y, -z, w), vectors (-x, y, z). */
@@ -104,11 +116,13 @@ public class BoneTarget
         vector.set(other.vector);
         smoothness = other.smoothness;
         vectorSmoothness.set(other.vectorSmoothness);
+        offsetSmoothness.set(other.offsetSmoothness);
         snap = other.snap;
         restartX = other.restartX;
         restartY = other.restartY;
         restartZ = other.restartZ;
         vectorMode = other.vectorMode;
+        offsetMode = other.offsetMode;
     }
 
 }

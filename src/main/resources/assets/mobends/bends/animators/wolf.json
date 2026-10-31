@@ -142,46 +142,46 @@
           "core:pose": {
             "pose": [
               {
-                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "z", "angle": {"mobends:wolf_interested_angle": []}},
+                "core:rotate": {"bone": "head", "axis": "z", "angle": {"mobends:wolf_interested_angle": []}},
                 "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "z", "angle": {"mobends:wolf_shake_angle": [0]}},
+                "core:rotate": {"bone": "head", "axis": "z", "angle": {"mobends:wolf_shake_angle": [0]}},
                 "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "mane", "axis": "z", "angle": {"mobends:wolf_shake_angle": [-0.08]}},
+                "core:rotate": {"bone": "mane", "axis": "z", "angle": {"mobends:wolf_shake_angle": [-0.08]}},
                 "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "z", "angle": {"mobends:wolf_shake_angle": [-0.2]}},
+                "core:rotate": {"bone": "tail", "axis": "z", "angle": {"mobends:wolf_shake_angle": [-0.2]}},
                 "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "z", "angle": "animator.tailWag"},
+                "core:rotate": {"bone": "tail", "axis": "z", "angle": "animator.tailWag"},
                 "@space": "post",
                 "@snap": true
               },
               {
-                "core:axis_rotate": {"bone": "tail", "axis": "x", "angle": {"add": [{"mobends:wolf_tail_rotation": []}, -90]}},
+                "core:rotate": {"bone": "tail", "axis": "x", "angle": {"add": [{"mobends:wolf_tail_rotation": []}, -90]}},
                 "@space": "post",
                 "@snap": true
               },
-              {"core:offset": {"bone": "head", "x": 0, "y": 0, "z": 0}, "@space": "override"}
+              {"core:translate": {"bone": "head", "x": 0, "y": 0, "z": 0}, "@space": "override"}
             ]
           }
         }

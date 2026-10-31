@@ -686,8 +686,10 @@ public class LayerState
             // Damping, snapping and vector modes follow the node being entered.
             d.smoothness = b.smoothness;
             d.vectorSmoothness.set(b.vectorSmoothness);
+            d.offsetSmoothness.set(b.offsetSmoothness);
             d.snap = b.snap;
             d.vectorMode = b.vectorMode;
+            d.offsetMode = b.offsetMode;
             d.hasSnapFrom = b.hasSnapFrom;
             d.snapFrom.set(b.snapFrom);
             d.hasVectorStart = b.hasVectorStart;
@@ -754,11 +756,15 @@ public class LayerState
             if (!Float.isNaN(src.vectorSmoothness.x)) dst.vectorSmoothness.x = src.vectorSmoothness.x;
             if (!Float.isNaN(src.vectorSmoothness.y)) dst.vectorSmoothness.y = src.vectorSmoothness.y;
             if (!Float.isNaN(src.vectorSmoothness.z)) dst.vectorSmoothness.z = src.vectorSmoothness.z;
+            if (!Float.isNaN(src.offsetSmoothness.x)) dst.offsetSmoothness.x = src.offsetSmoothness.x;
+            if (!Float.isNaN(src.offsetSmoothness.y)) dst.offsetSmoothness.y = src.offsetSmoothness.y;
+            if (!Float.isNaN(src.offsetSmoothness.z)) dst.offsetSmoothness.z = src.offsetSmoothness.z;
             if (src.snap) dst.snap = true;
             if (src.restartX) dst.restartX = true;
             if (src.restartY) dst.restartY = true;
             if (src.restartZ) dst.restartZ = true;
             if (src.hasVector) dst.vectorMode = src.vectorMode;
+            if (src.hasOffset) dst.offsetMode = src.offsetMode;
         }
     }
 

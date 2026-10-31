@@ -83,9 +83,9 @@ public class PlayerEntityValuesTest
 
     /** Turns the held items by the values, so the test can read them: right by the pitch, left by 90 on one leg. */
     private static final String PROBE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"probe\", \"nodes\": {\"probe\": {\"core:pose\": {\"pose\": ["
-            + "{\"core:axis_rotate\": {\"bone\": \"rightHeldItem\", \"axis\": \"x\", \"angle\": \"entity.flightPitch\"}, \"@space\": \"override\"},"
-            + "{\"core:axis_rotate\": {\"bone\": \"leftHeldItem\", \"axis\": \"x\", \"angle\": {\"if\": [\"entity.sprintJumpLeg\", 90, 0]}}, \"@space\": \"override\"},"
-            + "{\"core:axis_rotate\": {\"bone\": \"head\", \"axis\": \"x\", \"angle\": {\"mul\": [\"entity.flightSpeedFactor\", 100]}}, \"@space\": \"override\"}"
+            + "{\"core:rotate\": {\"bone\": \"rightHeldItem\", \"axis\": \"x\", \"angle\": \"entity.flightPitch\"}, \"@space\": \"override\"},"
+            + "{\"core:rotate\": {\"bone\": \"leftHeldItem\", \"axis\": \"x\", \"angle\": {\"if\": [\"entity.sprintJumpLeg\", 90, 0]}}, \"@space\": \"override\"},"
+            + "{\"core:rotate\": {\"bone\": \"head\", \"axis\": \"x\", \"angle\": {\"mul\": [\"entity.flightSpeedFactor\", 100]}}, \"@space\": \"override\"}"
             + "]}}}}]}";
 
     private static void assertTurnedBy(double degrees, Quaternion q, String what)

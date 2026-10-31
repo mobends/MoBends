@@ -24,7 +24,7 @@ public class SmoothVector3f
 	/**
 	 * Holds the interpolation tween value for each axis separately.
 	 */
-	public Vec3f completion = new Vec3f(0, 0, 0); // <0.0F, 1.0F>
+	public Vec3f completion = new Vec3f(1, 1, 1); // <0.0F, 1.0F>; at rest until given a target
 
 	public SmoothVector3f() {}
 
@@ -53,6 +53,28 @@ public class SmoothVector3f
 		this.start.set(this.getX(), this.getY(), this.getZ());
 		this.end.set(x, y, z);
 		this.completion.set(0, 0, 0);
+	}
+
+	/** Restarts the interpolation of one axis from its current value towards {@code value}, at {@code smoothness}. */
+	public void retarget(EnumAxis axis, float value, float smoothness)
+	{
+		if (axis == EnumAxis.X) { this.start.x = this.getX(); this.end.x = value; this.completion.x = 0.0F; this.smoothness.x = smoothness; }
+		else if (axis == EnumAxis.Y) { this.start.y = this.getY(); this.end.y = value; this.completion.y = 0.0F; this.smoothness.y = smoothness; }
+		else { this.start.z = this.getZ(); this.end.z = value; this.completion.z = 0.0F; this.smoothness.z = smoothness; }
+	}
+
+	/** Jumps one axis to {@code value}. */
+	public void set(EnumAxis axis, float value)
+	{
+		if (axis == EnumAxis.X) this.setX(value);
+		else if (axis == EnumAxis.Y) this.setY(value);
+		else this.setZ(value);
+	}
+
+	/** @return whether some axis is still on its way to its target. */
+	public boolean isMoving()
+	{
+		return this.completion.x < 1.0F || this.completion.y < 1.0F || this.completion.z < 1.0F;
 	}
 
 	/** Restarts the interpolation of one axis from its current value towards its current target. */
