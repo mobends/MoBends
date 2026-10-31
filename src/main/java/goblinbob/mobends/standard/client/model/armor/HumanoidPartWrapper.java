@@ -70,6 +70,12 @@ public class HumanoidPartWrapper implements IPartWrapper
     }
 
     @Override
+    public void applyTransform(float scale)
+    {
+        partContainer.applyContentTransform(scale);
+    }
+
+    @Override
     public IPartWrapper setParent(IModelPart parent)
     {
         partContainer.setParent(parent);

@@ -115,12 +115,7 @@ public class PartContainer extends ModelRenderer implements IModelPart
 		if (!(this.isShowing())) return;
 		
         GlStateManager.pushMatrix();
-        this.applyCharacterTransform(scale);
-        
-        // This is applied outside the standalone transform method, so that children aren't affected.
-        if (this.innerOffset.x != 0.0F || this.innerOffset.y != 0.0F || this.innerOffset.z != 0.0F)
-		GlStateManager.translate(this.innerOffset.x * scale, this.innerOffset.y * scale, this.innerOffset.z * scale);
-        
+        this.applyContentTransform(scale);
 		this.renderContainedModel(scale);
 
         if (this.childModels != null)
@@ -133,6 +128,16 @@ public class PartContainer extends ModelRenderer implements IModelPart
         GlStateManager.popMatrix();
 	}
 	
+	/** Moves GL into the frame the contained model is drawn in: the container's, then its inner offset. */
+	public void applyContentTransform(float scale)
+	{
+		this.applyCharacterTransform(scale);
+
+		// This is applied outside the standalone transform method, so that children aren't affected.
+		if (this.innerOffset.x != 0.0F || this.innerOffset.y != 0.0F || this.innerOffset.z != 0.0F)
+			GlStateManager.translate(this.innerOffset.x * scale, this.innerOffset.y * scale, this.innerOffset.z * scale);
+	}
+
 	@Override
 	public void renderJustPart(float scale)
 	{

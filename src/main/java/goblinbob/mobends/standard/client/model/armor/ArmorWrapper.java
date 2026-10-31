@@ -6,10 +6,14 @@ import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
+import goblinbob.mobends.standard.compat.geckolib.GeckoLibCompat;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -34,6 +38,13 @@ public class ArmorWrapper extends ModelBiped
 
     protected List<IPartWrapper> partWrappers;
 
+    /** What draws the armour into the posed parts, when the original's own parts don't hold it; otherwise null. */
+    @Nullable
+    protected final IArmorGeometry geometry;
+    /** The armour piece being drawn, for {@link #geometry}: set before every render. */
+    private ItemStack wornStack = ItemStack.EMPTY;
+    private EntityEquipmentSlot wornSlot = EntityEquipmentSlot.CHEST;
+
     protected IPartWrapper bodyParts,
                            headParts,
                            headwearParts,
@@ -55,6 +66,7 @@ public class ArmorWrapper extends ModelBiped
     private ArmorWrapper(ModelBiped original)
     {
         this.original = original;
+        this.geometry = GeckoLibCompat.geometryFor(original);
         // Replacing our unused modelRenderer properties with the ones from
         // the original model, meaning that whenever some internal method changes
         // the visibility of a model we can get it from these.
@@ -120,9 +132,20 @@ public class ArmorWrapper extends ModelBiped
         if (!fits(entityData))
             return;
 
-        // Syncing up the model with animated data.
-        this.bodyTransform.syncUp((IModelPart) entityData.getPartForName("body"));
-        this.partWrappers.forEach(group -> group.syncUp(entityData));
+        this.syncUp(entityData);
+
+        if (this.geometry != null)
+        {
+            // ModelBiped.render, which the parts are posed for, draws a sneaking entity lower.
+            GlStateManager.pushMatrix();
+            if (!this.isChild && entityIn.isSneaking())
+            {
+                GlStateManager.translate(0.0F, 0.2F, 0.0F);
+            }
+            this.geometry.render(this, entityLiving, wornStack, wornSlot, scale);
+            GlStateManager.popMatrix();
+            return;
+        }
 
         this.apply();
 
@@ -138,6 +161,27 @@ public class ArmorWrapper extends ModelBiped
     {
         // Do nothing
     }
+
+    /** Poses the parts as the entity's animated parts are, ahead of drawing them. */
+    public void syncUp(EntityData<?> entityData)
+    {
+        this.bodyTransform.syncUp((IModelPart) entityData.getPartForName("body"));
+        this.partWrappers.forEach(group -> group.syncUp(entityData));
+    }
+
+    /** Which armour piece the next render draws, for armour drawn by an {@link IArmorGeometry}. */
+    public void setWorn(ItemStack stack, EntityEquipmentSlot slot)
+    {
+        this.wornStack = stack;
+        this.wornSlot = slot;
+    }
+
+    public IPartWrapper getHeadParts() { return headParts; }
+    public IPartWrapper getBodyParts() { return bodyParts; }
+    public IPartWrapper getLeftArmParts() { return leftArmParts; }
+    public IPartWrapper getRightArmParts() { return rightArmParts; }
+    public IPartWrapper getLeftLegParts() { return leftLegParts; }
+    public IPartWrapper getRightLegParts() { return rightLegParts; }
 
     /**
      * Brings the original model back to it's vanilla state.

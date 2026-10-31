@@ -20,6 +20,9 @@
 - Mods can add their own animation logic to the JSON format: operations (values computed in Java,
   such as whether a mob is wet) and drivers (posing computed in Java), registered from an addon.
 - Zombie villagers are animated.
+- Armour made with GeckoLib (3, for 1.12.2) moves with the animation, as vanilla armour does,
+  bending at the elbows and knees; its own GeckoLib animation still plays. GeckoLib stays
+  optional, and `keepArmorAsVanilla` keeps a piece as GeckoLib draws it.
 - Iron golems jump: the push-off snaps their legs straight, they bend as the golem flies and the
   heavy arms lag behind; landing, it gives under its weight. Jumping onto a block, the golem climbs
   it: it plants its hands on the top, hauls itself up the side, gets a knee up and steps on.

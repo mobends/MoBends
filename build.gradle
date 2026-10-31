@@ -63,6 +63,10 @@ minecraft {
     }
 }
 
+repositories {
+    maven { url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+}
+
 dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
@@ -72,7 +76,15 @@ dependencies {
     // The Minecraft-free animation engine, bundled into the mod jar.
     implementation project(':core')
 
+    // GeckoLib's armour follows the animation when GeckoLib is installed (standard/compat/geckolib);
+    // the mod never needs it. `-Pwith_geckolib` adds it to the development client, with its examples.
+    compileOnly fg.deobf("software.bernie.geckolib:geckolib-forge-1.12.2:${geckolib_version}")
+    if (project.findProperty('with_geckolib') != null && project.findProperty('with_geckolib') != 'false') {
+        runtimeOnly fg.deobf("software.bernie.geckolib:geckolib-forge-1.12.2:${geckolib_version}")
+    }
+
     testImplementation "junit:junit:4.11"
+    testImplementation fg.deobf("software.bernie.geckolib:geckolib-forge-1.12.2:${geckolib_version}")
 }
 
 jar {

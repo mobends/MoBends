@@ -76,7 +76,12 @@ public class LayerCustomBipedArmor extends LayerArmorBase<ModelBiped>
 
         try
         {
-            return ArmorModelFactory.getArmorModel(suggestedModel, shouldBeMutated);
+            final ModelBiped armorModel = ArmorModelFactory.getArmorModel(suggestedModel, shouldBeMutated);
+            if (armorModel instanceof ArmorWrapper)
+            {
+                ((ArmorWrapper) armorModel).setWorn(itemStack, slot);
+            }
+            return armorModel;
         }
         catch(MalformedArmorModelException ex)
         {

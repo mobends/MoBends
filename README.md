@@ -32,6 +32,14 @@ select players by name (see `misc/examples/player-name-type`), pick one:
 - Gradle: `./gradlew runClient -Pmc_username=BendyTester` (also works with `run-arm64/runClient.sh -Pmc_username=BendyTester`).
 - IntelliJ IDEA: add `--username BendyTester` to the *Program arguments* of the client run configuration.
 
+### Running with GeckoLib
+Mo' Bends poses armour made with GeckoLib when GeckoLib is installed, but the development client
+runs without it. To test that, add `-Pwith_geckolib`: GeckoLib and its example items (the potato
+armour among them, in the *GeckoLib Examples* creative tab) are then loaded too.
+- Gradle: `./gradlew runClient -Pwith_geckolib` (also works with `run-arm64/runClient.sh -Pwith_geckolib`).
+- IntelliJ IDEA (which takes the classpath from its Gradle sync): add `with_geckolib=true` to your
+  own `~/.gradle/gradle.properties` and reload the Gradle project; `with_geckolib=false` turns it off again.
+
 ### Troubleshooting
 - IntelliJ freaks out and can't find symbols in the project, but compiles fine.
     - `File > Invalidate Caches/Restart` works like a charm <3
