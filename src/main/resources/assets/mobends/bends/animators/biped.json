@@ -32,7 +32,13 @@
                   "leftHeldItem": 3.33,
                   "body": 1,
                   "rightArm": 2.5,
-                  "leftArm": 2.5
+                  "leftArm": 2.5,
+                  "rightForeArm": 3.33,
+                  "leftForeArm": 3.33,
+                  "rightLeg": 3.33,
+                  "leftLeg": 3.33,
+                  "rightForeLeg": 3.33,
+                  "leftForeLeg": 3.33
                 },
                 "@vectorModes": {"root": "slide", "localOffset": "slide"}
               },

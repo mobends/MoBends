@@ -24,7 +24,7 @@ public class NodeTemplate
 
     public List<ConnectionTemplate> connections;
 
-    /** Smoothing per bone while this node is active; unlisted bones keep their previous smoothing. */
+    /** Smoothing per bone while this node is active; an unlisted bone the node's items don't smooth gets its base smoothing. */
     public SmoothingTemplate smoothing;
 
     /** Bones that jump to their target on the frame the node is entered. */

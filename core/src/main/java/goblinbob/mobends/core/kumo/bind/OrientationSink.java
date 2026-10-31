@@ -62,10 +62,8 @@ public class OrientationSink implements IRotationSink
     @Override
     public void setRotationTarget(Quaternion target, float smoothing, boolean snap, Quaternion snapFrom)
     {
-        if (!Float.isNaN(smoothing))
-        {
-            rotation.setSmoothing(smoothing);
-        }
+        // Nothing smoothed the bone this frame: its base smoothing, not what it was given last.
+        rotation.setSmoothing(Float.isNaN(smoothing) ? rotation.getBaseSmoothing() : smoothing);
 
         if (snapFrom != null)
         {
@@ -137,7 +135,7 @@ public class OrientationSink implements IRotationSink
 
     private void slideAxis(EnumAxis axis, float value, float smoothing)
     {
-        float s = Float.isNaN(smoothing) ? smoothOffset.getSmoothing(axis) : smoothing;
+        float s = Float.isNaN(smoothing) ? 0F : smoothing;
         smoothOffset.slideTo(axis, value, s);
     }
 

@@ -173,8 +173,9 @@ node's own pose then smooths away from that starting pose (a jump starts crouche
 The animator sets targets; when a bone's target changes, the bone moves there from where it is
 and arrives after its smoothing, in ticks (1 = within a tick, 10 = in ten, 0 = at once). Set it
 per node (`smoothing` in `core:pose`) or item (`@smoothing`):
-`{"body": 2, "rightArm": 1.25, "root": [null, 1.67, null]}`. A bone you don't list keeps
-the smoothing it had, so set it where a state should feel different, not everywhere. For the
+`{"body": 2, "rightArm": 1.25, "root": [null, 1.67, null]}`. It holds while the item or
+node applies: a bone nothing smooths follows its target at once (or at the model definition's
+base `smoothing`), so a state that should ease the bones it takes over says so itself. For the
 entity-level vectors (`root`, `localOffset`) pick an `@vectorModes` entry: `slide` for a move to a
 new resting place, `retarget` for a target that changes every frame (a bob), `snap` for no
 smoothing at all.

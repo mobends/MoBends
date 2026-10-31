@@ -602,6 +602,27 @@ public class KumoAnimatorStateTest
     }
 
     @Test
+    public void aBoneNothingSmoothsFollowsItsTargetWhateverAnEarlierStateGaveIt() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'slow', "
+                + "'select': [{'when': 'GO', 'then': 'quick'}, {'then': 'slow'}], "
+                + "'nodes': {'slow': {'core:pose': {'pose': [{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 0}, "
+                + "'@space': 'override', '@smoothing': {'arm': 10}}]}}, "
+                + "'quick': {'core:pose': {'pose': [{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 90}, "
+                + "'@space': 'override'}]}}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        subject.states.put("GO", false);
+        frame(animator, subject);
+        assertEquals(10F, subject.bones.get("arm").getSmoothing(), 0F);
+
+        subject.states.put("GO", true);
+        assertEquals(Collections.singletonList("quick"), frame(animator, subject));
+        // Not the 10 ticks "slow" gave it: the bone's base, 0, so it is there at once.
+        assertEquals(0F, subject.bones.get("arm").getSmoothing(), 0F);
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 90), subject.bones.get("arm").getSmooth());
+    }
+
+    @Test
     public void aLayerStartsWhereItsSelectorLeadsWithoutACrossfade() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'@define': {'v': {'state': 0}}, 'defaultOnEntry': 'a', "

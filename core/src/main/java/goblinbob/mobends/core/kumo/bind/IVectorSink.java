@@ -22,7 +22,7 @@ public interface IVectorSink extends IBoneSink
     IVec3fRead getVectorTarget();
 
     /**
-     * @param smoothingX/Y/Z ticks to reach the target, per axis (0: at once); NaN keeps the previous value for that axis.
+     * @param smoothingX/Y/Z ticks to reach the target, per axis (0: at once); NaN for that axis's base smoothing.
      * @param start optional value to restart the interpolation from (RETARGET / SLIDE only).
      */
     void setVectorTarget(float x, float y, float z, float smoothingX, float smoothingY, float smoothingZ, Mode mode, IVec3fRead start);

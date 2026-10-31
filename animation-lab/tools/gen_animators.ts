@@ -224,16 +224,19 @@ const headLook: Obj[] = [
   item("core:rotate", { bone: "head", axis: "x", angle: "entityHeadPitch" }, { space: "post" }),
 ];
 const kneel = clip(B("kneel"), { frame: "entityTicksAfterTouchdown" }, { when: cmp("entityTicksAfterTouchdown", "<", 1 / 0.15), smoothing: { body: 1 }, vectorModes: { root: "snap" } });
-const resetSmoothing = { root: 3.33, localOffset: 3.33, renderRotation: 3.33, centerRotation: 3.33,
+// The entity-level bones and the held items, eased the same in most states.
+const entitySmoothing = { root: 3.33, localOffset: 3.33, renderRotation: 3.33, centerRotation: 3.33,
                        rightHeldItem: 3.33, leftHeldItem: 3.33 };
 
 const stand: Obj = poseNode([
-    clip(B("stand"), { frame: looped(scaled("ticks", 0.1)) }, { smoothing: { ...resetSmoothing, body: 1, rightArm: 2.5, leftArm: 2.5 }, vectorModes: { root: "slide", localOffset: "slide" } }),
+    // The limbs ease into the stand from whatever left them (a landing, a walk, a stance).
+    clip(B("stand"), { frame: looped(scaled("ticks", 0.1)) }, { smoothing: { ...entitySmoothing, body: 1, rightArm: 2.5, leftArm: 2.5, rightForeArm: 3.33, leftForeArm: 3.33,
+                rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33 }, vectorModes: { root: "slide", localOffset: "slide" } }),
     ...headLook,
     kneel,
   ], { enterPose: [clip(B("stand_enter"), {}, { when: cmp("entityTicksAfterTouchdown", "<", 0.5 / 0.15) })] });
 const walk: Obj = poseNode([
-    clip(B("walk_base"), { frame: limbFrame }, { smoothing: { ...resetSmoothing, body: 2, head: 2, rightArm: 1.25, leftArm: 1.25, rightForeArm: 1.25, leftForeArm: 1.25,
+    clip(B("walk_base"), { frame: limbFrame }, { smoothing: { ...entitySmoothing, body: 2, head: 2, rightArm: 1.25, leftArm: 1.25, rightForeArm: 1.25, leftForeArm: 1.25,
                  rightLeg: 1, leftLeg: 1, root: [3.33, 1.67, 3.33] }, vectorModes: { root: "retarget", localOffset: "slide" } }),
     clip(B("walk_forelegs"), { frame: limbFrame }, { smoothing: { leftForeLeg: 2, rightForeLeg: 2 } }),
     clip(B("walk_swing"), { frame: limbFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
@@ -242,7 +245,7 @@ const walk: Obj = poseNode([
     kneel,
   ]);
 const jump: Obj = poseNode([
-    clip(B("jump"), { frame: "entityTicksInAir" }, { smoothing: { ...resetSmoothing, centerRotation: 1.43, body: 5, rightArm: 20, leftArm: 20, rightForeArm: 3.33, leftForeArm: 3.33 }, vectorModes: { root: "slide" } }),
+    clip(B("jump"), { frame: "entityTicksInAir" }, { smoothing: { ...entitySmoothing, centerRotation: 1.43, body: 5, rightArm: 20, leftArm: 20, rightForeArm: 3.33, leftForeArm: 3.33 }, vectorModes: { root: "slide" } }),
     ...headLook,
     clip(B("jump_moving_base"), { frame: limbFrame }, { when: NOT(state("entityIsStandingStill")), smoothing: { rightLeg: 1, leftLeg: 1, leftForeArm: 3.33, rightForeArm: 3.33 } }),
     clip(B("jump_moving_forelegs"), { frame: limbFrame }, { when: NOT(state("entityIsStandingStill")), smoothing: { leftForeLeg: 3.33, rightForeLeg: 3.33 } }),
@@ -392,7 +395,7 @@ const pWalk = structuredClone(walk);
 poseOf(pWalk).push(...attackHead);
 const sprintFrame = looped(scaled("entityLimbSwing", 0.6662 * 0.8));
 const pSprint: Obj = poseNode([
-    clip(PL("sprint_base"), { frame: sprintFrame }, { smoothing: { ...resetSmoothing, body: 1.25, head: 2, rightArm: 1.25, leftArm: 1.25, rightLeg: 1, leftLeg: 1,
+    clip(PL("sprint_base"), { frame: sprintFrame }, { smoothing: { ...entitySmoothing, body: 1.25, head: 2, rightArm: 1.25, leftArm: 1.25, rightLeg: 1, leftLeg: 1,
                  rightForeLeg: 1.43, leftForeLeg: 1.43, root: [10, 1.11, 10] }, vectorModes: { root: "retarget", localOffset: "slide" } }),
     clip(PL("sprint_forearms"), { frame: sprintFrame }, { smoothing: { leftForeArm: 3.33, rightForeArm: 3.33 } }),
     clip(PL("sprint_swing"), { frame: sprintFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
@@ -427,9 +430,10 @@ const pStand = structuredClone(stand);
 const pJump = structuredClone(jump);
 
 const pSleeping: Obj = poseNode([
-  clip(PL("sleeping"), { frame: looped(scaled("ticks", 0.1)) }, { smoothing: { ...resetSmoothing, head: 1, rightArm: 2.5, leftArm: 2.5 }, vectorModes: { root: "slide", localOffset: "slide" } })]);
+  clip(PL("sleeping"), { frame: looped(scaled("ticks", 0.1)) }, { smoothing: { ...entitySmoothing, head: 1, rightArm: 2.5, leftArm: 2.5 }, vectorModes: { root: "slide", localOffset: "slide" } })]);
 const pSitting: Obj = poseNode([
-  clip(PL("sitting"), {}, { smoothing: { centerRotation: 3.33, body: 2 } }), ...headLook]);
+  clip(PL("sitting"), {}, { smoothing: { centerRotation: 3.33, body: 2, rightArm: 1.43, leftArm: 1.43, rightForeArm: 1.43, leftForeArm: 1.43,
+                                         rightLeg: 1.43, leftLeg: 1.43, rightForeLeg: 1.43, leftForeLeg: 1.43 } }), ...headLook]);
 // The rider's measured speed (the mount carries it) above which it rides fast, in blocks per tick:
 // a little under a player's walking pace, so a galloping horse, a boat or a minecart at speed.
 const RIDING_FAST = 0.2;
@@ -543,7 +547,7 @@ const deepT: ValueOptions = { ease: "ease_in_out", power: 3, min: 0, max: 1 };
 const pSwimming: Obj = poseNode([
   // 0 at the surface, going to 1 over ten ticks under it, and back
   item("core:accumulate", { inout: "node.deep", rate: { if: [deep, 0.1, -0.1] }, min: 0, max: 1 }),
-  clip(PL("swim_common"), {}, { smoothing: { head: 1, renderRotation: 1.43, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } }),
+  clip(PL("swim_common"), {}, { smoothing: { head: 1, renderRotation: 1.43, localOffset: 3.33, body: 2 }, vectorModes: { localOffset: "slide" } }),
   when(clip(PL("swim_surface_arms"), { frame: looped(scaled("ticks", 0.0825)) }, { smoothing: { leftArm: 3.33, rightArm: 3.33, leftForeArm: 3.33, rightForeArm: 3.33 } }), surface),
   when(clip(PL("swim_surface_legs"), { frame: looped(scaled("ticks", 0.2625)) }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 2.5, rightForeLeg: 2.5 } }), surface),
   when(clip(PL("swim_deep_arm_inner"), { frame: looped(scaled("ticks", 0.1625)) }, { smoothing: { leftArm: 3.33, rightArm: 3.33 } }), deep),
@@ -631,7 +635,7 @@ function slashNode(name: string, clipname: string, byAttack: boolean, mainSmooth
   return poseNode(pose);
 }
 
-// up / inward: legs, fore leg and render rotation are not smoothed by the bit (keep their smoothing)
+// up / inward: the legs and fore legs are left to the locomotion's smoothing
 function slashNodeKeepLegs(node: Obj): Obj {
   poseOf(node).at(-2)["@smoothing"] = { root: [null, 1.67, null] };
   return node;
@@ -942,8 +946,8 @@ const player: Obj = {
                // unless the player turned it off, or is riding
                canSpinAttack: live(AND({ "mobends:spin_attack_enabled": [] }, NOT(state("entityIsRiding")))) },
   layers: [
-    // item rotations are reset every frame before the layers run (keeps their smoothing)
-    { defaultOnEntry: "reset", nodes: { reset: poseNode([clip(PL("reset_items"))]) } },
+    // item rotations are reset every frame before the layers run, easing back once a layer above lets go
+    { defaultOnEntry: "reset", nodes: { reset: poseNode([clip(PL("reset_items"), {}, { smoothing: { rightHeldItem: 3.33, leftHeldItem: 3.33 } })]) } },
     { select: playerSelect, nodes },
     // sneaking overlay on the ground states
     { "@when": AND(state("entityIsSneaking"), groundAction), defaultOnEntry: "sneak", nodes: { sneak: poseNode([
@@ -1056,7 +1060,7 @@ const alternate = (i: number) => (i % 2 ? -1 : 1);
 // Nothing in the jump reads resetLimbs: the next legs driver to start does, and replants the feet.
 const spJump: Obj = poseNode([
   withSnap(clip(SP("jump"), { bones: ["root"] })),
-  clip(SP("jump"), { bones: range(8).map((i) => `leg${i + 1}`) }, { smoothing: Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, 1])) }),
+  clip(SP("jump"), { bones: range(8).map((i) => `leg${i + 1}`) }, { smoothing: { ...Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, 1])), renderRotation: 1.67 } }),
   ...range(8).map((i) => drv(`leg${i + 1}`, "Z", jumpMotion(25 * alternate(i), -20 * alternate(i)), { space: "post" })),
   ...range(8).map((i) => withSmoothing(drv(`foreLeg${i + 1}`, "Z", jumpMotion(-40 * alternate(i), -70 * alternate(i)), { space: "override" }),
                                      { [`foreLeg${i + 1}`]: 1 })),

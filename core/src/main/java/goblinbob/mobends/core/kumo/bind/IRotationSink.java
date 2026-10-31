@@ -21,7 +21,7 @@ public interface IRotationSink extends IBoneSink
     /**
      * Sets a new rotation target.
      *
-     * @param smoothing  ticks to reach the target (0: at once); NaN keeps whatever the bone had before.
+     * @param smoothing  ticks to reach the target (0: at once); NaN for the bone's base smoothing (nothing smoothed it this frame).
      * @param snap       true to jump to the target immediately instead of smoothing towards it.
      * @param snapFrom   optional rotation to jump to first, so the smoothing starts from there.
      */

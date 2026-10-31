@@ -16,6 +16,8 @@ public class SmoothOrientation
     protected float progress;
     /** Ticks to reach a target; 0 for at once. */
     protected float smoothing;
+    /** The smoothing an animator falls back on in a frame where nothing smooths the bone; 0 for at once. */
+    protected float baseSmoothing;
 
     public SmoothOrientation()
     {
@@ -54,6 +56,17 @@ public class SmoothOrientation
     public float getSmoothing()
     {
         return this.smoothing;
+    }
+
+    public SmoothOrientation setBaseSmoothing(float baseSmoothing)
+    {
+        this.baseSmoothing = baseSmoothing;
+        return this;
+    }
+
+    public float getBaseSmoothing()
+    {
+        return this.baseSmoothing;
     }
 
     public SmoothOrientation set(float x, float y, float z, float w)

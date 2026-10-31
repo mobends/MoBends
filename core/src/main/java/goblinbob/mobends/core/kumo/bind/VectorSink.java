@@ -40,6 +40,10 @@ public class VectorSink implements IVectorSink
         if (Float.isNaN(x)) x = vector.end.x;
         if (Float.isNaN(y)) y = vector.end.y;
         if (Float.isNaN(z)) z = vector.end.z;
+        // Nothing smoothed an axis this frame: its base smoothing, not what it was given last.
+        if (Float.isNaN(smoothingX)) smoothingX = vector.baseSmoothing.x;
+        if (Float.isNaN(smoothingY)) smoothingY = vector.baseSmoothing.y;
+        if (Float.isNaN(smoothingZ)) smoothingZ = vector.baseSmoothing.z;
         if (start != null && mode != Mode.SNAP)
         {
             vector.set(start.getX(), start.getY(), start.getZ());

@@ -51,7 +51,14 @@
       "defaultOnEntry": "reset",
       "nodes": {
         "reset": {
-          "core:pose": {"pose": [{"core:clip": {"animationKey": "mobends:bends/animations/player/reset_items.json"}}]}
+          "core:pose": {
+            "pose": [
+              {
+                "core:clip": {"animationKey": "mobends:bends/animations/player/reset_items.json"},
+                "@smoothing": {"rightHeldItem": 3.33, "leftHeldItem": 3.33}
+              }
+            ]
+          }
         }
       }
     },
@@ -99,7 +106,13 @@
                   "leftHeldItem": 3.33,
                   "body": 1,
                   "rightArm": 2.5,
-                  "leftArm": 2.5
+                  "leftArm": 2.5,
+                  "rightForeArm": 3.33,
+                  "leftForeArm": 3.33,
+                  "rightLeg": 3.33,
+                  "leftLeg": 3.33,
+                  "rightForeLeg": 3.33,
+                  "leftForeLeg": 3.33
                 },
                 "@vectorModes": {"root": "slide", "localOffset": "slide"}
               },
@@ -1086,7 +1099,7 @@
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/player/swim_common.json"},
-                "@smoothing": {"head": 1, "renderRotation": 0.715, "localOffset": 3.33},
+                "@smoothing": {"head": 1, "renderRotation": 0.715, "localOffset": 3.33, "body": 2},
                 "@vectorModes": {"localOffset": "slide"}
               },
               {
@@ -1439,7 +1452,18 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/player/sitting.json"},
-                "@smoothing": {"centerRotation": 3.33, "body": 2}
+                "@smoothing": {
+                  "centerRotation": 3.33,
+                  "body": 2,
+                  "rightArm": 1.43,
+                  "leftArm": 1.43,
+                  "rightForeArm": 1.43,
+                  "leftForeArm": 1.43,
+                  "rightLeg": 1.43,
+                  "leftLeg": 1.43,
+                  "rightForeLeg": 1.43,
+                  "leftForeLeg": 1.43
+                }
               },
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}

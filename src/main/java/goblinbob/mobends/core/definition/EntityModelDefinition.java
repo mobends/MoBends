@@ -64,7 +64,7 @@ public class EntityModelDefinition
     public float attackComboTicks;
 
     /**
-     * Optional: the smoothing a bone starts with (ticks to reach a target; 0 for at once), kept until an animator sets one, by name: a bone,
+     * Optional: a bone's base smoothing (ticks to reach a target), what it gets in a frame where nothing smooths it (otherwise 0, at once), by name: a bone,
      * a component, or the entity's {@code root} (its offset), {@code localOffset},
      * {@code renderRotation} or {@code centerRotation}.
      */
