@@ -47,6 +47,9 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
 
     private final EntityModelDefinition definition;
     private final Map<String, ModelPart> parts = new LinkedHashMap<>();
+    private final Quaternion lookYaw = new Quaternion();
+    private final Quaternion lookPitch = new Quaternion();
+    private final Quaternion look = new Quaternion();
     private final Map<String, float[]> positions = new LinkedHashMap<>();
     /** Per bone: the vanilla part, and every place in the model that referenced it. */
     private final Map<String, ModelRenderer> vanillaParts = new LinkedHashMap<>();
@@ -741,6 +744,29 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         {
             entry.getValue().syncUp(data.getPart(entry.getKey()));
         }
+        lookFurther(data);
+    }
+
+    /**
+     * Turns the head by as much further as this draw has it look than the animator posed it (see
+     * {@link DefinedEntityData#getHeadYawSinceAnimated}): the inventory draws the player again in
+     * the frame, in the pose it has, looking at the mouse. The yaw goes before the head's rotation
+     * and the pitch after, as the animators turn it.
+     */
+    private void lookFurther(DefinedEntityData<E> data)
+    {
+        final float yaw = data.getHeadYawSinceAnimated();
+        final float pitch = data.getHeadPitchSinceAnimated();
+        final ModelPart head = parts.get("head");
+        if (head == null || (yaw == 0 && pitch == 0))
+        {
+            return;
+        }
+        lookYaw.setFromAxisAngle(0, 1, 0, (float) Math.toRadians(yaw));
+        lookPitch.setFromAxisAngle(1, 0, 0, (float) Math.toRadians(pitch));
+        Quaternion.mul(lookYaw, head.rotation.getSmooth(), look);
+        Quaternion.mul(look, lookPitch, look);
+        head.rotation.snapTo(look);
     }
 
     @Override

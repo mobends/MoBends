@@ -34,6 +34,14 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     public float limbSwingAmount;
     public float swingProgress;
     public float headYaw;
+    /**
+     * The body yaw, interpolated, as the frame begins (see {@link #getBodyYaw}), and the frame it
+     * was taken in.
+     */
+    private float bodyYaw;
+    private int bodyYawFrame = -1;
+    /** The head's yaw and pitch the animator last ran with (see {@link #getHeadYawSinceAnimated}). */
+    private float animatedHeadYaw, animatedHeadPitch;
     public float headPitch;
 
     public LivingEntityData(E entity)
@@ -84,7 +92,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         registerState("entityIsElytraFlying", () -> entity != null && entity.isElytraFlying());
 
         // The yaw vanilla turns the body to, interpolated as the renderer does.
-        registerVariable("entityBodyYaw", () -> entity != null ? GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, DataUpdateHandler.partialTicks) : 0);
+        registerVariable("entityBodyYaw", this::getBodyYaw);
         registerVariable("entityClimbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation()) : 0);
         registerVariable("entityClimbingBodyYaw", () -> entity != null
                 ? MathHelper.wrapDegrees(headYaw + MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation())) : 0);
@@ -163,10 +171,64 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         }
     }
 
+    /**
+     * The yaw vanilla turns the body to in the world, interpolated as the renderer does. Taken as
+     * the frame begins: the inventory turns the player to face the mouse while it draws it (setting
+     * {@code renderYawOffset}, not the previous one), so read then it is neither yaw, and the
+     * animators that keep the feet in the world (core:step_turn) would see the body spin. Entities
+     * not updated this frame (the previews in the Main Menu) read it as it is.
+     */
+    public float getBodyYaw()
+    {
+        if (entity == null)
+        {
+            return 0;
+        }
+        if (bodyYawFrame == DataUpdateHandler.frame)
+        {
+            return bodyYaw;
+        }
+        return GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, DataUpdateHandler.partialTicks);
+    }
+
+    @Override
+    public boolean animate()
+    {
+        if (!super.animate())
+        {
+            return false;
+        }
+        animatedHeadYaw = headYaw;
+        animatedHeadPitch = headPitch;
+        return true;
+    }
+
+    /**
+     * Degrees the head looks further than the animator posed it: 0 for the draw the animator ran
+     * in, and in a draw after it in the same frame (the player in the inventory, turned to face the
+     * mouse), how much more that draw has the head look.
+     */
+    public float getHeadYawSinceAnimated()
+    {
+        return MathHelper.wrapDegrees(headYaw - animatedHeadYaw);
+    }
+
+    /** See {@link #getHeadYawSinceAnimated}. */
+    public float getHeadPitchSinceAnimated()
+    {
+        return MathHelper.wrapDegrees(headPitch - animatedHeadPitch);
+    }
+
     @Override
     public void update(float partialTicks)
     {
         super.update(partialTicks);
+
+        if (this.entity != null)
+        {
+            this.bodyYaw = GUtil.interpolateRotation(this.entity.prevRenderYawOffset, this.entity.renderYawOffset, partialTicks);
+            this.bodyYawFrame = DataUpdateHandler.frame;
+        }
 
         if (this.isOnGround())
         {

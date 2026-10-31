@@ -14,6 +14,11 @@ public class DataUpdateHandler
     public static float partialTicks = 0.0f;
     protected static float ticks = 0.0f;
     public static float ticksPerFrame = 0.0f;
+    /**
+     * Counts the frames: an entity drawn more than once in one (the player in the world and in the
+     * inventory) is animated only the first time.
+     */
+    public static int frame = 0;
 
     public static float getTicks()
     {
@@ -25,6 +30,7 @@ public class DataUpdateHandler
     {
         if (event.phase == Phase.END)
             return;
+        ++DataUpdateHandler.frame;
         if (Minecraft.getMinecraft().world == null || Minecraft.getMinecraft().player == null)
             return;
 
