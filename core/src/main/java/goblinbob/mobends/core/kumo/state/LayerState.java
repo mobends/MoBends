@@ -683,10 +683,10 @@ public class LayerState
             }
             d.vectorAdditive = b.hasVector ? b.vectorAdditive : a.vectorAdditive;
 
-            // Damping, snapping and vector modes follow the node being entered.
-            d.smoothness = b.smoothness;
-            d.vectorSmoothness.set(b.vectorSmoothness);
-            d.offsetSmoothness.set(b.offsetSmoothness);
+            // Smoothing, snapping and vector modes follow the node being entered.
+            d.smoothing = b.smoothing;
+            d.vectorSmoothing.set(b.vectorSmoothing);
+            d.offsetSmoothing.set(b.offsetSmoothing);
             d.snap = b.snap;
             d.vectorMode = b.vectorMode;
             d.offsetMode = b.offsetMode;
@@ -752,13 +752,13 @@ public class LayerState
                 dst.vectorStart.set(src.vectorStart);
             }
 
-            if (!Float.isNaN(src.smoothness)) dst.smoothness = src.smoothness;
-            if (!Float.isNaN(src.vectorSmoothness.x)) dst.vectorSmoothness.x = src.vectorSmoothness.x;
-            if (!Float.isNaN(src.vectorSmoothness.y)) dst.vectorSmoothness.y = src.vectorSmoothness.y;
-            if (!Float.isNaN(src.vectorSmoothness.z)) dst.vectorSmoothness.z = src.vectorSmoothness.z;
-            if (!Float.isNaN(src.offsetSmoothness.x)) dst.offsetSmoothness.x = src.offsetSmoothness.x;
-            if (!Float.isNaN(src.offsetSmoothness.y)) dst.offsetSmoothness.y = src.offsetSmoothness.y;
-            if (!Float.isNaN(src.offsetSmoothness.z)) dst.offsetSmoothness.z = src.offsetSmoothness.z;
+            if (!Float.isNaN(src.smoothing)) dst.smoothing = src.smoothing;
+            if (!Float.isNaN(src.vectorSmoothing.x)) dst.vectorSmoothing.x = src.vectorSmoothing.x;
+            if (!Float.isNaN(src.vectorSmoothing.y)) dst.vectorSmoothing.y = src.vectorSmoothing.y;
+            if (!Float.isNaN(src.vectorSmoothing.z)) dst.vectorSmoothing.z = src.vectorSmoothing.z;
+            if (!Float.isNaN(src.offsetSmoothing.x)) dst.offsetSmoothing.x = src.offsetSmoothing.x;
+            if (!Float.isNaN(src.offsetSmoothing.y)) dst.offsetSmoothing.y = src.offsetSmoothing.y;
+            if (!Float.isNaN(src.offsetSmoothing.z)) dst.offsetSmoothing.z = src.offsetSmoothing.z;
             if (src.snap) dst.snap = true;
             if (src.restartX) dst.restartX = true;
             if (src.restartY) dst.restartY = true;

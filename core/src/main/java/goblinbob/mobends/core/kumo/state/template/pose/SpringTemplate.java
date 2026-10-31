@@ -22,7 +22,7 @@ public class SpringTemplate extends DriverItemTemplate
 
     /**
      * Loss of velocity per tick. 2·√stiffness settles without overshooting; less swings. (Not
-     * {@code damping}, which every item has for the bones it writes.)
+     * {@code smoothing}, which every item has for the bones it writes.)
      */
     public float friction = 0.4F;
 

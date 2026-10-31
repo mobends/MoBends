@@ -65,15 +65,15 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/rest.json"},
-                "@damping": {
-                  "rightArm": 0.5,
-                  "leftArm": 0.5,
-                  "rightForeArm": 0.5,
-                  "leftForeArm": 0.5,
-                  "rightLeg": 0.5,
-                  "leftLeg": 0.5,
-                  "rightForeLeg": 0.5,
-                  "leftForeLeg": 0.5
+                "@smoothing": {
+                  "rightArm": 2,
+                  "leftArm": 2,
+                  "rightForeArm": 2,
+                  "leftForeArm": 2,
+                  "rightLeg": 2,
+                  "leftLeg": 2,
+                  "rightForeLeg": 2,
+                  "leftForeLeg": 2
                 }
               },
               {
@@ -81,18 +81,18 @@
                   "animationKey": "mobends:bends/animations/iron_golem/idle.json",
                   "frame": {"mod": [{"mul": ["ticks", 0.07]}, "clipLength"]}
                 },
-                "@damping": {"head": 0.5, "body": 0.5}
+                "@smoothing": {"head": 2, "body": 2}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
-                "@damping": {"rightArm": 0.8, "leftArm": 0.8, "rightForeArm": 0.6, "leftForeArm": 0.6}
+                "@smoothing": {"rightArm": 1.25, "leftArm": 1.25, "rightForeArm": 1.67, "leftForeArm": 1.67}
               }
             ]
           },
@@ -129,32 +129,32 @@
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/rest.json"},
-                "@damping": {
-                  "rightArm": 0.5,
-                  "leftArm": 0.5,
-                  "rightForeArm": 0.5,
-                  "leftForeArm": 0.5,
-                  "rightLeg": 0.5,
-                  "leftLeg": 0.5,
-                  "rightForeLeg": 0.5,
-                  "leftForeLeg": 0.5
+                "@smoothing": {
+                  "rightArm": 2,
+                  "leftArm": 2,
+                  "rightForeArm": 2,
+                  "leftForeArm": 2,
+                  "rightLeg": 2,
+                  "leftLeg": 2,
+                  "rightForeLeg": 2,
+                  "leftForeLeg": 2
                 }
               },
               {
                 "core:rotate": {"bone": "body", "axis": "x", "angle": 0},
                 "@space": "override",
-                "@damping": {"body": 0.5}
+                "@smoothing": {"body": 2}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
-                "@damping": {"rightArm": 0.8, "leftArm": 0.8, "rightForeArm": 0.6, "leftForeArm": 0.6}
+                "@smoothing": {"rightArm": 1.25, "leftArm": 1.25, "rightForeArm": 1.67, "leftForeArm": 1.67}
               }
             ]
           },
@@ -221,14 +221,14 @@
                   },
                   {
                     "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/jump.json"},
-                    "@damping": {"rightLeg": 0.15, "leftLeg": 0.15, "rightForeLeg": 0.12, "leftForeLeg": 0.12}
+                    "@smoothing": {"rightLeg": 6.67, "leftLeg": 6.67, "rightForeLeg": 8.33, "leftForeLeg": 8.33}
                   },
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/iron_golem/rest.json",
                       "bones": ["rightArm", "leftArm", "rightForeArm", "leftForeArm"]
                     },
-                    "@damping": {"rightArm": 0.5, "leftArm": 0.5, "rightForeArm": 0.5, "leftForeArm": 0.5}
+                    "@smoothing": {"rightArm": 2, "leftArm": 2, "rightForeArm": 2, "leftForeArm": 2}
                   },
                   {
                     "core:rotate": {"bone": "rightArm", "axis": "z", "angle": {"add": ["node.flare", 4]}},
@@ -251,12 +251,12 @@
                   {
                     "core:rotate": {"bone": "body", "axis": "x", "angle": "node.lean"},
                     "@space": "override",
-                    "@damping": {"body": 0.5}
+                    "@smoothing": {"body": 2}
                   },
                   {
                     "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "override",
-                    "@damping": {"head": 0.5}
+                    "@smoothing": {"head": 2}
                   },
                   {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
                   {
@@ -265,7 +265,7 @@
                       "animationKey": "mobends:bends/animations/iron_golem/attack.json",
                       "frame": "entity.attackTimer"
                     },
-                    "@damping": {"rightArm": 0.8, "leftArm": 0.8, "rightForeArm": 0.6, "leftForeArm": 0.6}
+                    "@smoothing": {"rightArm": 1.25, "leftArm": 1.25, "rightForeArm": 1.67, "leftForeArm": 1.67}
                   }
                 ],
                 "enterPose": [
@@ -384,7 +384,7 @@
                       }
                     },
                     "@space": "override",
-                    "@damping": {"rightLeg": 0.6}
+                    "@smoothing": {"rightLeg": 1.67}
                   },
                   {
                     "core:rotate": {
@@ -402,7 +402,7 @@
                       }
                     },
                     "@space": "override",
-                    "@damping": {"rightForeLeg": 0.6}
+                    "@smoothing": {"rightForeLeg": 1.67}
                   },
                   {
                     "core:rotate": {
@@ -420,7 +420,7 @@
                       }
                     },
                     "@space": "override",
-                    "@damping": {"leftLeg": 0.6}
+                    "@smoothing": {"leftLeg": 1.67}
                   },
                   {
                     "core:rotate": {
@@ -438,14 +438,14 @@
                       }
                     },
                     "@space": "override",
-                    "@damping": {"leftForeLeg": 0.6}
+                    "@smoothing": {"leftForeLeg": 1.67}
                   },
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/iron_golem/rest.json",
                       "bones": ["rightArm", "leftArm", "rightForeArm", "leftForeArm"]
                     },
-                    "@damping": {"rightArm": 0.6, "leftArm": 0.6, "rightForeArm": 0.6, "leftForeArm": 0.6}
+                    "@smoothing": {"rightArm": 1.67, "leftArm": 1.67, "rightForeArm": 1.67, "leftForeArm": 1.67}
                   },
                   {"core:rotate": {"bone": "rightArm", "axis": "x", "angle": "node.armX"}, "@space": "pre"},
                   {"core:rotate": {"bone": "leftArm", "axis": "x", "angle": "node.armX"}, "@space": "pre"},
@@ -508,12 +508,12 @@
                   {
                     "core:rotate": {"bone": "body", "axis": "x", "angle": 0},
                     "@space": "override",
-                    "@damping": {"body": 0.5}
+                    "@smoothing": {"body": 2}
                   },
                   {
                     "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "override",
-                    "@damping": {"head": 0.5}
+                    "@smoothing": {"head": 2}
                   },
                   {
                     "core:rotate": {
@@ -948,12 +948,12 @@
                 "@when": {"not": ["animator.climbing"]},
                 "core:rotate": {"bone": "centerRotation", "axis": "x", "angle": 0},
                 "@space": "override",
-                "@damping": {"centerRotation": 0.3}
+                "@smoothing": {"centerRotation": 3.33}
               },
               {
                 "@when": {"not": ["animator.climbing"]},
                 "core:translate": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1.5]}, "z": 0},
-                "@damping": {"root": [0.2, null, 0.2]}
+                "@smoothing": {"root": [5, null, 5]}
               },
               {
                 "core:rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.landKick", 5]}},

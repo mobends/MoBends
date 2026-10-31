@@ -13,7 +13,7 @@ public interface IVectorSink extends IBoneSink
          * to the target).
          */
         RETARGET,
-        /** Restart only when the target changes (a linear tween of 1/smoothness ticks). */
+        /** Restart only when the target changes (a linear tween of {@code smoothing} ticks). */
         SLIDE,
         /** Jump to the target immediately. */
         SNAP,
@@ -22,10 +22,10 @@ public interface IVectorSink extends IBoneSink
     IVec3fRead getVectorTarget();
 
     /**
-     * @param smoothnessX/Y/Z damping per axis; NaN keeps the previous value for that axis.
+     * @param smoothingX/Y/Z ticks to reach the target, per axis (0: at once); NaN keeps the previous value for that axis.
      * @param start optional value to restart the interpolation from (RETARGET / SLIDE only).
      */
-    void setVectorTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, Mode mode, IVec3fRead start);
+    void setVectorTarget(float x, float y, float z, float smoothingX, float smoothingY, float smoothingZ, Mode mode, IVec3fRead start);
 
 
     /** Restarts the slide on the given axes from the current value (a target replaced within the frame). */

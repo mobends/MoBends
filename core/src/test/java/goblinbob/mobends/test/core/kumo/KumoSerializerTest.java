@@ -75,7 +75,8 @@ public class KumoSerializerTest
         assertRefused("unknown key \"@defaults\"", "{\"mode\": \"additive\", \"additiveSpace\": {\"@defaults\": \"pre\"}, " + a + "}");
         assertRefused("Unknown pose item: \"x:y\"", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"x:y\": {}}]}}}}");
         assertRefused("needs a key naming it", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"@space\": \"pre\"}]}}}}");
-        assertRefused("damping", "{\"nodes\": {\"a\": {\"core:pose\": {\"damping\": {\"arm\": true}}}}}");
+        assertRefused("smoothing", "{\"nodes\": {\"a\": {\"core:pose\": {\"smoothing\": {\"arm\": true}}}}}");
+        assertRefused("is in ticks, and can't be negative", "{\"nodes\": {\"a\": {\"core:pose\": {\"smoothing\": {\"arm\": -1}}}}}");
         assertRefused("has no \"then\"", "{\"select\": [{\"when\": \"x\"}], " + a + "}");
         assertRefused("a name or a list of branches", "{\"select\": [{\"then\": 1}], " + a + "}");
         assertRefused("unknown value 'x'", "{\"select\": [{\"then\": \"a\", \"transitionEasing\": \"x\"}], " + a + "}");

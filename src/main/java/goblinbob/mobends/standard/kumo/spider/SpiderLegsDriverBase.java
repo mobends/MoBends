@@ -88,7 +88,7 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
     }
 
     /** Writes one leg: the upper segment yawed then bent about its local Z, the lower segment bent about Z. */
-    protected void writeLeg(Pose pose, int index, boolean odd, float yawDegrees, double[] angles, float smoothness, boolean snap)
+    protected void writeLeg(Pose pose, int index, boolean odd, float yawDegrees, double[] angles, float smoothing, boolean snap)
     {
         float side = odd ? -1F : 1F;
         PoseMath.axisAngleDegrees(0, 1, 0, yawDegrees, yaw);
@@ -98,9 +98,9 @@ public abstract class SpiderLegsDriverBase implements IPoseItem
         PoseMath.axisAngleDegrees(0, 0, 1, (float) (angles[1] / Math.PI * 180) * side, bend);
         pose.composeRotation(lowerSlots[index], bend, Pose.Space.OVERRIDE);
         pose.get(upperSlots[index]).snap = snap;
-        pose.get(upperSlots[index]).smoothness = smoothness;
+        pose.get(upperSlots[index]).smoothing = smoothing;
         pose.get(lowerSlots[index]).snap = snap;
-        pose.get(lowerSlots[index]).smoothness = smoothness;
+        pose.get(lowerSlots[index]).smoothing = smoothing;
     }
 
     @Override

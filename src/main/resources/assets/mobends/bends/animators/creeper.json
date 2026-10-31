@@ -14,14 +14,14 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/creeper/rest.json"},
-                "@damping": {"leg1": 0.5, "leg2": 0.5, "leg3": 0.5, "leg4": 0.5}
+                "@smoothing": {"leg1": 2, "leg2": 2, "leg3": 2, "leg4": 2}
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/creeper/idle.json",
                   "frame": {"mod": [{"mul": ["ticks", 0.09]}, "clipLength"]}
                 },
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {"core:rotate": {"bone": "leg1", "axis": "z", "angle": 8}, "@space": "pre"},
               {"core:rotate": {"bone": "leg1", "axis": "x", "angle": 4}, "@space": "pre"},
@@ -34,7 +34,7 @@
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
             ]
@@ -49,7 +49,7 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
-                "@damping": {"leg1": 0.8, "leg2": 0.8, "leg3": 0.8, "leg4": 0.8}
+                "@smoothing": {"leg1": 1.25, "leg2": 1.25, "leg3": 1.25, "leg4": 1.25}
               },
               {"core:rotate": {"bone": "leg1", "axis": "z", "angle": 8}, "@space": "pre"},
               {"core:rotate": {"bone": "leg1", "axis": "x", "angle": 4}, "@space": "pre"},
@@ -62,7 +62,7 @@
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
             ]
@@ -73,7 +73,7 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/creeper/jump.json"},
-                "@damping": {"leg1": 0.3, "leg2": 0.3, "leg3": 0.3, "leg4": 0.3}
+                "@smoothing": {"leg1": 3.33, "leg2": 3.33, "leg3": 3.33, "leg4": 3.33}
               },
               {"core:rotate": {"bone": "leg1", "axis": "z", "angle": 8}, "@space": "pre"},
               {"core:rotate": {"bone": "leg1", "axis": "x", "angle": 4}, "@space": "pre"},
@@ -86,7 +86,7 @@
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
             ]
@@ -131,7 +131,7 @@
               {
                 "core:rotate": {"bone": "body", "axis": "x", "angle": "layer.hunch"},
                 "@space": "override",
-                "@damping": {"body": 0.5, "lowerBody": 0.5}
+                "@smoothing": {"body": 2, "lowerBody": 2}
               },
               {
                 "core:rotate": {"bone": "lowerBody", "axis": "x", "angle": {"neg": ["layer.hunch"]}},

@@ -33,7 +33,7 @@ its value is what that takes:
 ```
 
 Every other key starts with `@`: what the engine does with it (an item's `@when`, `@space`,
-`@damping`, ...), or what a scope has whatever else it is (`@define`, `@functions`, `@on`, `@connections`). These
+`@smoothing`, ...), or what a scope has whatever else it is (`@define`, `@functions`, `@on`, `@connections`). These
 are a closed set, so an addon's driver or node type can have any field of its own without ever
 colliding with them. Structured objects (layers, machines, selector branches, connections, the
 mirror rule) keep fixed keys; their own conditions are `@when` on layers and the mirror rule, and
@@ -52,7 +52,7 @@ How the three kinds of construct compare:
 **The format's words are lower case**: every fixed set of values (`@space` `pre`, an `axis` `x`,
 a layer `mode` `additive`, a `transitionEasing` `ease_in_out`, a hinge `front`) is written in
 lower_snake_case, as registered names and operations' choices are; `"PRE"` is an error. A map from bones
-to values (`@damping`, `additiveSpace`) names the value for every other bone `@default`, so any
+to values (`@smoothing`, `additiveSpace`) names the value for every other bone `@default`, so any
 bone name can be a key.
 
 **A key an object doesn't take is an error** when the animator loads, in every object of the
@@ -73,7 +73,7 @@ node is in *Choosing the node*.
 | `additiveSpace` | for additive layers: `"pre"` / `"post"`, or `{"@default": "pre", "body": "post"}` |
 | `@when` | a condition (a boolean expression); while it does not hold the layer writes nothing and its clocks pause |
 | `@define`, `@on` | the layer's definitions and statement lists (see *Definitions and statements*) |
-| `damping` | default damping for the bones the layer writes (nodes and items override) |
+| `smoothing` | default smoothing for the bones the layer writes (nodes and items override) |
 | `mask` | `{"mode": "include_only", "includedParts": ["mouth"]}` (or `exclude_only`): the bones the layer may write |
 | `mirror` | `{"@when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `@mirror` / `@swapSides` follow (see *Mirroring*) |
 | `nodes`, `machines` | the layer's nodes and machines, as maps by name |
@@ -87,7 +87,7 @@ node is in *Choosing the node*.
     "pose": [ ...items... ],
     "enterPose": [ ...items evaluated once on entry; their bones snap to it... ],
     "snapOnEnter": ["body"],
-    "damping": {...}
+    "smoothing": {...}
   },
   "@define": {"stride": {"live": {"mul": ["entityLimbSwing", 2]}}},
   "@on": {"enter": [{"set": ["layer.combo", 0]}]},
@@ -97,7 +97,7 @@ node is in *Choosing the node*.
 
 * The node's one key without `@` is its type: `core:pose`, `core:fallthrough` or
   `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
-  `snapOnEnter`, `damping`); the other two pose nothing and take `{}`.
+  `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`.
 * `@define` and `@on` are the node's definitions and statement lists (see *Definitions and
   statements*): `node.` names, and what runs when the node is entered, every frame it is posed
   and when it is left.
@@ -259,7 +259,7 @@ holds the item's own fields. The modifiers, the same for every item:
 |---|---|
 | `@when` | a condition; the item is skipped while it does not hold |
 | `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. |
-| `@damping` | smoothing rate per bone written, `{"body": 0.5, "root": [null, 0.6, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their rate |
+| `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their smoothing |
 | `@vectorModes` | for offset vectors (and a `core:translate`'s part offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
 | `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `@mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
@@ -351,11 +351,11 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | driver | fields |
 |---|---|
 | `core:rotate` | `bone`, `axis` (`x`/`y`/`z`), `angle` (expression, degrees) |
-| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or an entity-level vector (`root` / `globalOffset`, `localOffset`). Default space `override`; there an axis left out keeps the bone's current value, in `pre` / `post` it moves by nothing. On a part, the item's `@damping`, `@vectorModes` and `@snap` go to the offset, not the rotation: damped, it's smoothed like a vector, and undamped it's applied as is |
+| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or an entity-level vector (`root` / `globalOffset`, `localOffset`). Default space `override`; there an axis left out keeps the bone's current value, in `pre` / `post` it moves by nothing. On a part, the item's `@smoothing`, `@vectorModes` and `@snap` go to the offset, not the rotation: with a smoothing, it's smoothed like a vector, and without one it's applied as is |
 | `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
 | `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
-| `core:anchor` | `point` (`{"x", "y", "z"}`, double expressions, in blocks; an axis left out follows the entity), `weight` (0..1, default 1), `out` (`positionDifference`): draws the entity's origin (where `x`, `y`, `z` are: doubles, `entityWorldX`, `entityWorldY`, `entityWorldZ` unless written) at a point in the world, whatever the entity does meanwhile. The point is read every frame, so it can move along a path; one taken when the node starts is a node constant (`{"constant": {"floor": ["entityWorldX"]}}`, the block the feet are in). `positionDifference` is how far the entity really is from the point, in blocks, whatever the weight: what tells a staged sequence (climbing onto a block) to give up. It moves the whole model (`root`, or its `bone`) past its damping, turned by the body's `yaw` (`entityBodyYaw`) |
+| `core:anchor` | `point` (`{"x", "y", "z"}`, double expressions, in blocks; an axis left out follows the entity), `weight` (0..1, default 1), `out` (`positionDifference`): draws the entity's origin (where `x`, `y`, `z` are: doubles, `entityWorldX`, `entityWorldY`, `entityWorldZ` unless written) at a point in the world, whatever the entity does meanwhile. The point is read every frame, so it can move along a path; one taken when the node starts is a node constant (`{"constant": {"floor": ["entityWorldX"]}}`, the block the feet are in). `positionDifference` is how far the entity really is from the point, in blocks, whatever the weight: what tells a staged sequence (climbing onto a block) to give up. It moves the whole model (`root`, or its `bone`) past its smoothing, turned by the body's `yaw` (`entityBodyYaw`) |
 | `core:two_bone_ik`, `core:three_bone_ik` | `segments` (each a `bone` and its rest `pivot`; after the first, `bend` and `bendDirection`), `end`, `target` (`{"x", "y", "z"}`, double expressions, in the world), `weight` (0..1, default 1), `parents`, `out` (`stretch`): puts the end of a chain of two or three bones (an arm, a leg) on a point in the world, each joint pointing a way in the world (see *Reaching into the world*) |
 | `core:raycast` | `from` (`{"x", "y", "z"}`, double expressions, in the world), `direction` (number expressions, any length), `distance` (blocks), `liquids` (default false), `debug` (default false: draws the ray), `out` (`hitX`, `hitY`, `hitZ`: doubles; `normalX`, `normalY`, `normalZ`): casts a ray through the blocks every frame, and says where it hit and which way the surface faces (see *Reaching into the world*) |
 | `core:raycast_array` | `core:raycast`'s fields, and `count` (rays, 1 to 64, default 16), `spread` (degrees from `direction` to the edge of the cone, default 15), `surface` (number expressions: only hits on surfaces facing that way count): casts a spread of rays round `direction` and keeps the hit closest to it, with `core:raycast`'s outputs (see *Reaching into the world*) |
@@ -552,7 +552,7 @@ a hand put on a ledge, a foot on a step.
   entity's `height`, `entityHeight`), `renderRotation`, `localOffset`, and the bones it hangs from,
   `parents` (each a `bone` and its `pivot`, outermost first: a player's arms hang from its body).
   So the end stays on the target wherever the entity is drawn: leaning, or held at a point by
-  `core:anchor`. Write it after what moves the model, and snap what it reads (a damped bone is
+  `core:anchor`. Write it after what moves the model, and snap what it reads (a smoothed bone is
   drawn behind its target, and the end would lag with it). `modelScale` is the renderer's scale of
   the model (vanilla draws the player at 0.9375); the bones are assumed to have no `restRotation`.
 * `weight` (0..1) blends it in from what lies beneath. At 1 the bones snap to it, so the end
@@ -561,7 +561,7 @@ a hand put on a ledge, a foot on a step.
 ### Expressions
 
 Every value an animator computes is an expression: every number an item computes (an angle, a
-weight, a vector axis, a damping rate, ...) and every condition (a layer's, an item's or a mirror
+weight, a vector axis, a smoothing, ...) and every condition (a layer's, an item's or a mirror
 rule's `@when`, a branch's or a connection's `when`). An expression is a
 JSON tree, so tools can read and write it without a parser.
 
@@ -931,8 +931,8 @@ expression repeated with different inputs, written once.
 * Transitions are decided before posing; a node entered this frame poses this frame.
 * A layer's selectors only move it when they lead somewhere else: the layer stays in a node for
   as long as it is the selector's first match.
-* Smoothing lives in the subject's bones. Damping in the animator sets a bone's rate; leave it
-  out and the bone keeps the rate it has.
+* Smoothing lives in the subject's bones. Smoothing in the animator sets how long a bone takes to
+  reach its target; leave it out and the bone keeps the smoothing it has.
 * An offset vector written by two layers in one frame keeps only the last write; a vector
   re-aimed every frame on top of another writer is `retarget`.
 * A bone written only relatively (`pre` / `post`, additive) with nothing absolute beneath builds on
@@ -987,7 +987,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | field | meaning |
 |---|---|
 | `formatVersion` | `2` (the index, `{"formatVersion": 2, "models": [...]}`, has one too) |
-| `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothness` and `renderer` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie. A chain with a resource pack's file in it is untrusted |
+| `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothing` and `renderer` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie. A chain with a resource pack's file in it is untrusted |
 | `entity` | the entity class; `model` (optional) restricts mutation to that model class and its subclasses |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
 | `bones[].vanilla` | the vanilla part the bone takes over: `field` is the model's field by its development (MCP) name (see *Field names* below), `element` its index for array fields, `index` an optional fallback position in the model's box list (creation order). Every field or array slot that holds the part is replaced, found by identity. |
@@ -1001,7 +1001,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | `components` | what the entity's data carries besides its bones, name to kind: `core:orientation` (a smoothed rotation animators pose as a bone, such as `rightHeldItem`), `mobends:sword_trail` (`swordTrail`), `mobends:cape_wave` (`capeWave`), `mobends:spider_legs` (`legs`: where the spider's feet are planted, which its leg drivers share). Layers and drivers find them by these names. A component can't have a bone's name |
 | `layers` | the renderer layers the model draws with, id to options: `mobends:armor`, `mobends:held_item`, `mobends:custom_head` (`{"bone": "head"}`), `mobends:cape`, `mobends:elytra` replace vanilla's (which draw their own unanimated copies of the model); `mobends:creeper_charge` and `mobends:sheep_wool` replace the layers that draw their own copy of the model (a charged creeper's armour, the sheep's wool): the copy is mutated by the same definition and posed from the entity's data before the vanilla layer draws it; `mobends:accessories` and `mobends:wolf_misc` (the wolf's mouth and tongue, hung from its `head`, `nose`, `mouth` and `tongue` bones) are added. Armour follows the bones named as a biped's (`body`, `head`, `leftArm`, `leftForeArm`, ...), the held item `rightHeldItem` / `leftHeldItem`, the cape `body` and `cape`. A vanilla layer no entry replaces is kept |
 | `attackComboTicks` | a swing within this many ticks of the last counted one, while the main hand holds an item, isn't counted: it continues a sword combo (see `entityTicksAfterAttack`); 0, the default, counts every swing |
-| `smoothness` | the damping a bone starts with, kept until an animator sets one, by name: a bone, a component, or `root` (the model's offset), `localOffset`, `renderRotation`, `centerRotation`. The player's animator is tuned for `root` and `renderRotation` at 2 |
+| `smoothing` | the smoothing a bone starts with (ticks; 0 for at once), kept until an animator sets one, by name: a bone, a component, or `root` (the model's offset), `localOffset`, `renderRotation`, `centerRotation`. The player's animator is tuned for `root` and `renderRotation` at 0.5 |
 | `renderer` | how the model is drawn: `sneakOffset` (model units the model is raised while the entity sneaks: vanilla lowers a sneaking player, and the bent sneak pose needs it higher), `flyingSneakOffset` (the same while a player flies; default `sneakOffset`), `firstPersonRest` (bones whose animated rotation is dropped while the first-person hand is drawn: the arm's chain from the body). Vanilla draws the first-person hand through the arm's field alone, so its stand-in draws the arm then, with its parents' transforms |
 | `bones[].drawnAlone` | a bone with a `parent` drawn where vanilla draws its part, through its parents' transforms, instead of inside its parent (a wolf pup's head, which vanilla draws outside the pup's half-size body) |
 | `childBones` | how bones change on a baby, by name, besides `childScale`: `offsetScale` (the scale of their offsets from their parents) and `globalOffset` ([x, y, z] before their parents' transforms); the wolf pup's head |

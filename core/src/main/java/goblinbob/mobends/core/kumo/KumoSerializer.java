@@ -62,7 +62,7 @@ public class KumoSerializer
                 .registerTypeAdapter(MirrorTemplate.class, new MirrorTemplateSerializer())
                 .registerTypeAdapter(PoseItemTemplate.class, new PoseItemSerializer())
                 .registerTypeAdapter(ExpressionTemplate.class, new ExpressionTemplate.Deserializer())
-                .registerTypeAdapter(DampingTemplate.class, new DampingTemplateSerializer())
+                .registerTypeAdapter(SmoothingTemplate.class, new SmoothingTemplateSerializer())
                 .registerTypeAdapter(SpaceTemplate.class, new SpaceTemplateSerializer());
     }
 

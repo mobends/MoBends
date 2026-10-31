@@ -14,7 +14,7 @@ import java.util.Map;
  * <p>The point is {@link #point}, in the world, read every frame (so it can move along a path). It
  * is in doubles: a point taken when the node starts is a node constant, such as
  * {@code {"constant": {"floor": ["entityWorldX"]}}}, the block the feet are in. The driver moves
- * the whole model by the difference ({@link #bone}, in the body's frame), past its damping.
+ * the whole model by the difference ({@link #bone}, in the body's frame), past its smoothing.
  */
 public class AnchorTemplate extends DriverItemTemplate
 {

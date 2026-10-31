@@ -2,6 +2,7 @@ package goblinbob.mobends.standard.kumo;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.pose.IPoseItem;
+import goblinbob.mobends.core.kumo.pose.ItemEffects;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
@@ -17,25 +18,31 @@ import net.minecraft.util.math.MathHelper;
 /**
  * The player's cape ({@code {"mobends:cape": {...}}}): the vanilla chasing-position physics,
  * written as the cape's rotation, for any player. Its ripple is the entity's {@code capeWave}
- * component ({@link goblinbob.mobends.standard.data.CapeWave}).
+ * component ({@link goblinbob.mobends.standard.data.CapeWave}). It follows over
+ * {@link #DEFAULT_SMOOTHING} ticks unless the item's {@code @smoothing} says otherwise.
  */
 public class CapeDriver implements IPoseItem
 {
 
+    public static final float DEFAULT_SMOOTHING = 2F;
+
     private final int slot;
-    private final float smoothness;
+    private final int[] written;
+    private final ItemEffects effects;
     private final Quaternion rotation = new Quaternion();
     private final Quaternion temp = new Quaternion();
 
-    public CapeDriver(int slot, float smoothness)
+    public CapeDriver(int slot, ItemEffects effects)
     {
         this.slot = slot;
-        this.smoothness = smoothness;
+        this.written = new int[] { slot };
+        this.effects = effects;
     }
 
     public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, Template template) throws MalformedKumoTemplateException
     {
-        return new CapeDriver(skeleton.indexOf(template.bone == null ? "cape" : template.bone), template.smoothness);
+        ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.smoothing, template.vectorModes, template.snap);
+        return new CapeDriver(skeleton.indexOf(template.bone == null ? "cape" : template.bone), effects.isEmpty() ? null : effects);
     }
 
     @Override
@@ -88,7 +95,11 @@ public class CapeDriver implements IPoseItem
         }
 
         pose.composeRotation(slot, rotation, Pose.Space.OVERRIDE);
-        pose.get(slot).smoothness = smoothness;
+        pose.get(slot).smoothing = DEFAULT_SMOOTHING;
+        if (effects != null)
+        {
+            effects.apply(pose, written, context);
+        }
     }
 
     @Override
@@ -105,7 +116,6 @@ public class CapeDriver implements IPoseItem
     {
         /** The cape's bone; null for "cape". */
         public String bone;
-        public float smoothness = 0.5F;
     }
 
 }

@@ -17,7 +17,7 @@ public interface PoseWriter
 
     /**
      * The bone's rotation as it is drawn: smoothed towards its targets, as of the last frame (where
-     * the items before this one write it with damping, it lags what they leave it at). A bone the
+     * the items before this one write it with smoothing, it lags what they leave it at). A bone the
      * subject doesn't have is as the items before this one left it.
      */
     void rotationDrawn(int bone, Quaternion dest);
@@ -34,10 +34,10 @@ public interface PoseWriter
 
     void vector(int bone, float x, float y, float z, Pose.Space space);
 
-    /** The bone's rotation jumps to its target this frame, past its damping. */
+    /** The bone's rotation jumps to its target this frame, past its smoothing. */
     void snapRotation(int bone);
 
-    /** The vector bone jumps to its target this frame, past its damping. */
+    /** The vector bone jumps to its target this frame, past its smoothing. */
     void snapVector(int bone);
 
 }

@@ -24,8 +24,8 @@ public class ModelPart extends ModelRenderer implements IModelPart
     public Vec3f position = new Vec3f();
     public Vec3f scale = new Vec3f(1, 1, 1);
     public Vec3f offset = new Vec3f();
-    /** The offset's smoothing (see {@link IModelPart#getOffsetSmoothing}). */
-    public final SmoothVector3f offsetSmoothing = new SmoothVector3f();
+    /** The offset's smoothing (see {@link IModelPart#getSmoothOffset}). */
+    public final SmoothVector3f smoothOffset = new SmoothVector3f();
     public SmoothOrientation rotation = new SmoothOrientation();
     /**
      * The scale at which animation position offset is applied, used for child models.
@@ -299,9 +299,9 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
-    public SmoothVector3f getOffsetSmoothing()
+    public SmoothVector3f getSmoothOffset()
     {
-        return this.offsetSmoothing;
+        return this.smoothOffset;
     }
 
     @Override
@@ -353,7 +353,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 
         this.position.set(part.getPosition());
         this.offset.set(part.getOffset());
-        this.offsetSmoothing.set(part.getOffsetSmoothing());
+        this.smoothOffset.set(part.getSmoothOffset());
         this.rotation.set(part.getRotation());
         this.scale.set(part.getScale());
         this.offsetScale = part.getOffsetScale();

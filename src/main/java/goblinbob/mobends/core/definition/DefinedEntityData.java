@@ -93,39 +93,39 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
                 addComponent(component.getKey(), factory.create(this));
             }
         }
-        if (definition.smoothness != null)
+        if (definition.smoothing != null)
         {
-            for (Map.Entry<String, Float> entry : definition.smoothness.entrySet())
+            for (Map.Entry<String, Float> entry : definition.smoothing.entrySet())
             {
-                if (!setSmoothness(entry.getKey(), entry.getValue()))
+                if (!setSmoothing(entry.getKey(), entry.getValue()))
                 {
-                    Core.LOG.warning("Model definition for " + definition.entity + ": 'smoothness' names '" + entry.getKey() + "', which is nothing that turns or moves.");
+                    Core.LOG.warning("Model definition for " + definition.entity + ": 'smoothing' names '" + entry.getKey() + "', which is nothing that turns or moves.");
                 }
             }
         }
     }
 
-    private boolean setSmoothness(String name, float smoothness)
+    private boolean setSmoothing(String name, float smoothing)
     {
         if (Skeleton.ROOT.equals(name) || Skeleton.GLOBAL_OFFSET.equals(name))
         {
-            globalOffset.smoothness.set(smoothness, smoothness, smoothness);
+            globalOffset.smoothing.set(smoothing, smoothing, smoothing);
             return true;
         }
         if (Skeleton.LOCAL_OFFSET.equals(name))
         {
-            localOffset.smoothness.set(smoothness, smoothness, smoothness);
+            localOffset.smoothing.set(smoothing, smoothing, smoothing);
             return true;
         }
         Object part = getPartForName(name);
         if (part instanceof ModelPartTransform)
         {
-            ((ModelPartTransform) part).rotation.setSmoothness(smoothness);
+            ((ModelPartTransform) part).rotation.setSmoothing(smoothing);
             return true;
         }
         if (part instanceof SmoothOrientation)
         {
-            ((SmoothOrientation) part).setSmoothness(smoothness);
+            ((SmoothOrientation) part).setSmoothing(smoothing);
             return true;
         }
         return false;

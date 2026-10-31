@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * An animator animating one entity: a {@link KumoProgram}, shared by every entity it was compiled
  * for, and this entity's state. Each update evaluates every layer into one pose and writes the
- * pose's targets to the subject's bones; the bones' own smoothing then does the damping.
+ * pose's targets to the subject's bones; the bones then smooth towards them.
  */
 public class KumoAnimatorState
 {

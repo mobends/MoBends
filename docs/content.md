@@ -171,10 +171,10 @@ node's own pose then smooths away from that starting pose (a jump starts crouche
 ### How fast bones follow
 
 The animator sets targets; when a bone's target changes, the bone moves there from where it is
-and arrives after 1 / damping ticks (1 = within a tick, 0.1 = in ten). Set it per node (`damping`
-in `core:pose`) or item (`@damping`):
-`{"body": 0.5, "rightArm": 0.8, "root": [null, 0.6, null]}`. A bone you don't list keeps
-the rate it had, so set damping where a state should feel different, not everywhere. For the
+and arrives after its smoothing, in ticks (1 = within a tick, 10 = in ten, 0 = at once). Set it
+per node (`smoothing` in `core:pose`) or item (`@smoothing`):
+`{"body": 2, "rightArm": 1.25, "root": [null, 1.67, null]}`. A bone you don't list keeps
+the smoothing it had, so set it where a state should feel different, not everywhere. For the
 entity-level vectors (`root`, `localOffset`) pick an `@vectorModes` entry: `slide` for a move to a
 new resting place, `retarget` for a target that changes every frame (a bob), `snap` for no
 smoothing at all.

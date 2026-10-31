@@ -5,7 +5,7 @@ import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
-import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
+import goblinbob.mobends.core.kumo.state.template.SmoothingTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import java.util.ArrayList;
@@ -13,20 +13,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Damping rates, vector modes and snapping attached to one pose item, applied to the bones the item wrote.
- * An item that moves parts ({@code core:translate} on a part) damps and snaps their position offsets;
- * any other damps and snaps rotations, and the entity-level vectors.
+ * Smoothing (in ticks), vector modes and snapping attached to one pose item, applied to the bones the item wrote.
+ * An item that moves parts ({@code core:translate} on a part) smooths and snaps their position offsets;
+ * any other smooths and snaps rotations, and the entity-level vectors.
  */
 public class ItemEffects
 {
 
     /** Whether the effects go to the parts' offsets rather than their rotations. */
     private final boolean offsets;
-    private final int[] dampingSlots;
-    /** Per entry of {@link #dampingSlots} / {@link #modeSlots} / {@link #dynamicSlots}: an entity-level vector bone. */
-    private final boolean[] dampingVector;
-    private final float[][] dampingValues;
-    private final float[] defaultDamping;
+    private final int[] smoothingSlots;
+    /** Per entry of {@link #smoothingSlots} / {@link #modeSlots} / {@link #dynamicSlots}: an entity-level vector bone. */
+    private final boolean[] smoothingVector;
+    private final float[][] smoothingValues;
+    private final float[] defaultSmoothing;
     private final int[] modeSlots;
     private final boolean[] modeVector;
     private final IVectorSink.Mode[] modes;
@@ -35,29 +35,29 @@ public class ItemEffects
     private final boolean[] dynamicVector;
     private final Expression[] dynamicValues;
 
-    /** @param scope Where the damping's expressions are compiled. */
-    public ItemEffects(ExpressionScope scope, Skeleton skeleton, DampingTemplate damping, Map<String, IVectorSink.Mode> vectorModes, boolean snap) throws MalformedKumoTemplateException
+    /** @param scope Where the smoothing's expressions are compiled. */
+    public ItemEffects(ExpressionScope scope, Skeleton skeleton, SmoothingTemplate smoothing, Map<String, IVectorSink.Mode> vectorModes, boolean snap) throws MalformedKumoTemplateException
     {
-        this(scope, skeleton, damping, vectorModes, snap, false);
+        this(scope, skeleton, smoothing, vectorModes, snap, false);
     }
 
     /**
-     * @param scope   Where the damping's expressions are compiled.
+     * @param scope   Where the smoothing's expressions are compiled.
      * @param offsets Whether the item moves parts: its effects go to their offsets (the bones it
-     *                writes and the parts it names; the vector bones it names are damped as ever).
+     *                writes and the parts it names; the vector bones it names are smoothed as ever).
      */
-    public ItemEffects(ExpressionScope scope, Skeleton skeleton, DampingTemplate damping, Map<String, IVectorSink.Mode> vectorModes, boolean snap, boolean offsets) throws MalformedKumoTemplateException
+    public ItemEffects(ExpressionScope scope, Skeleton skeleton, SmoothingTemplate smoothing, Map<String, IVectorSink.Mode> vectorModes, boolean snap, boolean offsets) throws MalformedKumoTemplateException
     {
         this.snap = snap;
         this.offsets = offsets;
         List<String> names = new ArrayList<>();
         List<float[]> values = new ArrayList<>();
         float[] fallback = null;
-        if (damping != null)
+        if (smoothing != null)
         {
-            for (Map.Entry<String, float[]> entry : damping.entries.entrySet())
+            for (Map.Entry<String, float[]> entry : smoothing.entries.entrySet())
             {
-                if (DampingTemplate.DEFAULT.equals(entry.getKey()))
+                if (SmoothingTemplate.DEFAULT.equals(entry.getKey()))
                 {
                     fallback = entry.getValue();
                 }
@@ -68,22 +68,22 @@ public class ItemEffects
                 }
             }
         }
-        dampingSlots = new int[names.size()];
-        dampingVector = new boolean[names.size()];
-        dampingValues = new float[names.size()][];
-        for (int i = 0; i < dampingSlots.length; i++)
+        smoothingSlots = new int[names.size()];
+        smoothingVector = new boolean[names.size()];
+        smoothingValues = new float[names.size()][];
+        for (int i = 0; i < smoothingSlots.length; i++)
         {
-            dampingSlots[i] = skeleton.indexOf(names.get(i));
-            dampingVector[i] = Skeleton.isVectorBone(names.get(i));
-            dampingValues[i] = values.get(i);
+            smoothingSlots[i] = skeleton.indexOf(names.get(i));
+            smoothingVector[i] = Skeleton.isVectorBone(names.get(i));
+            smoothingValues[i] = values.get(i);
         }
-        defaultDamping = fallback;
+        defaultSmoothing = fallback;
 
         List<String> dynNames = new ArrayList<>();
         List<Expression> dynValues = new ArrayList<>();
-        if (damping != null)
+        if (smoothing != null)
         {
-            for (Map.Entry<String, ExpressionTemplate> entry : damping.dynamic.entrySet())
+            for (Map.Entry<String, ExpressionTemplate> entry : smoothing.dynamic.entrySet())
             {
                 dynNames.add(entry.getKey());
                 dynValues.add(Expression.compile(entry.getValue(), scope, Expression.ONE));
@@ -117,18 +117,18 @@ public class ItemEffects
 
     public boolean isEmpty()
     {
-        return dampingSlots.length == 0 && defaultDamping == null && modeSlots.length == 0 && !snap && dynamicSlots.length == 0;
+        return smoothingSlots.length == 0 && defaultSmoothing == null && modeSlots.length == 0 && !snap && dynamicSlots.length == 0;
     }
 
-    /** @param writtenSlots the slots the item wrote this frame (the default rate applies to those). */
+    /** @param writtenSlots the slots the item wrote this frame (the default smoothing applies to those). */
     public void apply(Pose pose, int[] writtenSlots, ITriggerConditionContext context)
     {
         for (int i = 0; i < dynamicSlots.length; i++)
         {
             BoneTarget target = pose.get(dynamicSlots[i]);
-            float rate = dynamicValues[i].get(context);
-            if (offsets && !dynamicVector[i]) applyOffsetDamping(target, rate);
-            else applyDamping(target, rate);
+            float ticks = dynamicValues[i].get(context);
+            if (offsets && !dynamicVector[i]) applyOffsetSmoothing(target, ticks);
+            else applySmoothing(target, ticks);
         }
         if (snap)
         {
@@ -144,18 +144,18 @@ public class ItemEffects
                 if (target.hasVector) target.vectorMode = IVectorSink.Mode.SNAP;
             }
         }
-        if (defaultDamping != null)
+        if (defaultSmoothing != null)
         {
             for (int slot : writtenSlots)
             {
-                if (offsets) applyOffsetDamping(pose.get(slot), defaultDamping);
-                else applyDamping(pose.get(slot), defaultDamping);
+                if (offsets) applyOffsetSmoothing(pose.get(slot), defaultSmoothing);
+                else applySmoothing(pose.get(slot), defaultSmoothing);
             }
         }
-        for (int i = 0; i < dampingSlots.length; i++)
+        for (int i = 0; i < smoothingSlots.length; i++)
         {
-            if (offsets && !dampingVector[i]) applyOffsetDamping(pose.get(dampingSlots[i]), dampingValues[i]);
-            else applyDamping(pose.get(dampingSlots[i]), dampingValues[i]);
+            if (offsets && !smoothingVector[i]) applyOffsetSmoothing(pose.get(smoothingSlots[i]), smoothingValues[i]);
+            else applySmoothing(pose.get(smoothingSlots[i]), smoothingValues[i]);
         }
         for (int i = 0; i < modeSlots.length; i++)
         {
@@ -164,52 +164,52 @@ public class ItemEffects
         }
     }
 
-    /** As {@link #applyDamping(BoneTarget, float[])}, for a part's offset (one rate, or one per axis). */
-    public static void applyOffsetDamping(BoneTarget target, float[] value)
+    /** As {@link #applySmoothing(BoneTarget, float[])}, for a part's offset (one smoothing, or one per axis). */
+    public static void applyOffsetSmoothing(BoneTarget target, float[] value)
     {
         if (value.length >= 3)
         {
-            if (!Float.isNaN(value[0])) target.offsetSmoothness.x = value[0];
-            if (!Float.isNaN(value[1])) target.offsetSmoothness.y = value[1];
-            if (!Float.isNaN(value[2])) target.offsetSmoothness.z = value[2];
+            if (!Float.isNaN(value[0])) target.offsetSmoothing.x = value[0];
+            if (!Float.isNaN(value[1])) target.offsetSmoothing.y = value[1];
+            if (!Float.isNaN(value[2])) target.offsetSmoothing.z = value[2];
         }
         else if (value.length == 1)
         {
-            applyOffsetDamping(target, value[0]);
+            applyOffsetSmoothing(target, value[0]);
         }
     }
 
-    /** One rate for every axis of a part's offset; NaN changes nothing. */
-    public static void applyOffsetDamping(BoneTarget target, float rate)
+    /** One smoothing for every axis of a part's offset; NaN changes nothing. */
+    public static void applyOffsetSmoothing(BoneTarget target, float ticks)
     {
-        if (!Float.isNaN(rate))
+        if (!Float.isNaN(ticks))
         {
-            target.offsetSmoothness.set(rate, rate, rate);
+            target.offsetSmoothing.set(ticks, ticks, ticks);
         }
     }
 
-    public static void applyDamping(BoneTarget target, float[] value)
+    public static void applySmoothing(BoneTarget target, float[] value)
     {
         if (value.length >= 3)
         {
-            if (!Float.isNaN(value[0])) target.vectorSmoothness.x = value[0];
-            if (!Float.isNaN(value[1])) target.vectorSmoothness.y = value[1];
-            if (!Float.isNaN(value[2])) target.vectorSmoothness.z = value[2];
-            if (!Float.isNaN(value[0])) target.smoothness = value[0];
+            if (!Float.isNaN(value[0])) target.vectorSmoothing.x = value[0];
+            if (!Float.isNaN(value[1])) target.vectorSmoothing.y = value[1];
+            if (!Float.isNaN(value[2])) target.vectorSmoothing.z = value[2];
+            if (!Float.isNaN(value[0])) target.smoothing = value[0];
         }
         else if (value.length == 1)
         {
-            applyDamping(target, value[0]);
+            applySmoothing(target, value[0]);
         }
     }
 
-    /** One rate for the rotation and every vector axis; NaN changes nothing. */
-    public static void applyDamping(BoneTarget target, float rate)
+    /** One smoothing for the rotation and every vector axis; NaN changes nothing. */
+    public static void applySmoothing(BoneTarget target, float ticks)
     {
-        if (!Float.isNaN(rate))
+        if (!Float.isNaN(ticks))
         {
-            target.smoothness = rate;
-            target.vectorSmoothness.set(rate, rate, rate);
+            target.smoothing = ticks;
+            target.vectorSmoothing.set(ticks, ticks, ticks);
         }
     }
 

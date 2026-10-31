@@ -3,6 +3,8 @@ package goblinbob.mobends.test.core.math;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.SmoothOrientation;
+import goblinbob.mobends.core.math.vector.SmoothVector3f;
+import goblinbob.mobends.core.util.EnumAxis;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -30,11 +32,45 @@ public class SmoothingTest
         orientation.snapTo(axisAngle(0, 1, 0, 10));
         Quaternion target = axisAngle(0, 1, 0, 20);
         target.set(-target.x, -target.y, -target.z, -target.w); // the same rotation
-        orientation.setSmoothness(0.5F);
+        orientation.setSmoothing(2F);
         orientation.target(target);
         orientation.update(1F);
 
         assertEquals(15F, angleBetween(new Quaternion(), orientation.getSmooth()), 0.5F);
+    }
+
+    @Test
+    public void aSmoothingIsTheTicksToGetThere()
+    {
+        SmoothOrientation orientation = new SmoothOrientation();
+        orientation.setSmoothing(4F);
+        orientation.target(axisAngle(0, 1, 0, 40));
+        orientation.update(1F);
+        assertEquals(10F, angleBetween(new Quaternion(), orientation.getSmooth()), 0.5F);
+
+        SmoothVector3f vector = new SmoothVector3f();
+        vector.slideTo(0, 8, 0, 4F);
+        vector.update(1F);
+        assertEquals(2F, vector.getY(), 1e-5F);
+        vector.update(3F);
+        assertEquals(8F, vector.getY(), 1e-5F);
+    }
+
+    @Test
+    public void noSmoothingGetsThereAtOnce()
+    {
+        SmoothOrientation orientation = new SmoothOrientation();
+        orientation.setSmoothing(0F);
+        orientation.target(axisAngle(0, 1, 0, 40));
+        assertEquals(40F, angleBetween(new Quaternion(), orientation.getSmooth()), 0.01F);
+        orientation.update(0F);
+        assertEquals(40F, angleBetween(new Quaternion(), orientation.getSmooth()), 0.01F);
+
+        SmoothVector3f vector = new SmoothVector3f();
+        vector.retarget(EnumAxis.Y, 8, 0F);
+        assertEquals(8F, vector.getY(), 0F);
+        vector.update(0F);
+        assertEquals(8F, vector.getY(), 0F);
     }
 
     @Test

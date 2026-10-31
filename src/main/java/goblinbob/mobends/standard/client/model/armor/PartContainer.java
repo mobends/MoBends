@@ -21,8 +21,8 @@ public class PartContainer extends ModelRenderer implements IModelPart
 	 * be overridden by animation.
 	 * */
 	public Vec3f offset;
-	/** The offset's smoothing (see {@link IModelPart#getOffsetSmoothing}). */
-	public final SmoothVector3f offsetSmoothing = new SmoothVector3f();
+	/** The offset's smoothing (see {@link IModelPart#getSmoothOffset}). */
+	public final SmoothVector3f smoothOffset = new SmoothVector3f();
 	/**
 	 * Used to offset the container item relative to
 	 * the rotation point
@@ -207,7 +207,7 @@ public class PartContainer extends ModelRenderer implements IModelPart
 	@Override
 	public Vec3f getOffset() { return this.offset; }
 	@Override
-	public SmoothVector3f getOffsetSmoothing() { return this.offsetSmoothing; }
+	public SmoothVector3f getSmoothOffset() { return this.smoothOffset; }
 	@Override
 	public SmoothOrientation getRotation() { return this.rotation; }
 	@Override
@@ -227,7 +227,7 @@ public class PartContainer extends ModelRenderer implements IModelPart
 		this.position.set(part.getPosition());
 		this.rotation.set(part.getRotation());
 		this.offset.set(part.getOffset());
-		this.offsetSmoothing.set(part.getOffsetSmoothing());
+		this.smoothOffset.set(part.getSmoothOffset());
 		this.scale.set(part.getScale());
 		this.offsetScale = part.getOffsetScale();
 	}

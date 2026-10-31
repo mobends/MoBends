@@ -14,7 +14,7 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/villager/rest.json"},
-                "@damping": {"rightLeg": 0.5, "foreRightLeg": 0.5, "leftLeg": 0.5, "foreLeftLeg": 0.5, "body": 0.5, "arms": 0.5}
+                "@smoothing": {"rightLeg": 2, "foreRightLeg": 2, "leftLeg": 2, "foreLeftLeg": 2, "body": 2, "arms": 2}
               },
               {
                 "core:clip": {
@@ -22,19 +22,19 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
-                "@damping": {"rightLeg": 10, "foreRightLeg": 10, "leftLeg": 10, "foreLeftLeg": 10}
+                "@smoothing": {"rightLeg": 0.1, "foreRightLeg": 0.1, "leftLeg": 0.1, "foreLeftLeg": 0.1}
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/villager/idle.json",
                   "frame": {"mod": [{"mul": ["ticks", 0.09]}, "clipLength"]}
                 },
-                "@damping": {"head": 0.5, "arms": 0.5}
+                "@smoothing": {"head": 2, "arms": 2}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
@@ -48,7 +48,7 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/villager/rest.json"},
-                "@damping": {"rightLeg": 0.5, "foreRightLeg": 0.5, "leftLeg": 0.5, "foreLeftLeg": 0.5, "body": 0.5, "arms": 0.5}
+                "@smoothing": {"rightLeg": 2, "foreRightLeg": 2, "leftLeg": 2, "foreLeftLeg": 2, "body": 2, "arms": 2}
               },
               {
                 "core:clip": {
@@ -56,7 +56,7 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
-                "@damping": {"rightLeg": 10, "foreRightLeg": 10, "leftLeg": 10, "foreLeftLeg": 10}
+                "@smoothing": {"rightLeg": 0.1, "foreRightLeg": 0.1, "leftLeg": 0.1, "foreLeftLeg": 0.1}
               },
               {
                 "core:rotate": {"bone": "body", "axis": "y", "angle": "node.twist"},
@@ -69,7 +69,7 @@
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
@@ -86,16 +86,16 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/villager/rest.json", "bones": ["body", "arms"]},
-                "@damping": {"body": 0.5, "arms": 0.5}
+                "@smoothing": {"body": 2, "arms": 2}
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/villager/jump.json"},
-                "@damping": {"rightLeg": 0.3, "foreRightLeg": 0.3, "leftLeg": 0.3, "foreLeftLeg": 0.3}
+                "@smoothing": {"rightLeg": 3.33, "foreRightLeg": 3.33, "leftLeg": 3.33, "foreLeftLeg": 3.33}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
@@ -280,7 +280,7 @@
               },
               {
                 "core:translate": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1]}, "z": 0},
-                "@damping": {"root": [0.3, null, 0.3]}
+                "@smoothing": {"root": [3.33, null, 3.33]}
               },
               {
                 "core:rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.landKick", 3]}},

@@ -34,7 +34,7 @@ public class VectorSink implements IVectorSink
     }
 
     @Override
-    public void setVectorTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, Mode mode, IVec3fRead start)
+    public void setVectorTarget(float x, float y, float z, float smoothingX, float smoothingY, float smoothingZ, Mode mode, IVec3fRead start)
     {
         // A NaN component means "this axis is not written": keep its current target (per axis).
         if (Float.isNaN(x)) x = vector.end.x;
@@ -50,23 +50,23 @@ public class VectorSink implements IVectorSink
                 vector.set(x, y, z);
                 break;
             case SLIDE:
-                slideAxis(EnumAxis.X, x, smoothnessX);
-                slideAxis(EnumAxis.Y, y, smoothnessY);
-                slideAxis(EnumAxis.Z, z, smoothnessZ);
+                slideAxis(EnumAxis.X, x, smoothingX);
+                slideAxis(EnumAxis.Y, y, smoothingY);
+                slideAxis(EnumAxis.Z, z, smoothingZ);
                 break;
             case RETARGET:
             default:
+                if (!Float.isNaN(smoothingX)) vector.smoothing.x = smoothingX;
+                if (!Float.isNaN(smoothingY)) vector.smoothing.y = smoothingY;
+                if (!Float.isNaN(smoothingZ)) vector.smoothing.z = smoothingZ;
                 vector.retarget(x, y, z);
-                if (!Float.isNaN(smoothnessX)) vector.smoothness.x = smoothnessX;
-                if (!Float.isNaN(smoothnessY)) vector.smoothness.y = smoothnessY;
-                if (!Float.isNaN(smoothnessZ)) vector.smoothness.z = smoothnessZ;
                 break;
         }
     }
 
-    private void slideAxis(EnumAxis axis, float value, float smoothness)
+    private void slideAxis(EnumAxis axis, float value, float smoothing)
     {
-        float s = Float.isNaN(smoothness) ? vector.getSmoothness(axis) : smoothness;
+        float s = Float.isNaN(smoothing) ? vector.getSmoothing(axis) : smoothing;
         vector.slideTo(axis, value, s);
     }
 

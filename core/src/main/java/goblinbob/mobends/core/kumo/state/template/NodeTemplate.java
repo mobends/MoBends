@@ -24,8 +24,8 @@ public class NodeTemplate
 
     public List<ConnectionTemplate> connections;
 
-    /** Damping per bone while this node is active; unlisted bones keep their previous damping. */
-    public DampingTemplate damping;
+    /** Smoothing per bone while this node is active; unlisted bones keep their previous smoothing. */
+    public SmoothingTemplate smoothing;
 
     /** Bones that jump to their target on the frame the node is entered. */
     public List<String> snapOnEnter;
@@ -54,9 +54,9 @@ public class NodeTemplate
     /** For node types that pose nothing: fails when the template has pose-related fields. */
     protected void requirePosesNothing(String what) throws MalformedKumoTemplateException
     {
-        if (damping != null || snapOnEnter != null || enterPose != null)
+        if (smoothing != null || snapOnEnter != null || enterPose != null)
         {
-            throw new MalformedKumoTemplateException(String.format("The %s node '%s' poses nothing: it can't have \"damping\", \"snapOnEnter\" or \"enterPose\".", what, name));
+            throw new MalformedKumoTemplateException(String.format("The %s node '%s' poses nothing: it can't have \"smoothing\", \"snapOnEnter\" or \"enterPose\".", what, name));
         }
     }
 
