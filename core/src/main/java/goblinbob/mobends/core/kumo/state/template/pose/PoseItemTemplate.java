@@ -4,7 +4,7 @@ import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.kumo.pose.Pose;
-import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
+import goblinbob.mobends.core.kumo.state.template.SmoothingTemplate;
 
 import java.util.Map;
 
@@ -18,8 +18,8 @@ public class PoseItemTemplate
     /** Optional condition; the item is skipped while it does not hold. */
     public ExpressionTemplate when;
 
-    /** Damping for the bones this item writes. */
-    public DampingTemplate damping;
+    /** Smoothing for the bones this item writes. */
+    public SmoothingTemplate smoothing;
 
     /** Vector modes for the vectors this item writes, e.g. {"root": "SLIDE"}. */
     public Map<String, IVectorSink.Mode> vectorModes;

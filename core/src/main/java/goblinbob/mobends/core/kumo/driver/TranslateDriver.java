@@ -47,7 +47,7 @@ public class TranslateDriver implements IPoseItem
         Pose.Space space = template.space == null ? Pose.Space.OVERRIDE : template.space;
         // A relative write that leaves an axis out moves it by nothing.
         Expression unwritten = space == Pose.Space.OVERRIDE ? UNWRITTEN : Expression.ZERO;
-        ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.damping, template.vectorModes, template.snap, !vector);
+        ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.smoothing, template.vectorModes, template.snap, !vector);
         return new TranslateDriver(skeleton.indexOf(template.bone), vector,
                 Expression.compile(template.x, context.getExpressionScope(), unwritten),
                 Expression.compile(template.y, context.getExpressionScope(), unwritten),

@@ -14,33 +14,30 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/chicken/rest.json"},
-                "@damping": {"rightLeg": 0.5, "foreRightLeg": 0.5, "leftLeg": 0.5, "foreLeftLeg": 0.5}
+                "@smoothing": {"rightLeg": 2, "foreRightLeg": 2, "leftLeg": 2, "foreLeftLeg": 2}
               },
               {
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/chicken/idle.json",
                   "frame": {"mod": [{"mul": ["ticks", 0.09]}, "clipLength"]}
                 },
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
-              {
-                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
-                "@space": "post"
-              },
+              {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "core:rotate": {"bone": "rightWing", "axis": "z", "angle": "entity.wingAngle"},
                 "@space": "override",
-                "@damping": {"rightWing": 1}
+                "@smoothing": {"rightWing": 1}
               },
               {
                 "core:rotate": {"bone": "leftWing", "axis": "z", "angle": {"mul": ["entity.wingAngle", -1]}},
                 "@space": "override",
-                "@damping": {"leftWing": 1}
+                "@smoothing": {"leftWing": 1}
               }
             ]
           }
@@ -54,26 +51,23 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
-                "@damping": {"rightLeg": 0.8, "foreRightLeg": 0.8, "leftLeg": 0.8, "foreLeftLeg": 0.8}
+                "@smoothing": {"rightLeg": 1.25, "foreRightLeg": 1.25, "leftLeg": 1.25, "foreLeftLeg": 1.25}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
-              {
-                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
-                "@space": "post"
-              },
+              {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "core:rotate": {"bone": "rightWing", "axis": "z", "angle": "entity.wingAngle"},
                 "@space": "override",
-                "@damping": {"rightWing": 1}
+                "@smoothing": {"rightWing": 1}
               },
               {
                 "core:rotate": {"bone": "leftWing", "axis": "z", "angle": {"mul": ["entity.wingAngle", -1]}},
                 "@space": "override",
-                "@damping": {"leftWing": 1}
+                "@smoothing": {"leftWing": 1}
               }
             ]
           }
@@ -83,26 +77,23 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/chicken/jump.json"},
-                "@damping": {"rightLeg": 0.3, "foreRightLeg": 0.3, "leftLeg": 0.3, "foreLeftLeg": 0.3}
+                "@smoothing": {"rightLeg": 3.33, "foreRightLeg": 3.33, "leftLeg": 3.33, "foreLeftLeg": 3.33}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
-                "@damping": {"head": 0.5}
+                "@smoothing": {"head": 2}
               },
-              {
-                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
-                "@space": "post"
-              },
+              {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "core:rotate": {"bone": "rightWing", "axis": "z", "angle": "entity.wingAngle"},
                 "@space": "override",
-                "@damping": {"rightWing": 1}
+                "@smoothing": {"rightWing": 1}
               },
               {
                 "core:rotate": {"bone": "leftWing", "axis": "z", "angle": {"mul": ["entity.wingAngle", -1]}},
                 "@space": "override",
-                "@damping": {"leftWing": 1}
+                "@smoothing": {"leftWing": 1}
               }
             ]
           }

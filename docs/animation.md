@@ -16,7 +16,7 @@ runtime is put together.
 | `KumoAnimatorState` | `core/kumo/state` | One running animator: its layers, their trust, the resource-pack limits. |
 | `LayerState` | `core/kumo/state` | A layer: decides its node each frame, cross-fades between nodes, and composites onto the animator's pose as `override` or `additive`. |
 | `MachineState` | `core/kumo/state` | A machine (the layer's own, and any nested one): its members, its selector (`Selector`) and its connections. |
-| `PoseNode` | `core/kumo/state/node` | A node: an ordered *pose stack* of items (clips, drivers), each with an optional `when`, a composition space and damping. |
+| `PoseNode` | `core/kumo/state/node` | A node: an ordered *pose stack* of items (clips, drivers), each with an optional `when`, a composition space and smoothing. |
 | `Pose` | `core/kumo/pose` | Per-bone rotation / offset / vector targets for one frame, bound to the subject's sinks by index. |
 | `Expression`, `ExpressionOperations` | `core/kumo/expr` | The expression language: every value and condition an animator computes, typed (number, double or boolean) and checked when the animator loads. |
 | `ExpressionScope` | `core/kumo/expr` | What a place in an animator sees: the scopes around it, whose definitions it reads by scoped name (`layer.combo`), and the built-ins. |
@@ -39,8 +39,8 @@ runtime is put together.
      (`AnimationLimits`, see [content.md](content.md));
    * the final pose is written once into the subject's sinks.
 3. The sinks are the bones' `SmoothOrientation` / `SmoothVector3f`: the animator only sets
-   *targets*, and the bones smooth towards them at their damping rate. Damping is therefore a
-   property of the animator (per node and per item) rather than of any code.
+   *targets*, and the bones smooth towards them over their smoothing (in ticks). Smoothing is
+   therefore a property of the animator (per node and per item) rather than of any code.
 4. `EntityRenderHandler` puts the entity's mutated model in place before Minecraft renders it
    (see [rendering.md](rendering.md)).
 
@@ -208,7 +208,7 @@ registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args)
 * It poses through a `PoseWriter`: the bones by index, what the items before it made of them
   (`rotationSoFar`, `vectorSoFar`, ...), how a bone is drawn (`rotationDrawn`: smoothed, as of the
   last frame), writes composed in a space, and `snapRotation` /
-  `snapVector` to jump a bone past its damping this frame. A narrow view, so the pose buffers can
+  `snapVector` to jump a bone past its smoothing this frame. A narrow view, so the pose buffers can
   change without breaking drivers.
 * Its declared state starts over when its node is entered. `DriverEvaluator.restart` runs then
   too, for what isn't declared state yet (`core:step_turn` publishes its outputs at rest).

@@ -23,7 +23,7 @@ public class LayerTemplateSerializer implements JsonDeserializer<LayerTemplate>
             "@functions", "functions");
     /** A layer's: a machine's, and the layer's own. */
     private static final Map<String, String> LAYER_KEYS = JsonReading.with(withAll(MACHINE_KEYS,
-            "mode", "additiveSpace", "damping", "mask", "mirror"), "@when", "when");
+            "mode", "additiveSpace", "smoothing", "mask", "mirror"), "@when", "when");
 
     private static Map<String, String> withAll(Map<String, String> keys, String... names)
     {

@@ -64,7 +64,7 @@ public class TranslateDriverTest
         KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'y': 5}}");
         TestSubject subject = new TestSubject("arm");
         subject.offsets.get("arm").set(1, 0, 3);
-        subject.offsetSmoothings.get("arm").set(1, 0, 3);
+        subject.smoothOffsets.get("arm").set(1, 0, 3);
 
         animator.update(subject, 1F);
 
@@ -84,9 +84,9 @@ public class TranslateDriverTest
     }
 
     @Test
-    public void aDampedOffsetIsSmoothed() throws MalformedKumoTemplateException
+    public void aSmoothedOffsetIsSmoothed() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@damping': {'arm': 0.25}}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@smoothing': {'arm': 4}}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
@@ -104,9 +104,9 @@ public class TranslateDriverTest
     }
 
     @Test
-    public void aDampedOffsetSnaps() throws MalformedKumoTemplateException
+    public void aSmoothedOffsetSnaps() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@damping': {'arm': 0.25}, '@snap': true}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@smoothing': {'arm': 4}, '@snap': true}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
@@ -115,12 +115,12 @@ public class TranslateDriverTest
     }
 
     @Test
-    public void aDampedOffsetSlides() throws MalformedKumoTemplateException
+    public void aSmoothedOffsetSlides() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@damping': {'arm': 0.25}, '@vectorModes': {'arm': 'slide'}}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@smoothing': {'arm': 4}, '@vectorModes': {'arm': 'slide'}}");
         TestSubject subject = new TestSubject("arm");
 
-        // A linear tween of 1 / 0.25 = 4 ticks.
+        // A linear tween of 4 ticks.
         for (int frame = 0; frame < 2; frame++)
         {
             animator.update(subject, 1F);
@@ -130,9 +130,9 @@ public class TranslateDriverTest
     }
 
     @Test
-    public void aDampedTranslateLeavesTheRotationsDampingAlone() throws MalformedKumoTemplateException
+    public void aSmoothedTranslateLeavesTheRotationsSmoothingAlone() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@damping': {'arm': 0.25}}, "
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@smoothing': {'arm': 4}}, "
                 + "{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 90}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
 
@@ -147,15 +147,15 @@ public class TranslateDriverTest
     }
 
     @Test
-    public void anUndampedOffsetIsAppliedAsIs() throws MalformedKumoTemplateException
+    public void anUnsmoothedOffsetIsAppliedAsIs() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 90}, '@space': 'override', '@damping': {'arm': 0.1}}, "
+        KumoAnimatorState animator = animator("{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 90}, '@space': 'override', '@smoothing': {'arm': 10}}, "
                 + "{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
 
-        // A rotation's damping doesn't reach the offset.
+        // A rotation's smoothing doesn't reach the offset.
         assertVector(0, 10, 0, subject.offsets.get("arm"));
     }
 

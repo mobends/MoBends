@@ -57,7 +57,7 @@ public interface IModelPart
 	/** Moves the offset along its smoothing, while it has somewhere to go; called from {@link #update}. */
 	default void updateOffset(float ticksPerFrame)
 	{
-		SmoothVector3f smoothing = this.getOffsetSmoothing();
+		SmoothVector3f smoothing = this.getSmoothOffset();
 		if (smoothing.isMoving())
 		{
 			smoothing.update(ticksPerFrame);
@@ -71,7 +71,7 @@ public interface IModelPart
 	IVec3f getScale();
 	IVec3f getOffset();
 	/** Where the animators smooth the offset towards its target; {@link #updateOffset} carries it into {@link #getOffset}. */
-	SmoothVector3f getOffsetSmoothing();
+	SmoothVector3f getSmoothOffset();
 	SmoothOrientation getRotation();
 	float getOffsetScale();
 	IVec3f getGlobalOffset();

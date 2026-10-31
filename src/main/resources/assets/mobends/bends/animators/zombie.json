@@ -13,7 +13,7 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/zombie/lean.json"},
-                "@damping": {"root": [null, 1.2, null]},
+                "@smoothing": {"root": [null, 0.83, null]},
                 "@vectorModes": {"root": "retarget"}
               },
               {
@@ -38,7 +38,7 @@
                   "animationKey": "mobends:bends/animations/zombie/stumble_base.json",
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
-                "@damping": {"rightLeg": 1, "leftLeg": 1, "rightArm": 1, "leftArm": 1, "body": 0.5}
+                "@smoothing": {"rightLeg": 1, "leftLeg": 1, "rightArm": 1, "leftArm": 1, "body": 2}
               },
               {
                 "core:clip": {

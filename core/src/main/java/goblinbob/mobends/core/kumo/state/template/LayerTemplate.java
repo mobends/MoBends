@@ -19,8 +19,8 @@ public class LayerTemplate extends MachineTemplate
     /** Composition space for ADDITIVE layers: default and per-bone overrides. */
     public SpaceTemplate additiveSpace;
 
-    /** Default damping for bones this layer writes; nodes can override per bone. */
-    public DampingTemplate damping;
+    /** Default smoothing for bones this layer writes; nodes can override per bone. */
+    public SmoothingTemplate smoothing;
 
     /** Optional condition; while it does not hold the layer writes nothing (bones hold their targets). */
     public ExpressionTemplate when;

@@ -22,7 +22,7 @@
     "leftHeldItem": "core:orientation",
     "swordTrail": "mobends:sword_trail"
   },
-  "smoothness": {"root": 2, "renderRotation": 2},
+  "smoothing": {"root": 0.5, "renderRotation": 0.5},
   "renderer": {"sneakOffset": 5},
   "layers": {
     "mobends:armor": {},

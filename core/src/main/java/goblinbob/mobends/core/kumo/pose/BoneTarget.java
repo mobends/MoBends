@@ -43,14 +43,14 @@ public class BoneTarget
     public boolean hasVector;
     public final Vec3f vector = new Vec3f();
 
-    /** Damping per tick; NaN keeps whatever the bone had. For vectors per axis. */
-    public float smoothness = Float.NaN;
-    public final Vec3f vectorSmoothness = new Vec3f(Float.NaN, Float.NaN, Float.NaN);
+    /** Ticks to reach the target (0: at once); NaN keeps whatever the bone had. For vectors per axis. */
+    public float smoothing = Float.NaN;
+    public final Vec3f vectorSmoothing = new Vec3f(Float.NaN, Float.NaN, Float.NaN);
     /**
-     * A part's offset damping per tick, per axis. Unlike a rotation's it lasts one frame: an axis
-     * with no damping (NaN) is applied as is.
+     * A part's offset smoothing, in ticks per axis. Unlike a rotation's it lasts one frame: an axis
+     * with no smoothing (NaN) is applied as is.
      */
-    public final Vec3f offsetSmoothness = new Vec3f(Float.NaN, Float.NaN, Float.NaN);
+    public final Vec3f offsetSmoothing = new Vec3f(Float.NaN, Float.NaN, Float.NaN);
 
     /** Jump to the rotation target this frame instead of smoothing. */
     public boolean snap;
@@ -75,9 +75,9 @@ public class BoneTarget
         hasRotation = false;
         hasOffset = false;
         hasVector = false;
-        smoothness = Float.NaN;
-        vectorSmoothness.set(Float.NaN, Float.NaN, Float.NaN);
-        offsetSmoothness.set(Float.NaN, Float.NaN, Float.NaN);
+        smoothing = Float.NaN;
+        vectorSmoothing.set(Float.NaN, Float.NaN, Float.NaN);
+        offsetSmoothing.set(Float.NaN, Float.NaN, Float.NaN);
         snap = false;
         restartX = restartY = restartZ = false;
         vectorMode = IVectorSink.Mode.RETARGET;
@@ -114,9 +114,9 @@ public class BoneTarget
         offset.set(other.offset);
         hasVector = other.hasVector;
         vector.set(other.vector);
-        smoothness = other.smoothness;
-        vectorSmoothness.set(other.vectorSmoothness);
-        offsetSmoothness.set(other.offsetSmoothness);
+        smoothing = other.smoothing;
+        vectorSmoothing.set(other.vectorSmoothing);
+        offsetSmoothing.set(other.offsetSmoothing);
         snap = other.snap;
         restartX = other.restartX;
         restartY = other.restartY;

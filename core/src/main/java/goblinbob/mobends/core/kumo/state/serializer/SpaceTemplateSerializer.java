@@ -2,7 +2,7 @@ package goblinbob.mobends.core.kumo.state.serializer;
 
 import com.google.gson.*;
 import goblinbob.mobends.core.kumo.pose.Pose;
-import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
+import goblinbob.mobends.core.kumo.state.template.SmoothingTemplate;
 import goblinbob.mobends.core.kumo.state.template.SpaceTemplate;
 
 import java.lang.reflect.Type;
@@ -29,7 +29,7 @@ public class SpaceTemplateSerializer implements JsonDeserializer<SpaceTemplate>
             }
             JsonReading.requireBoneOrDefault(entry.getKey(), "A space");
             Pose.Space value = JsonReading.enumValue(Pose.Space.class, entry.getValue(), "The space of '" + entry.getKey() + "'");
-            if (DampingTemplate.DEFAULT.equals(entry.getKey()))
+            if (SmoothingTemplate.DEFAULT.equals(entry.getKey()))
             {
                 space.defaultSpace = value;
             }

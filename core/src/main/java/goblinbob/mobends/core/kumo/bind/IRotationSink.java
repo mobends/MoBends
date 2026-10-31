@@ -21,11 +21,11 @@ public interface IRotationSink extends IBoneSink
     /**
      * Sets a new rotation target.
      *
-     * @param smoothness the damping rate per tick; NaN keeps whatever the bone had before.
+     * @param smoothing  ticks to reach the target (0: at once); NaN keeps whatever the bone had before.
      * @param snap       true to jump to the target immediately instead of smoothing towards it.
      * @param snapFrom   optional rotation to jump to first, so the smoothing starts from there.
      */
-    void setRotationTarget(Quaternion target, float smoothness, boolean snap, Quaternion snapFrom);
+    void setRotationTarget(Quaternion target, float smoothing, boolean snap, Quaternion snapFrom);
 
     /** @return true if this bone also has an animation offset (model parts do, plain orientations do not). */
     boolean hasOffset();
@@ -35,10 +35,10 @@ public interface IRotationSink extends IBoneSink
 
     /**
      * Sets a new offset target, as {@link IVectorSink#setVectorTarget} a vector's; a NaN component
-     * keeps that axis's current target. Unlike a vector's, an axis with no damping (NaN) in
-     * {@link IVectorSink.Mode#RETARGET} is applied as is: offsets are smoothed only while an item damps them.
+     * keeps that axis's current target. Unlike a vector's, an axis with no smoothing (NaN) in
+     * {@link IVectorSink.Mode#RETARGET} is applied as is: offsets are smoothed only while an item smooths them.
      */
-    void setOffsetTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, IVectorSink.Mode mode, IVec3fRead start);
+    void setOffsetTarget(float x, float y, float z, float smoothingX, float smoothingY, float smoothingZ, IVectorSink.Mode mode, IVec3fRead start);
 
     /** Restarts the offset's slide on the given axes from the current value (a target replaced within the frame). */
     default void restartOffsetSlide(boolean x, boolean y, boolean z)

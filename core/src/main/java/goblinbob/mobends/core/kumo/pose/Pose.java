@@ -545,12 +545,12 @@ public class Pose
             {
                 if (target.hasRotation)
                 {
-                    rotationSink.setRotationTarget(target.rotation, target.smoothness, target.snap, target.hasSnapFrom ? target.snapFrom : null);
+                    rotationSink.setRotationTarget(target.rotation, target.smoothing, target.snap, target.hasSnapFrom ? target.snapFrom : null);
                 }
                 if (target.hasOffset && rotationSink.hasOffset())
                 {
                     rotationSink.setOffsetTarget(target.offset.x, target.offset.y, target.offset.z,
-                            target.offsetSmoothness.x, target.offsetSmoothness.y, target.offsetSmoothness.z,
+                            target.offsetSmoothing.x, target.offsetSmoothing.y, target.offsetSmoothing.z,
                             target.offsetMode, target.hasVectorStart ? target.vectorStart : null);
                     if (target.offsetMode == IVectorSink.Mode.SLIDE && (target.restartX || target.restartY || target.restartZ))
                     {
@@ -563,7 +563,7 @@ public class Pose
             if (vectorSink != null && target.hasVector)
             {
                 vectorSink.setVectorTarget(target.vector.x, target.vector.y, target.vector.z,
-                        target.vectorSmoothness.x, target.vectorSmoothness.y, target.vectorSmoothness.z,
+                        target.vectorSmoothing.x, target.vectorSmoothing.y, target.vectorSmoothing.z,
                         target.vectorMode, target.hasVectorStart ? target.vectorStart : null);
                 if (target.vectorMode == IVectorSink.Mode.SLIDE && (target.restartX || target.restartY || target.restartZ))
                 {

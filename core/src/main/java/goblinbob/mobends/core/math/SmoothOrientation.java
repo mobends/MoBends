@@ -1,8 +1,11 @@
 package goblinbob.mobends.core.math;
 
+import goblinbob.mobends.core.math.vector.SmoothVector3f;
+
 /**
- * A rotation smoothed towards its target: each tick {@code progress} advances by {@code smoothness}
- * and the current value is the normalised blend of {@code start} and {@code end}.
+ * A rotation smoothed towards its target: {@code progress} goes from 0 to 1 in {@code smoothing}
+ * ticks, and the current value is the normalised blend of {@code start} and {@code end}. A smoothing
+ * of 0 reaches every target at once.
  */
 public class SmoothOrientation
 {
@@ -11,7 +14,8 @@ public class SmoothOrientation
     protected Quaternion end;
     protected Quaternion smooth;
     protected float progress;
-    protected float smoothness;
+    /** Ticks to reach a target; 0 for at once. */
+    protected float smoothing;
 
     public SmoothOrientation()
     {
@@ -19,7 +23,7 @@ public class SmoothOrientation
         this.end = new Quaternion();
         this.smooth = new Quaternion();
         this.progress = 1.0F;
-        this.smoothness = 1.0F;
+        this.smoothing = 1.0F;
     }
 
     public Quaternion getEnd()
@@ -40,10 +44,16 @@ public class SmoothOrientation
         this.progress = other.progress;
     }
 
-    public SmoothOrientation setSmoothness(float smoothness)
+    /** @param smoothing ticks to reach a target; 0 for at once. */
+    public SmoothOrientation setSmoothing(float smoothing)
     {
-        this.smoothness = smoothness;
+        this.smoothing = smoothing;
         return this;
+    }
+
+    public float getSmoothing()
+    {
+        return this.smoothing;
     }
 
     public SmoothOrientation set(float x, float y, float z, float w)
@@ -68,9 +78,13 @@ public class SmoothOrientation
         return this;
     }
 
-    /** Starts smoothing towards a new target from the current smoothed value. */
+    /** Starts smoothing towards a new target from the current smoothed value (with no smoothing, jumps there). */
     public SmoothOrientation target(Quaternion target)
     {
+        if (this.smoothing <= 0F)
+        {
+            return this.snapTo(target);
+        }
         this.start.set(this.smooth);
         this.end.set(target);
         this.progress = 0F;
@@ -107,8 +121,7 @@ public class SmoothOrientation
 
     public void update(float ticksPerFrame)
     {
-        this.progress += ticksPerFrame * this.smoothness;
-        this.progress = Math.min(this.progress, 1.0F);
+        this.progress = SmoothVector3f.advance(this.progress, ticksPerFrame, this.smoothing);
         this.updateSmooth();
     }
 

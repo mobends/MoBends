@@ -11,7 +11,7 @@ import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.pose.Pose;
-import goblinbob.mobends.core.kumo.state.template.DampingTemplate;
+import goblinbob.mobends.core.kumo.state.template.SmoothingTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
@@ -33,7 +33,7 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
     public static final String CLIP = "core:clip";
 
     private static final Set<String> MODIFIERS = new HashSet<>(Arrays.asList(
-            "@when", "@space", "@damping", "@snap", "@mirror", "@swapSides", "@vectorModes", JsonReading.COMMENT));
+            "@when", "@space", "@smoothing", "@snap", "@mirror", "@swapSides", "@vectorModes", JsonReading.COMMENT));
     private static final Type VECTOR_MODES = new TypeToken<Map<String, IVectorSink.Mode>>() {}.getType();
 
     @Override
@@ -48,7 +48,7 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
             {
                 if (!MODIFIERS.contains(key))
                 {
-                    throw new JsonParseException(String.format("A pose item has an unknown modifier \"%s\" (it takes \"@when\", \"@space\", \"@damping\", "
+                    throw new JsonParseException(String.format("A pose item has an unknown modifier \"%s\" (it takes \"@when\", \"@space\", \"@smoothing\", "
                             + "\"@snap\", \"@mirror\", \"@swapSides\" and \"@vectorModes\").", key));
                 }
             }
@@ -94,9 +94,9 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
         {
             item.space = JsonReading.enumValue(Pose.Space.class, object.get("@space"), what + "'s \"@space\"");
         }
-        if (object.has("@damping"))
+        if (object.has("@smoothing"))
         {
-            item.damping = KumoSerializer.INSTANCE.leafGson.fromJson(object.get("@damping"), DampingTemplate.class);
+            item.smoothing = KumoSerializer.INSTANCE.leafGson.fromJson(object.get("@smoothing"), SmoothingTemplate.class);
         }
         if (object.has("@vectorModes"))
         {

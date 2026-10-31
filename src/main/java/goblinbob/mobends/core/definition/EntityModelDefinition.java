@@ -64,11 +64,11 @@ public class EntityModelDefinition
     public float attackComboTicks;
 
     /**
-     * Optional: the damping a bone starts with, kept until an animator sets one, by name: a bone,
+     * Optional: the smoothing a bone starts with (ticks to reach a target; 0 for at once), kept until an animator sets one, by name: a bone,
      * a component, or the entity's {@code root} (its offset), {@code localOffset},
      * {@code renderRotation} or {@code centerRotation}.
      */
-    public Map<String, Float> smoothness;
+    public Map<String, Float> smoothing;
 
     /**
      * Optional: how bones change on a baby, by name, besides the whole model's {@link #childScale}:

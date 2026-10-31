@@ -17,7 +17,7 @@ public class BoneSinks
         if (part instanceof IModelPart)
         {
             IModelPart modelPart = (IModelPart) part;
-            return new OrientationSink(modelPart.getRotation(), modelPart.getOffset(), modelPart.getOffsetSmoothing());
+            return new OrientationSink(modelPart.getRotation(), modelPart.getOffset(), modelPart.getSmoothOffset());
         }
         if (part instanceof SmoothOrientation)
         {

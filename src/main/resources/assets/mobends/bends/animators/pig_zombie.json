@@ -22,7 +22,7 @@
               {
                 "@when": "animator.standing",
                 "core:clip": {"animationKey": "mobends:bends/animations/pigzombie/stand_offset.json"},
-                "@damping": {"root": [null, 1.2, null]},
+                "@smoothing": {"root": [null, 0.835, null]},
                 "@vectorModes": {"root": "retarget"}
               },
               {
@@ -31,7 +31,7 @@
                   "animationKey": "mobends:bends/animations/pigzombie/walk_bob.json",
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
-                "@damping": {"root": [null, 1.2, null]},
+                "@smoothing": {"root": [null, 0.835, null]},
                 "@vectorModes": {"root": "retarget"}
               }
             ]
@@ -62,14 +62,14 @@
                   "frame": "entityTicksAfterAttack"
                 },
                 "@mirror": true,
-                "@damping": {
-                  "body": 0.9,
-                  "head": 0.9,
-                  "rightArm": 0.9,
-                  "leftArm": 0.3,
-                  "rightForeArm": 0.3,
-                  "leftForeArm": 0.3,
-                  "localOffset": 0.3
+                "@smoothing": {
+                  "body": 1.11,
+                  "head": 1.11,
+                  "rightArm": 1.11,
+                  "leftArm": 3.33,
+                  "rightForeArm": 3.33,
+                  "leftForeArm": 3.33,
+                  "localOffset": 3.33
                 },
                 "@vectorModes": {"localOffset": "slide"}
               },
@@ -85,7 +85,7 @@
                   "animationKey": "mobends:bends/animations/pigzombie/slash_still.json",
                   "bones": ["leftLeg", "rightLeg", "rightForeLeg", "root"]
                 },
-                "@damping": {"root": [null, 1.2, null]},
+                "@smoothing": {"root": [null, 0.835, null]},
                 "@vectorModes": {"root": "retarget"}
               },
               {
@@ -95,14 +95,14 @@
                   "bones": ["renderRotation"]
                 },
                 "@mirror": true,
-                "@damping": {"renderRotation": 0.6}
+                "@smoothing": {"renderRotation": 1.665}
               },
               {
                 "core:rotate": {"bone": "rightHeldItem", "axis": "x", "angle": 50},
                 "@space": "override",
                 "@snap": true,
                 "@mirror": true,
-                "@damping": {"rightHeldItem": 0.9}
+                "@smoothing": {"rightHeldItem": 1.11}
               }
             ]
           }

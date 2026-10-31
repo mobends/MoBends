@@ -72,7 +72,7 @@ public class SpiderMovingLegsDriver extends SpiderLegsDriverBase
 
             SpiderLegIk.solve(dist, legGround, angles);
             boolean settled = startTransition >= 1.0F;
-            writeLeg(pose, i, odd, odd ? sideRotation : -sideRotation, angles, settled ? 1F : startTransition, settled);
+            writeLeg(pose, i, odd, odd ? sideRotation : -sideRotation, angles, settled ? 1F : 1F / startTransition, settled);
 
             legs.limbs[i].setAngleAndDistance(odd ? sideRotation / 180F * GUtil.PI : GUtil.PI - sideRotation / 180F * GUtil.PI, dist * 0.0625F);
         }

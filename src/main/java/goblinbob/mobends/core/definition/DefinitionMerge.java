@@ -19,7 +19,7 @@ import java.util.Map;
  * <li>{@code @define}: both declare theirs, and declaring a name the other does is an error (as
  * for animators);</li>
  * <li>{@code @on}: each list runs the other's statements, then its own;</li>
- * <li>{@code components}, {@code layers}, {@code childBones}, {@code smoothness}, {@code renderer}:
+ * <li>{@code components}, {@code layers}, {@code childBones}, {@code smoothing}, {@code renderer}:
  * key by key, its own winning;</li>
  * <li>anything else: its own, if it has it.</li>
  * </ul>
@@ -27,7 +27,7 @@ import java.util.Map;
 public final class DefinitionMerge
 {
 
-    private static final List<String> BY_KEY = Arrays.asList("components", "layers", "childBones", "smoothness", "renderer");
+    private static final List<String> BY_KEY = Arrays.asList("components", "layers", "childBones", "smoothing", "renderer");
 
     private DefinitionMerge()
     {

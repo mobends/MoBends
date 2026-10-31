@@ -2,7 +2,10 @@ package goblinbob.mobends.core.math.vector;
 
 import goblinbob.mobends.core.util.EnumAxis;
 
-/** A vector smoothed towards its target, each axis at its own rate (see {@link #update}). */
+/**
+ * A vector smoothed towards its target, each axis over its own number of ticks (see {@link #update});
+ * an axis with a smoothing of 0 reaches its targets at once.
+ */
 public class SmoothVector3f
 {
 
@@ -17,9 +20,9 @@ public class SmoothVector3f
 	public Vec3f end = new Vec3f(0, 0, 0);
 
 	/**
-	 * Holds the interpolation speed for each axis separately.
+	 * Ticks each axis takes to reach its target (the length of a slide); 0 for at once.
 	 */
-	public Vec3f smoothness = new Vec3f(1, 1, 1);
+	public Vec3f smoothing = new Vec3f(1, 1, 1);
 
 	/**
 	 * Holds the interpolation tween value for each axis separately.
@@ -33,14 +36,15 @@ public class SmoothVector3f
 		this.set(src);
 	}
 
-	public void slideTo(float x, float y, float z, float smoothness)
+	public void slideTo(float x, float y, float z, float smoothing)
 	{
 		if (this.end.x != x || this.end.y != y || this.end.z != z)
 		{
 			this.start.set(this.getX(), this.getY(), this.getZ());
 			this.end.set(x, y, z);
 			this.completion.set(0, 0, 0);
-			this.smoothness.set(smoothness, smoothness, smoothness);
+			this.smoothing.set(smoothing, smoothing, smoothing);
+			this.update(0F);
 		}
 	}
 	
@@ -53,14 +57,16 @@ public class SmoothVector3f
 		this.start.set(this.getX(), this.getY(), this.getZ());
 		this.end.set(x, y, z);
 		this.completion.set(0, 0, 0);
+		this.update(0F);
 	}
 
-	/** Restarts the interpolation of one axis from its current value towards {@code value}, at {@code smoothness}. */
-	public void retarget(EnumAxis axis, float value, float smoothness)
+	/** Restarts the interpolation of one axis from its current value towards {@code value}, over {@code smoothing} ticks. */
+	public void retarget(EnumAxis axis, float value, float smoothing)
 	{
-		if (axis == EnumAxis.X) { this.start.x = this.getX(); this.end.x = value; this.completion.x = 0.0F; this.smoothness.x = smoothness; }
-		else if (axis == EnumAxis.Y) { this.start.y = this.getY(); this.end.y = value; this.completion.y = 0.0F; this.smoothness.y = smoothness; }
-		else { this.start.z = this.getZ(); this.end.z = value; this.completion.z = 0.0F; this.smoothness.z = smoothness; }
+		if (axis == EnumAxis.X) { this.start.x = this.getX(); this.end.x = value; this.completion.x = 0.0F; this.smoothing.x = smoothing; }
+		else if (axis == EnumAxis.Y) { this.start.y = this.getY(); this.end.y = value; this.completion.y = 0.0F; this.smoothing.y = smoothing; }
+		else { this.start.z = this.getZ(); this.end.z = value; this.completion.z = 0.0F; this.smoothing.z = smoothing; }
+		this.update(0F);
 	}
 
 	/** Jumps one axis to {@code value}. */
@@ -83,14 +89,15 @@ public class SmoothVector3f
 		if (axis == EnumAxis.X) { this.start.x = this.getX(); this.completion.x = 0.0F; }
 		else if (axis == EnumAxis.Y) { this.start.y = this.getY(); this.completion.y = 0.0F; }
 		else { this.start.z = this.getZ(); this.completion.z = 0.0F; }
+		this.update(0F);
 	}
 
-	public float getSmoothness(EnumAxis axis)
+	public float getSmoothing(EnumAxis axis)
 	{
-		return axis == EnumAxis.X ? this.smoothness.x : axis == EnumAxis.Y ? this.smoothness.y : this.smoothness.z;
+		return axis == EnumAxis.X ? this.smoothing.x : axis == EnumAxis.Y ? this.smoothing.y : this.smoothing.z;
 	}
 
-	public void slideTo(EnumAxis axis, float orientation, float smoothness)
+	public void slideTo(EnumAxis axis, float orientation, float smoothing)
 	{
 		if ((axis == EnumAxis.X ? this.end.x : axis == EnumAxis.Y ? this.end.y : this.end.z) != orientation)
 		{
@@ -117,11 +124,12 @@ public class SmoothVector3f
 		}
 		
 		if (axis == EnumAxis.X)
-			this.smoothness.x = smoothness;
+			this.smoothing.x = smoothing;
 		if (axis == EnumAxis.Y)
-			this.smoothness.y = smoothness;
+			this.smoothing.y = smoothing;
 		if (axis == EnumAxis.Z)
-			this.smoothness.z = smoothness;
+			this.smoothing.z = smoothing;
+		this.update(0F);
 	}
 
 	public void setX(float x)
@@ -155,7 +163,7 @@ public class SmoothVector3f
 	public void set(SmoothVector3f other)
 	{
 		this.completion.set(other.completion);
-		this.smoothness.set(other.smoothness);
+		this.smoothing.set(other.smoothing);
 		this.end.set(other.end);
 		this.start.set(other.start);
 	}
@@ -182,12 +190,19 @@ public class SmoothVector3f
 
 	public void update(float ticksPerFrame)
 	{
-		this.completion.x += ticksPerFrame * this.smoothness.x;
-		this.completion.y += ticksPerFrame * this.smoothness.y;
-		this.completion.z += ticksPerFrame * this.smoothness.z;
-		this.completion.x = Math.min(this.completion.x, 1.0F);
-		this.completion.y = Math.min(this.completion.y, 1.0F);
-		this.completion.z = Math.min(this.completion.z, 1.0F);
+		this.completion.x = advance(this.completion.x, ticksPerFrame, this.smoothing.x);
+		this.completion.y = advance(this.completion.y, ticksPerFrame, this.smoothing.y);
+		this.completion.z = advance(this.completion.z, ticksPerFrame, this.smoothing.z);
+	}
+
+	/** A tween's completion {@code ticks} later, when it takes {@code smoothing} ticks (0: done at once). */
+	public static float advance(float completion, float ticks, float smoothing)
+	{
+		if (smoothing <= 0.0F)
+		{
+			return 1.0F;
+		}
+		return Math.min(completion + ticks / smoothing, 1.0F);
 	}
 
 	/** Finishes the interpolation by snapping the smooth vector straight to the end. */

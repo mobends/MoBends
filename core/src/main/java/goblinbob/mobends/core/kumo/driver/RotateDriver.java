@@ -47,7 +47,7 @@ public class RotateDriver implements IPoseItem
         }
         Expression angle = Expression.compile(template.angle, context.getExpressionScope(), Expression.ZERO);
         Pose.Space space = template.space == null ? Pose.Space.PRE : template.space;
-        ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.damping, template.vectorModes, template.snap);
+        ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.smoothing, template.vectorModes, template.snap);
         return new RotateDriver(skeleton.indexOf(template.bone), template.axis, angle, space, effects.isEmpty() ? null : effects);
     }
 

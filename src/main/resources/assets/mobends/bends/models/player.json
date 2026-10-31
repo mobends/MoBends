@@ -32,7 +32,7 @@
     "capeWave": "mobends:cape_wave"
   },
   "attackComboTicks": 6,
-  "smoothness": {"root": 2, "renderRotation": 2},
+  "smoothing": {"root": 0.5, "renderRotation": 0.5},
   "renderer": {
     "@comment": "Vanilla lowers a sneaking player; the bent sneak pose needs it higher.",
     "sneakOffset": 5,

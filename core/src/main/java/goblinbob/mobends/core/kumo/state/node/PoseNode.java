@@ -20,7 +20,7 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 import java.util.*;
 
 /**
- * A node of a layer: an ordered stack of pose items (clips, drivers), a damping table, a list of
+ * A node of a layer: an ordered stack of pose items (clips, drivers), a smoothing table, a list of
  * bones to snap on entry. Fallthrough and vanilla nodes are pose nodes without items. (Its
  * connections belong to the layer, see {@code LayerState}.)
  */
@@ -29,8 +29,8 @@ public class PoseNode implements INodeState
 
     private final String name;
     private final List<IPoseItem> items;
-    private final int[] dampingSlots;
-    private final float[][] dampingValues;
+    private final int[] smoothingSlots;
+    private final float[][] smoothingValues;
     private final int[] snapSlots;
     private final List<IPoseItem> enterItems;
     private final Skeleton skeleton;
@@ -45,7 +45,7 @@ public class PoseNode implements INodeState
     /** The pose its enter items make when it starts, or -1 without any. */
     private final int enterPose;
 
-    public PoseNode(String name, List<IPoseItem> items, List<IPoseItem> enterItems, Skeleton skeleton, DampingTemplate layerDamping, DampingTemplate nodeDamping,
+    public PoseNode(String name, List<IPoseItem> items, List<IPoseItem> enterItems, Skeleton skeleton, SmoothingTemplate layerSmoothing, SmoothingTemplate nodeSmoothing,
                     List<String> snapOnEnter, StateLayout layout)
     {
         this.name = name;
@@ -58,23 +58,23 @@ public class PoseNode implements INodeState
         this.skeleton = skeleton;
 
         // Merge layer defaults with node overrides into slot-indexed tables.
-        Map<String, float[]> damping = new LinkedHashMap<>();
-        if (layerDamping != null) damping.putAll(layerDamping.entries);
-        if (nodeDamping != null) damping.putAll(nodeDamping.entries);
-        float[] defaultDamping = damping.remove(DampingTemplate.DEFAULT);
-        this.dampingValues = new float[damping.size() + (defaultDamping != null ? 1 : 0)][];
-        this.dampingSlots = new int[dampingValues.length];
+        Map<String, float[]> smoothing = new LinkedHashMap<>();
+        if (layerSmoothing != null) smoothing.putAll(layerSmoothing.entries);
+        if (nodeSmoothing != null) smoothing.putAll(nodeSmoothing.entries);
+        float[] defaultSmoothing = smoothing.remove(SmoothingTemplate.DEFAULT);
+        this.smoothingValues = new float[smoothing.size() + (defaultSmoothing != null ? 1 : 0)][];
+        this.smoothingSlots = new int[smoothingValues.length];
         int i = 0;
-        for (Map.Entry<String, float[]> entry : damping.entrySet())
+        for (Map.Entry<String, float[]> entry : smoothing.entrySet())
         {
-            dampingSlots[i] = skeleton.indexOf(entry.getKey());
-            dampingValues[i] = entry.getValue();
+            smoothingSlots[i] = skeleton.indexOf(entry.getKey());
+            smoothingValues[i] = entry.getValue();
             i++;
         }
-        if (defaultDamping != null)
+        if (defaultSmoothing != null)
         {
-            dampingSlots[i] = -1;
-            dampingValues[i] = defaultDamping;
+            smoothingSlots[i] = -1;
+            smoothingValues[i] = defaultSmoothing;
         }
 
         this.snapSlots = new int[snapOnEnter == null ? 0 : snapOnEnter.size()];
@@ -115,7 +115,7 @@ public class PoseNode implements INodeState
         {
             context.getExpressionScope().endHolding();
         }
-        PoseNode node = new PoseNode(template.name, items, enterItems, skeleton, layer.damping, template.damping, template.snapOnEnter,
+        PoseNode node = new PoseNode(template.name, items, enterItems, skeleton, layer.smoothing, template.smoothing, template.snapOnEnter,
                 context.getExpressionScope().getLayout());
         node.held = held.toArray(new Expression[0]);
         return node;
@@ -164,7 +164,7 @@ public class PoseNode implements INodeState
 
     private static IPoseItem createUnconditionalItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
-        ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.damping, template.vectorModes, template.snap);
+        ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.smoothing, template.vectorModes, template.snap);
 
         if (template instanceof ClipItemTemplate)
         {
@@ -307,15 +307,15 @@ public class PoseNode implements INodeState
             item.apply(pose, context, state[clockSlot]);
         }
 
-        // Node-level damping applies to whatever this node wrote and no item damped already.
-        for (int i = 0; i < dampingSlots.length; i++)
+        // Node-level smoothing applies to whatever this node wrote and no item smoothed already.
+        for (int i = 0; i < smoothingSlots.length; i++)
         {
-            if (dampingSlots[i] >= 0)
+            if (smoothingSlots[i] >= 0)
             {
-                BoneTarget target = pose.get(dampingSlots[i]);
-                if (Float.isNaN(target.smoothness) && isUndamped(target.vectorSmoothness))
+                BoneTarget target = pose.get(smoothingSlots[i]);
+                if (Float.isNaN(target.smoothing) && isUnsmoothed(target.vectorSmoothing))
                 {
-                    ItemEffects.applyDamping(target, dampingValues[i]);
+                    ItemEffects.applySmoothing(target, smoothingValues[i]);
                 }
             }
             else
@@ -323,9 +323,9 @@ public class PoseNode implements INodeState
                 for (int slot = 0; slot < pose.size(); slot++)
                 {
                     BoneTarget target = pose.get(slot);
-                    if ((target.hasRotation || target.hasPre || target.hasPost || target.hasVector) && Float.isNaN(target.smoothness) && isUndamped(target.vectorSmoothness))
+                    if ((target.hasRotation || target.hasPre || target.hasPost || target.hasVector) && Float.isNaN(target.smoothing) && isUnsmoothed(target.vectorSmoothing))
                     {
-                        ItemEffects.applyDamping(target, dampingValues[i]);
+                        ItemEffects.applySmoothing(target, smoothingValues[i]);
                     }
                 }
             }
@@ -386,17 +386,17 @@ public class PoseNode implements INodeState
         for (int slot = 0; slot < pose.size(); slot++)
         {
             BoneTarget target = pose.get(slot);
-            if (target.hasVector && isUndamped(target.vectorSmoothness) && target.vectorMode == IVectorSink.Mode.RETARGET)
+            if (target.hasVector && isUnsmoothed(target.vectorSmoothing) && target.vectorMode == IVectorSink.Mode.RETARGET)
             {
-                // Keyframed root motion is already smooth; without an explicit damping entry it is applied as is.
+                // Keyframed root motion is already smooth; without an explicit smoothing entry it is applied as is.
                 target.vectorMode = IVectorSink.Mode.SNAP;
             }
         }
     }
 
-    private static boolean isUndamped(Vec3f smoothness)
+    private static boolean isUnsmoothed(Vec3f smoothing)
     {
-        return Float.isNaN(smoothness.x) && Float.isNaN(smoothness.y) && Float.isNaN(smoothness.z);
+        return Float.isNaN(smoothing.x) && Float.isNaN(smoothing.y) && Float.isNaN(smoothing.z);
     }
 
     @Override
