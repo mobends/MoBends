@@ -32,12 +32,12 @@ public class AnimationLimitsTest
 
     /** Throws the left arm 40 units out and the whole body 100 units up. */
     private static final String FLING = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"fling\", "
-            + "\"nodes\": {\"fling\": {\"core:pose\": {\"pose\": [{\"core:offset\": {\"bone\": \"leftArm\", \"x\": 40, \"y\": 0, "
-            + "\"z\": 0}}, {\"core:vector\": {\"bone\": \"globalOffset\", \"x\": 0, \"y\": 100, \"z\": 0}, \"@snap\": true}]}}}}]}";
+            + "\"nodes\": {\"fling\": {\"core:pose\": {\"pose\": [{\"core:translate\": {\"bone\": \"leftArm\", \"x\": 40, \"y\": 0, "
+            + "\"z\": 0}}, {\"core:translate\": {\"bone\": \"globalOffset\", \"x\": 0, \"y\": 100, \"z\": 0}, \"@snap\": true}]}}}}]}";
 
     /** Raises the right arm: rotations only. */
     private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"raise\", "
-            + "\"nodes\": {\"raise\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"x\", "
+            + "\"nodes\": {\"raise\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"rightArm\", \"axis\": \"x\", "
             + "\"angle\": -150}, \"@space\": \"override\"}]}}}}]}";
 
     private static final Scenario WALK = new Scenario(EntityKind.PLAYER, "limits_walk", Scenarios.FPS, 30, (tick, in) -> Scripts.walk(in, Scripts.WALK_SPEED));
@@ -146,11 +146,11 @@ public class AnimationLimitsTest
         for (String bone : frame.bones.keySet())
         {
             if (frame.bones.get(bone).o == null) continue;
-            items.append("{\"core:offset\": {\"bone\": \"").append(bone).append("\", \"x\": {\"add\": [30, {\"mul\": [\"ticks\", 3]}]}, \"y\": -30, \"z\": 30}},");
+            items.append("{\"core:translate\": {\"bone\": \"").append(bone).append("\", \"x\": {\"add\": [30, {\"mul\": [\"ticks\", 3]}]}, \"y\": -30, \"z\": 30}},");
         }
         for (String vector : new String[] { "root", "globalOffset", "localOffset" })
         {
-            items.append("{\"core:vector\": {\"bone\": \"").append(vector).append("\", \"x\": 100, \"y\": {\"mul\": [\"ticks\", 5]}, \"z\": -100}, \"@space\": \"pre\"},");
+            items.append("{\"core:translate\": {\"bone\": \"").append(vector).append("\", \"x\": 100, \"y\": {\"mul\": [\"ticks\", 5]}, \"z\": -100}, \"@space\": \"pre\"},");
         }
         items.setLength(items.length() - 1);
         return json("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"fling\", \"nodes\": {\"fling\": {\"core:pose\": {\"pose\": [" + items + "]}}}}]}");
@@ -160,8 +160,8 @@ public class AnimationLimitsTest
     void infiniteAndNotANumberValuesDontGetPast() throws Exception
     {
         String broken = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"broken\", "
-                + "\"nodes\": {\"broken\": {\"core:pose\": {\"pose\": [{\"core:offset\": {\"bone\": \"leftArm\", \"x\": {\"div\": [1, "
-                + "0]}, \"y\": {\"sqrt\": [-1]}, \"z\": 0}}, {\"core:vector\": {\"bone\": \"globalOffset\", \"x\": {\"div\": [-1, 0]}, "
+                + "\"nodes\": {\"broken\": {\"core:pose\": {\"pose\": [{\"core:translate\": {\"bone\": \"leftArm\", \"x\": {\"div\": [1, "
+                + "0]}, \"y\": {\"sqrt\": [-1]}, \"z\": 0}}, {\"core:translate\": {\"bone\": \"globalOffset\", \"x\": {\"div\": [-1, 0]}, "
                 + "\"y\": {\"div\": [1, 0]}, \"z\": 0}, \"@snap\": true}]}}}}]}";
         FramePose own = last(WALK, player(), true, null, true, true);
         FramePose limited = last(WALK, player(), true, broken, false, true);
@@ -171,7 +171,7 @@ public class AnimationLimitsTest
         assertTrue(distance(offset(own, "leftArm"), offset(limited, "leftArm")) <= 4 + 1e-3);
 
         String badRotation = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"bad\", "
-                + "\"nodes\": {\"bad\": {\"core:pose\": {\"pose\": [{\"core:axis_rotate\": {\"bone\": \"rightArm\", \"axis\": \"x\", "
+                + "\"nodes\": {\"bad\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"rightArm\", \"axis\": \"x\", "
                 + "\"angle\": {\"sqrt\": [-1]}}, \"@space\": \"override\"}]}}}}]}";
         for (float v : last(WALK, player(), true, badRotation, false, true).bones.get("rightArm").rt) assertTrue(Float.isFinite(v), "the arm's rotation stays finite");
     }

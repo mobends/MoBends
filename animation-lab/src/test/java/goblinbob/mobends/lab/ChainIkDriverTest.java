@@ -37,7 +37,7 @@ class ChainIkDriverTest
                 + "'@define': {'stretch': {'state': 0}},"
                 + "'core:pose': {'pose': [" + before
                 + "{'core:two_bone_ik': {" + String.format(ARM, bendDirection) + ", " + fields + ", 'out': {'stretch': 'node.stretch'}}},"
-                + "{'core:axis_rotate': {'bone': 'leftArm', 'axis': 'x', 'angle': {'mul': ['node.stretch', 10]}}, '@space': 'override'}]}}}}]}";
+                + "{'core:rotate': {'bone': 'leftArm', 'axis': 'x', 'angle': {'mul': ['node.stretch', 10]}}, '@space': 'override'}]}}}}]}";
         AnimatorTemplate template = KumoSerializer.INSTANCE.gson.fromJson(json.replace('\'', '"'), AnimatorTemplate.class);
         KumoSession session = new KumoSession(new Scenario(EntityKind.IRON_GOLEM, "ik", Scenarios.FPS, 5, (tick, in) -> in.bodyYaw = yaw), template);
         session.run();
@@ -88,7 +88,7 @@ class ChainIkDriverTest
     {
         // The whole model held half a block back and leaning forward: the hand still on the point.
         String before = "{'core:anchor': {'point': {'z': 0}}},"
-                + "{'core:axis_rotate': {'bone': 'centerRotation', 'axis': 'x', 'angle': 20}, '@space': 'override', '@snap': true},";
+                + "{'core:rotate': {'bone': 'centerRotation', 'axis': 'x', 'angle': 20}, '@space': 'override', '@snap': true},";
         double[] point = {0.0, 0.9, 1.1};
         assertAt(point, hand(run(30, before, "", target(point[0], point[1], point[2]))));
     }

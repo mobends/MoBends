@@ -48,7 +48,7 @@ class RaycastArrayDriverTest
             define.append("'").append(OUTPUTS[i]).append("': {'state': ").append(hit ? "{'toDouble': [0]}" : "0").append("}, ");
             out.append(i > 0 ? ", " : "").append("'").append(OUTPUTS[i]).append("': 'node.").append(OUTPUTS[i]).append("'");
             String value = hit ? "{'toFloat': [{'sub': ['node." + OUTPUTS[i] + "', " + (i == 1 ? 0 : 0.5) + "]}]}" : "'node." + OUTPUTS[i] + "'";
-            pose.append(", {'core:axis_rotate': {'bone': '").append(BONES[i]).append("', 'axis': 'x', 'angle': {'mul': [").append(value)
+            pose.append(", {'core:rotate': {'bone': '").append(BONES[i]).append("', 'axis': 'x', 'angle': {'mul': [").append(value)
                     .append(", 10]}}, '@space': 'override', '@snap': true}");
         }
         String json = "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'main', 'nodes': {'main': {'@define': {" + define + "'unused': {'state': 0}},"

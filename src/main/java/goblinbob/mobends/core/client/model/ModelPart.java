@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.model;
 
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.IVec3f;
+import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.model.ModelBase;
@@ -23,6 +24,8 @@ public class ModelPart extends ModelRenderer implements IModelPart
     public Vec3f position = new Vec3f();
     public Vec3f scale = new Vec3f(1, 1, 1);
     public Vec3f offset = new Vec3f();
+    /** The offset's smoothing (see {@link IModelPart#getOffsetSmoothing}). */
+    public final SmoothVector3f offsetSmoothing = new SmoothVector3f();
     public SmoothOrientation rotation = new SmoothOrientation();
     /**
      * The scale at which animation position offset is applied, used for child models.
@@ -177,6 +180,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
     public void update(float ticksPerFrame)
     {
         this.rotation.update(ticksPerFrame);
+        this.updateOffset(ticksPerFrame);
     }
 
     @Override
@@ -295,6 +299,12 @@ public class ModelPart extends ModelRenderer implements IModelPart
     }
 
     @Override
+    public SmoothVector3f getOffsetSmoothing()
+    {
+        return this.offsetSmoothing;
+    }
+
+    @Override
     public SmoothOrientation getRotation()
     {
         return this.rotation;
@@ -343,6 +353,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 
         this.position.set(part.getPosition());
         this.offset.set(part.getOffset());
+        this.offsetSmoothing.set(part.getOffsetSmoothing());
         this.rotation.set(part.getRotation());
         this.scale.set(part.getScale());
         this.offsetScale = part.getOffsetScale();

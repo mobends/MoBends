@@ -220,8 +220,8 @@ const locomotionSelect: Obj[] = [
 ];
 const limbFrame = looped(scaled("entityLimbSwing", 0.6662));
 const headLook: Obj[] = [
-  item("core:axis_rotate", { bone: "head", axis: "y", angle: "entityHeadYaw" }, { space: "pre" }),
-  item("core:axis_rotate", { bone: "head", axis: "x", angle: "entityHeadPitch" }, { space: "post" }),
+  item("core:rotate", { bone: "head", axis: "y", angle: "entityHeadYaw" }, { space: "pre" }),
+  item("core:rotate", { bone: "head", axis: "x", angle: "entityHeadPitch" }, { space: "post" }),
 ];
 const kneel = clip(B("kneel"), { frame: "entityTicksAfterTouchdown" }, { when: cmp("entityTicksAfterTouchdown", "<", 1 / 0.15), damping: { body: 1 }, vectorModes: { root: "snap" } });
 const resetDamping = { root: 0.3, localOffset: 0.3, renderRotation: 0.3, centerRotation: 0.3,
@@ -237,7 +237,7 @@ const walk: Obj = poseNode([
                  rightLeg: 1, leftLeg: 1, root: [0.3, 0.6, 0.3] }, vectorModes: { root: "retarget", localOffset: "slide" } }),
     clip(B("walk_forelegs"), { frame: limbFrame }, { damping: { leftForeLeg: 0.5, rightForeLeg: 0.5 } }),
     clip(B("walk_swing"), { frame: limbFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
-    item("core:axis_rotate", { bone: "body", axis: "z", angle: value("entityHeadYaw", { scale: -0.1, min: -10, max: 10 }) }, { space: "pre" }),
+    item("core:rotate", { bone: "body", axis: "z", angle: value("entityHeadYaw", { scale: -0.1, min: -10, max: 10 }) }, { space: "pre" }),
     ...headLook,
     kneel,
   ]);
@@ -308,7 +308,7 @@ const pigZombie: Obj = {
           // the still-standing legs are the same for both hands; the render rotation is not
           clip(P("slash_still"), { bones: ["leftLeg", "rightLeg", "rightForeLeg", "root"] }, { when: AND(state("entityIsStandingStill"), NOT(state("entityIsRiding"))), damping: { root: [null, 0.6, null] }, vectorModes: { root: "retarget" } }),
           clip(P("slash_still"), { bones: ["renderRotation"] }, { mirror: true, when: AND(state("entityIsStandingStill"), NOT(state("entityIsRiding"))), damping: { renderRotation: 0.3 } }),
-          item("core:axis_rotate", { bone: "rightHeldItem", axis: "x", angle: 50 }, { space: "override", snap: true, mirror: true, damping: { rightHeldItem: 0.9 } }),
+          item("core:rotate", { bone: "rightHeldItem", axis: "x", angle: 50 }, { space: "override", snap: true, mirror: true, damping: { rightHeldItem: 0.9 } }),
         ]) } },
   ] };
 
@@ -344,7 +344,7 @@ type DrvOptions = ValueOptions & { space?: string; const?: number };
 
 function drv(bone: string, ax: Axis, variable: string | Obj | null = null, { space = "pre", const: constant, ...shape }: DrvOptions = {}): Obj {
   const angle = constant !== undefined ? constant : variable === null ? 0 : value(variable, shape);
-  return item("core:axis_rotate", { bone, axis: ax.toLowerCase(), angle }, { space });
+  return item("core:rotate", { bone, axis: ax.toLowerCase(), angle }, { space });
 }
 
 const resetItems = { rightHeldItem: rotations(), leftHeldItem: rotations() };
@@ -530,7 +530,7 @@ const pLadder: Obj = poseNode([
   when(clip(PL("ladder_ledge_forearms"), {}, { damping: { leftForeArm: 0.5, rightForeArm: 0.5 } }), cmp("entityLedgeHeight", ">=", 0.6)),
 ]);
 for (const it of poseOf(pLadder)) {
-  const rotate = it["core:axis_rotate"];
+  const rotate = it["core:rotate"];
   if (rotate && ["body", "leftArm", "rightArm"].includes(rotate.bone)) {
     it["@damping"] = { [rotate.bone]: 0.5 };
   }
@@ -553,7 +553,7 @@ const pSwimming: Obj = poseNode([
   when(clip(PL("swim_deep_legs"), { frame: looped(scaled("ticks", 0.4625)) }, { damping: { leftLeg: 0.3, rightLeg: 0.3, leftForeLeg: 0.4, rightForeLeg: 0.4 } }), deep),
   drv("head", "X", "entityHeadPitch", { space: "override" }), drv("head", "Y", "entityHeadYaw"), drv("head", "X", "node.deep", { scale: -80, ease: "ease_in_out", power: 3, min: 0, max: 1 }),
   drv("renderRotation", "X", "node.deep", { scale: 80, ease: "ease_in_out", power: 3, min: 0, max: 1, space: "override" }),
-  item("core:vector", { bone: "root", y: value("node.deep", { ...deepT, scale: 14 }), z: value("node.deep", { ...deepT, scale: -20 }) }, { damping: { root: [null, 0.7, 0.7] }, vectorModes: { root: "slide" } }),
+  item("core:translate", { bone: "root", y: value("node.deep", { ...deepT, scale: 14 }), z: value("node.deep", { ...deepT, scale: -20 }) }, { damping: { root: [null, 0.7, 0.7] }, vectorModes: { root: "slide" } }),
 ], { define: { deep: variable(0) } });
 
 const nodes: Record<string, Obj> = {
@@ -762,7 +762,7 @@ const tool: Obj = poseNode([
 ].map((x) => {
   const it = alsoWhen(x, state("entityIsSwinging"));
   // the head looks where the player looks, whichever hand swings: not mirrored
-  const rotate = x["core:axis_rotate"];
+  const rotate = x["core:rotate"];
   if (rotate && rotate.bone === "head" && rotate.axis === "y") return it;
   return (JSON.stringify(x).includes("tool_arm") ? swapped : mirrored)(it);
 }));
@@ -923,7 +923,7 @@ const plantedLayer: Obj = {
       impactDepth: 0.6, impactTime: 3, weightShift: 0.6, weightRoll: 1.5,
       out: { turnLag: "node.turnLag" },
     }),
-    item("core:axis_rotate", { bone: "head", axis: "y", angle: { sub: [{ clamp: [{ add: ["entityHeadYaw", "node.turnLag"] }, -85, 85] }, "entityHeadYaw"] } }, { space: "pre" }),
+    item("core:rotate", { bone: "head", axis: "y", angle: { sub: [{ clamp: [{ add: ["entityHeadYaw", "node.turnLag"] }, -85, 85] }, "entityHeadYaw"] } }, { space: "pre" }),
   ], { define: { onFeet: variable(0), turnLag: variable(0) } }) },
 };
 function torchArm(side: string): Obj[] {
@@ -1027,13 +1027,13 @@ const bodyBob = (fn: string, sign: number) => value("ticks", { scale: 0.2, fn, m
 const spIdle: Obj = poseNode([
   item("mobends:spider_idle_legs", { groundLevel: value("ticks", { scale: 0.1, fn: "sin", mul: 0.5 }), bodyX: bodyBob("sin", 1), bodyZ: bodyBob("cos", 1), kneelDuration: 10, kneelAmplitude: 4, kneelLead: 0,
                                      ...spiderLegsState(true) }),
-  withSnap(item("core:vector", { bone: "root", x: bodyBob("sin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("cos", -1) })),
+  withSnap(item("core:translate", { bone: "root", x: bodyBob("sin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("cos", -1) })),
   ...spiderHead, spiderRest,
 ], { define: { groundLevel: variable(0) } });
 const spMove: Obj = poseNode([
   item("mobends:spider_moving_legs", { swing: value("entityLimbSwing", { scale: 0.6662 }), groundLevel: value("ticks", { scale: 0.6, fn: "mcsin", mul: 1.2 }), kneelDuration: 10, kneelAmplitude: 3, kneelLead: 0.2, limbs: spiderLimbs,
                                        ...spiderLegsState(true) }),
-  withSnap(item("core:vector", { bone: "root", x: bodyBob("mcsin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("mccos", -1) })),
+  withSnap(item("core:translate", { bone: "root", x: bodyBob("mcsin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("mccos", -1) })),
   ...spiderHead, spiderRest,
 ], { define: { groundLevel: variable(0) } });
 poseClip(join(CLIPS, "spider", "crawl_rest.json"), { centerRotation: rotations() }, { localOffset: [0, -10, 0] });
@@ -1079,7 +1079,7 @@ const amountDeg = value("entityLimbSwingAmount", { scale: 180 / Math.PI });
 const spDeath: Obj = poseNode([
   item("core:accumulate", { inout: "node.wiggleSpeed", rate: -0.1, min: 0 }),
   item("core:accumulate", { inout: "node.wigglePhase", rate: value("node.wiggleSpeed", { scale: 2, offset: 0.3 }) }),
-  item("core:vector", { bone: "root", y: 10 }, { damping: { root: [null, 0.3, null] }, vectorModes: { root: "slide" } }),
+  item("core:translate", { bone: "root", y: 10 }, { damping: { root: [null, 0.3, null] }, vectorModes: { root: "slide" } }),
   ...spiderHead,
   withSnap(clip(SP("death"))),
   clip(SP("death_sway_y"), { frame: limbFrame, weight: amountDeg }, { space: "pre" }),

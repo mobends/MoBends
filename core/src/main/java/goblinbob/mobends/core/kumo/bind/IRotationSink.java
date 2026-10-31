@@ -30,8 +30,19 @@ public interface IRotationSink extends IBoneSink
     /** @return true if this bone also has an animation offset (model parts do, plain orientations do not). */
     boolean hasOffset();
 
+    /** @return the offset the bone is heading towards (the smoothing target). */
     IVec3fRead getOffset();
 
-    void setOffset(float x, float y, float z);
+    /**
+     * Sets a new offset target, as {@link IVectorSink#setVectorTarget} a vector's; a NaN component
+     * keeps that axis's current target. Unlike a vector's, an axis with no damping (NaN) in
+     * {@link IVectorSink.Mode#RETARGET} is applied as is: offsets are smoothed only while an item damps them.
+     */
+    void setOffsetTarget(float x, float y, float z, float smoothnessX, float smoothnessY, float smoothnessZ, IVectorSink.Mode mode, IVec3fRead start);
+
+    /** Restarts the offset's slide on the given axes from the current value (a target replaced within the frame). */
+    default void restartOffsetSlide(boolean x, boolean y, boolean z)
+    {
+    }
 
 }

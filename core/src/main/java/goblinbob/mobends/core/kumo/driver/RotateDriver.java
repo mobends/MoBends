@@ -5,7 +5,7 @@ import goblinbob.mobends.core.kumo.pose.*;
 import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import goblinbob.mobends.core.kumo.state.template.pose.AxisRotateTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.RotateTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.util.EnumAxis;
 
@@ -14,7 +14,7 @@ import goblinbob.mobends.core.util.EnumAxis;
  * (in degrees), composed in PRE or POST space: head-look, body-twist, compensating for a
  * parent's rotation. Its {@code when} is applied by the node, like every pose item's.
  */
-public class AxisRotateDriver implements IPoseItem
+public class RotateDriver implements IPoseItem
 {
 
     private final int slot;
@@ -25,7 +25,7 @@ public class AxisRotateDriver implements IPoseItem
     private final int[] written;
     private final Quaternion rotation = new Quaternion();
 
-    public AxisRotateDriver(int slot, EnumAxis axis, Expression angle, Pose.Space space, ItemEffects effects)
+    public RotateDriver(int slot, EnumAxis axis, Expression angle, Pose.Space space, ItemEffects effects)
     {
         this.slot = slot;
         this.axis = axis;
@@ -35,20 +35,20 @@ public class AxisRotateDriver implements IPoseItem
         this.written = new int[] { slot };
     }
 
-    public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, AxisRotateTemplate template) throws MalformedKumoTemplateException
+    public static IPoseItem create(IKumoInstancingContext context, Skeleton skeleton, RotateTemplate template) throws MalformedKumoTemplateException
     {
         if (template.bone == null)
         {
-            throw new MalformedKumoTemplateException("core:axis_rotate needs a 'bone'.");
+            throw new MalformedKumoTemplateException("core:rotate needs a 'bone'.");
         }
         if (template.axis == null)
         {
-            throw new MalformedKumoTemplateException("core:axis_rotate needs an 'axis' (X, Y or Z).");
+            throw new MalformedKumoTemplateException("core:rotate needs an 'axis' (X, Y or Z).");
         }
         Expression angle = Expression.compile(template.angle, context.getExpressionScope(), Expression.ZERO);
         Pose.Space space = template.space == null ? Pose.Space.PRE : template.space;
         ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.damping, template.vectorModes, template.snap);
-        return new AxisRotateDriver(skeleton.indexOf(template.bone), template.axis, angle, space, effects.isEmpty() ? null : effects);
+        return new RotateDriver(skeleton.indexOf(template.bone), template.axis, angle, space, effects.isEmpty() ? null : effects);
     }
 
     @Override

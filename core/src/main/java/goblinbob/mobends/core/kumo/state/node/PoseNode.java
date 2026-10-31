@@ -378,6 +378,7 @@ public class PoseNode implements INodeState
                 BoneTarget target = pose.get(slot);
                 target.snap = true;
                 target.vectorMode = IVectorSink.Mode.SNAP;
+                target.offsetMode = IVectorSink.Mode.SNAP;
             }
             state[snapPendingSlot] = 0;
         }

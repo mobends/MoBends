@@ -28,7 +28,7 @@ class AnchorDriverTest
         String json = "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'main', 'nodes': {'main': {"
                 + "'@define': {" + define + "'difference': {'state': 0}},"
                 + "'core:pose': {'pose': [{'core:anchor': {" + anchor + ", 'out': {'positionDifference': 'node.difference'}}},"
-                + "{'core:axis_rotate': {'bone': 'rightArm', 'axis': 'x', 'angle': {'mul': ['node.difference', 10]}}, '@space': 'override'}]}}}}]}";
+                + "{'core:rotate': {'bone': 'rightArm', 'axis': 'x', 'angle': {'mul': ['node.difference', 10]}}, '@space': 'override'}]}}}}]}";
         AnimatorTemplate template = KumoSerializer.INSTANCE.gson.fromJson(json.replace('\'', '"'), AnimatorTemplate.class);
         return new KumoSession(new Scenario(EntityKind.IRON_GOLEM, "anchor", Scenarios.FPS, ticks, script, setup), template).run().frames;
     }

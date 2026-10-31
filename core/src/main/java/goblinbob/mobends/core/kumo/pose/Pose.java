@@ -37,6 +37,7 @@ public class Pose
     private final Skeleton skeleton;
     private final BoneTarget[] targets;
     private final Quaternion temp = new Quaternion();
+    private final Vec3f offsetTemp = new Vec3f();
 
     /**
      * Whether an additive write to an empty slot composes onto the bone's live target (true for
@@ -390,11 +391,37 @@ public class Pose
         this.fallbackValues = values;
     }
 
+    /**
+     * Writes a part's offset. An OVERRIDE axis given as NaN isn't written: it keeps the value the bone
+     * has so far this frame, or its live target where nothing has written it (a layer pose leaves it
+     * NaN for the animator pose to fill when the layer is composited).
+     */
     public void composeOffset(int index, float x, float y, float z, Space space)
     {
         BoneTarget target = targets[index];
         if (space == Space.OVERRIDE)
         {
+            if ((Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z)) && offsetBeneath(index, offsetTemp))
+            {
+                if (Float.isNaN(x)) x = offsetTemp.x;
+                if (Float.isNaN(y)) y = offsetTemp.y;
+                if (Float.isNaN(z)) z = offsetTemp.z;
+            }
+            if (target.hasOffset && target.offsetMode == IVectorSink.Mode.SNAP)
+            {
+                // A snap followed by another write in the same frame: the new interpolation
+                // starts from the snapped value.
+                target.hasVectorStart = true;
+                target.vectorStart.set(target.offset);
+            }
+            else if (target.hasOffset)
+            {
+                // Two writers with different targets in one frame: the slide restarts from the
+                // current value.
+                if (!Float.isNaN(x) && x != target.offset.x) target.restartX = true;
+                if (!Float.isNaN(y) && y != target.offset.y) target.restartY = true;
+                if (!Float.isNaN(z) && z != target.offset.z) target.restartZ = true;
+            }
             target.offset.set(x, y, z);
             target.offsetAdditive = false;
         }
@@ -423,6 +450,23 @@ public class Pose
             target.offsetAdditive = true;
         }
         target.hasOffset = true;
+    }
+
+    /** What an OVERRIDE offset's unwritten axes keep (see {@link #composeOffset}); false where it isn't known. */
+    private boolean offsetBeneath(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasOffset && !target.offsetAdditive)
+        {
+            dest.set(target.offset);
+            return true;
+        }
+        boolean known = below != null ? below.absoluteOffset(index, dest) : absoluteOffset(index, dest);
+        if (known && target.hasOffset)
+        {
+            dest.add(target.offset.x, target.offset.y, target.offset.z);
+        }
+        return known;
     }
 
     public void composeVector(int index, float x, float y, float z, Space space)
@@ -505,7 +549,13 @@ public class Pose
                 }
                 if (target.hasOffset && rotationSink.hasOffset())
                 {
-                    rotationSink.setOffset(target.offset.x, target.offset.y, target.offset.z);
+                    rotationSink.setOffsetTarget(target.offset.x, target.offset.y, target.offset.z,
+                            target.offsetSmoothness.x, target.offsetSmoothness.y, target.offsetSmoothness.z,
+                            target.offsetMode, target.hasVectorStart ? target.vectorStart : null);
+                    if (target.offsetMode == IVectorSink.Mode.SLIDE && (target.restartX || target.restartY || target.restartZ))
+                    {
+                        rotationSink.restartOffsetSlide(target.restartX, target.restartY, target.restartZ);
+                    }
                 }
             }
 

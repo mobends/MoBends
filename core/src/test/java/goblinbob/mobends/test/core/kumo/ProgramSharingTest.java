@@ -30,10 +30,10 @@ public class ProgramSharingTest
             + "'@on': {'update': [{'@when': {'decreased': ['height']}, 'set': ['layer.drops', {'add': ['layer.drops', 1]}]}]}, "
             + "'defaultOnEntry': 'low', 'select': [{'when': 'animator.raised', 'then': 'high', 'transitionDuration': 3}, {'then': 'low', 'transitionDuration': 2}], "
             + "'nodes': {"
-            + "'low': {'core:pose': {'pose': [{'core:axis_rotate': {'bone': 'arm', 'axis': 'x', 'angle': {'mul': ['nodeTicksElapsed', 3]}}, '@space': 'override'}]}}, "
+            + "'low': {'core:pose': {'pose': [{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': {'mul': ['nodeTicksElapsed', 3]}}, '@space': 'override'}]}}, "
             + "'high': {'core:pose': {'pose': ["
             + "{'core:accumulate': {'inout': 'node.lift', 'rate': 4, 'max': 60}}, "
-            + "{'core:axis_rotate': {'bone': 'arm', 'axis': 'z', 'angle': {'add': ['node.lift', {'mul': ['layer.drops', 10]}]}}, '@space': 'override'}]}, "
+            + "{'core:rotate': {'bone': 'arm', 'axis': 'z', 'angle': {'add': ['node.lift', {'mul': ['layer.drops', 10]}]}}, '@space': 'override'}]}, "
             + "'@define': {'lift': {'state': 0}}}}}]}";
 
     private static float[] pose(TestSubject subject)

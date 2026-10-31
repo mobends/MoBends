@@ -35,7 +35,7 @@ public class DoubleTest
     private static String animator(String define, String functions, String update, String angle)
     {
         return "{'formatVersion': 2, 'layers': [{'@define': " + define + ", '@functions': " + functions + ", '@on': {'update': " + update + "}, "
-                + "'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': "
+                + "'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:rotate': "
                 + "{'bone': 'arm', 'axis': 'x', 'angle': " + angle + "}, '@space': 'override'}]}}}}]}";
     }
 

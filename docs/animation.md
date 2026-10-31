@@ -217,7 +217,7 @@ registry.registerDriver(KumoDriver.of("wag", WagTemplate.class, (template, args)
 A template's fields stay as written (`ExpressionTemplate`, bone and state names as strings) and
 the binder (`DriverBindArgs`) gives each its kind, so generating a driver's documentation from
 its template class would need the binder's knowledge. The other drivers stay `IPoseItem`s: the
-core pose writers (`core:axis_rotate`, `core:vector`, `core:offset`, `core:accumulate`) use the
+core pose writers (`core:rotate`, `core:translate`, `core:accumulate`) use the
 pose's internals (which bones an item wrote, for mirroring and the item modifiers), and Mo'
 Bends' own (the cape, the sword trail, the spider's legs) read the entity's components, which
 the API's `EvalContext` doesn't give. No driver keeps per-entity state in Java fields, so every

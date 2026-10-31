@@ -63,7 +63,7 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
         }
         if (kind == null)
         {
-            throw new JsonParseException("A pose item needs a key naming it (\"core:clip\" or a driver, such as \"core:axis_rotate\").");
+            throw new JsonParseException("A pose item needs a key naming it (\"core:clip\" or a driver, such as \"core:rotate\").");
         }
 
         String what = String.format("The pose item \"%s\"", kind);

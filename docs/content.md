@@ -136,8 +136,8 @@ Put the look on top of the clip with two drivers, yaw in the parent's space and 
 head's own space, after any clip that poses the head:
 
 ```json
-{"core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},   "@space": "pre"},
-{"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
+{"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},   "@space": "pre"},
+{"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"}
 ```
 
 A slight body twist towards the look is a third driver on `body` with

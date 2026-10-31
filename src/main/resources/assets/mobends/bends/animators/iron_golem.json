@@ -84,11 +84,11 @@
                 "@damping": {"head": 0.5, "body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
+              {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
@@ -141,16 +141,16 @@
                 }
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": 0},
+                "core:rotate": {"bone": "body", "axis": "x", "angle": 0},
                 "@space": "override",
                 "@damping": {"body": 0.5}
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "override",
                 "@damping": {"head": 0.5}
               },
-              {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
+              {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
               {
                 "@when": {"gt": ["entity.attackTimer", 0]},
                 "core:clip": {"animationKey": "mobends:bends/animations/iron_golem/attack.json", "frame": "entity.attackTimer"},
@@ -231,34 +231,34 @@
                     "@damping": {"rightArm": 0.5, "leftArm": 0.5, "rightForeArm": 0.5, "leftForeArm": 0.5}
                   },
                   {
-                    "core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": {"add": ["node.flare", 4]}},
+                    "core:rotate": {"bone": "rightArm", "axis": "z", "angle": {"add": ["node.flare", 4]}},
                     "@space": "pre"
                   },
                   {
-                    "core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": {"sub": [-4, "node.flare"]}},
+                    "core:rotate": {"bone": "leftArm", "axis": "z", "angle": {"sub": [-4, "node.flare"]}},
                     "@space": "pre"
                   },
-                  {"core:axis_rotate": {"bone": "rightArm", "axis": "x", "angle": "node.swing"}, "@space": "pre"},
-                  {"core:axis_rotate": {"bone": "leftArm", "axis": "x", "angle": "node.swing"}, "@space": "pre"},
+                  {"core:rotate": {"bone": "rightArm", "axis": "x", "angle": "node.swing"}, "@space": "pre"},
+                  {"core:rotate": {"bone": "leftArm", "axis": "x", "angle": "node.swing"}, "@space": "pre"},
                   {
-                    "core:axis_rotate": {"bone": "rightForeArm", "axis": "x", "angle": {"sub": [-8, {"mul": ["node.flare", 0.4]}]}},
+                    "core:rotate": {"bone": "rightForeArm", "axis": "x", "angle": {"sub": [-8, {"mul": ["node.flare", 0.4]}]}},
                     "@space": "post"
                   },
                   {
-                    "core:axis_rotate": {"bone": "leftForeArm", "axis": "x", "angle": {"sub": [-8, {"mul": ["node.flare", 0.4]}]}},
+                    "core:rotate": {"bone": "leftForeArm", "axis": "x", "angle": {"sub": [-8, {"mul": ["node.flare", 0.4]}]}},
                     "@space": "post"
                   },
                   {
-                    "core:axis_rotate": {"bone": "body", "axis": "x", "angle": "node.lean"},
+                    "core:rotate": {"bone": "body", "axis": "x", "angle": "node.lean"},
                     "@space": "override",
                     "@damping": {"body": 0.5}
                   },
                   {
-                    "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                    "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "override",
                     "@damping": {"head": 0.5}
                   },
-                  {"core:axis_rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
+                  {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
                   {
                     "@when": {"gt": ["entity.attackTimer", 0]},
                     "core:clip": {
@@ -359,17 +359,17 @@
                     "core:spring": {"inout": "node.foreX", "target": -6, "stiffness": 0.2, "friction": 0.3}
                   },
                   {
-                    "core:axis_rotate": {"bone": "centerRotation", "axis": "x", "angle": "node.lean"},
+                    "core:rotate": {"bone": "centerRotation", "axis": "x", "angle": "node.lean"},
                     "@space": "override",
                     "@snap": true
                   },
                   {
-                    "core:axis_rotate": {"bone": "centerRotation", "axis": "y", "angle": "node.squareUp"},
+                    "core:rotate": {"bone": "centerRotation", "axis": "y", "angle": "node.squareUp"},
                     "@space": "pre",
                     "@snap": true
                   },
                   {
-                    "core:axis_rotate": {
+                    "core:rotate": {
                       "bone": "rightLeg",
                       "axis": "x",
                       "angle": {
@@ -387,7 +387,7 @@
                     "@damping": {"rightLeg": 0.6}
                   },
                   {
-                    "core:axis_rotate": {
+                    "core:rotate": {
                       "bone": "rightForeLeg",
                       "axis": "x",
                       "angle": {
@@ -405,7 +405,7 @@
                     "@damping": {"rightForeLeg": 0.6}
                   },
                   {
-                    "core:axis_rotate": {
+                    "core:rotate": {
                       "bone": "leftLeg",
                       "axis": "x",
                       "angle": {
@@ -423,7 +423,7 @@
                     "@damping": {"leftLeg": 0.6}
                   },
                   {
-                    "core:axis_rotate": {
+                    "core:rotate": {
                       "bone": "leftForeLeg",
                       "axis": "x",
                       "angle": {
@@ -447,16 +447,16 @@
                     },
                     "@damping": {"rightArm": 0.6, "leftArm": 0.6, "rightForeArm": 0.6, "leftForeArm": 0.6}
                   },
-                  {"core:axis_rotate": {"bone": "rightArm", "axis": "x", "angle": "node.armX"}, "@space": "pre"},
-                  {"core:axis_rotate": {"bone": "leftArm", "axis": "x", "angle": "node.armX"}, "@space": "pre"},
-                  {"core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": 4}, "@space": "pre"},
-                  {"core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": -4}, "@space": "pre"},
+                  {"core:rotate": {"bone": "rightArm", "axis": "x", "angle": "node.armX"}, "@space": "pre"},
+                  {"core:rotate": {"bone": "leftArm", "axis": "x", "angle": "node.armX"}, "@space": "pre"},
+                  {"core:rotate": {"bone": "rightArm", "axis": "z", "angle": 4}, "@space": "pre"},
+                  {"core:rotate": {"bone": "leftArm", "axis": "z", "angle": -4}, "@space": "pre"},
                   {
-                    "core:axis_rotate": {"bone": "rightForeArm", "axis": "x", "angle": "node.foreX"},
+                    "core:rotate": {"bone": "rightForeArm", "axis": "x", "angle": "node.foreX"},
                     "@space": "post"
                   },
                   {
-                    "core:axis_rotate": {"bone": "leftForeArm", "axis": "x", "angle": "node.foreX"},
+                    "core:rotate": {"bone": "leftForeArm", "axis": "x", "angle": "node.foreX"},
                     "@space": "post"
                   },
                   {
@@ -506,17 +506,17 @@
                     }
                   },
                   {
-                    "core:axis_rotate": {"bone": "body", "axis": "x", "angle": 0},
+                    "core:rotate": {"bone": "body", "axis": "x", "angle": 0},
                     "@space": "override",
                     "@damping": {"body": 0.5}
                   },
                   {
-                    "core:axis_rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                    "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "override",
                     "@damping": {"head": 0.5}
                   },
                   {
-                    "core:axis_rotate": {
+                    "core:rotate": {
                       "bone": "head",
                       "axis": "x",
                       "angle": {
@@ -789,7 +789,7 @@
                 "core:spring": {"inout": "node.landKick", "target": "node.landing", "stiffness": 0.3, "friction": 0.35}
               },
               {
-                "core:axis_rotate": {"bone": "renderRotation", "axis": "z", "angle": "node.vanillaRock"},
+                "core:rotate": {"bone": "renderRotation", "axis": "z", "angle": "node.vanillaRock"},
                 "@space": "override",
                 "@snap": true
               },
@@ -857,7 +857,7 @@
                 "core:spring": {"inout": "node.armSwing", "target": "node.stride", "stiffness": 0.1, "friction": 0.25}
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "head",
                   "axis": "y",
                   "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}
@@ -865,19 +865,19 @@
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", 4]}, "node.onFeet"]}},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", 4]}, "node.onFeet"]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", 2]}, "node.onFeet"]}},
+                "core:rotate": {"bone": "body", "axis": "x", "angle": {"mul": [{"mul": ["node.jolt", 2]}, "node.onFeet"]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
+                "core:rotate": {"bone": "body", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "rightArm",
                   "axis": "x",
                   "angle": {"mul": [{"mul": ["node.armLag", -2.5]}, "node.onFeet"]}
@@ -885,11 +885,11 @@
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "x", "angle": {"mul": [{"mul": ["node.armLag", 2.5]}, "node.onFeet"]}},
+                "core:rotate": {"bone": "leftArm", "axis": "x", "angle": {"mul": [{"mul": ["node.armLag", 2.5]}, "node.onFeet"]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "rightArm",
                   "axis": "z",
                   "angle": {"mul": [{"add": [{"mul": ["node.jolt", 5]}, {"mul": ["node.armSway", -4]}]}, "node.onFeet"]}
@@ -897,7 +897,7 @@
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "leftArm",
                   "axis": "z",
                   "angle": {"mul": [{"add": [{"mul": ["node.jolt", -5]}, {"mul": ["node.armSway", -4]}]}, "node.onFeet"]}
@@ -905,15 +905,15 @@
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
+                "core:rotate": {"bone": "rightArm", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
+                "core:rotate": {"bone": "leftArm", "axis": "y", "angle": {"mul": ["node.twist", "node.onFeet"]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "rightForeArm",
                   "axis": "x",
                   "angle": {"mul": [{"mul": ["node.jolt", -12]}, "node.onFeet"]}
@@ -921,7 +921,7 @@
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "leftForeArm",
                   "axis": "x",
                   "angle": {"mul": [{"mul": ["node.jolt", -12]}, "node.onFeet"]}
@@ -929,7 +929,7 @@
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "leftArm",
                   "axis": "x",
                   "angle": {"mul": [{"mul": ["node.armSwing", 3.5]}, "node.onFeet"]}
@@ -937,7 +937,7 @@
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {
+                "core:rotate": {
                   "bone": "rightArm",
                   "axis": "x",
                   "angle": {"mul": [{"mul": ["node.armSwing", -3.5]}, "node.onFeet"]}
@@ -946,53 +946,53 @@
               },
               {
                 "@when": {"not": ["animator.climbing"]},
-                "core:axis_rotate": {"bone": "centerRotation", "axis": "x", "angle": 0},
+                "core:rotate": {"bone": "centerRotation", "axis": "x", "angle": 0},
                 "@space": "override",
                 "@damping": {"centerRotation": 0.3}
               },
               {
                 "@when": {"not": ["animator.climbing"]},
-                "core:vector": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1.5]}, "z": 0},
+                "core:translate": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1.5]}, "z": 0},
                 "@damping": {"root": [0.2, null, 0.2]}
               },
               {
-                "core:axis_rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.landKick", 5]}},
+                "core:rotate": {"bone": "body", "axis": "x", "angle": {"mul": ["node.landKick", 5]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "head", "axis": "x", "angle": {"mul": ["node.landKick", 6]}},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": {"mul": ["node.landKick", 6]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "rightArm", "axis": "z", "angle": {"mul": ["node.landKick", 6]}},
+                "core:rotate": {"bone": "rightArm", "axis": "z", "angle": {"mul": ["node.landKick", 6]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "leftArm", "axis": "z", "angle": {"mul": ["node.landKick", -6]}},
+                "core:rotate": {"bone": "leftArm", "axis": "z", "angle": {"mul": ["node.landKick", -6]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "rightForeArm", "axis": "x", "angle": {"mul": ["node.landKick", -14]}},
+                "core:rotate": {"bone": "rightForeArm", "axis": "x", "angle": {"mul": ["node.landKick", -14]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "leftForeArm", "axis": "x", "angle": {"mul": ["node.landKick", -14]}},
+                "core:rotate": {"bone": "leftForeArm", "axis": "x", "angle": {"mul": ["node.landKick", -14]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "rightLeg", "axis": "x", "angle": {"mul": ["node.landKick", -18]}},
+                "core:rotate": {"bone": "rightLeg", "axis": "x", "angle": {"mul": ["node.landKick", -18]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "leftLeg", "axis": "x", "angle": {"mul": ["node.landKick", -18]}},
+                "core:rotate": {"bone": "leftLeg", "axis": "x", "angle": {"mul": ["node.landKick", -18]}},
                 "@space": "pre"
               },
               {
-                "core:axis_rotate": {"bone": "rightForeLeg", "axis": "x", "angle": {"mul": ["node.landKick", 30]}},
+                "core:rotate": {"bone": "rightForeLeg", "axis": "x", "angle": {"mul": ["node.landKick", 30]}},
                 "@space": "post"
               },
               {
-                "core:axis_rotate": {"bone": "leftForeLeg", "axis": "x", "angle": {"mul": ["node.landKick", 30]}},
+                "core:rotate": {"bone": "leftForeLeg", "axis": "x", "angle": {"mul": ["node.landKick", 30]}},
                 "@space": "post"
               }
             ]

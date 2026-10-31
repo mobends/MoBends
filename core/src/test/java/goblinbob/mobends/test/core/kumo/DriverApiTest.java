@@ -88,7 +88,7 @@ public class DriverApiTest
     {
         return "{'formatVersion': 2, '@define': {'total': {'state': 0}, 'frames': {'state': 0}, 'position': {'state': {'toDouble': [0]}}}, 'layers': [{'defaultOnEntry': 'a', "
                 + "'nodes': {'a': {'core:pose': {'pose': [{'test:raise': " + raise + "}, "
-                + "{'core:axis_rotate': {'bone': 'leg', 'axis': 'x', 'angle': {'add': ['animator.total', {'mul': ['animator.frames', 10]}]}}, '@space': 'override'}]}, "
+                + "{'core:rotate': {'bone': 'leg', 'axis': 'x', 'angle': {'add': ['animator.total', {'mul': ['animator.frames', 10]}]}}, '@space': 'override'}]}, "
                 + "'@connections': [{'when': {'ge': ['nodeTicksElapsed', " + restartAfter + "]}, 'then': 'a'}]}}}]}";
     }
 
@@ -136,7 +136,7 @@ public class DriverApiTest
     {
         return "{'formatVersion': 2, '@define': {'position': {'state': {'toDouble': [10000000]}}, 'start': {'state': {'toDouble': [0]}}, 'total': {'state': 0}}, "
                 + "'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'test:track': " + track + "}, "
-                + "{'core:axis_rotate': {'bone': 'arm', 'axis': 'x', 'angle': {'mul': [{'toFloat': [{'sub': ['animator.position', 'animator.start']}]}, 100]}}, "
+                + "{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': {'mul': [{'toFloat': [{'sub': ['animator.position', 'animator.start']}]}, 100]}}, "
                 + "'@space': 'override'}]}}}}]}";
     }
 

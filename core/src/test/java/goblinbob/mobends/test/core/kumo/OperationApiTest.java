@@ -65,7 +65,7 @@ public class OperationApiTest
     /** Poses 'arm' about X by {@code angle} degrees, in the node 'a', which restarts after {@code restartAfter} ticks. */
     private static String posing(String angle, int restartAfter)
     {
-        return "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:axis_rotate': "
+        return "{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'pose': [{'core:rotate': "
                 + "{'bone': 'arm', 'axis': 'x', 'angle': " + angle + "}, '@space': 'override'}]}, "
                 + "'@connections': [{'when': {'ge': ['nodeTicksElapsed', " + restartAfter + "]}, 'then': 'a'}]}}}]}";
     }

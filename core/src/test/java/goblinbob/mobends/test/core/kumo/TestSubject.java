@@ -6,6 +6,7 @@ import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.OrientationSink;
+import goblinbob.mobends.core.kumo.bind.VectorSink;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
@@ -13,6 +14,7 @@ import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.SmoothOrientation;
+import goblinbob.mobends.core.math.vector.SmoothVector3f;
 import goblinbob.mobends.core.math.vector.Vec3f;
 
 import java.util.ArrayList;
@@ -50,6 +52,11 @@ class TestSubject implements IKumoSubject
     }
 
     final Map<String, SmoothOrientation> bones = new HashMap<>();
+    /** Each bone's offset, and its smoothing (see {@link #updateOffsets}). */
+    final Map<String, Vec3f> offsets = new HashMap<>();
+    final Map<String, SmoothVector3f> offsetSmoothings = new HashMap<>();
+    /** The entity-level root vector. */
+    final SmoothVector3f root = new SmoothVector3f();
     final Map<String, Double> variables = new HashMap<>();
     final Map<String, Boolean> states = new HashMap<>();
     /** What {@code field} reads. */
@@ -60,6 +67,22 @@ class TestSubject implements IKumoSubject
         for (String name : boneNames)
         {
             bones.put(name, new SmoothOrientation());
+            offsets.put(name, new Vec3f());
+            offsetSmoothings.put(name, new SmoothVector3f());
+        }
+    }
+
+    /** Moves the offsets along their smoothing, as a model part's update does. */
+    void updateOffsets(float ticksPerFrame)
+    {
+        for (Map.Entry<String, SmoothVector3f> entry : offsetSmoothings.entrySet())
+        {
+            SmoothVector3f smoothing = entry.getValue();
+            if (smoothing.isMoving())
+            {
+                smoothing.update(ticksPerFrame);
+                offsets.get(entry.getKey()).set(smoothing.getX(), smoothing.getY(), smoothing.getZ());
+            }
         }
     }
 
@@ -72,8 +95,12 @@ class TestSubject implements IKumoSubject
     @Override
     public IBoneSink getBone(String name)
     {
+        if ("root".equals(name))
+        {
+            return new VectorSink(root);
+        }
         SmoothOrientation bone = bones.get(name);
-        return bone == null ? null : new OrientationSink(bone, new Vec3f());
+        return bone == null ? null : new OrientationSink(bone, offsets.get(name), offsetSmoothings.get(name));
     }
 
     @Override

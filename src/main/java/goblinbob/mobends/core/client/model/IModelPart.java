@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.model;
 
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.IVec3f;
+import goblinbob.mobends.core.math.vector.SmoothVector3f;
 
 public interface IModelPart
 {
@@ -52,11 +53,25 @@ public interface IModelPart
 	void renderPart(float scale);
 	void renderJustPart(float scale);
 	void update(float ticksPerFrame);
+
+	/** Moves the offset along its smoothing, while it has somewhere to go; called from {@link #update}. */
+	default void updateOffset(float ticksPerFrame)
+	{
+		SmoothVector3f smoothing = this.getOffsetSmoothing();
+		if (smoothing.isMoving())
+		{
+			smoothing.update(ticksPerFrame);
+			this.getOffset().set(smoothing.getX(), smoothing.getY(), smoothing.getZ());
+		}
+	}
+
 	void syncUp(IModelPart part);
 	void setVisible(boolean showModel);
 	IVec3f getPosition();
 	IVec3f getScale();
 	IVec3f getOffset();
+	/** Where the animators smooth the offset towards its target; {@link #updateOffset} carries it into {@link #getOffset}. */
+	SmoothVector3f getOffsetSmoothing();
 	SmoothOrientation getRotation();
 	float getOffsetScale();
 	IVec3f getGlobalOffset();

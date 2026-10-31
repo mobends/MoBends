@@ -8,18 +8,17 @@ import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.AccumulateTemplate;
-import goblinbob.mobends.core.kumo.state.template.pose.AxisRotateTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
-import goblinbob.mobends.core.kumo.state.template.pose.OffsetTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.RotateTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.SpringTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.StepTurnTemplate;
-import goblinbob.mobends.core.kumo.state.template.pose.VectorTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.TranslateTemplate;
 
 import javax.annotation.Nullable;
 
 /**
  * Computed pose items ("drivers") addressable from animator JSON by key, e.g.
- * {@code {"core:axis_rotate": {...}}}. Addons register their own the same way
+ * {@code {"core:rotate": {...}}}. Addons register their own the same way
  * conditions are registered.
  */
 public class DriverRegistry
@@ -31,10 +30,9 @@ public class DriverRegistry
 
     private DriverRegistry()
     {
-        register("core:axis_rotate", AxisRotateDriver::create, AxisRotateTemplate.class);
-        register("core:vector", VectorDriver::create, VectorTemplate.class);
+        register("core:rotate", RotateDriver::create, RotateTemplate.class);
+        register("core:translate", TranslateDriver::create, TranslateTemplate.class);
         register("core:accumulate", AccumulateDriver::create, AccumulateTemplate.class);
-        register("core:offset", OffsetDriver::create, OffsetTemplate.class);
         register(SpringDriver.DRIVER);
         register(StepTurnDriver.DRIVER);
         register(AnchorDriver.DRIVER);
