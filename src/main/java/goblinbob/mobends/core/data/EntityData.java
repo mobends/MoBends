@@ -72,6 +72,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
 
     /** Animates the entity: its type's animator, or else {@link #getDefaultAnimator()}. */
     private KumoAnimatorController animator;
+    /** The frame the animator last ran in (see {@link DataUpdateHandler#frame}). */
+    private int animatedFrame = -1;
 
     /**
      * Only stores the entity: the parts and the animator bindings are made by {@link #initialize()},
@@ -389,14 +391,26 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         this.animator = new KumoAnimatorController(getEntityScope(), animator != null ? animator : getDefaultAnimator(), extensions);
     }
 
-    /** Runs the entity's animator for this frame. */
-    public void animate()
+    /**
+     * Runs the entity's animator for this frame, once: drawn again in the same frame (the player in
+     * the inventory), the entity shows the pose it already has, as its animators keep state (where
+     * the feet stand) that a second run would advance twice, with what that draw sets up.
+     *
+     * @return False if the animator already ran this frame.
+     */
+    public boolean animate()
     {
+        if (animatedFrame == DataUpdateHandler.frame)
+        {
+            return false;
+        }
+        animatedFrame = DataUpdateHandler.frame;
         if (animator == null)
         {
             setAnimator(null, Collections.emptyList());
         }
         animator.animate(this);
+        return true;
     }
 
     /** True when the entity's animator asks for the vanilla model and animation right now (a {@code core:vanilla} node). */

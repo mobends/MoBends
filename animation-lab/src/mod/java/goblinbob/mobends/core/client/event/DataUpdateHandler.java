@@ -2,13 +2,15 @@ package goblinbob.mobends.core.client.event;
 
 /**
  * LAB SHIM. Replaces the mod's Forge event handler. Holds exactly the same static state the
- * animation code reads (partialTicks, ticks, ticksPerFrame); the lab clock drives it.
+ * animation code reads (partialTicks, ticks, ticksPerFrame, frame); the lab clock drives it.
  */
 public class DataUpdateHandler
 {
     public static float partialTicks = 0.0f;
     protected static float ticks = 0.0f;
     public static float ticksPerFrame = 0.0f;
+    /** Counts the frames; the lab clock advances it as each one begins. */
+    public static int frame = 0;
 
     public static float getTicks()
     {
@@ -27,5 +29,6 @@ public class DataUpdateHandler
         partialTicks = 0.0f;
         ticks = 0.0f;
         ticksPerFrame = 0.0f;
+        frame = 0;
     }
 }

@@ -51,6 +51,7 @@ public class LabClock
         DataUpdateHandler.partialTicks = partial;
         DataUpdateHandler.ticksPerFrame = frame == 0 ? 0.0F : Math.min(Math.max(0.0F, now - previous), 1.0F);
         DataUpdateHandler.setTicks(now);
+        ++DataUpdateHandler.frame;
 
         int ticksStarted = tick - lastTick;
         lastTick = tick;
