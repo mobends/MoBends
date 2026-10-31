@@ -117,6 +117,34 @@ public class KumoAnimatorStateTest
     }
 
     @Test
+    public void aCubicEasingShapesTheCrossFade() throws MalformedKumoTemplateException
+    {
+        assertCrossFadeAt("ease_in_quad", 5, 0.25F);
+        assertCrossFadeAt("ease_in_cubic", 5, 0.125F);
+        assertCrossFadeAt("ease_out_cubic", 5, 0.875F);
+        assertCrossFadeAt("ease_in_out_cubic", 3, 0.108F);
+        assertCrossFadeAt("ease_in_out_cubic", 7, 0.892F);
+    }
+
+    /** {@code ticks} into a 10-tick crossfade from 0 to 90 degrees eased by {@code easing}, the arm is {@code share} of the way. */
+    private static void assertCrossFadeAt(String easing, int ticks, float share) throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"from\", "
+                + "\"nodes\": {\"from\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"arm\", \"axis\": \"x\", "
+                + "\"angle\": 0}, \"@space\": \"override\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 2]}, "
+                + "\"then\": \"to\", \"transitionDuration\": 10, \"transitionEasing\": \"" + easing + "\"}]}, "
+                + "\"to\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"arm\", \"axis\": \"x\", \"angle\": 90}, "
+                + "\"@space\": \"override\"}]}}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        // Three frames in the first node, the one the transition starts on, then the ticks into it.
+        for (int frame = 0; frame < 4 + ticks; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 90 * share), subject.target("arm"));
+    }
+
+    @Test
     public void anUnknownBareNameFailsTheAnimatorWhenItLoads()
     {
         // Read only by a node the layer never reaches, and only in a connection: still an error.

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * Reads every enum the format names as lower_snake_case ({@code "pre"}, {@code "ease_in_out"},
+ * Reads every enum the format names as lower_snake_case ({@code "pre"}, {@code "ease_in_out_quad"},
  * {@code "x"}): the format's words are lower case, as operation choices and registry ids are.
  */
 public final class LowerCaseEnums implements TypeAdapterFactory

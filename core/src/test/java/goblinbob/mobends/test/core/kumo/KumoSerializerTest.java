@@ -80,6 +80,7 @@ public class KumoSerializerTest
         assertRefused("has no \"then\"", "{\"select\": [{\"when\": \"x\"}], " + a + "}");
         assertRefused("a name or a list of branches", "{\"select\": [{\"then\": 1}], " + a + "}");
         assertRefused("unknown value 'x'", "{\"select\": [{\"then\": \"a\", \"transitionEasing\": \"x\"}], " + a + "}");
+        assertRefused("unknown value 'ease_in_out'", "{\"select\": [{\"then\": \"a\", \"transitionEasing\": \"ease_in_out\"}], " + a + "}");
         assertRefused("\"machines\" has to be an object", "{\"machines\": [], " + a + "}");
         assertRefused("Unknown node type: \"x:y\"", "{\"machines\": {\"m\": {\"nodes\": {\"b\": {\"x:y\": {}}}}}, " + a + "}");
     }

@@ -84,7 +84,7 @@ public class LayerState
         this.currentSlot = layout.ints(1, machine.initialNode().index);
         this.previousSlot = layout.ints(1, -1);
         this.snapshotSlot = layout.ints(1, 0);
-        this.easingSlot = layout.ints(1, ConnectionTemplate.Easing.EASE_IN_OUT.ordinal());
+        this.easingSlot = layout.ints(1, ConnectionTemplate.Easing.EASE_IN_OUT_QUAD.ordinal());
         this.justStartedSlot = layout.ints(1, 0);
         this.enabledSlot = layout.ints(1, 1);
         this.pendingExitSlot = layout.ints(machines.size(), 0);
@@ -536,14 +536,18 @@ public class LayerState
         if (t > 1) t = 1;
         switch (EASINGS[context.getState().ints[easingSlot]])
         {
-            case EASE_IN:
+            case EASE_IN_QUAD:
                 return (float) Tween.easeIn(t, 2.0);
-            case EASE_OUT:
+            case EASE_OUT_QUAD:
                 return (float) Tween.easeOut(t, 2.0);
-            case EASE_IN_OUT:
+            case EASE_IN_OUT_QUAD:
                 return (float) Tween.easeInOut(t, 2.0);
-            case EXPONENTIAL:
-                return (float) ((1.0 - Math.exp(-4.0 * t)) / (1.0 - Math.exp(-4.0)));
+            case EASE_IN_CUBIC:
+                return (float) Tween.easeIn(t, 3.0);
+            case EASE_OUT_CUBIC:
+                return (float) Tween.easeOut(t, 3.0);
+            case EASE_IN_OUT_CUBIC:
+                return (float) Tween.easeInOut(t, 3.0);
             case LINEAR:
             default:
                 return t;

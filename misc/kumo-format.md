@@ -50,7 +50,7 @@ How the three kinds of construct compare:
 | state | an edge trigger's memory, per place | the state it names | its own, and the states its `inout` / `out` name |
 
 **The format's words are lower case**: every fixed set of values (`@space` `pre`, an `axis` `x`,
-a layer `mode` `additive`, a `transitionEasing` `ease_in_out`, a hinge `front`) is written in
+a layer `mode` `additive`, a `transitionEasing` `ease_in_out_quad`, a hinge `front`) is written in
 lower_snake_case, as registered names and operations' choices are; `"PRE"` is an error. A map from bones
 to values (`@smoothing`, `additiveSpace`) names the value for every other bone `@default`, so any
 bone name can be a key.
@@ -218,7 +218,7 @@ A connection is written like a selector branch:
 
 ```json
 {"when": "machine.attacked", "then": "slash_down", "transitionDuration": 0,
- "transitionEasing": "ease_in_out", "do": [{"set": ["layer.combo", 2]}]}
+ "transitionEasing": "ease_in_out_quad", "do": [{"set": ["layer.combo", 2]}]}
 ```
 
 * `when` is its condition, and `then` any node or machine of the layer: a machine is entered as
@@ -227,9 +227,10 @@ A connection is written like a selector branch:
 * `do` is a statement list, run when the connection fires (see *Definitions and statements*).
   `transitionDuration` (ticks)
   crossfades (an interrupted crossfade continues from what was on screen); easings `linear`,
-  `ease_in`, `ease_out`, `ease_in_out` (the default), `exponential`. Where one side of a crossfade
-  poses a bone absolutely and the other only relatively (`pre` / `post`, additive), the relative one
-  is first resolved against the layers below, so both are blended as absolute values.
+  `ease_in_quad`, `ease_out_quad`, `ease_in_out_quad` (the default), `ease_in_cubic`,
+  `ease_out_cubic`, `ease_in_out_cubic`. Where one side of a crossfade poses a bone absolutely and
+  the other only relatively (`pre` / `post`, additive), the relative one is first resolved against
+  the layers below, so both are blended as absolute values.
 
 ### Every frame
 

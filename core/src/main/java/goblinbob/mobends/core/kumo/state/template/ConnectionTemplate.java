@@ -17,7 +17,7 @@ public class ConnectionTemplate
     /** The duration of the transition in ticks. */
     public float transitionDuration = 0;
 
-    public Easing transitionEasing = Easing.EASE_IN_OUT;
+    public Easing transitionEasing = Easing.EASE_IN_OUT_QUAD;
 
     /** Statements run when the connection fires (JSON {@code do}), before the scopes it enters start. */
     public List<StatementTemplate> run;
@@ -25,11 +25,12 @@ public class ConnectionTemplate
     public enum Easing
     {
         LINEAR,
-        EASE_IN,
-        EASE_OUT,
-        EASE_IN_OUT,
-        /** 1 - e^(-4t): the step response of the bones' exponential smoothing. */
-        EXPONENTIAL,
+        EASE_IN_QUAD,
+        EASE_OUT_QUAD,
+        EASE_IN_OUT_QUAD,
+        EASE_IN_CUBIC,
+        EASE_OUT_CUBIC,
+        EASE_IN_OUT_CUBIC,
     }
 
 }

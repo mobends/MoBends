@@ -36,7 +36,7 @@ public class Selector
      */
     public static Selector create(List<BranchTemplate> templates, MachineState machine, Map<String, MachineMember> membersByName, ExpressionScope scope) throws MalformedKumoTemplateException
     {
-        return new Selector(createBranches(templates, machine, membersByName, scope, 0F, ConnectionTemplate.Easing.EASE_IN_OUT, Collections.<StatementTemplate>emptyList()));
+        return new Selector(createBranches(templates, machine, membersByName, scope, 0F, ConnectionTemplate.Easing.EASE_IN_OUT_QUAD, Collections.<StatementTemplate>emptyList()));
     }
 
     private static List<Branch> createBranches(List<BranchTemplate> templates, MachineState machine, Map<String, MachineMember> membersByName, ExpressionScope scope,

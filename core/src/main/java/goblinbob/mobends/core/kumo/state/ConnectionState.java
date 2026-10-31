@@ -47,7 +47,7 @@ public class ConnectionState implements ITransition
         return new ConnectionState(target,
                 Expression.compileCondition(template.when, scope),
                 template.transitionDuration,
-                template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT : template.transitionEasing,
+                template.transitionEasing == null ? ConnectionTemplate.Easing.EASE_IN_OUT_QUAD : template.transitionEasing,
                 StatementList.compile(template.run, scope));
     }
 
