@@ -5,11 +5,21 @@
 The *Customize* entry of the Mo' Bends menu (`GuiBendsMenu`) is meant to open the web animation
 editor, which is in the works. It opens the `officialAnimationEditorUrl` of
 [static-api.json](https://github.com/mobends/mobends-resources/blob/master/static-api.json)
-(`EditorLink`), currently `https://mobends.com/roadmap`, which is also the fallback.
+(`WebLink.EDITOR`), currently `https://mobends.com/roadmap`, which is also the fallback.
 
 - [ ] Point `officialAnimationEditorUrl` at the web editor once it is live (no release needed).
 - [ ] Decide how animations made in the editor get into the game (a resource pack to download, or
       something the mod fetches).
+
+## Supporters
+
+The *Supporters* entry of the Mo' Bends menu (`GuiSupportersWindow`) shows every supporter
+accessory on the player. Its buttons open the `supportUrl` and `accountUrl` of
+[static-api.json](https://github.com/mobends/mobends-resources/blob/master/static-api.json)
+(`WebLink.SUPPORT`, `WebLink.ACCOUNT`); until they are there, both open `https://mobends.com`.
+
+- [ ] Add `supportUrl` (the Patreon page) and `accountUrl` (the mobends.com login) to static-api.json.
+- [ ] Show the tiers (one-time collection, subscription, editor tier) once they exist.
 
 ## Animations
 

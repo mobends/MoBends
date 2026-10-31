@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.http.conn.HttpHostConnectException;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -27,6 +28,8 @@ public class SupporterContent
     private final String apiUrl;
     private final Map<String, AccessoryDetails> accessoryDetailsMap = new HashMap<>();
     private final Map<String, PlayerSettingsResponse> accessorySettingsPerPlayer = new HashMap<>();
+    /** What the previews of the Supporters window wear, whatever their player has unlocked. */
+    private final Map<EntityLivingBase, Map<String, AccessorySettings>> previewAccessories = new WeakHashMap<>();
 
     private SupporterContent()
     {
@@ -75,6 +78,24 @@ public class SupporterContent
         }
     }
 
+    /** Drops the player's settings, so they are fetched anew (after becoming a supporter, say). */
+    public static void forgetPlayer(String playerName)
+    {
+        synchronized (INSTANCE.accessorySettingsPerPlayer)
+        {
+            INSTANCE.accessorySettingsPerPlayer.remove(playerName);
+        }
+    }
+
+    /** Dresses a preview entity in {@code settings} instead of what its player has; null undresses it. */
+    public static void setPreviewAccessories(EntityLivingBase entity, @Nullable Map<String, AccessorySettings> settings)
+    {
+        if (settings == null)
+            INSTANCE.previewAccessories.remove(entity);
+        else
+            INSTANCE.previewAccessories.put(entity, settings);
+    }
+
     public static Set<Map.Entry<String, AccessoryDetails>> getAccessories()
     {
         return Collections.unmodifiableSet(INSTANCE.accessoryDetailsMap.entrySet());
@@ -82,6 +103,12 @@ public class SupporterContent
 
     public static Map<String, AccessorySettings> getAccessorySettingsMapFor(EntityLivingBase entity)
     {
+        final Map<String, AccessorySettings> previewSettings = INSTANCE.previewAccessories.get(entity);
+        if (previewSettings != null)
+        {
+            return previewSettings;
+        }
+
         final String name = entity.getName();
 
         PlayerSettingsResponse settings;
