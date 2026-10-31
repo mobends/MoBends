@@ -18,6 +18,7 @@ public class HumanoidLimbWrapper implements IPartWrapper
     protected IPartWrapper.ModelPartSetter modelPartSetter;
     private final IPartWrapper.DataPartSelector lowerPartDataSelector;
     private final float inflation;
+    private final float cutPlane;
 
     private ModelPart upperPart;
     private ModelPart upperPartAnchor;
@@ -38,6 +39,7 @@ public class HumanoidLimbWrapper implements IPartWrapper
         this.lowerPartDataSelector = lowerPartDataSelector;
         this.modelPartSetter = modelPartSetter;
         this.inflation = inflation;
+        this.cutPlane = cutPlane;
 
         if (vanillaPart instanceof PartContainer)
         {
@@ -149,6 +151,28 @@ public class HumanoidLimbWrapper implements IPartWrapper
 
         vanillaPart.isHidden = upperPart.isHidden;
         vanillaPart.showModel = upperPart.showModel;
+    }
+
+    @Override
+    public void applyTransform(float scale)
+    {
+        // The anchors and the lower part are the upper part's children, drawn in its frame.
+        upperPart.applyCharacterTransform(scale);
+        upperPartAnchor.applyCharacterTransform(scale);
+    }
+
+    @Override
+    public void applyLowerTransform(float scale)
+    {
+        upperPart.applyCharacterTransform(scale);
+        lowerPart.applyCharacterTransform(scale);
+        lowerPartAnchor.applyCharacterTransform(scale);
+    }
+
+    @Override
+    public float getCutPlane()
+    {
+        return cutPlane;
     }
 
     @Override

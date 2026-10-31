@@ -46,6 +46,24 @@ point on it. A definition replaces its bones' vanilla parts in that list with
 part's are (a mutated box leaves vanilla's bounds at 0), and its `postRender` is the part's posed
 transform, so an arrow sticks where the part is drawn (`ArrowAnchorTest`).
 
+## Armour
+
+`LayerCustomBipedArmor` replaces vanilla's armour layer. The armour model an item asks for
+(Forge's `getArmorModel`) is wrapped in an `ArmorWrapper` (one per model, `ArmorModelFactory`),
+which follows the entity's `body`, `head`, arms and legs and their fore segments: a part wrapper
+per vanilla part (`HumanoidPartWrapper`; `HumanoidLimbWrapper` cuts a limb's boxes at the elbow or
+the knee, its *cut plane*) is synced with the entity's parts and swapped into the model while it
+renders.
+
+An armour model that doesn't draw its parts' boxes can't be posed that way. An `IArmorGeometry`
+draws it instead, into the part wrappers' frames (`IPartWrapper.applyTransform`,
+`applyLowerTransform` below the cut plane), with its faces as `ArmorMesh`es cut at the same
+planes. GeckoLib's armour (`standard/compat/geckolib`) is one: its faces are put where they are on
+a vanilla model at rest, each armour bone (and the bones below it) in its part, and GeckoLib's own
+animation of the armour still runs. GeckoLib is optional: only `GeckoLibCompat` is reached
+without it, and it reaches the rest when GeckoLib's classes are there. The build compiles against
+it (`compileOnly`); `-Pwith_geckolib` adds it, with its example armour, to the development client.
+
 ## Skeleton / Model Parts
 
 `IModelPart` — a node in the animated skeleton:

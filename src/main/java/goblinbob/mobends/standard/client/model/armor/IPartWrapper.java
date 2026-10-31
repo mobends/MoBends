@@ -14,6 +14,25 @@ public interface IPartWrapper
     public IPartWrapper offsetInner(float x, float y, float z);
     public IPartWrapper setParent(IModelPart parent);
 
+    /**
+     * Moves GL into the frame the vanilla part's boxes are drawn in, as posed: a point of the part
+     * (in its vanilla coordinates, times {@code scale}) is then drawn where the animated part has it.
+     * For a part cut in two, the frame of the segment above {@link #getCutPlane}.
+     */
+    public void applyTransform(float scale);
+
+    /** Moves GL into the frame of the segment below {@link #getCutPlane}; a part in one piece has only {@link #applyTransform}'s. */
+    public default void applyLowerTransform(float scale)
+    {
+        applyTransform(scale);
+    }
+
+    /** Where the part is cut in two (the elbow, the knee), along its vanilla y; {@code NaN} for a part in one piece. */
+    public default float getCutPlane()
+    {
+        return Float.NaN;
+    }
+
     @FunctionalInterface
     public interface DataPartSelector
     {
