@@ -114,7 +114,17 @@
                   "animationKey": "mobends:bends/animations/spider/jump.json",
                   "bones": ["leg1", "leg2", "leg3", "leg4", "leg5", "leg6", "leg7", "leg8"]
                 },
-                "@smoothing": {"leg1": 1, "leg2": 1, "leg3": 1, "leg4": 1, "leg5": 1, "leg6": 1, "leg7": 1, "leg8": 1}
+                "@smoothing": {
+                  "leg1": 1,
+                  "leg2": 1,
+                  "leg3": 1,
+                  "leg4": 1,
+                  "leg5": 1,
+                  "leg6": 1,
+                  "leg7": 1,
+                  "leg8": 1,
+                  "renderRotation": 1.67
+                }
               },
               {
                 "core:rotate": {

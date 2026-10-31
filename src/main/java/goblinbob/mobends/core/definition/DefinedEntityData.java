@@ -110,22 +110,24 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
         if (Skeleton.ROOT.equals(name) || Skeleton.GLOBAL_OFFSET.equals(name))
         {
             globalOffset.smoothing.set(smoothing, smoothing, smoothing);
+            globalOffset.baseSmoothing.set(smoothing, smoothing, smoothing);
             return true;
         }
         if (Skeleton.LOCAL_OFFSET.equals(name))
         {
             localOffset.smoothing.set(smoothing, smoothing, smoothing);
+            localOffset.baseSmoothing.set(smoothing, smoothing, smoothing);
             return true;
         }
         Object part = getPartForName(name);
         if (part instanceof ModelPartTransform)
         {
-            ((ModelPartTransform) part).rotation.setSmoothing(smoothing);
+            ((ModelPartTransform) part).rotation.setSmoothing(smoothing).setBaseSmoothing(smoothing);
             return true;
         }
         if (part instanceof SmoothOrientation)
         {
-            ((SmoothOrientation) part).setSmoothing(smoothing);
+            ((SmoothOrientation) part).setSmoothing(smoothing).setBaseSmoothing(smoothing);
             return true;
         }
         return false;

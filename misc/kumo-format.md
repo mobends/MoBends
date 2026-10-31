@@ -259,7 +259,7 @@ holds the item's own fields. The modifiers, the same for every item:
 |---|---|
 | `@when` | a condition; the item is skipped while it does not hold |
 | `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. |
-| `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); unlisted bones keep their smoothing |
+| `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); it holds for the frames the item applies, and a bone nothing smooths in a frame gets its base smoothing (see *Model definitions*' `smoothing`; otherwise 0, at once) |
 | `@vectorModes` | for offset vectors (and a `core:translate`'s part offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
 | `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `@mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
@@ -932,7 +932,9 @@ expression repeated with different inputs, written once.
 * A layer's selectors only move it when they lead somewhere else: the layer stays in a node for
   as long as it is the selector's first match.
 * Smoothing lives in the subject's bones. Smoothing in the animator sets how long a bone takes to
-  reach its target; leave it out and the bone keeps the smoothing it has.
+  reach its target, frame by frame: in a frame where nothing smooths a bone, it gets its base
+  smoothing (0, at once, unless the model definition gives one), not what an earlier state gave it.
+  A state that should ease the bones it takes over says so itself (or fades in, `transitionDuration`).
 * An offset vector written by two layers in one frame keeps only the last write; a vector
   re-aimed every frame on top of another writer is `retarget`.
 * A bone written only relatively (`pre` / `post`, additive) with nothing absolute beneath builds on
@@ -1001,7 +1003,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | `components` | what the entity's data carries besides its bones, name to kind: `core:orientation` (a smoothed rotation animators pose as a bone, such as `rightHeldItem`), `mobends:sword_trail` (`swordTrail`), `mobends:cape_wave` (`capeWave`), `mobends:spider_legs` (`legs`: where the spider's feet are planted, which its leg drivers share). Layers and drivers find them by these names. A component can't have a bone's name |
 | `layers` | the renderer layers the model draws with, id to options: `mobends:armor`, `mobends:held_item`, `mobends:custom_head` (`{"bone": "head"}`), `mobends:cape`, `mobends:elytra` replace vanilla's (which draw their own unanimated copies of the model); `mobends:creeper_charge` and `mobends:sheep_wool` replace the layers that draw their own copy of the model (a charged creeper's armour, the sheep's wool): the copy is mutated by the same definition and posed from the entity's data before the vanilla layer draws it; `mobends:accessories` and `mobends:wolf_misc` (the wolf's mouth and tongue, hung from its `head`, `nose`, `mouth` and `tongue` bones) are added. Armour follows the bones named as a biped's (`body`, `head`, `leftArm`, `leftForeArm`, ...), the held item `rightHeldItem` / `leftHeldItem`, the cape `body` and `cape`. A vanilla layer no entry replaces is kept |
 | `attackComboTicks` | a swing within this many ticks of the last counted one, while the main hand holds an item, isn't counted: it continues a sword combo (see `entityTicksAfterAttack`); 0, the default, counts every swing |
-| `smoothing` | the smoothing a bone starts with (ticks; 0 for at once), kept until an animator sets one, by name: a bone, a component, or `root` (the model's offset), `localOffset`, `renderRotation`, `centerRotation`. The player's animator is tuned for `root` and `renderRotation` at 0.5 |
+| `smoothing` | a bone's base smoothing (ticks), what it gets in a frame where nothing in the animator smooths it (otherwise 0, at once), by name: a bone, a component, or `root` (the model's offset), `localOffset`, `renderRotation`, `centerRotation`. The player's animator is tuned for `root` and `renderRotation` at 0.5 |
 | `renderer` | how the model is drawn: `sneakOffset` (model units the model is raised while the entity sneaks: vanilla lowers a sneaking player, and the bent sneak pose needs it higher), `flyingSneakOffset` (the same while a player flies; default `sneakOffset`), `firstPersonRest` (bones whose animated rotation is dropped while the first-person hand is drawn: the arm's chain from the body). Vanilla draws the first-person hand through the arm's field alone, so its stand-in draws the arm then, with its parents' transforms |
 | `bones[].drawnAlone` | a bone with a `parent` drawn where vanilla draws its part, through its parents' transforms, instead of inside its parent (a wolf pup's head, which vanilla draws outside the pup's half-size body) |
 | `childBones` | how bones change on a baby, by name, besides `childScale`: `offsetScale` (the scale of their offsets from their parents) and `globalOffset` ([x, y, z] before their parents' transforms); the wolf pup's head |

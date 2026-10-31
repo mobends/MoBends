@@ -43,7 +43,7 @@ public class BoneTarget
     public boolean hasVector;
     public final Vec3f vector = new Vec3f();
 
-    /** Ticks to reach the target (0: at once); NaN keeps whatever the bone had. For vectors per axis. */
+    /** Ticks to reach the target (0: at once); NaN, where nothing smooths the bone this frame, for its base smoothing. For vectors per axis. */
     public float smoothing = Float.NaN;
     public final Vec3f vectorSmoothing = new Vec3f(Float.NaN, Float.NaN, Float.NaN);
     /**

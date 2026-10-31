@@ -25,6 +25,11 @@ public class SmoothVector3f
 	public Vec3f smoothing = new Vec3f(1, 1, 1);
 
 	/**
+	 * Per axis, the smoothing an animator falls back on in a frame where nothing smooths the vector; 0 for at once.
+	 */
+	public Vec3f baseSmoothing = new Vec3f(0, 0, 0);
+
+	/**
 	 * Holds the interpolation tween value for each axis separately.
 	 */
 	public Vec3f completion = new Vec3f(1, 1, 1); // <0.0F, 1.0F>; at rest until given a target
