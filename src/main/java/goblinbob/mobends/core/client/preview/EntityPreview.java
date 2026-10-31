@@ -25,6 +25,7 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Modifier;
+import java.util.function.Consumer;
 
 /**
  * A bender's mob, animated in a frame of the Settings window: an entity of the bender's class (the
@@ -44,6 +45,8 @@ public class EntityPreview
     @Nullable
     private final PreviewWorld world;
     private final EntityBender<?> bender;
+    /** Called with the entity once it is made, before it is first drawn. */
+    private final Consumer<EntityLivingBase> setUp;
 
     private boolean made;
     @Nullable
@@ -55,8 +58,22 @@ public class EntityPreview
     /** @param world Where the mob stands; null to always show the fallback. */
     public EntityPreview(@Nullable PreviewWorld world, EntityBender<?> bender)
     {
+        this(world, bender, entity -> {});
+    }
+
+    /** @param setUp Called with the entity once it is made, before it is first drawn. */
+    public EntityPreview(@Nullable PreviewWorld world, EntityBender<?> bender, Consumer<EntityLivingBase> setUp)
+    {
         this.world = world;
         this.bender = bender;
+        this.setUp = setUp;
+    }
+
+    /** The entity shown, once it is made (on the first draw); null before, or if it can't be. */
+    @Nullable
+    public EntityLivingBase getEntity()
+    {
+        return entity;
     }
 
     /** Advances the mob by a tick: walking forward if {@code walking}, else standing still. */
@@ -225,6 +242,7 @@ public class EntityPreview
                 return null;
             }
             world.register(made, bender);
+            setUp.accept(made);
             return made;
         }
         catch (Throwable e)

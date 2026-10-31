@@ -3,6 +3,7 @@ package goblinbob.mobends.core.client.gui;
 import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
 import goblinbob.mobends.core.client.gui.popup.GuiPopUp;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
+import goblinbob.mobends.core.client.gui.supporterswindow.GuiSupportersWindow;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.core.ModStatics;
@@ -25,6 +26,7 @@ public class GuiBendsMenu extends GuiScreen
 			"textures/gui/icons.png");
 	private GuiSectionButton settingsButton;
 	private GuiSectionButton customizeButton;
+	private GuiSectionButton supportersButton;
 	private GuiPopUp popUp;
 
 	public GuiBendsMenu()
@@ -35,6 +37,8 @@ public class GuiBendsMenu extends GuiScreen
 				.setLeftIcon(0, 43, 19, 19).setRightIcon(19, 43, 19, 19);
 		this.customizeButton = new GuiSectionButton(I18n.format("mobends.gui.section.customize"), 0xFF26DAA3)
 				.setLeftIcon(80, 43, 19, 14).setRightIcon(80, 43, 19, 14);
+		this.supportersButton = new GuiSectionButton(I18n.format("mobends.gui.section.supporters"), 0xFFD8306A)
+				.setLeftIcon(100, 43, 17, 15).setRightIcon(100, 43, 17, 15);
 
 		this.popUp = null;
 	}
@@ -52,6 +56,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		this.settingsButton.initGui((this.width - 318) / 2, startY);
 		this.customizeButton.initGui((this.width - 318) / 2, startY + distance);
+		this.supportersButton.initGui((this.width - 318) / 2, startY + 2 * distance);
 	}
 
 	protected void keyTyped(char typedChar, int keyCode)
@@ -89,6 +94,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		this.settingsButton.update(mouseX, mouseY);
 		this.customizeButton.update(mouseX, mouseY);
+		this.supportersButton.update(mouseX, mouseY);
 	}
 
 	@Override
@@ -107,7 +113,11 @@ public class GuiBendsMenu extends GuiScreen
 		else if (customizeButton.mouseClicked(x, y, state))
 		{
 			// Opens the link the static API names: meant to become the web animation editor (see TODO.md).
-			EditorLink.open();
+			WebLink.EDITOR.open();
+		}
+		else if (supportersButton.mouseClicked(x, y, state))
+		{
+			mc.displayGuiScreen(new GuiSupportersWindow());
 		}
 
 		try
@@ -125,6 +135,7 @@ public class GuiBendsMenu extends GuiScreen
 		super.mouseReleased(mouseX, mouseY, state);
 		this.settingsButton.mouseReleased(mouseX, mouseY, state);
 		this.customizeButton.mouseReleased(mouseX, mouseY, state);
+		this.supportersButton.mouseReleased(mouseX, mouseY, state);
 	}
 
 	/**
@@ -146,6 +157,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		this.settingsButton.display();
 		this.customizeButton.display();
+		this.supportersButton.display();
 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 
