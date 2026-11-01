@@ -24,6 +24,11 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nullable;
@@ -32,8 +37,8 @@ import java.util.*;
 
 /**
  * The Supporters window: on the left, the player wearing the accessory picked from the list on the
- * right (every supporter accessory, whether they have it or not), turning so it shows from every
- * side. Above, a thank-you to supporters or what supporting gets you; below, the links to support
+ * right (every supporter accessory, whether they have it or not), turning half around now and then
+ * so it shows from both sides; for the sword trail, swinging a sword in combos. Above, a thank-you to supporters or what supporting gets you; below, the links to support
  * and to log in so the perks reach the game, and a refresh of what the player has (for right after
  * they've become a supporter).
  */
@@ -52,8 +57,18 @@ public class GuiSupportersWindow extends GuiScreen
     private static final int MAX_HEADER_LINES = 3;
     private static final int PREVIEW_WIDTH = 100;
     private static final int BUTTON_HEIGHT = 20;
-    /** Degrees a tick the previewed player turns. */
-    private static final float TURN_SPEED = 3F;
+    /** Ticks the previewed player stands before it turns half around, and takes to turn. */
+    private static final int STAND_TICKS = 40;
+    private static final int TURN_TICKS = 20;
+    /** The accessory previewed swinging a sword: a combo of swings this many ticks apart, then the turn. */
+    private static final String SWORD_TRAIL_KEY = "sword_trail";
+    private static final int COMBO_SWINGS = 5;
+    private static final int SWING_TICKS = 12;
+    /**
+     * Ticks the sword's previewed player stands after it turns. The player's animator starts the
+     * combo over once 20 ticks have passed since the last swing, so the next one begins with its first.
+     */
+    private static final int SETTLE_TICKS = 8;
     private static final int COMPONENT_BUTTON_BACK = 0;
     private static final int COMPONENT_BUTTON_SUPPORT = 1;
     private static final int COMPONENT_BUTTON_ACCOUNT = 2;
@@ -80,6 +95,10 @@ public class GuiSupportersWindow extends GuiScreen
     /** The accessory previewed; null if there are none. */
     @Nullable
     private String selectedKey;
+    /** The accessory last animated, and the ticks it has been, so a newly picked one starts its loop. */
+    @Nullable
+    private String animatedKey;
+    private int animatedTicks;
     /** What the player has, as the rows were last made from it; they are made anew when it changes. */
     @Nullable
     private Map<String, AccessorySettings> ownSettings;
@@ -223,28 +242,56 @@ public class GuiSupportersWindow extends GuiScreen
         }
 
         accessoryList.update(mouseX, mouseY);
-        turnPreview();
+        animatePreview();
     }
 
-    /** Turns the previewed player: body, head and facing together, so the animators see no turning of the head. */
-    private void turnPreview()
+    /**
+     * Loops the previewed player: it stands (or, for the sword trail, swings a combo), then turns
+     * half around, eased in and out. Body, head and facing turn together, so the animators see no
+     * turning of the head.
+     */
+    private void animatePreview()
     {
         final EntityPreview preview = selectedKey == null ? null : previews.get(selectedKey);
         if (preview == null)
         {
             return;
         }
+        if (!selectedKey.equals(animatedKey))
+        {
+            animatedKey = selectedKey;
+            animatedTicks = 0;
+        }
         preview.tick(false);
         final EntityLivingBase entity = preview.getEntity();
-        if (entity != null)
+        if (entity == null)
         {
-            entity.prevRotationYaw = entity.rotationYaw;
-            entity.prevRenderYawOffset = entity.renderYawOffset;
-            entity.prevRotationYawHead = entity.rotationYawHead;
-            entity.rotationYaw += TURN_SPEED;
-            entity.renderYawOffset += TURN_SPEED;
-            entity.rotationYawHead += TURN_SPEED;
+            return;
         }
+
+        final boolean swinging = SWORD_TRAIL_KEY.equals(selectedKey);
+        final int turnStart = swinging ? COMBO_SWINGS * SWING_TICKS : STAND_TICKS;
+        final int loopTicks = turnStart + TURN_TICKS + (swinging ? SETTLE_TICKS : 0);
+        final int tick = animatedTicks++ % loopTicks;
+        if (swinging && tick < turnStart && tick % SWING_TICKS == 0)
+        {
+            entity.swingArm(EnumHand.MAIN_HAND);
+        }
+
+        final float turn = turnedBy(tick + 1, turnStart) - turnedBy(tick, turnStart);
+        entity.prevRotationYaw = entity.rotationYaw;
+        entity.prevRenderYawOffset = entity.renderYawOffset;
+        entity.prevRotationYawHead = entity.rotationYawHead;
+        entity.rotationYaw += turn;
+        entity.renderYawOffset += turn;
+        entity.rotationYawHead += turn;
+    }
+
+    /** Degrees the previewed player has turned {@code tick} ticks into its loop, the turn starting at {@code turnStart}. */
+    private static float turnedBy(int tick, int turnStart)
+    {
+        final float t = MathHelper.clamp((tick - turnStart) / (float) TURN_TICKS, 0F, 1F);
+        return 180F * t * t * (3F - 2F * t);
     }
 
     @Override
@@ -365,6 +412,8 @@ public class GuiSupportersWindow extends GuiScreen
             final EntityPreview preview = previews.computeIfAbsent(key, k -> new EntityPreview(previewWorld, playerBender, made -> {
                 dress(made, key);
                 dressed.add(made);
+                if (SWORD_TRAIL_KEY.equals(key) && !(made.getHeldItemMainhand().getItem() instanceof ItemSword))
+                    made.setHeldItem(EnumHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
             }));
             if (preview.getEntity() != null)
                 dress(preview.getEntity(), key);
