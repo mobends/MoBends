@@ -22,6 +22,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
@@ -180,6 +181,13 @@ public class GuiSupportersWindow extends GuiScreen
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
+
+        if (accessoryList.isLockHovered())
+        {
+            drawHoveringText(I18n.format("mobends.gui.supporters.locked"), mouseX, mouseY);
+            // It leaves the item lighting on.
+            RenderHelper.disableStandardItemLighting();
+        }
     }
 
     /**
