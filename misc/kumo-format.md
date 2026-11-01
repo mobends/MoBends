@@ -50,9 +50,9 @@ How the three kinds of construct compare:
 | state | an edge trigger's memory, per place | the state it names | its own, and the states its `inout` / `out` name |
 
 **The format's words are lower case**: every fixed set of values (`@space` `pre`, an `axis` `x`,
-a layer `mode` `additive`, a `transitionEasing` `ease_in_out_quad`, a hinge `front`) is written in
+a `transitionEasing` `ease_in_out_quad`, a hinge `front`) is written in
 lower_snake_case, as registered names and operations' choices are; `"PRE"` is an error. A map from bones
-to values (`@smoothing`, `additiveSpace`) names the value for every other bone `@default`, so any
+to values (`@smoothing`, a clip's `@space`) names the value for every other bone `@default`, so any
 bone name can be a key.
 
 **A key an object doesn't take is an error** when the animator loads, in every object of the
@@ -69,8 +69,6 @@ node is in *Choosing the node*.
 
 | key | meaning |
 |---|---|
-| `mode` | `override` (default: what the layer writes replaces) or `additive` |
-| `additiveSpace` | for additive layers: `"pre"` / `"post"`, or `{"@default": "pre", "body": "post"}` |
 | `@when` | a condition (a boolean expression); while it does not hold the layer writes nothing and its clocks pause |
 | `@define`, `@on` | the layer's definitions and statement lists (see *Definitions and statements*) |
 | `smoothing` | default smoothing for the bones the layer writes (nodes and items override) |
@@ -259,7 +257,7 @@ holds the item's own fields. The modifiers, the same for every item:
 | modifier | meaning |
 |---|---|
 | `@when` | a condition; the item is skipped while it does not hold |
-| `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. |
+| `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. A clip writes many bones, so its `@space` can also be one per bone: `{"@default": "pre", "body": "post", "root": "override"}`. |
 | `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); it holds for the frames the item applies, and a bone nothing smooths in a frame gets its base smoothing (see *Model definitions*' `smoothing`; otherwise 0, at once) |
 | `@vectorModes` | for offset vectors (and a `core:translate`'s part offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
 | `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |

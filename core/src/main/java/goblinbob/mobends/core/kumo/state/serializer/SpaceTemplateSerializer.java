@@ -8,7 +8,7 @@ import goblinbob.mobends.core.kumo.state.template.SpaceTemplate;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-/** "pre" | "post" | {"@default": "pre", "body": "post"} */
+/** "override" | "pre" | "post" | {"@default": "pre", "body": "post"} */
 public class SpaceTemplateSerializer implements JsonDeserializer<SpaceTemplate>
 {
 

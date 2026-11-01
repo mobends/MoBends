@@ -12,6 +12,7 @@ import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.state.template.SmoothingTemplate;
+import goblinbob.mobends.core.kumo.state.template.SpaceTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
@@ -92,7 +93,19 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
         }
         if (object.has("@space"))
         {
-            item.space = JsonReading.enumValue(Pose.Space.class, object.get("@space"), what + "'s \"@space\"");
+            if (item instanceof ClipItemTemplate)
+            {
+                // A clip writes many bones: one space for all of them, or one per bone.
+                ((ClipItemTemplate) item).space = KumoSerializer.INSTANCE.leafGson.fromJson(object.get("@space"), SpaceTemplate.class);
+            }
+            else
+            {
+                if (object.get("@space").isJsonObject())
+                {
+                    throw new JsonParseException(String.format("%s's \"@space\" is one space (override, pre or post): a space per bone is a clip's.", what));
+                }
+                ((DriverItemTemplate) item).space = JsonReading.enumValue(Pose.Space.class, object.get("@space"), what + "'s \"@space\"");
+            }
         }
         if (object.has("@smoothing"))
         {
