@@ -5,8 +5,6 @@
   "layers": [
     {
       "@comment": "Two footfalls per walk cycle, so the bob runs at twice the leg swing; the body is lowest when the legs are furthest apart. The head repeats the bob a little later and nods after it.",
-      "mode": "additive",
-      "additiveSpace": "post",
       "@define": {"step": {"live": {"mul": ["entityLimbSwing", 0.6662, 2]}}},
       "select": [
         {"when": "animator.walking", "then": "walk", "transitionDuration": 4},

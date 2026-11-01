@@ -21,8 +21,7 @@ import java.util.*;
 /**
  * A layer: the outermost machine of its nodes. Each frame it decides its node (see {@link #decide}),
  * then the current node (and, during a transition, the previous node or a frozen snapshot of the
- * blend) is evaluated, the two are cross-faded, and the result is composited onto the animator pose
- * in the layer's mode.
+ * blend) is evaluated, the two are cross-faded, and the result is composited onto the animator pose.
  */
 public class LayerState
 {
@@ -33,7 +32,6 @@ public class LayerState
     private final List<MachineMember> nodes = new ArrayList<>();
     private final List<MachineState> machines = new ArrayList<>();
     private final ArmatureMask mask;
-    private final LayerTemplate.LayerMode mode;
     private final Skeleton skeleton;
     private final Expression when;
     /** The layer's definitions and statement lists. */
@@ -63,7 +61,6 @@ public class LayerState
         {
             mask.validate();
         }
-        this.mode = layerTemplate.mode == null ? LayerTemplate.LayerMode.OVERRIDE : layerTemplate.mode;
         this.skeleton = skeleton;
         DefinitionScope definitions = new DefinitionScope(DefinitionScope.Kind.LAYER, "the layer");
         definitions.declare(layerTemplate.define, context.getExpressionScope().isTrusted());

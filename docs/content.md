@@ -214,13 +214,15 @@ sitting and standing up.
 ### Variants of one animation
 
 For per-entity variation (the zombie's two walking styles), add a layer per variant, gated by a
-variable the data class sets, and let it override or add to the base:
+variable the data class sets, and let its items override or add to the base. A clip's `@space`
+can say so per bone:
 
 ```json
-{"mode": "additive",
- "additiveSpace": {"@default": "pre", "body": "post", "root": "override"},
- "@when": {"eq": ["animationSet", 0]},
- "defaultOnEntry": "lean", "nodes": { … }}
+{"@when": {"eq": ["animationSet", 0]},
+ "defaultOnEntry": "lean",
+ "nodes": {"lean": {"core:pose": {"pose": [
+   {"core:clip": {"animationKey": "mobends:bends/animations/zombie/lean.json"},
+    "@space": {"@default": "pre", "body": "post", "root": "override"}}]}}}}
 ```
 
 ### Combos and other sequences

@@ -96,7 +96,6 @@
     },
     {
       "@comment": "The lean: the chest leans over the lower half, which stays upright, and the neck (and with it the head) moves to where the leaning chest puts it. Standing, it leans a little and breathes with the idle clip (same phase: 64 samples a 2pi cycle, 0.09 samples a tick); walking forward, it leans further. The waist joint is on the back edge, 6 below and 2 behind the neck.",
-      "mode": "additive",
       "@define": {
         "walking": {"live": {"clamp": [{"div": ["entityForwardMomentum", 0.1]}, 0, 1]}},
         "breath": {"live": {"cos": [{"mul": ["ticks", 0.008835729338221293]}]}},
