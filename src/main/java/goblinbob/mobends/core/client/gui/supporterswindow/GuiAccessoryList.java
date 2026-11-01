@@ -24,6 +24,12 @@ public class GuiAccessoryList extends GuiList<GuiAccessoryRow>
         return this.width - this.scrollBarWidth - 2 * this.paddingLeft;
     }
 
+    /** Whether the mouse is over the lock of a row, within the list's view. */
+    public boolean isLockHovered()
+    {
+        return this.hovered && elements.stream().anyMatch(GuiAccessoryRow::isLockHovered);
+    }
+
     @Override
     protected void drawBackground(float partialTicks)
     {

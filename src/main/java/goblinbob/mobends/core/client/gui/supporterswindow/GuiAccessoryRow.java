@@ -12,13 +12,18 @@ import net.minecraft.client.resources.I18n;
 import java.util.function.BooleanSupplier;
 
 /**
- * A row of the Supporters window's list: the accessory's name, and whether the player has it.
- * Clicking it shows the accessory in the window's preview; the row shown is highlighted.
+ * A row of the Supporters window's list: the accessory's name, and whether the player has it (a
+ * lock if they don't, which tells what it means when hovered). Clicking it shows the accessory in
+ * the window's preview; the row shown is highlighted.
  */
 public class GuiAccessoryRow implements IGuiListElement
 {
 
     private static final int HEIGHT = 20;
+    /** The lock of an accessory the player doesn't have, in GuiBenderList.LIST_TEXTURE. */
+    private static final int LOCK_U = 80, LOCK_V = 120, LOCK_WIDTH = 8, LOCK_HEIGHT = 10;
+    /** How far past the lock the mouse still hovers it, so a small icon isn't fiddly to find. */
+    private static final int LOCK_HOVER_MARGIN = 2;
 
     private final GuiAccessoryList list;
     private final String name;
@@ -30,6 +35,7 @@ public class GuiAccessoryRow implements IGuiListElement
     private int x, y;
     private int width;
     private boolean hovered;
+    private boolean lockHovered;
     private int listOrder;
 
     /**
@@ -74,6 +80,15 @@ public class GuiAccessoryRow implements IGuiListElement
     public void update(int mouseX, int mouseY)
     {
         this.hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + HEIGHT;
+        this.lockHovered = !settings.isUnlocked()
+                && mouseX >= lockX() - LOCK_HOVER_MARGIN && mouseX < lockX() + LOCK_WIDTH + LOCK_HOVER_MARGIN
+                && mouseY >= lockY() - LOCK_HOVER_MARGIN && mouseY < lockY() + LOCK_HEIGHT + LOCK_HOVER_MARGIN;
+    }
+
+    /** Whether the mouse is over the lock (so the window shows what it means); false if there is none. */
+    public boolean isLockHovered()
+    {
+        return lockHovered;
     }
 
     @Override
@@ -92,20 +107,34 @@ public class GuiAccessoryRow implements IGuiListElement
             GlStateManager.enableTexture2D();
         }
 
-        final String status = status();
-        final int statusWidth = mc.fontRenderer.getStringWidth(status);
         final int textY = y + (HEIGHT - 8) / 2;
+        final int statusWidth;
+        if (settings.isUnlocked())
+        {
+            final String status = I18n.format(settings.isHidden() ? "mobends.gui.supporters.hidden" : "mobends.gui.supporters.unlocked");
+            statusWidth = mc.fontRenderer.getStringWidth(status);
+            mc.fontRenderer.drawString(status, x + width - 6 - statusWidth, textY, 0x6fd35a);
+        }
+        else
+        {
+            statusWidth = LOCK_WIDTH;
+            GlStateManager.color(1F, 1F, 1F, 1F);
+            mc.getTextureManager().bindTexture(GuiBenderList.LIST_TEXTURE);
+            Draw.texturedModalRect(lockX(), lockY(), LOCK_U, LOCK_V, LOCK_WIDTH, LOCK_HEIGHT);
+        }
         mc.fontRenderer.drawStringWithShadow(mc.fontRenderer.trimStringToWidth(name, width - 12 - statusWidth - 6),
                 x + 6, textY, 0xffffff);
-        mc.fontRenderer.drawString(status, x + width - 6 - statusWidth, textY, settings.isUnlocked() ? 0x6fd35a : 0xe0a83a);
         GlStateManager.color(1F, 1F, 1F, 1F);
     }
 
-    private String status()
+    private int lockX()
     {
-        if (!settings.isUnlocked())
-            return I18n.format("mobends.gui.supporters.locked");
-        return I18n.format(settings.isHidden() ? "mobends.gui.supporters.hidden" : "mobends.gui.supporters.unlocked");
+        return x + width - 6 - LOCK_WIDTH;
+    }
+
+    private int lockY()
+    {
+        return y + (HEIGHT - LOCK_HEIGHT) / 2;
     }
 
     @Override
