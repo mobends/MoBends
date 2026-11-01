@@ -31,7 +31,8 @@ import java.util.function.Consumer;
  * A bender's mob, animated in a frame of the Settings window: an entity of the bender's class (the
  * player's own copy for players) standing in a {@link PreviewWorld}, drawn orthographically from
  * three quarters above and fit to the frame by its hitbox. It idles, or walks in place while
- * {@link #tick(boolean) asked to}. A mob that can't be made or drawn shows its spawn egg instead.
+ * {@link #tick(boolean) asked to}, and carries an arm swing through when made to swing. A mob that
+ * can't be made or drawn shows its spawn egg instead.
  */
 public class EntityPreview
 {
@@ -41,6 +42,8 @@ public class EntityPreview
     private static final float TILT = 20F;
     /** Blocks per tick, about a mob's walking pace. */
     private static final double WALK_SPEED = 0.2D;
+    /** Ticks an arm swing takes, as EntityLivingBase#getArmSwingAnimationEnd without haste or fatigue. */
+    private static final int SWING_TICKS = 6;
 
     @Nullable
     private final PreviewWorld world;
@@ -99,6 +102,18 @@ public class EntityPreview
         final float swing = Math.min((float) speed * 4F, 1F);
         entity.limbSwingAmount += (swing - entity.limbSwingAmount) * 0.4F;
         entity.limbSwing += entity.limbSwingAmount;
+
+        // As EntityLivingBase#updateArmSwingProgress carries a swing (begun by swingArm) through.
+        entity.prevSwingProgress = entity.swingProgress;
+        if (entity.isSwingInProgress && ++entity.swingProgressInt >= SWING_TICKS)
+        {
+            entity.isSwingInProgress = false;
+        }
+        if (!entity.isSwingInProgress)
+        {
+            entity.swingProgressInt = 0;
+        }
+        entity.swingProgress = (float) entity.swingProgressInt / SWING_TICKS;
 
         if (entity instanceof EntityPlayer)
         {
