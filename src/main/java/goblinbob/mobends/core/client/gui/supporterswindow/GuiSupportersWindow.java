@@ -49,8 +49,7 @@ public class GuiSupportersWindow extends GuiScreen
 {
 
     private static final int EDITOR_WIDTH = GuiSettingsWindow.EDITOR_WIDTH;
-    /** The least height; the window grows with the screen up to the max, clear of its edges and the back button. */
-    private static final int EDITOR_HEIGHT = 200;
+    /** The window grows with the screen, leaving room for the title and back button. */
     private static final int MAX_EDITOR_HEIGHT = 280;
     private static final int SCREEN_MARGIN = 40;
     /** Inside the container's border. */
@@ -81,7 +80,7 @@ public class GuiSupportersWindow extends GuiScreen
 
     /** The container's top left; its content starts PADDING inside. */
     private int x, y;
-    private int editorHeight = EDITOR_HEIGHT;
+    private int editorHeight;
     private List<String> headerLines = Collections.emptyList();
     private int bodyTop, bodyHeight;
 
@@ -120,7 +119,7 @@ public class GuiSupportersWindow extends GuiScreen
     {
         super.initGui();
 
-        this.editorHeight = Math.max(EDITOR_HEIGHT, Math.min(MAX_EDITOR_HEIGHT, this.height - 2 * SCREEN_MARGIN));
+        this.editorHeight = Math.min(MAX_EDITOR_HEIGHT, this.height - 2 * SCREEN_MARGIN);
         this.x = (this.width - EDITOR_WIDTH) / 2;
         this.y = (this.height - editorHeight) / 2;
         final int left = x + PADDING;
@@ -181,9 +180,11 @@ public class GuiSupportersWindow extends GuiScreen
         {
             final String empty = I18n.format("mobends.gui.supporters.empty");
             final int listLeft = x + PADDING + PREVIEW_WIDTH + GAP;
+            int emptyY = bodyTop + 10;
             for (String line : fontRenderer.listFormattedStringToWidth(empty, accessoryList.getWidth() - 16))
             {
-                fontRenderer.drawString(line, listLeft + 8, bodyTop + 10, 0x9a9a9a);
+                fontRenderer.drawString(line, listLeft + 8, emptyY, 0x9a9a9a);
+                emptyY += fontRenderer.FONT_HEIGHT;
             }
         }
 
