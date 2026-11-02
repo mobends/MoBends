@@ -57,6 +57,8 @@ public class GuiLinkAccount extends GuiScreen
     private String code = "";
     private MinecraftLink.Start start;
     private String message = "";
+    /** Whether the code no longer works (it expired, or a newer one replaced it), so the player needs a new one. */
+    private boolean codeSpent;
 
     public GuiLinkAccount(GuiScreen parent)
     {
@@ -118,7 +120,7 @@ public class GuiLinkAccount extends GuiScreen
                 actionButton.displayString = I18n.format("gui.done");
                 break;
             case FAILED:
-                actionButton.displayString = I18n.format("mobends.gui.link.retry");
+                actionButton.displayString = I18n.format(codeSpent ? "mobends.gui.link.new_code" : "mobends.gui.link.retry");
                 break;
             default:
                 actionButton.displayString = I18n.format("mobends.gui.link.continue");
@@ -166,6 +168,10 @@ public class GuiLinkAccount extends GuiScreen
                 break;
             case FAILED:
                 // Back to the code, so the account is confirmed again with a fresh server id.
+                if (codeSpent)
+                {
+                    codeField.setText("");
+                }
                 setState(State.ENTER_CODE, "");
                 break;
             default:
@@ -175,7 +181,8 @@ public class GuiLinkAccount extends GuiScreen
 
     private void startLinking()
     {
-        if (!hasCode())
+        // Only once per code entered: a second /start would replace the server id the first one is confirmed with.
+        if (state != State.ENTER_CODE || !hasCode())
         {
             return;
         }
@@ -195,13 +202,19 @@ public class GuiLinkAccount extends GuiScreen
             }
             catch (IOException e)
             {
-                return fail(e);
+                return fail(e, false);
             }
         });
     }
 
     private void confirmLinking()
     {
+        // Only once: of several confirmations of the same code, only one can succeed.
+        if (state != State.CONFIRM)
+        {
+            return;
+        }
+
         setState(State.LINKING, I18n.format("mobends.gui.link.linking"));
         MinecraftLink.Start start = this.start;
 
@@ -218,16 +231,26 @@ public class GuiLinkAccount extends GuiScreen
             }
             catch (AuthenticationException | IOException e)
             {
-                return fail(e);
+                return fail(e, true);
             }
         });
     }
 
-    private Runnable fail(Exception e)
+    /**
+     * @param confirming Whether it failed confirming the join, rather than starting.
+     */
+    private Runnable fail(Exception e, boolean confirming)
     {
         Core.LOG.warning("Couldn't link the Minecraft account: " + e);
-        String message = describe(e);
-        return () -> setState(State.FAILED, message);
+        boolean spent = e instanceof ApiErrorException && "unknown_code".equals(((ApiErrorException) e).getError());
+        String message = spent && confirming
+                // The join worked, but the code was replaced or expired before the API checked it.
+                ? I18n.format("mobends.gui.link.error.unknown_code_confirming")
+                : describe(e);
+        return () -> {
+            codeSpent = spent;
+            setState(State.FAILED, message);
+        };
     }
 
     private static String describe(Exception e)
@@ -253,6 +276,8 @@ public class GuiLinkAccount extends GuiScreen
                     case "join_not_verified":
                     case "session_server_error":
                         return I18n.format("mobends.gui.link.error." + error);
+                    case "internal_error":
+                        return I18n.format("mobends.gui.link.error.api");
                     default:
                         break;
                 }
@@ -275,7 +300,7 @@ public class GuiLinkAccount extends GuiScreen
             }
             catch (RuntimeException e)
             {
-                then = fail(e);
+                then = fail(e, false);
             }
             Runnable result = then;
             mc.addScheduledTask(() -> {
