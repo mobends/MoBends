@@ -8,6 +8,7 @@ import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.module.IModule;
 import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.util.IColorRead;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.http.conn.HttpHostConnectException;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static goblinbob.mobends.core.util.ConnectionHelper.sendGetRequest;
 
@@ -26,7 +28,10 @@ public class SupporterContent
     private static final Color DEFAULT_TRAIL_COLOR = new Color(Color.WHITE);
 
     private final String apiUrl;
-    private final Map<String, AccessoryDetails> accessoryDetailsMap = new HashMap<>();
+    /** Replaced on the client thread, so readers can keep iterating the previous catalogue. */
+    private Map<String, AccessoryDetails> accessoryDetailsMap = Collections.emptyMap();
+    private int accessoryDetailsRevision;
+    private final AtomicBoolean fetchingAccessoryDetails = new AtomicBoolean();
     private final Map<String, PlayerSettingsResponse> accessorySettingsPerPlayer = new HashMap<>();
     /** What the previews of the Supporters window wear, whatever their player has unlocked. */
     private final Map<EntityLivingBase, Map<String, AccessorySettings>> previewAccessories = new WeakHashMap<>();
@@ -36,15 +41,48 @@ public class SupporterContent
         this.apiUrl = EnvironmentModule.getConfig().getApiUrl();
     }
 
+    /** Downloads the catalogue off-thread, keeping the last good one if the request fails. */
     public static void fetchAccessoryDetails()
+    {
+        final SupporterContent content = INSTANCE;
+        if (!content.fetchingAccessoryDetails.compareAndSet(false, true))
+        {
+            return;
+        }
+
+        Thread thread = new Thread(() ->
+        {
+            Map<String, AccessoryDetails> details = null;
+            try
+            {
+                details = content.downloadAccessoryDetails();
+            }
+            finally
+            {
+                final Map<String, AccessoryDetails> downloaded = details;
+                Minecraft.getMinecraft().addScheduledTask(() ->
+                {
+                    if (downloaded != null)
+                    {
+                        content.accessoryDetailsMap = downloaded;
+                        ++content.accessoryDetailsRevision;
+                    }
+                    content.fetchingAccessoryDetails.set(false);
+                });
+            }
+        }, "Mo' Bends accessory download");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+    private Map<String, AccessoryDetails> downloadAccessoryDetails()
     {
         try
         {
-            AccessoryDetailsResponse response = sendGetRequest(new URL(INSTANCE.apiUrl + "/api/accessory/details"), new HashMap<>(), AccessoryDetailsResponse.class);
+            AccessoryDetailsResponse response = sendGetRequest(new URL(apiUrl + "/api/accessory/details"), new HashMap<>(), AccessoryDetailsResponse.class);
 
             Map<String, AccessoryDetails> details = Objects.requireNonNull(response).getDetails();
-            INSTANCE.accessoryDetailsMap.clear();
-            INSTANCE.accessoryDetailsMap.putAll(details);
+            return Collections.unmodifiableMap(new HashMap<>(details));
         }
         catch (HttpHostConnectException e)
         {
@@ -60,6 +98,13 @@ public class SupporterContent
             Core.LOG.warning("Failed to get accessory details map.");
             e.printStackTrace();
         }
+        return null;
+    }
+
+    /** Read on the client thread, like the catalogue itself. */
+    public static int getAccessoryDetailsRevision()
+    {
+        return INSTANCE.accessoryDetailsRevision;
     }
 
     private void clearCache()
@@ -98,7 +143,7 @@ public class SupporterContent
 
     public static Set<Map.Entry<String, AccessoryDetails>> getAccessories()
     {
-        return Collections.unmodifiableSet(INSTANCE.accessoryDetailsMap.entrySet());
+        return INSTANCE.accessoryDetailsMap.entrySet();
     }
 
     public static Map<String, AccessorySettings> getAccessorySettingsMapFor(EntityLivingBase entity)

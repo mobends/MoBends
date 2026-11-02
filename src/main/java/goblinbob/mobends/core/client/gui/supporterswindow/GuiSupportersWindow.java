@@ -106,12 +106,15 @@ public class GuiSupportersWindow extends GuiScreen
     /** What the player has, as the rows were last made from it; they are made anew when it changes. */
     @Nullable
     private Map<String, AccessorySettings> ownSettings;
+    private int accessoryDetailsRevision;
 
     public GuiSupportersWindow()
     {
         super();
 
         fetchAccessories();
+        if (SupporterContent.getAccessories().isEmpty())
+            SupporterContent.fetchAccessoryDetails();
     }
 
     @Override
@@ -237,8 +240,8 @@ public class GuiSupportersWindow extends GuiScreen
         final int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
         final int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 
-        // What the player has arrives after the window opens, and anew after a refresh.
-        if (fetchOwnSettings() != ownSettings)
+        // The catalogue and what the player has arrive after the window opens, and anew after a refresh.
+        if (fetchOwnSettings() != ownSettings || SupporterContent.getAccessoryDetailsRevision() != accessoryDetailsRevision)
         {
             fetchAccessories();
             initGui();
@@ -349,6 +352,7 @@ public class GuiSupportersWindow extends GuiScreen
                 WebLink.ACCOUNT.open();
                 break;
             case COMPONENT_BUTTON_REFRESH:
+                SupporterContent.fetchAccessoryDetails();
                 if (mc.player != null)
                     SupporterContent.forgetPlayer(mc.player.getName());
                 break;
@@ -398,6 +402,7 @@ public class GuiSupportersWindow extends GuiScreen
     private void fetchAccessories()
     {
         ownSettings = fetchOwnSettings();
+        accessoryDetailsRevision = SupporterContent.getAccessoryDetailsRevision();
         accessoryList.clearElements();
         accessories.clear();
         if (playerBender == null)
