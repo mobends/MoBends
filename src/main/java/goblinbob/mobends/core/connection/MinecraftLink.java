@@ -8,6 +8,7 @@ import goblinbob.mobends.core.util.ConnectionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 
@@ -104,6 +105,8 @@ public final class MinecraftLink
     {
         private String uuid;
         private String username;
+        private String token;
+        private Account account;
 
         /** The player's UUID, undashed, as Mojang verified it. */
         public String getUuid()
@@ -115,6 +118,20 @@ public final class MinecraftLink
         public String getUsername()
         {
             return username;
+        }
+
+        /** The token the game is signed in to the Mo' Bends account with, or null if the API hands out none. */
+        @Nullable
+        public String getToken()
+        {
+            return token;
+        }
+
+        /** The name of the Mo' Bends account the Minecraft account is linked to, or null if the API leaves it out. */
+        @Nullable
+        public String getDisplayName()
+        {
+            return account == null ? null : account.displayName;
         }
     }
 

@@ -103,16 +103,44 @@ public class ConnectionHelper
             os.write(out);
         }
 
+        return readResponse(connection, responseClass);
+    }
+
+    /**
+     * Sends a request without a body, authorized with the token as a bearer, and reads the response as the given
+     * class.
+     *
+     * @param method E.g. "GET" or "DELETE".
+     * @param timeoutMs How long to wait to connect, and then for the response, or 0 to wait forever.
+     * @return The response, or null if it has no body (e.g. 204 No Content).
+     * @throws ApiErrorException If the API responds with an error status.
+     */
+    public static <T> T sendAuthorizedRequest(String method, URL url, String token, Class<T> responseClass, int timeoutMs) throws IOException
+    {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(timeoutMs);
+        connection.setReadTimeout(timeoutMs);
+        connection.setRequestMethod(method);
+        connection.setRequestProperty("Authorization", "Bearer " + token);
+
+        return readResponse(connection, responseClass);
+    }
+
+    private static <T> T readResponse(HttpURLConnection connection, Class<T> responseClass) throws IOException
+    {
         int status = connection.getResponseCode();
         if (status >= 400)
         {
             throw ApiErrorException.read(status, connection.getErrorStream());
         }
+        if (status == HttpURLConnection.HTTP_NO_CONTENT)
+        {
+            return null;
+        }
 
-        // Response
-        BufferedReader json = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-        T response = INSTANCE.gson.fromJson(json, responseClass);
-
-        return response;
+        try (BufferedReader json = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
+        {
+            return INSTANCE.gson.fromJson(json, responseClass);
+        }
     }
 }

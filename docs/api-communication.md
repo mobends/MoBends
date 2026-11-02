@@ -36,13 +36,21 @@ the player renamed it; the API falls back to the usernames typed in on the dashb
 | Method | Path | When | Payload → Response |
 |--------|------|------|---------|
 | POST | `/api/minecraft-link/start` | The player enters a dashboard code | `{code}` → `{serverId, account: {displayName}}` |
-| POST | `/api/minecraft-link/confirm` | Right after joining `serverId` on Mojang's session server | `{code, username}` → `{uuid, username}` |
+| POST | `/api/minecraft-link/confirm` | Right after joining `serverId` on Mojang's session server | `{code, username}` → `{uuid, username, token, account: {displayName}}` |
+| GET | `/api/minecraft-link/session` | The Mo' Bends menu opens | `Authorization: Bearer <token>` → `{account: {displayName}}`, 401 `invalid_token` once revoked |
+| DELETE | `/api/minecraft-link/session` | Log out | `Authorization: Bearer <token>` → 204 |
 
 Mo' Bends menu (G) → **Link account** (`GuiLinkAccount`). The player enters the code, confirms the Mo' Bends account
 it belongs to, and `MinecraftLink` joins the `serverId` through authlib (`joinServer`), the way the game proves its
 session to an online-mode server, then calls `/confirm`. The access token never leaves the game. Both steps run on
 a thread of their own. The menu is only reachable in a world, so no server connection is being made meanwhile.
 Errors come as `{error, message}` (`ApiErrorException`), and the screen shows each code as a message for the player.
+
+Linking signs the game in to the Mo' Bends account: `MoBendsAccount` keeps the token `/confirm` hands out in
+`config/mobends/account.json` (readable by the player only), for each Minecraft account the game is played with.
+Once signed in, the menu shows the account's name (opening the dashboard) and Log out, which revokes the token. The
+menu checks the session as it opens: a 401 signs out (the account was unlinked or linked elsewhere on the
+dashboard), anything else keeps the session. An API without tokens leaves the game signed in by name only.
 The API's spec is `docs/minecraft-link-api.md` in mobends-api.
 
 ### Assets

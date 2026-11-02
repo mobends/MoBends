@@ -5,6 +5,7 @@ import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.gui.elements.GuiCompactTextField;
 import goblinbob.mobends.core.connection.MinecraftLink;
+import goblinbob.mobends.core.connection.MoBendsAccount;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.util.ApiErrorException;
 import net.minecraft.client.Minecraft;
@@ -30,7 +31,7 @@ public class GuiLinkAccount extends GuiScreen
 
     private static final int COMPONENT_BUTTON_BACK = 0;
     private static final int COMPONENT_BUTTON_ACTION = 1;
-    private static final int COMPONENT_BUTTON_LOG_IN = 2;
+    private static final int COMPONENT_BUTTON_DASHBOARD = 2;
     private static final int CONTENT_WIDTH = 260;
 
     private enum State
@@ -51,7 +52,7 @@ public class GuiLinkAccount extends GuiScreen
     private final GuiCompactTextField codeField;
     private GuiButton backButton;
     private GuiButton actionButton;
-    private GuiButton logInButton;
+    private GuiButton dashboardButton;
 
     private State state = State.ENTER_CODE;
     private String code = "";
@@ -76,19 +77,20 @@ public class GuiLinkAccount extends GuiScreen
         Keyboard.enableRepeatEvents(true);
 
         int centerX = width / 2;
-        int bottom = height / 2 + 50;
 
         codeField.setPosition(centerX - codeField.width / 2, height / 2 - 10);
 
         buttonList.clear();
-        backButton = new GuiButton(COMPONENT_BUTTON_BACK, centerX - 105, bottom, 100, 20, "");
-        actionButton = new GuiButton(COMPONENT_BUTTON_ACTION, centerX + 5, bottom, 100, 20, "");
+        // What the step is about, under the code or the message; leaving and the dashboard at the bottom left.
+        actionButton = new GuiButton(COMPONENT_BUTTON_ACTION, centerX - 50, height / 2 + 18, 100, 20, "");
+        backButton = new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, "");
+        final String dashboard = I18n.format("mobends.gui.link.dashboard");
         // The dashboard, where the code comes from.
-        logInButton = new GuiButton(COMPONENT_BUTTON_LOG_IN, centerX - 50, height / 2 + 18, 100, 20,
-                I18n.format("mobends.gui.link.log_in"));
-        buttonList.add(backButton);
+        dashboardButton = new GuiButton(COMPONENT_BUTTON_DASHBOARD, 75, height - 30,
+                fontRenderer.getStringWidth(dashboard) + 20, 20, dashboard);
         buttonList.add(actionButton);
-        buttonList.add(logInButton);
+        buttonList.add(backButton);
+        buttonList.add(dashboardButton);
         updateButtons();
     }
 
@@ -107,8 +109,6 @@ public class GuiLinkAccount extends GuiScreen
         }
 
         backButton.displayString = I18n.format(state == State.CONFIRM ? "gui.cancel" : "mobends.gui.back");
-        backButton.visible = state != State.LINKED;
-        logInButton.visible = state == State.ENTER_CODE;
         actionButton.visible = state != State.STARTING && state != State.LINKING;
 
         switch (state)
@@ -136,7 +136,7 @@ public class GuiLinkAccount extends GuiScreen
     @Override
     protected void actionPerformed(GuiButton button)
     {
-        if (button.id == COMPONENT_BUTTON_LOG_IN)
+        if (button.id == COMPONENT_BUTTON_DASHBOARD)
         {
             WebLink.ACCOUNT.open();
             return;
@@ -222,11 +222,12 @@ public class GuiLinkAccount extends GuiScreen
             try
             {
                 MinecraftLink.Result result = MinecraftLink.joinAndConfirm(code, start);
+                String displayName = result.getDisplayName() != null ? result.getDisplayName() : start.getDisplayName();
                 return () -> {
+                    MoBendsAccount.signIn(displayName, result.getToken());
                     // Fetches the player's accessories again, now that they follow the account.
                     SupporterContent.forgetPlayer(mc.getSession().getUsername());
-                    setState(State.LINKED, I18n.format("mobends.gui.link.linked",
-                            result.getUsername(), start.getDisplayName()));
+                    setState(State.LINKED, I18n.format("mobends.gui.link.linked", result.getUsername(), displayName));
                 };
             }
             catch (AuthenticationException | IOException e)
