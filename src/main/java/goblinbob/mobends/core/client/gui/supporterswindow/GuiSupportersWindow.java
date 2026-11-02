@@ -13,8 +13,10 @@ import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.supporters.AccessoryDetails;
 import goblinbob.mobends.core.supporters.AccessorySettings;
 import goblinbob.mobends.core.supporters.SupporterContent;
+import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
+import goblinbob.mobends.core.util.IColorRead;
 import goblinbob.mobends.core.util.UIScissorHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
@@ -424,11 +426,17 @@ public class GuiSupportersWindow extends GuiScreen
             selectedKey = sorted.isEmpty() ? null : sorted.get(0).getKey();
     }
 
-    /** Puts the accessory on a preview, whether the player has it or not; in their color if they do. */
+    /**
+     * Puts the accessory on a preview, whether the player has it or not: in their color if they do,
+     * else in the accessory's default color.
+     */
     private void dress(EntityLivingBase entity, String key)
     {
-        final AccessorySettings own = ownSettings == null ? AccessorySettings.DEFAULT : ownSettings.getOrDefault(key, AccessorySettings.DEFAULT);
-        SupporterContent.setPreviewAccessories(entity, Collections.singletonMap(key, new AccessorySettings(true, false, own.getColor())));
+        final AccessorySettings own = ownSettings == null ? null : ownSettings.get(key);
+        final AccessoryDetails details = accessories.get(key);
+        final IColorRead color = own != null && own.isUnlocked() ? own.getColor()
+                : details != null ? details.getDefaultColor() : Color.WHITE;
+        SupporterContent.setPreviewAccessories(entity, Collections.singletonMap(key, new AccessorySettings(true, false, color)));
     }
 
     @Nullable
