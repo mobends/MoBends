@@ -168,7 +168,9 @@ public class GuiSupportersWindow extends GuiScreen
             lineY += fontRenderer.FONT_HEIGHT;
         }
 
-        drawPreview(partialTicks);
+        // drawScreen's partialTicks is the frame's length in ticks (Minecraft#getTickLength), not the
+        // partial tick the animators run at: the preview is drawn at the latter.
+        drawPreview(DataUpdateHandler.partialTicks);
         accessoryList.draw(DataUpdateHandler.partialTicks);
         if (accessoryList.getListElements().isEmpty())
         {
