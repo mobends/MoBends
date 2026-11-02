@@ -41,9 +41,9 @@ import java.util.*;
 /**
  * The Supporters window: on the left, the player wearing the accessory picked from the list on the
  * right (every supporter accessory, whether they have it or not), turning half around now and then
- * so it shows from both sides; for the sword trail, swinging a sword in combos. Above, a thank-you to supporters or what supporting gets you; below, the links to support
- * and to log in so the perks reach the game, and a refresh of what the player has (for right after
- * they've become a supporter).
+ * so it shows from both sides; for the sword trail, swinging a sword in combos. Above, a thank-you to supporters or what supporting gets you; below, the link to support,
+ * and a refresh of what the player has (for right after they've become a supporter). Logging in
+ * is on the Link account screen of the Mo' Bends menu.
  */
 public class GuiSupportersWindow extends GuiScreen
 {
@@ -75,8 +75,7 @@ public class GuiSupportersWindow extends GuiScreen
     private static final int SETTLE_TICKS = 8;
     private static final int COMPONENT_BUTTON_BACK = 0;
     private static final int COMPONENT_BUTTON_SUPPORT = 1;
-    private static final int COMPONENT_BUTTON_ACCOUNT = 2;
-    private static final int COMPONENT_BUTTON_REFRESH = 3;
+    private static final int COMPONENT_BUTTON_REFRESH = 2;
 
     /** The container's top left; its content starts PADDING inside. */
     private int x, y;
@@ -139,12 +138,9 @@ public class GuiSupportersWindow extends GuiScreen
         buttonList.clear();
         buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
         final String refresh = I18n.format("mobends.gui.supporters.refresh");
-        final String account = I18n.format("mobends.gui.supporters.account");
         final int refreshWidth = fontRenderer.getStringWidth(refresh) + 20;
-        final int accountWidth = fontRenderer.getStringWidth(account) + 30;
-        final int supportWidth = INNER_WIDTH - refreshWidth - accountWidth - 2 * GAP;
+        final int supportWidth = INNER_WIDTH - refreshWidth - GAP;
         buttonList.add(new GuiButton(COMPONENT_BUTTON_SUPPORT, left, buttonsY, supportWidth, BUTTON_HEIGHT, I18n.format("mobends.gui.supporters.support")));
-        buttonList.add(new GuiButton(COMPONENT_BUTTON_ACCOUNT, left + supportWidth + GAP, buttonsY, accountWidth, BUTTON_HEIGHT, account));
         buttonList.add(new GuiButton(COMPONENT_BUTTON_REFRESH, left + INNER_WIDTH - refreshWidth, buttonsY, refreshWidth, BUTTON_HEIGHT, refresh));
 
         accessoryList.setHeight(bodyHeight);
@@ -347,9 +343,6 @@ public class GuiSupportersWindow extends GuiScreen
                 break;
             case COMPONENT_BUTTON_SUPPORT:
                 WebLink.SUPPORT.open();
-                break;
-            case COMPONENT_BUTTON_ACCOUNT:
-                WebLink.ACCOUNT.open();
                 break;
             case COMPONENT_BUTTON_REFRESH:
                 SupporterContent.fetchAccessoryDetails();

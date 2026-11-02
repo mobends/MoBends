@@ -6,6 +6,8 @@
 
 - A *Supporters* entry in the Mo' Bends menu shows every supporter accessory on your own
   character, and which ones you have.
+- *Link account* in the Mo' Bends menu links your Minecraft account to your Mo' Bends account
+  with a code from the dashboard, so your accessories follow you even after you rename it.
 - Creepers, villagers, witches and iron golems are animated, with bending knees (and elbows for
   the iron golem); a charged creeper's armour moves with it.
 - Mods and resource packs can add animations on top of a mob's own with extensions in

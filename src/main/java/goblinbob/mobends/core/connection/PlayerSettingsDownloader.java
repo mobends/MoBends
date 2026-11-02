@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -67,6 +68,10 @@ public class PlayerSettingsDownloader implements Runnable
     {
         Map<String, String> params = new HashMap<>();
         params.put("username", task.playerName);
+        if (task.uuid != null)
+        {
+            params.put("uuid", task.uuid.toString());
+        }
 
         PlayerSettingsResponse response = ConnectionHelper.INSTANCE.sendGetRequest(new URL(apiUrl + "/api/accessory"), params, PlayerSettingsResponse.class);
 
@@ -75,13 +80,13 @@ public class PlayerSettingsDownloader implements Runnable
         Core.LOG.info("Player settings fetch successful");
     }
 
-    public void fetchSettingsForPlayer(String playerName)
+    public void fetchSettingsForPlayer(String playerName, UUID uuid)
     {
         synchronized (loadingPlayersSet)
         {
             if (!loadingPlayersSet.contains(playerName))
             {
-                playerSettingsTasks.add(new PlayerSettingsTask(playerName));
+                playerSettingsTasks.add(new PlayerSettingsTask(playerName, uuid));
                 loadingPlayersSet.add(playerName);
             }
         }

@@ -7,6 +7,7 @@ import goblinbob.mobends.core.client.gui.supporterswindow.GuiSupportersWindow;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.core.ModStatics;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -24,6 +25,7 @@ public class GuiBendsMenu extends GuiScreen
 			"textures/gui/title.png");
 	public static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/icons.png");
+	private static final int COMPONENT_BUTTON_LINK_ACCOUNT = 0;
 	private GuiSectionButton settingsButton;
 	private GuiSectionButton customizeButton;
 	private GuiSectionButton supportersButton;
@@ -57,6 +59,17 @@ public class GuiBendsMenu extends GuiScreen
 		this.settingsButton.initGui((this.width - 318) / 2, startY);
 		this.customizeButton.initGui((this.width - 318) / 2, startY + distance);
 		this.supportersButton.initGui((this.width - 318) / 2, startY + 2 * distance);
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_LINK_ACCOUNT, this.width - 110, this.height - 30, 100, 20,
+				I18n.format("mobends.gui.link.button")));
+	}
+
+	@Override
+	protected void actionPerformed(GuiButton button)
+	{
+		if (popUp == null && button.id == COMPONENT_BUTTON_LINK_ACCOUNT)
+		{
+			mc.displayGuiScreen(new GuiLinkAccount(this));
+		}
 	}
 
 	protected void keyTyped(char typedChar, int keyCode)

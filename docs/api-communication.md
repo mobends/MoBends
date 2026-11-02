@@ -20,13 +20,30 @@ HTTP calls use plain `HttpURLConnection` + Gson via `ConnectionHelper`. Backgrou
 | Method | Path | When | Response |
 |--------|------|------|---------|
 | GET | `/api/accessory/details` | `FMLPreInitializationEvent` | `Map<String, AccessoryDetails>` — all cosmetic definitions |
-| GET | `/api/player/{playerName}/settings` | On-demand per player | `Map<String, AccessorySettings>` — per-player unlock/color/visibility |
+| GET | `/api/accessory?username={name}&uuid={uuid}` | On-demand per player | `Map<String, AccessorySettings>` — per-player unlock/color/visibility |
 
 Results are cached in `SupporterContent`:
 - `accessoryDetailsMap` — all cosmetics
 - `accessorySettingsPerPlayer` — keyed by player display name
 
 Fetching is done in a background thread by `PlayerSettingsDownloader`, one `PlayerSettingsTask` per player.
+
+`uuid` is the player's profile UUID (left out for non-players). It finds an account linked through the mod even after
+the player renamed it; the API falls back to the usernames typed in on the dashboard.
+
+### Account Linking
+
+| Method | Path | When | Payload → Response |
+|--------|------|------|---------|
+| POST | `/api/minecraft-link/start` | The player enters a dashboard code | `{code}` → `{serverId, account: {displayName}}` |
+| POST | `/api/minecraft-link/confirm` | Right after joining `serverId` on Mojang's session server | `{code, username}` → `{uuid, username}` |
+
+Mo' Bends menu (G) → **Link account** (`GuiLinkAccount`). The player enters the code, confirms the Mo' Bends account
+it belongs to, and `MinecraftLink` joins the `serverId` through authlib (`joinServer`), the way the game proves its
+session to an online-mode server, then calls `/confirm`. The access token never leaves the game. Both steps run on
+a thread of their own. The menu is only reachable in a world, so no server connection is being made meanwhile.
+Errors come as `{error, message}` (`ApiErrorException`), and the screen shows each code as a message for the player.
+The API's spec is `docs/minecraft-link-api.md` in mobends-api.
 
 ### Assets
 
@@ -55,3 +72,4 @@ AccessorySettings
 
 - `HttpHostConnectException` → silently ignored (offline play unaffected)
 - JSON parse errors → logged, not rethrown
+- An error status in a POST → `ApiErrorException` with the status and the `error` code

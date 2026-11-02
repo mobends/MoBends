@@ -74,7 +74,20 @@ public class ConnectionHelper
 
     public static <T> T sendPostRequest(URL url, JsonObject body, Class<T> responseClass) throws IOException
     {
+        return sendPostRequest(url, body, responseClass, 0);
+    }
+
+    /**
+     * Posts the body as JSON and reads the response as the given class.
+     *
+     * @param timeoutMs How long to wait to connect, and then for the response, or 0 to wait forever.
+     * @throws ApiErrorException If the API responds with an error status.
+     */
+    public static <T> T sendPostRequest(URL url, JsonObject body, Class<T> responseClass, int timeoutMs) throws IOException
+    {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(timeoutMs);
+        connection.setReadTimeout(timeoutMs);
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
 
@@ -90,8 +103,14 @@ public class ConnectionHelper
             os.write(out);
         }
 
+        int status = connection.getResponseCode();
+        if (status >= 400)
+        {
+            throw ApiErrorException.read(status, connection.getErrorStream());
+        }
+
         // Response
-        BufferedReader json = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        BufferedReader json = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
         T response = INSTANCE.gson.fromJson(json, responseClass);
 
         return response;
