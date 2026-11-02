@@ -38,7 +38,7 @@ public class GuiBendsMenu extends GuiScreen
 		this.customizeButton = new GuiSectionButton(I18n.format("mobends.gui.section.customize"), 0xFF26DAA3)
 				.setLeftIcon(80, 43, 19, 14).setRightIcon(80, 43, 19, 14);
 		this.supportersButton = new GuiSectionButton(I18n.format("mobends.gui.section.supporters"), 0xFFD8306A)
-				.setLeftIcon(100, 43, 17, 15).setRightIcon(100, 43, 17, 15);
+				.setLeftIcon(100, 43, 18, 16).setRightIcon(100, 43, 18, 16);
 
 		this.popUp = null;
 	}
