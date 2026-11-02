@@ -127,9 +127,10 @@ public class GuiSupportersWindow extends GuiScreen
         this.headerLines = fontRenderer.listFormattedStringToWidth(headerMessage(), INNER_WIDTH);
         if (headerLines.size() > MAX_HEADER_LINES)
             headerLines = headerLines.subList(0, MAX_HEADER_LINES);
-        this.bodyTop = y + PADDING + headerLines.size() * fontRenderer.FONT_HEIGHT + GAP;
+        // The frames' borders are drawn outside the body, over the gaps around it: they're a GAP wider.
+        this.bodyTop = y + PADDING + headerLines.size() * fontRenderer.FONT_HEIGHT + 2 * GAP;
         final int buttonsY = y + editorHeight - PADDING - BUTTON_HEIGHT;
-        this.bodyHeight = buttonsY - GAP - bodyTop;
+        this.bodyHeight = buttonsY - 2 * GAP - bodyTop;
 
         buttonList.clear();
         buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
