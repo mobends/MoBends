@@ -57,6 +57,8 @@ public class GuiSupportersWindow extends GuiScreen
     private static final int GAP = 4;
     private static final int MAX_HEADER_LINES = 3;
     private static final int PREVIEW_WIDTH = 100;
+    /** How big the previewed player is drawn, of the size that fills its frame. */
+    private static final float PREVIEW_SCALE = 0.85F;
     private static final int BUTTON_HEIGHT = 20;
     /** Ticks the previewed player stands before it turns half around, and takes to turn. */
     private static final int STAND_TICKS = 40;
@@ -217,7 +219,7 @@ public class GuiSupportersWindow extends GuiScreen
         UIScissorHelper.INSTANCE.push(innerLeft, innerTop, innerWidth, innerHeight);
         GlStateManager.pushMatrix();
         GlStateManager.translate(innerLeft + innerWidth / 2F, innerTop + innerHeight / 2F, 0F);
-        preview.draw(innerHeight - 12, partialTicks);
+        preview.draw(Math.round((innerHeight - 12) * PREVIEW_SCALE), partialTicks);
         GlStateManager.popMatrix();
         UIScissorHelper.INSTANCE.pop();
         GlStateManager.color(1F, 1F, 1F, 1F);
