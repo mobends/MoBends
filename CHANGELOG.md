@@ -4,6 +4,8 @@
 
 ### Added
 
+- A *Supporters* entry in the Mo' Bends menu shows every supporter accessory on your own
+  character, and which ones you have.
 - Creepers, villagers, witches and iron golems are animated, with bending knees (and elbows for
   the iron golem); a charged creeper's armour moves with it.
 - Mods and resource packs can add animations on top of a mob's own with extensions in

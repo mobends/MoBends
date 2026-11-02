@@ -36,7 +36,7 @@ public class ConnectionHelper
     {
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
-        builder.registerTypeAdapter(Color.class, new ColorAdapter());
+        builder.registerTypeAdapter(Color.class, new ColorAdapter().nullSafe());
         builder.registerTypeAdapter(BindPoint.class, new BindPoint.Adapter());
         builder.registerTypeAdapter(AssetLocation.class, new AssetLocation.Adapter());
         this.gson = builder.create();

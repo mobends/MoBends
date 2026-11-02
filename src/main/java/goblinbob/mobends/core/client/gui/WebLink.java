@@ -12,36 +12,50 @@ import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 /**
- * Where the Customize entry of the Mo' Bends menu leads: the {@code officialAnimationEditorUrl} of
- * the static API, a file in the mobends-resources repository, so it can change without a release
- * (it is meant to become the web animation editor, see TODO.md). It is read on every click, off
- * the render thread; if it can't be read, the link is the roadmap.
+ * A web page the Mo' Bends menus lead to, named by the static API, a file in the mobends-resources
+ * repository, so it can change without a release. It is read on every click, off the render
+ * thread; if it can't be read, or doesn't name the page, the link is the fallback.
  */
-final class EditorLink
+public final class WebLink
 {
 
+    /** The Customize entry of the Mo' Bends menu: meant to become the web animation editor (see TODO.md). */
+    public static final WebLink EDITOR = new WebLink("officialAnimationEditorUrl", api -> api.officialAnimationEditorUrl,
+            "https://mobends.com/roadmap");
+    /** Where to become a supporter (the Patreon page). */
+    public static final WebLink SUPPORT = new WebLink("supportUrl", api -> api.supportUrl, "https://mobends.com");
+    /** Where supporters log in, so their perks reach the game. */
+    public static final WebLink ACCOUNT = new WebLink("accountUrl", api -> api.accountUrl, "https://mobends.com");
+
     private static final String STATIC_API_URL = "https://raw.githubusercontent.com/mobends/mobends-resources/master/static-api.json";
-    private static final String FALLBACK_URL = "https://mobends.com/roadmap";
     private static final int TIMEOUT_MS = 5000;
 
-    private EditorLink()
+    private final String key;
+    private final Function<StaticApi, String> urlOf;
+    private final String fallbackUrl;
+
+    private WebLink(String key, Function<StaticApi, String> urlOf, String fallbackUrl)
     {
+        this.key = key;
+        this.urlOf = urlOf;
+        this.fallbackUrl = fallbackUrl;
     }
 
     /** Reads the static API on a thread of its own, then opens the link in the browser. */
-    static void open()
+    public void open()
     {
         Thread thread = new Thread(() -> {
             String url = fetch();
             Minecraft.getMinecraft().addScheduledTask(() -> GuiHelper.openUrlInBrowser(url));
-        }, "Mo' Bends editor link");
+        }, "Mo' Bends link: " + key);
         thread.setDaemon(true);
         thread.start();
     }
 
-    private static String fetch()
+    private String fetch()
     {
         try
         {
@@ -51,25 +65,27 @@ final class EditorLink
             try (Reader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))
             {
                 StaticApi api = new Gson().fromJson(reader, StaticApi.class);
-                String url = api == null ? null : api.officialAnimationEditorUrl;
+                String url = api == null ? null : urlOf.apply(api);
                 // Only web pages: the link comes from outside the game.
                 if (url != null && url.startsWith("https://"))
                 {
                     return url;
                 }
-                Core.LOG.warning("The static API has no usable officialAnimationEditorUrl: " + url);
+                Core.LOG.warning("The static API has no usable " + key + ": " + url);
             }
         }
         catch (IOException | JsonParseException e)
         {
-            Core.LOG.warning("Could not read the static API (" + e + "), opening " + FALLBACK_URL);
+            Core.LOG.warning("Could not read the static API (" + e + "), opening " + fallbackUrl);
         }
-        return FALLBACK_URL;
+        return fallbackUrl;
     }
 
     private static class StaticApi
     {
         String officialAnimationEditorUrl;
+        String supportUrl;
+        String accountUrl;
     }
 
 }

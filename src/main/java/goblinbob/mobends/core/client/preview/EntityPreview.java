@@ -25,12 +25,14 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Modifier;
+import java.util.function.Consumer;
 
 /**
  * A bender's mob, animated in a frame of the Settings window: an entity of the bender's class (the
  * player's own copy for players) standing in a {@link PreviewWorld}, drawn orthographically from
  * three quarters above and fit to the frame by its hitbox. It idles, or walks in place while
- * {@link #tick(boolean) asked to}. A mob that can't be made or drawn shows its spawn egg instead.
+ * {@link #tick(boolean) asked to}, and carries an arm swing through when made to swing. A mob that
+ * can't be made or drawn shows its spawn egg instead.
  */
 public class EntityPreview
 {
@@ -40,10 +42,14 @@ public class EntityPreview
     private static final float TILT = 20F;
     /** Blocks per tick, about a mob's walking pace. */
     private static final double WALK_SPEED = 0.2D;
+    /** Ticks an arm swing takes, as EntityLivingBase#getArmSwingAnimationEnd without haste or fatigue. */
+    private static final int SWING_TICKS = 6;
 
     @Nullable
     private final PreviewWorld world;
     private final EntityBender<?> bender;
+    /** Called with the entity once it is made, before it is first drawn. */
+    private final Consumer<EntityLivingBase> setUp;
 
     private boolean made;
     @Nullable
@@ -55,8 +61,22 @@ public class EntityPreview
     /** @param world Where the mob stands; null to always show the fallback. */
     public EntityPreview(@Nullable PreviewWorld world, EntityBender<?> bender)
     {
+        this(world, bender, entity -> {});
+    }
+
+    /** @param setUp Called with the entity once it is made, before it is first drawn. */
+    public EntityPreview(@Nullable PreviewWorld world, EntityBender<?> bender, Consumer<EntityLivingBase> setUp)
+    {
         this.world = world;
         this.bender = bender;
+        this.setUp = setUp;
+    }
+
+    /** The entity shown, once it is made (on the first draw); null before, or if it can't be. */
+    @Nullable
+    public EntityLivingBase getEntity()
+    {
+        return entity;
     }
 
     /** Advances the mob by a tick: walking forward if {@code walking}, else standing still. */
@@ -82,6 +102,18 @@ public class EntityPreview
         final float swing = Math.min((float) speed * 4F, 1F);
         entity.limbSwingAmount += (swing - entity.limbSwingAmount) * 0.4F;
         entity.limbSwing += entity.limbSwingAmount;
+
+        // As EntityLivingBase#updateArmSwingProgress carries a swing (begun by swingArm) through.
+        entity.prevSwingProgress = entity.swingProgress;
+        if (entity.isSwingInProgress && ++entity.swingProgressInt >= SWING_TICKS)
+        {
+            entity.isSwingInProgress = false;
+        }
+        if (!entity.isSwingInProgress)
+        {
+            entity.swingProgressInt = 0;
+        }
+        entity.swingProgress = (float) entity.swingProgressInt / SWING_TICKS;
 
         if (entity instanceof EntityPlayer)
         {
@@ -225,6 +257,7 @@ public class EntityPreview
                 return null;
             }
             world.register(made, bender);
+            setUp.accept(made);
             return made;
         }
         catch (Throwable e)
