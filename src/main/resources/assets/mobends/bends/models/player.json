@@ -58,9 +58,9 @@
     "update": [
       {"@when": {"and": ["entity.liftedOff", {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", {"not": ["entity.sprintJumpLeg"]}]},
       {"@when": "entity.liftedOff", "set": ["entity.sprintJumpLegSwitched", true]},
-      {"@when": {"lt": ["entityMotionY", 0]}, "set": ["entity.sprintJumpLegSwitched", false]},
-      {"@when": {"and": [{"gt": ["entityMotionY", 0]}, {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", {"not": ["entity.sprintJumpLeg"]}]},
-      {"@when": {"gt": ["entityMotionY", 0]}, "set": ["entity.sprintJumpLegSwitched", true]}
+      {"@when": {"lt": ["entityTickMotionY", 0]}, "set": ["entity.sprintJumpLegSwitched", false]},
+      {"@when": {"and": [{"gt": ["entityTickMotionY", 0]}, {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", {"not": ["entity.sprintJumpLeg"]}]},
+      {"@when": {"gt": ["entityTickMotionY", 0]}, "set": ["entity.sprintJumpLegSwitched", true]}
     ]
   }
 }

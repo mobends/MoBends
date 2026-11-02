@@ -117,16 +117,22 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         // Read through the field, which the lab replaces with a seeded one.
         registerVariable("random", () -> random.nextDouble());
         registerVariable("entityId", () -> entity != null ? entity.getEntityId() : 0);
-        registerVariable("entityMotionX", () -> motionX);
-        registerVariable("entityMotionY", () -> motionY);
-        registerVariable("entityMotionZ", () -> motionZ);
-        registerVariable("entityPrevMotionY", () -> prevMotionY);
-        registerVariable("entityInterpolatedMotionY", this::getInterpolatedMotionY);
+        // The motion, interpolated by partialTicks; the Tick ones are the motion over the last tick
+        // and the one before it, as they are, for catching what happens from one tick to the next.
+        registerVariable("entityMotionX", this::getInterpolatedMotionX);
+        registerVariable("entityMotionY", this::getInterpolatedMotionY);
+        registerVariable("entityMotionZ", this::getInterpolatedMotionZ);
+        registerVariable("entityTickMotionX", () -> motionX);
+        registerVariable("entityTickMotionY", () -> motionY);
+        registerVariable("entityTickMotionZ", () -> motionZ);
+        registerVariable("entityPrevTickMotionX", () -> prevMotionX);
+        registerVariable("entityPrevTickMotionY", () -> prevMotionY);
+        registerVariable("entityPrevTickMotionZ", () -> prevMotionZ);
         registerVariable("entitySpeed", this::getInterpolatedMotionMagnitude);
         registerVariable("entityXZSpeed", this::getInterpolatedXZMotionMagnitude);
         registerVariable("entityForwardMomentum", this::getForwardMomentum);
         registerVariable("entitySidewaysMomentum", this::getSidewaysMomentum);
-        registerVariable("entityTicksExisted", () -> entity != null ? entity.ticksExisted : 0);
+        registerVariable("entityTicksExisted", () -> entity != null ? entity.ticksExisted + DataUpdateHandler.partialTicks : 0);
         registerVariable("entityDistanceMoved", () -> GUtil.lerp(prevDistanceMoved, distanceMoved, DataUpdateHandler.partialTicks));
         // Interpolated like the renderer does, in doubles: step_turn plants feet in the world.
         registerVariable("entityWorldX", () -> entity != null ? entity.prevPosX + (entity.posX - entity.prevPosX) * DataUpdateHandler.partialTicks : 0);
@@ -453,23 +459,36 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         return this.getWorldMovementAngle() - this.getLookAngle();
     }
 
+    /**
+     * The interpolated motion's part along where the entity looks (its look interpolated too), so
+     * it changes every frame and not once a tick.
+     */
     public double getForwardMomentum()
     {
-        if (isStillHorizontally())
+        if (isStillHorizontallyInterpolated())
             return 0;
 
-        final Vec3d lookVec = this.entity.getLookVec();
+        final Vec3d lookVec = this.entity.getLook(DataUpdateHandler.partialTicks);
         final Vec3d lookVecHorizontal = new Vec3d(lookVec.x, 0, lookVec.z).normalize();
-        return lookVecHorizontal.x * this.motionX + lookVecHorizontal.z * this.motionZ;
+        return lookVecHorizontal.x * this.getInterpolatedMotionX() + lookVecHorizontal.z * this.getInterpolatedMotionZ();
     }
 
+    /** See {@link #getForwardMomentum}: the part to the entity's right. */
     public double getSidewaysMomentum()
     {
-        if (isStillHorizontally())
+        if (isStillHorizontallyInterpolated())
             return 0;
-        Vec3d rightVec = entity.getLookVec().rotateYaw(-GUtil.PI / 2.0F);
+        Vec3d rightVec = entity.getLook(DataUpdateHandler.partialTicks).rotateYaw(-GUtil.PI / 2.0F);
         Vec3d rightVecHorizontal = new Vec3d(rightVec.x, 0, rightVec.z).normalize();
-        return rightVecHorizontal.x * this.motionX + rightVecHorizontal.z * this.motionZ;
+        return rightVecHorizontal.x * this.getInterpolatedMotionX() + rightVecHorizontal.z * this.getInterpolatedMotionZ();
+    }
+
+    /** {@link #isStillHorizontally}, of the interpolated motion. */
+    private boolean isStillHorizontallyInterpolated()
+    {
+        final double x = this.getInterpolatedMotionX();
+        final double z = this.getInterpolatedMotionZ();
+        return x * x + z * z < 0.0025;
     }
 
     private static final float STRAFING_THRESHOLD = 30.0f;

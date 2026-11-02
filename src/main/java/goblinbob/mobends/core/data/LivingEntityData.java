@@ -27,6 +27,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     protected float attackComboTicks;
     protected float ticksFalling;
     protected float climbingCycle = 0F;
+    protected float prevClimbingCycle = 0F;
     protected boolean alreadyAttacked = false;
     protected boolean climbing = false;
 
@@ -73,14 +74,18 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         registerVariable("entityTicksAfterTouchdown", () -> ticksAfterTouchdown);
         registerVariable("entityTicksAfterAttack", () -> ticksAfterAttack);
         registerVariable("entityTicksFalling", () -> ticksFalling);
-        registerVariable("entityClimbingCycle", () -> climbingCycle);
+        registerVariable("entityClimbingCycle", () -> GUtil.lerp(prevClimbingCycle, climbingCycle, DataUpdateHandler.partialTicks));
         registerVariable("entityHealth", () -> entity != null ? entity.getHealth() : 0);
         registerVariable("entityLedgeHeight", this::getLedgeHeight);
         registerVariable("entityClimbingRotation", this::getClimbingRotation);
-        // Vanilla's names are backwards: getItemInUseMaxCount is the ticks used so far.
-        registerVariable("entityItemUseTicks", () -> entity != null ? entity.getItemInUseMaxCount() : 0);
-        registerVariable("entityItemUseTicksLeft", () -> entity != null ? entity.getItemInUseCount() : 0);
-        registerVariable("entityTicksElytraFlying", () -> entity != null ? entity.getTicksElytraFlying() : 0);
+        // Vanilla's names are backwards: getItemInUseMaxCount is the ticks used so far. These count
+        // whole ticks, so they go on by partialTicks while they count.
+        registerVariable("entityItemUseTicks", () -> entity != null && entity.getItemInUseCount() > 0
+                ? entity.getItemInUseMaxCount() + DataUpdateHandler.partialTicks : 0);
+        registerVariable("entityItemUseTicksLeft", () -> entity != null && entity.getItemInUseCount() > 0
+                ? Math.max(0, entity.getItemInUseCount() - DataUpdateHandler.partialTicks) : 0);
+        registerVariable("entityTicksElytraFlying", () -> entity != null && entity.getTicksElytraFlying() > 0
+                ? entity.getTicksElytraFlying() + DataUpdateHandler.partialTicks : 0);
 
         registerState("entityIsClimbing", this::isClimbing);
         registerState("entityIsDrawingBow", this::isDrawingBow);
@@ -93,21 +98,21 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
         // The yaw vanilla turns the body to, interpolated as the renderer does.
         registerVariable("entityBodyYaw", this::getBodyYaw);
-        registerVariable("entityClimbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation()) : 0);
+        registerVariable("entityClimbingRenderYaw", () -> entity != null ? MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation()) : 0);
         registerVariable("entityClimbingBodyYaw", () -> entity != null
-                ? MathHelper.wrapDegrees(headYaw + MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation())) : 0);
+                ? MathHelper.wrapDegrees(headYaw + MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation())) : 0);
         registerVariable("entityClimbingHeadYaw", () -> {
             if (entity == null) return 0;
-            float renderRotationY = MathHelper.wrapDegrees(entity.rotationYaw - headYaw - getClimbingRotation());
+            float renderRotationY = MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation());
             return Math.max(-90F, Math.min(90F, MathHelper.wrapDegrees(headYaw + renderRotationY)));
         });
         registerVariable("entityRidingRelativeHeadYaw", () -> {
             if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
-            return MathHelper.wrapDegrees(entity.rotationYaw - ((EntityLivingBase) entity.getRidingEntity()).renderYawOffset);
+            return MathHelper.wrapDegrees(getYaw() - getMountBodyYaw());
         });
         registerVariable("entityRidingRelativeYaw", () -> {
             if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;
-            return MathHelper.wrapDegrees(entity.rotationYaw - headYaw - ((EntityLivingBase) entity.getRidingEntity()).renderYawOffset);
+            return MathHelper.wrapDegrees(getYaw() - headYaw - getMountBodyYaw());
         });
     }
 
@@ -147,6 +152,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
             this.onGround = false;
         }
 
+        this.prevClimbingCycle = this.climbingCycle;
         if (this.calcClimbing())
         {
             this.climbingCycle += this.motionY * 2.6F;
@@ -189,6 +195,19 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
             return bodyYaw;
         }
         return GUtil.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, DataUpdateHandler.partialTicks);
+    }
+
+    /** The entity's yaw, interpolated as the renderer does. */
+    private float getYaw()
+    {
+        return GUtil.interpolateRotation(entity.prevRotationYaw, entity.rotationYaw, DataUpdateHandler.partialTicks);
+    }
+
+    /** The body yaw of the living entity this one rides, interpolated as the renderer does. */
+    private float getMountBodyYaw()
+    {
+        EntityLivingBase mount = (EntityLivingBase) entity.getRidingEntity();
+        return GUtil.interpolateRotation(mount.prevRenderYawOffset, mount.renderYawOffset, DataUpdateHandler.partialTicks);
     }
 
     @Override
@@ -351,7 +370,7 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
     public float getLedgeHeight()
     {
-        float clientY = (float) (entity.posY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks);
+        float clientY = (float) (entity.prevPosY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks);
 
         final BlockPos position = new BlockPos(Math.floor(entity.posX), Math.floor(entity.posY), Math.floor(entity.posZ));
 

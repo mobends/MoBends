@@ -198,7 +198,7 @@
                   {
                     "core:spring": {
                       "inout": "node.flare",
-                      "target": {"clamp": [{"mul": ["entityInterpolatedMotionY", -70]}, -6, 35]},
+                      "target": {"clamp": [{"mul": ["entityMotionY", -70]}, -6, 35]},
                       "stiffness": 0.3,
                       "friction": 0.3
                     }
@@ -206,7 +206,7 @@
                   {
                     "core:spring": {
                       "inout": "node.swing",
-                      "target": {"clamp": [{"mul": ["entityInterpolatedMotionY", 35]}, -20, 15]},
+                      "target": {"clamp": [{"mul": ["entityMotionY", 35]}, -20, 15]},
                       "stiffness": 0.25,
                       "friction": 0.3
                     }
@@ -214,7 +214,7 @@
                   {
                     "core:spring": {
                       "inout": "node.lean",
-                      "target": {"clamp": [{"mul": ["entityInterpolatedMotionY", -15]}, -4, 8]},
+                      "target": {"clamp": [{"mul": ["entityMotionY", -15]}, -4, 8]},
                       "stiffness": 0.2,
                       "friction": 0.35
                     }

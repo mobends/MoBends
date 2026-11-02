@@ -75,9 +75,10 @@ public class PlayerEntityValuesTest
             return Math.min(Math.max(getInterpolatedMotionMagnitude(), 0), 0.2) / 0.2;
         }
 
+        /** As the Java data class did, but of the interpolated vertical motion, as entityMotionY now is. */
         double flightPitch()
         {
-            return MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getMotionY()) * 180.0D / Math.PI * flightSpeedFactor();
+            return MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getInterpolatedMotionY()) * 180.0D / Math.PI * flightSpeedFactor();
         }
     }
 

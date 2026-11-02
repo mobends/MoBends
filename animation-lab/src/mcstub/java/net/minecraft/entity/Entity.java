@@ -68,10 +68,27 @@ public class Entity
     /** Same maths as the game's Entity.getLook(1.0F). */
     public Vec3d getLookVec()
     {
-        float f = MathHelper.cos(-rotationYaw * 0.017453292F - (float) Math.PI);
-        float f1 = MathHelper.sin(-rotationYaw * 0.017453292F - (float) Math.PI);
-        float f2 = -MathHelper.cos(-rotationPitch * 0.017453292F);
-        float f3 = MathHelper.sin(-rotationPitch * 0.017453292F);
+        return getLook(1.0F);
+    }
+
+    /** Same maths as the game's Entity.getLook: the look, interpolated by partialTicks. */
+    public Vec3d getLook(float partialTicks)
+    {
+        if (partialTicks == 1.0F)
+        {
+            return getVectorForRotation(rotationPitch, rotationYaw);
+        }
+        float pitch = prevRotationPitch + (rotationPitch - prevRotationPitch) * partialTicks;
+        float yaw = prevRotationYaw + (rotationYaw - prevRotationYaw) * partialTicks;
+        return getVectorForRotation(pitch, yaw);
+    }
+
+    protected final Vec3d getVectorForRotation(float pitch, float yaw)
+    {
+        float f = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
+        float f1 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
+        float f2 = -MathHelper.cos(-pitch * 0.017453292F);
+        float f3 = MathHelper.sin(-pitch * 0.017453292F);
         return new Vec3d((double) (f1 * f2), (double) f3, (double) (f * f2));
     }
 }

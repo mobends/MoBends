@@ -130,9 +130,7 @@
                 "core:rotate": {
                   "bone": "leg1",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, 25]}, -20]}
                 },
                 "@space": "post"
               },
@@ -140,9 +138,7 @@
                 "core:rotate": {
                   "bone": "leg2",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, -25]}, 20]}
                 },
                 "@space": "post"
               },
@@ -150,9 +146,7 @@
                 "core:rotate": {
                   "bone": "leg3",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, 25]}, -20]}
                 },
                 "@space": "post"
               },
@@ -160,9 +154,7 @@
                 "core:rotate": {
                   "bone": "leg4",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, -25]}, 20]}
                 },
                 "@space": "post"
               },
@@ -170,9 +162,7 @@
                 "core:rotate": {
                   "bone": "leg5",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, 25]}, -20]}
                 },
                 "@space": "post"
               },
@@ -180,9 +170,7 @@
                 "core:rotate": {
                   "bone": "leg6",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, -25]}, 20]}
                 },
                 "@space": "post"
               },
@@ -190,9 +178,7 @@
                 "core:rotate": {
                   "bone": "leg7",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 25]}, -20]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, 25]}, -20]}
                 },
                 "@space": "post"
               },
@@ -200,9 +186,7 @@
                 "core:rotate": {
                   "bone": "leg8",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -25]}, 20]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, -25]}, 20]}
                 },
                 "@space": "post"
               },
@@ -210,9 +194,7 @@
                 "core:rotate": {
                   "bone": "foreLeg1",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, -40]}, -70]}
                 },
                 "@space": "override",
                 "@smoothing": {"foreLeg1": 1}
@@ -221,7 +203,7 @@
                 "core:rotate": {
                   "bone": "foreLeg2",
                   "axis": "z",
-                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, 40]}, 70]}
                 },
                 "@space": "override",
                 "@smoothing": {"foreLeg2": 1}
@@ -230,9 +212,7 @@
                 "core:rotate": {
                   "bone": "foreLeg3",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, -40]}, -70]}
                 },
                 "@space": "override",
                 "@smoothing": {"foreLeg3": 1}
@@ -241,7 +221,7 @@
                 "core:rotate": {
                   "bone": "foreLeg4",
                   "axis": "z",
-                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, 40]}, 70]}
                 },
                 "@space": "override",
                 "@smoothing": {"foreLeg4": 1}
@@ -250,9 +230,7 @@
                 "core:rotate": {
                   "bone": "foreLeg5",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, -40]}, -70]}
                 },
                 "@space": "override",
                 "@smoothing": {"foreLeg5": 1}
@@ -261,7 +239,7 @@
                 "core:rotate": {
                   "bone": "foreLeg6",
                   "axis": "z",
-                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, 40]}, 70]}
                 },
                 "@space": "override",
                 "@smoothing": {"foreLeg6": 1}
@@ -270,9 +248,7 @@
                 "core:rotate": {
                   "bone": "foreLeg7",
                   "axis": "z",
-                  "angle": {
-                    "add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, -40]}, -70]
-                  }
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, -40]}, -70]}
                 },
                 "@space": "override",
                 "@smoothing": {"foreLeg7": 1}
@@ -281,7 +257,7 @@
                 "core:rotate": {
                   "bone": "foreLeg8",
                   "axis": "z",
-                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityInterpolatedMotionY", -5]}, -1, 1]}, 40]}, 70]}
+                  "angle": {"add": [{"mul": [{"clamp": [{"mul": ["entityMotionY", -5]}, -1, 1]}, 40]}, 70]}
                 },
                 "@space": "override",
                 "@smoothing": {"foreLeg8": 1}
