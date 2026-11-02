@@ -193,8 +193,7 @@ public class GuiSupportersWindow extends GuiScreen
     }
 
     /**
-     * The player wearing the accessory picked, in a dark frame left of the list. An accessory with
-     * nothing to wear (the sword trail's color, say) gets a note that it shows in play instead.
+     * The player wearing the accessory picked, in a dark frame left of the list.
      */
     private void drawPreview(float partialTicks)
     {
@@ -215,24 +214,12 @@ public class GuiSupportersWindow extends GuiScreen
             return;
         }
 
-        final AccessoryDetails details = accessories.get(selectedKey);
-        final List<String> note = details != null && details.getParts().iterator().hasNext() ? Collections.emptyList()
-                : fontRenderer.listFormattedStringToWidth(I18n.format("mobends.gui.supporters.in_play"), innerWidth - 8);
-        final int noteHeight = note.isEmpty() ? 0 : note.size() * fontRenderer.FONT_HEIGHT + 6;
-
         UIScissorHelper.INSTANCE.push(innerLeft, innerTop, innerWidth, innerHeight);
         GlStateManager.pushMatrix();
-        GlStateManager.translate(innerLeft + innerWidth / 2F, innerTop + (innerHeight - noteHeight) / 2F, 0F);
-        preview.draw(innerHeight - noteHeight - 12, partialTicks);
+        GlStateManager.translate(innerLeft + innerWidth / 2F, innerTop + innerHeight / 2F, 0F);
+        preview.draw(innerHeight - 12, partialTicks);
         GlStateManager.popMatrix();
         UIScissorHelper.INSTANCE.pop();
-
-        int noteY = innerTop + innerHeight - noteHeight + 2;
-        for (String line : note)
-        {
-            fontRenderer.drawString(line, innerLeft + (innerWidth - fontRenderer.getStringWidth(line)) / 2, noteY, 0x9a9a9a);
-            noteY += fontRenderer.FONT_HEIGHT;
-        }
         GlStateManager.color(1F, 1F, 1F, 1F);
     }
 
