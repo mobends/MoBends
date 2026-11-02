@@ -729,20 +729,21 @@ operation, or a definition of the mob's model definition (see *Model definitions
 | `entityIsSprinting`, `entityIsSneaking`, `entityIsAlive`, `entityIsInWater`, `entityIsRiding` | `Entity` |
 | `entityIsChild`, `entityIsLeftHanded`, `entityHealth`, `entityIsSwinging`, `entityIsSleeping`, `entityIsElytraFlying` | `EntityLivingBase` (false or 0 unless a subclass says otherwise; `entityIsSleeping` holds only while alive) |
 | `entityId` | vanilla's entity id (a number to vary entities by) |
-| `entityTicksExisted`, `entityTicksElytraFlying` | vanilla's age and glide time |
+| `entityTicksExisted`, `entityTicksElytraFlying` | vanilla's age and glide time, going on by `partialTicks` (the glide time while gliding) |
 | `entityDistanceMoved` | how far the entity has moved, in blocks, summed tick by tick and interpolated by `partialTicks` (the spider's crawl cycle) |
-| `entityItemUseTicks`, `entityItemUseTicksLeft` | ticks the item in use has been used so far, and ticks left (vanilla's `getItemInUseMaxCount` and `getItemInUseCount`) |
+| `entityItemUseTicks`, `entityItemUseTicksLeft` | ticks the item in use has been used so far, and ticks left (vanilla's `getItemInUseMaxCount` and `getItemInUseCount`), going on by `partialTicks` while an item is in use |
 | `entityIsOnGround`, `entityIsClimbing` | Mo' Bends' own detection: collision boxes and stairs, with liftoff detection; ladders |
-| `entityTicksInAir`, `entityTicksAfterTouchdown`, `entityTicksFalling`, `entityClimbingCycle` | Mo' Bends' counters over that detection |
+| `entityTicksInAir`, `entityTicksAfterTouchdown`, `entityTicksFalling`, `entityClimbingCycle` | Mo' Bends' counters over that detection (`entityClimbingCycle` interpolated by `partialTicks`) |
 | `entityTicksAfterAttack` | ticks since the last counted swing (below) |
 | `entityIsUnderwater`, `entityLedgeHeight`, `entityClimbingRotation` | Mo' Bends' block checks around the entity |
 | `entityIsDrawingBow`, `entityIsRidingLiving` | the held items; whether what the entity rides is living |
 | `entityIsStandingStill`, `entityIsStrafing` | Mo' Bends' measured motion |
-| `entityMotionX`, `entityMotionY`, `entityMotionZ`, `entityPrevMotionY`, `entityInterpolatedMotionY`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity (vanilla's motion fields read 0 for the entities the server moves). `entitySpeed` and `entityXZSpeed` are magnitudes interpolated by `partialTicks`; a rider's include what carries it |
+| `entityMotionX`, `entityMotionY`, `entityMotionZ`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity (vanilla's motion fields read 0 for the entities the server moves), interpolated by `partialTicks` so it changes every frame. `entitySpeed` and `entityXZSpeed` are its magnitudes; `entityForwardMomentum` and `entitySidewaysMomentum` its parts along where the entity looks and to its right. A rider's include what carries it |
+| `entityTickMotionX`, `entityTickMotionY`, `entityTickMotionZ`, `entityPrevTickMotionX`, `entityPrevTickMotionY`, `entityPrevTickMotionZ` | the same motion, not interpolated: over the last tick, and over the tick before it. They change once a tick, so they are for catching what happens from one tick to the next (`bounced`: `entityPrevTickMotionY` below 0 and `entityTickMotionY` above it), not for posing |
 | `entityBodyYaw`, `entityWorldX`, `entityWorldY`, `entityWorldZ` | the body yaw and the position, interpolated as the renderer does (`core:step_turn`'s, `core:anchor`'s and the IK's default inputs). The position is in doubles (see *Expressions*) |
 | `entityHeight` | the entity's height, in blocks (vanilla's `height`): what the renderer turns `centerRotation` about half of |
-| `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` | relative to the ridden entity (0 unless riding something living) |
-| `entityClimbingRenderYaw`, `entityClimbingBodyYaw`, `entityClimbingHeadYaw` | the yaws while climbing |
+| `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` | relative to the ridden entity's body (0 unless riding something living), interpolated as the renderer does |
+| `entityClimbingRenderYaw`, `entityClimbingBodyYaw`, `entityClimbingHeadYaw` | the yaws while climbing, interpolated as the renderer does |
 
 Values left out are added when something needs them; adding a built-in never breaks a file.
 

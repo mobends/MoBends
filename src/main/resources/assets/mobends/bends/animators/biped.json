@@ -2,7 +2,7 @@
   "formatVersion": 2,
   "@define": {
     "jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}},
-    "bounced": {"live": {"and": [{"lt": ["entityPrevMotionY", 0]}, {"gt": ["entityMotionY", 0]}]}},
+    "bounced": {"live": {"and": [{"lt": ["entityPrevTickMotionY", 0]}, {"gt": ["entityTickMotionY", 0]}]}},
     "standing": {"live": {"and": [{"not": ["animator.jumping"]}, "entityIsStandingStill"]}},
     "walking": {"live": {"and": [{"not": ["animator.jumping"]}, {"not": ["entityIsStandingStill"]}]}},
     "canSpinAttack": {"live": true}

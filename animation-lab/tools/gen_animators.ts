@@ -211,7 +211,7 @@ function poseClip(path: string, bones: Record<string, Quaternion>, vectors: Reco
 const B = (n: string) => clipKey("biped", n);
 const jumping = OR(NOT(state("entityIsOnGround")), cmp("entityTicksAfterTouchdown", "<", 1));
 /** A new jump while still in the air (a bounce): the jump starts over. */
-const bounced = AND(cmp("entityPrevMotionY", "<", 0), cmp("entityMotionY", ">", 0));
+const bounced = AND(cmp("entityPrevTickMotionY", "<", 0), cmp("entityTickMotionY", ">", 0));
 /** stand / walk / jump: the layer's selector over the nodes of those names (animator.jumping is the animator's definition). */
 const locomotionSelect: Obj[] = [
   { when: "animator.jumping", then: "jump" },
@@ -1055,7 +1055,7 @@ function naturalYaw(i: number): number {
   return degrees(i % 2 === 1 ? -ny * 1.3 : ny * 1.3);
 }
 poseClip(join(CLIPS, "spider", "jump.json"), Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, rotations(["Y", naturalYaw(i)])])), { root: [0, 0, 0] });
-const jumpMotion = (mul: number, add: number) => value("entityInterpolatedMotionY", { scale: -5, min: -1, max: 1, mul, add });
+const jumpMotion = (mul: number, add: number) => value("entityMotionY", { scale: -5, min: -1, max: 1, mul, add });
 const alternate = (i: number) => (i % 2 ? -1 : 1);
 // Nothing in the jump reads resetLimbs: the next legs driver to start does, and replants the feet.
 const spJump: Obj = poseNode([

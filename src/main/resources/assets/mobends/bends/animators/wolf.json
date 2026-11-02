@@ -4,7 +4,7 @@
   "@define": {
     "tailWag": {"@comment": "Vanilla's tail wag: the interested angle (in radians) times a wave over the wolf's age.",
                 "live": {"mul": [{"div": [{"mobends:wolf_interested_angle": []}, 57.29578]},
-                                 {"mcsin": [{"add": ["entityTicksExisted", "partialTicks"]}]}, 20]}}
+                                 {"mcsin": ["entityTicksExisted"]}, 20]}}
   },
   "layers": [
     {
