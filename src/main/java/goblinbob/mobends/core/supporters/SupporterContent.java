@@ -172,7 +172,9 @@ public class SupporterContent
             return Collections.emptyMap();
         }
 
-        return settings.getSettings();
+        // The downloader only registers responses with settings; this keeps the renderer safe whatever is cached.
+        Map<String, AccessorySettings> settingsMap = settings.getSettings();
+        return settingsMap != null ? settingsMap : Collections.emptyMap();
     }
 
     public static IColorRead getTrailColorFor(EntityLivingBase entity)

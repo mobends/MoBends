@@ -47,6 +47,12 @@ public class ConnectionHelper
         return gson;
     }
 
+    /**
+     * Gets the URL with the params added to its query, and reads the response as the given class.
+     *
+     * @return The response, or null if it has no body.
+     * @throws ApiErrorException If the API responds with an error status, whatever its body (e.g. a plain-text 503).
+     */
     public static <T> T sendGetRequest(URL url, Map<String, String> params, Class<T> responseClass) throws IOException, URISyntaxException
     {
         HttpGet request = new HttpGet();
@@ -62,6 +68,12 @@ public class ConnectionHelper
         try (CloseableHttpResponse response = INSTANCE.httpClient.execute(request))
         {
             HttpEntity entity = response.getEntity();
+
+            int status = response.getStatusLine().getStatusCode();
+            if (status >= 400)
+            {
+                throw ApiErrorException.read(status, entity == null ? null : entity.getContent());
+            }
 
             if (entity != null) {
                 // return it as a String

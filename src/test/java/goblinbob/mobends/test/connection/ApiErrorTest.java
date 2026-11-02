@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -64,6 +65,12 @@ public class ApiErrorTest
     {
         URL url = new URL("http://127.0.0.1:" + server.getAddress().getPort() + "/api/minecraft-link/session");
         return ConnectionHelper.sendAuthorizedRequest(method, url, "secret-token", responseClass, 5000);
+    }
+
+    private <T> T get(Class<T> responseClass) throws Exception
+    {
+        URL url = new URL("http://127.0.0.1:" + server.getAddress().getPort() + "/api/accessory");
+        return ConnectionHelper.sendGetRequest(url, Collections.singletonMap("username", "Notch"), responseClass);
     }
 
     private static class Account
@@ -164,6 +171,42 @@ public class ApiErrorTest
         catch (IOException e)
         {
             fail("Expected an ApiErrorException, got " + e);
+        }
+    }
+
+    @Test
+    public void readsAPlainTextErrorOfAGet() throws Exception
+    {
+        status = 503;
+        response = "503 Service Unavailable";
+
+        try
+        {
+            get(Account.class);
+            fail("Expected an ApiErrorException");
+        }
+        catch (ApiErrorException e)
+        {
+            assertEquals(503, e.getStatus());
+            assertNull(e.getError());
+        }
+    }
+
+    @Test
+    public void readsTheErrorCodeOfAGet() throws Exception
+    {
+        status = 500;
+        response = "{\"error\": \"internal_error\", \"message\": \"500 Internal Server Error\"}";
+
+        try
+        {
+            get(Account.class);
+            fail("Expected an ApiErrorException");
+        }
+        catch (ApiErrorException e)
+        {
+            assertEquals(500, e.getStatus());
+            assertEquals("internal_error", e.getError());
         }
     }
 
