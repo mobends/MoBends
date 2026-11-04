@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class ConnectionManager
@@ -78,11 +79,14 @@ public class ConnectionManager
         initialized = true;
     }
 
-    public void fetchSettingsForPlayer(String playerName)
+    /**
+     * @param uuid The player's profile UUID, or null if it isn't known.
+     */
+    public void fetchSettingsForPlayer(String playerName, UUID uuid)
     {
         if (playerSettingsDownloader != null)
         {
-            playerSettingsDownloader.fetchSettingsForPlayer(playerName);
+            playerSettingsDownloader.fetchSettingsForPlayer(playerName, uuid);
         }
     }
 

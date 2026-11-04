@@ -4,9 +4,12 @@ import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
 import goblinbob.mobends.core.client.gui.popup.GuiPopUp;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
 import goblinbob.mobends.core.client.gui.supporterswindow.GuiSupportersWindow;
+import goblinbob.mobends.core.connection.MoBendsAccount;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.core.ModStatics;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -24,6 +27,10 @@ public class GuiBendsMenu extends GuiScreen
 			"textures/gui/title.png");
 	public static final ResourceLocation ICONS_TEXTURE = new ResourceLocation(ModStatics.MODID,
 			"textures/gui/icons.png");
+	private static final int COMPONENT_BUTTON_LINK_ACCOUNT = 0;
+	private static final int COMPONENT_BUTTON_ACCOUNT = 1;
+	private static final int COMPONENT_BUTTON_LOG_OUT = 2;
+	private static final int ACCOUNT_NAME_MAX_WIDTH = 120;
 	private GuiSectionButton settingsButton;
 	private GuiSectionButton customizeButton;
 	private GuiSectionButton supportersButton;
@@ -41,6 +48,14 @@ public class GuiBendsMenu extends GuiScreen
 				.setLeftIcon(100, 43, 18, 16).setRightIcon(100, 43, 18, 16);
 
 		this.popUp = null;
+
+		// The account may have been unlinked or renamed on the dashboard.
+		MoBendsAccount.verify(() -> {
+			if (Minecraft.getMinecraft().currentScreen == this)
+			{
+				this.initGui();
+			}
+		});
 	}
 
 	public void initGui()
@@ -57,6 +72,57 @@ public class GuiBendsMenu extends GuiScreen
 		this.settingsButton.initGui((this.width - 318) / 2, startY);
 		this.customizeButton.initGui((this.width - 318) / 2, startY + distance);
 		this.supportersButton.initGui((this.width - 318) / 2, startY + 2 * distance);
+		addAccountButtons();
+	}
+
+	/** Link account, or once linked, the Mo' Bends account's name (opening the dashboard) and Log out. */
+	private void addAccountButtons()
+	{
+		MoBendsAccount.Session session = MoBendsAccount.getCurrent();
+		if (session == null)
+		{
+			this.buttonList.add(new GuiButton(COMPONENT_BUTTON_LINK_ACCOUNT, this.width - 110, this.height - 30, 100, 20,
+					I18n.format("mobends.gui.link.button")));
+			return;
+		}
+
+		String logOut = I18n.format("mobends.gui.link.log_out");
+		int logOutWidth = this.fontRenderer.getStringWidth(logOut) + 20;
+		int logOutX = this.width - 10 - logOutWidth;
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_LOG_OUT, logOutX, this.height - 30, logOutWidth, 20, logOut));
+
+		String name = session.getDisplayName();
+		if (this.fontRenderer.getStringWidth(name) > ACCOUNT_NAME_MAX_WIDTH)
+		{
+			name = this.fontRenderer.trimStringToWidth(name, ACCOUNT_NAME_MAX_WIDTH - this.fontRenderer.getStringWidth("...")) + "...";
+		}
+		int nameWidth = this.fontRenderer.getStringWidth(name) + 20;
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_ACCOUNT, logOutX - 5 - nameWidth, this.height - 30, nameWidth, 20, name));
+	}
+
+	@Override
+	protected void actionPerformed(GuiButton button)
+	{
+		if (popUp != null)
+		{
+			return;
+		}
+
+		switch (button.id)
+		{
+			case COMPONENT_BUTTON_LINK_ACCOUNT:
+				mc.displayGuiScreen(new GuiLinkAccount(this));
+				break;
+			case COMPONENT_BUTTON_ACCOUNT:
+				WebLink.ACCOUNT.open();
+				break;
+			case COMPONENT_BUTTON_LOG_OUT:
+				MoBendsAccount.logOut();
+				initGui();
+				break;
+			default:
+				break;
+		}
 	}
 
 	protected void keyTyped(char typedChar, int keyCode)

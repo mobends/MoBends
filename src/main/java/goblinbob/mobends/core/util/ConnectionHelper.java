@@ -47,6 +47,12 @@ public class ConnectionHelper
         return gson;
     }
 
+    /**
+     * Gets the URL with the params added to its query, and reads the response as the given class.
+     *
+     * @return The response, or null if it has no body.
+     * @throws ApiErrorException If the API responds with an error status, whatever its body (e.g. a plain-text 503).
+     */
     public static <T> T sendGetRequest(URL url, Map<String, String> params, Class<T> responseClass) throws IOException, URISyntaxException
     {
         HttpGet request = new HttpGet();
@@ -63,6 +69,12 @@ public class ConnectionHelper
         {
             HttpEntity entity = response.getEntity();
 
+            int status = response.getStatusLine().getStatusCode();
+            if (status >= 400)
+            {
+                throw ApiErrorException.read(status, entity == null ? null : entity.getContent());
+            }
+
             if (entity != null) {
                 // return it as a String
                 return INSTANCE.gson.fromJson(EntityUtils.toString(entity), responseClass);
@@ -74,7 +86,20 @@ public class ConnectionHelper
 
     public static <T> T sendPostRequest(URL url, JsonObject body, Class<T> responseClass) throws IOException
     {
+        return sendPostRequest(url, body, responseClass, 0);
+    }
+
+    /**
+     * Posts the body as JSON and reads the response as the given class.
+     *
+     * @param timeoutMs How long to wait to connect, and then for the response, or 0 to wait forever.
+     * @throws ApiErrorException If the API responds with an error status.
+     */
+    public static <T> T sendPostRequest(URL url, JsonObject body, Class<T> responseClass, int timeoutMs) throws IOException
+    {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(timeoutMs);
+        connection.setReadTimeout(timeoutMs);
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
 
@@ -90,10 +115,44 @@ public class ConnectionHelper
             os.write(out);
         }
 
-        // Response
-        BufferedReader json = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        T response = INSTANCE.gson.fromJson(json, responseClass);
+        return readResponse(connection, responseClass);
+    }
 
-        return response;
+    /**
+     * Sends a request without a body, authorized with the token as a bearer, and reads the response as the given
+     * class.
+     *
+     * @param method E.g. "GET" or "DELETE".
+     * @param timeoutMs How long to wait to connect, and then for the response, or 0 to wait forever.
+     * @return The response, or null if it has no body (e.g. 204 No Content).
+     * @throws ApiErrorException If the API responds with an error status.
+     */
+    public static <T> T sendAuthorizedRequest(String method, URL url, String token, Class<T> responseClass, int timeoutMs) throws IOException
+    {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setConnectTimeout(timeoutMs);
+        connection.setReadTimeout(timeoutMs);
+        connection.setRequestMethod(method);
+        connection.setRequestProperty("Authorization", "Bearer " + token);
+
+        return readResponse(connection, responseClass);
+    }
+
+    private static <T> T readResponse(HttpURLConnection connection, Class<T> responseClass) throws IOException
+    {
+        int status = connection.getResponseCode();
+        if (status >= 400)
+        {
+            throw ApiErrorException.read(status, connection.getErrorStream());
+        }
+        if (status == HttpURLConnection.HTTP_NO_CONTENT)
+        {
+            return null;
+        }
+
+        try (BufferedReader json = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)))
+        {
+            return INSTANCE.gson.fromJson(json, responseClass);
+        }
     }
 }

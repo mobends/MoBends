@@ -8,6 +8,7 @@ import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.client.event.*;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.connection.ConnectionManager;
+import goblinbob.mobends.core.connection.MoBendsAccount;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.definition.DefinedEntityFields;
 import goblinbob.mobends.core.definition.DefinedFields;
@@ -42,6 +43,7 @@ public class CoreClient extends Core<CoreClientConfig>
 
         registerModule(new EnvironmentModule.Factory());
         registerModule(new ConnectionManager.Factory());
+        registerModule(new MoBendsAccount.Factory());
         registerModule(new AssetsModule.Factory());
         registerModule(new SupporterContent.Factory());
     }

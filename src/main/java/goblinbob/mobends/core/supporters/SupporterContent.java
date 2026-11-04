@@ -10,6 +10,7 @@ import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.util.IColorRead;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.http.conn.HttpHostConnectException;
 
@@ -165,11 +166,15 @@ public class SupporterContent
 
         if (settings == null)
         {
-            ConnectionManager.INSTANCE.fetchSettingsForPlayer(name);
+            // The profile's UUID finds an account linked on the dashboard even after it's been renamed.
+            UUID uuid = entity instanceof EntityPlayer ? ((EntityPlayer) entity).getGameProfile().getId() : null;
+            ConnectionManager.INSTANCE.fetchSettingsForPlayer(name, uuid);
             return Collections.emptyMap();
         }
 
-        return settings.getSettings();
+        // The downloader only registers responses with settings; this keeps the renderer safe whatever is cached.
+        Map<String, AccessorySettings> settingsMap = settings.getSettings();
+        return settingsMap != null ? settingsMap : Collections.emptyMap();
     }
 
     public static IColorRead getTrailColorFor(EntityLivingBase entity)
