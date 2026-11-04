@@ -9,6 +9,12 @@ import java.util.Map;
 public class Animators
 {
     private static final Map<EntityKind, String> BY_KIND = new EnumMap<>(EntityKind.class);
+    /**
+     * The legacy resource pack's animators (misc/legacy-pack), which replace the mod's at the same
+     * keys in the game; the lab has them under mobends_legacy: (see build.gradle.kts). The zombie
+     * villager's animator extends the zombie's, so in the game it follows the pack's zombie.
+     */
+    private static final Map<EntityKind, String> LEGACY_BY_KIND = new EnumMap<>(EntityKind.class);
 
     static
     {
@@ -21,6 +27,10 @@ public class Animators
         BY_KIND.put(EntityKind.SPIDER, "mobends:bends/animators/spider.json");
         BY_KIND.put(EntityKind.WOLF, "mobends:bends/animators/wolf.json");
         BY_KIND.put(EntityKind.IRON_GOLEM, "mobends:bends/animators/iron_golem.json");
+
+        LEGACY_BY_KIND.put(EntityKind.ZOMBIE, "mobends_legacy:bends/animators/zombie.json");
+        LEGACY_BY_KIND.put(EntityKind.ZOMBIE_VILLAGER, "mobends_legacy:bends/animators/zombie.json");
+        LEGACY_BY_KIND.put(EntityKind.PLAYER, "mobends_legacy:bends/animators/player.json");
     }
 
     public static String forKind(EntityKind kind)
@@ -31,5 +41,16 @@ public class Animators
     public static boolean has(EntityKind kind)
     {
         return BY_KIND.containsKey(kind);
+    }
+
+    /** The legacy pack's animator for the entity, or null when the pack leaves it as it is. */
+    public static String legacyForKind(EntityKind kind)
+    {
+        return LEGACY_BY_KIND.get(kind);
+    }
+
+    public static boolean hasLegacy(EntityKind kind)
+    {
+        return LEGACY_BY_KIND.containsKey(kind);
     }
 }

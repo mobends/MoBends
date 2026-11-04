@@ -21,6 +21,12 @@ accessory on the player. Its buttons open the `supportUrl` and `accountUrl` of
 - [ ] Add `supportUrl` (the Patreon page) and `accountUrl` (the mobends.com login) to static-api.json.
 - [ ] Show the tiers (one-time collection, subscription, editor tier) once they exist.
 
+## Legacy Mo' Bends pack
+
+- [ ] Add the `MOBENDS_PACK_SIGNING_KEY` secret to the repository, and have CI build the pack
+      (`gradle legacyPack`) and upload it to Modrinth and CurseForge with each release.
+- [ ] Check in game that the pack applies on a `DENY` server, and that changing a byte of it stops it applying.
+
 ## Animations
 
 - [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.

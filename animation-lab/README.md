@@ -19,6 +19,7 @@ ships with the mod. The scripts in `tools/` are TypeScript run with [Bun](https:
 | `./gradlew test` | The gate. `KumoParityTest` runs every scenario through the entity's animator asset and checks it stays within 0.1° / 0.01 model units of the golden. `SideEffectParityTest` checks the sword trail is fed on the same frames. The other tests cover expressions, clips, entity types, extensions, server limits (`AnimationLimitsTest`) and model definitions. |
 | `./gradlew compare --args="$PWD/golden [entity[/scenario] ...]"` | Prints the parity report per scenario and writes the animator's traces to `build/kumo-traces/` for `tools/trace_diff.ts`. Add `-Dlab.debugNodes=true` to print every layer's current node per frame. |
 | `./gradlew record --args="$PWD/golden entity[/scenario] ..."` | Accepts the animator's current output as the golden of the named scenarios. Only for new scenarios, or when a change to an animator is intended (say why in the commit, and see `docs/testing.md`). |
+| `./gradlew record --args="--legacy $PWD/golden/legacy entity[/scenario] ..."` | The same for the Legacy Mo' Bends pack (`../misc/legacy-pack`), whose goldens `LegacyPackTest` checks. |
 | `./gradlew generateAnimators` | Regenerates the animator JSON files and the hand-authored clips from `tools/gen_animators.ts`. |
 
 Typical loop after touching an animator or the core:

@@ -88,6 +88,12 @@ val syncModResources by tasks.registering(Sync::class) {
     from(modSrc.resolve("resources")) {
         include("assets/mobends/bends/**")
     }
+    // The legacy resource pack's animators replace the mod's at the same keys in the game; here they
+    // sit under their own namespace (mobends_legacy:) beside them, so LegacyPackTest can load both.
+    from(file("../misc/legacy-pack/assets/mobends/bends")) {
+        include("animators/**")
+        into("assets/mobends_legacy/bends")
+    }
     into(modSrcDir.map { it.dir("resources") })
 }
 
