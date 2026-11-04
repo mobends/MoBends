@@ -5,6 +5,7 @@ import goblinbob.mobends.core.asset.AssetReloadListener;
 import goblinbob.mobends.core.asset.AssetsModule;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.AnimationPolicy;
+import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.client.event.*;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.connection.ConnectionManager;
@@ -105,6 +106,7 @@ public class CoreClient extends Core<CoreClientConfig>
     public static void reloadAnimation()
     {
         AnimationPolicy.INSTANCE.onContentReloaded();
+        PackTrust.clearCache();
         ModelDefinitions.INSTANCE.clearCache();
         AnimatorResources.INSTANCE.clearCache();
         KumoAnimatorController.clearCaches();
