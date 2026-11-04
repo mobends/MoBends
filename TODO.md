@@ -23,8 +23,9 @@ accessory on the player. Its buttons open the `supportUrl` and `accountUrl` of
 
 ## Legacy Mo' Bends pack
 
-- [ ] Add the `MOBENDS_PACK_SIGNING_KEY` secret to the repository, and have CI build the pack
-      (`gradle legacyPack`) and upload it to Modrinth and CurseForge with each release.
+- [x] Add the `MOBENDS_PACK_SIGNING_KEY` secret, and have CI build the pack on release tags and
+      attach it to the GitHub release (`.github/workflows/legacy-pack.yml`).
+- [ ] Upload the pack to Modrinth and CurseForge from CI too.
 - [ ] Check in game that the pack applies on a `DENY` server, and that changing a byte of it stops it applying.
 
 ## Animations

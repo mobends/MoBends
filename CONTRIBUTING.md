@@ -51,12 +51,16 @@ versions' releases.
 
 ### Releasing the Legacy Mo' Bends pack
 
-`gradle legacyPack -Ppack_signing_key=<file>` writes `build/packs/Legacy-Mo-Bends-<version>.zip`,
-signed so that servers that deny resource packs' animation trust it (see `docs/content.md`, *Mo' Bends'
-Own Resource Packs*). Upload it as a resource pack next to the mod's jar. The private key is never
-committed. Keep it in a password manager, and as the `MOBENDS_PACK_SIGNING_KEY` secret (the
-base64 line in the key file) for CI. A lost key means new packs need a mod release that ships a new public
-key.
+Pushing a release tag (`v<version>-1.12.2`, matching `mod_version`) runs
+`.github/workflows/legacy-pack.yml`. It builds `Legacy-Mo-Bends-<version>.zip`, signed so that servers that deny
+resource packs' animation trust it (see `docs/content.md`, *Mo' Bends' Own Resource Packs*), and
+attaches it to the tag's GitHub release, creating the release if there isn't one. Upload it to
+Modrinth and CurseForge as a resource pack, next to the mod's jar.
+
+It signs with the `MOBENDS_PACK_SIGNING_KEY` repository secret (the base64 line in the key file).
+Locally, `gradle legacyPack -Ppack_signing_key=<file>` does the same into `build/packs/`. The private key is
+never committed. Keep a copy in a password manager. A lost key means new packs need a mod release that ships
+a new public key.
 
 ### Releasing `core`
 

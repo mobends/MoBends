@@ -1,0 +1,60 @@
+name: Legacy Mo' Bends pack
+
+# Builds the signed Legacy Mo' Bends resource pack (misc/legacy-pack) for every release tag of the
+# 1.12.2 mod (v<version>-1.12.2, e.g. v2.0.0-1.12.2) and attaches it to the tag's GitHub release.
+# The signing key is the MOBENDS_PACK_SIGNING_KEY secret, which only the signing step sees. See
+# CONTRIBUTING.md.
+on:
+  push:
+    tags:
+      - "v*-1.12.2"
+
+permissions:
+  contents: write
+
+jobs:
+  legacy-pack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check the tag names the mod's version
+        id: version
+        run: |
+          version="$(sed -n 's/^mod_version *= *//p' gradle.properties | tr -d '[:space:]')"
+          if [ "$GITHUB_REF_NAME" != "v${version}-1.12.2" ]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' doesn't match mod_version $version in gradle.properties (expected v${version}-1.12.2)"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: "8"
+          distribution: "temurin"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # No Gradle cache here: a cache written by another workflow run could run code in the step
+      # that holds the signing key. The tools are built before the key is in the environment.
+      - name: Build the signing tool
+        run: ./gradlew toolsClasses
+
+      - name: Build and sign the pack
+        run: ./gradlew legacyPack
+        env:
+          MOBENDS_PACK_SIGNING_KEY: ${{ secrets.MOBENDS_PACK_SIGNING_KEY }}
+
+      - name: Attach the pack to the release
+        run: |
+          pack="build/packs/Legacy-Mo-Bends-${{ steps.version.outputs.version }}.zip"
+          if ! gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes "See CHANGELOG.md."
+          fi
+          gh release upload "$GITHUB_REF_NAME" "$pack" --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
