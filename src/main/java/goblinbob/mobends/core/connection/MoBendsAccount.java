@@ -22,6 +22,9 @@ import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +46,8 @@ public final class MoBendsAccount
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     /** The sessions by the undashed UUID of the Minecraft account they were linked with. */
     private final Map<String, Session> sessions = new HashMap<>();
+    /** Held through a whole save, so the file last written holds the newest sessions. */
+    private final Object saveLock = new Object();
 
     private MoBendsAccount(File configDirectory)
     {
@@ -227,37 +232,51 @@ public final class MoBendsAccount
 
     private void save()
     {
-        AccountFile contents = new AccountFile();
-        synchronized (sessions)
+        synchronized (saveLock)
         {
-            contents.sessions = new HashMap<>(sessions);
-        }
-
-        File directory = file.getParentFile();
-        if (!directory.isDirectory() && !directory.mkdirs())
-        {
-            Core.LOG.warning("Couldn't create " + directory);
-            return;
-        }
-
-        try
-        {
-            if (!file.exists() && file.createNewFile())
+            AccountFile contents = new AccountFile();
+            synchronized (sessions)
             {
-                // The tokens are the player's alone.
-                file.setReadable(false, false);
-                file.setReadable(true, true);
-                file.setWritable(false, false);
-                file.setWritable(true, true);
+                contents.sessions = new HashMap<>(sessions);
             }
-            try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))
+
+            File directory = file.getParentFile();
+            if (!directory.isDirectory() && !directory.mkdirs())
             {
-                gson.toJson(contents, writer);
+                Core.LOG.warning("Couldn't create " + directory);
+                return;
             }
-        }
-        catch (IOException e)
-        {
-            Core.LOG.warning("Couldn't save " + file + ": " + e);
+
+            // Written aside and moved over the file, so a game closed mid-write doesn't lose every session.
+            File temporary = new File(directory, file.getName() + ".tmp");
+            try
+            {
+                if (!temporary.exists() && temporary.createNewFile())
+                {
+                    // The tokens are the player's alone.
+                    temporary.setReadable(false, false);
+                    temporary.setReadable(true, true);
+                    temporary.setWritable(false, false);
+                    temporary.setWritable(true, true);
+                }
+                try (Writer writer = new OutputStreamWriter(new FileOutputStream(temporary), StandardCharsets.UTF_8))
+                {
+                    gson.toJson(contents, writer);
+                }
+                try
+                {
+                    Files.move(temporary.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING,
+                            StandardCopyOption.ATOMIC_MOVE);
+                }
+                catch (AtomicMoveNotSupportedException e)
+                {
+                    Files.move(temporary.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+            catch (IOException e)
+            {
+                Core.LOG.warning("Couldn't save " + file + ": " + e);
+            }
         }
     }
 
