@@ -95,19 +95,19 @@ public class PoseNode implements INodeState
         context.getExpressionScope().beginHolding(held);
         try
         {
-            LayerSpaces spaces = new LayerSpaces(skeleton, layer, context.getExpressionScope());
+            LayerMirror mirror = layer.mirror == null ? null : new LayerMirror(skeleton, layer.mirror, context.getExpressionScope());
             if (template.pose != null)
             {
                 for (PoseItemTemplate itemTemplate : template.pose)
                 {
-                    items.add(createItem(context, skeleton, spaces, itemTemplate));
+                    items.add(createItem(context, skeleton, mirror, itemTemplate));
                 }
             }
             if (template.enterPose != null)
             {
                 for (PoseItemTemplate itemTemplate : template.enterPose)
                 {
-                    enterItems.add(createItem(context, skeleton, spaces, itemTemplate));
+                    enterItems.add(createItem(context, skeleton, mirror, itemTemplate));
                 }
             }
         }
@@ -137,23 +137,23 @@ public class PoseNode implements INodeState
         return node;
     }
 
-    private static IPoseItem createItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
+    private static IPoseItem createItem(IKumoInstancingContext context, Skeleton skeleton, LayerMirror mirror, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
-        IPoseItem item = createPlainItem(context, skeleton, spaces, template);
+        IPoseItem item = createPlainItem(context, skeleton, template);
         if (template.mirror || template.swapSides)
         {
-            if (spaces.mirror == null)
+            if (mirror == null)
             {
                 throw new MalformedKumoTemplateException("An item sets \"mirror\" / \"swapSides\" but its layer has no \"mirror\" rule.");
             }
-            item = new MirroredPoseItem(item, spaces.mirror, skeleton, template.mirror);
+            item = new MirroredPoseItem(item, mirror, skeleton, template.mirror);
         }
         return item;
     }
 
-    private static IPoseItem createPlainItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
+    private static IPoseItem createPlainItem(IKumoInstancingContext context, Skeleton skeleton, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
-        IPoseItem item = createUnconditionalItem(context, skeleton, spaces, template);
+        IPoseItem item = createUnconditionalItem(context, skeleton, template);
         // The item is skipped while its condition does not hold.
         if (template.when == null)
         {
@@ -162,7 +162,7 @@ public class PoseNode implements INodeState
         return new ConditionalPoseItem(item, Expression.compileCondition(template.when, context.getExpressionScope()));
     }
 
-    private static IPoseItem createUnconditionalItem(IKumoInstancingContext context, Skeleton skeleton, LayerSpaces spaces, PoseItemTemplate template) throws MalformedKumoTemplateException
+    private static IPoseItem createUnconditionalItem(IKumoInstancingContext context, Skeleton skeleton, PoseItemTemplate template) throws MalformedKumoTemplateException
     {
         ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.smoothing, template.vectorModes, template.snap);
 
@@ -195,8 +195,8 @@ public class PoseNode implements INodeState
 
             return new ClipPoseItem(binding, frame,
                     Expression.compile(clipTemplate.weight, context.getExpressionScope(), Expression.ONE),
-                    template.space,
-                    clipLength, duration, spaces, effects.isEmpty() ? null : effects);
+                    binding.spaces(clipTemplate.space),
+                    clipLength, duration, effects.isEmpty() ? null : effects);
         }
 
         if (template instanceof DriverItemTemplate)

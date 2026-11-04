@@ -5,7 +5,7 @@ import goblinbob.mobends.core.kumo.state.IKumoContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 /**
- * A keyframe clip, weighted by an {@link Expression} and composed into the pose in a given space.
+ * A keyframe clip, weighted by an {@link Expression} and composed into the pose in a space per bone.
  * Where in the clip it is comes from {@code frame}, in the clip's own units (0 to {@code clipLength},
  * see {@code KeyframeAnimation.duration}); a frame outside that range holds the first or last
  * keyframe. {@code duration} (ticks, optional) is how long the item runs: with one the clip is
@@ -19,27 +19,24 @@ public class ClipPoseItem implements IPoseItem
     /** Null for the default frame. */
     private final Expression frame;
     private final Expression weight;
-    /** Explicit space, or null to use the layer's per-bone default. */
-    private final Pose.Space space;
+    /** The space of each bone, parallel to the clip's bone list. */
+    private final Pose.Space[] spaces;
     private final float clipLength;
     /** Ticks, or NaN for none. */
     private final float duration;
-    private final LayerSpaces layerSpaces;
     private final ItemEffects effects;
     private final int[] slots;
-    private Pose.Space[] resolvedSpaces;
     /** The keyframe interval the last lookup landed in (explicit times), where the next one starts looking. */
     private int lastInterval = -1;
 
-    public ClipPoseItem(ClipBinding clip, Expression frame, Expression weight, Pose.Space space, float clipLength, float duration, LayerSpaces layerSpaces, ItemEffects effects)
+    public ClipPoseItem(ClipBinding clip, Expression frame, Expression weight, Pose.Space[] spaces, float clipLength, float duration, ItemEffects effects)
     {
         this.clip = clip;
         this.frame = frame;
         this.weight = weight;
-        this.space = space;
+        this.spaces = spaces;
         this.clipLength = clipLength;
         this.duration = duration;
-        this.layerSpaces = layerSpaces;
         this.effects = effects;
         this.slots = clip.slots();
     }
@@ -106,11 +103,7 @@ public class ClipPoseItem implements IPoseItem
             return;
         }
         float fraction = progress(context, elapsedTicks);
-        if (resolvedSpaces == null)
-        {
-            resolvedSpaces = layerSpaces.resolve(slots, space);
-        }
-        clip.apply(pose, keyframeIndexAt(fraction), w, space, resolvedSpaces);
+        clip.apply(pose, keyframeIndexAt(fraction), w, spaces);
         if (effects != null)
         {
             effects.apply(pose, slots, context);

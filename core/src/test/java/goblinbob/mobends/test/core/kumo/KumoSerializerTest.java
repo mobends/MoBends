@@ -1,10 +1,14 @@
 package goblinbob.mobends.test.core.kumo;
 
 import com.google.gson.JsonParseException;
+import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.MachineTemplate;
+import goblinbob.mobends.core.kumo.state.template.PoseNodeTemplate;
+import goblinbob.mobends.core.kumo.state.template.SpaceTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -54,6 +58,12 @@ public class KumoSerializerTest
         assertTrue(messageOf("{\"formatVersion\": 1, " + LAYERS + "}").contains("no longer reads"));
     }
 
+    /** A layer whose one node poses a clip with the given {@code @space}. */
+    private static String clipWithSpace(String space)
+    {
+        return "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:clip\": {\"animationKey\": \"x\"}, \"@space\": " + space + "}]}}}}";
+    }
+
     private static void assertRefused(String fragment, String layer)
     {
         String message = messageOf("{\"formatVersion\": 2, \"layers\": [" + layer + "]}");
@@ -67,12 +77,14 @@ public class KumoSerializerTest
         assertRefused("has to be a string", "{\"defaultOnEntry\": 1, " + a + "}");
         assertRefused("\"nodes\" has to be an object", "{\"defaultOnEntry\": \"a\", \"nodes\": [{}]}");
         assertRefused("Unknown node type: \"x:y\"", "{\"nodes\": {\"a\": {\"x:y\": {}}}}");
-        assertRefused("unknown value 'sideways' (it is one of override, pre, post)", "{\"mode\": \"additive\", \"additiveSpace\": \"sideways\", " + a + "}");
+        assertRefused("unknown value 'sideways' (it is one of override, pre, post)", clipWithSpace("\"sideways\""));
         // The format's words are lower case, and a per-bone map's own key is "@default".
-        assertRefused("'PRE' is written in lower case, 'pre'", "{\"mode\": \"additive\", \"additiveSpace\": \"PRE\", " + a + "}");
+        assertRefused("'PRE' is written in lower case, 'pre'", clipWithSpace("{\"body\": \"PRE\"}"));
         assertRefused("'X' is written in lower case, 'x'",
                 "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"arm\", \"axis\": \"X\", \"angle\": 1}}]}}}}");
-        assertRefused("unknown key \"@defaults\"", "{\"mode\": \"additive\", \"additiveSpace\": {\"@defaults\": \"pre\"}, " + a + "}");
+        assertRefused("unknown key \"@defaults\"", clipWithSpace("{\"@defaults\": \"pre\"}"));
+        assertRefused("a space per bone is a clip's",
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"arm\", \"axis\": \"x\", \"angle\": 1}, \"@space\": {\"arm\": \"pre\"}}]}}}}");
         assertRefused("Unknown pose item: \"x:y\"", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"x:y\": {}}]}}}}");
         assertRefused("needs a key naming it", "{\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"@space\": \"pre\"}]}}}}");
         assertRefused("smoothing", "{\"nodes\": {\"a\": {\"core:pose\": {\"smoothing\": {\"arm\": true}}}}}");
@@ -90,6 +102,9 @@ public class KumoSerializerTest
     {
         String a = "\"nodes\": {\"a\": {\"core:pose\": {}}}";
         assertRefused("A layer has an unknown key \"type\"", "{\"type\": \"KEYFRAME\", " + a + "}");
+        // A clip's "@space" says how each bone composes; a layer has no mode of its own.
+        assertRefused("A layer has an unknown key \"mode\"", "{\"mode\": \"additive\", " + a + "}");
+        assertRefused("A layer has an unknown key \"additiveSpace\"", "{\"additiveSpace\": \"pre\", " + a + "}");
         assertRefused("A node has exactly one key that doesn't start with @", "{\"nodes\": {\"a\": {\"core:pose\": {}, \"tags\": []}}}");
         assertRefused("A node has an unknown key \"@nope\"", "{\"nodes\": {\"a\": {\"core:pose\": {}, \"@nope\": 1}}}");
         assertRefused("The node type \"core:pose\" has an unknown key \"connections\"", "{\"nodes\": {\"a\": {\"core:pose\": {\"connections\": []}}}}");
@@ -118,6 +133,18 @@ public class KumoSerializerTest
                 + "\"core:clip\": {\"@comment\": \"clip\", \"animationKey\": \"x\"}}]}, \"@connections\": [{\"when\": true, "
                 + "\"then\": \"a\", \"@comment\": \"connection\"}]}}}]}");
         assertEquals(1, template.layers.get(0).nodes.size());
+    }
+
+    @Test
+    public void readsAClipsSpacePerBone()
+    {
+        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"layers\": ["
+                + clipWithSpace("{\"@default\": \"pre\", \"body\": \"post\", \"root\": \"override\"}") + "]}");
+        PoseNodeTemplate node = (PoseNodeTemplate) template.layers.get(0).nodes.get(0);
+        SpaceTemplate space = ((ClipItemTemplate) node.pose.get(0)).space;
+        assertEquals(Pose.Space.POST, space.forBone("body", Pose.Space.OVERRIDE));
+        assertEquals(Pose.Space.OVERRIDE, space.forBone("root", Pose.Space.OVERRIDE));
+        assertEquals(Pose.Space.PRE, space.forBone("head", Pose.Space.OVERRIDE));
     }
 
     @Test

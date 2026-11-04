@@ -3,7 +3,6 @@ package goblinbob.mobends.core.kumo.state.template.pose;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
-import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.state.template.SmoothingTemplate;
 
 import java.util.Map;
@@ -11,9 +10,6 @@ import java.util.Map;
 /** Common fields of clip and driver items. The concrete class is chosen by the serializer. */
 public class PoseItemTemplate
 {
-
-    /** Composition space of this item's rotations. Null = OVERRIDE for clips, PRE for drivers. */
-    public Pose.Space space;
 
     /** Optional condition; the item is skipped while it does not hold. */
     public ExpressionTemplate when;

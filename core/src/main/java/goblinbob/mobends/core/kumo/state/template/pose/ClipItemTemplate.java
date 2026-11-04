@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.kumo.state.template.pose;
 
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
+import goblinbob.mobends.core.kumo.state.template.SpaceTemplate;
 
 import java.util.List;
 
@@ -24,5 +25,8 @@ public class ClipItemTemplate extends PoseItemTemplate
 
     /** Only these bones of the clip are applied; null = all. */
     public List<String> bones;
+
+    /** The space of each bone the clip writes, from the item's {@code @space}; null = OVERRIDE for all. */
+    public transient SpaceTemplate space;
 
 }

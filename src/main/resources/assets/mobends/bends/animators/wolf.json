@@ -135,7 +135,6 @@
     },
     {
       "@comment": "The look direction, the interested tilt, the shaking and the tail (vanilla expressions) applied after the clips in each bone's own space; the clips' head offset is discarded.",
-      "mode": "additive",
       "defaultOnEntry": "look",
       "nodes": {
         "look": {

@@ -3,8 +3,6 @@
   "extends": "mobends:bends/animators/biped.json",
   "layers": [
     {
-      "mode": "additive",
-      "additiveSpace": {"@default": "pre", "root": "override"},
       "@when": {"or": ["animator.standing", "animator.walking"]},
       "defaultOnEntry": "hunch",
       "nodes": {

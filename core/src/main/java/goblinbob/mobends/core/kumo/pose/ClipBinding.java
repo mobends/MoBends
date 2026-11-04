@@ -2,6 +2,7 @@ package goblinbob.mobends.core.kumo.pose;
 
 import goblinbob.mobends.core.animation.keyframe.Bone;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
+import goblinbob.mobends.core.kumo.state.template.SpaceTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
 
@@ -23,6 +24,7 @@ public class ClipBinding
     public final boolean step;
 
     final Bone[] bones;
+    final String[] names;
     final int[] slots;
     final boolean[] isRoot;
     final boolean[] isCenterRotation;
@@ -49,12 +51,14 @@ public class ClipBinding
         }
 
         bones = new Bone[entries.size()];
+        names = new String[entries.size()];
         slots = new int[entries.size()];
         isRoot = new boolean[entries.size()];
         isCenterRotation = new boolean[entries.size()];
         for (int i = 0; i < entries.size(); i++)
         {
             String name = entries.get(i).getKey();
+            names[i] = name;
             bones[i] = entries.get(i).getValue();
             slots[i] = skeleton.indexOf(name);
             isRoot[i] = Skeleton.isVectorBone(name);
@@ -67,9 +71,9 @@ public class ClipBinding
      * rotation and offset scaled by the weight; one it replaces (OVERRIDE) is blended by the weight
      * from what the bone has so far this frame (the rest pose if nothing wrote it) to the clip.
      *
-     * @param spaces per-bone spaces (parallel to the clip's bone list), or null to use {@code space}.
+     * @param spaces per-bone spaces, parallel to the clip's bone list (see {@link #spaces}).
      */
-    public void apply(Pose pose, float index, float weight, Pose.Space space, Pose.Space[] spaces)
+    public void apply(Pose pose, float index, float weight, Pose.Space[] spaces)
     {
         for (int i = 0; i < bones.length; i++)
         {
@@ -78,7 +82,7 @@ public class ClipBinding
                 continue;
             }
 
-            Pose.Space boneSpace = spaces != null ? spaces[i] : space;
+            Pose.Space boneSpace = spaces[i];
 
             boolean blend = boneSpace == Pose.Space.OVERRIDE && weight != 1F;
 
@@ -126,6 +130,17 @@ public class ClipBinding
     private static float lerp(float from, float to, float t)
     {
         return from + (to - from) * t;
+    }
+
+    /** The space of each bone the clip writes, parallel to its bone list: an item's {@code @space}, OVERRIDE where it has none. */
+    public Pose.Space[] spaces(SpaceTemplate space)
+    {
+        Pose.Space[] result = new Pose.Space[names.length];
+        for (int i = 0; i < names.length; i++)
+        {
+            result[i] = space == null ? Pose.Space.OVERRIDE : space.forBone(names[i], Pose.Space.OVERRIDE);
+        }
+        return result;
     }
 
     /** The skeleton slot of each bone the clip writes, parallel to its bone list. */

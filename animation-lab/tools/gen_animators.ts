@@ -293,8 +293,7 @@ const pigZombie: Obj = {
   formatVersion: 2,
   extends: "mobends:bends/animators/biped.json",
   layers: [
-    { mode: "additive", additiveSpace: { "@default": "pre", root: "override" },
-      "@when": OR("animator.standing", "animator.walking"), defaultOnEntry: "hunch", nodes: { hunch: poseNode([
+    { "@when": OR("animator.standing", "animator.walking"), defaultOnEntry: "hunch", nodes: { hunch: poseNode([
           clip(P("pose_post"), {}, { space: "post" }),
           clip(P("pose_pre"), {}, { space: "pre" }),
           clip(P("stand_offset"), {}, { when: "animator.standing", smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "retarget" } }),
