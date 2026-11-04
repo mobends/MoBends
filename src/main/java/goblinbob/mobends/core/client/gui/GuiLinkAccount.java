@@ -223,12 +223,14 @@ public class GuiLinkAccount extends GuiScreen
             {
                 MinecraftLink.Result result = MinecraftLink.joinAndConfirm(code, start);
                 String displayName = result.getDisplayName() != null ? result.getDisplayName() : start.getDisplayName();
-                return () -> {
+                // Signed in even if the player has left this screen meanwhile: the code is spent either way.
+                mc.addScheduledTask(() -> {
                     MoBendsAccount.signIn(displayName, result.getToken());
                     // Fetches the player's accessories again, now that they follow the account.
                     SupporterContent.forgetPlayer(mc.getSession().getUsername());
-                    setState(State.LINKED, I18n.format("mobends.gui.link.linked", result.getUsername(), displayName));
-                };
+                });
+                return () -> setState(State.LINKED,
+                        I18n.format("mobends.gui.link.linked", result.getUsername(), displayName));
             }
             catch (AuthenticationException | IOException e)
             {
