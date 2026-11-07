@@ -14,6 +14,7 @@ import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.LabClock;
 import goblinbob.mobends.lab.sim.ScriptedEntity;
+import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -33,11 +34,18 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PlayerEntityValuesTest
 {
 
-    /** The definition's data, computing the values as the Java data class did: the leg switches on every liftoff, and when rising after falling. */
+    /**
+     * The definition's data, computing the values as the Java data class did, but for the leg: it is
+     * picked on every liftoff, and when rising after falling: swapped when jumping again within 5
+     * ticks of landing, else the one the sprint cycle has in the air, leading with the right leg
+     * while the left one is on the ground (sweeping back).
+     */
     static class Reference extends DefinedEntityData<AbstractClientPlayer>
     {
         boolean leg;
         boolean switched;
+        /** A liftoff since the last frame: the definition sees it, and reads the limb swing, on the frame. */
+        boolean liftedOff;
 
         Reference(EntityModelDefinition definition, AbstractClientPlayer player)
         {
@@ -48,13 +56,22 @@ public class PlayerEntityValuesTest
         public void update(float partialTicks)
         {
             super.update(partialTicks);
+            if (liftedOff && !switched)
+            {
+                leg = nextLeg();
+            }
+            if (liftedOff)
+            {
+                switched = true;
+                liftedOff = false;
+            }
             if (motionY < 0)
             {
                 switched = false;
             }
             if (!switched && motionY > 0)
             {
-                leg = !leg;
+                leg = nextLeg();
                 switched = true;
             }
         }
@@ -63,11 +80,18 @@ public class PlayerEntityValuesTest
         public void onLiftoff()
         {
             super.onLiftoff();
-            if (!switched)
-            {
-                leg = !leg;
-                switched = true;
-            }
+            liftedOff = true;
+        }
+
+        boolean nextLeg()
+        {
+            return getTicksAfterTouchdown() < 5 ? !leg : standingOnLeftLeg();
+        }
+
+        /** The sprint cycle swings the left leg by -72 cos(phase), phase = limbSwing * 0.6662 * 0.8: it sweeps back while sin(phase) > 0. */
+        boolean standingOnLeftLeg()
+        {
+            return Math.sin(limbSwing * 0.53296) > 0;
         }
 
         double flightSpeedFactor()
@@ -115,7 +139,9 @@ public class PlayerEntityValuesTest
 
         LabClock clock = new LabClock(30);
         EntityInputs inputs = new EntityInputs();
+        VanillaModelInputs modelInputs = new VanillaModelInputs();
         int legChanges = 0;
+        int hopLegChanges = 0;
         boolean lastLeg = data.leg;
         double maxPitch = 0;
         // Sprint-jumps for 160 ticks, then flies: forward, climbing, sinking.
@@ -130,7 +156,8 @@ public class PlayerEntityValuesTest
                 {
                     inputs.forwardSpeed = 0.28;
                     inputs.sprinting = true;
-                    inputs.jump = tick % 23 == 5;
+                    // an uneven rhythm, so the jumps land on both legs, then jumping again on landing
+                    inputs.jump = tick < 100 ? tick % 23 == 5 + (tick / 23) % 4 * 3 : true;
                 }
                 else
                 {
@@ -141,6 +168,9 @@ public class PlayerEntityValuesTest
                 scripted.tick(inputs);
                 data.updateClient();
             }
+            // the limb swing the definition reads when the animator runs
+            modelInputs.compute(player, clock.getPartialTicks());
+            data.limbSwing = modelInputs.limbSwing;
             data.update(clock.getPartialTicks());
             animator.update(data, DataUpdateHandler.ticksPerFrame);
 
@@ -150,11 +180,13 @@ public class PlayerEntityValuesTest
             if (data.leg != lastLeg)
             {
                 legChanges++;
+                if (clock.getTick() > 100 && clock.getTick() < 160) hopLegChanges++;
                 lastLeg = data.leg;
             }
             maxPitch = Math.max(maxPitch, Math.abs(data.flightPitch()));
         }
         assertTrue(legChanges >= 4, "the run switched legs only " + legChanges + " times");
+        assertTrue(hopLegChanges >= 3, "jumping again on landing switched legs only " + hopLegChanges + " times");
         assertTrue(maxPitch > 30, "the run never pitched in flight (max " + maxPitch + ")");
     }
 
