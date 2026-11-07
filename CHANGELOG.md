@@ -7,14 +7,22 @@
 - Skeletons stand on their feet, as players and zombies do: standing still, the feet stay planted
   and they turn by stepping, quickly and lightly, and stop with their feet where the walk left
   them. Walking, strafing, attacking and aiming a bow pose the legs as before.
+- Settings has an *Options* button for mobs with options: settings their animation offers, such as
+  the player's spin attack. Mods and resource packs can give their models, types and extensions
+  options of their own (`options` in the file), which their animators read as `option.<name>`.
 
 ### Changed
 
 - The Mo' Bends menu has a Refresh button in its bottom-left corner, in place of the F10 key: it
   reloads the animations and fetches the account, assets and supporter accessories again.
 - The Config button for Mo' Bends in Forge's Mods list opens the Mo' Bends menu, so it can be
-  reached from the title screen. Forge's screen for the trails, spin attack and item options is
-  behind the menu's new More Settings button.
+  reached from the title screen. Forge's screen for the trails and item options is behind the
+  menu's new More Settings button.
+- *Perform Spin Attack* moved from Forge's mod options to the player's options in the Mo' Bends
+  menu. If you had turned it off, it stays off.
+- Only players end the sword combo with a spin attack; skeletons repeat the four slashes.
+- Breaking: the `mobends:spin_attack_enabled` operation is gone. A player animator reads
+  `option.spinAttack` instead.
 
 ### Fixed
 

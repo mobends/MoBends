@@ -1,6 +1,8 @@
 package goblinbob.mobends.core.kumo.expr;
 
 import com.google.gson.JsonElement;
+import goblinbob.mobends.core.kumo.option.KumoOption;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.state.DefinitionScope;
 import goblinbob.mobends.core.kumo.state.StateLayout;
 import goblinbob.mobends.core.kumo.state.StateRef;
@@ -42,6 +44,8 @@ public class ExpressionScope
     private final Deque<List<Expression>> holders;
     /** Where the animator's per-entity state goes: every stateful element compiled here takes its slots in it. */
     private final StateLayout layout;
+    /** The options this place reads as {@code option.x}: its type's (the model definition's and the type file's), or its extension's. */
+    private final List<OptionSet> options;
     /** Inside a function's body: its arguments, by parameter name (see {@link FunctionCall}); else empty. */
     private Map<String, FunctionCall.Argument> arguments = Collections.emptyMap();
     /** The functions whose bodies are being compiled around this place, the outermost first: a call to one of them would never end. */
@@ -49,8 +53,10 @@ public class ExpressionScope
 
     private ExpressionScope(@Nullable DefinitionScope entity, @Nullable DefinitionScope animator, @Nullable DefinitionScope layer, @Nullable DefinitionScope machine,
                             @Nullable DefinitionScope node, @Nullable Class<?> entityClass, boolean readsFields, boolean selector, VariableTable variables,
-                            boolean trusted, Map<String, Expression> values, Deque<List<Expression>> holders, StateLayout layout)
+                            boolean trusted, Map<String, Expression> values, Deque<List<Expression>> holders, StateLayout layout,
+                            List<OptionSet> options)
     {
+        this.options = options;
         this.layout = layout;
         this.selector = selector;
         this.entity = entity;
@@ -69,7 +75,7 @@ public class ExpressionScope
     /** The outermost place of an animator: no scope yet, every bare name a built-in or a value of the entity. */
     public static ExpressionScope root(VariableTable variables)
     {
-        return new ExpressionScope(null, null, null, null, null, null, false, false, variables, true, Collections.emptyMap(), new ArrayDeque<>(), new StateLayout());
+        return new ExpressionScope(null, null, null, null, null, null, false, false, variables, true, Collections.emptyMap(), new ArrayDeque<>(), new StateLayout(), Collections.<OptionSet>emptyList());
     }
 
     /**
@@ -78,7 +84,7 @@ public class ExpressionScope
      */
     public static ExpressionScope selector()
     {
-        return new ExpressionScope(null, null, null, null, null, null, false, true, new VariableTable(), true, Collections.emptyMap(), new ArrayDeque<>(), new StateLayout());
+        return new ExpressionScope(null, null, null, null, null, null, false, true, new VariableTable(), true, Collections.emptyMap(), new ArrayDeque<>(), new StateLayout(), Collections.<OptionSet>emptyList());
     }
 
     public boolean isSelector()
@@ -89,7 +95,7 @@ public class ExpressionScope
     /** This place, as a function's body: its arguments, the call {@code function} being added to the calls compiling around it. */
     public ExpressionScope withArguments(Map<String, FunctionCall.Argument> arguments, String function, List<String> callingAround)
     {
-        ExpressionScope body = new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout);
+        ExpressionScope body = new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout, options);
         body.arguments = arguments;
         List<String> calls = new java.util.ArrayList<>(callingAround);
         calls.add(function);
@@ -148,28 +154,38 @@ public class ExpressionScope
         switch (scope.kind)
         {
             case ENTITY:
-                return new ExpressionScope(scope, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout);
+                return new ExpressionScope(scope, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout, options);
             case ANIMATOR:
-                return new ExpressionScope(entity, scope, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout);
+                return new ExpressionScope(entity, scope, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout, options);
             case LAYER:
-                return new ExpressionScope(entity, animator, scope, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout);
+                return new ExpressionScope(entity, animator, scope, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout, options);
             case MACHINE:
-                return new ExpressionScope(entity, animator, layer, scope, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout);
+                return new ExpressionScope(entity, animator, layer, scope, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout, options);
             default:
-                return new ExpressionScope(entity, animator, layer, machine, scope, entityClass, readsFields, selector, variables, trusted, values, holders, layout);
+                return new ExpressionScope(entity, animator, layer, machine, scope, entityClass, readsFields, selector, variables, trusted, values, holders, layout, options);
         }
     }
 
     /** This place, animating an entity of {@code type} (null: unknown), which operations bind against. */
     public ExpressionScope forEntity(@Nullable Class<?> type)
     {
-        return new ExpressionScope(entity, animator, layer, machine, node, type, readsFields, selector, variables, trusted, values, holders, layout);
+        return new ExpressionScope(entity, animator, layer, machine, node, type, readsFields, selector, variables, trusted, values, holders, layout, options);
+    }
+
+    /**
+     * This place, reading {@code options} as {@code option.x}: an animator's are its type's (the
+     * model definition's and the type file's), an extension's are its own.
+     */
+    public ExpressionScope withOptions(List<OptionSet> options)
+    {
+        return new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout,
+                Collections.unmodifiableList(new java.util.ArrayList<>(options)));
     }
 
     /** This place, where {@code field} reads an entity of {@code type}: an entity definition. */
     public ExpressionScope readingFieldsOf(Class<?> type)
     {
-        return new ExpressionScope(entity, animator, layer, machine, node, type, true, selector, variables, trusted, values, holders, layout);
+        return new ExpressionScope(entity, animator, layer, machine, node, type, true, selector, variables, trusted, values, holders, layout, options);
     }
 
     /** The class of the entity animated, or null if unknown. */
@@ -189,7 +205,7 @@ public class ExpressionScope
     /** This place, in a file that is trusted or not (see {@link DefinitionScope#state}). */
     public ExpressionScope trusted(boolean trusted)
     {
-        return new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout);
+        return new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, values, holders, layout, options);
     }
 
     public boolean isTrusted()
@@ -209,7 +225,7 @@ public class ExpressionScope
         }
         Map<String, Expression> all = new HashMap<>(this.values);
         all.putAll(values);
-        return new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, all, holders, layout);
+        return new ExpressionScope(entity, animator, layer, machine, node, entityClass, readsFields, selector, variables, trusted, all, holders, layout, options);
     }
 
     /**
@@ -251,6 +267,10 @@ public class ExpressionScope
     /** The read of a scoped name ({@code layer.combo}). */
     Expression resolveScoped(String name) throws MalformedKumoTemplateException
     {
+        if (name.startsWith(OPTION_PREFIX))
+        {
+            return resolveOption(name);
+        }
         DefinitionScope scope = scopeOf(name);
         Expression read = scope.read(name.substring(name.indexOf('.') + 1));
         if (read == null)
@@ -258,6 +278,28 @@ public class ExpressionScope
             throw new MalformedKumoTemplateException(String.format("Unknown name '%s': %s declares no '%s'.", name, scope.getOwner(), name.substring(name.indexOf('.') + 1)));
         }
         return read;
+    }
+
+    private static final String OPTION_PREFIX = "option.";
+
+    /** The read of an option ({@code option.spinAttack}). */
+    private Expression resolveOption(String name) throws MalformedKumoTemplateException
+    {
+        String optionName = name.substring(OPTION_PREFIX.length());
+        if (optionName.indexOf('.') >= 0)
+        {
+            throw new MalformedKumoTemplateException(String.format("A name is one scope and one name: '%s' has more.", name));
+        }
+        for (OptionSet set : options)
+        {
+            KumoOption option = set.get(optionName);
+            if (option != null)
+            {
+                return option.read();
+            }
+        }
+        throw new MalformedKumoTemplateException(String.format("Unknown option '%s': no option '%s' is declared here. An animator reads the options its "
+                + "entity's model definition and its type file declare, an extension's animator those its extension file declares.", name, optionName));
     }
 
     /** The state {@code name} (a scoped name), for a statement or a driver to write. */
@@ -292,8 +334,11 @@ public class ExpressionScope
             case "layer": scope = layer; break;
             case "machine": scope = machine; break;
             case "node": scope = node; break;
+            case "option":
+                throw new MalformedKumoTemplateException(String.format("'%s' is an option: it can only be read (the user sets it in the Mo' Bends menu), "
+                        + "and an option is no function.", name));
             default:
-                throw new MalformedKumoTemplateException(String.format("Unknown scope '%s' in '%s': names start with entity., animator., layer., machine. or node.", prefix, name));
+                throw new MalformedKumoTemplateException(String.format("Unknown scope '%s' in '%s': names start with entity., animator., layer., machine., node. or option.", prefix, name));
         }
         if (scope == null)
         {

@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.state.template;
 
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -20,6 +21,8 @@ public class EntityTemplate
     public final OnTemplate on;
     /** Whether the model definition comes from a trusted source (see {@code DefinitionScope#state}). */
     public final boolean trusted;
+    /** The options the model definition declares, read by the entity's animator (not by extensions) as {@code option.x}. */
+    public final OptionSet options;
 
     /** An entity of {@code entityClass} whose model has no definition. */
     public EntityTemplate(Class<?> entityClass)
@@ -29,10 +32,16 @@ public class EntityTemplate
 
     public EntityTemplate(Class<?> entityClass, @Nullable Map<String, DefinitionTemplate> define, @Nullable OnTemplate on, boolean trusted)
     {
+        this(entityClass, define, on, trusted, OptionSet.EMPTY);
+    }
+
+    public EntityTemplate(Class<?> entityClass, @Nullable Map<String, DefinitionTemplate> define, @Nullable OnTemplate on, boolean trusted, OptionSet options)
+    {
         this.entityClass = entityClass;
         this.define = define;
         this.on = on;
         this.trusted = trusted;
+        this.options = options;
     }
 
 }

@@ -10,7 +10,6 @@ public class ModConfig
 {
     public static boolean showArrowTrails = true;
     public static boolean showSwordTrail = true;
-    public static boolean performSpinAttack = true;
 
     public static UseActionType getItemUseAction(Item item)
     {

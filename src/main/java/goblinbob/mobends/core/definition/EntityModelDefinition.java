@@ -2,11 +2,15 @@ package goblinbob.mobends.core.definition;
 
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import goblinbob.mobends.core.kumo.option.KumoOptions;
+import goblinbob.mobends.core.kumo.option.OptionSet;
+import goblinbob.mobends.core.kumo.option.OptionTemplate;
 import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.OnTemplate;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -106,13 +110,36 @@ public class EntityModelDefinition
     @SerializedName("@on")
     public OnTemplate on;
 
+    /**
+     * Optional: the options the user sets in the Mo' Bends menu, read by the entity's animator as
+     * {@code option.x} (see {@link OptionTemplate}).
+     */
+    public Map<String, OptionTemplate> options;
+
     /** Whether the definition comes from a trusted source (set when it is loaded). */
     public transient boolean trusted = true;
+
+    /** Where it was loaded from, which owns its options (set when it is loaded; null when parsed from JSON alone). */
+    @Nullable
+    public transient String location;
+
+    @Nullable
+    private transient OptionSet optionSet;
 
     /** The entity scope this definition declares for an entity of {@code type}. */
     public EntityTemplate entityScope(Class<?> type)
     {
-        return new EntityTemplate(type, define, on, trusted);
+        return new EntityTemplate(type, define, on, trusted, options());
+    }
+
+    /** The options it declares, owned by its location ({@code mobends:bends/models/player.json}). */
+    public OptionSet options()
+    {
+        if (optionSet == null)
+        {
+            optionSet = KumoOptions.INSTANCE.declare(location != null ? location : String.valueOf(key), options);
+        }
+        return optionSet;
     }
 
 
@@ -145,6 +172,7 @@ public class EntityModelDefinition
         if (entity == null) throw new MalformedKumoTemplateException("A model definition needs an 'entity' class.");
         if (animator == null) throw new MalformedKumoTemplateException("A model definition needs an 'animator'.");
         if (bones.isEmpty()) throw new MalformedKumoTemplateException("A model definition needs 'bones'.");
+        OptionTemplate.validate(options, "the model definition");
         Set<String> seen = new HashSet<>();
         for (BoneDefinition bone : bones)
         {

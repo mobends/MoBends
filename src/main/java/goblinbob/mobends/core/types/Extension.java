@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.types;
 
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.ArrayList;
@@ -18,14 +19,21 @@ public class Extension implements TypeOrder.Ranked
     private final String source;
     private final String typeId;
     private final ResourceLocation animator;
+    private final OptionSet options;
     private int rank;
 
     public Extension(String id, String source, String typeId, ResourceLocation animator)
+    {
+        this(id, source, typeId, animator, OptionSet.EMPTY);
+    }
+
+    public Extension(String id, String source, String typeId, ResourceLocation animator, OptionSet options)
     {
         this.id = id;
         this.source = source;
         this.typeId = typeId;
         this.animator = animator;
+        this.options = options;
     }
 
     @Override
@@ -51,6 +59,12 @@ public class Extension implements TypeOrder.Ranked
         return animator;
     }
 
+    /** The options its file declares, which only its animator reads. */
+    public OptionSet getOptions()
+    {
+        return options;
+    }
+
     @Override
     public int getRank()
     {
@@ -74,15 +88,21 @@ public class Extension implements TypeOrder.Ranked
      */
     public static List<ResourceLocation> layerOrder(Collection<Extension> extensions)
     {
-        List<Extension> sorted = new ArrayList<>(extensions);
-        sorted.sort(TypeOrder.PRECEDENCE);
-        Collections.reverse(sorted);
         List<ResourceLocation> animators = new ArrayList<>();
-        for (Extension extension : sorted)
+        for (Extension extension : inLayerOrder(extensions))
         {
             animators.add(extension.animator);
         }
         return animators;
+    }
+
+    /** {@code extensions} in the order their layers are added (see {@link #layerOrder}). */
+    public static List<Extension> inLayerOrder(Collection<Extension> extensions)
+    {
+        List<Extension> sorted = new ArrayList<>(extensions);
+        sorted.sort(TypeOrder.PRECEDENCE);
+        Collections.reverse(sorted);
+        return sorted;
     }
 
 }

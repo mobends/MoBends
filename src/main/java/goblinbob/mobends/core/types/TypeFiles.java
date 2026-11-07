@@ -6,6 +6,8 @@ import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.client.definition.DefinedBenders;
 import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.definition.ModelDefinitions;
+import goblinbob.mobends.core.kumo.option.KumoOptions;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
 import goblinbob.mobends.core.types.selector.ISelectorCondition;
@@ -71,14 +73,16 @@ final class TypeFiles
         }
 
         ResourceLocation animator = definition.animator == null ? null : new ResourceLocation(definition.animator);
-        return new EntityType(definition.id, file.source, selector, definition.specificity(), model, vanilla, animator, false);
+        OptionSet options = KumoOptions.INSTANCE.declare(definition.id, definition.options);
+        return new EntityType(definition.id, file.source, selector, definition.specificity(), model, vanilla, animator, false, options);
     }
 
     /** The extension an extension file describes, with its rank. */
     static Extension loadExtension(TypeFileDiscovery.TypeFile file, @Nullable CoreClientConfig config) throws MalformedKumoTemplateException
     {
         ExtensionDefinition definition = ExtensionDefinition.parse(file.json);
-        Extension extension = new Extension(definition.id, file.source, definition.type, new ResourceLocation(definition.animator));
+        Extension extension = new Extension(definition.id, file.source, definition.type, new ResourceLocation(definition.animator),
+                KumoOptions.INSTANCE.declare(definition.id, definition.options));
         if (config != null)
         {
             extension.setRank(config.getExtensionRank(extension.getId()));

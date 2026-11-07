@@ -4,6 +4,7 @@ import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.IEntityDataFactory;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.types.selector.ISelectorCondition;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
@@ -35,16 +36,20 @@ public class EntityType implements TypeOrder.Ranked
     @Nullable
     private final ResourceLocation animator;
     private final boolean builtIn;
+    /** The options the type file declares (a built-in type has its model definition's, through the entity's data). */
+    private final OptionSet options;
     private int rank;
-    /** The animators of the extensions of this type, in the order their layers go on top. */
+    /** The animators of the extensions of this type, in the order their layers go on top, and their options. */
     private final List<ResourceLocation> extensions = new ArrayList<>();
+    private final List<OptionSet> extensionOptions = new ArrayList<>();
 
     private final Map<EntityBender<?>, EntityTypeRegistry.Selection> selections = new HashMap<>();
     private final EntityTypeRegistry.Selection vanillaSelection = new EntityTypeRegistry.Selection(this, null, null);
 
     EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity,
-               @Nullable EntityBender<?> model, boolean vanilla, @Nullable ResourceLocation animator, boolean builtIn)
+               @Nullable EntityBender<?> model, boolean vanilla, @Nullable ResourceLocation animator, boolean builtIn, OptionSet options)
     {
+        this.options = options;
         this.id = id;
         this.source = source;
         this.selector = selector;
@@ -59,7 +64,7 @@ public class EntityType implements TypeOrder.Ranked
     static EntityType builtIn(EntityBender<?> bender)
     {
         ISelectorCondition isDefaultModel = entity -> EntityBenderRegistry.instance.getDefaultBender(entity.getClass()) == bender;
-        return new EntityType(bender.getKey(), "built in", isDefaultModel, 1, bender, false, null, true);
+        return new EntityType(bender.getKey(), "built in", isDefaultModel, 1, bender, false, null, true, OptionSet.EMPTY);
     }
 
     @Override
@@ -113,6 +118,12 @@ public class EntityType implements TypeOrder.Ranked
         return animator;
     }
 
+    /** The options the type file declares; none for a built-in type. */
+    public OptionSet getOptions()
+    {
+        return options;
+    }
+
     public boolean matches(EntityLivingBase entity)
     {
         return selector == null || selector.test(entity);
@@ -154,15 +165,37 @@ public class EntityType implements TypeOrder.Ranked
         return selections.computeIfAbsent(bender, b -> new EntityTypeRegistry.Selection(this, b, dataFactoryFor(b)));
     }
 
-    /** The animators of this type's extensions, in the order their layers go on (see {@link Extension}). */
-    void setExtensions(List<ResourceLocation> animators)
+    /** This type's extensions, in the order their layers go on (see {@link Extension#inLayerOrder}). */
+    void setExtensions(List<Extension> ordered)
     {
-        if (!animators.equals(extensions))
+        List<ResourceLocation> animators = new ArrayList<>();
+        List<OptionSet> options = new ArrayList<>();
+        for (Extension extension : ordered)
+        {
+            animators.add(extension.getAnimator());
+            options.add(extension.getOptions());
+        }
+        if (!animators.equals(extensions) || !sameOptions(options))
         {
             extensions.clear();
             extensions.addAll(animators);
+            extensionOptions.clear();
+            extensionOptions.addAll(options);
             selections.clear();
         }
+    }
+
+    private boolean sameOptions(List<OptionSet> options)
+    {
+        if (options.size() != extensionOptions.size())
+        {
+            return false;
+        }
+        for (int i = 0; i < options.size(); i++)
+        {
+            if (options.get(i) != extensionOptions.get(i)) return false;
+        }
+        return true;
     }
 
     public List<ResourceLocation> getExtensions()
@@ -174,15 +207,16 @@ public class EntityType implements TypeOrder.Ranked
     private IEntityDataFactory<?> dataFactoryFor(EntityBender<?> bender)
     {
         IEntityDataFactory defaultFactory = bender.getDefaultDataFactory();
-        if (animator == null && extensions.isEmpty())
+        if (animator == null && extensions.isEmpty() && options.isEmpty())
         {
             // Types that keep the model's animator share the entity's data.
             return defaultFactory;
         }
         List<ResourceLocation> overlays = new ArrayList<>(extensions);
+        List<OptionSet> overlayOptions = new ArrayList<>(extensionOptions);
         return (IEntityDataFactory) entity -> {
             EntityData<?> data = defaultFactory.createEntityData(entity);
-            data.setAnimator(animator, overlays);
+            data.setAnimator(animator, overlays, options, overlayOptions);
             return data;
         };
     }

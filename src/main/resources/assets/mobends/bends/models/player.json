@@ -6,6 +6,9 @@
   "unlocalizedName": "mobends.player",
   "model": "net.minecraft.client.model.ModelPlayer",
   "animator": "mobends:bends/animators/player.json",
+  "options": {
+    "spinAttack": {"default": true, "label": "mobends.option.spin_attack"}
+  },
   "bones": [
     {"name": "body", "vanilla": {"field": "bipedBody"}, "pivot": [0, 12, 0]},
     {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body"},

@@ -9,6 +9,8 @@ import goblinbob.mobends.core.kumo.pose.BoneTarget;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.option.KumoOption;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.LayerTemplate;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
@@ -23,6 +25,7 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 import javax.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -80,6 +83,31 @@ public final class KumoProgram
     public KumoProgram(@Nullable EntityTemplate entity, AnimatorTemplate animatorTemplate, boolean trusted, List<AnimatorTemplate> overlays,
                        List<Boolean> overlaysTrusted, IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
     {
+        this(entity, animatorTemplate, trusted, OptionSet.EMPTY, overlays, overlaysTrusted, Collections.nCopies(overlays.size(), OptionSet.EMPTY), dataProvider);
+    }
+
+    /**
+     * Compiles an animator, as above, with options.
+     *
+     * @param typeOptions     The options the type file declares. The animator reads them, and the
+     *                        model definition's ({@link EntityTemplate#options}), as {@code option.x};
+     *                        the two can't declare one name.
+     * @param overlayOptions  The options each extension file declares, which only its own animator reads.
+     */
+    public KumoProgram(@Nullable EntityTemplate entity, AnimatorTemplate animatorTemplate, boolean trusted, OptionSet typeOptions,
+                       List<AnimatorTemplate> overlays, List<Boolean> overlaysTrusted, List<OptionSet> overlayOptions,
+                       IKumoInstancingContext dataProvider) throws MalformedKumoTemplateException
+    {
+        OptionSet modelOptions = entity == null ? OptionSet.EMPTY : entity.options;
+        for (KumoOption option : typeOptions.all())
+        {
+            if (modelOptions.get(option.getName()) != null)
+            {
+                throw new MalformedKumoTemplateException(String.format("'option.%s' is declared by both the model definition and the type file '%s'.",
+                        option.getName(), typeOptions.getOwner()));
+            }
+        }
+        List<OptionSet> baseOptions = Arrays.asList(modelOptions, typeOptions);
         // Every scope of the animator, its extensions included, shares one table of the entity's values.
         ExpressionScope root = ExpressionScope.root(variables).forEntity(entity == null ? null : entity.entityClass);
         this.layout = root.getLayout();
@@ -88,7 +116,7 @@ public final class KumoProgram
             entityScope = new DefinitionScope(DefinitionScope.Kind.ENTITY, "the model definition");
             entityScope.declare(entity.define, entity.trusted);
             // The only place that reads the entity's fields.
-            ExpressionScope place = root.inside(entityScope).trusted(entity.trusted).readingFieldsOf(entity.entityClass);
+            ExpressionScope place = root.inside(entityScope).trusted(entity.trusted).readingFieldsOf(entity.entityClass).withOptions(baseOptions);
             entityScope.compileIn(place);
             entityLists = ScopeLists.compile(entityScope, entity.on, place);
             root = root.inside(entityScope);
@@ -98,7 +126,8 @@ public final class KumoProgram
             entityScope = null;
             entityLists = null;
         }
-        dataProvider = new ScopedInstancingContext(dataProvider, root);
+        IKumoInstancingContext resources = dataProvider;
+        dataProvider = new ScopedInstancingContext(resources, root.withOptions(baseOptions));
         List<LayerTemplate> layers = new ArrayList<>();
         List<IKumoInstancingContext> layerContexts = new ArrayList<>();
         List<Boolean> layersTrusted = new ArrayList<>();
@@ -112,7 +141,9 @@ public final class KumoProgram
             int layerCount = layers.size(), scopeCount = animatorScopes.size();
             try
             {
-                addAnimator(overlays.get(i), overlaysTrusted.get(i), dataProvider, layers, layerContexts, layersTrusted);
+                // Its options are its extension file's own.
+                IKumoInstancingContext overlayContext = new ScopedInstancingContext(resources, root.withOptions(Collections.singletonList(overlayOptions.get(i))));
+                addAnimator(overlays.get(i), overlaysTrusted.get(i), overlayContext, layers, layerContexts, layersTrusted);
                 instanceLayers(layers, layerContexts);
             }
             catch (MalformedKumoTemplateException e)

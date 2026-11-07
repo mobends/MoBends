@@ -3,6 +3,7 @@ package goblinbob.mobends.core.kumo;
 import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.KumoProgram;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
@@ -14,6 +15,7 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +48,8 @@ public class KumoAnimatorController
     private final EntityTemplate entity;
     private final ResourceLocation animator;
     private final List<ResourceLocation> extensions;
+    private final OptionSet typeOptions;
+    private final List<OptionSet> extensionOptions;
     @Nullable
     private KumoAnimatorState state;
     private boolean failed;
@@ -56,9 +60,21 @@ public class KumoAnimatorController
      */
     public KumoAnimatorController(@Nullable EntityTemplate entity, ResourceLocation animator, List<ResourceLocation> extensions)
     {
+        this(entity, animator, extensions, OptionSet.EMPTY, Collections.nCopies(extensions.size(), OptionSet.EMPTY));
+    }
+
+    /**
+     * As above, with the options the animator reads besides the model definition's (its type
+     * file's), and those each extension's animator reads (its extension file's).
+     */
+    public KumoAnimatorController(@Nullable EntityTemplate entity, ResourceLocation animator, List<ResourceLocation> extensions,
+                                  OptionSet typeOptions, List<OptionSet> extensionOptions)
+    {
         this.entity = entity;
         this.animator = animator;
         this.extensions = extensions;
+        this.typeOptions = typeOptions;
+        this.extensionOptions = extensionOptions;
     }
 
     public ResourceLocation getAnimator()
@@ -77,7 +93,8 @@ public class KumoAnimatorController
             return false;
         }
         List<Object> key = Arrays.asList(animator, extensions, entity == null ? null : entity.entityClass,
-                entity == null ? null : new IdentityKey(entity.define), entity == null ? null : new IdentityKey(entity.on), entity != null && entity.trusted);
+                entity == null ? null : new IdentityKey(entity.define), entity == null ? null : new IdentityKey(entity.on), entity != null && entity.trusted,
+                entity == null ? null : new IdentityKey(entity.options), new IdentityKey(typeOptions), identityKeys(extensionOptions));
         Object compiled = PROGRAMS.get(key);
         if (compiled == null)
         {
@@ -102,13 +119,16 @@ public class KumoAnimatorController
             List<ResourceLocation> loaded = new ArrayList<>();
             List<AnimatorTemplate> overlays = new ArrayList<>();
             List<Boolean> overlaysTrusted = new ArrayList<>();
-            for (ResourceLocation extension : extensions)
+            List<OptionSet> overlayOptions = new ArrayList<>();
+            for (int i = 0; i < extensions.size(); i++)
             {
+                ResourceLocation extension = extensions.get(i);
                 // An extension that fails is left out; the animator and the other extensions still animate.
                 try
                 {
                     overlays.add(resources.loadAnimator(extension));
                     overlaysTrusted.add(resources.isTrusted(extension.toString()));
+                    overlayOptions.add(extensionOptions.get(i));
                     loaded.add(extension);
                 }
                 catch (Exception e)
@@ -117,7 +137,8 @@ public class KumoAnimatorController
                 }
             }
             KumoRegistry.close();
-            KumoProgram program = new KumoProgram(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()), overlays, overlaysTrusted, resources);
+            KumoProgram program = new KumoProgram(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()), typeOptions,
+                    overlays, overlaysTrusted, overlayOptions, resources);
             program.getSkippedExtensions().forEach((index, e) -> skip(loaded.get(index), e));
             return program;
         }
@@ -127,6 +148,16 @@ public class KumoAnimatorController
             report("could not be loaded", e);
             return e;
         }
+    }
+
+    private static List<IdentityKey> identityKeys(List<?> objects)
+    {
+        List<IdentityKey> keys = new ArrayList<>();
+        for (Object object : objects)
+        {
+            keys.add(new IdentityKey(object));
+        }
+        return keys;
     }
 
     /** A key part equal only to the very same object (a model definition's scope, loaded once). */

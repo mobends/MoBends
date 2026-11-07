@@ -4,8 +4,7 @@
     "jumping": {"live": {"or": [{"not": ["entityIsOnGround"]}, {"lt": ["entityTicksAfterTouchdown", 1]}]}},
     "bounced": {"live": {"and": [{"lt": ["entityPrevTickMotionY", 0]}, {"gt": ["entityTickMotionY", 0]}]}},
     "standing": {"live": {"and": [{"not": ["animator.jumping"]}, "entityIsStandingStill"]}},
-    "walking": {"live": {"and": [{"not": ["animator.jumping"]}, {"not": ["entityIsStandingStill"]}]}},
-    "canSpinAttack": {"live": true}
+    "walking": {"live": {"and": [{"not": ["animator.jumping"]}, {"not": ["entityIsStandingStill"]}]}}
   },
   "layers": [
     {

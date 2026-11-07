@@ -7,8 +7,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import goblinbob.mobends.core.kumo.option.OptionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.FormatVersion;
+
+import java.util.Map;
 
 /**
  * A type file, {@code assets/<namespace>/bends/types/<name>.json}: which model and animator an
@@ -50,6 +53,12 @@ public class EntityTypeDefinition
     /** Optional: the animator asset. Absent: the model's own animator. */
     public String animator;
 
+    /**
+     * Optional: options the user sets in the Mo' Bends menu, read by the type's animator as
+     * {@code option.x}, besides its model definition's (see {@link OptionTemplate}).
+     */
+    public Map<String, OptionTemplate> options;
+
     public static EntityTypeDefinition parse(String json) throws MalformedKumoTemplateException
     {
         EntityTypeDefinition definition;
@@ -71,6 +80,7 @@ public class EntityTypeDefinition
         {
             throw new MalformedKumoTemplateException("A type needs an 'id'.");
         }
+        OptionTemplate.validate(options, "the type '" + id + "'");
     }
 
     public boolean isModelDefinition()

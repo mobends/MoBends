@@ -3,8 +3,11 @@ package goblinbob.mobends.core.types;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import goblinbob.mobends.core.kumo.option.OptionTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.util.FormatVersion;
+
+import java.util.Map;
 
 /**
  * An extension file, {@code assets/<namespace>/bends/extensions/<name>.json}: an animator whose
@@ -37,6 +40,9 @@ public class ExtensionDefinition
     /** The animator whose layers are added. */
     public String animator;
 
+    /** Optional: options the user sets in the Mo' Bends menu, read by the extension's animator as {@code option.x} (see {@link OptionTemplate}). */
+    public Map<String, OptionTemplate> options;
+
     public static ExtensionDefinition parse(String json) throws MalformedKumoTemplateException
     {
         ExtensionDefinition definition;
@@ -66,6 +72,7 @@ public class ExtensionDefinition
         {
             throw new MalformedKumoTemplateException("The extension '" + id + "' needs an 'animator'.");
         }
+        OptionTemplate.validate(options, "the extension '" + id + "'");
     }
 
 }

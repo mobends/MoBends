@@ -214,6 +214,7 @@ public class GuiSettingsWindow extends GuiScreen
         {
             final int typeCount = EntityTypeRegistry.INSTANCE.getTypesFor(bender).size();
             final int extensionCount = EntityTypeRegistry.INSTANCE.getExtensionsFor(bender).size();
+            final int optionCount = GuiOptionsWindow.optionsOf(bender).size();
             final EntityPreview preview = previews.computeIfAbsent(bender, b -> new EntityPreview(previewWorld, b));
             bendsSettingsListUI.addElement(new GuiBenderSettings(bendsSettingsListUI, bender, preview, typeCount, () -> {
                 Core.saveConfiguration();
@@ -221,6 +222,9 @@ public class GuiSettingsWindow extends GuiScreen
             }, extensionCount, () -> {
                 Core.saveConfiguration();
                 this.mc.displayGuiScreen(GuiOrderWindow.forExtensions(bender, exit));
+            }, optionCount, () -> {
+                Core.saveConfiguration();
+                this.mc.displayGuiScreen(new GuiOptionsWindow(bender, exit));
             }));
         }
     }
