@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.addon;
 
-import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
 
 import java.util.ArrayList;
@@ -23,6 +22,11 @@ public class Addons
     private final List<IAddon> addons = new ArrayList<>();
     /** Addons registered before the client core existed, with their mod ids: their content is registered once it does. */
     private final Map<IAddon, String> pending = new LinkedHashMap<>();
+    /**
+     * Whether the client core exists. Kept here rather than asking CoreClient: this class runs on
+     * servers too, and touching CoreClient there loads client-only classes and crashes the server.
+     */
+    private boolean clientCoreCreated = false;
 
     /**
      * Registers an addon. Its content is registered at once if the client core exists, or else as
@@ -35,7 +39,7 @@ public class Addons
 
         INSTANCE.addons.add(addon);
 
-        if (CoreClient.getInstance() != null)
+        if (INSTANCE.clientCoreCreated)
         {
             addon.registerContent(new AddonAnimationRegistry(modId));
         }
@@ -48,6 +52,7 @@ public class Addons
     /** Registers the content of the addons that came before the client core; called once it exists. */
     public static void onClientCoreCreated()
     {
+        INSTANCE.clientCoreCreated = true;
         Map<IAddon, String> pending = new LinkedHashMap<>(INSTANCE.pending);
         INSTANCE.pending.clear();
         pending.forEach((addon, modId) -> addon.registerContent(new AddonAnimationRegistry(modId)));
