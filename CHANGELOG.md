@@ -10,6 +10,11 @@
   reached from the title screen. Forge's screen for the trails, spin attack and item options is
   behind the menu's new More Settings button.
 
+### Fixed
+
+- Forge tells you when a newer version of Mo' Bends is out, on the main menu and in the Mods list.
+  The check had never been switched on.
+
 ## 2.0.0-alpha.1
 
 ### Added
