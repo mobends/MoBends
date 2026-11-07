@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 (in development)
+## 2.0.0-alpha.1
 
 ### Added
 
