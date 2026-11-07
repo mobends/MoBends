@@ -12,9 +12,9 @@ import org.lwjgl.input.Keyboard;
 public class KeyboardHandler
 {
 
-    private static final String MAIN_CATEGORY = "Mo' Bends";
-    private static final KeyBinding KEY_MENU = new KeyBinding("Mo' Bends Menu", Keyboard.KEY_G, MAIN_CATEGORY);
-    private static final KeyBinding KEY_REFRESH = new KeyBinding("Refresh Animations", Keyboard.KEY_F10, MAIN_CATEGORY);
+    private static final String MAIN_CATEGORY = "key.categories.mobends";
+    private static final KeyBinding KEY_MENU = new KeyBinding("key.mobends.menu", Keyboard.KEY_G, MAIN_CATEGORY);
+    private static final KeyBinding KEY_REFRESH = new KeyBinding("key.mobends.refresh", Keyboard.KEY_F10, MAIN_CATEGORY);
 
     public static void initKeyBindings()
     {

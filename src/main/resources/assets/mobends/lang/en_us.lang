@@ -32,6 +32,10 @@ mobends.gui.link.error.session=Minecraft couldn't verify your session. Linking n
 mobends.gui.link.error.api=Something went wrong on the Mo' Bends server. Please try again later.
 mobends.gui.link.error.connection=Couldn't reach the Mo' Bends server. Check your internet connection and try again.
 
+key.categories.mobends=Mo' Bends
+key.mobends.menu=Mo' Bends Menu
+key.mobends.refresh=Refresh Animations
+
 mobends.player=Player
 
 mobends.config.show_arrow_trails=Show Arrow Trails

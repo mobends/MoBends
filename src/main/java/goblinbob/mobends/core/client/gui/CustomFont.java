@@ -62,6 +62,17 @@ public class CustomFont
         return null;
     }
 
+    /** Whether every character of the text has a symbol in this font (the bold font only has a-z and -). */
+    public boolean canRender(String text)
+    {
+        for (int i = 0; i < text.length(); ++i)
+        {
+            if (!this.symbolMap.containsKey(text.charAt(i)))
+                return false;
+        }
+        return true;
+    }
+
     public static class Symbol
     {
 

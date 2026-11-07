@@ -13,6 +13,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
+import java.util.Locale;
+
 public class GuiSectionButton
 {
 
@@ -201,7 +203,25 @@ public class GuiSectionButton
         }
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        this.fontRenderer.drawCenteredText(this.label, x + width / 2, y + height / 2 + 6);
+        if (CustomFont.BOLD.canRender(this.label))
+        {
+            this.fontRenderer.drawCenteredText(this.label, x + width / 2, y + height / 2 + 6);
+        }
+        else
+        {
+            // Translations can use letters the bold font doesn't have (accents, Cyrillic), so
+            // those labels use Minecraft's font: in capitals like the bold font, scaled to about
+            // its height, and drawn twice a pixel apart to look bold.
+            final String text = this.label.toUpperCase(Locale.ROOT);
+            final float scale = 1.5F;
+            final float left = -mc.fontRenderer.getStringWidth(text) / 2F;
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(x + width / 2F, y + height / 2F, 0);
+            GlStateManager.scale(scale, scale, 1);
+            mc.fontRenderer.drawString(text, left, -3.5F, 0xFFFFFF, false);
+            mc.fontRenderer.drawString(text, left + 1 / scale, -3.5F, 0xFFFFFF, false);
+            GlStateManager.popMatrix();
+        }
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
     }
