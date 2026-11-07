@@ -16,9 +16,9 @@ editor, which is in the works. It opens the `officialAnimationEditorUrl` of
 The *Supporters* entry of the Mo' Bends menu (`GuiSupportersWindow`) shows every supporter
 accessory on the player. Its buttons open the `supportUrl` and `accountUrl` of
 [static-api.json](https://github.com/mobends/mobends-resources/blob/master/static-api.json)
-(`WebLink.SUPPORT`, `WebLink.ACCOUNT`); until they are there, both open `https://mobends.com`.
+(`WebLink.SUPPORT`, `WebLink.ACCOUNT`), falling back to `https://mobends.com`.
 
-- [ ] Add `supportUrl` (the Patreon page) and `accountUrl` (the mobends.com login) to static-api.json.
+- [x] Add `supportUrl` (the Patreon page) and `accountUrl` (the mobends.com login) to static-api.json.
 - [ ] Show the tiers (one-time collection, subscription, editor tier) once they exist.
 
 ## Legacy Mo' Bends pack
