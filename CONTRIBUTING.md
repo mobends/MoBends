@@ -49,6 +49,19 @@ versions' releases.
 - The mod's version is `mod_version` in `gradle.properties` (and `ModStatics.VERSION`).
 - `core` gets a new release when its API changes, or when another project needs a change from it.
 
+### Releasing the Legacy Mo' Bends pack
+
+Pushing a release tag (`v<version>-1.12.2`, matching `mod_version`) runs
+`.github/workflows/legacy-pack.yml`. It builds `Legacy-Mo-Bends-<version>.zip`, signed so that servers that deny
+resource packs' animation trust it (see `docs/content.md`, *Mo' Bends' Own Resource Packs*), and
+attaches it to the tag's GitHub release, creating the release if there isn't one. Upload it to
+Modrinth and CurseForge as a resource pack, next to the mod's jar.
+
+It signs with the `MOBENDS_PACK_SIGNING_KEY` repository secret (the base64 line in the key file).
+Locally, `gradle legacyPack -Ppack_signing_key=<file>` does the same into `build/packs/`. The private key is
+never committed. Keep a copy in a password manager. A lost key means new packs need a mod release that ships
+a new public key.
+
 ### Releasing `core`
 
 Push a tag named `core-<version>` (e.g. `git tag core-2.0.0 && git push origin core-2.0.0`).

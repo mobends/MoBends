@@ -38,6 +38,11 @@
 - Zombies and zombie villagers stand on their feet too: standing, the feet stay planted and they
   turn by stepping, heavily; they walk (or stumble) as before, and stop with their feet where the
   walk left them. A leaning zombie stands crouched with its feet on the ground.
+- The Legacy Mo' Bends resource pack brings back how players and zombies (and zombie villagers)
+  moved in Mo' Bends 1.X, without standing on their feet. It is a separate download, signed by
+  Mo' Bends, so it works on servers that refuse resource packs' animation too.
+- Resource packs signed by Mo' Bends are trusted as the mod is, under every server policy. The mod
+  checks the signature itself, offline, with the keys it ships.
 - Players stand on their feet too: standing still, the feet stay planted and they turn by stepping,
   and stop with their feet where the walk or the sprint left them. In the sword's stance they stand
   on their feet too, wide apart. Sneaking, the attacks themselves, aiming a bow and the rest pose

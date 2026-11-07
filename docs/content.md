@@ -97,6 +97,27 @@ before the first untrusted layer and clamps around it after the last. A policy c
 animation (`CoreClient.reloadAnimation()`), and defined mobs re-read their definition, so it takes
 effect immediately.
 
+### Mo' Bends' Own Resource Packs
+
+A resource pack Mo' Bends makes itself, such as the Legacy Mo' Bends pack
+([`misc/legacy-pack`](../misc/legacy-pack/README.md)), is trusted under every policy. It carries a
+signature, `assets/mobends/bends/signature.json` (`core/pack/PackSignature`): the SHA-256 of each of its
+`bends/` files, signed with ECDSA (P-256) by a key only the Mo' Bends team holds. The mod ships the
+public keys (`PackSigningKeys`). A file from an enabled pack is trusted when the pack's signature
+verifies with one of them and lists that file with the hash of exactly the bytes the pack has, and
+the server's pack doesn't replace it. `PackTrust.open` then returns the bytes it checked. Nothing is
+fetched, so there is no connection to spoof.
+
+Only the files `PackTrust` opens are covered (animators, clips and model definitions), not
+types or extensions, which are found by scanning the packs (`TypeFileDiscovery`). The signature
+guards against packs passing as Mo' Bends' own. Like the policy itself, it doesn't guard against a
+modified client, which can ignore the policy anyway.
+
+`gradle legacyPack` builds and signs the pack (`src/tools`, `SignPack`), with the private key from the
+`MOBENDS_PACK_SIGNING_KEY` environment variable or `-Ppack_signing_key=<file>`.
+`gradle generatePackSigningKey -Ppack_signing_key=<file>` makes a new key pair. To replace a key, add the new
+public key to `PackSigningKeys` before removing the old one.
+
 ## Authoring Recipes
 
 Patterns the shipped animators use, as a starting point for new ones. Field details are in

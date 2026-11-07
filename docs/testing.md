@@ -31,6 +31,15 @@ the legs over whenever they stand still, and the player's only where nothing els
 they move otherwise is unchanged). Every other golden is the original code's
 output.
 
+The Legacy Mo' Bends pack (`misc/legacy-pack`) is the player's and the zombie's animators without
+the layer that stands them on their feet. `LegacyPackTest` holds it to its own goldens, in
+`golden/legacy/`, recorded with `./gradlew record --args="--legacy $PWD/golden/legacy <entity>[/scenario]"`.
+It also checks that the pack poses every bone `core:step_turn` doesn't drive (everything but the
+legs, the render rotation and the offsets) as the mod's own golden does, so a change to the
+mod's animator fails until the pack is changed with it. The legacy goldens don't match 1.2.2's either. They
+include the engine changes the mod's goldens were re-recorded for (smoothing in ticks, a bone's
+base smoothing, interpolated entity values).
+
 ## Where the Animators Deliberately Differ From the Original Code
 
 No scenario covers these, because the new behaviour was chosen over the original quirk:
