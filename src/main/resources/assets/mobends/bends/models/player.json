@@ -51,15 +51,17 @@
     "flightSpeedFactor": {"live": {"div": [{"clamp": ["entitySpeed", 0, 0.2]}, 0.2]}},
     "flightPitch": {"live": {"mul": [{"atan2": ["entityXZSpeed", "entityMotionY"]}, 57.29578, "entity.flightSpeedFactor"]}},
     "liftedOff": {"live": {"or": [{"fell": ["entityIsOnGround"]}, {"decreased": ["entityTicksInAir"]}]}},
+    "standingOnLeftLeg": {"@comment": "The sprint cycle swings the left leg by -72 cos(phase) degrees (positive is back), phase = entityLimbSwing * 0.6662 * 0.8, so the left leg is the one on the ground (sweeping back) while sin(phase) > 0. A sprint jump pushes off the leg on the ground and leads with the other: sprintJumpLeg (true leads with the right leg) is that, read as the entity lifts off.", "live": {"gt": [{"sin": [{"mul": ["entityLimbSwing", 0.53296]}]}, 0]}},
+    "nextSprintJumpLeg": {"@comment": "Jumping again within a few ticks of landing pushes off the leg that led the last jump, which is in front now, so the legs swap; after a longer stay on the ground, the sprint cycle picks.", "live": {"if": [{"lt": ["entityTicksAfterTouchdown", 5]}, {"not": ["entity.sprintJumpLeg"]}, "entity.standingOnLeftLeg"]}},
     "sprintJumpLeg": {"state": false},
     "sprintJumpLegSwitched": {"state": false}
   },
   "@on": {
     "update": [
-      {"@when": {"and": ["entity.liftedOff", {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", {"not": ["entity.sprintJumpLeg"]}]},
+      {"@when": {"and": ["entity.liftedOff", {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", "entity.nextSprintJumpLeg"]},
       {"@when": "entity.liftedOff", "set": ["entity.sprintJumpLegSwitched", true]},
       {"@when": {"lt": ["entityTickMotionY", 0]}, "set": ["entity.sprintJumpLegSwitched", false]},
-      {"@when": {"and": [{"gt": ["entityTickMotionY", 0]}, {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", {"not": ["entity.sprintJumpLeg"]}]},
+      {"@when": {"and": [{"gt": ["entityTickMotionY", 0]}, {"not": ["entity.sprintJumpLegSwitched"]}]}, "set": ["entity.sprintJumpLeg", "entity.nextSprintJumpLeg"]},
       {"@when": {"gt": ["entityTickMotionY", 0]}, "set": ["entity.sprintJumpLegSwitched", true]}
     ]
   }
