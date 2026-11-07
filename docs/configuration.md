@@ -4,7 +4,7 @@
 
 | File | Format | Purpose |
 |------|--------|---------|
-| `~/.minecraft/config/mobends.cfg` | Forge INI | The mod's options (`ModConfig`, editable in Forge's mod options screen, category `general`), and the client settings made in the Mo' Bends menu (per-entity enable, type and extension order) |
+| `~/.minecraft/config/mobends.cfg` | Forge INI | The mod's options (`ModConfig`, editable in Forge's config screen, category `general`, which the Mo' Bends menu's More Settings button opens), and the client settings made in the Mo' Bends menu (per-entity enable, type and extension order) |
 | `config/mobends.cfg` (server) | Forge INI | The same file on a server: also what the server allows resource packs, sent to players (see [server-networking.md](server-networking.md)) |
 | `~/.minecraft/config/mobends/env.json` | JSON | Optional: override `apiUrl` |
 | `~/.minecraft/config/mobends/assets/` | binary | Downloaded remote assets |
@@ -18,6 +18,10 @@ Forge's `@Config` and the Mo' Bends menu share one `Configuration` object for `m
 writes both. Two `Configuration`s on the file would each overwrite the other's changes.
 
 ## Mod Options (`ModConfig`)
+
+The Config button of Forge's Mods list opens the Mo' Bends menu (`MoBendsGuiFactory`); leaving the
+menu returns to the Mods list. The menu's More Settings button opens Forge's config screen for
+these options.
 
 | Option | Default | Effect |
 |--------|---------|--------|

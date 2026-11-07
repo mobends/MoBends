@@ -13,6 +13,7 @@ mobends.gui.link.enter_code=No painel do Mo' Bends, escolha "Link through the mo
 mobends.gui.link.dashboard=Abrir painel
 mobends.gui.link.log_out=Sair
 mobends.gui.refresh=Recarregar animações
+mobends.gui.more_settings=Mais configurações
 mobends.gui.link.continue=Continuar
 mobends.gui.link.confirm=Vincular
 mobends.gui.link.retry=Tentar de novo

@@ -9,7 +9,6 @@ import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.types.Extension;
 import goblinbob.mobends.core.types.TypeOrder;
 import goblinbob.mobends.core.util.Draw;
-import goblinbob.mobends.core.util.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -19,6 +18,8 @@ import org.lwjgl.input.Mouse;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * A list the user orders like resource packs: the types that can animate one kind of entity (when
@@ -46,7 +47,7 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
         void reset(List<T> entries);
     }
 
-    public static GuiOrderWindow<EntityType> forTypes(EntityBender<?> bender)
+    public static GuiOrderWindow<EntityType> forTypes(EntityBender<?> bender, @Nullable GuiScreen exit)
     {
         return new GuiOrderWindow<>(new Source<EntityType>()
         {
@@ -62,10 +63,10 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
                 String conditions = I18n.format("mobends.gui.typeorder.conditions", type.getSpecificity());
                 return type.getSource() + " · " + conditions + describeRank(type);
             }
-        });
+        }, exit);
     }
 
-    public static GuiOrderWindow<Extension> forExtensions(EntityBender<?> bender)
+    public static GuiOrderWindow<Extension> forExtensions(EntityBender<?> bender, @Nullable GuiScreen exit)
     {
         return new GuiOrderWindow<>(new Source<Extension>()
         {
@@ -81,7 +82,7 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
                 String extended = I18n.format("mobends.gui.extensionorder.extends", extension.getTypeId());
                 return extension.getSource() + " · " + extended + describeRank(extension);
             }
-        });
+        }, exit);
     }
 
     private static String describeRank(TypeOrder.Ranked entry)
@@ -93,6 +94,9 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
     private static final int COMPONENT_BUTTON_RESET = 1;
 
     private final Source<T> source;
+    /** Where leaving the Mo' Bends menus goes: the game (null), or the Mods list it was opened from. */
+    @Nullable
+    private final GuiScreen exit;
     private final EntryList entryList = new EntryList(0, 0, GuiSettingsWindow.EDITOR_WIDTH - 10, GuiSettingsWindow.EDITOR_HEIGHT - 10);
     private List<T> entries;
 
@@ -127,9 +131,10 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
         }
     }
 
-    public GuiOrderWindow(Source<T> source)
+    public GuiOrderWindow(Source<T> source, @Nullable GuiScreen exit)
     {
         this.source = source;
+        this.exit = exit;
         fetchEntries();
     }
 
@@ -209,7 +214,7 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
         if (keyCode == 1)
         {
             Core.saveConfiguration();
-            GuiHelper.closeGui();
+            this.mc.displayGuiScreen(exit);
         }
     }
 
@@ -222,7 +227,7 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
         {
             case COMPONENT_BUTTON_BACK:
                 Core.saveConfiguration();
-                this.mc.displayGuiScreen(new GuiSettingsWindow());
+                this.mc.displayGuiScreen(new GuiSettingsWindow(exit));
                 break;
             case COMPONENT_BUTTON_RESET:
                 source.reset(entries);

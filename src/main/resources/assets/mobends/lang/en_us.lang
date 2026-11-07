@@ -13,6 +13,7 @@ mobends.gui.link.enter_code=On the Mo' Bends dashboard, choose Link through the 
 mobends.gui.link.dashboard=Open Dashboard
 mobends.gui.link.log_out=Log out
 mobends.gui.refresh=Refresh Animations
+mobends.gui.more_settings=More Settings
 mobends.gui.link.continue=Continue
 mobends.gui.link.confirm=Link
 mobends.gui.link.retry=Try again

@@ -13,6 +13,7 @@ mobends.gui.link.enter_code=Sur le tableau de bord Mo' Bends, choisissez « Link
 mobends.gui.link.dashboard=Ouvrir le tableau de bord
 mobends.gui.link.log_out=Se déconnecter
 mobends.gui.refresh=Recharger les animations
+mobends.gui.more_settings=Plus de paramètres
 mobends.gui.link.continue=Continuer
 mobends.gui.link.confirm=Lier
 mobends.gui.link.retry=Réessayer
