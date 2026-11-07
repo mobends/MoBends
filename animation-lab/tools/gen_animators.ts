@@ -723,6 +723,7 @@ poseClip(join(CLIPS, "player", "punch_left_pre.json"), { leftArm: rotations(["Y"
 // either fist), and the head went with it.
 poseClip(join(CLIPS, "player", "punch_still_head.json"), { head: rotations(["Y", -20]) });
 poseClip(join(CLIPS, "player", "punch_left_still.json"), { body: rotations(), renderRotation: rotations(["Y", -20]) });
+// The still-standing parts (crouched legs, lowered root, turned model) only off a mount, as the slashes (#238).
 function punchNode(side: string): Obj {
   const [arm, other] = side === "right" ? ["rightArm", "leftArm"] : ["leftArm", "rightArm"];
   const [fore, otherFore] = [arm.replace("Arm", "ForeArm"), other.replace("Arm", "ForeArm")];
@@ -730,9 +731,9 @@ function punchNode(side: string): Obj {
     clip(PL(`punch_${side}_abs`), {}, { smoothing: { [arm]: 1.11, [other]: 3.33, [fore]: 1.11, [otherFore]: 3.33, body: 1.67 } }),
     drv(arm, "X", "entityHeadPitch", { offset: -90 }),
     clip(PL(`punch_${side}_pre`), {}, { space: "pre" }),
-    when(clip(PL("punch_still"), {}, { smoothing: { rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), state("entityIsStandingStill")),
-    when(clip(PL(`punch_${side}_still`), {}, { smoothing: { body: 1.67 } }), state("entityIsStandingStill")),
-    when(clip(PL("punch_still_head"), {}, { space: "pre" }), state("entityIsStandingStill")),
+    when(clip(PL("punch_still"), {}, { smoothing: { rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillNotRiding),
+    when(clip(PL(`punch_${side}_still`), {}, { smoothing: { body: 1.67 } }), stillNotRiding),
+    when(clip(PL("punch_still_head"), {}, { space: "pre" }), stillNotRiding),
   ]);
 }
 poseClip(join(CLIPS, "player", "fist_guard_abs.json"), {
@@ -742,12 +743,13 @@ poseClip(join(CLIPS, "player", "fist_guard_abs.json"), {
   rightForeArm: rotations(["X", -80]), leftForeArm: rotations(["X", -80]) }, { root: [0, -2, 0] });
 poseClip(join(CLIPS, "player", "fist_guard_pre.json"), { body: rotations(["X", 10]), head: onBody(rotations(["X", 10]), rotations(["X", -10], ["Y", -20])) });
 const fistGuardBones = ["rightArm", "leftArm", "rightForeArm", "leftForeArm", "rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg", "root"];
+// Standing still, not riding: on a mount the crouched legs and the lowered root would go through it (#238).
 const fistGuard: Obj = poseNode([
   when(clip(PL("fist_guard_abs"), { bones: fistGuardBones }, { smoothing: { rightArm: 3.33, leftArm: 3.33, rightForeArm: 3.33, leftForeArm: 3.33,
-                                                                              rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), state("entityIsStandingStill")),
-  when(mirrored(clip(PL("fist_guard_abs"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), state("entityIsStandingStill")),
-  when(clip(PL("fist_guard_pre"), { bones: ["body"] }, { space: "pre" }), state("entityIsStandingStill")),
-  when(mirrored(clip(PL("fist_guard_pre"), { bones: ["head"] }, { space: "pre" })), state("entityIsStandingStill")),
+                                                                              rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillNotRiding),
+  when(mirrored(clip(PL("fist_guard_abs"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), stillNotRiding),
+  when(clip(PL("fist_guard_pre"), { bones: ["body"] }, { space: "pre" }), stillNotRiding),
+  when(mirrored(clip(PL("fist_guard_pre"), { bones: ["head"] }, { space: "pre" })), stillNotRiding),
 ]);
 const fistsIdle: Obj = poseNode([]);
 

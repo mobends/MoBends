@@ -2626,7 +2626,7 @@
                     "@space": "pre"
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_still.json"},
                     "@smoothing": {
                       "rightLeg": 3.33,
@@ -2638,12 +2638,12 @@
                     "@vectorModes": {"root": "slide"}
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_right_still.json"},
                     "@smoothing": {"body": 1.67}
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_still_head.json"},
                     "@space": "pre"
                   }
@@ -2672,7 +2672,7 @@
                     "@space": "pre"
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_still.json"},
                     "@smoothing": {
                       "rightLeg": 3.33,
@@ -2684,12 +2684,12 @@
                     "@vectorModes": {"root": "slide"}
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_left_still.json"},
                     "@smoothing": {"body": 1.67}
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_still_head.json"},
                     "@space": "pre"
                   }
@@ -2700,7 +2700,7 @@
               "core:pose": {
                 "pose": [
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/fist_guard_abs.json",
                       "bones": [
@@ -2729,7 +2729,7 @@
                     "@vectorModes": {"root": "slide"}
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/fist_guard_abs.json",
                       "bones": ["renderRotation"]
@@ -2738,12 +2738,12 @@
                     "@mirror": true
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/fist_guard_pre.json", "bones": ["body"]},
                     "@space": "pre"
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/fist_guard_pre.json", "bones": ["head"]},
                     "@space": "pre",
                     "@mirror": true
