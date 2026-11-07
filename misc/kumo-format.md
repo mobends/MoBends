@@ -691,7 +691,6 @@ another class, it takes its `@fallback`, or the animator fails to load. (Mods ad
 | `core:ledge_ahead` | none | a block in front of the entity's feet, at most 1.5 blocks high, with room for the entity on top: what it climbs onto as it jumps (front is the way its body faces). Read as it lifts off, it tells a climb from a jump | living entities |
 | `mobends:use_action` | `[action]`: `food`, `bow` or `shield` | the item in use is used as that (Mo' Bends' classification, which the config can change) | living entities |
 | `mobends:attack_action` | `[action]`: `fists`, `sword` or `tool` | the held item attacks as that | living entities |
-| `mobends:spin_attack_enabled` | none | deprecated: the player's `spinAttack` option is on (read `option.spinAttack` in the player's animator instead) | every entity |
 | `mobends:is_sitting` | none | the wolf sits | wolves |
 | `mobends:wolf_interested_angle` | none | the head's tilt while begging, in degrees (a number) | wolves |
 | `mobends:wolf_shake_angle` | `[offset]`, a number written out: how far behind the head the part shakes (vanilla's: head 0, mane −0.08, tail −0.2) | the part's roll while shaking off water, in degrees (a number) | wolves |

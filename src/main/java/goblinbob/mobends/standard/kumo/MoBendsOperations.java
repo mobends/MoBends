@@ -64,14 +64,6 @@ public final class MoBendsOperations
                         return entity != null && action == ItemActions.getItemAttackAction(entity.getHeldItemMainhand().getItem());
                     };
                 }));
-        // {"mobends:spin_attack_enabled": []}: deprecated, for animators written before options: the
-        // player's spin attack is switched on (its model definition's option, option.spinAttack).
-        KumoRegistry.registerOperation(KumoOperation.named("mobends:spin_attack_enabled")
-                .returns(Expression.Type.BOOLEAN)
-                .bind(args -> (BooleanEvaluator) (context, values) -> {
-                    Double saved = KumoOptions.INSTANCE.getSaved(SPIN_ATTACK_OPTION);
-                    return saved == null || saved != 0;
-                }));
 
         // {"mobends:skin_variant": ["slim"]}: a player whose skin has this arm width. Players read as
         // default until their skin has downloaded, so the answer can change.

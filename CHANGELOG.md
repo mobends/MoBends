@@ -21,7 +21,8 @@
 - *Perform Spin Attack* moved from Forge's mod options to the player's options in the Mo' Bends
   menu. If you had turned it off, it stays off.
 - Only players end the sword combo with a spin attack; skeletons repeat the four slashes.
-- `mobends:spin_attack_enabled` is deprecated: the player's animator reads `option.spinAttack`.
+- Breaking: the `mobends:spin_attack_enabled` operation is gone. A player animator reads
+  `option.spinAttack` instead.
 
 ### Fixed
 
