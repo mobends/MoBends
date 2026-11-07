@@ -257,7 +257,7 @@ const jump: Obj = poseNode([
 const biped: Obj = {
   formatVersion: 2,
   "@define": { jumping: live(jumping), bounced: live(bounced), standing: live(chooses(locomotionSelect, "stand")),
-               walking: live(chooses(locomotionSelect, "walk")), canSpinAttack: live(true) },
+               walking: live(chooses(locomotionSelect, "walk")) },
   layers: [
     { select: locomotionSelect, nodes: { stand, walk, jump } },
   ] };
@@ -834,9 +834,8 @@ const attackBranch: Obj = {
   ],
 };
 const slashOrder = ["slash_up", "slash_down", "slash_inward", "slash_outward", "slash_whirl"];
-// The fifth slash is the whirl, when the player allows it (ModConfig.performSpinAttack) and isn't
-// riding; otherwise the combo starts over.
-// The sword combo ends with a whirl, where the animator allows it (animator.canSpinAttack).
+// The player's sword combo ends with a whirl, where the animator allows it (animator.canSpinAttack:
+// the config's performSpinAttack, and not riding); otherwise the combo starts over.
 const canSpin = "animator.canSpinAttack";
 const slashByCombo = [
   ...slashOrder.map((n, k) => conn(n, AND("machine.attacked", cmp("machine.combo", "==", k), ...(k === 4 ? [canSpin] : [])), [set("machine.combo", (k + 1) % 5)])),
@@ -1104,6 +1103,11 @@ const spider: Obj = { formatVersion: 2, layers: [{ "@define": { resetLimbs: vari
 // the skeleton's controller runs the biped action controller as well: bow, sword, tool, fists
 const skeletonActions = structuredClone(actionLayer);
 delete skeletonActions["@when"]; // only players sleep
+// Only players whirl: the skeleton's combo is the first four slashes, starting over after the fourth.
+const skeletonSword = skeletonActions.machines.sword;
+delete skeletonSword.nodes.slash_whirl;
+skeletonSword["@connections"] = slashOrder.slice(0, 4).map((n, k) =>
+  conn(n, AND("machine.attacked", cmp("machine.combo", "==", k)), [set("machine.combo", (k + 1) % 4)]));
 skeleton.layers.push(skeletonActions);
 
 // --- the skeleton standing on its feet: core:step_turn while it stands still -------------------------

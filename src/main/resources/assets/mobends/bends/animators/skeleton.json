@@ -427,17 +427,7 @@
             {
               "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 3]}]},
               "then": "slash_outward",
-              "do": [{"set": ["machine.combo", 4]}]
-            },
-            {
-              "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 4]}, "animator.canSpinAttack"]},
-              "then": "slash_whirl",
               "do": [{"set": ["machine.combo", 0]}]
-            },
-            {
-              "when": {"and": ["machine.attacked", {"eq": ["machine.combo", 4]}, {"not": ["animator.canSpinAttack"]}]},
-              "then": "slash_up",
-              "do": [{"set": ["machine.combo", 1]}]
             }
           ],
           "nodes": {
@@ -875,105 +865,6 @@
                     "core:rotate": {"bone": "head", "axis": "y", "angle": -30},
                     "@space": "pre",
                     "@mirror": true
-                  }
-                ]
-              }
-            },
-            "slash_whirl": {
-              "core:pose": {
-                "pose": [
-                  {
-                    "@when": {"lt": ["entityTicksAfterAttack", 0.5]},
-                    "mobends:sword_trail": {"add": false, "resetEachFrame": true}
-                  },
-                  {"mobends:sword_trail": {}},
-                  {
-                    "core:clip": {
-                      "animationKey": "mobends:bends/animations/player/slash_whirl.json",
-                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
-                      "frame": "entityTicksAfterAttack"
-                    },
-                    "@smoothing": {
-                      "body": 1.11,
-                      "leftArm": 3.33,
-                      "leftForeArm": 3.33,
-                      "rightForeArm": 3.33,
-                      "localOffset": 3.33
-                    },
-                    "@vectorModes": {"localOffset": "slide"},
-                    "@mirror": true
-                  },
-                  {
-                    "core:clip": {
-                      "animationKey": "mobends:bends/animations/player/slash_whirl.json",
-                      "bones": ["rightArm"],
-                      "frame": "entityTicksAfterAttack"
-                    },
-                    "@smoothing": {"rightArm": 3.33},
-                    "@snap": true,
-                    "@mirror": true
-                  },
-                  {
-                    "core:clip": {
-                      "animationKey": "mobends:bends/animations/player/slash_whirl.json",
-                      "bones": ["rightHeldItem"],
-                      "frame": "entityTicksAfterAttack"
-                    },
-                    "@smoothing": {"rightHeldItem": 1.11},
-                    "@snap": false,
-                    "@mirror": true
-                  },
-                  {
-                    "core:clip": {
-                      "animationKey": "mobends:bends/animations/player/slash_whirl.json",
-                      "bones": ["root"],
-                      "frame": "entityTicksAfterAttack"
-                    },
-                    "@smoothing": {"root": [null, 0.835, null]},
-                    "@vectorModes": {"root": "slide"}
-                  },
-                  {
-                    "core:clip": {
-                      "animationKey": "mobends:bends/animations/player/slash_whirl.json",
-                      "bones": ["renderRotation"],
-                      "frame": "entityTicksAfterAttack"
-                    },
-                    "@snap": true
-                  },
-                  {
-                    "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
-                    "@space": "override",
-                    "@mirror": true
-                  },
-                  {
-                    "core:clip": {
-                      "animationKey": "mobends:bends/animations/player/slash_whirl.json",
-                      "bones": ["head"],
-                      "frame": "entityTicksAfterAttack"
-                    },
-                    "@space": "pre",
-                    "@mirror": true
-                  },
-                  {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
-                  {
-                    "@when": "entityIsStandingStill",
-                    "core:clip": {
-                      "animationKey": "mobends:bends/animations/player/slash_whirl_still.json",
-                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
-                    },
-                    "@smoothing": {
-                      "leftLeg": 3.33,
-                      "rightLeg": 3.33,
-                      "leftForeLeg": 3.33,
-                      "rightForeLeg": 3.33,
-                      "root": [null, 0.835, null]
-                    },
-                    "@vectorModes": {"root": "slide"}
-                  },
-                  {
-                    "@when": "entityIsStandingStill",
-                    "core:clip": {"animationKey": "mobends:bends/animations/player/slash_whirl_still.json"},
-                    "@smoothing": {"leftLeg": 3.33, "rightLeg": 3.33, "leftForeLeg": 3.33, "rightForeLeg": 3.33}
                   }
                 ]
               }
