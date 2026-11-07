@@ -100,14 +100,14 @@
                 "@mirror": true
               },
               {
-                "@when": "entityIsSwinging",
+                "@when": {"and": [{"not": [{"gt": ["entityTicksElytraFlying", 4]}]}, "entityIsSwinging"]},
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "override",
                 "@smoothing": {"head": 1.25},
                 "@mirror": true
               },
               {
-                "@when": "entityIsSwinging",
+                "@when": {"and": [{"not": [{"gt": ["entityTicksElytraFlying", 4]}]}, "entityIsSwinging"]},
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre"
               },

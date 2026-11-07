@@ -410,6 +410,15 @@ const pSprint: Obj = poseNode([
     ...attackHead,
   ]);
 
+/** The locomotion's elytra node: flying with an elytra, past the first ticks of the glide. */
+const elytraFlying = cmp("entityTicksElytraFlying", ">", 4);
+/**
+ * The locomotion leaves the head to the action layer: in every node but the elytra one, which keeps
+ * it looking ahead along the flight. An action that turns the head to the look direction (a slash,
+ * a tool swing) does so only then (#89).
+ */
+const locomotionLeavesHead = NOT(elytraFlying);
+
 /**
  * The PlayerController decision tree: the first state that applies, most important first (see
  * misc/kumo-format.md, "Selectors").
@@ -417,7 +426,7 @@ const pSprint: Obj = poseNode([
 const playerSelect: Obj[] = [
   { when: state("entityIsSleeping"), then: "sleeping" },
   { when: state("entityIsRiding"), then: [{ when: state("entityIsRidingLiving"), then: "riding" }, { then: "sitting" }] },
-  { when: cmp("entityTicksElytraFlying", ">", 4), then: "elytra" },
+  { when: elytraFlying, then: "elytra" },
   { when: state("entityIsClimbing"), then: "ladder" },
   { when: state("entityIsInWater"), then: "swimming" },
   { when: "animator.jumping", then: [
@@ -618,8 +627,6 @@ const localOffsetZero = clip(PL("localoffset_zero"), {}, { smoothing: { localOff
 poseClip(join(CLIPS, "player", "localoffset_zero.json"), {}, { localOffset: [0, 0, 0] });
 
 
-/** Not in the locomotion's elytra node (playerSelect's condition for it), which poses the head itself. */
-const notElytraFlying = NOT(cmp("entityTicksElytraFlying", ">", 4));
 // --- sword slashes: baked clips, the look direction wrapped around the baked head part -------------------
 // Everything the bit computes with its hand multiplier is marked "@mirror"; the still-standing legs
 // are not (the bit poses them the same way for both hands).
@@ -632,11 +639,10 @@ function slashNode(name: string, clipname: string, byAttack: boolean, mainSmooth
                   { smoothing: { body: 1.11, leftArm: 3.33, leftForeArm: 3.33, rightForeArm: 3.33, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } })),
     mirrored(part(["rightArm"], { smoothing: { rightArm: mainSmoothing }, snap: mainSnap })),
     mirrored(part(["rightHeldItem"], { smoothing: itemSmoothing ? { rightHeldItem: itemSmoothing } : {}, snap: itemSnap })),
-    // flying with an elytra the head keeps looking ahead along the flight, as the elytra node has it (#89)
-    alsoWhen(mirrored(headSmoothing ? withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: headSmoothing }) : drv("head", "X", "entityHeadPitch", { space: "override" })), notElytraFlying),
-    alsoWhen(mirrored(part(["head"], { space: "pre" })), notElytraFlying),
+    alsoWhen(mirrored(headSmoothing ? withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: headSmoothing }) : drv("head", "X", "entityHeadPitch", { space: "override" })), locomotionLeavesHead),
+    alsoWhen(mirrored(part(["head"], { space: "pre" })), locomotionLeavesHead),
     // the head looks where the player looks, whichever hand swings: not mirrored
-    alsoWhen(drv("head", "Y", "entityHeadYaw"), notElytraFlying),
+    alsoWhen(drv("head", "Y", "entityHeadYaw"), locomotionLeavesHead),
     when(clip(PL(clipname + "_still"), { bones: ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"] }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillCond),
     when(mirrored(clip(PL(clipname + "_still"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), stillCond),
   ];
@@ -657,10 +663,12 @@ const slashes: Record<string, Obj> = {
   slash_down: slashNode("attack_slash_down", "slash_down", false, 3.33, true, 1.11, stillNotRiding, null, true, [drv("head", "Y", null, { const: -30 })]),
   slash_outward: slashNode("attack_slash_outward", "slash_outward", false, 3.33, true, 1.11, stillNotRiding, null, true, [drv("head", "Y", null, { const: -30 })]),
 };
-// the whirl: head unsmoothed, render rotation snapped, the global offset always dips
-const whirl = slashNode("attack_whirl_slash", "slash_whirl", true, 3.33, true, null, state("entityIsStandingStill"), 1.11, false);
-poseOf(whirl)[poseOf(whirl).length - 1] = when(clip(PL("slash_whirl_still"), {}, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33 } }), state("entityIsStandingStill"));
-poseOf(whirl).splice(3, 0, clip(PL("slash_whirl"), { bones: ["root"], frame: tAA }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "slide" } }));
+// the whirl: head unsmoothed, render rotation snapped, the global offset dips moving too. A rider
+// can't start one (animator.canSpinAttack), but can mount during one: the crouch and the dip then
+// stop, or the legs would go through the mount (#238).
+const whirl = slashNode("attack_whirl_slash", "slash_whirl", true, 3.33, true, null, stillNotRiding, 1.11, false);
+poseOf(whirl)[poseOf(whirl).length - 1] = when(clip(PL("slash_whirl_still"), {}, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33 } }), stillNotRiding);
+poseOf(whirl).splice(3, 0, when(clip(PL("slash_whirl"), { bones: ["root"], frame: tAA }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), NOT(state("entityIsRiding"))));
 poseOf(whirl).splice(4, 0, clip(PL("slash_whirl"), { bones: ["renderRotation"], frame: tAA }, { snap: true }));
 slashes.slash_whirl = whirl;
 for (const node of Object.values(slashes)) {
@@ -772,8 +780,8 @@ const tool: Obj = poseNode([
   clip(PL("tool_rest"), {}, { smoothing: { centerRotation: 3.33, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } }),
   clip(PL("tool_body"), { frame: swingFrame }, { smoothing: { body: 1.25 } }),
   when(clip(PL("tool_sneak_body"), {}, { space: "pre" }), state("entityIsSneaking")),
-  withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: 1.25 }),
-  drv("head", "Y", "entityHeadYaw"),
+  alsoWhen(withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: 1.25 }), locomotionLeavesHead),
+  alsoWhen(drv("head", "Y", "entityHeadYaw"), locomotionLeavesHead),
   clip(PL("tool_arm"), { frame: swingFrame }, { snap: true }),
   clip(PL("tool_arm_post"), { frame: swingFrame }, { space: "post" }),
 ].map((x) => {

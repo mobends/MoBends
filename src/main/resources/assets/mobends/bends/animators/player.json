@@ -1706,14 +1706,14 @@
                 "@mirror": true
               },
               {
-                "@when": "entityIsSwinging",
+                "@when": {"and": [{"not": [{"gt": ["entityTicksElytraFlying", 4]}]}, "entityIsSwinging"]},
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "override",
                 "@smoothing": {"head": 1.25},
                 "@mirror": true
               },
               {
-                "@when": "entityIsSwinging",
+                "@when": {"and": [{"not": [{"gt": ["entityTicksElytraFlying", 4]}]}, "entityIsSwinging"]},
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre"
               },
@@ -2548,6 +2548,7 @@
                     "@mirror": true
                   },
                   {
+                    "@when": {"not": ["entityIsRiding"]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
                       "bones": ["root"],
@@ -2586,7 +2587,7 @@
                     "@space": "pre"
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl_still.json",
                       "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
@@ -2601,7 +2602,7 @@
                     "@vectorModes": {"root": "slide"}
                   },
                   {
-                    "@when": "entityIsStandingStill",
+                    "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/slash_whirl_still.json"},
                     "@smoothing": {"leftLeg": 3.33, "rightLeg": 3.33, "leftForeLeg": 3.33, "rightForeLeg": 3.33}
                   }
