@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.client.renderer.entity.layers;
 
+import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.util.BenderHelper;
 import goblinbob.mobends.standard.client.renderer.entity.BendsCapeRenderer;
 import goblinbob.mobends.core.client.model.IModelPart;
@@ -52,7 +53,7 @@ public class LayerCustomCape implements LayerRenderer<AbstractClientPlayer>
 
                 if (player.isSneaking())
                 {
-                    if (player.capabilities.isFlying)
+                    if (RemoteFlight.isFlying(player))
                     {
                         GlStateManager.translate(0F, 4F * scale, 0F);
                     }

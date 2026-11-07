@@ -38,6 +38,9 @@
   The check had never been switched on.
 - Swimming fast or crawling with Idō no longer crashes the game. While Idō draws the player
   swimming or crawling, it draws them its own way, without Mo' Bends.
+- Other players flying in creative or spectator mode are seen flying, not jumping or falling, and
+  their capes stream back as they fly. The game only tells you whether you fly yourself, so for
+  them it is told from how they move. (#265)
 
 ## 2.0.0-alpha.1
 

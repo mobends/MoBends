@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo;
 
+import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.kumo.api.BindArgs;
 import goblinbob.mobends.core.kumo.api.BooleanEvaluator;
 import goblinbob.mobends.core.kumo.api.KumoOperation;
@@ -114,8 +115,9 @@ public final class MinecraftKumoOperations
                     };
                 }));
 
-        // {"core:is_flying": []}: a player flying (creative or spectator flight, not an elytra).
-        KumoRegistry.registerEntityBooleanReader("core:is_flying", EntityPlayer.class, player -> player.capabilities.isFlying);
+        // {"core:is_flying": []}: a player flying (creative or spectator flight, not an elytra); for
+        // other players it is read from how they move, as the client isn't told (see RemoteFlight).
+        KumoRegistry.registerEntityBooleanReader("core:is_flying", EntityPlayer.class, RemoteFlight::isFlying);
         // {"core:ledge_ahead": []}: a block in front of the entity's feet it can climb onto (what a
         // mob jumps onto as it walks), read once on liftoff to tell a climb from a jump.
         KumoRegistry.registerEntityBooleanReader("core:ledge_ahead", EntityLivingBase.class, MinecraftKumoOperations::ledgeAhead);

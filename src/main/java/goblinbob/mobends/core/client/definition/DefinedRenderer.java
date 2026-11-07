@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.definition;
 
+import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.client.MutatedRenderer;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
@@ -34,7 +35,7 @@ public class DefinedRenderer<E extends EntityLivingBase> extends MutatedRenderer
             return;
         }
         EntityModelDefinition.RendererSettings settings = definition.get().renderer;
-        boolean flying = entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isFlying;
+        boolean flying = entity instanceof EntityPlayer && RemoteFlight.isFlying((EntityPlayer) entity);
         float offset = flying && settings.flyingSneakOffset != null ? settings.flyingSneakOffset : settings.sneakOffset;
         if (offset != 0)
         {

@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.kumo;
 
+import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.pose.IPoseItem;
 import goblinbob.mobends.core.kumo.pose.ItemEffects;
@@ -79,7 +80,7 @@ public class CapeDriver implements IPoseItem
             f1 += 25.0F;
         }
 
-        if (player.capabilities.isFlying && player.isSprinting())
+        if (RemoteFlight.isFlying(player) && player.isSprinting())
         {
             // Streams straight back.
             rotation.setIdentity();
