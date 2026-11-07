@@ -110,6 +110,17 @@ public class DefinedModelPart extends ModelPart
     }
 
     @Override
+    public void getLocalRotation(Quaternion dest)
+    {
+        if (restRotation == null)
+        {
+            super.getLocalRotation(dest);
+            return;
+        }
+        Quaternion.mul(restRotation, rotation.getSmooth(), dest);
+    }
+
+    @Override
     public void applyLocalTransform(float scale)
     {
         if (restRotation == null)
@@ -121,6 +132,7 @@ public class DefinedModelPart extends ModelPart
             GlStateManager.translate(this.position.x * scale * offsetScale, this.position.y * scale * offsetScale, this.position.z * scale * offsetScale);
         if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
             GlStateManager.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
+        applyParentRotationUndone();
         GlHelper.rotate(restRotation);
         GlHelper.rotate(rotation.getSmooth());
         if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)

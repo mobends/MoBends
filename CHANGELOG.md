@@ -13,6 +13,14 @@
 
 ### Changed
 
+- The heads of players, zombies and skeletons no longer turn with the body: they look where the
+  creature looks however its body bends or sways, walking, sprinting, sneaking, riding or aiming a
+  bow. The poses that turn the head on purpose still do (the sword's stance and slashes, the
+  punches and the guard, eating, falling, gliding), the stumbling zombie's head still hangs with its
+  body, and a player climbing over a ledge still bows their head with it. The Legacy Mo' Bends
+  pack keeps the old heads, which turn with the body.
+- Model definitions can say a bone doesn't turn with its parent (`"inheritRotation": false`): it
+  stays where its parent puts it, but its rotation is relative to the whole model.
 - The Mo' Bends menu has a Refresh button in its bottom-left corner, in place of the F10 key: it
   reloads the animations and fetches the account, assets and supporter accessories again.
 - The Config button for Mo' Bends in Forge's Mods list opens the Mo' Bends menu, so it can be

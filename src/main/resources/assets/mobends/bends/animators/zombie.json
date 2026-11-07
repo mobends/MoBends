@@ -53,6 +53,22 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@space": "pre"
+              },
+              {
+                "@comment": "The head hangs with the body, which it doesn't turn with: the body's swing, then its stoop, in the head's parent space.",
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/zombie/stumble_head_swing.json",
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
+                  "weight": "entityLimbSwingAmount"
+                },
+                "@space": "pre"
+              },
+              {
+                "core:clip": {
+                  "animationKey": "mobends:bends/animations/zombie/stumble_head_lean.json",
+                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
+                },
+                "@space": "pre"
               }
             ]
           }

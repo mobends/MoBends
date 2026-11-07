@@ -28,17 +28,22 @@ frame late, while the walk now reads the current value (up to 9.5° on a leg).
 The iron golem's goldens were re-recorded as it learned to jump and climb, and the zombie's, the
 zombie villager's, the skeleton's and the player's when they came to stand on their feet
 (`core:step_turn` takes the legs over whenever they stand still, and the player's and the
-skeleton's only where nothing else poses them; how they move otherwise is unchanged). Every other
-golden is the original code's output.
+skeleton's only where nothing else poses them; how they move otherwise is unchanged). The heads of
+the player, the zombies, the skeleton and the zombie pigman were re-recorded once more (not the
+legacy pack's, which keeps heads that turn with the body) when they
+stopped turning with the body (`inheritRotation`): their rotation is now relative to the model, so
+the pose they are drawn in changed only where the animators no longer turn them back from the
+body's bend, or turn them with it on purpose. Every other golden is the original code's output.
 
-The Legacy Mo' Bends pack (`misc/legacy-pack`) is the player's and the zombie's animators without
-the layer that stands them on their feet. `LegacyPackTest` holds it to its own goldens, in
-`golden/legacy/`, recorded with `./gradlew record --args="--legacy $PWD/golden/legacy <entity>[/scenario]"`.
-It also checks that the pack poses every bone `core:step_turn` doesn't drive (everything but the
-legs, the render rotation and the offsets) as the mod's own golden does, so a change to the
-mod's animator fails until the pack is changed with it. The legacy goldens don't match 1.2.2's either. They
-include the engine changes the mod's goldens were re-recorded for (smoothing in ticks, a bone's
-base smoothing, interpolated entity values).
+The Legacy Mo' Bends pack (`misc/legacy-pack`) is a snapshot of the player's, the zombie's and the
+zombie villager's animators without the layer that stands them on their feet, with their model
+definitions as they were (heads that turn with the body) and its own copies of every clip they play
+(see its README). `LegacyPackTest` holds it to its own goldens, in `golden/legacy/`, recorded with
+`./gradlew record --args="--legacy $PWD/golden/legacy <entity>[/scenario]"`, and checks that the pack
+names no file it doesn't have. It doesn't follow the mod: a change to the mod's animators leaves it
+as it is. The legacy goldens don't match 1.2.2's either. They include the engine changes the mod's
+goldens were re-recorded for (smoothing in ticks, a bone's base smoothing, interpolated entity
+values).
 
 ## Where the Animators Deliberately Differ From the Original Code
 

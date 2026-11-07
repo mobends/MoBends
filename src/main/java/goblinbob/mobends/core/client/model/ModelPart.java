@@ -41,6 +41,8 @@ public class ModelPart extends ModelRenderer implements IModelPart
      * An optional parent.
      */
     protected IModelPart parent;
+    /** Whether the part turns with its parent (see {@link IModelPart#inheritsRotation}). */
+    protected boolean inheritRotation = true;
 
     public ModelPart(ModelBase model, boolean register, int texOffsetX, int texOffsetY)
     {
@@ -146,6 +148,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
         if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
             GlStateManager.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
 
+        this.applyParentRotationUndone();
         GlHelper.rotate(rotation.getSmooth());
 
         if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
@@ -358,6 +361,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
         this.scale.set(part.getScale());
         this.offsetScale = part.getOffsetScale();
         this.globalOffset.set(part.getGlobalOffset());
+        this.inheritRotation = part.inheritsRotation();
     }
 
     @Override
@@ -369,6 +373,18 @@ public class ModelPart extends ModelRenderer implements IModelPart
     public ModelPart setParent(IModelPart parent)
     {
         this.parent = parent;
+        return this;
+    }
+
+    @Override
+    public boolean inheritsRotation()
+    {
+        return this.inheritRotation;
+    }
+
+    public ModelPart setInheritRotation(boolean inheritRotation)
+    {
+        this.inheritRotation = inheritRotation;
         return this;
     }
 

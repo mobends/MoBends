@@ -1,0 +1,8 @@
+{
+  "formatVersion": 2,
+  "@comment": "The zombie villager: the zombie, on vanilla's villager-shaped model (its head and nose, deeper body and robe), with its own animator.",
+  "extends": "mobends:bends/models/zombie.json",
+  "entity": "net.minecraft.entity.monster.EntityZombieVillager",
+  "model": "net.minecraft.client.model.ModelZombieVillager",
+  "animator": "mobends:bends/animators/zombie_villager.json"
+}

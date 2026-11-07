@@ -39,6 +39,8 @@ public class PartContainer extends ModelRenderer implements IModelPart
 	private ModelRenderer innerModel;
 	
 	protected IModelPart parent;
+	/** Whether the part turns with its parent, as the animated part it follows does (see {@link IModelPart#inheritsRotation}). */
+	protected boolean inheritRotation = true;
 	
 	public PartContainer(ModelBase modelBase, ModelRenderer model)
 	{
@@ -187,6 +189,7 @@ public class PartContainer extends ModelRenderer implements IModelPart
 		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
         	GlStateManager.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
 		
+		this.applyParentRotationUndone();
 		GlHelper.rotate(this.rotation.getSmooth());
         
         if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
@@ -235,6 +238,13 @@ public class PartContainer extends ModelRenderer implements IModelPart
 		this.smoothOffset.set(part.getSmoothOffset());
 		this.scale.set(part.getScale());
 		this.offsetScale = part.getOffsetScale();
+		this.inheritRotation = part.inheritsRotation();
+	}
+
+	@Override
+	public boolean inheritsRotation()
+	{
+		return this.inheritRotation;
 	}
 
 	@Override

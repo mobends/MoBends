@@ -1,12 +1,12 @@
 {
   "formatVersion": 2,
-  "@comment": "The zombie (and the husk, which shares its class): a biped whose body bends at the hips, with elbows and knees. Its entity scope: which of the two animation sets it has (the same on every client), and its walking style, picked at random every 4 to 5 seconds.",
+  "@comment": "The zombie (and the husk, which shares its class): a biped whose body bends at the hips, with elbows and knees; the head doesn't turn with the body. Its entity scope: which of the two animation sets it has (the same on every client), and its walking style, picked at random every 4 to 5 seconds.",
   "entity": "net.minecraft.entity.monster.EntityZombie",
   "model": "net.minecraft.client.model.ModelZombie",
   "animator": "mobends:bends/animators/zombie.json",
   "bones": [
     {"name": "body", "vanilla": {"field": "bipedBody"}, "pivot": [0, 12, 0]},
-    {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body"},
+    {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body", "inheritRotation": false},
     {"name": "headwear", "vanilla": {"field": "bipedHeadwear"}, "parent": "head"},
     {"name": "rightArm", "vanilla": {"field": "bipedRightArm"}, "parent": "body",
      "split": {"axis": "y", "at": [0.5], "names": ["rightForeArm"], "hinge": "back"}, "inflate": [[0.01, 0, 0.01], [0, 0, 0]]},

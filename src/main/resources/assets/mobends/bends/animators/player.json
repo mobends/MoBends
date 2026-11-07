@@ -372,14 +372,8 @@
                 },
                 "@space": "override"
               },
-              {
-                "core:rotate": {"bone": "head", "axis": "x", "angle": {"add": ["entityHeadPitch", -20]}},
-                "@space": "override"
-              },
-              {
-                "core:rotate": {"bone": "head", "axis": "y", "angle": {"add": ["entityHeadYaw", -20]}},
-                "@space": "pre"
-              }
+              {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "override"},
+              {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"}
             ]
           },
           "@define": {"relax": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}},
@@ -425,14 +419,8 @@
                 },
                 "@space": "override"
               },
-              {
-                "core:rotate": {"bone": "head", "axis": "x", "angle": {"add": ["entityHeadPitch", -20]}},
-                "@space": "override"
-              },
-              {
-                "core:rotate": {"bone": "head", "axis": "y", "angle": {"add": ["entityHeadYaw", 20]}},
-                "@space": "pre"
-              }
+              {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "override"},
+              {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"}
             ]
           },
           "@define": {"relax": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}},
@@ -583,17 +571,6 @@
                   ]
                 },
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
-                "@space": "pre"
-              },
-              {
-                "@when": {
-                  "and": [
-                    "entityIsSprinting",
-                    {"not": ["entityIsDrawingBow"]},
-                    {"ge": ["entityTicksAfterAttack", 10]}
-                  ]
-                },
-                "core:rotate": {"bone": "head", "axis": "x", "angle": {"clamp": [{"mul": ["entityHeadPitch", -0.8]}, 0, 60]}},
                 "@space": "pre"
               },
               {
@@ -1322,6 +1299,12 @@
               },
               {
                 "@when": {"ge": ["entityLedgeHeight", 0.6]},
+                "core:rotate": {"bone": "head", "axis": "x", "angle": {"add": [{"mul": ["entityLedgeHeight", 50]}, -30]}},
+                "@space": "pre",
+                "@smoothing": {"head": 2}
+              },
+              {
+                "@when": {"ge": ["entityLedgeHeight", 0.6]},
                 "core:rotate": {"bone": "leftArm", "axis": "x", "angle": {"add": [{"mul": ["entityLedgeHeight", 40]}, -124]}},
                 "@space": "override",
                 "@smoothing": {"leftArm": 2}
@@ -1421,11 +1404,6 @@
                 }
               },
               {
-                "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"le": ["entityXZSpeed", 0.2]}]},
-                "core:clip": {"animationKey": "mobends:bends/animations/player/riding_moving_head.json"},
-                "@space": "pre"
-              },
-              {
                 "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"gt": ["entityXZSpeed", 0.2]}]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/player/riding_fast.json",
@@ -1434,15 +1412,6 @@
                 },
                 "@smoothing": {"root": [null, 0.835, null]},
                 "@vectorModes": {"root": "retarget"}
-              },
-              {
-                "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"gt": ["entityXZSpeed", 0.2]}]},
-                "core:clip": {
-                  "animationKey": "mobends:bends/animations/player/riding_fast.json",
-                  "bones": ["head"],
-                  "frame": {"mod": [{"mul": ["ticks", 0.5]}, "clipLength"]}
-                },
-                "@space": "pre"
               }
             ]
           }
@@ -1539,13 +1508,6 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@space": "post"
-              },
-              {
-                "core:clip": {
-                  "animationKey": "mobends:bends/animations/player/sneak_head.json",
-                  "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
-                },
-                "@space": "pre"
               }
             ]
           }
@@ -1744,15 +1706,8 @@
                 "@mirror": true
               },
               {
-                "@when": {"and": [{"not": ["entityIsSneaking"]}, "entityIsSwinging"]},
+                "@when": "entityIsSwinging",
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
-                "@space": "override",
-                "@smoothing": {"head": 1.25},
-                "@mirror": true
-              },
-              {
-                "@when": {"and": ["entityIsSneaking", "entityIsSwinging"]},
-                "core:rotate": {"bone": "head", "axis": "x", "angle": {"add": ["entityHeadPitch", -20]}},
                 "@space": "override",
                 "@smoothing": {"head": 1.25},
                 "@mirror": true
@@ -1761,15 +1716,6 @@
                 "@when": "entityIsSwinging",
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre"
-              },
-              {
-                "@when": "entityIsSwinging",
-                "core:clip": {
-                  "animationKey": "mobends:bends/animations/player/tool_head.json",
-                  "frame": "entitySwingProgress"
-                },
-                "@space": "pre",
-                "@mirror": true
               },
               {
                 "@when": "entityIsSwinging",
@@ -1831,7 +1777,12 @@
               },
               {
                 "@when": {"not": ["entityIsClimbing"]},
-                "core:rotate": {"bone": "head", "axis": "y", "angle": {"add": [{"mul": ["node.aimedBowTicks", -5]}, 50]}},
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "pre"
+              },
+              {
+                "@when": "entityIsClimbing",
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityClimbingBodyYaw"},
                 "@space": "pre"
               },
               {
@@ -1940,7 +1891,12 @@
               },
               {
                 "@when": {"not": ["entityIsClimbing"]},
-                "core:rotate": {"bone": "head", "axis": "y", "angle": {"add": [{"mul": ["node.aimedBowTicks", 5]}, -50]}},
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
+                "@space": "pre"
+              },
+              {
+                "@when": "entityIsClimbing",
+                "core:rotate": {"bone": "head", "axis": "y", "angle": "entityClimbingBodyYaw"},
                 "@space": "pre"
               },
               {
@@ -2685,6 +2641,11 @@
                     "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_right_still.json"},
                     "@smoothing": {"body": 1.67}
+                  },
+                  {
+                    "@when": "entityIsStandingStill",
+                    "core:clip": {"animationKey": "mobends:bends/animations/player/punch_still_head.json"},
+                    "@space": "pre"
                   }
                 ]
               }
@@ -2726,6 +2687,11 @@
                     "@when": "entityIsStandingStill",
                     "core:clip": {"animationKey": "mobends:bends/animations/player/punch_left_still.json"},
                     "@smoothing": {"body": 1.67}
+                  },
+                  {
+                    "@when": "entityIsStandingStill",
+                    "core:clip": {"animationKey": "mobends:bends/animations/player/punch_still_head.json"},
+                    "@space": "pre"
                   }
                 ]
               }

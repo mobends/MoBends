@@ -34,6 +34,13 @@ public class BoneDefinition
     public boolean drawnAlone;
 
     /**
+     * Whether the bone turns with its parent (the default). A bone that doesn't still sits where
+     * its parent puts it, but its rotation is relative to the model rather than to the parent: a
+     * biped's head, which looks where the entity looks however its body bends.
+     */
+    public boolean inheritRotation = true;
+
+    /**
      * Where the bone sits, in model units: relative to its parent if it has one. Default: where its
      * {@link #pivot} (or else its vanilla part's rotation point) is, relative to the parent's.
      * Moves the boxes with it.
@@ -96,6 +103,8 @@ public class BoneDefinition
         if (pivot != null && pivot.length != 3) throw new MalformedKumoTemplateException("Bone '" + name + "': 'pivot' needs three components.");
         if (overlay != null && (parent != null || position != null || pivot != null || split != null))
             throw new MalformedKumoTemplateException("Bone '" + name + "': an 'overlay' takes the bone it lies over's place and segments: it has no 'parent', 'position', 'pivot' or 'split' of its own.");
+        if (!inheritRotation && parent == null)
+            throw new MalformedKumoTemplateException("Bone '" + name + "': only a bone with a 'parent' can leave out its rotation ('inheritRotation': false).");
         if (drawnAlone && (parent == null || vanilla == null))
             throw new MalformedKumoTemplateException("Bone '" + name + "': only a bone with a 'parent' and a 'vanilla' part, which vanilla draws, can be 'drawnAlone'.");
         if (inflate != null)
