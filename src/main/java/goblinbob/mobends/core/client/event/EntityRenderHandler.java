@@ -47,6 +47,15 @@ public class EntityRenderHandler
     {
         final EntityLivingBase living = event.getEntity();
         final RenderLivingBase<EntityLivingBase> renderer = (RenderLivingBase<EntityLivingBase>) event.getRenderer();
+
+        // A renderer the game doesn't draw this entity with belongs to another mod that draws it its
+        // own way (Idō draws swimming and crawling players with a renderer of its own, made each
+        // frame), so it's left as it is.
+        if (renderer.getRenderManager().<EntityLivingBase>getEntityRenderObject(living) != renderer)
+        {
+            return;
+        }
+
         final EntityTypeRegistry.Selection selection = EntityBenderRegistry.instance.getSelection(living);
 
         if (selection == null || !selection.bender.isAnimated())

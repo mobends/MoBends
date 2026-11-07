@@ -36,6 +36,8 @@
 
 - Forge tells you when a newer version of Mo' Bends is out, on the main menu and in the Mods list.
   The check had never been switched on.
+- Swimming fast or crawling with Idō no longer crashes the game. While Idō draws the player
+  swimming or crawling, it draws them its own way, without Mo' Bends.
 
 ## 2.0.0-alpha.1
 
