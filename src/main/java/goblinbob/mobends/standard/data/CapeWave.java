@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.data;
 
+import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.data.EntityComponent;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,7 +28,7 @@ public class CapeWave implements EntityComponent
     @Override
     public void update(float ticksPerFrame)
     {
-        boolean flyingFast = entity instanceof EntityPlayer && ((EntityPlayer) entity).capabilities.isFlying && entity.isSprinting();
+        boolean flyingFast = entity instanceof EntityPlayer && RemoteFlight.isFlying((EntityPlayer) entity) && entity.isSprinting();
         phase += (flyingFast ? 4.0F : 1.0F) * ticksPerFrame;
         if (phase > 380.0F)
         {

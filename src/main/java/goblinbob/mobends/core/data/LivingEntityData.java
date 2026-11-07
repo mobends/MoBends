@@ -3,6 +3,7 @@ package goblinbob.mobends.core.data;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.util.GUtil;
+import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockVine;
 import net.minecraft.block.state.IBlockState;
@@ -30,6 +31,8 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
     protected float prevClimbingCycle = 0F;
     protected boolean alreadyAttacked = false;
     protected boolean climbing = false;
+    /** Whether another player flies, which the client isn't told (see {@link RemoteFlight}). */
+    private final RemoteFlight remoteFlight = new RemoteFlight();
 
     public float limbSwing;
     public float limbSwingAmount;
@@ -134,6 +137,9 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
 
     public boolean isClimbing() { return this.climbing; }
 
+    /** Whether another player flies, as far as can be told from how they move (see {@link RemoteFlight}). */
+    public boolean isFlyingRemotely() { return this.remoteFlight.isFlying(); }
+
     @Override
     public void updateClient()
     {
@@ -161,6 +167,15 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
         else
         {
             this.climbing = false;
+        }
+
+        if (this.entity instanceof EntityOtherPlayerMP)
+        {
+            EntityOtherPlayerMP player = (EntityOtherPlayerMP) this.entity;
+            this.remoteFlight.update(player.isCreative() || player.isSpectator(),
+                    !this.onGround && !this.climbing && !player.isRiding() && !player.isElytraFlying()
+                            && !player.isInWater() && !player.isInLava(),
+                    this.motionY);
         }
 
         if (this.entity.isSwingInProgress)

@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.client.renderer.entity.layers;
 
+import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.asset.AssetLocation;
 import goblinbob.mobends.core.asset.AssetModels;
 import goblinbob.mobends.core.client.model.IModelPart;
@@ -89,7 +90,7 @@ public class LayerPlayerAccessories implements LayerRenderer<AbstractClientPlaye
         // Reverting the sneak transform
         if (player.isSneaking())
         {
-            if (player.capabilities.isFlying)
+            if (RemoteFlight.isFlying(player))
             {
                 GlStateManager.translate(0F, 4F * scale, 0F);
             }
