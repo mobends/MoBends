@@ -1106,6 +1106,38 @@ const skeletonActions = structuredClone(actionLayer);
 delete skeletonActions["@when"]; // only players sleep
 skeleton.layers.push(skeletonActions);
 
+// --- the skeleton standing on its feet: core:step_turn while it stands still -------------------------
+// ModelSkeleton's legs are 2 wide and turn where vanilla's do, 2 to the side of the middle; their
+// knees (split at half, hinged at the front) sit 1 ahead of it, the soles right under the hips.
+const skeletonLeg = (upper: string, lower: string, side: number): Obj =>
+  ({ upper, lower, hip: [2 * side, 12, 0], knee: [0, 6, -1], foot: [0, 6, 1] });
+// Standing still on the ground, well after an attack (the slashes and the punches pose the legs and
+// turn the whole model), not aiming a bow (the arms aim from the body, which would lag the head),
+// and once a landing's kneel is over (it lowers the whole model).
+const skeletonOnFeet = AND("animator.standing", cmp(tAA, ">=", 60), NOT(state("entityIsDrawingBow")),
+                           cmp("entityTicksAfterTouchdown", ">=", 6.666666666666667));
+skeleton.layers.push({
+  "@comment": "The skeleton stands on its feet as the player and the zombie do, lightly: while it stands still (see onFeet), core:step_turn plants them in the world and turns the body only as far as they have stepped, in quick steps. It walks, strafes and attacks by its clips, the driver off; it comes back on at once when the skeleton stands, each foot planted where the legs are drawn (placeFromPose), a foot further than finishDrift from its place stepping back under the body; it goes off over two ticks as the skeleton sets off, and at once otherwise (an attack, a bow). The head keeps looking where the skeleton looks.",
+  defaultOnEntry: "planted",
+  nodes: { planted: poseNode([
+    item("core:accumulate", { inout: "node.onFeet", rate: { if: [skeletonOnFeet, 4, { if: [state("entityIsStandingStill"), -4, -0.5] }] }, min: 0, max: 1 }),
+    item("core:step_turn", {
+      weight: "node.onFeet",
+      unitsPerBlock: 16,
+      legs: [skeletonLeg("rightLeg", "rightForeLeg", -1), skeletonLeg("leftLeg", "leftForeLeg", 1)],
+      placeFromPose: true,
+      turnThreshold: 25, maxStepAngle: 45,
+      stepDuration: 5, stepHeight: 2.5, stepPause: 1, strideLength: 12, minStepDuration: 3,
+      finishDrift: 4, driftThreshold: 5, settleAngle: 4, resetDistance: 20,
+      bodyStiffness: 0.2, bodyDamping: 0.7,
+      crouch: 0, walkCrouch: 1, crouchDrop: 4,
+      impactDepth: 0.4, impactTime: 2, weightShift: 0.4, weightRoll: 1,
+      out: { turnLag: "node.turnLag" },
+    }),
+    item("core:rotate", { bone: "head", axis: "y", angle: { sub: [{ clamp: [{ add: ["entityHeadYaw", "node.turnLag"] }, -85, 85] }, "entityHeadYaw"] } }, { space: "pre" }),
+  ], { define: { onFeet: variable(0), turnLag: variable(0) } }) },
+});
+
 
 
 // ---- mobs described by model definitions (bends/models/*.json): generic walkers ---------------------

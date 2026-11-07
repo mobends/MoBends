@@ -1154,6 +1154,92 @@
           ["leftHeldItem", "rightHeldItem"]
         ]
       }
+    },
+    {
+      "@comment": "The skeleton stands on its feet as the player and the zombie do, lightly: while it stands still (see onFeet), core:step_turn plants them in the world and turns the body only as far as they have stepped, in quick steps. It walks, strafes and attacks by its clips, the driver off; it comes back on at once when the skeleton stands, each foot planted where the legs are drawn (placeFromPose), a foot further than finishDrift from its place stepping back under the body; it goes off over two ticks as the skeleton sets off, and at once otherwise (an attack, a bow). The head keeps looking where the skeleton looks.",
+      "defaultOnEntry": "planted",
+      "nodes": {
+        "planted": {
+          "core:pose": {
+            "pose": [
+              {
+                "core:accumulate": {
+                  "inout": "node.onFeet",
+                  "rate": {
+                    "if": [
+                      {
+                        "and": [
+                          "animator.standing",
+                          {"ge": ["entityTicksAfterAttack", 60]},
+                          {"not": ["entityIsDrawingBow"]},
+                          {"ge": ["entityTicksAfterTouchdown", 6.666666666666667]}
+                        ]
+                      },
+                      4,
+                      {"if": ["entityIsStandingStill", -4, -0.5]}
+                    ]
+                  },
+                  "min": 0,
+                  "max": 1
+                }
+              },
+              {
+                "core:step_turn": {
+                  "weight": "node.onFeet",
+                  "unitsPerBlock": 16,
+                  "legs": [
+                    {
+                      "upper": "rightLeg",
+                      "lower": "rightForeLeg",
+                      "hip": [-2, 12, 0],
+                      "knee": [0, 6, -1],
+                      "foot": [0, 6, 1]
+                    },
+                    {
+                      "upper": "leftLeg",
+                      "lower": "leftForeLeg",
+                      "hip": [2, 12, 0],
+                      "knee": [0, 6, -1],
+                      "foot": [0, 6, 1]
+                    }
+                  ],
+                  "placeFromPose": true,
+                  "turnThreshold": 25,
+                  "maxStepAngle": 45,
+                  "stepDuration": 5,
+                  "stepHeight": 2.5,
+                  "stepPause": 1,
+                  "strideLength": 12,
+                  "minStepDuration": 3,
+                  "finishDrift": 4,
+                  "driftThreshold": 5,
+                  "settleAngle": 4,
+                  "resetDistance": 20,
+                  "bodyStiffness": 0.2,
+                  "bodyDamping": 0.7,
+                  "crouch": 0,
+                  "walkCrouch": 1,
+                  "crouchDrop": 4,
+                  "impactDepth": 0.4,
+                  "impactTime": 2,
+                  "weightShift": 0.4,
+                  "weightRoll": 1,
+                  "out": {"turnLag": "node.turnLag"}
+                }
+              },
+              {
+                "core:rotate": {
+                  "bone": "head",
+                  "axis": "y",
+                  "angle": {"sub": [{"clamp": [{"add": ["entityHeadYaw", "node.turnLag"]}, -85, 85]}, "entityHeadYaw"]}
+                },
+                "@space": "pre"
+              }
+            ]
+          },
+          "@define": {"onFeet": {"state": 0}, "turnLag": {"state": 0}}
+        }
+      }
     }
   ]
 }

@@ -96,7 +96,7 @@ public class DefinedModelsTest
      * placeFromPose), their legs bent as far as the feet are apart: VillagerStepTurnTest and
      * ZombieStepTurnTest check where the feet end up.
      */
-    private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch",
+    private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch", "mobends:skeleton",
             "mobends:zombie", "mobends:zombie_villager"));
 
     /** The model definitions the shipped type files name, by type id, the default models and the unreleased ones. */
