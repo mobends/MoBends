@@ -1,12 +1,12 @@
 {
   "formatVersion": 2,
-  "@comment": "The skeleton: thin limbs that turn where vanilla's do, with elbows and knees.",
+  "@comment": "The skeleton: thin limbs that turn where vanilla's do, with elbows and knees; the head doesn't turn with the body.",
   "entity": "net.minecraft.entity.monster.EntitySkeleton",
   "model": "net.minecraft.client.model.ModelSkeleton",
   "animator": "mobends:bends/animators/skeleton.json",
   "bones": [
     {"name": "body", "vanilla": {"field": "bipedBody"}, "pivot": [0, 12, 0]},
-    {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body"},
+    {"name": "head", "vanilla": {"field": "bipedHead"}, "parent": "body", "inheritRotation": false},
     {"name": "headwear", "vanilla": {"field": "bipedHeadwear"}, "parent": "head"},
     {"name": "rightArm", "vanilla": {"field": "bipedRightArm"}, "parent": "body",
      "split": {"axis": "y", "at": [0.5], "names": ["rightForeArm"], "hinge": "back"}, "inflate": [[0.01, 0, 0.01], [0, 0, 0]]},

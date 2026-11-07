@@ -1,8 +1,10 @@
 package goblinbob.mobends.core.client.model;
 
+import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.IVec3f;
 import goblinbob.mobends.core.math.vector.SmoothVector3f;
+import goblinbob.mobends.core.util.GlHelper;
 
 public interface IModelPart
 {
@@ -63,6 +65,54 @@ public interface IModelPart
 			smoothing.update(ticksPerFrame);
 			this.getOffset().set(smoothing.getX(), smoothing.getY(), smoothing.getZ());
 		}
+	}
+
+	/**
+	 * Whether the part turns with its parent. One that doesn't (a biped's head) keeps only where its
+	 * parent puts it: its own rotation is relative to the model, not to the parent (see
+	 * {@code BoneDefinition#inheritRotation}).
+	 */
+	default boolean inheritsRotation()
+	{
+		return true;
+	}
+
+	/** The rotation the part adds to its frame: its own, after its rest rotation if it has one. */
+	default void getLocalRotation(Quaternion dest)
+	{
+		dest.set(this.getRotation().getSmooth());
+	}
+
+	/**
+	 * The rotation of the part's frame relative to the model: its own and its parents', up to the
+	 * first that doesn't turn with its parent.
+	 */
+	default void getModelRotation(Quaternion dest)
+	{
+		this.getLocalRotation(dest);
+		final Quaternion parentRotation = new Quaternion();
+		for (IModelPart part = this; part.inheritsRotation() && part.getParent() != null; part = part.getParent())
+		{
+			part.getParent().getLocalRotation(parentRotation);
+			Quaternion.mul(parentRotation, dest, dest);
+		}
+	}
+
+	/**
+	 * For a part that doesn't turn with its parent: turns back by its parents' rotation, so what
+	 * follows (its own rotation) is relative to the model. Applied after the part's translation,
+	 * which still follows the parent.
+	 */
+	default void applyParentRotationUndone()
+	{
+		if (this.inheritsRotation() || this.getParent() == null)
+		{
+			return;
+		}
+		final Quaternion parentRotation = new Quaternion();
+		this.getParent().getModelRotation(parentRotation);
+		parentRotation.conjugate();
+		GlHelper.rotate(parentRotation);
 	}
 
 	void syncUp(IModelPart part);

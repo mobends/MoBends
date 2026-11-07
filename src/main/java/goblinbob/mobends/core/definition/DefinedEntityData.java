@@ -74,6 +74,10 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
                 {
                     part.position.set(bone.position[0], bone.position[1], bone.position[2]);
                 }
+                if (i == 0)
+                {
+                    part.inheritRotation = bone.inheritRotation;
+                }
                 parts.put(names.get(i), part);
                 nameToPartMap.put(names.get(i), part);
                 previous = part;

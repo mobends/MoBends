@@ -55,6 +55,13 @@ per vanilla part (`HumanoidPartWrapper`; `HumanoidLimbWrapper` cuts a limb's box
 the knee, its *cut plane*) is synced with the entity's parts and swapped into the model while it
 renders.
 
+A part that doesn't turn with its parent (`IModelPart.inheritsRotation`, a bone's
+`inheritRotation`: the bipeds' heads) turns back by its parents' rotation after its translation
+(`applyParentRotationUndone`), so it sits where its parent puts it but turns relative to the model.
+Every transform that follows a bone does this, the model's parts, the entity's `ModelPartTransform`s
+(accessories) and the armour's part wrappers (which take the flag when they sync up), so a helmet or a
+hat stays on the head.
+
 An armour model that doesn't draw its parts' boxes can't be posed that way. An `IArmorGeometry`
 draws it instead, into the part wrappers' frames (`IPartWrapper.applyTransform`,
 `applyLowerTransform` below the cut plane), with its faces as `ArmorMesh`es cut at the same

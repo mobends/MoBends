@@ -308,6 +308,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             if (parent != null)
             {
                 part.setParent(parent);
+                part.setInheritRotation(bone.inheritRotation);
                 if (bone.drawnAlone)
                 {
                     part.setDrawnAlone(true);

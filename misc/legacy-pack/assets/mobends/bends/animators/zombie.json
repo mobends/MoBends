@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "extends": "mobends:bends/animators/biped.json",
+  "extends": "mobends:bends/animators/legacy/biped.json",
   "layers": [
     {
       "@when": {"eq": ["entity.animationSet", 0]},
@@ -10,14 +10,14 @@
           "core:pose": {
             "pose": [
               {
-                "core:clip": {"animationKey": "mobends:bends/animations/zombie/lean.json"},
+                "core:clip": {"animationKey": "mobends:bends/animations/legacy/zombie/lean.json"},
                 "@space": {"@default": "pre", "body": "post", "root": "override"},
                 "@smoothing": {"root": [null, 0.83, null]},
                 "@vectorModes": {"root": "retarget"}
               },
               {
                 "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"eq": ["entity.walkingState", 1]}]},
-                "core:clip": {"animationKey": "mobends:bends/animations/zombie/lean_arms_up.json"},
+                "core:clip": {"animationKey": "mobends:bends/animations/legacy/zombie/lean_arms_up.json"},
                 "@space": "override"
               }
             ]
@@ -34,14 +34,14 @@
             "pose": [
               {
                 "core:clip": {
-                  "animationKey": "mobends:bends/animations/zombie/stumble_base.json",
+                  "animationKey": "mobends:bends/animations/legacy/zombie/stumble_base.json",
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@smoothing": {"rightLeg": 1, "leftLeg": 1, "rightArm": 1, "leftArm": 1, "body": 2}
               },
               {
                 "core:clip": {
-                  "animationKey": "mobends:bends/animations/zombie/stumble_swing.json",
+                  "animationKey": "mobends:bends/animations/legacy/zombie/stumble_swing.json",
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]},
                   "weight": "entityLimbSwingAmount"
                 },
@@ -49,7 +49,7 @@
               },
               {
                 "core:clip": {
-                  "animationKey": "mobends:bends/animations/zombie/stumble_head.json",
+                  "animationKey": "mobends:bends/animations/legacy/zombie/stumble_head.json",
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.6662]}, "clipLength"]}
                 },
                 "@space": "pre"

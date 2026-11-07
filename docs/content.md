@@ -154,7 +154,9 @@ bone, or accept that a mixed swing bends slightly at partial weights.
 ### Looking where the entity looks
 
 Put the look on top of the clip with two drivers, yaw in the parent's space and pitch in the
-head's own space, after any clip that poses the head:
+head's own space, after any clip that poses the head. The bipeds' heads don't turn with their
+bodies (`"inheritRotation": false` in their model definitions), so the parent's space is the
+model's, and nothing has to turn the head back from the way the body bends:
 
 ```json
 {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},   "@space": "pre"},

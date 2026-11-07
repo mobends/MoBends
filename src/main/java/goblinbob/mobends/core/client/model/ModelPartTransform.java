@@ -29,6 +29,8 @@ public class ModelPartTransform implements IModelPart
 	public Vec3f globalOffset = new Vec3f();
 
 	public final ModelPartTransform parent;
+	/** Whether the part turns with its parent (see {@link IModelPart#inheritsRotation}). */
+	public boolean inheritRotation = true;
 	
 	public ModelPartTransform(ModelPartTransform parent)
 	{
@@ -91,6 +93,13 @@ public class ModelPartTransform implements IModelPart
 		this.smoothOffset.set(part.getSmoothOffset());
 		this.scale.set(part.getScale());
 		this.offsetScale = part.getOffsetScale();
+		this.inheritRotation = part.inheritsRotation();
+	}
+
+	@Override
+	public boolean inheritsRotation()
+	{
+		return this.inheritRotation;
 	}
 
 	@Override
@@ -115,6 +124,7 @@ public class ModelPartTransform implements IModelPart
 		if (this.offset.x != 0.0F || this.offset.y != 0.0F || this.offset.z != 0.0F)
 			GlStateManager.translate(this.offset.x * scale * offsetScale, this.offset.y * scale * offsetScale, this.offset.z * scale * offsetScale);
 
+		this.applyParentRotationUndone();
 		GlHelper.rotate(this.rotation.getSmooth());
 
 		if(this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
