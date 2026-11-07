@@ -14,7 +14,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.client.config.GuiConfig;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -34,8 +33,20 @@ public class GuiBendsMenu extends GuiScreen
 	private static final int COMPONENT_BUTTON_ACCOUNT = 1;
 	private static final int COMPONENT_BUTTON_LOG_OUT = 2;
 	private static final int COMPONENT_BUTTON_REFRESH = 3;
-	private static final int COMPONENT_BUTTON_MORE_SETTINGS = 4;
-	private static final int ACCOUNT_NAME_MAX_WIDTH = 120;
+	private static final int BUTTON_HEIGHT = 20;
+	private static final int BUTTON_GAP = 4;
+	/** The title texture's size: its pixel art is drawn at twice the size of a pixel. */
+	private static final int TITLE_TEXTURE_WIDTH = 334;
+	private static final int TITLE_TEXTURE_HEIGHT = 74;
+	/**
+	 * The title and the sections share three columns: the title, with the account's buttons under
+	 * it, takes up the first two, the sections, one above the other, the third.
+	 */
+	private static final int MAX_CONTENT_WIDTH = 378;
+	private static final int COLUMN_GAP = 6;
+	private static final int SECTION_GAP = 2;
+	private static final int SECTION_COUNT = 3;
+	private static final int SCREEN_MARGIN = 10;
 	private GuiSectionButton settingsButton;
 	private GuiSectionButton customizeButton;
 	private GuiSectionButton supportersButton;
@@ -55,11 +66,11 @@ public class GuiBendsMenu extends GuiScreen
 		Keyboard.enableRepeatEvents(true);
 
 		this.settingsButton = new GuiSectionButton(I18n.format("mobends.gui.section.settings"), 0xFFDA3A00)
-				.setLeftIcon(0, 43, 19, 19).setRightIcon(19, 43, 19, 19);
+				.setIcon(120, 43, 14, 14);
 		this.customizeButton = new GuiSectionButton(I18n.format("mobends.gui.section.customize"), 0xFF26DAA3)
-				.setLeftIcon(80, 43, 19, 14).setRightIcon(80, 43, 19, 14);
+				.setIcon(80, 43, 19, 14);
 		this.supportersButton = new GuiSectionButton(I18n.format("mobends.gui.section.supporters"), 0xFFD8306A)
-				.setLeftIcon(100, 43, 18, 16).setRightIcon(100, 43, 18, 16);
+				.setIcon(100, 43, 18, 16);
 
 		this.popUp = null;
 
@@ -80,54 +91,51 @@ public class GuiBendsMenu extends GuiScreen
 		if (this.popUp != null)
 			this.popUp.initGui(this.width / 2, this.height / 2);
 
-		int startY = height / 2 - 32;
-		int distance = 49;
+		Layout layout = new Layout();
+		GuiSectionButton[] sections = { this.settingsButton, this.customizeButton, this.supportersButton };
+		for (int i = 0; i < sections.length; ++i)
+		{
+			sections[i].initGui(layout.sectionsX, layout.sectionsY + i * (GuiSectionButton.HEIGHT + SECTION_GAP), layout.column);
+		}
+		addAccountButtons(layout);
 
-		this.settingsButton.initGui((this.width - 318) / 2, startY);
-		this.customizeButton.initGui((this.width - 318) / 2, startY + distance);
-		this.supportersButton.initGui((this.width - 318) / 2, startY + 2 * distance);
-		addAccountButtons();
-		addBottomLeftButtons();
+		// Refresh reloads the animation and refreshes the addons and modules (see CoreClient#refresh()).
+		String refresh = I18n.format("mobends.gui.refresh");
+		int refreshWidth = this.fontRenderer.getStringWidth(refresh) + 20;
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_REFRESH, 10, this.height - 30, refreshWidth, BUTTON_HEIGHT, refresh));
 	}
 
 	/**
-	 * Refresh, which reloads the animation and refreshes the addons and modules (see
-	 * {@link CoreClient#refresh()}), and More Settings, Forge's screen for the mod's configuration.
+	 * Under the title: Link account, half as wide and centered, or once linked, across its width,
+	 * the Mo' Bends account's name (opening the dashboard) and Log out.
 	 */
-	private void addBottomLeftButtons()
+	private void addAccountButtons(Layout layout)
 	{
-		String refresh = I18n.format("mobends.gui.refresh");
-		int refreshWidth = this.fontRenderer.getStringWidth(refresh) + 20;
-		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_REFRESH, 10, this.height - 30, refreshWidth, 20, refresh));
+		int x = layout.titleX;
+		int y = layout.buttonsY;
+		int width = layout.titleWidth;
 
-		String moreSettings = I18n.format("mobends.gui.more_settings");
-		int moreSettingsWidth = this.fontRenderer.getStringWidth(moreSettings) + 20;
-		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_MORE_SETTINGS, 10 + refreshWidth + 5, this.height - 30, moreSettingsWidth, 20, moreSettings));
-	}
-
-	/** Link account, or once linked, the Mo' Bends account's name (opening the dashboard) and Log out. */
-	private void addAccountButtons()
-	{
 		MoBendsAccount.Session session = MoBendsAccount.getCurrent();
 		if (session == null)
 		{
-			this.buttonList.add(new GuiButton(COMPONENT_BUTTON_LINK_ACCOUNT, this.width - 110, this.height - 30, 100, 20,
+			int linkWidth = width / 2;
+			this.buttonList.add(new GuiButton(COMPONENT_BUTTON_LINK_ACCOUNT, x + (width - linkWidth) / 2, y, linkWidth, BUTTON_HEIGHT,
 					I18n.format("mobends.gui.link.button")));
 			return;
 		}
 
 		String logOut = I18n.format("mobends.gui.link.log_out");
 		int logOutWidth = this.fontRenderer.getStringWidth(logOut) + 20;
-		int logOutX = this.width - 10 - logOutWidth;
-		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_LOG_OUT, logOutX, this.height - 30, logOutWidth, 20, logOut));
+		int nameWidth = width - BUTTON_GAP - logOutWidth;
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_LOG_OUT, x + nameWidth + BUTTON_GAP, y, logOutWidth, BUTTON_HEIGHT, logOut));
 
 		String name = session.getDisplayName();
-		if (this.fontRenderer.getStringWidth(name) > ACCOUNT_NAME_MAX_WIDTH)
+		int maxNameWidth = nameWidth - 8;
+		if (this.fontRenderer.getStringWidth(name) > maxNameWidth)
 		{
-			name = this.fontRenderer.trimStringToWidth(name, ACCOUNT_NAME_MAX_WIDTH - this.fontRenderer.getStringWidth("...")) + "...";
+			name = this.fontRenderer.trimStringToWidth(name, maxNameWidth - this.fontRenderer.getStringWidth("...")) + "...";
 		}
-		int nameWidth = this.fontRenderer.getStringWidth(name) + 20;
-		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_ACCOUNT, logOutX - 5 - nameWidth, this.height - 30, nameWidth, 20, name));
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_ACCOUNT, x, y, nameWidth, BUTTON_HEIGHT, name));
 	}
 
 	@Override
@@ -154,9 +162,6 @@ public class GuiBendsMenu extends GuiScreen
 				CoreClient.refresh();
 				// The account is read again from disk.
 				initGui();
-				break;
-			case COMPONENT_BUTTON_MORE_SETTINGS:
-				mc.displayGuiScreen(new GuiConfig(this, ModStatics.MODID, ModStatics.NAME));
 				break;
 			default:
 				break;
@@ -254,10 +259,8 @@ public class GuiBendsMenu extends GuiScreen
 
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		this.mc.renderEngine.bindTexture(MENU_TITLE_TEXTURE);
-		int titleWidth = 167 * 2;
-		int titleHeight = 37 * 2;
-
-		Draw.texturedRectangle((width - titleWidth) / 2, (height - titleHeight) / 2 - 70, titleWidth, titleHeight, 0, 0, 1, 1);
+		Layout layout = new Layout();
+		Draw.texturedRectangle(layout.titleX, layout.titleY, layout.titleWidth, layout.titleHeight, 0, 0, 1, 1);
 
 		this.settingsButton.display();
 		this.customizeButton.display();
@@ -271,6 +274,40 @@ public class GuiBendsMenu extends GuiScreen
 			this.drawDefaultBackground();
 			this.popUp.display(mouseX, mouseY, partialTicks);
 			GlStateManager.enableDepth();
+		}
+	}
+
+	/**
+	 * Where the title and the sections go: three columns, as wide as fit on the screen, centered a
+	 * little above the middle. The title, with its buttons under it, fills the first two and the
+	 * sections stack in the third, the bottoms of both lined up.
+	 */
+	private class Layout
+	{
+		final int column;
+		final int titleX, titleY, titleWidth, titleHeight;
+		final int buttonsY;
+		final int sectionsX, sectionsY;
+
+		Layout()
+		{
+			int contentWidth = Math.min(MAX_CONTENT_WIDTH, width - 2 * SCREEN_MARGIN);
+			column = (contentWidth - 2 * COLUMN_GAP) / 3;
+			titleWidth = 2 * column + COLUMN_GAP;
+			titleHeight = Math.round((float) titleWidth * TITLE_TEXTURE_HEIGHT / TITLE_TEXTURE_WIDTH);
+			int titleColumnHeight = titleHeight + BUTTON_GAP + BUTTON_HEIGHT;
+			int sectionsHeight = SECTION_COUNT * GuiSectionButton.HEIGHT + (SECTION_COUNT - 1) * SECTION_GAP;
+			int contentHeight = Math.max(titleColumnHeight, sectionsHeight);
+			int left = (width - (3 * column + 2 * COLUMN_GAP)) / 2;
+			int top = (height - contentHeight) / 2 - 10;
+
+			// Both columns end at the same line: the buttons under the title line up with the last section.
+			int bottom = top + contentHeight;
+			titleX = left;
+			buttonsY = bottom - BUTTON_HEIGHT;
+			titleY = buttonsY - BUTTON_GAP - titleHeight;
+			sectionsX = left + titleWidth + COLUMN_GAP;
+			sectionsY = bottom - sectionsHeight;
 		}
 	}
 

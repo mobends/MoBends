@@ -13,6 +13,10 @@
 
 ### Changed
 
+- The Mo' Bends menu is more compact: a smaller title, with Link account under it and the
+  sections (Settings, Customize, Supporters) beside it as slim buttons. Hovering one sends a glint
+  through it, which leaves the section's color behind and brings in its icon (Settings has a gear
+  now). More Settings moved into Settings.
 - The heads of players, zombies and skeletons no longer turn with the body: they look where the
   creature looks however its body bends or sways, walking, sprinting, sneaking, riding or aiming a
   bow. The poses that turn the head on purpose still do (the sword's stance and slashes, the

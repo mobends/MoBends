@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiConfig;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -35,6 +36,7 @@ public class GuiSettingsWindow extends GuiScreen
     private static final int SCREEN_MARGIN = 40;
     private static final int COMPONENT_BUTTON_BACK = 0;
     private static final int COMPONENT_QUERY_INPUT = 1;
+    private static final int COMPONENT_BUTTON_MORE_SETTINGS = 2;
 
     private int x, y;
     private int editorHeight = EDITOR_HEIGHT;
@@ -74,6 +76,10 @@ public class GuiSettingsWindow extends GuiScreen
 
         buttonList.clear();
         buttonList.add(new GuiButton(COMPONENT_BUTTON_BACK, 10, height - 30, 60, 20, I18n.format("mobends.gui.back")));
+        // Forge's screen for the mod's configuration file.
+        final String moreSettings = I18n.format("mobends.gui.more_settings");
+        final int moreSettingsWidth = this.fontRenderer.getStringWidth(moreSettings) + 20;
+        buttonList.add(new GuiButton(COMPONENT_BUTTON_MORE_SETTINGS, width - 10 - moreSettingsWidth, height - 30, moreSettingsWidth, 20, moreSettings));
         filterQueryInput = new GuiCompactTextField(COMPONENT_QUERY_INPUT, this.fontRenderer, x + 6, y + 6, 150, 16);
         filterQueryInput.setFocused(true);
         filterQueryInput.setPlaceholderText(I18n.format("mobends.gui.search"));
@@ -167,6 +173,11 @@ public class GuiSettingsWindow extends GuiScreen
         {
             case COMPONENT_BUTTON_BACK:
                 goBack();
+                break;
+            case COMPONENT_BUTTON_MORE_SETTINGS:
+                Core.saveConfiguration();
+                // A new window to come back to: leaving this one closes the world of its previews.
+                this.mc.displayGuiScreen(new GuiConfig(new GuiSettingsWindow(exit), ModStatics.MODID, ModStatics.NAME));
                 break;
             default:
                 break;
