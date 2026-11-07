@@ -2,9 +2,15 @@ package goblinbob.mobends.core.configuration;
 
 import goblinbob.mobends.core.bender.EntityBender;
 import goblinbob.mobends.core.bender.EntityBenderRegistry;
+import goblinbob.mobends.core.kumo.option.KumoOptions;
 import net.minecraftforge.common.config.ConfigCategory;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 
+import javax.annotation.Nullable;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CoreClientConfig extends CoreConfig
 {
@@ -18,9 +24,59 @@ public class CoreClientConfig extends CoreConfig
     // Extension ranks: the order the user gave the extensions, by extension id (absent means 0)
     private static final String CATEGORY_EXTENSION_RANKS = "ExtensionRanks";
 
+    // Options: the values the user gave the options of model definitions, types and extensions, by
+    // key (<owner>#<name>); absent means the option's default
+    private static final String CATEGORY_OPTIONS = "Options";
+
     public CoreClientConfig(File file)
     {
         super(file);
+        KumoOptions.INSTANCE.load(getOptionValues());
+        KumoOptions.INSTANCE.setListener(this::setOptionValue);
+    }
+
+    /**
+     * Moves an on/off setting of Forge's config (its {@code general} category) to an option, once:
+     * switched off, the option is off too, unless the user already set the option.
+     */
+    public void migrateToOption(String setting, String optionKey)
+    {
+        ConfigCategory general = configuration.hasCategory(Configuration.CATEGORY_GENERAL) ? configuration.getCategory(Configuration.CATEGORY_GENERAL) : null;
+        if (general == null || !general.containsKey(setting))
+        {
+            return;
+        }
+        if (!general.get(setting).getBoolean(true) && !configuration.getCategory(CATEGORY_OPTIONS).containsKey(optionKey))
+        {
+            setOptionValue(optionKey, 0.0);
+            KumoOptions.INSTANCE.load(getOptionValues());
+        }
+        general.remove(setting);
+        configuration.save();
+    }
+
+    /** The values the user gave options, by key. */
+    public Map<String, Double> getOptionValues()
+    {
+        Map<String, Double> values = new HashMap<>();
+        for (Map.Entry<String, Property> entry : configuration.getCategory(CATEGORY_OPTIONS).entrySet())
+        {
+            values.put(entry.getKey(), entry.getValue().getDouble());
+        }
+        return values;
+    }
+
+    /** Stores the value the user gave an option; null, its default, removes it. */
+    public void setOptionValue(String key, @Nullable Double value)
+    {
+        if (value == null)
+        {
+            configuration.getCategory(CATEGORY_OPTIONS).remove(key);
+        }
+        else
+        {
+            configuration.get(CATEGORY_OPTIONS, key, 0.0).set(value);
+        }
     }
 
     public void save()

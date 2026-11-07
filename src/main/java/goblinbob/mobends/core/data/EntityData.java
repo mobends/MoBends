@@ -10,6 +10,7 @@ import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.bind.BoneSinks;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.VectorSink;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.math.SmoothOrientation;
@@ -394,7 +395,16 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
      */
     public void setAnimator(@Nullable ResourceLocation animator, List<ResourceLocation> extensions)
     {
-        this.animator = new KumoAnimatorController(getEntityScope(), animator != null ? animator : getDefaultAnimator(), extensions);
+        setAnimator(animator, extensions, OptionSet.EMPTY, Collections.nCopies(extensions.size(), OptionSet.EMPTY));
+    }
+
+    /**
+     * As above, with the options the type file declares (read by the animator, besides the model
+     * definition's) and those each extension file declares (read by its own animator).
+     */
+    public void setAnimator(@Nullable ResourceLocation animator, List<ResourceLocation> extensions, OptionSet typeOptions, List<OptionSet> extensionOptions)
+    {
+        this.animator = new KumoAnimatorController(getEntityScope(), animator != null ? animator : getDefaultAnimator(), extensions, typeOptions, extensionOptions);
     }
 
     /**

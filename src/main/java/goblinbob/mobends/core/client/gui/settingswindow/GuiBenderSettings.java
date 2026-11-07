@@ -19,7 +19,8 @@ import net.minecraftforge.fml.common.ModContainer;
 
 /**
  * A row of the Settings window: the mob animated in its frame, its name and where it comes from,
- * the toggle that animates it, and the buttons that order its types and extensions. The mob walks
+ * the toggle that animates it, the buttons that order its types and extensions, and the one that
+ * opens its options. The mob walks
  * while the row is hovered, and the row is dimmed while the mob isn't animated.
  */
 public class GuiBenderSettings implements IGuiListElement
@@ -46,6 +47,9 @@ public class GuiBenderSettings implements IGuiListElement
     /** Opens the order of the extensions of those types; only there when they have more than one. */
     private final GuiCustomButton extensionsButton;
     private final Runnable onOpenExtensions;
+    /** Opens its options; only there when it has any. */
+    private final GuiCustomButton optionsButton;
+    private final Runnable onOpenOptions;
 
     private int x, y;
     private int width;
@@ -54,7 +58,8 @@ public class GuiBenderSettings implements IGuiListElement
     private int listOrder;
 
     public GuiBenderSettings(GuiBenderList list, EntityBender<?> bender, EntityPreview preview,
-                             int typeCount, Runnable onOpenOrder, int extensionCount, Runnable onOpenExtensions)
+                             int typeCount, Runnable onOpenOrder, int extensionCount, Runnable onOpenExtensions,
+                             int optionCount, Runnable onOpenOptions)
     {
         this.list = list;
         this.bender = bender;
@@ -67,6 +72,8 @@ public class GuiBenderSettings implements IGuiListElement
         this.onOpenOrder = onOpenOrder;
         this.extensionsButton = extensionCount > 1 ? compactButton(I18n.format("mobends.gui.extensionorder.button", extensionCount)) : null;
         this.onOpenExtensions = onOpenExtensions;
+        this.optionsButton = optionCount > 0 ? compactButton(I18n.format("mobends.gui.options.button", optionCount)) : null;
+        this.onOpenOptions = onOpenOptions;
     }
 
     private GuiCustomButton compactButton(String text)
@@ -89,7 +96,12 @@ public class GuiBenderSettings implements IGuiListElement
             buttonX += orderButton.width + 3;
         }
         if (extensionsButton != null)
+        {
             this.extensionsButton.setPosition(buttonX, y + 23);
+            buttonX += extensionsButton.width + 3;
+        }
+        if (optionsButton != null)
+            this.optionsButton.setPosition(buttonX, y + 23);
     }
 
     @Override
@@ -110,6 +122,12 @@ public class GuiBenderSettings implements IGuiListElement
         if (extensionsButton != null && mouseButton == 0 && extensionsButton.mousePressed(mouseX, mouseY))
         {
             onOpenExtensions.run();
+            return true;
+        }
+
+        if (optionsButton != null && mouseButton == 0 && optionsButton.mousePressed(mouseX, mouseY))
+        {
+            onOpenOptions.run();
             return true;
         }
 
@@ -138,7 +156,7 @@ public class GuiBenderSettings implements IGuiListElement
         drawThumbnail(animated, partialTicks);
 
         final int textWidth = width - 34 - 4 - TEXT_X;
-        final boolean hasButtons = orderButton != null || extensionsButton != null;
+        final boolean hasButtons = orderButton != null || extensionsButton != null || optionsButton != null;
         final int nameY = y + (hasButtons ? 4 : 10);
         mc.fontRenderer.drawStringWithShadow(mc.fontRenderer.trimStringToWidth(bender.getLocalizedName(), textWidth),
                 x + TEXT_X, nameY, animated ? 0xffffff : 0x8a8a8a);
@@ -150,6 +168,8 @@ public class GuiBenderSettings implements IGuiListElement
             orderButton.drawButton(mouseX, mouseY, partialTicks);
         if (extensionsButton != null)
             extensionsButton.drawButton(mouseX, mouseY, partialTicks);
+        if (optionsButton != null)
+            optionsButton.drawButton(mouseX, mouseY, partialTicks);
         GlStateManager.color(1F, 1F, 1F, 1F);
     }
 

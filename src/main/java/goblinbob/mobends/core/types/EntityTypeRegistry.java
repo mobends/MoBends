@@ -217,7 +217,7 @@ public class EntityTypeRegistry
         return extensions.size();
     }
 
-    /** Gives every type its extensions' animators, in the order their layers go on. */
+    /** Gives every type its extensions, in the order their layers go on. */
     private void applyExtensions()
     {
         for (EntityType type : types.values())
@@ -227,7 +227,7 @@ public class EntityTypeRegistry
             {
                 if (extension.getTypeId().equals(type.getId())) own.add(extension);
             }
-            type.setExtensions(Extension.layerOrder(own));
+            type.setExtensions(Extension.inLayerOrder(own));
         }
     }
 

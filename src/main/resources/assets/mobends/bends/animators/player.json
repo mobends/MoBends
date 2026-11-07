@@ -44,7 +44,7 @@
         ]
       }
     },
-    "canSpinAttack": {"live": {"and": [{"mobends:spin_attack_enabled": []}, {"not": ["entityIsRiding"]}]}}
+    "canSpinAttack": {"live": {"and": ["option.spinAttack", {"not": ["entityIsRiding"]}]}}
   },
   "layers": [
     {

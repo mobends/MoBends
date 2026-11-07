@@ -41,10 +41,12 @@ public final class DefinedBenders
                 return definition;
             }
         };
-        return new DefaultEntityBender<>(modId, definition.key, definition.unlocalizedName, entityClass,
+        EntityBender<E> bender = new DefaultEntityBender<>(modId, definition.key, definition.unlocalizedName, entityClass,
                 entity -> DefinedEntityData.create(current.get(), entity),
                 () -> new DefinedMutator<>(current.get()),
                 new DefinedRenderer<>(current));
+        bender.setOptions(() -> current.get().options());
+        return bender;
     }
 
     /** The entity class a definition names; looked up without initialising it, as a resource pack may name any class. */

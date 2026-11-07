@@ -691,7 +691,7 @@ another class, it takes its `@fallback`, or the animator fails to load. (Mods ad
 | `core:ledge_ahead` | none | a block in front of the entity's feet, at most 1.5 blocks high, with room for the entity on top: what it climbs onto as it jumps (front is the way its body faces). Read as it lifts off, it tells a climb from a jump | living entities |
 | `mobends:use_action` | `[action]`: `food`, `bow` or `shield` | the item in use is used as that (Mo' Bends' classification, which the config can change) | living entities |
 | `mobends:attack_action` | `[action]`: `fists`, `sword` or `tool` | the held item attacks as that | living entities |
-| `mobends:spin_attack_enabled` | none | the config lets the sword combo end with a spin | every entity |
+| `mobends:spin_attack_enabled` | none | deprecated: the player's `spinAttack` option is on (read `option.spinAttack` in the player's animator instead) | every entity |
 | `mobends:is_sitting` | none | the wolf sits | wolves |
 | `mobends:wolf_interested_angle` | none | the head's tilt while begging, in degrees (a number) | wolves |
 | `mobends:wolf_shake_angle` | `[offset]`, a number written out: how far behind the head the part shakes (vanilla's: head 0, mane −0.08, tail −0.2) | the part's roll while shaking off water, in degrees (a number) | wolves |
@@ -842,6 +842,8 @@ prefix says where the value lives, and a name that scope doesn't declare is an e
   read where its scope exists: a `node.` name inside its node, a `machine.` name inside its
   machine. What two scopes share is declared on the smallest scope around both: the layer for its
   machines, the animator for its layers.
+* `option.` is an option, a value the user sets in the Mo' Bends menu, which a model definition,
+  a type file or an extension file declares (see *Options*). It can only be read.
 * A name is one prefix and one name: a definition's own name has no dot.
 * Definitions can read each other in any order; one that depends on itself is an error. Every
   definition is checked when the animator loads, used or not.
@@ -926,6 +928,44 @@ expression repeated with different inputs, written once.
   definition of one scope can't share a name, nor can two functions (across `extends` too, which
   is how files share functions).
 
+## Options
+
+An option is a value the user sets in the Mo' Bends menu (Settings → *Options*, next to the mob),
+which an animator reads as `option.<name>`. Animators don't declare options: model definitions,
+type files and extension files do, in their `options`, so the menu knows them before any animator
+loads, and an animator shared by several mobs or extensions never makes them share a setting.
+
+```json
+"options": {
+  "spinAttack": {"default": true, "label": "mobends.option.spin_attack"},
+  "sway":       {"default": 1, "min": 0, "max": 2, "step": 0.1, "label": "yourpack.option.sway"}
+}
+```
+
+| key | meaning |
+|---|---|
+| `default` | required: a boolean (the menu shows a switch) or a number (buttons that step it down and up); its type is the option's |
+| `min`, `max` | a number's range, required for one; a boolean has none |
+| `step` | optional: what a number moves by, and the values it can take (from `min`); absent, it moves by a twentieth of its range |
+| `label` | optional: a language key (packs can ship their own `.lang` files); absent, or not translated, the menu shows the key, or else the name |
+
+* **Who reads what.** A type's animator reads the options of its model definition and of its type
+  file (a built-in type has no file: its model definition's alone); the two can't declare one
+  name. An extension's animator reads only its extension file's. Reading an option nothing
+  declares is an error when the animator loads, as for an `entity.` name.
+* **Read only.** A `set` statement or a driver writing an option is an error, and an option is no
+  function: only the user changes it.
+* **Read every frame.** A change in the menu shows at once, without reloading anything.
+* **Stored by its owner.** The client config keeps the values the user changed (`Options`), by
+  `<owner>#<name>`: the owner is the model definition's location
+  (`mobends:bends/models/player.json`), the type's id or the extension's id. A value the user never
+  changed isn't stored, so an option follows its file's default, even when a new version changes it.
+  A model definition that `extends` another has its options too, key by key, its own winning, under
+  its own location.
+
+The player's model definition declares `spinAttack`, which ends the sword combo with the whirl;
+its animator reads it as `"canSpinAttack": {"live": {"and": ["option.spinAttack", {"not": ["entityIsRiding"]}]}}`.
+
 ## Semantics worth knowing
 
 * Transitions are decided before posing; a node entered this frame poses this frame.
@@ -989,7 +1029,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | field | meaning |
 |---|---|
 | `formatVersion` | `2` (the index, `{"formatVersion": 2, "models": [...]}`, has one too) |
-| `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothing` and `renderer` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie. A chain with a resource pack's file in it is untrusted |
+| `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothing`, `renderer` and `options` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie. A chain with a resource pack's file in it is untrusted |
 | `entity` | the entity class; `model` (optional) restricts mutation to that model class and its subclasses |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
 | `bones[].vanilla` | the vanilla part the bone takes over: `field` is the model's field by its development (MCP) name (see *Field names* below), `element` its index for array fields, `index` an optional fallback position in the model's box list (creation order). Every field or array slot that holds the part is replaced, found by identity. |
@@ -1009,6 +1049,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | `childBones` | how bones change on a baby, by name, besides `childScale`: `offsetScale` (the scale of their offsets from their parents) and `globalOffset` ([x, y, z] before their parents' transforms); the wolf pup's head |
 | `bones[].boxes` | the bone's own boxes, drawn instead of its vanilla part's (which still gives the texture size): each `{"uv": [u, v], "from": [x, y, z], "size": [x, y, z]}` as vanilla's `addBox` takes them, in the bone's frame, plus optionally `drawnSize` (the size it is drawn at, its texture stretched over it), `offset`, `inflate` ([x, y, z]), `mirror`, `hide` (faces: `left`, `right`, `top`, `bottom`, `front`, `back`) and `faces` (per face, `uvOffset` [u, v] and `rotate`: `clockwise`, `counter_clockwise`, `half_turn`). The spider's longer legs; a bone with no vanilla part of its own (a spider's foreleg). Can't be split or an overlay |
 | `@define`, `@on` | the entity scope: what the mob exposes to its animators and extensions (`entity.wingAngle`) and remembers across frames, as an animator's scopes declare theirs (see *Definitions and statements*). The only place `field` and `exists` are written (see *Reading the entity*) |
+| `options` | options the user sets in the Mo' Bends menu, which the entity's animator reads as `option.x` (see *Options*); extensions don't see them |
 | `@comment` | a note, ignored |
 
 **The entity scope is the model definition's alone.** It is the one file every type, animator and
@@ -1095,6 +1136,7 @@ Java addon is needed unless it brings its own operations or drivers.
 | `selector` | a condition on the entity, an expression (see *Selectors*); absent means the type applies to every entity |
 | `model` | optional: a bender key (`mobends:player`, `mobends:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
 | `animator` | optional: the animator asset. Absent: the model's own animator |
+| `options` | optional: options the user sets in the Mo' Bends menu, which the type's animator reads as `option.x`, besides its model definition's (see *Options*) |
 
 A type applies to an entity only if its model fits the entity's class. A type without a `model`
 applies only to entities that have a default model.
@@ -1211,6 +1253,10 @@ decides what resource packs may do, and sends it to every client with Mo' Bends 
   have more than one extension. It lists them in order (top = on top); moving one ranks the
   whole list and stores the ranks in the client config (`ExtensionRanks`, by extension id);
   *Reset* puts them back to 0.
+* **Options.** Settings shows an *Options* button next to every entity whose model definition,
+  types or extensions declare options. It lists them with where they come from and their
+  default; a change applies at once and is stored in the client config (`Options`); *Reset* puts
+  every one back to its default.
 * **On/off.** The existing per-bender switch (`Animated`) decides whether the chosen type animates
   at all. When the winning type's bender is off, the entity is rendered vanilla.
 
@@ -1236,6 +1282,7 @@ own animation and with other packs' extensions. Extension files are found like t
 | `id` | identifies the extension (ranks are stored by it); two with one id: the one from the higher-priority pack wins, with a warning (as for types) |
 | `type` | the id of the type it extends: a type file's `id`, or a built-in type's, which is its model's key (`mobends:player`, `mobends:zombie`, ...) |
 | `animator` | an animator whose layers go on top of the type's animator (or, for a type without one, its model's) |
+| `options` | optional: options the user sets in the Mo' Bends menu, which only the extension's animator reads as `option.x` (see *Options*) |
 
 * The extension's layers come after every layer of the animator it extends (including that
   animator's parents), so they pose over it; their `core:fallthrough` nodes let it show through.

@@ -26,8 +26,6 @@ public class ModConfig
     public static boolean showArrowTrails = true;
     @Config.LangKey(ModStatics.MODID + ".config.show_sword_trails")
     public static boolean showSwordTrail = true;
-    @Config.LangKey(ModStatics.MODID + ".config.perform_spin_attack")
-    public static boolean performSpinAttack = true;
     @Config.LangKey(ModStatics.MODID + ".config.item_use_classifications")
     public static String[] itemUseClassifications = new String[] {};
     @Config.LangKey(ModStatics.MODID + ".config.item_attack_classifications")

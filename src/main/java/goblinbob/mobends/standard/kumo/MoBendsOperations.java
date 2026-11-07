@@ -6,13 +6,13 @@ import goblinbob.mobends.core.kumo.api.KumoOperation;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.kumo.api.NumberEvaluator;
 import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.option.KumoOptions;
 import goblinbob.mobends.core.kumo.expr.ExpressionOperations.Kind;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.ItemActions;
 import goblinbob.mobends.standard.UseActionType;
-import goblinbob.mobends.standard.main.ModConfig;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySpider;
@@ -27,6 +27,9 @@ import net.minecraft.util.math.BlockPos;
  */
 public final class MoBendsOperations
 {
+
+    /** The player's spin attack: the {@code spinAttack} option of its model definition (on by default). */
+    public static final String SPIN_ATTACK_OPTION = KumoOptions.key("mobends:bends/models/player.json", "spinAttack");
 
     private MoBendsOperations()
     {
@@ -61,10 +64,14 @@ public final class MoBendsOperations
                         return entity != null && action == ItemActions.getItemAttackAction(entity.getHeldItemMainhand().getItem());
                     };
                 }));
-        // {"mobends:spin_attack_enabled": []}: the player's spin attack is switched on in the config.
+        // {"mobends:spin_attack_enabled": []}: deprecated, for animators written before options: the
+        // player's spin attack is switched on (its model definition's option, option.spinAttack).
         KumoRegistry.registerOperation(KumoOperation.named("mobends:spin_attack_enabled")
                 .returns(Expression.Type.BOOLEAN)
-                .bind(args -> (BooleanEvaluator) (context, values) -> ModConfig.performSpinAttack));
+                .bind(args -> (BooleanEvaluator) (context, values) -> {
+                    Double saved = KumoOptions.INSTANCE.getSaved(SPIN_ATTACK_OPTION);
+                    return saved == null || saved != 0;
+                }));
 
         // {"mobends:skin_variant": ["slim"]}: a player whose skin has this arm width. Players read as
         // default until their skin has downloaded, so the answer can change.

@@ -129,6 +129,7 @@ public class ModelDefinitions
             }
             definition.validate();
             definition.trusted = resolved.trusted && PackTrust.opensTrusted(location);
+            definition.location = location.toString();
             loaded.put(location, definition);
         }
         return definition;

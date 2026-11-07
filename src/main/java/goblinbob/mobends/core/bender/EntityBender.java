@@ -6,6 +6,7 @@ import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.mutators.IMutatorFactory;
 import goblinbob.mobends.core.mutators.Mutator;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
@@ -17,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public abstract class EntityBender<T extends EntityLivingBase>
 {
@@ -45,6 +47,7 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	/** The resource pack whose type brought this bender, or null if it isn't a resource pack's. */
 	@Nullable
 	private String resourcePack;
+	private Supplier<OptionSet> options = () -> OptionSet.EMPTY;
 
 	private static class Mutation
 	{
@@ -134,6 +137,17 @@ public abstract class EntityBender<T extends EntityLivingBase>
 	public void setResourcePack(@Nullable String resourcePack)
 	{
 		this.resourcePack = resourcePack;
+	}
+
+	/** The options its model definition declares, as loaded now; none if it has no definition. */
+	public OptionSet getOptions()
+	{
+		return this.options.get();
+	}
+
+	public void setOptions(Supplier<OptionSet> options)
+	{
+		this.options = options;
 	}
 
 	/**
