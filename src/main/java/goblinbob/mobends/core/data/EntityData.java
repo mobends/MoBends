@@ -429,6 +429,12 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         return true;
     }
 
+    /** The frame the animator last ran in, i.e. the entity was last drawn (see {@link DataUpdateHandler#frame}); -1 for never. */
+    public int getAnimatedFrame()
+    {
+        return animatedFrame;
+    }
+
     /** True when the entity's animator asks for the vanilla model and animation right now (a {@code core:vanilla} node). */
     public boolean wantsVanilla()
     {
