@@ -86,7 +86,10 @@ public class DataUpdateHandler
             return;
         }
         if (Minecraft.getMinecraft().isGamePaused())
+        {
+            EntityDatabase.instance.tickPaused();
             return;
+        }
 
         EntityDatabase.instance.updateClient();
         Addons.onClientTick();

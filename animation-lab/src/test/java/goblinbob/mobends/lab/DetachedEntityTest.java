@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -31,6 +32,7 @@ public class DetachedEntityTest
     private final EntityDatabase database = new EntityDatabase();
     @SuppressWarnings("unchecked")
     private final IEntityDataFactory<EntityLivingBase> factory = entity -> (LivingEntityData<EntityLivingBase>) EntityKind.ZOMBIE.createData(entity, 1);
+    private World world;
     private EntityLivingBase trophy;
 
     @BeforeEach
@@ -38,7 +40,7 @@ public class DetachedEntityTest
     {
         LabBootstrap.ensure();
         DataUpdateHandler.reset();
-        World world = new World();
+        world = new World();
         Minecraft.getMinecraft().world = world;
         Minecraft.getMinecraft().player = new EntityPlayerSP(world);
         // Made in a world of its own, as a mod that shows a mob makes it: never in the game's.
@@ -101,6 +103,62 @@ public class DetachedEntityTest
         }
         assertNotNull(database.get(trophy));
         assertSame(first, tick(true));
+    }
+
+    @Test
+    void anEntityOutsideTheWorldLosesItsDataWhileTheGameIsPaused()
+    {
+        tick(true);
+        // The GUI that drew it closed, and the game paused: the entities don't update, but the ticks still count.
+        for (int i = 0; i < 25; i++)
+        {
+            database.tickPaused();
+        }
+        assertNull(database.get(trophy));
+    }
+
+    @Test
+    void anEntityOutsideTheWorldWithTheIdOfOneInItKeepsItsOwnData()
+    {
+        // On a server, the world's entities get their ids from the server, the trophy from the client.
+        EntityLivingBase mob = EntityKind.ZOMBIE.createEntity(world);
+        mob.setEntityId(trophy.getEntityId());
+        world.addEntity(mob);
+
+        database.updateClient();
+        DataUpdateHandler.frame++;
+        LivingEntityData<EntityLivingBase> mobData = database.getOrMake(factory, mob);
+        LivingEntityData<EntityLivingBase> trophyData = database.getOrMake(factory, trophy);
+        assertNotSame(mobData, trophyData);
+        assertSame(mob, mobData.getEntity());
+        assertSame(trophy, trophyData.getEntity());
+
+        for (int i = 0; i < 40; i++)
+        {
+            database.updateClient();
+            DataUpdateHandler.frame++;
+            assertSame(mobData, database.getOrMake(factory, mob), "the mob's data was made anew on tick " + (i + 1));
+            assertSame(trophyData, database.getOrMake(factory, trophy), "the trophy's data was made anew on tick " + (i + 1));
+            assertSame(mobData, database.get(mob));
+            assertSame(trophyData, database.get(trophy));
+        }
+    }
+
+    @Test
+    void anEntityThatLeavesTheWorldLosesItsDataOnTheNextTick()
+    {
+        World other = new World();
+        Minecraft.getMinecraft().world = other;
+        EntityLivingBase mob = EntityKind.ZOMBIE.createEntity(other);
+        other.addEntity(mob);
+        database.updateClient();
+        DataUpdateHandler.frame++;
+        database.getOrMake(factory, mob).animate();
+
+        // The player went to another dimension: the mob's world is gone.
+        Minecraft.getMinecraft().world = world;
+        database.updateClient();
+        assertNull(database.get(mob));
     }
 
 }
