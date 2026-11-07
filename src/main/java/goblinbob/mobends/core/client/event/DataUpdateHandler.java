@@ -19,6 +19,11 @@ public class DataUpdateHandler
      * inventory) is animated only the first time.
      */
     public static int frame = 0;
+    /**
+     * Client ticks out of a world, the clock of the Mo' Bends menu opened from Forge's Mods list:
+     * its buttons' animations and the previews of its windows.
+     */
+    private static int ticksOutOfWorld = 0;
 
     public static float getTicks()
     {
@@ -32,7 +37,10 @@ public class DataUpdateHandler
             return;
         ++DataUpdateHandler.frame;
         if (Minecraft.getMinecraft().world == null || Minecraft.getMinecraft().player == null)
+        {
+            updateOutOfWorld(event.renderTickTime);
             return;
+        }
 
         if (!Minecraft.getMinecraft().isGamePaused())
         {
@@ -56,10 +64,28 @@ public class DataUpdateHandler
         }
     }
 
+    /** Out of a world, time goes on for the menus: only the previews are in the entity database. */
+    private static void updateOutOfWorld(float renderTickTime)
+    {
+        DataUpdateHandler.partialTicks = renderTickTime;
+        final float newTicks = ticksOutOfWorld + renderTickTime;
+        DataUpdateHandler.ticksPerFrame = Math.min(Math.max(0F, newTicks - DataUpdateHandler.ticks), 1F);
+        DataUpdateHandler.ticks = newTicks;
+        EntityDatabase.instance.updateRender(renderTickTime);
+    }
+
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent event)
     {
-        if (event.phase == Phase.END || Minecraft.getMinecraft().player == null || Minecraft.getMinecraft().isGamePaused())
+        if (event.phase == Phase.END)
+            return;
+        if (Minecraft.getMinecraft().player == null)
+        {
+            ++ticksOutOfWorld;
+            EntityDatabase.instance.updateClient();
+            return;
+        }
+        if (Minecraft.getMinecraft().isGamePaused())
             return;
 
         EntityDatabase.instance.updateClient();
