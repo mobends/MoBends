@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+
+- Skeletons stand on their feet, as players and zombies do: standing still, the feet stay planted
+  and they turn by stepping, quickly and lightly, and stop with their feet where the walk left
+  them. Walking, strafing, attacking and aiming a bow pose the legs as before.
+
 ### Changed
 
 - The Mo' Bends menu has a Refresh button in its bottom-left corner, in place of the F10 key: it

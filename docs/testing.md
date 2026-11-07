@@ -26,10 +26,10 @@ state change shows on the frame it happens; and the old movement node sampled `l
 frame late, while the walk now reads the current value (up to 9.5° on a leg).
 
 The iron golem's goldens were re-recorded as it learned to jump and climb, and the zombie's, the
-zombie villager's and the player's when they came to stand on their feet (`core:step_turn` takes
-the legs over whenever they stand still, and the player's only where nothing else poses them; how
-they move otherwise is unchanged). Every other golden is the original code's
-output.
+zombie villager's, the skeleton's and the player's when they came to stand on their feet
+(`core:step_turn` takes the legs over whenever they stand still, and the player's and the
+skeleton's only where nothing else poses them; how they move otherwise is unchanged). Every other
+golden is the original code's output.
 
 The Legacy Mo' Bends pack (`misc/legacy-pack`) is the player's and the zombie's animators without
 the layer that stands them on their feet. `LegacyPackTest` holds it to its own goldens, in
