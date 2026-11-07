@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static goblinbob.mobends.lab.PlayerRuns.angleBetween;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -217,12 +218,6 @@ public class ExtensionsTest
     private static double xAngle(float[] q)
     {
         return Math.toDegrees(2 * Math.atan2(q[0], q[3]));
-    }
-
-    private static double angleBetween(float[] a, float[] b)
-    {
-        double dot = Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]);
-        return Math.toDegrees(2 * Math.acos(Math.min(1, dot)));
     }
 
 }
