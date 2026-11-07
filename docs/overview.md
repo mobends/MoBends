@@ -28,8 +28,8 @@ The few KUMO pieces that need Minecraft (`KumoAnimatorController`, `AnimatorReso
 - `CoreClient.reloadAnimation()` — reloads everything asset-driven (clip, animator and model
   definition caches, entity data, mutators, entity types); runs after every resource reload and
   when the server changes what resource packs may do
-- `CoreClient.refresh()` — the same plus the addons and modules; bound to F10 and run when the
-  config changes
+- `CoreClient.refresh()` — the same plus the addons and modules; run by the menu's Refresh button and
+  when the config changes
 
 ## Module System
 

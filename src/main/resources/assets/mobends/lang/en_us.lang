@@ -12,6 +12,7 @@ mobends.gui.link.title=Link your Minecraft account
 mobends.gui.link.enter_code=On the Mo' Bends dashboard, choose Link through the mod, then enter the code it shows you.
 mobends.gui.link.dashboard=Open Dashboard
 mobends.gui.link.log_out=Log out
+mobends.gui.refresh=Refresh Animations
 mobends.gui.link.continue=Continue
 mobends.gui.link.confirm=Link
 mobends.gui.link.retry=Try again
@@ -34,7 +35,6 @@ mobends.gui.link.error.connection=Couldn't reach the Mo' Bends server. Check you
 
 key.categories.mobends=Mo' Bends
 key.mobends.menu=Mo' Bends Menu
-key.mobends.refresh=Refresh Animations
 
 mobends.player=Player
 

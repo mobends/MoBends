@@ -12,6 +12,7 @@ mobends.gui.link.title=Привязка аккаунта Minecraft
 mobends.gui.link.enter_code=В панели управления Mo' Bends выберите «Link through the mod» и введите показанный там код.
 mobends.gui.link.dashboard=Открыть панель
 mobends.gui.link.log_out=Выйти
+mobends.gui.refresh=Перезагрузить анимации
 mobends.gui.link.continue=Продолжить
 mobends.gui.link.confirm=Привязать
 mobends.gui.link.retry=Повторить
@@ -34,7 +35,6 @@ mobends.gui.link.error.connection=Не удалось подключиться �
 
 key.categories.mobends=Mo' Bends
 key.mobends.menu=Меню Mo' Bends
-key.mobends.refresh=Перезагрузить анимации
 
 mobends.player=Игрок
 

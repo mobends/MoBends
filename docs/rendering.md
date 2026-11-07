@@ -10,7 +10,7 @@ All hooks use Forge's `MinecraftForge.EVENT_BUS`, registered in `CoreClient.init
 | `RenderLivingEvent.Post` | `EntityRenderHandler` | Reverts GL state; always puts the vanilla state back |
 | `TickEvent.RenderTickEvent` | `DataUpdateHandler` | Advances animation frames, updates `ticksPerFrame` |
 | `TickEvent.ClientTickEvent` (END) | `DataUpdateHandler` | Updates entity motion/velocity state |
-| `InputEvent.KeyInputEvent` | `KeyboardHandler` | G → Mo' Bends menu; F10 → `CoreClient.refresh()` |
+| `InputEvent.KeyInputEvent` | `KeyboardHandler` | G → Mo' Bends menu |
 | `EntityJoinWorldEvent` | `WorldJoinHandler` | When the *local* player joins (other players join all the time): resets the server rules to their defaults and sends `MessageConfigRequest` |
 
 A resource reload listener runs `CoreClient.reloadAnimation()`.

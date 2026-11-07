@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.gui;
 
+import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
 import goblinbob.mobends.core.client.gui.popup.GuiPopUp;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
@@ -30,6 +31,7 @@ public class GuiBendsMenu extends GuiScreen
 	private static final int COMPONENT_BUTTON_LINK_ACCOUNT = 0;
 	private static final int COMPONENT_BUTTON_ACCOUNT = 1;
 	private static final int COMPONENT_BUTTON_LOG_OUT = 2;
+	private static final int COMPONENT_BUTTON_REFRESH = 3;
 	private static final int ACCOUNT_NAME_MAX_WIDTH = 120;
 	private GuiSectionButton settingsButton;
 	private GuiSectionButton customizeButton;
@@ -73,6 +75,15 @@ public class GuiBendsMenu extends GuiScreen
 		this.customizeButton.initGui((this.width - 318) / 2, startY + distance);
 		this.supportersButton.initGui((this.width - 318) / 2, startY + 2 * distance);
 		addAccountButtons();
+		addRefreshButton();
+	}
+
+	/** Reloads the animation and refreshes the addons and modules (see {@link CoreClient#refresh()}). */
+	private void addRefreshButton()
+	{
+		String refresh = I18n.format("mobends.gui.refresh");
+		int refreshWidth = this.fontRenderer.getStringWidth(refresh) + 20;
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_REFRESH, 10, this.height - 30, refreshWidth, 20, refresh));
 	}
 
 	/** Link account, or once linked, the Mo' Bends account's name (opening the dashboard) and Log out. */
@@ -118,6 +129,11 @@ public class GuiBendsMenu extends GuiScreen
 				break;
 			case COMPONENT_BUTTON_LOG_OUT:
 				MoBendsAccount.logOut();
+				initGui();
+				break;
+			case COMPONENT_BUTTON_REFRESH:
+				CoreClient.refresh();
+				// The account is read again from disk.
 				initGui();
 				break;
 			default:

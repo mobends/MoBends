@@ -116,8 +116,8 @@ public class CoreClient extends Core<CoreClientConfig>
     }
 
     /**
-     * Reloads the animation and refreshes the addons and modules: the refresh key, and changes to
-     * the mod's configuration.
+     * Reloads the animation and refreshes the addons and modules: the Mo' Bends menu's Refresh
+     * button, and changes to the mod's configuration.
      */
     public static void refresh()
     {

@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- The Mo' Bends menu has a Refresh button in its bottom-left corner, in place of the F10 key: it
+  reloads the animations and fetches the account, assets and supporter accessories again.
+
 ## 2.0.0-alpha.1
 
 ### Added

@@ -12,6 +12,7 @@ mobends.gui.link.title=Połącz swoje konto Minecraft
 mobends.gui.link.enter_code=W panelu Mo' Bends wybierz „Link through the mod”, a następnie wpisz wyświetlony kod.
 mobends.gui.link.dashboard=Otwórz panel
 mobends.gui.link.log_out=Wyloguj
+mobends.gui.refresh=Odśwież animacje
 mobends.gui.link.continue=Dalej
 mobends.gui.link.confirm=Połącz
 mobends.gui.link.retry=Spróbuj ponownie
@@ -34,7 +35,6 @@ mobends.gui.link.error.connection=Nie udało się połączyć z serwerem Mo' Ben
 
 key.categories.mobends=Mo' Bends
 key.mobends.menu=Menu Mo' Bends
-key.mobends.refresh=Odśwież animacje
 
 mobends.player=Gracz
 
