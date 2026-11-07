@@ -12,6 +12,8 @@ mobends.gui.link.title=Collega il tuo account Minecraft
 mobends.gui.link.enter_code=Nella dashboard di Mo' Bends scegli "Link through the mod", poi inserisci il codice che ti viene mostrato.
 mobends.gui.link.dashboard=Apri la dashboard
 mobends.gui.link.log_out=Esci
+mobends.gui.refresh=Ricarica le animazioni
+mobends.gui.more_settings=Altre impostazioni
 mobends.gui.link.continue=Continua
 mobends.gui.link.confirm=Collega
 mobends.gui.link.retry=Riprova
@@ -34,7 +36,6 @@ mobends.gui.link.error.connection=Impossibile raggiungere il server di Mo' Bends
 
 key.categories.mobends=Mo' Bends
 key.mobends.menu=Menu di Mo' Bends
-key.mobends.refresh=Ricarica le animazioni
 
 mobends.player=Giocatore
 

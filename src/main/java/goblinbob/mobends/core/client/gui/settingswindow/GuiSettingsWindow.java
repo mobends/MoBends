@@ -10,7 +10,6 @@ import goblinbob.mobends.core.client.preview.EntityPreview;
 import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.Draw;
-import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -50,10 +49,14 @@ public class GuiSettingsWindow extends GuiScreen
     private final Map<EntityBender<?>, EntityPreview> previews = new HashMap<>();
 
     private String query;
+    /** Where leaving the Mo' Bends menus goes: the game (null), or the Mods list it was opened from. */
+    @Nullable
+    private final GuiScreen exit;
 
-    public GuiSettingsWindow()
+    public GuiSettingsWindow(@Nullable GuiScreen exit)
     {
         super();
+        this.exit = exit;
 
         fetchBenders();
     }
@@ -150,7 +153,7 @@ public class GuiSettingsWindow extends GuiScreen
         {
             case 1:
                 Core.saveConfiguration();
-                GuiHelper.closeGui();
+                this.mc.displayGuiScreen(exit);
                 break;
         }
     }
@@ -173,7 +176,7 @@ public class GuiSettingsWindow extends GuiScreen
     private void goBack()
     {
         Core.saveConfiguration();
-        this.mc.displayGuiScreen(new GuiBendsMenu());
+        this.mc.displayGuiScreen(new GuiBendsMenu(exit));
     }
 
     @Override
@@ -214,10 +217,10 @@ public class GuiSettingsWindow extends GuiScreen
             final EntityPreview preview = previews.computeIfAbsent(bender, b -> new EntityPreview(previewWorld, b));
             bendsSettingsListUI.addElement(new GuiBenderSettings(bendsSettingsListUI, bender, preview, typeCount, () -> {
                 Core.saveConfiguration();
-                this.mc.displayGuiScreen(GuiOrderWindow.forTypes(bender));
+                this.mc.displayGuiScreen(GuiOrderWindow.forTypes(bender, exit));
             }, extensionCount, () -> {
                 Core.saveConfiguration();
-                this.mc.displayGuiScreen(GuiOrderWindow.forExtensions(bender));
+                this.mc.displayGuiScreen(GuiOrderWindow.forExtensions(bender, exit));
             }));
         }
     }

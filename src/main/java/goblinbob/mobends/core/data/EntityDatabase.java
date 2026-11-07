@@ -5,6 +5,7 @@ import goblinbob.mobends.core.client.preview.PreviewWorld;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.world.World;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,10 +85,12 @@ public class EntityDatabase
 
             LivingEntityData<?> entityData = entry.getValue();
             EntityLivingBase entityInData = entityData.getEntity();
-            // A preview (see PreviewWorld) is in its own world, for as long as that is open.
+            // A preview (see PreviewWorld) is in its own world, for as long as that is open. Out
+            // of a world (the menu opened from Forge's Mods list), only previews are left.
+            final World world = Minecraft.getMinecraft().world;
             Entity entity = entityInData.world instanceof PreviewWorld
                     ? entityInData.world.getEntityByID(entry.getKey())
-                    : Minecraft.getMinecraft().world.getEntityByID(entry.getKey());
+                    : world != null ? world.getEntityByID(entry.getKey()) : null;
             if (entity == null || entityInData != entity)
             {
                 EntityBenderRegistry.instance.clearCache(entityInData);

@@ -15,7 +15,6 @@ import goblinbob.mobends.core.supporters.AccessorySettings;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.util.Draw;
-import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.core.util.IColorRead;
 import goblinbob.mobends.core.util.UIScissorHelper;
 import net.minecraft.client.Minecraft;
@@ -106,10 +105,14 @@ public class GuiSupportersWindow extends GuiScreen
     @Nullable
     private Map<String, AccessorySettings> ownSettings;
     private int accessoryDetailsRevision;
+    /** Where leaving the Mo' Bends menus goes: the game (null), or the Mods list it was opened from. */
+    @Nullable
+    private final GuiScreen exit;
 
-    public GuiSupportersWindow()
+    public GuiSupportersWindow(@Nullable GuiScreen exit)
     {
         super();
+        this.exit = exit;
 
         fetchAccessories();
         if (SupporterContent.getAccessories().isEmpty())
@@ -326,7 +329,7 @@ public class GuiSupportersWindow extends GuiScreen
         switch (keyCode)
         {
             case 1:
-                GuiHelper.closeGui();
+                this.mc.displayGuiScreen(exit);
                 break;
         }
     }
@@ -339,7 +342,7 @@ public class GuiSupportersWindow extends GuiScreen
         switch (button.id)
         {
             case COMPONENT_BUTTON_BACK:
-                this.mc.displayGuiScreen(new GuiBendsMenu());
+                this.mc.displayGuiScreen(new GuiBendsMenu(exit));
                 break;
             case COMPONENT_BUTTON_SUPPORT:
                 WebLink.SUPPORT.open();

@@ -1,12 +1,12 @@
 package goblinbob.mobends.core.client.gui;
 
+import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
 import goblinbob.mobends.core.client.gui.popup.GuiPopUp;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
 import goblinbob.mobends.core.client.gui.supporterswindow.GuiSupportersWindow;
 import goblinbob.mobends.core.connection.MoBendsAccount;
 import goblinbob.mobends.core.util.Draw;
-import goblinbob.mobends.core.util.GuiHelper;
 import goblinbob.mobends.core.ModStatics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -14,9 +14,12 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.config.GuiConfig;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+
+import javax.annotation.Nullable;
 
 import java.io.IOException;
 
@@ -30,14 +33,25 @@ public class GuiBendsMenu extends GuiScreen
 	private static final int COMPONENT_BUTTON_LINK_ACCOUNT = 0;
 	private static final int COMPONENT_BUTTON_ACCOUNT = 1;
 	private static final int COMPONENT_BUTTON_LOG_OUT = 2;
+	private static final int COMPONENT_BUTTON_REFRESH = 3;
+	private static final int COMPONENT_BUTTON_MORE_SETTINGS = 4;
 	private static final int ACCOUNT_NAME_MAX_WIDTH = 120;
 	private GuiSectionButton settingsButton;
 	private GuiSectionButton customizeButton;
 	private GuiSectionButton supportersButton;
 	private GuiPopUp popUp;
+	/** Where leaving the Mo' Bends menus goes: the game (null), or the Mods list it was opened from. */
+	@Nullable
+	private final GuiScreen exit;
 
 	public GuiBendsMenu()
 	{
+		this(null);
+	}
+
+	public GuiBendsMenu(@Nullable GuiScreen exit)
+	{
+		this.exit = exit;
 		Keyboard.enableRepeatEvents(true);
 
 		this.settingsButton = new GuiSectionButton(I18n.format("mobends.gui.section.settings"), 0xFFDA3A00)
@@ -73,6 +87,22 @@ public class GuiBendsMenu extends GuiScreen
 		this.customizeButton.initGui((this.width - 318) / 2, startY + distance);
 		this.supportersButton.initGui((this.width - 318) / 2, startY + 2 * distance);
 		addAccountButtons();
+		addBottomLeftButtons();
+	}
+
+	/**
+	 * Refresh, which reloads the animation and refreshes the addons and modules (see
+	 * {@link CoreClient#refresh()}), and More Settings, Forge's screen for the mod's configuration.
+	 */
+	private void addBottomLeftButtons()
+	{
+		String refresh = I18n.format("mobends.gui.refresh");
+		int refreshWidth = this.fontRenderer.getStringWidth(refresh) + 20;
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_REFRESH, 10, this.height - 30, refreshWidth, 20, refresh));
+
+		String moreSettings = I18n.format("mobends.gui.more_settings");
+		int moreSettingsWidth = this.fontRenderer.getStringWidth(moreSettings) + 20;
+		this.buttonList.add(new GuiButton(COMPONENT_BUTTON_MORE_SETTINGS, 10 + refreshWidth + 5, this.height - 30, moreSettingsWidth, 20, moreSettings));
 	}
 
 	/** Link account, or once linked, the Mo' Bends account's name (opening the dashboard) and Log out. */
@@ -120,6 +150,14 @@ public class GuiBendsMenu extends GuiScreen
 				MoBendsAccount.logOut();
 				initGui();
 				break;
+			case COMPONENT_BUTTON_REFRESH:
+				CoreClient.refresh();
+				// The account is read again from disk.
+				initGui();
+				break;
+			case COMPONENT_BUTTON_MORE_SETTINGS:
+				mc.displayGuiScreen(new GuiConfig(this, ModStatics.MODID, ModStatics.NAME));
+				break;
 			default:
 				break;
 		}
@@ -135,7 +173,7 @@ public class GuiBendsMenu extends GuiScreen
 		switch (keyCode)
 		{
 			case 1:
-				GuiHelper.closeGui();
+				mc.displayGuiScreen(exit);
 				break;
 		}
 	}
@@ -174,7 +212,7 @@ public class GuiBendsMenu extends GuiScreen
 
 		if (settingsButton.mouseClicked(x, y, state))
 		{
-			mc.displayGuiScreen(new GuiSettingsWindow());
+			mc.displayGuiScreen(new GuiSettingsWindow(exit));
 		}
 		else if (customizeButton.mouseClicked(x, y, state))
 		{
@@ -183,7 +221,7 @@ public class GuiBendsMenu extends GuiScreen
 		}
 		else if (supportersButton.mouseClicked(x, y, state))
 		{
-			mc.displayGuiScreen(new GuiSupportersWindow());
+			mc.displayGuiScreen(new GuiSupportersWindow(exit));
 		}
 
 		try

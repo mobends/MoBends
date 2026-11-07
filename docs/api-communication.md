@@ -57,7 +57,7 @@ The API's spec is `docs/minecraft-link-api.md` in mobends-api.
 
 | Method | Path | When | Response |
 |--------|------|------|---------|
-| GET | `/api/asset/manifest` | Startup and F10, on a background thread | `AssetManifest` with asset list and base URL |
+| GET | `/api/asset/manifest` | Startup and the menu's Refresh button, on a background thread | `AssetManifest` with asset list and base URL |
 
 Assets are downloaded to `~/.minecraft/config/mobends/assets/` and compared by version hash. Manifest cached as `asset_manifest.json`.
 

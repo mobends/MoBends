@@ -148,6 +148,11 @@ public class GuiSectionButton
         GlStateManager.disableTexture2D();
         Draw.rectangle(x, y, width, height);
         GlStateManager.enableTexture2D();
+        // The background, icons and label have transparent pixels. Draw.rectangle turns blending
+        // off, and the screen under the menu may have left alpha testing off (Forge's Mods list does).
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.enableAlpha();
 
         float bgt = 1;
         if (this.hover)

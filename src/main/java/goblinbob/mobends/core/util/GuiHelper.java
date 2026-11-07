@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.util;
 
 import goblinbob.mobends.core.Core;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.init.SoundEvents;
@@ -10,11 +9,6 @@ import java.net.URI;
 
 public class GuiHelper
 {
-
-    public static void closeGui()
-    {
-        Minecraft.getMinecraft().displayGuiScreen(null);
-    }
 
     public static void playButtonSound(SoundHandler soundHandler)
     {

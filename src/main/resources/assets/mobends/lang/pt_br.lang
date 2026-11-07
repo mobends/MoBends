@@ -12,6 +12,8 @@ mobends.gui.link.title=Vincule sua conta do Minecraft
 mobends.gui.link.enter_code=No painel do Mo' Bends, escolha "Link through the mod" e digite o código exibido.
 mobends.gui.link.dashboard=Abrir painel
 mobends.gui.link.log_out=Sair
+mobends.gui.refresh=Recarregar animações
+mobends.gui.more_settings=Mais configurações
 mobends.gui.link.continue=Continuar
 mobends.gui.link.confirm=Vincular
 mobends.gui.link.retry=Tentar de novo
@@ -34,7 +36,6 @@ mobends.gui.link.error.connection=Não foi possível conectar ao servidor do Mo'
 
 key.categories.mobends=Mo' Bends
 key.mobends.menu=Menu do Mo' Bends
-key.mobends.refresh=Recarregar animações
 
 mobends.player=Jogador
 

@@ -12,6 +12,8 @@ mobends.gui.link.title=Koble til Minecraft-kontoen din
 mobends.gui.link.enter_code=Velg «Link through the mod» på Mo' Bends-dashbordet, og skriv inn koden som vises der.
 mobends.gui.link.dashboard=Åpne dashbordet
 mobends.gui.link.log_out=Logg ut
+mobends.gui.refresh=Last inn animasjonene på nytt
+mobends.gui.more_settings=Flere innstillinger
 mobends.gui.link.continue=Fortsett
 mobends.gui.link.confirm=Koble til
 mobends.gui.link.retry=Prøv igjen
@@ -34,7 +36,6 @@ mobends.gui.link.error.connection=Fikk ikke kontakt med Mo' Bends-serveren. Sjek
 
 key.categories.mobends=Mo' Bends
 key.mobends.menu=Mo' Bends-meny
-key.mobends.refresh=Last inn animasjonene på nytt
 
 mobends.player=Spiller
 
