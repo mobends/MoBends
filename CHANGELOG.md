@@ -4,12 +4,38 @@
 
 ### Added
 
+- Creepers, villagers, witches and iron golems are animated, with bending knees (and elbows for
+  the iron golem); a charged creeper's armour moves with it.
+- Zombie villagers are animated.
+- Players stand on their feet: standing still, the feet stay planted and they turn by stepping,
+  and stop with their feet where the walk or the sprint left them. In the sword's stance they stand
+  on their feet too, wide apart. Sneaking, the attacks themselves, aiming a bow and the rest pose
+  the legs as before.
+- Villagers stand on their feet, as iron golems do: standing, the feet stay planted on the ground
+  and they turn by stepping, with quick, light steps. They walk with a swing of the legs, and when
+  they stop, their feet stay where the walk left them, a foot left well out of place stepping
+  back under them. Witches, which move as villagers do, too. A villager's nose wobbles with each
+  step.
+- Zombies and zombie villagers stand on their feet too: standing, the feet stay planted and they
+  turn by stepping, heavily; they walk (or stumble) as before, and stop with their feet where the
+  walk left them. A leaning zombie stands crouched with its feet on the ground.
+- Iron golems jump: the push-off snaps their legs straight, they bend as the golem flies and the
+  heavy arms lag behind; landing, it gives under its weight. Jumping onto a block, the golem climbs
+  it: it plants its hands on the top, hauls itself up the side, gets a knee up and steps on.
+- The Legacy Mo' Bends resource pack brings back how players and zombies (and zombie villagers)
+  moved in Mo' Bends 1.X, without standing on their feet. It is a separate download, signed by
+  Mo' Bends, so it works on servers that refuse resource packs' animation too.
+- Armour made with GeckoLib (3, for 1.12.2) moves with the animation, as vanilla armour does,
+  bending at the elbows and knees; its own GeckoLib animation still plays. GeckoLib stays
+  optional, and `keepArmorAsVanilla` keeps a piece as GeckoLib draws it.
 - A *Supporters* entry in the Mo' Bends menu shows every supporter accessory on your own
   character, and which ones you have.
 - *Link account* in the Mo' Bends menu links your Minecraft account to your Mo' Bends account
   with a code from the dashboard, so your accessories follow you even after you rename it.
-- Creepers, villagers, witches and iron golems are animated, with bending knees (and elbows for
-  the iron golem); a charged creeper's armour moves with it.
+- Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
+  several apply to the same mob.
+- When an animation breaks, the chat says which one and why (once per animation), instead of the
+  mob silently standing still.
 - Mods and resource packs can add animations on top of a mob's own with extensions in
   `assets/<namespace>/bends/extensions/`, for example making players wave.
 - Mods and resource packs can give a mob, or a single player, a different model and animation with
@@ -21,32 +47,15 @@
   so mods and resource packs can change their geometry, layers and values without code.
 - A model definition can extend another and change only what differs, as the zombie villager and
   the pig zombie extend the zombie.
-- Mods can add their own animation logic to the JSON format: operations (values computed in Java,
-  such as whether a mob is wet) and drivers (posing computed in Java), registered from an addon.
-- Zombie villagers are animated.
-- Armour made with GeckoLib (3, for 1.12.2) moves with the animation, as vanilla armour does,
-  bending at the elbows and knees; its own GeckoLib animation still plays. GeckoLib stays
-  optional, and `keepArmorAsVanilla` keeps a piece as GeckoLib draws it.
-- Iron golems jump: the push-off snaps their legs straight, they bend as the golem flies and the
-  heavy arms lag behind; landing, it gives under its weight. Jumping onto a block, the golem climbs
-  it: it plants its hands on the top, hauls itself up the side, gets a knee up and steps on.
-- Villagers stand on their feet, as iron golems do: standing, the feet stay planted on the ground
-  and they turn by stepping, with quick, light steps. They walk with a swing of the legs, and when
-  they stop, their feet stay where the walk left them, a foot left well out of place stepping
-  back under them. Witches, which move as villagers do, too. A villager's nose wobbles with each
-  step.
-- Zombies and zombie villagers stand on their feet too: standing, the feet stay planted and they
-  turn by stepping, heavily; they walk (or stumble) as before, and stop with their feet where the
-  walk left them. A leaning zombie stands crouched with its feet on the ground.
-- The Legacy Mo' Bends resource pack brings back how players and zombies (and zombie villagers)
-  moved in Mo' Bends 1.X, without standing on their feet. It is a separate download, signed by
-  Mo' Bends, so it works on servers that refuse resource packs' animation too.
+- A server's own resource pack can add types and extensions too.
 - Resource packs signed by Mo' Bends are trusted as the mod is, under every server policy. The mod
   checks the signature itself, offline, with the keys it ships.
-- Players stand on their feet too: standing still, the feet stay planted and they turn by stepping,
-  and stop with their feet where the walk or the sprint left them. In the sword's stance they stand
-  on their feet too, wide apart. Sneaking, the attacks themselves, aiming a bow and the rest pose
-  the legs as before.
+- An animation can hand a mob back to its vanilla animation while a condition holds, for example
+  while swimming.
+- Entities that share a renderer, such as players, can each look different, one animated and the
+  next vanilla.
+- Mods can add their own animation logic to the JSON format: operations (values computed in Java,
+  such as whether a mob is wet) and drivers (posing computed in Java), registered from an addon.
 - `core:step_turn` can take over from a walk posed beneath it (`placeFromPose`): the feet are
   planted where the walk left them, and step back under the body if they are out of place.
   `crouchDrop` sets how quickly the hips go down for reach. The feet are taken where the legs are
@@ -68,50 +77,41 @@
   up ahead, with room on it. The iron golem looks ahead for a step as it walks, and climbs when it
   jumps close to one it is walking towards (a jump otherwise); it gives up early, mid-air, if it
   backs away from the ledge.
-- A server's own resource pack can add types and extensions too.
-- Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
-  several apply to the same mob.
-- An animation can hand a mob back to its vanilla animation while a condition holds, for example
-  while swimming.
-- Entities that share a renderer, such as players, can each look different, one animated and the
-  next vanilla.
-- When an animation breaks, the chat says which one and why (once per animation), instead of the
-  mob silently standing still.
 
 ### Changed
 
-- Every mob is animated from JSON animator files, which resource packs can replace.
 - Servers decide what resource packs may do to animation: allow it, limit how far it moves models
   (the default), or deny it; singleplayer always allows it.
 - Resource reloads (F3+T, or changing resource packs) pick up changed animations and models.
 - The mod's download is about 1 MB smaller (2.3 MB down to 1.3 MB).
-- Supporter accessories download in the background instead of on every resource reload.
 - The *Customize* entry of the Mo' Bends menu leads to the Mo' Bends website; it will open the new
   web animation editor once it is out.
+- Supporter accessories download in the background instead of on every resource reload.
+- Every mob is animated from JSON animator files, which resource packs can replace.
 
 ### Fixed
 
-- The Mo' Bends menu's settings (which mobs are animated, the orders) and the mod options in
-  Forge's mod options screen no longer overwrite each other in `config/mobends.cfg`.
-- The wolf's walk no longer lags one frame behind its movement.
-- Mo' Bends no longer keeps every entity it has seen in memory until you switch worlds.
-- Mobs that aren't animated no longer cost time on every frame.
-- Only the local player joining a world resets the server's settings, not every player that comes
-  into view.
-- Mo' Bends' messages appear in the game log, not only in the console.
 - *Perform Spin Attack* works: turned off, or while riding, the sword combo starts over instead of
   ending with the whirl.
-- The Italian, Norwegian, Polish and Portuguese translations load, and every translation covers
-  the whole mod.
-- Holding a sword no longer leaves face culling off for whatever renders next.
-- The right arm of zombies, skeletons and pig zombies is no longer slightly too deep.
 - The player's left shin shows the left leg's skin; it showed the right leg's, so a skin with
   different legs had its left shin swapped.
 - The skeleton's left arm and the zombie villager's body show their own skin, as in vanilla (the
   arm showed its skin back to front, and the villager a zombie's body over a villager's skin).
+- The right arm of zombies, skeletons and pig zombies is no longer slightly too deep.
 - Arrows stuck in an animated mob stay on its parts as they move, instead of floating at the
   parts' joints.
 - The squid's tentacles sit around its body where vanilla puts them.
+- The wolf's walk no longer lags one frame behind its movement.
+- Holding a sword no longer leaves face culling off for whatever renders next.
+- The Italian, Norwegian, Polish and Portuguese translations load, and every translation covers
+  the whole mod.
+- Mo' Bends no longer keeps every entity it has seen in memory until you switch worlds.
+- Mobs that aren't animated no longer cost time on every frame.
+- The Mo' Bends menu's settings (which mobs are animated, the orders) and the mod options in
+  Forge's mod options screen no longer overwrite each other in `config/mobends.cfg`.
+- Only the local player joining a world resets the server's settings, not every player that comes
+  into view.
+- Mo' Bends' messages appear in the game log, not only in the console.
 
 ### Removed
 
