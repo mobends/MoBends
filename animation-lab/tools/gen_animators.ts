@@ -618,6 +618,8 @@ const localOffsetZero = clip(PL("localoffset_zero"), {}, { smoothing: { localOff
 poseClip(join(CLIPS, "player", "localoffset_zero.json"), {}, { localOffset: [0, 0, 0] });
 
 
+/** Not in the locomotion's elytra node (playerSelect's condition for it), which poses the head itself. */
+const notElytraFlying = NOT(cmp("entityTicksElytraFlying", ">", 4));
 // --- sword slashes: baked clips, the look direction wrapped around the baked head part -------------------
 // Everything the bit computes with its hand multiplier is marked "@mirror"; the still-standing legs
 // are not (the bit poses them the same way for both hands).
@@ -630,10 +632,11 @@ function slashNode(name: string, clipname: string, byAttack: boolean, mainSmooth
                   { smoothing: { body: 1.11, leftArm: 3.33, leftForeArm: 3.33, rightForeArm: 3.33, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } })),
     mirrored(part(["rightArm"], { smoothing: { rightArm: mainSmoothing }, snap: mainSnap })),
     mirrored(part(["rightHeldItem"], { smoothing: itemSmoothing ? { rightHeldItem: itemSmoothing } : {}, snap: itemSnap })),
-    mirrored(headSmoothing ? withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: headSmoothing }) : drv("head", "X", "entityHeadPitch", { space: "override" })),
-    mirrored(part(["head"], { space: "pre" })),
+    // flying with an elytra the head keeps looking ahead along the flight, as the elytra node has it (#89)
+    alsoWhen(mirrored(headSmoothing ? withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: headSmoothing }) : drv("head", "X", "entityHeadPitch", { space: "override" })), notElytraFlying),
+    alsoWhen(mirrored(part(["head"], { space: "pre" })), notElytraFlying),
     // the head looks where the player looks, whichever hand swings: not mirrored
-    drv("head", "Y", "entityHeadYaw"),
+    alsoWhen(drv("head", "Y", "entityHeadYaw"), notElytraFlying),
     when(clip(PL(clipname + "_still"), { bones: ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"] }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillCond),
     when(mirrored(clip(PL(clipname + "_still"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), stillCond),
   ];
