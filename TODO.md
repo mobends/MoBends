@@ -24,8 +24,13 @@ accessory on the player. Its buttons open the `supportUrl` and `accountUrl` of
 ## Legacy Mo' Bends pack
 
 - [x] Add the `MOBENDS_PACK_SIGNING_KEY` secret, and have CI build the pack on release tags and
-      attach it to the GitHub release (`.github/workflows/legacy-pack.yml`).
-- [ ] Upload the pack to Modrinth and CurseForge from CI too.
+      attach it to the GitHub release (`.github/workflows/release.yml`).
+- [x] Have CI upload the pack to Modrinth and CurseForge (the `publish-legacy-pack` job of
+      `.github/workflows/release.yml`), switched off for now.
+- [ ] Once the pack has its Modrinth and CurseForge pages (around the alpha's release), set the
+      `LEGACY_PACK_MODRINTH_PROJECT_ID` and `LEGACY_PACK_CURSEFORGE_PROJECT_ID` repository variables
+      and switch the job back on: delete its `if: false`. Check the first upload on CurseForge,
+      where a resource pack takes no loader.
 
 ## Animations
 
