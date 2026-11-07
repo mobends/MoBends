@@ -6,7 +6,6 @@
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "https://mobends.com",
-  "updateJSON": "https://mobends.com/mod-update.json",
   "authorList": ["GoblinBob"],
   "credits": "Tommsy64 - coding support",
   "logoFile": "assets/mobends/textures/logo512.png",

@@ -10,7 +10,9 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = ModStatics.MODID, guiFactory = "goblinbob.mobends.standard.client.MoBendsGuiFactory")
+@Mod(modid = ModStatics.MODID,
+     guiFactory = "goblinbob.mobends.standard.client.MoBendsGuiFactory",
+     updateJSON = ModStatics.UPDATE_JSON_URL)
 public class MoBends
 {
     @SidedProxy(serverSide = "goblinbob.mobends.standard.main.CommonProxy",
