@@ -65,7 +65,12 @@ What does need a loader lives in its own package:
 | `goblinbob.mobends.neoforge` | NeoForge's entrypoint and `Platform`. Every file is fenced whole in `//? if neoforge {`. |
 
 When the loader-independent code needs something from the loader, add it to `Platform` and implement
-it in both loader packages. CI (`.github/scripts/check-sources.sh`) checks that no other package
+it in both loader packages. Hooks into the game are vanilla Mixins (`goblinbob.mobends.mixin`,
+`mobends.mixins.json`) wherever they can be, so they're written once for every loader.
+
+Fabric Loader alone doesn't put mods' assets in the resource manager (NeoForge does), so the Fabric
+jar bundles Fabric API's resource loader module and its base module, jar-in-jar
+(`build.fabric.gradle.kts`). Players don't need to install Fabric API; nothing else from it is used. CI (`.github/scripts/check-sources.sh`) checks that no other package
 uses a loader API, and that `src/` is committed with the default node active. Run it before
 pushing if you like.
 
