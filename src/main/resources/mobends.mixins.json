@@ -5,10 +5,17 @@
   "mixins": [],
   "client": [
     "AgeableListModelMixin",
+    "CapeLayerMixin",
+    "CustomHeadLayerMixin",
+    "ElytraLayerMixin",
     "GameRendererMixin",
+    "HumanoidArmorLayerMixin",
     "HumanoidModelMixin",
+    "ItemInHandLayerMixin",
     "LivingEntityRendererMixin",
     "MinecraftMixin",
+    "PlayerItemInHandLayerMixin",
+    "PlayerModelMixin",
     "PlayerRendererMixin"
   ],
   "injectors": {

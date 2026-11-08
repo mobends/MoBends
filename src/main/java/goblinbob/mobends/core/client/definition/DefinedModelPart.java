@@ -32,6 +32,8 @@ public class DefinedModelPart {
     final Vec3f position = new Vec3f();
     final List<MutatedBox> boxes = new ArrayList<>();
     final List<DefinedModelPart> children = new ArrayList<>();
+    /** A split bone's further segments, in order, which {@link #applyVanillaFrame} goes through; empty otherwise. */
+    final List<DefinedModelPart> segments = new ArrayList<>();
     /** The vanilla part's own children that are no bones, drawn as vanilla draws them, inside this part. */
     final List<ModelPart> vanillaChildren = new ArrayList<>();
     /** Where the vanilla children's frame is in this part's (see {@code BoneDefinition#pivot}), in model units. */
@@ -102,8 +104,49 @@ public class DefinedModelPart {
         }
     }
 
+    /**
+     * 1.12's {@code DefinedModelPart.postRender}: moves {@code poseStack}, at the model's pose, into
+     * the frame vanilla's part has, posed as the bone is, for what vanilla attaches to the part (a
+     * held item, a hat, the cape). That is the part's own frame, through its parents', then through
+     * each further segment, each turning about its joint and moving back by where the joint is, so
+     * whatever hangs off the end follows the last segment (a held item, the forearm); then back to
+     * where vanilla's part turns, if the bone turns elsewhere ({@code BoneDefinition#pivot}).
+     *
+     * @param nudgeX how far vanilla moves its part before turning it, in model units, in the
+     *               parent's frame (the slim player model's hand); usually 0
+     */
+    void applyVanillaFrame(PoseStack poseStack, DefinedEntityData<?> data, float nudgeX, float nudgeY, float nudgeZ) {
+        applyParentTransforms(poseStack, data, SCALE);
+        if (nudgeX != 0 || nudgeY != 0 || nudgeZ != 0) {
+            poseStack.translate(nudgeX * SCALE, nudgeY * SCALE, nudgeZ * SCALE);
+        }
+        applyLocalTransform(poseStack, data, SCALE);
+        for (DefinedModelPart segment : segments) {
+            segment.applyLocalTransform(poseStack, data, SCALE);
+            // Back by as much as applyLocalTransform moved it, so the two cancel at rest.
+            ModelPartTransform transform = segment.transformOf(data);
+            Vec3f at = transform != null ? transform.position : segment.position;
+            float scale = SCALE * (transform != null ? transform.offsetScale : 1);
+            poseStack.translate(-at.x * scale, -at.y * scale, -at.z * scale);
+        }
+        if (vanillaChildrenShift.x != 0 || vanillaChildrenShift.y != 0 || vanillaChildrenShift.z != 0) {
+            poseStack.translate(vanillaChildrenShift.x * SCALE, vanillaChildrenShift.y * SCALE, vanillaChildrenShift.z * SCALE);
+        }
+    }
+
+    /** Applies the part's own transform alone (in its parent's frame), as it is drawn. */
+    void applyLocalTransform(PoseStack poseStack, DefinedEntityData<?> data) {
+        applyLocalTransform(poseStack, data, SCALE);
+    }
+
     /** 1.12's {@code IModelPart.applyCharacterTransform}: the global offset, the parents' transforms, then its own. */
     private void applyCharacterTransform(PoseStack poseStack, DefinedEntityData<?> data, float scale) {
+        applyParentTransforms(poseStack, data, scale);
+        applyLocalTransform(poseStack, data, scale);
+    }
+
+    /** The first half of {@link #applyCharacterTransform}: the global offset and the parents' transforms. */
+    private void applyParentTransforms(PoseStack poseStack, DefinedEntityData<?> data, float scale) {
         ModelPartTransform transform = transformOf(data);
         if (transform != null) {
             Vec3f globalOffset = transform.globalOffset;
@@ -114,7 +157,6 @@ public class DefinedModelPart {
         if (parent != null) {
             parent.applyCharacterTransform(poseStack, data, scale * (transform != null ? transform.offsetScale : 1));
         }
-        applyLocalTransform(poseStack, data, scale);
     }
 
     /**
@@ -196,7 +238,7 @@ public class DefinedModelPart {
      * ({@code GlHelper.rotate}, the usual one for a unit quaternion, laid out column by column),
      * which is the matrix JOML makes of the same x, y, z, w, so the components carry over as they are.
      */
-    static Quaternionf toJoml(Quaternion q) {
+    public static Quaternionf toJoml(Quaternion q) {
         return new Quaternionf(q.x, q.y, q.z, q.w);
     }
 }

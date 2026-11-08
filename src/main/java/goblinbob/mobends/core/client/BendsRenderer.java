@@ -108,27 +108,41 @@ public final class BendsRenderer {
      */
     private static boolean renderModel(DefinedEntityData<?> data, EntityModel<?> model, Matrix4fc entityFrame, float bodyYaw, PoseStack poseStack,
                                       VertexConsumer consumer, int packedLight, int packedOverlay, int color) {
-        EntityModelDefinition definition = data.getDefinition();
-        if (definition.model != null) {
-            Class<?> modelClass = VanillaNames.modelClass(definition.model);
-            if (modelClass == null || !modelClass.isInstance(model)) {
-                return false;
-            }
-        }
-        DefinedModel parts = DefinedModel.of(definition, model);
+        DefinedModel parts = partsFor(data, model);
         if (parts == null) {
             return false;
-        }
-        // The positions read off this model: the entity's other model (a player's slim one, once
-        // the skin is known) has its own.
-        if (!data.hasAdoptedPositionsOf(parts)) {
-            data.adoptPositions(parts, parts.positions());
         }
         poseStack.pushPose();
         DefinedRenderer.transformModel(data, model, poseStack, entityFrame, bodyYaw);
         parts.render(data, poseStack, consumer, packedLight, packedOverlay, color);
         poseStack.popPose();
         return true;
+    }
+
+    /**
+     * The bent parts for {@code model}, the entity's model, with the data's positions read off it.
+     *
+     * @return null if the model isn't one the definition bends, to draw it (and what hangs off it) as vanilla does
+     */
+    @Nullable
+    static DefinedModel partsFor(DefinedEntityData<?> data, EntityModel<?> model) {
+        EntityModelDefinition definition = data.getDefinition();
+        if (definition.model != null) {
+            Class<?> modelClass = VanillaNames.modelClass(definition.model);
+            if (modelClass == null || !modelClass.isInstance(model)) {
+                return null;
+            }
+        }
+        DefinedModel parts = DefinedModel.of(definition, model);
+        if (parts == null) {
+            return null;
+        }
+        // The positions read off this model: the entity's other model (a player's slim one, once
+        // the skin is known) has its own.
+        if (!data.hasAdoptedPositionsOf(parts)) {
+            data.adoptPositions(parts, parts.positions());
+        }
+        return parts;
     }
 
     /**

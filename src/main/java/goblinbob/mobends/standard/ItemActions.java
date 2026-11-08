@@ -30,12 +30,16 @@ public final class ItemActions {
         return HumanoidModel.ArmPose.ITEM;
     }
 
-    /** How {@code stack}, the item in use, is used; null for no item. */
+    /**
+     * How {@code stack}, the item in use, is used; null for no item, or one used in a way the
+     * animators have no pose for.
+     */
     public static UseActionType getItemUseAction(ItemStack stack, HumanoidModel.ArmPose armPoseMain, HumanoidModel.ArmPose armPoseOff) {
         if (stack.isEmpty()) {
             return null;
         }
-        if (stack.has(DataComponents.FOOD)) {
+        UseAnim animation = stack.getUseAnimation();
+        if (stack.has(DataComponents.FOOD) || animation == UseAnim.EAT || animation == UseAnim.DRINK) {
             return UseActionType.FOOD;
         }
         if (stack.getItem() instanceof BowItem || armPoseMain == HumanoidModel.ArmPose.BOW_AND_ARROW || armPoseOff == HumanoidModel.ArmPose.BOW_AND_ARROW) {
@@ -44,8 +48,10 @@ public final class ItemActions {
         if (armPoseMain == HumanoidModel.ArmPose.BLOCK || armPoseOff == HumanoidModel.ArmPose.BLOCK) {
             return UseActionType.SHIELD;
         }
-        // Anything else in use (a potion) is taken as food, the closest of the three.
-        return UseActionType.FOOD;
+        // 1.12 took anything else in use as food, as only food and drinks were left. The items added
+        // since (spyglass, goat horn, brush, crossbow, trident) aren't eaten: none of the three fits
+        // them, so they keep the pose the entity is otherwise in.
+        return null;
     }
 
     /** How {@code stack}, the item in the main hand, attacks. */
