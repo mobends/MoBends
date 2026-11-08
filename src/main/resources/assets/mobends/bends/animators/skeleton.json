@@ -5,6 +5,7 @@
   "layers": [
     {
       "@when": {"and": ["animator.walking", "entityIsStrafing"]},
+      "@fade": 2,
       "defaultOnEntry": "strafe",
       "nodes": {
         "strafe": {

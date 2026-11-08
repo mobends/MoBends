@@ -242,6 +242,53 @@ public class KumoAnimatorStateTest
     }
 
     @Test
+    public void aLayerFadesInAndOutWithItsWhen() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'base', 'nodes': {'base': {" + movesArm("0") + "}}}, "
+                + "{'@when': 'GO', '@fade': 4, 'defaultOnEntry': 'up', 'nodes': {'up': {" + movesArm("10") + "}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        subject.states.put("GO", false);
+        animator.update(subject, 1F);
+        assertEquals(0, subject.offsets.get("arm").x, 1e-4F);
+        subject.states.put("GO", true);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        // Half way in: half of the way from the layer below.
+        assertEquals(5, subject.offsets.get("arm").x, 1e-4F);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        assertEquals(10, subject.offsets.get("arm").x, 1e-4F);
+        subject.states.put("GO", false);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        assertEquals(5, subject.offsets.get("arm").x, 1e-4F);
+        animator.update(subject, 1F);
+        animator.update(subject, 1F);
+        assertEquals(0, subject.offsets.get("arm").x, 1e-4F);
+    }
+
+    @Test
+    public void aLayerThatComesBackStartsOver() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'@when': 'GO', 'defaultOnEntry': 'a', 'nodes': {'a': {"
+                + movesArm("'nodeTicksElapsed'") + "}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        subject.states.put("GO", true);
+        for (int frame = 0; frame < 3; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertEquals(2, subject.offsets.get("arm").x, 1e-4F);
+        subject.states.put("GO", false);
+        animator.update(subject, 1F);
+        assertEquals(0, subject.offsets.get("arm").x, 1e-4F);
+        subject.states.put("GO", true);
+        animator.update(subject, 1F);
+        // Its node starts over, rather than going on from where it paused (3).
+        assertEquals(0, subject.offsets.get("arm").x, 1e-4F);
+    }
+
+    @Test
     public void anUnknownBareNameFailsTheAnimatorWhenItLoads()
     {
         // Read only by a node the layer never reaches, and only in a connection: still an error.

@@ -41,6 +41,8 @@ public class LayerState
     private final ArmatureMask mask;
     private final Skeleton skeleton;
     private final Expression when;
+    /** Ticks the layer takes to fade in when its "when" starts holding, and out when it stops. */
+    private final float fade;
     /** The layer's definitions and statement lists. */
     private final ScopeLists lists;
     // Sized by allocate(), once every layer of the animator has registered its bones.
@@ -58,12 +60,14 @@ public class LayerState
     // still fades out (it is disposed when the last is); and per node fading out, oldest first, its
     // index (-1: frozen) and the easing of the transition out of it (into the next one, or the
     // current node).
-    private final int currentSlot, fadingCountSlot, justStartedSlot, enabledSlot, pendingExitSlot, fadingNodeSlot, fadingEasingSlot;
-    // Floats: the layer's clock; per node fading out, the progress and duration of the transition out of it.
-    private final int elapsedSlot, fadingProgressSlot, fadingDurationSlot;
+    private final int currentSlot, fadingCountSlot, justStartedSlot, enabledSlot, offSlot, pendingExitSlot, fadingNodeSlot, fadingEasingSlot;
+    // Floats: the layer's clock and its weight (how far it is faded in; -1 before its first frame);
+    // per node fading out, the progress and duration of the transition out of it.
+    private final int elapsedSlot, weightSlot, fadingProgressSlot, fadingDurationSlot;
     // Pose buffers: the current node's pose, each fading node's (as it was last posed), the blend
-    // (what is on screen, once the layer is posed) and a scratch copy for blending.
-    private final int currentPose, blendPose, scratchPose;
+    // (what is on screen, once the layer is posed), a scratch copy for blending and, for a layer
+    // with a "when", the layer faded in or out (-1 for none).
+    private final int currentPose, blendPose, scratchPose, weightedPose;
     private final int[] fadingPoses = new int[MAX_FADING];
 
     public LayerState(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layerTemplate) throws MalformedKumoTemplateException
@@ -82,6 +86,11 @@ public class LayerState
         context = context.withScope(place);
         this.lists = ScopeLists.compile(definitions, layerTemplate.on, place);
         this.when = Expression.compileCondition(layerTemplate.when, place);
+        if (layerTemplate.fade < 0 || Float.isNaN(layerTemplate.fade))
+        {
+            throw new MalformedKumoTemplateException("A layer's \"@fade\" is a number of ticks, 0 or more.");
+        }
+        this.fade = layerTemplate.fade;
 
         Map<String, MachineMember> membersByName = new HashMap<>();
         this.machine = new MachineState(context, skeleton, layerTemplate, layerTemplate, membersByName);
@@ -94,15 +103,18 @@ public class LayerState
         this.fadingCountSlot = layout.ints(1, 0);
         this.justStartedSlot = layout.ints(1, 0);
         this.enabledSlot = layout.ints(1, 1);
+        this.offSlot = layout.ints(1, 0);
         this.pendingExitSlot = layout.ints(machines.size(), 0);
         this.fadingNodeSlot = layout.ints(MAX_FADING, -1);
         this.fadingEasingSlot = layout.ints(MAX_FADING, ConnectionTemplate.Easing.EASE_IN_OUT_QUAD.ordinal());
         this.elapsedSlot = layout.floats(1, 0);
+        this.weightSlot = layout.floats(1, -1);
         this.fadingProgressSlot = layout.floats(MAX_FADING, 0);
         this.fadingDurationSlot = layout.floats(MAX_FADING, 0);
         this.currentPose = layout.pose();
         this.blendPose = layout.pose();
         this.scratchPose = layout.pose();
+        this.weightedPose = when == null ? -1 : layout.pose();
         for (int k = 0; k < MAX_FADING; k++)
         {
             fadingPoses[k] = layout.pose();
@@ -183,12 +195,19 @@ public class LayerState
      */
     public void start(IKumoContext context) throws MalformedKumoTemplateException
     {
-        context.enterNode(current(context).node);
-        lists.enter(context);
         if (when != null)
         {
             when.restart(context);
         }
+        enterLayer(context);
+    }
+
+    /** Enters the layer: its definitions and {@code enter} list, then its machine, down to a node (see {@link #start}). */
+    private void enterLayer(IKumoContext context) throws MalformedKumoTemplateException
+    {
+        context.getState().floats[elapsedSlot] = 0;
+        context.enterNode(current(context).node);
+        lists.enter(context);
         List<MachineState> entered = new ArrayList<>();
         moveTo(descend(enter(machine, context, entered), context, entered), context);
         context.enterNode(current(context).node);
@@ -196,7 +215,30 @@ public class LayerState
         context.getState().ints[justStartedSlot] = 1;
     }
 
-    /** Ticks elapsed since the layer started. */
+    /**
+     * Leaves the layer, once its "when" has stopped holding and it has faded out: the nodes fading
+     * out, the current node, the machines around it and the layer itself are disposed (their
+     * {@code exit} lists run), innermost first.
+     */
+    private void leaveLayer(IKumoContext context)
+    {
+        EntityState state = context.getState();
+        dropFading(state.ints[fadingCountSlot], context);
+        MachineMember current = current(context);
+        exit(current, context);
+        for (int i = current.path.size() - 1; i >= 0; i--)
+        {
+            exitMachine(current.path.get(i), context);
+        }
+        for (MachineState machine : machines)
+        {
+            if (state.ints[pendingExitSlot + machine.index] != 0) exitMachine(machine, context);
+        }
+        context.enterNode(current.node);
+        lists.exit(context);
+    }
+
+    /** Ticks elapsed since the layer started (or, with a "when", last came back). */
     public float getElapsedTicks(ITriggerConditionContext context)
     {
         return context.getState().floats[elapsedSlot];
@@ -259,10 +301,33 @@ public class LayerState
 
         boolean enabled = when == null || when.test(context);
         state.ints[enabledSlot] = enabled ? 1 : 0;
-        if (!enabled)
+        float weight = 1F;
+        if (when != null)
         {
-            // Disabled: the layer writes nothing and its clocks pause.
-            return;
+            // The layer fades in while its "when" holds and out while it doesn't (at once on its
+            // first frame, or with no fade). Faded out, it is left, and writes nothing; it starts
+            // over when it comes back.
+            weight = state.floats[weightSlot];
+            if (weight < 0 || fade <= 0) weight = enabled ? 1F : 0F;
+            else weight = Math.max(0F, Math.min(1F, weight + (enabled ? deltaTime : -deltaTime) / fade));
+            state.floats[weightSlot] = weight;
+            if (weight <= 0)
+            {
+                if (state.ints[offSlot] == 0)
+                {
+                    leaveLayer(context);
+                    state.ints[offSlot] = 1;
+                }
+                return;
+            }
+            if (state.ints[offSlot] != 0)
+            {
+                state.ints[offSlot] = 0;
+                enterLayer(context);
+                starting = true;
+                state.ints[justStartedSlot] = 0;
+            }
+            context.enterNode(current(context).node);
         }
 
         // 1. Transitions are decided before posing, so a state change shows up on the frame it happens.
@@ -330,7 +395,26 @@ public class LayerState
             result = blend;
         }
 
-        // 4. Composite onto the animator pose.
+        // 4. Composite onto the animator pose, faded in as far as the layer is: a crossfade with
+        // nothing (the layers below), whose smoothing and snapping follow the side fading in.
+        if (weight < 1F)
+        {
+            Pose nothing = state.poses[weightedPose];
+            Pose layer = state.poses[scratchPose];
+            nothing.clear();
+            layer.set(result);
+            float shown = ease(weight, ConnectionTemplate.Easing.EASE_IN_OUT_QUAD.ordinal());
+            if (enabled)
+            {
+                crossfade(nothing, layer, shown, animatorPose);
+                result = nothing;
+            }
+            else
+            {
+                crossfade(layer, nothing, 1F - shown, animatorPose);
+                result = layer;
+            }
+        }
         composite(result, animatorPose);
 
         // 5. Advance clocks; a transition that has ended leaves the nodes before it.

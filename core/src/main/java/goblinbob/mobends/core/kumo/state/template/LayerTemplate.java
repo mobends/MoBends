@@ -12,8 +12,14 @@ public class LayerTemplate extends MachineTemplate
     /** Default smoothing for bones this layer writes; nodes can override per bone. */
     public SmoothingTemplate smoothing;
 
-    /** Optional condition; while it does not hold the layer writes nothing (bones hold their targets). */
+    /**
+     * Optional condition: the layer is posed while it holds. When it stops, the layer fades out over
+     * {@link #fade} ticks and is left; when it holds again, the layer starts over and fades in.
+     */
     public ExpressionTemplate when;
+
+    /** Ticks the layer takes to fade in and out with its {@link #when} (0: at once). */
+    public float fade;
 
     /** Left-right mirroring rule for items that set {@code "@mirror": true}. */
     public MirrorTemplate mirror;

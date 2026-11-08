@@ -20,6 +20,9 @@
 
 ### Changed
 
+- Animation layers that switch on and off (sneaking, holding a torch, a skeleton strafing, a zombie
+  pigman's slash and stance) fade in and out instead of jumping, and start their animation over
+  when they come back. Animators set how long with a layer's `@fade` (ticks).
 - A transition that interrupts another no longer freezes the animation fading out: it keeps
   moving (looking around, walking) until it has faded. A node that starts over (a transition to
   itself with a duration) fades from where it was instead of jumping.

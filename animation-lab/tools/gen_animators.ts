@@ -279,7 +279,7 @@ const skeleton: Obj = {
   formatVersion: 2,
   extends: "mobends:bends/animators/biped.json",
   layers: [
-    { "@when": AND("animator.walking", state("entityIsStrafing")), defaultOnEntry: "strafe", nodes: { strafe: poseNode([
+    { "@when": AND("animator.walking", state("entityIsStrafing")), "@fade": 2, defaultOnEntry: "strafe", nodes: { strafe: poseNode([
           clip(S("strafe_base"), { frame: limbFrame }, { smoothing: { rightLeg: 1, leftLeg: 1 } }),
           clip(S("strafe_swing"), { frame: limbFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
         ]) } },
@@ -306,13 +306,13 @@ const pigZombie: Obj = {
   formatVersion: 2,
   extends: "mobends:bends/animators/biped.json",
   layers: [
-    { "@when": OR("animator.standing", "animator.walking"), defaultOnEntry: "hunch", nodes: { hunch: poseNode([
+    { "@when": OR("animator.standing", "animator.walking"), "@fade": 2, defaultOnEntry: "hunch", nodes: { hunch: poseNode([
           clip(P("pose_post"), {}, { space: "post" }),
           clip(P("pose_pre"), {}, { space: "pre" }),
           clip(P("stand_offset"), {}, { when: "animator.standing", smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "retarget" } }),
           clip(P("walk_bob"), { frame: limbFrame }, { when: "animator.walking", smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "retarget" } }),
         ]) } },
-    { "@when": cmp("entitySwingProgress", ">", 0), defaultOnEntry: "slash",
+    { "@when": cmp("entitySwingProgress", ">", 0), "@fade": 1, defaultOnEntry: "slash",
       mirror: { "@when": state("entityIsLeftHanded"),
                 pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
                         ["leftHeldItem", "rightHeldItem"]] },
@@ -903,7 +903,7 @@ const fistsMachine: Obj = {
 };
 
 // Idle only until the first item or attack: nothing leads back to it.
-const actionLayer: Obj = { "@when": NOT(state("entityIsSleeping")), defaultOnEntry: "idle",
+const actionLayer: Obj = { "@when": NOT(state("entityIsSleeping")), "@fade": 2, defaultOnEntry: "idle",
                            select: [...useBranches, attackBranch],
                            nodes: { idle: poseNode([]), tool, ...useNodes() },
                            machines: { sword: swordMachine, fists: fistsMachine },
@@ -982,14 +982,14 @@ const player: Obj = {
     { defaultOnEntry: "reset", nodes: { reset: poseNode([clip(PL("reset_items"), {}, { smoothing: { rightHeldItem: 3.33, leftHeldItem: 3.33 } })]) } },
     { select: playerSelect, nodes },
     // sneaking overlay on the ground states
-    { "@when": AND(state("entityIsSneaking"), groundAction), defaultOnEntry: "sneak", nodes: { sneak: poseNode([
+    { "@when": AND(state("entityIsSneaking"), groundAction), "@fade": 2, defaultOnEntry: "sneak", nodes: { sneak: poseNode([
           clip(PL("sneak_base"), { frame: limbFrame }, { smoothing: { rightLeg: 1, leftLeg: 1, rightArm: 1.25, leftArm: 1.25, root: [null, 1.67, null], center: 3.33 }, vectorModes: { root: "retarget", center: "slide" } }),
           clip(PL("sneak_forelegs"), { frame: limbFrame }, { smoothing: { leftForeLeg: 3.33, rightForeLeg: 3.33 } }),
           clip(PL("sneak_swing"), { frame: limbFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
           clip(PL("sneak_body"), { frame: limbFrame }, { space: "post" }),
         ]) } },
     // torch holding while standing or walking (not sprinting)
-    { "@when": AND(OR("animator.standing", "animator.walking"), OR(torchMain, torchOff)), defaultOnEntry: "torch", nodes: { torch: poseNode([
+    { "@when": AND(OR("animator.standing", "animator.walking"), OR(torchMain, torchOff)), "@fade": 2, defaultOnEntry: "torch", nodes: { torch: poseNode([
           // the main hand holds the torch if it has one, else the off hand; the arm follows the primary hand
           ...torchArm("right").map((x) => when(x, AND(torchMain, NOT(state("entityIsLeftHanded"))))),
           ...torchArm("left").map((x) => when(x, AND(torchMain, state("entityIsLeftHanded")))),
@@ -1135,7 +1135,7 @@ const spider: Obj = { formatVersion: 2, layers: [{ "@define": { resetLimbs: vari
 
 // the skeleton's controller runs the biped action controller as well: bow, sword, tool, fists
 const skeletonActions = structuredClone(actionLayer);
-delete skeletonActions["@when"]; // only players sleep
+delete skeletonActions["@when"]; delete skeletonActions["@fade"]; // only players sleep
 // Only players whirl: the skeleton's combo is the first four slashes, starting over after the fourth.
 const skeletonSword = skeletonActions.machines.sword;
 delete skeletonSword.nodes.slash_whirl;

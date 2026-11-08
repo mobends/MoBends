@@ -36,8 +36,10 @@ the pose they are drawn in changed only where the animators no longer turn them 
 body's bend, or turn them with it on purpose. When poses became declarative (a bone nothing writes
 goes back to rest), the player's ladder and riding goldens (the mod's and the legacy pack's) and
 the spider's were re-recorded: the original code left the ladder's lean, the riding dip and the
-spider's sway where the last node put them, and the spider's head still while it jumped. Every
-other golden is the original code's output.
+spider's sway where the last node put them, and the spider's head still while it jumped. The
+scenarios where a layer switches on or off (the player's sneak, torch and action layers, the
+skeleton's strafe, the zombie pigman's stance and slash) were re-recorded when those layers got a
+`@fade`. Every other golden is the original code's output.
 
 The Legacy Mo' Bends pack (`misc/legacy-pack`) is a snapshot of the player's, the zombie's and the
 zombie villager's animators without the layer that stands them on their feet, with their model
