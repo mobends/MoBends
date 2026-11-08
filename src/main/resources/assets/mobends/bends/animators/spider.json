@@ -16,6 +16,7 @@
       ],
       "nodes": {
         "idle": {
+          "@define": {"groundLevel": {"state": 0}},
           "core:pose": {
             "pose": [
               {
@@ -51,10 +52,10 @@
                 "@vectorModes": {"localOffset": "slide"}
               }
             ]
-          },
-          "@define": {"groundLevel": {"state": 0}}
+          }
         },
         "move": {
+          "@define": {"groundLevel": {"state": 0}},
           "core:pose": {
             "pose": [
               {
@@ -99,8 +100,7 @@
                 "@vectorModes": {"localOffset": "slide"}
               }
             ]
-          },
-          "@define": {"groundLevel": {"state": 0}}
+          }
         },
         "jump": {
           "core:pose": {
@@ -315,6 +315,7 @@
           }
         },
         "death": {
+          "@define": {"wiggleSpeed": {"state": 1}, "wigglePhase": {"state": 0}},
           "core:pose": {
             "pose": [
               {"core:accumulate": {"inout": "node.wiggleSpeed", "rate": -0.1, "min": 0}},
@@ -358,8 +359,7 @@
                 "@space": "pre"
               }
             ]
-          },
-          "@define": {"wiggleSpeed": {"state": 1}, "wigglePhase": {"state": 0}}
+          }
         }
       }
     }

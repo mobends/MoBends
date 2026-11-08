@@ -411,13 +411,27 @@ const pSprint: Obj = poseNode([
   ]);
 
 /**
+ * The locomotion's elytra node: flying with an elytra, past the first ticks of the glide. A live
+ * definition of every animator whose layers read it (the player's, and the skeleton's, which runs
+ * the player's action layer): read as {@code animator.elytraFlying}.
+ */
+const elytraFlyingDefinition = { elytraFlying: live(cmp("entityTicksElytraFlying", ">", 4)) };
+const elytraFlying = "animator.elytraFlying";
+/**
+ * The locomotion leaves the head to the action layer: in every node but the elytra one, which keeps
+ * it looking ahead along the flight. An action that turns the head to the look direction (a slash,
+ * a tool swing) does so only then (#89).
+ */
+const locomotionLeavesHead = NOT(elytraFlying);
+
+/**
  * The PlayerController decision tree: the first state that applies, most important first (see
  * misc/kumo-format.md, "Selectors").
  */
 const playerSelect: Obj[] = [
   { when: state("entityIsSleeping"), then: "sleeping" },
   { when: state("entityIsRiding"), then: [{ when: state("entityIsRidingLiving"), then: "riding" }, { then: "sitting" }] },
-  { when: cmp("entityTicksElytraFlying", ">", 4), then: "elytra" },
+  { when: elytraFlying, then: "elytra" },
   { when: state("entityIsClimbing"), then: "ladder" },
   { when: state("entityIsInWater"), then: "swimming" },
   { when: "animator.jumping", then: [
@@ -630,10 +644,10 @@ function slashNode(name: string, clipname: string, byAttack: boolean, mainSmooth
                   { smoothing: { body: 1.11, leftArm: 3.33, leftForeArm: 3.33, rightForeArm: 3.33, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } })),
     mirrored(part(["rightArm"], { smoothing: { rightArm: mainSmoothing }, snap: mainSnap })),
     mirrored(part(["rightHeldItem"], { smoothing: itemSmoothing ? { rightHeldItem: itemSmoothing } : {}, snap: itemSnap })),
-    mirrored(headSmoothing ? withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: headSmoothing }) : drv("head", "X", "entityHeadPitch", { space: "override" })),
-    mirrored(part(["head"], { space: "pre" })),
+    alsoWhen(mirrored(headSmoothing ? withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: headSmoothing }) : drv("head", "X", "entityHeadPitch", { space: "override" })), locomotionLeavesHead),
+    alsoWhen(mirrored(part(["head"], { space: "pre" })), locomotionLeavesHead),
     // the head looks where the player looks, whichever hand swings: not mirrored
-    drv("head", "Y", "entityHeadYaw"),
+    alsoWhen(drv("head", "Y", "entityHeadYaw"), locomotionLeavesHead),
     when(clip(PL(clipname + "_still"), { bones: ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"] }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillCond),
     when(mirrored(clip(PL(clipname + "_still"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), stillCond),
   ];
@@ -654,10 +668,12 @@ const slashes: Record<string, Obj> = {
   slash_down: slashNode("attack_slash_down", "slash_down", false, 3.33, true, 1.11, stillNotRiding, null, true, [drv("head", "Y", null, { const: -30 })]),
   slash_outward: slashNode("attack_slash_outward", "slash_outward", false, 3.33, true, 1.11, stillNotRiding, null, true, [drv("head", "Y", null, { const: -30 })]),
 };
-// the whirl: head unsmoothed, render rotation snapped, the global offset always dips
-const whirl = slashNode("attack_whirl_slash", "slash_whirl", true, 3.33, true, null, state("entityIsStandingStill"), 1.11, false);
-poseOf(whirl)[poseOf(whirl).length - 1] = when(clip(PL("slash_whirl_still"), {}, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33 } }), state("entityIsStandingStill"));
-poseOf(whirl).splice(3, 0, clip(PL("slash_whirl"), { bones: ["root"], frame: tAA }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "slide" } }));
+// the whirl: head unsmoothed, render rotation snapped, the global offset dips moving too. A rider
+// can't start one (animator.canSpinAttack), but can mount during one: the crouch and the dip then
+// stop, or the legs would go through the mount (#238).
+const whirl = slashNode("attack_whirl_slash", "slash_whirl", true, 3.33, true, null, stillNotRiding, 1.11, false);
+poseOf(whirl)[poseOf(whirl).length - 1] = when(clip(PL("slash_whirl_still"), {}, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33 } }), stillNotRiding);
+poseOf(whirl).splice(3, 0, when(clip(PL("slash_whirl"), { bones: ["root"], frame: tAA }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), NOT(state("entityIsRiding"))));
 poseOf(whirl).splice(4, 0, clip(PL("slash_whirl"), { bones: ["renderRotation"], frame: tAA }, { snap: true }));
 slashes.slash_whirl = whirl;
 for (const node of Object.values(slashes)) {
@@ -723,6 +739,7 @@ poseClip(join(CLIPS, "player", "punch_left_pre.json"), { leftArm: rotations(["Y"
 // either fist), and the head went with it.
 poseClip(join(CLIPS, "player", "punch_still_head.json"), { head: rotations(["Y", -20]) });
 poseClip(join(CLIPS, "player", "punch_left_still.json"), { body: rotations(), renderRotation: rotations(["Y", -20]) });
+// The still-standing parts (crouched legs, lowered root, turned model) only off a mount, as the slashes (#238).
 function punchNode(side: string): Obj {
   const [arm, other] = side === "right" ? ["rightArm", "leftArm"] : ["leftArm", "rightArm"];
   const [fore, otherFore] = [arm.replace("Arm", "ForeArm"), other.replace("Arm", "ForeArm")];
@@ -730,9 +747,9 @@ function punchNode(side: string): Obj {
     clip(PL(`punch_${side}_abs`), {}, { smoothing: { [arm]: 1.11, [other]: 3.33, [fore]: 1.11, [otherFore]: 3.33, body: 1.67 } }),
     drv(arm, "X", "entityHeadPitch", { offset: -90 }),
     clip(PL(`punch_${side}_pre`), {}, { space: "pre" }),
-    when(clip(PL("punch_still"), {}, { smoothing: { rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), state("entityIsStandingStill")),
-    when(clip(PL(`punch_${side}_still`), {}, { smoothing: { body: 1.67 } }), state("entityIsStandingStill")),
-    when(clip(PL("punch_still_head"), {}, { space: "pre" }), state("entityIsStandingStill")),
+    when(clip(PL("punch_still"), {}, { smoothing: { rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillNotRiding),
+    when(clip(PL(`punch_${side}_still`), {}, { smoothing: { body: 1.67 } }), stillNotRiding),
+    when(clip(PL("punch_still_head"), {}, { space: "pre" }), stillNotRiding),
   ]);
 }
 poseClip(join(CLIPS, "player", "fist_guard_abs.json"), {
@@ -742,12 +759,13 @@ poseClip(join(CLIPS, "player", "fist_guard_abs.json"), {
   rightForeArm: rotations(["X", -80]), leftForeArm: rotations(["X", -80]) }, { root: [0, -2, 0] });
 poseClip(join(CLIPS, "player", "fist_guard_pre.json"), { body: rotations(["X", 10]), head: onBody(rotations(["X", 10]), rotations(["X", -10], ["Y", -20])) });
 const fistGuardBones = ["rightArm", "leftArm", "rightForeArm", "leftForeArm", "rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg", "root"];
+// Standing still, not riding: on a mount the crouched legs and the lowered root would go through it (#238).
 const fistGuard: Obj = poseNode([
   when(clip(PL("fist_guard_abs"), { bones: fistGuardBones }, { smoothing: { rightArm: 3.33, leftArm: 3.33, rightForeArm: 3.33, leftForeArm: 3.33,
-                                                                              rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), state("entityIsStandingStill")),
-  when(mirrored(clip(PL("fist_guard_abs"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), state("entityIsStandingStill")),
-  when(clip(PL("fist_guard_pre"), { bones: ["body"] }, { space: "pre" }), state("entityIsStandingStill")),
-  when(mirrored(clip(PL("fist_guard_pre"), { bones: ["head"] }, { space: "pre" })), state("entityIsStandingStill")),
+                                                                              rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillNotRiding),
+  when(mirrored(clip(PL("fist_guard_abs"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), stillNotRiding),
+  when(clip(PL("fist_guard_pre"), { bones: ["body"] }, { space: "pre" }), stillNotRiding),
+  when(mirrored(clip(PL("fist_guard_pre"), { bones: ["head"] }, { space: "pre" })), stillNotRiding),
 ]);
 const fistsIdle: Obj = poseNode([]);
 
@@ -767,8 +785,8 @@ const tool: Obj = poseNode([
   clip(PL("tool_rest"), {}, { smoothing: { centerRotation: 3.33, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } }),
   clip(PL("tool_body"), { frame: swingFrame }, { smoothing: { body: 1.25 } }),
   when(clip(PL("tool_sneak_body"), {}, { space: "pre" }), state("entityIsSneaking")),
-  withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: 1.25 }),
-  drv("head", "Y", "entityHeadYaw"),
+  alsoWhen(withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: 1.25 }), locomotionLeavesHead),
+  alsoWhen(drv("head", "Y", "entityHeadYaw"), locomotionLeavesHead),
   clip(PL("tool_arm"), { frame: swingFrame }, { snap: true }),
   clip(PL("tool_arm_post"), { frame: swingFrame }, { space: "post" }),
 ].map((x) => {
@@ -844,7 +862,8 @@ const attackBranch: Obj = {
 };
 const slashOrder = ["slash_up", "slash_down", "slash_inward", "slash_outward", "slash_whirl"];
 // The player's sword combo ends with a whirl, where the animator allows it (animator.canSpinAttack:
-// the player's spinAttack option, and not riding); otherwise the combo starts over.
+// the player's spinAttack option, not riding, and not flying with an elytra); otherwise the combo
+// starts over.
 const canSpin = "animator.canSpinAttack";
 const slashByCombo = [
   ...slashOrder.map((n, k) => conn(n, AND("machine.attacked", cmp("machine.combo", "==", k), ...(k === 4 ? [canSpin] : [])), [set("machine.combo", (k + 1) % 5)])),
@@ -950,8 +969,9 @@ const player: Obj = {
   formatVersion: 2,
   "@define": { jumping: live(jumping), bounced: live(bounced), standing: live(chooses(playerSelect, "stand")),
                walking: live(chooses(playerSelect, "walk")), sprinting: live(chooses(playerSelect, "sprint")),
-               // unless the player turned it off, or is riding
-               canSpinAttack: live(AND("option.spinAttack", NOT(state("entityIsRiding")))) },
+               ...elytraFlyingDefinition,
+               // unless the player turned it off, is riding, or flies with an elytra
+               canSpinAttack: live(AND("option.spinAttack", NOT(state("entityIsRiding")), NOT(elytraFlying))) },
   layers: [
     // item rotations are reset every frame before the layers run, easing back once a layer above lets go
     { defaultOnEntry: "reset", nodes: { reset: poseNode([clip(PL("reset_items"), {}, { smoothing: { rightHeldItem: 3.33, leftHeldItem: 3.33 } })]) } },
@@ -1117,6 +1137,8 @@ delete skeletonSword.nodes.slash_whirl;
 skeletonSword["@connections"] = slashOrder.slice(0, 4).map((n, k) =>
   conn(n, AND("machine.attacked", cmp("machine.combo", "==", k)), [set("machine.combo", (k + 1) % 4)]));
 skeleton.layers.push(skeletonActions);
+// the action layer reads animator.elytraFlying (a skeleton never flies, but its tool swing asks)
+skeleton["@define"] = { ...elytraFlyingDefinition };
 
 // --- the skeleton standing on its feet: core:step_turn while it stands still -------------------------
 // ModelSkeleton's legs are 2 wide and turn where vanilla's do, 2 to the side of the middle; their
@@ -1260,9 +1282,27 @@ function halveBodySmoothing(node: unknown): void {
   }
 }
 
+// ---- definitions first ----------------------------------------------------------------------
+// Every object's @define comes first, after only what says what the file is (formatVersion,
+// extends, @comment), so its names are known before anything reading them. The order means nothing
+// to the loader: builders add a scope's definitions wherever is handy.
+const HEADER_KEYS = ["formatVersion", "extends", "@comment"];
+
+function definitionsFirst(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(definitionsFirst);
+  if (typeof node !== "object" || node === null) return node;
+  const object = node as Obj;
+  const first = [...HEADER_KEYS, "@define"].filter((key) => key in object);
+  const out: Obj = {};
+  for (const key of [...first, ...Object.keys(object).filter((key) => !first.includes(key))]) {
+    out[key] = definitionsFirst(object[key]);
+  }
+  return out;
+}
+
 for (const [name, built] of animators) {
   // A deep copy: the builders share value objects between items.
-  const data = JSON.parse(JSON.stringify(built));
+  const data = definitionsFirst(JSON.parse(JSON.stringify(built))) as Obj;
   if (BIPEDS.has(name)) halveBodySmoothing(data);
   writeFileSync(join(ANIM, name + ".json"), pretty(data) + "\n");
   console.log("wrote", name + ".json");
