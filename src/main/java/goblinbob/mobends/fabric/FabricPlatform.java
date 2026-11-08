@@ -2,6 +2,7 @@ package goblinbob.mobends.fabric;
 
 //? if fabric {
 import goblinbob.mobends.platform.Platform;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.nio.file.Path;
@@ -15,6 +16,11 @@ public final class FabricPlatform implements Platform {
     @Override
     public boolean isModLoaded(String modId) {
         return FabricLoader.getInstance().isModLoaded(modId);
+    }
+
+    @Override
+    public boolean isClient() {
+        return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
     }
 
     @Override

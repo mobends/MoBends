@@ -2,6 +2,7 @@ package goblinbob.mobends.neoforge;
 
 //? if neoforge {
 /*import goblinbob.mobends.platform.Platform;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
 
@@ -20,6 +21,11 @@ public final class NeoForgePlatform implements Platform {
         /^return FMLLoader.getCurrent().getLoadingModList().getModFileById(modId) != null;
         ^///?} else
         return FMLLoader.getLoadingModList().getModFileById(modId) != null;
+    }
+
+    @Override
+    public boolean isClient() {
+        return FMLEnvironment.dist.isClient();
     }
 
     @Override
