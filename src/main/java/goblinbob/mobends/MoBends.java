@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public final class MoBends {
     public static final String MOD_ID = "mobends";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-    public static final String VERSION = /*$ mod_version*/"2.1.0-alpha.1";
+    public static final String VERSION = /*$ mod_version*/"2.0.0-alpha.1";
     public static final String MINECRAFT = /*$ minecraft*/"1.21.1";
 
     private MoBends() {

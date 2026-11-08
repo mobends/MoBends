@@ -108,7 +108,7 @@ forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 | The engine library | follows the mod | `core-2.x.y` | `main` |
 
 - The mod's version is `mod.version` in `stonecutter.properties.toml`. Jars are named
-  `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.1.0+1.21.1-neoforge.jar`.
+  `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.0.0+1.21.1-neoforge.jar`.
 - A modern release will ship every node at once; its workflow comes with the first release (see
   [TODO.md](TODO.md)).
 - `core` gets a new release when its API changes, or when another branch needs a change from it.

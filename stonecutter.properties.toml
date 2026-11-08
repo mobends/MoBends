@@ -2,7 +2,7 @@
 # See https://stonecutter.kikugie.dev/wiki/config/properties#centralized-properties
 mod.id = "mobends"
 mod.name = "Mo' Bends"
-mod.version = "2.1.0-alpha.1"
+mod.version = "2.0.0-alpha.1"
 
 deps.fabric_loader = "0.20.1"
 loomx.loom_version = "1.19-SNAPSHOT"
