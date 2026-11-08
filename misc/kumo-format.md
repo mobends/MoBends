@@ -963,7 +963,7 @@ loads, and an animator shared by several mobs or extensions never makes them sha
   its own location.
 
 The player's model definition declares `spinAttack`, which ends the sword combo with the whirl;
-its animator reads it as `"canSpinAttack": {"live": {"and": ["option.spinAttack", {"not": ["entityIsRiding"]}]}}`.
+its animator reads it as `"canSpinAttack": {"live": {"and": ["option.spinAttack", {"not": ["entityIsRiding"]}, {"not": ["animator.elytraFlying"]}]}}`.
 
 ## Semantics worth knowing
 

@@ -410,8 +410,13 @@ const pSprint: Obj = poseNode([
     ...attackHead,
   ]);
 
-/** The locomotion's elytra node: flying with an elytra, past the first ticks of the glide. */
-const elytraFlying = cmp("entityTicksElytraFlying", ">", 4);
+/**
+ * The locomotion's elytra node: flying with an elytra, past the first ticks of the glide. A live
+ * definition of every animator whose layers read it (the player's, and the skeleton's, which runs
+ * the player's action layer): read as {@code animator.elytraFlying}.
+ */
+const elytraFlyingDefinition = { elytraFlying: live(cmp("entityTicksElytraFlying", ">", 4)) };
+const elytraFlying = "animator.elytraFlying";
 /**
  * The locomotion leaves the head to the action layer: in every node but the elytra one, which keeps
  * it looking ahead along the flight. An action that turns the head to the look direction (a slash,
@@ -964,7 +969,8 @@ const player: Obj = {
   formatVersion: 2,
   "@define": { jumping: live(jumping), bounced: live(bounced), standing: live(chooses(playerSelect, "stand")),
                walking: live(chooses(playerSelect, "walk")), sprinting: live(chooses(playerSelect, "sprint")),
-               // unless the player turned it off, or is riding
+               ...elytraFlyingDefinition,
+               // unless the player turned it off, is riding, or flies with an elytra
                canSpinAttack: live(AND("option.spinAttack", NOT(state("entityIsRiding")), NOT(elytraFlying))) },
   layers: [
     // item rotations are reset every frame before the layers run, easing back once a layer above lets go
@@ -1131,6 +1137,8 @@ delete skeletonSword.nodes.slash_whirl;
 skeletonSword["@connections"] = slashOrder.slice(0, 4).map((n, k) =>
   conn(n, AND("machine.attacked", cmp("machine.combo", "==", k)), [set("machine.combo", (k + 1) % 4)]));
 skeleton.layers.push(skeletonActions);
+// the action layer reads animator.elytraFlying (a skeleton never flies, but its tool swing asks)
+skeleton["@define"] = { ...elytraFlyingDefinition };
 
 // --- the skeleton standing on its feet: core:step_turn while it stands still -------------------------
 // ModelSkeleton's legs are 2 wide and turn where vanilla's do, 2 to the side of the middle; their

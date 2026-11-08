@@ -8,7 +8,7 @@
         "and": [
           {"not": ["entityIsSleeping"]},
           {"not": ["entityIsRiding"]},
-          {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+          {"not": ["animator.elytraFlying"]},
           {"not": ["entityIsClimbing"]},
           {"not": ["entityIsInWater"]},
           {"not": ["animator.jumping"]},
@@ -21,7 +21,7 @@
         "and": [
           {"not": ["entityIsSleeping"]},
           {"not": ["entityIsRiding"]},
-          {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+          {"not": ["animator.elytraFlying"]},
           {"not": ["entityIsClimbing"]},
           {"not": ["entityIsInWater"]},
           {"not": ["animator.jumping"]},
@@ -35,7 +35,7 @@
         "and": [
           {"not": ["entityIsSleeping"]},
           {"not": ["entityIsRiding"]},
-          {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+          {"not": ["animator.elytraFlying"]},
           {"not": ["entityIsClimbing"]},
           {"not": ["entityIsInWater"]},
           {"not": ["animator.jumping"]},
@@ -44,11 +44,8 @@
         ]
       }
     },
-    "canSpinAttack": {
-      "live": {
-        "and": ["option.spinAttack", {"not": ["entityIsRiding"]}, {"not": [{"gt": ["entityTicksElytraFlying", 4]}]}]
-      }
-    }
+    "elytraFlying": {"live": {"gt": ["entityTicksElytraFlying", 4]}},
+    "canSpinAttack": {"live": {"and": ["option.spinAttack", {"not": ["entityIsRiding"]}, {"not": ["animator.elytraFlying"]}]}}
   },
   "layers": [
     {
@@ -73,7 +70,7 @@
           "when": "entityIsRiding",
           "then": [{"when": "entityIsRidingLiving", "then": "riding"}, {"then": "sitting"}]
         },
-        {"when": {"gt": ["entityTicksElytraFlying", 4]}, "then": "elytra"},
+        {"when": "animator.elytraFlying", "then": "elytra"},
         {"when": "entityIsClimbing", "then": "ladder"},
         {"when": "entityIsInWater", "then": "swimming"},
         {
@@ -1710,14 +1707,14 @@
                 "@mirror": true
               },
               {
-                "@when": {"and": [{"not": [{"gt": ["entityTicksElytraFlying", 4]}]}, "entityIsSwinging"]},
+                "@when": {"and": [{"not": ["animator.elytraFlying"]}, "entityIsSwinging"]},
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                 "@space": "override",
                 "@smoothing": {"head": 1.25},
                 "@mirror": true
               },
               {
-                "@when": {"and": [{"not": [{"gt": ["entityTicksElytraFlying", 4]}]}, "entityIsSwinging"]},
+                "@when": {"and": [{"not": ["animator.elytraFlying"]}, "entityIsSwinging"]},
                 "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                 "@space": "pre"
               },
@@ -2200,14 +2197,14 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                     "@space": "override",
                     "@smoothing": {"head": 1.11},
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_up.json",
                       "bones": ["head"],
@@ -2217,7 +2214,7 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "pre"
                   },
@@ -2286,14 +2283,14 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                     "@space": "override",
                     "@smoothing": {"head": 1.11},
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_inward.json",
                       "bones": ["head"],
@@ -2303,7 +2300,7 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "pre"
                   },
@@ -2366,20 +2363,20 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                     "@space": "override",
                     "@smoothing": {"head": 1.11},
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/slash_down.json", "bones": ["head"]},
                     "@space": "pre",
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "pre"
                   },
@@ -2457,20 +2454,20 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                     "@space": "override",
                     "@smoothing": {"head": 1.11},
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:clip": {"animationKey": "mobends:bends/animations/player/slash_outward.json", "bones": ["head"]},
                     "@space": "pre",
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "pre"
                   },
@@ -2570,13 +2567,13 @@
                     "@snap": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
                     "@space": "override",
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl.json",
                       "bones": ["head"],
@@ -2586,7 +2583,7 @@
                     "@mirror": true
                   },
                   {
-                    "@when": {"not": [{"gt": ["entityTicksElytraFlying", 4]}]},
+                    "@when": {"not": ["animator.elytraFlying"]},
                     "core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"},
                     "@space": "pre"
                   },
