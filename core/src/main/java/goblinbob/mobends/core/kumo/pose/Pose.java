@@ -6,19 +6,16 @@ import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.IRotationSink;
 import goblinbob.mobends.core.kumo.bind.IVectorSink;
 import goblinbob.mobends.core.math.Quaternion;
-import goblinbob.mobends.core.math.vector.IVec3fRead;
 import goblinbob.mobends.core.math.vector.Vec3f;
 
 /**
  * A buffer of per-bone targets. Layers evaluate into poses, poses composite into one another,
  * and the final pose is written to the subject's sinks once per frame.
  *
- * <p>A relative write (PRE / POST rotation, additive offset or vector) that no layer before it
- * gives an absolute value to resolves against the bone's live target, i.e. last frame's result.
- * So a bone written only relatively keeps turning (or moving) a little more every frame, at a
- * rate that depends on the frame rate: an animator that means to hold a pose writes it
- * absolutely somewhere beneath (the animation limits rely on the same rule, see
- * {@link #setFallbackValues}).
+ * <p>Poses are declarative: beneath the first layer is the rest pose (no rotation, no offset, a
+ * scale of one, no vector), never what an earlier frame left in the bones. A relative write with
+ * nothing beneath it builds on the rest pose, and every channel nothing writes in a frame goes back
+ * to rest (smoothed by the bone's base smoothing).
  */
 public class Pose
 {
@@ -40,21 +37,14 @@ public class Pose
     private final Vec3f offsetTemp = new Vec3f();
 
     /**
-     * Whether an additive write to an empty slot composes onto the bone's live target (true for
-     * the animator pose) or just records the rotation and its space for a later composite (layer
-     * poses).
+     * Whether this is a base pose (the animator pose), with the rest pose beneath it: a relative write
+     * to an empty slot resolves against rest at once. Other poses (a layer's) record the relative
+     * part, for whatever they are composited onto.
      */
-    private final boolean sinkFallback;
+    private final boolean base;
     /** The entity state whose bones this pose reads and writes; null for a scratch pose, which doesn't. */
     @Nullable
     private final EntityState owner;
-    /**
-     * When set, relative offsets and vectors with nothing under them resolve against these values
-     * (one per slot) instead of the bones' live targets: see {@code KumoAnimatorState}'s limits.
-     */
-    private IVec3fRead[] fallbackValues;
-    /** As {@link #fallbackValues}, for relative scales. */
-    private IVec3fRead[] fallbackScales;
     /** The pose this one goes on top of (a layer's: the animator pose, holding the layers below), or null. */
     private Pose below;
 
@@ -63,16 +53,16 @@ public class Pose
         this(skeleton, false);
     }
 
-    public Pose(Skeleton skeleton, boolean sinkFallback)
+    public Pose(Skeleton skeleton, boolean base)
     {
-        this(skeleton, sinkFallback, null);
+        this(skeleton, base, null);
     }
 
     /** A pose of {@code owner}, an entity's state: it reads and writes that entity's bones (see {@link #writeTo}). */
-    public Pose(Skeleton skeleton, boolean sinkFallback, @Nullable EntityState owner)
+    public Pose(Skeleton skeleton, boolean base, @Nullable EntityState owner)
     {
         this.owner = owner;
-        this.sinkFallback = sinkFallback;
+        this.base = base;
         this.skeleton = skeleton;
         this.targets = new BoneTarget[skeleton.size()];
         for (int i = 0; i < targets.length; i++)
@@ -90,7 +80,7 @@ public class Pose
     /**
      * The rotation a slot has so far this frame: its own, with its relative parts applied to what
      * the pose below has so far. Where nothing has written the bone this frame, the rest rotation
-     * (identity), not the bone's live target.
+     * (identity).
      */
     public void rotationSoFar(int index, Quaternion dest)
     {
@@ -240,10 +230,10 @@ public class Pose
     }
 
     /**
-     * The absolute rotation of a slot: its own, or else, in the animator pose, the live target of
-     * the bone (what lies beneath every layer).
+     * The absolute rotation of a slot: its own, or else, in a base pose, what it has over the rest
+     * pose.
      *
-     * @return false when there is none
+     * @return false when there is none (a slot of a layer's pose written only relatively, or not at all)
      */
     public boolean absoluteRotation(int index, Quaternion dest)
     {
@@ -253,7 +243,9 @@ public class Pose
             dest.set(target.rotation);
             return true;
         }
-        return sinkFallback && sinkRotation(index, dest);
+        if (!base) return false;
+        rotationSoFar(index, dest);
+        return true;
     }
 
     /** As {@link #absoluteRotation}, for the slot's offset. */
@@ -265,17 +257,8 @@ public class Pose
             dest.set(target.offset);
             return true;
         }
-        if (!sinkFallback)
-        {
-            return false;
-        }
-        IBoneSink sink = sink(index);
-        IRotationSink rotationSink = sink == null ? null : sink.asRotation();
-        if (rotationSink == null || !rotationSink.hasOffset())
-        {
-            return false;
-        }
-        dest.set(fallbackValues != null ? fallbackValues[index] : rotationSink.getOffset());
+        if (!base) return false;
+        offsetSoFar(index, dest);
         return true;
     }
 
@@ -288,16 +271,8 @@ public class Pose
             dest.set(target.scale);
             return true;
         }
-        if (!sinkFallback)
-        {
-            return false;
-        }
-        IRotationSink rotationSink = scaleSink(index);
-        if (rotationSink == null)
-        {
-            return false;
-        }
-        dest.set(fallbackScales != null ? fallbackScales[index] : rotationSink.getScale());
+        if (!base) return false;
+        scaleSoFar(index, dest);
         return true;
     }
 
@@ -310,17 +285,8 @@ public class Pose
             dest.set(target.vector);
             return true;
         }
-        if (!sinkFallback)
-        {
-            return false;
-        }
-        IBoneSink sink = sink(index);
-        IVectorSink vectorSink = sink == null ? null : sink.asVector();
-        if (vectorSink == null)
-        {
-            return false;
-        }
-        dest.set(fallbackValues != null ? fallbackValues[index] : vectorSink.getVectorTarget());
+        if (!base) return false;
+        vectorSoFar(index, dest);
         return true;
     }
 
@@ -340,24 +306,11 @@ public class Pose
         dest.set(rotationSink.getRotationShown());
     }
 
-    /** The live target of a bone's sink (the value beneath the first layer), if it has one. */
-    private boolean sinkRotation(int index, Quaternion dest)
-    {
-        IBoneSink sink = sink(index);
-        IRotationSink rotationSink = sink == null ? null : sink.asRotation();
-        if (rotationSink != null)
-        {
-            dest.set(rotationSink.getRotationTarget());
-            return true;
-        }
-        return false;
-    }
-
     /**
      * Composes a rotation into a slot. OVERRIDE replaces (folding away relative parts); PRE and
      * POST either fold into an existing absolute value, or accumulate as relative parts to be
-     * applied to whatever lies beneath at composite / write time. The animator pose resolves
-     * relative parts against the bone's live target right away.
+     * applied to whatever lies beneath at composite time. A base pose resolves them against the
+     * rest pose right away.
      */
     public void composeRotation(int index, Quaternion q, Space space)
     {
@@ -370,9 +323,9 @@ public class Pose
                     Quaternion.mul(q, target.rotation, temp);
                     target.rotation.set(temp);
                 }
-                else if (sinkFallback && sinkRotation(index, temp))
+                else if (base)
                 {
-                    Quaternion.mul(q, temp, target.rotation);
+                    target.rotation.set(q);
                     target.hasRotation = true;
                 }
                 else if (target.hasPre)
@@ -392,9 +345,9 @@ public class Pose
                     Quaternion.mul(target.rotation, q, temp);
                     target.rotation.set(temp);
                 }
-                else if (sinkFallback && sinkRotation(index, temp))
+                else if (base)
                 {
-                    Quaternion.mul(temp, q, target.rotation);
+                    target.rotation.set(q);
                     target.hasRotation = true;
                 }
                 else if (target.hasPost)
@@ -432,21 +385,9 @@ public class Pose
         }
     }
 
-    /** Relative offsets and vectors resolve against {@code values} (per slot) instead of the live targets; null to undo. */
-    public void setFallbackValues(IVec3fRead[] values)
-    {
-        this.fallbackValues = values;
-    }
-
-    /** Relative scales with nothing under them resolve against {@code values} (per slot) instead of the live scales; null to undo. */
-    public void setFallbackScales(IVec3fRead[] values)
-    {
-        this.fallbackScales = values;
-    }
-
     /**
      * Writes a part's scale. OVERRIDE replaces it (an axis given as NaN keeps what the part has so
-     * far, as {@link #composeOffset}); PRE and POST multiply it, per axis (a scale has no
+     * far this frame, as {@link #composeOffset}); PRE and POST multiply it, per axis (a scale has no
      * orientation of its own, so the two are the same).
      */
     public void composeScale(int index, float x, float y, float z, Space space)
@@ -467,18 +408,9 @@ public class Pose
         {
             target.scale.scale(x, y, z);
         }
-        else if (sinkFallback)
+        else if (base)
         {
-            IRotationSink rotationSink = scaleSink(index);
-            if (rotationSink != null)
-            {
-                IVec3fRead current = fallbackScales != null ? fallbackScales[index] : rotationSink.getScale();
-                target.scale.set(current.getX() * x, current.getY() * y, current.getZ() * z);
-            }
-            else
-            {
-                target.scale.set(x, y, z);
-            }
+            target.scale.set(x, y, z);
             target.scaleRelative = false;
         }
         else
@@ -506,19 +438,10 @@ public class Pose
         return known;
     }
 
-    /** The bone's sink, where it can be scaled (a model part); else null. */
-    @Nullable
-    private IRotationSink scaleSink(int index)
-    {
-        IBoneSink sink = sink(index);
-        IRotationSink rotationSink = sink == null ? null : sink.asRotation();
-        return rotationSink != null && rotationSink.hasScale() ? rotationSink : null;
-    }
-
     /**
      * Writes a part's offset. An OVERRIDE axis given as NaN isn't written: it keeps the value the bone
-     * has so far this frame, or its live target where nothing has written it (a layer pose leaves it
-     * NaN for the animator pose to fill when the layer is composited).
+     * has so far this frame, from the items before and the layers below, or rest (a pose with nothing
+     * beneath it, a mirrored item's, leaves it NaN to be filled when it is composited).
      */
     public void composeOffset(int index, float x, float y, float z, Space space)
     {
@@ -553,19 +476,9 @@ public class Pose
         {
             target.offset.add(x, y, z);
         }
-        else if (sinkFallback)
+        else if (base)
         {
-            IBoneSink sink = sink(index);
-            IRotationSink rotationSink = sink == null ? null : sink.asRotation();
-            if (rotationSink != null && rotationSink.hasOffset())
-            {
-                IVec3fRead current = fallbackValues != null ? fallbackValues[index] : rotationSink.getOffset();
-                target.offset.set(current.getX() + x, current.getY() + y, current.getZ() + z);
-            }
-            else
-            {
-                target.offset.set(x, y, z);
-            }
+            target.offset.set(x, y, z);
             target.offsetAdditive = false;
         }
         else
@@ -593,11 +506,18 @@ public class Pose
         return known;
     }
 
+    /** As {@link #composeOffset}, for a vector (an OVERRIDE axis given as NaN keeps what the bone has so far). */
     public void composeVector(int index, float x, float y, float z, Space space)
     {
         BoneTarget target = targets[index];
         if (space == Space.OVERRIDE)
         {
+            if ((Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z)) && vectorBeneath(index, offsetTemp))
+            {
+                if (Float.isNaN(x)) x = offsetTemp.x;
+                if (Float.isNaN(y)) y = offsetTemp.y;
+                if (Float.isNaN(z)) z = offsetTemp.z;
+            }
             if (target.hasVector && target.vectorMode == IVectorSink.Mode.SNAP)
             {
                 // A snap followed by another write in the same frame: the new interpolation
@@ -620,19 +540,9 @@ public class Pose
         {
             target.vector.add(x, y, z);
         }
-        else if (sinkFallback)
+        else if (base)
         {
-            IBoneSink sink = sink(index);
-            IVectorSink vectorSink = sink == null ? null : sink.asVector();
-            if (vectorSink != null)
-            {
-                IVec3fRead current = fallbackValues != null ? fallbackValues[index] : vectorSink.getVectorTarget();
-                target.vector.set(current.getX() + x, current.getY() + y, current.getZ() + z);
-            }
-            else
-            {
-                target.vector.set(x, y, z);
-            }
+            target.vector.set(x, y, z);
             target.vectorAdditive = false;
         }
         else
@@ -641,6 +551,23 @@ public class Pose
             target.vectorAdditive = true;
         }
         target.hasVector = true;
+    }
+
+    /** What an OVERRIDE vector's unwritten axes keep (see {@link #composeVector}); false where it isn't known. */
+    private boolean vectorBeneath(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasVector && !target.vectorAdditive)
+        {
+            dest.set(target.vector);
+            return true;
+        }
+        boolean known = below != null ? below.absoluteVector(index, dest) : absoluteVector(index, dest);
+        if (known && target.hasVector)
+        {
+            dest.add(target.vector.x, target.vector.y, target.vector.z);
+        }
+        return known;
     }
 
     private IBoneSink sink(int index)
@@ -652,7 +579,11 @@ public class Pose
         return owner.sinks[index];
     }
 
-    /** Writes every target that was set this frame into its entity's bones. */
+    /**
+     * Writes the pose into its entity's bones: every bone, every channel. What nothing wrote this
+     * frame goes back to rest, at the bone's base smoothing. Only for a base pose, whose slots hold
+     * no relative parts.
+     */
     public void writeTo()
     {
         for (int i = 0; i < targets.length; i++)
@@ -663,15 +594,16 @@ public class Pose
             {
                 continue;
             }
+            if (!target.hasRotation) target.rotation.setIdentity();
+            if (!target.hasOffset) target.offset.set(0F, 0F, 0F);
+            if (!target.hasScale) target.scale.set(1F, 1F, 1F);
+            if (!target.hasVector) target.vector.set(0F, 0F, 0F);
 
             IRotationSink rotationSink = sink.asRotation();
             if (rotationSink != null)
             {
-                if (target.hasRotation)
-                {
-                    rotationSink.setRotationTarget(target.rotation, target.smoothing, target.snap, target.hasSnapFrom ? target.snapFrom : null);
-                }
-                if (target.hasOffset && rotationSink.hasOffset())
+                rotationSink.setRotationTarget(target.rotation, target.smoothing, target.snap, target.hasSnapFrom ? target.snapFrom : null);
+                if (rotationSink.hasOffset())
                 {
                     rotationSink.setOffsetTarget(target.offset.x, target.offset.y, target.offset.z,
                             target.offsetSmoothing.x, target.offsetSmoothing.y, target.offsetSmoothing.z,
@@ -681,14 +613,14 @@ public class Pose
                         rotationSink.restartOffsetSlide(target.restartX, target.restartY, target.restartZ);
                     }
                 }
-                if (target.hasScale && rotationSink.hasScale())
+                if (rotationSink.hasScale())
                 {
                     rotationSink.setScaleTarget(target.scale.x, target.scale.y, target.scale.z);
                 }
             }
 
             IVectorSink vectorSink = sink.asVector();
-            if (vectorSink != null && target.hasVector)
+            if (vectorSink != null)
             {
                 vectorSink.setVectorTarget(target.vector.x, target.vector.y, target.vector.z,
                         target.vectorSmoothing.x, target.vectorSmoothing.y, target.vectorSmoothing.z,

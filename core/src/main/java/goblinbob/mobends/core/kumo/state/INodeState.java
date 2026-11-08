@@ -21,12 +21,6 @@ public interface INodeState
     /** Writes this node's pose for the current frame into the given (cleared) pose. */
     void evaluate(IKumoContext context, Pose pose) throws MalformedKumoTemplateException;
 
-    /** A node that poses nothing, so the layers below show through (and transitions fade to them). */
-    default boolean isFallthrough()
-    {
-        return false;
-    }
-
     /** While a layer is in a node that wants vanilla, the entity is drawn with its vanilla model and animation. */
     default boolean isVanilla()
     {

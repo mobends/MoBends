@@ -107,11 +107,10 @@ node is in *Choosing the node*.
   its selector and connections as a machine's: the layer is entered when it starts (see
   *Machines*).
 * A `core:fallthrough` node poses nothing, so the layers below show through; it has
-  connections, definitions and statement lists like any node. A transition into or out of it fades between
-  the layer's pose and the one below: what one side poses and the other doesn't is blended
-  against the layers below (a full rotation, offset or vector as they have it; a `pre` / `post`
-  rotation or an additive offset as nothing). It is how an extension lets the animation it
-  extends show until it has something to add, but any layer can use it.
+  connections, definitions and statement lists like any node. A transition into or out of it
+  fades between the layer's pose and the one below, as every transition fades what one side poses
+  and the other doesn't (see *Semantics worth knowing*). It is how an extension lets the animation
+  it extends show until it has something to add, but any layer can use it.
 * A `core:vanilla` node hands the entity back to Minecraft: while any layer is in one (and that
   layer's `@when` holds), the entity is drawn with its vanilla model and vanilla animation, and a
   player's first-person hand is vanilla too. The animator keeps running underneath, so its
@@ -367,8 +366,8 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | driver | fields |
 |---|---|
 | `core:rotate` | `bone`, `axis` (`x`/`y`/`z`), `angle` (expression, degrees) |
-| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or the position of `root` or `center`. Default space `pre`, like every driver's; there and in `post` an axis left out moves by nothing, in `override` it keeps the bone's current value. On a part, the item's `@smoothing`, `@vectorModes` and `@snap` go to the offset, not the rotation: with a smoothing, it's smoothed like a vector, and without one it's applied as is |
-| `core:scale` | `bone`, `x`, `y`, `z`, `all` (expressions; 1 is the part as modelled): scales a part on its own axes, and with it what it carries (its child parts, a held item, its armor). `all` is for every axis not given its own. Default space `pre`, like every driver's; there and in `post` it multiplies the part's scale (an axis left out by one), in `override` it replaces it (an axis left out keeps the part's current scale). A scale stays until something writes it again, as an offset does: a node that scales a part should be faded from by one that scales it back (`"@space": "override"`, `"all": 1`). Scales aren't smoothed (no `@smoothing`, `@vectorModes` or `@snap`), but a transition crossfades them. `root` and `center` can't be scaled; a negative axis mirrors the part |
+| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or the position of `root` or `center`. Default space `pre`, like every driver's; there and in `post` an axis left out moves by nothing, in `override` it keeps what the bone has so far this frame (from the items before and the layers below; rest where nothing wrote it). On a part, the item's `@smoothing`, `@vectorModes` and `@snap` go to the offset, not the rotation: with a smoothing, it's smoothed like a vector, and without one it's applied as is |
+| `core:scale` | `bone`, `x`, `y`, `z`, `all` (expressions; 1 is the part as modelled): scales a part on its own axes, and with it what it carries (its child parts, a held item, its armor). `all` is for every axis not given its own. Default space `pre`, like every driver's; there and in `post` it multiplies the part's scale (an axis left out by one), in `override` it replaces it (an axis left out keeps what the part has so far this frame, as `core:translate`'s). A part nothing scales is at its modelled scale, so a node that stops scaling it lets it go back. Scales aren't smoothed (no `@smoothing`, `@vectorModes` or `@snap`), but a transition crossfades them. `root` and `center` can't be scaled; a negative axis mirrors the part |
 | `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
 | `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
@@ -995,9 +994,14 @@ its animator reads it as `"canSpinAttack": {"live": {"and": ["option.spinAttack"
   A state that should ease the bones it takes over says so itself (or fades in, `transitionDuration`).
 * An offset vector written by two layers in one frame keeps only the last write; a vector
   re-aimed every frame on top of another writer is `retarget`.
-* A bone written only relatively (`pre` / `post`, additive) with nothing absolute beneath builds on
-  last frame's result, so it keeps turning or moving every frame; to hold a pose, write it
-  absolutely in some layer beneath.
+* Poses are declarative: what a frame shows depends only on what the layers write in that frame.
+  Beneath the first layer is the rest pose (no rotation, no offset, a scale of one), never what an
+  earlier frame left. A bone's rotation, position or scale that nothing writes in a frame goes back
+  to rest, at the bone's base smoothing, and a relative write (`pre` / `post`, additive) with nothing
+  beneath it builds on rest. A node that wants a bone held writes it.
+* A transition fades what one side poses and the other doesn't against what lies beneath the
+  layer: a full rotation, offset, vector or scale as the layers below have it (or rest); a `pre` /
+  `post` rotation, an additive offset or vector or a relative scale as nothing.
 * Mirroring is an involution applied around the item, so composition rules do not change.
 
 # Model definitions: mobs without hand-written code
@@ -1245,22 +1249,16 @@ decides what resource packs may do, and sends it to every client with Mo' Bends 
     file), or when any clip its nodes play is.
   * After the trusted layers, the pose is noted; after the untrusted ones, every part's offset and
     the whole model's offsets are brought back within `maxPartOffset` / `maxBodyOffset` of what
-    the trusted layers gave them (their last value if they didn't write it this frame; the
-    bone's value when the limits started otherwise). So an extension moves a swimming player's
-    arm a little, not the swim; an untrusted animator on its own is held near the rest position.
-  * While limited, a relative offset or vector with nothing under it builds on the trusted value,
-    not the live one, which the untrusted layers have pushed (else the push would compound).
-  * An axis an offset or vector doesn't write (NaN) never widens the limit; an infinite value goes
-    back to the trusted one; a part's NaN offset axis and a broken (non-finite) rotation are
-    dropped, so no part can be made to vanish.
+    the trusted layers gave them this frame (rest where they didn't write them). So an extension
+    moves a swimming player's arm a little, not the swim; an untrusted animator on its own is held
+    near the rest position.
+  * An offset axis that isn't a finite number goes back to the trusted one, and a broken
+    (non-finite) rotation is dropped, so no part can be made to vanish.
   * Every part's scale, on each axis, is brought back within a factor of `maxPartScale` (up or
-    down) of what the trusted layers gave it (their last value; one if they never wrote it), keeping
-    the trusted scale's sign: a part can't be scaled to nothing, turned inside out or blown up to
-    cover the screen. A scale that isn't a number goes back to the trusted one. A part's scale
-    is held within the limits even on frames nothing writes it, so a scale left from before the
-    limits applied is brought back too. A relative scale with nothing under it builds on the
-    trusted value, as a relative offset does. (A part carries its children, so a child scaled
-    along with its parent can reach the product of their factors.)
+    down) of what the trusted layers gave it this frame (one where they didn't), keeping the trusted
+    scale's sign: a part can't be scaled to nothing, turned inside out or blown up to cover the
+    screen. A scale that isn't a number goes back to the trusted one. (A part carries its children,
+    so a child scaled along with its parent can reach the product of their factors.)
   * Rotations are otherwise free.
   * Model definitions (geometry) come only from trusted sources: an untrusted type that names one
     is ignored as a whole (so it can't replace a trusted type with the same id, and its animator

@@ -276,7 +276,9 @@ public class LayerState
             Pose source;
             if (snapshot)
             {
-                source = state.poses[snapshotPose];
+                // A copy: filling and matching below change it, and the snapshot stays as it was frozen.
+                previousPose.set(state.poses[snapshotPose]);
+                source = previousPose;
             }
             else
             {
@@ -286,12 +288,9 @@ public class LayerState
                 source = previousPose;
                 context.enterNode(currentNode);
             }
-            if (currentNode.isFallthrough() || previousNode.isFallthrough())
-            {
-                // What one side doesn't pose, the layers below do: fade to (or from) them.
-                fillFromBelow(source, currentPose, animatorPose);
-                fillFromBelow(currentPose, source, animatorPose);
-            }
+            // What one side doesn't pose, the layers below do (or the rest pose): fade to (or from) them.
+            fillFromBelow(source, currentPose, animatorPose);
+            fillFromBelow(currentPose, source, animatorPose);
             for (int i = 0; i < currentPose.size(); i++)
             {
                 matchSpaces(source.get(i), currentPose.get(i), animatorPose, i);
@@ -552,8 +551,8 @@ public class LayerState
     }
 
     /**
-     * Gives {@code missing} what {@code present} poses and it doesn't, as the layers below have it:
-     * a full rotation, offset, vector or scale from {@code below} (when they pose it), a PRE / POST
+     * Gives {@code missing} what {@code present} poses and it doesn't, as it is beneath the layer: a
+     * full rotation, offset, vector or scale as {@code below} (a base pose) has it, a PRE / POST
      * rotation, an additive offset or vector or a relative scale as nothing (identity, zero, one).
      */
     private static void fillFromBelow(Pose missing, Pose present, Pose below)
@@ -562,41 +561,44 @@ public class LayerState
         {
             BoneTarget m = missing.get(i);
             BoneTarget p = present.get(i);
-            BoneTarget u = below.get(i);
 
-            if (p.hasRotation && !m.hasRotation && u.hasRotation)
+            if (p.hasRotation && !m.hasRotation)
             {
-                m.rotation.set(u.rotation);
-                m.hasRotation = true;
+                // Relative parts of the missing side fold onto what is beneath (see matchSpaces).
+                if (!m.hasPre && !m.hasPost)
+                {
+                    below.absoluteRotation(i, m.rotation);
+                    m.hasRotation = true;
+                }
             }
-            if (p.hasPre && !m.hasPre)
+            if (p.hasPre && !m.hasPre && !m.hasRotation)
             {
                 m.pre.setIdentity();
                 m.hasPre = true;
             }
-            if (p.hasPost && !m.hasPost)
+            if (p.hasPost && !m.hasPost && !m.hasRotation)
             {
                 m.post.setIdentity();
                 m.hasPost = true;
             }
-            if (p.hasOffset && !m.hasOffset && (p.offsetAdditive || u.hasOffset))
+            if (p.hasOffset && !m.hasOffset)
             {
                 if (p.offsetAdditive) m.offset.set(0, 0, 0);
-                else m.offset.set(u.offset);
+                else below.absoluteOffset(i, m.offset);
                 m.offsetAdditive = p.offsetAdditive;
                 m.hasOffset = true;
             }
-            if (p.hasVector && !m.hasVector && (p.vectorAdditive || u.hasVector))
+            if (p.hasVector && !m.hasVector)
             {
                 if (p.vectorAdditive) m.vector.set(0, 0, 0);
-                else m.vector.set(u.vector);
+                else below.absoluteVector(i, m.vector);
                 m.vectorAdditive = p.vectorAdditive;
                 m.hasVector = true;
             }
-            if (p.hasScale && !m.hasScale && (p.scaleRelative || u.hasScale))
+            if (p.hasScale && !m.hasScale)
             {
                 if (p.scaleRelative) m.scale.set(1, 1, 1);
-                else m.scale.set(u.scale);
+                else below.absoluteScale(i, m.scale);
                 m.scaleRelative = p.scaleRelative;
                 m.hasScale = true;
             }
@@ -658,7 +660,7 @@ public class LayerState
         }
     }
 
-    /** dest = nlerp(from, to, t); bones present on one side only are taken from that side. */
+    /** dest = nlerp(from, to, t), channel by channel (both sides pose the same ones, see fillFromBelow). */
     private void blend(Pose from, Pose to, float t, Pose dest)
     {
         dest.clear();

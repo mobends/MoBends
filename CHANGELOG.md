@@ -20,6 +20,11 @@
 
 ### Changed
 
+- Poses are declarative: a part's rotation, position or scale that no animation writes in a frame
+  goes back to rest, instead of staying where an earlier node left it, and transitions fade such
+  parts to rest (or to the layers below). A scaled part no longer stays scaled after its node, a
+  player's riding dip no longer sticks once they slow down, and the spider no longer keeps its
+  body's sway while crawling or dying. The spider looks around while it jumps.
 - The Mo' Bends menu is more compact: a smaller title, with Link account under it and the
   sections (Settings, Customize, Supporters) beside it as slim buttons. Hovering one sends a glint
   through it, which leaves the section's color behind and brings in its icon (Settings has a gear

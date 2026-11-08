@@ -33,7 +33,11 @@ the player, the zombies, the skeleton and the zombie pigman were re-recorded onc
 legacy pack's, which keeps heads that turn with the body) when they
 stopped turning with the body (`inheritRotation`): their rotation is now relative to the model, so
 the pose they are drawn in changed only where the animators no longer turn them back from the
-body's bend, or turn them with it on purpose. Every other golden is the original code's output.
+body's bend, or turn them with it on purpose. When poses became declarative (a bone nothing writes
+goes back to rest), the player's ladder and riding goldens (the mod's and the legacy pack's) and
+the spider's were re-recorded: the original code left the ladder's lean, the riding dip and the
+spider's sway where the last node put them, and the spider's head still while it jumped. Every
+other golden is the original code's output.
 
 The Legacy Mo' Bends pack (`misc/legacy-pack`) is a snapshot of the player's, the zombie's and the
 zombie villager's animators without the layer that stands them on their feet, with their model

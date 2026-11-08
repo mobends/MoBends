@@ -36,9 +36,9 @@ are stacked on top of the type's own animator. Extensions for one type are order
 without the specificity step (user rank from Settings → *Extensions*, then id), and the first in
 that order ends up on top, i.e. its layers are added last (`Extension.layerOrder`).
 
-A `core:fallthrough` node poses nothing, and transitions into or out of it fill whatever one side
-doesn't pose from the layers below; that is how an extension fades in and out over the animation
-it extends. A `core:vanilla` node goes further: while it is current, the entity is drawn by
+A `core:fallthrough` node poses nothing, and transitions into or out of it fade whatever one side
+doesn't pose to the layers below (as every transition does); that is how an extension fades in and
+out over the animation it extends. A `core:vanilla` node goes further: while it is current, the entity is drawn by
 vanilla (see [rendering.md](rendering.md)).
 
 ## Model Definitions (Mobs Without Code)

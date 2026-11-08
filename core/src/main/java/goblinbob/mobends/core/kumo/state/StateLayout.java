@@ -20,7 +20,7 @@ public final class StateLayout
     private int doubleCount;
     private int[] intInitials = new int[16];
     private int intCount;
-    private boolean[] poseSinkFallback = new boolean[4];
+    private boolean[] poseBase = new boolean[4];
     private int poseCount;
 
     /** {@code count} float slots, each {@code initial} in a new entity's state; the first one's index. */
@@ -68,14 +68,14 @@ public final class StateLayout
         return pose(false);
     }
 
-    /** A pose buffer; {@code sinkFallback}: see {@link Pose#Pose(Skeleton, boolean)}. */
-    public int pose(boolean sinkFallback)
+    /** A pose buffer; {@code base}: see {@link Pose#Pose(Skeleton, boolean)}. */
+    public int pose(boolean base)
     {
-        if (poseCount == poseSinkFallback.length)
+        if (poseCount == poseBase.length)
         {
-            poseSinkFallback = Arrays.copyOf(poseSinkFallback, poseCount * 2);
+            poseBase = Arrays.copyOf(poseBase, poseCount * 2);
         }
-        poseSinkFallback[poseCount] = sinkFallback;
+        poseBase[poseCount] = base;
         return poseCount++;
     }
 
@@ -114,7 +114,7 @@ public final class StateLayout
             state.poses = Arrays.copyOf(state.poses, poseCount);
             for (int i = from; i < poseCount; i++)
             {
-                state.poses[i] = new Pose(skeleton, poseSinkFallback[i], state);
+                state.poses[i] = new Pose(skeleton, poseBase[i], state);
             }
         }
     }

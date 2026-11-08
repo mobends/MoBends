@@ -59,7 +59,19 @@ public class TranslateDriverTest
     }
 
     @Test
-    public void anAxisLeftOutKeepsThePartsCurrentOffset() throws MalformedKumoTemplateException
+    public void anAxisLeftOutKeepsWhatTheItemsBeforeGaveIt() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}, '@space': 'override'}, "
+                + "{'core:translate': {'bone': 'arm', 'y': 5}, '@space': 'override'}");
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+
+        assertVector(1, 5, 3, subject.offsets.get("arm"));
+    }
+
+    @Test
+    public void anAxisLeftOutWithNothingBeneathIsAtRest() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'y': 5}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
@@ -68,7 +80,8 @@ public class TranslateDriverTest
 
         animator.update(subject, 1F);
 
-        assertVector(1, 5, 3, subject.offsets.get("arm"));
+        // Not the part's offset from before: the rest offset.
+        assertVector(0, 5, 0, subject.offsets.get("arm"));
     }
 
     @Test
