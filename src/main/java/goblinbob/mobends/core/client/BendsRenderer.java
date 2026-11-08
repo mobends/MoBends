@@ -1,19 +1,27 @@
 package goblinbob.mobends.core.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.definition.DefinedEntities;
+import goblinbob.mobends.core.client.definition.DefinedModel;
+import goblinbob.mobends.core.client.definition.DefinedRenderer;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.core.definition.EntityModelDefinition;
+import goblinbob.mobends.core.vanilla.VanillaNames;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import org.joml.Matrix4fc;
 
 import javax.annotation.Nullable;
 
 /**
  * Where a living entity's render meets Mo' Bends ({@code LivingEntityRendererMixin}): picks the
  * entity's definition, gets its data, and poses it for this frame from what the renderer is about
- * to pass the model.
+ * to pass the model; then draws Mo' Bends' parts for the model in its place.
  */
 public final class BendsRenderer {
     private BendsRenderer() {
@@ -38,6 +46,39 @@ public final class BendsRenderer {
         captureRenderArguments(entity, partialTicks, definedData);
         definedData.animate();
         return definedData.wantsVanilla() ? null : definedData;
+    }
+
+    /**
+     * Draws {@code model} bent, as the data poses it, in place of vanilla's {@code renderToBuffer}
+     * (the same pose stack, consumer, light, overlay and colour).
+     *
+     * @param entityFrame the pose as the renderer's {@code setupRotations} starts, this render
+     * @param bodyYaw     the body yaw vanilla turns the entity by
+     * @return false if the model isn't one the definition bends, to draw it as vanilla does
+     */
+    public static boolean renderModel(DefinedEntityData<?> data, EntityModel<?> model, Matrix4fc entityFrame, float bodyYaw, PoseStack poseStack,
+                                      VertexConsumer consumer, int packedLight, int packedOverlay, int color) {
+        EntityModelDefinition definition = data.getDefinition();
+        if (definition.model != null) {
+            Class<?> modelClass = VanillaNames.modelClass(definition.model);
+            if (modelClass == null || !modelClass.isInstance(model)) {
+                return false;
+            }
+        }
+        DefinedModel parts = DefinedModel.of(definition, model);
+        if (parts == null) {
+            return false;
+        }
+        // The positions read off this model: the entity's other model (a player's slim one, once
+        // the skin is known) has its own.
+        if (!data.hasAdoptedPositionsOf(parts)) {
+            data.adoptPositions(parts, parts.positions());
+        }
+        poseStack.pushPose();
+        DefinedRenderer.transformModel(data, model, poseStack, entityFrame, bodyYaw);
+        parts.render(data, poseStack, consumer, packedLight, packedOverlay, color);
+        poseStack.popPose();
+        return true;
     }
 
     /**

@@ -5,6 +5,7 @@
   "mixins": [],
   "client": [
     "GameRendererMixin",
+    "HumanoidModelMixin",
     "LivingEntityRendererMixin",
     "MinecraftMixin"
   ],

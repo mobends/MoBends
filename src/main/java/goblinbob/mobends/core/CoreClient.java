@@ -2,6 +2,7 @@ package goblinbob.mobends.core;
 
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.definition.DefinedEntities;
+import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.AnimatorResources;
@@ -34,12 +35,13 @@ public final class CoreClient {
 
     /**
      * Forgets everything read from the resource packs (definitions, animators, clips, compiled
-     * programs) and every entity's data, which is all made again from the new files as the entities
+     * programs, the bent parts built from them) and every entity's data, which is all made again from the new files as the entities
      * are drawn. Runs after every resource reload.
      */
     public static void reloadAnimation() {
         ModelDefinitions.INSTANCE.clearCache();
         DefinedEntities.clearCache();
+        DefinedModel.clearCache();
         AnimatorResources.INSTANCE.clearCache();
         KumoAnimatorController.clearCaches();
         EntityDatabase.instance.refresh();
