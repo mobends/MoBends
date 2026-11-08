@@ -20,6 +20,9 @@
 
 ### Changed
 
+- A transition that interrupts another no longer freezes the animation fading out: it keeps
+  moving (looking around, walking) until it has faded. A node that starts over (a transition to
+  itself with a duration) fades from where it was instead of jumping.
 - An animation value that isn't a number (a division by zero in a resource pack's animator, say)
   puts the part at rest instead of freezing it where it was.
 - Poses are declarative: a part's rotation, position or scale that no animation writes in a frame

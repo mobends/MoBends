@@ -786,10 +786,10 @@ Built-in values of the node being evaluated and its layer:
 |---|---|
 | `nodeTicksElapsed` | ticks since the node was entered |
 | `layerTicksElapsed` | ticks since the layer started |
-| `nodeFadeProgress` | the linear progress of the crossfade the node is part of, the same number on both sides: 0 when the transition starts, 1 when it ends, 1 with no crossfade running. How much of a node is shown is `nodeFadeProgress` fading in and `1 − nodeFadeProgress` fading out; the transition's easing applies to the blend, not to this value |
+| `nodeFadeProgress` | the linear progress of the crossfade the node is part of (for a node fading out, the one out of it; for the current node, the one into it), the same number on both sides: 0 when the transition starts, 1 when it ends, 1 with no crossfade running. How much of a node is shown is `nodeFadeProgress` fading in and `1 − nodeFadeProgress` fading out; the transition's easing applies to the blend, not to this value |
 | `nodeIsFadingIn` | the node is the layer's current node, while the crossfade into it runs |
 | `nodeIsActive` | the node is the layer's current node, fully in |
-| `nodeIsFadingOut` | the node is the one the layer left, still posed while the crossfade runs (its `update` list still runs, so a statement there can opt out with it) |
+| `nodeIsFadingOut` | the node is one the layer left, still posed while the crossfade out of it runs (its `update` list still runs, so a statement there can opt out with it) |
 | `nodeIsFinished` | the node's timed clips are done (below) |
 
 Exactly one of the three phases holds for a node being evaluated; the current node is
@@ -799,9 +799,16 @@ read 0, `nodeFadeProgress` 1 and the phases don't hold.
 The node and layer clocks advance by the ticks the frame lasted after the frame is posed (a node
 reads 0 on its first frame) and pause while the layer's `@when` doesn't hold.
 
-**A node never runs twice at once.** A transition to the current node restarts it without a
-crossfade; a transition during a crossfade freezes what is on screen into a snapshot and fades
-from that, and the node being left is disposed (its `exit` list runs) at once.
+**Interrupted crossfades stay live.** A transition during a crossfade doesn't stop it: the nodes
+fading out form a chain, each fading into the next and the last into the current node, every one
+still running (its clocks, its `update` list, its pose) until the transition out of it ends. Up to
+three nodes fade out at once; a transition past that freezes what is on screen into one pose and
+fades from it, and the nodes in it are disposed (their `exit` lists run) at once.
+
+**A node never runs twice at once.** A transition to the current node starts it over, fading from
+the node as it was last posed (with a `transitionDuration`); a transition back into a node still
+fading out does the same, freezing that node where it was. Either way the old node is disposed
+(its `exit` list runs) just before the node starts again.
 
 **`nodeIsFinished` holds** from the frame every clip of the node that has a `duration` has run it
 (`nodeTicksElapsed >= duration`), on every frame after, until the node is left. It is not an
