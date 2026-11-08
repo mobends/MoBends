@@ -33,9 +33,8 @@ repositories {
 }
 
 // The same engine release the mod is built with (../gradle.properties).
-val coreVersion: String = java.util.Properties().apply {
-    file("../gradle.properties").inputStream().use { load(it) }
-}.getProperty("core_version")
+val coreVersion: String = file("../gradle.properties").readLines()
+    .first { it.startsWith("core_version=") }.substringAfter("=").trim()
 
 java {
     toolchain {
