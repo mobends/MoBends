@@ -17,11 +17,15 @@ bin/
 # Minecraft run directory
 run/
 
-# Apple Silicon run setup: downloaded, see run-arm64/README.md
-run-arm64/jdk8-arm64/
-run-arm64/lib/
-run-arm64/natives/
-run-arm64/sidefix/
+# Apple Silicon run setup of the 1.12.2 client: downloaded, see legacy-1.12/run-arm64/README.md
+legacy-1.12/run-arm64/jdk8-arm64/
+legacy-1.12/run-arm64/lib/
+legacy-1.12/run-arm64/natives/
+legacy-1.12/run-arm64/sidefix/
 
 # Minecraft logs from the mod's own tests
 /logs/
+
+# Stonecutter version nodes (their build scripts are build.<loader>.gradle.kts at the root)
+/versions/
+.kotlin/

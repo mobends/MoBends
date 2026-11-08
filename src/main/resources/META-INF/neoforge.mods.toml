@@ -1,0 +1,24 @@
+license = "MIT"
+issueTrackerURL = "https://github.com/mobends/MoBends/issues"
+
+modLoader = "javafml"
+loaderVersion = "[1,)"
+
+[[mods]]
+modId = "${id}"
+displayName = "${name}"
+version = "${version}"
+authors = "GoblinBob"
+description = "If you think that Minecraft characters could be more realistic, instead of steady and rigid animations, this mod is just for you! It makes players seem alive, and adds epic sword animations!"
+logoFile = "assets/mobends/textures/logo512.png"
+displayURL = "https://mobends.com"
+
+[[mixins]]
+config = "mobends.mixins.json"
+
+[[dependencies.${id}]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft}"
+ordering = "NONE"
+side = "BOTH"

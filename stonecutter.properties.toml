@@ -1,0 +1,20 @@
+# The mod's properties, per Minecraft version and loader.
+# See https://stonecutter.kikugie.dev/wiki/config/properties#centralized-properties
+mod.id = "mobends"
+mod.name = "Mo' Bends"
+mod.version = "2.1.0-alpha.1"
+
+deps.fabric_loader = "0.20.1"
+loomx.loom_version = "1.19-SNAPSHOT"
+
+["1.21.1"]
+# The Minecraft releases the jar is marked compatible with on Modrinth and CurseForge.
+mod.mc_releases = ["1.21", "1.21.1"]
+
+[fabric."1.21.1"]
+# The Minecraft range in fabric.mod.json / neoforge.mods.toml.
+mod.mc_compat = ">=1.21 <=1.21.1"
+
+[neoforge."1.21.1"]
+mod.mc_compat = "[1.21, 1.21.1]"
+deps.neo_loader = "21.1.265"

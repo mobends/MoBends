@@ -17,34 +17,22 @@ If you'd like to be a part of Mo' Bends' development, see the progress, or just 
 Say you came from GitHub if you decide to come by! Hope to see you there
 
 ## Local Development Setup
-Install a Java Development Kit (JDK) appropriate for the Minecraft version you are developing for. For Minecraft 1.12.2, use JDK 8.
-I personally use the [Eclipse Temurin JDK](https://adoptium.net/temurin/releases?version=8&os=any&arch=any).
+You only need a Java Development Kit (any recent one, e.g. [Eclipse Temurin](https://adoptium.net/temurin/releases))
+to start Gradle: it downloads the JDKs the build needs by itself (JDK 25 to run Gradle, JDK 21 for Minecraft 1.21.1).
 
-Run the game with `./gradlew runClient` (or `./gradlew runServer`), or from IntelliJ IDEA with the run configurations
-`./gradlew genIntellijRuns` makes. `./gradlew build` builds the mod (`build/libs/*-all.jar` is the one to install) and runs
-the tests; the animation lab (`animation-lab/`, see its README) checks the animations against recorded traces.
-On Apple Silicon, [run-arm64/](run-arm64/README.md) runs the client natively.
+`main` builds every modern Minecraft version and loader from one source tree with [Stonecutter](https://stonecutter.kikugie.dev/).
+`./gradlew build` builds them all (the jars land in `versions/<minecraft>-<loader>/build/libs/`) and runs the tests;
+`./gradlew :1.21.1-fabric:runClient` (or `:1.21.1-neoforge:runClient`, `runServer`) runs the game.
+The Stonecutter plugin for IntelliJ IDEA (or the `Set active project to …` Gradle tasks) switches the
+version and loader the IDE works on. The animation lab (`animation-lab/`, see its README) checks the animations
+against recorded traces.
 [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/](docs/) explain how the project is put together.
 
-### Playing under a fixed name
-The development client picks a random name (`Player123`) on every launch. To test entity types that
-select players by name (see `misc/examples/player-name-type`), pick one:
-- Gradle: `./gradlew runClient -Pmc_username=BendyTester` (also works with `run-arm64/runClient.sh -Pmc_username=BendyTester`).
-- IntelliJ IDEA: add `--username BendyTester` to the *Program arguments* of the client run configuration.
-
-### Running with GeckoLib
-Mo' Bends poses armour made with GeckoLib when GeckoLib is installed, but the development client
-runs without it. To test that, add `-Pwith_geckolib`: GeckoLib and its example items (the potato
-armour among them, in the *GeckoLib Examples* creative tab) are then loaded too.
-- Gradle: `./gradlew runClient -Pwith_geckolib` (also works with `run-arm64/runClient.sh -Pwith_geckolib`).
-- IntelliJ IDEA (which takes the classpath from its Gradle sync): add `with_geckolib=true` to your
-  own `~/.gradle/gradle.properties` and reload the Gradle project; `with_geckolib=false` turns it off again.
+Mo' Bends for Minecraft 1.12.2 is developed on the [`forge-1.12`](https://github.com/mobends/MoBends/tree/forge-1.12) branch.
 
 ### Troubleshooting
 - IntelliJ freaks out and can't find symbols in the project, but compiles fine.
     - `File > Invalidate Caches/Restart` works like a charm <3
-- Crashing on a NullPointerException inside FML.
-    - Click "Download Sources" in the Gradle sidebar
 
 ## Creating addons
 Addons are a way to extend the functionality of Mo' Bends, e.g. adding support for new mobs.

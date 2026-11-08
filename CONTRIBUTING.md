@@ -5,89 +5,117 @@ made.
 
 The version line is about what players and pack authors get: **2.X** is Mo' Bends with the
 reworked animation system (Kumo animators, entity types, extensions, model definitions), 1.X the
-mod before it. Mo' Bends for Minecraft 1.12.2 (Forge) lives on the `forge-1.12` branch and is
-2.X from 2.0.0 on; the builds for other Minecraft versions and loaders planned in
-[TODO.md](TODO.md) will be 2.X too.
+mod before it. `main` builds Mo' Bends 2.X for the modern Minecraft versions and loaders (see
+[TODO.md](TODO.md) for the targets). Mo' Bends for Minecraft 1.12.2 (Forge) lives on the
+`forge-1.12` branch.
 
 ## Project layout
 
 | Part | What it contains | Depends on Minecraft? |
 |---|---|---|
-| `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8. | **No** |
-| root (`src/`) | The Forge 1.12.2 mod: connects the core to the vanilla models, entity state and rendering; the entities, menus, networking and config. Bundles `core/` into its jar. | Yes |
-| `animation-lab/` | A standalone test harness (JDK 21, no Forge) that runs the animators through scripted scenarios and checks them against recorded traces. | No (it stubs the few Minecraft classes it needs) |
+| `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8, shared with `forge-1.12`. | **No** |
+| `src/` | The mod for every modern Minecraft version and loader, as one source tree (see *One source tree* below). Compiled together with `core/` into each jar. | Yes |
+| `legacy-1.12/` | The 1.12.2 mod's sources, **not built**: the reference the port works from (see its [README](legacy-1.12/README.md)). | Yes (1.12.2) |
+| `animation-lab/` | A standalone test harness (JDK 21, no Minecraft) that runs the animators through scripted scenarios and checks them against recorded traces. | No (it stubs the few Minecraft classes it needs) |
 
 Rules of thumb:
 
 - If code doesn't need Minecraft, it belongs in `core/`. It must stay free of any `net.minecraft`
-  import, so other Minecraft versions can share it.
+  import, so every Minecraft version (1.12.2 included) can share it, and it must compile as Java 8
+  (`core/` is built with `--release 8`).
 - Code the lab compiles (see `modIncludes` in `animation-lab/build.gradle.kts`) must not use newer
   Java than 8; the lab compiles it with `--release 8` to catch that.
+
+## One source tree
+
+Every Minecraft version and loader is built from `src/` by [Stonecutter](https://stonecutter.kikugie.dev/).
+Each combination is a *version node*, `versions/<minecraft>-<loader>` (generated, not committed), built
+by `build.<loader>.gradle.kts`; their versions and dependencies are in `stonecutter.properties.toml`.
+Code that differs between them is fenced with comments, which Stonecutter comments in and out:
+
+```java
+//? if >=1.21.2 {
+applyPose(renderState);
+//?} else {
+/*applyPose(entity);*/
+//?}
+```
+
+- `src/` always holds the code of one node, the *active* one (`stonecutter active` in
+  `stonecutter.gradle.kts`). The IDE only compiles that one; `./gradlew build` builds them all.
+- Switch the active node with the Stonecutter IntelliJ plugin or the `Set active project to <node>`
+  Gradle tasks, never by editing the files by hand.
+- **Only commit with the default node active** (`vcsVersion` in `settings.gradle.kts`, now
+  `1.21.1-fabric`). Switching rewrites the fenced comments in your working copy; switch back
+  (`./gradlew "Reset active project"`) before committing, or the diff fills up with comment noise.
+  CI rejects it otherwise.
+- A fix is made once, in one pull request, for every version. Adding a Minecraft version means adding
+  a node in `settings.gradle.kts` (and its properties), **not** creating a branch.
+
+### Loader code
+
+Most of the mod talks to vanilla Minecraft only (mostly through Mixins), the same on every loader.
+What does need a loader lives in its own package:
+
+| Package | What |
+|---|---|
+| `goblinbob.mobends` and the rest | Loader-independent. **Must not use a loader API** (`net.fabricmc`, `net.neoforged`). |
+| `goblinbob.mobends.platform` | `Platform`: what the loader-independent code needs from the loader. |
+| `goblinbob.mobends.fabric` | Fabric's entrypoint and `Platform`. Every file is fenced whole in `//? if fabric {`. |
+| `goblinbob.mobends.neoforge` | NeoForge's entrypoint and `Platform`. Every file is fenced whole in `//? if neoforge {`. |
+
+When the loader-independent code needs something from the loader, add it to `Platform` and implement
+it in both loader packages. CI (`.github/scripts/check-sources.sh`) checks that no other package
+uses a loader API, and that `src/` is committed with the default node active. Run it before
+pushing if you like.
+
+## Building and running
+
+Gradle runs on JDK 25 and builds 1.21.1 with JDK 21. You don't need to install either: Gradle
+downloads them (`gradle/gradle-daemon-jvm.properties`, and the toolchains of the build scripts).
+
+| Command | What |
+|---|---|
+| `./gradlew build` | Builds every node, and tests `core/`. Jars in `versions/<node>/build/libs/`. |
+| `./gradlew buildAndCollect` | The same, then copies every jar into `build/libs/<version>/`. |
+| `./gradlew :1.21.1-fabric:runClient` | Runs a node's client (`runServer` for its server). Every node shares the `run/` directory. |
+| `./gradlew :core:test` | Tests the core. |
+| `cd animation-lab && ./gradlew test` | Runs the animation lab (see its README). |
 
 ## Branches
 
 ```
-forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
+main                     Mo' Bends 2.X for the modern Minecraft versions × loaders
  ├─ feature/<name>       short-lived, merged via pull request
  ├─ fix/<name>
+forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 ```
 
-- Branch off `forge-1.12`, open a pull request back into `forge-1.12`.
-- CI builds the mod and runs the `core/` tests and the animation lab. All of them must pass.
+- Branch off `main`, open a pull request back into `main`. For 1.12.2, branch off `forge-1.12`
+  instead; its CONTRIBUTING.md describes how 1.12.2 is built and released.
+- CI builds every node and runs the `core/` tests and the animation lab. All of them must pass.
+- `forge-1.12` doesn't merge from `main`. It shares the engine by depending on a published, pinned
+  release of `core` (see [TODO.md](TODO.md)): an engine fix is made in `core/` on `main`, released,
+  and the dependency bumped on `forge-1.12`.
 - `1.X/forge-1.12` holds the 1.X line (up to 1.2.2) and is no longer developed.
 
 ## Versioning and releases
 
 | What | Version line | Tag | Released from |
 |---|---|---|---|
+| The mod for the modern versions | 2.X | `v2.x.y` (not set up yet) | `main` |
 | The mod for 1.12.2 | 2.X | `v2.x.y-1.12.2` | `forge-1.12` |
-| The engine library | follows the mod | `core-2.x.y` | `forge-1.12` |
+| The engine library | follows the mod | `core-2.x.y` | `main` |
 
-1.12.2's tags carry the Minecraft version, so they never clash with the tags of the other
-versions' releases.
-
-- The mod's version is `mod_version` in `gradle.properties` (and `ModStatics.VERSION`).
-- `core` gets a new release when its API changes, or when another project needs a change from it.
-
-### Releasing the mod
-
-Set `mod_version` in `gradle.properties` (e.g. `2.0.0`, or `2.0.0-alpha.1` for a prerelease), give
-`CHANGELOG.md` a `## <version>` section, and push the tag `v<version>-1.12.2`. That runs
-`.github/workflows/release.yml`, which:
-
-1. builds the mod's jar, `MoBends_1.12.2-<version>.jar`;
-2. builds `Legacy-Mo-Bends-<version>.zip`, signed so that servers that deny resource packs' animation
-   trust it (see `docs/content.md`, *Mo' Bends' Own Resource Packs*);
-3. attaches both to the tag's GitHub release, creating it (from the changelog section) if there isn't
-   one;
-4. uploads the jar to Modrinth and CurseForge as version `<version>+1.12.2`, with the changelog
-   section as its changelog. A version with `alpha` in it is released as an alpha, with `beta`, `rc`
-   or `pre` as a beta, otherwise as a release. (The pack is uploaded too once it has its own
-   pages, see [TODO.md](TODO.md); until then upload it by hand from the GitHub release.)
-
-What the workflow needs, under *Settings → Secrets and variables → Actions* (secrets may also go in
-the `release` environment, which can be made to wait for a reviewer's approval):
-
-| Name | Kind | What |
-|---|---|---|
-| `MOBENDS_PACK_SIGNING_KEY` | secret | The pack signing key (the base64 line in the key file). |
-| `MODRINTH_TOKEN` | secret | A Modrinth personal access token with *Create versions*, *Read projects* and *Read versions*. |
-| `CURSEFORGE_TOKEN` | secret | A CurseForge API token (authors.curseforge.com, *API tokens*). |
-| `MODRINTH_PROJECT_ID` | variable | The mod's Modrinth project id (or slug). |
-| `CURSEFORGE_PROJECT_ID` | variable | The mod's CurseForge project id (a number). |
-| `LEGACY_PACK_MODRINTH_PROJECT_ID` | variable | The pack's Modrinth project id, once it has a page. |
-| `LEGACY_PACK_CURSEFORGE_PROJECT_ID` | variable | The pack's CurseForge project id, once it has a page. |
-
-A version can't be uploaded to Modrinth or CurseForge twice. If a release fails partway, re-run the
-failed jobs rather than pushing the tag again.
-
-The pack is signed with `MOBENDS_PACK_SIGNING_KEY`. Locally, `gradle legacyPack -Ppack_signing_key=<file>`
-does the same into `build/packs/`. The private key is never committed. Keep a copy in a password
-manager. A lost key means new packs need a mod release that ships a new public key.
+- The mod's version is `mod.version` in `stonecutter.properties.toml`. Jars are named
+  `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.1.0+1.21.1-neoforge.jar`.
+- A modern release will ship every node at once; its workflow comes with the first release (see
+  [TODO.md](TODO.md)).
+- `core` gets a new release when its API changes, or when another branch needs a change from it.
 
 ### Releasing `core`
 
-Push a tag named `core-<version>` (e.g. `git tag core-2.0.0 && git push origin core-2.0.0`).
+Push a tag named `core-<version>` on `main` (e.g. `git tag core-2.0.0 && git push origin core-2.0.0`).
 CI (`.github/workflows/publish-core.yml`) tests `core/` and publishes it to GitHub Packages as
 `goblinbob.mobends:mobends-core:<version>`. A version can't be published twice, so bump it for every release.
 
