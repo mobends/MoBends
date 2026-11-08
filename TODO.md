@@ -131,9 +131,12 @@ forge-1.12               1.12.2
      - [x] **The player bends** (1.21.1, Fabric + NeoForge): the player's model definition, entity
        data and KUMO glue, and its bent model (split elbows and knees) drawn in place of vanilla's
        (`DefinedModelBuilder`, `BendsRenderer`). Checked in the game on both loaders.
-     - [ ] The player's render layers: armour, held items, cape, elytra, custom head (they draw
-       where vanilla puts them for now), the first-person hands, the sword trail and the cape wave,
-       and the head re-aim of 1.12's `lookFurther` (the inventory player).
+     - [x] The player's render layers: held items, vanilla armour, custom head, cape and elytra
+       follow the bent player.
+     - [ ] The rest of the player: the first-person hands, the sword trail, the cape wave, the head
+       re-aim of 1.12's `lookFurther` (the inventory player), stuck arrows and bee stingers, armour
+       from other mods' models, and poses for the items 1.12 didn't have (spyglass, goat horn,
+       brush, crossbow, trident).
      - [ ] The other mobs (their model definitions and type files, extensions, the ray and step
        drivers, `field` expressions).
      - [ ] The config, the Mo' Bends menu, server rules (networking, `AnimationPolicy`), pack

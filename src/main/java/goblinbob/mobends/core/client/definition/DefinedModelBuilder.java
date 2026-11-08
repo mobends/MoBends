@@ -32,10 +32,17 @@ import java.util.Set;
  * the bone under them is, each piece riding its segment. This is 1.12's
  * {@code DefinedMutator.createParts}, except that the vanilla model is left as it is: its parts are
  * only read, and drawn instead of it.
+ * <p>
+ * It also builds the parts of a model worn over another one ({@link #buildOver}: the vanilla armour
+ * over the player), cut where the parts underneath are cut, as 1.12's {@code ArmorWrapper} cut the
+ * armour at the elbows and knees.
  */
 final class DefinedModelBuilder {
     private final EntityModelDefinition definition;
     private final ModelPart root;
+    /** The parts this model is worn over, whose cuts and frames its boxes follow; null for an entity's own model. */
+    @Nullable
+    private final DefinedModel over;
     /** Per bone: the vanilla part it takes over. */
     private final Map<String, ModelPart> vanillaParts = new LinkedHashMap<>();
     private final Map<String, DefinedModelPart> parts = new LinkedHashMap<>();
@@ -43,19 +50,36 @@ final class DefinedModelBuilder {
     private final Map<String, float[]> positions = new LinkedHashMap<>();
     /** Per bone: its segments' origins in its frame. */
     private final Map<String, List<float[]>> originsOf = new HashMap<>();
+    /** Per bone, in model units: how far its boxes move into its frame (from where the vanilla part turned). */
+    private final Map<String, float[]> shifts = new HashMap<>();
     private final List<DefinedModelPart> roots = new ArrayList<>();
 
-    private DefinedModelBuilder(EntityModelDefinition definition, ModelPart root) {
+    private DefinedModelBuilder(EntityModelDefinition definition, ModelPart root, @Nullable DefinedModel over) {
         this.definition = definition;
         this.root = root;
+        this.over = over;
     }
 
     /** The parts of the model whose part tree starts at {@code root}. */
     static DefinedModel build(EntityModelDefinition definition, ModelPart root) {
-        DefinedModelBuilder builder = new DefinedModelBuilder(definition, root);
-        builder.resolve();
-        builder.createParts();
-        return new DefinedModel(builder.roots, builder.positions);
+        return new DefinedModelBuilder(definition, root, null).build();
+    }
+
+    /**
+     * The parts of a model worn over {@code over} (armour), whose part tree starts at {@code root}.
+     * They are drawn posed by the same data, so they don't read positions of their own: each box
+     * goes into the frame of the bone it is worn on as {@code over} has it, and a split bone's boxes
+     * are cut where {@code over}'s are, at the joints of its segments, open there, as the sleeves
+     * are. A bone whose vanilla part this model lacks (the sleeves, the jacket) is left empty.
+     */
+    static DefinedModel buildOver(EntityModelDefinition definition, ModelPart root, DefinedModel over) {
+        return new DefinedModelBuilder(definition, root, over).build();
+    }
+
+    private DefinedModel build() {
+        resolve();
+        createParts();
+        return new DefinedModel(roots, parts, positions, shifts, originsOf, over);
     }
 
     // --- resolving the vanilla parts ---------------------------------------------------------------
@@ -67,6 +91,10 @@ final class DefinedModelBuilder {
             }
             ModelPart part = findVanillaPart(bone.vanilla);
             if (part == null) {
+                if (over != null) {
+                    // Worn over a model with more parts (armour has no sleeves): nothing to draw there.
+                    continue;
+                }
                 MoBends.LOGGER.warn("Model definition {}: cannot find the vanilla part of bone '{}'.", definition.location, bone.name);
                 continue;
             }
@@ -103,11 +131,10 @@ final class DefinedModelBuilder {
         // Per bone, in model units: where it turns, and how far its boxes move into its frame (from
         // where the vanilla part turned), and its segments.
         Map<String, float[]> pivots = new HashMap<>();
-        Map<String, float[]> shifts = new HashMap<>();
         Map<String, List<DefinedModelPart>> segmentsOf = new HashMap<>();
         for (BoneDefinition bone : definition.bones) {
             if (bone.overlay != null) {
-                createOverlay(bone, shifts, pivots, segmentsOf);
+                createOverlay(bone, pivots, segmentsOf);
                 continue;
             }
             ModelPart vanilla = vanillaParts.get(bone.name);
@@ -126,6 +153,11 @@ final class DefinedModelBuilder {
                 pivot = bone.pivot != null ? bone.pivot.clone() : turnsAt;
             }
             float[] shift = bone.pivot != null && bone.position == null ? subtract(turnsAt, bone.pivot) : new float[3];
+            if (over != null && over.shifts.get(bone.name) != null) {
+                // Vanilla draws the worn model's part where the part underneath is (copyPropertiesTo),
+                // so its boxes go where that part's would.
+                shift = over.shifts.get(bone.name);
+            }
             pivots.put(bone.name, pivot);
             shifts.put(bone.name, shift);
 
@@ -155,6 +187,7 @@ final class DefinedModelBuilder {
                     // A segment shows with its bone.
                     DefinedModelPart segment = new DefinedModelPart(name, previous, vanilla);
                     previous.children.add(segment);
+                    part.segments.add(segment);
                     parts.put(name, segment);
                     segments.add(segment);
                     previous = segment;
@@ -164,9 +197,12 @@ final class DefinedModelBuilder {
             List<float[]> origins = new ArrayList<>();
             origins.add(new float[3]);
             if (bone.boxes != null) {
-                float[] textureSize = textureSizeOf(vanilla);
-                for (BoneDefinition.BoxDefinition box : bone.boxes) {
-                    part.boxes.add(createBox(box, textureSize));
+                // Boxes the definition declares are the entity's own, not a worn model's.
+                if (over == null) {
+                    float[] textureSize = textureSizeOf(vanilla);
+                    for (BoneDefinition.BoxDefinition box : bone.boxes) {
+                        part.boxes.add(createBox(box, textureSize));
+                    }
                 }
             } else if (vanilla != null) {
                 for (ModelPart.Cube cube : cubesOf(vanilla)) {
@@ -176,7 +212,13 @@ final class DefinedModelBuilder {
                         part.boxes.add(source.create());
                         continue;
                     }
-                    origins = addSplitBoxes(source, bone, bone.split, segments, null, bone.split.caps);
+                    List<float[]> cuts = over == null ? null : over.segmentOrigins.get(bone.name);
+                    if (cuts != null && cuts.size() == segments.size()) {
+                        // Cut where the bone underneath is, and open at the joints, as 1.12's armour was.
+                        origins = addSplitBoxes(source, bone, bone.split, segments, cuts, false);
+                    } else {
+                        origins = addSplitBoxes(source, bone, bone.split, segments, null, bone.split.caps);
+                    }
                 }
             }
             if (vanilla != null) {
@@ -202,7 +244,7 @@ final class DefinedModelBuilder {
      * A bone laid over another: its boxes, in the frame of the bone it lies over (as vanilla turns
      * them both about that bone's point), split as that bone is, each piece riding its segment.
      */
-    private void createOverlay(BoneDefinition bone, Map<String, float[]> shifts, Map<String, float[]> pivots, Map<String, List<DefinedModelPart>> segmentsOf) {
+    private void createOverlay(BoneDefinition bone, Map<String, float[]> pivots, Map<String, List<DefinedModelPart>> segmentsOf) {
         BoneDefinition under = definition.bone(bone.overlay);
         List<DefinedModelPart> underSegments = segmentsOf.get(bone.overlay);
         if (under == null || underSegments == null) {
