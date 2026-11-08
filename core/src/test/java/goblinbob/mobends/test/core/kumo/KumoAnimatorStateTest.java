@@ -145,6 +145,42 @@ public class KumoAnimatorStateTest
     }
 
     @Test
+    public void aRelativeRotationWithNothingBeneathBuildsOnRestNotOnLastFrame() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", "
+                + "\"nodes\": {\"a\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"arm\", \"axis\": \"x\", "
+                + "\"angle\": 10}, \"@space\": \"pre\"}]}}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        for (int frame = 0; frame < 3; frame++)
+        {
+            animator.update(subject, 1F);
+            assertRotation(TestSubject.axisAngle(1, 0, 0, 10), subject.target("arm"));
+        }
+    }
+
+    @Test
+    public void aCrossfadeIntoANodeThatDoesntWriteABoneFadesItToRest() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"from\", "
+                + "\"nodes\": {\"from\": {\"core:pose\": {\"pose\": [{\"core:rotate\": {\"bone\": \"arm\", \"axis\": \"x\", "
+                + "\"angle\": 90}, \"@space\": \"override\"}]}, \"@connections\": [{\"when\": {\"gt\": [\"nodeTicksElapsed\", 2]}, "
+                + "\"then\": \"to\", \"transitionDuration\": 10, \"transitionEasing\": \"linear\"}]}, "
+                + "\"to\": {\"core:pose\": {}}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        // Three frames in the first node, the one the transition starts on, then five ticks into it.
+        for (int frame = 0; frame < 9; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertRotation(TestSubject.axisAngle(1, 0, 0, 45), subject.target("arm"));
+        for (int frame = 0; frame < 10; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        assertRotation(new Quaternion(), subject.target("arm"));
+    }
+
+    @Test
     public void anUnknownBareNameFailsTheAnimatorWhenItLoads()
     {
         // Read only by a node the layer never reaches, and only in a connection: still an error.
@@ -279,8 +315,8 @@ public class KumoAnimatorStateTest
         TestSubject subject = new TestSubject("node", "layer");
         animator.update(subject, 1F);
         animator.update(subject, 1F);
-        animator.update(subject, 1F); // to b: nothing writes the bones, they keep their targets
-        assertEquals(2, counted(subject, "node"), 0);
+        animator.update(subject, 1F); // to b: nothing writes the bones, they rest
+        assertEquals(0, counted(subject, "node"), 0);
         animator.update(subject, 1F); // back to a, whose node.n starts over
         assertEquals(1, counted(subject, "node"), 0);
         assertEquals(3, counted(subject, "layer"), 0);

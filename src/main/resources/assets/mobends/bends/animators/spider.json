@@ -265,6 +265,12 @@
                 "@smoothing": {"foreLeg8": 1}
               },
               {
+                "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
+                "@space": "override",
+                "@snap": true
+              },
+              {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
+              {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
                 "@smoothing": {"center": 1},
                 "@vectorModes": {"center": "slide"}

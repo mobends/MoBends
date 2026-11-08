@@ -37,7 +37,9 @@ runtime is put together.
    * layers composite in order onto the animator's pose; extensions' layers come last;
    * with an untrusted layer present, the result is clamped around the trusted pose
      (`AnimationLimits`, see [content.md](content.md));
-   * the final pose is written once into the subject's sinks.
+   * the final pose is written once into the subject's sinks: every bone, and what no layer wrote
+     this frame at rest. Poses are declarative: nothing an earlier frame wrote carries over, and
+     beneath the first layer is the rest pose.
 3. The sinks are the bones' `SmoothOrientation` / `SmoothVector3f`: the animator only sets
    *targets*, and the bones smooth towards them over their smoothing (in ticks). Smoothing is
    therefore a property of the animator (per node and per item) rather than of any code.

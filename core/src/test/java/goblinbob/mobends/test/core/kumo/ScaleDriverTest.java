@@ -83,7 +83,20 @@ public class ScaleDriverTest
     }
 
     @Test
-    public void anOverrideAxisLeftOutKeepsThePartsCurrentScale() throws MalformedKumoTemplateException
+    public void anOverrideAxisLeftOutKeepsWhatTheLayersBelowGaveIt() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = TestSubject.instance("{'formatVersion': 2, 'layers': ["
+                + layer("{'core:scale': {'bone': 'arm', 'x': 2, 'y': 1, 'z': 3}, '@space': 'override'}") + ", "
+                + layer("{'core:scale': {'bone': 'arm', 'y': 5}, '@space': 'override'}") + "]}");
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+
+        assertVector(2, 5, 3, subject.scales.get("arm"));
+    }
+
+    @Test
+    public void anOverrideAxisLeftOutWithNothingBeneathIsAtRest() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'core:scale': {'bone': 'arm', 'y': 5}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
@@ -91,7 +104,8 @@ public class ScaleDriverTest
 
         animator.update(subject, 1F);
 
-        assertVector(2, 5, 3, subject.scales.get("arm"));
+        // Not the part's scale from before: the rest scale.
+        assertVector(1, 5, 1, subject.scales.get("arm"));
     }
 
     @Test
@@ -188,16 +202,16 @@ public class ScaleDriverTest
     }
 
     @Test
-    public void aScaleLeftFromBeforeTheLimitsIsBroughtBackWithinThem() throws MalformedKumoTemplateException
+    public void aScaleNothingWritesGoesBackToRest() throws MalformedKumoTemplateException
     {
-        // Nothing scales the arm (it is only turned), and nothing untrusted touches it.
-        KumoAnimatorState animator = limited("{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 10}}", "", new AnimationLimits(4, 16, 1.5F));
+        // Nothing scales the arm (it is only turned).
+        KumoAnimatorState animator = animator("{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 10}}");
         TestSubject subject = new TestSubject("arm");
         subject.scales.get("arm").set(10, 0, Float.NaN);
 
         animator.update(subject, 1F);
 
-        assertVector(1.5F, 1 / 1.5F, 1, subject.scales.get("arm"));
+        assertVector(1, 1, 1, subject.scales.get("arm"));
     }
 
     @Test

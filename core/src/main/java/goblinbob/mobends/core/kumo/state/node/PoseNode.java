@@ -40,7 +40,6 @@ public class PoseNode implements INodeState
     /** The stateful expressions of the node's items, started over when the node starts. */
     private Expression[] held = new Expression[0];
 
-    private boolean fallthrough;
     private boolean vanilla;
 
     /** Its state (see StateLayout): its clock, whether the snaps and the enter pose are still to apply. */
@@ -159,9 +158,7 @@ public class PoseNode implements INodeState
     public static PoseNode createFallthrough(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, FallthroughNodeTemplate template) throws MalformedKumoTemplateException
     {
         template.validate();
-        PoseNode node = new PoseNode(template.name, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null, context.getExpressionScope().getLayout());
-        node.fallthrough = true;
-        return node;
+        return new PoseNode(template.name, Collections.<IPoseItem>emptyList(), null, skeleton, null, null, null, context.getExpressionScope().getLayout());
     }
 
     public static PoseNode createVanilla(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layer, VanillaNodeTemplate template) throws MalformedKumoTemplateException
@@ -275,12 +272,6 @@ public class PoseNode implements INodeState
     public boolean isVanilla()
     {
         return vanilla;
-    }
-
-    @Override
-    public boolean isFallthrough()
-    {
-        return fallthrough;
     }
 
     /**

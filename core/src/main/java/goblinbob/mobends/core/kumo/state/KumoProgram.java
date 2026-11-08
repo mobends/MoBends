@@ -169,9 +169,9 @@ public final class KumoProgram
         {
             layer.allocate();
         }
-        // The animator's own pose (which reads the bones it doesn't write) and the trusted layers' result.
+        // The animator's own pose and the trusted layers' result: base poses, over the rest pose.
         pose = layout.pose(true);
-        trustedPose = layout.pose();
+        trustedPose = layout.pose(true);
         vectorSlot = new boolean[skeleton.size()];
         for (int i = 0; i < vectorSlot.length; i++)
         {

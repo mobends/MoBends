@@ -14,8 +14,8 @@ public class BoneTarget
 
     /**
      * Relative rotations gathered while no absolute value exists: the result composes as
-     * {@code pre * beneath * post}, where "beneath" is the earlier layers' value or the bone's
-     * live target. An OVERRIDE write folds them away.
+     * {@code pre * beneath * post}, where "beneath" is the earlier layers' value or the rest
+     * pose. An OVERRIDE write folds them away.
      */
     public boolean hasPre;
     public final Quaternion pre = new Quaternion();

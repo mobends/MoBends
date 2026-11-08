@@ -1095,7 +1095,7 @@ const spJump: Obj = poseNode([
   ...range(8).map((i) => drv(`leg${i + 1}`, "Z", jumpMotion(25 * alternate(i), -20 * alternate(i)), { space: "post" })),
   ...range(8).map((i) => withSmoothing(drv(`foreLeg${i + 1}`, "Z", jumpMotion(-40 * alternate(i), -70 * alternate(i)), { space: "override" }),
                                      { [`foreLeg${i + 1}`]: 1 })),
-  spiderRest,
+  ...spiderHead, spiderRest,
 ], { on: { enter: [set("layer.resetLimbs", 1)] } });
 // death: legs splay (instant), sway with the last limb swing, and wiggle with a decaying speed
 const deathZ = [-45, 45, -33.3, 33.3, -33.3, 33.3, -45, 45];
