@@ -1,5 +1,6 @@
 package goblinbob.mobends.standard.client.renderer.entity;
 
+import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityComponent;
@@ -10,11 +11,14 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GUtil;
 import goblinbob.mobends.core.util.IColorRead;
 import goblinbob.mobends.standard.main.ModConfig;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumHandSide;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Iterator;
@@ -49,7 +53,15 @@ public class SwordTrail implements EntityComponent
         protected ModelPartTransform arm;
         protected ModelPartTransform foreArm;
 
+        // The rotations the renderer applies itself, turned into the trail's frame (see #inTrailFrame).
+        /** Vanilla's elytra flight: the turn towards where the player moves, then the pitch (RenderPlayer#applyRotations). */
+        protected Quaternion elytraTurn = new Quaternion();
+        protected Quaternion elytraPitch = new Quaternion();
         protected Quaternion renderRotation = new Quaternion();
+        protected Quaternion centerRotation = new Quaternion();
+        /** Half the entity's height, in pixels: where centerRotation turns the model about. */
+        protected float halfHeight;
+        protected Vec3f localOffset = new Vec3f();
         protected Vec3f renderOffset = new Vec3f();
         protected Quaternion itemRotation = new Quaternion();
         protected Vec3f position = new Vec3f();
@@ -97,7 +109,15 @@ public class SwordTrail implements EntityComponent
             GUtil.translate(points, arm.position.x, 10, 0);
             GUtil.rotate(points, body.rotation.getSmooth());
             GUtil.translate(points, 0, 12, 0);
+            // The rotations of the whole model, in the order the renderer applies them: vanilla's
+            // (about the feet), then those of MutatedRenderer#beforeRender.
+            GUtil.rotate(points, elytraTurn);
+            GUtil.rotate(points, elytraPitch);
+            GUtil.translate(points, localOffset.x, localOffset.y, localOffset.z);
             GUtil.rotate(points, renderRotation);
+            GUtil.translate(points, 0, -halfHeight, 0);
+            GUtil.rotate(points, centerRotation);
+            GUtil.translate(points, 0, halfHeight, 0);
             GUtil.translate(points, renderOffset.x, renderOffset.y, renderOffset.z);
 
             for (final Vec3f point : points)
@@ -191,10 +211,59 @@ public class SwordTrail implements EntityComponent
         newPart.renderOffset.set(entityData.globalOffset.getX(),
                 entityData.globalOffset.getY(),
                 entityData.globalOffset.getZ());
-        newPart.renderRotation.set(entityData.renderRotation.getSmooth());
-        newPart.renderRotation.conjugate();
+        inTrailFrame(entityData.renderRotation.getSmooth(), newPart.renderRotation);
+        inTrailFrame(entityData.centerRotation.getSmooth(), newPart.centerRotation);
+        if (entity instanceof AbstractClientPlayer && entity.isElytraFlying())
+        {
+            setElytraRotations((AbstractClientPlayer) entity, DataUpdateHandler.partialTicks, newPart);
+        }
+        newPart.halfHeight = entity.height / 2 * 16;
+        newPart.localOffset.set(entityData.localOffset.getX(),
+                entityData.localOffset.getY(),
+                entityData.localOffset.getZ());
 
         trailPartList.add(newPart);
+    }
+
+    /**
+     * A rotation the renderer applies with GL in the entity's frame, as {@link GUtil#rotate} takes it
+     * to turn the trail the same way. The trail is drawn in that frame, which is the model's with Y
+     * and Z negated, and GUtil#rotate takes rotations of the model's frame (the bones'), turning
+     * (x, y, z, w) into (x, -y, -z, w); so a rotation of the entity's frame goes in as (x, -y, -z, w).
+     */
+    private static void inTrailFrame(Quaternion glRotation, Quaternion dest)
+    {
+        dest.set(glRotation.x, -glRotation.y, -glRotation.z, glRotation.w);
+    }
+
+    /** A rotation by {@code degrees} about an axis, as GL applies it, in the trail's frame. */
+    private static void inTrailFrame(float degrees, float x, float y, float z, Quaternion dest)
+    {
+        final double half = Math.toRadians(degrees) / 2;
+        final float sin = (float) Math.sin(half);
+        dest.set(x * sin, -y * sin, -z * sin, (float) Math.cos(half));
+    }
+
+    /**
+     * Vanilla's rotations of a player flying with an elytra, as RenderPlayer#applyRotations applies
+     * them after its turn by 180 - yaw. The trail's frame faces the other way (MutatedRenderer turns
+     * by -yaw), which flips the pitch and leaves the turn about Y as it is.
+     */
+    private static void setElytraRotations(AbstractClientPlayer player, float partialTicks, TrailPart part)
+    {
+        final float ticks = player.getTicksElytraFlying() + partialTicks;
+        final float pitch = MathHelper.clamp(ticks * ticks / 100F, 0F, 1F) * (-90F - player.rotationPitch);
+        inTrailFrame(-pitch, 1, 0, 0, part.elytraPitch);
+
+        final Vec3d look = player.getLook(partialTicks);
+        final double motion = player.motionX * player.motionX + player.motionZ * player.motionZ;
+        final double lookXZ = look.x * look.x + look.z * look.z;
+        if (motion > 0 && lookXZ > 0)
+        {
+            final double cos = (player.motionX * look.x + player.motionZ * look.z) / (Math.sqrt(motion) * Math.sqrt(lookXZ));
+            final double cross = player.motionX * look.z - player.motionZ * look.x;
+            inTrailFrame((float) (Math.signum(cross) * Math.acos(cos) * 180 / Math.PI), 0, 1, 0, part.elytraTurn);
+        }
     }
 
     public void add(LivingEntityData<?> entityData)
