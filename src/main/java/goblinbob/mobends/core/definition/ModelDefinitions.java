@@ -70,15 +70,19 @@ public class ModelDefinitions {
         }
     }
 
-    /** The definition's JSON, with what it {@code extends} merged in (see {@link DefinitionMerge}). */
+    /**
+     * The definition's JSON, with what it {@code extends} merged in, then its {@code @variants} that
+     * hold (see {@link DefinitionMerge}): a parent's variants are merged into the parent first, so
+     * a child's own, and its variants, override them.
+     */
     private static JsonObject resolve(JsonObject json, Set<ResourceLocation> visiting) throws IOException, MalformedKumoTemplateException {
         if (!json.has("extends")) {
-            return json;
+            return DefinitionMerge.applyVariants(json);
         }
         ResourceLocation parentLocation = ResourceLocation.parse(json.get("extends").getAsString());
         if (!visiting.add(parentLocation)) {
             throw new MalformedKumoTemplateException("The model definition " + parentLocation + " extends itself, through " + visiting + ".");
         }
-        return DefinitionMerge.merge(resolve(read(parentLocation), visiting), json);
+        return DefinitionMerge.applyVariants(DefinitionMerge.merge(resolve(read(parentLocation), visiting), json));
     }
 }

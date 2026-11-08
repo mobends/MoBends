@@ -26,6 +26,15 @@
   "childBones": {
     "head": {"offsetScale": 0.5, "globalOffset": [0, 5, -2]}
   },
+  "@variants": [
+    {
+      "@comment": "Mo' Bends 1.12.2 draws the pup's head 1.8 px higher and 0.5 px further back than vanilla does (the offset above). On later versions it goes exactly where vanilla draws it (measured against 1.21.1). Mo' Bends 1.12.2 ignores this key and keeps its own look.",
+      "@when": {"core:minecraft_version": [">", "1.12.2"]},
+      "childBones": {
+        "head": {"offsetScale": 0.5, "globalOffset": [0, 6.75, -2.5]}
+      }
+    }
+  ],
   "layers": {
     "mobends:wolf_misc": {}
   }

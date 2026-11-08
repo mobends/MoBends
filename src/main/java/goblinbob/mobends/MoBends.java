@@ -1,6 +1,7 @@
 package goblinbob.mobends;
 
 import goblinbob.mobends.core.CoreClient;
+import goblinbob.mobends.core.kumo.MinecraftVersion;
 import goblinbob.mobends.platform.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ public final class MoBends {
 
     public static void init() {
         LOGGER.info("Mo' Bends {} for Minecraft {} on {}", VERSION, MINECRAFT, platform().loaderName());
+        // What core:minecraft_version compares with, before any animator or definition loads.
+        MinecraftVersion.set(MINECRAFT);
         if (platform().isClient()) {
             // In a class of its own, so a server never loads the client's classes.
             CoreClient.init();

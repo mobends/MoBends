@@ -490,6 +490,17 @@ public final class ExpressionOperations
             EntityFields.Path path = resolveField(args);
             return path == null ? Expression.FALSE : new FieldExists(path);
         });
+
+        // The engine's own registered operations (core:), which need nothing of Minecraft's.
+        registerBuiltIn(goblinbob.mobends.core.kumo.MinecraftVersion.OPERATION);
+    }
+
+    /** Adds one of the engine's registered operations, before any driver is (see {@link #register(goblinbob.mobends.core.kumo.api.KumoOperation)}). */
+    private static void registerBuiltIn(goblinbob.mobends.core.kumo.api.KumoOperation operation)
+    {
+        OPERATIONS.put(operation.name, new Operation(operation.compilerParams(), operation.repeatsLast, operation.takesFallback,
+                args -> BoundOperation.compile(operation, args)));
+        REGISTERED.put(operation.name, operation);
     }
 
     private static Expression field(Arguments args) throws MalformedKumoTemplateException
