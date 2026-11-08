@@ -20,8 +20,15 @@ import java.util.*;
 
 /**
  * A layer: the outermost machine of its nodes. Each frame it decides its node (see {@link #decide}),
- * then the current node (and, during a transition, the previous node or a frozen snapshot of the
- * blend) is evaluated, the two are cross-faded, and the result is composited onto the animator pose.
+ * then the current node and the nodes still fading out are evaluated and cross-faded, oldest
+ * first, and the result is composited onto the animator pose.
+ *
+ * <p>The nodes fading out form a chain: each fades into the next, the last into the current node,
+ * each over its own transition. Every node in it keeps running (its clocks, its update list, its
+ * pose), so nothing on screen freezes when a transition interrupts another. A node is never run
+ * twice at once, so one the layer goes back into while it still fades out stays in the chain as it
+ * was last posed (frozen), and so does a node that starts over. The chain holds at most
+ * {@link #MAX_FADING} nodes: past that, what is on screen is frozen into one.
  */
 public class LayerState
 {
@@ -42,17 +49,22 @@ public class LayerState
     private final Quaternion rotationTemp = new Quaternion();
     private final Vec3f vectorBeneath = new Vec3f();
 
-    // The entity's state (see StateLayout). Ints: the current node's index, the index of the node
-    // fading out (-1 for none: the previous node), whether the previous node is a frozen snapshot,
-    // the transition's easing, whether start() entered the node this frame (which stands for the
-    // frame's decision), whether the "when" held on the last update; then, per machine, whether
-    // it was left while its last node still fades out (it is disposed when that node is).
-    private final int currentSlot, previousSlot, snapshotSlot, easingSlot, justStartedSlot, enabledSlot, pendingExitSlot;
-    // Floats: the transition's progress and duration, the layer's clock.
-    private final int progressSlot, durationSlot, elapsedSlot;
-    // Pose buffers: the current and the previous node's poses, the frozen snapshot, the blend, and
-    // the last output (what a snapshot freezes).
-    private final int currentPose, previousPose, snapshotPose, outputPose, lastOutput;
+    /** How many nodes can fade out at once. */
+    static final int MAX_FADING = 3;
+
+    // The entity's state (see StateLayout). Ints: the current node's index, how many nodes fade out,
+    // whether start() entered the node this frame (which stands for the frame's decision), whether
+    // the "when" held on the last update; per machine, whether it was left while one of its nodes
+    // still fades out (it is disposed when the last is); and per node fading out, oldest first, its
+    // index (-1: frozen) and the easing of the transition out of it (into the next one, or the
+    // current node).
+    private final int currentSlot, fadingCountSlot, justStartedSlot, enabledSlot, pendingExitSlot, fadingNodeSlot, fadingEasingSlot;
+    // Floats: the layer's clock; per node fading out, the progress and duration of the transition out of it.
+    private final int elapsedSlot, fadingProgressSlot, fadingDurationSlot;
+    // Pose buffers: the current node's pose, each fading node's (as it was last posed), the blend
+    // (what is on screen, once the layer is posed) and a scratch copy for blending.
+    private final int currentPose, blendPose, scratchPose;
+    private final int[] fadingPoses = new int[MAX_FADING];
 
     public LayerState(IKumoInstancingContext context, Skeleton skeleton, LayerTemplate layerTemplate) throws MalformedKumoTemplateException
     {
@@ -79,20 +91,22 @@ public class LayerState
         StateLayout layout = context.getExpressionScope().getLayout();
         // Where the layer stands until it starts (see start).
         this.currentSlot = layout.ints(1, machine.initialNode().index);
-        this.previousSlot = layout.ints(1, -1);
-        this.snapshotSlot = layout.ints(1, 0);
-        this.easingSlot = layout.ints(1, ConnectionTemplate.Easing.EASE_IN_OUT_QUAD.ordinal());
+        this.fadingCountSlot = layout.ints(1, 0);
         this.justStartedSlot = layout.ints(1, 0);
         this.enabledSlot = layout.ints(1, 1);
         this.pendingExitSlot = layout.ints(machines.size(), 0);
-        this.progressSlot = layout.floats(1, 0);
-        this.durationSlot = layout.floats(1, 0);
+        this.fadingNodeSlot = layout.ints(MAX_FADING, -1);
+        this.fadingEasingSlot = layout.ints(MAX_FADING, ConnectionTemplate.Easing.EASE_IN_OUT_QUAD.ordinal());
         this.elapsedSlot = layout.floats(1, 0);
+        this.fadingProgressSlot = layout.floats(MAX_FADING, 0);
+        this.fadingDurationSlot = layout.floats(MAX_FADING, 0);
         this.currentPose = layout.pose();
-        this.previousPose = layout.pose();
-        this.snapshotPose = layout.pose();
-        this.outputPose = layout.pose();
-        this.lastOutput = layout.pose();
+        this.blendPose = layout.pose();
+        this.scratchPose = layout.pose();
+        for (int k = 0; k < MAX_FADING; k++)
+        {
+            fadingPoses[k] = layout.pose();
+        }
     }
 
     /** Numbers the layer's nodes and machines, and notes the machines around each node. */
@@ -134,12 +148,31 @@ public class LayerState
         return nodes.get(context.getState().ints[currentSlot]);
     }
 
-    /** The node fading out (or frozen as a snapshot), or null. */
+    /** The {@code k}th node fading out, oldest first, or null where it is frozen. */
     @Nullable
-    private MachineMember previous(ITriggerConditionContext context)
+    private MachineMember fading(EntityState state, int k)
     {
-        int index = context.getState().ints[previousSlot];
+        int index = state.ints[fadingNodeSlot + k];
         return index < 0 ? null : nodes.get(index);
+    }
+
+    /** Where {@code node} fades out, oldest first, or -1 where it doesn't (or is frozen). */
+    private int fadingIndexOf(INodeState node, EntityState state)
+    {
+        int count = state.ints[fadingCountSlot];
+        for (int k = 0; k < count; k++)
+        {
+            MachineMember member = fading(state, k);
+            if (member != null && member.node == node) return k;
+        }
+        return -1;
+    }
+
+    /** The eased progress of the transition out of the {@code k}th node fading out. */
+    private float fadeWeight(EntityState state, int k)
+    {
+        float duration = state.floats[fadingDurationSlot + k];
+        return ease(duration <= 0 ? 1F : state.floats[fadingProgressSlot + k] / duration, state.ints[fadingEasingSlot + k]);
     }
 
     /**
@@ -170,38 +203,39 @@ public class LayerState
     }
 
     /**
-     * The linear progress of the crossfade {@code node} is part of, the same on both sides: 0 when
-     * it starts, 1 when it ends, and 1 for a node no crossfade involves.
+     * The linear progress of the crossfade {@code node} is part of: for a node fading out, the
+     * transition out of it; for the current node, the transition into it. 0 when it starts, 1 when
+     * it ends, and 1 for a node no crossfade involves.
      */
     public float getFadeProgress(INodeState node, ITriggerConditionContext context)
     {
-        MachineMember previous = previous(context);
-        if (previous == null || (node != current(context).node && node != previous.node))
+        EntityState state = context.getState();
+        int count = state.ints[fadingCountSlot];
+        int k = node == current(context).node ? count - 1 : fadingIndexOf(node, state);
+        if (k < 0)
         {
             return 1F;
         }
-        float[] floats = context.getState().floats;
-        float duration = floats[durationSlot];
-        return duration <= 0 ? 1F : Math.min(floats[progressSlot] / duration, 1F);
+        float duration = state.floats[fadingDurationSlot + k];
+        return duration <= 0 ? 1F : Math.min(state.floats[fadingProgressSlot + k] / duration, 1F);
     }
 
     /** Whether {@code node} is the current node, while the crossfade into it runs. */
     public boolean isFadingIn(INodeState node, ITriggerConditionContext context)
     {
-        return node == current(context).node && previous(context) != null;
+        return node == current(context).node && context.getState().ints[fadingCountSlot] > 0;
     }
 
     /** Whether {@code node} is the current node, fully in. */
     public boolean isActive(INodeState node, ITriggerConditionContext context)
     {
-        return node == current(context).node && previous(context) == null;
+        return node == current(context).node && context.getState().ints[fadingCountSlot] == 0;
     }
 
-    /** Whether {@code node} is the node the layer left, still posed while the crossfade runs. */
+    /** Whether {@code node} is one the layer left, still posed while the crossfade out of it runs. */
     public boolean isFadingOut(INodeState node, ITriggerConditionContext context)
     {
-        MachineMember previous = previous(context);
-        return previous != null && node == previous.node && node != current(context).node && context.getState().ints[snapshotSlot] == 0;
+        return node != current(context).node && fadingIndexOf(node, context.getState()) >= 0;
     }
 
     public INodeState getCurrentNode(ITriggerConditionContext context)
@@ -239,86 +273,86 @@ public class LayerState
             beginTransition(fired, context);
         }
         MachineMember current = current(context);
-        MachineMember previous = previous(context);
-        boolean snapshot = state.ints[snapshotSlot] != 0;
         INodeState currentNode = current.node;
-        INodeState previousNode = previous == null ? null : previous.node;
+        int count = state.ints[fadingCountSlot];
 
-        // 2. The scopes' update lists: the layer's, its machines' from the outermost in, the node
-        // fading out, the current node.
+        // 2. The scopes' update lists: the layer's, its machines' from the outermost in, the nodes
+        // fading out, oldest first, the current node.
         lists.update(context);
         for (MachineState machine : current.path)
         {
             machine.update(context);
         }
-        if (previous != null && !snapshot)
+        for (int k = 0; k < count; k++)
         {
-            context.enterNode(previousNode);
-            previous.scope.update(context);
+            MachineMember member = fading(state, k);
+            if (member != null)
+            {
+                context.enterNode(member.node);
+                member.scope.update(context);
+            }
         }
         context.enterNode(currentNode);
         current.scope.update(context);
 
-        // 3. Evaluate, on top of the layers below.
+        // 3. Evaluate, on top of the layers below, and crossfade the chain, oldest first.
         Pose currentPose = state.poses[this.currentPose];
-        Pose previousPose = state.poses[this.previousPose];
         currentPose.setBelow(animatorPose);
-        previousPose.setBelow(animatorPose);
-        context.enterNode(currentNode);
         currentPose.clear();
         currentNode.evaluate(context, currentPose);
 
         Pose result = currentPose;
-        if (previousNode != null)
+        if (count > 0)
         {
-            float duration = state.floats[durationSlot];
-            float t = ease(duration <= 0 ? 1F : state.floats[progressSlot] / duration, context);
-            Pose source;
-            if (snapshot)
+            for (int k = 0; k < count; k++)
             {
-                // A copy: filling and matching below change it, and the snapshot stays as it was frozen.
-                previousPose.set(state.poses[snapshotPose]);
-                source = previousPose;
+                MachineMember member = fading(state, k);
+                if (member != null)
+                {
+                    Pose posed = state.poses[fadingPoses[k]];
+                    posed.setBelow(animatorPose);
+                    context.enterNode(member.node);
+                    posed.clear();
+                    member.node.evaluate(context, posed);
+                }
             }
-            else
+            context.enterNode(currentNode);
+            // Blending fills and matches both sides; the poses themselves stay as they were posed
+            // (a frozen one is used again next frame).
+            Pose blend = state.poses[blendPose];
+            Pose scratch = state.poses[scratchPose];
+            blend.set(state.poses[fadingPoses[0]]);
+            for (int k = 0; k < count; k++)
             {
-                context.enterNode(previousNode);
-                previousPose.clear();
-                previousNode.evaluate(context, previousPose);
-                source = previousPose;
-                context.enterNode(currentNode);
+                scratch.set(k + 1 < count ? state.poses[fadingPoses[k + 1]] : currentPose);
+                crossfade(blend, scratch, fadeWeight(state, k), animatorPose);
             }
-            // What one side doesn't pose, the layers below do (or the rest pose): fade to (or from) them.
-            fillFromBelow(source, currentPose, animatorPose);
-            fillFromBelow(currentPose, source, animatorPose);
-            for (int i = 0; i < currentPose.size(); i++)
-            {
-                matchSpaces(source.get(i), currentPose.get(i), animatorPose, i);
-                matchSpaces(currentPose.get(i), source.get(i), animatorPose, i);
-            }
-            Pose output = state.poses[outputPose];
-            blend(source, currentPose, t, output);
-            result = output;
+            result = blend;
         }
 
         // 4. Composite onto the animator pose.
         composite(result, animatorPose);
-        state.poses[lastOutput].set(result);
 
-        // 5. Advance clocks.
+        // 5. Advance clocks; a transition that has ended leaves the nodes before it.
         state.floats[elapsedSlot] += deltaTime;
         currentNode.advance(context, deltaTime);
-        if (previousNode != null)
+        int ended = -1;
+        for (int k = 0; k < count; k++)
         {
-            if (!snapshot)
+            MachineMember member = fading(state, k);
+            if (member != null)
             {
-                previousNode.advance(context, deltaTime);
+                member.node.advance(context, deltaTime);
             }
-            state.floats[progressSlot] += deltaTime;
-            if (state.floats[progressSlot] >= state.floats[durationSlot])
+            state.floats[fadingProgressSlot + k] += deltaTime;
+            if (state.floats[fadingProgressSlot + k] >= state.floats[fadingDurationSlot + k])
             {
-                disposePrevious(context);
+                ended = k;
             }
+        }
+        if (ended >= 0)
+        {
+            dropFading(ended + 1, context);
         }
     }
 
@@ -369,69 +403,73 @@ public class LayerState
     }
 
     /**
-     * Moves the layer. What the transition disposes of at once goes first (a node still fading
-     * out, whose crossfade is cut short and frozen, and the node left when nothing fades from it):
-     * their {@code exit} lists run. Then the transition's own {@code do} list, then the
-     * {@code enter} lists of the scopes it enters, from the outermost in.
+     * Moves the layer. What the transition disposes of at once goes first (with no crossfade, every
+     * node fading out and the node left; with the chain full, the same, frozen into what is on
+     * screen): their {@code exit} lists run. Then the transition's own {@code do} list, then the
+     * {@code enter} lists of the scopes it enters, from the outermost in. A node it goes back into
+     * that still fades out (or the node it leaves, when it starts over) is frozen as it was last
+     * posed, and its {@code exit} list runs, just before it starts again.
      */
     private void beginTransition(ITransition transition, IKumoContext context) throws MalformedKumoTemplateException
     {
         EntityState state = context.getState();
         MachineMember leftMember = current(context);
         List<MachineState> left = leftMember.path;
-        INodeState leftNode = leftMember.node;
-        boolean interrupting = previous(context) != null;
         float duration = transition.getDuration();
-        if (interrupting)
+        boolean fades = duration > 0.0F;
+        if (!fades)
         {
-            disposePrevious(context);
-        }
-        if (interrupting || duration <= 0.0F)
-        {
+            dropFading(state.ints[fadingCountSlot], context);
             exit(leftMember, context);
+        }
+        else if (state.ints[fadingCountSlot] == MAX_FADING)
+        {
+            // The chain is full: what is on screen (the last blend) is frozen into one, and fades out.
+            state.poses[fadingPoses[0]].set(state.poses[blendPose]);
+            freeze(0, context);
+            dropFading(MAX_FADING, context, 1);
+            exit(leftMember, context);
+            leftMember = null;
         }
         transition.getRun().run(context);
         List<MachineState> entered = new ArrayList<>();
         MachineMember target = descend(transition.getTarget(), context, entered);
 
-        state.floats[durationSlot] = duration;
-        state.ints[easingSlot] = transition.getEasing().ordinal();
-        boolean restart = target.node == leftNode;
-        if (restart && !interrupting && duration > 0.0F)
+        if (fades)
         {
-            // A node is never run twice at once: it starts over without a crossfade.
-            exit(leftMember, context);
-        }
-
-        if (duration <= 0.0F || restart)
-        {
-            state.ints[previousSlot] = -1;
-            state.ints[snapshotSlot] = 0;
-        }
-        else if (interrupting)
-        {
-            // Interrupting a transition: freeze what is on screen and fade from that (no pop).
-            state.poses[snapshotPose].set(state.poses[lastOutput]);
-            state.ints[previousSlot] = leftMember.index;
-            state.ints[snapshotSlot] = 1;
-            state.floats[progressSlot] = 0;
-        }
-        else
-        {
-            state.ints[previousSlot] = leftMember.index;
-            state.ints[snapshotSlot] = 0;
-            state.floats[progressSlot] = 0;
+            int count = state.ints[fadingCountSlot];
+            if (leftMember != null)
+            {
+                int again = fadingIndexOf(target.node, state);
+                if (again >= 0)
+                {
+                    freeze(again, context);
+                }
+                count = state.ints[fadingCountSlot];
+                state.poses[fadingPoses[count]].set(state.poses[currentPose]);
+                state.ints[fadingNodeSlot + count] = leftMember.index;
+                state.ints[fadingCountSlot] = ++count;
+                if (target == leftMember)
+                {
+                    // A node is never run twice at once: it fades out as it was last posed, and starts over.
+                    freeze(count - 1, context);
+                }
+            }
+            int k = count - 1;
+            state.floats[fadingProgressSlot + k] = 0;
+            state.floats[fadingDurationSlot + k] = duration;
+            state.ints[fadingEasingSlot + k] = transition.getEasing().ordinal();
         }
 
         moveTo(target, context);
-        boolean fadingOut = state.ints[previousSlot] >= 0 && state.ints[snapshotSlot] == 0;
+        boolean leftFadesOut = fades && fadingIndexOf(leftMember == null ? null : leftMember.node, state) >= 0;
         for (MachineState machine : left)
         {
             if (!target.path.contains(machine))
             {
                 // Disposed once the last of its nodes has faded out.
-                if (fadingOut) state.ints[pendingExitSlot + machine.index] = 1;
-                else machine.exit(context);
+                if (leftFadesOut) state.ints[pendingExitSlot + machine.index] = 1;
+                else exitMachine(machine, context);
             }
         }
         context.enterNode(target.node);
@@ -440,31 +478,106 @@ public class LayerState
             // Those around a node the transition names directly; the entered ones have started.
             if (!left.contains(machine) && !entered.contains(machine))
             {
-                machine.start(context);
+                startMachine(machine, context);
             }
         }
         startNode(context);
     }
 
-    /** The node fading out is disposed (its crossfade ended, or a transition cut it short), and the machines it left. */
-    private void disposePrevious(IKumoContext context)
+    /** Freezes the {@code k}th node fading out as it was last posed: it is disposed (its {@code exit} list runs). */
+    private void freeze(int k, IKumoContext context)
     {
         EntityState state = context.getState();
-        MachineMember previous = previous(context);
-        if (previous != null && state.ints[snapshotSlot] == 0)
+        MachineMember member = fading(state, k);
+        state.ints[fadingNodeSlot + k] = -1;
+        if (member != null)
         {
-            exit(previous, context);
+            exit(member, context);
         }
-        state.ints[previousSlot] = -1;
-        state.ints[snapshotSlot] = 0;
-        for (MachineState machine : machines)
+        exitLeftMachines(context);
+    }
+
+    /** Drops the first {@code n} nodes fading out (their crossfades have ended, or are cut short); see {@link #dropFading(int, IKumoContext, int)}. */
+    private void dropFading(int n, IKumoContext context)
+    {
+        dropFading(n, context, 0);
+    }
+
+    /**
+     * Drops the nodes fading out from the {@code from}th up to the {@code n}th (exclusive): the live
+     * ones are disposed, and the rest move down in their place, then the machines that were left
+     * with none of their nodes posed any more.
+     */
+    private void dropFading(int n, IKumoContext context, int from)
+    {
+        EntityState state = context.getState();
+        int count = state.ints[fadingCountSlot];
+        for (int k = from; k < n; k++)
         {
-            if (state.ints[pendingExitSlot + machine.index] != 0)
+            MachineMember member = fading(state, k);
+            state.ints[fadingNodeSlot + k] = -1;
+            if (member != null)
             {
-                state.ints[pendingExitSlot + machine.index] = 0;
-                machine.exit(context);
+                exit(member, context);
             }
         }
+        int removed = n - from;
+        for (int k = n; k < count; k++)
+        {
+            int to = k - removed;
+            state.ints[fadingNodeSlot + to] = state.ints[fadingNodeSlot + k];
+            state.ints[fadingEasingSlot + to] = state.ints[fadingEasingSlot + k];
+            state.floats[fadingProgressSlot + to] = state.floats[fadingProgressSlot + k];
+            state.floats[fadingDurationSlot + to] = state.floats[fadingDurationSlot + k];
+            state.poses[fadingPoses[to]].set(state.poses[fadingPoses[k]]);
+        }
+        state.ints[fadingCountSlot] = count - removed;
+        exitLeftMachines(context);
+    }
+
+    /** Disposes the machines left while one of their nodes faded out, once none of their nodes is posed any more. */
+    private void exitLeftMachines(IKumoContext context)
+    {
+        EntityState state = context.getState();
+        for (MachineState machine : machines)
+        {
+            if (state.ints[pendingExitSlot + machine.index] != 0 && !posedInside(machine, state))
+            {
+                exitMachine(machine, context);
+            }
+        }
+    }
+
+    /** Whether the current node or a live node fading out is inside {@code machine}. */
+    private boolean posedInside(MachineState machine, EntityState state)
+    {
+        if (nodes.get(state.ints[currentSlot]).path.contains(machine))
+        {
+            return true;
+        }
+        int count = state.ints[fadingCountSlot];
+        for (int k = 0; k < count; k++)
+        {
+            MachineMember member = fading(state, k);
+            if (member != null && member.path.contains(machine)) return true;
+        }
+        return false;
+    }
+
+    private void exitMachine(MachineState machine, IKumoContext context)
+    {
+        context.getState().ints[pendingExitSlot + machine.index] = 0;
+        machine.exit(context);
+    }
+
+    /** Starts {@code machine}; one still waiting to be disposed (left while its nodes fade out) is disposed first. */
+    private void startMachine(MachineState machine, IKumoContext context) throws MalformedKumoTemplateException
+    {
+        if (context.getState().ints[pendingExitSlot + machine.index] != 0)
+        {
+            exitMachine(machine, context);
+        }
+        machine.start(context);
     }
 
     /** Runs the {@code exit} list of {@code member}'s node. */
@@ -493,7 +606,7 @@ public class LayerState
     private MachineMember enter(MachineState machine, IKumoContext context, List<MachineState> entered) throws MalformedKumoTemplateException
     {
         entered.add(machine);
-        machine.start(context);
+        startMachine(machine, context);
         Selector.Branch branch = machine.selector == null ? null : machine.selector.choose(context);
         if (branch == null)
         {
@@ -526,11 +639,11 @@ public class LayerState
 
     private static final ConnectionTemplate.Easing[] EASINGS = ConnectionTemplate.Easing.values();
 
-    private float ease(float t, ITriggerConditionContext context)
+    private static float ease(float t, int easing)
     {
         if (t < 0) t = 0;
         if (t > 1) t = 1;
-        switch (EASINGS[context.getState().ints[easingSlot]])
+        switch (EASINGS[easing])
         {
             case EASE_IN_QUAD:
                 return (float) Tween.easeIn(t, 2.0);
@@ -660,70 +773,68 @@ public class LayerState
         }
     }
 
-    /** dest = nlerp(from, to, t), channel by channel (both sides pose the same ones, see fillFromBelow). */
-    private void blend(Pose from, Pose to, float t, Pose dest)
+    /**
+     * {@code from} becomes the crossfade from it to {@code to} at {@code t}: what one side poses and
+     * the other doesn't is filled from beneath the layer, both are brought into the same space, then
+     * every channel is interpolated (nlerp for rotations). Both poses are changed.
+     */
+    private void crossfade(Pose from, Pose to, float t, Pose below)
     {
-        dest.clear();
-        for (int i = 0; i < dest.size(); i++)
+        fillFromBelow(from, to, below);
+        fillFromBelow(to, from, below);
+        for (int i = 0; i < from.size(); i++)
+        {
+            matchSpaces(from.get(i), to.get(i), below, i);
+            matchSpaces(to.get(i), from.get(i), below, i);
+        }
+        for (int i = 0; i < from.size(); i++)
         {
             BoneTarget a = from.get(i);
             BoneTarget b = to.get(i);
-            BoneTarget d = dest.get(i);
 
-            blendQuat(a.hasRotation, a.rotation, b.hasRotation, b.rotation, t, d.rotation);
-            d.hasRotation = a.hasRotation || b.hasRotation;
-            blendQuat(a.hasPre, a.pre, b.hasPre, b.pre, t, d.pre);
-            d.hasPre = !d.hasRotation && (a.hasPre || b.hasPre);
-            blendQuat(a.hasPost, a.post, b.hasPost, b.post, t, d.post);
-            d.hasPost = !d.hasRotation && (a.hasPost || b.hasPost);
+            boolean hasRotation = a.hasRotation || b.hasRotation;
+            blendQuat(a.hasRotation, a.rotation, b.hasRotation, b.rotation, t, a.rotation);
+            blendQuat(a.hasPre, a.pre, b.hasPre, b.pre, t, a.pre);
+            blendQuat(a.hasPost, a.post, b.hasPost, b.post, t, a.post);
+            a.hasPre = !hasRotation && (a.hasPre || b.hasPre);
+            a.hasPost = !hasRotation && (a.hasPost || b.hasPost);
+            a.hasRotation = hasRotation;
 
-            if (a.hasOffset && b.hasOffset)
-            {
-                d.offset.set(a.offset.x + (b.offset.x - a.offset.x) * t, a.offset.y + (b.offset.y - a.offset.y) * t, a.offset.z + (b.offset.z - a.offset.z) * t);
-                d.hasOffset = true;
-            }
-            else if (a.hasOffset || b.hasOffset)
-            {
-                d.offset.set(a.hasOffset ? a.offset : b.offset);
-                d.hasOffset = true;
-            }
-            d.offsetAdditive = b.hasOffset ? b.offsetAdditive : a.offsetAdditive;
-
-            if (a.hasVector && b.hasVector)
-            {
-                d.vector.set(a.vector.x + (b.vector.x - a.vector.x) * t, a.vector.y + (b.vector.y - a.vector.y) * t, a.vector.z + (b.vector.z - a.vector.z) * t);
-                d.hasVector = true;
-            }
-            else if (a.hasVector || b.hasVector)
-            {
-                d.vector.set(a.hasVector ? a.vector : b.vector);
-                d.hasVector = true;
-            }
-            d.vectorAdditive = b.hasVector ? b.vectorAdditive : a.vectorAdditive;
-
-            if (a.hasScale && b.hasScale)
-            {
-                d.scale.set(a.scale.x + (b.scale.x - a.scale.x) * t, a.scale.y + (b.scale.y - a.scale.y) * t, a.scale.z + (b.scale.z - a.scale.z) * t);
-                d.hasScale = true;
-            }
-            else if (a.hasScale || b.hasScale)
-            {
-                d.scale.set(a.hasScale ? a.scale : b.scale);
-                d.hasScale = true;
-            }
-            d.scaleRelative = b.hasScale ? b.scaleRelative : a.scaleRelative;
+            lerp(a.hasOffset, a.offset, b.hasOffset, b.offset, t);
+            a.offsetAdditive = b.hasOffset ? b.offsetAdditive : a.offsetAdditive;
+            a.hasOffset = a.hasOffset || b.hasOffset;
+            lerp(a.hasVector, a.vector, b.hasVector, b.vector, t);
+            a.vectorAdditive = b.hasVector ? b.vectorAdditive : a.vectorAdditive;
+            a.hasVector = a.hasVector || b.hasVector;
+            lerp(a.hasScale, a.scale, b.hasScale, b.scale, t);
+            a.scaleRelative = b.hasScale ? b.scaleRelative : a.scaleRelative;
+            a.hasScale = a.hasScale || b.hasScale;
 
             // Smoothing, snapping and vector modes follow the node being entered.
-            d.smoothing = b.smoothing;
-            d.vectorSmoothing.set(b.vectorSmoothing);
-            d.offsetSmoothing.set(b.offsetSmoothing);
-            d.snap = b.snap;
-            d.vectorMode = b.vectorMode;
-            d.offsetMode = b.offsetMode;
-            d.hasSnapFrom = b.hasSnapFrom;
-            d.snapFrom.set(b.snapFrom);
-            d.hasVectorStart = b.hasVectorStart;
-            d.vectorStart.set(b.vectorStart);
+            a.smoothing = b.smoothing;
+            a.vectorSmoothing.set(b.vectorSmoothing);
+            a.offsetSmoothing.set(b.offsetSmoothing);
+            a.snap = b.snap;
+            a.vectorMode = b.vectorMode;
+            a.offsetMode = b.offsetMode;
+            a.hasSnapFrom = b.hasSnapFrom;
+            a.snapFrom.set(b.snapFrom);
+            a.hasVectorStart = b.hasVectorStart;
+            a.vectorStart.set(b.vectorStart);
+            a.restartX = a.restartY = a.restartZ = false;
+        }
+    }
+
+    /** {@code a} becomes the interpolation from it to {@code b} at {@code t}; only one side having a value, that side's. */
+    private static void lerp(boolean hasA, Vec3f a, boolean hasB, Vec3f b, float t)
+    {
+        if (hasA && hasB)
+        {
+            a.set(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
+        }
+        else if (hasB)
+        {
+            a.set(b);
         }
     }
 

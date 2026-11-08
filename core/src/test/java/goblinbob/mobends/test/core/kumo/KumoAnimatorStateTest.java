@@ -180,6 +180,67 @@ public class KumoAnimatorStateTest
         assertRotation(new Quaternion(), subject.target("arm"));
     }
 
+    private static String movesArm(String x)
+    {
+        return "'core:pose': {'pose': [{'core:translate': {'bone': 'arm', 'x': " + x + "}, '@space': 'override'}]}";
+    }
+
+    @Test
+    public void aCrossfadeInterruptedByAnotherKeepsTheNodeFadingOutLive() throws MalformedKumoTemplateException
+    {
+        // a moves the arm one unit a tick; it fades into b, which fades into c before it ends.
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {"
+                + "'a': {" + movesArm("'nodeTicksElapsed'") + ", '@connections': [{'when': {'gt': ['nodeTicksElapsed', 2]}, 'then': 'b', "
+                + "  'transitionDuration': 10, 'transitionEasing': 'linear'}]},"
+                + "'b': {" + movesArm("0") + ", '@connections': [{'when': {'gt': ['nodeTicksElapsed', 1]}, 'then': 'c', "
+                + "  'transitionDuration': 10, 'transitionEasing': 'linear'}]},"
+                + "'c': {" + movesArm("0") + "}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        for (int frame = 0; frame < 7; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        // Frame 6: a is 6 ticks in, 0.3 of the way into b, which is 0.1 of the way into c. Frozen at
+        // frame 4 (4 ticks, 0.1 into b), it would read 3.24.
+        assertEquals(6 * 0.7F * 0.9F, subject.offsets.get("arm").x, 1e-4F);
+    }
+
+    @Test
+    public void aNodeThatStartsOverFadesFromWhereItWas() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {"
+                + "'a': {" + movesArm("'nodeTicksElapsed'") + ", '@connections': [{'when': {'gt': ['nodeTicksElapsed', 3]}, 'then': 'a', "
+                + "  'transitionDuration': 4, 'transitionEasing': 'linear'}]}}}]}");
+        TestSubject subject = new TestSubject("arm");
+        for (int frame = 0; frame < 6; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        // Frame 5: a started over on frame 4 and is 1 tick in, a quarter of the way from where it was
+        // (3, frozen); not 1, as a start over without a crossfade would be.
+        assertEquals(3 * 0.75F + 1 * 0.25F, subject.offsets.get("arm").x, 1e-4F);
+    }
+
+    @Test
+    public void goingBackIntoANodeStillFadingOutFreezesItsOldPose() throws MalformedKumoTemplateException
+    {
+        // a fades into b, which goes straight back to a: a starts over, fading in from b and from a as it was.
+        KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {"
+                + "'a': {" + movesArm("{'add': ['nodeTicksElapsed', 10]}") + ", '@connections': [{'when': {'and': [{'gt': ['nodeTicksElapsed', 2]}, {'lt': ['animator.trips', 1]}]}, "
+                + "  'then': 'b', 'transitionDuration': 10, 'transitionEasing': 'linear', 'do': [{'set': ['animator.trips', 1]}]}]},"
+                + "'b': {" + movesArm("0") + ", '@connections': [{'when': {'gt': ['nodeTicksElapsed', 0]}, 'then': 'a', "
+                + "  'transitionDuration': 10, 'transitionEasing': 'linear'}]}}}], '@define': {'trips': {'state': 0}}}");
+        TestSubject subject = new TestSubject("arm");
+        for (int frame = 0; frame < 6; frame++)
+        {
+            animator.update(subject, 1F);
+        }
+        // a left on frame 3 (at 13) and is frozen as it was then when it starts over on frame 4; by
+        // frame 5 it is 0.2 of the way into b, and b 0.1 of the way into the new a, 1 tick in (11).
+        float oldA = 13 * 0.8F;
+        assertEquals(oldA * 0.9F + 11 * 0.1F, subject.offsets.get("arm").x, 1e-4F);
+    }
+
     @Test
     public void anUnknownBareNameFailsTheAnimatorWhenItLoads()
     {

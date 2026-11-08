@@ -32,8 +32,8 @@ runtime is put together.
    * each layer first decides its transitions (its selectors from the layer inwards, then the
      connections from the node outwards; see below), so a node entered this frame also poses
      this frame; on the first frame, entering the layer takes the place of that decision;
-   * the current node (and, mid-transition, the previous one or a frozen snapshot of the blend)
-     evaluates its pose stack into a `Pose`;
+   * the current node (and, mid-transition, every node still fading out, a chain of up to three)
+     evaluates its pose stack into a `Pose`, and the chain is crossfaded, oldest first;
    * layers composite in order onto the animator's pose; extensions' layers come last;
    * with an untrusted layer present, the result is clamped around the trusted pose
      (`AnimationLimits`, see [content.md](content.md));
@@ -94,8 +94,8 @@ animates shares it; each has a `KumoAnimatorState`, which holds only that entity
 `EntityState`: a flat `float[]`, `double[]` and `int[]` of slots and its pose buffers.
 
 * While compiling, every stateful element takes its slots in the program's `StateLayout`: a
-  node's clock and pending snaps, a layer's current node (an index), its crossfade and its five
-  pose buffers, an edge trigger's memory, a definition's value, an operation's or a driver's
+  node's clock and pending snaps, a layer's current node (an index), the chain of nodes fading out
+  and its six pose buffers, an edge trigger's memory, a definition's value, an operation's or a driver's
   declared state (`core:step_turn` keeps its world positions in doubles). A definition's value is
   a double whatever its type, which holds a number or a boolean exactly. Evaluation reads and
   writes them through the context (`context.getState()`).
