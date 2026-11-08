@@ -8,11 +8,13 @@ import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.ItemActions;
 import goblinbob.mobends.standard.UseActionType;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Locale;
 
-/** The {@code mobends:} operations: Mo' Bends' own classifications of what an entity holds. */
+/** The {@code mobends:} operations: Mo' Bends' own classifications of what an entity holds, and the player's skin. */
 public final class MoBendsOperations {
     private MoBendsOperations() {
     }
@@ -44,6 +46,17 @@ public final class MoBendsOperations {
                         LivingEntity entity = (LivingEntity) context.entity();
                         return entity != null && action == ItemActions.getItemAttackAction(entity.getMainHandItem());
                     };
+                }));
+
+        // {"mobends:skin_variant": ["slim"]}: a player whose skin has this arm width. Players read as
+        // default until their skin has downloaded, so the answer can change.
+        KumoRegistry.registerOperation(KumoOperation.named("mobends:skin_variant")
+                .choice("variant", "default", "slim")
+                .returns(Expression.Type.BOOLEAN).selectorSafe(false)
+                .bind(args -> {
+                    PlayerSkin.Model variant = "slim".equals(args.string(0)) ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE;
+                    return (BooleanEvaluator) (context, values) -> context.entity() instanceof AbstractClientPlayer player
+                            && player.getSkin().model() == variant;
                 }));
     }
 }

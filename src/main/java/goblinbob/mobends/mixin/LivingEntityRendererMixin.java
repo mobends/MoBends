@@ -59,7 +59,7 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
         at = @At("HEAD")
     )
     private void mobends$pose(LivingEntity entity, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight, CallbackInfo ci) {
-        mobends$bent = BendsRenderer.beforeRender(entity, partialTicks);
+        mobends$bent = BendsRenderer.beforeRender(entity, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), partialTicks);
     }
 
     /** Notes the entity's frame and body yaw as vanilla turns the entity (see {@link #mobends$entityFrame}). */

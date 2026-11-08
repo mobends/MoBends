@@ -3,16 +3,24 @@ package goblinbob.mobends.core.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.client.definition.DefinedModelPart;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
 import goblinbob.mobends.core.data.OrientationComponent;
+import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.vanilla.ArmorLayerModels;
 import goblinbob.mobends.core.vanilla.PlayerModelParts;
+import goblinbob.mobends.core.vanilla.VanillaNames;
+import net.minecraft.client.model.DrownedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.SkeletonModel;
+import net.minecraft.client.model.ZombieModel;
+import net.minecraft.client.model.ZombieVillagerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.world.entity.Entity;
@@ -23,23 +31,35 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 
 /**
  * Where vanilla's render layers of a bent entity meet Mo' Bends: what they draw (held items, armour,
- * the custom head, the cape, the elytra) is moved onto the bent parts, as 1.12's layers
- * ({@code LayerCustomHeldItem}, {@code LayerCustomBipedArmor}, ...) did. The layers themselves stay
- * vanilla's, and so do their checks (what's worn, what's shown); the mixins on them only change
- * where they draw, through the methods here, each of which says when it did nothing, so the layer
- * draws as vanilla does.
+ * the custom head, the cape, the elytra, a copy of the model) is moved onto the bent parts, as
+ * 1.12's layers ({@code LayerCustomHeldItem}, {@code LayerCustomBipedArmor}, ...) did. The layers
+ * themselves stay vanilla's, and so do their checks (what's worn, what's shown); the mixins on them
+ * only change where they draw, through the methods here, each of which says when it did nothing,
+ * so the layer draws as vanilla does.
+ * <p>
+ * Which layers follow the bones, and which bones, is the definition's {@code layers} block
+ * ({@link DefinedLayers}): a layer it doesn't name draws as vanilla does, as in 1.12. The held items
+ * go in the hands of the bones that stand for vanilla's arms (1.12 put them in the bent
+ * {@code bipedRightArm}'s frame), a custom head on the block's {@code bone} (the head by default),
+ * the cape and the elytra on the {@code body} (and the {@code cape} bone), as 1.12's layers had them.
  * <p>
  * A layer of a bent entity runs inside {@link #begin}/{@link #end} ({@code LivingEntityRendererMixin}),
  * which keeps the {@link Frame} it needs. Outside that (another entity, a model drawn in a menu, an
  * entity drawn as vanilla) there is none, and every method here leaves vanilla alone.
- * <p>
- * The bone names are the player definition's: the layers of the definitions' {@code layers} block
- * aren't read yet.
  */
 public final class BendsLayers {
+    /**
+     * The armour models of vanilla's own classes, which the armour layers of the mobs Mo' Bends bends
+     * are made with: a subclass (another mod's armour model) may add parts or draw its own way,
+     * which the bent parts wouldn't, so it draws as vanilla does.
+     */
+    private static final Set<Class<?>> VANILLA_ARMOUR_MODELS = Set.of(HumanoidModel.class, HumanoidArmorModel.class, ZombieModel.class,
+            DrownedModel.class, SkeletonModel.class, ZombieVillagerModel.class);
+
     /** The layer being drawn for a bent entity; render thread only. */
     @Nullable
     private static Frame current;
@@ -53,6 +73,9 @@ public final class BendsLayers {
         final EntityModel<?> model;
         final DefinedModel parts;
         final RenderLayer<?, ?> layer;
+        /** What the definition asks of this layer; null to leave what the layer draws on its own as vanilla. */
+        @Nullable
+        final DefinedLayers.Layer named;
         final Matrix4fc entityFrame;
         final float bodyYaw;
         /** The pose the layer was handed, the model's, as it is drawn. */
@@ -64,9 +87,20 @@ public final class BendsLayers {
             this.model = model;
             this.parts = parts;
             this.layer = layer;
+            this.named = DefinedLayers.of(data.getDefinition(), layer.getClass());
             this.entityFrame = entityFrame;
             this.bodyYaw = bodyYaw;
             this.modelPose = modelPose;
+        }
+
+        boolean names(String kind) {
+            return named != null && named.is(kind);
+        }
+
+        /** How the entity is drawn as a baby, or null if it's no baby (or its model draws babies as adults). */
+        @Nullable
+        DefinedModel.BabyLayout baby() {
+            return data.getEntity().isBaby() ? parts.babyLayout() : null;
         }
     }
 
@@ -100,12 +134,41 @@ public final class BendsLayers {
         return frame != null && frame.data.getEntity() == entity ? frame : null;
     }
 
+    /** The frame of the layer drawing {@code entity} bent, if the definition asks for that layer as {@code kind}; else null. */
+    @Nullable
+    private static Frame frameFor(Entity entity, String kind) {
+        Frame frame = frameFor(entity);
+        return frame != null && frame.names(kind) ? frame : null;
+    }
+
+    /**
+     * The bone that stands for the vanilla part a 1.12 model kept in {@code field}
+     * ({@code bipedRightArm}), or {@code fallback} if no bone names it.
+     */
+    private static String boneOf(EntityModelDefinition definition, String field, String fallback) {
+        for (BoneDefinition bone : definition.bones) {
+            if (bone.vanilla != null && field.equals(bone.vanilla.field)) {
+                return bone.name;
+            }
+        }
+        return fallback;
+    }
+
     /**
      * Moves {@code poseStack} from the model's pose into the space the bent parts are drawn in:
-     * moved and turned by the root and center bones and the sneak offset.
+     * moved and turned by the root and center bones and the sneak offset, and, for a baby, made
+     * smaller as the part {@code bone} hangs from is (in place of whatever vanilla's layer did for
+     * a baby, made for vanilla's sizes).
      */
-    private static void toBentModel(Frame frame, PoseStack poseStack) {
+    private static void toBentModel(Frame frame, PoseStack poseStack, String bone) {
+        DefinedModel.BabyLayout baby = frame.baby();
+        if (baby != null) {
+            backToModelPose(frame, poseStack);
+        }
         DefinedRenderer.transformModel(frame.data, frame.model, poseStack, frame.entityFrame, frame.bodyYaw);
+        if (baby != null) {
+            baby.apply(frame.parts.rootPartOf(bone), poseStack);
+        }
     }
 
     /**
@@ -128,16 +191,20 @@ public final class BendsLayers {
      * @return false if {@code entity} isn't drawn bent here, to do vanilla's
      */
     public static boolean translateToHand(LivingEntity entity, HumanoidArm arm, PoseStack poseStack) {
-        Frame frame = frameFor(entity);
+        Frame frame = frameFor(entity, DefinedLayers.HELD_ITEM);
+        if (frame == null) {
+            return false;
+        }
         boolean right = arm == HumanoidArm.RIGHT;
-        String bone = right ? "rightArm" : "leftArm";
-        if (frame == null || !frame.parts.hasPart(bone)) {
+        EntityModelDefinition definition = frame.data.getDefinition();
+        String bone = right ? boneOf(definition, "bipedRightArm", "rightArm") : boneOf(definition, "bipedLeftArm", "leftArm");
+        if (!frame.parts.hasPart(bone)) {
             return false;
         }
         // The slim model moves its arm half a pixel out before turning it, to hold the item in the
         // middle of the narrower hand (PlayerModel.translateToHand).
         float nudge = frame.model instanceof PlayerModelParts player && player.mobends$isSlim() ? (right ? 0.5F : -0.5F) : 0.0F;
-        toBentModel(frame, poseStack);
+        toBentModel(frame, poseStack, bone);
         frame.parts.applyVanillaFrame(bone, frame.data, poseStack, nudge, 0.0F, 0.0F);
         OrientationComponent item = frame.data.getComponent(right ? "rightHeldItem" : "leftHeldItem", OrientationComponent.class);
         if (item != null) {
@@ -153,17 +220,29 @@ public final class BendsLayers {
     /**
      * In place of the head's {@code translateAndRotate} in the layers that draw on the head
      * ({@code CustomHeadLayerMixin}, {@code PlayerItemInHandLayerMixin}'s spyglass): moves
-     * {@code poseStack} into the bent head's frame.
+     * {@code poseStack} into the bent head's frame: the custom head's {@code bone}, or for the
+     * spyglass, a held item, the bone that stands for vanilla's head.
      *
      * @return false if {@code entity} isn't drawn bent here, to do vanilla's
      */
     public static boolean translateToHead(LivingEntity entity, PoseStack poseStack) {
         Frame frame = frameFor(entity);
-        if (frame == null || !frame.parts.hasPart("head")) {
+        if (frame == null || frame.named == null) {
             return false;
         }
-        toBentModel(frame, poseStack);
-        frame.parts.applyVanillaFrame("head", frame.data, poseStack, 0.0F, 0.0F, 0.0F);
+        String bone;
+        if (frame.names(DefinedLayers.CUSTOM_HEAD)) {
+            bone = frame.named.option("bone", "head");
+        } else if (frame.names(DefinedLayers.HELD_ITEM)) {
+            bone = boneOf(frame.data.getDefinition(), "bipedHead", "head");
+        } else {
+            return false;
+        }
+        if (!frame.parts.hasPart(bone)) {
+            return false;
+        }
+        toBentModel(frame, poseStack, bone);
+        frame.parts.applyVanillaFrame(bone, frame.data, poseStack, 0.0F, 0.0F, 0.0F);
         return true;
     }
 
@@ -175,11 +254,11 @@ public final class BendsLayers {
      * (1.12's {@code LayerCustomElytra}). Does nothing if {@code entity} isn't drawn bent here.
      */
     public static void translateToBody(LivingEntity entity, PoseStack poseStack) {
-        Frame frame = frameFor(entity);
+        Frame frame = frameFor(entity, DefinedLayers.ELYTRA);
         if (frame == null || !frame.parts.hasPart("body")) {
             return;
         }
-        toBentModel(frame, poseStack);
+        toBentModel(frame, poseStack, "body");
         frame.parts.applyVanillaFrame("body", frame.data, poseStack, 0.0F, 0.0F, 0.0F);
     }
 
@@ -195,12 +274,12 @@ public final class BendsLayers {
      * @return false if {@code entity} isn't drawn bent here, to leave vanilla's turns
      */
     public static boolean placeCape(LivingEntity entity, PoseStack poseStack) {
-        Frame frame = frameFor(entity);
+        Frame frame = frameFor(entity, DefinedLayers.CAPE);
         if (frame == null || !frame.parts.hasPart("body") || !frame.parts.hasPart("cape")) {
             return false;
         }
         backToModelPose(frame, poseStack);
-        toBentModel(frame, poseStack);
+        toBentModel(frame, poseStack, "body");
         frame.parts.applyVanillaFrame("body", frame.data, poseStack, 0.0F, 0.0F, 0.0F);
         poseStack.translate(0.0F, 0.0F, 0.125F);
         frame.parts.applyLocalTransform("cape", frame.data, poseStack);
@@ -223,37 +302,65 @@ public final class BendsLayers {
         }
     }
 
-    // --- armour (HumanoidArmorLayer) ----------------------------------------------------------------
+    // --- models a layer draws (HumanoidArmorLayer, VillagerProfessionLayer, DrownedOuterLayer, ...) ---
 
     /**
-     * In place of a vanilla armour model's own draw ({@code AgeableListModelMixin}): draws the armour
-     * bent with the entity, its limbs cut at the elbows and knees (1.12's {@code ArmorWrapper}), each
-     * piece in the frame of the bone it's worn on. Only the layer's own vanilla models, of vanilla's
-     * own classes, are bent; a model another mod hands the layer (custom armour models) draws as
-     * vanilla does.
+     * In place of the own draw of a model a layer of a bent entity draws ({@code AgeableListModelMixin},
+     * {@code HierarchicalModelMixin}), it draws the model bent with the entity:
+     * <ul>
+     * <li>the entity's own model, drawn again (a zombie villager's type and profession): always, as
+     *     drawing it unbent would show the entity twice, in two poses;</li>
+     * <li>the layer's own vanilla armour models, if the definition asks for {@code mobends:armor}:
+     *     each piece in the frame of the bone it's worn on, the limbs cut at the elbows and knees
+     *     (1.12's {@code ArmorWrapper}); only vanilla's own model classes, as a model another mod
+     *     hands the layer (custom armour) may not fit the bent parts;</li>
+     * <li>a copy of the entity's model the layer draws (a drowned's outer layer), if the definition
+     *     asks for, or implies, a copying kind: cut and posed as the entity's parts are.</li>
+     * </ul>
      *
      * @return true if it drew, and the model's own draw must be skipped
      */
-    public static boolean drawArmour(EntityModel<?> model, PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int color) {
+    public static boolean drawInLayer(EntityModel<?> model, PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int color) {
         Frame frame = current;
-        if (frame == null || !(frame.layer instanceof ArmorLayerModels layer)) {
+        if (frame == null) {
             return false;
         }
-        if (model != layer.mobends$innerModel() && model != layer.mobends$outerModel()) {
+        DefinedModel drawn;
+        if (model == frame.model) {
+            drawn = frame.parts;
+        } else if (frame.names(DefinedLayers.ARMOR) && isVanillaArmour(frame, model)
+                || frame.named != null && frame.named.kind().role() == DefinedLayers.Role.COPY && isCopy(frame, model)) {
+            drawn = DefinedModel.over(frame.data.getDefinition(), model, frame.parts);
+        } else {
             return false;
         }
-        // A subclass may add parts or draw its own way, which the bent parts wouldn't.
-        if (model.getClass() != HumanoidArmorModel.class && model.getClass() != HumanoidModel.class) {
-            return false;
-        }
-        DefinedModel armour = DefinedModel.over(frame.data.getDefinition(), model, frame.parts);
-        if (armour == null) {
+        if (drawn == null) {
             return false;
         }
         poseStack.pushPose();
-        toBentModel(frame, poseStack);
-        armour.render(frame.data, poseStack, consumer, packedLight, packedOverlay, color);
+        DefinedRenderer.transformModel(frame.data, frame.model, poseStack, frame.entityFrame, frame.bodyYaw);
+        drawn.render(frame.data, poseStack, consumer, packedLight, packedOverlay, color, frame.baby());
         poseStack.popPose();
         return true;
+    }
+
+    private static boolean isVanillaArmour(Frame frame, EntityModel<?> model) {
+        return frame.layer instanceof ArmorLayerModels layer
+                && (model == layer.mobends$innerModel() || model == layer.mobends$outerModel())
+                && VANILLA_ARMOUR_MODELS.contains(model.getClass());
+    }
+
+    /**
+     * Whether {@code model} can be drawn as a copy of the entity's: of the class the definition
+     * bends (the sheep's wool is another class of the same model), or, for a definition that names
+     * no class, of the entity's own model's class.
+     */
+    private static boolean isCopy(Frame frame, EntityModel<?> model) {
+        String modelName = frame.data.getDefinition().model;
+        if (modelName == null) {
+            return model.getClass() == frame.model.getClass();
+        }
+        Class<?> modelClass = VanillaNames.modelClass(modelName);
+        return modelClass != null && modelClass.isInstance(model);
     }
 }
