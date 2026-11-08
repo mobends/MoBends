@@ -46,4 +46,21 @@ public interface IRotationSink extends IBoneSink
     {
     }
 
+    /** @return true if the bone can be scaled (a model part can; plain orientations can't). */
+    default boolean hasScale()
+    {
+        return false;
+    }
+
+    /** @return the bone's scale, per axis; only called where {@link #hasScale}. */
+    default IVec3fRead getScale()
+    {
+        throw new UnsupportedOperationException("This bone can't be scaled.");
+    }
+
+    /** Sets the bone's scale, applied as is (scales aren't smoothed); a NaN component keeps that axis's current scale. */
+    default void setScaleTarget(float x, float y, float z)
+    {
+    }
+
 }

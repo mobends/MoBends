@@ -10,7 +10,7 @@ import goblinbob.mobends.core.util.EnumAxis;
 import javax.annotation.Nullable;
 
 /**
- * Sink backed by a {@link SmoothOrientation} and an optional offset vector: the orientation
+ * Sink backed by a {@link SmoothOrientation}, an optional offset vector and an optional scale: the orientation
  * smooths towards each target written, and the offset too where the part keeps a smoothing for it
  * (whoever owns the smoothing updates it, and carries its value into the offset).
  */
@@ -21,6 +21,8 @@ public class OrientationSink implements IRotationSink
     private final IVec3f offset;
     @Nullable
     private final SmoothVector3f smoothOffset;
+    @Nullable
+    private final IVec3f scale;
 
     public OrientationSink(SmoothOrientation rotation, IVec3f offset)
     {
@@ -30,9 +32,16 @@ public class OrientationSink implements IRotationSink
     /** @param smoothOffset the offset's smoothing state; null to write offsets as they come. */
     public OrientationSink(SmoothOrientation rotation, IVec3f offset, @Nullable SmoothVector3f smoothOffset)
     {
+        this(rotation, offset, smoothOffset, null);
+    }
+
+    /** @param scale the part's scale; null for a bone that can't be scaled. */
+    public OrientationSink(SmoothOrientation rotation, IVec3f offset, @Nullable SmoothVector3f smoothOffset, @Nullable IVec3f scale)
+    {
         this.rotation = rotation;
         this.offset = offset;
         this.smoothOffset = offset == null ? null : smoothOffset;
+        this.scale = scale;
     }
 
     @Override
@@ -161,6 +170,28 @@ public class OrientationSink implements IRotationSink
             case Y: return smoothOffset.baseSmoothing.y;
             default: return smoothOffset.baseSmoothing.z;
         }
+    }
+
+    @Override
+    public boolean hasScale()
+    {
+        return scale != null;
+    }
+
+    @Override
+    public IVec3fRead getScale()
+    {
+        return scale;
+    }
+
+    @Override
+    public void setScaleTarget(float x, float y, float z)
+    {
+        if (scale == null)
+        {
+            return;
+        }
+        scale.set(Float.isNaN(x) ? scale.getX() : x, Float.isNaN(y) ? scale.getY() : y, Float.isNaN(z) ? scale.getZ() : z);
     }
 
     @Override

@@ -89,7 +89,7 @@ of a trusted file (`PackTrust`). The server decides what untrusted content may d
 | Policy | Effect |
 |--------|--------|
 | `ALLOW` | Everything is used as is. Always the case in singleplayer. |
-| `LIMITED` (default) | Untrusted animation is clamped: every part offset and both body vectors stay within `maxPartOffset` / `maxBodyOffset` of what the trusted animation gives them (`AnimationLimits`); rotations are free. Untrusted model geometry is refused, so only trusted model definitions are served. |
+| `LIMITED` (default) | Untrusted animation is clamped: every part offset and both body vectors stay within `maxPartOffset` / `maxBodyOffset` of what the trusted animation gives them, and every part's scale within a factor of `maxPartScale` of the trusted one, keeping its sign (`AnimationLimits`); rotations are free. Untrusted model geometry is refused, so only trusted model definitions are served. |
 | `DENY` | Only trusted content is loaded. |
 
 `KumoAnimatorState` knows each layer's trust (its declaring file and its clips), notes the pose

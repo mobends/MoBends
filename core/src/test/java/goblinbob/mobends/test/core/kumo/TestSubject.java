@@ -55,6 +55,8 @@ class TestSubject implements IKumoSubject
     /** Each bone's offset, and its smoothing (see {@link #updateOffsets}). */
     final Map<String, Vec3f> offsets = new HashMap<>();
     final Map<String, SmoothVector3f> smoothOffsets = new HashMap<>();
+    /** Each bone's scale. */
+    final Map<String, Vec3f> scales = new HashMap<>();
     /** The entity-level root vector. */
     final EntityBone root = new EntityBone();
     final Map<String, Double> variables = new HashMap<>();
@@ -69,6 +71,7 @@ class TestSubject implements IKumoSubject
             bones.put(name, new SmoothOrientation());
             offsets.put(name, new Vec3f());
             smoothOffsets.put(name, new SmoothVector3f());
+            scales.put(name, new Vec3f(1, 1, 1));
         }
     }
 
@@ -100,7 +103,7 @@ class TestSubject implements IKumoSubject
             return root;
         }
         SmoothOrientation bone = bones.get(name);
-        return bone == null ? null : new OrientationSink(bone, offsets.get(name), smoothOffsets.get(name));
+        return bone == null ? null : new OrientationSink(bone, offsets.get(name), smoothOffsets.get(name), scales.get(name));
     }
 
     @Override

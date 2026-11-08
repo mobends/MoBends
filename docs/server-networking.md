@@ -12,6 +12,7 @@ on world join; the client applies them until it leaves.
 | `resourcePackAnimation` | String | `LIMITED` | `ALLOW`, `LIMITED` or `DENY`: what untrusted content (enabled resource packs) may do, see [content.md](content.md) |
 | `maxPartOffset` | Float | `4` | `LIMITED` only: how far (model units, 1/16 block) untrusted animation may move a single part from where the trusted animation puts it |
 | `maxBodyOffset` | Float | `16` | `LIMITED` only: the same for the whole model |
+| `maxPartScale` | Float | `1.5` | `LIMITED` only: by what factor, at most (up or down, per axis), untrusted animation may scale a single part from the scale the trusted animation gives it; 1 forbids scaling, less counts as 1 |
 
 Singleplayer (and the title screen) is always `ALLOW`. On joining a world the client falls back to
 the defaults, so a server without Mo' Bends (which never answers) limits resource packs.

@@ -43,6 +43,14 @@ public class BoneTarget
     public boolean hasVector;
     public final Vec3f vector = new Vec3f();
 
+    /**
+     * A part's scale, per axis (1: as modelled). Relative ({@link #scaleRelative}: a PRE / POST
+     * write while no absolute value exists) it is a factor on what lies beneath.
+     */
+    public boolean hasScale;
+    public boolean scaleRelative;
+    public final Vec3f scale = new Vec3f(1, 1, 1);
+
     /** Ticks to reach the target (0: at once); NaN, where nothing smooths the bone this frame, for its base smoothing. For vectors per axis. */
     public float smoothing = Float.NaN;
     public final Vec3f vectorSmoothing = new Vec3f(Float.NaN, Float.NaN, Float.NaN);
@@ -75,6 +83,8 @@ public class BoneTarget
         hasRotation = false;
         hasOffset = false;
         hasVector = false;
+        hasScale = false;
+        scaleRelative = false;
         smoothing = Float.NaN;
         vectorSmoothing.set(Float.NaN, Float.NaN, Float.NaN);
         offsetSmoothing.set(Float.NaN, Float.NaN, Float.NaN);
@@ -84,7 +94,7 @@ public class BoneTarget
         offsetMode = IVectorSink.Mode.RETARGET;
     }
 
-    /** Reflects the target across the YZ plane: rotations (x, -y, -z, w), vectors (-x, y, z). */
+    /** Reflects the target across the YZ plane: rotations (x, -y, -z, w), vectors (-x, y, z); a scale stays as it is. */
     public void mirrorX()
     {
         PoseMath.mirrorX(rotation);
@@ -114,6 +124,9 @@ public class BoneTarget
         offset.set(other.offset);
         hasVector = other.hasVector;
         vector.set(other.vector);
+        hasScale = other.hasScale;
+        scaleRelative = other.scaleRelative;
+        scale.set(other.scale);
         smoothing = other.smoothing;
         vectorSmoothing.set(other.vectorSmoothing);
         offsetSmoothing.set(other.offsetSmoothing);

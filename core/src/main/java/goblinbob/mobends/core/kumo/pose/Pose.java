@@ -53,6 +53,8 @@ public class Pose
      * (one per slot) instead of the bones' live targets: see {@code KumoAnimatorState}'s limits.
      */
     private IVec3fRead[] fallbackValues;
+    /** As {@link #fallbackValues}, for relative scales. */
+    private IVec3fRead[] fallbackScales;
     /** The pose this one goes on top of (a layer's: the animator pose, holding the layers below), or null. */
     private Pose below;
 
@@ -164,6 +166,29 @@ public class Pose
         }
     }
 
+    /** As {@link #rotationSoFar}, for the slot's scale (one where nothing has written it). */
+    public void scaleSoFar(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasScale && !target.scaleRelative)
+        {
+            dest.set(target.scale);
+            return;
+        }
+        if (below != null)
+        {
+            below.scaleSoFar(index, dest);
+        }
+        else
+        {
+            dest.set(1F, 1F, 1F);
+        }
+        if (target.hasScale)
+        {
+            dest.scale(target.scale.x, target.scale.y, target.scale.z);
+        }
+    }
+
     public Skeleton getSkeleton()
     {
         return skeleton;
@@ -251,6 +276,28 @@ public class Pose
             return false;
         }
         dest.set(fallbackValues != null ? fallbackValues[index] : rotationSink.getOffset());
+        return true;
+    }
+
+    /** As {@link #absoluteRotation}, for the slot's scale. */
+    public boolean absoluteScale(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasScale && !target.scaleRelative)
+        {
+            dest.set(target.scale);
+            return true;
+        }
+        if (!sinkFallback)
+        {
+            return false;
+        }
+        IRotationSink rotationSink = scaleSink(index);
+        if (rotationSink == null)
+        {
+            return false;
+        }
+        dest.set(fallbackScales != null ? fallbackScales[index] : rotationSink.getScale());
         return true;
     }
 
@@ -389,6 +436,83 @@ public class Pose
     public void setFallbackValues(IVec3fRead[] values)
     {
         this.fallbackValues = values;
+    }
+
+    /** Relative scales with nothing under them resolve against {@code values} (per slot) instead of the live scales; null to undo. */
+    public void setFallbackScales(IVec3fRead[] values)
+    {
+        this.fallbackScales = values;
+    }
+
+    /**
+     * Writes a part's scale. OVERRIDE replaces it (an axis given as NaN keeps what the part has so
+     * far, as {@link #composeOffset}); PRE and POST multiply it, per axis (a scale has no
+     * orientation of its own, so the two are the same).
+     */
+    public void composeScale(int index, float x, float y, float z, Space space)
+    {
+        BoneTarget target = targets[index];
+        if (space == Space.OVERRIDE)
+        {
+            if ((Float.isNaN(x) || Float.isNaN(y) || Float.isNaN(z)) && scaleBeneath(index, offsetTemp))
+            {
+                if (Float.isNaN(x)) x = offsetTemp.x;
+                if (Float.isNaN(y)) y = offsetTemp.y;
+                if (Float.isNaN(z)) z = offsetTemp.z;
+            }
+            target.scale.set(x, y, z);
+            target.scaleRelative = false;
+        }
+        else if (target.hasScale)
+        {
+            target.scale.scale(x, y, z);
+        }
+        else if (sinkFallback)
+        {
+            IRotationSink rotationSink = scaleSink(index);
+            if (rotationSink != null)
+            {
+                IVec3fRead current = fallbackScales != null ? fallbackScales[index] : rotationSink.getScale();
+                target.scale.set(current.getX() * x, current.getY() * y, current.getZ() * z);
+            }
+            else
+            {
+                target.scale.set(x, y, z);
+            }
+            target.scaleRelative = false;
+        }
+        else
+        {
+            target.scale.set(x, y, z);
+            target.scaleRelative = true;
+        }
+        target.hasScale = true;
+    }
+
+    /** What an OVERRIDE scale's unwritten axes keep (see {@link #composeScale}); false where it isn't known. */
+    private boolean scaleBeneath(int index, Vec3f dest)
+    {
+        BoneTarget target = targets[index];
+        if (target.hasScale && !target.scaleRelative)
+        {
+            dest.set(target.scale);
+            return true;
+        }
+        boolean known = below != null ? below.absoluteScale(index, dest) : absoluteScale(index, dest);
+        if (known && target.hasScale)
+        {
+            dest.scale(target.scale.x, target.scale.y, target.scale.z);
+        }
+        return known;
+    }
+
+    /** The bone's sink, where it can be scaled (a model part); else null. */
+    @Nullable
+    private IRotationSink scaleSink(int index)
+    {
+        IBoneSink sink = sink(index);
+        IRotationSink rotationSink = sink == null ? null : sink.asRotation();
+        return rotationSink != null && rotationSink.hasScale() ? rotationSink : null;
     }
 
     /**
@@ -556,6 +680,10 @@ public class Pose
                     {
                         rotationSink.restartOffsetSlide(target.restartX, target.restartY, target.restartZ);
                     }
+                }
+                if (target.hasScale && rotationSink.hasScale())
+                {
+                    rotationSink.setScaleTarget(target.scale.x, target.scale.y, target.scale.z);
                 }
             }
 

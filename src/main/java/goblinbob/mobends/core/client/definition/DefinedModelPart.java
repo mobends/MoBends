@@ -135,7 +135,7 @@ public class DefinedModelPart extends ModelPart
         applyParentRotationUndone();
         GlHelper.rotate(restRotation);
         GlHelper.rotate(rotation.getSmooth());
-        if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
+        if (this.scale.x != 1.0F || this.scale.y != 1.0F || this.scale.z != 1.0F)
             GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
     }
 
