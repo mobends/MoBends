@@ -19,6 +19,9 @@ public interface Platform {
 
     boolean isModLoaded(String modId);
 
+    /** Whether the game is a client (the server has no rendering, so animation stays off there). */
+    boolean isClient();
+
     /** The directory the game keeps mod configuration in. */
     Path configDir();
 }

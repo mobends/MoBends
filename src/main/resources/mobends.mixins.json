@@ -3,7 +3,14 @@
   "package": "goblinbob.mobends.mixin",
   "compatibilityLevel": "${java}",
   "mixins": [],
-  "client": [],
+  "client": [
+    "AgeableListModelMixin",
+    "GameRendererMixin",
+    "HumanoidModelMixin",
+    "LivingEntityRendererMixin",
+    "MinecraftMixin",
+    "PlayerRendererMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

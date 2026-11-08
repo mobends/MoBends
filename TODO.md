@@ -126,8 +126,18 @@ forge-1.12               1.12.2
    - [x] Add the Stonecutter multi-loader layout: a 1.21.1 Fabric + NeoForge skeleton that loads,
      with `core/` compiled in, and CI. The 1.12 sources moved to `legacy-1.12/` (not built) as the
      porting reference; the shared assets moved to `src/main/resources`.
-   - [ ] Port `legacy-1.12/` class by class with `git mv` (keeps history), deleting it once empty.
-     The animation lab then compiles from `src/`.
+   - [ ] Port `legacy-1.12/` slice by slice, deleting it once empty. The animation lab compiles
+     from `legacy-1.12/` until then, so the slices copy what they port rather than `git mv` it.
+     - [x] **The player bends** (1.21.1, Fabric + NeoForge): the player's model definition, entity
+       data and KUMO glue, and its bent model (split elbows and knees) drawn in place of vanilla's
+       (`DefinedModelBuilder`, `BendsRenderer`). Checked in the game on both loaders.
+     - [ ] The player's render layers: armour, held items, cape, elytra, custom head (they draw
+       where vanilla puts them for now), the first-person hands, the sword trail and the cape wave,
+       and the head re-aim of 1.12's `lookFurther` (the inventory player).
+     - [ ] The other mobs (their model definitions and type files, extensions, the ray and step
+       drivers, `field` expressions).
+     - [ ] The config, the Mo' Bends menu, server rules (networking, `AnimationPolicy`), pack
+       trust, supporters and the mobends.com API.
    - [ ] Convert the `.lang` translations to `.json`.
    - [ ] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge).
 3. [x] **Publish `core`.** Release the first `core` version and switch `forge-1.12` to depend on it,
