@@ -4,10 +4,12 @@
   "compatibilityLevel": "${java}",
   "mixins": [],
   "client": [
+    "AgeableListModelMixin",
     "GameRendererMixin",
     "HumanoidModelMixin",
     "LivingEntityRendererMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "PlayerRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

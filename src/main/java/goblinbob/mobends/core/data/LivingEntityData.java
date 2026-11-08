@@ -295,16 +295,19 @@ public abstract class LivingEntityData<E extends LivingEntity> extends EntityDat
      */
     public float getLedgeHeight() {
         float clientY = (float) Mth.lerp(DataUpdateHandler.partialTicks, entity.yo, entity.getY());
+        // Floored, not cast: a cast rounds toward zero, which below Y=0 gives the height to the block
+        // above, negated (-0.25 at Y=-10.25 instead of 0.75). 1.12's world never went below 0.
+        float withinBlock = clientY - Mth.floor(clientY);
         Level level = entity.level();
         BlockPos position = entity.blockPosition();
         if (!isBlockClimbable(level.getBlockState(position.above(2)))) {
             if (!isBlockClimbable(level.getBlockState(position.above()))) {
                 if (!isBlockClimbable(level.getBlockState(position))) {
-                    return (clientY - (int) clientY) + 2;
+                    return withinBlock + 2;
                 }
-                return (clientY - (int) clientY) + 1;
+                return withinBlock + 1;
             }
-            return clientY - (int) clientY;
+            return withinBlock;
         }
         return -2.0F;
     }

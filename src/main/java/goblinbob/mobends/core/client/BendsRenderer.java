@@ -24,7 +24,57 @@ import javax.annotation.Nullable;
  * to pass the model; then draws Mo' Bends' parts for the model in its place.
  */
 public final class BendsRenderer {
+    /*
+     * The bent draw the renderer has asked for, from just before it calls the model's renderToBuffer
+     * until that call returns: the model's own renderToBuffer takes it and draws the bent parts
+     * instead (mixin.AgeableListModelMixin). Drawing there, rather than in place of the renderer's
+     * call, lets every other mod's wrapper around that call run, and draws with whatever consumer,
+     * light, overlay and colour they pass on. Render thread only; a renderer draws one entity at a time.
+     */
+    @Nullable
+    private static DefinedEntityData<?> markedData;
+    @Nullable
+    private static EntityModel<?> markedModel;
+    @Nullable
+    private static Matrix4fc markedEntityFrame;
+    private static float markedBodyYaw;
+
     private BendsRenderer() {
+    }
+
+    /**
+     * Asks for {@code model}'s next draw to be bent, as {@code data} poses it. Clear the mark with
+     * {@link #clearBentDraw()} once the renderer's call to the model returns, however it returns, so
+     * a draw of the same model elsewhere (another mod's preview, say) isn't bent.
+     */
+    public static void markBentDraw(DefinedEntityData<?> data, EntityModel<?> model, Matrix4fc entityFrame, float bodyYaw) {
+        markedData = data;
+        markedModel = model;
+        markedEntityFrame = entityFrame;
+        markedBodyYaw = bodyYaw;
+    }
+
+    public static void clearBentDraw() {
+        markedData = null;
+        markedModel = null;
+        markedEntityFrame = null;
+    }
+
+    /**
+     * Draws {@code model} bent if the renderer marked this draw of it, in place of the model's own
+     * {@code renderToBuffer}. The mark is used up, so the model draws as vanilla if it's drawn
+     * again before the renderer's call returns.
+     *
+     * @return true if it drew, and the model's own draw must be skipped
+     */
+    public static boolean drawMarked(EntityModel<?> model, PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int color) {
+        DefinedEntityData<?> data = markedData;
+        Matrix4fc entityFrame = markedEntityFrame;
+        if (data == null || entityFrame == null || markedModel != model) {
+            return false;
+        }
+        clearBentDraw();
+        return renderModel(data, model, entityFrame, markedBodyYaw, poseStack, consumer, packedLight, packedOverlay, color);
     }
 
     /**
@@ -56,7 +106,7 @@ public final class BendsRenderer {
      * @param bodyYaw     the body yaw vanilla turns the entity by
      * @return false if the model isn't one the definition bends, to draw it as vanilla does
      */
-    public static boolean renderModel(DefinedEntityData<?> data, EntityModel<?> model, Matrix4fc entityFrame, float bodyYaw, PoseStack poseStack,
+    private static boolean renderModel(DefinedEntityData<?> data, EntityModel<?> model, Matrix4fc entityFrame, float bodyYaw, PoseStack poseStack,
                                       VertexConsumer consumer, int packedLight, int packedOverlay, int color) {
         EntityModelDefinition definition = data.getDefinition();
         if (definition.model != null) {
