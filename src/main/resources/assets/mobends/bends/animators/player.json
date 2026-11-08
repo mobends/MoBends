@@ -44,7 +44,11 @@
         ]
       }
     },
-    "canSpinAttack": {"live": {"and": ["option.spinAttack", {"not": ["entityIsRiding"]}]}}
+    "canSpinAttack": {
+      "live": {
+        "and": ["option.spinAttack", {"not": ["entityIsRiding"]}, {"not": [{"gt": ["entityTicksElytraFlying", 4]}]}]
+      }
+    }
   },
   "layers": [
     {

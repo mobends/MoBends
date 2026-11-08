@@ -14,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ElytraSlashTest
 {
 
-    private static final String[] COMBO = {"slash_up", "slash_down", "slash_inward", "slash_outward", "slash_whirl"};
+    /** The combo's first four slashes: flying with an elytra, the fifth attack starts it over instead of whirling. */
+    private static final String[] COMBO = {"slash_up", "slash_down", "slash_inward", "slash_outward"};
 
     private static Scenario.InputScript flying(boolean leftHanded, Item held)
     {
@@ -30,7 +31,7 @@ class ElytraSlashTest
 
     // --- #89: an attack while flying with an elytra leaves the head looking ahead along the flight -----------
 
-    /** The whole sword combo, every slash and the whirl, with either hand. */
+    /** Five attacks of the sword combo, with either hand. */
     private static void assertTheComboKeepsTheHeadAhead(boolean leftHanded) throws Exception
     {
         Scenario.InputScript flying = flying(leftHanded, Items.IRON_SWORD);
@@ -43,8 +44,20 @@ class ElytraSlashTest
         {
             assertTrue(slashing.actionNodes.contains(slash), slash + " didn't play: " + slashing.actionNodes);
         }
+        assertFalse(slashing.actionNodes.contains("slash_whirl"), "the whirl played mid flight");
+        assertEquals("slash_up", lastSlash(slashing), "the fifth attack didn't start the combo over");
         double worst = still.worstAngle(slashing, "head");
         assertTrue(worst < 0.5, "the combo turned the head by " + worst + " degrees from where the elytra has it");
+    }
+
+    private static String lastSlash(Run run)
+    {
+        String last = null;
+        for (String node : run.actionNodes)
+        {
+            if (node != null && node.startsWith("slash_")) last = node;
+        }
+        return last;
     }
 
     @Test

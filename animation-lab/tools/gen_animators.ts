@@ -857,7 +857,8 @@ const attackBranch: Obj = {
 };
 const slashOrder = ["slash_up", "slash_down", "slash_inward", "slash_outward", "slash_whirl"];
 // The player's sword combo ends with a whirl, where the animator allows it (animator.canSpinAttack:
-// the player's spinAttack option, and not riding); otherwise the combo starts over.
+// the player's spinAttack option, not riding, and not flying with an elytra); otherwise the combo
+// starts over.
 const canSpin = "animator.canSpinAttack";
 const slashByCombo = [
   ...slashOrder.map((n, k) => conn(n, AND("machine.attacked", cmp("machine.combo", "==", k), ...(k === 4 ? [canSpin] : [])), [set("machine.combo", (k + 1) % 5)])),
@@ -964,7 +965,7 @@ const player: Obj = {
   "@define": { jumping: live(jumping), bounced: live(bounced), standing: live(chooses(playerSelect, "stand")),
                walking: live(chooses(playerSelect, "walk")), sprinting: live(chooses(playerSelect, "sprint")),
                // unless the player turned it off, or is riding
-               canSpinAttack: live(AND("option.spinAttack", NOT(state("entityIsRiding")))) },
+               canSpinAttack: live(AND("option.spinAttack", NOT(state("entityIsRiding")), NOT(elytraFlying))) },
   layers: [
     // item rotations are reset every frame before the layers run, easing back once a layer above lets go
     { defaultOnEntry: "reset", nodes: { reset: poseNode([clip(PL("reset_items"), {}, { smoothing: { rightHeldItem: 3.33, leftHeldItem: 3.33 } })]) } },
