@@ -3,6 +3,7 @@ package goblinbob.mobends.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import goblinbob.mobends.core.client.BendingEntityRenderer;
+import goblinbob.mobends.core.client.definition.DefinedRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +24,7 @@ public abstract class PlayerRendererMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;getSwimAmount(F)F")
     )
     private float mobends$noSwimTiltWhenBent(AbstractClientPlayer player, float partialTicks, Operation<Float> original) {
-        if (player.isInWater() && ((BendingEntityRenderer) this).mobends$bentData() != null) {
+        if (DefinedRenderer.replacesSwimmingTilt(player) && ((BendingEntityRenderer) this).mobends$bentData() != null) {
             return 0.0F;
         }
         return original.call(player, partialTicks);

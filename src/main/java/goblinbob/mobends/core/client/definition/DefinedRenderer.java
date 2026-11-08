@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.client.definition;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
@@ -8,6 +9,7 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -39,6 +41,36 @@ public final class DefinedRenderer {
     }
 
     /**
+     * Whether vanilla's swimming tilt is kept off the bent entity ({@code mixin.PlayerRendererMixin}):
+     * in water, where the animator turns the root bone for its own swimming poses. Out of water
+     * (crawling) vanilla's tilt stays, as the animator has no crawling pose.
+     */
+    public static boolean replacesSwimmingTilt(LivingEntity entity) {
+        return entity.isInWater();
+    }
+
+    /**
+     * How far down to draw the bent model of an entity in vanilla's swimming pose, in the entity's
+     * scale. The animator's swimming poses were made for 1.12, where a swimming player kept the
+     * standing hitbox and camera; vanilla's swimming pose shrinks the hitbox to its bottom and lowers
+     * the camera with it (1.22 blocks for a player), so the pose drops by as much to keep its place
+     * against the camera and the hitbox. Vanilla's own swimming translate went with the tilt it no
+     * longer applies. Eased by the swim amount, as vanilla eases its tilt, so it doesn't jump.
+     */
+    private static float swimmingDrop(LivingEntity entity) {
+        if (!replacesSwimmingTilt(entity)) {
+            return 0.0F;
+        }
+        float swimAmount = entity.getSwimAmount(DataUpdateHandler.partialTicks);
+        if (swimAmount <= 0.0F) {
+            return 0.0F;
+        }
+        float drop = entity.getEyeHeight(Pose.STANDING) - entity.getEyeHeight(Pose.SWIMMING);
+        // getEyeHeight includes the entity's scale, which the entity's frame already has.
+        return swimAmount * drop / entity.getScale();
+    }
+
+    /**
      * Moves {@code poseStack}, at the model's pose, by the entity's root, center and sneak offset.
      *
      * @param entityFrame the pose as vanilla's {@code setupRotations} starts, in the same render
@@ -54,6 +86,7 @@ public final class DefinedRenderer {
         poseStack.mulPose(new Quaternionf().rotationY(-yaw));
 
         // 1.12's frame: the entity's feet, facing as its body does, Y up, in blocks.
+        poseStack.translate(0.0F, -swimmingDrop(entity), 0.0F);
         float globalScale = entity.isBaby() ? definition.childScale : 1;
         float s = SCALE * globalScale;
         poseStack.translate(data.root.position.getX() * s, data.root.position.getY() * s, data.root.position.getZ() * s);
