@@ -10,6 +10,10 @@ import goblinbob.mobends.core.math.vector.Vec3f;
 public class ClipSampler
 {
 
+    /** What a keyframe that leaves its rotation or position out has. */
+    private static final float[] IDENTITY = {0, 0, 0, 1};
+    private static final float[] ZERO = {0, 0, 0};
+
     public static int keyframeCount(KeyframeAnimation animation)
     {
         int count = 0;
@@ -46,20 +50,24 @@ public class ClipSampler
 
         Keyframe a = bone.keyframes.get(frameA);
         Keyframe b = bone.keyframes.get(frameB);
+        final float[] ra = a.rotation != null ? a.rotation : IDENTITY;
+        final float[] rb = b.rotation != null ? b.rotation : IDENTITY;
+        final float[] pa = a.position != null ? a.position : ZERO;
+        final float[] pb = b.position != null ? b.position : ZERO;
 
         // Hemisphere correction: neighbouring keyframes that straddle the +-180 degree wrap are
         // stored as q and ~-q; interpolating towards -b takes the short way round.
-        float dot = a.rotation[0] * b.rotation[0] + a.rotation[1] * b.rotation[1] + a.rotation[2] * b.rotation[2] + a.rotation[3] * b.rotation[3];
+        float dot = ra[0] * rb[0] + ra[1] * rb[1] + ra[2] * rb[2] + ra[3] * rb[3];
         float sign = dot < 0 ? -1F : 1F;
-        rotation.set(a.rotation[0] + (sign * b.rotation[0] - a.rotation[0]) * tween,
-                a.rotation[1] + (sign * b.rotation[1] - a.rotation[1]) * tween,
-                a.rotation[2] + (sign * b.rotation[2] - a.rotation[2]) * tween,
-                a.rotation[3] + (sign * b.rotation[3] - a.rotation[3]) * tween);
+        rotation.set(ra[0] + (sign * rb[0] - ra[0]) * tween,
+                ra[1] + (sign * rb[1] - ra[1]) * tween,
+                ra[2] + (sign * rb[2] - ra[2]) * tween,
+                ra[3] + (sign * rb[3] - ra[3]) * tween);
         rotation.normalise();
 
-        position.set(a.position[0] + (b.position[0] - a.position[0]) * tween,
-                a.position[1] + (b.position[1] - a.position[1]) * tween,
-                a.position[2] + (b.position[2] - a.position[2]) * tween);
+        position.set(pa[0] + (pb[0] - pa[0]) * tween,
+                pa[1] + (pb[1] - pa[1]) * tween,
+                pa[2] + (pb[2] - pa[2]) * tween);
         return true;
     }
 

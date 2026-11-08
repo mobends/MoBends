@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client;
 
 import goblinbob.mobends.core.data.EntityComponent;
 import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GlHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -13,6 +14,7 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 {
 
     protected final float scale = 0.0625F;
+    private final Vec3f centerPivot = new Vec3f();
     protected final TextureManager textureManager;
 
     public MutatedRenderer()
@@ -46,17 +48,19 @@ public abstract class MutatedRenderer<T extends EntityLivingBase>
 
         float globalScale = entity.isChild() ? getChildScale() : 1;
 
-        GlStateManager.translate(data.globalOffset.getX() * scale * globalScale,
-                data.globalOffset.getY() * scale * globalScale,
-                data.globalOffset.getZ() * scale * globalScale);
-        GlStateManager.translate(0, entity.height / 2, 0);
-        GlHelper.rotate(data.centerRotation.getSmooth());
-        GlStateManager.translate(0, -entity.height / 2, 0);
-        GlHelper.rotate(data.renderRotation.getSmooth());
-
-        GlStateManager.translate(data.localOffset.getX() * scale * globalScale,
-                data.localOffset.getY() * scale * globalScale,
-                data.localOffset.getZ() * scale * globalScale);
+        // The entity's own bones: the root moves, then turns about the feet; the center, its child,
+        // moves, then turns about its pivot.
+        GlStateManager.translate(data.root.position.getX() * scale * globalScale,
+                data.root.position.getY() * scale * globalScale,
+                data.root.position.getZ() * scale * globalScale);
+        GlHelper.rotate(data.root.rotation.getSmooth());
+        GlStateManager.translate(data.center.position.getX() * scale * globalScale,
+                data.center.position.getY() * scale * globalScale,
+                data.center.position.getZ() * scale * globalScale);
+        Vec3f pivot = data.getCenterPivot(centerPivot);
+        GlStateManager.translate(pivot.x, pivot.y, pivot.z);
+        GlHelper.rotate(data.center.rotation.getSmooth());
+        GlStateManager.translate(-pivot.x, -pivot.y, -pivot.z);
 
         this.transformLocally(entity, data, partialTicks);
 

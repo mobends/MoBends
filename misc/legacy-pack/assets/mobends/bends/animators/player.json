@@ -99,9 +99,7 @@
                 },
                 "@smoothing": {
                   "root": 1.665,
-                  "localOffset": 3.33,
-                  "renderRotation": 1.665,
-                  "centerRotation": 3.33,
+                  "center": 3.33,
                   "rightHeldItem": 3.33,
                   "leftHeldItem": 3.33,
                   "body": 1,
@@ -114,7 +112,7 @@
                   "rightForeLeg": 3.33,
                   "leftForeLeg": 3.33
                 },
-                "@vectorModes": {"root": "slide", "localOffset": "slide"}
+                "@vectorModes": {"root": "slide", "center": "slide"}
               },
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
@@ -146,9 +144,7 @@
                 },
                 "@smoothing": {
                   "root": [1.665, 0.835, 1.665],
-                  "localOffset": 3.33,
-                  "renderRotation": 1.665,
-                  "centerRotation": 3.33,
+                  "center": 3.33,
                   "rightHeldItem": 3.33,
                   "leftHeldItem": 3.33,
                   "body": 2,
@@ -160,7 +156,7 @@
                   "rightLeg": 1,
                   "leftLeg": 1
                 },
-                "@vectorModes": {"root": "retarget", "localOffset": "slide"}
+                "@vectorModes": {"root": "retarget", "center": "slide"}
               },
               {
                 "core:clip": {
@@ -219,10 +215,8 @@
                   "frame": {"mod": [{"mul": ["entityLimbSwing", 0.53296]}, "clipLength"]}
                 },
                 "@smoothing": {
-                  "root": [5, 0.555, 5],
-                  "localOffset": 3.33,
-                  "renderRotation": 1.665,
-                  "centerRotation": 3.33,
+                  "root": {"rotation": 1.665, "position": [5, 0.555, 5]},
+                  "center": 3.33,
                   "rightHeldItem": 3.33,
                   "leftHeldItem": 3.33,
                   "body": 1.25,
@@ -234,7 +228,7 @@
                   "rightForeLeg": 1.43,
                   "leftForeLeg": 1.43
                 },
-                "@vectorModes": {"root": "retarget", "localOffset": "slide"}
+                "@vectorModes": {"root": "retarget", "center": "slide"}
               },
               {
                 "core:clip": {
@@ -282,9 +276,7 @@
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/biped/jump.json", "frame": "entityTicksInAir"},
                 "@smoothing": {
                   "root": 1.665,
-                  "localOffset": 3.33,
-                  "renderRotation": 1.665,
-                  "centerRotation": 1.43,
+                  "center": {"rotation": 1.43, "position": 3.33},
                   "rightHeldItem": 3.33,
                   "leftHeldItem": 3.33,
                   "body": 5,
@@ -338,7 +330,7 @@
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/sprint_jump_right.json"},
                 "@smoothing": {
-                  "centerRotation": 3.33,
+                  "center": 3.33,
                   "root": 1,
                   "body": 3.33,
                   "rightLeg": 1.25,
@@ -391,7 +383,7 @@
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/sprint_jump_left.json"},
                 "@smoothing": {
-                  "centerRotation": 3.33,
+                  "center": 3.33,
                   "root": 1,
                   "body": 3.33,
                   "rightLeg": 1.25,
@@ -443,7 +435,7 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/falling_rest.json"},
-                "@smoothing": {"centerRotation": 3.33, "body": 2}
+                "@smoothing": {"center": 3.33, "body": 2}
               },
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "override"},
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
@@ -477,7 +469,7 @@
                   "rightForeLeg": {
                     "div": [1, {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]}]
                   },
-                  "renderRotation": {
+                  "root": {
                     "mul": [
                       {
                         "div": [1, {"clamp": [{"add": [{"mul": ["entityTicksFalling", 0.01125]}, -0.1125]}, 0, 0.9]}]
@@ -504,7 +496,7 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/fly_common.json"},
-                "@smoothing": {"renderRotation": 0.715, "root": 0.715},
+                "@smoothing": {"root": 0.715},
                 "@vectorModes": {"root": "slide"}
               },
               {
@@ -517,7 +509,7 @@
                 },
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/fly_sprint.json"},
                 "@smoothing": {
-                  "centerRotation": 1,
+                  "center": 1,
                   "head": 1,
                   "body": 1.43,
                   "leftArm": 1.43,
@@ -538,7 +530,7 @@
                     {"ge": ["entityTicksAfterAttack", 10]}
                   ]
                 },
-                "core:rotate": {"bone": "centerRotation", "axis": "x", "angle": "entity.flightPitch"},
+                "core:rotate": {"bone": "center", "axis": "x", "angle": "entity.flightPitch"},
                 "@space": "override"
               },
               {
@@ -549,7 +541,7 @@
                     {"ge": ["entityTicksAfterAttack", 10]}
                   ]
                 },
-                "core:rotate": {"bone": "centerRotation", "axis": "z", "angle": "entityHeadYaw"},
+                "core:rotate": {"bone": "center", "axis": "z", "angle": "entityHeadYaw"},
                 "@space": "pre"
               },
               {
@@ -847,7 +839,7 @@
                   ]
                 },
                 "core:rotate": {
-                  "bone": "centerRotation",
+                  "bone": "center",
                   "axis": "x",
                   "angle": {"mul": [{"clamp": ["entityForwardMomentum", -1, 1]}, 50]}
                 },
@@ -1063,7 +1055,7 @@
                     {"not": ["entityIsDrawingBow"]}
                   ]
                 },
-                "core:rotate": {"bone": "centerRotation", "axis": "y", "angle": {"mul": ["entityHeadYaw", -1]}},
+                "core:rotate": {"bone": "center", "axis": "y", "angle": {"mul": ["entityHeadYaw", -1]}},
                 "@space": "post"
               }
             ]
@@ -1099,8 +1091,8 @@
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/swim_common.json"},
-                "@smoothing": {"head": 1, "renderRotation": 0.715, "localOffset": 3.33, "body": 2},
-                "@vectorModes": {"localOffset": "slide"}
+                "@smoothing": {"head": 1, "root": 0.715, "center": 3.33, "body": 2},
+                "@vectorModes": {"center": "slide"}
               },
               {
                 "@when": {
@@ -1260,7 +1252,7 @@
               },
               {
                 "core:rotate": {
-                  "bone": "renderRotation",
+                  "bone": "root",
                   "axis": "x",
                   "angle": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, 80]}
                 },
@@ -1298,16 +1290,16 @@
                   "rightLeg": 2,
                   "leftForeLeg": 2,
                   "rightForeLeg": 2,
-                  "localOffset": [null, null, 1.67]
+                  "center": [null, null, 1.67]
                 },
-                "@vectorModes": {"localOffset": "slide"}
+                "@vectorModes": {"center": "slide"}
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/ladder_rest.json"},
-                "@smoothing": {"centerRotation": 3.33, "renderRotation": 0.835}
+                "@smoothing": {"center": 3.33, "root": 0.835}
               },
               {
-                "core:rotate": {"bone": "renderRotation", "axis": "y", "angle": "entityClimbingRenderYaw"},
+                "core:rotate": {"bone": "root", "axis": "y", "angle": "entityClimbingRenderYaw"},
                 "@space": "override"
               },
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "override"},
@@ -1361,8 +1353,7 @@
                   "rightLeg": 1.43,
                   "leftForeLeg": 1.43,
                   "rightForeLeg": 1.43,
-                  "centerRotation": 1,
-                  "renderRotation": 0.715,
+                  "center": 1,
                   "root": 0.715
                 },
                 "@vectorModes": {"root": "slide"}
@@ -1395,8 +1386,8 @@
             "pose": [
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/riding.json"},
-                "@smoothing": {"centerRotation": 3.33, "body": 2, "localOffset": 3.33},
-                "@vectorModes": {"localOffset": "slide"}
+                "@smoothing": {"center": 3.33, "body": 2},
+                "@vectorModes": {"center": "slide"}
               },
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
@@ -1430,7 +1421,7 @@
                 "@when": {"and": [{"not": ["entityIsStandingStill"]}, {"gt": ["entityXZSpeed", 0.2]}]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/legacy/player/riding_fast.json",
-                  "bones": ["body", "leftArm", "rightArm", "root"],
+                  "bones": ["body", "leftArm", "rightArm", "root.position"],
                   "frame": {"mod": [{"mul": ["ticks", 0.5]}, "clipLength"]}
                 },
                 "@smoothing": {"root": [null, 0.835, null]},
@@ -1454,7 +1445,7 @@
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/sitting.json"},
                 "@smoothing": {
-                  "centerRotation": 3.33,
+                  "center": 3.33,
                   "body": 2,
                   "rightArm": 1.43,
                   "leftArm": 1.43,
@@ -1481,16 +1472,14 @@
                 },
                 "@smoothing": {
                   "root": 1.665,
-                  "localOffset": 3.33,
-                  "renderRotation": 1.665,
-                  "centerRotation": 3.33,
+                  "center": 3.33,
                   "rightHeldItem": 3.33,
                   "leftHeldItem": 3.33,
                   "head": 1,
                   "rightArm": 2.5,
                   "leftArm": 2.5
                 },
-                "@vectorModes": {"root": "slide", "localOffset": "slide"}
+                "@vectorModes": {"root": "slide", "center": "slide"}
               }
             ]
           }
@@ -1515,9 +1504,9 @@
                   "rightArm": 1.25,
                   "leftArm": 1.25,
                   "root": [null, 0.835, null],
-                  "localOffset": 3.33
+                  "center": 3.33
                 },
-                "@vectorModes": {"root": "retarget", "localOffset": "slide"}
+                "@vectorModes": {"root": "retarget", "center": "slide"}
               },
               {
                 "core:clip": {
@@ -1725,8 +1714,8 @@
               {
                 "@when": "entityIsSwinging",
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/tool_rest.json"},
-                "@smoothing": {"centerRotation": 3.33, "localOffset": 3.33},
-                "@vectorModes": {"localOffset": "slide"},
+                "@smoothing": {"center": 3.33},
+                "@vectorModes": {"center": "slide"},
                 "@mirror": true
               },
               {
@@ -1821,9 +1810,9 @@
           "core:pose": {
             "pose": [
               {
-                "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/localoffset_zero.json"},
-                "@smoothing": {"localOffset": 3.33},
-                "@vectorModes": {"localOffset": "slide"}
+                "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/center_zero.json"},
+                "@smoothing": {"center": 3.33},
+                "@vectorModes": {"center": "slide"}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
@@ -1930,9 +1919,9 @@
           "core:pose": {
             "pose": [
               {
-                "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/localoffset_zero.json"},
-                "@smoothing": {"localOffset": 3.33},
-                "@vectorModes": {"localOffset": "slide"}
+                "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/center_zero.json"},
+                "@smoothing": {"center": 3.33},
+                "@vectorModes": {"center": "slide"}
               },
               {
                 "core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"},
@@ -2152,8 +2141,7 @@
                       "rightForeArm": 3.33,
                       "leftForeArm": 3.33,
                       "rightHeldItem": 3.33,
-                      "renderRotation": 1.665,
-                      "root": [null, 0.835, null]
+                      "root": {"rotation": 1.665, "position": [null, 0.835, null]}
                     },
                     "@vectorModes": {"root": "slide"},
                     "@mirror": true
@@ -2179,9 +2167,9 @@
                     "mobends:sword_trail": {"velocity": [0, 0, -10]}
                   },
                   {
-                    "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/localoffset_zero.json"},
-                    "@smoothing": {"localOffset": 3.33},
-                    "@vectorModes": {"localOffset": "slide"}
+                    "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/center_zero.json"},
+                    "@smoothing": {"center": 3.33},
+                    "@vectorModes": {"center": "slide"}
                   },
                   {
                     "core:clip": {"animationKey": "mobends:bends/animations/legacy/player/stance_sprint_abs.json"},
@@ -2207,17 +2195,11 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_up.json",
-                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
+                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "center.position"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@smoothing": {
-                      "body": 1.11,
-                      "leftArm": 3.33,
-                      "leftForeArm": 3.33,
-                      "rightForeArm": 3.33,
-                      "localOffset": 3.33
-                    },
-                    "@vectorModes": {"localOffset": "slide"},
+                    "@smoothing": {"body": 1.11, "leftArm": 3.33, "leftForeArm": 3.33, "rightForeArm": 3.33, "center": 3.33},
+                    "@vectorModes": {"center": "slide"},
                     "@mirror": true
                   },
                   {
@@ -2260,7 +2242,7 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_up_still.json",
-                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
+                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root.position"]
                     },
                     "@smoothing": {"root": [null, 0.835, null]},
                     "@vectorModes": {"root": "slide"}
@@ -2269,9 +2251,9 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_up_still.json",
-                      "bones": ["renderRotation"]
+                      "bones": ["root.rotation"]
                     },
-                    "@smoothing": {"renderRotation": 1.665},
+                    "@smoothing": {"root": 1.665},
                     "@mirror": true
                   }
                 ]
@@ -2287,17 +2269,11 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_inward.json",
-                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
+                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "center.position"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@smoothing": {
-                      "body": 1.11,
-                      "leftArm": 3.33,
-                      "leftForeArm": 3.33,
-                      "rightForeArm": 3.33,
-                      "localOffset": 3.33
-                    },
-                    "@vectorModes": {"localOffset": "slide"},
+                    "@smoothing": {"body": 1.11, "leftArm": 3.33, "leftForeArm": 3.33, "rightForeArm": 3.33, "center": 3.33},
+                    "@vectorModes": {"center": "slide"},
                     "@mirror": true
                   },
                   {
@@ -2340,7 +2316,7 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_inward_still.json",
-                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
+                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root.position"]
                     },
                     "@smoothing": {"root": [null, 0.835, null]},
                     "@vectorModes": {"root": "slide"}
@@ -2349,9 +2325,9 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_inward_still.json",
-                      "bones": ["renderRotation"]
+                      "bones": ["root.rotation"]
                     },
-                    "@smoothing": {"renderRotation": 1.665},
+                    "@smoothing": {"root": 1.665},
                     "@mirror": true
                   }
                 ]
@@ -2367,16 +2343,10 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_down.json",
-                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"]
+                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "center.position"]
                     },
-                    "@smoothing": {
-                      "body": 1.11,
-                      "leftArm": 3.33,
-                      "leftForeArm": 3.33,
-                      "rightForeArm": 3.33,
-                      "localOffset": 3.33
-                    },
-                    "@vectorModes": {"localOffset": "slide"},
+                    "@smoothing": {"body": 1.11, "leftArm": 3.33, "leftForeArm": 3.33, "rightForeArm": 3.33, "center": 3.33},
+                    "@vectorModes": {"center": "slide"},
                     "@mirror": true
                   },
                   {
@@ -2410,7 +2380,7 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_down_still.json",
-                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
+                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root.position"]
                     },
                     "@smoothing": {
                       "leftLeg": 3.33,
@@ -2425,9 +2395,9 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_down_still.json",
-                      "bones": ["renderRotation"]
+                      "bones": ["root.rotation"]
                     },
-                    "@smoothing": {"renderRotation": 1.665},
+                    "@smoothing": {"root": 1.665},
                     "@mirror": true
                   },
                   {
@@ -2449,16 +2419,10 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_outward.json",
-                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"]
+                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "center.position"]
                     },
-                    "@smoothing": {
-                      "body": 1.11,
-                      "leftArm": 3.33,
-                      "leftForeArm": 3.33,
-                      "rightForeArm": 3.33,
-                      "localOffset": 3.33
-                    },
-                    "@vectorModes": {"localOffset": "slide"},
+                    "@smoothing": {"body": 1.11, "leftArm": 3.33, "leftForeArm": 3.33, "rightForeArm": 3.33, "center": 3.33},
+                    "@vectorModes": {"center": "slide"},
                     "@mirror": true
                   },
                   {
@@ -2495,7 +2459,7 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_outward_still.json",
-                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
+                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root.position"]
                     },
                     "@smoothing": {
                       "leftLeg": 3.33,
@@ -2510,9 +2474,9 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_outward_still.json",
-                      "bones": ["renderRotation"]
+                      "bones": ["root.rotation"]
                     },
-                    "@smoothing": {"renderRotation": 1.665},
+                    "@smoothing": {"root": 1.665},
                     "@mirror": true
                   },
                   {
@@ -2535,17 +2499,11 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_whirl.json",
-                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
+                      "bones": ["body", "leftArm", "leftForeArm", "rightForeArm", "center.position"],
                       "frame": "entityTicksAfterAttack"
                     },
-                    "@smoothing": {
-                      "body": 1.11,
-                      "leftArm": 3.33,
-                      "leftForeArm": 3.33,
-                      "rightForeArm": 3.33,
-                      "localOffset": 3.33
-                    },
-                    "@vectorModes": {"localOffset": "slide"},
+                    "@smoothing": {"body": 1.11, "leftArm": 3.33, "leftForeArm": 3.33, "rightForeArm": 3.33, "center": 3.33},
+                    "@vectorModes": {"center": "slide"},
                     "@mirror": true
                   },
                   {
@@ -2571,7 +2529,7 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_whirl.json",
-                      "bones": ["root"],
+                      "bones": ["root.position"],
                       "frame": "entityTicksAfterAttack"
                     },
                     "@smoothing": {"root": [null, 0.835, null]},
@@ -2580,7 +2538,7 @@
                   {
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_whirl.json",
-                      "bones": ["renderRotation"],
+                      "bones": ["root.rotation"],
                       "frame": "entityTicksAfterAttack"
                     },
                     "@snap": true
@@ -2604,7 +2562,7 @@
                     "@when": "entityIsStandingStill",
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/slash_whirl_still.json",
-                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"]
+                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root.position"]
                     },
                     "@smoothing": {
                       "leftLeg": 3.33,
@@ -2747,7 +2705,7 @@
                         "leftLeg",
                         "rightForeLeg",
                         "leftForeLeg",
-                        "root"
+                        "root.position"
                       ]
                     },
                     "@smoothing": {
@@ -2767,9 +2725,9 @@
                     "@when": "entityIsStandingStill",
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/legacy/player/fist_guard_abs.json",
-                      "bones": ["renderRotation"]
+                      "bones": ["root.rotation"]
                     },
-                    "@smoothing": {"renderRotation": 1.665},
+                    "@smoothing": {"root": 1.665},
                     "@mirror": true
                   },
                   {

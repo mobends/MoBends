@@ -5,6 +5,10 @@
   "model": "net.minecraft.client.model.ModelIronGolem",
   "animator": "mobends:bends/animators/iron_golem.json",
   "childScale": 1.0,
+  "renderer": {
+    "@comment": "Vanilla rocks the whole golem side to side while it walks; the animator poses the whole model itself.",
+    "undoVanillaRock": true
+  },
   "bones": [
     {
       "name": "head",
@@ -90,7 +94,6 @@
     }
   ],
   "@define": {
-    "attackTimer": {"live": {"field": ["attackTimer"]}},
-    "rawLimbSwingAmount": {"live": {"field": ["limbSwingAmount"]}}
+    "attackTimer": {"live": {"field": ["attackTimer"]}}
   }
 }

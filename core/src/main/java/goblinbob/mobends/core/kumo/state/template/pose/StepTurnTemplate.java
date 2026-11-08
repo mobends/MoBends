@@ -49,10 +49,10 @@ public class StepTurnTemplate extends DriverItemTemplate
      */
     public Map<String, String> out;
 
-    /** Turns the whole model about its origin; the driver's counter-rotation is put before what is beneath. */
-    public String rotationBone = "renderRotation";
-    /** Moves the whole model in the shown body's frame: the hips' dip and weight shift. */
-    public String offsetBone = "localOffset";
+    /** Turns the whole model about its feet (its rotation); the driver's counter-rotation is put before what is beneath. */
+    public String rotationBone = "root";
+    /** Moves the whole model in the shown body's frame (its position): the hips' dip and weight shift. */
+    public String offsetBone = "center";
 
     /** Model units per block. */
     public float unitsPerBlock = 16F;
@@ -103,7 +103,7 @@ public class StepTurnTemplate extends DriverItemTemplate
      * over {@link #rootTicks} as it is smoothed.
      */
     public boolean followRoot = false;
-    /** The vector bone that offsets the whole model, read where {@link #followRoot} is on. */
+    /** The bone that moves the whole model (its position), read where {@link #followRoot} is on. */
     public String rootBone = "root";
     /** Ticks over which the root's lowering is eased in, as its own smoothing eases it (0: at once). */
     public float rootTicks = 0F;

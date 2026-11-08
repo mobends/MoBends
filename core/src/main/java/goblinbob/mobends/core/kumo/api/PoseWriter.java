@@ -25,7 +25,7 @@ public interface PoseWriter
     /** The bone's offset as the items before this one left it. */
     void offsetSoFar(int bone, Vec3f dest);
 
-    /** The vector bone's value (a whole-model offset) as the items before this one left it. */
+    /** The position of one of the entity's own bones ({@code root}, {@code center}) as the items before this one left it. */
     void vectorSoFar(int bone, Vec3f dest);
 
     void rotate(int bone, Quaternion rotation, Pose.Space space);
@@ -37,7 +37,7 @@ public interface PoseWriter
     /** The bone's rotation jumps to its target this frame, past its smoothing. */
     void snapRotation(int bone);
 
-    /** The vector bone jumps to its target this frame, past its smoothing. */
+    /** The position of one of the entity's own bones jumps to its target this frame, past its smoothing. */
     void snapVector(int bone);
 
 }

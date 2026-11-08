@@ -135,20 +135,31 @@ public class OrientationSink implements IRotationSink
 
     private void slideAxis(EnumAxis axis, float value, float smoothing)
     {
-        float s = Float.isNaN(smoothing) ? 0F : smoothing;
+        float s = Float.isNaN(smoothing) ? baseSmoothing(axis) : smoothing;
         smoothOffset.slideTo(axis, value, s);
     }
 
-    /** An unsmoothed axis is applied as is. */
+    /** An axis nothing smooths this frame gets the part's base smoothing; without one, it is applied as is. */
     private void retargetAxis(EnumAxis axis, float value, float smoothing)
     {
-        if (Float.isNaN(smoothing))
+        float s = Float.isNaN(smoothing) ? baseSmoothing(axis) : smoothing;
+        if (Float.isNaN(smoothing) && s <= 0F)
         {
             smoothOffset.set(axis, value);
         }
         else
         {
-            smoothOffset.retarget(axis, value, smoothing);
+            smoothOffset.retarget(axis, value, s);
+        }
+    }
+
+    private float baseSmoothing(EnumAxis axis)
+    {
+        switch (axis)
+        {
+            case X: return smoothOffset.baseSmoothing.x;
+            case Y: return smoothOffset.baseSmoothing.y;
+            default: return smoothOffset.baseSmoothing.z;
         }
     }
 

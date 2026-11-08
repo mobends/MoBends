@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
 import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.KumoSerializer;
+import goblinbob.mobends.core.kumo.bind.EntityBone;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
 import goblinbob.mobends.core.kumo.bind.OrientationSink;
-import goblinbob.mobends.core.kumo.bind.VectorSink;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
@@ -56,7 +56,7 @@ class TestSubject implements IKumoSubject
     final Map<String, Vec3f> offsets = new HashMap<>();
     final Map<String, SmoothVector3f> smoothOffsets = new HashMap<>();
     /** The entity-level root vector. */
-    final SmoothVector3f root = new SmoothVector3f();
+    final EntityBone root = new EntityBone();
     final Map<String, Double> variables = new HashMap<>();
     final Map<String, Boolean> states = new HashMap<>();
     /** What {@code field} reads. */
@@ -97,7 +97,7 @@ class TestSubject implements IKumoSubject
     {
         if ("root".equals(name))
         {
-            return new VectorSink(root);
+            return root;
         }
         SmoothOrientation bone = bones.get(name);
         return bone == null ? null : new OrientationSink(bone, offsets.get(name), smoothOffsets.get(name));

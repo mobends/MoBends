@@ -366,13 +366,13 @@ public class StepTurnDriver implements DriverEvaluator
                 throw new MalformedKumoTemplateException("core:step_turn: every leg needs 'upper' and 'lower' bones and 'hip', 'knee' and 'foot' as [x, y, z].");
             }
         }
-        if (template.rotationBone == null || template.offsetBone == null || !Skeleton.isVectorBone(template.offsetBone))
+        if (template.rotationBone == null || template.offsetBone == null || !Skeleton.isEntityBone(template.offsetBone))
         {
-            throw new MalformedKumoTemplateException("core:step_turn needs a 'rotationBone' and an 'offsetBone' that is an offset vector (localOffset).");
+            throw new MalformedKumoTemplateException("core:step_turn needs a 'rotationBone' and an 'offsetBone' that is one of the entity's own bones (center).");
         }
-        if (template.followRoot && (template.rootBone == null || !Skeleton.isVectorBone(template.rootBone)))
+        if (template.followRoot && (template.rootBone == null || !Skeleton.isEntityBone(template.rootBone)))
         {
-            throw new MalformedKumoTemplateException("core:step_turn: 'followRoot' needs a 'rootBone' that is an offset vector (root).");
+            throw new MalformedKumoTemplateException("core:step_turn: 'followRoot' needs a 'rootBone' that is one of the entity's own bones (root).");
         }
         if (template.beneathTurnTicks < 0 || template.rootTicks < 0)
         {

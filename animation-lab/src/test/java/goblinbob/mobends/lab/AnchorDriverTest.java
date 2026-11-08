@@ -40,7 +40,7 @@ class AnchorDriverTest
 
     private static float[] root(FramePose frame)
     {
-        return frame.vectors.get("globalOffset").v;
+        return frame.vectors.get("root").v;
     }
 
     private static float difference(FramePose frame)

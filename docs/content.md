@@ -199,7 +199,7 @@ per node (`smoothing` in `core:pose`) or item (`@smoothing`):
 `{"body": 2, "rightArm": 1.25, "root": [null, 1.67, null]}`. It holds while the item or
 node applies: a bone nothing smooths follows its target at once (or at the model definition's
 base `smoothing`), so a state that should ease the bones it takes over says so itself. For the
-entity-level vectors (`root`, `localOffset`) pick an `@vectorModes` entry: `slide` for a move to a
+positions of the entity's own bones (`root`, `center`) pick an `@vectorModes` entry: `slide` for a move to a
 new resting place, `retarget` for a target that changes every frame (a bob), `snap` for no
 smoothing at all.
 

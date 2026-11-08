@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,9 +58,7 @@ public final class KumoProgram
     final int pose, trustedPose;
     final boolean[] layerTrusted;
     boolean anyUntrusted;
-    /** Per slot: the slot whose trusted value it is limited around (aliases share one). */
-    final int[] limitGroup;
-    /** Per slot: whether it is an entity-level vector (see {@link Skeleton#isVectorBone}). */
+    /** Per slot: whether it is one of the entity's own bones, whose position is a vector (see {@link Skeleton#isEntityBone}). */
     final boolean[] vectorSlot;
 
     /**
@@ -175,17 +172,10 @@ public final class KumoProgram
         // The animator's own pose (which reads the bones it doesn't write) and the trusted layers' result.
         pose = layout.pose(true);
         trustedPose = layout.pose();
-        // "root" and "globalOffset" are two names of the same vector: limited as one.
-        limitGroup = new int[skeleton.size()];
         vectorSlot = new boolean[skeleton.size()];
-        Map<String, Integer> groups = new HashMap<>();
-        for (int i = 0; i < limitGroup.length; i++)
+        for (int i = 0; i < vectorSlot.length; i++)
         {
-            String name = skeleton.nameOf(i);
-            String key = Skeleton.ROOT.equals(name) ? Skeleton.GLOBAL_OFFSET : name;
-            Integer group = groups.putIfAbsent(key, i);
-            limitGroup[i] = group == null ? i : group;
-            vectorSlot[i] = Skeleton.isVectorBone(name);
+            vectorSlot[i] = skeleton.isEntityBone(i);
         }
     }
 

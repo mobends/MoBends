@@ -35,7 +35,8 @@ public interface IRotationSink extends IBoneSink
 
     /**
      * Sets a new offset target, as {@link IVectorSink#setVectorTarget} a vector's; a NaN component
-     * keeps that axis's current target. Unlike a vector's, an axis with no smoothing (NaN) in
+     * keeps that axis's current target. An axis with no smoothing (NaN) gets the part's base
+     * smoothing; unlike a vector's, that is none by default, and such an axis in
      * {@link IVectorSink.Mode#RETARGET} is applied as is: offsets are smoothed only while an item smooths them.
      */
     void setOffsetTarget(float x, float y, float z, float smoothingX, float smoothingY, float smoothingZ, IVectorSink.Mode mode, IVec3fRead start);

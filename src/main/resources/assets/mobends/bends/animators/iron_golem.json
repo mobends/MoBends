@@ -359,12 +359,12 @@
                     "core:spring": {"inout": "node.foreX", "target": -6, "stiffness": 0.2, "friction": 0.3}
                   },
                   {
-                    "core:rotate": {"bone": "centerRotation", "axis": "x", "angle": "node.lean"},
+                    "core:rotate": {"bone": "center", "axis": "x", "angle": "node.lean"},
                     "@space": "override",
                     "@snap": true
                   },
                   {
-                    "core:rotate": {"bone": "centerRotation", "axis": "y", "angle": "node.squareUp"},
+                    "core:rotate": {"bone": "center", "axis": "y", "angle": "node.squareUp"},
                     "@space": "pre",
                     "@snap": true
                   },
@@ -775,7 +775,7 @@
       }
     },
     {
-      "@comment": "The golem stands and walks on its feet: step_turn plants them in the world, turns the body only as far as they have stepped (the leg on the side of the turn first) and, walking, steps the foot left behind to where the body will be, shifting and rolling the weight over the planted one. It is off while the golem jumps, given up within two ticks of liftoff so the jump's push-off shows. Vanilla rocks the whole golem side to side while it walks (RenderIronGolem.applyRotations: 6.5° on a triangle wave of the limb swing, while limbSwingAmount >= 0.01); the render rotation turns it back first. The upper body reacts, as much as it stands on its feet: the torso leads a turn, the arms lag behind it, swing against the legs and out when a foot lands, the head keeps looking where the golem looks. Landing, the whole golem gives under its weight (a kick on a spring): it sinks, the knees and elbows bend, the arms swing out, the torso and head nod. Not while climbing, whose anchor holds the whole model where it is drawn and leans it; after a climb, the whole model glides back to the entity, upright.",
+      "@comment": "The golem stands and walks on its feet: step_turn plants them in the world, turns the body only as far as they have stepped (the leg on the side of the turn first) and, walking, steps the foot left behind to where the body will be, shifting and rolling the weight over the planted one. It is off while the golem jumps, given up within two ticks of liftoff so the jump's push-off shows. Vanilla rocks the whole golem side to side while it walks (RenderIronGolem.applyRotations); the renderer turns it back (the model definition's undoVanillaRock), and the root starts upright every frame. The upper body reacts, as much as it stands on its feet: the torso leads a turn, the arms lag behind it, swing against the legs and out when a foot lands, the head keeps looking where the golem looks. Landing, the whole golem gives under its weight (a kick on a spring): it sinks, the knees and elbows bend, the arms swing out, the torso and head nod. Not while climbing, whose anchor holds the whole model where it is drawn and leans it; after a climb, the whole model glides back to the entity, upright.",
       "defaultOnEntry": "planted",
       "nodes": {
         "planted": {
@@ -789,7 +789,7 @@
                 "core:spring": {"inout": "node.landKick", "target": "node.landing", "stiffness": 0.3, "friction": 0.35}
               },
               {
-                "core:rotate": {"bone": "renderRotation", "axis": "z", "angle": "node.vanillaRock"},
+                "core:rotate": {"bone": "root", "axis": "z", "angle": 0},
                 "@space": "override",
                 "@snap": true
               },
@@ -946,9 +946,9 @@
               },
               {
                 "@when": {"not": ["animator.climbing"]},
-                "core:rotate": {"bone": "centerRotation", "axis": "x", "angle": 0},
+                "core:rotate": {"bone": "center", "axis": "x", "angle": 0},
                 "@space": "override",
-                "@smoothing": {"centerRotation": 3.33}
+                "@smoothing": {"center": 3.33}
               },
               {
                 "@when": {"not": ["animator.climbing"]},
@@ -1010,20 +1010,6 @@
             "jolt": {"state": 0},
             "armSwing": {"state": 0},
             "twist": {"live": {"clamp": [{"mul": ["node.turnLag", 0.3]}, -12, 12]}},
-            "vanillaRock": {
-              "live": {
-                "mul": [
-                  6.5,
-                  {
-                    "div": [
-                      {"sub": [{"abs": [{"sub": [{"mod": [{"add": ["entityLimbSwing", 6]}, 13]}, 6.5]}]}, 3.25]},
-                      3.25
-                    ]
-                  },
-                  {"clamp": [{"floor": [{"mul": ["entity.rawLimbSwingAmount", 100]}]}, 0, 1]}
-                ]
-              }
-            },
             "landing": {"state": 0},
             "landKick": {"state": 0}
           },

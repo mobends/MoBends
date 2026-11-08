@@ -167,15 +167,16 @@ class PlantedFeetRig
             animator.update(data, DataUpdateHandler.ticksPerFrame);
             onFrame.accept(clock.getTick() + pt);
 
-            // The renderer moves the model by the whole model's offset, turns it by -bodyYaw, the
-            // render rotation, the local offset, then vanilla's own: the model is scaled, drawn
-            // flipped in Y and Z, the entity's origin ORIGIN units down it.
-            Quaternion render = data.renderRotation.getSmooth();
+            // The renderer turns the model by -bodyYaw, moves it by the root's position, turns it by
+            // the root's rotation, moves it by the center's position (the center's rotation is taken
+            // as none), then vanilla's own: the model is scaled, drawn flipped in Y and Z, the
+            // entity's origin ORIGIN units down it.
+            Quaternion render = data.root.rotation.getSmooth();
             double[] facing = rotate(render, 0, 0, 1);
             double bodyYaw = data.getVariable("entityBodyYaw");
             shownYaw = bodyYaw - Math.toDegrees(Math.atan2(facing[0], facing[2]));
-            double rootY = data.globalOffset.getY() * offsetUnits;
-            double hipY = data.localOffset.getY() * offsetUnits + rootY;
+            double rootY = data.root.position.getY() * offsetUnits;
+            double hipY = data.center.position.getY() * offsetUnits + rootY;
             if (!Double.isNaN(lastHipY) && clock.getTick() >= 60)
             {
                 maxHipJump = Math.max(maxHipJump, Math.abs(hipY - lastHipY));
@@ -184,7 +185,7 @@ class PlantedFeetRig
             lastHipY = hipY;
             double yaw = Math.toRadians(bodyYaw), cos = Math.cos(yaw), sin = Math.sin(yaw);
             double shown = Math.toRadians(shownYaw), cosS = Math.cos(shown), sinS = Math.sin(shown);
-            double[] offset = {data.localOffset.getX() * offsetUnits, data.localOffset.getY() * offsetUnits, data.localOffset.getZ() * offsetUnits};
+            double[] offset = {data.center.position.getX() * offsetUnits, data.center.position.getY() * offsetUnits, data.center.position.getZ() * offsetUnits};
             double px = data.getVariable("entityWorldX"), pz = data.getVariable("entityWorldZ");
 
             for (int i = 0; i < legs.length; i++)

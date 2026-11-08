@@ -84,7 +84,10 @@ it (`compileOnly`); `-Pwith_geckolib` adds it, with its example armour, to the d
 
 `EntityData<E>` holds all per-entity render state and is the KUMO *subject* (`IKumoSubject`,
 see [animation.md](animation.md)):
-- `positionX/Y/Z`, `motionX/Y/Z`, `onGround`, `renderRotation`, offsets
+- `positionX/Y/Z`, `motionX/Y/Z`, `onGround`
+- `root` and `center`, the entity's own bones (`EntityBone`: a smoothed position and rotation) the
+  model hangs from: `MutatedRenderer.beforeRender` moves and turns the model by `root`, then by
+  `center` about `getCenterPivot`
 - `nameToPartMap` — bone name → `IModelPart`
 - the animator (`setAnimator(animator, extensions)`), and the variables and states it exposes
 

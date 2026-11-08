@@ -8,13 +8,12 @@ import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.bind.BoneSinks;
+import goblinbob.mobends.core.kumo.bind.EntityBone;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
-import goblinbob.mobends.core.kumo.bind.VectorSink;
 import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
-import goblinbob.mobends.core.math.SmoothOrientation;
-import goblinbob.mobends.core.math.vector.SmoothVector3f;
+import goblinbob.mobends.core.math.vector.Vec3f;
 import goblinbob.mobends.core.util.GUtil;
 import net.minecraft.block.BlockStairs;
 import net.minecraft.block.BlockStaticLiquid;
@@ -64,10 +63,11 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     private final Map<String, Integer> kumoStateIndices = new HashMap<>();
     private final List<BooleanSupplier> kumoStates = new ArrayList<>();
 
-    public SmoothVector3f globalOffset;
-    public SmoothVector3f localOffset;
-    public SmoothOrientation renderRotation;
-    public SmoothOrientation centerRotation;
+    /** The bone the whole model hangs from: moved, then turned about the entity's feet ({@link Skeleton#ROOT}). */
+    public EntityBone root;
+    /** The child of {@link #root} the rest of the model hangs from: moved, then turned about {@link #getCenterPivot} ({@link Skeleton#CENTER}). */
+    public EntityBone center;
+    private final Vec3f centerPivot = new Vec3f();
 
     public boolean onGround = true;
 
@@ -139,8 +139,11 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
         registerVariable("entityWorldX", () -> entity != null ? entity.prevPosX + (entity.posX - entity.prevPosX) * DataUpdateHandler.partialTicks : 0);
         registerVariable("entityWorldY", () -> entity != null ? entity.prevPosY + (entity.posY - entity.prevPosY) * DataUpdateHandler.partialTicks : 0);
         registerVariable("entityWorldZ", () -> entity != null ? entity.prevPosZ + (entity.posZ - entity.prevPosZ) * DataUpdateHandler.partialTicks : 0);
-        // What the renderer turns centerRotation about half of.
         registerVariable("entityHeight", () -> entity != null ? entity.height : 0);
+        // Where the renderer turns the center bone about.
+        registerVariable("centerPivotX", () -> getCenterPivot(centerPivot).x);
+        registerVariable("centerPivotY", () -> getCenterPivot(centerPivot).y);
+        registerVariable("centerPivotZ", () -> getCenterPivot(centerPivot).z);
 
         registerState("entityIsOnGround", this::isOnGround);
         registerState("entityIsStandingStill", this::isStillHorizontally);
@@ -182,14 +185,14 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
     @Override
     public IBoneSink getBone(String name)
     {
-        // The entity-level smoothed vectors are not model parts, but animators address them by name.
-        if (Skeleton.ROOT.equals(name) || Skeleton.GLOBAL_OFFSET.equals(name))
+        // The entity's own bones are not model parts, but animators address them by name.
+        if (Skeleton.ROOT.equals(name))
         {
-            return new VectorSink(globalOffset);
+            return root;
         }
-        if (Skeleton.LOCAL_OFFSET.equals(name))
+        if (Skeleton.CENTER.equals(name))
         {
-            return new VectorSink(localOffset);
+            return center;
         }
         return BoneSinks.wrap(getPartForName(name));
     }
@@ -233,13 +236,20 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
 
     public void initModelPose()
     {
-        this.globalOffset = new SmoothVector3f();
-        this.localOffset = new SmoothVector3f();
-        this.renderRotation = new SmoothOrientation();
-        this.centerRotation = new SmoothOrientation();
+        this.root = new EntityBone();
+        this.center = new EntityBone();
+    }
 
-        this.nameToPartMap.put("renderRotation", renderRotation);
-        this.nameToPartMap.put(Skeleton.CENTER_ROTATION, centerRotation);
+    /**
+     * Where the renderer turns {@link #center} about, in blocks from the entity's feet (+Y up, in
+     * the frame {@link #root} leaves): half the entity's height, unless its model says otherwise.
+     *
+     * @return {@code dest}
+     */
+    public Vec3f getCenterPivot(Vec3f dest)
+    {
+        dest.set(0F, entity != null ? entity.height / 2 : 0F, 0F);
+        return dest;
     }
 
     /**
@@ -247,10 +257,8 @@ public abstract class EntityData<E extends Entity> implements IBendsModel, IKumo
      */
     public void updateParts(float ticksPerFrame)
     {
-        this.globalOffset.update(ticksPerFrame);
-        this.localOffset.update(ticksPerFrame);
-        this.renderRotation.update(ticksPerFrame);
-        this.centerRotation.update(ticksPerFrame);
+        this.root.update(ticksPerFrame);
+        this.center.update(ticksPerFrame);
         for (EntityComponent component : components.values())
         {
             component.update(ticksPerFrame);

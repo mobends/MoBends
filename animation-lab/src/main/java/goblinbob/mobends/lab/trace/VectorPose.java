@@ -1,6 +1,6 @@
 package goblinbob.mobends.lab.trace;
 
-/** A smoothed vector value (e.g. globalOffset) at one frame: current and target. */
+/** A smoothed vector value (the position of root or center) at one frame: current and target. */
 public class VectorPose
 {
     public float[] v;

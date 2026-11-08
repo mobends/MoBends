@@ -31,6 +31,9 @@ public class PoseNode implements INodeState
     private final List<IPoseItem> items;
     private final int[] smoothingSlots;
     private final float[][] smoothingValues;
+    /** A bone's rotation's and position's smoothing given apart (see {@link SmoothingTemplate#rotations}), as {@link #smoothingSlots}. */
+    private final int[] rotationSlots, positionSlots;
+    private final float[][] rotationValues, positionValues;
     private final int[] snapSlots;
     private final List<IPoseItem> enterItems;
     private final Skeleton skeleton;
@@ -77,11 +80,43 @@ public class PoseNode implements INodeState
             smoothingValues[i] = defaultSmoothing;
         }
 
+        Map<String, float[]> rotations = new LinkedHashMap<>();
+        Map<String, float[]> positions = new LinkedHashMap<>();
+        for (SmoothingTemplate template : new SmoothingTemplate[] {layerSmoothing, nodeSmoothing})
+        {
+            if (template == null) continue;
+            // A later one replaces what an earlier one gave the bone, as for the plain smoothing.
+            for (String bone : template.entries.keySet())
+            {
+                rotations.remove(bone);
+                positions.remove(bone);
+            }
+            for (String bone : template.rotations.keySet()) smoothing.remove(bone);
+            for (String bone : template.positions.keySet()) smoothing.remove(bone);
+            rotations.putAll(template.rotations);
+            positions.putAll(template.positions);
+        }
+        this.rotationSlots = slots(skeleton, rotations);
+        this.rotationValues = rotations.values().toArray(new float[0][]);
+        this.positionSlots = slots(skeleton, positions);
+        this.positionValues = positions.values().toArray(new float[0][]);
+
         this.snapSlots = new int[snapOnEnter == null ? 0 : snapOnEnter.size()];
         for (int j = 0; j < snapSlots.length; j++)
         {
             snapSlots[j] = skeleton.indexOf(snapOnEnter.get(j));
         }
+    }
+
+    private static int[] slots(Skeleton skeleton, Map<String, float[]> byBone)
+    {
+        int[] slots = new int[byBone.size()];
+        int i = 0;
+        for (String bone : byBone.keySet())
+        {
+            slots[i++] = skeleton.indexOf(bone);
+        }
+        return slots;
     }
 
     // --- factories -------------------------------------------------------------------------------
@@ -176,6 +211,7 @@ public class PoseNode implements INodeState
                         clipTemplate.animationKey, animation.interpolation));
             }
             ClipBinding binding = new ClipBinding(animation, skeleton, clipTemplate.bones);
+            binding.describe(effects);
 
             float clipLength = animation.duration != null ? animation.duration : Math.max(binding.keyframeCount - 1, 0);
             Map<String, Expression> clipValues = new HashMap<>();
@@ -328,6 +364,23 @@ public class PoseNode implements INodeState
                         ItemEffects.applySmoothing(target, smoothingValues[i]);
                     }
                 }
+            }
+        }
+
+        for (int i = 0; i < rotationSlots.length; i++)
+        {
+            BoneTarget target = pose.get(rotationSlots[i]);
+            if (Float.isNaN(target.smoothing))
+            {
+                ItemEffects.applyRotationSmoothing(target, rotationValues[i]);
+            }
+        }
+        for (int i = 0; i < positionSlots.length; i++)
+        {
+            BoneTarget target = pose.get(positionSlots[i]);
+            if (isUnsmoothed(target.vectorSmoothing))
+            {
+                ItemEffects.applyVectorSmoothing(target, positionValues[i]);
             }
         }
 

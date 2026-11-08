@@ -43,7 +43,7 @@ public class TranslateDriverTest
 
         animator.update(subject, 1F);
 
-        assertVector(1, 2, 3, subject.root.end);
+        assertVector(1, 2, 3, subject.root.position.end);
     }
 
     @Test
