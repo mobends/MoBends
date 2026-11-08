@@ -20,6 +20,9 @@ Say you came from GitHub if you decide to come by! Hope to see you there
 Install a Java Development Kit (JDK) appropriate for the Minecraft version you are developing for. For Minecraft 1.12.2, use JDK 8.
 I personally use the [Eclipse Temurin JDK](https://adoptium.net/temurin/releases?version=8&os=any&arch=any).
 
+The animation engine is downloaded from GitHub Packages, which needs a GitHub token even to read:
+see [CONTRIBUTING.md](CONTRIBUTING.md#a-token-for-github-packages).
+
 Run the game with `./gradlew runClient` (or `./gradlew runServer`), or from IntelliJ IDEA with the run configurations
 `./gradlew genIntellijRuns` makes. `./gradlew build` builds the mod (`build/libs/*-all.jar` is the one to install) and runs
 the tests; the animation lab (`animation-lab/`, see its README) checks the animations against recorded traces.

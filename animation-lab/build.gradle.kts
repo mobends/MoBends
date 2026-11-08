@@ -7,7 +7,7 @@
  *
  * Source sets:
  *   mcstub - minimal stand-ins for the net.minecraft / org.lwjgl classes the animation code touches
- *   mod    - the mod's own animation sources, copied verbatim from ../src and ../core/src (plus a few shims
+ *   mod    - the mod's own animation sources, copied verbatim from ../src (plus a few shims
  *            for classes that need the Minecraft client, see src/mod/java)
  *   main   - the lab harness: scripted entities, recorder, comparator
  *   test   - JUnit 5 tests: KUMO parity, side effects, expressions, clips, types
@@ -19,7 +19,23 @@ plugins {
 repositories {
     maven { url = uri("https://repo1.maven.org/maven2") }
     mavenCentral()
+    // mobends-core, released from `main`. Needs a token even to read, as the mod's build does
+    // (gpr.user and gpr.key in ~/.gradle/gradle.properties, or GITHUB_ACTOR and GITHUB_TOKEN).
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/mobends/MoBends")
+        credentials {
+            username = (findProperty("gpr.user") as String?) ?: System.getenv("GITHUB_ACTOR")
+            password = (findProperty("gpr.key") as String?) ?: System.getenv("GITHUB_TOKEN")
+        }
+        content { includeGroup("goblinbob.mobends") }
+    }
 }
+
+// The same engine release the mod is built with (../gradle.properties).
+val coreVersion: String = java.util.Properties().apply {
+    file("../gradle.properties").inputStream().use { load(it) }
+}.getProperty("core_version")
 
 java {
     toolchain {
@@ -28,8 +44,6 @@ java {
 }
 
 val modSrc = file("../src/main")
-// The Minecraft-free engine (Kumo, math), split out of src/main (see CONTRIBUTING.md).
-val coreSrc = file("../core/src/main")
 
 // Only the Minecraft-agnostic animation subset of the mod is compiled. Everything that needs
 // rendering, GUI, networking or Forge stays out; the few classes the subset needs from there are
@@ -77,9 +91,6 @@ val modSrcDir = layout.buildDirectory.dir("mod-src")
 val syncModJava by tasks.registering(Sync::class) {
     description = "Copies the Minecraft-agnostic animation sources of the mod into the build directory."
     from(modSrc.resolve("java")) {
-        include(modIncludes)
-    }
-    from(coreSrc.resolve("java")) {
         include(modIncludes)
     }
     into(modSrcDir.map { it.dir("java") })
@@ -145,6 +156,9 @@ dependencies {
 
     mcstubImplementation("com.google.code.findbugs:jsr305:3.0.2")
 
+    // The Minecraft-free engine (Kumo, math), released from `main` (see CONTRIBUTING.md).
+    modImplementation("goblinbob.mobends:mobends-core:$coreVersion")
+    implementation("goblinbob.mobends:mobends-core:$coreVersion")
     modImplementation("com.google.code.gson:gson:2.10.1")
     modImplementation("org.apache.httpcomponents:httpcore:4.4.16")
     modImplementation("com.google.code.findbugs:jsr305:3.0.2")

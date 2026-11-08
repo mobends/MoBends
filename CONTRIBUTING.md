@@ -13,14 +13,14 @@ mod before it. Mo' Bends for Minecraft 1.12.2 (Forge) lives on the `forge-1.12` 
 
 | Part | What it contains | Depends on Minecraft? |
 |---|---|---|
-| `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8. | **No** |
-| root (`src/`) | The Forge 1.12.2 mod: connects the core to the vanilla models, entity state and rendering; the entities, menus, networking and config. Bundles `core/` into its jar. | Yes |
+| `mobends-core` (a dependency) | The animation engine: Kumo, math, the animator format. Plain Java 8. Developed in `core/` on `main`, and used here as a pinned release (`core_version` in `gradle.properties`). | **No** |
+| root (`src/`) | The Forge 1.12.2 mod: connects the core to the vanilla models, entity state and rendering; the entities, menus, networking and config. Bundles `mobends-core` into its jar. | Yes |
 | `animation-lab/` | A standalone test harness (JDK 21, no Forge) that runs the animators through scripted scenarios and checks them against recorded traces. | No (it stubs the few Minecraft classes it needs) |
 
 Rules of thumb:
 
-- If code doesn't need Minecraft, it belongs in `core/`. It must stay free of any `net.minecraft`
-  import, so other Minecraft versions can share it.
+- If code doesn't need Minecraft, it belongs in the core. Change it in `core/` on `main`, release it,
+  and bump `core_version` here (see *Using a new `core`* below). Never copy engine code into this branch.
 - Code the lab compiles (see `modIncludes` in `animation-lab/build.gradle.kts`) must not use newer
   Java than 8; the lab compiles it with `--release 8` to catch that.
 
@@ -33,7 +33,9 @@ forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 ```
 
 - Branch off `forge-1.12`, open a pull request back into `forge-1.12`.
-- CI builds the mod and runs the `core/` tests and the animation lab. All of them must pass.
+- CI builds the mod and runs its tests and the animation lab. All of them must pass.
+- `forge-1.12` doesn't merge from `main` (which builds the modern Minecraft versions); it shares only
+  the released core with it.
 - `1.X/forge-1.12` holds the 1.X line (up to 1.2.2) and is no longer developed.
 
 ## Versioning and releases
@@ -41,7 +43,7 @@ forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 | What | Version line | Tag | Released from |
 |---|---|---|---|
 | The mod for 1.12.2 | 2.X | `v2.x.y-1.12.2` | `forge-1.12` |
-| The engine library | follows the mod | `core-2.x.y` | `forge-1.12` |
+| The engine library | follows the mod | `core-2.x.y` | `main` |
 
 1.12.2's tags carry the Minecraft version, so they never clash with the tags of the other
 versions' releases.
@@ -85,11 +87,22 @@ The pack is signed with `MOBENDS_PACK_SIGNING_KEY`. Locally, `gradle legacyPack 
 does the same into `build/packs/`. The private key is never committed. Keep a copy in a password
 manager. A lost key means new packs need a mod release that ships a new public key.
 
-### Releasing `core`
+### Using a new `core`
 
-Push a tag named `core-<version>` (e.g. `git tag core-2.0.0 && git push origin core-2.0.0`).
-CI (`.github/workflows/publish-core.yml`) tests `core/` and publishes it to GitHub Packages as
-`goblinbob.mobends:mobends-core:<version>`. A version can't be published twice, so bump it for every release.
+The core is released from `main` (see CONTRIBUTING.md there) to GitHub Packages as
+`goblinbob.mobends:mobends-core:<version>`. To build this branch with a new release, set `core_version`
+in `gradle.properties`. The mod and the animation lab both use it.
+
+### A token for GitHub Packages
 
 Reading from GitHub Packages needs a GitHub token, even for public packages. In CI the built-in
-`GITHUB_TOKEN` does; locally, use a personal access token with the `read:packages` scope.
+`GITHUB_TOKEN` does (the workflows ask for `packages: read`). Locally, create a personal access token
+(classic) with the `read:packages` scope and put it in `~/.gradle/gradle.properties`, outside the
+repository:
+
+```properties
+gpr.user=<your GitHub username>
+gpr.key=<the token>
+```
+
+Without it, Gradle warns about the missing token and fails to download `mobends-core`.
