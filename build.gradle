@@ -65,6 +65,20 @@ minecraft {
 
 repositories {
     maven { url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    // The Minecraft-free animation engine (mobends-core), released from `main`. GitHub Packages needs
+    // a token even to read: set gpr.user and gpr.key (a token with read:packages) in
+    // ~/.gradle/gradle.properties, or GITHUB_ACTOR and GITHUB_TOKEN as in CI. See CONTRIBUTING.md.
+    maven {
+        name = 'GitHubPackages'
+        url = 'https://maven.pkg.github.com/mobends/MoBends'
+        credentials {
+            username = project.findProperty('gpr.user') ?: System.getenv('GITHUB_ACTOR')
+            password = project.findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
+        }
+    }
+}
+if (!(project.findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN'))) {
+    logger.warn("No GitHub token for mobends-core: set gpr.user and gpr.key in ~/.gradle/gradle.properties (see CONTRIBUTING.md).")
 }
 
 dependencies {
@@ -73,8 +87,8 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // The Minecraft-free animation engine, bundled into the mod jar.
-    implementation project(':core')
+    // The Minecraft-free animation engine, bundled into the mod jar. Released from `main`.
+    implementation "goblinbob.mobends:mobends-core:${core_version}"
 
     // GeckoLib's armour follows the animation when GeckoLib is installed (standard/compat/geckolib);
     // the mod never needs it. `-Pwith_geckolib` adds it to the development client, with its examples.
@@ -120,7 +134,7 @@ shadowJar.finalizedBy('reobfShadowJar')
 sourceSets { tools }
 dependencies {
     toolsImplementation 'org.ow2.asm:asm-debug-all:5.2'
-    toolsImplementation project(':core')
+    toolsImplementation "goblinbob.mobends:mobends-core:${core_version}"
     toolsImplementation 'com.google.code.gson:gson:2.8.0'
 }
 
@@ -187,7 +201,6 @@ task generatePackSigningKey(type: JavaExec) {
 task srcJar(type: Jar) {
     build.dependsOn it
     from sourceSets.main.allSource
-    from { project(':core').sourceSets.main.allSource }
     classifier = 'sources'
     from file("LICENSE")
 }
@@ -214,7 +227,7 @@ processResources {
 // Bundling the core along with the mod
 shadowJar {
     dependencies {
-        include(project(':core'))
+        include(dependency('goblinbob.mobends:mobends-core'))
     }
 }
 

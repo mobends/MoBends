@@ -7,7 +7,7 @@ on:
     paths:
       - "animation-lab/**"
       - "src/main/java/goblinbob/mobends/core/**"
-      - "core/src/main/java/**"
+      - "gradle.properties"
       - "src/main/java/goblinbob/mobends/standard/**"
       - "src/main/resources/assets/mobends/bends/**"
       - ".github/workflows/animation-lab.yml"
@@ -15,10 +15,15 @@ on:
     paths:
       - "animation-lab/**"
       - "src/main/java/goblinbob/mobends/core/**"
-      - "core/src/main/java/**"
+      - "gradle.properties"
       - "src/main/java/goblinbob/mobends/standard/**"
       - "src/main/resources/assets/mobends/bends/**"
       - ".github/workflows/animation-lab.yml"
+
+permissions:
+  contents: read
+  # mobends-core, released from `main`.
+  packages: read
 
 jobs:
   parity:
@@ -33,6 +38,9 @@ jobs:
       - name: Reference stability, animator parity, side effects
         working-directory: animation-lab
         run: ./gradlew test --no-daemon
+        env:
+          # Reads mobends-core from GitHub Packages.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4

@@ -14,6 +14,8 @@ on:
 
 permissions:
   contents: read
+  # mobends-core, released from `main`.
+  packages: read
 
 jobs:
   version:
@@ -88,6 +90,9 @@ jobs:
       # published.
       - name: Build the mod
         run: ./gradlew build shadowJar
+        env:
+          # Reads mobends-core from GitHub Packages.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Name the jar
         run: |
@@ -126,11 +131,15 @@ jobs:
       # that holds the signing key. The tools are built before the key is in the environment.
       - name: Build the signing tool
         run: ./gradlew toolsClasses
+        env:
+          # Reads mobends-core from GitHub Packages.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and sign the pack
         run: ./gradlew legacyPack
         env:
           MOBENDS_PACK_SIGNING_KEY: ${{ secrets.MOBENDS_PACK_SIGNING_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload the pack
         uses: actions/upload-artifact@v4
