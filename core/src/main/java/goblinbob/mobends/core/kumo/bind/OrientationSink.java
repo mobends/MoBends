@@ -108,11 +108,6 @@ public class OrientationSink implements IRotationSink
         {
             return;
         }
-        // A NaN component means "this axis is not written": keep its current target (per axis).
-        IVec3fRead current = getOffset();
-        if (Float.isNaN(x)) x = current.getX();
-        if (Float.isNaN(y)) y = current.getY();
-        if (Float.isNaN(z)) z = current.getZ();
         if (smoothOffset == null)
         {
             offset.set(x, y, z);
@@ -191,7 +186,7 @@ public class OrientationSink implements IRotationSink
         {
             return;
         }
-        scale.set(Float.isNaN(x) ? scale.getX() : x, Float.isNaN(y) ? scale.getY() : y, Float.isNaN(z) ? scale.getZ() : z);
+        scale.set(x, y, z);
     }
 
     @Override

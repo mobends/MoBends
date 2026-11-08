@@ -14,7 +14,6 @@ import goblinbob.mobends.core.kumo.state.template.NodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.PoseNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
-import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
 
 import javax.annotation.Nullable;
@@ -223,8 +222,6 @@ public class KumoAnimatorState
                 target.scale.y = clampScale(target.scale.y, trustedValue.y, limits.maxPartScale);
                 target.scale.z = clampScale(target.scale.z, trustedValue.z, limits.maxPartScale);
             }
-            // Rotations are free, but a broken one (NaN, infinite) would make the part disappear: dropped.
-            if (target.hasRotation && !isFinite(target.rotation)) target.hasRotation = false;
         }
     }
 
@@ -247,11 +244,6 @@ public class KumoAnimatorState
         else if (clamped < low) clamped = low;
         else if (clamped > high) clamped = high;
         return Math.copySign(clamped, center);
-    }
-
-    private static boolean isFinite(Quaternion q)
-    {
-        return Float.isFinite(q.x) && Float.isFinite(q.y) && Float.isFinite(q.z) && Float.isFinite(q.w);
     }
 
     /**

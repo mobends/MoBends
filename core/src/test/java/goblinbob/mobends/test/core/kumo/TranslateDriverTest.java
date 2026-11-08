@@ -85,6 +85,19 @@ public class TranslateDriverTest
     }
 
     @Test
+    public void anAxisThatIsntANumberIsAtRestNotWhereItWas() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': {'div': [0, 0]}, 'y': 5}}");
+        TestSubject subject = new TestSubject("arm");
+        subject.offsets.get("arm").set(1, 0, 3);
+        subject.smoothOffsets.get("arm").set(1, 0, 3);
+
+        animator.update(subject, 1F);
+
+        assertVector(0, 5, 0, subject.offsets.get("arm"));
+    }
+
+    @Test
     public void movesInPreSpaceByDefault() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}, '@space': 'override'}, "

@@ -34,8 +34,7 @@ public interface IRotationSink extends IBoneSink
     IVec3fRead getOffset();
 
     /**
-     * Sets a new offset target, as {@link IVectorSink#setVectorTarget} a vector's; a NaN component
-     * keeps that axis's current target. An axis with no smoothing (NaN) gets the part's base
+     * Sets a new offset target, as {@link IVectorSink#setVectorTarget} a vector's. An axis with no smoothing (NaN) gets the part's base
      * smoothing; unlike a vector's, that is none by default, and such an axis in
      * {@link IVectorSink.Mode#RETARGET} is applied as is: offsets are smoothed only while an item smooths them.
      */
@@ -58,7 +57,7 @@ public interface IRotationSink extends IBoneSink
         throw new UnsupportedOperationException("This bone can't be scaled.");
     }
 
-    /** Sets the bone's scale, applied as is (scales aren't smoothed); a NaN component keeps that axis's current scale. */
+    /** Sets the bone's scale, applied as is (scales aren't smoothed). */
     default void setScaleTarget(float x, float y, float z)
     {
     }

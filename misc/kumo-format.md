@@ -998,7 +998,9 @@ its animator reads it as `"canSpinAttack": {"live": {"and": ["option.spinAttack"
   Beneath the first layer is the rest pose (no rotation, no offset, a scale of one), never what an
   earlier frame left. A bone's rotation, position or scale that nothing writes in a frame goes back
   to rest, at the bone's base smoothing, and a relative write (`pre` / `post`, additive) with nothing
-  beneath it builds on rest. A node that wants a bone held writes it.
+  beneath it builds on rest. A node that wants a bone held writes it. A value that isn't a finite
+  number (a division by zero, say) is at rest too: the rotation, or the axis of an offset, position
+  or scale.
 * A transition fades what one side poses and the other doesn't against what lies beneath the
   layer: a full rotation, offset, vector or scale as the layers below have it (or rest); a `pre` /
   `post` rotation, an additive offset or vector or a relative scale as nothing.
@@ -1252,8 +1254,8 @@ decides what resource packs may do, and sends it to every client with Mo' Bends 
     the trusted layers gave them this frame (rest where they didn't write them). So an extension
     moves a swimming player's arm a little, not the swim; an untrusted animator on its own is held
     near the rest position.
-  * An offset axis that isn't a finite number goes back to the trusted one, and a broken
-    (non-finite) rotation is dropped, so no part can be made to vanish.
+  * An offset axis that isn't a finite number goes back to the trusted one (and a rotation that
+    isn't goes to rest, as everywhere), so no part can be made to vanish.
   * Every part's scale, on each axis, is brought back within a factor of `maxPartScale` (up or
     down) of what the trusted layers gave it this frame (one where they didn't), keeping the trusted
     scale's sign: a part can't be scaled to nothing, turned inside out or blown up to cover the
