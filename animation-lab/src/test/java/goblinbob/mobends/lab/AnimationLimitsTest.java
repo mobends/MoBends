@@ -33,7 +33,7 @@ public class AnimationLimitsTest
     /** Throws the left arm 40 units out and the whole body 100 units up. */
     private static final String FLING = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"fling\", "
             + "\"nodes\": {\"fling\": {\"core:pose\": {\"pose\": [{\"core:translate\": {\"bone\": \"leftArm\", \"x\": 40, \"y\": 0, "
-            + "\"z\": 0}}, {\"core:translate\": {\"bone\": \"globalOffset\", \"x\": 0, \"y\": 100, \"z\": 0}, \"@snap\": true}]}}}}]}";
+            + "\"z\": 0}, \"@space\": \"override\"}, {\"core:translate\": {\"bone\": \"globalOffset\", \"x\": 0, \"y\": 100, \"z\": 0}, \"@space\": \"override\", \"@snap\": true}]}}}}]}";
 
     /** Raises the right arm: rotations only. */
     private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"raise\", "
@@ -146,7 +146,7 @@ public class AnimationLimitsTest
         for (String bone : frame.bones.keySet())
         {
             if (frame.bones.get(bone).o == null) continue;
-            items.append("{\"core:translate\": {\"bone\": \"").append(bone).append("\", \"x\": {\"add\": [30, {\"mul\": [\"ticks\", 3]}]}, \"y\": -30, \"z\": 30}},");
+            items.append("{\"core:translate\": {\"bone\": \"").append(bone).append("\", \"x\": {\"add\": [30, {\"mul\": [\"ticks\", 3]}]}, \"y\": -30, \"z\": 30}, \"@space\": \"override\"},");
         }
         for (String vector : new String[] { "root", "globalOffset", "localOffset" })
         {
@@ -161,8 +161,8 @@ public class AnimationLimitsTest
     {
         String broken = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"broken\", "
                 + "\"nodes\": {\"broken\": {\"core:pose\": {\"pose\": [{\"core:translate\": {\"bone\": \"leftArm\", \"x\": {\"div\": [1, "
-                + "0]}, \"y\": {\"sqrt\": [-1]}, \"z\": 0}}, {\"core:translate\": {\"bone\": \"globalOffset\", \"x\": {\"div\": [-1, 0]}, "
-                + "\"y\": {\"div\": [1, 0]}, \"z\": 0}, \"@snap\": true}]}}}}]}";
+                + "0]}, \"y\": {\"sqrt\": [-1]}, \"z\": 0}, \"@space\": \"override\"}, {\"core:translate\": {\"bone\": \"globalOffset\", \"x\": {\"div\": [-1, 0]}, "
+                + "\"y\": {\"div\": [1, 0]}, \"z\": 0}, \"@space\": \"override\", \"@snap\": true}]}}}}]}";
         FramePose own = last(WALK, player(), true, null, true, true);
         FramePose limited = last(WALK, player(), true, broken, false, true);
         for (float v : body(limited)) assertTrue(Float.isFinite(v), "the body stays finite");

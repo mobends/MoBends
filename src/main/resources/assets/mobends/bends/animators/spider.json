@@ -38,6 +38,7 @@
                   "y": {"mul": ["node.groundLevel", -1]},
                   "z": {"mul": [{"cos": [{"mul": ["ticks", 0.2]}]}, -0.4]}
                 },
+                "@space": "override",
                 "@snap": true
               },
               {
@@ -86,6 +87,7 @@
                   "y": {"mul": ["node.groundLevel", -1]},
                   "z": {"mul": [{"mccos": [{"mul": ["ticks", 0.2]}]}, -0.4]}
                 },
+                "@space": "override",
                 "@snap": true
               },
               {
@@ -324,6 +326,7 @@
               },
               {
                 "core:translate": {"bone": "root", "y": 10},
+                "@space": "override",
                 "@smoothing": {"root": [null, 3.33, null]},
                 "@vectorModes": {"root": "slide"}
               },

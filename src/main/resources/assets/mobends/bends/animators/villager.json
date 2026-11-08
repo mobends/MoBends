@@ -280,6 +280,7 @@
               },
               {
                 "core:translate": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1]}, "z": 0},
+                "@space": "override",
                 "@smoothing": {"root": [3.33, null, 3.33]}
               },
               {

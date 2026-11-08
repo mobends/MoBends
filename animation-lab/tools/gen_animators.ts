@@ -578,7 +578,7 @@ const pSwimming: Obj = poseNode([
   when(clip(PL("swim_deep_legs"), { frame: looped(scaled("ticks", 0.4625)) }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 2.5, rightForeLeg: 2.5 } }), deep),
   drv("head", "X", "entityHeadPitch", { space: "override" }), drv("head", "Y", "entityHeadYaw"), drv("head", "X", "node.deep", { scale: -80, ease: "ease_in_out", power: 3, min: 0, max: 1 }),
   drv("renderRotation", "X", "node.deep", { scale: 80, ease: "ease_in_out", power: 3, min: 0, max: 1, space: "override" }),
-  item("core:translate", { bone: "root", y: value("node.deep", { ...deepT, scale: 14 }), z: value("node.deep", { ...deepT, scale: -20 }) }, { smoothing: { root: [null, 1.43, 1.43] }, vectorModes: { root: "slide" } }),
+  item("core:translate", { bone: "root", y: value("node.deep", { ...deepT, scale: 14 }), z: value("node.deep", { ...deepT, scale: -20 }) }, { space: "override", smoothing: { root: [null, 1.43, 1.43] }, vectorModes: { root: "slide" } }),
 ], { define: { deep: variable(0) } });
 
 const nodes: Record<string, Obj> = {
@@ -1058,13 +1058,13 @@ const bodyBob = (fn: string, sign: number) => value("ticks", { scale: 0.2, fn, m
 const spIdle: Obj = poseNode([
   item("mobends:spider_idle_legs", { groundLevel: value("ticks", { scale: 0.1, fn: "sin", mul: 0.5 }), bodyX: bodyBob("sin", 1), bodyZ: bodyBob("cos", 1), kneelDuration: 10, kneelAmplitude: 4, kneelLead: 0,
                                      ...spiderLegsState(true) }),
-  withSnap(item("core:translate", { bone: "root", x: bodyBob("sin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("cos", -1) })),
+  withSnap(item("core:translate", { bone: "root", x: bodyBob("sin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("cos", -1) }, { space: "override" })),
   ...spiderHead, spiderRest,
 ], { define: { groundLevel: variable(0) } });
 const spMove: Obj = poseNode([
   item("mobends:spider_moving_legs", { swing: value("entityLimbSwing", { scale: 0.6662 }), groundLevel: value("ticks", { scale: 0.6, fn: "mcsin", mul: 1.2 }), kneelDuration: 10, kneelAmplitude: 3, kneelLead: 0.2, limbs: spiderLimbs,
                                        ...spiderLegsState(true) }),
-  withSnap(item("core:translate", { bone: "root", x: bodyBob("mcsin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("mccos", -1) })),
+  withSnap(item("core:translate", { bone: "root", x: bodyBob("mcsin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("mccos", -1) }, { space: "override" })),
   ...spiderHead, spiderRest,
 ], { define: { groundLevel: variable(0) } });
 poseClip(join(CLIPS, "spider", "crawl_rest.json"), { centerRotation: rotations() }, { localOffset: [0, -10, 0] });
@@ -1110,7 +1110,7 @@ const amountDeg = value("entityLimbSwingAmount", { scale: 180 / Math.PI });
 const spDeath: Obj = poseNode([
   item("core:accumulate", { inout: "node.wiggleSpeed", rate: -0.1, min: 0 }),
   item("core:accumulate", { inout: "node.wigglePhase", rate: value("node.wiggleSpeed", { scale: 2, offset: 0.3 }) }),
-  item("core:translate", { bone: "root", y: 10 }, { smoothing: { root: [null, 3.33, null] }, vectorModes: { root: "slide" } }),
+  item("core:translate", { bone: "root", y: 10 }, { space: "override", smoothing: { root: [null, 3.33, null] }, vectorModes: { root: "slide" } }),
   ...spiderHead,
   withSnap(clip(SP("death"))),
   clip(SP("death_sway_y"), { frame: limbFrame, weight: amountDeg }, { space: "pre" }),
