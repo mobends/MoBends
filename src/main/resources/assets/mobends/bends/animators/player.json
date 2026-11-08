@@ -334,6 +334,7 @@
           "@connections": [{"when": "animator.bounced", "then": "jump"}]
         },
         "sprint_jump_right": {
+          "@define": {"relax": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}},
           "core:pose": {
             "pose": [
               {
@@ -377,10 +378,10 @@
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"}
             ]
           },
-          "@define": {"relax": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}},
           "@connections": [{"when": "animator.bounced", "then": "sprint_jump_right"}]
         },
         "sprint_jump_left": {
+          "@define": {"relax": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}},
           "core:pose": {
             "pose": [
               {
@@ -424,7 +425,6 @@
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"}
             ]
           },
-          "@define": {"relax": {"live": {"linstep": ["nodeTicksElapsed", 0, 10]}}},
           "@connections": [{"when": "animator.bounced", "then": "sprint_jump_left"}]
         },
         "falling": {
@@ -1048,6 +1048,7 @@
           }
         },
         "swimming": {
+          "@define": {"deep": {"state": 0}},
           "core:pose": {
             "pose": [
               {
@@ -1254,8 +1255,7 @@
                 "@vectorModes": {"root": "slide"}
               }
             ]
-          },
-          "@define": {"deep": {"state": 0}}
+          }
         },
         "ladder": {
           "core:pose": {
@@ -1740,6 +1740,7 @@
           }
         },
         "eat_right": {
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}},
           "core:pose": {
             "pose": [
               {
@@ -1760,10 +1761,10 @@
                 }
               }
             ]
-          },
-          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}}
+          }
         },
         "bow_right": {
+          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}},
           "core:pose": {
             "pose": [
               {
@@ -1838,10 +1839,10 @@
                 "@space": "override"
               }
             ]
-          },
-          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}}
+          }
         },
         "shield_right": {
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}},
           "core:pose": {
             "pose": [
               {
@@ -1853,10 +1854,10 @@
                 "@space": "override"
               }
             ]
-          },
-          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}}
+          }
         },
         "eat_left": {
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}},
           "core:pose": {
             "pose": [
               {
@@ -1874,10 +1875,10 @@
                 }
               }
             ]
-          },
-          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}}
+          }
         },
         "bow_left": {
+          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}},
           "core:pose": {
             "pose": [
               {
@@ -1952,10 +1953,10 @@
                 "@space": "override"
               }
             ]
-          },
-          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}}
+          }
         },
         "shield_left": {
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}},
           "core:pose": {
             "pose": [
               {
@@ -1967,14 +1968,13 @@
                 "@space": "override"
               }
             ]
-          },
-          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}}
+          }
         }
       },
       "machines": {
         "sword": {
-          "defaultOnEntry": "sword_idle",
           "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}, "combo": {"state": 0}},
+          "defaultOnEntry": "sword_idle",
           "select": [
             {
               "when": {
@@ -2613,8 +2613,8 @@
           }
         },
         "fists": {
-          "defaultOnEntry": "punch_left",
           "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}, "fist": {"state": 0}},
+          "defaultOnEntry": "punch_left",
           "select": [
             {
               "when": {"and": [{"ge": ["entityTicksAfterAttack", 10]}, {"lt": ["entityTicksAfterAttack", 60]}]},
@@ -2802,6 +2802,7 @@
       "defaultOnEntry": "planted",
       "nodes": {
         "planted": {
+          "@define": {"onFeet": {"state": 0}, "turnLag": {"state": 0}},
           "core:pose": {
             "pose": [
               {
@@ -2954,8 +2955,7 @@
                 "@space": "pre"
               }
             ]
-          },
-          "@define": {"onFeet": {"state": 0}, "turnLag": {"state": 0}}
+          }
         }
       }
     },

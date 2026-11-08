@@ -1,6 +1,7 @@
 {
   "formatVersion": 2,
   "extends": "mobends:bends/animators/biped.json",
+  "@define": {"elytraFlying": {"live": {"gt": ["entityTicksElytraFlying", 4]}}},
   "layers": [
     {
       "@when": {"and": ["animator.walking", "entityIsStrafing"]},
@@ -133,6 +134,7 @@
           }
         },
         "eat_right": {
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}},
           "core:pose": {
             "pose": [
               {
@@ -153,10 +155,10 @@
                 }
               }
             ]
-          },
-          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}}
+          }
         },
         "bow_right": {
+          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}},
           "core:pose": {
             "pose": [
               {
@@ -231,10 +233,10 @@
                 "@space": "override"
               }
             ]
-          },
-          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}}
+          }
         },
         "shield_right": {
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}},
           "core:pose": {
             "pose": [
               {
@@ -246,10 +248,10 @@
                 "@space": "override"
               }
             ]
-          },
-          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}}
+          }
         },
         "eat_left": {
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}},
           "core:pose": {
             "pose": [
               {
@@ -267,10 +269,10 @@
                 }
               }
             ]
-          },
-          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 6.666666666666667]}}}
+          }
         },
         "bow_left": {
+          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}},
           "core:pose": {
             "pose": [
               {
@@ -345,10 +347,10 @@
                 "@space": "override"
               }
             ]
-          },
-          "@define": {"aimedBowTicks": {"live": {"min": ["entityItemUseTicks", 15]}}}
+          }
         },
         "shield_left": {
+          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}},
           "core:pose": {
             "pose": [
               {
@@ -360,14 +362,13 @@
                 "@space": "override"
               }
             ]
-          },
-          "@define": {"bringUp": {"live": {"linstep": ["nodeTicksElapsed", 0, 1.4285714285714286]}}}
+          }
         }
       },
       "machines": {
         "sword": {
-          "defaultOnEntry": "sword_idle",
           "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}, "combo": {"state": 0}},
+          "defaultOnEntry": "sword_idle",
           "select": [
             {
               "when": {
@@ -890,8 +891,8 @@
           }
         },
         "fists": {
-          "defaultOnEntry": "punch_left",
           "@define": {"attacked": {"live": {"decreased": ["entityTicksAfterAttack"]}}, "fist": {"state": 0}},
+          "defaultOnEntry": "punch_left",
           "select": [
             {
               "when": {"and": [{"ge": ["entityTicksAfterAttack", 10]}, {"lt": ["entityTicksAfterAttack", 60]}]},
@@ -1079,6 +1080,7 @@
       "defaultOnEntry": "planted",
       "nodes": {
         "planted": {
+          "@define": {"onFeet": {"state": 0}, "turnLag": {"state": 0}},
           "core:pose": {
             "pose": [
               {
@@ -1155,11 +1157,9 @@
                 "@space": "pre"
               }
             ]
-          },
-          "@define": {"onFeet": {"state": 0}, "turnLag": {"state": 0}}
+          }
         }
       }
     }
-  ],
-  "@define": {"elytraFlying": {"live": {"gt": ["entityTicksElytraFlying", 4]}}}
+  ]
 }

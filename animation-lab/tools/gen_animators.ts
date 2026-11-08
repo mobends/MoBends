@@ -1282,9 +1282,27 @@ function halveBodySmoothing(node: unknown): void {
   }
 }
 
+// ---- definitions first ----------------------------------------------------------------------
+// Every object's @define comes first, after only what says what the file is (formatVersion,
+// extends, @comment), so its names are known before anything reading them. The order means nothing
+// to the loader: builders add a scope's definitions wherever is handy.
+const HEADER_KEYS = ["formatVersion", "extends", "@comment"];
+
+function definitionsFirst(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(definitionsFirst);
+  if (typeof node !== "object" || node === null) return node;
+  const object = node as Obj;
+  const first = [...HEADER_KEYS, "@define"].filter((key) => key in object);
+  const out: Obj = {};
+  for (const key of [...first, ...Object.keys(object).filter((key) => !first.includes(key))]) {
+    out[key] = definitionsFirst(object[key]);
+  }
+  return out;
+}
+
 for (const [name, built] of animators) {
   // A deep copy: the builders share value objects between items.
-  const data = JSON.parse(JSON.stringify(built));
+  const data = definitionsFirst(JSON.parse(JSON.stringify(built))) as Obj;
   if (BIPEDS.has(name)) halveBodySmoothing(data);
   writeFileSync(join(ANIM, name + ".json"), pretty(data) + "\n");
   console.log("wrote", name + ".json");
