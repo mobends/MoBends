@@ -1,0 +1,114 @@
+# Porting Mo' Bends to the modern versions: handoff
+
+Where the port of Mo' Bends from 1.12.2 to the modern Minecraft versions stands, how it's done, and
+what's next. The plan and its checklist are in [TODO.md](../TODO.md) (*Multiple Minecraft versions
+and loaders*); the project's rules are in [CONTRIBUTING.md](../CONTRIBUTING.md). Read both first.
+
+## Where it stands
+
+`main` builds Minecraft 1.21.1 for Fabric and NeoForge from one source tree (`src/`, Stonecutter).
+Ported so far, in this order:
+
+| PR | What |
+|---|---|
+| #381 | The player bends: its model definition, entity data, the KUMO glue, and the bent model (split elbows and knees) drawn instead of vanilla's. |
+| #382 | The player's render layers follow the bent body: held items, vanilla armour, custom head, spyglass, cape, elytra. |
+| #383 | The other mobs: zombie (husk, drowned), skeleton, zombie villager, creeper, iron golem, villager, witch, spider, squid, wolf, the dev pack's animals; type files, extensions, `field` expressions; the `core:minecraft_version` condition and `@variants` in model definitions. |
+
+As #383 was opened, the user had checked the player, its layers, the zombie, skeleton and zombie
+villager in the game on Fabric. The mobs added in #383's second part (creeper, golem, villager,
+witch, spider, squid, wolf) and the wolf pup's head were still to be checked. NeoForge was only
+checked for the player (#381).
+
+## What's next
+
+In the order the user asked for:
+
+1. **The rest of the player** (TODO.md): the first-person hands, the sword trail, the cape wave, the
+   inventory player's head following the mouse (1.12's `lookFurther`), stuck arrows and bee stingers
+   on the bent limbs, armour from other mods' models, and poses for the items 1.12 didn't have
+   (spyglass, goat horn, brush, crossbow, trident: they now just keep the current pose).
+2. **The pig zombie** (stays vanilla: it's drawn with `PiglinModel` now, which its definition can't
+   map onto without changing the asset; `@variants` might now make that possible).
+3. **The config, the Mo' Bends menu, server rules, pack trust, supporters and the mobends.com API.**
+4. The `.lang` translations to `.json`, a release workflow, then the 1.20.1 and latest targets.
+
+## How the port is done
+
+- **The 1.12.2 code is the reference**, in `legacy-1.12/` (not built). Classes keep their 1.12
+  package and name in `src/` when they keep their role, so the two are easy to compare. Don't edit
+  or move `legacy-1.12/`: the animation lab compiles from it, so slices **copy** what they port.
+- **The asset format doesn't change.** Assets (`src/main/resources/assets/mobends/bends/`) are
+  shared with `forge-1.12`. Definitions keep their 1.12 class and field names
+  (`net.minecraft.client.model.ModelPlayer`, `bipedRightArm`); `core/vanilla/VanillaNames` translates
+  them per model for the running version. New keys are fine if 1.12.2 can ignore them (its Gson
+  skips unknown keys), like `@variants`.
+- **`core/` stays Minecraft-free and Java 8**; it's published and shared with `forge-1.12`. Keep
+  changes to its API additive where possible; see *forge-1.12 after a core release* below.
+- **Hooks are vanilla Mixins** (`goblinbob.mobends.mixin`, client), so they're written once for both
+  loaders. Prefer `@WrapOperation`/`@Inject` that keep other mods' wrappers running. Anything Mo'
+  Bends can't bend must draw exactly as vanilla, never twice.
+- **Drawing:** `ModelPart` is final on 1.21.1, so instead of swapping parts as 1.12 did, a bent copy of
+  the model is built per vanilla model (`DefinedModelBuilder`, `DefinedModel`) and drawn inside the
+  model's own `renderToBuffer` (`AgeableListModelMixin`, `HierarchicalModelMixin`), which the renderer
+  marks (`BendsRenderer.markBentDraw`). Layers get a bone's frame from `DefinedModel.applyVanillaFrame`
+  after `DefinedRenderer.transformModel`; the bones come from the definition's `layers` block
+  (`DefinedLayers`).
+- **Fabric bundles one Fabric API module** (resource loader, jar-in-jar), because Fabric Loader alone
+  doesn't load mods' assets. Use nothing else from Fabric API.
+
+## Checking work
+
+- `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`, then `.github/scripts/check-sources.sh` and
+  `./gradlew build` (both nodes, core's tests). If core or the animators change:
+  `cd animation-lab && ./gradlew test`.
+- **Geometry and transforms can be checked without the game**: the slices so far each had a standalone
+  program, run against the built classes and the real vanilla meshes, comparing the bent parts with
+  vanilla's at rest (every vertex and UV) and the layers' frames with the drawn parts. Do the same for
+  new geometry; it catches most mistakes before the game does.
+- **The user checks the game visually.** Start the client into their test world with
+  `./gradlew :1.21.1-fabric:runClient --args="--quickPlaySingleplayer 'New World'"` (in the
+  background), and tell them what to look at first. On NeoForge, `--args` breaks the dev launcher:
+  run `:1.21.1-neoforge:runClient` plain, and they pick the world. Only one client can hold the world:
+  close earlier test clients first (a `session.lock` error in the log means one is still open).
+- CI runs `build` (and `parity` when the lab's inputs change). Codacy fails on every PR; nobody has
+  looked into why.
+
+## Working with the user
+
+- **PR descriptions: stupidly simple and clear.** A sentence of what it does, a short *What changed*
+  list, *Not yet*, *Tested*. No implementation detail.
+- Ask before anything public or hard to undo (pushing to `main`, tags, releases, branch changes on
+  GitHub). Opening PRs and pushing to their branches is expected.
+- Say plainly what was and wasn't checked in the game, and on which loader.
+
+## forge-1.12 after a core release
+
+`forge-1.12` builds Mo' Bends for 1.12.2 against a pinned release of `core` (`core_version` in its
+`gradle.properties`, now `2.0.0-alpha.2`). Since that release, `core` on `main` gained (all additive,
+nothing removed or changed):
+
+- `goblinbob.mobends.core.kumo.MinecraftVersion`: `set(String)`, `get()`, `compare(a, b)`, and the
+  operation `core:minecraft_version` (`{"core:minecraft_version": [">", "1.12.2"]}`), registered as a
+  built-in by `ExpressionOperations`. Using the operation before the version is set fails when the
+  expression compiles.
+
+Releasing it: push a tag `core-<version>` on `main` once #383 is merged (for example `core-2.0.0-alpha.3`;
+see CONTRIBUTING.md, *Releasing `core`*). Then, on a branch off `forge-1.12`, a forge-1.12 agent should:
+
+1. **Bump `core_version`** in `gradle.properties` to the new release. Both the mod and the animation lab
+   read it. Building needs a GitHub token with `read:packages` (`gpr.user` / `gpr.key` in
+   `~/.gradle/gradle.properties`, or `GITHUB_ACTOR` / `GITHUB_TOKEN`; forge-1.12's CONTRIBUTING.md).
+2. **Set the Minecraft version at start-up:** `MinecraftVersion.set("1.12.2")` (or `ModStatics.MCVERSION`)
+   in `Core.preInit`, before `MinecraftKumoOperations.register()` and before any animator or definition
+   loads. Without it, nothing breaks today, but the first asset that uses `core:minecraft_version`
+   fails to load on 1.12.2.
+3. **Optionally support `@variants`** in model definitions, so 1.12.2 applies them too instead of
+   ignoring them: port `DefinitionMerge.applyVariants` and its call in `ModelDefinitions.resolve` (after
+   `extends`) from `main`'s `src/main/java/goblinbob/mobends/core/definition/`. The shipped assets don't
+   need it: the wolf's only variant is for versions after 1.12.2, and 1.12.2 keeps the definition's own
+   values.
+4. **Check:** `./gradlew build shadowJar` (JDK 8), `cd animation-lab && ./gradlew test`, and the 1.12.2
+   client (`run-arm64/runClient.sh` on Apple Silicon): the mod loads, the player and mobs animate, the
+   wolf pup looks as before.
+5. Open a PR into `forge-1.12`, with a stupidly simple description.
