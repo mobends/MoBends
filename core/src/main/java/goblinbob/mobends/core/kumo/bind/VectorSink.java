@@ -36,10 +36,6 @@ public class VectorSink implements IVectorSink
     @Override
     public void setVectorTarget(float x, float y, float z, float smoothingX, float smoothingY, float smoothingZ, Mode mode, IVec3fRead start)
     {
-        // A NaN component means "this axis is not written": keep its current target (per axis).
-        if (Float.isNaN(x)) x = vector.end.x;
-        if (Float.isNaN(y)) y = vector.end.y;
-        if (Float.isNaN(z)) z = vector.end.z;
         // Nothing smoothed an axis this frame: its base smoothing, not what it was given last.
         if (Float.isNaN(smoothingX)) smoothingX = vector.baseSmoothing.x;
         if (Float.isNaN(smoothingY)) smoothingY = vector.baseSmoothing.y;

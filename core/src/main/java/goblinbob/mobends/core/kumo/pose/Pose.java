@@ -579,9 +579,23 @@ public class Pose
         return owner.sinks[index];
     }
 
+    private static boolean isFinite(Quaternion q)
+    {
+        return Float.isFinite(q.x) && Float.isFinite(q.y) && Float.isFinite(q.z) && Float.isFinite(q.w);
+    }
+
+    /** Puts every axis of {@code v} that isn't a finite number at {@code rest}. */
+    private static void finiteOr(Vec3f v, float rest)
+    {
+        if (!Float.isFinite(v.x)) v.x = rest;
+        if (!Float.isFinite(v.y)) v.y = rest;
+        if (!Float.isFinite(v.z)) v.z = rest;
+    }
+
     /**
      * Writes the pose into its entity's bones: every bone, every channel. What nothing wrote this
-     * frame goes back to rest, at the bone's base smoothing. Only for a base pose, whose slots hold
+     * frame goes back to rest, at the bone's base smoothing, and so does a value that isn't a finite
+     * number, so no bone can be made to vanish or keep a stale value. Only for a base pose, whose slots hold
      * no relative parts.
      */
     public void writeTo()
@@ -594,10 +608,14 @@ public class Pose
             {
                 continue;
             }
-            if (!target.hasRotation) target.rotation.setIdentity();
+            // What nothing wrote, and what isn't a finite number (a division by zero), is at rest.
+            if (!target.hasRotation || !isFinite(target.rotation)) target.rotation.setIdentity();
             if (!target.hasOffset) target.offset.set(0F, 0F, 0F);
             if (!target.hasScale) target.scale.set(1F, 1F, 1F);
             if (!target.hasVector) target.vector.set(0F, 0F, 0F);
+            finiteOr(target.offset, 0F);
+            finiteOr(target.scale, 1F);
+            finiteOr(target.vector, 0F);
 
             IRotationSink rotationSink = sink.asRotation();
             if (rotationSink != null)

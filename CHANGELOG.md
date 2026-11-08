@@ -20,6 +20,8 @@
 
 ### Changed
 
+- An animation value that isn't a number (a division by zero in a resource pack's animator, say)
+  puts the part at rest instead of freezing it where it was.
 - Poses are declarative: a part's rotation, position or scale that no animation writes in a frame
   goes back to rest, instead of staying where an earlier node left it, and transitions fade such
   parts to rest (or to the layers below). A scaled part no longer stays scaled after its node, a
