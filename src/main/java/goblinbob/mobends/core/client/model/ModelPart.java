@@ -151,7 +151,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
         this.applyParentRotationUndone();
         GlHelper.rotate(rotation.getSmooth());
 
-        if (this.scale.x != 0.0F || this.scale.y != 0.0F || this.scale.z != 0.0F)
+        if (this.scale.x != 1.0F || this.scale.y != 1.0F || this.scale.z != 1.0F)
             GlStateManager.scale(this.scale.x, this.scale.y, this.scale.z);
     }
 
@@ -217,7 +217,7 @@ public class ModelPart extends ModelRenderer implements IModelPart
 
     public ModelPart resetScale()
     {
-        this.scale.set(0, 0, 0);
+        this.scale.set(1, 1, 1);
         return this;
     }
 

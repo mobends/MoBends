@@ -10,6 +10,13 @@
 - Settings has an *Options* button for mobs with options: settings their animation offers, such as
   the player's spin attack. Mods and resource packs can give their models, types and extensions
   options of their own (`options` in the file), which their animators read as `option.<name>`.
+- Animators can scale a model's parts with the `core:scale` driver (`x`, `y`, `z`, or `all` for
+  every axis): it multiplies the part's scale by default, or replaces it with `"@space":
+  "override"`, and transitions crossfade it. What the part carries (child parts, a held item,
+  armor) is scaled with it.
+- Servers that limit resource packs (`LIMITED`) keep a resource pack's scaling within
+  `maxPartScale` (default 1.5) of the trusted animation's, up or down, so a pack can't hide parts
+  or blow them up.
 
 ### Changed
 

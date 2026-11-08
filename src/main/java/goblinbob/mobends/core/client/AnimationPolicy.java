@@ -52,9 +52,10 @@ public final class AnimationPolicy
         }
         float part = NetworkConfiguration.instance.getMaxPartOffset();
         float body = NetworkConfiguration.instance.getMaxBodyOffset();
-        if (limits == null || limits.maxPartOffset != part || limits.maxBodyOffset != body)
+        float scale = NetworkConfiguration.instance.getMaxPartScale();
+        if (limits == null || limits.maxPartOffset != part || limits.maxBodyOffset != body || limits.maxPartScale != scale)
         {
-            limits = new AnimationLimits(part, body);
+            limits = new AnimationLimits(part, body, scale);
         }
         return limits;
     }

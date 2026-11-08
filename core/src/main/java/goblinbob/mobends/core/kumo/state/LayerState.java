@@ -553,8 +553,8 @@ public class LayerState
 
     /**
      * Gives {@code missing} what {@code present} poses and it doesn't, as the layers below have it:
-     * a full rotation, offset or vector from {@code below} (when they pose it), a PRE / POST rotation
-     * or an additive offset or vector as nothing (identity, zero).
+     * a full rotation, offset, vector or scale from {@code below} (when they pose it), a PRE / POST
+     * rotation, an additive offset or vector or a relative scale as nothing (identity, zero, one).
      */
     private static void fillFromBelow(Pose missing, Pose present, Pose below)
     {
@@ -592,6 +592,13 @@ public class LayerState
                 else m.vector.set(u.vector);
                 m.vectorAdditive = p.vectorAdditive;
                 m.hasVector = true;
+            }
+            if (p.hasScale && !m.hasScale && (p.scaleRelative || u.hasScale))
+            {
+                if (p.scaleRelative) m.scale.set(1, 1, 1);
+                else m.scale.set(u.scale);
+                m.scaleRelative = p.scaleRelative;
+                m.hasScale = true;
             }
         }
     }
@@ -641,6 +648,14 @@ public class LayerState
             }
             relative.vectorAdditive = false;
         }
+        if (absolute.hasScale && !absolute.scaleRelative && relative.hasScale && relative.scaleRelative)
+        {
+            if (below.absoluteScale(slot, vectorBeneath))
+            {
+                relative.scale.scale(vectorBeneath.x, vectorBeneath.y, vectorBeneath.z);
+            }
+            relative.scaleRelative = false;
+        }
     }
 
     /** dest = nlerp(from, to, t); bones present on one side only are taken from that side. */
@@ -684,6 +699,18 @@ public class LayerState
             }
             d.vectorAdditive = b.hasVector ? b.vectorAdditive : a.vectorAdditive;
 
+            if (a.hasScale && b.hasScale)
+            {
+                d.scale.set(a.scale.x + (b.scale.x - a.scale.x) * t, a.scale.y + (b.scale.y - a.scale.y) * t, a.scale.z + (b.scale.z - a.scale.z) * t);
+                d.hasScale = true;
+            }
+            else if (a.hasScale || b.hasScale)
+            {
+                d.scale.set(a.hasScale ? a.scale : b.scale);
+                d.hasScale = true;
+            }
+            d.scaleRelative = b.hasScale ? b.scaleRelative : a.scaleRelative;
+
             // Smoothing, snapping and vector modes follow the node being entered.
             d.smoothing = b.smoothing;
             d.vectorSmoothing.set(b.vectorSmoothing);
@@ -724,7 +751,7 @@ public class LayerState
             }
             BoneTarget src = layerPose.get(i);
             BoneTarget dst = animatorPose.get(i);
-            boolean any = src.hasRotation || src.hasPre || src.hasPost || src.hasOffset || src.hasVector;
+            boolean any = src.hasRotation || src.hasPre || src.hasPost || src.hasOffset || src.hasVector || src.hasScale;
             if (!any)
             {
                 continue;
@@ -741,6 +768,10 @@ public class LayerState
             if (src.hasVector)
             {
                 animatorPose.composeVector(i, src.vector.x, src.vector.y, src.vector.z, src.vectorAdditive ? Pose.Space.PRE : Pose.Space.OVERRIDE);
+            }
+            if (src.hasScale)
+            {
+                animatorPose.composeScale(i, src.scale.x, src.scale.y, src.scale.z, src.scaleRelative ? Pose.Space.PRE : Pose.Space.OVERRIDE);
             }
             if (src.hasSnapFrom)
             {

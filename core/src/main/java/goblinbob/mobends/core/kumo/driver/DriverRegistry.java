@@ -10,6 +10,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import goblinbob.mobends.core.kumo.state.template.pose.AccumulateTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.DriverItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.RotateTemplate;
+import goblinbob.mobends.core.kumo.state.template.pose.ScaleTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.SpringTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.StepTurnTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.TranslateTemplate;
@@ -32,6 +33,7 @@ public class DriverRegistry
     {
         register("core:rotate", RotateDriver::create, RotateTemplate.class);
         register("core:translate", TranslateDriver::create, TranslateTemplate.class);
+        register("core:scale", ScaleDriver::create, ScaleTemplate.class);
         register("core:accumulate", AccumulateDriver::create, AccumulateTemplate.class);
         register(SpringDriver.DRIVER);
         register(StepTurnDriver.DRIVER);

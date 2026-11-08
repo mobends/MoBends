@@ -368,6 +368,7 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 |---|---|
 | `core:rotate` | `bone`, `axis` (`x`/`y`/`z`), `angle` (expression, degrees) |
 | `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or the position of `root` or `center`. Default space `pre`, like every driver's; there and in `post` an axis left out moves by nothing, in `override` it keeps the bone's current value. On a part, the item's `@smoothing`, `@vectorModes` and `@snap` go to the offset, not the rotation: with a smoothing, it's smoothed like a vector, and without one it's applied as is |
+| `core:scale` | `bone`, `x`, `y`, `z`, `all` (expressions; 1 is the part as modelled): scales a part on its own axes, and with it what it carries (its child parts, a held item, its armor). `all` is for every axis not given its own. Default space `pre`, like every driver's; there and in `post` it multiplies the part's scale (an axis left out by one), in `override` it replaces it (an axis left out keeps the part's current scale). A scale stays until something writes it again, as an offset does: a node that scales a part should be faded from by one that scales it back (`"@space": "override"`, `"all": 1`). Scales aren't smoothed (no `@smoothing`, `@vectorModes` or `@snap`), but a transition crossfades them. `root` and `center` can't be scaled; a negative axis mirrors the part |
 | `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
 | `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
@@ -1231,6 +1232,7 @@ decides what resource packs may do, and sends it to every client with Mo' Bends 
 | `resourcePackAnimation` | `LIMITED` | `ALLOW`, `LIMITED` or `DENY` (below) |
 | `maxPartOffset` | 4 | `LIMITED`: how far resource packs' animation may move one part from where the trusted animation puts it, in model units (1/16 block) |
 | `maxBodyOffset` | 16 | `LIMITED`: the same for the positions of `root` and `center` |
+| `maxPartScale` | 1.5 | `LIMITED`: by what factor, at most, resource packs' animation may scale one part, up or down, from the scale the trusted animation gives it (1: not at all) |
 
 * **Trusted** content is what comes from Mo' Bends, another mod, vanilla, or the server's own
   resource pack. **Untrusted** is what a resource pack the player enabled supplies, including a
@@ -1251,7 +1253,15 @@ decides what resource packs may do, and sends it to every client with Mo' Bends 
   * An axis an offset or vector doesn't write (NaN) never widens the limit; an infinite value goes
     back to the trusted one; a part's NaN offset axis and a broken (non-finite) rotation are
     dropped, so no part can be made to vanish.
-  * Rotations are otherwise free. Scale needs no limit: animation can't scale parts.
+  * Every part's scale, on each axis, is brought back within a factor of `maxPartScale` (up or
+    down) of what the trusted layers gave it (their last value; one if they never wrote it), keeping
+    the trusted scale's sign: a part can't be scaled to nothing, turned inside out or blown up to
+    cover the screen. A scale that isn't a number goes back to the trusted one. A part's scale
+    is held within the limits even on frames nothing writes it, so a scale left from before the
+    limits applied is brought back too. A relative scale with nothing under it builds on the
+    trusted value, as a relative offset does. (A part carries its children, so a child scaled
+    along with its parent can reach the product of their factors.)
+  * Rotations are otherwise free.
   * Model definitions (geometry) come only from trusted sources: an untrusted type that names one
     is ignored as a whole (so it can't replace a trusted type with the same id, and its animator
     never runs on a model it wasn't made for), and a resource pack's version of a trusted

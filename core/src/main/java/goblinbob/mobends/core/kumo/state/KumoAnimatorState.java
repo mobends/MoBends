@@ -47,6 +47,8 @@ public class KumoAnimatorState
     private AnimationLimits limits;
     /** Per slot: the offset (or vector) the trusted layers last gave it. */
     private Vec3f[] lastTrusted;
+    /** Per slot: the scale the trusted layers last gave it (one where they never did). */
+    private Vec3f[] lastTrustedScale;
 
     /** An entity animated by {@code program}. */
     public KumoAnimatorState(KumoProgram program)
@@ -146,7 +148,9 @@ public class KumoAnimatorState
         {
             // Limits lifted: next time they apply, they start again from the bones as they are.
             lastTrusted = null;
+            lastTrustedScale = null;
             pose.setFallbackValues(null);
+            pose.setFallbackScales(null);
         }
         // The entity's scope, then the animators': created on the first frame, then their update
         // lists every frame, before any layer.
@@ -210,9 +214,10 @@ public class KumoAnimatorState
     }
 
     /**
-     * Keeps every offset within the limits of where the trusted layers put it. A bone they don't
-     * write this frame keeps what they gave it last (the rest position if they never did): not its
-     * live value, which untrusted layers could otherwise push a little further every frame.
+     * Keeps every offset and scale within the limits of where the trusted layers put it. A bone they
+     * don't write this frame keeps what they gave it last (the rest position or scale if they never
+     * did): not its live value, which untrusted layers could otherwise push a little further every
+     * frame.
      */
     private void limit(Pose pose, Pose trusted, AnimationLimits limits)
     {
@@ -227,6 +232,10 @@ public class KumoAnimatorState
             else if (reference.hasOffset)
             {
                 setWritten(last, reference.offset);
+            }
+            if (reference.hasScale && !reference.scaleRelative)
+            {
+                setWritten(lastTrustedScale[i], reference.scale);
             }
         }
         for (int i = 0; i < pose.size(); i++)
@@ -259,11 +268,62 @@ public class KumoAnimatorState
                 if (Float.isNaN(target.offset.z)) target.offset.z = last.z;
                 clampAround(target.offset, last, limits.maxPartOffset);
             }
+            IRotationSink scaled = scaleSink(i);
+            if (scaled != null)
+            {
+                // Every part's scale is written, at least as it is: a scale left from before the
+                // limits applied (or written by an untrusted layer some earlier frame) is brought
+                // back within them too. An axis left out keeps the current scale, measured as well.
+                IVec3fRead current = scaled.getScale();
+                if (!target.hasScale)
+                {
+                    target.scale.set(Float.NaN, Float.NaN, Float.NaN);
+                    target.hasScale = true;
+                }
+                target.scaleRelative = false;
+                if (Float.isNaN(target.scale.x)) target.scale.x = current.getX();
+                if (Float.isNaN(target.scale.y)) target.scale.y = current.getY();
+                if (Float.isNaN(target.scale.z)) target.scale.z = current.getZ();
+                Vec3f lastScale = lastTrustedScale[i];
+                target.scale.x = clampScale(target.scale.x, lastScale.x, limits.maxPartScale);
+                target.scale.y = clampScale(target.scale.y, lastScale.y, limits.maxPartScale);
+                target.scale.z = clampScale(target.scale.z, lastScale.z, limits.maxPartScale);
+            }
             // Rotations are free, but a broken one (NaN, infinite) would make the part disappear: dropped.
             if (target.hasRotation && !isFinite(target.rotation)) target.hasRotation = false;
             if (target.hasPre && !isFinite(target.pre)) target.hasPre = false;
             if (target.hasPost && !isFinite(target.post)) target.hasPost = false;
         }
+    }
+
+    /** The sink of slot {@code i}, where it is a part that can be scaled; else null. */
+    @Nullable
+    private IRotationSink scaleSink(int i)
+    {
+        IBoneSink sink = i < entityState.sinks.length ? entityState.sinks[i] : null;
+        IRotationSink rotation = sink == null ? null : sink.asRotation();
+        return rotation != null && rotation.hasScale() ? rotation : null;
+    }
+
+    /**
+     * Brings {@code value} within a factor of {@code max} (at least 1) of {@code center}, either way,
+     * keeping its sign: a scale can't flip a part inside out, or shrink it to nothing, unless the
+     * trusted one does. A value that isn't a number goes to the center.
+     */
+    static float clampScale(float value, float center, float max)
+    {
+        if (!Float.isFinite(value) || !Float.isFinite(center) || center == 0F)
+        {
+            return Float.isFinite(center) ? center : 1F;
+        }
+        float magnitude = Math.abs(center);
+        float low = magnitude / max;
+        float high = magnitude * max;
+        float clamped = Math.abs(value);
+        if (Math.signum(value) != Math.signum(center)) clamped = low;
+        else if (clamped < low) clamped = low;
+        else if (clamped > high) clamped = high;
+        return Math.copySign(clamped, center);
     }
 
     private static boolean isFinite(Quaternion q)
@@ -280,10 +340,14 @@ public class KumoAnimatorState
     private void startLimiting(Pose pose)
     {
         lastTrusted = new Vec3f[pose.size()];
+        lastTrustedScale = new Vec3f[pose.size()];
         Vec3f[] fallback = new Vec3f[pose.size()];
         for (int i = 0; i < lastTrusted.length; i++)
         {
             lastTrusted[i] = new Vec3f();
+            // Measured from the rest scale, not the part's current one, which untrusted animation
+            // may have set before the limits applied.
+            lastTrustedScale[i] = new Vec3f(1F, 1F, 1F);
         }
         for (int i = 0; i < lastTrusted.length; i++)
         {
@@ -297,6 +361,7 @@ public class KumoAnimatorState
             else if (rotation != null && rotation.hasOffset()) last.set(rotation.getOffset());
         }
         pose.setFallbackValues(fallback);
+        pose.setFallbackScales(lastTrustedScale);
     }
 
     /** Copies the axes {@code value} writes: a NaN axis means "not written" (the bone keeps it). */

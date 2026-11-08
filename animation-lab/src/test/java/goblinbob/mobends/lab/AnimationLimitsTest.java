@@ -23,12 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Animation from untrusted sources (resource packs) under the server's limits: every part's offset
- * and the whole body's offsets stay within the limits of where the trusted animation puts them.
+ * and the whole body's offsets stay within the limits of where the trusted animation puts them, and
+ * every part's scale within a factor of the trusted one.
  */
 public class AnimationLimitsTest
 {
 
-    private static final AnimationLimits LIMITS = new AnimationLimits(4, 16);
+    private static final AnimationLimits LIMITS = new AnimationLimits(4, 16, 1.5F);
 
     /** Throws the left arm 40 units out and the whole body 100 units up. */
     private static final String FLING = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"fling\", "
@@ -132,6 +133,13 @@ public class AnimationLimitsTest
                         if (a == null || b == null) continue;
                         double d = distance(a, b);
                         assertTrue(d <= LIMITS.maxPartOffset + 1e-3, String.format("%s frame %d: %s moved %.3f", scenario.id(), i, bone, d));
+                        float[] sa = own.get(i).bones.get(bone).s, sb = limited.get(i).bones.get(bone).s;
+                        for (int axis = 0; axis < 3; axis++)
+                        {
+                            double factor = sb[axis] / sa[axis];
+                            assertTrue(factor >= 1 / LIMITS.maxPartScale - 1e-4 && factor <= LIMITS.maxPartScale + 1e-4,
+                                    String.format("%s frame %d: %s scaled by %.3f on axis %d", scenario.id(), i, bone, factor, axis));
+                        }
                     }
                 }
             }));
@@ -139,7 +147,7 @@ public class AnimationLimitsTest
         return tests;
     }
 
-    /** An extension that pushes every part and the entity's own bones (root, center) far out, every frame. */
+    /** An extension that pushes every part and the entity's own bones (root, center) far out, and scales every part out of shape, every frame. */
     private static AnimatorTemplate flingEverything(FramePose frame)
     {
         StringBuilder items = new StringBuilder();
@@ -147,6 +155,7 @@ public class AnimationLimitsTest
         {
             if (frame.bones.get(bone).o == null) continue;
             items.append("{\"core:translate\": {\"bone\": \"").append(bone).append("\", \"x\": {\"add\": [30, {\"mul\": [\"ticks\", 3]}]}, \"y\": -30, \"z\": 30}, \"@space\": \"override\"},");
+            items.append("{\"core:scale\": {\"bone\": \"").append(bone).append("\", \"x\": {\"add\": [20, \"ticks\"]}, \"y\": 0, \"z\": -3}},");
         }
         for (String vector : new String[] { "root", "center" })
         {
