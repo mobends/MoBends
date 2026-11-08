@@ -17,12 +17,8 @@
           "@comment": "The mob's own animation doesn't move its whole body, so this node puts it back in place (a fallthrough node would leave it wherever the dance stopped).",
           "core:pose": {
             "pose": [
-              {"core:translate": {"bone": "globalOffset", "x": 0, "y": 0, "z": 0}, "@space": "override", "@snap": true},
-              {
-                "core:rotate": {"bone": "renderRotation", "axis": "z", "angle": 0},
-                "@space": "override",
-                "@snap": true
-              }
+              {"core:translate": {"bone": "root", "x": 0, "y": 0, "z": 0}, "@space": "override", "@snap": true},
+              {"core:rotate": {"bone": "root", "axis": "z", "angle": 0}, "@space": "override", "@snap": true}
             ]
           }
         },
@@ -31,7 +27,7 @@
             "pose": [
               {
                 "core:translate": {
-                  "bone": "globalOffset",
+                  "bone": "root",
                   "x": {"mul": ["animator.sway", 1.5]},
                   "y": {"mul": ["animator.bounce", 2.5]},
                   "z": 0
@@ -40,7 +36,7 @@
                 "@snap": true
               },
               {
-                "core:rotate": {"bone": "renderRotation", "axis": "z", "angle": {"mul": ["animator.sway", -8]}},
+                "core:rotate": {"bone": "root", "axis": "z", "angle": {"mul": ["animator.sway", -8]}},
                 "@space": "override",
                 "@snap": true
               },

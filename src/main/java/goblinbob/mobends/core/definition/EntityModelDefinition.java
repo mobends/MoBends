@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import goblinbob.mobends.core.kumo.option.KumoOptions;
 import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.option.OptionTemplate;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
@@ -68,11 +69,23 @@ public class EntityModelDefinition
     public float attackComboTicks;
 
     /**
-     * Optional: a bone's base smoothing (ticks to reach a target), what it gets in a frame where nothing smooths it (otherwise 0, at once), by name: a bone,
-     * a component, or the entity's {@code root} (its offset), {@code localOffset},
-     * {@code renderRotation} or {@code centerRotation}.
+     * Optional: a bone's base smoothing (ticks to reach a target), what it gets in a frame where
+     * nothing smooths it (otherwise 0, at once), by name: a bone, a component, or the entity's own
+     * {@code root} and {@code center} (see {@link BoneSmoothing}).
      */
-    public Map<String, Float> smoothing;
+    public Map<String, BoneSmoothing> smoothing;
+
+    /** Optional: where the renderer turns the entity's {@code center} bone about (see {@link CenterSettings}). */
+    public CenterSettings center;
+
+    public static class CenterSettings
+    {
+        /**
+         * The pivot, in model units from the entity's feet (+Y up, +Z ahead of the body), scaled
+         * with the model on a baby; null for half the entity's height.
+         */
+        public float[] pivot;
+    }
 
     /**
      * Optional: how bones change on a baby, by name, besides the whole model's {@link #childScale}:
@@ -101,6 +114,11 @@ public class EntityModelDefinition
          * hand is at rest in front of the camera (the arm's chain, from the body).
          */
         public List<String> firstPersonRest = new ArrayList<>();
+        /**
+         * Whether the renderer turns the model back from the rock vanilla gives an iron golem while
+         * it walks (RenderIronGolem), so the animator has the whole model to itself.
+         */
+        public boolean undoVanillaRock;
     }
 
     /** The entity scope's definitions, read by its animators as {@code entity.x}: the only place that reads the entity's fields. */
@@ -193,6 +211,17 @@ public class EntityModelDefinition
                 throw new MalformedKumoTemplateException("Bone '" + bone.name + "' names a parent '" + bone.parent + "' that is not declared before it.");
             }
         }
+        for (String name : seen)
+        {
+            if (Skeleton.isEntityBone(name))
+            {
+                throw new MalformedKumoTemplateException("A bone can't be named '" + name + "': it is one of the entity's own.");
+            }
+        }
+        if (center != null && center.pivot != null && center.pivot.length != 3)
+        {
+            throw new MalformedKumoTemplateException("'center.pivot' is [x, y, z].");
+        }
         if (renderer == null)
         {
             renderer = new RendererSettings();
@@ -223,7 +252,7 @@ public class EntityModelDefinition
         {
             for (String name : components.keySet())
             {
-                if (seen.contains(name))
+                if (seen.contains(name) || Skeleton.isEntityBone(name))
                 {
                     throw new MalformedKumoTemplateException("The component '" + name + "' has the name of a bone.");
                 }

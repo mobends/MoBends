@@ -9,7 +9,8 @@ import java.util.Map;
 
 /**
  * {"@default": 3, "rightArm": 1.25, "root": [3, 1.7, 3]}, in ticks (0: at once, never negative); a
- * bone's smoothing can also be an expression (a name or an operation), evaluated every frame.
+ * bone's smoothing can also be an expression (a name or an operation), evaluated every frame, or
+ * its rotation's and position's apart: {"root": {"rotation": 1.67, "position": [3, 1.7, 3]}}.
  */
 public class SmoothingTemplateSerializer implements JsonDeserializer<SmoothingTemplate>
 {
@@ -31,15 +32,30 @@ public class SmoothingTemplateSerializer implements JsonDeserializer<SmoothingTe
             }
             JsonReading.requireBoneOrDefault(entry.getKey(), "A smoothing");
             JsonElement value = entry.getValue();
+            String what = "The smoothing of '" + entry.getKey() + "'";
             if (value.isJsonArray())
             {
-                JsonArray array = value.getAsJsonArray();
-                float[] values = new float[array.size()];
-                for (int i = 0; i < values.length; i++)
+                smoothing.entries.put(entry.getKey(), values(value, what));
+            }
+            else if (isSplit(value))
+            {
+                if (SmoothingTemplate.DEFAULT.equals(entry.getKey()))
                 {
-                    values[i] = array.get(i).isJsonNull() ? Float.NaN : ticks(array.get(i), "The smoothing of '" + entry.getKey() + "'");
+                    throw new JsonParseException("A smoothing's \"@default\" is one number of ticks.");
                 }
-                smoothing.entries.put(entry.getKey(), values);
+                for (Map.Entry<String, JsonElement> part : value.getAsJsonObject().entrySet())
+                {
+                    if ("rotation".equals(part.getKey()))
+                    {
+                        smoothing.rotations.put(entry.getKey(), new float[] { ticks(part.getValue(), what + "'s rotation") });
+                    }
+                    else if ("position".equals(part.getKey()))
+                    {
+                        smoothing.positions.put(entry.getKey(), part.getValue().isJsonArray()
+                                ? values(part.getValue(), what + "'s position")
+                                : new float[] { ticks(part.getValue(), what + "'s position") });
+                    }
+                }
             }
             else if (value.isJsonObject() || (value.isJsonPrimitive() && value.getAsJsonPrimitive().isString()))
             {
@@ -51,6 +67,34 @@ public class SmoothingTemplateSerializer implements JsonDeserializer<SmoothingTe
             }
         }
         return smoothing;
+    }
+
+    /** {"rotation": ..., "position": ...} (either may be left out), rather than an operation. */
+    private static boolean isSplit(JsonElement value)
+    {
+        if (!value.isJsonObject() || value.getAsJsonObject().size() == 0)
+        {
+            return false;
+        }
+        for (Map.Entry<String, JsonElement> part : value.getAsJsonObject().entrySet())
+        {
+            if (!"rotation".equals(part.getKey()) && !"position".equals(part.getKey()))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static float[] values(JsonElement json, String what)
+    {
+        JsonArray array = json.getAsJsonArray();
+        float[] values = new float[array.size()];
+        for (int i = 0; i < values.length; i++)
+        {
+            values[i] = array.get(i).isJsonNull() ? Float.NaN : ticks(array.get(i), what);
+        }
+        return values;
     }
 
     private static float ticks(JsonElement json, String what)

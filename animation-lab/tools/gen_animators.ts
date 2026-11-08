@@ -202,13 +202,18 @@ function rotations(...calls: [Axis, number][]): Quaternion {
  */
 const onBody = (body: Quaternion, head: Quaternion): Quaternion => mul(body, head).map((v) => round7(v));
 
+/** The entity's own bones: a clip's track of one writes only what its keyframes give (a rotation, a position). */
+const ENTITY_BONES = new Set(["root", "center"]);
+
+/** A one-keyframe clip: `bones` turned (a part also put back in place), `vectors` the entity's own bones moved. */
 function poseClip(path: string, bones: Record<string, Quaternion>, vectors: Record<string, number[]> = {}): void {
   const data: Obj = { bones: {}, duration: 0 };
   for (const [bone, q] of Object.entries(bones)) {
-    data.bones[bone] = { keyframes: [{ position: [0, 0, 0], rotation: q }] };
+    data.bones[bone] = { keyframes: [ENTITY_BONES.has(bone) ? { rotation: q } : { position: [0, 0, 0], rotation: q }] };
   }
   for (const [bone, v] of Object.entries(vectors)) {
-    data.bones[bone] = { keyframes: [{ position: v, rotation: [0, 0, 0, 1] }] };
+    if (bone in data.bones) data.bones[bone].keyframes[0] = { position: v, ...data.bones[bone].keyframes[0] };
+    else data.bones[bone] = { keyframes: [{ position: v }] };
   }
   writeClip(path, data);
 }
@@ -231,19 +236,19 @@ const headLook: Obj[] = [
 ];
 const kneel = clip(B("kneel"), { frame: "entityTicksAfterTouchdown" }, { when: cmp("entityTicksAfterTouchdown", "<", 1 / 0.15), smoothing: { body: 1 }, vectorModes: { root: "snap" } });
 // The entity-level bones and the held items, eased the same in most states.
-const entitySmoothing = { root: 3.33, localOffset: 3.33, renderRotation: 3.33, centerRotation: 3.33,
+const entitySmoothing = { root: 3.33, center: 3.33,
                        rightHeldItem: 3.33, leftHeldItem: 3.33 };
 
 const stand: Obj = poseNode([
     // The limbs ease into the stand from whatever left them (a landing, a walk, a stance).
     clip(B("stand"), { frame: looped(scaled("ticks", 0.1)) }, { smoothing: { ...entitySmoothing, body: 1, rightArm: 2.5, leftArm: 2.5, rightForeArm: 3.33, leftForeArm: 3.33,
-                rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33 }, vectorModes: { root: "slide", localOffset: "slide" } }),
+                rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33 }, vectorModes: { root: "slide", center: "slide" } }),
     ...headLook,
     kneel,
   ], { enterPose: [clip(B("stand_enter"), {}, { when: cmp("entityTicksAfterTouchdown", "<", 0.5 / 0.15) })] });
 const walk: Obj = poseNode([
     clip(B("walk_base"), { frame: limbFrame }, { smoothing: { ...entitySmoothing, body: 2, head: 2, rightArm: 1.25, leftArm: 1.25, rightForeArm: 1.25, leftForeArm: 1.25,
-                 rightLeg: 1, leftLeg: 1, root: [3.33, 1.67, 3.33] }, vectorModes: { root: "retarget", localOffset: "slide" } }),
+                 rightLeg: 1, leftLeg: 1, root: [3.33, 1.67, 3.33] }, vectorModes: { root: "retarget", center: "slide" } }),
     clip(B("walk_forelegs"), { frame: limbFrame }, { smoothing: { leftForeLeg: 2, rightForeLeg: 2 } }),
     clip(B("walk_swing"), { frame: limbFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
     item("core:rotate", { bone: "body", axis: "z", angle: value("entityHeadYaw", { scale: -0.1, min: -10, max: 10 }) }, { space: "pre" }),
@@ -251,7 +256,7 @@ const walk: Obj = poseNode([
     kneel,
   ]);
 const jump: Obj = poseNode([
-    clip(B("jump"), { frame: "entityTicksInAir" }, { smoothing: { ...entitySmoothing, centerRotation: 1.43, body: 5, rightArm: 20, leftArm: 20, rightForeArm: 3.33, leftForeArm: 3.33 }, vectorModes: { root: "slide" } }),
+    clip(B("jump"), { frame: "entityTicksInAir" }, { smoothing: { ...entitySmoothing, center: { rotation: 1.43, position: 3.33 }, body: 5, rightArm: 20, leftArm: 20, rightForeArm: 3.33, leftForeArm: 3.33 }, vectorModes: { root: "slide" } }),
     ...headLook,
     clip(B("jump_moving_base"), { frame: limbFrame }, { when: NOT(state("entityIsStandingStill")), smoothing: { rightLeg: 1, leftLeg: 1, leftForeArm: 3.33, rightForeArm: 3.33 } }),
     clip(B("jump_moving_forelegs"), { frame: limbFrame }, { when: NOT(state("entityIsStandingStill")), smoothing: { leftForeLeg: 3.33, rightForeLeg: 3.33 } }),
@@ -312,12 +317,12 @@ const pigZombie: Obj = {
                 pairs: [["leftArm", "rightArm"], ["leftForeArm", "rightForeArm"], ["leftLeg", "rightLeg"], ["leftForeLeg", "rightForeLeg"],
                         ["leftHeldItem", "rightHeldItem"]] },
       nodes: { slash: poseNode([
-          clip(P("slash"), { frame: "entityTicksAfterAttack" }, { mirror: true, smoothing: { body: 1.11, head: 1.11, rightArm: 1.11, leftArm: 3.33, rightForeArm: 3.33, leftForeArm: 3.33, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } }),
+          clip(P("slash"), { frame: "entityTicksAfterAttack" }, { mirror: true, smoothing: { body: 1.11, head: 1.11, rightArm: 1.11, leftArm: 3.33, rightForeArm: 3.33, leftForeArm: 3.33, center: 3.33 }, vectorModes: { center: "slide" } }),
           // the head looks where the zombie looks, whichever hand it uses: not mirrored
           headLook[0], mirrored(headLook[1]),
           // the still-standing legs are the same for both hands; the render rotation is not
-          clip(P("slash_still"), { bones: ["leftLeg", "rightLeg", "rightForeLeg", "root"] }, { when: AND(state("entityIsStandingStill"), NOT(state("entityIsRiding"))), smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "retarget" } }),
-          clip(P("slash_still"), { bones: ["renderRotation"] }, { mirror: true, when: AND(state("entityIsStandingStill"), NOT(state("entityIsRiding"))), smoothing: { renderRotation: 3.33 } }),
+          clip(P("slash_still"), { bones: ["leftLeg", "rightLeg", "rightForeLeg", "root.position"] }, { when: AND(state("entityIsStandingStill"), NOT(state("entityIsRiding"))), smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "retarget" } }),
+          clip(P("slash_still"), { bones: ["root.rotation"] }, { mirror: true, when: AND(state("entityIsStandingStill"), NOT(state("entityIsRiding"))), smoothing: { root: 3.33 } }),
           item("core:rotate", { bone: "rightHeldItem", axis: "x", angle: 50 }, { space: "override", snap: true, mirror: true, smoothing: { rightHeldItem: 1.11 } }),
         ]) } },
   ] };
@@ -365,30 +370,30 @@ poseClip(join(CLIPS, "player", "elytra.json"), {
   body: rotations(), leftForeArm: rotations(), rightForeArm: rotations(),
   leftLeg: rotations(["Z", -5]), rightLeg: rotations(["Z", 5]),
   leftForeLeg: rotations(), rightForeLeg: rotations(),
-  centerRotation: rotations(), renderRotation: rotations(), head: rotations(),
+  center: rotations(), root: rotations(), head: rotations(),
   leftArm: rotations(), rightArm: rotations() }, { root: [0, 0, 0] });
-poseClip(join(CLIPS, "player", "fly_common.json"), { renderRotation: rotations() }, { root: [0, 0, 0] });
+poseClip(join(CLIPS, "player", "fly_common.json"), { root: rotations() }, { root: [0, 0, 0] });
 poseClip(join(CLIPS, "player", "fly_sprint.json"), {
   leftForeArm: rotations(), rightForeArm: rotations(), leftLeg: rotations(["Z", -5]), rightLeg: rotations(["Z", 5]),
-  leftForeLeg: rotations(), rightForeLeg: rotations(), body: rotations(), head: rotations(), leftArm: rotations(), rightArm: rotations(), centerRotation: rotations() });
-poseClip(join(CLIPS, "player", "fly_hover_rest.json"), { centerRotation: rotations(), head: rotations() });
+  leftForeLeg: rotations(), rightForeLeg: rotations(), body: rotations(), head: rotations(), leftArm: rotations(), rightArm: rotations(), center: rotations() });
+poseClip(join(CLIPS, "player", "fly_hover_rest.json"), { center: rotations(), head: rotations() });
 poseClip(join(CLIPS, "player", "fly_moving.json"), {
-  centerRotation: rotations(), body: rotations(), leftArm: rotations(), rightArm: rotations(),
+  center: rotations(), body: rotations(), leftArm: rotations(), rightArm: rotations(),
   leftForeArm: rotations(), rightForeArm: rotations(),
   leftLeg: rotations(["X", -45]), rightLeg: rotations(["X", -6]), leftForeLeg: rotations(["X", 30]), rightForeLeg: rotations(["X", 10]), head: rotations() });
 poseClip(join(CLIPS, "player", "falling_head.json"), { head: rotations(["X", -20]) });
-poseClip(join(CLIPS, "player", "falling_rest.json"), { body: rotations(), centerRotation: rotations(), head: rotations() });
+poseClip(join(CLIPS, "player", "falling_rest.json"), { body: rotations(), center: rotations(), head: rotations() });
 for (const leg of ["right", "left"]) {
   const m = leg === "right" ? 1 : -1;
   poseClip(join(CLIPS, "player", `sprint_jump_${leg}.json`), {
     body: rotations(["Y", 20 * m]),
     rightLeg: rotations(["Z", 5], ["X", -45 * m]), leftLeg: rotations(["Z", -5], ["X", 45 * m]),
     rightArm: rotations(["Z", 10], ["X", 50 * m]), leftArm: rotations(["Z", -10], ["X", -50 * m]),
-    centerRotation: rotations(), head: rotations() }, { root: [0, 0, 0] });
+    center: rotations(), head: rotations() }, { root: [0, 0, 0] });
 }
-poseClip(join(CLIPS, "player", "ladder_rest.json"), { centerRotation: rotations(), head: rotations(), renderRotation: rotations() });
+poseClip(join(CLIPS, "player", "ladder_rest.json"), { center: rotations(), head: rotations(), root: rotations() });
 poseClip(join(CLIPS, "player", "ladder_ledge_forearms.json"), { leftForeArm: rotations(["X", -10]), rightForeArm: rotations(["X", -10]) });
-poseClip(join(CLIPS, "player", "swim_common.json"), { head: rotations(), renderRotation: rotations() }, { localOffset: [0, 0, 0] });
+poseClip(join(CLIPS, "player", "swim_common.json"), { head: rotations(), root: rotations() }, { center: [0, 0, 0] });
 poseClip(join(CLIPS, "player", "riding_head.json"), { head: rotations() });
 
 // --- locomotion nodes shared with bipeds, plus the player's head override while attacking -----------
@@ -402,7 +407,7 @@ poseOf(pWalk).push(...attackHead);
 const sprintFrame = looped(scaled("entityLimbSwing", 0.6662 * 0.8));
 const pSprint: Obj = poseNode([
     clip(PL("sprint_base"), { frame: sprintFrame }, { smoothing: { ...entitySmoothing, body: 1.25, head: 2, rightArm: 1.25, leftArm: 1.25, rightLeg: 1, leftLeg: 1,
-                 rightForeLeg: 1.43, leftForeLeg: 1.43, root: [10, 1.11, 10] }, vectorModes: { root: "retarget", localOffset: "slide" } }),
+                 rightForeLeg: 1.43, leftForeLeg: 1.43, root: { rotation: 3.33, position: [10, 1.11, 10] } }, vectorModes: { root: "retarget", center: "slide" } }),
     clip(PL("sprint_forearms"), { frame: sprintFrame }, { smoothing: { leftForeArm: 3.33, rightForeArm: 3.33 } }),
     clip(PL("sprint_swing"), { frame: sprintFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
     drv("body", "Z", "entityHeadYaw", { scale: -0.3, min: -10, max: 10 }),
@@ -450,15 +455,15 @@ const pStand = structuredClone(stand);
 const pJump = structuredClone(jump);
 
 const pSleeping: Obj = poseNode([
-  clip(PL("sleeping"), { frame: looped(scaled("ticks", 0.1)) }, { smoothing: { ...entitySmoothing, head: 1, rightArm: 2.5, leftArm: 2.5 }, vectorModes: { root: "slide", localOffset: "slide" } })]);
+  clip(PL("sleeping"), { frame: looped(scaled("ticks", 0.1)) }, { smoothing: { ...entitySmoothing, head: 1, rightArm: 2.5, leftArm: 2.5 }, vectorModes: { root: "slide", center: "slide" } })]);
 const pSitting: Obj = poseNode([
-  clip(PL("sitting"), {}, { smoothing: { centerRotation: 3.33, body: 2, rightArm: 1.43, leftArm: 1.43, rightForeArm: 1.43, leftForeArm: 1.43,
+  clip(PL("sitting"), {}, { smoothing: { center: 3.33, body: 2, rightArm: 1.43, leftArm: 1.43, rightForeArm: 1.43, leftForeArm: 1.43,
                                          rightLeg: 1.43, leftLeg: 1.43, rightForeLeg: 1.43, leftForeLeg: 1.43 } }), ...headLook]);
 // The rider's measured speed (the mount carries it) above which it rides fast, in blocks per tick:
 // a little under a player's walking pace, so a galloping horse, a boat or a minecart at speed.
 const RIDING_FAST = 0.2;
 const pRiding: Obj = poseNode([
-  clip(PL("riding"), {}, { smoothing: { centerRotation: 3.33, body: 2, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } }),
+  clip(PL("riding"), {}, { smoothing: { center: 3.33, body: 2 }, vectorModes: { center: "slide" } }),
   ...headLook,
   drv("body", "Z", "entityRidingRelativeHeadYaw", { scale: -0.25, min: -20, max: 20, space: "override" }),
   clip(PL("riding_legs"), { frame: { add: ["entityRidingRelativeYaw", 180] } }),
@@ -467,11 +472,11 @@ const pRiding: Obj = poseNode([
   when(clip(PL("riding_fast"), { frame: looped(scaled("ticks", 0.5)) }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "retarget" } }),
        AND(NOT(state("entityIsStandingStill")), cmp("entityXZSpeed", ">", RIDING_FAST))),
 ]);
-poseOf(pRiding)[poseOf(pRiding).length - 1] = when(clip(PL("riding_fast"), { bones: ["body", "leftArm", "rightArm", "root"], frame: looped(scaled("ticks", 0.5)) }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "retarget" } }), AND(NOT(state("entityIsStandingStill")), cmp("entityXZSpeed", ">", RIDING_FAST)));
+poseOf(pRiding)[poseOf(pRiding).length - 1] = when(clip(PL("riding_fast"), { bones: ["body", "leftArm", "rightArm", "root.position"], frame: looped(scaled("ticks", 0.5)) }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "retarget" } }), AND(NOT(state("entityIsStandingStill")), cmp("entityXZSpeed", ">", RIDING_FAST)));
 
 const pElytra: Obj = poseNode([
   clip(PL("elytra"), {}, { smoothing: { head: 1, body: 1.43, leftArm: 1.43, rightArm: 1.43, leftForeArm: 1.43, rightForeArm: 1.43,
-                                           leftLeg: 1.43, rightLeg: 1.43, leftForeLeg: 1.43, rightForeLeg: 1.43, centerRotation: 1, renderRotation: 1.43, root: 1.43 }, vectorModes: { root: "slide" } }),
+                                           leftLeg: 1.43, rightLeg: 1.43, leftForeLeg: 1.43, rightForeLeg: 1.43, center: 1, root: 1.43 }, vectorModes: { root: "slide" } }),
   drv("head", "Y", "entityHeadYaw", { space: "override" }), drv("head", "X", null, { const: -90 }),
   drv("leftArm", "Z", null, { const: -60 }), drv("leftArm", "Z", "entity.flightSpeedFactor", { scale: 55 }), drv("leftArm", "Z", { abs: ["entityHeadYaw"] }, { scale: -0.5 }),
   drv("rightArm", "Z", null, { const: 60 }), drv("rightArm", "Z", "entity.flightSpeedFactor", { scale: -55 }), drv("rightArm", "Z", { abs: ["entityHeadYaw"] }, { scale: 0.5 }),
@@ -485,14 +490,14 @@ const bodyRotXDrv = (bone: string, sign: number, space: string) =>
 // the forward and sideways momentum are clamped to [-1, 1] before they are scaled, as the bit did
 const momentum: ValueOptions = { min: -1, max: 1, clampFirst: true };
 const pFlying: Obj = poseNode([
-  clip(PL("fly_common"), {}, { smoothing: { renderRotation: 1.43, root: 1.43 }, vectorModes: { root: "slide" } }),
+  clip(PL("fly_common"), {}, { smoothing: { root: 1.43 }, vectorModes: { root: "slide" } }),
   // sprint-flying
-  when(clip(PL("fly_sprint"), {}, { smoothing: { centerRotation: 1, head: 1, body: 1.43, leftArm: 1.43, rightArm: 1.43, leftForeArm: 1.43, rightForeArm: 1.43,
+  when(clip(PL("fly_sprint"), {}, { smoothing: { center: 1, head: 1, body: 1.43, leftArm: 1.43, rightArm: 1.43, leftForeArm: 1.43, rightForeArm: 1.43,
                                                     leftLeg: 1.43, rightLeg: 1.43, leftForeLeg: 1.43, rightForeLeg: 1.43 } }), flySprint),
-  when(drv("centerRotation", "X", "entity.flightPitch", { space: "override" }), flySprint), when(drv("centerRotation", "Z", "entityHeadYaw"), flySprint),
+  when(drv("center", "X", "entity.flightPitch", { space: "override" }), flySprint), when(drv("center", "Z", "entityHeadYaw"), flySprint),
   when(bodyRotXDrv("body", 1, "override"), flySprint),
   when(drv("head", "Y", "entityHeadYaw", { space: "override" }), flySprint), when(drv("head", "X", "entityHeadPitch"), flySprint),
-  // the body pitches with the look, the head doesn't turn with it; the whole model pitches with the flight (centerRotation), the head back from it
+  // the body pitches with the look, the head doesn't turn with it; the whole model pitches with the flight (center), the head back from it
   when(drv("head", "X", "entity.flightPitch", { scale: -1 }), flySprint),
   when(bodyRotXDrv("leftArm", -1, "override"), flySprint), when(drv("leftArm", "Z", null, { const: -60 }), flySprint), when(drv("leftArm", "Z", "entity.flightSpeedFactor", { scale: 55 }), flySprint), when(drv("leftArm", "Z", { abs: ["entityHeadYaw"] }, { scale: -0.5 }), flySprint),
   when(bodyRotXDrv("rightArm", -1, "override"), flySprint), when(drv("rightArm", "Z", null, { const: 60 }), flySprint), when(drv("rightArm", "Z", "entity.flightSpeedFactor", { scale: -55 }), flySprint), when(drv("rightArm", "Z", { abs: ["entityHeadYaw"] }, { scale: 0.5 }), flySprint),
@@ -503,20 +508,20 @@ const pFlying: Obj = poseNode([
   when(drv("head", "X", "entityHeadPitch", { space: "override" }), flyHover), when(drv("head", "Y", "entityHeadYaw"), flyHover),
   // moving
   when(clip(PL("fly_moving"), {}, { smoothing: { head: 1 } }), flyMoving),
-  when(drv("centerRotation", "X", "entityForwardMomentum", { ...momentum, scale: 50 }), flyMoving),
+  when(drv("center", "X", "entityForwardMomentum", { ...momentum, scale: 50 }), flyMoving),
   when(drv("leftArm", "X", "entityForwardMomentum", { ...momentum, scale: 90, space: "override" }), flyMoving), when(drv("leftArm", "Z", "entitySidewaysMomentum", { ...momentum, scale: -80, offset: -20, space: "post" }), flyMoving),
   when(drv("rightArm", "X", "entityForwardMomentum", { ...momentum, scale: 90, space: "override" }), flyMoving), when(drv("rightArm", "Z", "entitySidewaysMomentum", { ...momentum, scale: -80, offset: 20, space: "post" }), flyMoving),
   when(drv("leftLeg", "Z", "entitySidewaysMomentum", { ...momentum, scale: -40, offset: -5, space: "post" }), flyMoving),
   when(drv("rightLeg", "Z", "entitySidewaysMomentum", { ...momentum, scale: -40, offset: 5, space: "post" }), flyMoving),
   when(drv("head", "X", "entityHeadPitch", { space: "override" }), flyMoving), when(drv("head", "X", "entityForwardMomentum", { ...momentum, scale: -50 }), flyMoving),
-  when(drv("centerRotation", "Y", "entityHeadYaw", { scale: -1, space: "post" }), AND(flyMoving, NOT(state("entityIsDrawingBow")))),
+  when(drv("center", "Y", "entityHeadYaw", { scale: -1, space: "post" }), AND(flyMoving, NOT(state("entityIsDrawingBow")))),
 ]);
 
 // Frozen as the fall starts, then quicker and quicker, down to 1.11 ticks.
 const fallSmoothing = { div: [1, value("entityTicksFalling", { scale: 0.9 / 80, offset: -0.9 * 10 / 80, min: 0, max: 0.9 })] };
-const fallBones = ["leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "renderRotation"];
+const fallBones = ["leftArm", "rightArm", "leftForeArm", "rightForeArm", "leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"];
 const pFalling: Obj = poseNode([
-  clip(PL("falling_rest"), {}, { smoothing: { centerRotation: 3.33, body: 2 } }),
+  clip(PL("falling_rest"), {}, { smoothing: { center: 3.33, body: 2 } }),
   drv("head", "X", "entityHeadPitch", { space: "override" }), drv("head", "Y", "entityHeadYaw"),
   clip(PL("falling"), { frame: looped(scaled("ticks", 0.5)) }, { smoothing: Object.fromEntries(fallBones.map((b) => [b, fallSmoothing])) }),
   clip(PL("falling_head"), {}, { space: "pre", smoothing: { head: fallSmoothing } }),
@@ -526,7 +531,7 @@ function sprintJumpNode(leg: string): Obj {
   const m = leg === "right" ? 1 : -1;
   const [mainFl, offFl] = leg === "right" ? ["rightForeLeg", "leftForeLeg"] : ["leftForeLeg", "rightForeLeg"];
   return poseNode([
-    clip(PL(`sprint_jump_${leg}`), {}, { smoothing: { centerRotation: 3.33, root: 2, body: 3.33, rightLeg: 1.25, leftLeg: 1.25, rightArm: 3.33, leftArm: 3.33 }, vectorModes: { root: "slide" } }),
+    clip(PL(`sprint_jump_${leg}`), {}, { smoothing: { center: 3.33, root: 2, body: 3.33, rightLeg: 1.25, leftLeg: 1.25, rightArm: 3.33, leftArm: 3.33 }, vectorModes: { root: "slide" } }),
     // body lean from the vertical motion, applied *inside* the Y twist (orientX then rotateY)
     drv("body", "X", "entityMotionY", { scale: -100, offset: 20, min: -0.2, max: 0.2, clampFirst: true, space: "post" }),
     drv(mainFl, "X", "node.relax", { scale: -80, offset: 80, ease: "pow", power: 0.25, min: 0, max: 1, space: "override" }),
@@ -541,9 +546,9 @@ function sprintJumpNode(leg: string): Obj {
 // the sprint-jump body: orientX(lean).rotateY(20m) = Ry(20m) * Rx(lean): the clip holds Ry, the driver adds Rx in POST space
 
 const pLadder: Obj = poseNode([
-  clip(PL("ladder"), { frame: looped("entityClimbingCycle") }, { smoothing: { body: 2, leftArm: 2, rightArm: 2, leftForeArm: 2, rightForeArm: 2, leftLeg: 2, rightLeg: 2, leftForeLeg: 2, rightForeLeg: 2, localOffset: [null, null, 1.67] }, vectorModes: { localOffset: "slide" } }),
-  clip(PL("ladder_rest"), {}, { smoothing: { centerRotation: 3.33, renderRotation: 1.67 } }),
-  drv("renderRotation", "Y", "entityClimbingRenderYaw", { space: "override" }),
+  clip(PL("ladder"), { frame: looped("entityClimbingCycle") }, { smoothing: { body: 2, leftArm: 2, rightArm: 2, leftForeArm: 2, rightForeArm: 2, leftLeg: 2, rightLeg: 2, leftForeLeg: 2, rightForeLeg: 2, center: [null, null, 1.67] }, vectorModes: { center: "slide" } }),
+  clip(PL("ladder_rest"), {}, { smoothing: { center: 3.33, root: 1.67 } }),
+  drv("root", "Y", "entityClimbingRenderYaw", { space: "override" }),
   drv("head", "X", "entityHeadPitch", { space: "override" }), drv("head", "Y", "entityClimbingHeadYaw"),
   when(drv("body", "X", "entityLedgeHeight", { scale: 50, offset: -30, space: "override" }), cmp("entityLedgeHeight", ">=", 0.6)),
   // over the ledge the head bows with the body, as far
@@ -567,7 +572,7 @@ const deepT: ValueOptions = { ease: "ease_in_out", power: 3, min: 0, max: 1 };
 const pSwimming: Obj = poseNode([
   // 0 at the surface, going to 1 over ten ticks under it, and back
   item("core:accumulate", { inout: "node.deep", rate: { if: [deep, 0.1, -0.1] }, min: 0, max: 1 }),
-  clip(PL("swim_common"), {}, { smoothing: { head: 1, renderRotation: 1.43, localOffset: 3.33, body: 2 }, vectorModes: { localOffset: "slide" } }),
+  clip(PL("swim_common"), {}, { smoothing: { head: 1, root: 1.43, center: 3.33, body: 2 }, vectorModes: { center: "slide" } }),
   when(clip(PL("swim_surface_arms"), { frame: looped(scaled("ticks", 0.0825)) }, { smoothing: { leftArm: 3.33, rightArm: 3.33, leftForeArm: 3.33, rightForeArm: 3.33 } }), surface),
   when(clip(PL("swim_surface_legs"), { frame: looped(scaled("ticks", 0.2625)) }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 2.5, rightForeLeg: 2.5 } }), surface),
   when(clip(PL("swim_deep_arm_inner"), { frame: looped(scaled("ticks", 0.1625)) }, { smoothing: { leftArm: 3.33, rightArm: 3.33 } }), deep),
@@ -577,7 +582,7 @@ const pSwimming: Obj = poseNode([
   when(clip(PL("swim_deep_arms"), { frame: looped(scaled("ticks", 0.1625)) }, { smoothing: { leftForeArm: 3.33, rightForeArm: 3.33, body: 2, rightHeldItem: 3.33 } }), deep),
   when(clip(PL("swim_deep_legs"), { frame: looped(scaled("ticks", 0.4625)) }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 2.5, rightForeLeg: 2.5 } }), deep),
   drv("head", "X", "entityHeadPitch", { space: "override" }), drv("head", "Y", "entityHeadYaw"), drv("head", "X", "node.deep", { scale: -80, ease: "ease_in_out", power: 3, min: 0, max: 1 }),
-  drv("renderRotation", "X", "node.deep", { scale: 80, ease: "ease_in_out", power: 3, min: 0, max: 1, space: "override" }),
+  drv("root", "X", "node.deep", { scale: 80, ease: "ease_in_out", power: 3, min: 0, max: 1, space: "override" }),
   item("core:translate", { bone: "root", y: value("node.deep", { ...deepT, scale: 14 }), z: value("node.deep", { ...deepT, scale: -20 }) }, { space: "override", smoothing: { root: [null, 1.43, 1.43] }, vectorModes: { root: "slide" } }),
 ], { define: { deep: variable(0) } });
 
@@ -628,8 +633,8 @@ const stanceSprintCond = AND(stanceWindow, state("entityIsSprinting"));
 const stanceStillCond = AND(stanceWindow, NOT(state("entityIsSprinting")), state("entityIsStandingStill"));
 /** The combo starts over a while after the last attack. */
 const comboReset = set("machine.combo", 0, cmp(tAA, ">", 20));
-const localOffsetZero = clip(PL("localoffset_zero"), {}, { smoothing: { localOffset: 3.33 }, vectorModes: { localOffset: "slide" } });
-poseClip(join(CLIPS, "player", "localoffset_zero.json"), {}, { localOffset: [0, 0, 0] });
+const centerZero = clip(PL("center_zero"), {}, { smoothing: { center: 3.33 }, vectorModes: { center: "slide" } });
+poseClip(join(CLIPS, "player", "center_zero.json"), {}, { center: [0, 0, 0] });
 
 
 // --- sword slashes: baked clips, the look direction wrapped around the baked head part -------------------
@@ -640,16 +645,16 @@ function slashNode(name: string, clipname: string, byAttack: boolean, mainSmooth
   const frame = byAttack ? tAA : null;
   const part = (bones: string[], mods: Mods): Obj => clip(PL(clipname), frame ? { bones, frame } : { bones }, mods);
   const pose = [
-    mirrored(part(["body", "leftArm", "leftForeArm", "rightForeArm", "localOffset"],
-                  { smoothing: { body: 1.11, leftArm: 3.33, leftForeArm: 3.33, rightForeArm: 3.33, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } })),
+    mirrored(part(["body", "leftArm", "leftForeArm", "rightForeArm", "center.position"],
+                  { smoothing: { body: 1.11, leftArm: 3.33, leftForeArm: 3.33, rightForeArm: 3.33, center: 3.33 }, vectorModes: { center: "slide" } })),
     mirrored(part(["rightArm"], { smoothing: { rightArm: mainSmoothing }, snap: mainSnap })),
     mirrored(part(["rightHeldItem"], { smoothing: itemSmoothing ? { rightHeldItem: itemSmoothing } : {}, snap: itemSnap })),
     alsoWhen(mirrored(headSmoothing ? withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: headSmoothing }) : drv("head", "X", "entityHeadPitch", { space: "override" })), locomotionLeavesHead),
     alsoWhen(mirrored(part(["head"], { space: "pre" })), locomotionLeavesHead),
     // the head looks where the player looks, whichever hand swings: not mirrored
     alsoWhen(drv("head", "Y", "entityHeadYaw"), locomotionLeavesHead),
-    when(clip(PL(clipname + "_still"), { bones: ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root"] }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillCond),
-    when(mirrored(clip(PL(clipname + "_still"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), stillCond),
+    when(clip(PL(clipname + "_still"), { bones: ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root.position"] }, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillCond),
+    when(mirrored(clip(PL(clipname + "_still"), { bones: ["root.rotation"] }, { smoothing: { root: 3.33 } })), stillCond),
   ];
   if (stillExtra) pose.push(...stillExtra.map((x) => when(mirrored(x), stillCond)));
   return poseNode(pose);
@@ -673,8 +678,8 @@ const slashes: Record<string, Obj> = {
 // stop, or the legs would go through the mount (#238).
 const whirl = slashNode("attack_whirl_slash", "slash_whirl", true, 3.33, true, null, stillNotRiding, 1.11, false);
 poseOf(whirl)[poseOf(whirl).length - 1] = when(clip(PL("slash_whirl_still"), {}, { smoothing: { leftLeg: 3.33, rightLeg: 3.33, leftForeLeg: 3.33, rightForeLeg: 3.33 } }), stillNotRiding);
-poseOf(whirl).splice(3, 0, when(clip(PL("slash_whirl"), { bones: ["root"], frame: tAA }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), NOT(state("entityIsRiding"))));
-poseOf(whirl).splice(4, 0, clip(PL("slash_whirl"), { bones: ["renderRotation"], frame: tAA }, { snap: true }));
+poseOf(whirl).splice(3, 0, when(clip(PL("slash_whirl"), { bones: ["root.position"], frame: tAA }, { smoothing: { root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), NOT(state("entityIsRiding"))));
+poseOf(whirl).splice(4, 0, clip(PL("slash_whirl"), { bones: ["root.rotation"], frame: tAA }, { snap: true }));
 slashes.slash_whirl = whirl;
 for (const node of Object.values(slashes)) {
   poseOf(node).unshift(swordTrail);
@@ -698,7 +703,7 @@ poseClip(join(CLIPS, "player", "stance_const.json"), {
   rightLeg: rotations(["X", -30], ["Z", 10], ["Y", 25]), leftLeg: rotations(["X", -30], ["Z", -10], ["Y", -25]),
   rightForeLeg: rotations(["X", 30]), leftForeLeg: rotations(["X", 30]),
   rightForeArm: rotations(["X", -20]), leftForeArm: rotations(["X", -60]),
-  rightHeldItem: rotations(["X", 65]), renderRotation: rotations(["Y", -30]) }, { root: [0, -2, 0] });
+  rightHeldItem: rotations(["X", 65]), root: rotations(["Y", -30]) }, { root: [0, -2, 0] });
 const b0frame = looped(scaled("ticks", 1 / 5.0));
 const b1frame = looped(scaled("ticks", 1 / 5.7));
 const stance: Obj = poseNode([
@@ -709,14 +714,14 @@ const stance: Obj = poseNode([
   swapped(clip(PL("stance_breath1"), { frame: b1frame, bones: ["leftArm"] }, { space: "post" })),
   swapped(clip(PL("stance_breath1"), { frame: b1frame, bones: ["rightArm"] }, { space: "pre" })),
   mirrored(clip(PL("stance_const"), {}, { smoothing: { rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, rightForeArm: 3.33, leftForeArm: 3.33,
-                                                          rightHeldItem: 3.33, renderRotation: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } })),
+                                                          rightHeldItem: 3.33, root: { rotation: 3.33, position: [null, 1.67, null] } }, vectorModes: { root: "slide" } })),
   clip(PL("stance_kneel"), { frame: "entityTicksAfterTouchdown" }, { when: cmp("entityTicksAfterTouchdown", "<", 1 / 0.15), smoothing: { body: 1 }, vectorModes: { root: "snap" } }),
 ], { on: { update: [comboReset] } });
 poseClip(join(CLIPS, "player", "stance_sprint_abs.json"), { rightArm: rotations(["Z", 60], ["Y", 60]), rightHeldItem: rotations(["X", 45]) });
 poseClip(join(CLIPS, "player", "stance_sprint_pre.json"), { body: rotations(["Y", 20]), leftArm: rotations(["Z", -30]) });
 const stanceSprint: Obj = poseNode([
   when(item("mobends:sword_trail", { velocity: [0, 0, -10] }), prop("attackActionType", "SWORD")),
-  localOffsetZero,
+  centerZero,
   mirrored(clip(PL("stance_sprint_abs"), {}, { smoothing: { rightHeldItem: 3.33 } })),
   mirrored(clip(PL("stance_sprint_pre"), {}, { space: "pre" })),
 ], { on: { update: [comboReset] } });
@@ -728,17 +733,17 @@ const legsStill = { rightLeg: rotations(["X", -30], ["Z", 10]), leftLeg: rotatio
 poseClip(join(CLIPS, "player", "punch_still.json"), legsStill, { root: [0, -2, 0] });
 poseClip(join(CLIPS, "player", "punch_right_abs.json"), {
   rightArm: rotations(["Y", -90]), leftArm: rotations(["Z", -20], ["X", -90]),
-  rightForeArm: rotations(), leftForeArm: rotations(["X", -80]), body: rotations(["Y", -20]), renderRotation: rotations() });
+  rightForeArm: rotations(), leftForeArm: rotations(["X", -80]), body: rotations(["Y", -20]), root: rotations() });
 poseClip(join(CLIPS, "player", "punch_right_pre.json"), { rightArm: rotations(["Y", 10]) });
-poseClip(join(CLIPS, "player", "punch_right_still.json"), { body: rotations(["Y", -40]), renderRotation: rotations(["Y", -20]) });
+poseClip(join(CLIPS, "player", "punch_right_still.json"), { body: rotations(["Y", -40]), root: rotations(["Y", -20]) });
 poseClip(join(CLIPS, "player", "punch_left_abs.json"), {
   leftArm: rotations(["Y", 100]), rightArm: rotations(["X", -90], ["Z", 20]),
-  leftForeArm: rotations(), rightForeArm: rotations(["X", -80]), body: rotations(["Y", 20]), renderRotation: rotations() });
+  leftForeArm: rotations(), rightForeArm: rotations(["X", -80]), body: rotations(["Y", 20]), root: rotations() });
 poseClip(join(CLIPS, "player", "punch_left_pre.json"), { leftArm: rotations(["Y", -16]) });
 // Standing, the body twists 20° further than the head turned back from it (to the right, after
 // either fist), and the head went with it.
 poseClip(join(CLIPS, "player", "punch_still_head.json"), { head: rotations(["Y", -20]) });
-poseClip(join(CLIPS, "player", "punch_left_still.json"), { body: rotations(), renderRotation: rotations(["Y", -20]) });
+poseClip(join(CLIPS, "player", "punch_left_still.json"), { body: rotations(), root: rotations(["Y", -20]) });
 // The still-standing parts (crouched legs, lowered root, turned model) only off a mount, as the slashes (#238).
 function punchNode(side: string): Obj {
   const [arm, other] = side === "right" ? ["rightArm", "leftArm"] : ["leftArm", "rightArm"];
@@ -754,16 +759,16 @@ function punchNode(side: string): Obj {
 }
 poseClip(join(CLIPS, "player", "fist_guard_abs.json"), {
   ...legsStill,
-  renderRotation: rotations(["Y", -20]),
+  root: rotations(["Y", -20]),
   rightArm: rotations(["X", -90], ["Z", 20]), leftArm: rotations(["X", -90], ["Z", -20]),
   rightForeArm: rotations(["X", -80]), leftForeArm: rotations(["X", -80]) }, { root: [0, -2, 0] });
 poseClip(join(CLIPS, "player", "fist_guard_pre.json"), { body: rotations(["X", 10]), head: onBody(rotations(["X", 10]), rotations(["X", -10], ["Y", -20])) });
-const fistGuardBones = ["rightArm", "leftArm", "rightForeArm", "leftForeArm", "rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg", "root"];
+const fistGuardBones = ["rightArm", "leftArm", "rightForeArm", "leftForeArm", "rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg", "root.position"];
 // Standing still, not riding: on a mount the crouched legs and the lowered root would go through it (#238).
 const fistGuard: Obj = poseNode([
   when(clip(PL("fist_guard_abs"), { bones: fistGuardBones }, { smoothing: { rightArm: 3.33, leftArm: 3.33, rightForeArm: 3.33, leftForeArm: 3.33,
                                                                               rightLeg: 3.33, leftLeg: 3.33, rightForeLeg: 3.33, leftForeLeg: 3.33, root: [null, 1.67, null] }, vectorModes: { root: "slide" } }), stillNotRiding),
-  when(mirrored(clip(PL("fist_guard_abs"), { bones: ["renderRotation"] }, { smoothing: { renderRotation: 3.33 } })), stillNotRiding),
+  when(mirrored(clip(PL("fist_guard_abs"), { bones: ["root.rotation"] }, { smoothing: { root: 3.33 } })), stillNotRiding),
   when(clip(PL("fist_guard_pre"), { bones: ["body"] }, { space: "pre" }), stillNotRiding),
   when(mirrored(clip(PL("fist_guard_pre"), { bones: ["head"] }, { space: "pre" })), stillNotRiding),
 ]);
@@ -775,14 +780,14 @@ const swingPhase = (p: number) => Math.sqrt(p) * 6.2831855;
 curveClip(join(CLIPS, "player", "tool_body.json"), (p) => ({ body: rotations(["Y", mcSin(swingPhase(p)) * 30]) }), swingSamples, 1);
 curveClip(join(CLIPS, "player", "tool_arm.json"), (p) => ({ rightArm: rotations(["X", mcSin(swingPhase(p)) * 50 - 30]) }), swingSamples, 1);
 curveClip(join(CLIPS, "player", "tool_arm_post.json"), (p) => ({ rightArm: rotations(["Z", mcCos(swingPhase(p)) * -20 + 10]) }), swingSamples, 1);
-poseClip(join(CLIPS, "player", "tool_rest.json"), { centerRotation: rotations() }, { localOffset: [0, 0, 0] });
+poseClip(join(CLIPS, "player", "tool_rest.json"), { center: rotations() }, { center: [0, 0, 0] });
 poseClip(join(CLIPS, "player", "tool_sneak_body.json"), { body: rotations(["X", 20]) });
 const swingFrame = "entitySwingProgress";
 function alsoWhen(it: Obj, cond: Obj): Obj {
   return when(it, "@when" in it ? AND(it["@when"], cond) : cond);
 }
 const tool: Obj = poseNode([
-  clip(PL("tool_rest"), {}, { smoothing: { centerRotation: 3.33, localOffset: 3.33 }, vectorModes: { localOffset: "slide" } }),
+  clip(PL("tool_rest"), {}, { smoothing: { center: 3.33 }, vectorModes: { center: "slide" } }),
   clip(PL("tool_body"), { frame: swingFrame }, { smoothing: { body: 1.25 } }),
   when(clip(PL("tool_sneak_body"), {}, { space: "pre" }), state("entityIsSneaking")),
   alsoWhen(withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: 1.25 }), locomotionLeavesHead),
@@ -819,7 +824,7 @@ function useNodes(): Record<string, Obj> {
     curveClip(join(CLIPS, "player", `bow_offarm_${side}.json`),
               (t) => ({ [other]: rotations(["Z", (-mcCos((t - 90) / 180 * 3.1415927) * 40 + 40) * h]) }), pitchSamples.map((p) => p + 90), 180);
     nodes[`bow_${side}`] = poseNode([
-      localOffsetZero,
+      centerZero,
       withSmoothing(drv("head", "X", "entityHeadPitch", { space: "override" }), { head: 2 }),
       // the head looks along the aim, not turning with the body; on a ladder the body faces the wall, and the head with it
       when(drv("head", "Y", "entityHeadYaw"), NOT(state("entityIsClimbing"))),
@@ -978,7 +983,7 @@ const player: Obj = {
     { select: playerSelect, nodes },
     // sneaking overlay on the ground states
     { "@when": AND(state("entityIsSneaking"), groundAction), defaultOnEntry: "sneak", nodes: { sneak: poseNode([
-          clip(PL("sneak_base"), { frame: limbFrame }, { smoothing: { rightLeg: 1, leftLeg: 1, rightArm: 1.25, leftArm: 1.25, root: [null, 1.67, null], localOffset: 3.33 }, vectorModes: { root: "retarget", localOffset: "slide" } }),
+          clip(PL("sneak_base"), { frame: limbFrame }, { smoothing: { rightLeg: 1, leftLeg: 1, rightArm: 1.25, leftArm: 1.25, root: [null, 1.67, null], center: 3.33 }, vectorModes: { root: "retarget", center: "slide" } }),
           clip(PL("sneak_forelegs"), { frame: limbFrame }, { smoothing: { leftForeLeg: 3.33, rightForeLeg: 3.33 } }),
           clip(PL("sneak_swing"), { frame: limbFrame, weight: "entityLimbSwingAmount" }, { space: "post" }),
           clip(PL("sneak_body"), { frame: limbFrame }, { space: "post" }),
@@ -1040,8 +1045,8 @@ const squid: Obj = { formatVersion: 2, layers: [{ defaultOnEntry: "swim", nodes:
 // ---- spider: IK leg drivers for the ground gaits, data for the jump and the death ----------------------
 const SP = (n: string) => clipKey("spider", n);
 const spiderHead = [withSnap(drv("head", "X", "entityHeadPitch", { space: "override" })), drv("head", "Y", "entityHeadYaw")];
-poseClip(join(CLIPS, "spider", "rest.json"), { centerRotation: rotations(), renderRotation: rotations() }, { localOffset: [0, 0, 0] });
-const spiderRest = clip(SP("rest"), {}, { smoothing: { localOffset: 1 }, vectorModes: { localOffset: "slide" } });
+poseClip(join(CLIPS, "spider", "rest.json"), { center: rotations(), root: rotations() }, { center: [0, 0, 0] });
+const spiderRest = clip(SP("rest"), {}, { smoothing: { center: 1 }, vectorModes: { center: "slide" } });
 const spiderLimbs = [
   { phase: 0, minDist: 20, maxDist: 10, minRot: -80, maxRot: -50 }, { phase: 0.3, minDist: 20, maxDist: 10, minRot: -80, maxRot: -50 },
   { phase: 0.3, minDist: 15, maxDist: 15, minRot: -30, maxRot: 10 }, { phase: 0, minDist: 15, maxDist: 15, minRot: -30, maxRot: 10 },
@@ -1067,13 +1072,13 @@ const spMove: Obj = poseNode([
   withSnap(item("core:translate", { bone: "root", x: bodyBob("mcsin", 1), y: value("node.groundLevel", { scale: -1 }), z: bodyBob("mccos", -1) }, { space: "override" })),
   ...spiderHead, spiderRest,
 ], { define: { groundLevel: variable(0) } });
-poseClip(join(CLIPS, "spider", "crawl_rest.json"), { centerRotation: rotations() }, { localOffset: [0, -10, 0] });
+poseClip(join(CLIPS, "spider", "crawl_rest.json"), { center: rotations() }, { center: [0, -10, 0] });
 const spCrawl: Obj = poseNode([
   item("mobends:spider_moving_legs", { swing: value("entityDistanceMoved", { scale: 5 }), groundLevel: value("entityDistanceMoved", { scale: 3, fn: "mcsin", mul: 1.2 }), limbs: spiderLimbs,
                                        ...spiderLegsState(false) }),
   ...spiderHead,
-  withSmoothing(drv("renderRotation", "X", null, { const: -90, space: "override" }), { renderRotation: 1.67 }), drv("renderRotation", "Y", "entity.crawlYaw"),
-  clip(SP("crawl_rest"), {}, { smoothing: { localOffset: 2 }, vectorModes: { localOffset: "slide" } }),
+  withSmoothing(drv("root", "X", null, { const: -90, space: "override" }), { root: 1.67 }), drv("root", "Y", "entity.crawlYaw"),
+  clip(SP("crawl_rest"), {}, { smoothing: { center: 2 }, vectorModes: { center: "slide" } }),
 ]);
 // jump: legs fan out to their natural yaw and bend with the vertical motion
 function naturalYaw(i: number): number {
@@ -1085,8 +1090,8 @@ const jumpMotion = (mul: number, add: number) => value("entityMotionY", { scale:
 const alternate = (i: number) => (i % 2 ? -1 : 1);
 // Nothing in the jump reads resetLimbs: the next legs driver to start does, and replants the feet.
 const spJump: Obj = poseNode([
-  withSnap(clip(SP("jump"), { bones: ["root"] })),
-  clip(SP("jump"), { bones: range(8).map((i) => `leg${i + 1}`) }, { smoothing: { ...Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, 1])), renderRotation: 1.67 } }),
+  withSnap(clip(SP("jump"), { bones: ["root.position"] })),
+  clip(SP("jump"), { bones: range(8).map((i) => `leg${i + 1}`) }, { smoothing: { ...Object.fromEntries(range(8).map((i) => [`leg${i + 1}`, 1])), root: 1.67 } }),
   ...range(8).map((i) => drv(`leg${i + 1}`, "Z", jumpMotion(25 * alternate(i), -20 * alternate(i)), { space: "post" })),
   ...range(8).map((i) => withSmoothing(drv(`foreLeg${i + 1}`, "Z", jumpMotion(-40 * alternate(i), -70 * alternate(i)), { space: "override" }),
                                      { [`foreLeg${i + 1}`]: 1 })),
@@ -1253,15 +1258,20 @@ const animators: [string, Obj][] = [
   ["quadruped", quadruped], ["chicken", chicken],
 ];
 // ---- biped body smoothing --------------------------------------------------------------------
-// The smoothing above is the procedural bits', but biped entity data used to advance "root" and
-// "renderRotation" twice per frame, so on bipeds those two got there in half the time. The
+// The smoothing above is the procedural bits', but biped entity data used to advance the whole
+// model's offset and rotation (now the root's) twice per frame, so on bipeds they got there in half the time. The
 // smoothing is linear, so asking for half of it once per frame looks exactly the same.
 const BIPEDS = new Set(["biped", "skeleton", "pig_zombie", "player"]);
-const DOUBLED_BONES = ["root", "globalOffset", "renderRotation"];
+const DOUBLED_BONES = ["root"];
 
 function halved(smoothing: unknown): unknown {
   if (typeof smoothing === "number") return smoothing / 2;
   if (Array.isArray(smoothing)) return smoothing.map((s) => (s === null ? null : halved(s)));
+  // A rotation's and a position's apart, {"rotation": ..., "position": ...}: both.
+  const split = smoothing as Obj;
+  if (typeof smoothing === "object" && smoothing !== null && Object.keys(split).every((k) => k === "rotation" || k === "position")) {
+    return Object.fromEntries(Object.entries(split).map(([k, v]) => [k, halved(v)]));
+  }
   return { mul: [smoothing, 0.5] };
 }
 

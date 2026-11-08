@@ -18,6 +18,7 @@ import goblinbob.mobends.core.kumo.state.template.PoseNodeTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.ClipItemTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PoseItemTemplate;
 import goblinbob.mobends.core.math.Quaternion;
+import goblinbob.mobends.core.math.vector.IVec3fRead;
 import goblinbob.mobends.core.math.vector.Vec3f;
 
 import javax.annotation.Nullable;
@@ -218,7 +219,7 @@ public class KumoAnimatorState
         for (int i = 0; i < pose.size(); i++)
         {
             BoneTarget reference = trusted.get(i);
-            Vec3f last = lastTrusted[program.limitGroup[i]];
+            Vec3f last = lastTrusted[i];
             if (program.vectorSlot[i])
             {
                 if (reference.hasVector) setWritten(last, reference.vector);
@@ -231,10 +232,24 @@ public class KumoAnimatorState
         for (int i = 0; i < pose.size(); i++)
         {
             BoneTarget target = pose.get(i);
-            Vec3f last = lastTrusted[program.limitGroup[i]];
+            Vec3f last = lastTrusted[i];
             if (program.vectorSlot[i])
             {
-                if (target.hasVector) clampAround(target.vector, last, limits.maxBodyOffset);
+                if (target.hasVector)
+                {
+                    // An axis left out keeps the bone's current target, which an untrusted layer may
+                    // have pushed before: it counts as written, at that value, so the whole is measured.
+                    IBoneSink sink = i < entityState.sinks.length ? entityState.sinks[i] : null;
+                    IVectorSink vector = sink == null ? null : sink.asVector();
+                    if (vector != null)
+                    {
+                        IVec3fRead current = vector.getVectorTarget();
+                        if (Float.isNaN(target.vector.x)) target.vector.x = current.getX();
+                        if (Float.isNaN(target.vector.y)) target.vector.y = current.getY();
+                        if (Float.isNaN(target.vector.z)) target.vector.z = current.getZ();
+                    }
+                    clampAround(target.vector, last, limits.maxBodyOffset);
+                }
             }
             else if (target.hasOffset)
             {
@@ -272,10 +287,10 @@ public class KumoAnimatorState
         }
         for (int i = 0; i < lastTrusted.length; i++)
         {
-            Vec3f last = lastTrusted[program.limitGroup[i]];
+            Vec3f last = lastTrusted[i];
             fallback[i] = last;
             IBoneSink sink = i < entityState.sinks.length ? entityState.sinks[i] : null;
-            if (sink == null || program.limitGroup[i] != i) continue;
+            if (sink == null) continue;
             IVectorSink vector = sink.asVector();
             IRotationSink rotation = sink.asRotation();
             if (vector != null) last.set(vector.getVectorTarget());

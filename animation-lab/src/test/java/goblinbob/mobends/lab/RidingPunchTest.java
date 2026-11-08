@@ -31,7 +31,7 @@ class RidingPunchTest
         String worst = "";
         for (int f = 0; f < still.frames.size(); f++)
         {
-            for (String bone : new String[] {"rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg", "renderRotation"})
+            for (String bone : new String[] {"rightLeg", "leftLeg", "rightForeLeg", "leftForeLeg", "root"})
             {
                 double angle = angleBetween(still.frames.get(f).bones.get(bone).r, punching.frames.get(f).bones.get(bone).r);
                 if (angle > worstLeg)
@@ -40,8 +40,8 @@ class RidingPunchTest
                     worst = "frame " + f + " " + bone;
                 }
             }
-            worstRoot = Math.max(worstRoot, Math.abs(still.frames.get(f).vectors.get("globalOffset").v[1]
-                    - punching.frames.get(f).vectors.get("globalOffset").v[1]));
+            worstRoot = Math.max(worstRoot, Math.abs(still.frames.get(f).vectors.get("root").v[1]
+                    - punching.frames.get(f).vectors.get("root").v[1]));
         }
         assertTrue(worstLeg < 0.5, "the punches turned the legs by " + worstLeg + " degrees (" + worst + ")");
         assertTrue(worstRoot < 0.01, "the punches lowered the rider by " + worstRoot);

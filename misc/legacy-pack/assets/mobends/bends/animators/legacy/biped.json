@@ -24,9 +24,7 @@
                 },
                 "@smoothing": {
                   "root": 1.665,
-                  "localOffset": 3.33,
-                  "renderRotation": 1.665,
-                  "centerRotation": 3.33,
+                  "center": 3.33,
                   "rightHeldItem": 3.33,
                   "leftHeldItem": 3.33,
                   "body": 1,
@@ -39,7 +37,7 @@
                   "rightForeLeg": 3.33,
                   "leftForeLeg": 3.33
                 },
-                "@vectorModes": {"root": "slide", "localOffset": "slide"}
+                "@vectorModes": {"root": "slide", "center": "slide"}
               },
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {"core:rotate": {"bone": "head", "axis": "x", "angle": "entityHeadPitch"}, "@space": "post"},
@@ -71,9 +69,7 @@
                 },
                 "@smoothing": {
                   "root": [1.665, 0.835, 1.665],
-                  "localOffset": 3.33,
-                  "renderRotation": 1.665,
-                  "centerRotation": 3.33,
+                  "center": 3.33,
                   "rightHeldItem": 3.33,
                   "leftHeldItem": 3.33,
                   "body": 2,
@@ -85,7 +81,7 @@
                   "rightLeg": 1,
                   "leftLeg": 1
                 },
-                "@vectorModes": {"root": "retarget", "localOffset": "slide"}
+                "@vectorModes": {"root": "retarget", "center": "slide"}
               },
               {
                 "core:clip": {
@@ -127,9 +123,7 @@
                 "core:clip": {"animationKey": "mobends:bends/animations/legacy/biped/jump.json", "frame": "entityTicksInAir"},
                 "@smoothing": {
                   "root": 1.665,
-                  "localOffset": 3.33,
-                  "renderRotation": 1.665,
-                  "centerRotation": 1.43,
+                  "center": {"rotation": 1.43, "position": 3.33},
                   "rightHeldItem": 3.33,
                   "leftHeldItem": 3.33,
                   "body": 5,

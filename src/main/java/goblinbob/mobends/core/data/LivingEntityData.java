@@ -106,8 +106,8 @@ public abstract class LivingEntityData<E extends EntityLivingBase> extends Entit
                 ? MathHelper.wrapDegrees(headYaw + MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation())) : 0);
         registerVariable("entityClimbingHeadYaw", () -> {
             if (entity == null) return 0;
-            float renderRotationY = MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation());
-            return Math.max(-90F, Math.min(90F, MathHelper.wrapDegrees(headYaw + renderRotationY)));
+            float turnY = MathHelper.wrapDegrees(getYaw() - headYaw - getClimbingRotation());
+            return Math.max(-90F, Math.min(90F, MathHelper.wrapDegrees(headYaw + turnY)));
         });
         registerVariable("entityRidingRelativeHeadYaw", () -> {
             if (entity == null || !(entity.getRidingEntity() instanceof EntityLivingBase)) return 0;

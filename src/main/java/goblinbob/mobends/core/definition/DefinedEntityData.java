@@ -4,9 +4,10 @@ import goblinbob.mobends.core.Core;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.LivingEntityData;
-import goblinbob.mobends.core.kumo.pose.Skeleton;
+import goblinbob.mobends.core.kumo.bind.EntityBone;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.math.SmoothOrientation;
+import goblinbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
@@ -99,7 +100,7 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
         }
         if (definition.smoothing != null)
         {
-            for (Map.Entry<String, Float> entry : definition.smoothing.entrySet())
+            for (Map.Entry<String, BoneSmoothing> entry : definition.smoothing.entrySet())
             {
                 if (!setSmoothing(entry.getKey(), entry.getValue()))
                 {
@@ -109,32 +110,60 @@ public class DefinedEntityData<E extends EntityLivingBase> extends LivingEntityD
         }
     }
 
-    private boolean setSmoothing(String name, float smoothing)
+    private boolean setSmoothing(String name, BoneSmoothing smoothing)
     {
-        if (Skeleton.ROOT.equals(name) || Skeleton.GLOBAL_OFFSET.equals(name))
+        Object bone = getBone(name);
+        if (bone instanceof EntityBone)
         {
-            globalOffset.smoothing.set(smoothing, smoothing, smoothing);
-            globalOffset.baseSmoothing.set(smoothing, smoothing, smoothing);
-            return true;
-        }
-        if (Skeleton.LOCAL_OFFSET.equals(name))
-        {
-            localOffset.smoothing.set(smoothing, smoothing, smoothing);
-            localOffset.baseSmoothing.set(smoothing, smoothing, smoothing);
+            EntityBone entityBone = (EntityBone) bone;
+            if (smoothing.rotation != null)
+            {
+                entityBone.rotation.setSmoothing(smoothing.rotation).setBaseSmoothing(smoothing.rotation);
+            }
+            if (smoothing.position != null)
+            {
+                entityBone.position.smoothing.set(smoothing.position[0], smoothing.position[1], smoothing.position[2]);
+                entityBone.position.baseSmoothing.set(smoothing.position[0], smoothing.position[1], smoothing.position[2]);
+            }
             return true;
         }
         Object part = getPartForName(name);
         if (part instanceof ModelPartTransform)
         {
-            ((ModelPartTransform) part).rotation.setSmoothing(smoothing).setBaseSmoothing(smoothing);
+            ModelPartTransform transform = (ModelPartTransform) part;
+            if (smoothing.rotation != null)
+            {
+                transform.rotation.setSmoothing(smoothing.rotation).setBaseSmoothing(smoothing.rotation);
+            }
+            if (smoothing.position != null)
+            {
+                transform.smoothOffset.baseSmoothing.set(smoothing.position[0], smoothing.position[1], smoothing.position[2]);
+            }
             return true;
         }
         if (part instanceof SmoothOrientation)
         {
-            ((SmoothOrientation) part).setSmoothing(smoothing).setBaseSmoothing(smoothing);
+            if (smoothing.rotation != null)
+            {
+                ((SmoothOrientation) part).setSmoothing(smoothing.rotation).setBaseSmoothing(smoothing.rotation);
+            }
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Vec3f getCenterPivot(Vec3f dest)
+    {
+        EntityModelDefinition.CenterSettings center = definition.center;
+        if (center == null || center.pivot == null)
+        {
+            return super.getCenterPivot(dest);
+        }
+        // Model units to blocks, as the renderer scales the model (a baby's by its childScale).
+        float scale = 0.0625F * (entity != null && entity.isChild() ? definition.childScale : 1F);
+        dest.set(center.pivot[0] * scale, center.pivot[1] * scale, center.pivot[2] * scale);
+        return dest;
     }
 
     /**

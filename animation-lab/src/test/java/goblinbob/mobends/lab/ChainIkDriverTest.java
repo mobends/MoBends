@@ -88,7 +88,7 @@ class ChainIkDriverTest
     {
         // The whole model held half a block back and leaning forward: the hand still on the point.
         String before = "{'core:anchor': {'point': {'z': 0}}},"
-                + "{'core:rotate': {'bone': 'centerRotation', 'axis': 'x', 'angle': 20}, '@space': 'override', '@snap': true},";
+                + "{'core:rotate': {'bone': 'center', 'axis': 'x', 'angle': 20}, '@space': 'override', '@snap': true},";
         double[] point = {0.0, 0.9, 1.1};
         assertAt(point, hand(run(30, before, "", target(point[0], point[1], point[2]))));
     }

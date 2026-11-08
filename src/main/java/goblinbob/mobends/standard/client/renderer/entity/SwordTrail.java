@@ -57,12 +57,13 @@ public class SwordTrail implements EntityComponent
         /** Vanilla's elytra flight: the turn towards where the player moves, then the pitch (RenderPlayer#applyRotations). */
         protected Quaternion elytraTurn = new Quaternion();
         protected Quaternion elytraPitch = new Quaternion();
-        protected Quaternion renderRotation = new Quaternion();
+        /** The entity's own bones (see MutatedRenderer#beforeRender): their rotations and positions. */
+        protected Quaternion rootRotation = new Quaternion();
+        protected Vec3f rootPosition = new Vec3f();
         protected Quaternion centerRotation = new Quaternion();
-        /** Half the entity's height, in pixels: where centerRotation turns the model about. */
-        protected float halfHeight;
-        protected Vec3f localOffset = new Vec3f();
-        protected Vec3f renderOffset = new Vec3f();
+        protected Vec3f centerPosition = new Vec3f();
+        /** Where the center bone turns about, in pixels. */
+        protected Vec3f centerPivot = new Vec3f();
         protected Quaternion itemRotation = new Quaternion();
         protected Vec3f position = new Vec3f();
 
@@ -113,12 +114,12 @@ public class SwordTrail implements EntityComponent
             // (about the feet), then those of MutatedRenderer#beforeRender.
             GUtil.rotate(points, elytraTurn);
             GUtil.rotate(points, elytraPitch);
-            GUtil.translate(points, localOffset.x, localOffset.y, localOffset.z);
-            GUtil.rotate(points, renderRotation);
-            GUtil.translate(points, 0, -halfHeight, 0);
+            GUtil.translate(points, -centerPivot.x, -centerPivot.y, -centerPivot.z);
             GUtil.rotate(points, centerRotation);
-            GUtil.translate(points, 0, halfHeight, 0);
-            GUtil.translate(points, renderOffset.x, renderOffset.y, renderOffset.z);
+            GUtil.translate(points, centerPivot.x, centerPivot.y, centerPivot.z);
+            GUtil.translate(points, centerPosition.x, centerPosition.y, centerPosition.z);
+            GUtil.rotate(points, rootRotation);
+            GUtil.translate(points, rootPosition.x, rootPosition.y, rootPosition.z);
 
             for (final Vec3f point : points)
             {
@@ -208,19 +209,20 @@ public class SwordTrail implements EntityComponent
             newPart.itemRotation.setIdentity();
         }
 
-        newPart.renderOffset.set(entityData.globalOffset.getX(),
-                entityData.globalOffset.getY(),
-                entityData.globalOffset.getZ());
-        inTrailFrame(entityData.renderRotation.getSmooth(), newPart.renderRotation);
-        inTrailFrame(entityData.centerRotation.getSmooth(), newPart.centerRotation);
+        newPart.rootPosition.set(entityData.root.position.getX(),
+                entityData.root.position.getY(),
+                entityData.root.position.getZ());
+        inTrailFrame(entityData.root.rotation.getSmooth(), newPart.rootRotation);
+        newPart.centerPosition.set(entityData.center.position.getX(),
+                entityData.center.position.getY(),
+                entityData.center.position.getZ());
+        inTrailFrame(entityData.center.rotation.getSmooth(), newPart.centerRotation);
         if (entity instanceof AbstractClientPlayer && entity.isElytraFlying())
         {
             setElytraRotations((AbstractClientPlayer) entity, DataUpdateHandler.partialTicks, newPart);
         }
-        newPart.halfHeight = entity.height / 2 * 16;
-        newPart.localOffset.set(entityData.localOffset.getX(),
-                entityData.localOffset.getY(),
-                entityData.localOffset.getZ());
+        Vec3f pivot = entityData.getCenterPivot(newPart.centerPivot);
+        pivot.set(pivot.x * 16, pivot.y * 16, pivot.z * 16);
 
         trailPartList.add(newPart);
     }

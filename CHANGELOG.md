@@ -35,6 +35,22 @@
 - Only players end the sword combo with a spin attack; skeletons repeat the four slashes.
 - Breaking: the `mobends:spin_attack_enabled` operation is gone. A player animator reads
   `option.spinAttack` instead.
+- Breaking: the whole model hangs from two bones of the entity's own, `root` and `center`, in
+  place of `globalOffset`, `renderRotation`, `localOffset` and `centerRotation`. `root` moves the
+  model, then turns it about the feet; `center`, its child, moves it, then turns it about its
+  pivot (half the entity's height, or a model definition's `center.pivot`). Animators, extensions
+  and model definitions name `root` for `globalOffset` and `renderRotation`, and `center` for
+  `localOffset` and `centerRotation`. The center's position is no longer turned by its own rotation,
+  and the root's rotation now turns the center's, so a body leaned and turned at once looks a
+  little different. A clip's `root` or `center` track holds both a rotation and a position, and
+  writes only what its keyframes give. A clip item can apply one of them alone
+  (`"bones": ["root.rotation"]`), and a smoothing can give a bone's rotation and position apart
+  (`{"root": {"rotation": 0.5, "position": [3, 1.7, 3]}}`), in an item's `@smoothing` and in a
+  model definition's `smoothing`, where a part's position can now have a base smoothing too.
+  `core:two_bone_ik` and `core:three_bone_ik` take `centerBone` and `centerPivot` in place of
+  `height`.
+- The iron golem's renderer turns back the rock vanilla gives it while it walks (a model
+  definition's `"renderer": {"undoVanillaRock": true}`), in place of its animator turning it back.
 
 ### Fixed
 

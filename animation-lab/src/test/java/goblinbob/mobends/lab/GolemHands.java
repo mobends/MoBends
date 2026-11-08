@@ -2,14 +2,14 @@ package goblinbob.mobends.lab;
 
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.math.Quaternion;
-import net.minecraft.entity.EntityLivingBase;
+import goblinbob.mobends.core.math.vector.Vec3f;
 
 /**
  * Where the golem's hands are drawn in the world, put back together by forward kinematics from
  * the bones' smoothed rotations as the renderer draws them: the arm and forearm about their
- * pivots, the model flipped in Y and Z with its origin 1.501 blocks up, vanilla's rocking of a
- * walking golem, the local offset, the render rotation, the center rotation about half the
- * golem's height, the root offset, and the body's yaw.
+ * pivots, the model flipped in Y and Z with its origin 1.501 blocks up (vanilla's rocking of a
+ * walking golem turned back by the renderer), the center turned about its pivot and moved, the
+ * root turned and moved, and the body's yaw.
  */
 final class GolemHands
 {
@@ -31,19 +31,13 @@ final class GolemHands
     /** A point in the model (model units, +Y down, -Z forward) into the world. */
     static double[] toWorld(DefinedEntityData<?> data, double[] model)
     {
-        EntityLivingBase entity = data.getEntity();
         double[] v = {model[0] / 16, 1.501 - model[1] / 16, -model[2] / 16};
-        // RenderIronGolem rocks the golem while it walks, after its turn by the yaw and before the flip.
-        float rockAngle = entity.limbSwingAmount >= 0.01 ? 6.5F * (Math.abs((data.limbSwing + 6) % 13 - 6.5F) - 3.25F) / 3.25F : 0F;
-        Quaternion rock = new Quaternion();
-        rock.setFromAxisAngle(0, 0, 1, (float) Math.toRadians(-rockAngle));
-        v = rotate(rock, v[0], v[1], v[2]);
-        v = add(v, new double[] {data.localOffset.getX() / 16, data.localOffset.getY() / 16, data.localOffset.getZ() / 16});
-        v = rotate(data.renderRotation.getSmooth(), v[0], v[1], v[2]);
-        double half = entity.height / 2;
-        v = rotate(data.centerRotation.getSmooth(), v[0], v[1] - half, v[2]);
-        v[1] += half;
-        v = add(v, new double[] {data.globalOffset.getX() / 16, data.globalOffset.getY() / 16, data.globalOffset.getZ() / 16});
+        // The center turns about its pivot, then moves; then the root turns, then moves.
+        Vec3f pivot = data.getCenterPivot(new Vec3f());
+        v = rotate(data.center.rotation.getSmooth(), v[0] - pivot.x, v[1] - pivot.y, v[2] - pivot.z);
+        v = add(v, new double[] {pivot.x + data.center.position.getX() / 16, pivot.y + data.center.position.getY() / 16, pivot.z + data.center.position.getZ() / 16});
+        v = rotate(data.root.rotation.getSmooth(), v[0], v[1], v[2]);
+        v = add(v, new double[] {data.root.position.getX() / 16, data.root.position.getY() / 16, data.root.position.getZ() / 16});
         double yaw = Math.toRadians(data.getVariable("entityBodyYaw")), cos = Math.cos(yaw), sin = Math.sin(yaw);
         return new double[] {
                 data.getVariable("entityWorldX") + v[0] * cos - v[2] * sin,

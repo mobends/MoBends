@@ -67,9 +67,9 @@
                   "leftArm": 3.33,
                   "rightForeArm": 3.33,
                   "leftForeArm": 3.33,
-                  "localOffset": 3.33
+                  "center": 3.33
                 },
-                "@vectorModes": {"localOffset": "slide"}
+                "@vectorModes": {"center": "slide"}
               },
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
@@ -81,7 +81,7 @@
                 "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/pigzombie/slash_still.json",
-                  "bones": ["leftLeg", "rightLeg", "rightForeLeg", "root"]
+                  "bones": ["leftLeg", "rightLeg", "rightForeLeg", "root.position"]
                 },
                 "@smoothing": {"root": [null, 0.835, null]},
                 "@vectorModes": {"root": "retarget"}
@@ -90,10 +90,10 @@
                 "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                 "core:clip": {
                   "animationKey": "mobends:bends/animations/pigzombie/slash_still.json",
-                  "bones": ["renderRotation"]
+                  "bones": ["root.rotation"]
                 },
                 "@mirror": true,
-                "@smoothing": {"renderRotation": 1.665}
+                "@smoothing": {"root": 1.665}
               },
               {
                 "core:rotate": {"bone": "rightHeldItem", "axis": "x", "angle": 50},

@@ -26,7 +26,8 @@ public final class EntityBuiltIns
             "entityMotionX", "entityMotionY", "entityMotionZ", "entityTickMotionX", "entityTickMotionY", "entityTickMotionZ",
             "entityPrevTickMotionX", "entityPrevTickMotionY", "entityPrevTickMotionZ", "entitySpeed", "entityXZSpeed",
             "entityForwardMomentum", "entitySidewaysMomentum",
-            "entityBodyYaw", "entityRidingRelativeHeadYaw", "entityRidingRelativeYaw", "entityHeight"));
+            "entityBodyYaw", "entityRidingRelativeHeadYaw", "entityRidingRelativeYaw", "entityHeight",
+            "centerPivotX", "centerPivotY", "centerPivotZ"));
 
     public static final List<String> DOUBLES = Collections.unmodifiableList(Arrays.asList(
             "entityWorldX", "entityWorldY", "entityWorldZ"));

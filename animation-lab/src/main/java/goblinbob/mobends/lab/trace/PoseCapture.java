@@ -2,6 +2,8 @@ package goblinbob.mobends.lab.trace;
 
 import goblinbob.mobends.core.client.model.IModelPart;
 import goblinbob.mobends.core.data.EntityData;
+import goblinbob.mobends.core.kumo.bind.EntityBone;
+import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.IVec3fRead;
@@ -79,9 +81,19 @@ public class PoseCapture
             }
         }
 
-        frame.vectors.put("globalOffset", smoothVec(data.globalOffset));
-        frame.vectors.put("localOffset", smoothVec(data.localOffset));
+        // The entity's own bones: their rotations with the bones, their positions with the vectors.
+        captureEntityBone(frame, Skeleton.ROOT, data.root);
+        captureEntityBone(frame, Skeleton.CENTER, data.center);
         return frame;
+    }
+
+    private static void captureEntityBone(FramePose frame, String name, EntityBone bone)
+    {
+        BonePose pose = new BonePose();
+        pose.r = quat(bone.rotation.getSmooth());
+        pose.rt = quat(bone.rotation.getEnd());
+        frame.bones.put(name, pose);
+        frame.vectors.put(name, smoothVec(bone.position));
     }
 
     public static float[] quat(Quaternion q)

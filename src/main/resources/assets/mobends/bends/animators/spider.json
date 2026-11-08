@@ -49,8 +49,8 @@
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
-                "@smoothing": {"localOffset": 1},
-                "@vectorModes": {"localOffset": "slide"}
+                "@smoothing": {"center": 1},
+                "@vectorModes": {"center": "slide"}
               }
             ]
           }
@@ -98,8 +98,8 @@
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
-                "@smoothing": {"localOffset": 1},
-                "@vectorModes": {"localOffset": "slide"}
+                "@smoothing": {"center": 1},
+                "@vectorModes": {"center": "slide"}
               }
             ]
           }
@@ -108,7 +108,7 @@
           "core:pose": {
             "pose": [
               {
-                "core:clip": {"animationKey": "mobends:bends/animations/spider/jump.json", "bones": ["root"]},
+                "core:clip": {"animationKey": "mobends:bends/animations/spider/jump.json", "bones": ["root.position"]},
                 "@snap": true
               },
               {
@@ -125,7 +125,7 @@
                   "leg6": 1,
                   "leg7": 1,
                   "leg8": 1,
-                  "renderRotation": 1.67
+                  "root": 1.67
                 }
               },
               {
@@ -266,8 +266,8 @@
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
-                "@smoothing": {"localOffset": 1},
-                "@vectorModes": {"localOffset": "slide"}
+                "@smoothing": {"center": 1},
+                "@vectorModes": {"center": "slide"}
               }
             ]
           },
@@ -300,18 +300,15 @@
               },
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
-                "core:rotate": {"bone": "renderRotation", "axis": "x", "angle": -90},
+                "core:rotate": {"bone": "root", "axis": "x", "angle": -90},
                 "@space": "override",
-                "@smoothing": {"renderRotation": 1.67}
+                "@smoothing": {"root": 1.67}
               },
-              {
-                "core:rotate": {"bone": "renderRotation", "axis": "y", "angle": "entity.crawlYaw"},
-                "@space": "pre"
-              },
+              {"core:rotate": {"bone": "root", "axis": "y", "angle": "entity.crawlYaw"}, "@space": "pre"},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/crawl_rest.json"},
-                "@smoothing": {"localOffset": 2},
-                "@vectorModes": {"localOffset": "slide"}
+                "@smoothing": {"center": 2},
+                "@vectorModes": {"center": "slide"}
               }
             ]
           }

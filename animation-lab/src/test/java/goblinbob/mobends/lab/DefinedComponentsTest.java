@@ -55,14 +55,40 @@ public class DefinedComponentsTest
         assertNotNull(data.getBone("rightHeldItem"));
         assertNotNull(data.getPart("cape"), "the cape hangs from a bone of its own");
 
-        // The biped's animators are tuned for its offset and turn smoothed in half the usual time.
-        assertEquals(0.5, data.globalOffset.smoothing.x, 0);
+        // The biped's animators are tuned for its root moved and turned in half the usual time.
+        assertEquals(0.5, data.root.position.smoothing.x, 0);
+        assertEquals(0.5, data.root.rotation.getBaseSmoothing(), 0);
 
         // Components move on with the parts.
         CapeWave wave = data.getComponent("capeWave", CapeWave.class);
         data.updateParts(1);
         data.updateParts(1);
         assertEquals(2, wave.getPhase(), 1e-6);
+    }
+
+    @Test
+    void aSmoothingCanGiveARotationAndAPositionApartAndTheCenterCanPivotElsewhere() throws Exception
+    {
+        JsonObject json = new JsonParser().parse(new String(Files.readAllBytes(LabPaths.root()
+                .resolve("../src/main/resources/assets/mobends/bends/models/player.json")), StandardCharsets.UTF_8)).getAsJsonObject();
+        json.add("smoothing", new JsonParser().parse("{\"root\": {\"rotation\": 2, \"position\": [3, 1.5, 3]}, \"center\": {\"position\": 1}, \"body\": 4}"));
+        json.add("center", new JsonParser().parse("{\"pivot\": [0, 16, 0]}"));
+        EntityModelDefinition copy = ModelDefinitions.parse(json);
+        LabBootstrap.ensure();
+        World world = new World();
+        Minecraft.getMinecraft().world = world;
+        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        DefinedEntityData<AbstractClientPlayer> data = DefinedEntityData.create(copy, new AbstractClientPlayer(world));
+
+        assertEquals(2, data.root.rotation.getBaseSmoothing(), 0);
+        assertEquals(3, data.root.position.baseSmoothing.x, 0);
+        assertEquals(1.5, data.root.position.baseSmoothing.y, 0);
+        assertEquals(1, data.center.position.baseSmoothing.y, 0);
+        assertEquals(0, data.center.rotation.getBaseSmoothing(), 0, "a part left out keeps its own");
+        assertEquals(4, data.getPart("body").rotation.getBaseSmoothing(), 0);
+        assertEquals(4, data.getPart("body").smoothOffset.baseSmoothing.x, 0, "a number smooths a part's position too");
+        // The pivot is in model units, a block is 16.
+        assertEquals(1, data.getVariable("centerPivotY"), 1e-6);
     }
 
     @Test

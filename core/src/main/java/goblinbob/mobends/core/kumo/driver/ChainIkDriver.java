@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.kumo.driver;
 
+import com.google.gson.JsonPrimitive;
 import goblinbob.mobends.core.kumo.api.DoubleInput;
 import goblinbob.mobends.core.kumo.api.DriverBindArgs;
 import goblinbob.mobends.core.kumo.api.DriverEvaluator;
@@ -8,9 +9,9 @@ import goblinbob.mobends.core.kumo.api.KumoDriver;
 import goblinbob.mobends.core.kumo.api.NumberInput;
 import goblinbob.mobends.core.kumo.api.PoseWriter;
 import goblinbob.mobends.core.kumo.api.StateHandle;
+import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.pose.Pose;
 import goblinbob.mobends.core.kumo.pose.PoseMath;
-import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.ChainIkTemplate;
 import goblinbob.mobends.core.kumo.state.template.pose.PointTemplate;
@@ -21,10 +22,10 @@ import goblinbob.mobends.core.math.vector.Vec3f;
  * See {@link ChainIkTemplate}: {@code core:two_bone_ik} and {@code core:three_bone_ik}. The target
  * and the joints' directions are brought from the world into the frame the chain hangs from, back
  * through what the renderer does to the model (see {@code MutatedRenderer.beforeRender}): turned
- * by {@code -bodyYaw} about the entity's position, the root offset, the center rotation about half
- * the entity's height, the render rotation, the local offset, then vanilla's own (its turn by
- * {@code bodyYaw} cancels the first; the model drawn flipped in Y and Z, its origin 1.501 blocks
- * above the entity's), then the chain's parents. {@link ChainIk} solves it there.
+ * by {@code -bodyYaw} about the entity's position, the root bone (moved, then turned), the center
+ * bone (moved, then turned about its pivot), then vanilla's own (its turn by {@code bodyYaw}
+ * cancels the first; the model drawn flipped in Y and Z, its origin 1.501 blocks above the
+ * entity's), then the chain's parents. {@link ChainIk} solves it there.
  */
 public final class ChainIkDriver implements DriverEvaluator
 {
@@ -45,9 +46,10 @@ public final class ChainIkDriver implements DriverEvaluator
     private final NumberInput[][] directions;
     private final DoubleInput targetX, targetY, targetZ;
     private final DoubleInput x, y, z;
-    private final NumberInput yaw, height, weight;
+    private final NumberInput yaw, weight;
+    private final NumberInput pivotX, pivotY, pivotZ;
     private final StateHandle stretch;
-    private final int rootBone, localOffsetBone, centerRotationBone, renderRotationBone;
+    private final int rootBone, centerBone;
     private final int[] parentBones;
     private final double[][] parentPivots;
     private final double units;
@@ -58,7 +60,7 @@ public final class ChainIkDriver implements DriverEvaluator
     private final Quaternion blended = new Quaternion();
     private final Quaternion scratch = new Quaternion();
     private final Vec3f vector = new Vec3f();
-    private final double[] center = new double[4], render = new double[4];
+    private final double[] root = new double[4], center = new double[4], pivot = new double[3];
     private final double[][] parentRotations;
     private final double[][] segments, chainDirections, fallbacks, rotations, posedSoFar;
 
@@ -119,14 +121,15 @@ public final class ChainIkDriver implements DriverEvaluator
         y = args.doubleNumber("y", template.y);
         z = args.doubleNumber("z", template.z);
         yaw = args.number("yaw", template.yaw);
-        height = args.number("height", template.height);
+        PointTemplate centerPivot = template.centerPivot != null ? template.centerPivot : new PointTemplate();
+        pivotX = args.number("centerPivot.x", centerPivot.x != null ? centerPivot.x : builtIn("centerPivotX"));
+        pivotY = args.number("centerPivot.y", centerPivot.y != null ? centerPivot.y : builtIn("centerPivotY"));
+        pivotZ = args.number("centerPivot.z", centerPivot.z != null ? centerPivot.z : builtIn("centerPivotZ"));
         weight = args.number("weight", template.weight, 1);
         stretch = args.outputs(template.out, STRETCH).get(STRETCH);
 
         rootBone = args.bone("rootBone", template.rootBone);
-        localOffsetBone = args.bone("localOffset", Skeleton.LOCAL_OFFSET);
-        centerRotationBone = args.bone("centerRotation", Skeleton.CENTER_ROTATION);
-        renderRotationBone = args.bone("renderRotation", "renderRotation");
+        centerBone = args.bone("centerBone", template.centerBone);
 
         int parentCount = template.parents == null ? 0 : template.parents.size();
         parentBones = new int[parentCount];
@@ -153,6 +156,11 @@ public final class ChainIkDriver implements DriverEvaluator
         posedSoFar = new double[count][4];
     }
 
+    private static ExpressionTemplate builtIn(String name)
+    {
+        return new ExpressionTemplate(new JsonPrimitive(name));
+    }
+
     private static NumberInput[] vector(DriverBindArgs args, String field, PointTemplate point) throws MalformedKumoTemplateException
     {
         return new NumberInput[] {
@@ -177,17 +185,19 @@ public final class ChainIkDriver implements DriverEvaluator
         final float w = Math.max(0F, Math.min(1F, weight.get(context)));
 
         // The renderer's frame, as the items before this one have posed it.
-        pose.rotationSoFar(centerRotationBone, quaternion);
+        pose.rotationSoFar(rootBone, quaternion);
+        toDoubles(quaternion, root);
+        pose.rotationSoFar(centerBone, quaternion);
         toDoubles(quaternion, center);
-        pose.rotationSoFar(renderRotationBone, quaternion);
-        toDoubles(quaternion, render);
+        pivot[0] = pivotX.get(context);
+        pivot[1] = pivotY.get(context);
+        pivot[2] = pivotZ.get(context);
         final double yawRad = Math.toRadians(yaw.get(context));
         final double cos = Math.cos(yawRad), sin = Math.sin(yawRad);
-        final double halfHeight = height.get(context) / 2;
 
         // The target, from the entity, in doubles until it's a difference.
         double[] point = toModel(targetX.get(context) - x.get(context), targetY.get(context) - y.get(context), targetZ.get(context) - z.get(context),
-                cos, sin, halfHeight, pose);
+                cos, sin, pose);
         for (int i = 0; i < parentBones.length; i++)
         {
             pose.rotationSoFar(parentBones[i], quaternion);
@@ -260,28 +270,30 @@ public final class ChainIkDriver implements DriverEvaluator
 
     /**
      * A point relative to the entity, in blocks, into the model (model units): turned into the
-     * body's frame (+Z ahead, +X left, +Y up), then back through the root offset, the center
-     * rotation, the render rotation, the local offset and vanilla's flip.
+     * body's frame (+Z ahead, +X left, +Y up), then back through the root bone (moved, then
+     * turned), the center bone (moved, then turned about its pivot) and vanilla's flip.
      */
-    private double[] toModel(double dx, double dy, double dz, double cos, double sin, double halfHeight, PoseWriter pose)
+    private double[] toModel(double dx, double dy, double dz, double cos, double sin, PoseWriter pose)
     {
         pose.vectorSoFar(rootBone, vector);
-        double[] p = {dx * cos + dz * sin - vector.x / units, dy - vector.y / units - halfHeight, -dx * sin + dz * cos - vector.z / units};
-        p = ChainIk.rotateInverse(center, p);
-        p[1] += halfHeight;
-        p = ChainIk.rotateInverse(render, p);
-        pose.vectorSoFar(localOffsetBone, vector);
+        double[] p = {dx * cos + dz * sin - vector.x / units, dy - vector.y / units, -dx * sin + dz * cos - vector.z / units};
+        p = ChainIk.rotateInverse(root, p);
+        pose.vectorSoFar(centerBone, vector);
+        p = ChainIk.rotateInverse(center, new double[] {
+                p[0] - vector.x / units - pivot[0],
+                p[1] - vector.y / units - pivot[1],
+                p[2] - vector.z / units - pivot[2]});
         return new double[] {
-                (p[0] - vector.x / units) / scale * units,
-                (ORIGIN_Y - (p[1] - vector.y / units) / scale) * units,
-                -(p[2] - vector.z / units) / scale * units};
+                (p[0] + pivot[0]) / scale * units,
+                (ORIGIN_Y - (p[1] + pivot[1]) / scale) * units,
+                -(p[2] + pivot[2]) / scale * units};
     }
 
     /** A direction in the world into the chain's frame, as {@link #toModel} turns it. */
     private double[] toChain(double dx, double dy, double dz, double cos, double sin)
     {
         double[] d = {dx * cos + dz * sin, dy, -dx * sin + dz * cos};
-        d = ChainIk.rotateInverse(render, ChainIk.rotateInverse(center, d));
+        d = ChainIk.rotateInverse(center, ChainIk.rotateInverse(root, d));
         d[1] = -d[1];
         d[2] = -d[2];
         for (double[] parent : parentRotations)

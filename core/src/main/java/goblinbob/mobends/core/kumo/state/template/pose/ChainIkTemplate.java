@@ -70,11 +70,17 @@ public class ChainIkTemplate extends DriverItemTemplate
     public ExpressionTemplate x = new ExpressionTemplate(new JsonPrimitive("entityWorldX"));
     public ExpressionTemplate y = new ExpressionTemplate(new JsonPrimitive("entityWorldY"));
     public ExpressionTemplate z = new ExpressionTemplate(new JsonPrimitive("entityWorldZ"));
-    /** The entity's height (a number, blocks): {@code centerRotation} turns the model about half of it. */
-    public ExpressionTemplate height = new ExpressionTemplate(new JsonPrimitive("entityHeight"));
+    /**
+     * Where the renderer turns {@link #centerBone} about, in blocks from the entity's feet (+Y up, +Z
+     * ahead of the body): a number expression per axis, the entity's own ({@code centerPivotX},
+     * {@code centerPivotY}, {@code centerPivotZ}) where left out.
+     */
+    public PointTemplate centerPivot;
 
-    /** The whole-model offset (applied first, in the body's frame). */
+    /** The bone the whole model hangs from (moved, then turned, in the body's frame). */
     public String rootBone = "root";
+    /** The child of {@link #rootBone} the rest of the model hangs from (moved, then turned about {@link #centerPivot}). */
+    public String centerBone = "center";
 
     /** Model units per block. */
     public float unitsPerBlock = 16F;

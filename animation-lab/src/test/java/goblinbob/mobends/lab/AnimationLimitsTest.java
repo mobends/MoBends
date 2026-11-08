@@ -33,7 +33,7 @@ public class AnimationLimitsTest
     /** Throws the left arm 40 units out and the whole body 100 units up. */
     private static final String FLING = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"fling\", "
             + "\"nodes\": {\"fling\": {\"core:pose\": {\"pose\": [{\"core:translate\": {\"bone\": \"leftArm\", \"x\": 40, \"y\": 0, "
-            + "\"z\": 0}, \"@space\": \"override\"}, {\"core:translate\": {\"bone\": \"globalOffset\", \"x\": 0, \"y\": 100, \"z\": 0}, \"@space\": \"override\", \"@snap\": true}]}}}}]}";
+            + "\"z\": 0}, \"@space\": \"override\"}, {\"core:translate\": {\"bone\": \"root\", \"x\": 0, \"y\": 100, \"z\": 0}, \"@space\": \"override\", \"@snap\": true}]}}}}]}";
 
     /** Raises the right arm: rotations only. */
     private static final String RAISE = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"raise\", "
@@ -139,7 +139,7 @@ public class AnimationLimitsTest
         return tests;
     }
 
-    /** An extension that pushes every part and both body vectors (under both of the global one's names) far out, every frame. */
+    /** An extension that pushes every part and the entity's own bones (root, center) far out, every frame. */
     private static AnimatorTemplate flingEverything(FramePose frame)
     {
         StringBuilder items = new StringBuilder();
@@ -148,7 +148,7 @@ public class AnimationLimitsTest
             if (frame.bones.get(bone).o == null) continue;
             items.append("{\"core:translate\": {\"bone\": \"").append(bone).append("\", \"x\": {\"add\": [30, {\"mul\": [\"ticks\", 3]}]}, \"y\": -30, \"z\": 30}, \"@space\": \"override\"},");
         }
-        for (String vector : new String[] { "root", "globalOffset", "localOffset" })
+        for (String vector : new String[] { "root", "center" })
         {
             items.append("{\"core:translate\": {\"bone\": \"").append(vector).append("\", \"x\": 100, \"y\": {\"mul\": [\"ticks\", 5]}, \"z\": -100}, \"@space\": \"pre\"},");
         }
@@ -161,7 +161,7 @@ public class AnimationLimitsTest
     {
         String broken = "{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"broken\", "
                 + "\"nodes\": {\"broken\": {\"core:pose\": {\"pose\": [{\"core:translate\": {\"bone\": \"leftArm\", \"x\": {\"div\": [1, "
-                + "0]}, \"y\": {\"sqrt\": [-1]}, \"z\": 0}, \"@space\": \"override\"}, {\"core:translate\": {\"bone\": \"globalOffset\", \"x\": {\"div\": [-1, 0]}, "
+                + "0]}, \"y\": {\"sqrt\": [-1]}, \"z\": 0}, \"@space\": \"override\"}, {\"core:translate\": {\"bone\": \"root\", \"x\": {\"div\": [-1, 0]}, "
                 + "\"y\": {\"div\": [1, 0]}, \"z\": 0}, \"@space\": \"override\", \"@snap\": true}]}}}}]}";
         FramePose own = last(WALK, player(), true, null, true, true);
         FramePose limited = last(WALK, player(), true, broken, false, true);
@@ -191,7 +191,7 @@ public class AnimationLimitsTest
 
     private static float[] body(FramePose frame)
     {
-        return frame.vectors.get("globalOffset").vt;
+        return frame.vectors.get("root").vt;
     }
 
     private static double distance(float[] a, float[] b)

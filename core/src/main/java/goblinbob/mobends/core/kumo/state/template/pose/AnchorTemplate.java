@@ -40,7 +40,7 @@ public class AnchorTemplate extends DriverItemTemplate
      */
     public Map<String, String> out;
 
-    /** The whole-model offset it moves, applied in the body's frame before the body is turned. */
+    /** The bone whose position it moves: the one the whole model hangs from, moved in the body's frame before it is turned. */
     public String bone = "root";
 
     /** The body's yaw (a number, degrees), as the renderer has it. */

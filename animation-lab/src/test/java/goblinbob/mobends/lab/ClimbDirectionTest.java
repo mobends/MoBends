@@ -48,7 +48,7 @@ class ClimbDirectionTest
     {
         List<FramePose> south = climb(0, -2, 3, 2, 4);
         float highest = 0;
-        for (FramePose frame : south) highest = Math.max(highest, Math.abs(frame.vectors.get("globalOffset").v[1]));
+        for (FramePose frame : south) highest = Math.max(highest, Math.abs(frame.vectors.get("root").v[1]));
         assertTrue(highest > 10, "the climb holds the golem down while it rises (" + highest + ")");
 
         Object[][] sides = {{"north", climb(180, -2, -4, 2, -3)}, {"east", climb(-90, 3, -2, 4, 2)}, {"west", climb(90, -4, -2, -3, 2)}};
@@ -62,10 +62,10 @@ class ClimbDirectionTest
                 if (a.tick < 30) continue;
                 for (int axis = 0; axis < 3; axis++)
                 {
-                    assertEquals(a.vectors.get("globalOffset").v[axis], b.vectors.get("globalOffset").v[axis], 0.05,
+                    assertEquals(a.vectors.get("root").v[axis], b.vectors.get("root").v[axis], 0.05,
                             side[0] + ": the whole model's offset, axis " + axis + ", at tick " + a.tick);
                 }
-                for (String bone : new String[] {"centerRotation", "rightArm", "rightForeArm", "rightLeg", "leftLeg"})
+                for (String bone : new String[] {"center", "rightArm", "rightForeArm", "rightLeg", "leftLeg"})
                 {
                     assertTrue(angle(a.bones.get(bone).r, b.bones.get(bone).r) < 0.5, side[0] + ": " + bone + " at tick " + a.tick);
                 }

@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * {@code core:step_turn} on the iron golem, checked by forward kinematics: the soles are put back
- * together from the bones' smoothed rotations, the render rotation and the local offset, with
- * vanilla's own rocking of a walking golem, as the renderer draws them, and followed in the world.
+ * together from the bones' smoothed rotations, the root's rotation and the center's position, as
+ * the renderer draws them (vanilla's rocking of a walking golem turned back), and followed in the world.
  */
 public class StepTurnTest
 {
@@ -110,7 +110,7 @@ public class StepTurnTest
             String at = " at " + speed + " blocks a tick";
             assertTrue(golem.maxSlide < 0.02, "a planted foot slid " + golem.maxSlide + " blocks" + at);
             assertTrue(golem.alternated, "the feet didn't take turns" + at);
-            // Vanilla's rocking is turned back; what is left is the lean over the planted foot.
+            // Vanilla's rocking is turned back by the renderer; what is left is the lean over the planted foot.
             assertTrue(golem.maxTilt < WEIGHT_ROLL + 0.1, "the golem tilted " + golem.maxTilt + "°" + at);
             assertTrue(golem.maxTilt > WEIGHT_ROLL * 0.5, "the golem didn't lean over its feet (" + golem.maxTilt + "°)" + at);
             // Having stopped, it stands with its feet together, on the ground.
@@ -289,13 +289,11 @@ public class StepTurnTest
                 data.swingProgress = modelInputs.swingProgress;
                 animator.update(data, DataUpdateHandler.ticksPerFrame);
 
-                // The renderer turns the model by -bodyYaw, the render rotation, the local offset,
-                // then vanilla's own: RenderIronGolem rocks it about Z while it walks, and the model
-                // is drawn flipped in Y and Z, the entity's origin ORIGIN units down it.
-                Quaternion render = data.renderRotation.getSmooth();
-                Quaternion rock = new Quaternion();
-                float rockAngle = entity.limbSwingAmount >= 0.01 ? 6.5F * (Math.abs((data.limbSwing + 6) % 13 - 6.5F) - 3.25F) / 3.25F : 0F;
-                rock.setFromAxisAngle(0, 0, 1, (float) Math.toRadians(-rockAngle));
+                // The renderer turns the model by -bodyYaw, the root's rotation, the center's position
+                // (the center's rotation is taken as none), then vanilla's own: RenderIronGolem's rock
+                // the renderer has turned back (undoVanillaRock), and the model drawn flipped in Y
+                // and Z, the entity's origin ORIGIN units down it.
+                Quaternion render = data.root.rotation.getSmooth();
                 double[] forward = rotate(render, 0, 0, 1);
                 double bodyYaw = data.getVariable("entityBodyYaw");
                 shownYaw = bodyYaw - Math.toDegrees(Math.atan2(forward[0], forward[2]));
@@ -303,24 +301,22 @@ public class StepTurnTest
                 if (!Double.isNaN(lastShown) && clock.getTick() >= 60)
                 {
                     maxYawRate = Math.max(maxYawRate, Math.abs(MathHelper.wrapDegrees(shownYaw - lastShown)));
-                    maxHipJump = Math.max(maxHipJump, Math.abs(data.localOffset.getY() - lastHipY));
+                    maxHipJump = Math.max(maxHipJump, Math.abs(data.center.position.getY() - lastHipY));
                 }
                 lastShown = shownYaw;
-                lastHipY = data.localOffset.getY();
-                Quaternion drawn = Quaternion.mul(render, rock, new Quaternion());
-                double[] upright = rotate(drawn, 0, 1, 0);
+                lastHipY = data.center.position.getY();
+                double[] upright = rotate(render, 0, 1, 0);
                 maxTilt = Math.max(maxTilt, Math.toDegrees(Math.acos(Math.min(1, upright[1]))));
                 double yaw = Math.toRadians(bodyYaw), cos = Math.cos(yaw), sin = Math.sin(yaw);
                 double shown = Math.toRadians(shownYaw), cosS = Math.cos(shown), sinS = Math.sin(shown);
-                double[] offset = {data.localOffset.getX(), data.localOffset.getY(), data.localOffset.getZ()};
+                double[] offset = {data.center.position.getX(), data.center.position.getY(), data.center.position.getZ()};
                 double px = data.getVariable("entityWorldX"), pz = data.getVariable("entityWorldZ");
 
                 for (int i = 0; i < 2; i++)
                 {
                     double[] sole = sole(data.getPart(UPPER[i]).rotation.getSmooth(), data.getPart(LOWER[i]).rotation.getSmooth());
                     double mx = HIP[i][0] + sole[0], my = HIP[i][1] + sole[1], mz = HIP[i][2] + sole[2];
-                    double[] rocked = rotate(rock, mx, ORIGIN - my, -mz);
-                    double[] o = rotate(render, rocked[0] + offset[0], rocked[1] + offset[1], rocked[2] + offset[2]);
+                    double[] o = rotate(render, mx + offset[0], ORIGIN - my + offset[1], -mz + offset[2]);
                     double wx = px + (o[0] * cos - o[2] * sin) / 16, wz = pz + (o[0] * sin + o[2] * cos) / 16;
                     my = ORIGIN - o[1];
                     soleY[i] = my;

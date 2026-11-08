@@ -258,8 +258,8 @@ holds the item's own fields. The modifiers, the same for every item:
 |---|---|
 | `@when` | a condition; the item is skipped while it does not hold |
 | `@space` | `override` (replace), `pre` (rotate in the parent's space, the `rotate*` idiom), `post` (the bone's own space, the `localRotate*` idiom). Default: `override` for clips, `pre` for drivers. A clip writes many bones, so its `@space` can also be one per bone: `{"@default": "pre", "body": "post", "root": "override"}`. |
-| `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); it holds for the frames the item applies, and a bone nothing smooths in a frame gets its base smoothing (see *Model definitions*' `smoothing`; otherwise 0, at once) |
-| `@vectorModes` | for offset vectors (and a `core:translate`'s part offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
+| `@smoothing` | per bone written, the ticks it takes to reach its target (0: at once; for a `slide`, the tween's length), `{"body": 2, "root": [null, 1.67, null]}`; an expression is allowed (a name or an operation, evaluated every frame); a bone's rotation and position can be given apart, `{"root": {"rotation": 1.67, "position": [3, 1.7, 3]}}` (numbers); it holds for the frames the item applies, and a bone nothing smooths in a frame gets its base smoothing (see *Model definitions*' `smoothing`; otherwise 0, at once) |
+| `@vectorModes` | for the positions of `root` and `center` (and a `core:translate`'s part offsets): `slide` (tween restarted when the target changes), `retarget` (exponential approach re-aimed every frame), `snap` |
 | `@snap` | the written bones jump to their target this frame (`orientInstant`, `finish`) |
 | `@mirror` | evaluate as the left-right mirror image while the layer's mirror condition holds (paired bones swapped, Y and Z rotations and X offsets negated; see *Mirroring*) |
 | `@swapSides` | like `@mirror`, but only the paired bones swap; rotations and offsets are kept |
@@ -334,14 +334,31 @@ A clip's own fields are `animationKey`, `frame`, `duration`, `weight` and `bones
 (`pre` / `post`) it scales the rotation angle and the offset; for a bone it replaces (`override`)
 it blends from what the bone has so far this frame (from the layers below and the items before)
 to the clip, or from the rest pose where nothing has written the bone yet. `bones` restricts the
-clip.
+clip; `"root.rotation"` or `"root.position"` there applies only that of one of the entity's own
+bones (below).
 Clip files (`animations/...json`) hold their `formatVersion` (2), `bones` with keyframes (`position`, `rotation` as a
 quaternion `[x, y, z, w]`; each may be left out for no offset, no rotation),
 and optionally `duration`, `interpolation: "step"` and explicit keyframe `times` (in the clip's
 units). Keyframes straddling the ±180° wrap interpolate the short way.
 
-Bone names are the subject's named parts, plus `root` / `globalOffset` and `localOffset` for
-the entity-level offset vectors (their keyframe positions are the vector).
+Bone names are the subject's named parts, plus the entity's own two bones, which the whole model
+hangs from:
+
+* `root` moves the model (its position, in model units: root motion), then turns it about the
+  entity's feet. It is the parent of `center`.
+* `center` moves the model in the frame `root` leaves, then turns it about its pivot: half the
+  entity's height (`centerPivotX`, `centerPivotY`, `centerPivotZ`, in blocks), unless the model
+  definition's `center.pivot` says otherwise.
+
+The renderer applies, outermost first: the body's yaw, `root`'s position and rotation, `center`'s
+position and rotation (about its pivot), then the model's own transforms. Their positions are
+smoothed vectors, with a base smoothing, `@vectorModes` and `@snap` of their own (a part's offset
+has neither); a clip's keyframe positions on them are taken as they are, not negated like a
+part's. A clip's track of one of them writes only what its keyframes give: a `root` track of
+positions alone (root motion) leaves the root's rotation to the rest of the animator. So does an
+item: its `@snap` and `@smoothing` go to what it writes of them (a `core:rotate` to the rotation,
+a `core:translate` to the position, a clip to what its tracks give), unless its `@smoothing`
+gives them apart.
 
 ### Drivers
 
@@ -350,7 +367,7 @@ Each driver is `{"<driver>": {fields}}` plus the modifiers.
 | driver | fields |
 |---|---|
 | `core:rotate` | `bone`, `axis` (`x`/`y`/`z`), `angle` (expression, degrees) |
-| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or an entity-level vector (`root` / `globalOffset`, `localOffset`). Default space `pre`, like every driver's; there and in `post` an axis left out moves by nothing, in `override` it keeps the bone's current value. On a part, the item's `@smoothing`, `@vectorModes` and `@snap` go to the offset, not the rotation: with a smoothing, it's smoothed like a vector, and without one it's applied as is |
+| `core:translate` | `bone`, `x`, `y`, `z` (expressions, model units): moves a part (its position offset) or the position of `root` or `center`. Default space `pre`, like every driver's; there and in `post` an axis left out moves by nothing, in `override` it keeps the bone's current value. On a part, the item's `@smoothing`, `@vectorModes` and `@snap` go to the offset, not the rotation: with a smoothing, it's smoothed like a vector, and without one it's applied as is |
 | `core:accumulate` | `inout` (a number state), `rate` (expression, per tick, any sign), `min`, `max`: steps the state by the rate; with `min` 0 and `max` 1 and a rate that changes sign with a condition, it ramps up and down |
 | `core:spring` | `inout` (a number state), `target` (expression), `stiffness` (per tick²), `friction` (per tick): pulls the state towards `target` like a mass on a spring, so it lags, overshoots and settles (follow-through); its velocity is its own, at rest when the node is entered |
 | `core:step_turn` | the body stands, turns and walks on feet planted in the world (see *Turning on the feet*) |
@@ -386,7 +403,7 @@ lives where its state is declared, and the driver writes it only while its node 
 
 `core:step_turn` takes over which way the body faces. Vanilla turns a standing mob's body
 smoothly towards its head; the driver instead keeps the yaw the body is *shown* at, turns the
-model back from vanilla's yaw to it (`rotationBone`, `renderRotation` by default, put before
+model back from vanilla's yaw to it (`rotationBone`, `root` by default, put before
 whatever lies beneath), and plants the feet in the world. When vanilla's body yaw gets
 `turnThreshold` degrees ahead of a foot, that foot steps (at most `maxStepAngle` past the shown
 body, re-aimed while it rises), the leg on the side of the turn first; the body turns towards the
@@ -447,7 +464,7 @@ from where it is drawn when the driver comes in.
   the other way. The IK turns the leg to where its foot points, then swings it onto the foot, and
   the bones snap to it at full weight. It assumes the legs have no `restRotation`.
 * The hips are lowered by `crouch`, dip by `impactDepth` a moment after a foot lands and shift
-  `weightShift` over the planted feet while one is up, through `offsetBone` (`localOffset`); the
+  `weightShift` over the planted feet while one is up, through `offsetBone` (`center`, its position); the
   whole model rolls `weightRoll` degrees over them too, about the entity's origin on the ground
   (through the rotation bone). The legs keep the feet on the ground. The offset is written turned
   back by whatever lies beneath in the rotation bone, so a counter-rotation there (of vanilla
@@ -547,8 +564,8 @@ a hand put on a ledge, a foot on a step.
   target, as straight as it gets, and `stretch` says how many blocks it falls short.
 * The chain is put where the renderer draws it: from the entity's position (`x`, `y`, `z`,
   `entityWorldX`, ...) and body yaw (`yaw`, `entityBodyYaw`), through the bones as the items before
-  it have posed them: the whole-model offset (`rootBone`, `root`), `centerRotation` (about half the
-  entity's `height`, `entityHeight`), `renderRotation`, `localOffset`, and the bones it hangs from,
+  it have posed them: `rootBone` (`root`), `centerBone` (`center`, turned about `centerPivot`,
+  `{"x", "y", "z"}` in blocks, the entity's own pivot unless written), and the bones it hangs from,
   `parents` (each a `bone` and its `pivot`, outermost first: a player's arms hang from its body).
   So the end stays on the target wherever the entity is drawn: leaning, or held at a point by
   `core:anchor`. Write it after what moves the model, and snap what it reads (a smoothed bone is
@@ -738,7 +755,8 @@ operation, or a definition of the mob's model definition (see *Model definitions
 | `entityMotionX`, `entityMotionY`, `entityMotionZ`, `entitySpeed`, `entityXZSpeed`, `entityForwardMomentum`, `entitySidewaysMomentum` | Mo' Bends' measured motion: position changes each tick, so it works for every entity (vanilla's motion fields read 0 for the entities the server moves), interpolated by `partialTicks` so it changes every frame. `entitySpeed` and `entityXZSpeed` are its magnitudes; `entityForwardMomentum` and `entitySidewaysMomentum` its parts along where the entity looks and to its right. A rider's include what carries it |
 | `entityTickMotionX`, `entityTickMotionY`, `entityTickMotionZ`, `entityPrevTickMotionX`, `entityPrevTickMotionY`, `entityPrevTickMotionZ` | the same motion, not interpolated: over the last tick, and over the tick before it. They change once a tick, so they are for catching what happens from one tick to the next (`bounced`: `entityPrevTickMotionY` below 0 and `entityTickMotionY` above it), not for posing |
 | `entityBodyYaw`, `entityWorldX`, `entityWorldY`, `entityWorldZ` | the body yaw and the position, interpolated as the renderer does (`core:step_turn`'s, `core:anchor`'s and the IK's default inputs). The position is in doubles (see *Expressions*) |
-| `entityHeight` | the entity's height, in blocks (vanilla's `height`): what the renderer turns `centerRotation` about half of |
+| `entityHeight` | the entity's height, in blocks (vanilla's `height`) |
+| `centerPivotX`, `centerPivotY`, `centerPivotZ` | where the renderer turns `center` about, in blocks from the entity's feet: half its height unless its model definition's `center.pivot` says otherwise |
 | `entityRidingRelativeHeadYaw`, `entityRidingRelativeYaw` | relative to the ridden entity's body (0 unless riding something living), interpolated as the renderer does |
 | `entityClimbingRenderYaw`, `entityClimbingBodyYaw`, `entityClimbingHeadYaw` | the yaws while climbing, interpolated as the renderer does |
 
@@ -1043,8 +1061,9 @@ The chicken's definition also declares the values its animator reads, over the e
 | `components` | what the entity's data carries besides its bones, name to kind: `core:orientation` (a smoothed rotation animators pose as a bone, such as `rightHeldItem`), `mobends:sword_trail` (`swordTrail`), `mobends:cape_wave` (`capeWave`), `mobends:spider_legs` (`legs`: where the spider's feet are planted, which its leg drivers share). Layers and drivers find them by these names. A component can't have a bone's name |
 | `layers` | the renderer layers the model draws with, id to options: `mobends:armor`, `mobends:held_item`, `mobends:custom_head` (`{"bone": "head"}`), `mobends:cape`, `mobends:elytra` replace vanilla's (which draw their own unanimated copies of the model); `mobends:creeper_charge` and `mobends:sheep_wool` replace the layers that draw their own copy of the model (a charged creeper's armour, the sheep's wool): the copy is mutated by the same definition and posed from the entity's data before the vanilla layer draws it; `mobends:accessories` and `mobends:wolf_misc` (the wolf's mouth and tongue, hung from its `head`, `nose`, `mouth` and `tongue` bones) are added. Armour follows the bones named as a biped's (`body`, `head`, `leftArm`, `leftForeArm`, ...), the held item `rightHeldItem` / `leftHeldItem`, the cape `body` and `cape`. A vanilla layer no entry replaces is kept |
 | `attackComboTicks` | a swing within this many ticks of the last counted one, while the main hand holds an item, isn't counted: it continues a sword combo (see `entityTicksAfterAttack`); 0, the default, counts every swing |
-| `smoothing` | a bone's base smoothing (ticks), what it gets in a frame where nothing in the animator smooths it (otherwise 0, at once), by name: a bone, a component, or `root` (the model's offset), `localOffset`, `renderRotation`, `centerRotation`. The player's animator is tuned for `root` and `renderRotation` at 0.5 |
-| `renderer` | how the model is drawn: `sneakOffset` (model units the model is raised while the entity sneaks: vanilla lowers a sneaking player, and the bent sneak pose needs it higher), `flyingSneakOffset` (the same while a player flies; default `sneakOffset`), `firstPersonRest` (bones whose animated rotation is dropped while the first-person hand is drawn: the arm's chain from the body). Vanilla draws the first-person hand through the arm's field alone, so its stand-in draws the arm then, with its parents' transforms |
+| `smoothing` | a bone's base smoothing (ticks), what it gets in a frame where nothing in the animator smooths it (otherwise 0, at once), by name: a bone, a component, `root` or `center`. A number smooths both the rotation and the position; `{"rotation": 0.5, "position": [3, 1.7, 3]}` gives them apart (the position one number or one per axis; a part left out keeps its own). A part's position has none by default, applied as is. The player's animator is tuned for `root` at 0.5 |
+| `center` | where the renderer turns the `center` bone about: `{"pivot": [x, y, z]}`, in model units from the entity's feet (+Y up), scaled with the model on a baby; half the entity's height without it. A bone can't be named `root` or `center` |
+| `renderer` | how the model is drawn: `sneakOffset` (model units the model is raised while the entity sneaks: vanilla lowers a sneaking player, and the bent sneak pose needs it higher), `flyingSneakOffset` (the same while a player flies; default `sneakOffset`), `firstPersonRest` (bones whose animated rotation is dropped while the first-person hand is drawn: the arm's chain from the body), `undoVanillaRock` (the renderer turns the model back from the rock vanilla gives a walking iron golem, so the animator has the whole model to itself). Vanilla draws the first-person hand through the arm's field alone, so its stand-in draws the arm then, with its parents' transforms |
 | `bones[].drawnAlone` | a bone with a `parent` drawn where vanilla draws its part, through its parents' transforms, instead of inside its parent (a wolf pup's head, which vanilla draws outside the pup's half-size body) |
 | `childBones` | how bones change on a baby, by name, besides `childScale`: `offsetScale` (the scale of their offsets from their parents) and `globalOffset` ([x, y, z] before their parents' transforms); the wolf pup's head |
 | `bones[].boxes` | the bone's own boxes, drawn instead of its vanilla part's (which still gives the texture size): each `{"uv": [u, v], "from": [x, y, z], "size": [x, y, z]}` as vanilla's `addBox` takes them, in the bone's frame, plus optionally `drawnSize` (the size it is drawn at, its texture stretched over it), `offset`, `inflate` ([x, y, z]), `mirror`, `hide` (faces: `left`, `right`, `top`, `bottom`, `front`, `back`) and `faces` (per face, `uvOffset` [u, v] and `rotate`: `clockwise`, `counter_clockwise`, `half_turn`). The spider's longer legs; a bone with no vanilla part of its own (a spider's foreleg). Can't be split or an overlay |
@@ -1211,7 +1230,7 @@ decides what resource packs may do, and sends it to every client with Mo' Bends 
 |---|---|---|
 | `resourcePackAnimation` | `LIMITED` | `ALLOW`, `LIMITED` or `DENY` (below) |
 | `maxPartOffset` | 4 | `LIMITED`: how far resource packs' animation may move one part from where the trusted animation puts it, in model units (1/16 block) |
-| `maxBodyOffset` | 16 | `LIMITED`: the same for the whole model (`globalOffset` / `root`, `localOffset`) |
+| `maxBodyOffset` | 16 | `LIMITED`: the same for the positions of `root` and `center` |
 
 * **Trusted** content is what comes from Mo' Bends, another mod, vanilla, or the server's own
   resource pack. **Untrusted** is what a resource pack the player enabled supplies, including a
@@ -1305,7 +1324,7 @@ own animation and with other packs' extensions. Extension files are found like t
 
 The example pack `misc/examples/wave-extension` makes players wave while they stand still;
 `misc/examples/dance-extension` makes cows and chickens dance to a beat, with one animator shared
-by two extensions, and moves the whole body (`globalOffset`, `renderRotation`), which the mobs' own
+by two extensions, and moves the whole body (`root`), which the mobs' own
 animators leave alone, so it returns them to rest itself instead of falling through.
 
 ## Rendering: swap per render

@@ -6,8 +6,8 @@ import java.util.Map;
 public class FramePose
 {
     public float tick;
-    /** Bones (IModelPart) and standalone orientations (renderRotation, centerRotation, item rotations). */
+    /** Bones (IModelPart) and standalone orientations (item rotations), and the rotations of the entity's own bones (root, center). */
     public Map<String, BonePose> bones = new LinkedHashMap<>();
-    /** Standalone smoothed vectors (globalOffset, localOffset). */
+    /** The positions of the entity's own bones (root, center). */
     public Map<String, VectorPose> vectors = new LinkedHashMap<>();
 }

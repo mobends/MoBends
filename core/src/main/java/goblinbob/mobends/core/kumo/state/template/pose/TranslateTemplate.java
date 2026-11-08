@@ -4,7 +4,7 @@ import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 
 /**
  * {@code {"core:translate": {...}}}: moves a bone from expressions: a part's position offset, or
- * one of the entity-level vectors ({@code root} / {@code globalOffset}, {@code localOffset}).
+ * the position of one of the entity's own bones ({@code root}, {@code center}).
  */
 public class TranslateTemplate extends DriverItemTemplate
 {
