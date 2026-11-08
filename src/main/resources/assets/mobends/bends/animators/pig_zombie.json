@@ -4,6 +4,7 @@
   "layers": [
     {
       "@when": {"or": ["animator.standing", "animator.walking"]},
+      "@fade": 2,
       "defaultOnEntry": "hunch",
       "nodes": {
         "hunch": {
@@ -39,6 +40,7 @@
     },
     {
       "@when": {"gt": ["entitySwingProgress", 0]},
+      "@fade": 1,
       "defaultOnEntry": "slash",
       "mirror": {
         "@when": "entityIsLeftHanded",

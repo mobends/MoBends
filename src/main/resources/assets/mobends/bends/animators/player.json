@@ -1458,6 +1458,7 @@
     },
     {
       "@when": {"and": ["entityIsSneaking", {"or": ["animator.standing", "animator.walking", "animator.sprinting"]}]},
+      "@fade": 2,
       "defaultOnEntry": "sneak",
       "nodes": {
         "sneak": {
@@ -1517,6 +1518,7 @@
           }
         ]
       },
+      "@fade": 2,
       "defaultOnEntry": "torch",
       "nodes": {
         "torch": {
@@ -1627,6 +1629,7 @@
     },
     {
       "@when": {"not": ["entityIsSleeping"]},
+      "@fade": 2,
       "defaultOnEntry": "idle",
       "select": [
         {

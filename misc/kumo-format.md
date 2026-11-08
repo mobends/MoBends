@@ -69,7 +69,8 @@ node is in *Choosing the node*.
 
 | key | meaning |
 |---|---|
-| `@when` | a condition (a boolean expression); while it does not hold the layer writes nothing and its clocks pause |
+| `@when` | a condition (a boolean expression): the layer is posed while it holds. When it stops, the layer fades out (over `@fade`) and is left: its nodes, machines and the layer itself are disposed (their `exit` lists run), and it writes nothing. When it holds again, the layer starts over (as on its first frame) and fades in |
+| `@fade` | the ticks the layer takes to fade in and out with its `@when`, eased in and out (default 0, at once). It fades against the layers below, as a transition fades a bone one side doesn't pose; while it fades out its nodes keep running, and smoothing and snapping follow what is fading in (the layers below) |
 | `@define`, `@on` | the layer's definitions and statement lists (see *Definitions and statements*) |
 | `smoothing` | default smoothing for the bones the layer writes (nodes and items override) |
 | `mask` | `{"mode": "include_only", "includedParts": ["mouth"]}` (or `exclude_only`): the bones the layer may write |
@@ -201,7 +202,8 @@ layer has a name of its own, whatever machine it is in.
   of its own nodes or machines, by default the first node it declares (its first machine if it
   has no nodes). A machine it goes to is entered the same way, down to a node.
 * A layer is entered when it starts, on the animator's first frame (whether or not its `@when`
-  holds). That is the frame's decision, and there is nothing to crossfade from: a branch's
+  holds; where it doesn't, the layer is left again at once), and again whenever its `@when` holds
+  after it was faded out. That is the frame's decision, and there is nothing to crossfade from: a branch's
   `transitionDuration` and `transitionEasing` don't apply there, its `do` does. The node's
   connections, and the selectors again, are checked from the next frame on. So `defaultOnEntry`
   only matters where the selectors choose nothing; to open on a node the selector wouldn't choose
@@ -785,7 +787,7 @@ Built-in values of the node being evaluated and its layer:
 | built-in | value |
 |---|---|
 | `nodeTicksElapsed` | ticks since the node was entered |
-| `layerTicksElapsed` | ticks since the layer started |
+| `layerTicksElapsed` | ticks since the layer was entered (it starts over when a layer with a `@when` comes back) |
 | `nodeFadeProgress` | the linear progress of the crossfade the node is part of (for a node fading out, the one out of it; for the current node, the one into it), the same number on both sides: 0 when the transition starts, 1 when it ends, 1 with no crossfade running. How much of a node is shown is `nodeFadeProgress` fading in and `1 − nodeFadeProgress` fading out; the transition's easing applies to the blend, not to this value |
 | `nodeIsFadingIn` | the node is the layer's current node, while the crossfade into it runs |
 | `nodeIsActive` | the node is the layer's current node, fully in |
@@ -797,7 +799,7 @@ Exactly one of the three phases holds for a node being evaluated; the current no
 read 0, `nodeFadeProgress` 1 and the phases don't hold.
 
 The node and layer clocks advance by the ticks the frame lasted after the frame is posed (a node
-reads 0 on its first frame) and pause while the layer's `@when` doesn't hold.
+reads 0 on its first frame); a layer faded out with its `@when` has none (it starts over when it comes back).
 
 **Interrupted crossfades stay live.** A transition during a crossfade doesn't stop it: the nodes
 fading out form a chain, each fading into the next and the last into the current node, every one
