@@ -246,6 +246,62 @@ public final class BendsLayers {
         return true;
     }
 
+    // --- a part of 1.12's model (IronGolemFlowerLayer, WitchItemLayer, MushroomCowMushroomLayer) -----
+
+    /**
+     * In place of the {@code translateAndRotate} of a vanilla part a layer draws on (the iron
+     * golem's flower on its arm, the witch's potion at its head, the mooshroom's mushroom on its
+     * head): moves {@code poseStack} into the frame of the bent bone that stands for the part 1.12's
+     * model kept in {@code field}. 1.12's layers drew there by that field, which Mo' Bends had
+     * replaced with the bent part, so they followed it without naming a layer in the definition.
+     *
+     * @return false if {@code entity} isn't drawn bent here, or no bone stands for that part, to do vanilla's
+     */
+    public static boolean translateToPartOf(LivingEntity entity, String field, PoseStack poseStack) {
+        Frame frame = frameFor(entity);
+        if (frame == null) {
+            return false;
+        }
+        String bone = boneOf(frame.data.getDefinition(), field, null);
+        if (bone == null || !frame.parts.hasPart(bone)) {
+            return false;
+        }
+        toBentModel(frame, poseStack, bone);
+        frame.parts.applyVanillaFrame(bone, frame.data, poseStack, 0.0F, 0.0F, 0.0F);
+        return true;
+    }
+
+    // --- Mo' Bends' own layers (WolfMiscLayer) -------------------------------------------------------
+
+    /**
+     * Moves {@code poseStack}, at the model's pose, into the frame bone {@code bone} of a bent
+     * {@code entity} is drawn in, for a layer of Mo' Bends' own that the definition asks for as
+     * {@code kind}.
+     *
+     * @return false if {@code entity} isn't drawn bent here, the definition doesn't ask for
+     *         {@code kind}, or there's no such bone: the layer draws nothing then
+     */
+    public static boolean translateToBone(LivingEntity entity, String kind, String bone, PoseStack poseStack) {
+        Frame frame = frameFor(entity, kind);
+        if (frame == null || !frame.parts.hasPart(bone)) {
+            return false;
+        }
+        toBentModel(frame, poseStack, bone);
+        frame.parts.applyVanillaFrame(bone, frame.data, poseStack, 0.0F, 0.0F, 0.0F);
+        return true;
+    }
+
+    /**
+     * Applies bone {@code bone}'s own transform alone, as it is drawn, in its parent's frame (after
+     * {@link #translateToBone} to the parent). Does nothing if {@code entity} isn't drawn bent here.
+     *
+     * @return false if it did nothing
+     */
+    public static boolean applyLocalTransform(LivingEntity entity, String bone, PoseStack poseStack) {
+        Frame frame = frameFor(entity);
+        return frame != null && frame.parts.applyLocalTransform(bone, frame.data, poseStack);
+    }
+
     // --- the body (ElytraLayer) ---------------------------------------------------------------------
 
     /**
@@ -314,8 +370,10 @@ public final class BendsLayers {
      *     each piece in the frame of the bone it's worn on, the limbs cut at the elbows and knees
      *     (1.12's {@code ArmorWrapper}); only vanilla's own model classes, as a model another mod
      *     hands the layer (custom armour) may not fit the bent parts;</li>
-     * <li>a copy of the entity's model the layer draws (a drowned's outer layer), if the definition
-     *     asks for, or implies, a copying kind: cut and posed as the entity's parts are.</li>
+     * <li>a copy of the entity's model the layer draws (a drowned's outer layer, a charged creeper's
+     *     armour, the wolf's armour), if the definition asks for, or implies, a copying kind: cut
+     *     and posed as the entity's parts are, the boxes the definition declares grown as the
+     *     copy's are.</li>
      * </ul>
      *
      * @return true if it drew, and the model's own draw must be skipped

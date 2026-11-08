@@ -23,8 +23,10 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * The {@code core:} operations: what vanilla's classes tell, which the Minecraft-free core can't
- * read itself (among them what a type file's selector reads), and the entity built-ins. Must run before any animator is loaded.
+ * The {@code core:} operations (and the drivers that look at the world: the rays and the ground
+ * round the entity): what vanilla's classes tell, which the Minecraft-free core can't read itself
+ * (among them what a type file's selector reads), and the entity built-ins. Must run before any
+ * animator is loaded.
  */
 public final class MinecraftKumoOperations {
     private static final String[] HANDS = {"main_hand", "off_hand"};
@@ -78,6 +80,16 @@ public final class MinecraftKumoOperations {
         // {"core:is_flying": []}: a player flying (creative or spectator flight, not an elytra); for
         // other players it is read from how they move, as the client isn't told (see RemoteFlight).
         KumoRegistry.registerEntityBooleanReader("core:is_flying", Player.class, RemoteFlight::isFlying);
+        // {"core:raycast": {...}}: a ray cast through the blocks, where it hit and which way the surface faces.
+        KumoRegistry.registerDriver(RaycastDriver.DRIVER);
+        // {"core:raycast_array": {...}}: a spread of rays round a direction, keeping the hit closest to it.
+        KumoRegistry.registerDriver(RaycastArrayDriver.DRIVER);
+        // {"core:block_below": {...}}: the block the entity stands on, or the first below its feet.
+        KumoRegistry.registerDriver(BlockBelowDriver.DRIVER);
+        // {"core:block_gradient": {...}}: which way the ground rises round a block, and its normal.
+        KumoRegistry.registerDriver(BlockGradientDriver.DRIVER);
+        // {"core:step_up": {...}}: the step up ahead, one block high with room on it, that a mob walking that way would climb.
+        KumoRegistry.registerDriver(StepUpDriver.DRIVER);
 
         // What a type file's selector reads: the entity alone, any entity (false where it doesn't apply).
         // {"core:entity_type": ["minecraft:zombie", "minecraft:husk"]}: the entity's registry id is one

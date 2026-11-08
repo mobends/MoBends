@@ -22,10 +22,10 @@ import java.util.WeakHashMap;
  * definition doesn't name draws as vanilla does, as 1.12's did. A mod adds its own kinds with
  * {@link #register}.
  * <p>
- * Some layers this version's vanilla added since 1.12 draw their own copy of the entity's model
- * (the drowned's outer layer). No 1.12 definition can name them, and a copy left unbent would show
- * the model twice in two poses, so they are bent with every definition that bends their entity
- * ({@link #registerImplicit}).
+ * Some layers draw their own copy of the entity's model that no 1.12 definition names (the
+ * drowned's outer layer and the wolf's armour, new since 1.12; the pig's saddle). A copy left
+ * unbent would show the model twice in two poses, so they are bent with every definition that
+ * bends their entity ({@link #registerImplicit}).
  */
 public final class DefinedLayers {
     public static final String ARMOR = "mobends:armor";

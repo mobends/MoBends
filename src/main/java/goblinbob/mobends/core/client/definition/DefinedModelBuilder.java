@@ -103,15 +103,17 @@ final class DefinedModelBuilder {
     }
 
     /**
-     * The part a 1.12 field name stands for, down the model's tree. Array elements and box-list
-     * indices (1.12's other ways to name a part) have nothing to stand for in this version's models.
+     * The part a 1.12 field name (or an element of an array field: the squid's tentacles) stands
+     * for, down the model's tree. Box-list indices (1.12's other way to name a part) have nothing
+     * to stand for in this version's models.
      */
     @Nullable
     private ModelPart findVanillaPart(BoneDefinition.VanillaPart ref) {
         if (ref.field == null || definition.model == null) {
             return null;
         }
-        String path = VanillaNames.modelPart(definition.model, ref.field);
+        String field = ref.element >= 0 ? VanillaNames.element(ref.field, ref.element) : ref.field;
+        String path = VanillaNames.modelPart(definition.model, field);
         if (path == null) {
             return null;
         }
@@ -197,11 +199,17 @@ final class DefinedModelBuilder {
             List<float[]> origins = new ArrayList<>();
             origins.add(new float[3]);
             if (bone.boxes != null) {
-                // Boxes the definition declares are the entity's own, not a worn model's.
-                if (over == null) {
-                    float[] textureSize = textureSizeOf(vanilla);
+                // Boxes the definition declares stand for the vanilla part's, on the model's texture.
+                // A bone without a vanilla part (the wolf's shins, nose, ears) reads the texture's
+                // size off its nearest parent's (1.12 had it from the model, which this version's
+                // only keeps in its boxes). On a model worn over the entity's (the wolf's armour:
+                // the same model, grown a little), they are grown as much as its vanilla boxes are.
+                ModelPart grownAs = vanillaPartOfOrAbove(bone);
+                float[] grow = over == null ? null : inflationOf(grownAs);
+                if (over == null || grow != null) {
+                    float[] textureSize = textureSizeOf(grownAs != null ? grownAs : root);
                     for (BoneDefinition.BoxDefinition box : bone.boxes) {
-                        part.boxes.add(createBox(box, textureSize));
+                        part.boxes.add(createBox(box, textureSize, grow));
                     }
                 }
             } else if (vanilla != null) {
@@ -222,10 +230,14 @@ final class DefinedModelBuilder {
                 }
             }
             if (vanilla != null) {
-                // A child the definition declares is a bone of its own (the villager's nose).
-                for (ModelPart child : childrenOf(vanilla)) {
-                    if (!vanillaParts.containsValue(child)) {
-                        part.vanillaChildren.add(child);
+                // A child the definition declares is a bone of its own (the villager's nose). Declared
+                // boxes stand for the children too: the wolf's head and tail draw theirs from a child
+                // now (real_head, real_tail), which 1.12's model drew as the part's own.
+                if (bone.boxes == null) {
+                    for (ModelPart child : childrenOf(vanilla)) {
+                        if (!vanillaParts.containsValue(child)) {
+                            part.vanillaChildren.add(child);
+                        }
                     }
                 }
                 part.vanillaChildrenShift.set(shift[0], shift[1], shift[2]);
@@ -280,8 +292,11 @@ final class DefinedModelBuilder {
         }
     }
 
-    /** A box the definition declares itself (see {@link BoneDefinition.BoxDefinition}). */
-    private static MutatedBox createBox(BoneDefinition.BoxDefinition box, float[] textureSize) {
+    /**
+     * A box the definition declares itself (see {@link BoneDefinition.BoxDefinition}), grown by
+     * {@code grow} (x, y, z, in model units) if it isn't null, as vanilla grows a worn model's.
+     */
+    private static MutatedBox createBox(BoneDefinition.BoxDefinition box, float[] textureSize, @Nullable float[] grow) {
         BoxFactory factory = new BoxFactory(box.from[0], box.from[1], box.from[2], box.size[0], box.size[1], box.size[2], 0)
                 .withUVs(box.uv[0], box.uv[1])
                 .withTextureSize(textureSize[0], textureSize[1]);
@@ -293,6 +308,9 @@ final class DefinedModelBuilder {
         }
         if (box.inflate != null) {
             factory.inflate(box.inflate[0], box.inflate[1], box.inflate[2]);
+        }
+        if (grow != null) {
+            factory.inflate(grow[0], grow[1], grow[2]);
         }
         if (box.hide != null) {
             for (String face : box.hide) {
@@ -319,16 +337,47 @@ final class DefinedModelBuilder {
 
     /**
      * The texture size of a vanilla part, which this version only keeps in its boxes' UVs (the
-     * player's skin, 64 by 64, when there is no box to read it from).
+     * player's skin, 64 by 64, when there is no box to read it from). A part that draws no box of
+     * its own (the wolf's head) is read off the first box under it.
      */
     private static float[] textureSizeOf(@Nullable ModelPart vanilla) {
-        if (vanilla != null) {
-            for (ModelPart.Cube cube : cubesOf(vanilla)) {
-                BoxFactory read = BoxFactory.of(cube);
-                return new float[] { read.textureWidth, read.textureHeight };
-            }
+        ModelPart.Cube cube = vanilla == null ? null : firstCubeUnder(vanilla);
+        if (cube != null) {
+            BoxFactory read = BoxFactory.of(cube);
+            return new float[] { read.textureWidth, read.textureHeight };
         }
         return new float[] { 64, 64 };
+    }
+
+    /** The vanilla part of {@code bone}, else of its nearest parent that has one; null if none has. */
+    @Nullable
+    private ModelPart vanillaPartOfOrAbove(BoneDefinition bone) {
+        for (BoneDefinition at = bone; at != null; at = at.parent == null ? null : definition.bone(at.parent)) {
+            ModelPart part = vanillaParts.get(at.name);
+            if (part != null) {
+                return part;
+            }
+        }
+        return null;
+    }
+
+    /** How much vanilla grew the first box of a part (or under it), or null if it draws none. */
+    @Nullable
+    private static float[] inflationOf(@Nullable ModelPart vanilla) {
+        ModelPart.Cube cube = vanilla == null ? null : firstCubeUnder(vanilla);
+        return cube == null ? null : BoxFactory.of(cube).inflation.clone();
+    }
+
+    /** The part's first box, else the first of its children's, through {@code ModelPart.visit}; null if it draws none. */
+    @Nullable
+    private static ModelPart.Cube firstCubeUnder(ModelPart part) {
+        List<ModelPart.Cube> cubes = new ArrayList<>();
+        part.visit(new PoseStack(), (pose, path, index, cube) -> {
+            if (cubes.isEmpty()) {
+                cubes.add(cube);
+            }
+        });
+        return cubes.isEmpty() ? null : cubes.get(0);
     }
 
     /** A vanilla box, inflated as vanilla has it, moved {@code shift} into the bone's frame. */

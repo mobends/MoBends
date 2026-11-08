@@ -1,9 +1,18 @@
 package goblinbob.mobends.core.vanilla;
 
 import goblinbob.mobends.core.kumo.expr.Expression;
+import net.minecraft.client.model.ChickenModel;
+import net.minecraft.client.model.CreeperModel;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.IronGolemModel;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.QuadrupedModel;
 import net.minecraft.client.model.SkeletonModel;
+import net.minecraft.client.model.SpiderModel;
+import net.minecraft.client.model.SquidModel;
+import net.minecraft.client.model.VillagerModel;
+import net.minecraft.client.model.WitchModel;
+import net.minecraft.client.model.WolfModel;
 import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.ZombieVillagerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -51,7 +60,12 @@ import java.util.function.ToDoubleFunction;
  * drowned, which is a zombie now; the zombie villager and the zombified piglin have definitions of
  * their own. {@code EntitySkeleton} is {@link Skeleton} alone: the stray, the wither skeleton and the
  * bogged are other subclasses of {@code AbstractSkeleton}, as the stray and the wither skeleton were
- * in 1.12, and stay vanilla.
+ * in 1.12, and stay vanilla. {@code EntitySpider} bends the cave spider too, as in 1.12, and
+ * {@code EntitySquid} the glow squid, which is a squid now (both drawn with their parent's model).
+ * <p>
+ * Each model's parts are mapped by where 1.12's model put them and what it drew there (read off
+ * 1.12.2's classes), not by their names: 1.12's {@code ironGolemLeftLeg} stood on the golem's right,
+ * which is today's {@code right_leg}.
  */
 public final class VanillaNames {
     private static final Map<String, Class<?>> ENTITY_CLASSES = new HashMap<>();
@@ -72,6 +86,15 @@ public final class VanillaNames {
     private static final String MODEL_ZOMBIE = "net.minecraft.client.model.ModelZombie";
     private static final String MODEL_SKELETON = "net.minecraft.client.model.ModelSkeleton";
     private static final String MODEL_ZOMBIE_VILLAGER = "net.minecraft.client.model.ModelZombieVillager";
+    private static final String MODEL_CREEPER = "net.minecraft.client.model.ModelCreeper";
+    private static final String MODEL_IRON_GOLEM = "net.minecraft.client.model.ModelIronGolem";
+    private static final String MODEL_VILLAGER = "net.minecraft.client.model.ModelVillager";
+    private static final String MODEL_WITCH = "net.minecraft.client.model.ModelWitch";
+    private static final String MODEL_SPIDER = "net.minecraft.client.model.ModelSpider";
+    private static final String MODEL_SQUID = "net.minecraft.client.model.ModelSquid";
+    private static final String MODEL_WOLF = "net.minecraft.client.model.ModelWolf";
+    private static final String MODEL_QUADRUPED = "net.minecraft.client.model.ModelQuadruped";
+    private static final String MODEL_CHICKEN = "net.minecraft.client.model.ModelChicken";
 
     /** A vanilla entity field, as {@code field} expressions read it. */
     public record EntityField(Expression.Type type, Function<Object, Object> reader, @Nullable ToDoubleFunction<Object> number) {
@@ -86,8 +109,7 @@ public final class VanillaNames {
         // the pig zombie's definition (a ModelZombie, from the zombie's) doesn't name, so it stays
         // vanilla (see BendsRenderer.beforeRender). Its own definition keeps the zombie's from taking it.
         entity("net.minecraft.entity.monster.EntityPigZombie", ZombifiedPiglin.class, "minecraft:zombie_pigman");
-        // The other mobs Mo' Bends ships definitions for. Their models aren't translated yet (below),
-        // so they are drawn as vanilla.
+        // The other mobs Mo' Bends ships definitions for (the animals' only in misc/dev-pack).
         entity("net.minecraft.entity.monster.EntityCreeper", Creeper.class, "minecraft:creeper");
         entity("net.minecraft.entity.monster.EntityIronGolem", IronGolem.class, "minecraft:villager_golem");
         entity("net.minecraft.entity.passive.EntityVillager", Villager.class, "minecraft:villager");
@@ -119,6 +141,26 @@ public final class VanillaNames {
         // hat over it (with a brim, a child of its own), and the robe among the body's boxes.
         model(MODEL_ZOMBIE_VILLAGER, ZombieVillagerModel.class, MODEL_BIPED);
 
+        // The creeper's model is 1.12's, but for the armour box 1.12 kept and never drew (creeperArmor);
+        // the charged creeper's armour is a model of its own in both.
+        model(MODEL_CREEPER, CreeperModel.class, null);
+        model(MODEL_IRON_GOLEM, IronGolemModel.class, null);
+        // Redone in 1.14, but still 1.12's parts where it matters: the head (10 high), the nose under
+        // it, the body, the crossed arms and the legs, at the same places. The robe is a child of the
+        // body now (and longer, for the new texture), and the hat a child of the head; both are drawn
+        // with the part they hang from.
+        model(MODEL_VILLAGER, VillagerModel.class, null);
+        // The witch's hat and mole hang from the head and the nose, as in 1.12.
+        model(MODEL_WITCH, WitchModel.class, MODEL_VILLAGER);
+        model(MODEL_SPIDER, SpiderModel.class, null);
+        model(MODEL_SQUID, SquidModel.class, null);
+        // The wolf's head and tail draw their boxes from a child now (real_head, real_tail), which the
+        // definition's own boxes stand in for (DefinedModelBuilder); the mane is the upper body.
+        model(MODEL_WOLF, WolfModel.class, null);
+        // QuadrupedModel covers the cow's, the pig's, the sheep's (and its wool's) and the polar bear's.
+        model(MODEL_QUADRUPED, QuadrupedModel.class, null);
+        model(MODEL_CHICKEN, ChickenModel.class, null);
+
         // HumanoidModel's parts (1.12's ModelBiped). The hat is a child of the root now, not of the head.
         part(MODEL_BIPED, "bipedHead", "head");
         part(MODEL_BIPED, "bipedHeadwear", "hat");
@@ -135,6 +177,70 @@ public final class VanillaNames {
         part(MODEL_PLAYER, "bipedLeftLegwear", "left_pants");
         part(MODEL_PLAYER, "bipedCape", "cloak");
         part(MODEL_PLAYER, "bipedDeadmau5Head", "ear");
+
+        // ModelCreeper's: leg1 and leg2 at the back, leg3 and leg4 at the front, odd ones on the right.
+        part(MODEL_CREEPER, "head", "head");
+        part(MODEL_CREEPER, "body", "body");
+        part(MODEL_CREEPER, "leg1", "right_hind_leg");
+        part(MODEL_CREEPER, "leg2", "left_hind_leg");
+        part(MODEL_CREEPER, "leg3", "right_front_leg");
+        part(MODEL_CREEPER, "leg4", "left_front_leg");
+        // ModelIronGolem's: its "left" leg stood on the golem's right (x = -4), its "right" one on the left.
+        part(MODEL_IRON_GOLEM, "ironGolemHead", "head");
+        part(MODEL_IRON_GOLEM, "ironGolemBody", "body");
+        part(MODEL_IRON_GOLEM, "ironGolemRightArm", "right_arm");
+        part(MODEL_IRON_GOLEM, "ironGolemLeftArm", "left_arm");
+        part(MODEL_IRON_GOLEM, "ironGolemLeftLeg", "right_leg");
+        part(MODEL_IRON_GOLEM, "ironGolemRightLeg", "left_leg");
+        // ModelVillager's (and so ModelWitch's).
+        part(MODEL_VILLAGER, "villagerHead", "head");
+        part(MODEL_VILLAGER, "villagerNose", "head/nose");
+        part(MODEL_VILLAGER, "villagerBody", "body");
+        part(MODEL_VILLAGER, "villagerArms", "arms");
+        part(MODEL_VILLAGER, "rightVillagerLeg", "right_leg");
+        part(MODEL_VILLAGER, "leftVillagerLeg", "left_leg");
+        // ModelSpider's: the legs in pairs from the back, odd ones on the right.
+        part(MODEL_SPIDER, "spiderHead", "head");
+        part(MODEL_SPIDER, "spiderNeck", "body0");
+        part(MODEL_SPIDER, "spiderBody", "body1");
+        part(MODEL_SPIDER, "spiderLeg1", "right_hind_leg");
+        part(MODEL_SPIDER, "spiderLeg2", "left_hind_leg");
+        part(MODEL_SPIDER, "spiderLeg3", "right_middle_hind_leg");
+        part(MODEL_SPIDER, "spiderLeg4", "left_middle_hind_leg");
+        part(MODEL_SPIDER, "spiderLeg5", "right_middle_front_leg");
+        part(MODEL_SPIDER, "spiderLeg6", "left_middle_front_leg");
+        part(MODEL_SPIDER, "spiderLeg7", "right_front_leg");
+        part(MODEL_SPIDER, "spiderLeg8", "left_front_leg");
+        // ModelSquid's: the tentacles were an array, placed round the body in the same order.
+        part(MODEL_SQUID, "squidBody", "body");
+        for (int i = 0; i < 8; i++) {
+            part(MODEL_SQUID, element("squidTentacles", i), "tentacle" + i);
+        }
+        // ModelWolf's: wolfLeg1 and 2 at the back, 3 and 4 at the front, odd ones on the right.
+        part(MODEL_WOLF, "wolfHeadMain", "head");
+        part(MODEL_WOLF, "wolfBody", "body");
+        part(MODEL_WOLF, "wolfMane", "upper_body");
+        part(MODEL_WOLF, "wolfLeg1", "right_hind_leg");
+        part(MODEL_WOLF, "wolfLeg2", "left_hind_leg");
+        part(MODEL_WOLF, "wolfLeg3", "right_front_leg");
+        part(MODEL_WOLF, "wolfLeg4", "left_front_leg");
+        part(MODEL_WOLF, "wolfTail", "tail");
+        // ModelQuadruped's: leg1 and 2 at the back, 3 and 4 at the front, odd ones on the right.
+        part(MODEL_QUADRUPED, "head", "head");
+        part(MODEL_QUADRUPED, "body", "body");
+        part(MODEL_QUADRUPED, "leg1", "right_hind_leg");
+        part(MODEL_QUADRUPED, "leg2", "left_hind_leg");
+        part(MODEL_QUADRUPED, "leg3", "right_front_leg");
+        part(MODEL_QUADRUPED, "leg4", "left_front_leg");
+        // ModelChicken's: the bill and the wattle are parts of their own, beside the head, as they were.
+        part(MODEL_CHICKEN, "head", "head");
+        part(MODEL_CHICKEN, "bill", "beak");
+        part(MODEL_CHICKEN, "chin", "red_thing");
+        part(MODEL_CHICKEN, "body", "body");
+        part(MODEL_CHICKEN, "rightLeg", "right_leg");
+        part(MODEL_CHICKEN, "leftLeg", "left_leg");
+        part(MODEL_CHICKEN, "rightWing", "right_wing");
+        part(MODEL_CHICKEN, "leftWing", "left_wing");
 
         // The entities' fields the shipped definitions read with "field", by their 1.12 names.
         number(Entity.class, "rotationYaw", e -> ((Entity) e).getYRot());
@@ -187,6 +293,11 @@ public final class VanillaNames {
         MODEL_PARTS.put(modelClass + '#' + field, part);
     }
 
+    /** How the element {@code index} of a 1.12 model's array field ({@code squidTentacles}) is named here. */
+    public static String element(String field, int index) {
+        return field + '[' + index + ']';
+    }
+
     private static void number(Class<?> owner, String field, ToDoubleFunction<Object> reader) {
         ENTITY_FIELDS.put(owner.getName() + '#' + field, new EntityField(Expression.Type.NUMBER, reader::applyAsDouble, reader));
     }
@@ -226,7 +337,8 @@ public final class VanillaNames {
     /**
      * The path of the part ({@code ModelPart.getChild} names from the model's root, joined by
      * {@code /}) a 1.12 model's field holds, looked up in the model's class and then its
-     * superclasses, as the field was; or null if there's none.
+     * superclasses, as the field was; or null if there's none. An element of an array field is
+     * named as {@link #element} names it.
      */
     @Nullable
     public static String modelPart(String modelClass, String field) {
