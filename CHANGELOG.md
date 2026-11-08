@@ -1,13 +1,13 @@
 # Changelog
 
-## Unreleased
+## 2.0.0-alpha.2
 
 ### Added
 
 - Skeletons stand on their feet, as players and zombies do: standing still, the feet stay planted
   and they turn by stepping, quickly and lightly, and stop with their feet where the walk left
   them. Walking, strafing, attacking and aiming a bow pose the legs as before.
-- Settings has an *Options* button for mobs with options: settings their animation offers, such as
+- Settings has an _Options_ button for mobs with options: settings their animation offers, such as
   the player's spin attack. Mods and resource packs can give their models, types and extensions
   options of their own (`options` in the file), which their animators read as `option.<name>`.
 - Animators can scale a model's parts with the `core:scale` driver (`x`, `y`, `z`, or `all` for
@@ -50,7 +50,7 @@
 - The Config button for Mo' Bends in Forge's Mods list opens the Mo' Bends menu, so it can be
   reached from the title screen. Forge's screen for the trails and item options is behind the
   menu's new More Settings button.
-- *Perform Spin Attack* moved from Forge's mod options to the player's options in the Mo' Bends
+- _Perform Spin Attack_ moved from Forge's mod options to the player's options in the Mo' Bends
   menu. If you had turned it off, it stays off.
 - Only players end the sword combo with a spin attack; skeletons repeat the four slashes.
 - Breaking: the `mobends:spin_attack_enabled` operation is gone. A player animator reads
@@ -110,11 +110,11 @@
 - Armour made with GeckoLib (3, for 1.12.2) moves with the animation, as vanilla armour does,
   bending at the elbows and knees; its own GeckoLib animation still plays. GeckoLib stays
   optional, and `keepArmorAsVanilla` keeps a piece as GeckoLib draws it.
-- A *Supporters* entry in the Mo' Bends menu shows every supporter accessory on your own
+- A _Supporters_ entry in the Mo' Bends menu shows every supporter accessory on your own
   character, and which ones you have.
-- *Link account* in the Mo' Bends menu links your Minecraft account to your Mo' Bends account
+- _Link account_ in the Mo' Bends menu links your Minecraft account to your Mo' Bends account
   with a code from the dashboard, so your accessories follow you even after you rename it.
-- Settings has *Order* and *Extensions* buttons to choose which types and extensions win when
+- Settings has _Order_ and _Extensions_ buttons to choose which types and extensions win when
   several apply to the same mob.
 - When an animation breaks, the chat says which one and why (once per animation), instead of the
   mob silently standing still.
@@ -166,14 +166,14 @@
   (the default), or deny it; singleplayer always allows it.
 - Resource reloads (F3+T, or changing resource packs) pick up changed animations and models.
 - The mod's download is about 1 MB smaller (2.3 MB down to 1.3 MB).
-- The *Customize* entry of the Mo' Bends menu leads to the Mo' Bends website; it will open the new
+- The _Customize_ entry of the Mo' Bends menu leads to the Mo' Bends website; it will open the new
   web animation editor once it is out.
 - Supporter accessories download in the background instead of on every resource reload.
 - Every mob is animated from JSON animator files, which resource packs can replace.
 
 ### Fixed
 
-- *Perform Spin Attack* works: turned off, or while riding, the sword combo starts over instead of
+- _Perform Spin Attack_ works: turned off, or while riding, the sword combo starts over instead of
   ending with the whirl.
 - The player's left shin shows the left leg's skin; it showed the right leg's, so a skin with
   different legs had its left shin swapped.
@@ -197,8 +197,8 @@
 
 ### Removed
 
-- Bends packs, and the *Packs* section of the Mo' Bends menu; extensions replace them.
-- The bends pack editor, which *Customize* used to open.
+- Bends packs, and the _Packs_ section of the Mo' Bends menu; extensions replace them.
+- The bends pack editor, which _Customize_ used to open.
 
 **Code:** the animation system was rearchitected: the hand-written animation controllers and bits
 are gone, and every mob runs on the new KUMO engine (layers, pose nodes, expressions; see

@@ -5,7 +5,7 @@ public class ModStatics
     public static final String MODID = "mobends";
     public static final String NAME = "Mo' Bends";
     public static final String LOADER = "forge";
-    public static final String VERSION = "2.0.0-alpha.1";
+    public static final String VERSION = "2.0.0-alpha.2";
     public static final String MCVERSION = "1.12.2";
     /**
      * Read by Forge's version checker. On 1.12.2 Forge reads it only from the {@code @Mod} annotation;
