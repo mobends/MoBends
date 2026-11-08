@@ -106,11 +106,11 @@ forge-1.12               1.12.2
 ```
 
 - `forge-1.12` does **not** merge from `main`. It shares the engine by depending on a **published,
-  pinned release of `core`** (e.g. `goblinbob.mobends:mobends-core:2.1.0`) and shading it into its
+  pinned release of `core`** (e.g. `goblinbob.mobends:mobends-core:2.0.0`) and shading it into its
   jar. To bring an engine fix to 1.12.2: fix it in `core/` on `main`, release a new `core` version,
   and bump the dependency on `forge-1.12`. No cherry-picking or copying code between branches.
 - A modern release ships **all targets at once**. Jars are named
-  `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.1.0+1.21.1-neoforge.jar`, tagged `v2.1.0`.
+  `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.0.0+1.21.1-neoforge.jar`, tagged `v2.0.0`.
 - CI builds every version × loader combination, and uploads the jars of a tag to Modrinth and
   CurseForge.
 - Dropping a Minecraft version: remove its Stonecutter target after a release. If it later needs a
