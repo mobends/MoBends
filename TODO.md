@@ -130,8 +130,8 @@ forge-1.12               1.12.2
      The animation lab then compiles from `src/`.
    - [ ] Convert the `.lang` translations to `.json`.
    - [ ] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge).
-3. [ ] **Publish `core`.** Release the first `core` version and switch `forge-1.12` to depend on it,
-   deleting its in-tree copy.
+3. [x] **Publish `core`.** Release the first `core` version and switch `forge-1.12` to depend on it,
+   deleting its in-tree copy. (`core-2.0.0-alpha.2` on GitHub Packages; `forge-1.12` uses it since #379.)
 4. [ ] **Switch the default branch** on GitHub to `main`, and archive the 1.16 branches
    (`2.X/forge-1.16`, `master-1.16.3`) as tags (`archive/2.X-forge-1.16`, `archive/master-1.16.3`).
 5. [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
