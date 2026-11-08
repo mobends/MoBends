@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "If you think that Minecraft characters could be more realistic, instead of steady and rigid animations, this mod is just for you! It makes players seem alive, and adds epic sword animations!",
+  "authors": [
+    "GoblinBob"
+  ],
+  "contact": {
+    "homepage": "https://mobends.com",
+    "sources": "https://github.com/mobends/MoBends",
+    "issues": "https://github.com/mobends/MoBends/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/mobends/textures/logo512.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "goblinbob.mobends.fabric.MoBendsFabric"
+    ]
+  },
+  "mixins": [
+    "mobends.mixins.json"
+  ],
+  "accessWidener": "mobends.ct",
+  "depends": {
+    "fabricloader": ">=${loader}",
+    "minecraft": "${minecraft}"
+  }
+}

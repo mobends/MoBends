@@ -7,7 +7,7 @@
  *
  * Source sets:
  *   mcstub - minimal stand-ins for the net.minecraft / org.lwjgl classes the animation code touches
- *   mod    - the mod's own animation sources, copied verbatim from ../src and ../core/src (plus a few shims
+ *   mod    - the mod's own animation sources, copied verbatim from ../legacy-1.12/src and ../core/src (plus a few shims
  *            for classes that need the Minecraft client, see src/mod/java)
  *   main   - the lab harness: scripted entities, recorder, comparator
  *   test   - JUnit 5 tests: KUMO parity, side effects, expressions, clips, types
@@ -27,7 +27,10 @@ java {
     }
 }
 
-val modSrc = file("../src/main")
+// The 1.12.2 mod's animation code, until it is ported into ../src (see CONTRIBUTING.md).
+val modSrc = file("../legacy-1.12/src/main")
+// The animators, models and types, shared by every Minecraft version.
+val modResources = file("../src/main/resources")
 // The Minecraft-free engine (Kumo, math), split out of src/main (see CONTRIBUTING.md).
 val coreSrc = file("../core/src/main")
 
@@ -86,7 +89,7 @@ val syncModJava by tasks.registering(Sync::class) {
 }
 
 val syncModResources by tasks.registering(Sync::class) {
-    from(modSrc.resolve("resources")) {
+    from(modResources) {
         include("assets/mobends/bends/**")
     }
     // The legacy resource pack's animators replace the mod's at the same keys in the game; here they
@@ -180,7 +183,7 @@ tasks.register<JavaExec>("record") {
 tasks.register<Exec>("generateAnimators") {
     description = "Regenerates the animator JSON files and hand-authored clips from tools/gen_animators.ts (needs Bun)."
     group = "lab"
-    commandLine("bun", projectDir.resolve("tools/gen_animators.ts").absolutePath, modSrc.resolve("resources").absolutePath)
+    commandLine("bun", projectDir.resolve("tools/gen_animators.ts").absolutePath, modResources.absolutePath)
 }
 
 tasks.register<JavaExec>("compare") {

@@ -51,14 +51,20 @@ animation system and pack formats.
 
 ### Layout
 
-| Layer | What it contains | Depends on Minecraft? |
+| Part | What it contains | Depends on Minecraft? |
 |---|---|---|
 | `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8. | **No** |
-| `common/` | Connects the core to vanilla models, entity state and rendering, mostly via Mixins. | Yes, vanilla only (no loader APIs) |
-| `fabric/`, `neoforge/`, `forge/` | Entrypoints, events, networking, config for each loader. Kept as small as possible. | Yes |
+| `src/` | The mod for every version and loader, one Stonecutter source tree (below). | Yes |
 
-- `common/` must never import a loader API. Anything loader-specific goes behind an interface in
-  `common/` and is implemented in each loader module (looked up with `java.util.ServiceLoader`).
+Inside `src/`, everything connects the core to vanilla models, entity state and rendering, mostly via
+Mixins, with no loader API. What needs a loader (entrypoints, events, networking, config) lives in
+`goblinbob.mobends.fabric` / `goblinbob.mobends.neoforge` (later `.forge`), each file fenced whole by
+loader, behind the `goblinbob.mobends.platform.Platform` interface. Kept as small as possible. CI checks
+that no other package uses a loader API (see CONTRIBUTING.md, *Loader code*).
+
+(This was first planned as separate `common/`, `fabric/`, `neoforge/` Gradle modules. Stonecutter is
+built around one source tree, which also handles the loaders with the same `//? if` fences as the
+versions, so the split was dropped.)
 
 ### Targets
 
@@ -83,9 +89,12 @@ applyPose(renderState);
 
 - A fix is made once, in one PR, for every version.
 - Adding a Minecraft version means adding a target in the Stonecutter config, **not** creating a branch.
-- **Only commit while the default version is active.** Switching the active version in your IDE
-  rewrites the fenced comments in your working copy. Switch back to the default before committing,
-  otherwise the diff fills up with comment noise. CI rejects commits made with another version active.
+- **Only commit while the default version is active** (`vcsVersion`, now `1.21.1-fabric`). Switching
+  the active version in your IDE rewrites the fenced comments in your working copy. Switch back to the
+  default before committing, otherwise the diff fills up with comment noise. CI rejects commits made
+  with another version active.
+- Stonecutter 0.10 needs Gradle to run on JDK 25; `gradle/gradle-daemon-jvm.properties` has Gradle
+  download it.
 
 ### Branches
 
@@ -97,11 +106,11 @@ forge-1.12               1.12.2
 ```
 
 - `forge-1.12` does **not** merge from `main`. It shares the engine by depending on a **published,
-  pinned release of `core`** (e.g. `goblinbob.mobends:mobends-core:2.1.0`) and shading it into its
+  pinned release of `core`** (e.g. `goblinbob.mobends:mobends-core:2.0.0`) and shading it into its
   jar. To bring an engine fix to 1.12.2: fix it in `core/` on `main`, release a new `core` version,
   and bump the dependency on `forge-1.12`. No cherry-picking or copying code between branches.
 - A modern release ships **all targets at once**. Jars are named
-  `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.1.0+1.21.1-neoforge.jar`, tagged `v2.1.0`.
+  `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.0.0+1.21.1-neoforge.jar`, tagged `v2.0.0`.
 - CI builds every version × loader combination, and uploads the jars of a tag to Modrinth and
   CurseForge.
 - Dropping a Minecraft version: remove its Stonecutter target after a release. If it later needs a
@@ -112,9 +121,15 @@ forge-1.12               1.12.2
 
 1. [x] **Extract the core.** Move `kumo` and `math` into a `core/` Gradle module with `git mv`
    (keeps `git log --follow` history).
-2. [ ] **Create `main`.** Branch from `forge-1.12`, remove the 1.12-specific code, add the
-   Stonecutter multi-loader layout, and port the Minecraft-facing code, starting with 1.21.1
-   (NeoForge + Fabric).
+2. [ ] **Create `main`.** Port the Minecraft-facing code, starting with 1.21.1 (NeoForge + Fabric).
+   - [x] Fast-forward `main` to `forge-1.12`.
+   - [x] Add the Stonecutter multi-loader layout: a 1.21.1 Fabric + NeoForge skeleton that loads,
+     with `core/` compiled in, and CI. The 1.12 sources moved to `legacy-1.12/` (not built) as the
+     porting reference; the shared assets moved to `src/main/resources`.
+   - [ ] Port `legacy-1.12/` class by class with `git mv` (keeps history), deleting it once empty.
+     The animation lab then compiles from `src/`.
+   - [ ] Convert the `.lang` translations to `.json`.
+   - [ ] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge).
 3. [ ] **Publish `core`.** Release the first `core` version and switch `forge-1.12` to depend on it,
    deleting its in-tree copy.
 4. [ ] **Switch the default branch** on GitHub to `main`, and archive the 1.16 branches

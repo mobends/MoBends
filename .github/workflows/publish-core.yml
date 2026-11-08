@@ -2,7 +2,7 @@ name: Publish core
 
 # Publishes the Minecraft-free engine (core/) to GitHub Packages as
 # goblinbob.mobends:mobends-core:<version>, for every pushed tag named core-<version>
-# (e.g. core-2.0.0). See CONTRIBUTING.md.
+# (e.g. core-2.0.0), tagged on main. See CONTRIBUTING.md.
 on:
   push:
     tags:
@@ -30,24 +30,14 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Set up JDK 8
+      # Gradle runs on 25 (gradle/gradle-daemon-jvm.properties); the core is compiled with 21 for Java 8.
+      - name: Set up JDK 21 and 25
         uses: actions/setup-java@v4
         with:
-          java-version: "8"
-          distribution: "temurin"
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          distribution: temurin
+          java-version: |
+            21
+            25
 
       - name: Test and publish
         run: ./gradlew :core:build :core:publish -PcoreVersion=${{ steps.version.outputs.version }}

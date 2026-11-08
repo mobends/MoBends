@@ -1,5 +1,9 @@
 # Mo' Bends — Technical Docs
 
+These docs describe the 1.12.2 mod, whose sources are in [`legacy-1.12/`](../legacy-1.12/README.md) on
+`main`, apart from the engine (`core/`) and the asset formats, which every version shares. They are
+updated as each part is ported into `src/`.
+
 | Doc | Contents |
 |-----|---------|
 | [overview.md](overview.md) | Gradle modules, package layout, module system, addon extension point |

@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "goblinbob.mobends.mixin",
+  "compatibilityLevel": "${java}",
+  "mixins": [],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -6,18 +6,20 @@ on:
   push:
     paths:
       - "animation-lab/**"
-      - "src/main/java/goblinbob/mobends/core/**"
+      - "legacy-1.12/src/main/java/goblinbob/mobends/core/**"
       - "core/src/main/java/**"
-      - "src/main/java/goblinbob/mobends/standard/**"
+      - "legacy-1.12/src/main/java/goblinbob/mobends/standard/**"
       - "src/main/resources/assets/mobends/bends/**"
+      - "misc/legacy-pack/**"
       - ".github/workflows/animation-lab.yml"
   pull_request:
     paths:
       - "animation-lab/**"
-      - "src/main/java/goblinbob/mobends/core/**"
+      - "legacy-1.12/src/main/java/goblinbob/mobends/core/**"
       - "core/src/main/java/**"
-      - "src/main/java/goblinbob/mobends/standard/**"
+      - "legacy-1.12/src/main/java/goblinbob/mobends/standard/**"
       - "src/main/resources/assets/mobends/bends/**"
+      - "misc/legacy-pack/**"
       - ".github/workflows/animation-lab.yml"
 
 jobs:
