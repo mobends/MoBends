@@ -953,6 +953,7 @@
               {
                 "@when": {"not": ["animator.climbing"]},
                 "core:translate": {"bone": "root", "x": 0, "y": {"mul": ["node.landKick", -1.5]}, "z": 0},
+                "@space": "override",
                 "@smoothing": {"root": [5, null, 5]}
               },
               {

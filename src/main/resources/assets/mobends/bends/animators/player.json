@@ -1251,6 +1251,7 @@
                   "y": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, 14]},
                   "z": {"mul": [{"easeInOut": [{"clamp": ["node.deep", 0, 1]}, 3]}, -20]}
                 },
+                "@space": "override",
                 "@smoothing": {"root": [null, 0.715, 0.715]},
                 "@vectorModes": {"root": "slide"}
               }

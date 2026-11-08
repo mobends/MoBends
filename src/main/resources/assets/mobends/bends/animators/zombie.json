@@ -101,6 +101,7 @@
               {
                 "@when": {"and": [{"eq": ["entity.animationSet", 0]}, {"gt": ["node.rootHeld", 0]}]},
                 "core:translate": {"bone": "root", "y": {"mul": [-3, {"sub": [1, "node.onFeet"]}]}},
+                "@space": "override",
                 "@vectorModes": {"root": "snap"}
               },
               {

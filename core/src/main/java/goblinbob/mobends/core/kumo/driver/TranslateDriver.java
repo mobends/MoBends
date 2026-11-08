@@ -9,9 +9,10 @@ import goblinbob.mobends.core.kumo.state.template.pose.TranslateTemplate;
 
 /**
  * Moves a bone from three expressions, in model units:
- * {@code {"core:translate": {"bone": "root", "y": {"mul": ["deep", 14]}}}}. On a part it writes the
- * position offset, on an entity-level vector bone ({@link Skeleton#isVectorBone}) the vector. Its
- * {@code when} is applied by the node, like every pose item's.
+ * {@code {"core:translate": {"bone": "root", "y": {"mul": ["deep", 14]}}}}. Like {@code core:rotate},
+ * it moves in {@code pre} space unless told otherwise. On a part it writes the position offset, on
+ * an entity-level vector bone ({@link Skeleton#isVectorBone}) the vector. Its {@code when} is
+ * applied by the node, like every pose item's.
  */
 public class TranslateDriver implements IPoseItem
 {
@@ -44,7 +45,7 @@ public class TranslateDriver implements IPoseItem
             throw new MalformedKumoTemplateException("core:translate needs a 'bone'.");
         }
         boolean vector = Skeleton.isVectorBone(template.bone);
-        Pose.Space space = template.space == null ? Pose.Space.OVERRIDE : template.space;
+        Pose.Space space = template.space == null ? Pose.Space.PRE : template.space;
         // A relative write that leaves an axis out moves it by nothing.
         Expression unwritten = space == Pose.Space.OVERRIDE ? UNWRITTEN : Expression.ZERO;
         ItemEffects effects = new ItemEffects(context.getExpressionScope(), skeleton, template.smoothing, template.vectorModes, template.snap, !vector);

@@ -27,7 +27,7 @@ public class TranslateDriverTest
     @Test
     public void movesAPartsOffset() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
@@ -38,7 +38,7 @@ public class TranslateDriverTest
     @Test
     public void movesAnEntityLevelVector() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 1, 'y': 2, 'z': 3}}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 1, 'y': 2, 'z': 3}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
@@ -49,8 +49,8 @@ public class TranslateDriverTest
     @Test
     public void anAxisLeftOutKeepsWhatThePartHasSoFar() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}}, "
-                + "{'core:translate': {'bone': 'arm', 'y': 5}}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}, '@space': 'override'}, "
+                + "{'core:translate': {'bone': 'arm', 'y': 5}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
@@ -61,7 +61,7 @@ public class TranslateDriverTest
     @Test
     public void anAxisLeftOutKeepsThePartsCurrentOffset() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'y': 5}}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'y': 5}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
         subject.offsets.get("arm").set(1, 0, 3);
         subject.smoothOffsets.get("arm").set(1, 0, 3);
@@ -72,9 +72,21 @@ public class TranslateDriverTest
     }
 
     @Test
+    public void movesInPreSpaceByDefault() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}, '@space': 'override'}, "
+                + "{'core:translate': {'bone': 'arm', 'x': 1, 'y': 1}}");
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+
+        assertVector(2, 3, 3, subject.offsets.get("arm"));
+    }
+
+    @Test
     public void aRelativeAxisLeftOutMovesByNothing() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}}, "
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 1, 'y': 2, 'z': 3}, '@space': 'override'}, "
                 + "{'core:translate': {'bone': 'arm', 'y': 5}, '@space': 'pre'}");
         TestSubject subject = new TestSubject("arm");
 
@@ -86,7 +98,7 @@ public class TranslateDriverTest
     @Test
     public void aSmoothedOffsetIsSmoothed() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@smoothing': {'arm': 4}}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override', '@smoothing': {'arm': 4}}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
@@ -106,7 +118,7 @@ public class TranslateDriverTest
     @Test
     public void aSmoothedOffsetSnaps() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@smoothing': {'arm': 4}, '@snap': true}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override', '@smoothing': {'arm': 4}, '@snap': true}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
@@ -117,7 +129,7 @@ public class TranslateDriverTest
     @Test
     public void aSmoothedOffsetSlides() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@smoothing': {'arm': 4}, '@vectorModes': {'arm': 'slide'}}");
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override', '@smoothing': {'arm': 4}, '@vectorModes': {'arm': 'slide'}}");
         TestSubject subject = new TestSubject("arm");
 
         // A linear tween of 4 ticks.
@@ -132,7 +144,7 @@ public class TranslateDriverTest
     @Test
     public void aSmoothedTranslateLeavesTheRotationsSmoothingAlone() throws MalformedKumoTemplateException
     {
-        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@smoothing': {'arm': 4}}, "
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override', '@smoothing': {'arm': 4}}, "
                 + "{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 90}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
 
@@ -150,7 +162,7 @@ public class TranslateDriverTest
     public void anUnsmoothedOffsetIsAppliedAsIs() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'core:rotate': {'bone': 'arm', 'axis': 'x', 'angle': 90}, '@space': 'override', '@smoothing': {'arm': 10}}, "
-                + "{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}}");
+                + "{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override'}");
         TestSubject subject = new TestSubject("arm");
 
         animator.update(subject, 1F);
