@@ -194,25 +194,28 @@ public final class DefinedModel {
     }
 
     /**
-     * Draws bone {@code name} alone (its segments with it), through its parents' transforms, in
-     * the model's space, with the bones in {@code atRest} at rest: the bone's own boxes, or with
-     * {@code overlay}, only the pieces of that overlay bone laid over it (a sleeve). The
-     * first-person hand, as 1.12 drew it.
+     * Draws bone {@code name} alone, its segments with it, all at rest, in the frame of vanilla's
+     * part for it as {@code vanillaPart} is posed: the bone's own boxes, or with {@code overlay},
+     * only the pieces of that overlay bone laid over it (a sleeve). The first-person hand: vanilla's
+     * arm, posed as vanilla poses it, with the bent arm's boxes.
      *
      * @return false if there is no such bone, and nothing was drawn
      */
-    public boolean renderAlone(String name, @Nullable String overlay, Set<String> atRest, DefinedEntityData<?> data, PoseStack poseStack,
+    public boolean renderAlone(String name, @Nullable String overlay, ModelPart vanillaPart, DefinedEntityData<?> data, PoseStack poseStack,
                                VertexConsumer consumer, int packedLight, int packedOverlay) {
         DefinedModelPart part = parts.get(name);
         if (part == null) {
             return false;
         }
-        DefinedModelPart.atRest = atRest;
+        DefinedModelPart.allAtRest = true;
         DefinedModelPart.drawn = overlay == null ? p -> p.overlayOf == null : p -> overlay.equals(p.overlayOf);
+        poseStack.pushPose();
         try {
-            part.renderAsRoot(poseStack, consumer, packedLight, packedOverlay, -1, data);
+            vanillaPart.translateAndRotate(poseStack);
+            part.renderInVanillaFrame(poseStack, consumer, packedLight, packedOverlay, -1, data);
         } finally {
-            DefinedModelPart.atRest = null;
+            poseStack.popPose();
+            DefinedModelPart.allAtRest = false;
             DefinedModelPart.drawn = null;
         }
         return true;

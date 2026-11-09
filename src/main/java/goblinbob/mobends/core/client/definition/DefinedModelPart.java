@@ -13,7 +13,6 @@ import org.joml.Quaternionf;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -55,12 +54,11 @@ public class DefinedModelPart {
     String overlayOf;
 
     /*
-     * While a part is drawn on its own ({@link DefinedModel#renderAlone}, the first-person hand): the
-     * bones drawn at rest, whatever the data says, and which parts' boxes are drawn (their children
-     * decide for themselves). Render thread only.
+     * While a part is drawn on its own ({@link DefinedModel#renderAlone}, the first-person hand):
+     * whether every bone is drawn at rest, whatever the data says, and which parts' boxes are drawn
+     * (their children decide for themselves). Render thread only.
      */
-    @Nullable
-    static Set<String> atRest;
+    static boolean allAtRest;
     @Nullable
     static Predicate<DefinedModelPart> drawn;
 
@@ -75,9 +73,9 @@ public class DefinedModelPart {
         return name == null ? null : data.getPart(name);
     }
 
-    /** Whether it's drawn at rest, while drawn on its own (see {@link #atRest}). */
+    /** Whether it's drawn at rest, while drawn on its own (see {@link #allAtRest}). */
     private boolean isAtRest() {
-        return atRest != null && name != null && atRest.contains(name);
+        return allAtRest;
     }
 
     /**
@@ -92,6 +90,18 @@ public class DefinedModelPart {
     void renderAsRoot(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int color, DefinedEntityData<?> data) {
         poseStack.pushPose();
         applyCharacterTransform(poseStack, data, SCALE);
+        renderInFrame(poseStack, consumer, packedLight, packedOverlay, color, data);
+        poseStack.popPose();
+    }
+
+    /**
+     * Draws the part in the frame vanilla's part has ({@code poseStack} is there): its own frame
+     * is that, moved back by where vanilla's part turns from where the bone does (the reverse of
+     * the end of {@link #applyVanillaFrame}).
+     */
+    void renderInVanillaFrame(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int color, DefinedEntityData<?> data) {
+        poseStack.pushPose();
+        poseStack.translate(-vanillaChildrenShift.x * SCALE, -vanillaChildrenShift.y * SCALE, -vanillaChildrenShift.z * SCALE);
         renderInFrame(poseStack, consumer, packedLight, packedOverlay, color, data);
         poseStack.popPose();
     }

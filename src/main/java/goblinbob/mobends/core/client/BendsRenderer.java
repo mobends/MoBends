@@ -21,7 +21,6 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Matrix4fc;
 
 import javax.annotation.Nullable;
-import java.util.Set;
 
 /**
  * Where a living entity's render meets Mo' Bends ({@code LivingEntityRendererMixin}): picks the
@@ -113,9 +112,9 @@ public final class BendsRenderer {
     /**
      * In place of vanilla's draw of the first-person hand's arm or sleeve ({@code PlayerRendererMixin},
      * {@code PlayerRenderer.renderHand}): draws the bent arm, its segments with it, or the sleeve
-     * over it, with the definition's {@code renderer.firstPersonRest} bones at rest, as 1.12 did
-     * ({@code poseForFirstPersonView}). The player isn't animated for it: what's at rest doesn't
-     * need the animator.
+     * over it, straight, posed as vanilla poses its first-person arm. (1.12 drew the bent arm with
+     * the definition's {@code renderer.firstPersonRest} bones at rest instead, which left out
+     * vanilla's slight outward tilt.) The player isn't animated for it.
      *
      * @param sleeve whether vanilla draws the sleeve ({@code vanillaPart} is the arm otherwise)
      * @return false to draw vanilla's part (the player isn't bent, or its model has no such bone)
@@ -152,8 +151,7 @@ public final class BendsRenderer {
                 return false;
             }
         }
-        return parts.renderAlone(bone, overlay, Set.copyOf(definition.renderer.firstPersonRest), definedData, poseStack, consumer, packedLight,
-                packedOverlay);
+        return parts.renderAlone(bone, overlay, vanillaPart, definedData, poseStack, consumer, packedLight, packedOverlay);
     }
 
     /**
