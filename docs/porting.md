@@ -23,16 +23,12 @@ Ported so far, in this order:
 
 I've checked the player, its layers and the other mobs (the zombie, skeleton, zombie villager,
 creeper, golem, villager, witch, spider, squid, and the wolf, adult and pup, side by side with vanilla)
-in the game on Fabric. On NeoForge I've only checked the player (#381).
+in the game on both loaders, as well as GeckoLib armour (with Fantasy Armor) and the addon API (with
+a test addon in its own jar).
 
 ## What's next
 
-In this order:
-
 1. The 1.20.1 and latest targets.
-2. Check GeckoLib armour in the game on NeoForge (on Fabric it's checked with Fantasy Armor).
-3. Check the addon API in the game on NeoForge (on Fabric it's checked with a test addon in its
-   own jar).
 
 Left for a later alpha: poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow,
 trident: they now just keep the current pose).
