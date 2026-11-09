@@ -17,7 +17,7 @@ Ported so far, in this order:
 | #383 | The other mobs: zombie (husk, drowned), skeleton, zombie villager, creeper, iron golem, villager, witch, spider, squid, wolf, the dev pack's animals; type files, extensions, `field` expressions; the `core:minecraft_version` condition and `@variants` in model definitions. |
 | #386 | The sword trail and the cape wave. |
 | #388 | The first-person hand stays vanilla's; `renderer.firstPersonRest` is gone. |
-| #GECKO | GeckoLib armour bends with the body (when GeckoLib is installed). |
+| #398 | GeckoLib armour bends with the body (when GeckoLib is installed). |
 
 I've checked the player, its layers, the zombie, skeleton, zombie villager and the wolf (adult and
 pup, side by side with vanilla) in the game on Fabric. The creeper, golem, villager, witch, spider and
