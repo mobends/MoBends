@@ -16,7 +16,7 @@ Ported so far, in this order:
 | #382 | The player's render layers follow the bent body: held items, vanilla armour, custom head, spyglass, cape, elytra. |
 | #383 | The other mobs: zombie (husk, drowned), skeleton, zombie villager, creeper, iron golem, villager, witch, spider, squid, wolf, the dev pack's animals; type files, extensions, `field` expressions; the `core:minecraft_version` condition and `@variants` in model definitions. |
 | #386 | The sword trail and the cape wave. |
-| (this) | The first-person hand stays vanilla's; `renderer.firstPersonRest` is gone. |
+| #388 | The first-person hand stays vanilla's; `renderer.firstPersonRest` is gone. |
 
 I've checked the player, its layers, the zombie, skeleton, zombie villager and the wolf (adult and
 pup, side by side with vanilla) in the game on Fabric. The creeper, golem, villager, witch, spider and
