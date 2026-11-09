@@ -15,6 +15,7 @@ import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -33,8 +34,9 @@ import java.util.function.Consumer;
  * type (a copy of the player for the player) standing in a {@link PreviewWorld}, drawn
  * orthographically from three quarters above and fit to the frame by its hitbox, through the
  * entity's own renderer, so it's drawn bent as in the game. It idles, or walks in place while
- * {@link #tick(boolean) asked to}. A mob that can't be made or drawn (there's no level: the menu
- * was opened from the title screen) shows its spawn egg instead.
+ * {@link #tick(boolean) asked to}, and carries an arm swing through when made to {@link #swing()}.
+ * A mob that can't be made or drawn (there's no level: the menu was opened from the title screen)
+ * shows its spawn egg instead.
  */
 public class EntityPreview {
     /** How far the mob is turned from facing the viewer, and how far the view looks down at it. */
@@ -101,6 +103,16 @@ public class EntityPreview {
         // As LivingEntity#calculateEntityAnimation swings the limbs.
         entity.walkAnimation.update(Math.min((float) speed * 4F, 1F), 0.4F);
 
+        // As LivingEntity#updateSwingTime carries a swing (begun by #swing) through, without haste or fatigue.
+        entity.oAttackAnim = entity.attackAnim;
+        if (entity.swinging && ++entity.swingTime >= LivingEntity.SWING_DURATION) {
+            entity.swinging = false;
+        }
+        if (!entity.swinging) {
+            entity.swingTime = 0;
+        }
+        entity.attackAnim = (float) entity.swingTime / LivingEntity.SWING_DURATION;
+
         if (entity instanceof Player player) {
             // The cape follows these; left behind, it would fly up.
             player.xCloakO = player.xCloak = player.getX();
@@ -112,6 +124,13 @@ public class EntityPreview {
         LivingEntityData<LivingEntity> data = PreviewWorld.dataOf(entity);
         if (data != null) {
             data.updateClient();
+        }
+    }
+
+    /** Swings the mob's main arm, as a player's attack does; carried through by {@link #tick}. Nothing before it's made. */
+    public void swing() {
+        if (entity != null) {
+            entity.swing(InteractionHand.MAIN_HAND);
         }
     }
 

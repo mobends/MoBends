@@ -93,7 +93,7 @@ public class GuiSettingsWindow extends Screen {
     }
 
     /** The frame of the Mo' Bends menu's windows: the container, and the tab its title goes on. */
-    static void drawWindow(GuiGraphics graphics, int x, int y, int width, int height) {
+    public static void drawWindow(GuiGraphics graphics, int x, int y, int width, int height) {
         // Container
         Draw.borderBox(graphics, BACKGROUND_TEXTURE, x + 4, y + 4, width, height, 4, 36, 126);
         // Title background
