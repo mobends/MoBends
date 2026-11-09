@@ -294,6 +294,30 @@ public final class BendsLayers {
         return true;
     }
 
+    /** Whether {@code entity} is being drawn bent, by a layer the definition asks for as {@code kind}. */
+    public static boolean asks(LivingEntity entity, String kind) {
+        return frameFor(entity, kind) != null;
+    }
+
+    /**
+     * Moves {@code poseStack}, at the model's pose, into the frame bent part {@code part} (a bone or
+     * a segment, {@code leftForeArm}) draws its boxes in: 1.12's {@code applyCharacterTransform},
+     * which its supporter accessories were made for. For a layer of Mo' Bends' own that the
+     * definition asks for as {@code kind}.
+     *
+     * @return false if {@code entity} isn't drawn bent here, the definition doesn't ask for
+     *         {@code kind}, or there's no such part: the layer draws nothing then
+     */
+    public static boolean translateToPart(LivingEntity entity, String kind, String part, PoseStack poseStack) {
+        Frame frame = frameFor(entity, kind);
+        if (frame == null || !frame.parts.hasPart(part)) {
+            return false;
+        }
+        toBentModel(frame, poseStack, part);
+        frame.parts.applyFrame(part, frame.data, poseStack);
+        return true;
+    }
+
     /**
      * Applies bone {@code bone}'s own transform alone, as it is drawn, in its parent's frame (after
      * {@link #translateToBone} to the parent). Does nothing if {@code entity} isn't drawn bent here.

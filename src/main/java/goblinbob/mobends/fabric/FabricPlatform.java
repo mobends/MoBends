@@ -1,12 +1,14 @@
 package goblinbob.mobends.fabric;
 
 //? if fabric {
+import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.network.ServerRulesPayload;
 import goblinbob.mobends.platform.Platform;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.metadata.ModOrigin;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.file.Path;
@@ -32,6 +34,16 @@ public final class FabricPlatform implements Platform {
     @Override
     public Path configDir() {
         return FabricLoader.getInstance().getConfigDir();
+    }
+
+    @Override
+    @Nullable
+    public Path modFile() {
+        return FabricLoader.getInstance().getModContainer(MoBends.MOD_ID)
+            .map(container -> container.getOrigin())
+            .filter(origin -> origin.getKind() == ModOrigin.Kind.PATH && !origin.getPaths().isEmpty())
+            .map(origin -> origin.getPaths().get(0))
+            .orElse(null);
     }
 
     @Override

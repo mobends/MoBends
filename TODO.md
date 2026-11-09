@@ -22,6 +22,8 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
 
 - [x] Add `supportUrl` (the Patreon page) and `accountUrl` (the mobends.com dashboard) to static-api.json.
 - [ ] Show the tiers (one-time collection, subscription, editor tier) once they exist.
+- [x] Have the API accept the join's `version` of the 2.0.0 pre-releases
+      (`2.0.0-alpha.1/1.21.1-fabric`): it refused them with a 400, and now answers the join.
 
 ## Legacy Mo' Bends pack
 
@@ -154,7 +156,11 @@ forge-1.12               1.12.2
      - [x] The client config (`config/mobends.json`, see docs/configuration.md).
      - [x] Server rules (`config/mobends-server.json`, sent to players) and pack trust (signed packs,
        `AnimationPolicy`).
-     - [ ] The Mo' Bends menu, supporters and the mobends.com API.
+     - [x] Supporters and the mobends.com API: the join and pings, the accessory catalogue and each
+       player's settings, the downloaded assets, account linking (without its screen), the
+       static API's links, the accessories drawn on the bent player, and the supporters' sword
+       trail colour (docs/api-communication.md).
+     - [ ] The Mo' Bends menu.
    - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge

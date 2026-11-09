@@ -48,8 +48,7 @@ public final class DefinedLayers {
 
     /**
      * A kind of layer: its id, the vanilla layer class (and subclasses) it applies to, and its
-     * role. A kind with no class is known but has nothing to apply to on this version (1.12 added
-     * those layers of its own: the player's accessories).
+     * role. A kind with no class is known but has nothing to apply to on this version.
      */
     public record Kind(String id, @Nullable Class<?> applies, Role role) {
     }
