@@ -36,6 +36,9 @@ forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 - CI builds the mod and runs its tests and the animation lab. All of them must pass.
 - `forge-1.12` doesn't merge from `main` (which builds the modern Minecraft versions); it shares only
   the released core with it.
+- What `main` changes that this branch has to follow is listed in TODO.md, *Keeping up with `main`*.
+  A pull request on `main` that changes `core`'s API, the asset format or a shared asset comes with a
+  pull request here adding its steps there.
 - `1.X/forge-1.12` holds the 1.X line (up to 1.2.2) and is no longer developed.
 
 ## Versioning and releases
