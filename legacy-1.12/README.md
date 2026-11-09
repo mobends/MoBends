@@ -15,9 +15,7 @@ the modern versions in `../src`.
 
 | File | Becomes |
 |---|---|
-| `core/util/ErrorReporter.java` | Animator and API errors told in chat, not only in the log |
 | `core/kumo/MinecraftKumoOperations.java` | `core:equipment_name` and `core:ledge_ahead` |
 | `core/definition/DefinedFields.java`, `core/vanilla/VanillaModelParts.java` | Model definitions that name other mods' models |
 | `standard/main/MoBends.java`, `src/main/resources/mcmod.info` | NeoForge's update check (`updateJSON`) and the credits |
 | `src/test/.../WildcardPatternTest.java`, `RemoteFlightTest.java` | Their tests, in the animation lab |
-| `src/tools/.../SignPack.java`, `GenPackSigningKey.java` | `core/src/tools` (the Legacy Mo' Bends pack is built on `main`) |

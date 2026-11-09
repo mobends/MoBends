@@ -3,6 +3,7 @@ package goblinbob.mobends.core.client.event;
 import goblinbob.mobends.core.addon.Addons;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.kumo.RayGizmos;
+import goblinbob.mobends.core.util.ErrorReporter;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrail;
 import net.minecraft.client.Minecraft;
 
@@ -61,6 +62,7 @@ public final class DataUpdateHandler {
         EntityDatabase.instance.updateClient();
         if (minecraft.player != null) {
             Addons.onClientTick();
+            ErrorReporter.flush();
         }
     }
 }

@@ -6,6 +6,7 @@ import goblinbob.mobends.core.asset.AssetsModule;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.util.ApiErrorException;
 import goblinbob.mobends.core.util.ConnectionHelper;
+import goblinbob.mobends.core.util.ErrorReporter;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -32,6 +33,8 @@ import java.util.concurrent.TimeUnit;
  * error) doesn't stop them.
  */
 public final class ConnectionManager {
+    /** The key of the chat notice ({@link ErrorReporter}) of a failed join: said once. */
+    private static final String JOIN_NOTICE = "api join";
     private static final String DEV_CHECKSUM = "dev";
     /** The shortest ping interval taken from the API, in seconds, whatever it says. */
     private static final float MIN_PING_INTERVAL = 10.0F;
@@ -116,6 +119,8 @@ public final class ConnectionManager {
         } catch (ApiErrorException e) {
             reachable = true;
             MoBends.LOGGER.warn("The Mo' Bends API refused the join: {}. Contact the developers if this keeps happening.", e.getMessage());
+            ErrorReporter.report(JOIN_NOTICE, "Couldn't join the Mo' Bends API: " + e.getMessage() + ". Supporter accessories are off. "
+                    + "Contact the developers if this keeps happening.");
             return;
         } catch (IOException e) {
             if (ConnectionHelper.isOffline(e)) {
@@ -123,6 +128,8 @@ public final class ConnectionManager {
             } else {
                 MoBends.LOGGER.warn("Couldn't join the Mo' Bends API; supporter accessories are off. Contact the developers if this "
                     + "keeps happening.", e);
+                ErrorReporter.report(JOIN_NOTICE, "Couldn't join the Mo' Bends API. Supporter accessories are off. "
+                        + "Contact the developers if this keeps happening.");
             }
             return;
         }
