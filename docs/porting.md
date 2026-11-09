@@ -15,6 +15,8 @@ Ported so far, in this order:
 | #381 | The player bends: its model definition, entity data, the KUMO glue, and the bent model (split elbows and knees) drawn instead of vanilla's. |
 | #382 | The player's render layers follow the bent body: held items, vanilla armour, custom head, spyglass, cape, elytra. |
 | #383 | The other mobs: zombie (husk, drowned), skeleton, zombie villager, creeper, iron golem, villager, witch, spider, squid, wolf, the dev pack's animals; type files, extensions, `field` expressions; the `core:minecraft_version` condition and `@variants` in model definitions. |
+| #386 | The sword trail and the cape wave. |
+| #388 | The first-person hand stays vanilla's; `renderer.firstPersonRest` is gone. |
 
 I've checked the player, its layers, the zombie, skeleton, zombie villager and the wolf (adult and
 pup, side by side with vanilla) in the game on Fabric. The creeper, golem, villager, witch, spider and
@@ -24,7 +26,7 @@ squid are still to be checked. On NeoForge I've only checked the player (#381).
 
 In this order:
 
-1. **The rest of the player** (TODO.md): the first-person hands, the
+1. **The rest of the player** (TODO.md): the
    inventory player's head following the mouse (1.12's `lookFurther`), stuck arrows and bee stingers
    on the bent limbs, armour from other mods' models, and poses for the items 1.12 didn't have
    (spyglass, goat horn, brush, crossbow, trident: they now just keep the current pose).

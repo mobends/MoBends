@@ -39,8 +39,7 @@
   "renderer": {
     "@comment": "Vanilla lowers a sneaking player; the bent sneak pose needs it higher.",
     "sneakOffset": 5,
-    "flyingSneakOffset": 4,
-    "firstPersonRest": ["body", "rightArm", "rightForeArm", "leftArm", "leftForeArm"]
+    "flyingSneakOffset": 4
   },
   "layers": {
     "mobends:armor": {},
