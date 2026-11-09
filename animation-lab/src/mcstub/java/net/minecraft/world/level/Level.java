@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -52,6 +53,18 @@ public abstract class Level implements BlockGetter {
     }
 
     /** Lab only: the cubes of the stone blocks that overlap {@code box}. */
+    /** The collision shapes the box meets, placed in the world: the stone cubes, and the floor. */
+    public Iterable<VoxelShape> getCollisions(@Nullable Entity entity, AABB box) {
+        List<VoxelShape> shapes = new ArrayList<>();
+        if (box.minY < floorY) {
+            shapes.add(new VoxelShape(new AABB(box.minX, floorY - 1, box.minZ, box.maxX, floorY, box.maxZ)));
+        }
+        for (AABB cube : stoneIn(box)) {
+            shapes.add(new VoxelShape(cube));
+        }
+        return shapes;
+    }
+
     public List<AABB> stoneIn(AABB box) {
         List<AABB> result = new ArrayList<>();
         for (Map.Entry<BlockPos, BlockState> block : blocks.entrySet()) {

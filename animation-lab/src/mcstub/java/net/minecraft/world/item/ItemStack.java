@@ -2,6 +2,7 @@ package net.minecraft.world.item;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 
 public final class ItemStack {
     public static final ItemStack EMPTY = new ItemStack(Items.AIR);
@@ -27,6 +28,11 @@ public final class ItemStack {
     /** Whether it carries the component: here only {@link DataComponents#FOOD}, which food has. */
     public boolean has(DataComponentType<?> component) {
         return component == DataComponents.FOOD && item.isFood();
+    }
+
+    /** The name shown for it: here the item's. */
+    public Component getHoverName() {
+        return Component.literal(item.toString());
     }
 
     @Override
