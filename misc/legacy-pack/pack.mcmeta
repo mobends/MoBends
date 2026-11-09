@@ -1,6 +1,7 @@
 {
   "pack": {
     "pack_format": 3,
+    "supported_formats": [3, 34],
     "description": "Legacy Mo' Bends: all creatures move like in Mo' Bends 1.X"
   }
 }

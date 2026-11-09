@@ -137,15 +137,18 @@ prerelease), give `CHANGELOG.md` a `## <version>` section, merge that into `main
 `.github/workflows/release.yml`, which:
 
 1. checks the tag matches `mod.version` and is on `main`, and stops otherwise;
-2. builds every node (`./gradlew buildAndCollect`);
-3. attaches every jar, `mobends-<version>+<minecraft>-<loader>.jar`, to the tag's GitHub release,
-   creating it (from the changelog section) if there isn't one. A version with a `-` suffix is a
-   prerelease;
+2. builds every node (`./gradlew buildAndCollect`), and the signed Legacy Mo' Bends resource pack
+   (`misc/legacy-pack`, for 1.12.2 and the modern versions alike), `Legacy-Mo-Bends-<version>.zip`;
+3. attaches every jar, `mobends-<version>+<minecraft>-<loader>.jar`, and the pack to the tag's GitHub
+   release, creating it (from the changelog section) if there isn't one. A version with a `-` suffix
+   is a prerelease;
 4. uploads each jar to Modrinth and CurseForge as its own version, `<version>+<minecraft>-<loader>`,
    for its loader and the Minecraft releases in its `mod.mc_releases`, with the changelog section as
    its changelog. A version with `alpha` in it is released as an alpha, with any other `-` suffix as
    a beta, otherwise as a release. **This step is switched off for now** (see [TODO.md](TODO.md));
-   until it's on, upload the jars by hand from the GitHub release.
+   until it's on, upload the jars by hand from the GitHub release;
+5. uploads the pack to its own Modrinth and CurseForge projects, as `<version>`, for 1.12.2 and every
+   node's Minecraft releases. **Also switched off for now** (TODO.md, *Legacy Mo' Bends pack*).
 
 A new node needs no change to the workflow: give its Minecraft version a `mod.mc_releases` in
 `stonecutter.properties.toml`.
@@ -159,9 +162,17 @@ on `forge-1.12`), under *Settings → Secrets and variables → Actions*:
 | `CURSEFORGE_TOKEN` | secret | A CurseForge API token (authors.curseforge.com, *API tokens*). |
 | `MODRINTH_PROJECT_ID` | variable | The mod's Modrinth project id (or slug). |
 | `CURSEFORGE_PROJECT_ID` | variable | The mod's CurseForge project id (a number). |
+| `LEGACY_PACK_MODRINTH_PROJECT_ID` | variable | The Legacy Mo' Bends pack's Modrinth project id (or slug). |
+| `LEGACY_PACK_CURSEFORGE_PROJECT_ID` | variable | The Legacy Mo' Bends pack's CurseForge project id (a number). |
+| `MOBENDS_PACK_SIGNING_KEY` | secret | The private key that signs Mo' Bends' own resource packs (PKCS#8, base64; see docs/content.md). |
 
 A version can't be uploaded to Modrinth or CurseForge twice. If a release fails partway, re-run the
 failed jobs rather than pushing the tag again.
+
+The pack is signed with `MOBENDS_PACK_SIGNING_KEY`. Locally, `./gradlew :core:legacyPack
+-Ppack_signing_key=<file>` does the same into `build/packs/`. The private key is never committed. Keep
+a copy in a password manager. A lost key means new packs need a mod release that ships a new public
+key.
 
 ### Releasing `core`
 

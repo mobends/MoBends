@@ -1,13 +1,15 @@
 name: Release
 
 # Releases Mo' Bends for the modern Minecraft versions for every release tag v<version> on main
-# (e.g. v2.0.0 or v2.0.0-alpha.2): builds every version node at once, attaches the jars to the
-# tag's GitHub release, and uploads each jar to Modrinth and CurseForge. See CONTRIBUTING.md,
+# (e.g. v2.0.0 or v2.0.0-alpha.2): builds every version node at once and the signed Legacy Mo' Bends
+# resource pack (misc/legacy-pack, for 1.12.2 and the modern versions alike), attaches them to the
+# tag's GitHub release, and uploads them to Modrinth and CurseForge. See CONTRIBUTING.md,
 # *Releasing the mod*. The 1.12.2 tags (v<version>-1.12.2) are released from forge-1.12, and the
 # core's (core-<version>) by publish-core.yml.
 #
-# The Modrinth and CurseForge tokens are kept to the publishing job, which runs no Gradle and no
-# project code.
+# Secrets are kept to the steps that need them: the pack signing key to the signing step, which
+# runs no Gradle, the Modrinth and CurseForge tokens to the publishing jobs, which run no Gradle
+# and no project code.
 on:
   push:
     tags:
@@ -132,8 +134,45 @@ jobs:
           name: release-notes
           path: release-notes.md
 
-  github-release:
+  legacy-pack:
     needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Gradle runs on 25 (gradle/gradle-daemon-jvm.properties); the tools on 21.
+      - name: Set up JDK 21 and 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            25
+
+      # No Gradle cache here: a cache written by another workflow run could change the signing tool.
+      # The tools are built before the key is in the environment, and signing runs them with plain
+      # java, so no Gradle plugin's code runs where the key is.
+      - name: Build the signing tool
+        run: ./gradlew :core:installTools
+
+      - name: Sign the pack
+        run: |
+          mkdir -p build/packs
+          java -cp "core/build/tools/*" goblinbob.mobends.tools.SignPack \
+            misc/legacy-pack "build/packs/Legacy-Mo-Bends-${{ needs.build.outputs.version }}.zip"
+        env:
+          MOBENDS_PACK_SIGNING_KEY: ${{ secrets.MOBENDS_PACK_SIGNING_KEY }}
+
+      - name: Upload the pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-pack
+          path: build/packs/Legacy-Mo-Bends-${{ needs.build.outputs.version }}.zip
+
+  github-release:
+    needs: [build, legacy-pack]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -144,7 +183,7 @@ jobs:
         with:
           path: release
 
-      - name: Attach the jars to the release
+      - name: Attach the jars and the pack to the release
         run: |
           if ! gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             prerelease=()
@@ -153,7 +192,7 @@ jobs:
               --title "Mo' Bends ${{ needs.build.outputs.version }} for Minecraft ${{ needs.build.outputs.minecraft }}" \
               --notes-file release/release-notes/release-notes.md "${prerelease[@]}"
           fi
-          gh release upload "$GITHUB_REF_NAME" release/mod/*.jar --clobber
+          gh release upload "$GITHUB_REF_NAME" release/mod/*.jar release/legacy-pack/*.zip --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -231,3 +270,66 @@ jobs:
           loaders: ${{ matrix.node.loader }}
           game-versions: ${{ steps.node.outputs.game-versions }}
           java: ${{ matrix.node.java }}
+
+  publish-legacy-pack:
+    needs: [build, legacy-pack]
+    # TODO: Off until the pack has its Modrinth and CurseForge pages (see TODO.md, *Legacy Mo' Bends
+    # pack*). To turn it on, delete this `if`.
+    if: false
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      - name: Check the projects and tokens are set
+        run: |
+          missing=()
+          [ -n "$MODRINTH_PROJECT_ID" ] || missing+=("variable LEGACY_PACK_MODRINTH_PROJECT_ID")
+          [ -n "$CURSEFORGE_PROJECT_ID" ] || missing+=("variable LEGACY_PACK_CURSEFORGE_PROJECT_ID")
+          [ -n "$MODRINTH_TOKEN" ] || missing+=("secret MODRINTH_TOKEN")
+          [ -n "$CURSEFORGE_TOKEN" ] || missing+=("secret CURSEFORGE_TOKEN")
+          if [ "${#missing[@]}" != 0 ]; then
+            echo "::error::Not set: ${missing[*]}"
+            exit 1
+          fi
+        env:
+          MODRINTH_PROJECT_ID: ${{ vars.LEGACY_PACK_MODRINTH_PROJECT_ID }}
+          CURSEFORGE_PROJECT_ID: ${{ vars.LEGACY_PACK_CURSEFORGE_PROJECT_ID }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+
+      - name: Download the pack
+        uses: actions/download-artifact@v4
+        with:
+          name: legacy-pack
+          path: release
+
+      # 1.12.2 and every node's Minecraft releases, one per line, as mc-publish takes them: one pack
+      # for all of them (pack.mcmeta's supported_formats).
+      - name: List the pack's Minecraft releases
+        id: pack
+        run: |
+          {
+            echo "game-versions<<EOF"
+            echo "1.12.2"
+            jq -r '[.[].gameVersions[]] | unique | .[]' <<< "$NODES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          NODES: ${{ needs.build.outputs.nodes }}
+
+      # A resource pack has no loader on CurseForge; on Modrinth its loader is `minecraft`.
+      - name: Publish to Modrinth and CurseForge
+        uses: Kira-NT/mc-publish@c23376546a97f5ba7984e94445da359459b14419 # v3.3.2
+        with:
+          modrinth-id: ${{ vars.LEGACY_PACK_MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ vars.LEGACY_PACK_CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: release/*.zip
+          name: Legacy Mo' Bends ${{ needs.build.outputs.version }}
+          version: ${{ needs.build.outputs.version }}
+          version-type: ${{ needs.build.outputs.version-type }}
+          changelog: |
+            The Legacy Mo' Bends resource pack for Mo' Bends ${{ needs.build.outputs.version }}: players and zombies move as they did in Mo' Bends 1.X.
+          modrinth-loaders: minecraft
+          game-versions: ${{ steps.pack.outputs.game-versions }}
