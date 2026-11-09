@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.BendsLayers;
 import goblinbob.mobends.core.client.definition.DefinedModel;
+import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityComponent;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import net.minecraft.client.model.EntityModel;
@@ -32,7 +33,7 @@ public class SwordTrail implements EntityComponent {
     /** How long a part of the trail takes to fade, and how long it is kept, in ticks. */
     private static final float FADE_TICKS = 5.0F;
     private static final float LIFE_TICKS = 20.0F;
-    /** The trail's colour; supporters' own colours come with the supporters. */
+    /** The trail's colour; supporters' own colours come with the supporters. It's drawn unless the config says not to. */
     private static final float RED = 1.0F, GREEN = 1.0F, BLUE = 1.0F;
 
     private final List<TrailPart> parts = new ArrayList<>();
@@ -139,7 +140,7 @@ public class SwordTrail implements EntityComponent {
     /** After the entity's render ({@code LivingEntityRendererMixin}): draws its trail, if it has one. */
     public static void draw(DefinedEntityData<?> data, Matrix4fc entityFrame, float bodyYaw, MultiBufferSource buffers) {
         SwordTrail trail = data.getComponent("swordTrail", SwordTrail.class);
-        if (trail == null || trail.parts.size() < 2) {
+        if (trail == null || trail.parts.size() < 2 || !ClientConfig.INSTANCE.showSwordTrail()) {
             return;
         }
         Matrix4f frame = entityFrame(entityFrame, bodyYaw);

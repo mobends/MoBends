@@ -7,6 +7,7 @@ import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.client.definition.DefinedModelPart;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
+import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.OrientationComponent;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -18,11 +19,13 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
@@ -434,7 +437,16 @@ public final class BendsLayers {
     }
 
     private static boolean isArmour(Frame frame, EntityModel<?> model) {
-        return frame.layer instanceof HumanoidArmorLayer<?, ?, ?> && model instanceof HumanoidModel<?>;
+        return frame.layer instanceof HumanoidArmorLayer<?, ?, ?> && model instanceof HumanoidModel<?>
+                && (armourPiece.isEmpty() || !ClientConfig.INSTANCE.keepsArmorVanilla(BuiltInRegistries.ITEM.getKey(armourPiece.getItem()).toString()));
+    }
+
+    /** The armour piece an armour layer is drawing ({@code HumanoidArmorLayerMixin}); render thread only. */
+    private static ItemStack armourPiece = ItemStack.EMPTY;
+
+    /** Notes the armour piece an armour layer is about to draw, which the user may keep as vanilla draws it. */
+    public static void noteArmourPiece(ItemStack stack) {
+        armourPiece = stack;
     }
 
     /**

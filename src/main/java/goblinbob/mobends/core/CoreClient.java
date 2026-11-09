@@ -4,6 +4,7 @@ import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.core.client.definition.DefinedModel;
+import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.definition.ModelDefinitions;
@@ -46,6 +47,8 @@ public final class CoreClient {
     }
 
     public static void init() {
+        // The user's settings, before anything reads them (the options' values, what's animated).
+        ClientConfig.INSTANCE.load(MoBends.platform().configDir());
         // The operations, drivers and built-ins the animators name; an animator naming one that
         // isn't registered fails to load.
         MinecraftKumoOperations.register();

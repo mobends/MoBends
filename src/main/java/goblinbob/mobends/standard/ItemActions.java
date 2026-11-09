@@ -1,14 +1,20 @@
 package goblinbob.mobends.standard;
 
+import goblinbob.mobends.core.configuration.ClientConfig;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.UseAnim;
 
-/** Which use and attack action an item stands for (see {@code MoBendsOperations}). */
+/**
+ * Which use and attack action an item stands for (see {@code MoBendsOperations}): what the user's
+ * config says of it (its {@code itemUseClassifications}, {@code itemAttackClassifications}), else
+ * what its kind is.
+ */
 public final class ItemActions {
     private ItemActions() {
     }
@@ -38,6 +44,10 @@ public final class ItemActions {
         if (stack.isEmpty()) {
             return null;
         }
+        UseActionType configured = ClientConfig.INSTANCE.useActionOf(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+        if (configured != null) {
+            return configured;
+        }
         UseAnim animation = stack.getUseAnimation();
         if (stack.has(DataComponents.FOOD) || animation == UseAnim.EAT || animation == UseAnim.DRINK) {
             return UseActionType.FOOD;
@@ -56,6 +66,12 @@ public final class ItemActions {
 
     /** How {@code stack}, the item in the main hand, attacks. */
     public static AttackActionType getItemAttackAction(ItemStack stack) {
+        if (!stack.isEmpty()) {
+            AttackActionType configured = ClientConfig.INSTANCE.attackActionOf(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+            if (configured != null) {
+                return configured;
+            }
+        }
         if (stack.getItem() instanceof SwordItem) {
             return AttackActionType.SWORD;
         }

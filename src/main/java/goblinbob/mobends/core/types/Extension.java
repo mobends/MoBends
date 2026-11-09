@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.types;
 
+import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.kumo.option.OptionSet;
 import net.minecraft.resources.ResourceLocation;
 
@@ -51,9 +52,10 @@ public class Extension implements TypeOrder.Ranked {
         return options;
     }
 
+    /** The order the user gave it (the Mo' Bends menu), above the others' with a higher rank. */
     @Override
     public int getRank() {
-        return 0;
+        return ClientConfig.INSTANCE.extensionRank(id);
     }
 
     @Override
