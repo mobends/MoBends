@@ -165,7 +165,7 @@ forge-1.12               1.12.2
        Left for a later alpha.
      - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,
        spider, squid, wolf (and the dev pack's animals), with type files, extensions and `field`
-       expressions.
+       expressions. Checked in the game on Fabric; still to be checked on NeoForge.
      - [x] The pig zombie (the zombified piglin): its definition names the piglin's model through a
        `@variants` entry for later versions.
      - [x] The client config (`config/mobends.json`, see docs/configuration.md).
