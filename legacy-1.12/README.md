@@ -15,7 +15,6 @@ the modern versions in `../src`.
 
 | File | Becomes |
 |---|---|
-| `core/util/ErrorReporter.java` | Animator and API errors told in chat, not only in the log |
 | `core/kumo/MinecraftKumoOperations.java` | `core:equipment_name` and `core:ledge_ahead` |
 | `core/definition/DefinedFields.java`, `core/vanilla/VanillaModelParts.java` | Model definitions that name other mods' models |
 | `standard/main/MoBends.java`, `src/main/resources/mcmod.info` | NeoForge's update check (`updateJSON`) and the credits |

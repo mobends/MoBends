@@ -9,6 +9,7 @@ import goblinbob.mobends.core.kumo.state.KumoProgram;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.util.ErrorReporter;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -25,11 +26,15 @@ import java.util.Set;
  * Animates one entity with an animator asset: every frame the animator's layers write the bone
  * targets of the entity data (which does the smoothing).
  *
- * <p>If the animator fails to load or while animating, the controller logs it (once per animator,
- * however many entities use it) and animates nothing from then on, so a broken asset never crashes
- * the render.
+ * <p>If the animator fails to load or while animating, the controller logs it and says it in chat
+ * ({@link ErrorReporter}; once per animator, however many entities use it, until the animation
+ * reloads) and animates nothing from then on, so a broken asset never crashes the render. An
+ * extension that fails to load is left out, and said the same way.
  */
 public class KumoAnimatorController {
+    /** The keys of the chat notices ({@link ErrorReporter}) of animators and extensions that fail. */
+    private static final String ANIMATOR_NOTICE = "animator ";
+    private static final String EXTENSION_NOTICE = "extension ";
     /** The animators whose failure while animating was logged, until the animation reloads. */
     private static final Set<String> REPORTED = new HashSet<>();
     /**
@@ -126,6 +131,7 @@ public class KumoAnimatorController {
             return program;
         } catch (Exception e) {
             MoBends.LOGGER.error("Mo' Bends: could not compile {} for {}: {}", describe(), entityClass, e.getMessage(), e);
+            ErrorReporter.report(ANIMATOR_NOTICE + describe(), "The animator " + describe() + " could not be loaded: " + e.getMessage() + " (see the log).");
             return e;
         }
     }
@@ -136,6 +142,8 @@ public class KumoAnimatorController {
 
     private void skip(ResourceLocation extension, Exception e) {
         MoBends.LOGGER.error("Mo' Bends: could not load the extension {} of the animator {}: it is left out: {}", extension, animator, e.getMessage(), e);
+        String key = extension + " on " + animator;
+        ErrorReporter.report(EXTENSION_NOTICE + key, "The extension " + key + " could not be loaded, and is left out: " + e.getMessage() + " (see the log).");
     }
 
     private static List<IdentityKey> identityKeys(List<?> objects) {
@@ -177,16 +185,19 @@ public class KumoAnimatorController {
             state = null;
             if (REPORTED.add(describe())) {
                 MoBends.LOGGER.error("Mo' Bends: the animator {} failed while animating: {}", describe(), e.getMessage(), e);
+                ErrorReporter.report(ANIMATOR_NOTICE + describe(), "The animator " + describe() + " stopped working: " + e.getMessage() + " (see the log).");
             }
         }
     }
 
     /**
-     * Forgets the compiled animators and which failures were logged: after a reload, animators
-     * compile again from the new files, and failures are logged again.
+     * Forgets the compiled animators and which failures were logged and said: after a reload,
+     * animators compile again from the new files, and failures are logged and said again.
      */
     public static void clearCaches() {
         REPORTED.clear();
         PROGRAMS.clear();
+        ErrorReporter.forget(ANIMATOR_NOTICE);
+        ErrorReporter.forget(EXTENSION_NOTICE);
     }
 }

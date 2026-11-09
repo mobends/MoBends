@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.kumo.option.KumoOptions;
+import goblinbob.mobends.core.util.ErrorReporter;
 import goblinbob.mobends.core.util.WildcardPattern;
 import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.UseActionType;
@@ -254,6 +255,8 @@ public final class ClientConfig {
             int equals = entry.indexOf('=');
             if (equals < 0) {
                 MoBends.LOGGER.warn("{} in {}: '{}' has no '=' (write <item pattern>=<action>); it is left out.", key, FILE_NAME, entry);
+                ErrorReporter.report("config " + key + " " + entry,
+                        key + " in " + FILE_NAME + ": '" + entry + "' has no '=' (write <item pattern>=<action>); it is left out.");
                 continue;
             }
             String action = entry.substring(equals + 1).trim().toUpperCase(Locale.ROOT);
@@ -261,6 +264,7 @@ public final class ClientConfig {
                 parsed.put(entry.substring(0, equals).trim(), Enum.valueOf(type, action));
             } catch (IllegalArgumentException e) {
                 MoBends.LOGGER.warn("{} in {}: '{}' isn't an action; it is left out.", key, FILE_NAME, action);
+                ErrorReporter.report("config " + key + " " + entry, key + " in " + FILE_NAME + ": '" + action + "' isn't an action; it is left out.");
             }
         }
         return parsed;

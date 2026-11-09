@@ -22,7 +22,7 @@ runtime is put together.
 | `ExpressionScope` | `core/kumo/expr` | What a place in an animator sees: the scopes around it, whose definitions it reads by scoped name (`layer.combo`), and the built-ins. |
 | `DefinitionScope`, `ScopeLists` | `core/kumo/state` | A scope's definitions (constant, state, live) and their values for the entity, and its `enter` / `update` / `exit` statement lists. |
 | `VariableTable` | `core/kumo/state` | The names an animator reads and writes, numbered when it is instanced and resolved against the entity on its first frame. |
-| `KumoAnimatorController` | `core/kumo` (mod) | Animates one entity data: loads the animator (and its extensions) through `AnimatorResources` and updates it each frame. A broken asset, or one that fails while animating, is logged once and the entity simply doesn't animate. |
+| `KumoAnimatorController` | `core/kumo` (mod) | Animates one entity data: loads the animator (and its extensions) through `AnimatorResources` and updates it each frame. A broken asset, or one that fails while animating, is logged and said in chat once (`ErrorReporter`) and the entity simply doesn't animate. |
 
 ## Per-frame Pipeline
 
