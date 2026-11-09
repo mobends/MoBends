@@ -139,8 +139,9 @@ forge-1.12               1.12.2
      - [x] The sword trail and the cape wave (#386).
      - [x] The first-person hand stays vanilla's: it's never bent, and `renderer.firstPersonRest`
        is gone from the definition format.
-     - [ ] The rest of the player: the head
-       re-aim of 1.12's `lookFurther` (the inventory player), stuck arrows and bee stingers, armour
+     - [x] The inventory player's head follows the mouse (1.12's `lookFurther`).
+     - [x] Stuck arrows and bee stingers ride the bent parts.
+     - [ ] The rest of the player: armour
        from other mods' models, and poses for the items 1.12 didn't have (spyglass, goat horn,
        brush, crossbow, trident).
      - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,

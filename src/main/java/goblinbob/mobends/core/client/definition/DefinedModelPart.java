@@ -8,10 +8,13 @@ import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import org.joml.Quaternionf;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -66,6 +69,35 @@ public class DefinedModelPart {
      */
     private boolean isShowing() {
         return visibleWith == null || (visibleWith.visible && !visibleWith.skipDraw);
+    }
+
+    /** Stand-ins for {@link #boxes} with the same bounds, for what vanilla sticks in a part (see {@link #stuckCube}). */
+    @Nullable
+    private ModelPart.Cube[] stuckCubes;
+
+    boolean hasBoxes() {
+        return !boxes.isEmpty();
+    }
+
+    /**
+     * One of its boxes, picked with {@code random}, as a vanilla cube with the box's bounds (it draws
+     * nothing): what vanilla's {@code StuckInBodyLayer} reads to place an arrow or a stinger in it.
+     */
+    ModelPart.Cube stuckCube(RandomSource random) {
+        if (stuckCubes == null) {
+            stuckCubes = new ModelPart.Cube[boxes.size()];
+            for (int i = 0; i < boxes.size(); i++) {
+                MutatedBox box = boxes.get(i);
+                stuckCubes[i] = new ModelPart.Cube(0, 0, box.minX, box.minY, box.minZ, box.maxX - box.minX, box.maxY - box.minY, box.maxZ - box.minZ,
+                        0.0F, 0.0F, 0.0F, false, 64.0F, 64.0F, EnumSet.noneOf(Direction.class));
+            }
+        }
+        return stuckCubes[random.nextInt(stuckCubes.length)];
+    }
+
+    /** Moves {@code poseStack}, at the model's space as the bent parts are drawn in it, into the frame its boxes are drawn in. */
+    void applyFrame(PoseStack poseStack, DefinedEntityData<?> data) {
+        applyCharacterTransform(poseStack, data, SCALE);
     }
 
     /** Draws the part as a root of the model: through its parents' transforms, if it has any. */
@@ -185,11 +217,37 @@ public class DefinedModelPart {
         if (restRotation != null) {
             poseStack.mulPose(toJoml(restRotation));
         }
-        poseStack.mulPose(toJoml(transform.rotation.getSmooth()));
+        poseStack.mulPose(toJoml(rotationOf(transform, data)));
         Vec3f partScale = transform.scale;
         if (partScale.x != 1 || partScale.y != 1 || partScale.z != 1) {
             poseStack.scale(partScale.x, partScale.y, partScale.z);
         }
+    }
+
+    /**
+     * The part's own rotation as it's drawn: the bone's, but for the {@code head}, turned by as much
+     * further as this draw has it look than the animator posed it (1.12's {@code lookFurther}, see
+     * {@link DefinedEntityData#getHeadYawSinceAnimated}): the inventory draws the player again in
+     * the frame, in the pose it has, looking at the mouse. The yaw goes before the head's rotation
+     * and the pitch after, as the animators turn it.
+     */
+    private Quaternion rotationOf(ModelPartTransform transform, DefinedEntityData<?> data) {
+        Quaternion smooth = transform.rotation.getSmooth();
+        if (!"head".equals(name)) {
+            return smooth;
+        }
+        float yaw = data.getHeadYawSinceAnimated();
+        float pitch = data.getHeadPitchSinceAnimated();
+        if (yaw == 0 && pitch == 0) {
+            return smooth;
+        }
+        Quaternion look = new Quaternion();
+        Quaternion axis = new Quaternion();
+        axis.setFromAxisAngle(0, 1, 0, (float) Math.toRadians(yaw));
+        Quaternion.mul(axis, smooth, look);
+        axis.setFromAxisAngle(1, 0, 0, (float) Math.toRadians(pitch));
+        Quaternion.mul(look, axis, look);
+        return look;
     }
 
     private boolean inheritsRotation(DefinedEntityData<?> data) {
@@ -205,8 +263,9 @@ public class DefinedModelPart {
             else dest.setIdentity();
             return;
         }
-        if (restRotation != null) Quaternion.mul(restRotation, transform.rotation.getSmooth(), dest);
-        else dest.set(transform.rotation.getSmooth());
+        Quaternion rotation = rotationOf(transform, data);
+        if (restRotation != null) Quaternion.mul(restRotation, rotation, dest);
+        else dest.set(rotation);
     }
 
     /** The rotation of the part's frame relative to the model, up to the first part that doesn't turn with its parent. */
