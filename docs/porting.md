@@ -26,12 +26,12 @@ squid are still to be checked. On NeoForge I've only checked the player (#381).
 
 In this order:
 
-1. **The rest of the player** (TODO.md): GeckoLib armour, and poses for the items 1.12 didn't have
-   (spyglass, goat horn, brush, crossbow, trident: they now just keep the current pose).
-2. **The pig zombie** (stays vanilla: it's drawn with `PiglinModel` now, which its definition can't
-   map onto without changing the asset; `@variants` might now make that possible).
-3. **The config, the Mo' Bends menu, server rules, pack trust, supporters and the mobends.com API.**
-4. The `.lang` translations to `.json`, a release workflow, then the 1.20.1 and latest targets.
+1. **The config, the Mo' Bends menu, server rules, pack trust, supporters and the mobends.com API.**
+2. The `.lang` translations to `.json`, a release workflow, then the 1.20.1 and latest targets.
+3. **GeckoLib armour** (TODO.md).
+
+Left for a later alpha: poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow,
+trident: they now just keep the current pose).
 
 ## How the port is done
 

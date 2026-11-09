@@ -105,9 +105,8 @@ public final class VanillaNames {
         entity("net.minecraft.entity.monster.EntityZombie", Zombie.class, "minecraft:zombie");
         entity("net.minecraft.entity.monster.EntitySkeleton", Skeleton.class, "minecraft:skeleton");
         entity("net.minecraft.entity.monster.EntityZombieVillager", ZombieVillager.class, "minecraft:zombie_villager");
-        // The zombie pigman is the zombified piglin now: a zombie still, drawn with PiglinModel, which
-        // the pig zombie's definition (a ModelZombie, from the zombie's) doesn't name, so it stays
-        // vanilla (see BendsRenderer.beforeRender). Its own definition keeps the zombie's from taking it.
+        // The zombie pigman is the zombified piglin now: a zombie still, drawn with PiglinModel (a
+        // PlayerModel), which the pig zombie's definition names through a variant for later versions.
         entity("net.minecraft.entity.monster.EntityPigZombie", ZombifiedPiglin.class, "minecraft:zombie_pigman");
         // The other mobs Mo' Bends ships definitions for (the animals' only in misc/dev-pack).
         entity("net.minecraft.entity.monster.EntityCreeper", Creeper.class, "minecraft:creeper");

@@ -92,8 +92,8 @@ public final class BendsRenderer {
         if (selection == null || selection.model() == null || selection.dataFactory() == null) {
             return null;
         }
-        // Not animated at all if it can't be drawn bent: the pig zombie's definition names 1.12's
-        // zombie model, and the zombified piglin is drawn with a piglin's now.
+        // Not animated at all if it can't be drawn bent (a mod's renderer draws the entity with a
+        // model of its own, which the definition doesn't name).
         if (!selection.model().bends(model)) {
             return null;
         }
