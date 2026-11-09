@@ -101,6 +101,29 @@ do, with vanilla's texture on every face (the vanilla wolf's geometry is the sam
       `core:vanilla` node, on every other second): the adult and the pup, looking up and around, the
       tail, the legs, and the mouth sitting in the head.
 
+### #388: The first-person hand is vanilla's
+
+Doesn't need a new `core`. On `main` the first-person hand is never bent: it's vanilla's arm and
+sleeve, posed as vanilla poses them (its slight outward tilt included). The `renderer.firstPersonRest`
+definition key, which only put the bent arm at rest for the hand, is gone from the format. Do the steps
+together: without the key, this branch would draw the hand in the player's animated pose.
+
+- [ ] Draw the vanilla hand in first person: `RenderingEventHandler.beforeHandRender` puts the
+      renderer's vanilla state in place for the hand (as it already does when the player isn't
+      animated), instead of the local player's mutation. Then remove what only served the bent hand:
+      `Mutator.poseForFirstPersonView` and `DefinedMutator`'s override, and the stand-ins' drawing of
+      their bone alone (`DefinedStandIn.setDrawsAlone`, `DefinedMutator.parentedStandIns`) if nothing
+      else uses it.
+- [ ] Remove `renderer.firstPersonRest`: the field and its check in `EntityModelDefinition`, the lab's
+      `DefinedPositionsTest.theFirstPersonRestNamesBones`, and its mention in `misc/kumo-format.md`'s
+      `renderer` row (as on `main`).
+- [ ] Copy `assets/mobends/bends/models/player.json` and
+      `misc/legacy-pack/assets/mobends/bends/models/player.json` from `main`, or drop
+      `"firstPersonRest"` from their `renderer`: that's all that changed in them.
+- [ ] Check in the game, in first person: the hand matches vanilla's (an empty hand, holding an item,
+      eating, swinging), while standing, sprinting and right after a sword combo; slim and wide skins;
+      sleeves on and off. Then in third person, that the player still bends.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
