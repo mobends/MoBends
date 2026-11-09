@@ -151,8 +151,9 @@ forge-1.12               1.12.2
        expressions.
      - [x] The pig zombie (the zombified piglin): its definition names the piglin's model through a
        `@variants` entry for later versions.
-     - [ ] The config, the Mo' Bends menu, server rules (networking, `AnimationPolicy`), pack
-       trust, supporters and the mobends.com API.
+     - [x] The client config (`config/mobends.json`, see docs/configuration.md).
+     - [ ] The Mo' Bends menu, server rules (networking, `AnimationPolicy`), pack trust, supporters
+       and the mobends.com API.
    - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge

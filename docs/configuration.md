@@ -1,5 +1,44 @@
 # Configuration
 
+## On the modern versions (`main`)
+
+The client's settings are in `config/mobends.json` (`core/configuration/ClientConfig`): the mod's
+own file, read and written the same way on every loader. It's written with the defaults the first
+time the game starts. A file that can't be read is left alone (said in the log), and the defaults are
+used until the settings are saved again. It holds what `mobends.cfg` held on 1.12.2, `ModConfig`'s
+options and the Mo' Bends menu's settings alike:
+
+```json
+{
+  "showSwordTrail": true,
+  "showArrowTrails": true,
+  "itemUseClassifications": ["minecraft:spyglass=BOW"],
+  "itemAttackClassifications": ["mymod:*_hammer=SWORD"],
+  "keepArmorAsVanilla": ["mymod:*"],
+  "keepEntityAsVanilla": ["minecraft:husk"],
+  "animated": {"mobends:zombie": false},
+  "typeRanks": {},
+  "extensionRanks": {},
+  "options": {"mobends:bends/models/player.json#spinAttack": 0.0}
+}
+```
+
+| Key | Default | Effect |
+|-----|---------|--------|
+| `showSwordTrail`, `showArrowTrails` | `true` | Swords (and arrows) leave a trail |
+| `itemUseClassifications` | none | `<item pattern>=<FOOD, BOW or SHIELD>`: how using a matching item is animated, in place of how its kind is; the last matching entry wins |
+| `itemAttackClassifications` | none | `<item pattern>=<FISTS, SWORD or TOOL>`: the same for attacking |
+| `keepArmorAsVanilla` | none | Item patterns: armour drawn as vanilla draws it, even on a bent entity |
+| `keepEntityAsVanilla` | none | Entity type patterns (today's ids, `minecraft:zombified_piglin`): never animated |
+| `animated` | every mob on | Per animated mob, by key (`mobends:player`): `false` switches it off |
+| `typeRanks`, `extensionRanks` | none | The order the user gave entity types and extensions, by id; absent means 0 |
+| `options` | none | The values the user gave options, by `<owner>#<name>`; absent means the option's default |
+
+A pattern is a `namespace:path` whose namespace and path may each start or end with `*`
+(`minecraft:*_sword`, `*:*`); without a namespace it's `minecraft`'s.
+
+The rest of this page describes the 1.12.2 mod.
+
 ## Files
 
 | File | Format | Purpose |

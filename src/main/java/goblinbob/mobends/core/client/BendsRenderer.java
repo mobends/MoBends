@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
+import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -13,6 +14,7 @@ import goblinbob.mobends.core.vanilla.VanillaNames;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Matrix4fc;
@@ -95,6 +97,12 @@ public final class BendsRenderer {
         // Not animated at all if it can't be drawn bent (a mod's renderer draws the entity with a
         // model of its own, which the definition doesn't name).
         if (!selection.model().bends(model)) {
+            return null;
+        }
+        // Switched off by the user: the mob (in the Mo' Bends menu), or entities of its type (the config).
+        String key = selection.model().key();
+        if (key != null && !ClientConfig.INSTANCE.isAnimated(key)
+                || ClientConfig.INSTANCE.keepsEntityVanilla(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString())) {
             return null;
         }
         LivingEntityData<LivingEntity> data = EntityDatabase.instance.getOrMake(selection.dataFactory(), entity);

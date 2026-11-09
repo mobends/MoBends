@@ -1,7 +1,8 @@
 package goblinbob.mobends.core.types;
 
-import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
+import goblinbob.mobends.core.client.definition.DefinedEntities;
+import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.kumo.option.OptionSet;
@@ -68,9 +69,10 @@ public class EntityType implements TypeOrder.Ranked {
         return source;
     }
 
+    /** The order the user gave it (the Mo' Bends menu), above the others' with a higher rank. */
     @Override
     public int getRank() {
-        return 0;
+        return ClientConfig.INSTANCE.typeRank(id);
     }
 
     @Override
