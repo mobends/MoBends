@@ -124,6 +124,17 @@ together: without the key, this branch would draw the hand in the player's anima
       eating, swinging), while standing, sprinting and right after a sword combo; slim and wide skins;
       sleeves on and off. Then in third person, that the player still bends.
 
+### #392: The pig zombie's variant for later versions
+
+Doesn't need a new `core`. On `main` the zombified piglin bends: `pig_zombie.json` (the mod's and the
+legacy pack's) got a `@variants` entry that names the piglin's model on versions after 1.12.2. Nothing
+changes in 1.12.2: it ignores `@variants`, and the entry's `@when` doesn't hold on 1.12.2 anyway.
+
+- [ ] Copy `assets/mobends/bends/models/pig_zombie.json` and
+      `misc/legacy-pack/assets/mobends/bends/models/pig_zombie.json` from `main`.
+- [ ] Check that the animation lab passes (`LegacyPackTest` compares the two), and in the game that the
+      zombie pigman still bends as before, with the mod and with the legacy pack.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
