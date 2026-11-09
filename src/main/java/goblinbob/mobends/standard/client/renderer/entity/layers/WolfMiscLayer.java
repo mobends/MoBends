@@ -49,10 +49,11 @@ public class WolfMiscLayer extends RenderLayer<Wolf, WolfModel<Wolf>> {
         VertexConsumer consumer = buffers.getBuffer(RenderType.entityCutout(TEXTURE));
         int overlay = LivingEntityRenderer.getOverlayCoords(wolf, 0.0F);
 
-        // The inside of the mouth, across the back of it.
+        // The inside of the mouth, across the back of it (the front of the head, 2 px before where it turns,
+        // which is 1 px left of the head's middle).
         poseStack.pushPose();
         poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-        plane(poseStack, consumer, packedLight, overlay, -1.5F, -4.1F, -3.0F, 3, 1, true, 0, 0, 3, 4);
+        plane(poseStack, consumer, packedLight, overlay, -0.5F, -2.1F, -3.0F, 3, 1, true, 0, 0, 3, 4);
         poseStack.popPose();
 
         // Under the nose, the top of the mouth.

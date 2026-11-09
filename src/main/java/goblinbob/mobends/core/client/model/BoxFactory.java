@@ -234,6 +234,12 @@ public class BoxFactory {
         return this;
     }
 
+    public BoxFactory flipTextureQuad(BoxSide face) {
+        ensureTextureFaces();
+        this.faces[face.faceIndex].flipped = !this.faces[face.faceIndex].flipped;
+        return this;
+    }
+
     public MutatedBox create() {
         ensureTextureFaces();
         return new MutatedBox(this.min, this.max, this.faces, this.faceVisibilityFlag, this.mirrored, this.textureWidth, this.textureHeight);
@@ -265,6 +271,8 @@ public class BoxFactory {
         public float uSize;
         public float vSize;
         public FaceRotation faceRotation = FaceRotation.IDENTITY;
+        /** Whether the texture is mirrored left to right on the face, before {@link #faceRotation} turns it. */
+        public boolean flipped;
 
         public TextureFace(float uPos, float vPos, float uSize, float vSize) {
             this.uPos = uPos;
@@ -279,6 +287,7 @@ public class BoxFactory {
             this.uSize = face.uSize;
             this.vSize = face.vSize;
             this.faceRotation = face.faceRotation;
+            this.flipped = face.flipped;
         }
     }
 

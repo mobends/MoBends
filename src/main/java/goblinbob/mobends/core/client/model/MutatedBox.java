@@ -87,7 +87,7 @@ public class MutatedBox {
 
     /**
      * One face: its corners, with the texture's corners as vanilla's {@code ModelPart.Polygon} (and
-     * 1.12's {@code TexturedQuad}) gives them, turned as the face asks, the order reversed if mirrored.
+     * 1.12's {@code TexturedQuad}) gives them, mirrored and turned as the face asks, the order reversed if mirrored.
      */
     private static float[][] createQuad(float[][] corners, BoxFactory.TextureFace face, float textureWidth, float textureHeight, boolean mirrored) {
         float uSize = face == null ? 0 : face.uSize;
@@ -101,6 +101,11 @@ public class MutatedBox {
         float u1 = face == null ? 0 : face.uPos;
         float v1 = face == null ? 0 : face.vPos;
         float u2 = u1 + uSize;
+        if (face != null && face.flipped) {
+            float swap = u1;
+            u1 = u2;
+            u2 = swap;
+        }
         float v2 = v1 + vSize;
         float[][] uvs = {
             { u2 / textureWidth, v1 / textureHeight },

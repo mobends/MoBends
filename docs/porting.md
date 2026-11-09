@@ -108,7 +108,12 @@ see CONTRIBUTING.md, *Releasing `core`*). Then, on a branch off `forge-1.12`, a 
    `extends`) from `main`'s `src/main/java/goblinbob/mobends/core/definition/`. The shipped assets don't
    need it: the wolf's only variant is for versions after 1.12.2, and 1.12.2 keeps the definition's own
    values.
-4. **Check:** `./gradlew build shadowJar` (JDK 8), `cd animation-lab && ./gradlew test`, and the 1.12.2
+4. **The wolf's shared model changed** (`bends/models/wolf.json`): its head turns where vanilla's does
+   (2 px further forward, 1 px left of its middle), so forge-1.12's `LayerWolfMisc` must draw the inside
+   of the mouth 2 px further back and 1 px right (as `WolfMiscLayer` on `main` does). Its box faces
+   also take `"flip": true` now, which 1.12.2 ignores (the body's and mane's undersides and ends keep
+   the old texture there) until it ports `FaceDefinition.flip` and `TextureFace.flipped` from `main`.
+5. **Check:** `./gradlew build shadowJar` (JDK 8), `cd animation-lab && ./gradlew test`, and the 1.12.2
    client (`run-arm64/runClient.sh` on Apple Silicon): the mod loads, the player and mobs animate, the
    wolf pup looks as before.
-5. Open a PR into `forge-1.12`, with a stupidly simple description.
+6. Open a PR into `forge-1.12`, with a stupidly simple description.

@@ -322,6 +322,9 @@ final class DefinedModelBuilder {
                 if (face.getValue().uvOffset != null) {
                     factory.offsetTextureQuad(side(face.getKey()), face.getValue().uvOffset[0], face.getValue().uvOffset[1]);
                 }
+                if (face.getValue().flip) {
+                    factory.flipTextureQuad(side(face.getKey()));
+                }
                 if (face.getValue().rotate != null) {
                     factory.rotateTextureQuad(side(face.getKey()), FaceRotation.valueOf(face.getValue().rotate.toUpperCase(Locale.ROOT)));
                 }
@@ -495,6 +498,7 @@ final class DefinedModelBuilder {
                 pieceFaces[f] = new BoxFactory.TextureFace(Math.round(piece.faces[f][0]), Math.round(piece.faces[f][1]),
                         Math.round(piece.faces[f][2]), Math.round(piece.faces[f][3]));
                 pieceFaces[f].faceRotation = source.faces[f].faceRotation;
+                pieceFaces[f].flipped = source.faces[f].flipped;
             }
             BoxFactory factory = new BoxFactory(new Vec3f(piece.min[0] + into[0], piece.min[1] + into[1], piece.min[2] + into[2]),
                     new Vec3f(piece.max[0] + into[0], piece.max[1] + into[1], piece.max[2] + into[2]), pieceFaces);
