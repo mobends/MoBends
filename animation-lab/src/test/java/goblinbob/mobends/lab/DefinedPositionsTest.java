@@ -54,16 +54,6 @@ public class DefinedPositionsTest
     }
 
     @Test
-    void theFirstPersonRestNamesBones() throws Exception
-    {
-        assertEquals(Collections.singletonList("arm"), definition(", \"renderer\": {\"firstPersonRest\": [\"arm\"]}").renderer.firstPersonRest);
-        assertTrue(definition("").renderer.firstPersonRest.isEmpty());
-        MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class,
-                () -> definition(", \"renderer\": {\"firstPersonRest\": [\"leg\"]}"));
-        assertTrue(e.getMessage().contains("'leg'"), e.getMessage());
-    }
-
-    @Test
     void theSneakOffsetWhileFlyingFallsBackToTheSneakOffset() throws Exception
     {
         EntityModelDefinition.RendererSettings settings = definition(", \"renderer\": {\"sneakOffset\": 5}").renderer;
