@@ -19,7 +19,7 @@ Ported so far, in this order:
 | #388 | The first-person hand stays vanilla's; `renderer.firstPersonRest` is gone. |
 | #398 | GeckoLib armour bends with the body (when GeckoLib is installed). |
 | #405 | The addon API: other mods add mobs, layers, components, drivers and KUMO operations (docs/addons.md). |
-| — | GeckoLib armour: a mod's own bones beside the armour bones (Fantasy Armor's leg cloth) bend too. |
+| #407 | GeckoLib armour: a mod's own bones beside the armour bones (Fantasy Armor's leg cloth) bend too. |
 
 I've checked the player, its layers, the zombie, skeleton, zombie villager and the wolf (adult and
 pup, side by side with vanilla) in the game on Fabric. The creeper, golem, villager, witch, spider and
