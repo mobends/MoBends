@@ -34,9 +34,4 @@ public class GuiAccessoryList extends GuiList<GuiAccessoryRow> {
     public LinkedList<GuiAccessoryRow> getListElements() {
         return elements;
     }
-
-    @Override
-    protected int getScrollSpeed() {
-        return 20;
-    }
 }
