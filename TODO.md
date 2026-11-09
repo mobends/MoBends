@@ -48,14 +48,12 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
       account opens `GuiLinkAccount`, or once linked the account's name (`WebLink.ACCOUNT`) and Log
       out; Supporters opens `GuiSupportersWindow`; Customize opens `WebLink.EDITOR`; the account is
       checked as the menu opens, and read again by Refresh, which also refreshes the API.
-- [ ] Modern versions: the previews stand in the client's level, where the player stands, but are never
-      added to it (`PreviewWorld`); 1.12 made a world of its own (a flat floor). With no world loaded
-      (the menu opened from the mod list on the title screen) they show the mob's spawn egg, and the
-      Supporters window's player, who has none, a question mark. A level of its own needs a
-      connection on 1.21.1, and tells other mods a level loaded.
-- [ ] Modern versions: with no world loaded, a type that picks its entities by entity type (other
-      than the player) isn't listed under its mob: what class an entity type's entities are is found
-      by making one, which needs a level (`EntityClasses`).
+- [x] Modern versions: the menu opens in a world only. With no world loaded (the mod list's Config
+      button on the title screen) it says to join one and press its key instead: the previews stand
+      in the client's level, where the player stands, but are never added to it (`PreviewWorld`), and
+      what class an entity type's entities are is found by making one (`EntityClasses`). 1.12 made a
+      world of its own (a flat floor); on 1.21.1 a level of its own needs a connection, and tells
+      other mods a level loaded.
 - [x] Modern versions: More Settings has the arrow trails' switch, and the arrow trails are ported
       (checked in the game on Fabric).
 

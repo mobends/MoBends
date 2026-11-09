@@ -4,6 +4,7 @@
   "mobends.gui.section.supporters": "soutiens",
   "mobends.gui.settings": "Paramètres",
   "mobends.gui.back": "Retour",
+  "mobends.gui.needs_world": "Le menu Mo' Bends s'ouvre dans un monde : rejoignez-en un et appuyez sur %s.",
   "mobends.gui.search": "Rechercher...",
   "mobends.gui.editornotfound": "Éditeur d'animation introuvable",
   "mobends.gui.geteditor": "Obtenir l'éditeur",

@@ -4,6 +4,7 @@
   "mobends.gui.section.supporters": "спонсоры",
   "mobends.gui.settings": "Настройки",
   "mobends.gui.back": "Назад",
+  "mobends.gui.needs_world": "Меню Mo' Bends открывается в мире: зайдите в мир и нажмите %s.",
   "mobends.gui.search": "Поиск...",
   "mobends.gui.editornotfound": "Редактор анимаций не найден",
   "mobends.gui.geteditor": "Скачать редактор",

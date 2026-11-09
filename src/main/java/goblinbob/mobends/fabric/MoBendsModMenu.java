@@ -12,8 +12,8 @@ import goblinbob.mobends.core.client.gui.GuiBendsMenu;
 public class MoBendsModMenu implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        // Leaving the menu goes back to the mod list.
-        return GuiBendsMenu::new;
+        // Leaving the menu goes back to the mod list; on the title screen, it says to open it in a world.
+        return GuiBendsMenu::fromModList;
     }
 }
 //?}
