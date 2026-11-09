@@ -2,16 +2,21 @@ package goblinbob.mobends.fabric;
 
 //? if fabric {
 import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.addon.Addons;
+import goblinbob.mobends.core.addon.IAddon;
 import goblinbob.mobends.core.network.ServerRulesPayload;
 import goblinbob.mobends.platform.Platform;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 import net.fabricmc.loader.api.metadata.ModOrigin;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
@@ -65,6 +70,25 @@ public final class FabricPlatform implements Platform {
     public void sendToPlayer(ServerPlayer player, ServerRulesPayload payload) {
         if (ServerPlayNetworking.canSend(player, ServerRulesPayload.TYPE)) {
             ServerPlayNetworking.send(player, payload);
+        }
+    }
+
+    @Override
+    public void findAddons(BiConsumer<String, IAddon> found) {
+        List<EntrypointContainer<IAddon>> containers;
+        try {
+            containers = FabricLoader.getInstance().getEntrypointContainers(Addons.ENTRYPOINT, IAddon.class);
+        } catch (RuntimeException e) {
+            MoBends.LOGGER.error("Couldn't load the Mo' Bends addons", e);
+            return;
+        }
+        for (EntrypointContainer<IAddon> container : containers) {
+            String modId = container.getProvider().getMetadata().getId();
+            try {
+                found.accept(modId, container.getEntrypoint());
+            } catch (RuntimeException e) {
+                MoBends.LOGGER.error("Couldn't load the Mo' Bends addon of {}", modId, e);
+            }
         }
     }
 }

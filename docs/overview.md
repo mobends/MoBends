@@ -41,6 +41,8 @@ Modules implement `IModule` with `preInit()` and `onRefresh()`. Active modules:
 
 ## Addon Extension Point
 
+On the modern versions, see [addons.md](addons.md); what follows is 1.12.2's.
+
 Third-party addons implement `IAddon`:
 - `registerContent(AddonAnimationRegistry)` — register entity benders, KUMO operations (see
   [animation.md](animation.md), *Operations in Java*), the selector-safe ones among them, which

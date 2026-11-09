@@ -180,6 +180,10 @@ forge-1.12               1.12.2
        and the mod list's Config button (NeoForge, and Mod Menu on Fabric). See *Mo' Bends menu*.
      - [x] The menu's Supporters window, its account buttons and screen (Link account), and
        Customize's link.
+     - [x] The addon API (docs/addons.md): other mods register mobs, layers, components, drivers
+       and KUMO operations, found through a `mobends` entrypoint (Fabric) or `@MoBendsAddon`
+       (NeoForge). Mo' Bends' own content is its `DefaultAddon`. Still to be checked with a real
+       addon mod, and its tick callbacks in a world on NeoForge.
    - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge

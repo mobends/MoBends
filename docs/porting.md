@@ -30,6 +30,8 @@ In this order:
 1. The 1.20.1 and latest targets.
 2. Check GeckoLib armour in the game, with a mod that has some, on both loaders (#398 only
    checked it without the game).
+3. Check the addon API with a real addon mod on both loaders (it was checked with a test addon
+   inside Mo' Bends; on NeoForge, without entering a world).
 
 Left for a later alpha: poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow,
 trident: they now just keep the current pose).
@@ -59,6 +61,9 @@ trident: they now just keep the current pose).
   (`mixin.geckolib`) are in their own config, `mobends.geckolib.mixins.json`, which lists them only
   when GeckoLib is installed and isn't required. Nothing outside that package touches GeckoLib's
   classes. `-Pgeckolib` puts it (and, on Fabric, the Fabric API it needs) in `runClient`.
+- **Addons** (docs/addons.md) keep 1.12's `IAddon` and `AddonAnimationRegistry`. Mo' Bends'
+  own content is registered through it (`DefaultAddon`); new content of the mod goes there, not
+  into `CoreClient`.
 - **Fabric bundles two Fabric API modules** (resource loader and networking, jar-in-jar), because
   Fabric Loader alone doesn't load mods' assets or send their payloads. Use nothing else from Fabric API.
 
