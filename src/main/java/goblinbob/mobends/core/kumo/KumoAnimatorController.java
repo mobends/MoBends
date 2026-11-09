@@ -3,13 +3,16 @@ package goblinbob.mobends.core.kumo;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.kumo.api.KumoRegistry;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.KumoProgram;
+import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,23 +33,39 @@ public class KumoAnimatorController {
     /** The animators whose failure while animating was logged, until the animation reloads. */
     private static final Set<String> REPORTED = new HashSet<>();
     /**
-     * The animators compiled, until the animation reloads: one program per animator and entity (its
-     * class and entity scope), shared by every entity it animates; or why it failed, so it fails
-     * once, not once per entity.
+     * The animators compiled, until the animation reloads: one program per animator, extensions and
+     * entity (its class and entity scope), shared by every entity it animates; or why it failed,
+     * so it fails once, not once per entity.
      */
     private static final Map<List<Object>, Object> PROGRAMS = new HashMap<>();
 
     @Nullable
     private final EntityTemplate entity;
     private final ResourceLocation animator;
+    private final List<ResourceLocation> extensions;
+    private final OptionSet typeOptions;
+    private final List<OptionSet> extensionOptions;
     @Nullable
     private KumoAnimatorState state;
     private boolean failed;
 
     /** {@code animator}, reading {@code entity} (the scope a model definition declares; null for none). */
     public KumoAnimatorController(@Nullable EntityTemplate entity, ResourceLocation animator) {
+        this(entity, animator, Collections.emptyList(), OptionSet.EMPTY, Collections.emptyList());
+    }
+
+    /**
+     * {@code animator}, with the layers of each of {@code extensions} on top, in order, all of them
+     * reading {@code entity}; with the options the animator reads besides the model definition's
+     * (its type file's), and those each extension's animator reads (its extension file's).
+     */
+    public KumoAnimatorController(@Nullable EntityTemplate entity, ResourceLocation animator, List<ResourceLocation> extensions,
+                                  OptionSet typeOptions, List<OptionSet> extensionOptions) {
         this.entity = entity;
         this.animator = animator;
+        this.extensions = extensions;
+        this.typeOptions = typeOptions;
+        this.extensionOptions = extensionOptions;
     }
 
     public ResourceLocation getAnimator() {
@@ -60,9 +79,10 @@ public class KumoAnimatorController {
         if (failed) {
             return false;
         }
-        List<Object> key = Arrays.asList(animator, entity == null ? null : entity.entityClass,
+        List<Object> key = Arrays.asList(animator, extensions, entity == null ? null : entity.entityClass,
                 entity == null ? null : new IdentityKey(entity.define), entity == null ? null : new IdentityKey(entity.on),
-                entity != null && entity.trusted, entity == null ? null : new IdentityKey(entity.options));
+                entity != null && entity.trusted, entity == null ? null : new IdentityKey(entity.options),
+                new IdentityKey(typeOptions), identityKeys(extensionOptions));
         Object compiled = PROGRAMS.get(key);
         if (compiled == null) {
             compiled = compile();
@@ -76,21 +96,54 @@ public class KumoAnimatorController {
         return true;
     }
 
-    /** Compiles the animator; the program, or why it failed (logged). */
+    /** Compiles the animator and its extensions; the program, or why it failed (logged). */
     private Object compile() {
         String entityClass = entity == null ? "no entity" : entity.entityClass.getName();
         try {
             AnimatorResources resources = AnimatorResources.INSTANCE;
+            List<ResourceLocation> loaded = new ArrayList<>();
+            List<AnimatorTemplate> overlays = new ArrayList<>();
+            List<Boolean> overlaysTrusted = new ArrayList<>();
+            List<OptionSet> overlayOptions = new ArrayList<>();
+            for (int i = 0; i < extensions.size(); i++) {
+                ResourceLocation extension = extensions.get(i);
+                // An extension that fails is left out; the animator and the other extensions still animate.
+                try {
+                    overlays.add(resources.loadAnimator(extension));
+                    overlaysTrusted.add(resources.isTrusted(extension.toString()));
+                    overlayOptions.add(extensionOptions.get(i));
+                    loaded.add(extension);
+                } catch (Exception e) {
+                    skip(extension, e);
+                }
+            }
             // What the program compiles against can't change from here on.
             KumoRegistry.close();
-            KumoProgram program = new KumoProgram(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()),
-                    Collections.emptyList(), Collections.emptyList(), resources);
-            MoBends.LOGGER.info("Mo' Bends: compiled {} for {}", animator, entityClass);
+            KumoProgram program = new KumoProgram(entity, resources.loadAnimator(animator), resources.isTrusted(animator.toString()), typeOptions,
+                    overlays, overlaysTrusted, overlayOptions, resources);
+            program.getSkippedExtensions().forEach((index, e) -> skip(loaded.get(index), e));
+            MoBends.LOGGER.info("Mo' Bends: compiled {} for {}", describe(), entityClass);
             return program;
         } catch (Exception e) {
-            MoBends.LOGGER.error("Mo' Bends: could not compile {} for {}: {}", animator, entityClass, e.getMessage(), e);
+            MoBends.LOGGER.error("Mo' Bends: could not compile {} for {}: {}", describe(), entityClass, e.getMessage(), e);
             return e;
         }
+    }
+
+    private String describe() {
+        return animator + (extensions.isEmpty() ? "" : " with the extensions " + extensions);
+    }
+
+    private void skip(ResourceLocation extension, Exception e) {
+        MoBends.LOGGER.error("Mo' Bends: could not load the extension {} of the animator {}: it is left out: {}", extension, animator, e.getMessage(), e);
+    }
+
+    private static List<IdentityKey> identityKeys(List<?> objects) {
+        List<IdentityKey> keys = new ArrayList<>();
+        for (Object object : objects) {
+            keys.add(new IdentityKey(object));
+        }
+        return keys;
     }
 
     /** A key part equal only to the very same object (a model definition's scope, loaded once). */
@@ -122,8 +175,8 @@ public class KumoAnimatorController {
         } catch (MalformedKumoTemplateException e) {
             failed = true;
             state = null;
-            if (REPORTED.add(animator.toString())) {
-                MoBends.LOGGER.error("Mo' Bends: the animator {} failed while animating: {}", animator, e.getMessage(), e);
+            if (REPORTED.add(describe())) {
+                MoBends.LOGGER.error("Mo' Bends: the animator {} failed while animating: {}", describe(), e.getMessage(), e);
             }
         }
     }

@@ -137,8 +137,10 @@ forge-1.12               1.12.2
        re-aim of 1.12's `lookFurther` (the inventory player), stuck arrows and bee stingers, armour
        from other mods' models, and poses for the items 1.12 didn't have (spyglass, goat horn,
        brush, crossbow, trident).
-     - [ ] The other mobs (their model definitions and type files, extensions, the ray and step
-       drivers, `field` expressions).
+     - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,
+       spider, squid, wolf (and the dev pack's animals), with type files, extensions and `field`
+       expressions.
+     - [ ] The pig zombie: it's drawn with the piglin model now, which its definition can't map onto.
      - [ ] The config, the Mo' Bends menu, server rules (networking, `AnimationPolicy`), pack
        trust, supporters and the mobends.com API.
    - [ ] Convert the `.lang` translations to `.json`.

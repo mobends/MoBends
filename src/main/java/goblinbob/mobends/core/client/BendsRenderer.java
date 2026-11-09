@@ -2,13 +2,13 @@ package goblinbob.mobends.core.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
+import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.vanilla.VanillaNames;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -80,16 +80,23 @@ public final class BendsRenderer {
     /**
      * Poses {@code entity} for this frame, at the start of its render.
      *
-     * @return its data, with the pose to draw; null to draw it as vanilla does (no definition picks
-     *         it, it isn't in the world, or its animator asks for vanilla right now)
+     * @param model the renderer's model, which the entity's definition must bend
+     * @return its data, with the pose to draw; null to draw it as vanilla does (no type gives it a
+     *         model, the model's definition doesn't bend the renderer's model, it isn't in the
+     *         world, or its animator asks for vanilla right now)
      */
     @Nullable
-    public static DefinedEntityData<?> beforeRender(LivingEntity entity, float partialTicks) {
-        DefinedEntities.DefinedEntity defined = DefinedEntities.select(entity);
-        if (defined == null) {
+    public static DefinedEntityData<?> beforeRender(LivingEntity entity, EntityModel<?> model, float partialTicks) {
+        EntityTypeRegistry.Selection selection = EntityTypeRegistry.INSTANCE.select(entity);
+        if (selection == null || selection.model() == null || selection.dataFactory() == null) {
             return null;
         }
-        LivingEntityData<LivingEntity> data = EntityDatabase.instance.getOrMake(defined.dataFactory(), entity);
+        // Not animated at all if it can't be drawn bent: the pig zombie's definition names 1.12's
+        // zombie model, and the zombified piglin is drawn with a piglin's now.
+        if (!selection.model().bends(model)) {
+            return null;
+        }
+        LivingEntityData<LivingEntity> data = EntityDatabase.instance.getOrMake(selection.dataFactory(), entity);
         if (!(data instanceof DefinedEntityData<?> definedData)) {
             return null;
         }
@@ -114,7 +121,7 @@ public final class BendsRenderer {
         }
         poseStack.pushPose();
         DefinedRenderer.transformModel(data, model, poseStack, entityFrame, bodyYaw);
-        parts.render(data, poseStack, consumer, packedLight, packedOverlay, color);
+        parts.render(data, poseStack, consumer, packedLight, packedOverlay, color, data.getEntity().isBaby() ? parts.babyLayout() : null);
         poseStack.popPose();
         return true;
     }

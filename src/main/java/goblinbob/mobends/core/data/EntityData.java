@@ -6,6 +6,7 @@ import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.bind.BoneSinks;
 import goblinbob.mobends.core.kumo.bind.EntityBone;
 import goblinbob.mobends.core.kumo.bind.IBoneSink;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.math.vector.Vec3f;
@@ -250,6 +251,13 @@ public abstract class EntityData<E extends Entity> implements IKumoSubject {
         return !entity.level().noCollision(entity, entity.getBoundingBox().move(0, -0.125F, 0));
     }
 
+    /** Where the entity was as the last client tick started (before it moved in it). */
+    public double getPositionX() { return this.positionX; }
+
+    public double getPositionY() { return this.positionY; }
+
+    public double getPositionZ() { return this.positionZ; }
+
     public double getMotionX() { return this.motionX; }
 
     public double getMotionY() { return this.motionY; }
@@ -282,6 +290,16 @@ public abstract class EntityData<E extends Entity> implements IKumoSubject {
     @Nullable
     public EntityTemplate getEntityScope() {
         return new EntityTemplate(entity.getClass());
+    }
+
+    /**
+     * Gives the entity {@code animator} (null: its own, {@link #getDefaultAnimator}) with the layers
+     * of each of {@code extensions} on top, in order: what its type says. The type's options are
+     * read by the animator besides the model definition's; each extension's by its own animator.
+     */
+    public void setAnimator(@Nullable ResourceLocation animator, List<ResourceLocation> extensions, OptionSet typeOptions, List<OptionSet> extensionOptions) {
+        this.animator = new KumoAnimatorController(getEntityScope(), animator != null ? animator : getDefaultAnimator(), extensions,
+                typeOptions, extensionOptions);
     }
 
     /**

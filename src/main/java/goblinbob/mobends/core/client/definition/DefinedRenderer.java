@@ -42,11 +42,12 @@ public final class DefinedRenderer {
 
     /**
      * Whether vanilla's swimming tilt is kept off the bent entity ({@code mixin.PlayerRendererMixin}):
-     * in water, where the animator turns the root bone for its own swimming poses. Out of water
-     * (crawling) vanilla's tilt stays, as the animator has no crawling pose.
+     * a player in water, where the animator turns the root bone for its own swimming poses. Out of
+     * water (crawling) vanilla's tilt stays, as the animator has no crawling pose; and so does a
+     * swimming drowned's, which the zombie's animator has no swimming pose for.
      */
     public static boolean replacesSwimmingTilt(LivingEntity entity) {
-        return entity.isInWater();
+        return entity instanceof Player && entity.isInWater();
     }
 
     /**

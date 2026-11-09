@@ -3,6 +3,9 @@ package goblinbob.mobends.core.definition;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.kumo.expr.ExpressionScope;
+import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 
 import java.util.Arrays;
@@ -22,6 +25,7 @@ import java.util.Map;
  * key by key, its own winning;</li>
  * <li>anything else: its own, if it has it.</li>
  * </ul>
+ * Its {@code @variants} are merged the same way, after it (see {@link #applyVariants}).
  */
 public final class DefinitionMerge {
     private static final List<String> BY_KEY = Arrays.asList("components", "layers", "childBones", "smoothing", "renderer", "options");
@@ -66,6 +70,59 @@ public final class DefinitionMerge {
                 }
             } else {
                 merged.add(key, copy(own));
+            }
+        }
+        return merged;
+    }
+
+    /**
+     * {@code json} with its {@code @variants} merged into it, in order, each whose {@code @when}
+     * holds, as {@link #merge} merges a definition into the one it extends:
+     * {@code "@variants": [{"@when": {"core:minecraft_version": [">", "1.12.2"]}, "childBones": {...}}]}.
+     * A condition has to be constant, known when the definition loads (only constant operations,
+     * such as {@code core:minecraft_version}); a variant can't say what the definition
+     * {@code extends}, nor have variants of its own.
+     */
+    public static JsonObject applyVariants(JsonObject json) throws MalformedKumoTemplateException {
+        JsonElement variants = json.get("@variants");
+        if (variants == null) {
+            return json;
+        }
+        JsonObject merged = copy(json).getAsJsonObject();
+        merged.remove("@variants");
+        if (!variants.isJsonArray()) {
+            throw new MalformedKumoTemplateException("'@variants' is a list of objects, each with an \"@when\" and the fields it merges in.");
+        }
+        int index = 0;
+        for (JsonElement variant : variants.getAsJsonArray()) {
+            index++;
+            String where = "'@variants' entry " + index;
+            if (!variant.isJsonObject()) {
+                throw new MalformedKumoTemplateException(where + " is not an object (it has an \"@when\" and the fields it merges in).");
+            }
+            JsonObject fields = copy(variant).getAsJsonObject();
+            JsonElement when = fields.remove("@when");
+            fields.remove("@comment");
+            if (when == null) {
+                throw new MalformedKumoTemplateException(where + " needs an \"@when\": the condition under which it is merged in.");
+            }
+            for (String key : new String[]{"extends", "@variants", "formatVersion"}) {
+                if (fields.has(key)) {
+                    throw new MalformedKumoTemplateException(where + " can't set '" + key + "'.");
+                }
+            }
+            Expression condition;
+            try {
+                condition = Expression.compile(when, ExpressionScope.root(new VariableTable()), Expression.Type.BOOLEAN);
+            } catch (MalformedKumoTemplateException e) {
+                throw new MalformedKumoTemplateException(where + ": " + e.getMessage());
+            }
+            if (!condition.isConstant()) {
+                throw new MalformedKumoTemplateException(where + ": its \"@when\" has to be known when the definition loads (only constant operations, such as core:minecraft_version), got "
+                        + when + ".");
+            }
+            if (condition.test(null)) {
+                merged = merge(merged, fields);
             }
         }
         return merged;

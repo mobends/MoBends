@@ -1,0 +1,191 @@
+package goblinbob.mobends.core.types;
+
+import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.client.definition.DefinedEntities;
+import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
+import goblinbob.mobends.core.data.IEntityDataFactory;
+import net.minecraft.world.entity.LivingEntity;
+
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+/**
+ * Every entity type: one built in for each entity registered in code ({@link DefinedEntities#register}),
+ * and one for each type file found in {@code assets/<namespace>/bends/types/} of every mod and
+ * resource pack. Decides which type animates an entity (see {@code misc/kumo-format.md}, "Entity
+ * types and selectors"), and gives each type its extensions ({@code bends/extensions/}).
+ * <p>
+ * Loaded when first asked after a resource reload, as the definitions and animators are. What
+ * 1.12 also had here and this version doesn't yet: the user's ranks, the server's policy for
+ * resource packs, and the list of types per entity for the settings screen.
+ */
+public final class EntityTypeRegistry {
+    public static final EntityTypeRegistry INSTANCE = new EntityTypeRegistry();
+
+    private final Map<String, EntityType> types = new LinkedHashMap<>();
+    private final Map<String, Extension> extensions = new LinkedHashMap<>();
+    private boolean loaded;
+
+    /**
+     * The types each entity can have, so they aren't worked out every frame. Weak keys, so entities
+     * that are no longer referenced elsewhere don't stay in memory. Entities compare by id, and a
+     * new entity can reuse the id of one that is gone: the entry remembers which one it is for.
+     */
+    private final Map<LivingEntity, CachedCandidates> candidatesByEntity = new WeakHashMap<>();
+
+    private record CachedCandidates(WeakReference<LivingEntity> entity, Candidates candidates) {
+    }
+
+    /** What a type does to an entity: its model (null: vanilla) and the factory of the entity's data. */
+    public record Selection(EntityType type, @Nullable DefinedEntity model, @Nullable IEntityDataFactory<LivingEntity> dataFactory) {
+    }
+
+    /**
+     * The types that can apply to one entity: the stable ones whose selector held (decided once),
+     * and the unstable ones, asked again every frame.
+     */
+    private static final class Candidates {
+        static final Candidates NONE = new Candidates(Collections.emptyList(), Collections.emptyList());
+
+        private final List<EntityType> unstable;
+        /** The first of the stable types whose selector held. */
+        @Nullable
+        private final EntityType bestStable;
+
+        Candidates(List<EntityType> matched, List<EntityType> unstable) {
+            this.unstable = unstable;
+            this.bestStable = TypeOrder.first(matched);
+        }
+
+        @Nullable
+        Selection select(LivingEntity entity) {
+            EntityType winner = bestStable;
+            for (EntityType type : unstable) {
+                if (type.matches(entity) && (winner == null || TypeOrder.PRECEDENCE.compare(type, winner) < 0)) {
+                    winner = type;
+                }
+            }
+            if (winner == null) {
+                return null;
+            }
+            Selection selection = winner.selectionFor(entity);
+            return selection == null || selection.model() == null ? null : selection;
+        }
+    }
+
+    private EntityTypeRegistry() {
+    }
+
+    /** The type the entity is animated by, with its model, or null if it stays vanilla. */
+    @Nullable
+    public Selection select(LivingEntity entity) {
+        ensureLoaded();
+        CachedCandidates cached = candidatesByEntity.get(entity);
+        if (cached == null || cached.entity().get() != entity) {
+            cached = new CachedCandidates(new WeakReference<>(entity), candidatesFor(entity));
+            candidatesByEntity.remove(entity);
+            candidatesByEntity.put(entity, cached);
+        }
+        return cached.candidates().select(entity);
+    }
+
+    private Candidates candidatesFor(LivingEntity entity) {
+        List<EntityType> matched = new ArrayList<>();
+        List<EntityType> unstable = new ArrayList<>();
+        for (EntityType type : types.values()) {
+            if (type.selectionFor(entity) == null) {
+                continue;
+            }
+            if (!type.isStable()) {
+                unstable.add(type);
+            } else if (type.matches(entity)) {
+                matched.add(type);
+            }
+        }
+        return matched.isEmpty() && unstable.isEmpty() ? Candidates.NONE : new Candidates(matched, unstable);
+    }
+
+    /** The types no longer match the resources (after a reload): they load again on next use. */
+    public void markStale() {
+        loaded = false;
+        types.clear();
+        extensions.clear();
+        candidatesByEntity.clear();
+    }
+
+    private void ensureLoaded() {
+        if (!loaded) {
+            reload();
+        }
+    }
+
+    /** (Re)loads every type: the built-in ones of the entities registered in code, then the type files, then the extensions. */
+    private void reload() {
+        loaded = true;
+        types.clear();
+        candidatesByEntity.clear();
+
+        for (DefinedEntity defined : DefinedEntities.defaults()) {
+            // One that can't be loaded has been said; it animates nothing.
+            String key = defined.key();
+            if (key != null) {
+                add(EntityType.builtIn(defined, key));
+            }
+        }
+        for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("types")) {
+            try {
+                add(TypeFiles.loadType(file));
+            } catch (Exception | StackOverflowError e) {
+                MoBends.LOGGER.error("Mo' Bends: could not load the type {}: {}", file.source(), e.getMessage(), e);
+            }
+        }
+        int extensionCount = loadExtensions();
+        MoBends.LOGGER.info("Mo' Bends: loaded {} entity types and {} extensions", types.size(), extensionCount);
+    }
+
+    /** Loads every extension and gives each type its own; returns how many there are. */
+    private int loadExtensions() {
+        extensions.clear();
+        for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("extensions")) {
+            try {
+                Extension extension = TypeFiles.loadExtension(file);
+                if (!types.containsKey(extension.getTypeId())) {
+                    MoBends.LOGGER.warn("Mo' Bends: the extension '{}' ({}) extends the type '{}', which doesn't exist.",
+                            extension.getId(), file.source(), extension.getTypeId());
+                    continue;
+                }
+                Extension overridden = extensions.put(extension.getId(), extension);
+                if (overridden != null) {
+                    MoBends.LOGGER.warn("Mo' Bends: two extensions have the id '{}': using {}, ignoring {}",
+                            extension.getId(), extension.getSource(), overridden.getSource());
+                }
+            } catch (Exception | StackOverflowError e) {
+                MoBends.LOGGER.error("Mo' Bends: could not load the extension {}: {}", file.source(), e.getMessage(), e);
+            }
+        }
+        for (EntityType type : types.values()) {
+            List<Extension> own = new ArrayList<>();
+            for (Extension extension : extensions.values()) {
+                if (extension.getTypeId().equals(type.getId())) {
+                    own.add(extension);
+                }
+            }
+            type.setExtensions(Extension.inLayerOrder(own));
+        }
+        return extensions.size();
+    }
+
+    /** Adds a type; one found later (in a higher-priority pack) replaces one with the same id. */
+    private void add(EntityType type) {
+        EntityType overridden = types.put(type.getId(), type);
+        if (overridden != null) {
+            MoBends.LOGGER.warn("Mo' Bends: two types have the id '{}': using {}, ignoring {}", type.getId(), type.getSource(), overridden.getSource());
+        }
+    }
+}

@@ -5,18 +5,25 @@
   "mixins": [],
   "client": [
     "AgeableListModelMixin",
+    "AgeableModelRootMixin",
     "CapeLayerMixin",
     "CustomHeadLayerMixin",
     "ElytraLayerMixin",
     "GameRendererMixin",
+    "HierarchicalModelMixin",
     "HumanoidArmorLayerMixin",
     "HumanoidModelMixin",
+    "IronGolemFlowerLayerMixin",
+    "IronGolemRendererMixin",
     "ItemInHandLayerMixin",
     "LivingEntityRendererMixin",
     "MinecraftMixin",
+    "MushroomCowMushroomLayerMixin",
     "PlayerItemInHandLayerMixin",
     "PlayerModelMixin",
-    "PlayerRendererMixin"
+    "PlayerRendererMixin",
+    "WitchItemLayerMixin",
+    "WolfRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
