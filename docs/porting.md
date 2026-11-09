@@ -24,7 +24,7 @@ squid are still to be checked. On NeoForge I've only checked the player (#381).
 
 In this order:
 
-1. **The rest of the player** (TODO.md): the first-person hands, the sword trail, the cape wave, the
+1. **The rest of the player** (TODO.md): the first-person hands, the
    inventory player's head following the mouse (1.12's `lookFurther`), stuck arrows and bee stingers
    on the bent limbs, armour from other mods' models, and poses for the items 1.12 didn't have
    (spyglass, goat horn, brush, crossbow, trident: they now just keep the current pose).
