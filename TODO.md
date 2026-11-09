@@ -153,7 +153,7 @@ forge-1.12               1.12.2
        `@variants` entry for later versions.
      - [ ] The config, the Mo' Bends menu, server rules (networking, `AnimationPolicy`), pack
        trust, supporters and the mobends.com API.
-   - [ ] Convert the `.lang` translations to `.json`.
+   - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge
      upload (the `publish` job) is switched off for now.

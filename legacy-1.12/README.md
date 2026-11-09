@@ -7,8 +7,7 @@ in `../src`, and the animation lab (`../animation-lab`) still compiles its anima
 - **Port a class by moving it** with `git mv legacy-1.12/src/main/java/<path> src/main/java/<path>`, then
   adapting it, so `git log --follow` keeps its history. Delete this directory once it is empty.
 - Fixes to the 1.12.2 mod go to the `forge-1.12` branch, not here: this copy isn't kept up to date.
-- The animators, models, types and textures have already moved to `../src/main/resources/assets/mobends/`,
-  since every version shares them. The `.lang` translations are still here, until they are converted to
-  the modern `.json` format.
+- The animators, models, types, textures and translations (now `.json`) have already moved to
+  `../src/main/resources/assets/mobends/`, since every version shares them.
 - `build.gradle`, `gradle.properties` and `run-arm64/` are the 1.12.2 build, kept for reference only; on
   `forge-1.12` they build the mod.
