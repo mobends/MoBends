@@ -1,5 +1,27 @@
 # Server-Side Rules & Networking
 
+## On the modern versions (`main`)
+
+The rules below are the same, kept in the server's `config/mobends-server.json` (`ServerRules`,
+written with the defaults the first time the server starts; the integrated server reads the same
+file, for a world opened to LAN):
+
+```json
+{"resourcePackAnimation": "LIMITED", "maxPartOffset": 4.0, "maxBodyOffset": 16.0, "maxPartScale": 1.5}
+```
+
+The server sends them, unasked, to every player who joins with Mo' Bends (`PlayerListMixin`), in
+the `mobends:server_rules` payload (`ServerRulesPayload`, the rules as JSON). It's an optional
+payload on both loaders: a player without Mo' Bends isn't sent it, and a player with Mo' Bends on a
+server without it gets nothing, so keeps the defaults. On Fabric it's sent through Fabric API's
+networking module, which the jar bundles. The client goes back to the defaults as it joins a world
+(`ClientPacketListenerMixin`), then `AnimationPolicy` works as described below.
+
+`PackTrust` tells the player's resource packs by their id: packs from the `resourcepacks` folder
+are `file/<name>` on every loader, while mods', vanilla's and the server's packs have other ids.
+
+The rest of this page describes the 1.12.2 mod.
+
 ## Purpose
 
 The server decides what players' resource packs may do to the animation. Rules are transmitted

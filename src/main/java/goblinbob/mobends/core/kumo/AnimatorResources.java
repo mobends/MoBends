@@ -2,6 +2,7 @@ package goblinbob.mobends.core.kumo;
 
 import com.google.gson.Gson;
 import goblinbob.mobends.core.animation.keyframe.KeyframeAnimation;
+import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.util.GsonResources;
@@ -14,8 +15,8 @@ import java.util.Map;
 
 /**
  * Instancing context backed by the resource packs: animators (and their {@code "extends"}) and
- * clips, cached until {@link #clearCache()} (a resource reload). Every pack is trusted for now (the
- * default {@link #isTrusted}): there's no pack signing on this version yet.
+ * clips, cached until {@link #clearCache()} (a resource reload). What a resource pack the player
+ * enabled supplies is untrusted ({@link PackTrust}).
  */
 public class AnimatorResources implements IKumoInstancingContext {
     public static final AnimatorResources INSTANCE = new AnimatorResources();
@@ -55,6 +56,16 @@ public class AnimatorResources implements IKumoInstancingContext {
             return loadClip(ResourceLocation.parse(key));
         } catch (IOException | ResourceLocationException e) {
             return null;
+        }
+    }
+
+    /** Whether the version of the animator or clip at a resource key that's read is trusted (see {@link PackTrust}). */
+    @Override
+    public boolean isTrusted(String key) {
+        try {
+            return PackTrust.opensTrusted(ResourceLocation.parse(key));
+        } catch (ResourceLocationException e) {
+            return true;
         }
     }
 

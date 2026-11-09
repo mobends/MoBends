@@ -11,12 +11,12 @@ import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.OnTemplate;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A mob described as data (`assets/mobends/bends/models/<mob>.json`): which entity, which vanilla
@@ -134,10 +134,12 @@ public class EntityModelDefinition {
     @Nullable
     private transient OptionSet optionSet;
 
+    /** Whether the definition comes from a trusted source (set when it's loaded; see {@code PackTrust}). */
+    public transient boolean trusted = true;
+
     /** The entity scope this definition declares for an entity of {@code type}. */
     public EntityTemplate entityScope(Class<?> type) {
-        // Every pack is trusted for now: there's no pack signing on this version yet.
-        return new EntityTemplate(type, define, on, true, options());
+        return new EntityTemplate(type, define, on, trusted, options());
     }
 
     /** The options it declares, owned by its location ({@code mobends:bends/models/player.json}). */

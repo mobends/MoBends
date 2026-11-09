@@ -37,6 +37,9 @@ options and the Mo' Bends menu's settings alike:
 A pattern is a `namespace:path` whose namespace and path may each start or end with `*`
 (`minecraft:*_sword`, `*:*`); without a namespace it's `minecraft`'s.
 
+A server's rules for its players' resource packs are in its `config/mobends-server.json` (see
+[server-networking.md](server-networking.md)).
+
 The rest of this page describes the 1.12.2 mod.
 
 ## Files

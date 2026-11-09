@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.kumo.expr.ExpressionTemplate;
 import goblinbob.mobends.core.kumo.state.serializer.ScopeSerializers;
 import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
@@ -56,6 +57,7 @@ public class ModelDefinitions {
             }
             definition.validate();
             definition.location = location.toString();
+            definition.trusted = PackTrust.opensTrusted(location);
             loaded.put(location, definition);
         }
         return definition;
