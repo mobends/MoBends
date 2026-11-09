@@ -19,4 +19,3 @@ the modern versions in `../src`.
 | `core/definition/DefinedFields.java`, `core/vanilla/VanillaModelParts.java` | Model definitions that name other mods' models |
 | `standard/main/MoBends.java`, `src/main/resources/mcmod.info` | NeoForge's update check (`updateJSON`) and the credits |
 | `src/test/.../WildcardPatternTest.java`, `RemoteFlightTest.java` | Their tests, in the animation lab |
-| `src/tools/.../SignPack.java`, `GenPackSigningKey.java` | `core/src/tools` (the Legacy Mo' Bends pack is built on `main`) |
