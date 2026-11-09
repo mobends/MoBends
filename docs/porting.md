@@ -26,8 +26,9 @@ squid are still to be checked. On NeoForge I've only checked the player (#381).
 
 In this order:
 
-1. **The config, the Mo' Bends menu, server rules, pack trust, supporters and the mobends.com API.**
-2. A release workflow, then the 1.20.1 and latest targets.
+1. **The Mo' Bends menu's Supporters window**, account linking and Customize's link (the menu
+   leaves hooks for them, see TODO.md).
+2. The 1.20.1 and latest targets.
 3. **GeckoLib armour** (TODO.md).
 
 Left for a later alpha: poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow,

@@ -24,6 +24,10 @@ public interface Platform {
 
     boolean isModLoaded(String modId);
 
+    /** The name a mod gives itself ({@code minecraft}'s is Minecraft), or null if no mod has this id. */
+    @Nullable
+    String modName(String modId);
+
     /** Whether the game is a client (the server has no rendering, so animation stays off there). */
     boolean isClient();
 

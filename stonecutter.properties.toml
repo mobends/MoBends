@@ -16,6 +16,8 @@ mod.mc_releases = ["1.21", "1.21.1"]
 mod.mc_compat = ">=1.21 <=1.21.1"
 # The Fabric API release whose modules the mod bundles (see build.fabric.gradle.kts).
 deps.fabric_api = "0.116.17+1.21.1"
+# Mod Menu's API (compile only: the Config button opens the Mo' Bends menu if Mod Menu is installed).
+deps.modmenu = "11.0.3"
 
 [neoforge."1.21.1"]
 mod.mc_compat = "[1.21, 1.21.1]"

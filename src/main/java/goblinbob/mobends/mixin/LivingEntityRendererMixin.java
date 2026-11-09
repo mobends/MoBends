@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.BendingEntityRenderer;
 import goblinbob.mobends.core.client.BendsLayers;
 import goblinbob.mobends.core.client.BendsRenderer;
+import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.client.model.EntityModel;
@@ -21,6 +22,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
@@ -61,6 +63,14 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
     )
     private void mobends$pose(LivingEntity entity, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight, CallbackInfo ci) {
         mobends$bent = BendsRenderer.beforeRender(entity, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), partialTicks);
+    }
+
+    /** A preview of the Mo' Bends menu has no name tag (the player's copy would show the player's name over it). */
+    @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
+    private void mobends$hidePreviewName(LivingEntity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (PreviewWorld.isPreview(entity)) {
+            cir.setReturnValue(false);
+        }
     }
 
     /** Draws a bent entity's sword trail, after the entity and its layers. */
