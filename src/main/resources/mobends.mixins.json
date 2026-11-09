@@ -21,6 +21,7 @@
     "IronGolemRendererMixin",
     "ItemInHandLayerMixin",
     "KeyMappingAccessor",
+    "LevelRendererMixin",
     "LivingEntityRendererMixin",
     "MinecraftMixin",
     "MushroomCowMushroomLayerMixin",

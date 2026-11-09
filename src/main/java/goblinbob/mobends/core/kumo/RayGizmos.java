@@ -5,8 +5,7 @@ import java.util.Arrays;
 /**
  * The rays {@code core:raycast}, {@code core:raycast_array} and {@code core:step_up} cast this frame
  * with {@code "debug": true}, kept for the client to draw over the world. Nothing here draws: the
- * drivers only record, so it stays free of the renderer. This version has no renderer for them yet
- * (1.12's {@code RayGizmoRenderer} isn't ported), so a pack's {@code debug} only fills this. Cleared
+ * drivers only record, so it stays free of the renderer ({@code RayGizmoRenderer} draws them). Cleared
  * as each frame's animation begins ({@code DataUpdateHandler.onRenderFrame}), so a paused game keeps
  * the last frame's rays.
  */
