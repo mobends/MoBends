@@ -10,6 +10,7 @@ import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.vanilla.VanillaNames;
+import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.util.Mth;
@@ -121,6 +122,8 @@ public final class BendsRenderer {
         }
         poseStack.pushPose();
         DefinedRenderer.transformModel(data, model, poseStack, entityFrame, bodyYaw);
+        // Where the sword is, if the trail asked for it this frame: as the parts are drawn.
+        SwordTrail.capture(data, model, parts, entityFrame, bodyYaw, poseStack);
         parts.render(data, poseStack, consumer, packedLight, packedOverlay, color, data.getEntity().isBaby() ? parts.babyLayout() : null);
         poseStack.popPose();
         return true;

@@ -195,24 +195,37 @@ public final class BendsLayers {
         if (frame == null) {
             return false;
         }
-        boolean right = arm == HumanoidArm.RIGHT;
-        EntityModelDefinition definition = frame.data.getDefinition();
-        String bone = right ? boneOf(definition, "bipedRightArm", "rightArm") : boneOf(definition, "bipedLeftArm", "leftArm");
+        String bone = armBone(frame.data.getDefinition(), arm);
         if (!frame.parts.hasPart(bone)) {
             return false;
         }
+        toBentModel(frame, poseStack, bone);
+        toHand(frame.data, frame.model, frame.parts, arm, bone, poseStack);
+        return true;
+    }
+
+    /** The bone that stands for vanilla's arm on side {@code arm}. */
+    public static String armBone(EntityModelDefinition definition, HumanoidArm arm) {
+        return arm == HumanoidArm.RIGHT ? boneOf(definition, "bipedRightArm", "rightArm") : boneOf(definition, "bipedLeftArm", "leftArm");
+    }
+
+    /**
+     * Moves {@code poseStack}, in the space the bent parts are drawn in, into the frame an item
+     * held in the {@code arm} hand is drawn in (see {@link #translateToHand}); {@code bone} is
+     * {@link #armBone}, which the parts must have.
+     */
+    public static void toHand(DefinedEntityData<?> data, EntityModel<?> model, DefinedModel parts, HumanoidArm arm, String bone, PoseStack poseStack) {
+        boolean right = arm == HumanoidArm.RIGHT;
         // The slim model moves its arm half a pixel out before turning it, to hold the item in the
         // middle of the narrower hand (PlayerModel.translateToHand).
-        float nudge = frame.model instanceof PlayerModelParts player && player.mobends$isSlim() ? (right ? 0.5F : -0.5F) : 0.0F;
-        toBentModel(frame, poseStack, bone);
-        frame.parts.applyVanillaFrame(bone, frame.data, poseStack, nudge, 0.0F, 0.0F);
-        OrientationComponent item = frame.data.getComponent(right ? "rightHeldItem" : "leftHeldItem", OrientationComponent.class);
+        float nudge = model instanceof PlayerModelParts player && player.mobends$isSlim() ? (right ? 0.5F : -0.5F) : 0.0F;
+        parts.applyVanillaFrame(bone, data, poseStack, nudge, 0.0F, 0.0F);
+        OrientationComponent item = data.getComponent(right ? "rightHeldItem" : "leftHeldItem", OrientationComponent.class);
         if (item != null) {
             poseStack.translate(0.0F, 0.5F, 0.0F);
             poseStack.mulPose(DefinedModelPart.toJoml(item.getSmooth()));
             poseStack.translate(0.0F, -0.5F, 0.0F);
         }
-        return true;
     }
 
     // --- the head (CustomHeadLayer, the spyglass) ---------------------------------------------------
@@ -341,6 +354,13 @@ public final class BendsLayers {
         frame.parts.applyLocalTransform("cape", frame.data, poseStack);
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
         return true;
+    }
+
+    /** The component {@code name} of {@code entity}, if the layer drawing it draws it bent; else null. */
+    @Nullable
+    public static <T> T componentOf(LivingEntity entity, String name, Class<T> type) {
+        Frame frame = frameFor(entity);
+        return frame == null ? null : frame.data.getComponent(name, type);
     }
 
     /**

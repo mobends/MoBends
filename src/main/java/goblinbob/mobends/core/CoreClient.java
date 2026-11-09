@@ -14,6 +14,8 @@ import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.expr.EntityFields;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.vanilla.VanillaEntityFields;
+import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
+import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.standard.kumo.CapeDriver;
 import goblinbob.mobends.standard.kumo.MoBendsOperations;
 import goblinbob.mobends.standard.kumo.SwordTrailDriver;
@@ -54,8 +56,11 @@ public final class CoreClient {
         DriverRegistry.INSTANCE.register("mobends:spider_moving_legs", SpiderMovingLegsDriver::create, SpiderMovingLegsTemplate.class);
         // How the definitions' "field" reads the entity: by the 1.12 names packs write.
         EntityFields.install(new VanillaEntityFields());
-        // What the definitions' "components" can name: where a spider's feet are planted.
+        // What the definitions' "components" can name: where a spider's feet are planted, the
+        // sword trail, the cape's ripple.
         EntityComponents.register("mobends:spider_legs", SpiderLegs::new);
+        EntityComponents.register("mobends:sword_trail", data -> new SwordTrail());
+        EntityComponents.register("mobends:cape_wave", data -> new CapeWave(data.getEntity()));
 
         // What the definitions' "layers" can name (see DefinedLayers, BendsLayers).
         DefinedLayers.register(DefinedLayers.ARMOR, HumanoidArmorLayer.class);

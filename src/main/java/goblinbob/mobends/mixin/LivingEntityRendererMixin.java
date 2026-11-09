@@ -8,6 +8,7 @@ import goblinbob.mobends.core.client.BendingEntityRenderer;
 import goblinbob.mobends.core.client.BendsLayers;
 import goblinbob.mobends.core.client.BendsRenderer;
 import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -60,6 +61,18 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
     )
     private void mobends$pose(LivingEntity entity, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight, CallbackInfo ci) {
         mobends$bent = BendsRenderer.beforeRender(entity, ((LivingEntityRenderer<?, ?>) (Object) this).getModel(), partialTicks);
+    }
+
+    /** Draws a bent entity's sword trail, after the entity and its layers. */
+    @Inject(
+        method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+        at = @At("TAIL")
+    )
+    private void mobends$drawTrail(LivingEntity entity, float yaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffers, int packedLight,
+                                   CallbackInfo ci) {
+        if (mobends$bent != null) {
+            SwordTrail.draw(mobends$bent, mobends$entityFrame, mobends$bodyYaw, buffers);
+        }
     }
 
     /** Notes the entity's frame and body yaw as vanilla turns the entity (see {@link #mobends$entityFrame}). */
