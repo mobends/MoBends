@@ -144,12 +144,13 @@ forge-1.12               1.12.2
      - [x] Armour from other mods' models bends with the body, cut at the elbows and knees.
      - [ ] GeckoLib armour (1.12 had `GeckoLibCompat`): it draws itself its own way, so it stays
        in vanilla's pose.
-     - [ ] The rest of the player: poses for the items 1.12 didn't have (spyglass, goat horn,
-       brush, crossbow, trident).
+     - [ ] Poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident).
+       Left for a later alpha.
      - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,
        spider, squid, wolf (and the dev pack's animals), with type files, extensions and `field`
        expressions.
-     - [ ] The pig zombie: it's drawn with the piglin model now, which its definition can't map onto.
+     - [x] The pig zombie (the zombified piglin): its definition names the piglin's model through a
+       `@variants` entry for later versions.
      - [ ] The config, the Mo' Bends menu, server rules (networking, `AnimationPolicy`), pack
        trust, supporters and the mobends.com API.
    - [ ] Convert the `.lang` translations to `.json`.
