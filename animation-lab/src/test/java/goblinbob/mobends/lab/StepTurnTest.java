@@ -8,17 +8,18 @@ import goblinbob.mobends.core.kumo.driver.LegIk;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.lab.sim.EntityInputs;
+import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.LabClock;
 import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.monster.EntityIronGolem;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.animal.IronGolem;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.IntConsumer;
@@ -224,9 +225,9 @@ public class StepTurnTest
     private static class Golem
     {
         final EntityInputs inputs = new EntityInputs();
-        final EntityIronGolem entity;
+        final IronGolem entity;
         final ScriptedEntity scripted;
-        final DefinedEntityData<EntityIronGolem> data;
+        final DefinedEntityData<IronGolem> data;
         final KumoAnimatorState animator;
 
         double shownYaw;
@@ -247,15 +248,15 @@ public class StepTurnTest
 
         Golem() throws Exception
         {
-            EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", "bends/models/iron_golem.json"));
+            EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/iron_golem.json"));
             LabBootstrap.ensure();
-            net.minecraft.entity.Entity.resetIds();
-            World world = new World();
-            Minecraft.getMinecraft().world = world;
-            Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-            entity = new EntityIronGolem(world);
+            net.minecraft.world.entity.Entity.resetIds();
+            ClientLevel world = new ClientLevel();
+            Minecraft.getInstance().level = world;
+            Minecraft.getInstance().player = new LocalPlayer(world);
+            entity = new IronGolem(world);
             scripted = new ScriptedEntity(entity, world);
-            data = DefinedEntityData.create(definition, entity);
+            data = EntityKind.newData(definition, entity);
             animator = new KumoAnimatorState(definition.entityScope(entity.getClass()), KumoSession.loadAnimator(definition.animator), true,
                     java.util.Collections.emptyList(), java.util.Collections.emptyList(), KumoSession.INSTANCING);
         }
@@ -282,8 +283,8 @@ public class StepTurnTest
                 float pt = clock.getPartialTicks();
                 data.update(pt);
                 modelInputs.compute(entity, pt);
-                data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-                data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+                data.headYaw = Mth.wrapDegrees(modelInputs.headYaw);
+                data.headPitch = Mth.wrapDegrees(modelInputs.headPitch);
                 data.limbSwing = modelInputs.limbSwing;
                 data.limbSwingAmount = modelInputs.limbSwingAmount;
                 data.swingProgress = modelInputs.swingProgress;
@@ -295,12 +296,12 @@ public class StepTurnTest
                 // and Z, the entity's origin ORIGIN units down it.
                 Quaternion render = data.root.rotation.getSmooth();
                 double[] forward = rotate(render, 0, 0, 1);
-                double bodyYaw = data.getVariable("entityBodyYaw");
+                double bodyYaw = Variables.of(data, "entityBodyYaw");
                 shownYaw = bodyYaw - Math.toDegrees(Math.atan2(forward[0], forward[2]));
                 // Once running: how far the body turns and the hips move in one frame.
                 if (!Double.isNaN(lastShown) && clock.getTick() >= 60)
                 {
-                    maxYawRate = Math.max(maxYawRate, Math.abs(MathHelper.wrapDegrees(shownYaw - lastShown)));
+                    maxYawRate = Math.max(maxYawRate, Math.abs(Mth.wrapDegrees(shownYaw - lastShown)));
                     maxHipJump = Math.max(maxHipJump, Math.abs(data.center.position.getY() - lastHipY));
                 }
                 lastShown = shownYaw;
@@ -310,7 +311,7 @@ public class StepTurnTest
                 double yaw = Math.toRadians(bodyYaw), cos = Math.cos(yaw), sin = Math.sin(yaw);
                 double shown = Math.toRadians(shownYaw), cosS = Math.cos(shown), sinS = Math.sin(shown);
                 double[] offset = {data.center.position.getX(), data.center.position.getY(), data.center.position.getZ()};
-                double px = data.getVariable("entityWorldX"), pz = data.getVariable("entityWorldZ");
+                double px = Variables.of(data, "entityWorldX"), pz = Variables.of(data, "entityWorldZ");
 
                 for (int i = 0; i < 2; i++)
                 {

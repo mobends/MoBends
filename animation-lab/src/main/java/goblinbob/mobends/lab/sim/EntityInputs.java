@@ -1,6 +1,7 @@
 package goblinbob.mobends.lab.sim;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * The per-tick control inputs of a scripted entity. A scenario fills one of these for every tick;
@@ -42,13 +43,14 @@ public class EntityInputs
 
     /** True on the tick an arm swing (attack) starts. */
     public boolean attack = false;
-    /** Number of ticks the active item has been in use (0 = not using). */
     /** A left-handed entity (the attack bits mirror on it). */
     public boolean leftHanded = false;
     /** The hand the item in use is held in. */
-    public net.minecraft.util.EnumHand activeHand = net.minecraft.util.EnumHand.MAIN_HAND;
-    public int itemUseCount = 0;
-    public int itemUseMaxCount = 0;
+    public InteractionHand usedItemHand = InteractionHand.MAIN_HAND;
+    /** Ticks left of using the item (0 = not using). */
+    public int useItemRemaining = 0;
+    /** Ticks the item has been used so far. */
+    public int ticksUsingItem = 0;
 
     public ItemStack mainHand = ItemStack.EMPTY;
     public ItemStack offHand = ItemStack.EMPTY;
@@ -86,8 +88,8 @@ public class EntityInputs
         this.ridingLiving = fresh.ridingLiving;
         this.elytraTicks = fresh.elytraTicks;
         this.attack = fresh.attack;
-        this.itemUseCount = fresh.itemUseCount;
-        this.itemUseMaxCount = fresh.itemUseMaxCount;
+        this.useItemRemaining = fresh.useItemRemaining;
+        this.ticksUsingItem = fresh.ticksUsingItem;
         this.mainHand = fresh.mainHand;
         this.offHand = fresh.offHand;
         this.wolfSitting = fresh.wolfSitting;

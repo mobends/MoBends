@@ -63,6 +63,23 @@ public class ModelDefinitions {
         return definition;
     }
 
+    /**
+     * Reads a definition from {@code json} (a model definition file's content), validated; one that
+     * {@code extends} another loads that one from the resources. The animation lab's tests read
+     * definitions so; the mod {@link #load}s them.
+     */
+    public static EntityModelDefinition parse(JsonElement json) throws MalformedKumoTemplateException {
+        JsonObject resolved;
+        try {
+            resolved = resolve(FormatVersion.check(json, "model definition", EntityModelDefinition.FORMAT_VERSION), new HashSet<>());
+        } catch (IOException | JsonParseException e) {
+            throw new MalformedKumoTemplateException(e.getMessage());
+        }
+        EntityModelDefinition definition = GSON.fromJson(resolved, EntityModelDefinition.class);
+        definition.validate();
+        return definition;
+    }
+
     private static JsonObject read(ResourceLocation location) throws IOException {
         JsonElement json = GsonResources.read(location, GSON, JsonElement.class);
         try {

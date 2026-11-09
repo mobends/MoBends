@@ -1,6 +1,9 @@
 package goblinbob.mobends.lab;
 
+import com.google.gson.JsonParser;
+import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.kumo.KumoSerializer;
+import goblinbob.mobends.core.kumo.option.OptionSet;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.types.Extension;
@@ -12,7 +15,7 @@ import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.Scenario;
 import goblinbob.mobends.lab.trace.FramePose;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
@@ -54,7 +57,7 @@ public class ExtensionsTest
         assertMalformed("needs a \"formatVersion\"", "{\"id\": \"x:y\", \"type\": \"a:b\", \"animator\": \"a:c.json\"}");
         assertMalformed("needs an 'animator'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"type\": \"a:b\"}");
 
-        ExtensionDefinition wave = ExtensionDefinition.parse(new String(Files.readAllBytes(EXAMPLE.resolve("extensions/wave.json")), StandardCharsets.UTF_8));
+        ExtensionDefinition wave = ExtensionDefinition.parse(JsonParser.parseString(new String(Files.readAllBytes(EXAMPLE.resolve("extensions/wave.json")), StandardCharsets.UTF_8)));
         assertEquals("mobends_wave:wave", wave.id);
         // A built-in type's id is its model's key: the registering mod and the name it gave the model
         // (the player's definition, "player"), or else the entity's id.
@@ -65,20 +68,28 @@ public class ExtensionsTest
     @Test
     void theFirstExtensionInPrecedenceOrderGoesOnTop()
     {
-        Extension early = new Extension("a:early", "test", "t", new ResourceLocation("a", "early.json"));
-        Extension late = new Extension("b:late", "test", "t", new ResourceLocation("b", "late.json"));
+        Extension early = new Extension("a:early", "test", "t", ResourceLocation.fromNamespaceAndPath("a", "early.json"), OptionSet.EMPTY);
+        Extension late = new Extension("b:late", "test", "t", ResourceLocation.fromNamespaceAndPath("b", "late.json"), OptionSet.EMPTY);
 
-        assertEquals(Arrays.asList(late.getAnimator(), early.getAnimator()), Extension.layerOrder(Arrays.asList(early, late)),
+        assertEquals(Arrays.asList(late, early), Extension.inLayerOrder(Arrays.asList(early, late)),
                 "same rank: the lexically first id is first in the list, so its layers go on last, on top");
 
-        late.setRank(1);
-        assertEquals(Arrays.asList(early.getAnimator(), late.getAnimator()), Extension.layerOrder(Arrays.asList(early, late)),
-                "a higher rank goes on top");
+        // The user moved it up (the Mo' Bends menu).
+        ClientConfig.INSTANCE.setExtensionRank("b:late", 1);
+        try
+        {
+            assertEquals(Arrays.asList(early, late), Extension.inLayerOrder(Arrays.asList(early, late)),
+                    "a higher rank goes on top");
+        }
+        finally
+        {
+            ClientConfig.INSTANCE.setExtensionRank("b:late", 0);
+        }
     }
 
     private static void assertMalformed(String message, String json)
     {
-        MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class, () -> ExtensionDefinition.parse(json));
+        MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class, () -> ExtensionDefinition.parse(JsonParser.parseString(json)));
         assertTrue(e.getMessage().contains(message), e.getMessage());
     }
 
@@ -154,7 +165,7 @@ public class ExtensionsTest
     void theVanillaSwimExampleIsVanillaInWaterOnly() throws Exception
     {
         Path pack = LabPaths.root().resolve("../misc/examples/vanilla-swim-extension/assets/mobends_vanilla_swim/bends");
-        ExtensionDefinition extension = ExtensionDefinition.parse(new String(Files.readAllBytes(pack.resolve("extensions/vanilla_swim.json")), StandardCharsets.UTF_8));
+        ExtensionDefinition extension = ExtensionDefinition.parse(JsonParser.parseString(new String(Files.readAllBytes(pack.resolve("extensions/vanilla_swim.json")), StandardCharsets.UTF_8)));
         assertEquals("mobends:player", extension.type);
         AnimatorTemplate swim;
         try (Reader reader = Files.newBufferedReader(pack.resolve("animators/vanilla_swim.json")))

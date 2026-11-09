@@ -6,7 +6,6 @@ import goblinbob.mobends.lab.scenarios.Scenarios;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.Scenario;
-import goblinbob.mobends.standard.kumo.MoBendsOperations;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +56,8 @@ public class SpinAttackTest
     @Test
     void withoutTheSpinAttackTheComboStartsOver() throws Exception
     {
-        KumoOptions.INSTANCE.load(Collections.singletonMap(MoBendsOperations.SPIN_ATTACK_OPTION, 0.0));
+        // The player's model definition's spinAttack option, off.
+        KumoOptions.INSTANCE.load(Collections.singletonMap(KumoOptions.key("mobends:bends/models/player.json", "spinAttack"), 0.0));
         List<String> slashes = slashes();
         assertEquals(5, slashes.size(), slashes.toString());
         assertEquals(slashes.get(0), slashes.get(4));

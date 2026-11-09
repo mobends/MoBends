@@ -5,11 +5,12 @@ import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.monster.Zombie;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -34,10 +35,10 @@ public class DefinedPositionsTest
     void positionsAreReadAgainFromAnotherRenderer() throws Exception
     {
         LabBootstrap.ensure();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        DefinedEntityData<EntityZombie> data = DefinedEntityData.create(definition(""), new EntityZombie(world));
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
+        DefinedEntityData<Zombie> data = EntityKind.newData(definition(""), new Zombie(world));
         Object wide = new Object(), slim = new Object();
         Map<String, float[]> widePositions = Collections.singletonMap("arm", new float[] { -5, -10, 0 });
         Map<String, float[]> slimPositions = Collections.singletonMap("arm", new float[] { -5, -9.5F, 0 });

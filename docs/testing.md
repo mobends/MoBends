@@ -1,6 +1,6 @@
 # Testing: the Animation Lab
 
-`animation-lab/` is a standalone Gradle project (modern JDK, no Forge) that replays the mod's
+`animation-lab/` is a standalone Gradle project (JDK 21, no Minecraft, no loader) that replays the mod's
 animators against scripted entities and compares every bone, every frame, with recorded *golden*
 traces. How to run it and add coverage is in [`animation-lab/README.md`](../animation-lab/README.md);
 this page is about what the goldens mean.
@@ -10,12 +10,13 @@ this page is about what the goldens mean.
 The goldens were recorded from the mod's original, hand-written animation code (controllers and
 animation bits) before it was replaced by animator assets and deleted. They are now the only
 record of how every entity animated in 1.2.2, and the gate (`./gradlew test`) keeps every animator
-within 0.1° / 0.01 model units of them. A golden may only change when an animator is changed on
-purpose, and the commit should say why.
+within 0.1° / 0.01 model units of them. A golden may only change on purpose (an animator changed,
+or the modern code doing deliberately what 1.12 didn't, see below), and the commit should say why.
 
-The lab compiles the Minecraft-free sources (`core/`, the data classes) against small stubs of
-the Minecraft classes they touch. It cannot cover client code: mutators and renderers, resource
-pack discovery, the settings screens and the server sync are only checked in game.
+The lab compiles the engine (`core/`) and the mod's animation code from `src/` (the entity data,
+the KUMO glue, the model definitions, the types) against stand-ins for the Minecraft 1.21.1 classes
+they touch. It cannot cover client code: the renderers and the bent models, resource pack discovery,
+the settings screens and the server sync are only checked in game.
 
 ## The Goldens That No Longer Match 1.2.2
 
@@ -53,6 +54,19 @@ as it is. The legacy goldens don't match 1.2.2's either. They include the engine
 goldens were re-recorded for (smoothing in ticks, a bone's base smoothing, interpolated entity
 values).
 
+When the lab moved from the 1.12.2 code to the modern code in `src/`, two sets of goldens were
+re-recorded, as the modern code does on purpose what 1.21.1's vanilla does (`forge-1.12` keeps its
+own, as 1.12.2 doesn't):
+
+* Every player scenario (the mod's and the legacy pack's), for the cape, over its first 25 frames
+  only. `CapeDriver` computes the cape as 1.21.1's `CapeLayer` does, which keeps its sideways sway
+  within 20 degrees and its lift within 150; 1.12's didn't. The lab's player starts with its cloak
+  position at the origin, half a block from where it stands, so its cape swings out as the scenario
+  starts, past those limits.
+* `spider/death`, for the legs once it has died. 1.21.1's renderer passes the model no limb swing
+  for a dead entity, and the mod animates with what vanilla passes (`BendsRenderer`); 1.12's kept
+  the walk's swing.
+
 ## Where the Animators Deliberately Differ From the Original Code
 
 No scenario covers these, because the new behaviour was chosen over the original quirk:
@@ -64,10 +78,14 @@ No scenario covers these, because the new behaviour was chosen over the original
 * When the active hand changes during an unchanged use action, the original kept the old hand;
   the animators follow the hand.
 
-## Stubs and Determinism
+## Stand-ins and Determinism
 
-* `MathHelper.sin` / `cos` in the stubs replicate the game's 65536-entry table exactly, so baked
+* `Mth.sin` / `cos` in the stand-ins replicate the game's 65536-entry table exactly, so baked
   and generated curves match the game; `atan2` is exact instead of the game's approximation.
+* The stand-ins (`animation-lab/src/mcstub`) are the 1.21.1 classes, under their Mojang names, with
+  only what the mod's animation code uses. Their entities are scripted: what the game works out
+  itself (touching water, the item in use, a ladder at the feet) the lab sets each tick. Every
+  entity is 0.6 by 1.8 blocks but the iron golem and the villagers, as the 1.12 stubs had them.
 * The mod uses unseeded `Random`s for variation (e.g. the zombie's walking state) and entity ids
   pick the zombie's animation set; the lab seeds the former and resets the latter (`Determinism`)
   so every scenario replays identically.

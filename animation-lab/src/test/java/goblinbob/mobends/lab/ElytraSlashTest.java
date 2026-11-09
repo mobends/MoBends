@@ -2,9 +2,9 @@ package goblinbob.mobends.lab;
 
 import goblinbob.mobends.lab.PlayerRuns.Run;
 import goblinbob.mobends.lab.sim.Scenario;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 
 import static goblinbob.mobends.lab.PlayerRuns.run;

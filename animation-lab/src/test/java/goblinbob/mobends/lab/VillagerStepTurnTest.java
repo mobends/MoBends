@@ -1,7 +1,7 @@
 package goblinbob.mobends.lab;
 
 import goblinbob.mobends.core.math.Quaternion;
-import net.minecraft.entity.passive.EntityVillager;
+import net.minecraft.world.entity.npc.Villager;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -185,7 +185,7 @@ public class VillagerStepTurnTest
     /** A villager, grown or baby: RenderVillager draws it at 0.9375. */
     private static PlantedFeetRig villager(boolean child) throws Exception
     {
-        return new PlantedFeetRig("bends/models/villager.json", EntityVillager::new, child, 0, 0.9375,
+        return new PlantedFeetRig("bends/models/villager.json", Villager::new, child, 0, 0.9375,
                 new PlantedFeetRig.Leg("rightLeg", "foreRightLeg", new float[] {-2, 12, 0}, new float[] {0, 6, -2}, new float[] {0, 6, 2}),
                 new PlantedFeetRig.Leg("leftLeg", "foreLeftLeg", new float[] {2, 12, 0}, new float[] {0, 6, -2}, new float[] {0, 6, 2}));
     }

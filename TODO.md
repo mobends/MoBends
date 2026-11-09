@@ -145,8 +145,8 @@ forge-1.12               1.12.2
    - [x] Add the Stonecutter multi-loader layout: a 1.21.1 Fabric + NeoForge skeleton that loads,
      with `core/` compiled in, and CI. The 1.12 sources moved to `legacy-1.12/` (not built) as the
      porting reference; the shared assets moved to `src/main/resources`.
-   - [ ] Port `legacy-1.12/` slice by slice, deleting it once empty. The animation lab compiles
-     from `legacy-1.12/` until then, so the slices copy what they port rather than `git mv` it.
+   - [ ] Port `legacy-1.12/` slice by slice, deleting it once empty. Nothing compiles from it (the
+     animation lab compiles the animation code from `src/`), so a slice can `git mv` what it ports.
      - [x] **The player bends** (1.21.1, Fabric + NeoForge): the player's model definition, entity
        data and KUMO glue, and its bent model (split elbows and knees) drawn in place of vanilla's
        (`DefinedModelBuilder`, `BendsRenderer`). Checked in the game on both loaders.

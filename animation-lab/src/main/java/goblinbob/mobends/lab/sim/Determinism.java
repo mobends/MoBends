@@ -5,7 +5,7 @@ import java.util.Random;
 
 /**
  * The mod uses unseeded {@link Random} instances for variation (e.g. the zombie walking state).
- * The lab replaces them with seeded ones so every scenario replays identically.
+ * The lab seeds them so every scenario replays identically.
  */
 public class Determinism
 {
@@ -46,7 +46,18 @@ public class Determinism
                     try
                     {
                         field.setAccessible(true);
-                        field.set(target, new Random(seed ^ field.getName().hashCode()));
+                        long fieldSeed = seed ^ field.getName().hashCode();
+                        Random random = (Random) field.get(target);
+                        // Reseeded in place: what reads it may hold it already (the data's
+                        // "random" built-in is bound to it as the data is made).
+                        if (random != null)
+                        {
+                            random.setSeed(fieldSeed);
+                        }
+                        else
+                        {
+                            field.set(target, new Random(fieldSeed));
+                        }
                     }
                     catch (IllegalAccessException e)
                     {

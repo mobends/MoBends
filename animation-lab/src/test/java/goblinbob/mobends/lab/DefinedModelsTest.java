@@ -1,5 +1,6 @@
 package goblinbob.mobends.lab;
 
+import com.google.gson.JsonParser;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -10,19 +11,23 @@ import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.types.EntityTypeDefinition;
+import goblinbob.mobends.core.vanilla.VanillaNames;
 import goblinbob.mobends.lab.sim.EntityInputs;
+import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.LabClock;
 import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.level.Level;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
@@ -58,7 +63,7 @@ public class DefinedModelsTest
     {
         for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie", "squid", "spider", "wolf" })
         {
-            DEFAULT_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
+            DEFAULT_MODELS.put("mobends:" + name, ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/" + name + ".json"));
         }
     }
 
@@ -72,7 +77,7 @@ public class DefinedModelsTest
     {
         for (String name : new String[] { "chicken", "cow", "mooshroom", "pig", "polar_bear", "sheep" })
         {
-            UNRELEASED_MODELS.put("mobends:" + name, new ResourceLocation("mobends", "bends/models/" + name + ".json"));
+            UNRELEASED_MODELS.put("mobends:" + name, ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/" + name + ".json"));
         }
     }
 
@@ -108,10 +113,10 @@ public class DefinedModelsTest
         {
             for (Path file : files.sorted().collect(Collectors.toList()))
             {
-                EntityTypeDefinition type = EntityTypeDefinition.parse(new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
+                EntityTypeDefinition type = EntityTypeDefinition.parse(JsonParser.parseString(new String(Files.readAllBytes(file), StandardCharsets.UTF_8)));
                 if (type.isModelDefinition())
                 {
-                    models.put(type.id, new ResourceLocation(type.model));
+                    models.put(type.id, ResourceLocation.parse(type.model));
                 }
             }
         }
@@ -122,16 +127,25 @@ public class DefinedModelsTest
      * An entity of the definition's class, which its entity scope reads; a zombie when the class has
      * no stub here (any living entity will do then, as long as the scope reads no field).
      */
-    static EntityLivingBase entityOf(EntityModelDefinition definition, World world) throws Exception
+    /** An entity of the class the definition is for (named as 1.12 named it), added to {@code world}; a zombie for a class the stand-ins don't have. */
+    static LivingEntity entityOf(EntityModelDefinition definition, ClientLevel world) throws Exception
     {
-        try
+        Class<?> type = VanillaNames.entityClass(definition.entity);
+        LivingEntity entity;
+        if (type == null)
         {
-            return (EntityLivingBase) Class.forName(definition.entity).getConstructor(World.class).newInstance(world);
+            entity = new Zombie(world);
         }
-        catch (ClassNotFoundException e)
+        else if (type == AbstractClientPlayer.class)
         {
-            return new EntityZombie(world);
+            entity = new LocalPlayer(world);
         }
+        else
+        {
+            entity = (LivingEntity) type.getConstructor(Level.class).newInstance(world);
+        }
+        world.addEntity(entity);
+        return entity;
     }
 
     @Test
@@ -140,7 +154,7 @@ public class DefinedModelsTest
         Set<String> named = new TreeSet<>();
         for (ResourceLocation model : definedModels().values())
         {
-            named.add(model.getResourcePath());
+            named.add(model.getPath());
         }
         try (Stream<Path> files = Files.list(BENDS.resolve("models")))
         {
@@ -163,13 +177,13 @@ public class DefinedModelsTest
     {
         EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(model);
         LabBootstrap.ensure();
-        net.minecraft.entity.Entity.resetIds();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        EntityLivingBase entity = entityOf(definition, world);
+        net.minecraft.world.entity.Entity.resetIds();
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
+        LivingEntity entity = entityOf(definition, world);
         ScriptedEntity scripted = new ScriptedEntity(entity, world);
-        DefinedEntityData<EntityLivingBase> data = DefinedEntityData.create(definition, entity);
+        DefinedEntityData<LivingEntity> data = EntityKind.newData(definition, entity);
 
         for (String bone : definition.allBoneNames())
         {
@@ -214,8 +228,8 @@ public class DefinedModelsTest
             }
             data.update(clock.getPartialTicks());
             modelInputs.compute(entity, clock.getPartialTicks());
-            data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-            data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+            data.headYaw = Mth.wrapDegrees(modelInputs.headYaw);
+            data.headPitch = Mth.wrapDegrees(modelInputs.headPitch);
             data.limbSwing = modelInputs.limbSwing;
             data.limbSwingAmount = modelInputs.limbSwingAmount;
             data.swingProgress = modelInputs.swingProgress;

@@ -1,6 +1,6 @@
 package goblinbob.mobends.lab;
 
-import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.world.entity.monster.Skeleton;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -83,7 +83,7 @@ public class SkeletonStepTurnTest
     /** A skeleton: ModelSkeleton's legs are 2 wide and turn 2 to the side of the middle. */
     private static PlantedFeetRig skeleton() throws Exception
     {
-        return new PlantedFeetRig("bends/models/skeleton.json", EntitySkeleton::new, false, 0, 1,
+        return new PlantedFeetRig("bends/models/skeleton.json", Skeleton::new, false, 0, 1,
                 new PlantedFeetRig.Leg("rightLeg", "rightForeLeg", new float[] {-2, 12, 0}, new float[] {0, 6, -1}, new float[] {0, 6, 1}),
                 new PlantedFeetRig.Leg("leftLeg", "leftForeLeg", new float[] {2, 12, 0}, new float[] {0, 6, -1}, new float[] {0, 6, 1}));
     }

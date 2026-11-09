@@ -1,16 +1,18 @@
 # Animation lab
 
-A standalone Gradle project (JDK 21, no Forge; run with its own wrapper, `./gradlew`) that replays
+A standalone Gradle project (JDK 21, no Minecraft, no loader; run with its own wrapper, `./gradlew`) that replays
 the mod's animators against scripted entities and checks their bone poses frame by frame against
 recorded *golden* traces.
 The goldens were first recorded from the mod's original procedural animation code, so they pin
 down how every entity animated before the move to data; since that code is gone, a golden only
-changes when an animator is changed on purpose.
+changes on purpose: an animator changed, or the modern code doing deliberately what 1.12 didn't (see
+`docs/testing.md`).
 
-The mod's Minecraft-agnostic sources (`core/kumo`, `core/math`, `core/data`, `core/definition`, the components)
-are compiled straight from `../legacy-1.12/src` (the 1.12.2 code, until it is ported) and `../core/src` with `--release 8`, against small stubs
-of the Minecraft classes they touch (`src/mcstub`) and shims of the mod's loaders (`src/mod`). Nothing in here
-ships with the mod. The scripts in `tools/` are TypeScript run with [Bun](https://bun.sh).
+The mod's animation code (the entity data, the KUMO glue, the model definitions, the types and the
+components) is compiled straight from `../src` (the modern mod) and `../core/src` (the engine),
+against stand-ins for the Minecraft 1.21.1 classes it touches, under their Mojang names
+(`src/mcstub`), and shims for the mod's classes that need the game's client or a loader (`src/mod`).
+Nothing in here ships with the mod. The scripts in `tools/` are TypeScript run with [Bun](https://bun.sh).
 
 ## Tasks
 
@@ -35,8 +37,8 @@ bun tools/trace_diff.ts player/sword_combo rightArm --from 80 --to 100
 
 `KumoSession` drives a `ScriptedEntity` (a small vanilla-like integrator: gravity, drag, limb
 swing, arm swing, ladders, water, stone to climb onto, mounts) at a fixed frame rate, and per frame does what the mod
-does: tick the entity, `data.updateClient()`, `data.update(partialTicks)`, feed the vanilla model
-inputs, run the animator, then capture every named bone's smoothed rotation and target, offsets
+does: tick the entity, `data.updateClient()`, `data.update(partialTicks)`, feed it what the
+renderer passes the model (as the mod's `BendsRenderer` captures it), run the animator, then capture every named bone's smoothed rotation and target, offsets
 and the entity-level offset vectors into a trace. Determinism comes from reset entity ids and
 seeded `Random`s (`Determinism`).
 
@@ -60,5 +62,5 @@ active.
    `./gradlew record --args="$PWD/golden <entity>/<scenario>"`.
 3. `./gradlew test`.
 
-New entities need an `EntityKind` (entity stub factory and data factory) and an entry in
-`Animators`.
+New entities need an `EntityKind` (entity factory and data factory), an entry in `Animators`, and a
+stand-in for their class in `src/mcstub` (and its `EntityType`).

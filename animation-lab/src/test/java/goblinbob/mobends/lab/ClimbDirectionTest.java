@@ -29,10 +29,11 @@ class ClimbDirectionTest
             if (tick == 42) in.jump = true;
         }, data -> {
             // Facing that way from the start, so it doesn't turn on its feet first.
-            net.minecraft.entity.EntityLivingBase entity = (net.minecraft.entity.EntityLivingBase) data.getEntity();
-            entity.renderYawOffset = entity.prevRenderYawOffset = yaw;
-            entity.rotationYaw = entity.prevRotationYaw = entity.rotationYawHead = entity.prevRotationYawHead = yaw;
-            LabWorlds.placeStone(entity.world, x0, 0, z0, x1, 0, z1);
+            net.minecraft.world.entity.LivingEntity entity = (net.minecraft.world.entity.LivingEntity) data.getEntity();
+            entity.yBodyRot = entity.yBodyRotO = yaw;
+            entity.setYRot(yaw);
+            entity.yRotO = entity.yHeadRot = entity.yHeadRotO = yaw;
+            LabWorlds.placeStone(entity.level(), x0, 0, z0, x1, 0, z1);
         });
         return new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(EntityKind.IRON_GOLEM))).run().frames;
     }

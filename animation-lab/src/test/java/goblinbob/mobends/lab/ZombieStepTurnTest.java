@@ -1,7 +1,7 @@
 package goblinbob.mobends.lab;
 
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.entity.monster.EntityZombieVillager;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombieVillager;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,7 +120,7 @@ public class ZombieStepTurnTest
         boolean villager = kind.equals("zombie villager");
         float side = villager ? 2 : 1.9F;
         return new PlantedFeetRig(villager ? "bends/models/zombie_villager.json" : "bends/models/zombie.json",
-                villager ? EntityZombieVillager::new : EntityZombie::new, kind.startsWith("baby"), set, 1,
+                villager ? ZombieVillager::new : Zombie::new, kind.startsWith("baby"), set, 1,
                 new PlantedFeetRig.Leg("rightLeg", "rightForeLeg", new float[] {0, 12, 0}, new float[] {0, 6, -2}, new float[] {-side, 6, 2}),
                 new PlantedFeetRig.Leg("leftLeg", "leftForeLeg", new float[] {0, 12, 0}, new float[] {0, 6, -2}, new float[] {side, 6, 2}));
     }

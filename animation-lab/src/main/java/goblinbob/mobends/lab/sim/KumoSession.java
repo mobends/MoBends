@@ -11,11 +11,12 @@ import goblinbob.mobends.lab.trace.FramePose;
 import goblinbob.mobends.lab.trace.PoseCapture;
 import goblinbob.mobends.lab.trace.PoseTrace;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ import java.util.Map;
 public class KumoSession
 {
     public final Scenario scenario;
-    public final World world;
+    public final ClientLevel level;
     public final ScriptedEntity scripted;
     public final LivingEntityData<?> data;
     public final LabClock clock;
@@ -84,7 +85,7 @@ public class KumoSession
     public static AnimatorTemplate loadAnimator(String resource) throws IOException
     {
         LabBootstrap.ensure();
-        return AnimatorResources.INSTANCE.loadAnimator(new ResourceLocation(resource));
+        return AnimatorResources.INSTANCE.loadAnimator(ResourceLocation.parse(resource));
     }
 
     public KumoSession(Scenario scenario, AnimatorTemplate template) throws MalformedKumoTemplateException
@@ -103,14 +104,12 @@ public class KumoSession
                        java.util.List<Boolean> extensionsTrusted) throws MalformedKumoTemplateException
     {
         LabBootstrap.ensure();
-        net.minecraft.entity.Entity.resetIds();
+        Entity.resetIds();
         this.scenario = scenario;
-        this.world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        this.level = newLevel();
 
-        EntityLivingBase entity = scenario.kind.createEntity(world);
-        this.scripted = new ScriptedEntity(entity, world);
+        LivingEntity entity = scenario.kind.createEntity(level);
+        this.scripted = new ScriptedEntity(entity, level);
         this.data = scenario.kind.createData(entity, scenario.id().hashCode());
         if (scenario.setup != null)
         {
@@ -124,14 +123,12 @@ public class KumoSession
     public KumoSession(Scenario scenario, goblinbob.mobends.core.kumo.state.KumoProgram program)
     {
         LabBootstrap.ensure();
-        net.minecraft.entity.Entity.resetIds();
+        Entity.resetIds();
         this.scenario = scenario;
-        this.world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        this.level = newLevel();
 
-        EntityLivingBase entity = scenario.kind.createEntity(world);
-        this.scripted = new ScriptedEntity(entity, world);
+        LivingEntity entity = scenario.kind.createEntity(level);
+        this.scripted = new ScriptedEntity(entity, level);
         this.data = scenario.kind.createData(entity, scenario.id().hashCode());
         if (scenario.setup != null)
         {
@@ -139,6 +136,19 @@ public class KumoSession
         }
         this.clock = new LabClock(scenario.fps);
         this.animator = new KumoAnimatorState(program);
+    }
+
+    /**
+     * A new level for the client to show, with the client's player in it (the first entity made,
+     * as the game makes it first).
+     */
+    public static ClientLevel newLevel()
+    {
+        ClientLevel level = new ClientLevel();
+        Minecraft.getInstance().level = level;
+        Minecraft.getInstance().player = new LocalPlayer(level);
+        level.addEntity(Minecraft.getInstance().player);
+        return level;
     }
 
     /** The compiled animator this session runs. */
@@ -173,8 +183,8 @@ public class KumoSession
         data.update(clock.getPartialTicks());
 
         modelInputs.compute(scripted.entity, clock.getPartialTicks());
-        data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-        data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+        data.headYaw = Mth.wrapDegrees(modelInputs.headYaw);
+        data.headPitch = Mth.wrapDegrees(modelInputs.headPitch);
         data.limbSwing = modelInputs.limbSwing;
         data.limbSwingAmount = modelInputs.limbSwingAmount;
         data.swingProgress = modelInputs.swingProgress;

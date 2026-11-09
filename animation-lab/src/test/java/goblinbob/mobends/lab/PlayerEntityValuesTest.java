@@ -16,10 +16,10 @@ import goblinbob.mobends.lab.sim.LabClock;
 import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.util.Mth;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -85,7 +85,7 @@ public class PlayerEntityValuesTest
 
         boolean nextLeg()
         {
-            return getTicksAfterTouchdown() < 5 ? !leg : standingOnLeftLeg();
+            return ticksAfterTouchdown < 5 ? !leg : standingOnLeftLeg();
         }
 
         /** The sprint cycle swings the left leg by -72 cos(phase), phase = limbSwing * 0.6662 * 0.8: it sweeps back while sin(phase) > 0. */
@@ -102,7 +102,7 @@ public class PlayerEntityValuesTest
         /** As the Java data class did, but of the interpolated vertical motion, as entityMotionY now is. */
         double flightPitch()
         {
-            return MathHelper.atan2(getInterpolatedXZMotionMagnitude(), getInterpolatedMotionY()) * 180.0D / Math.PI * flightSpeedFactor();
+            return Mth.atan2(getInterpolatedXZMotionMagnitude(), getInterpolatedMotionY()) * 180.0D / Math.PI * flightSpeedFactor();
         }
     }
 
@@ -125,11 +125,11 @@ public class PlayerEntityValuesTest
     void theDefinitionComputesWhatTheJavaDataClassDid() throws Exception
     {
         LabBootstrap.ensure();
-        net.minecraft.entity.Entity.resetIds();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        AbstractClientPlayer player = new AbstractClientPlayer(world);
+        net.minecraft.world.entity.Entity.resetIds();
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
+        AbstractClientPlayer player = new LocalPlayer(world);
         ScriptedEntity scripted = new ScriptedEntity(player, world);
         Reference data = new Reference(EntityKind.PLAYER.loadDefinition(), player);
         data.initialize();

@@ -1,6 +1,6 @@
 package goblinbob.mobends.lab;
 
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -178,7 +178,7 @@ public class PlayerStepTurnTest
             }
         };
         player.run(160, tick -> {
-            player.inputs.mainHand = new net.minecraft.item.ItemStack(net.minecraft.init.Items.IRON_SWORD);
+            player.inputs.mainHand = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_SWORD);
             player.inputs.attack = tick == 30;
         });
         // In the stance the feet stand more than twice as far apart, planted as the stance lowers and
@@ -195,7 +195,7 @@ public class PlayerStepTurnTest
 
     private static PlantedFeetRig player() throws Exception
     {
-        return new PlantedFeetRig("bends/models/player.json", AbstractClientPlayer::new, false, 0, 0.9375,
+        return new PlantedFeetRig("bends/models/player.json", LocalPlayer::new, false, 0, 0.9375,
                 new PlantedFeetRig.Leg("rightLeg", "rightForeLeg", new float[] {0, 12, 0}, new float[] {0, 6, -2}, new float[] {-1.9F, 6, 2}),
                 new PlantedFeetRig.Leg("leftLeg", "leftForeLeg", new float[] {0, 12, 0}, new float[] {0, 6, -2}, new float[] {1.9F, 6, 2}));
     }

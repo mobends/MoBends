@@ -102,8 +102,8 @@ class AnchorDriverTest
         List<FramePose> frames = run(5, "'blockX': {'constant': {'floor': ['entityWorldX']}}, ",
                 "'point': {'x': {'add': ['node.blockX', 0.3]}}", (tick, in) -> {},
                 data -> {
-                    net.minecraft.entity.EntityLivingBase entity = (net.minecraft.entity.EntityLivingBase) data.getEntity();
-                    entity.setLocationAndAngles(10_000_000.3D, entity.posY, 0.5D, 0.0F, 0.0F);
+                    net.minecraft.world.entity.LivingEntity entity = (net.minecraft.world.entity.LivingEntity) data.getEntity();
+                    entity.moveTo(10_000_000.3D, entity.getY(), 0.5D, 0.0F, 0.0F);
                 });
         FramePose last = frames.get(frames.size() - 1);
         assertEquals(0, root(last)[0], 1e-3);

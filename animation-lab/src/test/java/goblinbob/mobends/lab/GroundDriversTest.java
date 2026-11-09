@@ -3,9 +3,9 @@ package goblinbob.mobends.lab;
 import goblinbob.mobends.core.kumo.BlockBelowDriver;
 import goblinbob.mobends.core.kumo.BlockGradientDriver;
 import goblinbob.mobends.lab.sim.LabWorlds;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,13 +28,13 @@ class GroundDriversTest
     @Test
     void standingOnTheFloorItFindsTheBlockUnderTheFeet()
     {
-        assertBlock(0, -1, 2, BlockBelowDriver.find(new World(), 0.5, 0, 2.3, 0, true));
+        assertBlock(0, -1, 2, BlockBelowDriver.find(new ClientLevel(), 0.5, 0, 2.3, 0, true));
     }
 
     @Test
     void inTheAirItLooksDownAsFarAsItIsTold()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         assertBlock(0, -1, 2, BlockBelowDriver.find(world, 0.5, 0.4, 2.3, 0.5, true));
         assertNull(BlockBelowDriver.find(world, 0.5, 0.6, 2.3, 0.5, true));
         assertBlock(0, -1, 2, BlockBelowDriver.find(world, 0.5, 2.9, 2.3, 3, true));
@@ -43,13 +43,13 @@ class GroundDriversTest
     @Test
     void onlySolidBlocksCountWhenItIsAskedForThem()
     {
-        World world = new World();
-        world.setBlockState(new BlockPos(0, 0, 2), Blocks.WATER.getDefaultState());
+        ClientLevel world = new ClientLevel();
+        world.setBlockAndUpdate(new BlockPos(0, 0, 2), Blocks.WATER.defaultBlockState());
         assertBlock(0, 0, 2, BlockBelowDriver.find(world, 0.5, 1, 2.3, 1, false));
         assertBlock(0, -1, 2, BlockBelowDriver.find(world, 0.5, 1, 2.3, 1, true));
     }
 
-    private static double[] gradient(World world, boolean solid)
+    private static double[] gradient(ClientLevel world, boolean solid)
     {
         double[] result = new double[6];
         BlockGradientDriver.compute(world, new BlockPos(0, -1, 2), solid, result);
@@ -59,7 +59,7 @@ class GroundDriversTest
     @Test
     void flatGroundHasNoWayUpAndFacesUp()
     {
-        double[] g = gradient(new World(), true);
+        double[] g = gradient(new ClientLevel(), true);
         assertEquals(0, Math.hypot(g[0], Math.hypot(g[1], g[2])), 1e-9, "no way up");
         assertEquals(1, g[4], 1e-9, "the normal straight up");
     }
@@ -67,7 +67,7 @@ class GroundDriversTest
     @Test
     void besideAStepUpTheWayUpPointsAtTheStep()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -2, 0, 3, 2, 0, 4);
         double[] g = gradient(world, true);
         assertEquals(0, g[0], 1e-9, "not to the side");
@@ -84,8 +84,8 @@ class GroundDriversTest
     @Test
     void waterIsNoStepWhenOnlySolidBlocksCount()
     {
-        World world = new World();
-        for (int x = -1; x <= 1; x++) world.setBlockState(new BlockPos(x, 0, 3), Blocks.WATER.getDefaultState());
+        ClientLevel world = new ClientLevel();
+        for (int x = -1; x <= 1; x++) world.setBlockAndUpdate(new BlockPos(x, 0, 3), Blocks.WATER.defaultBlockState());
         assertEquals(0, gradient(world, true)[2], 1e-9, "flat, under water");
         assertTrue(gradient(world, false)[2] > 0.1, "a step, when any block counts");
     }
@@ -93,7 +93,7 @@ class GroundDriversTest
     @Test
     void withNothingRoundItEverythingIsZero()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         world.floorY = -100;
         double[] g = gradient(world, true);
         for (double v : g) assertEquals(0, v, 1e-9);

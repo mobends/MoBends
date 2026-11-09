@@ -1,5 +1,6 @@
 package goblinbob.mobends.lab;
 
+import com.google.gson.JsonParser;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
@@ -9,16 +10,17 @@ import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.types.ExtensionDefinition;
 import goblinbob.mobends.lab.sim.EntityInputs;
+import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.LabClock;
 import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
@@ -59,21 +61,21 @@ public class DanceExtensionTest
 
     private static ExtensionDefinition extension(String mob) throws Exception
     {
-        return ExtensionDefinition.parse(new String(Files.readAllBytes(PACK.resolve("extensions/" + mob + ".json")), StandardCharsets.UTF_8));
+        return ExtensionDefinition.parse(JsonParser.parseString(new String(Files.readAllBytes(PACK.resolve("extensions/" + mob + ".json")), StandardCharsets.UTF_8)));
     }
 
     /** Stands until tick 60 (dancing from about tick 10), then walks until tick 120. */
     private static void dances(String mob) throws Exception
     {
-        EntityModelDefinition definition = ModelDefinitions.INSTANCE.load("mobends", mob);
+        EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(ModelDefinitions.locationOf("mobends", mob));
         LabBootstrap.ensure();
-        net.minecraft.entity.Entity.resetIds();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        EntityLivingBase entity = DefinedModelsTest.entityOf(definition, world);
+        net.minecraft.world.entity.Entity.resetIds();
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
+        LivingEntity entity = DefinedModelsTest.entityOf(definition, world);
         ScriptedEntity scripted = new ScriptedEntity(entity, world);
-        DefinedEntityData<EntityLivingBase> data = DefinedEntityData.create(definition, entity);
+        DefinedEntityData<LivingEntity> data = EntityKind.newData(definition, entity);
 
         AnimatorTemplate dance;
         try (Reader reader = Files.newBufferedReader(PACK.resolve("animators/dance.json")))
@@ -100,8 +102,8 @@ public class DanceExtensionTest
             }
             data.update(clock.getPartialTicks());
             modelInputs.compute(entity, clock.getPartialTicks());
-            data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-            data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+            data.headYaw = Mth.wrapDegrees(modelInputs.headYaw);
+            data.headPitch = Mth.wrapDegrees(modelInputs.headPitch);
             data.limbSwing = modelInputs.limbSwing;
             data.limbSwingAmount = modelInputs.limbSwingAmount;
             data.swingProgress = modelInputs.swingProgress;

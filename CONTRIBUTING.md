@@ -16,15 +16,17 @@ mod before it. `main` builds Mo' Bends 2.X for the modern Minecraft versions and
 | `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8, shared with `forge-1.12`. | **No** |
 | `src/` | The mod for every modern Minecraft version and loader, as one source tree (see *One source tree* below). Compiled together with `core/` into each jar. | Yes |
 | `legacy-1.12/` | The 1.12.2 mod's sources, **not built**: the reference the port works from (see its [README](legacy-1.12/README.md)). | Yes (1.12.2) |
-| `animation-lab/` | A standalone test harness (JDK 21, no Minecraft) that runs the animators through scripted scenarios and checks them against recorded traces. | No (it stubs the few Minecraft classes it needs) |
+| `animation-lab/` | A standalone test harness (JDK 21, no Minecraft) that compiles the mod's animation code from `src/` and `core/`, runs the animators through scripted scenarios and checks them against recorded traces. | No (it has stand-ins for the few 1.21.1 classes that code touches) |
 
 Rules of thumb:
 
 - If code doesn't need Minecraft, it belongs in `core/`. It must stay free of any `net.minecraft`
   import, so every Minecraft version (1.12.2 included) can share it, and it must compile as Java 8
   (`core/` is built with `--release 8`).
-- Code the lab compiles (see `modIncludes` in `animation-lab/build.gradle.kts`) must not use newer
-  Java than 8; the lab compiles it with `--release 8` to catch that.
+- The lab compiles part of `src/` (see `modIncludes` in `animation-lab/build.gradle.kts`) against
+  stand-ins for the Minecraft classes it touches (`animation-lab/src/mcstub/java`), and shims for the
+  mod's classes it needs but doesn't compile (`animation-lab/src/mod/java`). Code there that starts
+  using another Minecraft class or member needs it added to the stand-ins: the lab's build says which.
 
 ## One source tree
 

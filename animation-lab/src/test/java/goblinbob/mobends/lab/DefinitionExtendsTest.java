@@ -6,7 +6,7 @@ import goblinbob.mobends.core.definition.DefinitionMerge;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,8 +58,8 @@ public class DefinitionExtendsTest
     @Test
     void theZombieVillagerIsTheZombieOnItsOwnModel() throws Exception
     {
-        EntityModelDefinition zombie = ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", "bends/models/zombie.json"));
-        EntityModelDefinition villager = ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", "bends/models/zombie_villager.json"));
+        EntityModelDefinition zombie = ModelDefinitions.INSTANCE.load(ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/zombie.json"));
+        EntityModelDefinition villager = ModelDefinitions.INSTANCE.load(ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/zombie_villager.json"));
         assertEquals("net.minecraft.client.model.ModelZombieVillager", villager.model);
         assertEquals(zombie.allBoneNames(), villager.allBoneNames());
         assertEquals(zombie.define.keySet(), villager.define.keySet());

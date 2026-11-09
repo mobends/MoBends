@@ -5,8 +5,8 @@ import goblinbob.mobends.core.kumo.EntityBuiltIns;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -19,9 +19,9 @@ class EntityBuiltInsTest
     void everyEntityProvidesEveryBuiltIn()
     {
         LabBootstrap.ensure();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
         for (EntityKind kind : EntityKind.values())
         {
             LivingEntityData<?> data = kind.createData(kind.createEntity(world), 0);
