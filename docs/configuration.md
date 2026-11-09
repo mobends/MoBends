@@ -40,6 +40,11 @@ A pattern is a `namespace:path` whose namespace and path may each start or end w
 A server's rules for its players' resource packs are in its `config/mobends-server.json` (see
 [server-networking.md](server-networking.md)).
 
+The mobends.com API's files are under `config/mobends/`, as on 1.12.2 (see *Files* below):
+`env.json` (optional, `apiUrl` only), `account.json` (the signed-in Mo' Bends account, readable by
+the player only), `assets/` and `asset_manifest.json` (the downloaded supporter accessories). See
+[api-communication.md](api-communication.md).
+
 The rest of this page describes the 1.12.2 mod.
 
 ## Files

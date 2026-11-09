@@ -31,6 +31,13 @@ public interface Platform {
     Path configDir();
 
     /**
+     * Where Mo' Bends was loaded from: its jar, a directory in development, or null if the loader
+     * can't say (the jar is inside another). Its checksum goes to the mobends.com API.
+     */
+    @Nullable
+    Path modFile();
+
+    /**
      * Registers the payload a server sends its rules in ({@link ServerRulesPayload}); on a client,
      * {@code onClientReceived} gets each one, on the client's thread (null on a server). Once, at
      * start-up.

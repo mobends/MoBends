@@ -1,24 +1,30 @@
 package goblinbob.mobends.core;
 
 import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.asset.AssetsModule;
 import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.configuration.ClientConfig;
+import goblinbob.mobends.core.connection.ConnectionManager;
+import goblinbob.mobends.core.connection.MoBendsAccount;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.definition.ModelDefinitions;
+import goblinbob.mobends.core.env.EnvironmentModule;
 import goblinbob.mobends.core.kumo.AnimationLimits;
 import goblinbob.mobends.core.kumo.AnimatorResources;
 import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
 import goblinbob.mobends.core.kumo.expr.EntityFields;
+import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.vanilla.VanillaEntityFields;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
+import goblinbob.mobends.standard.client.renderer.entity.layers.PlayerAccessoriesLayer;
 import goblinbob.mobends.standard.client.renderer.entity.layers.WolfMiscLayer;
 import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.standard.kumo.CapeDriver;
@@ -52,6 +58,15 @@ public final class CoreClient {
     public static void init() {
         // The user's settings, before anything reads them (the options' values, what's animated).
         ClientConfig.INSTANCE.load(MoBends.platform().configDir());
+        // The mobends.com API (docs/api-communication.md): where it is, the signed-in account, the
+        // downloaded assets; then, in the background, the join and pings, the accessory catalogue
+        // and new assets. Nothing waits for them.
+        EnvironmentModule.load(MoBends.platform().configDir());
+        MoBendsAccount.init(MoBends.platform().configDir());
+        AssetsModule.init(MoBends.platform().configDir());
+        ConnectionManager.init(MoBends.platform().modFile());
+        SupporterContent.fetchAccessoryDetails();
+        AssetsModule.updateInBackground();
         // The server's rules: what resource packs may do to animation, and how far their animation may go.
         MoBends.platform().registerServerRules(AnimationPolicy.INSTANCE::onServerRules);
         AnimationLimits.setProvider(AnimationPolicy.INSTANCE::limits);
@@ -77,8 +92,8 @@ public final class CoreClient {
         DefinedLayers.register(DefinedLayers.CUSTOM_HEAD, CustomHeadLayer.class);
         DefinedLayers.register(DefinedLayers.CAPE, CapeLayer.class);
         DefinedLayers.register(DefinedLayers.ELYTRA, ElytraLayer.class);
-        // 1.12's own layer of supporter accessories, which this version doesn't draw yet.
-        DefinedLayers.register(DefinedLayers.ACCESSORIES, null);
+        // Mo' Bends' own layer of supporter accessories (added to the player's renderer by PlayerRendererMixin).
+        DefinedLayers.register(DefinedLayers.ACCESSORIES, PlayerAccessoriesLayer.class);
         // Mo' Bends' own layer of the wolf's mouth (added to the wolf's renderer by WolfRendererMixin).
         DefinedLayers.register(WolfMiscLayer.KIND, WolfMiscLayer.class);
         // Layers that draw their own copy of the model: drawn bent, as 1.12's AnimatedCopyLayer drew them.

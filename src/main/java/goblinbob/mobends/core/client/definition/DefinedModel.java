@@ -136,6 +136,22 @@ public final class DefinedModel {
     }
 
     /**
+     * Moves {@code poseStack}, at the model's space as the bent parts are drawn in it, into the
+     * frame part {@code name} (a bone, a segment or an overlay) draws its boxes in: through its
+     * parents, then its own transform (1.12's {@code applyCharacterTransform}).
+     *
+     * @return false if there is no such part, and nothing was done
+     */
+    public boolean applyFrame(String name, DefinedEntityData<?> data, PoseStack poseStack) {
+        DefinedModelPart part = parts.get(name);
+        if (part == null) {
+            return false;
+        }
+        part.applyFrame(poseStack, data);
+        return true;
+    }
+
+    /**
      * Applies part {@code name}'s own transform alone, in its parent's frame, as it is drawn.
      *
      * @return false if there is no such part, and nothing was done

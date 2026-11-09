@@ -7,6 +7,7 @@ import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityComponent;
 import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.core.supporters.SupporterContent;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -22,7 +23,7 @@ import java.util.List;
 /**
  * {@code mobends:sword_trail}: the streak a swung sword leaves, fed by the {@code mobends:sword_trail}
  * driver and drawn in the entity's frame (its feet, turned as its body is), so it turns with the
- * body as 1.12's did.
+ * body as 1.12's did. It's white, or a supporter's own colour ({@code SupporterContent.getTrailColorFor}).
  * <p>
  * 1.12 noted the bones' transforms when the driver asked, and worked out the hand from them as it
  * drew. Here the driver only asks ({@link #add}), and the hand is noted as the bent model is drawn
@@ -33,8 +34,6 @@ public class SwordTrail implements EntityComponent {
     /** How long a part of the trail takes to fade, and how long it is kept, in ticks. */
     private static final float FADE_TICKS = 5.0F;
     private static final float LIFE_TICKS = 20.0F;
-    /** The trail's colour; supporters' own colours come with the supporters. It's drawn unless the config says not to. */
-    private static final float RED = 1.0F, GREEN = 1.0F, BLUE = 1.0F;
 
     private final List<TrailPart> parts = new ArrayList<>();
     /** The velocity of the part the driver asked for this frame (pixels per tick, in the entity's frame), or null. */
@@ -144,6 +143,9 @@ public class SwordTrail implements EntityComponent {
             return;
         }
         Matrix4f frame = entityFrame(entityFrame, bodyYaw);
+        // White, or the colour a supporter picked for their sword trail (1.12's SupporterContent.getTrailColorFor).
+        int color = SupporterContent.getTrailColorFor(data.getEntity());
+        float red = (color >> 16 & 0xFF) / 255.0F, green = (color >> 8 & 0xFF) / 255.0F, blue = (color & 0xFF) / 255.0F;
         VertexConsumer consumer = buffers.getBuffer(RenderType.debugQuads());
         Vector3f near = new Vector3f(), far = new Vector3f(), lastNear = new Vector3f(), lastFar = new Vector3f();
         float lastAlpha = 0.0F;
@@ -153,10 +155,10 @@ public class SwordTrail implements EntityComponent {
             float alpha = part.alpha();
             if (i > 0) {
                 // A quad from the last part to this one, each end as faded as its part.
-                consumer.addVertex(frame, lastNear.x, lastNear.y, lastNear.z).setColor(RED, GREEN, BLUE, lastAlpha);
-                consumer.addVertex(frame, lastFar.x, lastFar.y, lastFar.z).setColor(RED, GREEN, BLUE, lastAlpha);
-                consumer.addVertex(frame, far.x, far.y, far.z).setColor(RED, GREEN, BLUE, alpha);
-                consumer.addVertex(frame, near.x, near.y, near.z).setColor(RED, GREEN, BLUE, alpha);
+                consumer.addVertex(frame, lastNear.x, lastNear.y, lastNear.z).setColor(red, green, blue, lastAlpha);
+                consumer.addVertex(frame, lastFar.x, lastFar.y, lastFar.z).setColor(red, green, blue, lastAlpha);
+                consumer.addVertex(frame, far.x, far.y, far.z).setColor(red, green, blue, alpha);
+                consumer.addVertex(frame, near.x, near.y, near.z).setColor(red, green, blue, alpha);
             }
             lastNear.set(near);
             lastFar.set(far);

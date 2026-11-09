@@ -1,9 +1,11 @@
 package goblinbob.mobends.neoforge;
 
 //? if neoforge {
-/*import goblinbob.mobends.core.network.ServerRulesPayload;
+/*import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.network.ServerRulesPayload;
 import goblinbob.mobends.platform.Platform;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
@@ -41,6 +43,13 @@ public final class NeoForgePlatform implements Platform {
     @Override
     public Path configDir() {
         return FMLPaths.CONFIGDIR.get();
+    }
+
+    @Override
+    @Nullable
+    public Path modFile() {
+        var info = ModList.get().getModFileById(MoBends.MOD_ID);
+        return info == null ? null : info.getFile().getFilePath();
     }
 
     @Override
