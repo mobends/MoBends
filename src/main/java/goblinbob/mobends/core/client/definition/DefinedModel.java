@@ -75,7 +75,7 @@ public final class DefinedModel {
         DefinedModel built = CACHE.get(model);
         if (built == null) {
             ModelPart root = rootOf(definition, model);
-            built = root == null ? NONE : DefinedModelBuilder.build(definition, root);
+            built = root == null ? NONE : DefinedModelBuilder.build(definition, model, root);
             if (built != NONE && model instanceof AgeableModelLayout layout) {
                 built.babyLayout = BabyLayout.of(layout, built.roots);
             }
@@ -94,7 +94,7 @@ public final class DefinedModel {
         DefinedModel built = WORN_CACHE.get(model);
         if (built == null || (built != NONE && built.wornOver != body)) {
             ModelPart root = rootOf(definition, model);
-            built = root == null ? NONE : DefinedModelBuilder.buildOver(definition, root, body);
+            built = root == null ? NONE : DefinedModelBuilder.buildOver(definition, model, root, body);
             WORN_CACHE.put(model, built);
         }
         return built == NONE ? null : built;

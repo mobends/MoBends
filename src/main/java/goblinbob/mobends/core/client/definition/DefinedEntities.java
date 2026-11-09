@@ -191,18 +191,19 @@ public final class DefinedEntities {
 
         /**
          * Whether the definition bends {@code model}, the entity's renderer's: any model if it names
-         * none, else one of the class it names. A class without a counterpart on this version is
-         * said once; the entity is drawn as vanilla.
+         * none, else one of the class it names ({@link EntityModelDefinition#modelClass()}). A class
+         * not loaded here (a 1.12 model without a counterpart on this version, or a mod's that isn't
+         * installed) is said once; the entity is drawn as vanilla.
          */
         public boolean bends(EntityModel<?> model) {
             EntityModelDefinition loaded = definition();
             if (loaded.model == null) {
                 return true;
             }
-            Class<?> modelClass = VanillaNames.modelClass(loaded.model);
+            Class<?> modelClass = loaded.modelClass();
             if (modelClass == null && !warnedModel) {
                 warnedModel = true;
-                MoBends.LOGGER.warn("Model definition {}: its model {} has no counterpart in Minecraft {} yet; the entity is drawn as vanilla.",
+                MoBends.LOGGER.warn("Model definition {}: its model {} isn't a model class of Minecraft {} or an installed mod; the entity is drawn as vanilla.",
                         location, loaded.model, MoBends.MINECRAFT);
             }
             return modelClass != null && modelClass.isInstance(model);

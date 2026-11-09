@@ -10,9 +10,5 @@ the modern versions in `../src`.
 - Fixes to the 1.12.2 mod go to the `forge-1.12` branch, not here: this copy isn't kept up to date.
 - The animators, models, types, textures and translations (now `.json`) have already moved to
   `../src/main/resources/assets/mobends/`, since every version shares them.
-- What the modern code already does, or doesn't need on 1.21.1, is gone; `git log` on `forge-1.12` has
-  it. What's left is still to port:
-
-| File | Becomes |
-|---|---|
-| `core/definition/DefinedFields.java`, `core/vanilla/VanillaModelParts.java` | Model definitions that name other mods' models |
+- Everything is ported or gone (what the modern code doesn't need on 1.21.1); `git log` on `forge-1.12`
+  has the 1.12 sources. This directory goes next.

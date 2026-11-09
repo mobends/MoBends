@@ -10,6 +10,7 @@ import goblinbob.mobends.core.kumo.state.template.DefinitionTemplate;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.OnTemplate;
+import goblinbob.mobends.core.vanilla.VanillaNames;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,8 +36,15 @@ public class EntityModelDefinition {
      */
     public String entity;
 
-    /** Optional: only models of this class (or a subclass) are bent; a 1.12 name, as {@link #entity} is. */
+    /**
+     * Optional: only models of this class (or a subclass) are bent. Minecraft's by its 1.12 name, as
+     * {@link #entity} is; another mod's by its full name, which loaders don't rename (see
+     * {@link #modelClass()}).
+     */
     public String model;
+    /** {@link #model}'s class, once {@link #modelClass()} found it. */
+    private transient Class<?> modelClass;
+    private transient boolean modelClassFound;
 
     /** Optional custom bender key / language key; defaults come from the entity registry. */
     public String key;
@@ -217,5 +225,36 @@ public class EntityModelDefinition {
                 }
             }
         }
+    }
+
+    /**
+     * The model class {@link #model} names: Minecraft's by its 1.12 name, through
+     * {@link VanillaNames#modelClass}; another mod's by its own full name (a {@code net.minecraft.}
+     * name is never loaded that way: on Fabric, Minecraft's classes are renamed in the game). Null
+     * if it names none, or a class not loaded here (a 1.12 model without a counterpart in this
+     * version, or a mod that isn't installed).
+     */
+    @Nullable
+    public Class<?> modelClass() {
+        if (!modelClassFound) {
+            modelClassFound = true;
+            if (model != null) {
+                modelClass = VanillaNames.modelClass(model);
+                if (modelClass == null && !model.startsWith("net.minecraft.")) {
+                    try {
+                        // Without initialising it: a resource pack may name any class.
+                        modelClass = Class.forName(model, false, EntityModelDefinition.class.getClassLoader());
+                    } catch (ClassNotFoundException | LinkageError e) {
+                        modelClass = null;
+                    }
+                }
+            }
+        }
+        return modelClass;
+    }
+
+    /** Whether {@link #model} names a vanilla model, whose bones' fields are 1.12's names ({@link VanillaNames#modelPart}). */
+    public boolean namesVanillaModel() {
+        return model != null && VanillaNames.modelClass(model) != null;
     }
 }

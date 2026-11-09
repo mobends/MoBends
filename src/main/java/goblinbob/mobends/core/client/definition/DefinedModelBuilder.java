@@ -11,7 +11,6 @@ import goblinbob.mobends.core.definition.BoxSplitter;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
-import goblinbob.mobends.core.vanilla.VanillaNames;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 
@@ -39,6 +38,8 @@ import java.util.Set;
  */
 final class DefinedModelBuilder {
     private final EntityModelDefinition definition;
+    /** The model, whose fields a mod's model's bones may name ({@link ModelPartLookup}). */
+    private final Object model;
     private final ModelPart root;
     /** The parts this model is worn over, whose cuts and frames its boxes follow; null for an entity's own model. */
     @Nullable
@@ -56,15 +57,16 @@ final class DefinedModelBuilder {
     private final Map<String, Integer> splitAxes = new HashMap<>();
     private final List<DefinedModelPart> roots = new ArrayList<>();
 
-    private DefinedModelBuilder(EntityModelDefinition definition, ModelPart root, @Nullable DefinedModel over) {
+    private DefinedModelBuilder(EntityModelDefinition definition, Object model, ModelPart root, @Nullable DefinedModel over) {
         this.definition = definition;
+        this.model = model;
         this.root = root;
         this.over = over;
     }
 
     /** The parts of the model whose part tree starts at {@code root}. */
-    static DefinedModel build(EntityModelDefinition definition, ModelPart root) {
-        return new DefinedModelBuilder(definition, root, null).build();
+    static DefinedModel build(EntityModelDefinition definition, Object model, ModelPart root) {
+        return new DefinedModelBuilder(definition, model, root, null).build();
     }
 
     /**
@@ -74,8 +76,8 @@ final class DefinedModelBuilder {
      * are cut where {@code over}'s are, at the joints of its segments, open there, as the sleeves
      * are. A bone whose vanilla part this model lacks (the sleeves, the jacket) is left empty.
      */
-    static DefinedModel buildOver(EntityModelDefinition definition, ModelPart root, DefinedModel over) {
-        return new DefinedModelBuilder(definition, root, over).build();
+    static DefinedModel buildOver(EntityModelDefinition definition, Object model, ModelPart root, DefinedModel over) {
+        return new DefinedModelBuilder(definition, model, root, over).build();
     }
 
     private DefinedModel build() {
@@ -91,7 +93,7 @@ final class DefinedModelBuilder {
             if (bone.vanilla == null) {
                 continue;
             }
-            ModelPart part = findVanillaPart(bone.vanilla);
+            ModelPart part = ModelPartLookup.find(definition, bone.vanilla, root, model);
             if (part == null) {
                 if (over != null) {
                     // Worn over a model with more parts (armour has no sleeves): nothing to draw there.
@@ -102,31 +104,6 @@ final class DefinedModelBuilder {
             }
             vanillaParts.put(bone.name, part);
         }
-    }
-
-    /**
-     * The part a 1.12 field name (or an element of an array field: the squid's tentacles) stands
-     * for, down the model's tree. Box-list indices (1.12's other way to name a part) have nothing
-     * to stand for in this version's models.
-     */
-    @Nullable
-    private ModelPart findVanillaPart(BoneDefinition.VanillaPart ref) {
-        if (ref.field == null || definition.model == null) {
-            return null;
-        }
-        String field = ref.element >= 0 ? VanillaNames.element(ref.field, ref.element) : ref.field;
-        String path = VanillaNames.modelPart(definition.model, field);
-        if (path == null) {
-            return null;
-        }
-        ModelPart part = root;
-        for (String name : path.split("/")) {
-            if (!part.hasChild(name)) {
-                return null;
-            }
-            part = part.getChild(name);
-        }
-        return part;
     }
 
     // --- building -------------------------------------------------------------------------------

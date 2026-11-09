@@ -11,7 +11,6 @@ import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
-import goblinbob.mobends.core.vanilla.VanillaNames;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -151,7 +150,7 @@ public final class BendsRenderer {
     static DefinedModel partsFor(DefinedEntityData<?> data, EntityModel<?> model) {
         EntityModelDefinition definition = data.getDefinition();
         if (definition.model != null) {
-            Class<?> modelClass = VanillaNames.modelClass(definition.model);
+            Class<?> modelClass = definition.modelClass();
             if (modelClass == null || !modelClass.isInstance(model)) {
                 return null;
             }
