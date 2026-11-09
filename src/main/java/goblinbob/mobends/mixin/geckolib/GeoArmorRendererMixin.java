@@ -20,6 +20,7 @@ import software.bernie.geckolib.util.RenderUtil;
 
 import javax.annotation.Nullable;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -109,7 +110,10 @@ public abstract class GeoArmorRendererMixin {
         }
     }
 
-    /** The armour bones, by the renderer's own getters (which a renderer may override), and what each is worn on. */
+    /**
+     * The armour bones, by the renderer's own getters (which a renderer may override), and the bones
+     * beside them, and what each is worn on.
+     */
     @Unique
     private Map<GeoBone, GeoArmorPose.Slot> mobends$slotsOf() {
         Map<GeoBone, GeoArmorPose.Slot> slots = mobends$slots;
@@ -125,6 +129,17 @@ public abstract class GeoArmorRendererMixin {
             mobends$put(slots, renderer.getLeftLegBone(model), GeoArmorPose.Slot.LEFT_LEG);
             mobends$put(slots, renderer.getRightBootBone(model), GeoArmorPose.Slot.RIGHT_LEG);
             mobends$put(slots, renderer.getLeftBootBone(model), GeoArmorPose.Slot.LEFT_LEG);
+            // A bone beside an armour bone, in the group GeckoLib's model puts it in (bipedLeftLeg),
+            // is worn where it is: a mod's own piece, posed as the vanilla part is
+            // (Fantasy Armor's armorLeftLegCloth), else it keeps vanilla's pose.
+            for (Map.Entry<GeoBone, GeoArmorPose.Slot> armour : new ArrayList<>(slots.entrySet())) {
+                GeoBone group = armour.getKey().getParent();
+                if (group != null) {
+                    for (GeoBone beside : group.getChildBones()) {
+                        slots.putIfAbsent(beside, armour.getValue());
+                    }
+                }
+            }
             mobends$slots = slots;
         }
         return slots;
