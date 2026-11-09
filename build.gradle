@@ -166,37 +166,8 @@ task checkVanillaFields {
 checkVanillaFields.mustRunAfter generateVanillaFields
 compileJava.dependsOn checkVanillaFields
 
-// Mo' Bends' own resource packs are signed (core/pack/PackSignature), so servers that refuse resource
-// packs' animation still trust them. The private key never enters the repository: CI reads it from the
-// MOBENDS_PACK_SIGNING_KEY secret, and locally it is a file given with -Ppack_signing_key=<file>.
-def packSigningKeyArgs = { project.hasProperty('pack_signing_key') ? ['--key-file', file(project.property('pack_signing_key')).absolutePath] : [] }
-
-// The Legacy Mo' Bends resource pack (misc/legacy-pack): the player's and the zombie's animations as
-// they were in 1.X, without standing on their feet. Built into build/packs/, signed.
-task legacyPack(type: JavaExec) {
-    description = "Builds the signed Legacy Mo' Bends resource pack from misc/legacy-pack into build/packs/."
-    group = 'build'
-    classpath = sourceSets.tools.runtimeClasspath
-    main = 'goblinbob.mobends.tools.SignPack'
-    inputs.dir 'misc/legacy-pack'
-    outputs.file "build/packs/Legacy-Mo-Bends-${mod_version}.zip"
-    doFirst {
-        args packSigningKeyArgs() + [file('misc/legacy-pack').absolutePath, file("build/packs/Legacy-Mo-Bends-${mod_version}.zip").absolutePath]
-    }
-}
-
-// Makes a new pack signing key pair: the private key goes to the -Ppack_signing_key file, the
-// public key (printed) into core/pack/PackSigningKeys.
-task generatePackSigningKey(type: JavaExec) {
-    description = 'Makes a new key pair for signing Mo\' Bends\' own resource packs.'
-    classpath = sourceSets.tools.runtimeClasspath
-    main = 'goblinbob.mobends.tools.GenPackSigningKey'
-    doFirst {
-        if (!project.hasProperty('pack_signing_key'))
-            throw new GradleException('Say where to write the private key: -Ppack_signing_key=<file> (outside the repository).')
-        args file(project.property('pack_signing_key')).absolutePath
-    }
-}
+// Mo' Bends' own resource packs, the Legacy Mo' Bends pack among them, are built and signed on
+// `main` (:core:legacyPack), for 1.12.2 too.
 
 task srcJar(type: Jar) {
     build.dependsOn it

@@ -61,34 +61,27 @@ Set `mod_version` in `gradle.properties` (e.g. `2.0.0`, or `2.0.0-alpha.1` for a
 `.github/workflows/release.yml`, which:
 
 1. builds the mod's jar, `MoBends_1.12.2-<version>.jar`;
-2. builds `Legacy-Mo-Bends-<version>.zip`, signed so that servers that deny resource packs' animation
-   trust it (see `docs/content.md`, *Mo' Bends' Own Resource Packs*);
-3. attaches both to the tag's GitHub release, creating it (from the changelog section) if there isn't
+2. attaches it to the tag's GitHub release, creating it (from the changelog section) if there isn't
    one;
-4. uploads the jar to Modrinth and CurseForge as version `<version>+1.12.2`, with the changelog
+3. uploads the jar to Modrinth and CurseForge as version `<version>+1.12.2`, with the changelog
    section as its changelog. A version with `alpha` in it is released as an alpha, with `beta`, `rc`
-   or `pre` as a beta, otherwise as a release. (The pack is uploaded too once it has its own
-   pages, see [TODO.md](TODO.md); until then upload it by hand from the GitHub release.)
+   or `pre` as a beta, otherwise as a release.
+
+The Legacy Mo' Bends resource pack (`misc/legacy-pack`), for 1.12.2 and the modern versions alike, is
+signed and released from `main`, with its `v<version>` tags (see CONTRIBUTING.md there).
 
 What the workflow needs, under *Settings → Secrets and variables → Actions* (secrets may also go in
 the `release` environment, which can be made to wait for a reviewer's approval):
 
 | Name | Kind | What |
 |---|---|---|
-| `MOBENDS_PACK_SIGNING_KEY` | secret | The pack signing key (the base64 line in the key file). |
 | `MODRINTH_TOKEN` | secret | A Modrinth personal access token with *Create versions*, *Read projects* and *Read versions*. |
 | `CURSEFORGE_TOKEN` | secret | A CurseForge API token (authors.curseforge.com, *API tokens*). |
 | `MODRINTH_PROJECT_ID` | variable | The mod's Modrinth project id (or slug). |
 | `CURSEFORGE_PROJECT_ID` | variable | The mod's CurseForge project id (a number). |
-| `LEGACY_PACK_MODRINTH_PROJECT_ID` | variable | The pack's Modrinth project id, once it has a page. |
-| `LEGACY_PACK_CURSEFORGE_PROJECT_ID` | variable | The pack's CurseForge project id, once it has a page. |
 
 A version can't be uploaded to Modrinth or CurseForge twice. If a release fails partway, re-run the
 failed jobs rather than pushing the tag again.
-
-The pack is signed with `MOBENDS_PACK_SIGNING_KEY`. Locally, `gradle legacyPack -Ppack_signing_key=<file>`
-does the same into `build/packs/`. The private key is never committed. Keep a copy in a password
-manager. A lost key means new packs need a mod release that ships a new public key.
 
 ### Using a new `core`
 
