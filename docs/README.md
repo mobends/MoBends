@@ -6,7 +6,7 @@ updated as each part is ported into `src/`.
 
 | Doc | Contents |
 |-----|---------|
-| [porting.md](porting.md) | The port to the modern versions: where it stands, how it's done, what's next, and what `forge-1.12` does after a core release |
+| [porting.md](porting.md) | The port to the modern versions: where it stands, how it's done, what's next, and where `forge-1.12`'s steps to keep up are |
 | [overview.md](overview.md) | Gradle modules, package layout, module system, addon extension point |
 | [animation.md](animation.md) | The KUMO runtime: subjects, animators, poses, the per-frame pipeline |
 | [content.md](content.md) | Entity types, extensions, model definitions, and what resource packs may do |
