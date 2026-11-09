@@ -1,9 +1,11 @@
 package goblinbob.mobends.platform;
 
+import goblinbob.mobends.core.addon.IAddon;
 import goblinbob.mobends.core.network.ServerRulesPayload;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.file.Path;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
@@ -50,4 +52,12 @@ public interface Platform {
 
     /** Sends {@code payload} to {@code player} if their game has Mo' Bends (knows the payload); else nothing. */
     void sendToPlayer(ServerPlayer player, ServerRulesPayload payload);
+
+    /**
+     * Gives {@code found} every other mod's addon, with that mod's id (docs/addons.md): on Fabric,
+     * the {@code "mobends"} entrypoints; on NeoForge, the classes marked
+     * {@link goblinbob.mobends.core.addon.MoBendsAddon}. An addon that can't be made is logged and
+     * skipped. Once, on the client, at start-up.
+     */
+    void findAddons(BiConsumer<String, IAddon> found);
 }

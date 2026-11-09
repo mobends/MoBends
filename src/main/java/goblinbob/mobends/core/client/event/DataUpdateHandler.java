@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.client.event;
 
+import goblinbob.mobends.core.addon.Addons;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.kumo.RayGizmos;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrail;
@@ -47,6 +48,7 @@ public final class DataUpdateHandler {
         RayGizmos.beginFrame();
         EntityDatabase.instance.updateRender(renderPartialTicks);
         ArrowTrail.onRenderFrame();
+        Addons.onRenderTick(renderPartialTicks);
     }
 
     /** At the start of a client tick, before the entities move. */
@@ -57,5 +59,8 @@ public final class DataUpdateHandler {
             return;
         }
         EntityDatabase.instance.updateClient();
+        if (minecraft.player != null) {
+            Addons.onClientTick();
+        }
     }
 }
