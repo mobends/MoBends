@@ -55,7 +55,7 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
       world of its own (a flat floor); on 1.21.1 a level of its own needs a connection, and tells
       other mods a level loaded.
 - [x] Modern versions: More Settings has the arrow trails' switch, and the arrow trails are ported
-      (checked in the game on Fabric).
+      (checked in the game on both loaders).
 
 ## Multiple Minecraft versions and loaders
 
@@ -149,23 +149,24 @@ forge-1.12               1.12.2
        data and KUMO glue, and its bent model (split elbows and knees) drawn in place of vanilla's
        (`DefinedModelBuilder`, `BendsRenderer`). Checked in the game on both loaders.
      - [x] The player's render layers: held items, vanilla armour, custom head, cape and elytra
-       follow the bent player.
-     - [x] The sword trail and the cape wave (#386), and the arrow trails.
+       follow the bent player. Checked in the game on both loaders.
+     - [x] The sword trail and the cape wave (#386), and the arrow trails. Checked in the game on
+       both loaders.
      - [x] The first-person hand stays vanilla's: it's never bent, and `renderer.firstPersonRest`
-       is gone from the definition format.
+       is gone from the definition format. Checked in the game on both loaders.
      - [x] The inventory player's head follows the mouse (1.12's `lookFurther`).
      - [x] Stuck arrows and bee stingers ride the bent parts.
      - [x] Armour from other mods' models bends with the body, cut at the elbows and knees.
      - [x] GeckoLib armour bends with the body, cut at the elbows and knees, as 1.12's
        `GeckoLibCompat` had it (GeckoLib 4.6 and up, optional), a mod's own bones beside the armour
-       bones included. Checked in the game on Fabric (Fantasy Armor); still to be checked on NeoForge.
+       bones included. Checked in the game on both loaders (Fantasy Armor).
        A mod's own bone that it swings from vanilla's legs (Fantasy Armor's front cape) hangs still
        on the bent body: left so, as swinging it from the bent legs needs code for that mod alone.
      - [ ] Poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident).
        Left for a later alpha.
      - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,
        spider, squid, wolf (and the dev pack's animals), with type files, extensions and `field`
-       expressions. Checked in the game on Fabric; still to be checked on NeoForge.
+       expressions. Checked in the game on both loaders.
      - [x] The pig zombie (the zombified piglin): its definition names the piglin's model through a
        `@variants` entry for later versions.
      - [x] The client config (`config/mobends.json`, see docs/configuration.md).
@@ -182,9 +183,9 @@ forge-1.12               1.12.2
        Customize's link.
      - [x] The addon API (docs/addons.md): other mods register mobs, layers, components, drivers
        and KUMO operations, found through a `mobends` entrypoint (Fabric) or `@MoBendsAddon`
-       (NeoForge). Mo' Bends' own content is its `DefaultAddon`. Checked in the game on Fabric
-       with a test addon in its own jar (a function, entity readers, an extension, the callbacks);
-       still to be checked on NeoForge.
+       (NeoForge). Mo' Bends' own content is its `DefaultAddon`. Checked in the game on both
+       loaders with a test addon in its own jar (a function, entity readers, an extension, the
+       callbacks).
    - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge
