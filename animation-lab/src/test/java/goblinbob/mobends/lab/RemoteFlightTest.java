@@ -1,20 +1,21 @@
-package goblinbob.mobends.core.data;
+package goblinbob.mobends.lab;
 
-import org.junit.Test;
+import goblinbob.mobends.core.data.RemoteFlight;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Plays a creative player's moves as another client sees them: the player moves as vanilla moves
  * them, the server sends their position every other tick, and the client eases its copy towards
- * each position over three ticks (as EntityOtherPlayerMP does).
+ * each position over three ticks (as RemotePlayer does).
  */
-public class RemoteFlightTest
+class RemoteFlightTest
 {
 
     private static final int UP = 1, NONE = 0, DOWN = -1;
@@ -30,7 +31,7 @@ public class RemoteFlightTest
         {
             if (flying)
             {
-                // EntityPlayer#onLivingUpdate adds the input, #travel moves by it and keeps 0.6 of it.
+                // Player#aiStep adds the input, #travel moves by it and keeps 0.6 of it.
                 motionY += input * 0.15;
                 y += motionY;
                 motionY *= 0.6;
@@ -82,7 +83,7 @@ public class RemoteFlightTest
     }
 
     @Test
-    public void hoveringIsFlying()
+    void hoveringIsFlying()
     {
         Player player = new Player();
         player.flying = true;
@@ -91,7 +92,7 @@ public class RemoteFlightTest
     }
 
     @Test
-    public void flyingUpAndDownIsFlying()
+    void flyingUpAndDownIsFlying()
     {
         Player player = new Player();
         player.flying = true;
@@ -105,12 +106,12 @@ public class RemoteFlightTest
         List<Boolean> seen = watch(player, inputs, null);
         for (int i = 10; i < seen.size(); i++)
         {
-            assertTrue("tick " + i, seen.get(i));
+            assertTrue(seen.get(i), "tick " + i);
         }
     }
 
     @Test
-    public void jumpIsNotFlying()
+    void jumpIsNotFlying()
     {
         Player player = new Player();
         player.motionY = 0.42;
@@ -119,14 +120,14 @@ public class RemoteFlightTest
     }
 
     @Test
-    public void longFallIsNotFlying()
+    void longFallIsNotFlying()
     {
         Player player = new Player();
         assertFalse(watch(player, repeat(NONE, 300), null).contains(true));
     }
 
     @Test
-    public void stopsFlyingWhenFalling()
+    void stopsFlyingWhenFalling()
     {
         Player player = new Player();
         boolean[] flying = new boolean[60];
@@ -139,7 +140,7 @@ public class RemoteFlightTest
     }
 
     @Test
-    public void notFlyingOnGroundOrWithoutFlight()
+    void notFlyingOnGroundOrWithoutFlight()
     {
         RemoteFlight flight = new RemoteFlight();
         for (int i = 0; i < 20; i++)
