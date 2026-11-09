@@ -17,7 +17,7 @@ not a fork: everything it plays is its own copy, so nothing the mod changes reac
 `LegacyPackTest` (in `animation-lab`) holds the pack to its own goldens and fails if it names a file
 it doesn't have.
 
-Build the pack with `gradle legacyPack -Ppack_signing_key=<file>`. It is written to `build/packs/`
+Build the pack with `./gradlew :core:legacyPack -Ppack_signing_key=<file>`. It is written to `build/packs/`
 with a signature (`assets/mobends/bends/signature.json`), so servers that refuse resource packs'
 animation still trust it (see `docs/content.md`). Don't commit a signature here: it is made for the
 files as they are when the pack is built.

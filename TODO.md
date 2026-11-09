@@ -28,7 +28,9 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
 ## Legacy Mo' Bends pack
 
 - [x] Add the `MOBENDS_PACK_SIGNING_KEY` secret, and have CI build the pack on release tags and
-      attach it to the GitHub release (`.github/workflows/release.yml`).
+      attach it to the GitHub release (`.github/workflows/release.yml`). Built from `main` (its
+      `v<version>` tags), for 1.12.2 and the modern versions alike; the signing tools are in
+      `core/src/tools`.
 - [x] Have CI upload the pack to Modrinth and CurseForge (the `publish-legacy-pack` job of
       `.github/workflows/release.yml`), switched off for now.
 - [ ] Once the pack has its Modrinth and CurseForge pages (around the alpha's release), set the
