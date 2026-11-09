@@ -159,8 +159,8 @@ forge-1.12               1.12.2
      - [x] Stuck arrows and bee stingers ride the bent parts.
      - [x] Armour from other mods' models bends with the body, cut at the elbows and knees.
      - [x] GeckoLib armour bends with the body, cut at the elbows and knees, as 1.12's
-       `GeckoLibCompat` had it (GeckoLib 4.6 and up, optional). Still to be checked in the game
-       with a real GeckoLib armour.
+       `GeckoLibCompat` had it (GeckoLib 4.6 and up, optional), a mod's own bones beside the armour
+       bones included. Checked in the game on Fabric (Fantasy Armor); still to be checked on NeoForge.
      - [ ] Poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident).
        Left for a later alpha.
      - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,

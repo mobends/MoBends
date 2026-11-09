@@ -24,8 +24,9 @@ import java.util.Optional;
  * vanilla part it's worn on is posed: moved from where it rests by as much as the part, and turned
  * as it is, about the bone's own pivot. Here the bone is drawn as it rests, in the frame of the bent
  * bone that stands for that part instead, an arm's and a leg's cut at the elbow and the knee (see
- * {@link WornPiece}); what's under it, GeckoLib's own animation included, follows. Bones outside
- * any armour bone go with the body, as 1.12 had them.
+ * {@link WornPiece}); what's under it, GeckoLib's own animation included, follows. A bone beside an
+ * armour bone (under the same group, a mod's own piece) is worn on the same part, and bones outside
+ * any go with the body, as 1.12 had them.
  * <p>
  * GeckoLib's units are blocks, from the model's feet, y up and x mirrored; a vanilla part's are
  * pixels from where it turns, y down. GeckoLib draws a bone at rest where vanilla's part would be
