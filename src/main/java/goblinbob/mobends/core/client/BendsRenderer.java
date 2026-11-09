@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
+import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.LivingEntityData;
@@ -90,7 +91,9 @@ public final class BendsRenderer {
      */
     @Nullable
     public static DefinedEntityData<?> beforeRender(LivingEntity entity, EntityModel<?> model, float partialTicks) {
-        EntityTypeRegistry.Selection selection = EntityTypeRegistry.INSTANCE.select(entity);
+        // A preview of the Mo' Bends menu shows its mob, whatever type would win for it in the game.
+        boolean preview = PreviewWorld.isPreview(entity);
+        EntityTypeRegistry.Selection selection = preview ? PreviewWorld.getSelection(entity) : EntityTypeRegistry.INSTANCE.select(entity);
         if (selection == null || selection.model() == null || selection.dataFactory() == null) {
             return null;
         }
@@ -105,7 +108,9 @@ public final class BendsRenderer {
                 || ClientConfig.INSTANCE.keepsEntityVanilla(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString())) {
             return null;
         }
-        LivingEntityData<LivingEntity> data = EntityDatabase.instance.getOrMake(selection.dataFactory(), entity);
+        LivingEntityData<LivingEntity> data = preview
+                ? PreviewWorld.getOrMakeData(selection.dataFactory(), entity)
+                : EntityDatabase.instance.getOrMake(selection.dataFactory(), entity);
         if (!(data instanceof DefinedEntityData<?> definedData)) {
             return null;
         }

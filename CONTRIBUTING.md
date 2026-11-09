@@ -71,7 +71,9 @@ it in both loader packages. Hooks into the game are vanilla Mixins (`goblinbob.m
 Fabric Loader alone doesn't put mods' assets in the resource manager (NeoForge does), nor sends a
 mod's payloads, so the Fabric jar bundles Fabric API's resource loader and networking modules and
 their base module, jar-in-jar (`build.fabric.gradle.kts`). Players don't need to install Fabric API;
-nothing else from it is used. CI (`.github/scripts/check-sources.sh`) checks that no other package
+nothing else from it is used. Mod Menu's API is compiled against (not bundled), for its Config button
+(`fabric.MoBendsModMenu`, the `modmenu` entrypoint); without Mod Menu it's never loaded. CI
+(`.github/scripts/check-sources.sh`) checks that no other package
 uses a loader API, and that `src/` is committed with the default node active. Run it before
 pushing if you like.
 

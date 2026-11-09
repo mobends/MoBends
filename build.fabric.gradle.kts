@@ -19,6 +19,11 @@ sourceSets.main {
     java.srcDir(rootProject.file("core/src/main/java"))
 }
 
+repositories {
+    // Mod Menu, whose Config button opens the Mo' Bends menu if it's installed.
+    maven("https://maven.terraformersmc.com/releases/") { name = "TerraformersMC" }
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:${sc.current.version}")
     // Mojang's mappings on the obfuscated versions.
@@ -36,6 +41,9 @@ dependencies {
         modImplementation(dependency)
         include(dependency)
     }
+
+    // Mod Menu's API, for its Config button (MoBendsModMenu). Optional: the jar doesn't need it.
+    modCompileOnly("com.terraformersmc:modmenu:${sc.properties["deps.modmenu"]}") { isTransitive = false }
 
     // The core's @Nullable. NeoForge has it on the classpath, Fabric doesn't; not needed at runtime.
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")

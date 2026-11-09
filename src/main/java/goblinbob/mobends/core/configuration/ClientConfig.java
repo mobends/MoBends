@@ -146,6 +146,40 @@ public final class ClientConfig {
         save();
     }
 
+    // --- the lists of patterns ----------------------------------------------------------------------
+
+    /** The lists of patterns the file holds, as the Mo' Bends menu's More Settings edits them. */
+    public enum PatternList {
+        ITEM_USE_CLASSIFICATIONS,
+        ITEM_ATTACK_CLASSIFICATIONS,
+        KEEP_ARMOR_AS_VANILLA,
+        KEEP_ENTITY_AS_VANILLA
+    }
+
+    /** The entries of a list, in order (a copy). */
+    public List<String> patterns(PatternList list) {
+        return new ArrayList<>(listOf(list));
+    }
+
+    /** Replaces the entries of a list, and saves. */
+    public void setPatterns(PatternList list, List<String> entries) {
+        List<String> kept = listOf(list);
+        kept.clear();
+        kept.addAll(entries);
+        useClassifications = null;
+        attackClassifications = null;
+        save();
+    }
+
+    private List<String> listOf(PatternList list) {
+        return switch (list) {
+            case ITEM_USE_CLASSIFICATIONS -> values.itemUseClassifications;
+            case ITEM_ATTACK_CLASSIFICATIONS -> values.itemAttackClassifications;
+            case KEEP_ARMOR_AS_VANILLA -> values.keepArmorAsVanilla;
+            case KEEP_ENTITY_AS_VANILLA -> values.keepEntityAsVanilla;
+        };
+    }
+
     // --- what's animated ----------------------------------------------------------------------------
 
     /** Whether the mob with this key ({@code mobends:player}) is animated. */

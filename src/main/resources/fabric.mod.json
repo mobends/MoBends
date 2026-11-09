@@ -18,6 +18,9 @@
   "entrypoints": {
     "main": [
       "goblinbob.mobends.fabric.MoBendsFabric"
+    ],
+    "modmenu": [
+      "goblinbob.mobends.fabric.MoBendsModMenu"
     ]
   },
   "mixins": [

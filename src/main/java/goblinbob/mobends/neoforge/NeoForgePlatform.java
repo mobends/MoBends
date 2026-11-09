@@ -36,6 +36,12 @@ public final class NeoForgePlatform implements Platform {
     }
 
     @Override
+    @Nullable
+    public String modName(String modId) {
+        return ModList.get().getModContainerById(modId).map(mod -> mod.getModInfo().getDisplayName()).orElse(null);
+    }
+
+    @Override
     public boolean isClient() {
         return FMLEnvironment.dist.isClient();
     }

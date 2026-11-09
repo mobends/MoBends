@@ -34,6 +34,11 @@ options and the Mo' Bends menu's settings alike:
 | `typeRanks`, `extensionRanks` | none | The order the user gave entity types and extensions, by id; absent means 0 |
 | `options` | none | The values the user gave options, by `<owner>#<name>`; absent means the option's default |
 
+The Mo' Bends menu edits it, and every change is saved at once: its Settings window sets `animated`,
+the ranks (Order, Extensions) and `options`; its More Settings window the trails and the lists, each
+list written as one line, its entries separated by commas (a changed list reloads the animation as
+the window is left).
+
 A pattern is a `namespace:path` whose namespace and path may each start or end with `*`
 (`minecraft:*_sword`, `*:*`); without a namespace it's `minecraft`'s.
 

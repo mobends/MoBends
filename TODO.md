@@ -44,6 +44,19 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
 
 - [x] Improve the look of the *Settings* submenu (`GuiSettingsWindow`, `GuiBenderList`): each mob
       shown with an orthographic render of it as a thumbnail (clipped to its frame), its name, etc.
+- [ ] Modern versions: wire the hooks `GuiBendsMenu` leaves for the supporters/API port (marked
+      `TODO(supporters/API PR)`): Link account opens `GuiLinkAccount`, or once linked the account's
+      name (`WebLink.ACCOUNT`) and Log out; Supporters opens `GuiSupportersWindow`; Customize opens
+      `WebLink.EDITOR`; the account is checked as the menu opens, and read again by Refresh.
+- [ ] Modern versions: the previews stand in the client's level, where the player stands, but are never
+      added to it (`PreviewWorld`); 1.12 made a world of its own (a flat floor). With no world loaded
+      (the menu opened from the mod list on the title screen) they show the mob's spawn egg. A level of
+      its own needs a connection on 1.21.1, and tells other mods a level loaded.
+- [ ] Modern versions: with no world loaded, a type that picks its entities by entity type (other
+      than the player) isn't listed under its mob: what class an entity type's entities are is found
+      by making one, which needs a level (`EntityClasses`).
+- [ ] Modern versions: More Settings has the arrow trails' switch, which is saved, but arrow trails
+      aren't ported yet.
 
 ## Multiple Minecraft versions and loaders
 
@@ -160,7 +173,11 @@ forge-1.12               1.12.2
        player's settings, the downloaded assets, account linking (without its screen), the
        static API's links, the accessories drawn on the bent player, and the supporters' sword
        trail colour (docs/api-communication.md).
-     - [ ] The Mo' Bends menu.
+     - [x] The Mo' Bends menu: the main menu, the Settings window (each mob with its preview, the
+       order of its types and extensions, its options) and More Settings, the key that opens it (G)
+       and the mod list's Config button (NeoForge, and Mod Menu on Fabric). See *Mo' Bends menu*.
+     - [ ] The menu's Supporters window, its account buttons and screen (Link account), and
+       Customize's link.
    - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge

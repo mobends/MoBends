@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.data;
 
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
+import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.kumo.IKumoSubject;
 import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.bind.BoneSinks;
@@ -14,6 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -241,6 +243,10 @@ public abstract class EntityData<E extends Entity> implements IKumoSubject {
     }
 
     public boolean calcOnGround() {
+        // A preview of the Mo' Bends menu stands, wherever the player happens to be.
+        if (entity instanceof LivingEntity living && PreviewWorld.isPreview(living)) {
+            return true;
+        }
         // Checking if we're going down stairs.
         BlockPos position = entity.blockPosition();
         if (motionY <= 0 && (entity.level().getBlockState(position).getBlock() instanceof StairBlock

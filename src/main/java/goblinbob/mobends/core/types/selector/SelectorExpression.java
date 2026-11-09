@@ -15,8 +15,11 @@ import goblinbob.mobends.core.kumo.state.LayerState;
 import goblinbob.mobends.core.kumo.state.VariableTable;
 import goblinbob.mobends.core.kumo.state.condition.ITriggerConditionContext;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.core.vanilla.VanillaNames;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -25,13 +28,17 @@ import java.util.Map;
  * any entity data exists.
  */
 public final class SelectorExpression implements ISelectorCondition {
+    private static final String ENTITY_TYPE = "core:entity_type";
+
     private final Expression expression;
     private final boolean stable;
+    private final JsonElement json;
     private final Context context = new Context();
 
     private SelectorExpression(Expression expression, JsonElement json) {
         this.expression = expression;
         this.stable = stable(json);
+        this.json = json;
     }
 
     public static SelectorExpression compile(JsonElement json) throws MalformedKumoTemplateException {
@@ -55,6 +62,36 @@ public final class SelectorExpression implements ISelectorCondition {
     @Override
     public boolean isStable() {
         return stable;
+    }
+
+    @Override
+    public void collectEntityTypes(Collection<ResourceLocation> entityTypes) {
+        collectEntityTypes(json, entityTypes);
+    }
+
+    /**
+     * The entity types the selector requires: those {@code core:entity_type} names, except under a
+     * {@code not}, as today's ids (packs write 1.12's).
+     */
+    private static void collectEntityTypes(JsonElement json, Collection<ResourceLocation> entityTypes) {
+        if (json.isJsonArray()) {
+            for (JsonElement element : json.getAsJsonArray()) {
+                collectEntityTypes(element, entityTypes);
+            }
+        } else if (json.isJsonObject()) {
+            for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
+                if (ENTITY_TYPE.equals(entry.getKey()) && entry.getValue().isJsonArray()) {
+                    for (JsonElement id : entry.getValue().getAsJsonArray()) {
+                        ResourceLocation parsed = id.isJsonPrimitive() ? ResourceLocation.tryParse(id.getAsString()) : null;
+                        if (parsed != null) {
+                            entityTypes.add(VanillaNames.entityType(parsed));
+                        }
+                    }
+                } else if (!"not".equals(entry.getKey())) {
+                    collectEntityTypes(entry.getValue(), entityTypes);
+                }
+            }
+        }
     }
 
     /** Whether no operation in the selector can change its answer during an entity's life. */

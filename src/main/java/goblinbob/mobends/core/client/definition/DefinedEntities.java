@@ -44,6 +44,13 @@ public final class DefinedEntities {
         return DEFAULTS;
     }
 
+    /** Every defined entity: those registered in code, then those made for the type files since the last reload. */
+    public static List<DefinedEntity> all() {
+        List<DefinedEntity> all = new ArrayList<>(DEFAULTS);
+        all.addAll(FROM_TYPES);
+        return all;
+    }
+
     /**
      * The defined entity of the model definition at {@code location}, which a type file names:
      * the one already made under the same key (registered in code, or for another type), else a
@@ -160,6 +167,20 @@ public final class DefinedEntities {
         public String key() {
             ensureLoaded();
             return key;
+        }
+
+        /**
+         * Today's id of the entities its definition names ({@code minecraft:zombified_piglin}), or
+         * null if it's no entity of Minecraft's (another mod's) or the definition can't be loaded.
+         */
+        @Nullable
+        public ResourceLocation entityTypeId() {
+            ensureLoaded();
+            if (definition == null) {
+                return null;
+            }
+            String legacyId = VanillaNames.legacyEntityId(definition.entity);
+            return legacyId == null ? null : VanillaNames.entityType(ResourceLocation.parse(legacyId));
         }
 
         /** Whether it can animate {@code entity}: an instance of its entity class. */

@@ -12,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,31 @@ public class EntityType implements TypeOrder.Ranked {
     @Override
     public int getSpecificity() {
         return specificity;
+    }
+
+    /** The model the type gives its entities; null for the entity's default model, or for vanilla. */
+    @Nullable
+    public DefinedEntity getModel() {
+        return model;
+    }
+
+    /** Whether the type keeps its entities vanilla ({@code "model": "core:vanilla"}). */
+    public boolean isVanilla() {
+        return vanilla;
+    }
+
+    /** The options the type file declares. */
+    public OptionSet getOptions() {
+        return options;
+    }
+
+    /** The entity types the selector requires (today's ids); empty if it doesn't name any. */
+    public Collection<ResourceLocation> getEntityTypes() {
+        List<ResourceLocation> entityTypes = new ArrayList<>();
+        if (selector != null) {
+            selector.collectEntityTypes(entityTypes);
+        }
+        return entityTypes;
     }
 
     public boolean matches(LivingEntity entity) {

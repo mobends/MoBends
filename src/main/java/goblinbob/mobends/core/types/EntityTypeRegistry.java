@@ -4,16 +4,23 @@ import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
 import goblinbob.mobends.core.client.definition.DefinedEntities;
+import goblinbob.mobends.core.configuration.ClientConfig;
+import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
+import goblinbob.mobends.core.vanilla.EntityClasses;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 
@@ -23,9 +30,9 @@ import javax.annotation.Nullable;
  * resource pack. Decides which type animates an entity (see {@code misc/kumo-format.md}, "Entity
  * types and selectors"), and gives each type its extensions ({@code bends/extensions/}).
  * <p>
- * Loaded when first asked after a resource reload, as the definitions and animators are. What
- * 1.12 also had here and this version doesn't yet: the user's ranks, the server's policy for
- * resource packs, and the list of types per entity for the settings screen.
+ * Loaded when first asked after a resource reload, as the definitions and animators are. The
+ * Mo' Bends menu lists the types and extensions of each animated mob ({@link #getTypesFor},
+ * {@link #getExtensionsFor}) and orders them (the user's ranks, kept in {@code ClientConfig}).
  */
 public final class EntityTypeRegistry {
     public static final EntityTypeRegistry INSTANCE = new EntityTypeRegistry();
@@ -113,6 +120,129 @@ public final class EntityTypeRegistry {
         return matched.isEmpty() && unstable.isEmpty() ? Candidates.NONE : new Candidates(matched, unstable);
     }
 
+    /**
+     * Every mob Mo' Bends animates now, as the Mo' Bends menu lists them: those registered in code,
+     * then those the type files brought, each once; not those whose definition can't be loaded.
+     */
+    public List<DefinedEntity> getDefinedEntities() {
+        ensureLoaded();
+        List<DefinedEntity> found = new ArrayList<>();
+        for (DefinedEntity defined : DefinedEntities.all()) {
+            if (defined.key() != null && !found.contains(defined)) {
+                found.add(defined);
+            }
+        }
+        return found;
+    }
+
+    /**
+     * The types that can animate the entities of {@code defined} with it, in precedence order: those
+     * that give that model, and those that keep the entity's default model (or vanilla) for entity
+     * types whose default model it is (or for any entity, if they name no entity type).
+     */
+    public List<EntityType> getTypesFor(DefinedEntity defined) {
+        ensureLoaded();
+        List<EntityType> found = new ArrayList<>();
+        for (EntityType type : types.values()) {
+            if (type.getModel() != null) {
+                if (type.getModel() == defined) {
+                    found.add(type);
+                }
+                continue;
+            }
+            Collection<ResourceLocation> entityTypes = type.getEntityTypes();
+            if (entityTypes.isEmpty()) {
+                found.add(type);
+                continue;
+            }
+            for (ResourceLocation entityType : entityTypes) {
+                Class<?> entityClass = EntityClasses.of(entityType);
+                if (entityClass != null && DefinedEntities.defaultFor(entityClass) == defined) {
+                    found.add(type);
+                    break;
+                }
+            }
+        }
+        found.sort(TypeOrder.PRECEDENCE);
+        return found;
+    }
+
+    /** The extensions of the types that can animate {@code defined}'s entities, in precedence order (the first goes on top). */
+    public List<Extension> getExtensionsFor(DefinedEntity defined) {
+        Set<String> typeIds = new HashSet<>();
+        for (EntityType type : getTypesFor(defined)) {
+            typeIds.add(type.getId());
+        }
+        List<Extension> found = new ArrayList<>();
+        for (Extension extension : extensions.values()) {
+            if (typeIds.contains(extension.getTypeId())) {
+                found.add(extension);
+            }
+        }
+        found.sort(TypeOrder.PRECEDENCE);
+        return found;
+    }
+
+    /**
+     * What animates a preview of {@code defined} (the Mo' Bends menu's): of the types that can give
+     * the entity that model (see {@link #getTypesFor}), the first whose selector holds for it, or
+     * else the first that can apply to it at all; whatever type would win for it in the game. Null
+     * if none gives it that model.
+     */
+    @Nullable
+    public Selection selectionAs(DefinedEntity defined, LivingEntity entity) {
+        Selection fallback = null;
+        for (EntityType type : getTypesFor(defined)) {
+            Selection selection = type.selectionFor(entity);
+            if (selection == null || selection.model() != defined) {
+                continue;
+            }
+            if (type.matches(entity)) {
+                return selection;
+            }
+            if (fallback == null) {
+                fallback = selection;
+            }
+        }
+        return fallback;
+    }
+
+    /** Ranks the types so {@code order} holds (the first gets precedence), and stores the ranks. */
+    public void setOrder(List<EntityType> order) {
+        TypeOrder.rankInOrder(order, (type, rank) -> ClientConfig.INSTANCE.setTypeRank(type.getId(), rank));
+        onRanksChanged();
+    }
+
+    /** Puts the types back to rank 0, so specificity and ids decide again. */
+    public void resetRanks(List<EntityType> order) {
+        for (EntityType type : order) {
+            ClientConfig.INSTANCE.setTypeRank(type.getId(), 0);
+        }
+        onRanksChanged();
+    }
+
+    /** Ranks the extensions so {@code order} holds (the first one highest, so on top), and stores the ranks. */
+    public void setExtensionOrder(List<Extension> order) {
+        TypeOrder.rankInOrder(order, (extension, rank) -> ClientConfig.INSTANCE.setExtensionRank(extension.getId(), rank));
+        applyExtensions();
+        onRanksChanged();
+    }
+
+    /** Puts the extensions back to rank 0, so their ids decide the order again. */
+    public void resetExtensionRanks(List<Extension> order) {
+        for (Extension extension : order) {
+            ClientConfig.INSTANCE.setExtensionRank(extension.getId(), 0);
+        }
+        applyExtensions();
+        onRanksChanged();
+    }
+
+    /** The order changed: which type wins is decided again, and every entity's data is made anew. */
+    private void onRanksChanged() {
+        candidatesByEntity.clear();
+        EntityDatabase.instance.refresh();
+    }
+
     /** The types no longer match the resources (after a reload): they load again on next use. */
     public void markStale() {
         loaded = false;
@@ -184,6 +314,12 @@ public final class EntityTypeRegistry {
                 MoBends.LOGGER.error("Mo' Bends: could not load the extension {}: {}", file.source(), e.getMessage(), e);
             }
         }
+        applyExtensions();
+        return extensions.size();
+    }
+
+    /** Gives each type its extensions, in the order their layers go on (the user's ranks, then ids). */
+    private void applyExtensions() {
         for (EntityType type : types.values()) {
             List<Extension> own = new ArrayList<>();
             for (Extension extension : extensions.values()) {
@@ -193,7 +329,6 @@ public final class EntityTypeRegistry {
             }
             type.setExtensions(Extension.inLayerOrder(own));
         }
-        return extensions.size();
     }
 
     /** Adds a type; one found later (in a higher-priority pack) replaces one with the same id. */
