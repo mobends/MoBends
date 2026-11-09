@@ -8,6 +8,10 @@ public enum Direction {
     WEST(1, new Vec3i(-1, 0, 0)),
     EAST(3, new Vec3i(1, 0, 0));
 
+    public enum Axis {
+        X, Y, Z
+    }
+
     /** The index among the horizontal directions (south, west, north, east), or -1. */
     private final int data2d;
     private final Vec3i normal;

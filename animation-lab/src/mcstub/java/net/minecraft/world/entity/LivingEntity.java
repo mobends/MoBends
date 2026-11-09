@@ -65,6 +65,15 @@ public class LivingEntity extends Entity {
         this.mainArm = mainArm;
     }
 
+    /** The hands' items; the lab's entities wear nothing. */
+    public ItemStack getItemBySlot(EquipmentSlot slot) {
+        return switch (slot) {
+            case MAINHAND -> mainHandItem;
+            case OFFHAND -> offhandItem;
+            default -> ItemStack.EMPTY;
+        };
+    }
+
     public ItemStack getItemInHand(InteractionHand hand) {
         return hand == InteractionHand.MAIN_HAND ? mainHandItem : offhandItem;
     }

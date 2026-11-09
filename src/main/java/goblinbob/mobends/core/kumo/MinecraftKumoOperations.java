@@ -8,19 +8,27 @@ import goblinbob.mobends.core.kumo.api.KumoRegistry;
 import goblinbob.mobends.core.kumo.expr.Expression;
 import goblinbob.mobends.core.kumo.expr.ExpressionOperations.Kind;
 import goblinbob.mobends.core.vanilla.VanillaNames;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * The {@code core:} operations (and the drivers that look at the world: the rays and the ground
@@ -77,9 +85,36 @@ public final class MinecraftKumoOperations {
                     };
                 }));
 
+        // {"core:equipment_name": ["head", "^Notch.*"]}: the display name of what the entity wears or
+        // holds in the slot (mainhand, offhand, head, chest, legs, feet, body) matches the pattern as a whole.
+        String[] slots = new String[EquipmentSlot.values().length];
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            slots[slot.ordinal()] = slot.getName();
+        }
+        KumoRegistry.registerOperation(KumoOperation.named("core:equipment_name")
+                .choice("slot", slots).param("pattern", Kind.STRING)
+                .returns(Expression.Type.BOOLEAN).withFallback()
+                .bind(args -> {
+                    if (!applies(LivingEntity.class, args)) return null;
+                    EquipmentSlot slot = EquipmentSlot.byName(args.string(0));
+                    Pattern pattern;
+                    try {
+                        pattern = Pattern.compile(args.string(1));
+                    } catch (PatternSyntaxException e) {
+                        throw args.error(1, "is not a valid pattern: " + e.getDescription());
+                    }
+                    return (BooleanEvaluator) (context, values) -> {
+                        LivingEntity entity = (LivingEntity) context.entity();
+                        return entity != null && pattern.matcher(entity.getItemBySlot(slot).getHoverName().getString()).matches();
+                    };
+                }));
+
         // {"core:is_flying": []}: a player flying (creative or spectator flight, not an elytra); for
         // other players it is read from how they move, as the client isn't told (see RemoteFlight).
         KumoRegistry.registerEntityBooleanReader("core:is_flying", Player.class, RemoteFlight::isFlying);
+        // {"core:ledge_ahead": []}: a block in front of the entity's feet it can climb onto (what a
+        // mob jumps onto as it walks), read once on liftoff to tell a climb from a jump.
+        KumoRegistry.registerEntityBooleanReader("core:ledge_ahead", LivingEntity.class, MinecraftKumoOperations::ledgeAhead);
         // {"core:raycast": {...}}: a ray cast through the blocks, where it hit and which way the surface faces.
         KumoRegistry.registerDriver(RaycastDriver.DRIVER);
         // {"core:raycast_array": {...}}: a spread of rays round a direction, keeping the hit closest to it.
@@ -137,6 +172,37 @@ public final class MinecraftKumoOperations {
                     return (BooleanEvaluator) (context, values) -> context.entity() instanceof Player player
                             && uuids.contains(player.getGameProfile().getId());
                 }));
+    }
+
+    /** How far in front of the entity {@code core:ledge_ahead} looks, in blocks. */
+    private static final double LEDGE_REACH = 0.5D;
+    /** The highest ledge {@code core:ledge_ahead} counts, above the feet: a jump's height. */
+    private static final double LEDGE_MAX_HEIGHT = 1.5D;
+
+    /**
+     * Whether a block stands in front of the entity's feet, no higher than {@link #LEDGE_MAX_HEIGHT},
+     * with room for the entity on top. Front is the way the body faces (not the way it moves: one
+     * walking into the block at an angle slides along it).
+     */
+    public static boolean ledgeAhead(LivingEntity entity) {
+        Level level = entity.level();
+        if (level == null) return false;
+        float yaw = entity.yBodyRot * Mth.DEG_TO_RAD;
+        double dx = -Mth.sin(yaw) * LEDGE_REACH;
+        double dz = Mth.cos(yaw) * LEDGE_REACH;
+
+        AABB box = entity.getBoundingBox();
+        AABB ahead = box.move(dx, 0.0D, dz);
+        // Above the ground the entity stands on (a hair over its feet), up to a jump's height.
+        AABB feet = new AABB(ahead.minX, box.minY + 0.01D, ahead.minZ, ahead.maxX, box.minY + LEDGE_MAX_HEIGHT, ahead.maxZ);
+        double top = box.minY;
+        for (VoxelShape shape : level.getCollisions(entity, feet)) {
+            if (!shape.isEmpty()) {
+                top = Math.max(top, shape.max(Direction.Axis.Y));
+            }
+        }
+        if (top <= box.minY + 0.01D || top > box.minY + LEDGE_MAX_HEIGHT) return false;
+        return level.noCollision(entity, ahead.move(0.0D, top - box.minY + 0.01D, 0.0D));
     }
 
     /** Whether the entity animated is a {@code type}. */
