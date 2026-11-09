@@ -169,6 +169,11 @@ on `forge-1.12`), under *Settings → Secrets and variables → Actions*:
 A version can't be uploaded to Modrinth or CurseForge twice. If a release fails partway, re-run the
 failed jobs rather than pushing the tag again.
 
+The pack is signed with `MOBENDS_PACK_SIGNING_KEY`. Locally, `./gradlew :core:legacyPack
+-Ppack_signing_key=<file>` does the same into `build/packs/`. The private key is never committed. Keep
+a copy in a password manager. A lost key means new packs need a mod release that ships a new public
+key.
+
 ### Releasing `core`
 
 Push a tag named `core-<version>` on `main` (e.g. `git tag core-2.0.0 && git push origin core-2.0.0`).
