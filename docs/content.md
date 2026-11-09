@@ -113,10 +113,9 @@ types or extensions, which are found by scanning the packs (`TypeFileDiscovery`)
 guards against packs passing as Mo' Bends' own. Like the policy itself, it doesn't guard against a
 modified client, which can ignore the policy anyway.
 
-`gradle legacyPack` builds and signs the pack (`src/tools`, `SignPack`), with the private key from the
-`MOBENDS_PACK_SIGNING_KEY` environment variable or `-Ppack_signing_key=<file>`.
-`gradle generatePackSigningKey -Ppack_signing_key=<file>` makes a new key pair. To replace a key, add the new
-public key to `PackSigningKeys` before removing the old one.
+The pack is built and signed on `main` (`./gradlew :core:legacyPack`, see docs/content.md there), and
+so is a new key pair. To replace a key, add the new public key to `PackSigningKeys` before removing
+the old one.
 
 ## Authoring Recipes
 
