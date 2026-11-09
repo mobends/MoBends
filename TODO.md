@@ -136,7 +136,7 @@ forge-1.12               1.12.2
        (`DefinedModelBuilder`, `BendsRenderer`). Checked in the game on both loaders.
      - [x] The player's render layers: held items, vanilla armour, custom head, cape and elytra
        follow the bent player.
-     - [x] The sword trail and the cape wave (#386).
+     - [x] The sword trail and the cape wave (#386), and the arrow trails.
      - [x] The first-person hand stays vanilla's: it's never bent, and `renderer.firstPersonRest`
        is gone from the definition format.
      - [x] The inventory player's head follows the mouse (1.12's `lookFurther`).

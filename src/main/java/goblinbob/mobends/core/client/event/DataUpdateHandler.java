@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.event;
 
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.kumo.RayGizmos;
+import goblinbob.mobends.standard.client.renderer.entity.ArrowTrail;
 import net.minecraft.client.Minecraft;
 
 /**
@@ -45,6 +46,7 @@ public final class DataUpdateHandler {
         // The rays recorded for debugging are this frame's from here on (a paused game keeps the last).
         RayGizmos.beginFrame();
         EntityDatabase.instance.updateRender(renderPartialTicks);
+        ArrowTrail.onRenderFrame();
     }
 
     /** At the start of a client tick, before the entities move. */
