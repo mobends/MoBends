@@ -185,11 +185,37 @@ public class DefinedModelPart {
         if (restRotation != null) {
             poseStack.mulPose(toJoml(restRotation));
         }
-        poseStack.mulPose(toJoml(transform.rotation.getSmooth()));
+        poseStack.mulPose(toJoml(rotationOf(transform, data)));
         Vec3f partScale = transform.scale;
         if (partScale.x != 1 || partScale.y != 1 || partScale.z != 1) {
             poseStack.scale(partScale.x, partScale.y, partScale.z);
         }
+    }
+
+    /**
+     * The part's own rotation as it's drawn: the bone's, but for the {@code head}, turned by as much
+     * further as this draw has it look than the animator posed it (1.12's {@code lookFurther}, see
+     * {@link DefinedEntityData#getHeadYawSinceAnimated}): the inventory draws the player again in
+     * the frame, in the pose it has, looking at the mouse. The yaw goes before the head's rotation
+     * and the pitch after, as the animators turn it.
+     */
+    private Quaternion rotationOf(ModelPartTransform transform, DefinedEntityData<?> data) {
+        Quaternion smooth = transform.rotation.getSmooth();
+        if (!"head".equals(name)) {
+            return smooth;
+        }
+        float yaw = data.getHeadYawSinceAnimated();
+        float pitch = data.getHeadPitchSinceAnimated();
+        if (yaw == 0 && pitch == 0) {
+            return smooth;
+        }
+        Quaternion look = new Quaternion();
+        Quaternion axis = new Quaternion();
+        axis.setFromAxisAngle(0, 1, 0, (float) Math.toRadians(yaw));
+        Quaternion.mul(axis, smooth, look);
+        axis.setFromAxisAngle(1, 0, 0, (float) Math.toRadians(pitch));
+        Quaternion.mul(look, axis, look);
+        return look;
     }
 
     private boolean inheritsRotation(DefinedEntityData<?> data) {
@@ -205,8 +231,9 @@ public class DefinedModelPart {
             else dest.setIdentity();
             return;
         }
-        if (restRotation != null) Quaternion.mul(restRotation, transform.rotation.getSmooth(), dest);
-        else dest.set(transform.rotation.getSmooth());
+        Quaternion rotation = rotationOf(transform, data);
+        if (restRotation != null) Quaternion.mul(restRotation, rotation, dest);
+        else dest.set(rotation);
     }
 
     /** The rotation of the part's frame relative to the model, up to the first part that doesn't turn with its parent. */
