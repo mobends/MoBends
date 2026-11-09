@@ -1,8 +1,9 @@
-# Porting Mo' Bends to the modern versions: handoff
+# Porting Mo' Bends to the modern versions
 
-Where the port of Mo' Bends from 1.12.2 to the modern Minecraft versions stands, how it's done, and
-what's next. The plan and its checklist are in [TODO.md](../TODO.md) (*Multiple Minecraft versions
-and loaders*); the project's rules are in [CONTRIBUTING.md](../CONTRIBUTING.md). Read both first.
+Where the port of Mo' Bends from 1.12.2 to the modern Minecraft versions stands, how I'm doing it,
+and what comes next. The plan and its checklist are in [TODO.md](../TODO.md) (*Multiple Minecraft
+versions and loaders*); the project's rules are in [CONTRIBUTING.md](../CONTRIBUTING.md). Read both
+first.
 
 ## Where it stands
 
@@ -15,14 +16,13 @@ Ported so far, in this order:
 | #382 | The player's render layers follow the bent body: held items, vanilla armour, custom head, spyglass, cape, elytra. |
 | #383 | The other mobs: zombie (husk, drowned), skeleton, zombie villager, creeper, iron golem, villager, witch, spider, squid, wolf, the dev pack's animals; type files, extensions, `field` expressions; the `core:minecraft_version` condition and `@variants` in model definitions. |
 
-As #383 was opened, the user had checked the player, its layers, the zombie, skeleton and zombie
-villager in the game on Fabric. The mobs added in #383's second part (creeper, golem, villager,
-witch, spider, squid, wolf) and the wolf pup's head were still to be checked. NeoForge was only
-checked for the player (#381).
+I've checked the player, its layers, the zombie, skeleton, zombie villager and the wolf (adult and
+pup, side by side with vanilla) in the game on Fabric. The creeper, golem, villager, witch, spider and
+squid are still to be checked. On NeoForge I've only checked the player (#381).
 
 ## What's next
 
-In the order the user asked for:
+In this order:
 
 1. **The rest of the player** (TODO.md): the first-person hands, the sword trail, the cape wave, the
    inventory player's head following the mouse (1.12's `lookFurther`), stuck arrows and bee stingers
@@ -37,7 +37,7 @@ In the order the user asked for:
 
 - **The 1.12.2 code is the reference**, in `legacy-1.12/` (not built). Classes keep their 1.12
   package and name in `src/` when they keep their role, so the two are easy to compare. Don't edit
-  or move `legacy-1.12/`: the animation lab compiles from it, so slices **copy** what they port.
+  or move `legacy-1.12/`: the animation lab compiles from it, so each slice **copies** what it ports.
 - **The asset format doesn't change.** Assets (`src/main/resources/assets/mobends/bends/`) are
   shared with `forge-1.12`. Definitions keep their 1.12 class and field names
   (`net.minecraft.client.model.ModelPlayer`, `bipedRightArm`); `core/vanilla/VanillaNames` translates
@@ -62,24 +62,25 @@ In the order the user asked for:
 - `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`, then `.github/scripts/check-sources.sh` and
   `./gradlew build` (both nodes, core's tests). If core or the animators change:
   `cd animation-lab && ./gradlew test`.
-- **Geometry and transforms can be checked without the game**: the slices so far each had a standalone
+- **Geometry and transforms can be checked without the game**: so far each slice had a standalone
   program, run against the built classes and the real vanilla meshes, comparing the bent parts with
   vanilla's at rest (every vertex and UV) and the layers' frames with the drawn parts. Do the same for
   new geometry; it catches most mistakes before the game does.
-- **The user checks the game visually.** Start the client into their test world with
-  `./gradlew :1.21.1-fabric:runClient --args="--quickPlaySingleplayer 'New World'"` (in the
-  background), and tell them what to look at first. On NeoForge, `--args` breaks the dev launcher:
-  run `:1.21.1-neoforge:runClient` plain, and they pick the world. Only one client can hold the world:
-  close earlier test clients first (a `session.lock` error in the log means one is still open).
+- **Then check it in the game.** Start the client into the test world with
+  `./gradlew :1.21.1-fabric:runClient --args="--quickPlaySingleplayer 'New World'"`. On NeoForge,
+  `--args` breaks the dev launcher: run `:1.21.1-neoforge:runClient` plain and pick the world. Only one
+  client can hold the world: close earlier test clients first (a `session.lock` error in the log means
+  one is still open). To compare a mob with vanilla, a resource pack with an extension whose only layer
+  is a `core:vanilla` node, on for every other second (`"@when"` on `entityTicksExisted`), switches it
+  back and forth in place.
 - CI runs `build` (and `parity` when the lab's inputs change). Codacy fails on every PR; nobody has
   looked into why.
 
-## Working with the user
+## Pull requests
 
-- **PR descriptions: stupidly simple and clear.** A sentence of what it does, a short *What changed*
+- **Descriptions: stupidly simple and clear.** A sentence of what it does, a short *What changed*
   list, *Not yet*, *Tested*. No implementation detail.
-- Ask before anything public or hard to undo (pushing to `main`, tags, releases, branch changes on
-  GitHub). Opening PRs and pushing to their branches is expected.
+- Nothing goes straight to `main`: every slice is a PR. Tags and releases are mine to push.
 - Say plainly what was and wasn't checked in the game, and on which loader.
 
 ## forge-1.12 after a core release
@@ -94,7 +95,7 @@ nothing removed or changed):
   expression compiles.
 
 Releasing it: push a tag `core-<version>` on `main` once #383 is merged (for example `core-2.0.0-alpha.3`;
-see CONTRIBUTING.md, *Releasing `core`*). Then, on a branch off `forge-1.12`, a forge-1.12 agent should:
+see CONTRIBUTING.md, *Releasing `core`*). Then, on a branch off `forge-1.12`:
 
 1. **Bump `core_version`** in `gradle.properties` to the new release. Both the mod and the animation lab
    read it. Building needs a GitHub token with `read:packages` (`gpr.user` / `gpr.key` in
@@ -108,12 +109,13 @@ see CONTRIBUTING.md, *Releasing `core`*). Then, on a branch off `forge-1.12`, a 
    `extends`) from `main`'s `src/main/java/goblinbob/mobends/core/definition/`. The shipped assets don't
    need it: the wolf's only variant is for versions after 1.12.2, and 1.12.2 keeps the definition's own
    values.
-4. **The wolf's shared model changed** (`bends/models/wolf.json`): its head turns where vanilla's does
-   (2 px further forward, 1 px left of its middle), so forge-1.12's `LayerWolfMisc` must draw the inside
-   of the mouth 2 px further back and 1 px right (as `WolfMiscLayer` on `main` does). Its box faces
-   also take `"flip": true` now, which 1.12.2 ignores (the body's and mane's undersides and ends keep
-   the old texture there) until it ports `FaceDefinition.flip` and `TextureFace.flipped` from `main`.
+4. **Follow the wolf's shared model** (`bends/models/wolf.json`), which now matches vanilla: its head
+   turns where vanilla's does (2 px further forward, 1 px left of its middle), so `LayerWolfMisc` has to
+   draw the inside of the mouth where `WolfMiscLayer` on `main` does (in the head's frame, at -2.1
+   instead of -4.1, and 1 px further along +X). Its box faces take `"flip": true` now, which 1.12.2
+   ignores (the body's and mane's undersides and ends keep their old texture) until `FaceDefinition.flip`
+   and `TextureFace.flipped` are ported from `main`.
 5. **Check:** `./gradlew build shadowJar` (JDK 8), `cd animation-lab && ./gradlew test`, and the 1.12.2
    client (`run-arm64/runClient.sh` on Apple Silicon): the mod loads, the player and mobs animate, the
-   wolf pup looks as before.
+   wolf's mouth sits in its head.
 6. Open a PR into `forge-1.12`, with a stupidly simple description.
