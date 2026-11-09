@@ -141,8 +141,10 @@ forge-1.12               1.12.2
        is gone from the definition format.
      - [x] The inventory player's head follows the mouse (1.12's `lookFurther`).
      - [x] Stuck arrows and bee stingers ride the bent parts.
-     - [ ] The rest of the player: armour
-       from other mods' models, and poses for the items 1.12 didn't have (spyglass, goat horn,
+     - [x] Armour from other mods' models bends with the body, cut at the elbows and knees.
+     - [ ] GeckoLib armour (1.12 had `GeckoLibCompat`): it draws itself its own way, so it stays
+       in vanilla's pose.
+     - [ ] The rest of the player: poses for the items 1.12 didn't have (spyglass, goat horn,
        brush, crossbow, trident).
      - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,
        spider, squid, wolf (and the dev pack's animals), with type files, extensions and `field`

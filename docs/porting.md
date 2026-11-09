@@ -26,7 +26,7 @@ squid are still to be checked. On NeoForge I've only checked the player (#381).
 
 In this order:
 
-1. **The rest of the player** (TODO.md): armour from other mods' models, and poses for the items 1.12 didn't have
+1. **The rest of the player** (TODO.md): GeckoLib armour, and poses for the items 1.12 didn't have
    (spyglass, goat horn, brush, crossbow, trident: they now just keep the current pose).
 2. **The pig zombie** (stays vanilla: it's drawn with `PiglinModel` now, which its definition can't
    map onto without changing the asset; `@variants` might now make that possible).
