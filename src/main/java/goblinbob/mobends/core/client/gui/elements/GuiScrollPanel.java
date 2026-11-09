@@ -1,15 +1,19 @@
 package goblinbob.mobends.core.client.gui.elements;
 
 import goblinbob.mobends.core.util.Draw;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
 /**
  * A panel whose content scrolls: by the mouse wheel over it, or by dragging the scroll bar on its
- * right. The scroll eases to where it's sent, a tick at a time, and is drawn in between.
+ * right. It scrolls as vanilla's lists do (the language list): the wheel moves it straight away, by
+ * its amount (a trackpad's fine steps too), {@link #getScrollSpeed} pixels a notch; the scroll bar
+ * follows the mouse every frame while it's held, grabbed where it was clicked, without jumping.
  */
 public abstract class GuiScrollPanel {
+    /** The scroll bar's handle is never shorter than this, as vanilla's. */
+    private static final int MIN_HANDLE_HEIGHT = 32;
+
     protected int x;
     protected int y;
     protected int width;
@@ -18,14 +22,13 @@ public abstract class GuiScrollPanel {
 
     /** Height of the full content. */
     protected int contentSize;
-    protected int scrollAmountTarget;
-    protected int prevScrollAmount;
-    protected int scrollAmount;
+    /** How far the content is scrolled, in pixels. */
+    protected double scrollAmount;
+    /** Whether the mouse was over the panel at the last tick (for what's drawn on hover). */
     protected boolean hovered;
-    protected boolean scrollBarHovered;
-    protected boolean scrollHandleHovered;
     protected boolean scrollBarGrabbed;
-    protected int scrollBarGrabY;
+    /** Where the mouse held the scroll bar, from the handle's top (outside the handle if it was clicked beside it). */
+    protected double scrollBarGrabY;
 
     protected GuiScrollPanel(int x, int y, int width, int height) {
         this.x = x;
@@ -36,30 +39,27 @@ public abstract class GuiScrollPanel {
 
     /** Every tick, with the mouse on the screen. */
     public void update(int mouseX, int mouseY) {
-        this.hovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
-        this.scrollBarHovered = false;
-        this.scrollHandleHovered = false;
+        this.hovered = isOver(mouseX, mouseY);
+    }
 
-        if (this.scrollBarGrabbed) {
-            this.scrollTo((mouseY - y - scrollBarGrabY) * contentSize / height);
-        }
+    protected boolean isOver(double mouseX, double mouseY) {
+        return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+    }
 
-        if (this.hovered && mouseX >= this.x + this.width - this.scrollBarWidth) {
-            this.scrollBarHovered = true;
-            int scrollHandleY = getScrollHandleY(1);
-            if (mouseY >= this.y + scrollHandleY && mouseY <= y + scrollHandleY + getScrollHandleHeight()) {
-                this.scrollHandleHovered = true;
-            }
-        }
+    /** Over the scroll bar (only there when the content doesn't fit). */
+    protected boolean isOverScrollBar(double mouseX, double mouseY) {
+        return getMaxScroll() > 0 && isOver(mouseX, mouseY) && mouseX >= x + width - scrollBarWidth;
+    }
 
-        this.prevScrollAmount = this.scrollAmount;
-        this.scrollAmount += (int) ((this.scrollAmountTarget - this.scrollAmount) * getScrollTweenSpeed());
+    private boolean isOverScrollHandle(double mouseX, double mouseY) {
+        int handleY = y + getScrollHandleY();
+        return isOverScrollBar(mouseX, mouseY) && mouseY >= handleY && mouseY <= handleY + getScrollHandleHeight();
     }
 
     public boolean handleMouseClicked(double mouseX, double mouseY, int button) {
         this.scrollBarGrabbed = false;
-        if (scrollBarHovered) {
-            scrollBarGrabY = scrollHandleHovered ? (int) mouseY - y - getScrollHandleY(1) : getScrollHandleHeight() / 2;
+        if (button == 0 && isOverScrollBar(mouseX, mouseY)) {
+            scrollBarGrabY = mouseY - y - getScrollHandleY();
             scrollBarGrabbed = true;
             return true;
         }
@@ -71,32 +71,30 @@ public abstract class GuiScrollPanel {
         return false;
     }
 
-    /** The mouse wheel, {@code amount} up (positive) or down. */
+    /** The mouse wheel, {@code amount} notches up (positive) or down; a trackpad sends fractions. */
     public boolean handleMouseScrolled(double mouseX, double mouseY, double amount) {
-        if (this.hovered && amount != 0) {
-            this.scroll((amount > 0 ? -1 : 1) * getScrollSpeed());
+        if (amount != 0 && isOver(mouseX, mouseY)) {
+            setScrollAmount(scrollAmount - amount * getScrollSpeed());
             return true;
         }
         return false;
     }
 
-    protected void scrollTo(int value) {
-        if (contentSize <= height) {
-            this.scrollAmountTarget = 0;
-            return;
-        }
-        this.scrollAmountTarget = Mth.clamp(value, 0, contentSize - height);
+    protected int getMaxScroll() {
+        return Math.max(0, contentSize - height);
     }
 
-    protected void scroll(int amount) {
-        scrollTo(this.scrollAmountTarget + amount);
+    protected void setScrollAmount(double value) {
+        this.scrollAmount = Mth.clamp(value, 0, getMaxScroll());
     }
 
     public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        // The scroll moves tick by tick: eased by the partial tick, not by what a screen is handed
-        // (the frame's real time, in ticks).
-        partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
-        int scroll = Math.round(getScrollAmount(partialTicks));
+        if (scrollBarGrabbed) {
+            // Every frame, so the content keeps up with the mouse.
+            int track = height - getScrollHandleHeight();
+            setScrollAmount(track <= 0 ? 0 : (mouseY - y - scrollBarGrabY) * getMaxScroll() / track);
+        }
+        int scroll = getScrollAmount();
 
         this.drawBackground(graphics, partialTicks);
 
@@ -104,7 +102,7 @@ public abstract class GuiScrollPanel {
         this.drawContent(graphics, x, y - scroll, mouseX, mouseY, partialTicks);
         graphics.disableScissor();
 
-        this.drawScrollBar(graphics, partialTicks);
+        this.drawScrollBar(graphics, mouseX, mouseY);
     }
 
     protected void drawBackground(GuiGraphics graphics, float partialTicks) {
@@ -113,8 +111,8 @@ public abstract class GuiScrollPanel {
     /** Draws the content, its top left at {@code originX}, {@code originY} (scrolled). */
     protected abstract void drawContent(GuiGraphics graphics, int originX, int originY, int mouseX, int mouseY, float partialTicks);
 
-    protected void drawScrollBar(GuiGraphics graphics, float partialTicks) {
-        if (contentSize <= height) {
+    protected void drawScrollBar(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (getMaxScroll() <= 0) {
             return;
         }
         int barX = x + width - scrollBarWidth;
@@ -122,32 +120,31 @@ public abstract class GuiScrollPanel {
         Draw.rectangle(graphics, barX, y, scrollBarWidth, height, getBackgroundColor());
         int barColor = this.scrollBarGrabbed
                 ? getScrollBarGrabbedColor()
-                : (this.scrollHandleHovered ? getScrollBarHoveredColor() : getScrollBarColor());
+                : (isOverScrollHandle(mouseX, mouseY) ? getScrollBarHoveredColor() : getScrollBarColor());
         // Handle
-        Draw.rectangle(graphics, barX, y + getScrollHandleY(partialTicks), scrollBarWidth, getScrollHandleHeight(), barColor);
+        Draw.rectangle(graphics, barX, y + getScrollHandleY(), scrollBarWidth, getScrollHandleHeight(), barColor);
     }
 
+    /** How far the content is scrolled, in whole pixels, as it's drawn. */
     public int getScrollAmount() {
-        return scrollAmount;
+        return (int) scrollAmount;
     }
 
-    /** How far the content is scrolled, as drawn this frame. */
-    public float getScrollAmount(float partialTicks) {
-        return Mth.lerp(partialTicks, this.prevScrollAmount, this.scrollAmount);
-    }
-
-    protected int getScrollHandleY(float partialTicks) {
-        if (this.contentSize <= this.height) {
+    /** Where the handle's top is, from the bar's, as vanilla places it. */
+    protected int getScrollHandleY() {
+        int maxScroll = getMaxScroll();
+        if (maxScroll <= 0) {
             return 0;
         }
-        return (int) getScrollAmount(partialTicks) * (this.height + 2) / this.contentSize;
+        return Math.max(0, (int) scrollAmount * (height - getScrollHandleHeight()) / maxScroll);
     }
 
+    /** As tall as the share of the content in view, as vanilla's, but never shorter than 32 pixels. */
     protected int getScrollHandleHeight() {
-        if (this.contentSize <= this.height) {
+        if (getMaxScroll() <= 0) {
             return 0;
         }
-        return this.height * this.height / this.contentSize;
+        return Mth.clamp(height * height / contentSize, Math.min(MIN_HANDLE_HEIGHT, height - 8), height - 8);
     }
 
     public int getX() {
@@ -170,12 +167,9 @@ public abstract class GuiScrollPanel {
         this.height = height;
     }
 
+    /** How far a notch of the mouse wheel scrolls, in pixels. */
     protected int getScrollSpeed() {
         return 10;
-    }
-
-    protected float getScrollTweenSpeed() {
-        return .5F;
     }
 
     protected int getBackgroundColor() {

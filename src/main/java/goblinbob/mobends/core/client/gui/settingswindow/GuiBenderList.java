@@ -32,9 +32,4 @@ public class GuiBenderList extends GuiList<GuiBenderSettings> {
     public LinkedList<GuiBenderSettings> getListElements() {
         return elements;
     }
-
-    @Override
-    protected int getScrollSpeed() {
-        return 20;
-    }
 }

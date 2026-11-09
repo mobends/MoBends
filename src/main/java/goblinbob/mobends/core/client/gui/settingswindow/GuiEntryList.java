@@ -24,9 +24,4 @@ class GuiEntryList<T extends IGuiListElement> extends GuiList<T> {
     public LinkedList<T> getListElements() {
         return elements;
     }
-
-    @Override
-    protected int getScrollSpeed() {
-        return 20;
-    }
 }

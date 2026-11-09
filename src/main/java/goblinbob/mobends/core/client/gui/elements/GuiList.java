@@ -36,12 +36,15 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel 
 
         this.contentSize = yOffset + paddingBottom;
 
-        if (contentSize <= height) {
-            this.scrollAmountTarget = 0;
-        } else if (this.scrollAmountTarget + this.height > contentSize) {
-            this.scrollAmountTarget = contentSize - this.height;
-            this.scrollAmount = contentSize - this.height;
-        }
+        // Kept in range for the new content.
+        setScrollAmount(scrollAmount);
+    }
+
+    /** Half a row a notch, as vanilla's lists scroll (the first row's height, with the spacing). */
+    @Override
+    protected int getScrollSpeed() {
+        LinkedList<T> elements = getListElements();
+        return elements.isEmpty() ? super.getScrollSpeed() : Math.max(1, (elements.getFirst().getHeight() + spacing) / 2);
     }
 
     public void addElement(T element) {
@@ -60,7 +63,7 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel 
     public void update(int mouseX, int mouseY) {
         super.update(mouseX, mouseY);
         for (T element : this.getListElements()) {
-            element.update(mouseX - x, mouseY - y + scrollAmount);
+            element.update(mouseX - x, mouseY - y + getScrollAmount());
         }
     }
 
@@ -81,8 +84,8 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel 
 
     @Override
     public boolean handleMouseClicked(double mouseX, double mouseY, int button) {
-        if (this.hovered && !this.scrollBarHovered) {
-            int originY = y - scrollAmount;
+        if (isOver(mouseX, mouseY) && !isOverScrollBar(mouseX, mouseY)) {
+            int originY = y - getScrollAmount();
             Iterator<T> it = this.getListElements().descendingIterator();
             while (it.hasNext()) {
                 T element = it.next();
