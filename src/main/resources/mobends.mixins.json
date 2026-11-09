@@ -22,6 +22,7 @@
     "PlayerItemInHandLayerMixin",
     "PlayerModelMixin",
     "PlayerRendererMixin",
+    "StuckInBodyLayerMixin",
     "WitchItemLayerMixin",
     "WolfRendererMixin"
   ],

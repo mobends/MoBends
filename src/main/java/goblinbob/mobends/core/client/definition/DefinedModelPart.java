@@ -8,10 +8,13 @@ import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import org.joml.Quaternionf;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -66,6 +69,35 @@ public class DefinedModelPart {
      */
     private boolean isShowing() {
         return visibleWith == null || (visibleWith.visible && !visibleWith.skipDraw);
+    }
+
+    /** Stand-ins for {@link #boxes} with the same bounds, for what vanilla sticks in a part (see {@link #stuckCube}). */
+    @Nullable
+    private ModelPart.Cube[] stuckCubes;
+
+    boolean hasBoxes() {
+        return !boxes.isEmpty();
+    }
+
+    /**
+     * One of its boxes, picked with {@code random}, as a vanilla cube with the box's bounds (it draws
+     * nothing): what vanilla's {@code StuckInBodyLayer} reads to place an arrow or a stinger in it.
+     */
+    ModelPart.Cube stuckCube(RandomSource random) {
+        if (stuckCubes == null) {
+            stuckCubes = new ModelPart.Cube[boxes.size()];
+            for (int i = 0; i < boxes.size(); i++) {
+                MutatedBox box = boxes.get(i);
+                stuckCubes[i] = new ModelPart.Cube(0, 0, box.minX, box.minY, box.minZ, box.maxX - box.minX, box.maxY - box.minY, box.maxZ - box.minZ,
+                        0.0F, 0.0F, 0.0F, false, 64.0F, 64.0F, EnumSet.noneOf(Direction.class));
+            }
+        }
+        return stuckCubes[random.nextInt(stuckCubes.length)];
+    }
+
+    /** Moves {@code poseStack}, at the model's space as the bent parts are drawn in it, into the frame its boxes are drawn in. */
+    void applyFrame(PoseStack poseStack, DefinedEntityData<?> data) {
+        applyCharacterTransform(poseStack, data, SCALE);
     }
 
     /** Draws the part as a root of the model: through its parents' transforms, if it has any. */

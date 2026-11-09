@@ -23,6 +23,7 @@ import net.minecraft.client.model.ZombieModel;
 import net.minecraft.client.model.ZombieVillagerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
@@ -313,6 +314,28 @@ public final class BendsLayers {
     public static boolean applyLocalTransform(LivingEntity entity, String bone, PoseStack poseStack) {
         Frame frame = frameFor(entity);
         return frame != null && frame.parts.applyLocalTransform(bone, frame.data, poseStack);
+    }
+
+    // --- what's stuck in the entity (ArrowLayer, BeeStingerLayer) -----------------------------------
+
+    /**
+     * In place of vanilla's pick of a part and a box to stick an arrow or a stinger in, and its move
+     * into that part ({@code StuckInBodyLayerMixin}): picks a bent part and box with {@code random},
+     * and moves {@code poseStack} from the model's pose into that part's frame (see
+     * {@link DefinedModel#stickIn}).
+     *
+     * @return the box, as a vanilla cube with its bounds; null if {@code entity} isn't drawn bent
+     *         here, or has no part with boxes, to do vanilla's
+     */
+    @Nullable
+    public static ModelPart.Cube stickIn(LivingEntity entity, RandomSource random, PoseStack poseStack) {
+        Frame frame = frameFor(entity);
+        if (frame == null || !frame.parts.canStickIn()) {
+            return null;
+        }
+        backToModelPose(frame, poseStack);
+        DefinedRenderer.transformModel(frame.data, frame.model, poseStack, frame.entityFrame, frame.bodyYaw);
+        return frame.parts.stickIn(random, frame.data, frame.baby(), poseStack);
     }
 
     // --- the body (ElytraLayer) ---------------------------------------------------------------------

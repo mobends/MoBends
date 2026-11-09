@@ -140,7 +140,8 @@ forge-1.12               1.12.2
      - [x] The first-person hand stays vanilla's: it's never bent, and `renderer.firstPersonRest`
        is gone from the definition format.
      - [x] The inventory player's head follows the mouse (1.12's `lookFurther`).
-     - [ ] The rest of the player: stuck arrows and bee stingers, armour
+     - [x] Stuck arrows and bee stingers ride the bent parts.
+     - [ ] The rest of the player: armour
        from other mods' models, and poses for the items 1.12 didn't have (spyglass, goat horn,
        brush, crossbow, trident).
      - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,

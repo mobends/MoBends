@@ -10,9 +10,13 @@ import goblinbob.mobends.core.vanilla.ModelRootHolder;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.util.RandomSource;
 
 import javax.annotation.Nullable;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -174,6 +178,58 @@ public final class DefinedModel {
         }
         return part == null ? null : part.name;
     }
+
+    /**
+     * In place of vanilla's pick of a part and a box to stick an arrow or a bee's stinger in
+     * ({@code StuckInBodyLayer}), and of its move into that part: picks, with {@code random}, one of
+     * the bent parts with boxes (a bone, a segment, a piece of an overlay), then one of its boxes,
+     * and moves {@code poseStack}, in the space the bent parts are drawn in, into its frame. What's
+     * stuck in the entity rides the bent parts, as 1.12's {@code DefinedBoxAnchor} had it.
+     *
+     * Only if {@link #canStickIn}.
+     *
+     * @param baby how the entity is drawn as a baby, or null
+     * @return the box, as a vanilla cube with its bounds
+     */
+    public ModelPart.Cube stickIn(RandomSource random, DefinedEntityData<?> data, @Nullable BabyLayout baby, PoseStack poseStack) {
+        List<DefinedModelPart> partsWithBoxes = partsWithBoxes();
+        DefinedModelPart part = partsWithBoxes.get(random.nextInt(partsWithBoxes.size()));
+        ModelPart.Cube cube = part.stuckCube(random);
+        if (baby != null) {
+            DefinedModelPart root = part;
+            while (root != null && !roots.contains(root)) {
+                root = root.parent;
+            }
+            baby.apply(root == null ? null : root.name, poseStack);
+        }
+        part.applyFrame(poseStack, data);
+        return cube;
+    }
+
+    /** Whether any part has boxes, for {@link #stickIn}. */
+    public boolean canStickIn() {
+        return !partsWithBoxes().isEmpty();
+    }
+
+    private List<DefinedModelPart> partsWithBoxes() {
+        if (partsWithBoxes == null) {
+            List<DefinedModelPart> found = new ArrayList<>();
+            Deque<DefinedModelPart> toVisit = new ArrayDeque<>(roots);
+            while (!toVisit.isEmpty()) {
+                DefinedModelPart part = toVisit.poll();
+                if (part.hasBoxes()) {
+                    found.add(part);
+                }
+                toVisit.addAll(part.children);
+            }
+            partsWithBoxes = found;
+        }
+        return partsWithBoxes;
+    }
+
+    /** What {@link #stickIn} picks from, found the first time, roots first. */
+    @Nullable
+    private List<DefinedModelPart> partsWithBoxes;
 
     /**
      * Draws the parts posed as the data has them, in the model's space (as {@code renderToBuffer}
