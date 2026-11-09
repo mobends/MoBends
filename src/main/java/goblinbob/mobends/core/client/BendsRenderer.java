@@ -12,12 +12,16 @@ import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.vanilla.VanillaNames;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Matrix4fc;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 
 /**
  * Where a living entity's render meets Mo' Bends ({@code LivingEntityRendererMixin}): picks the
@@ -104,6 +108,52 @@ public final class BendsRenderer {
         captureRenderArguments(entity, partialTicks, definedData);
         definedData.animate();
         return definedData.wantsVanilla() ? null : definedData;
+    }
+
+    /**
+     * In place of vanilla's draw of the first-person hand's arm or sleeve ({@code PlayerRendererMixin},
+     * {@code PlayerRenderer.renderHand}): draws the bent arm, its segments with it, or the sleeve
+     * over it, with the definition's {@code renderer.firstPersonRest} bones at rest, as 1.12 did
+     * ({@code poseForFirstPersonView}). The player isn't animated for it: what's at rest doesn't
+     * need the animator.
+     *
+     * @param sleeve whether vanilla draws the sleeve ({@code vanillaPart} is the arm otherwise)
+     * @return false to draw vanilla's part (the player isn't bent, or its model has no such bone)
+     */
+    public static boolean drawFirstPersonArm(LivingEntity player, PlayerModel<?> model, ModelPart vanillaPart, boolean sleeve, PoseStack poseStack,
+                                             VertexConsumer consumer, int packedLight, int packedOverlay) {
+        HumanoidArm arm;
+        if (vanillaPart == model.rightArm || vanillaPart == model.rightSleeve) {
+            arm = HumanoidArm.RIGHT;
+        } else if (vanillaPart == model.leftArm || vanillaPart == model.leftSleeve) {
+            arm = HumanoidArm.LEFT;
+        } else {
+            return false;
+        }
+        EntityTypeRegistry.Selection selection = EntityTypeRegistry.INSTANCE.select(player);
+        if (selection == null || selection.model() == null || selection.dataFactory() == null || !selection.model().bends(model)) {
+            return false;
+        }
+        LivingEntityData<LivingEntity> data = EntityDatabase.instance.getOrMake(selection.dataFactory(), player);
+        if (!(data instanceof DefinedEntityData<?> definedData) || definedData.wantsVanilla()) {
+            return false;
+        }
+        DefinedModel parts = partsFor(definedData, model);
+        if (parts == null) {
+            return false;
+        }
+        EntityModelDefinition definition = definedData.getDefinition();
+        String bone = BendsLayers.armBone(definition, arm);
+        String overlay = null;
+        if (sleeve) {
+            overlay = arm == HumanoidArm.RIGHT ? BendsLayers.boneOf(definition, "bipedRightArmwear", "rightArmwear")
+                    : BendsLayers.boneOf(definition, "bipedLeftArmwear", "leftArmwear");
+            if (!parts.hasPart(overlay)) {
+                return false;
+            }
+        }
+        return parts.renderAlone(bone, overlay, Set.copyOf(definition.renderer.firstPersonRest), definedData, poseStack, consumer, packedLight,
+                packedOverlay);
     }
 
     /**

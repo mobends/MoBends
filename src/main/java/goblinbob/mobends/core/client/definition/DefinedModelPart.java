@@ -13,6 +13,8 @@ import org.joml.Quaternionf;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * A part Mo' Bends draws in place of a vanilla model part: a bone, a split segment of one, or a piece
@@ -48,6 +50,19 @@ public class DefinedModelPart {
     Quaternion restRotation;
     /** Drawn through its parents' transforms, not by its parent (see {@code BoneDefinition#drawnAlone}). */
     boolean drawnAlone;
+    /** For a piece of an overlay (a sleeve), the overlay bone's name; null for a bone's own part. */
+    @Nullable
+    String overlayOf;
+
+    /*
+     * While a part is drawn on its own ({@link DefinedModel#renderAlone}, the first-person hand): the
+     * bones drawn at rest, whatever the data says, and which parts' boxes are drawn (their children
+     * decide for themselves). Render thread only.
+     */
+    @Nullable
+    static Set<String> atRest;
+    @Nullable
+    static Predicate<DefinedModelPart> drawn;
 
     DefinedModelPart(@Nullable String name, @Nullable DefinedModelPart parent, @Nullable ModelPart visibleWith) {
         this.name = name;
@@ -60,12 +75,17 @@ public class DefinedModelPart {
         return name == null ? null : data.getPart(name);
     }
 
+    /** Whether it's drawn at rest, while drawn on its own (see {@link #atRest}). */
+    private boolean isAtRest() {
+        return atRest != null && name != null && atRest.contains(name);
+    }
+
     /**
      * Whether its boxes are drawn. Its children decide for themselves: vanilla shows the head of a
      * spectator, a child of the body here, while the body is hidden.
      */
     private boolean isShowing() {
-        return visibleWith == null || (visibleWith.visible && !visibleWith.skipDraw);
+        return (visibleWith == null || (visibleWith.visible && !visibleWith.skipDraw)) && (drawn == null || drawn.test(this));
     }
 
     /** Draws the part as a root of the model: through its parents' transforms, if it has any. */
@@ -177,6 +197,13 @@ public class DefinedModelPart {
             }
             return;
         }
+        if (isAtRest()) {
+            // Where it sits, turned by its rest rotation alone.
+            if (restRotation != null) {
+                poseStack.mulPose(toJoml(restRotation));
+            }
+            return;
+        }
         Vec3f offset = transform.offset;
         if (offset.x != 0 || offset.y != 0 || offset.z != 0) {
             poseStack.translate(offset.x * scale * offsetScale, offset.y * scale * offsetScale, offset.z * scale * offsetScale);
@@ -200,7 +227,7 @@ public class DefinedModelPart {
     /** The rotation the part adds to its frame: its own, after its rest rotation. */
     private void getLocalRotation(DefinedEntityData<?> data, Quaternion dest) {
         ModelPartTransform transform = transformOf(data);
-        if (transform == null) {
+        if (transform == null || isAtRest()) {
             if (restRotation != null) dest.set(restRotation);
             else dest.setIdentity();
             return;

@@ -194,6 +194,31 @@ public final class DefinedModel {
     }
 
     /**
+     * Draws bone {@code name} alone (its segments with it), through its parents' transforms, in
+     * the model's space, with the bones in {@code atRest} at rest: the bone's own boxes, or with
+     * {@code overlay}, only the pieces of that overlay bone laid over it (a sleeve). The
+     * first-person hand, as 1.12 drew it.
+     *
+     * @return false if there is no such bone, and nothing was drawn
+     */
+    public boolean renderAlone(String name, @Nullable String overlay, Set<String> atRest, DefinedEntityData<?> data, PoseStack poseStack,
+                               VertexConsumer consumer, int packedLight, int packedOverlay) {
+        DefinedModelPart part = parts.get(name);
+        if (part == null) {
+            return false;
+        }
+        DefinedModelPart.atRest = atRest;
+        DefinedModelPart.drawn = overlay == null ? p -> p.overlayOf == null : p -> overlay.equals(p.overlayOf);
+        try {
+            part.renderAsRoot(poseStack, consumer, packedLight, packedOverlay, -1, data);
+        } finally {
+            DefinedModelPart.atRest = null;
+            DefinedModelPart.drawn = null;
+        }
+        return true;
+    }
+
+    /**
      * What vanilla's {@code AgeableListModel.renderToBuffer} does to a baby's parts, per root part
      * of the bent model: a root standing for one of the model's head parts is drawn as the head,
      * any other as the body (the bones under it with it). A zombie's head hangs from its body, so a

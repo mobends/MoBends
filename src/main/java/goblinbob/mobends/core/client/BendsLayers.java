@@ -145,7 +145,7 @@ public final class BendsLayers {
      * The bone that stands for the vanilla part a 1.12 model kept in {@code field}
      * ({@code bipedRightArm}), or {@code fallback} if no bone names it.
      */
-    private static String boneOf(EntityModelDefinition definition, String field, String fallback) {
+    public static String boneOf(EntityModelDefinition definition, String field, String fallback) {
         for (BoneDefinition bone : definition.bones) {
             if (bone.vanilla != null && field.equals(bone.vanilla.field)) {
                 return bone.name;

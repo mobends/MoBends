@@ -272,6 +272,7 @@ final class DefinedModelBuilder {
         List<DefinedModelPart> pieces = new ArrayList<>();
         for (DefinedModelPart segment : underSegments) {
             DefinedModelPart piece = new DefinedModelPart(pieces.isEmpty() ? bone.name : null, segment, vanilla);
+            piece.overlayOf = bone.name;
             segment.children.add(piece);
             pieces.add(piece);
         }
