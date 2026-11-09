@@ -10,5 +10,14 @@ the modern versions in `../src`.
 - Fixes to the 1.12.2 mod go to the `forge-1.12` branch, not here: this copy isn't kept up to date.
 - The animators, models, types, textures and translations (now `.json`) have already moved to
   `../src/main/resources/assets/mobends/`, since every version shares them.
-- `build.gradle`, `gradle.properties` and `run-arm64/` are the 1.12.2 build, kept for reference only; on
-  `forge-1.12` they build the mod.
+- What the modern code already does, or doesn't need on 1.21.1, is gone; `git log` on `forge-1.12` has
+  it. What's left is still to port:
+
+| File | Becomes |
+|---|---|
+| `core/util/ErrorReporter.java` | Animator and API errors told in chat, not only in the log |
+| `core/kumo/MinecraftKumoOperations.java` | `core:equipment_name` and `core:ledge_ahead` |
+| `core/definition/DefinedFields.java`, `core/vanilla/VanillaModelParts.java` | Model definitions that name other mods' models |
+| `standard/main/MoBends.java`, `src/main/resources/mcmod.info` | NeoForge's update check (`updateJSON`) and the credits |
+| `src/test/.../WildcardPatternTest.java`, `RemoteFlightTest.java` | Their tests, in the animation lab |
+| `src/tools/.../SignPack.java`, `GenPackSigningKey.java` | `core/src/tools` (the Legacy Mo' Bends pack is built on `main`) |
