@@ -37,7 +37,8 @@ public final class DefinedModel {
     private static final Map<EntityModel<?>, DefinedModel> WORN_CACHE = new WeakHashMap<>();
     /** A model that can't be built (it doesn't keep its root), so it is drawn as vanilla, said once. */
     private static final DefinedModel NONE = new DefinedModel(Collections.emptyList(), Collections.emptyMap(), Collections.emptyMap(),
-            Collections.emptyMap(), Collections.emptyMap(), null);
+            Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), null);
+    private static final float SCALE = 0.0625F;
 
     private final List<DefinedModelPart> roots;
     /** Every bone, segment and overlay by name (an overlay by its first piece). */
@@ -47,6 +48,8 @@ public final class DefinedModel {
     final Map<String, float[]> shifts;
     /** Per bone: its segments' origins in its frame, where a model worn over this one is cut. */
     final Map<String, List<float[]>> segmentOrigins;
+    /** Per split bone: the axis it's split along (0, 1, 2: x, y, z). */
+    private final Map<String, Integer> splitAxes;
     /** The parts this model is worn over; null for an entity's own. */
     @Nullable
     private final DefinedModel wornOver;
@@ -55,12 +58,14 @@ public final class DefinedModel {
     private BabyLayout babyLayout;
 
     DefinedModel(List<DefinedModelPart> roots, Map<String, DefinedModelPart> parts, Map<String, float[]> positions,
-                 Map<String, float[]> shifts, Map<String, List<float[]>> segmentOrigins, @Nullable DefinedModel wornOver) {
+                 Map<String, float[]> shifts, Map<String, List<float[]>> segmentOrigins, Map<String, Integer> splitAxes,
+                 @Nullable DefinedModel wornOver) {
         this.roots = roots;
         this.parts = parts;
         this.positions = positions;
         this.shifts = shifts;
         this.segmentOrigins = segmentOrigins;
+        this.splitAxes = splitAxes;
         this.wornOver = wornOver;
     }
 
@@ -133,6 +138,68 @@ public final class DefinedModel {
         }
         part.applyVanillaFrame(poseStack, data, nudgeX, nudgeY, nudgeZ);
         return true;
+    }
+
+    /** How many pieces bone {@code name} is drawn in: 1, or 1 and its further segments if it's split; 0 if there's no such bone. */
+    public int segmentCount(String name) {
+        DefinedModelPart part = parts.get(name);
+        return part == null ? 0 : 1 + part.segments.size();
+    }
+
+    /**
+     * Moves {@code poseStack}, at the model's space as the bent parts are drawn in it, into the frame
+     * of piece {@code segment} of bone {@code name} (0: the bone itself, then its further segments),
+     * placed so that a point given as vanilla's part has it at rest (from where vanilla's part turns)
+     * lands where that piece has it: what is worn on the part and cut where the bone is cut (armour
+     * that draws itself) goes on its piece this way. At rest, every piece's frame is vanilla's part's.
+     *
+     * @return false if there is no such bone or piece, and nothing was done
+     */
+    public boolean applyVanillaSegmentFrame(String name, int segment, DefinedEntityData<?> data, PoseStack poseStack) {
+        DefinedModelPart part = parts.get(name);
+        if (part == null || segment < 0 || segment > part.segments.size()) {
+            return false;
+        }
+        DefinedModelPart piece = segment == 0 ? part : part.segments.get(segment - 1);
+        piece.applyFrame(poseStack, data);
+        float[] shift = shifts.get(name);
+        List<float[]> origins = segmentOrigins.get(name);
+        float[] origin = segment > 0 && origins != null && origins.size() == part.segments.size() + 1 ? origins.get(segment) : null;
+        float x = (shift == null ? 0 : shift[0]) - (origin == null ? 0 : origin[0]);
+        float y = (shift == null ? 0 : shift[1]) - (origin == null ? 0 : origin[1]);
+        float z = (shift == null ? 0 : shift[2]) - (origin == null ? 0 : origin[2]);
+        if (x != 0 || y != 0 || z != 0) {
+            poseStack.translate(x * SCALE, y * SCALE, z * SCALE);
+        }
+        return true;
+    }
+
+    /** The axis bone {@code name} is split along (0, 1, 2: x, y, z), or -1 if it isn't split. */
+    public int splitAxis(String name) {
+        Integer axis = splitAxes.get(name);
+        return axis == null ? -1 : axis;
+    }
+
+    /**
+     * Where bone {@code name} is cut, along its {@link #splitAxis}, in model units from where
+     * vanilla's part turns: one per further segment, which starts there (a point at or past it, but
+     * before the next, is on that segment). Null if the bone isn't cut (not split, or its pieces
+     * weren't cut from a box).
+     */
+    @Nullable
+    public float[] segmentCuts(String name) {
+        DefinedModelPart part = parts.get(name);
+        List<float[]> origins = segmentOrigins.get(name);
+        int axis = splitAxis(name);
+        if (part == null || axis < 0 || part.segments.isEmpty() || origins == null || origins.size() != part.segments.size() + 1) {
+            return null;
+        }
+        float[] shift = shifts.get(name);
+        float[] cuts = new float[part.segments.size()];
+        for (int k = 0; k < cuts.length; k++) {
+            cuts[k] = origins.get(k + 1)[axis] - (shift == null ? 0 : shift[axis]);
+        }
+        return cuts;
     }
 
     /**

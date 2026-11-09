@@ -24,11 +24,15 @@
     ]
   },
   "mixins": [
-    "mobends.mixins.json"
+    "mobends.mixins.json",
+    "mobends.geckolib.mixins.json"
   ],
   "accessWidener": "mobends.ct",
   "depends": {
     "fabricloader": ">=${loader}",
     "minecraft": "${minecraft}"
+  },
+  "suggests": {
+    "geckolib": "${geckolib}"
   }
 }

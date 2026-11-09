@@ -87,6 +87,7 @@ downloads them (`gradle/gradle-daemon-jvm.properties`, and the toolchains of the
 | `./gradlew build` | Builds every node, and tests `core/`. Jars in `versions/<node>/build/libs/`. |
 | `./gradlew buildAndCollect` | The same, then copies every jar into `build/libs/<version>/`. |
 | `./gradlew :1.21.1-fabric:runClient` | Runs a node's client (`runServer` for its server). Every node shares the `run/` directory. |
+| `./gradlew :1.21.1-fabric:runClient -Pgeckolib` | The same, with GeckoLib (optional for Mo' Bends) installed. |
 | `./gradlew :core:test` | Tests the core. |
 | `cd animation-lab && ./gradlew test` | Runs the animation lab (see its README). |
 

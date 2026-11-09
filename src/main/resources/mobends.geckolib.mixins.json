@@ -1,0 +1,10 @@
+{
+  "required": false,
+  "package": "goblinbob.mobends.mixin.geckolib",
+  "plugin": "goblinbob.mobends.standard.compat.geckolib.GeckoLibMixins",
+  "compatibilityLevel": "${java}",
+  "client": [],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

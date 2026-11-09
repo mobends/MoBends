@@ -22,6 +22,10 @@ sourceSets.main {
 repositories {
     // Mod Menu, whose Config button opens the Mo' Bends menu if it's installed.
     maven("https://maven.terraformersmc.com/releases/") { name = "TerraformersMC" }
+    maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/") {
+        name = "GeckoLib"
+        content { includeGroup("software.bernie.geckolib") }
+    }
 }
 
 dependencies {
@@ -44,6 +48,14 @@ dependencies {
 
     // Mod Menu's API, for its Config button (MoBendsModMenu). Optional: the jar doesn't need it.
     modCompileOnly("com.terraformersmc:modmenu:${sc.properties["deps.modmenu"]}") { isTransitive = false }
+    // GeckoLib, whose armour Mo' Bends bends when it's installed (mixin.geckolib); not needed. Run the
+    // client with -Pgeckolib to have it (and the Fabric API it needs) in the game.
+    val geckoLib = "software.bernie.geckolib:geckolib-fabric-${sc.current.version}:${sc.properties["deps.geckolib"]}"
+    modCompileOnly(geckoLib) { isTransitive = false }
+    if (providers.gradleProperty("geckolib").isPresent) {
+        modLocalRuntime(geckoLib) { isTransitive = false }
+        modLocalRuntime("net.fabricmc.fabric-api:fabric-api:${sc.properties["deps.fabric_api"]}")
+    }
 
     // The core's @Nullable. NeoForge has it on the classpath, Fabric doesn't; not needed at runtime.
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
@@ -96,6 +108,7 @@ tasks {
             register("version", sc.properties["mod.version"])
             register("minecraft", sc.properties["mod.mc_compat"])
             register("loader", Regex("\\d+\\.\\d+").find(sc.properties["deps.fabric_loader"])!!.value)
+            register("geckolib", sc.properties["mod.geckolib_compat"])
         }
 
         filesMatching("fabric.mod.json") { expand(props) }

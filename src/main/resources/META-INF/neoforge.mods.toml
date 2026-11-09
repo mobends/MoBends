@@ -16,9 +16,21 @@ displayURL = "https://mobends.com"
 [[mixins]]
 config = "mobends.mixins.json"
 
+# Mixins into GeckoLib, applied only if it's installed.
+[[mixins]]
+config = "mobends.geckolib.mixins.json"
+
 [[dependencies.${id}]]
 modId = "minecraft"
 type = "required"
 versionRange = "${minecraft}"
 ordering = "NONE"
 side = "BOTH"
+
+# Mo' Bends bends GeckoLib's armour, if it's installed.
+[[dependencies.${id}]]
+modId = "geckolib"
+type = "optional"
+versionRange = "${geckolib}"
+ordering = "NONE"
+side = "CLIENT"
