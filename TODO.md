@@ -153,7 +153,8 @@ forge-1.12               1.12.2
        `@variants` entry for later versions.
      - [ ] The config, the Mo' Bends menu, server rules (networking, `AnimationPolicy`), pack
        trust, supporters and the mobends.com API.
-   - [ ] Convert the `.lang` translations to `.json`.
+   - [x] Convert the `.lang` translations to `.json` (`%d` became `%s`, which is all a translated
+     component takes).
    - [ ] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge).
 3. [x] **Publish `core`.** Release the first `core` version and switch `forge-1.12` to depend on it,
    deleting its in-tree copy. (`core-2.0.0-alpha.2` on GitHub Packages; `forge-1.12` uses it since #379.)
