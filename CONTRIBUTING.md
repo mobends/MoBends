@@ -114,15 +114,48 @@ forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 
 | What | Version line | Tag | Released from |
 |---|---|---|---|
-| The mod for the modern versions | 2.X | `v2.x.y` (not set up yet) | `main` |
+| The mod for the modern versions | 2.X | `v2.x.y` | `main` |
 | The mod for 1.12.2 | 2.X | `v2.x.y-1.12.2` | `forge-1.12` |
 | The engine library | follows the mod | `core-2.x.y` | `main` |
 
 - The mod's version is `mod.version` in `stonecutter.properties.toml`. Jars are named
   `mobends-<version>+<minecraft>-<loader>.jar`, e.g. `mobends-2.0.0+1.21.1-neoforge.jar`.
-- A modern release will ship every node at once; its workflow comes with the first release (see
-  [TODO.md](TODO.md)).
+- A modern release ships every node at once (see *Releasing the mod* below).
 - `core` gets a new release when its API changes, or when another branch needs a change from it.
+
+### Releasing the mod
+
+Set `mod.version` in `stonecutter.properties.toml` (e.g. `2.0.0`, or `2.0.0-alpha.2` for a
+prerelease), give `CHANGELOG.md` a `## <version>` section, merge that into `main`, and push the tag
+`v<version>` on `main` (e.g. `git tag v2.0.0 && git push origin v2.0.0`). That runs
+`.github/workflows/release.yml`, which:
+
+1. checks the tag matches `mod.version` and is on `main`, and stops otherwise;
+2. builds every node (`./gradlew buildAndCollect`);
+3. attaches every jar, `mobends-<version>+<minecraft>-<loader>.jar`, to the tag's GitHub release,
+   creating it (from the changelog section) if there isn't one. A version with a `-` suffix is a
+   prerelease;
+4. uploads each jar to Modrinth and CurseForge as its own version, `<version>+<minecraft>-<loader>`,
+   for its loader and the Minecraft releases in its `mod.mc_releases`, with the changelog section as
+   its changelog. A version with `alpha` in it is released as an alpha, with any other `-` suffix as
+   a beta, otherwise as a release. **This step is switched off for now** (see [TODO.md](TODO.md));
+   until it's on, upload the jars by hand from the GitHub release.
+
+A new node needs no change to the workflow: give its Minecraft version a `mod.mc_releases` in
+`stonecutter.properties.toml`.
+
+The uploads use the same repository variables and secrets as the 1.12.2 release (see CONTRIBUTING.md
+on `forge-1.12`), under *Settings → Secrets and variables → Actions*:
+
+| Name | Kind | What |
+|---|---|---|
+| `MODRINTH_TOKEN` | secret | A Modrinth personal access token with *Create versions*, *Read projects* and *Read versions*. |
+| `CURSEFORGE_TOKEN` | secret | A CurseForge API token (authors.curseforge.com, *API tokens*). |
+| `MODRINTH_PROJECT_ID` | variable | The mod's Modrinth project id (or slug). |
+| `CURSEFORGE_PROJECT_ID` | variable | The mod's CurseForge project id (a number). |
+
+A version can't be uploaded to Modrinth or CurseForge twice. If a release fails partway, re-run the
+failed jobs rather than pushing the tag again.
 
 ### Releasing `core`
 
