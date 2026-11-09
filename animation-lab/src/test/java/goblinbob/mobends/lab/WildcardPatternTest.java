@@ -1,14 +1,16 @@
-package goblinbob.mobends.test.core.util;
-
-import static org.junit.Assert.*;
-import org.junit.Test;
+package goblinbob.mobends.lab;
 
 import goblinbob.mobends.core.util.WildcardPattern;
+import org.junit.jupiter.api.Test;
 
-public class WildcardPatternTest
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/** The item patterns of the config ({@code mobends.json}'s classifications): {@code *} matches anything. */
+class WildcardPatternTest
 {
     @Test
-    public void exactPatternMatch()
+    void exactPatternMatch()
     {
         WildcardPattern pattern = new WildcardPattern("stringToMatch");
         assertTrue(pattern.matches("stringToMatch"));
@@ -21,7 +23,7 @@ public class WildcardPatternTest
     }
 
     @Test
-    public void prefixPatternMatch()
+    void prefixPatternMatch()
     {
         WildcardPattern pattern = new WildcardPattern("m_*");
         assertTrue(pattern.matches("m_"));
@@ -39,7 +41,7 @@ public class WildcardPatternTest
     }
 
     @Test
-    public void suffixPatternMatch()
+    void suffixPatternMatch()
     {
         WildcardPattern pattern = new WildcardPattern("*.txt");
         assertTrue(pattern.matches("file.txt"));
@@ -55,7 +57,7 @@ public class WildcardPatternTest
     }
 
     @Test
-    public void containsPatternMatch()
+    void containsPatternMatch()
     {
         WildcardPattern pattern = new WildcardPattern("*inner*");
         assertTrue(pattern.matches("inner"));
