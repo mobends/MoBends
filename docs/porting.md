@@ -17,6 +17,7 @@ Ported so far, in this order:
 | #383 | The other mobs: zombie (husk, drowned), skeleton, zombie villager, creeper, iron golem, villager, witch, spider, squid, wolf, the dev pack's animals; type files, extensions, `field` expressions; the `core:minecraft_version` condition and `@variants` in model definitions. |
 | #386 | The sword trail and the cape wave. |
 | #388 | The first-person hand stays vanilla's; `renderer.firstPersonRest` is gone. |
+| #GECKO | GeckoLib armour bends with the body (when GeckoLib is installed). |
 
 I've checked the player, its layers, the zombie, skeleton, zombie villager and the wolf (adult and
 pup, side by side with vanilla) in the game on Fabric. The creeper, golem, villager, witch, spider and
@@ -27,7 +28,8 @@ squid are still to be checked. On NeoForge I've only checked the player (#381).
 In this order:
 
 1. The 1.20.1 and latest targets.
-2. **GeckoLib armour** (TODO.md).
+2. Check GeckoLib armour in the game, with a mod that has some, on both loaders (#398 only
+   checked it without the game).
 
 Left for a later alpha: poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow,
 trident: they now just keep the current pose).
@@ -53,6 +55,10 @@ trident: they now just keep the current pose).
   marks (`BendsRenderer.markBentDraw`). Layers get a bone's frame from `DefinedModel.applyVanillaFrame`
   after `DefinedRenderer.transformModel`; the bones come from the definition's `layers` block
   (`DefinedLayers`).
+- **Other mods are optional.** GeckoLib is a compile-only dependency; its mixins
+  (`mixin.geckolib`) are in their own config, `mobends.geckolib.mixins.json`, which lists them only
+  when GeckoLib is installed and isn't required. Nothing outside that package touches GeckoLib's
+  classes. `-Pgeckolib` puts it (and, on Fabric, the Fabric API it needs) in `runClient`.
 - **Fabric bundles two Fabric API modules** (resource loader and networking, jar-in-jar), because
   Fabric Loader alone doesn't load mods' assets or send their payloads. Use nothing else from Fabric API.
 

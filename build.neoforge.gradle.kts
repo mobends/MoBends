@@ -14,6 +14,23 @@ val requiredJava: JavaVersion = when {
     else -> JavaVersion.VERSION_17
 }
 
+repositories {
+    maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/") {
+        name = "GeckoLib"
+        content { includeGroup("software.bernie.geckolib") }
+    }
+}
+
+dependencies {
+    // GeckoLib, whose armour Mo' Bends bends when it's installed (mixin.geckolib); not needed. Run the
+    // client with -Pgeckolib to have it in the game.
+    val geckoLib = "software.bernie.geckolib:geckolib-neoforge-${sc.current.version}:${sc.properties["deps.geckolib"]}"
+    compileOnly(geckoLib) { isTransitive = false }
+    if (providers.gradleProperty("geckolib").isPresent) {
+        runtimeOnly(geckoLib) { isTransitive = false }
+    }
+}
+
 // The Minecraft-free engine is compiled into the mod (see settings.gradle.kts).
 sourceSets.main {
     java.srcDir(rootProject.file("core/src/main/java"))
@@ -69,6 +86,7 @@ tasks {
             register("name", sc.properties["mod.name"])
             register("version", sc.properties["mod.version"])
             register("minecraft", sc.properties["mod.mc_compat"])
+            register("geckolib", sc.properties["mod.geckolib_compat"])
         }
 
         filesMatching("META-INF/neoforge.mods.toml") { expand(props) }

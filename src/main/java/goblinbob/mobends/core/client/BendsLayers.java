@@ -427,7 +427,7 @@ public final class BendsLayers {
      *     frame of the bone it's worn on, the limbs cut at the elbows and knees, and what hangs off a
      *     limb (another mod's gauntlet, knee pad) on the half it hangs from (1.12's
      *     {@code ArmorWrapper}). A model that draws itself its own way (GeckoLib's) isn't reached
-     *     here, and draws as it does;</li>
+     *     here; see {@link #armourFrame};</li>
      * <li>a copy of the entity's model the layer draws (a drowned's outer layer, a charged creeper's
      *     armour, the wolf's armour), if the definition asks for, or implies, a copying kind: cut
      *     and posed as the entity's parts are, the boxes the definition declares grown as the
@@ -458,6 +458,49 @@ public final class BendsLayers {
         drawn.render(frame.data, poseStack, consumer, packedLight, packedOverlay, color, frame.baby());
         poseStack.popPose();
         return true;
+    }
+
+    // --- armour that draws itself its own way (GeckoLib's) -----------------------------------------
+
+    /**
+     * The frame of the armour layer drawing {@code entity} bent, if the definition asks for
+     * {@code mobends:armor}, for armour that draws itself its own way rather than through a model's
+     * parts (GeckoLib's, {@code GeoArmorRendererMixin}); else null, and it draws as it does.
+     */
+    @Nullable
+    public static Frame armourFrame(Entity entity) {
+        Frame frame = frameFor(entity, DefinedLayers.ARMOR);
+        return frame != null && frame.layer instanceof HumanoidArmorLayer<?, ?, ?> ? frame : null;
+    }
+
+    /**
+     * Where armour worn on the vanilla part a 1.12 model kept in {@code field} ({@code bipedRightArm})
+     * goes on the bent entity of {@code frame} (see {@link #armourFrame}): the frame of the bone that
+     * stands for that part ({@code fallback} if none names it), and its further segments, where it's
+     * cut. Null if there's no such bone, to draw that armour as it does.
+     */
+    @Nullable
+    public static WornPiece wornPiece(Frame frame, String field, String fallback) {
+        String bone = boneOf(frame.data.getDefinition(), field, fallback);
+        int count = frame.parts.segmentCount(bone);
+        if (count == 0) {
+            return null;
+        }
+        Matrix4f[] frames = new Matrix4f[count];
+        for (int k = 0; k < count; k++) {
+            PoseStack poseStack = new PoseStack();
+            poseStack.last().pose().set(frame.modelPose);
+            toBentModel(frame, poseStack, bone);
+            frame.parts.applyVanillaSegmentFrame(bone, k, frame.data, poseStack);
+            frames[k] = new Matrix4f(poseStack.last().pose());
+        }
+        float[] cuts = frame.parts.segmentCuts(bone);
+        if (cuts != null) {
+            for (int k = 0; k < cuts.length; k++) {
+                cuts[k] /= 16.0F;
+            }
+        }
+        return new WornPiece(frames, cuts, frame.parts.splitAxis(bone));
     }
 
     private static boolean isArmour(Frame frame, EntityModel<?> model) {

@@ -11,6 +11,10 @@ loomx.loom_version = "1.19-SNAPSHOT"
 # The Minecraft releases the jar is marked compatible with on Modrinth and CurseForge.
 mod.mc_releases = ["1.21", "1.21.1"]
 
+# GeckoLib, whose armour Mo' Bends bends when it's installed (mixin.geckolib); not needed. Built
+# against this release, and suggested in this range (fabric.mod.json / neoforge.mods.toml).
+deps.geckolib = "4.9.3"
+
 [fabric."1.21.1"]
 # The Minecraft range in fabric.mod.json / neoforge.mods.toml.
 mod.mc_compat = ">=1.21 <=1.21.1"
@@ -18,7 +22,9 @@ mod.mc_compat = ">=1.21 <=1.21.1"
 deps.fabric_api = "0.116.17+1.21.1"
 # Mod Menu's API (compile only: the Config button opens the Mo' Bends menu if Mod Menu is installed).
 deps.modmenu = "11.0.3"
+mod.geckolib_compat = ">=4.6"
 
 [neoforge."1.21.1"]
 mod.mc_compat = "[1.21, 1.21.1]"
+mod.geckolib_compat = "[4.6,)"
 deps.neo_loader = "21.1.265"

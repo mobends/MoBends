@@ -52,6 +52,8 @@ final class DefinedModelBuilder {
     private final Map<String, List<float[]>> originsOf = new HashMap<>();
     /** Per bone, in model units: how far its boxes move into its frame (from where the vanilla part turned). */
     private final Map<String, float[]> shifts = new HashMap<>();
+    /** Per split bone: the axis it's split along. */
+    private final Map<String, Integer> splitAxes = new HashMap<>();
     private final List<DefinedModelPart> roots = new ArrayList<>();
 
     private DefinedModelBuilder(EntityModelDefinition definition, ModelPart root, @Nullable DefinedModel over) {
@@ -79,7 +81,7 @@ final class DefinedModelBuilder {
     private DefinedModel build() {
         resolve();
         createParts();
-        return new DefinedModel(roots, parts, positions, shifts, originsOf, over);
+        return new DefinedModel(roots, parts, positions, shifts, originsOf, splitAxes, over);
     }
 
     // --- resolving the vanilla parts ---------------------------------------------------------------
@@ -184,6 +186,7 @@ final class DefinedModelBuilder {
             List<DefinedModelPart> segments = new ArrayList<>();
             segments.add(part);
             if (bone.split != null) {
+                splitAxes.put(bone.name, bone.split.axisIndex());
                 DefinedModelPart previous = part;
                 for (String name : bone.split.names) {
                     // A segment shows with its bone.
