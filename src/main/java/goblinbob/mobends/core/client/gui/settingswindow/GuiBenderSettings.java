@@ -3,6 +3,7 @@ package goblinbob.mobends.core.client.gui.settingswindow;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
+import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.gui.elements.GuiCustomButton;
 import goblinbob.mobends.core.client.gui.elements.GuiSmallToggleButton;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
@@ -17,8 +18,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * A row of the Settings window: the mob animated in its frame, its name and where it comes from,
@@ -197,7 +198,8 @@ public class GuiBenderSettings implements IGuiListElement {
 
         // Within the list's clip.
         graphics.enableScissor(left, top, left + THUMBNAIL_SIZE, top + THUMBNAIL_SIZE);
-        preview.draw(graphics, left + THUMBNAIL_SIZE / 2F, top + THUMBNAIL_SIZE / 2F, MOB_SIZE, partialTicks);
+        // The animation's partial tick: what a screen is handed is the frame's real time in ticks.
+        preview.draw(graphics, left + THUMBNAIL_SIZE / 2F, top + THUMBNAIL_SIZE / 2F, MOB_SIZE, DataUpdateHandler.partialTicks);
         if (!animated) {
             // Over the mob, which is drawn in front of the frame.
             graphics.pose().pushPose();

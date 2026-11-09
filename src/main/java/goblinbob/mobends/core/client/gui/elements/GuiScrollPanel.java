@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.client.gui.elements;
 
 import goblinbob.mobends.core.util.Draw;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
@@ -92,6 +93,9 @@ public abstract class GuiScrollPanel {
     }
 
     public void draw(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        // The scroll moves tick by tick: eased by the partial tick, not by what a screen is handed
+        // (the frame's real time, in ticks).
+        partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
         int scroll = Math.round(getScrollAmount(partialTicks));
 
         this.drawBackground(graphics, partialTicks);
