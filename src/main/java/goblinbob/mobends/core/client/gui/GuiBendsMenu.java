@@ -11,6 +11,7 @@ import goblinbob.mobends.core.connection.MoBendsAccount;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,8 +20,8 @@ import javax.annotation.Nullable;
 
 /**
  * The Mo' Bends menu: the title, with the Mo' Bends account's buttons under it, and the sections
- * (Settings, Customize, Supporters) beside it; Refresh in the corner. Opened by its key (see
- * {@code KeyboardHandler}) or from the mod list (the mod's config screen).
+ * (Settings, Customize, Supporters) beside it; Refresh in the corner. Opened in a world, by its key
+ * (see {@code KeyboardHandler}) or from the mod list (the mod's config screen, {@link #fromModList}).
  */
 public class GuiBendsMenu extends Screen {
     private static final ResourceLocation MENU_TITLE_TEXTURE = ResourceLocation.fromNamespaceAndPath(MoBends.MOD_ID, "textures/gui/title.png");
@@ -49,6 +50,21 @@ public class GuiBendsMenu extends Screen {
 
     public GuiBendsMenu() {
         this(null);
+    }
+
+    /**
+     * What the mod list's Config button opens: the Mo' Bends menu, leaving back to {@code modList},
+     * or, with no world loaded (the title screen), a notice to open it in one. Its previews and the
+     * types of entity types need a level to make entities in, and a level of its own would need a
+     * connection and tell other mods a level loaded.
+     */
+    public static Screen fromModList(Screen modList) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) {
+            return new AlertScreen(() -> mc.setScreen(modList), Component.literal("Mo' Bends"),
+                    Component.translatable("mobends.gui.needs_world", Component.keybind("key.mobends.menu")));
+        }
+        return new GuiBendsMenu(modList);
     }
 
     public GuiBendsMenu(@Nullable Screen exit) {

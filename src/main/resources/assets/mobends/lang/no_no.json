@@ -4,6 +4,7 @@
   "mobends.gui.section.supporters": "støttespillere",
   "mobends.gui.settings": "Innstillinger",
   "mobends.gui.back": "Tilbake",
+  "mobends.gui.needs_world": "Mo' Bends-menyen åpnes i en verden: gå inn i en og trykk %s.",
   "mobends.gui.search": "Søk...",
   "mobends.gui.editornotfound": "Fant ikke animasjonsredigereren",
   "mobends.gui.geteditor": "Hent redigereren",

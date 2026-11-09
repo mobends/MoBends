@@ -35,8 +35,7 @@ import java.util.function.Consumer;
  * orthographically from three quarters above and fit to the frame by its hitbox, through the
  * entity's own renderer, so it's drawn bent as in the game. It idles, or walks in place while
  * {@link #tick(boolean) asked to}, and carries an arm swing through when made to {@link #swing()}.
- * A mob that can't be made or drawn (there's no level: the menu was opened from the title screen)
- * shows its spawn egg instead.
+ * A mob that can't be made or drawn shows its spawn egg instead.
  */
 public class EntityPreview {
     /** How far the mob is turned from facing the viewer, and how far the view looks down at it. */

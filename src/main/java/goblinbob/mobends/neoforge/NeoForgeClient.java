@@ -11,8 +11,8 @@ final class NeoForgeClient {
     }
 
     static void registerConfigScreen(ModContainer modContainer) {
-        // Leaving the menu goes back to the mod list.
-        modContainer.registerExtensionPoint(IConfigScreenFactory.class, (container, parent) -> new GuiBendsMenu(parent));
+        // Leaving the menu goes back to the mod list; on the title screen, it says to open it in a world.
+        modContainer.registerExtensionPoint(IConfigScreenFactory.class, (container, parent) -> GuiBendsMenu.fromModList(parent));
     }
 }
 *///?}
