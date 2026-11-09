@@ -11,17 +11,12 @@ import goblinbob.mobends.core.data.OrientationComponent;
 import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
-import goblinbob.mobends.core.vanilla.ArmorLayerModels;
 import goblinbob.mobends.core.vanilla.PlayerModelParts;
 import goblinbob.mobends.core.vanilla.VanillaNames;
-import net.minecraft.client.model.DrownedModel;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.SkeletonModel;
-import net.minecraft.client.model.ZombieModel;
-import net.minecraft.client.model.ZombieVillagerModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -32,7 +27,6 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 
 import javax.annotation.Nullable;
-import java.util.Set;
 
 /**
  * Where vanilla's render layers of a bent entity meet Mo' Bends: what they draw (held items, armour,
@@ -53,14 +47,6 @@ import java.util.Set;
  * entity drawn as vanilla) there is none, and every method here leaves vanilla alone.
  */
 public final class BendsLayers {
-    /**
-     * The armour models of vanilla's own classes, which the armour layers of the mobs Mo' Bends bends
-     * are made with: a subclass (another mod's armour model) may add parts or draw its own way,
-     * which the bent parts wouldn't, so it draws as vanilla does.
-     */
-    private static final Set<Class<?>> VANILLA_ARMOUR_MODELS = Set.of(HumanoidModel.class, HumanoidArmorModel.class, ZombieModel.class,
-            DrownedModel.class, SkeletonModel.class, ZombieVillagerModel.class);
-
     /** The layer being drawn for a bent entity; render thread only. */
     @Nullable
     private static Frame current;
@@ -409,10 +395,12 @@ public final class BendsLayers {
      * <ul>
      * <li>the entity's own model, drawn again (a zombie villager's type and profession): always, as
      *     drawing it unbent would show the entity twice, in two poses;</li>
-     * <li>the layer's own vanilla armour models, if the definition asks for {@code mobends:armor}:
-     *     each piece in the frame of the bone it's worn on, the limbs cut at the elbows and knees
-     *     (1.12's {@code ArmorWrapper}); only vanilla's own model classes, as a model another mod
-     *     hands the layer (custom armour) may not fit the bent parts;</li>
+     * <li>the armour an armour layer draws, if the definition asks for {@code mobends:armor}: vanilla's
+     *     armour models and another mod's (any humanoid model the layer draws), each piece in the
+     *     frame of the bone it's worn on, the limbs cut at the elbows and knees, and what hangs off a
+     *     limb (another mod's gauntlet, knee pad) on the half it hangs from (1.12's
+     *     {@code ArmorWrapper}). A model that draws itself its own way (GeckoLib's) isn't reached
+     *     here, and draws as it does;</li>
      * <li>a copy of the entity's model the layer draws (a drowned's outer layer, a charged creeper's
      *     armour, the wolf's armour), if the definition asks for, or implies, a copying kind: cut
      *     and posed as the entity's parts are, the boxes the definition declares grown as the
@@ -429,7 +417,7 @@ public final class BendsLayers {
         DefinedModel drawn;
         if (model == frame.model) {
             drawn = frame.parts;
-        } else if (frame.names(DefinedLayers.ARMOR) && isVanillaArmour(frame, model)
+        } else if (frame.names(DefinedLayers.ARMOR) && isArmour(frame, model)
                 || frame.named != null && frame.named.kind().role() == DefinedLayers.Role.COPY && isCopy(frame, model)) {
             drawn = DefinedModel.over(frame.data.getDefinition(), model, frame.parts);
         } else {
@@ -445,10 +433,8 @@ public final class BendsLayers {
         return true;
     }
 
-    private static boolean isVanillaArmour(Frame frame, EntityModel<?> model) {
-        return frame.layer instanceof ArmorLayerModels layer
-                && (model == layer.mobends$innerModel() || model == layer.mobends$outerModel())
-                && VANILLA_ARMOUR_MODELS.contains(model.getClass());
+    private static boolean isArmour(Frame frame, EntityModel<?> model) {
+        return frame.layer instanceof HumanoidArmorLayer<?, ?, ?> && model instanceof HumanoidModel<?>;
     }
 
     /**

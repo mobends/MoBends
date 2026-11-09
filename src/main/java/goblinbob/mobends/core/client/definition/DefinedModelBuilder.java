@@ -234,9 +234,30 @@ final class DefinedModelBuilder {
                 // boxes stand for the children too: the wolf's head and tail draw theirs from a child
                 // now (real_head, real_tail), which 1.12's model drew as the part's own.
                 if (bone.boxes == null) {
+                    // A split bone's children ride the segment they hang from (a gauntlet the
+                    // forearm), as 1.12's armour had them: by where they turn, against the cuts.
+                    List<float[]> cuts = over != null ? over.segmentOrigins.get(bone.name) : origins;
+                    boolean byCuts = bone.split != null && cuts != null && cuts.size() == segments.size();
+                    int axis = bone.split == null ? 0 : bone.split.axisIndex();
                     for (ModelPart child : childrenOf(vanilla)) {
-                        if (!vanillaParts.containsValue(child)) {
-                            part.vanillaChildren.add(child);
+                        if (vanillaParts.containsValue(child)) {
+                            continue;
+                        }
+                        int k = 0;
+                        if (byCuts) {
+                            PartPose at = child.getInitialPose();
+                            float along = (axis == 0 ? at.x : axis == 1 ? at.y : at.z) + shift[axis];
+                            for (int i = 1; i < cuts.size(); i++) {
+                                if (along >= cuts.get(i)[axis]) {
+                                    k = i;
+                                }
+                            }
+                        }
+                        DefinedModelPart segment = segments.get(k);
+                        segment.vanillaChildren.add(child);
+                        if (k > 0) {
+                            float[] origin = cuts.get(k);
+                            segment.vanillaChildrenShift.set(shift[0] - origin[0], shift[1] - origin[1], shift[2] - origin[2]);
                         }
                     }
                 }
