@@ -5,6 +5,10 @@ import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
+import goblinbob.mobends.core.client.gui.supporterswindow.GuiSupportersWindow;
+import goblinbob.mobends.core.connection.ConnectionManager;
+import goblinbob.mobends.core.connection.MoBendsAccount;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -58,9 +62,12 @@ public class GuiBendsMenu extends Screen {
         this.supportersButton = new GuiSectionButton(Component.translatable("mobends.gui.section.supporters"), 0xFFD8306A)
                 .setIcon(100, 43, 18, 16);
 
-        // TODO(supporters/API PR, feature/supporters-api): the account may have been unlinked or
-        //  renamed on the dashboard: MoBendsAccount.verify(...) here, calling rebuildWidgets() if
-        //  this menu is still open once it's done, as 1.12 did.
+        // The account may have been unlinked or renamed on the dashboard.
+        MoBendsAccount.verify(() -> {
+            if (Minecraft.getInstance().screen == this) {
+                this.rebuildWidgets();
+            }
+        });
     }
 
     @Override
@@ -72,12 +79,14 @@ public class GuiBendsMenu extends Screen {
         }
         addAccountButtons(layout);
 
-        // Refresh reloads the animation (see CoreClient#reloadAnimation()).
+        // Refresh reloads the animation (see CoreClient#reloadAnimation()) and refreshes what comes
+        // from the Mo' Bends API (see ConnectionManager#refresh()).
         Component refresh = Component.translatable("mobends.gui.refresh");
         int refreshWidth = this.font.width(refresh) + 20;
         this.addRenderableWidget(Button.builder(refresh, button -> {
             CoreClient.reloadAnimation();
-            // TODO(supporters/API PR): 1.12 also read the account again from disk here.
+            ConnectionManager.refresh();
+            // The account is read again.
             this.rebuildWidgets();
         }).bounds(10, this.height - 30, refreshWidth, BUTTON_HEIGHT).build());
     }
@@ -85,24 +94,36 @@ public class GuiBendsMenu extends Screen {
     /**
      * Under the title: Link account, half as wide and centered, or once linked, across its width,
      * the Mo' Bends account's name (opening the dashboard) and Log out.
-     * <p>
-     * TODO(supporters/API PR, feature/supporters-api): the account isn't ported yet, so this is
-     * always Link account, and it does nothing. Once {@code MoBendsAccount} is: with no session
-     * ({@code MoBendsAccount.getCurrent() == null}), Link account opens
-     * {@code new GuiLinkAccount(this)}; with one, show the account's name
-     * ({@code session.getDisplayName()}, trimmed to fit with "...") opening
-     * {@code WebLink.ACCOUNT.open()}, and Log out ({@code mobends.gui.link.log_out}, as wide as its
-     * text plus 20) calling {@code MoBendsAccount.logOut()} then {@code rebuildWidgets()}; see 1.12's
-     * GuiBendsMenu#addAccountButtons.
      */
     private void addAccountButtons(Layout layout) {
-        int linkWidth = layout.titleWidth / 2;
-        Button link = Button.builder(Component.translatable("mobends.gui.link.button"), button -> {
-            // TODO(supporters/API PR): this.minecraft.setScreen(new GuiLinkAccount(this));
-        }).bounds(layout.titleX + (layout.titleWidth - linkWidth) / 2, layout.buttonsY, linkWidth, BUTTON_HEIGHT).build();
-        // Until account linking is ported, there's nothing to link to.
-        link.active = false;
-        this.addRenderableWidget(link);
+        int x = layout.titleX;
+        int y = layout.buttonsY;
+        int width = layout.titleWidth;
+
+        MoBendsAccount.Session session = MoBendsAccount.getCurrent();
+        if (session == null) {
+            int linkWidth = width / 2;
+            this.addRenderableWidget(Button.builder(Component.translatable("mobends.gui.link.button"),
+                    button -> this.minecraft.setScreen(new GuiLinkAccount(this)))
+                    .bounds(x + (width - linkWidth) / 2, y, linkWidth, BUTTON_HEIGHT).build());
+            return;
+        }
+
+        Component logOut = Component.translatable("mobends.gui.link.log_out");
+        int logOutWidth = this.font.width(logOut) + 20;
+        int nameWidth = width - BUTTON_GAP - logOutWidth;
+        this.addRenderableWidget(Button.builder(logOut, button -> {
+            MoBendsAccount.logOut();
+            this.rebuildWidgets();
+        }).bounds(x + nameWidth + BUTTON_GAP, y, logOutWidth, BUTTON_HEIGHT).build());
+
+        String name = session.displayName();
+        int maxNameWidth = nameWidth - 8;
+        if (this.font.width(name) > maxNameWidth) {
+            name = this.font.plainSubstrByWidth(name, maxNameWidth - this.font.width("...")) + "...";
+        }
+        this.addRenderableWidget(Button.builder(Component.literal(name), button -> WebLink.ACCOUNT.open())
+                .bounds(x, y, nameWidth, BUTTON_HEIGHT).build());
     }
 
     @Override
@@ -112,12 +133,12 @@ public class GuiBendsMenu extends Screen {
             return true;
         }
         if (customizeButton.mouseClicked(mouseX, mouseY, button)) {
-            // TODO(supporters/API PR, feature/supporters-api): WebLink.EDITOR.open(), which opens
-            //  the link the static API names: meant to become the web animation editor (TODO.md).
+            // Opens the link the static API names: meant to become the web animation editor (see TODO.md).
+            WebLink.EDITOR.open();
             return true;
         }
         if (supportersButton.mouseClicked(mouseX, mouseY, button)) {
-            // TODO(supporters/API PR, feature/supporters-api): this.minecraft.setScreen(new GuiSupportersWindow(exit));
+            this.minecraft.setScreen(new GuiSupportersWindow(exit));
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
