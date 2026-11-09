@@ -36,9 +36,13 @@ trident: they now just keep the current pose).
 
 ## How the port is done
 
-- **The 1.12.2 code is the reference**, in `legacy-1.12/` (not built). Classes keep their 1.12
-  package and name in `src/` when they keep their role, so the two are easy to compare. Don't edit
-  or move `legacy-1.12/`: the animation lab compiles from it, so each slice **copies** what it ports.
+- **The 1.12.2 code is the reference**, in `legacy-1.12/` (not built; nothing compiles from it).
+  Classes keep their 1.12 package and name in `src/` when they keep their role, so the two are easy
+  to compare. A slice can `git mv` what it ports (see `legacy-1.12/README.md`).
+- **The animation lab compiles the animation code from `src/`** (and `core/`), against stand-ins for
+  the 1.21.1 classes it touches (`animation-lab/src/mcstub`). A slice that has that code use another
+  Minecraft class or member adds it to the stand-ins; one that changes how an entity animates on
+  purpose re-records the goldens it changes and says why in `docs/testing.md`.
 - **The asset format doesn't change.** Assets (`src/main/resources/assets/mobends/bends/`) are
   shared with `forge-1.12`. Definitions keep their 1.12 class and field names
   (`net.minecraft.client.model.ModelPlayer`, `bipedRightArm`); `core/vanilla/VanillaNames` translates
@@ -65,8 +69,8 @@ trident: they now just keep the current pose).
 ## Checking work
 
 - `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`, then `.github/scripts/check-sources.sh` and
-  `./gradlew build` (both nodes, core's tests). If core or the animators change:
-  `cd animation-lab && ./gradlew test`.
+  `./gradlew build` (both nodes, core's tests). If core, the animators or the animation code in
+  `src/` change: `cd animation-lab && ./gradlew test`.
 - **Geometry and transforms can be checked without the game**: so far each slice had a standalone
   program, run against the built classes and the real vanilla meshes, comparing the bent parts with
   vanilla's at rest (every vertex and UV) and the layers' frames with the drawn parts. Do the same for

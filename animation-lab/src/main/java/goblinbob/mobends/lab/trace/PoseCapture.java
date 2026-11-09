@@ -1,6 +1,6 @@
 package goblinbob.mobends.lab.trace;
 
-import goblinbob.mobends.core.client.model.IModelPart;
+import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.data.EntityData;
 import goblinbob.mobends.core.kumo.bind.EntityBone;
 import goblinbob.mobends.core.kumo.pose.Skeleton;
@@ -55,16 +55,16 @@ public class PoseCapture
         for (Map.Entry<String, Object> entry : partsOf(data).entrySet())
         {
             Object part = entry.getValue();
-            if (part instanceof IModelPart)
+            if (part instanceof ModelPartTransform)
             {
-                IModelPart modelPart = (IModelPart) part;
+                ModelPartTransform modelPart = (ModelPartTransform) part;
                 BonePose pose = new BonePose();
-                pose.r = quat(modelPart.getRotation().getSmooth());
-                pose.rt = quat(modelPart.getRotation().getEnd());
-                pose.o = vec(modelPart.getOffset());
-                pose.p = vec(modelPart.getPosition());
-                pose.g = vec(modelPart.getGlobalOffset());
-                pose.s = vec(modelPart.getScale());
+                pose.r = quat(modelPart.rotation.getSmooth());
+                pose.rt = quat(modelPart.rotation.getEnd());
+                pose.o = vec(modelPart.offset);
+                pose.p = vec(modelPart.position);
+                pose.g = vec(modelPart.globalOffset);
+                pose.s = vec(modelPart.scale);
                 frame.bones.put(entry.getKey(), pose);
             }
             else if (part instanceof SmoothOrientation)

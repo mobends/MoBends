@@ -1,19 +1,20 @@
 package net.minecraft.client;
 
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 
-public class Minecraft
-{
+import javax.annotation.Nullable;
+
+/** The client: the level it shows, and its player. The lab sets both for each scenario. */
+public class Minecraft {
     private static final Minecraft INSTANCE = new Minecraft();
 
-    public World world;
-    public EntityPlayerSP player;
-    public boolean gamePaused;
-    private final RenderManager renderManager = new RenderManager();
+    @Nullable
+    public ClientLevel level;
+    @Nullable
+    public LocalPlayer player;
 
-    public static Minecraft getMinecraft() { return INSTANCE; }
-    public RenderManager getRenderManager() { return renderManager; }
-    public boolean isGamePaused() { return gamePaused; }
+    public static Minecraft getInstance() {
+        return INSTANCE;
+    }
 }

@@ -3,9 +3,9 @@ package goblinbob.mobends.lab;
 import goblinbob.mobends.core.kumo.StepUpDriver;
 import goblinbob.mobends.core.kumo.StepUpDriver.Result;
 import goblinbob.mobends.lab.sim.LabWorlds;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -20,7 +20,7 @@ class StepUpTest
 
     private static final double HEIGHT = 2.7;
 
-    private static Result search(World world, double dx, double dz, int[] step)
+    private static Result search(ClientLevel world, double dx, double dz, int[] step)
     {
         return StepUpDriver.search(world, 0.5, 0, 0.5, dx, dz, 3, HEIGHT, true, step);
     }
@@ -28,7 +28,7 @@ class StepUpTest
     @Test
     void aStepAheadIsFound()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -2, 0, 2, 2, 0, 3);
         int[] step = new int[5];
         assertEquals(Result.STEP, search(world, 0, 1, step));
@@ -38,7 +38,7 @@ class StepUpTest
     @Test
     void walkingAtAnAngleTheFaceIsTheOneItGoesThrough()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -5, 0, 2, 5, 0, 3);
         int[] step = new int[5];
         // 30° off +Z, towards +X: it crosses into column 1 on the way, then into the ledge's row.
@@ -51,7 +51,7 @@ class StepUpTest
     @Test
     void aStepTooFarIsNotFound()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -2, 0, 4, 2, 0, 5);
         assertEquals(Result.NONE, search(world, 0, 1, new int[5]));
     }
@@ -59,7 +59,7 @@ class StepUpTest
     @Test
     void walkingAwayItFindsNone()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -2, 0, 2, 2, 0, 3);
         assertEquals(Result.NONE, search(world, 0, -1, new int[5]));
     }
@@ -67,7 +67,7 @@ class StepUpTest
     @Test
     void aWallTwoHighIsNoStep()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -2, 0, 2, 2, 1, 3);
         assertEquals(Result.BLOCKED, search(world, 0, 1, new int[5]));
     }
@@ -75,7 +75,7 @@ class StepUpTest
     @Test
     void aStepWithoutRoomOnItIsNoStep()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -2, 0, 2, 2, 0, 3);
         // A ceiling over the step, 2 blocks above it: under the golem's 2.7.
         LabWorlds.placeStone(world, -2, 3, 2, 2, 3, 3);
@@ -85,7 +85,7 @@ class StepUpTest
     @Test
     void noRoomAboveItsHeadToRiseIsNoStep()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -2, 0, 2, 2, 0, 3);
         LabWorlds.placeStone(world, 0, 3, 0, 0, 3, 0);
         assertEquals(Result.BLOCKED, search(world, 0, 1, new int[5]));
@@ -94,18 +94,18 @@ class StepUpTest
     @Test
     void aDropBeforeTheStepEndsTheSearch()
     {
-        World world = new World();
+        ClientLevel world = new ClientLevel();
         LabWorlds.placeStone(world, -2, 0, 3, 2, 0, 3);
         // A hole in the floor in row 1, between it and the step.
-        world.setBlockState(new BlockPos(0, -1, 1), Blocks.AIR.getDefaultState());
+        world.setBlockAndUpdate(new BlockPos(0, -1, 1), Blocks.AIR.defaultBlockState());
         assertEquals(Result.NONE, search(world, 0, 1, new int[5]));
     }
 
     @Test
     void waterIsNoStep()
     {
-        World world = new World();
-        for (int x = -1; x <= 1; x++) world.setBlockState(new BlockPos(x, 0, 2), Blocks.WATER.getDefaultState());
+        ClientLevel world = new ClientLevel();
+        for (int x = -1; x <= 1; x++) world.setBlockAndUpdate(new BlockPos(x, 0, 2), Blocks.WATER.defaultBlockState());
         assertEquals(Result.NONE, search(world, 0, 1, new int[5]));
     }
 

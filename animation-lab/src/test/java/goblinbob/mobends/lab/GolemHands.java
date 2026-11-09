@@ -38,11 +38,11 @@ final class GolemHands
         v = add(v, new double[] {pivot.x + data.center.position.getX() / 16, pivot.y + data.center.position.getY() / 16, pivot.z + data.center.position.getZ() / 16});
         v = rotate(data.root.rotation.getSmooth(), v[0], v[1], v[2]);
         v = add(v, new double[] {data.root.position.getX() / 16, data.root.position.getY() / 16, data.root.position.getZ() / 16});
-        double yaw = Math.toRadians(data.getVariable("entityBodyYaw")), cos = Math.cos(yaw), sin = Math.sin(yaw);
+        double yaw = Math.toRadians(Variables.of(data, "entityBodyYaw")), cos = Math.cos(yaw), sin = Math.sin(yaw);
         return new double[] {
-                data.getVariable("entityWorldX") + v[0] * cos - v[2] * sin,
-                data.getVariable("entityWorldY") + v[1],
-                data.getVariable("entityWorldZ") + v[0] * sin + v[2] * cos};
+                Variables.of(data, "entityWorldX") + v[0] * cos - v[2] * sin,
+                Variables.of(data, "entityWorldY") + v[1],
+                Variables.of(data, "entityWorldZ") + v[0] * sin + v[2] * cos};
     }
 
     static double[] rotate(Quaternion q, double x, double y, double z)

@@ -3,9 +3,9 @@ package goblinbob.mobends.lab.scenarios;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.LabWorlds;
 import goblinbob.mobends.lab.sim.Scenario;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +50,7 @@ public class Scenarios
             if (between(tick, 20, 90)) walk(in, WALK_SPEED);
             if (tick == 60) in.jump = true;
             lookAround(in, tick);
-        }, data -> data.getEntity().setEntityId(3)));
+        }, data -> data.getEntity().setId(3)));
 
         add(new Scenario(EntityKind.SKELETON, "strafe", FPS, 140, (tick, in) -> {
             if (between(tick, 20, 60)) in.strafeSpeed = WALK_SPEED;
@@ -65,8 +65,8 @@ public class Scenarios
                 if (tick >= 5 && tick < 110) in.mainHand = new ItemStack(Items.BOW);
                 if (between(tick, 20, 90))
                 {
-                    in.itemUseCount = 72000 - (tick - 20);
-                    in.itemUseMaxCount = tick - 20;
+                    in.useItemRemaining = 72000 - (tick - 20);
+                    in.ticksUsingItem = tick - 20;
                 }
                 if (between(tick, 60, 100)) walk(in, WALK_SPEED);
                 if (tick >= 110) in.mainHand = new ItemStack(Items.IRON_SWORD);
@@ -107,7 +107,7 @@ public class Scenarios
         }));
 
         add(new Scenario(EntityKind.PLAYER, "jump_fall_torch", FPS, 200, (tick, in) -> {
-            in.mainHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            in.mainHand = new ItemStack(Items.TORCH);
             if (tick == 20) in.jump = true;
             // A long fall: no floor contact for a while.
             if (between(tick, 60, 130)) { in.noGravity = true; in.verticalSpeed = -0.5D; }
@@ -121,14 +121,14 @@ public class Scenarios
             if (between(tick, 5, 80)) in.mainHand = new ItemStack(Items.BOW);
             if (between(tick, 10, 70))
             {
-                in.itemUseCount = 72000 - (tick - 10);
-                in.itemUseMaxCount = tick - 10;
+                in.useItemRemaining = 72000 - (tick - 10);
+                in.ticksUsingItem = tick - 10;
             }
             if (between(tick, 85, 160)) in.mainHand = new ItemStack(Items.APPLE);
             if (between(tick, 90, 150))
             {
-                in.itemUseCount = Math.max(0, 32 - (tick - 90));
-                in.itemUseMaxCount = tick - 90;
+                in.useItemRemaining = Math.max(0, 32 - (tick - 90));
+                in.ticksUsingItem = tick - 90;
             }
             lookAround(in, tick);
         }));
@@ -165,9 +165,9 @@ public class Scenarios
             // Blocking with the off-hand shield, then a slash once it is lowered.
             if (between(tick, 10, 60))
             {
-                in.activeHand = EnumHand.OFF_HAND;
-                in.itemUseCount = 72000 - (tick - 10);
-                in.itemUseMaxCount = tick - 10;
+                in.usedItemHand = InteractionHand.OFF_HAND;
+                in.useItemRemaining = 72000 - (tick - 10);
+                in.ticksUsingItem = tick - 10;
             }
             if (between(tick, 70, 100)) walk(in, WALK_SPEED);
             if (tick == 75) in.attack = true;
@@ -175,9 +175,9 @@ public class Scenarios
             if (between(tick, 110, 160))
             {
                 in.offHand = new ItemStack(Items.APPLE);
-                in.activeHand = EnumHand.OFF_HAND;
-                in.itemUseCount = Math.max(0, 32 - (tick - 110));
-                in.itemUseMaxCount = tick - 110;
+                in.usedItemHand = InteractionHand.OFF_HAND;
+                in.useItemRemaining = Math.max(0, 32 - (tick - 110));
+                in.ticksUsingItem = tick - 110;
             }
             lookAround(in, tick);
         }));
@@ -249,8 +249,8 @@ public class Scenarios
             }
             if (between(tick, 40, 120))
             {
-                in.itemUseCount = 72000 - (tick - 40);
-                in.itemUseMaxCount = tick - 40;
+                in.useItemRemaining = 72000 - (tick - 40);
+                in.ticksUsingItem = tick - 40;
             }
         }));
 
@@ -301,13 +301,13 @@ public class Scenarios
             if (tick >= 180) in.mainHand = ItemStack.EMPTY;
             if (tick == 190 || tick == 202) in.attack = true;
             // a torch, in the main hand then the off hand
-            if (between(tick, 220, 240)) in.mainHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
-            if (between(tick, 240, 260)) in.offHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            if (between(tick, 220, 240)) in.mainHand = new ItemStack(Items.TORCH);
+            if (between(tick, 240, 260)) in.offHand = new ItemStack(Items.TORCH);
             lookAround(in, tick);
         }));
 
         add(new Scenario(EntityKind.PLAYER, "right_handed_torch_offhand", FPS, 80, (tick, in) -> {
-            if (between(tick, 10, 70)) in.offHand = new ItemStack(net.minecraft.item.Item.getItemFromBlock(net.minecraft.init.Blocks.TORCH));
+            if (between(tick, 10, 70)) in.offHand = new ItemStack(Items.TORCH);
             if (between(tick, 40, 70)) walk(in, WALK_SPEED);
             lookAround(in, tick);
         }));
@@ -351,14 +351,14 @@ public class Scenarios
             if (between(tick, 20, 110)) walk(in, GOLEM_SPEED);
             if (tick == 42) in.jump = true;
             lookAround(in, tick);
-        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 4)));
+        }, data -> LabWorlds.placeStone(data.getEntity().level(), -2, 0, 3, 2, 0, 4)));
 
         // The same climb, but once up it hurries on: far from where the climb draws it, the climb
         // gives up and the golem glides back to where it is.
         add(new Scenario(EntityKind.IRON_GOLEM, "climb_given_up", FPS, 100, (tick, in) -> {
             if (between(tick, 20, 90)) walk(in, tick > 50 ? SPRINT_SPEED : GOLEM_SPEED);
             if (tick == 42) in.jump = true;
-        }, data -> LabWorlds.placeStone(data.getEntity().world, -2, 0, 3, 2, 0, 8)));
+        }, data -> LabWorlds.placeStone(data.getEntity().level(), -2, 0, 3, 2, 0, 8)));
 
         // --- Squid ------------------------------------------------------------------------------
         add(new Scenario(EntityKind.SQUID, "swim", FPS, 120, (tick, in) -> {

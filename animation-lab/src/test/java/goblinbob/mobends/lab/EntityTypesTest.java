@@ -1,22 +1,23 @@
 package goblinbob.mobends.lab;
 
-import net.minecraft.world.World;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.entity.monster.EntityZombie;
-import net.minecraft.client.Minecraft;
-import goblinbob.mobends.lab.sim.LabBootstrap;
-import goblinbob.mobends.core.types.selector.SelectorExpression;
+import com.google.gson.JsonParser;
 import goblinbob.mobends.core.kumo.KumoSerializer;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.types.EntityTypeDefinition;
 import goblinbob.mobends.core.types.TypeOrder;
+import goblinbob.mobends.core.types.selector.SelectorExpression;
 import goblinbob.mobends.lab.scenarios.Scenarios;
 import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
+import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.Scenario;
 import goblinbob.mobends.lab.trace.BonePose;
 import goblinbob.mobends.lab.trace.FramePose;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.monster.Zombie;
 import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
@@ -43,17 +44,39 @@ public class EntityTypesTest
 
     private static final Path EXAMPLE = LabPaths.root().resolve("../misc/examples/player-name-type/assets/mobends_example/bends");
 
-    private static TypeOrder.Ranked type(String id, int rank, int specificity)
+    private static final class Type implements TypeOrder.Ranked
     {
-        return new TypeOrder.Ranked()
+        private final String id;
+        private final int specificity;
+        private int rank;
+
+        Type(String id, int rank, int specificity)
         {
-            private int currentRank = rank;
-            @Override public String getId() { return id; }
-            @Override public int getRank() { return currentRank; }
-            @Override public void setRank(int newRank) { currentRank = newRank; }
-            @Override public int getSpecificity() { return specificity; }
-            @Override public String toString() { return id; }
-        };
+            this.id = id;
+            this.rank = rank;
+            this.specificity = specificity;
+        }
+
+        @Override public String getId() { return id; }
+        @Override public int getRank() { return rank; }
+        @Override public int getSpecificity() { return specificity; }
+        @Override public String toString() { return id; }
+    }
+
+    private static Type type(String id, int rank, int specificity)
+    {
+        return new Type(id, rank, specificity);
+    }
+
+    /** Ranks {@code order} so, and gives back the types whose rank changed. */
+    private static List<Type> rankInOrder(List<Type> order)
+    {
+        List<Type> changed = new ArrayList<>();
+        TypeOrder.rankInOrder(order, (type, rank) -> {
+            type.rank = rank;
+            changed.add(type);
+        });
+        return changed;
     }
 
     @Test
@@ -73,15 +96,15 @@ public class EntityTypesTest
     @Test
     void reorderingChangesAsFewRanksAsItCan()
     {
-        TypeOrder.Ranked a = type("a", 0, 1);
-        TypeOrder.Ranked b = type("b", 0, 1);
-        TypeOrder.Ranked shared = type("c:shared", 0, 0);
-        TypeOrder.Ranked d = type("d", 5, 1);
+        Type a = type("a", 0, 1);
+        Type b = type("b", 0, 1);
+        Type shared = type("c:shared", 0, 0);
+        Type d = type("d", 5, 1);
 
         // Another entity's window put d above the shared type.
-        assertEquals(Collections.emptyList(), TypeOrder.rankInOrder(Arrays.asList(d, shared)));
+        assertEquals(Collections.emptyList(), rankInOrder(Arrays.asList(d, shared)));
         // This one wants b, a, shared: only b needs a higher rank.
-        assertEquals(Collections.singletonList(b), TypeOrder.rankInOrder(Arrays.asList(b, a, shared)));
+        assertEquals(Collections.singletonList(b), rankInOrder(Arrays.asList(b, a, shared)));
         List<TypeOrder.Ranked> sorted = new ArrayList<>(Arrays.asList(shared, a, b));
         sorted.sort(TypeOrder.PRECEDENCE);
         assertEquals(Arrays.asList(b, a, shared), sorted);
@@ -99,19 +122,19 @@ public class EntityTypesTest
 
     private static void assertTypeRefused(String message, String json)
     {
-        MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class, () -> EntityTypeDefinition.parse(json));
+        MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class, () -> EntityTypeDefinition.parse(JsonParser.parseString(json)));
         assertTrue(e.getMessage().contains(message), e.getMessage());
     }
 
     private static int specificity(String selector) throws Exception
     {
-        return EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:t\", \"selector\": " + selector.replace('\'', '"') + "}").specificity();
+        return EntityTypeDefinition.parse(JsonParser.parseString("{\"formatVersion\": 2, \"id\": \"x:t\", \"selector\": " + selector.replace('\'', '"') + "}")).specificity();
     }
 
     @Test
     void specificityCountsConditionsNotCombinators() throws Exception
     {
-        assertEquals(0, EntityTypeDefinition.parse("{\"formatVersion\": 2, \"id\": \"x:none\"}").specificity());
+        assertEquals(0, EntityTypeDefinition.parse(JsonParser.parseString("{\"formatVersion\": 2, \"id\": \"x:none\"}")).specificity());
         assertEquals(1, specificity("{'core:entity_type': ['minecraft:player']}"));
         // An "or" is as specific as its broadest branch, a "not" counts one: nesting can't inflate it.
         assertEquals(1, specificity("{'or': [{'core:player_name': ['A']}, {'core:player_name': ['B']}, {'core:player_name': ['C']}]}"));
@@ -132,15 +155,15 @@ public class EntityTypesTest
                 + "{'not': [{'core:entity_type': ['minecraft:husk']}]}, {'or': [{'core:player_name': ['Notch']}, {'mobends:skin_variant': ['slim']}]}]}"));
         List<ResourceLocation> types = new ArrayList<>();
         selector.collectEntityTypes(types);
-        assertEquals(Arrays.asList(new ResourceLocation("minecraft:player"), new ResourceLocation("minecraft:zombie")), types);
+        assertEquals(Arrays.asList(ResourceLocation.parse("minecraft:player"), ResourceLocation.parse("minecraft:zombie")), types);
         // A skin variant changes when the skin downloads.
         assertFalse(selector.isStable());
         assertTrue(SelectorExpression.compile(json("{'core:player_name': ['Notch']}")).isStable());
 
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        assertTrue(SelectorExpression.compile(json("{'core:entity_type': ['minecraft:zombie']}")).test(new EntityZombie(world)));
-        assertFalse(SelectorExpression.compile(json("{'core:player_name': ['Notch']}")).test(new EntityZombie(world)));
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        assertTrue(SelectorExpression.compile(json("{'core:entity_type': ['minecraft:zombie']}")).test(new Zombie(world)));
+        assertFalse(SelectorExpression.compile(json("{'core:player_name': ['Notch']}")).test(new Zombie(world)));
     }
 
     @Test
@@ -163,7 +186,7 @@ public class EntityTypesTest
     @Test
     void exampleTypeBeatsTheBuiltInPlayerType() throws Exception
     {
-        EntityTypeDefinition example = EntityTypeDefinition.parse(new String(Files.readAllBytes(EXAMPLE.resolve("types/bendy_tester.json")), StandardCharsets.UTF_8));
+        EntityTypeDefinition example = EntityTypeDefinition.parse(JsonParser.parseString(new String(Files.readAllBytes(EXAMPLE.resolve("types/bendy_tester.json")), StandardCharsets.UTF_8)));
         assertEquals("mobends_example:bendy_tester", example.id);
         assertEquals(2, example.specificity());
 

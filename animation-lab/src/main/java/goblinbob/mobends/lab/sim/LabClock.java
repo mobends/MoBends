@@ -6,7 +6,7 @@ import goblinbob.mobends.core.client.event.DataUpdateHandler;
  * Drives the mod's global timing state ({@link DataUpdateHandler}) the way the client render loop
  * does: a fixed frame rate, ticks advancing at 20 per second, and partial ticks in between.
  *
- * The game computes ticksPerFrame as the (clamped) difference of "ticksExisted + renderTickTime"
+ * The game computes ticksPerFrame as the (clamped) difference of "the player's tickCount + partial tick"
  * between two frames. Here that is simply 20 / fps, which is what a steady frame rate produces.
  */
 public class LabClock

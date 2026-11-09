@@ -7,14 +7,15 @@ import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import goblinbob.mobends.standard.data.CapeWave;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class DefinedComponentsTest
 
     private static EntityModelDefinition player() throws IOException, MalformedKumoTemplateException
     {
-        return ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", "bends/models/player.json"));
+        return ModelDefinitions.INSTANCE.load(ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/player.json"));
     }
 
     @Test
@@ -40,11 +41,11 @@ public class DefinedComponentsTest
     {
         // The mod's default addon registers the components (here LabBootstrap).
         LabBootstrap.ensure();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        AbstractClientPlayer player = new AbstractClientPlayer(world);
-        DefinedEntityData<AbstractClientPlayer> data = DefinedEntityData.create(player(), player);
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
+        AbstractClientPlayer player = new LocalPlayer(world);
+        DefinedEntityData<AbstractClientPlayer> data = EntityKind.newData(player(), player);
 
         assertNotNull(data.getComponent("swordTrail", SwordTrail.class));
         assertNotNull(data.getComponent("capeWave", CapeWave.class));
@@ -75,10 +76,10 @@ public class DefinedComponentsTest
         json.add("center", new JsonParser().parse("{\"pivot\": [0, 16, 0]}"));
         EntityModelDefinition copy = ModelDefinitions.parse(json);
         LabBootstrap.ensure();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        DefinedEntityData<AbstractClientPlayer> data = DefinedEntityData.create(copy, new AbstractClientPlayer(world));
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
+        DefinedEntityData<AbstractClientPlayer> data = EntityKind.newData(copy, new LocalPlayer(world));
 
         assertEquals(2, data.root.rotation.getBaseSmoothing(), 0);
         assertEquals(3, data.root.position.baseSmoothing.x, 0);
@@ -88,7 +89,7 @@ public class DefinedComponentsTest
         assertEquals(4, data.getPart("body").rotation.getBaseSmoothing(), 0);
         assertEquals(4, data.getPart("body").smoothOffset.baseSmoothing.x, 0, "a number smooths a part's position too");
         // The pivot is in model units, a block is 16.
-        assertEquals(1, data.getVariable("centerPivotY"), 1e-6);
+        assertEquals(1, Variables.of(data, "centerPivotY"), 1e-6);
     }
 
     @Test
@@ -99,10 +100,10 @@ public class DefinedComponentsTest
         json.getAsJsonObject("components").addProperty("wings", "nomod:wings");
         EntityModelDefinition copy = ModelDefinitions.parse(json);
         LabBootstrap.ensure();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
-        DefinedEntityData<AbstractClientPlayer> data = DefinedEntityData.create(copy, new AbstractClientPlayer(world));
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
+        DefinedEntityData<AbstractClientPlayer> data = EntityKind.newData(copy, new LocalPlayer(world));
         assertNull(data.getPartForName("wings"));
     }
 

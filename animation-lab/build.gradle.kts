@@ -1,14 +1,14 @@
 /*
  * Mo' Bends animation lab.
  *
- * A standalone project (modern JDK, no Forge) that compiles the mod's animation code
- * against a tiny set of Minecraft stubs, runs the animators through scripted scenarios, and
+ * A standalone project (JDK 21, no Minecraft, no loader) that compiles the mod's animation code
+ * against a small set of Minecraft stand-ins, runs the animators through scripted scenarios, and
  * checks their bone poses against the "golden" traces.
  *
  * Source sets:
- *   mcstub - minimal stand-ins for the net.minecraft / org.lwjgl classes the animation code touches
- *   mod    - the mod's own animation sources, copied verbatim from ../legacy-1.12/src and ../core/src (plus a few shims
- *            for classes that need the Minecraft client, see src/mod/java)
+ *   mcstub - stand-ins for the Minecraft 1.21.1 classes (Mojang's names) the animation code touches
+ *   mod    - the mod's own animation sources, copied verbatim from ../src and ../core/src (plus a few shims
+ *            for classes that need the Minecraft client or a loader, see src/mod/java)
  *   main   - the lab harness: scripted entities, recorder, comparator
  *   test   - JUnit 5 tests: KUMO parity, side effects, expressions, clips, types
  */
@@ -27,39 +27,19 @@ java {
     }
 }
 
-// The 1.12.2 mod's animation code, until it is ported into ../src (see CONTRIBUTING.md).
-val modSrc = file("../legacy-1.12/src/main")
+// The mod's sources, shared by every modern Minecraft version and loader.
+val modSrc = file("../src/main")
 // The animators, models and types, shared by every Minecraft version.
 val modResources = file("../src/main/resources")
-// The Minecraft-free engine (Kumo, math), split out of src/main (see CONTRIBUTING.md).
+// The Minecraft-free engine (Kumo, math), shared with the 1.12.2 mod (see CONTRIBUTING.md).
 val coreSrc = file("../core/src/main")
 
-// Only the Minecraft-agnostic animation subset of the mod is compiled. Everything that needs
-// rendering, GUI, networking or Forge stays out; the few classes the subset needs from there are
-// replaced by shims in src/mod/java with the same fully qualified name.
+// Only the animation subset of the mod is compiled: the entity data, the animator glue, the model
+// definitions and the types. Everything that needs rendering, GUI, networking or a loader stays out;
+// the few classes the subset needs from there are replaced by shims in src/mod/java with the same
+// fully qualified name.
 val modIncludes = listOf(
-    "goblinbob/mobends/core/math/**",
-    "goblinbob/mobends/core/util/GUtil.java",
-    "goblinbob/mobends/core/util/Tween.java",
-    "goblinbob/mobends/core/util/FormatVersion.java",
-    "goblinbob/mobends/core/util/EnumAxis.java",
-    "goblinbob/mobends/core/util/GlHelper.java",
-    "goblinbob/mobends/core/util/GsonResources.java",
-    "goblinbob/mobends/core/util/Color.java",
-    "goblinbob/mobends/core/util/IColor.java",
-    "goblinbob/mobends/core/util/IColorRead.java",
-    "goblinbob/mobends/core/util/ColorReadonly.java",
-    "goblinbob/mobends/core/animation/**",
-    "goblinbob/mobends/core/data/EntityData.java",
-    "goblinbob/mobends/core/data/LivingEntityData.java",
-    "goblinbob/mobends/core/data/IEntityDataFactory.java",
-    "goblinbob/mobends/core/data/EntityDatabase.java",
-    "goblinbob/mobends/core/data/EntityComponent.java",
-    "goblinbob/mobends/core/data/EntityComponents.java",
-    "goblinbob/mobends/core/data/OrientationComponent.java",
-    "goblinbob/mobends/core/client/model/IBendsModel.java",
-    "goblinbob/mobends/core/client/model/IModelPart.java",
-    "goblinbob/mobends/core/client/model/ModelPartTransform.java",
+    "goblinbob/mobends/core/data/**",
     "goblinbob/mobends/core/kumo/**",
     "goblinbob/mobends/core/definition/**",
     "goblinbob/mobends/core/types/TypeOrder.java",
@@ -67,24 +47,26 @@ val modIncludes = listOf(
     "goblinbob/mobends/core/types/EntityTypeDefinition.java",
     "goblinbob/mobends/core/types/ExtensionDefinition.java",
     "goblinbob/mobends/core/types/Extension.java",
+    "goblinbob/mobends/core/client/model/ModelPartTransform.java",
+    "goblinbob/mobends/core/util/GsonResources.java",
+    "goblinbob/mobends/core/vanilla/VanillaNames.java",
+    "goblinbob/mobends/core/vanilla/VanillaEntityFields.java",
     "goblinbob/mobends/standard/data/**",
     "goblinbob/mobends/standard/kumo/**",
     "goblinbob/mobends/standard/UseActionType.java",
     "goblinbob/mobends/standard/ItemActions.java",
     "goblinbob/mobends/standard/AttackActionType.java",
-    "goblinbob/mobends/core/ModStatics.java",
 )
 
 val modSrcDir = layout.buildDirectory.dir("mod-src")
 
 val syncModJava by tasks.registering(Sync::class) {
-    description = "Copies the Minecraft-agnostic animation sources of the mod into the build directory."
+    description = "Copies the animation sources of the mod and the engine into the build directory."
     from(modSrc.resolve("java")) {
         include(modIncludes)
     }
-    from(coreSrc.resolve("java")) {
-        include(modIncludes)
-    }
+    // The whole engine.
+    from(coreSrc.resolve("java"))
     into(modSrcDir.map { it.dir("java") })
 }
 
@@ -136,25 +118,23 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-Xlint:-options")
 }
 
-// The mod itself is built with JDK 8 (ForgeGradle for 1.12.2). Compiling its sources with
-// --release 8 here keeps the lab from letting newer language features or APIs slip into src/main.
-tasks.named<JavaCompile>("compileModJava") {
-    options.release.set(8)
-}
-
 dependencies {
     val modImplementation by configurations.getting
+    val modRuntimeOnly by configurations.getting
     val mcstubImplementation by configurations.getting
 
     mcstubImplementation("com.google.code.findbugs:jsr305:3.0.2")
 
+    // What Minecraft 1.21.1 ships with, and the mod's sources use.
     modImplementation("com.google.code.gson:gson:2.10.1")
-    modImplementation("org.apache.httpcomponents:httpcore:4.4.16")
     modImplementation("com.google.code.findbugs:jsr305:3.0.2")
+    modImplementation("org.slf4j:slf4j-api:2.0.9")
+    modRuntimeOnly("org.slf4j:slf4j-simple:2.0.9")
 
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
-    implementation("org.apache.httpcomponents:httpcore:4.4.16")
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    runtimeOnly("org.slf4j:slf4j-simple:2.0.9")
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")

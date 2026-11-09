@@ -50,7 +50,7 @@ class RaycastDriverTest
                 + "'core:pose': {'pose': [{'core:raycast': {" + fields + ", 'out': {" + out + "}}}" + pose + "]}}}}]}";
         AnimatorTemplate template = KumoSerializer.INSTANCE.gson.fromJson(json.replace('\'', '"'), AnimatorTemplate.class);
         List<FramePose> frames = new KumoSession(new Scenario(EntityKind.IRON_GOLEM, "raycast", Scenarios.FPS, 2, (tick, in) -> {},
-                data -> LabWorlds.placeStone(data.getEntity().world, 0, 0, 3, 0, 0, 3)), template).run().frames;
+                data -> LabWorlds.placeStone(data.getEntity().level(), 0, 0, 3, 0, 0, 3)), template).run().frames;
         FramePose last = frames.get(frames.size() - 1);
         double[] values = new double[OUTPUTS.length];
         for (int i = 0; i < OUTPUTS.length; i++)

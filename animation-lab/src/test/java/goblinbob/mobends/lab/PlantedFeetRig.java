@@ -7,17 +7,18 @@ import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.math.Quaternion;
 import goblinbob.mobends.lab.sim.EntityInputs;
+import goblinbob.mobends.lab.sim.EntityKind;
 import goblinbob.mobends.lab.sim.KumoSession;
 import goblinbob.mobends.lab.sim.LabBootstrap;
 import goblinbob.mobends.lab.sim.LabClock;
 import goblinbob.mobends.lab.sim.ScriptedEntity;
 import goblinbob.mobends.lab.sim.VanillaModelInputs;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.Collections;
 import java.util.function.DoubleConsumer;
@@ -60,9 +61,9 @@ class PlantedFeetRig
     static final double ORIGIN = 1.501 * 16;
 
     final EntityInputs inputs = new EntityInputs();
-    final EntityLivingBase entity;
+    final LivingEntity entity;
     final ScriptedEntity scripted;
-    final DefinedEntityData<EntityLivingBase> data;
+    final DefinedEntityData<LivingEntity> data;
     final KumoAnimatorState animator;
     final Leg[] legs;
     /** Model units per block, as the model is drawn. */
@@ -107,22 +108,22 @@ class PlantedFeetRig
      * @param scale the renderer's scale of a grown mob (a baby's is the definition's child scale of it)
      * @param id    the entity's id, which some models' entity scopes read (0 leaves the next one)
      */
-    PlantedFeetRig(String model, Function<World, EntityLivingBase> create, boolean child, int id, double scale, Leg... legs) throws Exception
+    PlantedFeetRig(String model, Function<ClientLevel, LivingEntity> create, boolean child, int id, double scale, Leg... legs) throws Exception
     {
-        EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(new ResourceLocation("mobends", model));
+        EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(ResourceLocation.fromNamespaceAndPath("mobends", model));
         LabBootstrap.ensure();
-        net.minecraft.entity.Entity.resetIds();
-        World world = new World();
-        Minecraft.getMinecraft().world = world;
-        Minecraft.getMinecraft().player = new EntityPlayerSP(world);
+        net.minecraft.world.entity.Entity.resetIds();
+        ClientLevel world = new ClientLevel();
+        Minecraft.getInstance().level = world;
+        Minecraft.getInstance().player = new LocalPlayer(world);
         entity = create.apply(world);
         if (id != 0)
         {
-            entity.setEntityId(id);
+            entity.setId(id);
         }
-        entity.child = child;
+        entity.setBaby(child);
         scripted = new ScriptedEntity(entity, world);
-        data = DefinedEntityData.create(definition, entity);
+        data = EntityKind.newData(definition, entity);
         animator = new KumoAnimatorState(definition.entityScope(entity.getClass()), KumoSession.loadAnimator(definition.animator), true,
                 Collections.emptyList(), Collections.emptyList(), KumoSession.INSTANCING);
         this.legs = legs;
@@ -159,8 +160,8 @@ class PlantedFeetRig
             float pt = clock.getPartialTicks();
             data.update(pt);
             modelInputs.compute(entity, pt);
-            data.headYaw = MathHelper.wrapDegrees(modelInputs.headYaw);
-            data.headPitch = MathHelper.wrapDegrees(modelInputs.headPitch);
+            data.headYaw = Mth.wrapDegrees(modelInputs.headYaw);
+            data.headPitch = Mth.wrapDegrees(modelInputs.headPitch);
             data.limbSwing = modelInputs.limbSwing;
             data.limbSwingAmount = modelInputs.limbSwingAmount;
             data.swingProgress = modelInputs.swingProgress;
@@ -173,7 +174,7 @@ class PlantedFeetRig
             // entity's origin ORIGIN units down it.
             Quaternion render = data.root.rotation.getSmooth();
             double[] facing = rotate(render, 0, 0, 1);
-            double bodyYaw = data.getVariable("entityBodyYaw");
+            double bodyYaw = Variables.of(data, "entityBodyYaw");
             shownYaw = bodyYaw - Math.toDegrees(Math.atan2(facing[0], facing[2]));
             double rootY = data.root.position.getY() * offsetUnits;
             double hipY = data.center.position.getY() * offsetUnits + rootY;
@@ -186,7 +187,7 @@ class PlantedFeetRig
             double yaw = Math.toRadians(bodyYaw), cos = Math.cos(yaw), sin = Math.sin(yaw);
             double shown = Math.toRadians(shownYaw), cosS = Math.cos(shown), sinS = Math.sin(shown);
             double[] offset = {data.center.position.getX() * offsetUnits, data.center.position.getY() * offsetUnits, data.center.position.getZ() * offsetUnits};
-            double px = data.getVariable("entityWorldX"), pz = data.getVariable("entityWorldZ");
+            double px = Variables.of(data, "entityWorldX"), pz = Variables.of(data, "entityWorldZ");
 
             for (int i = 0; i < legs.length; i++)
             {

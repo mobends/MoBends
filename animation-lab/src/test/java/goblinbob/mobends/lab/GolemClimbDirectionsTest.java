@@ -46,8 +46,8 @@ class GolemClimbDirectionsTest
             if (tick == jumpAt) in.jump = true;
         }, data -> {
             int a0 = sign > 0 ? near : -far, a1 = sign > 0 ? far : -near;
-            if (fx != 0) LabWorlds.placeStone(data.getEntity().world, a0, 0, -8, a1, 0, 8);
-            else LabWorlds.placeStone(data.getEntity().world, -8, 0, a0, 8, 0, a1);
+            if (fx != 0) LabWorlds.placeStone(data.getEntity().level(), a0, 0, -8, a1, 0, 8);
+            else LabWorlds.placeStone(data.getEntity().level(), -8, 0, a0, 8, 0, a1);
         });
 
         KumoSession session = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(scenario.kind)));
@@ -66,7 +66,7 @@ class GolemClimbDirectionsTest
             if (Double.isNaN(enteredAt))
             {
                 enteredAt = session.clock.getTicks();
-                startSide = data.getVariable("entityWorldX") * lx + data.getVariable("entityWorldZ") * lz;
+                startSide = Variables.of(data, "entityWorldX") * lx + Variables.of(data, "entityWorldZ") * lz;
             }
             double t = session.clock.getTicks() - enteredAt;
             // From when the hands have come down until the shoulders rise out of their reach (about tick 8.5, then they push).
