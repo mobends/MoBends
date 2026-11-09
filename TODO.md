@@ -161,6 +161,8 @@ forge-1.12               1.12.2
      - [x] GeckoLib armour bends with the body, cut at the elbows and knees, as 1.12's
        `GeckoLibCompat` had it (GeckoLib 4.6 and up, optional), a mod's own bones beside the armour
        bones included. Checked in the game on Fabric (Fantasy Armor); still to be checked on NeoForge.
+       A mod's own bone that it swings from vanilla's legs (Fantasy Armor's front cape) hangs still
+       on the bent body: left so, as swinging it from the bent legs needs code for that mod alone.
      - [ ] Poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident).
        Left for a later alpha.
      - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,
@@ -182,8 +184,9 @@ forge-1.12               1.12.2
        Customize's link.
      - [x] The addon API (docs/addons.md): other mods register mobs, layers, components, drivers
        and KUMO operations, found through a `mobends` entrypoint (Fabric) or `@MoBendsAddon`
-       (NeoForge). Mo' Bends' own content is its `DefaultAddon`. Still to be checked with a real
-       addon mod, and its tick callbacks in a world on NeoForge.
+       (NeoForge). Mo' Bends' own content is its `DefaultAddon`. Checked in the game on Fabric
+       with a test addon in its own jar (a function, entity readers, an extension, the callbacks);
+       still to be checked on NeoForge.
    - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge

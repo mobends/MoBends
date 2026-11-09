@@ -31,8 +31,8 @@ In this order:
 
 1. The 1.20.1 and latest targets.
 2. Check GeckoLib armour in the game on NeoForge (on Fabric it's checked with Fantasy Armor).
-3. Check the addon API with a real addon mod on both loaders (it was checked with a test addon
-   inside Mo' Bends; on NeoForge, without entering a world).
+3. Check the addon API in the game on NeoForge (on Fabric it's checked with a test addon in its
+   own jar).
 
 Left for a later alpha: poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow,
 trident: they now just keep the current pose).
