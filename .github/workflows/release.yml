@@ -1,0 +1,233 @@
+name: Release
+
+# Releases Mo' Bends for the modern Minecraft versions for every release tag v<version> on main
+# (e.g. v2.0.0 or v2.0.0-alpha.2): builds every version node at once, attaches the jars to the
+# tag's GitHub release, and uploads each jar to Modrinth and CurseForge. See CONTRIBUTING.md,
+# *Releasing the mod*. The 1.12.2 tags (v<version>-1.12.2) are released from forge-1.12, and the
+# core's (core-<version>) by publish-core.yml.
+#
+# The Modrinth and CurseForge tokens are kept to the publishing job, which runs no Gradle and no
+# project code.
+on:
+  push:
+    tags:
+      - "v2.*"
+      - "!v*-1.12.2"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      version-type: ${{ steps.version.outputs.version-type }}
+      minecraft: ${{ steps.jars.outputs.minecraft }}
+      nodes: ${{ steps.jars.outputs.nodes }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # The whole history, to check the tag is on main.
+          fetch-depth: 0
+
+      - name: Check the tag names the mod's version, on main
+        id: version
+        run: |
+          version="$(sed -nE 's/^mod\.version *= *"([^"]*)".*/\1/p' stonecutter.properties.toml)"
+          if [ -z "$version" ]; then
+            echo "::error file=stonecutter.properties.toml::Couldn't read mod.version"
+            exit 1
+          fi
+          if [ "$GITHUB_REF_NAME" != "v${version}" ]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' doesn't match mod.version $version in stonecutter.properties.toml (expected v${version})"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag '$GITHUB_REF_NAME' isn't on main. Modern releases are tagged on main."
+            exit 1
+          fi
+          case "$version" in
+            *alpha*) version_type=alpha ;;
+            *-*) version_type=beta ;;
+            *) version_type=release ;;
+          esac
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "version-type=$version_type" >> "$GITHUB_OUTPUT"
+
+      # The release notes are the version's section of CHANGELOG.md (`## 2.0.0 ...`); a prerelease
+      # (2.0.0-alpha.1) without a section of its own takes the section of the version it leads to.
+      - name: Take the release notes from the changelog
+        run: |
+          section() {
+            awk -v v="$1" '/^## / { if (found) exit; if ($2 == v) { found = 1; next } } found { print }' CHANGELOG.md \
+              | sed '/./,$!d'
+          }
+          version="${{ steps.version.outputs.version }}"
+          section "$version" > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            section "${version%%-*}" > release-notes.md
+          fi
+          if [ ! -s release-notes.md ]; then
+            echo "::warning::CHANGELOG.md has no section for $version"
+            echo "See CHANGELOG.md." > release-notes.md
+          fi
+          cat release-notes.md
+
+      # Gradle runs on 25 (gradle/gradle-daemon-jvm.properties); 21 builds the mod for 1.21.1.
+      - name: Set up JDK 21 and 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            25
+
+      # No Gradle cache here: a cache written by another workflow run could change the jars that are
+      # published.
+      - name: Build every node
+        run: ./gradlew buildAndCollect releaseInfo
+
+      # Every node's jar from build/libs/<version>/, with what build/release/<node>.json says it is
+      # (its Minecraft version, loader and the Minecraft releases it's marked compatible with).
+      - name: Collect the jars
+        id: jars
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          mkdir dist
+          for info in build/release/*.json; do
+            jar="$(jq -r .jar "$info")"
+            expected="mobends-${version}+$(jq -r .minecraft "$info")-$(jq -r .loader "$info").jar"
+            if [ "$jar" != "$expected" ]; then
+              echo "::error::$info names the jar $jar, expected $expected"
+              exit 1
+            fi
+            if [ ! -f "build/libs/$version/$jar" ]; then
+              echo "::error::$jar isn't in build/libs/$version/"
+              exit 1
+            fi
+            cp "build/libs/$version/$jar" dist/
+          done
+          built="$(find "build/libs/$version" -name '*.jar' ! -name '*-sources.jar' | wc -l | tr -d ' ')"
+          collected="$(find dist -name '*.jar' | wc -l | tr -d ' ')"
+          if [ "$collected" = 0 ] || [ "$built" != "$collected" ]; then
+            echo "::error::Built $built jars in build/libs/$version/, but $collected have a build/release/<node>.json"
+            exit 1
+          fi
+          ls -l dist
+          echo "nodes=$(jq -c -s . build/release/*.json)" >> "$GITHUB_OUTPUT"
+          echo "minecraft=$(jq -r -s 'map(.minecraft) | unique | join(", ")' build/release/*.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod
+          path: dist/*.jar
+
+      - name: Upload the release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+
+  github-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download the release files
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+
+      - name: Attach the jars to the release
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            prerelease=()
+            if [ "${{ needs.build.outputs.version-type }}" != release ]; then prerelease=(--prerelease); fi
+            gh release create "$GITHUB_REF_NAME" --verify-tag \
+              --title "Mo' Bends ${{ needs.build.outputs.version }} for Minecraft ${{ needs.build.outputs.minecraft }}" \
+              --notes-file release/release-notes/release-notes.md "${prerelease[@]}"
+          fi
+          gh release upload "$GITHUB_REF_NAME" release/mod/*.jar --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+  # Modrinth and CurseForge, one version per node (e.g. 2.0.0+1.21.1-fabric). The project ids are
+  # repository variables, the tokens repository (or `release` environment) secrets, shared with
+  # forge-1.12's release; see CONTRIBUTING.md.
+  publish:
+    needs: build
+    # TODO: Off until the modern versions go on the mod's Modrinth and CurseForge pages. Before
+    # deleting this `if`, check the MODRINTH_PROJECT_ID and CURSEFORGE_PROJECT_ID variables and the
+    # MODRINTH_TOKEN and CURSEFORGE_TOKEN secrets are set (see TODO.md).
+    if: false
+    runs-on: ubuntu-latest
+    environment: release
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ${{ fromJSON(needs.build.outputs.nodes) }}
+
+    steps:
+      - name: Check the projects and tokens are set
+        run: |
+          missing=()
+          [ -n "$MODRINTH_PROJECT_ID" ] || missing+=("variable MODRINTH_PROJECT_ID")
+          [ -n "$CURSEFORGE_PROJECT_ID" ] || missing+=("variable CURSEFORGE_PROJECT_ID")
+          [ -n "$MODRINTH_TOKEN" ] || missing+=("secret MODRINTH_TOKEN")
+          [ -n "$CURSEFORGE_TOKEN" ] || missing+=("secret CURSEFORGE_TOKEN")
+          if [ "${#missing[@]}" != 0 ]; then
+            echo "::error::Not set: ${missing[*]}"
+            exit 1
+          fi
+        env:
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+          CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+
+      - name: Download the jars
+        uses: actions/download-artifact@v4
+        with:
+          name: mod
+          path: release
+
+      - name: Download the release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: release
+
+      # The Minecraft releases one per line, as mc-publish takes them.
+      - name: List the node's Minecraft releases
+        id: node
+        run: |
+          {
+            echo "game-versions<<EOF"
+            jq -r '.gameVersions[]' <<< "$NODE"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          NODE: ${{ toJSON(matrix.node) }}
+
+      - name: Publish to Modrinth and CurseForge
+        uses: Kira-NT/mc-publish@c23376546a97f5ba7984e94445da359459b14419 # v3.3.2
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: release/${{ matrix.node.jar }}
+          name: Mo' Bends ${{ needs.build.outputs.version }} for Minecraft ${{ matrix.node.minecraft }} (${{ matrix.node.loader }})
+          version: ${{ needs.build.outputs.version }}+${{ matrix.node.minecraft }}-${{ matrix.node.loader }}
+          version-type: ${{ needs.build.outputs.version-type }}
+          changelog-file: release/release-notes.md
+          loaders: ${{ matrix.node.loader }}
+          game-versions: ${{ steps.node.outputs.game-versions }}
+          java: ${{ matrix.node.java }}

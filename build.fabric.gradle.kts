@@ -112,4 +112,22 @@ tasks {
         from(loomx.modJar.flatMap { it.archiveFile }, loomx.modSourcesJar.flatMap { it.archiveFile })
         into(rootProject.layout.buildDirectory.dir("libs/${sc.properties["mod.version"]}"))
     }
+
+    // What the release workflow (.github/workflows/release.yml) uploads this node's jar as.
+    register("releaseInfo") {
+        group = "build"
+        description = "Writes the node's jar name, loader and Minecraft releases to build/release/<node>.json."
+
+        val info = mapOf(
+            "jar" to loomx.modJar.flatMap { it.archiveFileName }.get(),
+            "minecraft" to sc.current.version,
+            "loader" to project.name.substringAfter('-'),
+            "gameVersions" to (sc.properties.raw("mod.mc_releases") as List<*>).map { it.toString() },
+            "java" to requiredJava.majorVersion,
+        )
+        val file = rootProject.layout.buildDirectory.file("release/${project.name}.json")
+        inputs.property("info", info)
+        outputs.file(file)
+        doLast { file.get().asFile.writeText(groovy.json.JsonOutput.toJson(info) + "\n") }
+    }
 }
