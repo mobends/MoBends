@@ -8,6 +8,7 @@
   "client": [
     "AgeableListModelMixin",
     "AgeableModelRootMixin",
+    "ArrowRendererMixin",
     "CapeLayerMixin",
     "ClientPacketListenerMixin",
     "CustomHeadLayerMixin",
