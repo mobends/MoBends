@@ -102,6 +102,12 @@ forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 - `forge-1.12` doesn't merge from `main`. It shares the engine by depending on a published, pinned
   release of `core` (see [TODO.md](TODO.md)): an engine fix is made in `core/` on `main`, released,
   and the dependency bumped on `forge-1.12`.
+- A pull request here that changes something `forge-1.12` has to follow comes with a pull request into
+  `forge-1.12` that adds the steps to its TODO.md, *Keeping up with `main`*, under this PR's number:
+  a change to `core`'s API (and the release it waits for), to the asset format (a new definition or
+  animator key), to an asset both branches ship, or to the lab's goldens of a scenario both have. Say
+  what to change there and how to check it, not how it was done here. A change that 1.12.2 doesn't
+  need (a loader, a Mixin, a mob 1.12.2 doesn't have) needs nothing there.
 - `1.X/forge-1.12` holds the 1.X line (up to 1.2.2) and is no longer developed.
 
 ## Versioning and releases

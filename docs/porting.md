@@ -44,7 +44,7 @@ In this order:
   them per model for the running version. New keys are fine if 1.12.2 can ignore them (its Gson
   skips unknown keys), like `@variants`.
 - **`core/` stays Minecraft-free and Java 8**; it's published and shared with `forge-1.12`. Keep
-  changes to its API additive where possible; see *forge-1.12 after a core release* below.
+  changes to its API additive where possible; see *Keeping forge-1.12 up to date* below.
 - **Hooks are vanilla Mixins** (`goblinbob.mobends.mixin`, client), so they're written once for both
   loaders. Prefer `@WrapOperation`/`@Inject` that keep other mods' wrappers running. Anything Mo'
   Bends can't bend must draw exactly as vanilla, never twice.
@@ -83,39 +83,8 @@ In this order:
 - Nothing goes straight to `main`: every slice is a PR. Tags and releases are mine to push.
 - Say plainly what was and wasn't checked in the game, and on which loader.
 
-## forge-1.12 after a core release
+## Keeping forge-1.12 up to date
 
-`forge-1.12` builds Mo' Bends for 1.12.2 against a pinned release of `core` (`core_version` in its
-`gradle.properties`, now `2.0.0-alpha.2`). Since that release, `core` on `main` gained (all additive,
-nothing removed or changed):
-
-- `goblinbob.mobends.core.kumo.MinecraftVersion`: `set(String)`, `get()`, `compare(a, b)`, and the
-  operation `core:minecraft_version` (`{"core:minecraft_version": [">", "1.12.2"]}`), registered as a
-  built-in by `ExpressionOperations`. Using the operation before the version is set fails when the
-  expression compiles.
-
-Releasing it: push a tag `core-<version>` on `main` once #383 is merged (for example `core-2.0.0-alpha.3`;
-see CONTRIBUTING.md, *Releasing `core`*). Then, on a branch off `forge-1.12`:
-
-1. **Bump `core_version`** in `gradle.properties` to the new release. Both the mod and the animation lab
-   read it. Building needs a GitHub token with `read:packages` (`gpr.user` / `gpr.key` in
-   `~/.gradle/gradle.properties`, or `GITHUB_ACTOR` / `GITHUB_TOKEN`; forge-1.12's CONTRIBUTING.md).
-2. **Set the Minecraft version at start-up:** `MinecraftVersion.set("1.12.2")` (or `ModStatics.MCVERSION`)
-   in `Core.preInit`, before `MinecraftKumoOperations.register()` and before any animator or definition
-   loads. Without it, nothing breaks today, but the first asset that uses `core:minecraft_version`
-   fails to load on 1.12.2.
-3. **Optionally support `@variants`** in model definitions, so 1.12.2 applies them too instead of
-   ignoring them: port `DefinitionMerge.applyVariants` and its call in `ModelDefinitions.resolve` (after
-   `extends`) from `main`'s `src/main/java/goblinbob/mobends/core/definition/`. The shipped assets don't
-   need it: the wolf's only variant is for versions after 1.12.2, and 1.12.2 keeps the definition's own
-   values.
-4. **Follow the wolf's shared model** (`bends/models/wolf.json`), which now matches vanilla: its head
-   turns where vanilla's does (2 px further forward, 1 px left of its middle), so `LayerWolfMisc` has to
-   draw the inside of the mouth where `WolfMiscLayer` on `main` does (in the head's frame, at -2.1
-   instead of -4.1, and 1 px further along +X). Its box faces take `"flip": true` now, which 1.12.2
-   ignores (the body's and mane's undersides and ends keep their old texture) until `FaceDefinition.flip`
-   and `TextureFace.flipped` are ported from `main`.
-5. **Check:** `./gradlew build shadowJar` (JDK 8), `cd animation-lab && ./gradlew test`, and the 1.12.2
-   client (`run-arm64/runClient.sh` on Apple Silicon): the mod loads, the player and mobs animate, the
-   wolf's mouth sits in its head.
-6. Open a PR into `forge-1.12`, with a stupidly simple description.
+What `forge-1.12` has to do to follow `main` is in its TODO.md, *Keeping up with `main`*; #383's
+steps (`core` 2.0.0-alpha.3, the wolf) went there in #384. Every PR here that changes something it has to
+follow comes with a PR there adding the steps (CONTRIBUTING.md, *Branches*).
