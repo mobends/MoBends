@@ -99,12 +99,6 @@ public class GuiOptionsWindow extends GuiScreen
         {
             return elements;
         }
-
-        @Override
-        protected int getScrollSpeed()
-        {
-            return 20;
-        }
     }
 
     public GuiOptionsWindow(EntityBender<?> bender, @Nullable GuiScreen exit)
@@ -227,5 +221,4 @@ public class GuiOptionsWindow extends GuiScreen
     {
         return false;
     }
-
 }

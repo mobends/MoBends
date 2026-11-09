@@ -41,7 +41,7 @@ public class GuiAccessoryList extends GuiList<GuiAccessoryRow>
     protected void drawContent(float partialTicks)
     {
         // Rows scrolled out of view aren't drawn.
-        final float scroll = getScrollAmount(partialTicks);
+        final float scroll = getScrollAmount();
         for (GuiAccessoryRow element : elements)
         {
             if (element.getY() + element.getHeight() > scroll && element.getY() < scroll + this.height)
@@ -55,12 +55,6 @@ public class GuiAccessoryList extends GuiList<GuiAccessoryRow>
     public LinkedList<GuiAccessoryRow> getListElements()
     {
         return elements;
-    }
-
-    @Override
-    protected int getScrollSpeed()
-    {
-        return 20;
     }
 
 }

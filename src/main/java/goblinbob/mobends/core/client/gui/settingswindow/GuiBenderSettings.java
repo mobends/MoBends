@@ -181,7 +181,7 @@ public class GuiBenderSettings implements IGuiListElement
         Draw.rectangleVerticalGradient(left, top, THUMBNAIL_SIZE, THUMBNAIL_SIZE, 0xff2c2c2c, 0xff171717);
 
         // The list's content is drawn scrolled; the clip is on the screen.
-        UIScissorHelper.INSTANCE.push(list.getAbsoluteX() + left, list.getAbsoluteY() - list.getScrollAmount(partialTicks) + top,
+        UIScissorHelper.INSTANCE.push(list.getAbsoluteX() + left, list.getAbsoluteY() - list.getScrollAmount() + top,
                 THUMBNAIL_SIZE, THUMBNAIL_SIZE);
         GlStateManager.pushMatrix();
         GlStateManager.translate(left + THUMBNAIL_SIZE / 2F, top + THUMBNAIL_SIZE / 2F, 0F);

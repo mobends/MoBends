@@ -123,12 +123,6 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
         {
             return elements;
         }
-
-        @Override
-        protected int getScrollSpeed()
-        {
-            return 20;
-        }
     }
 
     public GuiOrderWindow(Source<T> source, @Nullable GuiScreen exit)
@@ -266,5 +260,4 @@ public class GuiOrderWindow<T extends TypeOrder.Ranked> extends GuiScreen
             entryList.addElement(new GuiOrderEntry(entry.getId(), source.describe(entry), i, entries.size(), () -> move(index, -1), () -> move(index, 1)));
         }
     }
-
 }

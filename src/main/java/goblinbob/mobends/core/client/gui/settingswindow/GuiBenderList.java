@@ -40,7 +40,7 @@ public class GuiBenderList extends GuiList<GuiBenderSettings>
     protected void drawContent(float partialTicks)
     {
         // Rows scrolled out of view aren't drawn, so their mobs aren't rendered.
-        final float scroll = getScrollAmount(partialTicks);
+        final float scroll = getScrollAmount();
         for (GuiBenderSettings element : elements)
         {
             if (element.getY() + element.getHeight() > scroll && element.getY() < scroll + this.height)
@@ -54,12 +54,6 @@ public class GuiBenderList extends GuiList<GuiBenderSettings>
     public LinkedList<GuiBenderSettings> getListElements()
     {
         return elements;
-    }
-
-    @Override
-    protected int getScrollSpeed()
-    {
-        return 20;
     }
 
 }

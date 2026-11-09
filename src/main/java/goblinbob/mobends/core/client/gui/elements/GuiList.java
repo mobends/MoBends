@@ -43,15 +43,16 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel
 
         this.contentSize = yOffset + paddingBottom;
 
-        if (contentSize <= height)
-        {
-            this.scrollAmountTarget = 0;
-        }
-        else if (this.scrollAmountTarget + this.height >  contentSize)
-        {
-            this.scrollAmountTarget = contentSize - this.height;
-            this.scrollAmount = contentSize - this.height;
-        }
+        // Kept in range for the new content.
+        setScrollAmount(scrollAmount);
+    }
+
+    /** Half a row a notch, as vanilla's lists scroll (the first row's height, with the spacing). */
+    @Override
+    protected int getScrollSpeed()
+    {
+        final LinkedList<T> elements = getListElements();
+        return elements.isEmpty() ? super.getScrollSpeed() : Math.max(1, (elements.getFirst().getHeight() + spacing) / 2);
     }
 
     public void addElement(T element)
@@ -120,7 +121,7 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel
 
         for (T element : this.getListElements())
         {
-            element.update(mouseX - x, mouseY - y + scrollAmount);
+            element.update(mouseX - x, mouseY - y + getScrollAmount());
         }
     }
 
@@ -136,7 +137,7 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel
     @Override
     public boolean handleMouseClicked(int mouseX, int mouseY, int button)
     {
-        if (this.hovered && handleMouseClickedElements(mouseX - x, mouseY - y + scrollAmount, button))
+        if (this.hovered && handleMouseClickedElements(mouseX - x, mouseY - y + getScrollAmount(), button))
         {
             return true;
         }

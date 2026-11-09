@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- The Mo' Bends menu's lists (Settings, Order, Options, Supporters) scroll as Minecraft's own lists
+  do: the mouse wheel moves them straight away, half a row a notch, instead of easing there behind
+  it, and the scroll bar follows the mouse smoothly while it's dragged, without jumping when it's
+  grabbed.
+
 ## 2.0.0-alpha.2
 
 ### Added
