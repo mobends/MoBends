@@ -15,8 +15,7 @@ The endpoints, the payloads and what's cached are the same as on 1.12.2 (below).
   join (a refused join still counts: the API is up). Only players are fetched: any other entity
   wears nothing and has a white trail. A failed fetch is tried again after 30 s at the soonest.
 - The join's `version` is `<mod>/<minecraft>-<loader>` (`2.0.0-alpha.1/1.21.1-fabric`), as 1.12.2's
-  `VERSION_STRING` (`2.0.0-alpha.2/1.12.2-forge`). The API's version check refuses both today (it
-  takes no `.` after the `-`, nor this layout); see TODO.md, *Supporters*.
+  `VERSION_STRING` (`2.0.0-alpha.2/1.12.2-forge`), pre-releases included, which the API accepts.
 - The `checksum` is the SHA-256 of the mod's jar (`Platform.modFile()`), `dev` in development.
 - The textures and models of the downloaded assets are read from disk as they're first drawn
   (`AssetTextures`, `AssetModels`), not through the resource manager, so a resource reload doesn't

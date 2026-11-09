@@ -22,10 +22,8 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
 
 - [x] Add `supportUrl` (the Patreon page) and `accountUrl` (the mobends.com dashboard) to static-api.json.
 - [ ] Show the tiers (one-time collection, subscription, editor tier) once they exist.
-- [ ] Have the API accept the join's `version` of the 2.0.0 pre-releases: its check
-      (`^(\d+\.\d+.\d+\/)?\d+\.\d+\.\d+(-[\w\d]+)?$`) refuses both `2.0.0-alpha.2/1.12.2-forge`
-      (1.12.2) and `2.0.0-alpha.1/1.21.1-fabric` with a 400, so no 2.0.0 build is counted, nor pings.
-      Players' accessories are fetched all the same on `main`.
+- [x] Have the API accept the join's `version` of the 2.0.0 pre-releases
+      (`2.0.0-alpha.1/1.21.1-fabric`): it refused them with a 400, and now answers the join.
 
 ## Legacy Mo' Bends pack
 
