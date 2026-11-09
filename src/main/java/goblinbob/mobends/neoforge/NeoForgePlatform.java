@@ -1,14 +1,24 @@
 package goblinbob.mobends.neoforge;
 
 //? if neoforge {
-/*import goblinbob.mobends.platform.Platform;
+/*import goblinbob.mobends.core.network.ServerRulesPayload;
+import goblinbob.mobends.platform.Platform;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
+import javax.annotation.Nullable;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 public final class NeoForgePlatform implements Platform {
+    /^* What gets the server's rules on a client ({@link #registerServerRules}); null on a server. ^/
+    @Nullable
+    private static Consumer<ServerRulesPayload> serverRulesHandler;
+
     @Override
     public String loaderName() {
         return "neoforge";
@@ -31,6 +41,32 @@ public final class NeoForgePlatform implements Platform {
     @Override
     public Path configDir() {
         return FMLPaths.CONFIGDIR.get();
+    }
+
+    @Override
+    public void registerServerRules(@Nullable Consumer<ServerRulesPayload> onClientReceived) {
+        // Registered with the payload handlers below, which the mod's event bus asks for.
+        serverRulesHandler = onClientReceived;
+    }
+
+    /^*
+     * Registers Mo' Bends' payloads (the entrypoint listens on the mod's event bus): optional, so a
+     * player without Mo' Bends can join a server with it, and the other way round.
+     ^/
+    static void registerPayloads(RegisterPayloadHandlersEvent event) {
+        event.registrar("1").optional().playToClient(ServerRulesPayload.TYPE, ServerRulesPayload.CODEC, (payload, context) -> {
+            Consumer<ServerRulesPayload> handler = serverRulesHandler;
+            if (handler != null) {
+                handler.accept(payload);
+            }
+        });
+    }
+
+    @Override
+    public void sendToPlayer(ServerPlayer player, ServerRulesPayload payload) {
+        if (player.connection.hasChannel(ServerRulesPayload.TYPE)) {
+            PacketDistributor.sendToPlayer(player, payload);
+        }
     }
 }
 *///?}

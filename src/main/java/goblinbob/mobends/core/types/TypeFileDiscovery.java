@@ -3,6 +3,7 @@ package goblinbob.mobends.core.types;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.client.PackTrust;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
@@ -27,7 +28,8 @@ import java.util.Map;
  * same id.
  */
 final class TypeFileDiscovery {
-    record TypeFile(String source, JsonElement json) {
+    /** @param trusted false for a file from a resource pack the player enabled (see {@code PackTrust}) */
+    record TypeFile(String source, JsonElement json, boolean trusted) {
     }
 
     private record Found(int pack, ResourceLocation location, Resource resource) {
@@ -57,7 +59,7 @@ final class TypeFileDiscovery {
         for (Found file : found) {
             String source = file.resource().sourcePackId() + "/" + file.location();
             try (Reader reader = file.resource().openAsReader()) {
-                files.add(new TypeFile(source, JsonParser.parseReader(reader)));
+                files.add(new TypeFile(source, JsonParser.parseReader(reader), !PackTrust.isUserPack(file.resource().sourcePackId())));
             } catch (Exception e) {
                 MoBends.LOGGER.error("Mo' Bends: could not read {}: {}", source, e.getMessage());
             }

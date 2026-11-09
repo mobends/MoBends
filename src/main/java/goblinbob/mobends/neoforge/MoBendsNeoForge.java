@@ -10,6 +10,7 @@ import net.neoforged.fml.common.Mod;
 @Mod(MoBends.MOD_ID)
 public class MoBendsNeoForge {
     public MoBendsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
+        modEventBus.addListener(NeoForgePlatform::registerPayloads);
         MoBends.init();
     }
 }

@@ -54,8 +54,8 @@ trident: they now just keep the current pose).
   marks (`BendsRenderer.markBentDraw`). Layers get a bone's frame from `DefinedModel.applyVanillaFrame`
   after `DefinedRenderer.transformModel`; the bones come from the definition's `layers` block
   (`DefinedLayers`).
-- **Fabric bundles one Fabric API module** (resource loader, jar-in-jar), because Fabric Loader alone
-  doesn't load mods' assets. Use nothing else from Fabric API.
+- **Fabric bundles two Fabric API modules** (resource loader and networking, jar-in-jar), because
+  Fabric Loader alone doesn't load mods' assets or send their payloads. Use nothing else from Fabric API.
 
 ## Checking work
 

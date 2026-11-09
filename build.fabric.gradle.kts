@@ -27,10 +27,11 @@ dependencies {
     // Use `mod{dependency type}` even on 26.1+, loom-back-compat converts them.
     modImplementation("net.fabricmc:fabric-loader:${sc.properties["deps.fabric_loader"]}")
 
-    // Fabric Loader alone doesn't put mods' assets in the resource manager (NeoForge does), so the
-    // Fabric API module that does is bundled into the jar (jar-in-jar), with the base module it needs.
-    // Players don't have to install Fabric API.
-    for (module in listOf("fabric-resource-loader-v0", "fabric-api-base")) {
+    // Fabric Loader alone doesn't put mods' assets in the resource manager (NeoForge does), nor lets
+    // a server send a mod's payloads (the server's rules), so the Fabric API modules that do are
+    // bundled into the jar (jar-in-jar), with the base module they need. Players don't have to
+    // install Fabric API.
+    for (module in listOf("fabric-resource-loader-v0", "fabric-networking-api-v1", "fabric-api-base")) {
         val dependency = fabricApi.module(module, sc.properties["deps.fabric_api"])
         modImplementation(dependency)
         include(dependency)

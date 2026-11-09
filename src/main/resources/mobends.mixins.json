@@ -2,11 +2,14 @@
   "required": true,
   "package": "goblinbob.mobends.mixin",
   "compatibilityLevel": "${java}",
-  "mixins": [],
+  "mixins": [
+    "PlayerListMixin"
+  ],
   "client": [
     "AgeableListModelMixin",
     "AgeableModelRootMixin",
     "CapeLayerMixin",
+    "ClientPacketListenerMixin",
     "CustomHeadLayerMixin",
     "ElytraLayerMixin",
     "GameRendererMixin",

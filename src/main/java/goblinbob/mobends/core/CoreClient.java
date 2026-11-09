@@ -1,6 +1,8 @@
 package goblinbob.mobends.core;
 
 import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.client.AnimationPolicy;
+import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.core.client.definition.DefinedModel;
@@ -8,6 +10,7 @@ import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.data.EntityDatabase;
 import goblinbob.mobends.core.definition.ModelDefinitions;
+import goblinbob.mobends.core.kumo.AnimationLimits;
 import goblinbob.mobends.core.kumo.AnimatorResources;
 import goblinbob.mobends.core.kumo.KumoAnimatorController;
 import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
@@ -16,6 +19,7 @@ import goblinbob.mobends.core.kumo.expr.EntityFields;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.vanilla.VanillaEntityFields;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
+import goblinbob.mobends.standard.client.renderer.entity.layers.WolfMiscLayer;
 import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.standard.kumo.CapeDriver;
 import goblinbob.mobends.standard.kumo.MoBendsOperations;
@@ -25,7 +29,6 @@ import goblinbob.mobends.standard.kumo.spider.SpiderIdleLegsTemplate;
 import goblinbob.mobends.standard.kumo.spider.SpiderLegs;
 import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsDriver;
 import goblinbob.mobends.standard.kumo.spider.SpiderMovingLegsTemplate;
-import goblinbob.mobends.standard.client.renderer.entity.layers.WolfMiscLayer;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.CreeperPowerLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
@@ -49,6 +52,9 @@ public final class CoreClient {
     public static void init() {
         // The user's settings, before anything reads them (the options' values, what's animated).
         ClientConfig.INSTANCE.load(MoBends.platform().configDir());
+        // The server's rules: what resource packs may do to animation, and how far their animation may go.
+        MoBends.platform().registerServerRules(AnimationPolicy.INSTANCE::onServerRules);
+        AnimationLimits.setProvider(AnimationPolicy.INSTANCE::limits);
         // The operations, drivers and built-ins the animators name; an animator naming one that
         // isn't registered fails to load.
         MinecraftKumoOperations.register();
@@ -104,6 +110,8 @@ public final class CoreClient {
      * all made again from the new files as the entities are drawn. Runs after every resource reload.
      */
     public static void reloadAnimation() {
+        PackTrust.clearCache();
+        AnimationPolicy.INSTANCE.onContentReloaded();
         ModelDefinitions.INSTANCE.clearCache();
         DefinedEntities.clearCache();
         DefinedModel.clearCache();

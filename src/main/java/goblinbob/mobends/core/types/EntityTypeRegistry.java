@@ -1,12 +1,13 @@
 package goblinbob.mobends.core.types;
 
 import goblinbob.mobends.MoBends;
-import goblinbob.mobends.core.client.definition.DefinedEntities;
+import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
+import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.data.IEntityDataFactory;
+import goblinbob.mobends.core.network.ResourcePackPolicy;
 import net.minecraft.world.entity.LivingEntity;
 
-import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import javax.annotation.Nullable;
 
 /**
  * Every entity type: one built in for each entity registered in code ({@link DefinedEntities#register}),
@@ -138,9 +140,17 @@ public final class EntityTypeRegistry {
                 add(EntityType.builtIn(defined, key));
             }
         }
+        ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
         for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("types")) {
+            if (!file.trusted() && policy == ResourcePackPolicy.DENY) {
+                MoBends.LOGGER.info("Mo' Bends: the server denies resource packs' animation: ignoring the type {}", file.source());
+                continue;
+            }
             try {
-                add(TypeFiles.loadType(file));
+                EntityType type = TypeFiles.loadType(file, policy);
+                if (type != null) {
+                    add(type);
+                }
             } catch (Exception | StackOverflowError e) {
                 MoBends.LOGGER.error("Mo' Bends: could not load the type {}: {}", file.source(), e.getMessage(), e);
             }
@@ -152,7 +162,12 @@ public final class EntityTypeRegistry {
     /** Loads every extension and gives each type its own; returns how many there are. */
     private int loadExtensions() {
         extensions.clear();
+        ResourcePackPolicy policy = AnimationPolicy.INSTANCE.current();
         for (TypeFileDiscovery.TypeFile file : TypeFileDiscovery.discover("extensions")) {
+            if (!file.trusted() && policy == ResourcePackPolicy.DENY) {
+                MoBends.LOGGER.info("Mo' Bends: the server denies resource packs' animation: ignoring the extension {}", file.source());
+                continue;
+            }
             try {
                 Extension extension = TypeFiles.loadExtension(file);
                 if (!types.containsKey(extension.getTypeId())) {

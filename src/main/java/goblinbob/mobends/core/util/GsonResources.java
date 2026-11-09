@@ -3,7 +3,7 @@ package goblinbob.mobends.core.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import net.minecraft.client.Minecraft;
+import goblinbob.mobends.core.client.PackTrust;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Reads JSON resources for animation through the game's resource manager, so resource packs can
- * replace them. Callers cache what they read.
+ * replace them, as far as the server allows ({@link PackTrust#open}). Callers cache what they read.
  */
 public final class GsonResources {
     private GsonResources() {
@@ -24,7 +24,7 @@ public final class GsonResources {
      *                     (the parse error is the cause)
      */
     public static <T> T read(ResourceLocation location, Gson gson, Class<T> classOfT) throws IOException {
-        try (InputStream stream = Minecraft.getInstance().getResourceManager().open(location)) {
+        try (InputStream stream = PackTrust.open(location)) {
             T resource = gson.fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), classOfT);
             if (resource == null) {
                 throw new IOException(location + " is empty");
