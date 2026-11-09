@@ -56,8 +56,8 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
 - [ ] Modern versions: with no world loaded, a type that picks its entities by entity type (other
       than the player) isn't listed under its mob: what class an entity type's entities are is found
       by making one, which needs a level (`EntityClasses`).
-- [ ] Modern versions: More Settings has the arrow trails' switch, which is saved, but arrow trails
-      aren't ported yet.
+- [x] Modern versions: More Settings has the arrow trails' switch, and the arrow trails are ported
+      (checked in the game on Fabric).
 
 ## Multiple Minecraft versions and loaders
 
