@@ -20,9 +20,9 @@ Ported so far, in this order:
 | #398 | GeckoLib armour bends with the body (when GeckoLib is installed). |
 | #405 | The addon API: other mods add mobs, layers, components, drivers and KUMO operations (docs/addons.md). |
 
-I've checked the player, its layers, the zombie, skeleton, zombie villager and the wolf (adult and
-pup, side by side with vanilla) in the game on Fabric. The creeper, golem, villager, witch, spider and
-squid are still to be checked. On NeoForge I've only checked the player (#381).
+I've checked the player, its layers and the other mobs (the zombie, skeleton, zombie villager,
+creeper, golem, villager, witch, spider, squid, and the wolf, adult and pup, side by side with vanilla)
+in the game on Fabric. On NeoForge I've only checked the player (#381).
 
 ## What's next
 
