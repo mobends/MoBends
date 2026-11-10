@@ -145,10 +145,8 @@ forge-1.12               1.12.2
    - [x] Add the Stonecutter multi-loader layout: a 1.21.1 Fabric + NeoForge skeleton that loads,
      with `core/` compiled in, and CI. The 1.12 sources moved to `legacy-1.12/` (not built) as the
      porting reference; the shared assets moved to `src/main/resources`.
-   - [ ] Port `legacy-1.12/` slice by slice, deleting it once empty. Nothing compiles from it (the
-     animation lab compiles the animation code from `src/`), so a slice can `git mv` what it ports.
-     What the modern code already does or doesn't need is deleted; what's left is listed in
-     `legacy-1.12/README.md`.
+   - [x] Port `legacy-1.12/` slice by slice, deleting it once empty. Everything is ported or was
+     dropped as not needed, and the directory is gone; the 1.12.2 sources are on `forge-1.12`.
      - [x] **The player bends** (1.21.1, Fabric + NeoForge): the player's model definition, entity
        data and KUMO glue, and its bent model (split elbows and knees) drawn in place of vanilla's
        (`DefinedModelBuilder`, `BendsRenderer`). Checked in the game on both loaders.
@@ -190,6 +188,13 @@ forge-1.12               1.12.2
        (NeoForge). Mo' Bends' own content is its `DefaultAddon`. Checked in the game on both
        loaders with a test addon in its own jar (a function, entity readers, an extension, the
        callbacks).
+     - [x] The last of 1.12: errors told in chat (#417), `core:equipment_name` and
+       `core:ledge_ahead` (#418), NeoForge's update check and the credits (#420), and the Legacy
+       Mo' Bends pack built and signed from `main` (#413).
+     - [x] Model definitions bend any model (#421, #422, #423, #424): a mod's, named by its class,
+       parts by path or by field; any mob, named by registry id or a list of them, those 1.12 never
+       had too. Checked in the game on NeoForge (a resource pack's wolf, panda, goat, fox, shulker,
+       llama, rabbit and camel).
    - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge
