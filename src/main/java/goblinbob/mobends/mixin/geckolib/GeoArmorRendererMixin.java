@@ -94,7 +94,13 @@ public abstract class GeoArmorRendererMixin {
         Consumer<VertexConsumer> draw = into ->
             original.call(poseStack, animatable, bone, renderType, bufferSource, into, isReRender, partialTick, packedLight, packedOverlay, colour);
     //?} else {
-    /*@WrapMethod(method = "renderRecursively(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/item/Item;Lsoftware/bernie/geckolib/cache/object/GeoBone;Lnet/minecraft/client/renderer/RenderType;Lnet/minecraft/client/renderer/MultiBufferSource;Lcom/mojang/blaze3d/vertex/VertexConsumer;ZFIIFFFF)V")
+    /*@WrapMethod(
+        // GeckoLib's own method: Forge's SRG names have nothing for it, and leave the classes as they are.
+        //? if forge {
+        /^remap = false,
+        ^///?}
+        method = "renderRecursively(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/item/Item;Lsoftware/bernie/geckolib/cache/object/GeoBone;Lnet/minecraft/client/renderer/RenderType;Lnet/minecraft/client/renderer/MultiBufferSource;Lcom/mojang/blaze3d/vertex/VertexConsumer;ZFIIFFFF)V"
+    )
     private void mobends$drawBoneBent(PoseStack poseStack, Item animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource,
                                       VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay,
                                       float red, float green, float blue, float alpha, Operation<Void> original) {

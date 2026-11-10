@@ -120,7 +120,6 @@ forge-1.12               1.12.2
 
 - [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
   - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
-  - [ ] 1.20.1 on Forge: its loader package (`goblinbob.mobends.forge`) and `build.forge.gradle.kts`.
   - [ ] The latest Minecraft version, on Fabric and NeoForge.
 
 ### Other tasks

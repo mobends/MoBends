@@ -1,5 +1,6 @@
 {
   "required": false,
+  "minVersion": "0.8",
   "package": "goblinbob.mobends.mixin.geckolib",
   "plugin": "goblinbob.mobends.standard.compat.geckolib.GeckoLibMixins",
   "compatibilityLevel": "${java}",

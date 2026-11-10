@@ -2,7 +2,7 @@
 # Checks the rules of the one-source-tree layout (see CONTRIBUTING.md) that the compiler can't:
 #   1. src/ is committed with the vcsVersion of settings.gradle.kts active, so the fenced code is in
 #      the state everyone expects and diffs aren't full of comment noise.
-#   2. Only goblinbob/mobends/fabric/ and goblinbob/mobends/neoforge/ use a loader API.
+#   2. Only goblinbob/mobends/fabric/, neoforge/ and forge/ use a loader API.
 # Run from the repository root.
 set -euo pipefail
 
@@ -18,10 +18,10 @@ elif [ "$active" != "$vcs" ]; then
   fail=1
 fi
 
-loader_code='goblinbob/mobends/(fabric|neoforge)/'
-offenders=$(grep -rlE 'net\.(fabricmc|neoforged)\.' src/main/java | grep -vE "$loader_code" || true)
+loader_code='goblinbob/mobends/(fabric|neoforge|forge)/'
+offenders=$(grep -rlE 'net\.(fabricmc|neoforged|minecraftforge)\.' src/main/java | grep -vE "$loader_code" || true)
 for file in $offenders; do
-  echo "::error file=$file::Uses a loader API outside goblinbob.mobends.fabric / goblinbob.mobends.neoforge. Put it behind goblinbob.mobends.platform.Platform."
+  echo "::error file=$file::Uses a loader API outside goblinbob.mobends.fabric / .neoforge / .forge. Put it behind goblinbob.mobends.platform.Platform."
   fail=1
 done
 
