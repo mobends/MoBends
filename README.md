@@ -22,7 +22,7 @@ to start Gradle: it downloads the JDKs the build needs by itself (JDK 25 to run 
 
 `main` builds every modern Minecraft version and loader from one source tree with [Stonecutter](https://stonecutter.kikugie.dev/).
 `./gradlew build` builds them all (the jars land in `versions/<minecraft>-<loader>/build/libs/`) and runs the tests;
-`./gradlew :1.21.1-fabric:runClient` (or `:1.21.1-neoforge:runClient`, `runServer`) runs the game.
+`./gradlew :1.21.1-fabric:runClient` (or `:1.21.1-neoforge:runClient`, `:1.20.1-forge:runClient`, `runServer`) runs the game.
 The Stonecutter plugin for IntelliJ IDEA (or the `Set active project to …` Gradle tasks) switches the
 version and loader the IDE works on. The animation lab (`animation-lab/`, see its README) checks the animations
 against recorded traces.

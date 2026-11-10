@@ -17,6 +17,13 @@ deps.fabric_api = "0.92.12+1.20.1"
 deps.modmenu = "7.2.2"
 mod.geckolib_compat = ">=4.6"
 
+[forge."1.20.1"]
+mod.mc_compat = "[1.20,1.20.1]"
+mod.geckolib_compat = "[4.6,)"
+deps.forge = "47.4.29"
+# Mixin's MixinExtras, which Forge 1.20.1 doesn't have: built into the jar (see build.forge.gradle.kts).
+deps.mixinextras = "0.5.0"
+
 ["1.21.1"]
 # The Minecraft releases the jar is marked compatible with on Modrinth and CurseForge.
 mod.mc_releases = ["1.21", "1.21.1"]

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
 import goblinbob.mobends.core.data.LivingEntityData;
 import goblinbob.mobends.core.util.Ids;
@@ -187,7 +188,13 @@ public class EntityPreview {
         // In front of the frame, and up the right way (as InventoryScreen#renderEntityInInventory),
         // then turned as 1.12 turned it: the inventory's base is 1.12's turned half a turn about y.
         poses.translate(x, y, 100F);
+        //? if >=1.21 {
         poses.scale(scale, scale, -scale);
+        //?} else {
+        /*// 1.20.1's scale() spoils a mirrored scale's normals (it takes a fast cube root of a negative),
+        // so, as its InventoryScreen, the scale goes into the position's matrix only.
+        VanillaDraw.mulPose(poses, new org.joml.Matrix4f().scaling(scale, scale, -scale));
+        *///?}
         poses.mulPose(new Quaternionf().rotateZ((float) Math.PI).rotateY((float) Math.PI).rotateX(tilt).rotateY(yaw));
         // Turned about the hitbox's center, which lands on the origin.
         poses.translate(0F, -entity.getBbHeight() / 2F, 0F);

@@ -17,11 +17,13 @@ public interface Platform {
     Platform INSTANCE =
         //? if fabric {
         new goblinbob.mobends.fabric.FabricPlatform();
-        //?} else {
+        //?} else if neoforge {
         /*new goblinbob.mobends.neoforge.NeoForgePlatform();
+        *///?} else {
+        /*new goblinbob.mobends.forge.ForgePlatform();
         *///?}
 
-    /** The loader's name, as in the jar names: {@code fabric} or {@code neoforge}. */
+    /** The loader's name, as in the jar names: {@code fabric}, {@code neoforge} or {@code forge}. */
     String loaderName();
 
     boolean isModLoaded(String modId);
@@ -55,7 +57,7 @@ public interface Platform {
 
     /**
      * Gives {@code found} every other mod's addon, with that mod's id (docs/addons.md): on Fabric,
-     * the {@code "mobends"} entrypoints; on NeoForge, the classes marked
+     * the {@code "mobends"} entrypoints; on NeoForge and Forge, the classes marked
      * {@link goblinbob.mobends.core.addon.MoBendsAddon}. An addon that can't be made is logged and
      * skipped. Once, on the client, at start-up.
      */

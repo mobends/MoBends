@@ -64,23 +64,31 @@ What does need a loader lives in its own package:
 
 | Package | What |
 |---|---|
-| `goblinbob.mobends` and the rest | Loader-independent. **Must not use a loader API** (`net.fabricmc`, `net.neoforged`). |
+| `goblinbob.mobends` and the rest | Loader-independent. **Must not use a loader API** (`net.fabricmc`, `net.neoforged`, `net.minecraftforge`). |
 | `goblinbob.mobends.platform` | `Platform`: what the loader-independent code needs from the loader. |
 | `goblinbob.mobends.fabric` | Fabric's entrypoint and `Platform`. Every file is fenced whole in `//? if fabric {`. |
 | `goblinbob.mobends.neoforge` | NeoForge's entrypoint and `Platform`. Every file is fenced whole in `//? if neoforge {`. |
+| `goblinbob.mobends.forge` | Forge's (1.20.1) entrypoint and `Platform`. Every file is fenced whole in `//? if forge {`. |
 
 When the loader-independent code needs something from the loader, add it to `Platform` and implement
-it in both loader packages. Hooks into the game are vanilla Mixins (`goblinbob.mobends.mixin`,
+it in every loader package. Hooks into the game are vanilla Mixins (`goblinbob.mobends.mixin`,
 `mobends.mixins.json`) wherever they can be, so they're written once for every loader.
 
 Fabric Loader alone doesn't put mods' assets in the resource manager (NeoForge does), nor sends a
 mod's payloads, so the Fabric jar bundles Fabric API's resource loader and networking modules and
 their base module, jar-in-jar (`build.fabric.gradle.kts`). Players don't need to install Fabric API;
 nothing else from it is used. Mod Menu's API is compiled against (not bundled), for its Config button
-(`fabric.MoBendsModMenu`, the `modmenu` entrypoint); without Mod Menu it's never loaded. CI
-(`.github/scripts/check-sources.sh`) checks that no other package
-uses a loader API, and that `src/` is committed with the default node active. Run it before
-pushing if you like.
+(`fabric.MoBendsModMenu`, the `modmenu` entrypoint); without Mod Menu it's never loaded.
+
+Forge 1.20.1 (`build.forge.gradle.kts`, ModDevGradle's legacy plugin) runs on SRG names, so its jar
+is remapped and the mixins get a refmap, written as they compile. It ships an older Mixin without
+MixinExtras, so the jar bundles MixinExtras, jar-in-jar; that Mixin also injects into a constructor
+only at its end (`@At("TAIL")`), so wrap a call in a constructor with `@WrapOperation` instead. A mixin
+into another mod's method (GeckoLib's) needs `remap = false` on Forge, fenced with `//? if forge {`.
+Forge 1.20.1 also loads a mod's resources only with a `pack.mcmeta`, which only its jar gets.
+
+CI (`.github/scripts/check-sources.sh`) checks that no other package uses a loader API, and that
+`src/` is committed with the default node active. Run it before pushing if you like.
 
 ### Other mods
 
