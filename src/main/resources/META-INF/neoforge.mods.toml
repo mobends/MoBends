@@ -11,7 +11,8 @@ version = "${version}"
 authors = "GoblinBob"
 credits = "Tommsy64 - coding support"
 description = "If you think that Minecraft characters could be more realistic, instead of steady and rigid animations, this mod is just for you! It makes players seem alive, and adds epic sword animations!"
-logoFile = "assets/mobends/textures/logo512.png"
+# logoFile, or iconFile from NeoForge 26.x (build.neoforge.gradle.kts).
+${logo_key} = "assets/mobends/textures/logo512.png"
 displayURL = "https://mobends.com"
 # NeoForge's update check: the versions per Minecraft version, and its -latest and -recommended promos.
 updateJSONURL = "https://mobends.com/mod-update.json"

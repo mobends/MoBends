@@ -88,6 +88,8 @@ tasks {
             register("name", sc.properties["mod.name"])
             register("version", sc.properties["mod.version"])
             register("minecraft", sc.properties["mod.mc_compat"])
+            // NeoForge 26.x reads the square logo as iconFile (logoFile is deprecated there).
+            register("logo_key", if (sc.current.parsed >= "26.1") "iconFile" else "logoFile")
             register("geckolib", sc.properties["mod.geckolib_compat"])
         }
 
