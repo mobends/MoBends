@@ -130,8 +130,8 @@ public class BoneDefinition {
                 box.validate(name);
             }
         }
-        if (vanilla != null && vanilla.field == null && vanilla.index < 0)
-            throw new MalformedKumoTemplateException("Bone '" + name + "': 'vanilla' needs a 'field' name and/or a box-list 'index'.");
+        if (vanilla != null && vanilla.part == null && vanilla.field == null && vanilla.index < 0)
+            throw new MalformedKumoTemplateException("Bone '" + name + "': 'vanilla' needs a 'part' path, a 'field' name and/or a box-list 'index'.");
     }
 
     /**
@@ -200,7 +200,16 @@ public class BoneDefinition {
     }
 
     public static class VanillaPart {
-        /** The model's field holding the part, by its 1.12 development name (see {@link goblinbob.mobends.core.vanilla.VanillaNames#modelPart}). */
+        /**
+         * The part's path in the model's part tree: {@code ModelPart.getChild} names from the
+         * root, joined by {@code /} ({@code body/left_arm}). Any model's, vanilla's or a mod's.
+         */
+        public String part;
+        /**
+         * The model's field holding the part: a vanilla model's by its 1.12 development name (see
+         * {@link goblinbob.mobends.core.vanilla.VanillaNames#modelPart}), a mod's model's by its own
+         * name (found by reflection, as 1.12 did).
+         */
         public String field;
         /** For an array field: the element. */
         public int element = -1;

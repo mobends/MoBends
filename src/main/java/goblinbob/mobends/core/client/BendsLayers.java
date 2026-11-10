@@ -13,7 +13,6 @@ import goblinbob.mobends.core.definition.BoneDefinition;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.vanilla.PlayerModelParts;
-import goblinbob.mobends.core.vanilla.VanillaNames;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -522,11 +521,11 @@ public final class BendsLayers {
      * no class, of the entity's own model's class.
      */
     private static boolean isCopy(Frame frame, EntityModel<?> model) {
-        String modelName = frame.data.getDefinition().model;
-        if (modelName == null) {
+        EntityModelDefinition definition = frame.data.getDefinition();
+        if (definition.model == null) {
             return model.getClass() == frame.model.getClass();
         }
-        Class<?> modelClass = VanillaNames.modelClass(modelName);
+        Class<?> modelClass = definition.modelClass();
         return modelClass != null && modelClass.isInstance(model);
     }
 }

@@ -67,17 +67,14 @@ Render layers that draw their own copy of the model (the sheep's wool, a charged
 armour) are replaced by `AnimatedCopyLayer`s (`mobends:sheep_wool`, `mobends:creeper_charge`),
 which mutate the copy by the same definition and pose it as the mob is.
 
-### Vanilla field names in production
+### Names in definitions
 
-Definitions name fields by their development (MCP) names, which don't exist in a production
-(SRG) runtime. `src/tools/kotlin/.../GenVanillaFields.kt` (`gradle generateVanillaFields`) reads
-the SRG Forge jar and the mappings from `build/fg_cache` and generates `core/vanilla/VanillaModelParts`
-and `core/vanilla/VanillaEntityFields`: a string switch from `owner#name` to a lambda that reads
-the field directly, so reobfuscation renames every access. Non-public fields are opened by a
-generated section of `META-INF/accesstransformer.cfg`, below a marker line. `DefinedFields` looks
-a field up in the generated table for each class in the hierarchy first and falls back to
-reflection, which is how fields of modded entities and models are found. The build fails when the
-generated files were made for another Minecraft, Forge or mappings version (`checkVanillaFields`).
+Definitions name Minecraft's classes and fields as 1.12 did, on every version; `VanillaNames`
+translates them to the version's own (on Fabric, those are renamed outside development, so they're
+never looked up by name). Mods' names are their own, and loaders don't rename them, so a mod's
+entity or model is named by its full class name and its fields by their names, found by
+reflection. A bone's part can also be named by its path in the model's part tree (`part`), which
+works for any model. See *Field names* in `misc/kumo-format.md`.
 
 ## What Resource Packs May Do
 

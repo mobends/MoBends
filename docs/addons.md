@@ -55,6 +55,31 @@ A mod on both loaders does both. Your mod's id is the one in `fabric.mod.json` o
 Addons only run on the client. Their content is registered at start-up, before any animator,
 model definition or type file loads; registering later throws.
 
+## A mob of your own
+
+A mob is a model definition (`assets/<modid>/bends/models/my_mob.json`, see
+[content.md](content.md)) registered with `registerDefinedEntity`. It names your entity and model
+by their full class names, which loaders don't rename, and each bone's part by its path in your
+model's part tree (the names you gave `addOrReplaceChild`), or by your model's `ModelPart` field:
+
+```json
+{
+  "formatVersion": 2,
+  "entity": "com.example.mymod.entity.MyMob",
+  "model": "com.example.mymod.client.MyMobModel",
+  "animator": "mymod:bends/animators/my_mob.json",
+  "bones": [
+    {"name": "body", "vanilla": {"part": "body"}},
+    {"name": "head", "vanilla": {"part": "body/head"}, "parent": "body"},
+    {"name": "leftArm", "vanilla": {"field": "leftArm"}, "parent": "body",
+     "split": {"at": [0.5], "names": ["leftForeArm"]}}
+  ]
+}
+```
+
+Your model must be one Mo' Bends draws from: a `HierarchicalModel` (as most are), or a
+`HumanoidModel`. A model that extends `EntityModel` and draws its parts itself is drawn as vanilla.
+
 ## Callbacks
 
 `IAddon` also has, all optional, on the client's thread:

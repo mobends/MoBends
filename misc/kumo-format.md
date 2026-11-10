@@ -1072,9 +1072,9 @@ The chicken's definition also declares the values its animator reads, over the e
 |---|---|
 | `formatVersion` | `2` (the index, `{"formatVersion": 2, "models": [...]}`, has one too) |
 | `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothing`, `renderer` and `options` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie. A chain with a resource pack's file in it is untrusted |
-| `entity` | the entity class; `model` (optional) restricts mutation to that model class and its subclasses |
+| `entity` | the entity class; `model` (optional) bends only models of that class and its subclasses: Minecraft's by its 1.12 name, a mod's by its full name (see *Field names*) |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
-| `bones[].vanilla` | the vanilla part the bone takes over: `field` is the model's field by its development (MCP) name (see *Field names* below), `element` its index for array fields, `index` an optional fallback position in the model's box list (creation order). Every field or array slot that holds the part is replaced, found by identity. |
+| `bones[].vanilla` | the model's part the bone takes over: `part` is its path in the model's part tree (`body/left_arm`), for any model; `field` is the model's field holding it, a vanilla model's by its 1.12 name, a mod's model's by its own (see *Field names* below), and `element` its index for array fields. `index` (1.12's position in the model's box list) is read but has nothing to stand for in the modern versions. |
 | `bones[].parent` | renders the bone inside another one; `position` is then relative to the parent. A stand-in takes the vanilla slot: it draws nothing, but what vanilla does through the field reaches the bone (its visibility, such as a player's skin-part toggles, and `postRender`, where vanilla attaches held items and hats) |
 | `bones[].inheritRotation` | `false`: the bone sits where its parent puts it, but doesn't turn with it: its rotation is relative to the model (the whole entity), not to the parent. A biped's head, which looks where the entity looks however the body bends: a `pre` rotation of it turns it about the model's axes. Only for a bone with a `parent`; default `true` |
 | `bones[].position` | where the bone sits (relative to its parent if it has one); moves its boxes with it. Default: its `pivot`, or else the vanilla rotation point, relative to the parent's |
@@ -1137,25 +1137,27 @@ what its animator drives, and walks.
 
 ### Field names
 
-Fields are always named as in the development environment (MCP names), for vanilla and modded
-classes alike; `DefinedFields` walks the class hierarchy from the entity (or model) class up and,
-for each class:
+Packs name Minecraft's classes and fields as 1.12 did, on every version: the names a game version
+has are its own, and on Fabric they are renamed outside development, so a pack written against one
+version's names would work in one place and not another. Mods' names are their own, and loaders
+don't rename them. So:
 
-* **vanilla classes** are looked up in the generated accessors `core/vanilla/VanillaModelParts`
-  (every `ModelRenderer` / `ModelRenderer[]` field of every vanilla model) and
-  `core/vanilla/VanillaEntityFields` (every numeric field of `Entity`, `EntityLivingBase` and the
-  living entities). They read the fields directly, so reobfuscation renames them for production;
-  no SRG name appears in a definition. Regenerate them with `gradle generateVanillaFields`
-  (`src/tools/kotlin/.../GenVanillaFields.kt`, which also writes the generated section of the access
-  transformer that makes the non-public ones readable) after changing the Minecraft, Forge or
-  mappings version; `checkVanillaFields`, run before `compileJava`, fails the build until you do.
-* **anything else** (a mod's own entity or model, or its fields on a subclass) is found by
-  reflection under the same name, since mods are not obfuscated.
+* **a model** (`model`) is Minecraft's by its 1.12 name (`net.minecraft.client.model.ModelBiped`),
+  which `VanillaNames` translates; another mod's by its full name
+  (`com.example.mymod.client.MyMobModel`), loaded as is. A `net.minecraft.` name is never loaded as
+  is.
+* **a bone's part** (`bones[].vanilla`) is, in any model, its `part` path: the names
+  `ModelPart.getChild` takes from the model's root, joined by `/` (`body/left_arm`). In a vanilla
+  model, a `field` is its 1.12 name, which `VanillaNames` translates to a path (array fields by
+  `element`). In a mod's model, a `field` is one of the model's own `ModelPart` fields (or an
+  element of a `ModelPart[]`), found by reflection, as 1.12 found every field.
+* **an entity's field** (`field`) of one of Minecraft's classes is its 1.12 name, which
+  `VanillaNames` translates to today's (or a getter); of a mod's class, its own name, found by
+  reflection. A name `VanillaNames` doesn't translate takes the expression's `@fallback`.
 
-A vanilla field the tables lack falls back to reflection too, which works in development only.
-`field` finds fields the same way. The tables hold numeric fields only, so a vanilla boolean
-field, or a step through a vanilla object field (`ridingEntity`), is found in development only:
-in the game it takes its `@fallback`.
+The model must be one Mo' Bends draws from: a `HierarchicalModel`, or a `HumanoidModel` and the
+vanilla models whose part tree it keeps (`ModelRootHolder`). A mod's model that extends
+`EntityModel` and draws its parts itself is drawn as vanilla.
 
 Layers that draw their own copy of the model (the sheep's wool, a charged creeper's armour) are
 replaced by `mobends:sheep_wool` and `mobends:creeper_charge` (see `layers`), which mutate the
