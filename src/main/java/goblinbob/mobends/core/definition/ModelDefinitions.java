@@ -98,7 +98,7 @@ public class ModelDefinitions
     {
         if (!json.has("extends"))
         {
-            return new Resolved(json, true);
+            return new Resolved(DefinitionMerge.applyVariants(json), true);
         }
         ResourceLocation parentLocation = new ResourceLocation(json.get("extends").getAsString());
         if (!visiting.add(parentLocation))
@@ -107,7 +107,7 @@ public class ModelDefinitions
         }
         Resolved parent = resolve(check(GsonResources.read(parentLocation, GSON, JsonElement.class)), visiting);
         boolean trusted = parent.trusted && PackTrust.opensTrusted(parentLocation);
-        return new Resolved(DefinitionMerge.merge(parent.json, json), trusted);
+        return new Resolved(DefinitionMerge.applyVariants(DefinitionMerge.merge(parent.json, json)), trusted);
     }
 
     /** Loads the definition at {@code location}, e.g. {@code yourmod:bends/models/beast.json}. */

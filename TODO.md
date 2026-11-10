@@ -53,23 +53,6 @@ comes with a pull request here that adds its steps below, under the `main` PR's 
 CONTRIBUTING.md, *Branches*). Steps that need a new `core` wait for its release; the others can be
 done right away. Once a group is done and merged here, delete it.
 
-### #383: `core` 2.0.0-alpha.3
-
-Waits for the `core-2.0.0-alpha.3` tag on `main` (see CONTRIBUTING.md there, *Releasing `core`*). The
-release only adds to the API (`goblinbob.mobends.core.kumo.MinecraftVersion` and the
-`core:minecraft_version` operation); nothing is removed or changed.
-
-- [ ] Set `core_version=2.0.0-alpha.3` in `gradle.properties` (the mod and the animation lab both
-      read it).
-- [ ] Call `MinecraftVersion.set(ModStatics.MCVERSION)` first thing in `Core.preInit`, before
-      `MinecraftKumoOperations.register()` and before any animator or definition loads. Nothing
-      breaks without it today, but the first asset that uses `core:minecraft_version` would fail to
-      load (the operation fails to compile before the version is set).
-- [ ] Optionally, apply `@variants` in model definitions too, instead of ignoring them: port
-      `DefinitionMerge.applyVariants` from `main` and call it in `ModelDefinitions.resolve`, after
-      `extends` is merged. The shipped assets don't need it: the wolf's only variant is for versions
-      after 1.12.2.
-
 ### #383: The wolf matches vanilla
 
 Doesn't need a new `core`. On `main` the wolf's head, legs and tail now sit and turn where vanilla's
@@ -77,8 +60,8 @@ do, with vanilla's texture on every face (the vanilla wolf's geometry is the sam
 
 - [ ] Copy `assets/mobends/bends/models/wolf.json` and `assets/mobends/bends/animators/wolf.json` from
       `main`. The animator only changes the tail's angle (measured from the idle clip's tail, 72.93°,
-      instead of from 90°). The model's `@variants` is ignored here until it's supported (above), and
-      its `childBones` are already the 1.12.2 placement of the pup's head.
+      instead of from 90°). The model's `@variants` only applies after 1.12.2, and its
+      `childBones` are already the 1.12.2 placement of the pup's head.
 - [ ] Teach box faces `"flip": true` (mirrors a face's texture left to right, before it's turned),
       which the wolf's body and mane now use: `BoneDefinition.FaceDefinition.flip`,
       `BoxFactory.TextureFace.flipped` and `BoxFactory.flipTextureQuad`, `MutatedBox` swapping the face's
@@ -122,7 +105,7 @@ together: without the key, this branch would draw the hand in the player's anima
 
 Doesn't need a new `core`. On `main` the zombified piglin bends: `pig_zombie.json` (the mod's and the
 legacy pack's) got a `@variants` entry that names the piglin's model on versions after 1.12.2. Nothing
-changes in 1.12.2: it ignores `@variants`, and the entry's `@when` doesn't hold on 1.12.2 anyway.
+changes in 1.12.2: the entry's `@when` doesn't hold on 1.12.2.
 
 - [ ] Copy `assets/mobends/bends/models/pig_zombie.json` and
       `misc/legacy-pack/assets/mobends/bends/models/pig_zombie.json` from `main`.

@@ -653,9 +653,18 @@ Operations nest freely:
 | `decreased` | one number: holds on the frame it is lower than on the previous evaluation | boolean |
 | `toDouble`, `toFloat` | one number / one double: the same value as a double / as a number (rounded to a float) | double / number |
 | `rose`, `fell` | one boolean: holds on the frame it turns true / false | boolean |
+| `core:minecraft_version` | `[comparison, version]`: `>`, `>=`, `<`, `<=`, `==` or `!=`, and a version written out (`"1.12.2"`) | boolean: whether the running Minecraft version compares so with it |
 
 **Nothing short-circuits**: `and`, `or` and `if` evaluate every argument, both branches of an
 `if` included, so an edge trigger inside never misses a frame.
+
+**`core:minecraft_version`** lets one asset, shared by every Minecraft version, say how it differs
+between them: `{"core:minecraft_version": [">", "1.12.2"]}`. Versions are dot-separated numbers,
+compared segment by segment as numbers, a missing segment counting as 0: `1.21` is `1.21.0`, and
+`1.21.1` < `1.21.10` < `26.1`. It is the same for every entity and every frame, so it is computed
+once, when the expression is compiled (and folds with the constants around it); it is
+selector-safe too. The mod tells the engine the version at start-up (`MinecraftVersion.set`);
+a host that doesn't makes every use of it a load error.
 
 `decreased`, `rose` and `fell` remember their value from the previous evaluation. Each place one
 is written keeps its own memory (two uses keep two memories), and it starts over, noting the
@@ -1085,6 +1094,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | `bones[].boxes` | the bone's own boxes, drawn instead of its vanilla part's (which still gives the texture size): each `{"uv": [u, v], "from": [x, y, z], "size": [x, y, z]}` as vanilla's `addBox` takes them, in the bone's frame, plus optionally `drawnSize` (the size it is drawn at, its texture stretched over it), `offset`, `inflate` ([x, y, z]), `mirror`, `hide` (faces: `left`, `right`, `top`, `bottom`, `front`, `back`) and `faces` (per face, `uvOffset` [u, v] and `rotate`: `clockwise`, `counter_clockwise`, `half_turn`). The spider's longer legs; a bone with no vanilla part of its own (a spider's foreleg). Can't be split or an overlay |
 | `@define`, `@on` | the entity scope: what the mob exposes to its animators and extensions (`entity.wingAngle`) and remembers across frames, as an animator's scopes declare theirs (see *Definitions and statements*). The only place `field` and `exists` are written (see *Reading the entity*) |
 | `options` | options the user sets in the Mo' Bends menu, which the entity's animator reads as `option.x` (see *Options*); extensions don't see them |
+| `@variants` | conditional values: a list of objects, each an `@when` and the fields it merges into the definition when that holds, in order, the way a definition is merged into the one it `extends` (see `extends` above; a variant can't set `extends`, `formatVersion` or `@variants`). An `@when` is a boolean expression that has to be known when the definition loads: constants and constant operations only, such as `core:minecraft_version` (anything else is a load error). Variants are merged after `extends`, and a parent's into the parent first, so a child's own fields and variants override them. |
 | `@comment` | a note, ignored |
 
 **The entity scope is the model definition's alone.** It is the one file every type, animator and
