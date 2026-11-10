@@ -25,7 +25,7 @@ Ported so far, in this order:
 | #413 | The Legacy Mo' Bends pack is built, signed and released from `main`. |
 | #416, #417, #418, #420 | The rest of 1.12: errors told in chat, `core:equipment_name` and `core:ledge_ahead`, NeoForge's update check, the credits, two tests. `legacy-1.12/` is gone. |
 | #421, #422, #423, #424 | Model definitions bend any model, a mod's too, and any mob, named by registry id. |
-| this PR | Minecraft 1.20.1 on Fabric. |
+| #428 | Minecraft 1.20.1 on Fabric. |
 
 I've checked the player, its layers and the other mobs (the zombie, skeleton, zombie villager,
 creeper, golem, villager, witch, spider, squid, and the wolf, adult and pup, side by side with vanilla)
