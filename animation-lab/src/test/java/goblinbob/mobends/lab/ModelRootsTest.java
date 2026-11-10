@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -71,6 +72,16 @@ class ModelRootsTest
         ModelRoots.record(otherRoot);
         assertSame(root, ModelRoots.find(new OwnDrawModel(otherPart, head, body, leg)));
         assertSame(otherRoot, ModelRoots.find(new OwnDrawModel(otherPart)));
+    }
+
+    @Test
+    void theRootOutlivesItsLastReference()
+    {
+        // As a model keeps only the parts it poses, nothing holds the root but its parts.
+        ModelPart part = new ModelPart(Map.of());
+        ModelRoots.record(new ModelPart(Map.of("part", part)));
+        System.gc();
+        assertNotNull(ModelRoots.find(new OwnDrawModel(part)));
     }
 
     @Test

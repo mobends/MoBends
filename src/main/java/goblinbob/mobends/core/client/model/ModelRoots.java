@@ -3,14 +3,12 @@ package goblinbob.mobends.core.client.model;
 import net.minecraft.client.model.geom.ModelPart;
 
 import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * The root of any model's part tree, which the model definitions' part paths start from, for a
@@ -21,23 +19,28 @@ import java.util.WeakHashMap;
  * (Fabric renames Minecraft's fields) and for every mod.
  */
 public final class ModelRoots {
-    /** Each part of every tree built, to the tree's root; both weakly, so trees no model holds go. */
-    private static final Map<ModelPart, WeakReference<ModelPart>> ROOT_OF_PART = Collections.synchronizedMap(new WeakHashMap<>());
+    /** The roots of parts without {@link TreeRoot}: the animation lab's stand-ins, which no mixin reaches. */
+    private static final Map<ModelPart, ModelPart> UNMIXED = Collections.synchronizedMap(new IdentityHashMap<>());
 
     private ModelRoots() {
     }
 
     /** Remembers the tree built from {@code root} (a layer definition's {@code bakeRoot}). */
     public static void record(ModelPart root) {
-        WeakReference<ModelPart> reference = new WeakReference<>(root);
-        root.getAllParts().forEach(part -> ROOT_OF_PART.put(part, reference));
+        // On each part ({@link TreeRoot}): nothing else keeps the root once its model is made.
+        root.getAllParts().forEach(part -> {
+            if ((Object) part instanceof TreeRoot holder) {
+                holder.mobends$setTreeRoot(root);
+            } else {
+                UNMIXED.put(part, root);
+            }
+        });
     }
 
     /** The root of the tree {@code part} was built in, or null if it wasn't built from a layer definition. */
     @Nullable
     public static ModelPart rootOfPart(ModelPart part) {
-        WeakReference<ModelPart> reference = ROOT_OF_PART.get(part);
-        return reference == null ? null : reference.get();
+        return (Object) part instanceof TreeRoot holder ? holder.mobends$getTreeRoot() : UNMIXED.get(part);
     }
 
     /**
