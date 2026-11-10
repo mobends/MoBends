@@ -58,8 +58,9 @@ model definition or type file loads; registering later throws.
 ## A mob of your own
 
 A mob is a model definition (`assets/<modid>/bends/models/my_mob.json`, see
-[content.md](content.md)) registered with `registerDefinedEntity`. It names your entity and model
-by their full class names, which loaders don't rename, and each bone's part by its path in your
+[content.md](content.md)) registered with `registerDefinedEntity`. It names your entity by its
+registry id (`mymod:my_mob`) or its full class name (which also covers its subclasses), your model
+by its full class name, which loaders don't rename, and each bone's part by its path in your
 model's part tree (the names you gave `addOrReplaceChild`), or by your model's `ModelPart` field:
 
 ```json

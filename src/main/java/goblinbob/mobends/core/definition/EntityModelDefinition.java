@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.definition;
 
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import goblinbob.mobends.core.kumo.option.KumoOptions;
 import goblinbob.mobends.core.kumo.option.OptionSet;
@@ -11,6 +12,7 @@ import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.OnTemplate;
 import goblinbob.mobends.core.vanilla.VanillaNames;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,10 +33,20 @@ public class EntityModelDefinition {
     public static final int FORMAT_VERSION = 2;
 
     /**
-     * Fully qualified entity class, e.g. {@code net.minecraft.entity.passive.EntityCow}: a 1.12 name,
-     * as packs write them on every version (see {@link goblinbob.mobends.core.vanilla.VanillaNames}).
+     * The entities it's for, one name or a list ({@code "entity": ["minecraft:fox", ...]}), each:
+     * <ul>
+     *   <li>a registry id ({@code minecraft:fox}, {@code mymod:my_mob}): the entities of that type
+     *   alone. Ids don't change between versions or loaders, so they name any mob, those added after
+     *   1.12 too;</li>
+     *   <li>a full class name: Minecraft's by its 1.12 name (see
+     *   {@link goblinbob.mobends.core.vanilla.VanillaNames}), another mod's by its own; the entities of
+     *   that class and its subclasses.</li>
+     * </ul>
+     * An entity any of them names is one of its. Names this version doesn't know (another version's
+     * mob, a mod that isn't installed) are skipped.
      */
-    public String entity;
+    @JsonAdapter(EntityNamesDeserializer.class)
+    public List<String> entity;
 
     /**
      * Optional: only models of this class (or a subclass) are bent. Minecraft's by its 1.12 name, as
@@ -178,8 +190,35 @@ public class EntityModelDefinition {
     }
 
 
+    /** Whether {@code name}, one of {@link #entity}, is a registry id ({@code minecraft:fox}) rather than a class name. */
+    public static boolean isEntityId(String name) {
+        return name.indexOf(':') >= 0;
+    }
+
+    /**
+     * The key it has when it names none: from its first entity, as written, whether this version
+     * knows it or not: an id's ({@code fox}, {@code mymod/my_mob}), or 1.12's id of a Minecraft
+     * class ({@code zombie_pigman}), as 1.12 named it; null for another mod's class, which needs a
+     * {@code key}.
+     */
+    @Nullable
+    public String defaultKey() {
+        String first = entity.get(0);
+        String id = isEntityId(first) ? first : VanillaNames.legacyEntityId(first);
+        ResourceLocation location = id == null ? null : ResourceLocation.tryParse(id);
+        if (location == null) {
+            return null;
+        }
+        return "minecraft".equals(location.getNamespace()) ? location.getPath() : location.getNamespace() + "/" + location.getPath();
+    }
+
     public void validate() throws MalformedKumoTemplateException {
-        if (entity == null) throw new MalformedKumoTemplateException("A model definition needs an 'entity' class.");
+        if (entity == null || entity.isEmpty()) throw new MalformedKumoTemplateException("A model definition needs an 'entity': a registry id or a class name, or a list of them.");
+        for (String name : entity) {
+            if (name == null || name.isEmpty() || isEntityId(name) && ResourceLocation.tryParse(name) == null) {
+                throw new MalformedKumoTemplateException("'" + name + "' is no entity id or class name.");
+            }
+        }
         if (animator == null) throw new MalformedKumoTemplateException("A model definition needs an 'animator'.");
         if (bones.isEmpty()) throw new MalformedKumoTemplateException("A model definition needs 'bones'.");
         OptionTemplate.validate(options, "the model definition");

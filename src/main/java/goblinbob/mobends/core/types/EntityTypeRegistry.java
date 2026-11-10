@@ -156,8 +156,7 @@ public final class EntityTypeRegistry {
                 continue;
             }
             for (ResourceLocation entityType : entityTypes) {
-                Class<?> entityClass = EntityClasses.of(entityType);
-                if (entityClass != null && DefinedEntities.defaultFor(entityClass) == defined) {
+                if (DefinedEntities.defaultFor(entityType, EntityClasses.of(entityType)) == defined) {
                     found.add(type);
                     break;
                 }

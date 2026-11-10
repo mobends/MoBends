@@ -20,6 +20,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -90,7 +91,7 @@ public class GuiSupportersWindow extends Screen {
     private final Map<String, EntityPreview> previews = new HashMap<>();
     private final List<LivingEntity> dressed = new ArrayList<>();
     @Nullable
-    private final DefinedEntity playerModel = DefinedEntities.defaultFor(RemotePlayer.class);
+    private final DefinedEntity playerModel = DefinedEntities.defaultFor(ResourceLocation.withDefaultNamespace("player"), RemotePlayer.class);
     private final Map<String, AccessoryDetails> accessories = new HashMap<>();
 
     /** The accessory previewed; null if there are none. */

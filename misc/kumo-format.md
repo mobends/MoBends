@@ -1072,7 +1072,7 @@ The chicken's definition also declares the values its animator reads, over the e
 |---|---|
 | `formatVersion` | `2` (the index, `{"formatVersion": 2, "models": [...]}`, has one too) |
 | `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothing`, `renderer` and `options` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie. A chain with a resource pack's file in it is untrusted |
-| `entity` | the entity class; `model` (optional) bends only models of that class and its subclasses: Minecraft's by its 1.12 name, a mod's by its full name (see *Field names*) |
+| `entity` | the entities it's for: a registry id (`minecraft:fox`), the entities of that type alone, or a class, those of that class and its subclasses (Minecraft's by its 1.12 name, a mod's by its full name); or a list of them (`["minecraft:zombie", "minecraft:husk"]`), any of which may name an entity. Names this version doesn't know are skipped (see *Field names*). `model` (optional) bends only models of that class and its subclasses, named as a class is |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
 | `bones[].vanilla` | the model's part the bone takes over: `part` is its path in the model's part tree (`body/left_arm`), for any model; `field` is the model's field holding it, a vanilla model's by its 1.12 name, a mod's model's by its own (see *Field names* below), and `element` its index for array fields. `index` (1.12's position in the model's box list) is read but has nothing to stand for in the modern versions. |
 | `bones[].parent` | renders the bone inside another one; `position` is then relative to the parent. A stand-in takes the vanilla slot: it draws nothing, but what vanilla does through the field reaches the bone (its visibility, such as a player's skin-part toggles, and `postRender`, where vanilla attaches held items and hats) |
@@ -1142,6 +1142,11 @@ has are its own, and on Fabric they are renamed outside development, so a pack w
 version's names would work in one place and not another. Mods' names are their own, and loaders
 don't rename them. So:
 
+* **an entity** (`entity`) is named by its registry id (`minecraft:fox`, `mymod:my_mob`), which
+  no version or loader changes: the way to name a mob added after 1.12, which has no 1.12 name. Or
+  by its class: Minecraft's by its 1.12 name (`net.minecraft.entity.passive.EntityCow`), which
+  `VanillaNames` translates, which covers its subclasses as 1.12's did (`EntityZombie` the husk and
+  the drowned); another mod's by its full name. Mo' Bends 1.12.2 reads only a single class name.
 * **a model** (`model`) is Minecraft's by its 1.12 name (`net.minecraft.client.model.ModelBiped`),
   which `VanillaNames` translates; another mod's by its full name
   (`com.example.mymod.client.MyMobModel`), loaded as is. A `net.minecraft.` name is never loaded as

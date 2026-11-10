@@ -130,7 +130,7 @@ public class DefinedModelsTest
     /** An entity of the class the definition is for (named as 1.12 named it), added to {@code world}; a zombie for a class the stand-ins don't have. */
     static LivingEntity entityOf(EntityModelDefinition definition, ClientLevel world) throws Exception
     {
-        Class<?> type = VanillaNames.entityClass(definition.entity);
+        Class<?> type = VanillaNames.entityClass(definition.entity.get(0));
         LivingEntity entity;
         if (type == null)
         {

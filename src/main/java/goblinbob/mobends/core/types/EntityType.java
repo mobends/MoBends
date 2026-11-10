@@ -56,7 +56,7 @@ public class EntityType implements TypeOrder.Ranked {
 
     /** The type every entity registered in code gets: its model for the entities it's the default model of. */
     static EntityType builtIn(DefinedEntity defined, String key) {
-        ISelectorCondition isDefaultModel = entity -> DefinedEntities.defaultFor(entity.getClass()) == defined;
+        ISelectorCondition isDefaultModel = entity -> DefinedEntities.defaultFor(entity) == defined;
         return new EntityType(key, "built in", isDefaultModel, 1, defined, false, null, OptionSet.EMPTY);
     }
 
@@ -124,7 +124,7 @@ public class EntityType implements TypeOrder.Ranked {
         if (vanilla) {
             return vanillaSelection;
         }
-        DefinedEntity defined = model != null ? model : DefinedEntities.defaultFor(entity.getClass());
+        DefinedEntity defined = model != null ? model : DefinedEntities.defaultFor(entity);
         if (defined == null || !defined.animates(entity)) {
             return null;
         }
