@@ -73,8 +73,10 @@ Definitions name Minecraft's classes and fields as 1.12 did, on every version; `
 translates them to the version's own (on Fabric, those are renamed outside development, so they're
 never looked up by name). Mods' names are their own, and loaders don't rename them, so a mod's
 entity or model is named by its full class name and its fields by their names, found by
-reflection. A bone's part can also be named by its path in the model's part tree (`part`), which
-works for any model. See *Field names* in `misc/kumo-format.md`.
+reflection. An entity can also be named by its registry id (`minecraft:fox`), or a list of them,
+which works for any mob, those added after 1.12 too; and a bone's part by its path in the model's
+part tree (`part`), which works for any model. So a mob 1.12 never had takes a definition with
+ids, no `model`, and parts by path. See *Field names* in `misc/kumo-format.md`.
 
 ## What Resource Packs May Do
 

@@ -8,15 +8,19 @@ import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.vanilla.VanillaNames;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * The entities Mo' Bends animates, each made from a model definition (1.12's benders): those
@@ -29,7 +33,8 @@ public final class DefinedEntities {
     private static final List<DefinedEntity> DEFAULTS = new ArrayList<>();
     /** Made for the type files since the last reload. */
     private static final List<DefinedEntity> FROM_TYPES = new ArrayList<>();
-    private static final Map<Class<?>, Optional<DefinedEntity>> DEFAULT_BY_CLASS = new HashMap<>();
+    /** The default model by entity type id and class ({@link #defaultFor(ResourceLocation, Class)}). */
+    private static final Map<List<Object>, Optional<DefinedEntity>> DEFAULT_BY_TYPE = new HashMap<>();
 
     private DefinedEntities() {
     }
@@ -82,24 +87,46 @@ public final class DefinedEntities {
         return null;
     }
 
+    /** The model {@code entity} has by default ({@link #defaultFor(ResourceLocation, Class)}). */
+    @Nullable
+    public static DefinedEntity defaultFor(LivingEntity entity) {
+        return defaultFor(typeIdOf(entity), entity.getClass());
+    }
+
     /**
-     * The model an entity of {@code entityClass} has by default: of those registered in code, the
-     * one for the closest class it is an instance of (its own, else the nearest superclass), so a
-     * zombie villager, a zombie, gets the zombie villager's and a husk the zombie's. 1.12 took the
+     * The model an entity of the type {@code typeId} and the class {@code entityClass} (null if not
+     * known) has by default, of those registered in code: the first that names its type by id, else
+     * the one for the closest class it is an instance of (its own, else the nearest superclass), so
+     * a zombie villager, a zombie, gets the zombie villager's and a husk the zombie's. 1.12 took the
      * first registered superclass instead, which picks the same for every 1.12 mob.
      */
     @Nullable
-    public static DefinedEntity defaultFor(Class<?> entityClass) {
-        return DEFAULT_BY_CLASS.computeIfAbsent(entityClass, c -> {
+    public static DefinedEntity defaultFor(ResourceLocation typeId, @Nullable Class<?> entityClass) {
+        return DEFAULT_BY_TYPE.computeIfAbsent(Arrays.asList(typeId, entityClass), k -> {
             DefinedEntity best = null;
+            Class<?> bestClass = null;
             for (DefinedEntity defined : DEFAULTS) {
-                Class<?> type = defined.entityClass();
-                if (type != null && type.isAssignableFrom(c) && (best == null || best.entityClass().isAssignableFrom(type))) {
-                    best = defined;
+                defined.ensureLoaded();
+                if (defined.types.contains(typeId)) {
+                    return Optional.of(defined);
+                }
+                if (entityClass == null) {
+                    continue;
+                }
+                for (Class<?> type : defined.classes) {
+                    if (type.isAssignableFrom(entityClass) && (best == null || bestClass.isAssignableFrom(type))) {
+                        best = defined;
+                        bestClass = type;
+                    }
                 }
             }
             return Optional.ofNullable(best);
         }).orElse(null);
+    }
+
+    /** The registry id of {@code entity}'s type ({@code minecraft:fox}). */
+    public static ResourceLocation typeIdOf(LivingEntity entity) {
+        return BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
     }
 
     /** Forgets the definitions read and the entities made for type files: they're made again (after a resource reload). */
@@ -108,7 +135,7 @@ public final class DefinedEntities {
             defined.clearCache();
         }
         FROM_TYPES.clear();
-        DEFAULT_BY_CLASS.clear();
+        DEFAULT_BY_TYPE.clear();
     }
 
     /** An entity made from a model definition, which is read when it is first needed. */
@@ -119,8 +146,10 @@ public final class DefinedEntities {
         private final IEntityDataFactory<LivingEntity> dataFactory;
         @Nullable
         private EntityModelDefinition definition;
-        @Nullable
-        private Class<?> entityClass;
+        /** The classes its definition names that this version knows, until the next reload. */
+        private List<Class<?>> classes = List.of();
+        /** The entity types its definition names by id that this version knows, until the next reload. */
+        private Set<ResourceLocation> types = Set.of();
         @Nullable
         private String key;
         /** Whether the definition failed to load (logged once), until the next reload. */
@@ -151,17 +180,21 @@ public final class DefinedEntities {
             return definition;
         }
 
-        /** The entity class the definition names, or null if it can't be loaded or names none this version has. */
+        /**
+         * The first entity class the definition names by class name, or null if it names none this
+         * version has (or names its entities by id alone) or can't be loaded.
+         */
         @Nullable
         public Class<?> entityClass() {
             ensureLoaded();
-            return entityClass;
+            return classes.isEmpty() ? null : classes.get(0);
         }
 
         /**
          * Its key, which its built-in type takes as its id: the mod that registered it, and the
-         * definition's {@code key}, or else the 1.12 id of its entity ({@code mobends:zombie},
-         * {@code mobends:zombie_pigman}), as 1.12 named it; null if the definition can't be loaded.
+         * definition's {@code key}, or else one made from its first entity
+         * ({@link EntityModelDefinition#defaultKey()}: {@code mobends:zombie_pigman},
+         * {@code mobends:fox}); null if the definition can't be loaded.
          */
         @Nullable
         public String key() {
@@ -170,8 +203,9 @@ public final class DefinedEntities {
         }
 
         /**
-         * Today's id of the entities its definition names ({@code minecraft:zombified_piglin}), or
-         * null if it's no entity of Minecraft's (another mod's) or the definition can't be loaded.
+         * Today's id of the first entity type its definition names that this version knows: by id,
+         * or by one of Minecraft's 1.12 classes ({@code minecraft:zombified_piglin}); null if there's
+         * none (it names another mod's classes alone) or the definition can't be loaded.
          */
         @Nullable
         public ResourceLocation entityTypeId() {
@@ -179,14 +213,27 @@ public final class DefinedEntities {
             if (definition == null) {
                 return null;
             }
-            String legacyId = VanillaNames.legacyEntityId(definition.entity);
-            return legacyId == null ? null : VanillaNames.entityType(ResourceLocation.parse(legacyId));
+            for (String name : definition.entity) {
+                ResourceLocation id = idNamedBy(name);
+                if (id != null) {
+                    return id;
+                }
+            }
+            return null;
         }
 
-        /** Whether it can animate {@code entity}: an instance of its entity class. */
+        /** Whether it can animate {@code entity}: of a type it names by id, or an instance of a class it names. */
         public boolean animates(LivingEntity entity) {
-            Class<?> type = entityClass();
-            return type != null && type.isInstance(entity);
+            ensureLoaded();
+            if (!types.isEmpty() && types.contains(typeIdOf(entity))) {
+                return true;
+            }
+            for (Class<?> type : classes) {
+                if (type.isInstance(entity)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
@@ -222,26 +269,52 @@ public final class DefinedEntities {
 
         private void loadOrThrow() throws Exception {
             EntityModelDefinition loaded = ModelDefinitions.INSTANCE.load(location);
-            Class<?> type = entityClassOf(loaded.entity);
-            String name = loaded.key;
-            if (name == null) {
-                String legacyId = VanillaNames.legacyEntityId(loaded.entity);
-                if (legacyId == null) {
-                    throw new MalformedKumoTemplateException("it needs a 'key': its entity " + loaded.entity + " isn't one of Minecraft's.");
+            List<Class<?>> knownClasses = new ArrayList<>();
+            Set<ResourceLocation> knownTypes = new HashSet<>();
+            for (String name : loaded.entity) {
+                if (EntityModelDefinition.isEntityId(name)) {
+                    ResourceLocation id = idNamedBy(name);
+                    if (id != null && BuiltInRegistries.ENTITY_TYPE.containsKey(id)) {
+                        knownTypes.add(id);
+                    }
+                } else {
+                    Class<?> type = entityClassOf(name);
+                    if (type != null) {
+                        knownClasses.add(type);
+                    }
                 }
-                ResourceLocation id = ResourceLocation.parse(legacyId);
-                name = "minecraft".equals(id.getNamespace()) ? id.getPath() : id.getNamespace() + "/" + id.getPath();
+            }
+            if (knownClasses.isEmpty() && knownTypes.isEmpty()) {
+                throw new MalformedKumoTemplateException("its entity " + String.join(", ", loaded.entity) + " is no living entity this version knows.");
+            }
+            String name = loaded.key != null ? loaded.key : loaded.defaultKey();
+            if (name == null) {
+                throw new MalformedKumoTemplateException("it needs a 'key': its entity " + loaded.entity.get(0) + " isn't one of Minecraft's.");
             }
             definition = loaded;
-            entityClass = type;
+            classes = List.copyOf(knownClasses);
+            types = Set.copyOf(knownTypes);
             key = modId + ":" + name;
         }
 
         /**
-         * The class a definition's entity names: one of Minecraft's by its 1.12 name, through
-         * {@link VanillaNames}; another mod's by its own name, which loaders don't rename.
+         * Today's id of the entity type {@code name} (one of a definition's entities) names: an id,
+         * renamed if 1.12 had it under another, or one of Minecraft's 1.12 classes; null otherwise.
          */
-        private static Class<?> entityClassOf(String name) throws MalformedKumoTemplateException {
+        @Nullable
+        private static ResourceLocation idNamedBy(String name) {
+            String id = EntityModelDefinition.isEntityId(name) ? name : VanillaNames.legacyEntityId(name);
+            ResourceLocation location = id == null ? null : ResourceLocation.tryParse(id);
+            return location == null ? null : VanillaNames.entityType(location);
+        }
+
+        /**
+         * The living entity class a definition's entity names: one of Minecraft's by its 1.12 name,
+         * through {@link VanillaNames}; another mod's by its own name, which loaders don't rename;
+         * null if this version has none.
+         */
+        @Nullable
+        private static Class<?> entityClassOf(String name) {
             Class<?> type = VanillaNames.entityClass(name);
             if (type == null && !name.startsWith("net.minecraft.")) {
                 try {
@@ -251,15 +324,13 @@ public final class DefinedEntities {
                     type = null;
                 }
             }
-            if (type == null || !LivingEntity.class.isAssignableFrom(type)) {
-                throw new MalformedKumoTemplateException("its entity '" + name + "' is no living entity this version knows.");
-            }
-            return type;
+            return type != null && LivingEntity.class.isAssignableFrom(type) ? type : null;
         }
 
         private void clearCache() {
             definition = null;
-            entityClass = null;
+            classes = List.of();
+            types = Set.of();
             key = null;
             failed = false;
             warnedModel = false;

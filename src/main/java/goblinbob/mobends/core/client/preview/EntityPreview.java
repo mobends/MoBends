@@ -253,8 +253,10 @@ public class EntityPreview {
 
     @Nullable
     private LivingEntity construct(ClientLevel level, LocalPlayer player) {
+        // A player is never made from its entity type: it's a copy of the player.
         Class<?> entityClass = defined.entityClass();
-        if (entityClass != null && entityClass.isAssignableFrom(RemotePlayer.class)) {
+        if (entityClass != null && entityClass.isAssignableFrom(RemotePlayer.class)
+                || ResourceLocation.withDefaultNamespace("player").equals(defined.entityTypeId())) {
             return new PreviewPlayer(level, player);
         }
         EntityType<?> type = entityTypeOf(defined);
