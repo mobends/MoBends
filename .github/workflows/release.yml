@@ -202,10 +202,6 @@ jobs:
   # forge-1.12's release; see CONTRIBUTING.md.
   publish:
     needs: build
-    # TODO: Off until the modern versions go on the mod's Modrinth and CurseForge pages. Before
-    # deleting this `if`, check the MODRINTH_PROJECT_ID and CURSEFORGE_PROJECT_ID variables and the
-    # MODRINTH_TOKEN and CURSEFORGE_TOKEN secrets are set (see TODO.md).
-    if: false
     runs-on: ubuntu-latest
     environment: release
     strategy:

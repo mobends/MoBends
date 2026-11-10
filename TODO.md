@@ -199,10 +199,9 @@ forge-1.12               1.12.2
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge
      upload (the `publish` job) is switched off for now.
-   - [ ] Switch the modern Modrinth and CurseForge upload on: check the `MODRINTH_PROJECT_ID` and
-     `CURSEFORGE_PROJECT_ID` variables and the `MODRINTH_TOKEN` and `CURSEFORGE_TOKEN` secrets are
-     set, and delete the `publish` job's `if: false`. Check the first upload on both sites (loader,
-     Minecraft versions).
+   - [ ] Switch the modern Modrinth and CurseForge upload on. The variables and secrets are set and
+     the `publish` job is on from 2.0.0-alpha.3. Check its first upload on both sites (loader,
+     Minecraft versions, alpha), then tick this.
 3. [x] **Publish `core`.** Release the first `core` version and switch `forge-1.12` to depend on it,
    deleting its in-tree copy. (`core-2.0.0-alpha.2` on GitHub Packages; `forge-1.12` uses it since #379.)
 4. [x] **Switch the default branch** on GitHub to `main`, and archive the 1.16 branches

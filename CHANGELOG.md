@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.0.0-alpha.3
+
+The first Mo' Bends for Minecraft 1.21.1, on Fabric and NeoForge. It animates what 2.0.0-alpha.2
+does on 1.12.2: players, zombies (husks and drowned too), skeletons, zombie villagers, zombified
+piglins, creepers, villagers, witches, iron golems, spiders (cave spiders too), squids (glow squids
+too) and wolves, with their armour, held items, capes, elytras, sword and arrow trails, and the
+supporters' accessories. 1.12.2 stays on 2.0.0-alpha.2.
+
+### Added
+
+- Armour from GeckoLib mods bends with the body, cut at the elbows and knees (GeckoLib 4.6 and up,
+  optional).
+- Mods can add their own animated mobs, render layers and animation operations through the addon
+  API (see `docs/addons.md`).
+- Resource packs and mods can animate any mob, those 1.12 never had too: a model definition names
+  its entity by registry id (`"entity": "minecraft:fox"`, or a list of ids), and its bones' parts
+  by their path in the model (`"part": "body/head"`). Any model can be bent, a mod's too.
+- The Mo' Bends menu opens from the mod list's Config button (NeoForge, and Mod Menu on Fabric),
+  while you're in a world.
+- NeoForge tells you when a newer version of Mo' Bends is out.
+
+### Not yet
+
+- The items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident) keep whatever pose the
+  player was in.
+- Mo' Bends doesn't ship animations for the mobs added after 1.12: resource packs can add them.
+
 ## 2.0.0-alpha.2
 
 ### Added
