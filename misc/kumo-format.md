@@ -1160,9 +1160,11 @@ don't rename them. So:
   `VanillaNames` translates to today's (or a getter); of a mod's class, its own name, found by
   reflection. A name `VanillaNames` doesn't translate takes the expression's `@fallback`.
 
-The model must be one Mo' Bends draws from: a `HierarchicalModel`, or a `HumanoidModel` and the
-vanilla models whose part tree it keeps (`ModelRootHolder`). A mod's model that extends
-`EntityModel` and draws its parts itself is drawn as vanilla.
+The model must be one Mo' Bends draws from: a `HierarchicalModel`, a `HumanoidModel`, or a
+vanilla model drawn as a list of parts (`AgeableListModel`, `ListModel`) whose part tree it keeps
+(`ModelRootHolder`): every vanilla mob's but the camel's, armadillo's, sniffer's, llama's and
+rabbit's, which draw their parts their own way. A mod's model that extends `EntityModel`,
+`AgeableListModel` or `ListModel`, or draws its parts its own way, is drawn as vanilla.
 
 Layers that draw their own copy of the model (the sheep's wool, a charged creeper's armour) are
 replaced by `mobends:sheep_wool` and `mobends:creeper_charge` (see `layers`), which mutate the

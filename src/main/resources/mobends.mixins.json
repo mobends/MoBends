@@ -22,6 +22,7 @@
     "ItemInHandLayerMixin",
     "KeyMappingAccessor",
     "LevelRendererMixin",
+    "ListModelMixin",
     "LivingEntityRendererMixin",
     "MinecraftMixin",
     "MushroomCowMushroomLayerMixin",
