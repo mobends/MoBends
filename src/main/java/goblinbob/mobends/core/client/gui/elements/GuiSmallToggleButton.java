@@ -1,5 +1,8 @@
 package goblinbob.mobends.core.client.gui.elements;
 
+//? if >=1.20.2 {
+import goblinbob.mobends.core.util.Ids;
+//?}
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -8,12 +11,16 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+//? if >=1.20.2 {
 import net.minecraft.resources.ResourceLocation;
+//?}
 
 /** A small switch: the game's button, green and ON, or red and OFF. Clicking it flips it. */
 public class GuiSmallToggleButton extends AbstractButton {
-    private static final ResourceLocation BUTTON = ResourceLocation.withDefaultNamespace("widget/button");
-    private static final ResourceLocation BUTTON_HIGHLIGHTED = ResourceLocation.withDefaultNamespace("widget/button_highlighted");
+    //? if >=1.20.2 {
+    private static final ResourceLocation BUTTON = Ids.minecraft("widget/button");
+    private static final ResourceLocation BUTTON_HIGHLIGHTED = Ids.minecraft("widget/button_highlighted");
+    //?}
     private static final int WIDTH = 30;
     private static final int HEIGHT = 20;
 
@@ -41,7 +48,13 @@ public class GuiSmallToggleButton extends AbstractButton {
         } else {
             graphics.setColor(1.0F, 0.3F, 0.4F, 1.0F);
         }
+        //? if >=1.20.2 {
         graphics.blitSprite(this.isHoveredOrFocused() ? BUTTON_HIGHLIGHTED : BUTTON, getX(), getY(), WIDTH, HEIGHT);
+        //?} else {
+        /*// The button and its highlighted look, from the widgets texture, as 1.20.1's buttons draw them.
+        int textureY = 46 + (this.isHoveredOrFocused() ? 2 : 1) * 20;
+        graphics.blitNineSliced(WIDGETS_LOCATION, getX(), getY(), WIDTH, HEIGHT, 20, 4, 200, 20, 0, textureY);
+        *///?}
         graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         int color = !this.active ? 0xA0A0A0 : this.isHovered() ? 0xFFFFA0 : 0xE0E0E0;

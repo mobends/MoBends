@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.BendsLayers;
+import goblinbob.mobends.core.client.VanillaDraw;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.model.WolfModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -23,7 +25,7 @@ import net.minecraft.world.entity.animal.Wolf;
 public class WolfMiscLayer extends RenderLayer<Wolf, WolfModel<Wolf>> {
     public static final String KIND = "mobends:wolf_misc";
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(MoBends.MOD_ID, "textures/entity/wolf_misc.png");
+    private static final ResourceLocation TEXTURE = Ids.of(MoBends.MOD_ID, "textures/entity/wolf_misc.png");
     private static final int TEXTURE_WIDTH = 8;
     private static final int TEXTURE_HEIGHT = 8;
     private static final float SCALE = 0.0625F;
@@ -100,11 +102,6 @@ public class WolfMiscLayer extends RenderLayer<Wolf, WolfModel<Wolf>> {
 
     private static void vertex(PoseStack.Pose pose, VertexConsumer consumer, int light, int overlay, float x, float y, float z, float u, float v,
                                float normalY) {
-        consumer.addVertex(pose, x * SCALE, y * SCALE, z * SCALE)
-                .setColor(-1)
-                .setUv(u, v)
-                .setOverlay(overlay)
-                .setLight(light)
-                .setNormal(pose, 0.0F, normalY, 0.0F);
+        VanillaDraw.vertex(consumer, pose, x * SCALE, y * SCALE, z * SCALE, -1, u, v, overlay, light, 0.0F, normalY, 0.0F);
     }
 }

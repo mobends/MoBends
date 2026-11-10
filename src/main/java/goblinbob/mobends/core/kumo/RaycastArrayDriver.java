@@ -8,7 +8,6 @@ import goblinbob.mobends.core.kumo.api.NumberInput;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import goblinbob.mobends.core.kumo.state.template.pose.PointTemplate;
 import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
@@ -126,7 +125,6 @@ public final class RaycastArrayDriver {
             uz /= uLength;
             double vx = dy * uz - dz * uy, vy = dz * ux - dx * uz, vz = dx * uy - dy * ux;
 
-            Level level = RaycastDriver.level(context);
             BlockHitResult kept = null;
             for (int i = 0; i < count; i++) {
                 double across = sinOff[i];
@@ -134,7 +132,7 @@ public final class RaycastArrayDriver {
                 double ry = dy * cosOff[i] + (uy * cosRound[i] + vy * sinRound[i]) * across;
                 double rz = dz * cosOff[i] + (uz * cosRound[i] + vz * sinRound[i]) * across;
                 double endX = x + rx * reach, endY = y + ry * reach, endZ = z + rz * reach;
-                BlockHitResult hit = RaycastDriver.cast(level, x, y, z, endX, endY, endZ, liquids);
+                BlockHitResult hit = RaycastDriver.cast(context, x, y, z, endX, endY, endZ, liquids);
                 RayGizmos.Kind kind;
                 if (hit == null) {
                     kind = RayGizmos.Kind.MISS;

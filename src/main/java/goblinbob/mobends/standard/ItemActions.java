@@ -2,7 +2,9 @@ package goblinbob.mobends.standard;
 
 import goblinbob.mobends.core.configuration.ClientConfig;
 import net.minecraft.client.model.HumanoidModel;
+//? if >=1.21 {
 import net.minecraft.core.component.DataComponents;
+//?}
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BowItem;
@@ -49,7 +51,12 @@ public final class ItemActions {
             return configured;
         }
         UseAnim animation = stack.getUseAnimation();
-        if (stack.has(DataComponents.FOOD) || animation == UseAnim.EAT || animation == UseAnim.DRINK) {
+        //? if >=1.21 {
+        boolean food = stack.has(DataComponents.FOOD);
+        //?} else {
+        /*boolean food = stack.isEdible();
+        *///?}
+        if (food || animation == UseAnim.EAT || animation == UseAnim.DRINK) {
             return UseActionType.FOOD;
         }
         if (stack.getItem() instanceof BowItem || armPoseMain == HumanoidModel.ArmPose.BOW_AND_ARROW || armPoseOff == HumanoidModel.ArmPose.BOW_AND_ARROW) {

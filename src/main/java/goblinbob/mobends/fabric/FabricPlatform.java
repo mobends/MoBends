@@ -7,7 +7,12 @@ import goblinbob.mobends.core.addon.IAddon;
 import goblinbob.mobends.core.network.ServerRulesPayload;
 import goblinbob.mobends.platform.Platform;
 import net.fabricmc.api.EnvType;
+//? if >=1.21 {
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+//?} else {
+/*import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.network.FriendlyByteBuf;
+*///?}
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
@@ -59,7 +64,9 @@ public final class FabricPlatform implements Platform {
 
     @Override
     public void registerServerRules(@Nullable Consumer<ServerRulesPayload> onClientReceived) {
+        //? if >=1.21 {
         PayloadTypeRegistry.playS2C().register(ServerRulesPayload.TYPE, ServerRulesPayload.CODEC);
+        //?}
         if (onClientReceived != null) {
             // In a class of its own, so a server never loads the client's networking.
             FabricClientNetworking.receiveServerRules(onClientReceived);
@@ -68,9 +75,17 @@ public final class FabricPlatform implements Platform {
 
     @Override
     public void sendToPlayer(ServerPlayer player, ServerRulesPayload payload) {
+        //? if >=1.21 {
         if (ServerPlayNetworking.canSend(player, ServerRulesPayload.TYPE)) {
             ServerPlayNetworking.send(player, payload);
         }
+        //?} else {
+        /*if (ServerPlayNetworking.canSend(player, ServerRulesPayload.ID)) {
+            FriendlyByteBuf buffer = PacketByteBufs.create();
+            payload.write(buffer);
+            ServerPlayNetworking.send(player, ServerRulesPayload.ID, buffer);
+        }
+        *///?}
     }
 
     @Override

@@ -13,7 +13,15 @@ final class FabricClientNetworking {
 
     /** {@code handler} gets the server's rules, on the client's thread. */
     static void receiveServerRules(Consumer<ServerRulesPayload> handler) {
+        //? if >=1.21 {
         ClientPlayNetworking.registerGlobalReceiver(ServerRulesPayload.TYPE, (payload, context) -> handler.accept(payload));
+        //?} else {
+        /*ClientPlayNetworking.registerGlobalReceiver(ServerRulesPayload.ID, (client, listener, buffer, sender) -> {
+            // Read here, on the network thread; handled on the client's, as 1.21's receivers are.
+            ServerRulesPayload payload = ServerRulesPayload.read(buffer);
+            client.execute(() -> handler.accept(payload));
+        });
+        *///?}
     }
 }
 //?}

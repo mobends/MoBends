@@ -207,6 +207,13 @@ forge-1.12               1.12.2
 4. [x] **Switch the default branch** on GitHub to `main`, and archive the 1.16 branches
    (`2.X/forge-1.16`, `master-1.16.3`) as tags (`archive/2.X-forge-1.16`, `archive/master-1.16.3`).
 5. [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
+   - [x] 1.20.1 on Fabric builds and starts (to the title screen, every mixin applied).
+   - [x] 1.20.1 on Fabric checked in a world: the player and its layers, the mobs, the menu, the
+     server's rules on joining.
+   - [ ] GeckoLib armour on 1.20.1 (GeckoLib 4.8), and a resource pack's definition of a list-drawn
+     mob (the fox).
+   - [ ] 1.20.1 on Forge: its loader package (`goblinbob.mobends.forge`) and `build.forge.gradle.kts`.
+   - [ ] The latest Minecraft version, on Fabric and NeoForge.
 
 ### Other tasks
 

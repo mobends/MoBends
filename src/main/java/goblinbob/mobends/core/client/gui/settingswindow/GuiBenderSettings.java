@@ -10,6 +10,7 @@ import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
 import goblinbob.mobends.core.client.preview.EntityPreview;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.util.Draw;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -222,7 +223,7 @@ public class GuiBenderSettings implements IGuiListElement {
         if (resourcePack != null) {
             return Component.translatable("mobends.gui.settings.from_pack", modName(entityMod), resourcePack).getString();
         }
-        String benderMod = ResourceLocation.parse(String.valueOf(defined.key())).getNamespace();
+        String benderMod = Ids.parse(String.valueOf(defined.key())).getNamespace();
         if (benderMod.equals(MoBends.MOD_ID) || benderMod.equals(entityMod)) {
             return modName(entityMod);
         }

@@ -50,6 +50,10 @@ applyPose(renderState);
   `1.21.1-fabric`). Switching rewrites the fenced comments in your working copy; switch back
   (`./gradlew "Reset active project"`) before committing, or the diff fills up with comment noise.
   CI rejects it otherwise.
+- Where vanilla's API differs between versions, prefer one small helper that fences it once over
+  fences at every call: `core.client.VanillaDraw` (vertices, colours, poses; a colour is one ARGB
+  `int` everywhere, as 1.21 has it) and `core.util.Ids` (resource locations). Write a condition with
+  braces (`//? if >=1.21 {` … `//?}`), even around one line.
 - A fix is made once, in one pull request, for every version. Adding a Minecraft version means adding
   a node in `settings.gradle.kts` (and its properties), **not** creating a branch.
 
@@ -80,7 +84,7 @@ pushing if you like.
 
 ## Building and running
 
-Gradle runs on JDK 25 and builds 1.21.1 with JDK 21. You don't need to install either: Gradle
+Gradle runs on JDK 25 and builds 1.21.1 with JDK 21, 1.20.1 with JDK 17. You don't need to install any: Gradle
 downloads them (`gradle/gradle-daemon-jvm.properties`, and the toolchains of the build scripts).
 
 | Command | What |

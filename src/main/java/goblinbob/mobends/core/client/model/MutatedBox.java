@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.math.vector.IVec3fRead;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -148,13 +149,13 @@ public class MutatedBox {
             if (!isFaceVisible(f)) {
                 continue;
             }
-            Vector3f normal = pose.transformNormal(normals[f], scratch);
+            Vector3f normal = VanillaDraw.transformNormal(pose, normals[f], scratch);
             float nx = normal.x();
             float ny = normal.y();
             float nz = normal.z();
             for (float[] vertex : quads[f]) {
                 Vector3f position = matrix.transformPosition(vertex[0] / 16.0F, vertex[1] / 16.0F, vertex[2] / 16.0F, scratch);
-                consumer.addVertex(position.x(), position.y(), position.z(), color, vertex[3], vertex[4], packedOverlay, packedLight, nx, ny, nz);
+                VanillaDraw.vertex(consumer, position.x(), position.y(), position.z(), color, vertex[3], vertex[4], packedOverlay, packedLight, nx, ny, nz);
             }
         }
     }

@@ -82,8 +82,12 @@ public class GuiLinkAccount extends Screen {
         addRenderableWidget(Button.builder(dashboard, button -> WebLink.ACCOUNT.open())
                 .bounds(75, height - 30, this.font.width(dashboard) + 20, 20).build());
         updateButtons();
+        //? if <1.20.2 {
+        /*setInitialFocus();
+        *///?}
     }
 
+    //? if >=1.20.2 {
     @Override
     protected void setInitialFocus() {
         if (state == State.ENTER_CODE) {
@@ -92,6 +96,14 @@ public class GuiLinkAccount extends Screen {
             super.setInitialFocus();
         }
     }
+    //?} else {
+    /*/^* 1.20.1's screens focus nothing by themselves; called at the end of init. ^/
+    private void setInitialFocus() {
+        if (state == State.ENTER_CODE) {
+            setInitialFocus(codeField);
+        }
+    }
+    *///?}
 
     /** Moves linking on to {@code state}, showing {@code message} (but for the code's step). */
     private void setState(State state, Component message) {
@@ -222,6 +234,9 @@ public class GuiLinkAccount extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        //? if <1.20.2 {
+        /*renderBackground(graphics);
+        *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         int centerX = width / 2;

@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.math.vector.IVec3fRead;
 import goblinbob.mobends.core.math.vector.Vec3f;
 import net.minecraft.client.model.geom.ModelPart;
@@ -180,7 +181,7 @@ public class BoxFactory {
     /** The cube's vertices as it writes them with no transform: x, y, z (model units), u, v, nx, ny, nz. */
     private static List<float[]> readVertices(ModelPart.Cube cube) {
         VertexRecorder recorder = new VertexRecorder();
-        cube.compile(new PoseStack().last(), recorder, 0, 0, -1);
+        VanillaDraw.compile(cube, new PoseStack().last(), recorder, 0, 0, -1);
         return recorder.vertices;
     }
 
@@ -296,6 +297,7 @@ public class BoxFactory {
         final List<float[]> vertices = new ArrayList<>();
         private float[] current;
 
+        //? if >=1.21 {
         @Override
         public VertexConsumer addVertex(float x, float y, float z) {
             // Written divided by 16, which a power of two keeps exact.
@@ -333,5 +335,56 @@ public class BoxFactory {
             current[7] = z;
             return this;
         }
+        //?} else {
+        /*@Override
+        public VertexConsumer vertex(double x, double y, double z) {
+            // Written divided by 16, which a power of two keeps exact.
+            current = new float[] { (float) x * 16.0F, (float) y * 16.0F, (float) z * 16.0F, 0, 0, 0, 0, 0 };
+            vertices.add(current);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer color(int red, int green, int blue, int alpha) {
+            return this;
+        }
+
+        @Override
+        public VertexConsumer uv(float u, float v) {
+            current[3] = u;
+            current[4] = v;
+            return this;
+        }
+
+        @Override
+        public VertexConsumer overlayCoords(int u, int v) {
+            return this;
+        }
+
+        @Override
+        public VertexConsumer uv2(int u, int v) {
+            return this;
+        }
+
+        @Override
+        public VertexConsumer normal(float x, float y, float z) {
+            current[5] = x;
+            current[6] = y;
+            current[7] = z;
+            return this;
+        }
+
+        @Override
+        public void endVertex() {
+        }
+
+        @Override
+        public void defaultColor(int red, int green, int blue, int alpha) {
+        }
+
+        @Override
+        public void unsetDefaultColor() {
+        }
+        *///?}
     }
 }

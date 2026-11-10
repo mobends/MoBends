@@ -7,6 +7,16 @@ mod.version = "2.0.0-alpha.3"
 deps.fabric_loader = "0.20.1"
 loomx.loom_version = "1.19-SNAPSHOT"
 
+["1.20.1"]
+mod.mc_releases = ["1.20", "1.20.1"]
+deps.geckolib = "4.8.4"
+
+[fabric."1.20.1"]
+mod.mc_compat = ">=1.20 <=1.20.1"
+deps.fabric_api = "0.92.12+1.20.1"
+deps.modmenu = "7.2.2"
+mod.geckolib_compat = ">=4.6"
+
 ["1.21.1"]
 # The Minecraft releases the jar is marked compatible with on Modrinth and CurseForge.
 mod.mc_releases = ["1.21", "1.21.1"]

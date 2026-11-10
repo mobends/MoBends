@@ -4,6 +4,7 @@ import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
 import goblinbob.mobends.core.pack.PackSignature;
 import goblinbob.mobends.core.pack.PackSigningKeys;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -33,7 +34,7 @@ import javax.annotation.Nullable;
  * {@code file/} on every loader (mods' packs, vanilla's and the server's have other ids).
  */
 public final class PackTrust {
-    private static final ResourceLocation SIGNATURE = ResourceLocation.parse(PackSignature.LOCATION);
+    private static final ResourceLocation SIGNATURE = Ids.parse(PackSignature.LOCATION);
     private static final String USER_PACK_PREFIX = "file/";
 
     /** Each user pack's verified signature, empty for a pack without a genuine one; until a reload. */

@@ -6,6 +6,7 @@ import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.kumo.state.IKumoInstancingContext;
 import goblinbob.mobends.core.kumo.state.template.AnimatorTemplate;
 import goblinbob.mobends.core.util.GsonResources;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
@@ -53,7 +54,7 @@ public class AnimatorResources implements IKumoInstancingContext {
     @Override
     public KeyframeAnimation getAnimation(String key) {
         try {
-            return loadClip(ResourceLocation.parse(key));
+            return loadClip(Ids.parse(key));
         } catch (IOException | ResourceLocationException e) {
             return null;
         }
@@ -63,7 +64,7 @@ public class AnimatorResources implements IKumoInstancingContext {
     @Override
     public boolean isTrusted(String key) {
         try {
-            return PackTrust.opensTrusted(ResourceLocation.parse(key));
+            return PackTrust.opensTrusted(Ids.parse(key));
         } catch (ResourceLocationException e) {
             return true;
         }
@@ -73,7 +74,7 @@ public class AnimatorResources implements IKumoInstancingContext {
     @Override
     public AnimatorTemplate getAnimator(String key) {
         try {
-            return loadAnimator(ResourceLocation.parse(key));
+            return loadAnimator(Ids.parse(key));
         } catch (IOException | ResourceLocationException e) {
             return null;
         }

@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.client.VanillaDraw;
 import net.minecraft.core.Direction;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -68,17 +69,13 @@ public final class AssetModels {
          */
         public void render(PoseStack poseStack, VertexConsumer consumer, int light, int overlay, int color) {
             poseStack.pushPose();
-            poseStack.mulPose(headTransform);
+            VanillaDraw.mulPose(poseStack, headTransform);
             PoseStack.Pose pose = poseStack.last();
             for (Quad quad : quads) {
                 for (int i = 0; i < 4; i++) {
                     Vector3f position = quad.positions[i];
-                    consumer.addVertex(pose, position.x, position.y, position.z)
-                        .setColor(color)
-                        .setUv(quad.us[i], quad.vs[i])
-                        .setOverlay(overlay)
-                        .setLight(light)
-                        .setNormal(pose, quad.normal.x, quad.normal.y, quad.normal.z);
+                    VanillaDraw.vertex(consumer, pose, position.x, position.y, position.z, color, quad.us[i], quad.vs[i], overlay, light,
+                        quad.normal.x, quad.normal.y, quad.normal.z);
                 }
             }
             poseStack.popPose();

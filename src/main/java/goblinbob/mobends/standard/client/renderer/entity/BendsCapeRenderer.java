@@ -3,6 +3,7 @@ package goblinbob.mobends.standard.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import goblinbob.mobends.core.client.VanillaDraw;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
 
@@ -64,7 +65,7 @@ public final class BendsCapeRenderer {
             poseStack.translate(0.0F, (i == 0 ? 0 : SLAB_LENGTH) / 16.0F, hinge / 16.0F);
             poseStack.mulPose(Axis.XP.rotationDegrees(angle));
             poseStack.translate(0.0F, 0.0F, -hinge / 16.0F);
-            SLABS[i].compile(poseStack.last(), consumer, packedLight, packedOverlay, -1);
+            VanillaDraw.compile(SLABS[i], poseStack.last(), consumer, packedLight, packedOverlay, -1);
         }
         poseStack.popPose();
     }

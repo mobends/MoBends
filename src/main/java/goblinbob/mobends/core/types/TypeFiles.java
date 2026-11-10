@@ -9,6 +9,7 @@ import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException
 import goblinbob.mobends.core.network.ResourcePackPolicy;
 import goblinbob.mobends.core.types.selector.ISelectorCondition;
 import goblinbob.mobends.core.types.selector.SelectorExpression;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -42,7 +43,7 @@ final class TypeFiles {
         if (EntityTypeDefinition.VANILLA_MODEL.equals(definition.model)) {
             vanilla = true;
         } else if (definition.isModelDefinition()) {
-            model = DefinedEntities.forTypeFile(ResourceLocation.parse(definition.model));
+            model = DefinedEntities.forTypeFile(Ids.parse(definition.model));
         } else if (definition.model != null) {
             model = DefinedEntities.byKey(definition.model);
             if (model == null) {
@@ -50,7 +51,7 @@ final class TypeFiles {
             }
         }
 
-        ResourceLocation animator = definition.animator == null ? null : ResourceLocation.parse(definition.animator);
+        ResourceLocation animator = definition.animator == null ? null : Ids.parse(definition.animator);
         OptionSet options = KumoOptions.INSTANCE.declare(definition.id, definition.options);
         return new EntityType(definition.id, file.source(), selector, definition.specificity(), model, vanilla, animator, options);
     }
@@ -58,7 +59,7 @@ final class TypeFiles {
     /** The extension an extension file describes. */
     static Extension loadExtension(TypeFileDiscovery.TypeFile file) throws MalformedKumoTemplateException {
         ExtensionDefinition definition = ExtensionDefinition.parse(file.json());
-        return new Extension(definition.id, file.source(), definition.type, ResourceLocation.parse(definition.animator),
+        return new Extension(definition.id, file.source(), definition.type, Ids.parse(definition.animator),
                 KumoOptions.INSTANCE.declare(definition.id, definition.options));
     }
 }

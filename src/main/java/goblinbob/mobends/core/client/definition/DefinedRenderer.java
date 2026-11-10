@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.client.definition;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.data.RemoteFlight;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -82,7 +83,7 @@ public final class DefinedRenderer {
         EntityModelDefinition definition = data.getDefinition();
 
         Matrix4f toModel = new Matrix4f(entityFrame).invertAffine().mul(poseStack.last().pose());
-        poseStack.mulPose(new Matrix4f(toModel).invertAffine());
+        VanillaDraw.mulPose(poseStack, new Matrix4f(toModel).invertAffine());
         float yaw = (float) Math.toRadians(bodyYaw);
         poseStack.mulPose(new Quaternionf().rotationY(-yaw));
 
@@ -100,7 +101,7 @@ public final class DefinedRenderer {
         transformLocally(entity, definition, poseStack);
 
         poseStack.mulPose(new Quaternionf().rotationY(yaw));
-        poseStack.mulPose(toModel);
+        VanillaDraw.mulPose(poseStack, toModel);
 
         // 1.12's ModelBiped lowered a sneaking biped's whole model, in the model's space, before
         // drawing its parts; this version's moves the parts instead, which the bent model doesn't

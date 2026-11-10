@@ -166,7 +166,7 @@ public final class BendsLayers {
      */
     private static void backToModelPose(Frame frame, PoseStack poseStack) {
         Matrix4f back = new Matrix4f(poseStack.last().pose()).invert().mul(frame.modelPose);
-        poseStack.mulPose(back);
+        VanillaDraw.mulPose(poseStack, back);
     }
 
     // --- held items (ItemInHandLayer) ----------------------------------------------------------------

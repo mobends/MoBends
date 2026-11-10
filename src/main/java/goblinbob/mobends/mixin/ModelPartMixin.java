@@ -35,8 +35,14 @@ public abstract class ModelPartMixin implements TreeRoot {
         mobends$treeRoot = root;
     }
 
+    //? if >=1.21 {
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V", at = @At("HEAD"), cancellable = true)
     private void mobends$skipWhenBent(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int color, CallbackInfo ci) {
+    //?} else {
+    /*@Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V", at = @At("HEAD"), cancellable = true)
+    private void mobends$skipWhenBent(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay,
+                                      float red, float green, float blue, float alpha, CallbackInfo ci) {
+    *///?}
         if (BendsRenderer.skipsPartDraw((ModelPart) (Object) this)) {
             ci.cancel();
         }

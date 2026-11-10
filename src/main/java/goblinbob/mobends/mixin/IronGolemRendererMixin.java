@@ -19,7 +19,11 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(IronGolemRenderer.class)
 public abstract class IronGolemRendererMixin {
     @WrapOperation(
+        //? if >=1.21 {
         method = "setupRotations(Lnet/minecraft/world/entity/animal/IronGolem;Lcom/mojang/blaze3d/vertex/PoseStack;FFFF)V",
+        //?} else {
+        /*method = "setupRotations(Lnet/minecraft/world/entity/animal/IronGolem;Lcom/mojang/blaze3d/vertex/PoseStack;FFF)V",
+        *///?}
         at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V")
     )
     private void mobends$leaveRockOut(PoseStack poseStack, Quaternionf rock, Operation<Void> original) {

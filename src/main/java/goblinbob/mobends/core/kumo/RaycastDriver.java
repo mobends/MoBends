@@ -91,7 +91,7 @@ public final class RaycastDriver {
             double reach = Math.max(0, distance.get(context));
             double scale = length > 1e-9 ? reach / length : 0;
             double endX = x + dx * scale, endY = y + dy * scale, endZ = z + dz * scale;
-            BlockHitResult hit = scale > 0 ? cast(level(context), x, y, z, endX, endY, endZ, liquids) : null;
+            BlockHitResult hit = scale > 0 ? cast(context, x, y, z, endX, endY, endZ, liquids) : null;
             if (debug && scale > 0) {
                 gizmo(hit == null ? RayGizmos.Kind.MISS : RayGizmos.Kind.KEPT, x, y, z, hit, endX, endY, endZ);
             }
@@ -105,15 +105,21 @@ public final class RaycastDriver {
         return context.entity() instanceof Entity entity ? entity.level() : null;
     }
 
-    /** The block face the segment crosses first; null where it crosses none. */
+    /** The block face the segment crosses first, in the animated entity's level; null where it crosses none, or with no entity. */
     @Nullable
-    static BlockHitResult cast(@Nullable Level level, double x, double y, double z, double endX, double endY, double endZ, boolean liquids) {
-        if (level == null) {
+    static BlockHitResult cast(EvalContext context, double x, double y, double z, double endX, double endY, double endZ, boolean liquids) {
+        if (!(context.entity() instanceof Entity entity)) {
             return null;
         }
         ClipContext clip = new ClipContext(new Vec3(x, y, z), new Vec3(endX, endY, endZ), ClipContext.Block.COLLIDER,
-                liquids ? ClipContext.Fluid.SOURCE_ONLY : ClipContext.Fluid.NONE, CollisionContext.empty());
-        BlockHitResult hit = level.clip(clip);
+                liquids ? ClipContext.Fluid.SOURCE_ONLY : ClipContext.Fluid.NONE,
+                // 1.20.1 takes no empty collision context here, only an entity's.
+                //? if >=1.21 {
+                CollisionContext.empty());
+                //?} else {
+                /*entity);
+                *///?}
+        BlockHitResult hit = entity.level().clip(clip);
         return hit.getType() == HitResult.Type.BLOCK ? hit : null;
     }
 
