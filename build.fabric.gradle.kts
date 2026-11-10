@@ -24,7 +24,10 @@ repositories {
     maven("https://maven.terraformersmc.com/releases/") { name = "TerraformersMC" }
     maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/") {
         name = "GeckoLib"
-        content { includeGroup("software.bernie.geckolib") }
+        content {
+            includeGroup("software.bernie.geckolib")
+            includeGroup("com.eliotlash.mclib")
+        }
     }
 }
 
@@ -55,6 +58,11 @@ dependencies {
     if (providers.gradleProperty("geckolib").isPresent) {
         modLocalRuntime(geckoLib) { isTransitive = false }
         modLocalRuntime("net.fabricmc.fabric-api:fabric-api:${sc.properties["deps.fabric_api"]}")
+        // GeckoLib 4.8 (1.20.1) reads its files with mclib, which its jar bundles but the
+        // non-transitive dependency above leaves out of the development client.
+        if (sc.current.parsed < "1.21") {
+            localRuntime("com.eliotlash.mclib:mclib:20")
+        }
     }
 
     // The core's @Nullable. NeoForge has it on the classpath, Fabric doesn't; not needed at runtime.

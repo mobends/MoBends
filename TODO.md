@@ -209,9 +209,8 @@ forge-1.12               1.12.2
 5. [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
    - [x] 1.20.1 on Fabric builds and starts (to the title screen, every mixin applied).
    - [x] 1.20.1 on Fabric checked in a world: the player and its layers, the mobs, the menu, the
-     server's rules on joining.
-   - [ ] GeckoLib armour on 1.20.1 (GeckoLib 4.8), and a resource pack's definition of a list-drawn
-     mob (the fox).
+     server's rules on joining, GeckoLib armour (GeckoLib 4.8, with Fantasy Armor).
+   - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
    - [ ] 1.20.1 on Forge: its loader package (`goblinbob.mobends.forge`) and `build.forge.gradle.kts`.
    - [ ] The latest Minecraft version, on Fabric and NeoForge.
 
