@@ -6,6 +6,7 @@ import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.vanilla.AgeableModelLayout;
+import goblinbob.mobends.core.client.model.ModelRoots;
 import goblinbob.mobends.core.vanilla.ModelRootHolder;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HierarchicalModel;
@@ -21,6 +22,7 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -32,6 +34,8 @@ import java.util.WeakHashMap;
  */
 public final class DefinedModel {
     /** By vanilla model, which the game keeps as long as its renderer; the models are made again on a reload. */
+    /** The roots found for models that don't keep theirs ({@link ModelRoots#find}). */
+    private static final Map<EntityModel<?>, Optional<ModelPart>> FOUND_ROOTS = new WeakHashMap<>();
     private static final Map<EntityModel<?>, DefinedModel> CACHE = new WeakHashMap<>();
     /** The same, for the models worn over another ({@link #over}). */
     private static final Map<EntityModel<?>, DefinedModel> WORN_CACHE = new WeakHashMap<>();
@@ -102,13 +106,28 @@ public final class DefinedModel {
 
     @Nullable
     private static ModelPart rootOf(EntityModelDefinition definition, EntityModel<?> model) {
-        ModelPart root = model instanceof ModelRootHolder holder ? holder.mobends$getRoot()
-                : model instanceof HierarchicalModel<?> hierarchical ? hierarchical.root() : null;
+        ModelPart root = rootOf(model);
         if (root == null) {
             MoBends.LOGGER.warn("Model definition {}: can't read the parts of {}; it is drawn as vanilla draws it.",
                     definition.location, model.getClass().getName());
         }
         return root;
+    }
+
+    /**
+     * The root of {@code model}'s part tree: the one it keeps ({@code HierarchicalModel}), or a
+     * mixin keeps for it ({@link ModelRootHolder}), or else the tree it holds parts of
+     * ({@link ModelRoots#find}); null if none is found.
+     */
+    @Nullable
+    public static ModelPart rootOf(EntityModel<?> model) {
+        ModelPart root = model instanceof ModelRootHolder holder ? holder.mobends$getRoot()
+                : model instanceof HierarchicalModel<?> hierarchical ? hierarchical.root() : null;
+        if (root != null) {
+            return root;
+        }
+        // Found once per model: its fields don't change trees.
+        return FOUND_ROOTS.computeIfAbsent(model, m -> Optional.ofNullable(ModelRoots.find(m))).orElse(null);
     }
 
     /** Forgets every built model: the definitions they came from are read again. */

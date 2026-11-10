@@ -78,8 +78,9 @@ model's part tree (the names you gave `addOrReplaceChild`), or by your model's `
 }
 ```
 
-Your model must be one Mo' Bends draws from: a `HierarchicalModel` (as most are), or a
-`HumanoidModel`. A model that extends `EntityModel` and draws its parts itself is drawn as vanilla.
+Any model can be bent, as long as it's built from a layer definition (`LayerDefinition.bakeRoot`,
+as `context.bakeLayer` does) and holds its parts in fields, as models do. A model that draws its
+parts its own way is drawn bent in its place, but a layer that draws its own copy of it isn't.
 
 ## Callbacks
 

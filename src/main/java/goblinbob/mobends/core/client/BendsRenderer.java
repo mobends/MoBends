@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
+import goblinbob.mobends.core.client.model.ModelRoots;
 import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityDatabase;
@@ -13,6 +14,7 @@ import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Mth;
@@ -61,6 +63,56 @@ public final class BendsRenderer {
         markedData = null;
         markedModel = null;
         markedEntityFrame = null;
+        markedRoot = null;
+        markedRootKnown = false;
+        skippedPartDraw = false;
+    }
+
+    /*
+     * A model that draws its parts its own way (overriding renderToBuffer without calling the
+     * draw mixin.AgeableListModelMixin and the like take over: the camel's, the llama's, a mod's)
+     * never takes the mark. While it's marked, the draws of its tree's parts are skipped, and the
+     * bent parts are drawn once its renderToBuffer returns (drawIfSkipped), with what the renderer
+     * passed it.
+     */
+    /** The root of the marked model's part tree, once known for this mark; null if it has none or can't be bent. */
+    @Nullable
+    private static ModelPart markedRoot;
+    private static boolean markedRootKnown;
+    /** Whether a part's draw was skipped for this mark. */
+    private static boolean skippedPartDraw;
+
+    /**
+     * Whether {@code part}'s draw is to be skipped: it's in the tree of the model marked for a bent
+     * draw, whose own renderToBuffer is drawing it, as the model can be drawn bent. Called for every
+     * part's draw; it does nothing unless a draw is marked.
+     */
+    public static boolean skipsPartDraw(ModelPart part) {
+        DefinedEntityData<?> data = markedData;
+        EntityModel<?> model = markedModel;
+        if (data == null || model == null) {
+            return false;
+        }
+        if (!markedRootKnown) {
+            markedRootKnown = true;
+            markedRoot = partsFor(data, model) == null ? null : DefinedModel.rootOf(model);
+        }
+        ModelPart root = markedRoot;
+        if (root == null || part != root && ModelRoots.rootOfPart(part) != root) {
+            return false;
+        }
+        skippedPartDraw = true;
+        return true;
+    }
+
+    /**
+     * Draws {@code model} bent, once its renderToBuffer returned, if it drew its parts its own way:
+     * their draws were skipped ({@link #skipsPartDraw}) and the mark wasn't taken.
+     */
+    public static void drawIfSkipped(EntityModel<?> model, PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int color) {
+        if (skippedPartDraw && markedModel == model) {
+            drawMarked(model, poseStack, consumer, packedLight, packedOverlay, color);
+        }
     }
 
     /**
