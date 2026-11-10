@@ -20,19 +20,14 @@ accessory on the player. Its *Support Mo' Bends* button opens the `supportUrl` o
 on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking screen
 (`GuiLinkAccount`). Both fall back to `https://mobends.com`.
 
-- [x] Add `supportUrl` (the Patreon page) and `accountUrl` (the mobends.com dashboard) to static-api.json.
 - [ ] Show the tiers (one-time collection, subscription, editor tier) once they exist.
-- [x] Have the API accept the join's `version` of the 2.0.0 pre-releases
-      (`2.0.0-alpha.1/1.21.1-fabric`): it refused them with a 400, and now answers the join.
 
 ## Legacy Mo' Bends pack
 
-- [x] Add the `MOBENDS_PACK_SIGNING_KEY` secret, and have CI build the pack on release tags and
-      attach it to the GitHub release (`.github/workflows/release.yml`). Built from `main` (its
-      `v<version>` tags), for 1.12.2 and the modern versions alike; the signing tools are in
-      `core/src/tools`.
-- [x] Have CI upload the pack to Modrinth and CurseForge (the `publish-legacy-pack` job of
-      `.github/workflows/release.yml`), switched off for now.
+CI builds and signs the pack on release tags of `main` and attaches it to the GitHub release; its
+Modrinth and CurseForge upload (the `publish-legacy-pack` job of `.github/workflows/release.yml`) is
+switched off for now.
+
 - [ ] Once the pack has its Modrinth and CurseForge pages (around the alpha's release), set the
       `LEGACY_PACK_MODRINTH_PROJECT_ID` and `LEGACY_PACK_CURSEFORGE_PROJECT_ID` repository variables
       and switch the job back on: delete its `if: false`. Check the first upload on CurseForge,
@@ -41,23 +36,8 @@ on the Mo' Bends menu (`GuiBendsMenu`) and by *Open Dashboard* on the linking sc
 ## Animations
 
 - [ ] IK for cows and sheep (feet planted on the ground), switched off while they run.
-
-## Mo' Bends menu
-
-- [x] Improve the look of the *Settings* submenu (`GuiSettingsWindow`, `GuiBenderList`): each mob
-      shown with an orthographic render of it as a thumbnail (clipped to its frame), its name, etc.
-- [x] Modern versions: wire the hooks `GuiBendsMenu` left for the supporters/API port: Link
-      account opens `GuiLinkAccount`, or once linked the account's name (`WebLink.ACCOUNT`) and Log
-      out; Supporters opens `GuiSupportersWindow`; Customize opens `WebLink.EDITOR`; the account is
-      checked as the menu opens, and read again by Refresh, which also refreshes the API.
-- [x] Modern versions: the menu opens in a world only. With no world loaded (the mod list's Config
-      button on the title screen) it says to join one and press its key instead: the previews stand
-      in the client's level, where the player stands, but are never added to it (`PreviewWorld`), and
-      what class an entity type's entities are is found by making one (`EntityClasses`). 1.12 made a
-      world of its own (a flat floor); on 1.21.1 a level of its own needs a connection, and tells
-      other mods a level loaded.
-- [x] Modern versions: More Settings has the arrow trails' switch, and the arrow trails are ported
-      (checked in the game on both loaders).
+- [ ] Poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident). Left for
+      a later alpha.
 
 ## Multiple Minecraft versions and loaders
 
@@ -138,81 +118,10 @@ forge-1.12               1.12.2
 
 ### Migration plan
 
-1. [x] **Extract the core.** Move `kumo` and `math` into a `core/` Gradle module with `git mv`
-   (keeps `git log --follow` history).
-2. [ ] **Create `main`.** Port the Minecraft-facing code, starting with 1.21.1 (NeoForge + Fabric).
-   - [x] Fast-forward `main` to `forge-1.12`.
-   - [x] Add the Stonecutter multi-loader layout: a 1.21.1 Fabric + NeoForge skeleton that loads,
-     with `core/` compiled in, and CI. The 1.12 sources moved to `legacy-1.12/` (not built) as the
-     porting reference; the shared assets moved to `src/main/resources`.
-   - [x] Port `legacy-1.12/` slice by slice, deleting it once empty. Everything is ported or was
-     dropped as not needed, and the directory is gone; the 1.12.2 sources are on `forge-1.12`.
-     - [x] **The player bends** (1.21.1, Fabric + NeoForge): the player's model definition, entity
-       data and KUMO glue, and its bent model (split elbows and knees) drawn in place of vanilla's
-       (`DefinedModelBuilder`, `BendsRenderer`). Checked in the game on both loaders.
-     - [x] The player's render layers: held items, vanilla armour, custom head, cape and elytra
-       follow the bent player. Checked in the game on both loaders.
-     - [x] The sword trail and the cape wave (#386), and the arrow trails. Checked in the game on
-       both loaders.
-     - [x] The first-person hand stays vanilla's: it's never bent, and `renderer.firstPersonRest`
-       is gone from the definition format. Checked in the game on both loaders.
-     - [x] The inventory player's head follows the mouse (1.12's `lookFurther`).
-     - [x] Stuck arrows and bee stingers ride the bent parts.
-     - [x] Armour from other mods' models bends with the body, cut at the elbows and knees.
-     - [x] GeckoLib armour bends with the body, cut at the elbows and knees, as 1.12's
-       `GeckoLibCompat` had it (GeckoLib 4.6 and up, optional), a mod's own bones beside the armour
-       bones included. Checked in the game on both loaders (Fantasy Armor).
-       A mod's own bone that it swings from vanilla's legs (Fantasy Armor's front cape) hangs still
-       on the bent body: left so, as swinging it from the bent legs needs code for that mod alone.
-     - [ ] Poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow, trident).
-       Left for a later alpha.
-     - [x] The other mobs: zombie, skeleton, zombie villager, creeper, iron golem, villager, witch,
-       spider, squid, wolf (and the dev pack's animals), with type files, extensions and `field`
-       expressions. Checked in the game on both loaders.
-     - [x] The pig zombie (the zombified piglin): its definition names the piglin's model through a
-       `@variants` entry for later versions.
-     - [x] The client config (`config/mobends.json`, see docs/configuration.md).
-     - [x] Server rules (`config/mobends-server.json`, sent to players) and pack trust (signed packs,
-       `AnimationPolicy`).
-     - [x] Supporters and the mobends.com API: the join and pings, the accessory catalogue and each
-       player's settings, the downloaded assets, account linking (without its screen), the
-       static API's links, the accessories drawn on the bent player, and the supporters' sword
-       trail colour (docs/api-communication.md).
-     - [x] The Mo' Bends menu: the main menu, the Settings window (each mob with its preview, the
-       order of its types and extensions, its options) and More Settings, the key that opens it (G)
-       and the mod list's Config button (NeoForge, and Mod Menu on Fabric). See *Mo' Bends menu*.
-     - [x] The menu's Supporters window, its account buttons and screen (Link account), and
-       Customize's link.
-     - [x] The addon API (docs/addons.md): other mods register mobs, layers, components, drivers
-       and KUMO operations, found through a `mobends` entrypoint (Fabric) or `@MoBendsAddon`
-       (NeoForge). Mo' Bends' own content is its `DefaultAddon`. Checked in the game on both
-       loaders with a test addon in its own jar (a function, entity readers, an extension, the
-       callbacks).
-     - [x] The last of 1.12: errors told in chat (#417), `core:equipment_name` and
-       `core:ledge_ahead` (#418), NeoForge's update check and the credits (#420), and the Legacy
-       Mo' Bends pack built and signed from `main` (#413).
-     - [x] Model definitions bend any model (#421, #422, #423, #424): a mod's, named by its class,
-       parts by path or by field; any mob, named by registry id or a list of them, those 1.12 never
-       had too. Checked in the game on both loaders (a resource pack's wolf, panda, goat, fox,
-       shulker, llama, rabbit and camel).
-   - [x] Convert the `.lang` translations to `.json`.
-   - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
-     `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge
-     upload (the `publish` job) is switched off for now.
-   - [ ] Switch the modern Modrinth and CurseForge upload on. The variables and secrets are set and
-     the `publish` job is on from 2.0.0-alpha.3. Check its first upload on both sites (loader,
-     Minecraft versions, alpha), then tick this.
-3. [x] **Publish `core`.** Release the first `core` version and switch `forge-1.12` to depend on it,
-   deleting its in-tree copy. (`core-2.0.0-alpha.3` on GitHub Packages; `forge-1.12` uses it since #429.)
-4. [x] **Switch the default branch** on GitHub to `main`, and archive the 1.16 branches
-   (`2.X/forge-1.16`, `master-1.16.3`) as tags (`archive/2.X-forge-1.16`, `archive/master-1.16.3`).
-5. [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
-   - [x] 1.20.1 on Fabric builds and starts (to the title screen, every mixin applied).
-   - [x] 1.20.1 on Fabric checked in a world: the player and its layers, the mobs, the menu, the
-     server's rules on joining, GeckoLib armour (GeckoLib 4.8, with Fantasy Armor).
-   - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
-   - [ ] 1.20.1 on Forge: its loader package (`goblinbob.mobends.forge`) and `build.forge.gradle.kts`.
-   - [ ] The latest Minecraft version, on Fabric and NeoForge.
+- [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
+  - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
+  - [ ] 1.20.1 on Forge: its loader package (`goblinbob.mobends.forge`) and `build.forge.gradle.kts`.
+  - [ ] The latest Minecraft version, on Fabric and NeoForge.
 
 ### Other tasks
 
