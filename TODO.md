@@ -118,15 +118,10 @@ forge-1.12               1.12.2
 
 ### Migration plan
 
-1. [ ] **Publish the modern releases.** Upload every target's jars to Modrinth and CurseForge.
-   - [ ] Switch the modern Modrinth and CurseForge upload on (the `publish` job of
-     `.github/workflows/release.yml`). The variables and secrets are set and the job is on from
-     2.0.0-alpha.3. Check its first upload on both sites (loader, Minecraft versions, alpha), then
-     tick this.
-2. [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
-   - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
-   - [ ] 1.20.1 on Forge: its loader package (`goblinbob.mobends.forge`) and `build.forge.gradle.kts`.
-   - [ ] The latest Minecraft version, on Fabric and NeoForge.
+- [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
+  - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
+  - [ ] 1.20.1 on Forge: its loader package (`goblinbob.mobends.forge`) and `build.forge.gradle.kts`.
+  - [ ] The latest Minecraft version, on Fabric and NeoForge.
 
 ### Other tasks
 
