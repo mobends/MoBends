@@ -3,6 +3,8 @@ package goblinbob.mobends.lab.sim;
 import goblinbob.mobends.standard.kumo.MoBendsOperations;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
+import goblinbob.mobends.core.kumo.MinecraftVersion;
+import goblinbob.mobends.core.ModStatics;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.core.kumo.driver.DriverRegistry;
@@ -26,6 +28,7 @@ public class LabBootstrap
     {
         if (done) return;
         done = true;
+        MinecraftVersion.set(ModStatics.MCVERSION);
         MinecraftKumoOperations.register();
         MoBendsOperations.register();
         DriverRegistry.INSTANCE.register("mobends:sword_trail", SwordTrailDriver::create, SwordTrailDriver.Template.class);

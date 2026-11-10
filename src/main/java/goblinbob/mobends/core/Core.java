@@ -2,6 +2,7 @@ package goblinbob.mobends.core;
 
 import goblinbob.mobends.core.configuration.CoreConfig;
 import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
+import goblinbob.mobends.core.kumo.MinecraftVersion;
 import goblinbob.mobends.core.module.IModule;
 import goblinbob.mobends.core.network.msg.MessageConfigRequest;
 import goblinbob.mobends.core.network.msg.MessageConfigResponse;
@@ -35,6 +36,8 @@ public abstract class Core<T extends CoreConfig>
 
     public void preInit(FMLPreInitializationEvent event)
     {
+        // Before any animator or definition loads: core:minecraft_version compiles against it.
+        MinecraftVersion.set(ModStatics.MCVERSION);
         MinecraftKumoOperations.register();
 
         networkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(ModStatics.MODID);

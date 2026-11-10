@@ -6,6 +6,7 @@ import goblinbob.mobends.core.definition.DefinitionMerge;
 import goblinbob.mobends.core.definition.EntityModelDefinition;
 import goblinbob.mobends.core.definition.ModelDefinitions;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
+import goblinbob.mobends.lab.sim.LabBootstrap;
 import net.minecraft.util.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
@@ -65,6 +66,27 @@ public class DefinitionExtendsTest
         assertEquals(zombie.define.keySet(), villager.define.keySet());
         assertEquals(zombie.layers.keySet(), villager.layers.keySet());
         assertTrue(villager.trusted);
+    }
+
+    @Test
+    void variantsWhoseConditionHoldsAreMergedInOrder() throws Exception
+    {
+        LabBootstrap.ensure();
+        JsonObject applied = DefinitionMerge.applyVariants(json("{'childScale': 0.5, 'renderer': {'sneakOffset': 5}, '@variants': ["
+                + " {'@when': {'core:minecraft_version': ['>', '1.12.2']}, 'childScale': 0.25},"
+                + " {'@when': {'core:minecraft_version': ['==', '1.12.2']}, 'renderer': {'flyingSneakOffset': 4}}]}"));
+        assertFalse(applied.has("@variants"));
+        assertEquals(0.5, applied.get("childScale").getAsDouble(), 0);
+        assertEquals(json("{'sneakOffset': 5, 'flyingSneakOffset': 4}"), applied.get("renderer"));
+    }
+
+    @Test
+    void aVariantsConditionHasToBeKnownWhenItLoads()
+    {
+        LabBootstrap.ensure();
+        MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class,
+                () -> DefinitionMerge.applyVariants(json("{'@variants': [{'@when': 'entity.sneaking', 'childScale': 0.25}]}")));
+        assertTrue(e.getMessage().contains("'@variants' entry 1"), e.getMessage());
     }
 
     private static JsonObject mergeOrFail(JsonObject child)
