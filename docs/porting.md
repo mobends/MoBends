@@ -20,6 +20,10 @@ Ported so far, in this order:
 | #398 | GeckoLib armour bends with the body (when GeckoLib is installed). |
 | #405 | The addon API: other mods add mobs, layers, components, drivers and KUMO operations (docs/addons.md). |
 | #407 | GeckoLib armour: a mod's own bones beside the armour bones (Fantasy Armor's leg cloth) bend too. |
+| #410 | The Mo' Bends menu opens from the mod list only in a world. |
+| #413 | The Legacy Mo' Bends pack is built, signed and released from `main`. |
+| #416, #417, #418, #420 | The rest of 1.12: errors told in chat, `core:equipment_name` and `core:ledge_ahead`, NeoForge's update check, the credits, two tests. `legacy-1.12/` is gone. |
+| #421, #422, #423, #424 | Model definitions bend any model, a mod's too, and any mob, named by registry id. |
 
 I've checked the player, its layers and the other mobs (the zombie, skeleton, zombie villager,
 creeper, golem, villager, witch, spider, squid, and the wolf, adult and pup, side by side with vanilla)
@@ -35,9 +39,9 @@ trident: they now just keep the current pose).
 
 ## How the port is done
 
-- **The 1.12.2 code is the reference**, in `legacy-1.12/` (not built; nothing compiles from it).
-  Classes keep their 1.12 package and name in `src/` when they keep their role, so the two are easy
-  to compare. A slice can `git mv` what it ports (see `legacy-1.12/README.md`).
+- **The 1.12.2 code is the reference**, on the `forge-1.12` branch. Everything from it is ported
+  (or dropped as not needed), and `main`'s copy (`legacy-1.12/`) is gone. Classes kept their 1.12
+  package and name in `src/` where they kept their role, so the two are easy to compare.
 - **The animation lab compiles the animation code from `src/`** (and `core/`), against stand-ins for
   the 1.21.1 classes it touches (`animation-lab/src/mcstub`). A slice that has that code use another
   Minecraft class or member adds it to the stand-ins; one that changes how an entity animates on

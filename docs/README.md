@@ -1,8 +1,8 @@
 # Mo' Bends — Technical Docs
 
-These docs describe the 1.12.2 mod, whose sources are in [`legacy-1.12/`](../legacy-1.12/README.md) on
-`main`, apart from the engine (`core/`) and the asset formats, which every version shares. They are
-updated as each part is ported into `src/`.
+These docs describe the mod on `main` (the modern versions, `src/`), the engine (`core/`) and the
+asset formats, which every version shares. The 1.12.2 mod lives on the `forge-1.12` branch; where a
+doc still describes a 1.12.2 detail, that branch's code is what it means.
 
 | Doc | Contents |
 |-----|---------|

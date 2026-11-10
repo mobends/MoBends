@@ -15,7 +15,6 @@ mod before it. `main` builds Mo' Bends 2.X for the modern Minecraft versions and
 |---|---|---|
 | `core/` | The animation engine: Kumo, math, the animator format. Plain Java 8, shared with `forge-1.12`. | **No** |
 | `src/` | The mod for every modern Minecraft version and loader, as one source tree (see *One source tree* below). Compiled together with `core/` into each jar. | Yes |
-| `legacy-1.12/` | The 1.12.2 mod's sources, **not built**: the reference the port works from (see its [README](legacy-1.12/README.md)). | Yes (1.12.2) |
 | `animation-lab/` | A standalone test harness (JDK 21, no Minecraft) that compiles the mod's animation code from `src/` and `core/`, runs the animators through scripted scenarios and checks them against recorded traces. | No (it has stand-ins for the few 1.21.1 classes that code touches) |
 
 Rules of thumb:
