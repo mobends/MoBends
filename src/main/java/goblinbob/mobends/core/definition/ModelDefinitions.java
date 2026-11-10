@@ -14,6 +14,7 @@ import goblinbob.mobends.core.kumo.state.template.OnTemplate;
 import goblinbob.mobends.core.kumo.state.template.StatementTemplate;
 import goblinbob.mobends.core.util.FormatVersion;
 import goblinbob.mobends.core.util.GsonResources;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class ModelDefinitions {
     }
 
     public static ResourceLocation locationOf(String modId, String name) {
-        return ResourceLocation.fromNamespaceAndPath(modId, "bends/models/" + name + ".json");
+        return Ids.of(modId, "bends/models/" + name + ".json");
     }
 
     /** Loads the definition at {@code location}, e.g. {@code yourmod:bends/models/beast.json}. */
@@ -98,7 +99,7 @@ public class ModelDefinitions {
         if (!json.has("extends")) {
             return DefinitionMerge.applyVariants(json);
         }
-        ResourceLocation parentLocation = ResourceLocation.parse(json.get("extends").getAsString());
+        ResourceLocation parentLocation = Ids.parse(json.get("extends").getAsString());
         if (!visiting.add(parentLocation)) {
             throw new MalformedKumoTemplateException("The model definition " + parentLocation + " extends itself, through " + visiting + ".");
         }

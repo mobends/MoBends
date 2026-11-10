@@ -104,9 +104,23 @@ public final class WornPiece {
             this.delegate = delegate;
         }
 
+        //? if >=1.21 {
         @Override
         public void addVertex(float x, float y, float z, int color, float u, float v, int packedOverlay, int packedLight,
                               float normalX, float normalY, float normalZ) {
+            add(x, y, z, color, u, v, packedOverlay, packedLight, normalX, normalY, normalZ);
+        }
+        //?} else {
+        /*@Override
+        public void vertex(float x, float y, float z, float red, float green, float blue, float alpha, float u, float v, int packedOverlay,
+                           int packedLight, float normalX, float normalY, float normalZ) {
+            add(x, y, z, VanillaDraw.argb(red, green, blue, alpha), u, v, packedOverlay, packedLight, normalX, normalY, normalZ);
+        }
+        *///?}
+
+        /** Keeps a whole vertex, and draws the quad once it has its four. */
+        private void add(float x, float y, float z, int color, float u, float v, int packedOverlay, int packedLight,
+                         float normalX, float normalY, float normalZ) {
             int at = corners * STRIDE;
             quad[at] = x;
             quad[at + 1] = y;
@@ -233,12 +247,13 @@ public final class WornPiece {
         private void emit(float[] corners, int corner) {
             int at = corner * STRIDE;
             // A quad's corners share their colour, overlay and light in GeckoLib's armour.
-            delegate.addVertex(corners[at], corners[at + 1], corners[at + 2], colors[0], corners[at + 3], corners[at + 4], overlays[0], lights[0],
+            VanillaDraw.vertex(delegate, corners[at], corners[at + 1], corners[at + 2], colors[0], corners[at + 3], corners[at + 4], overlays[0], lights[0],
                     corners[at + 5], corners[at + 6], corners[at + 7]);
         }
 
         // Vertices given one value at a time go straight through, uncut.
 
+        //? if >=1.21 {
         @Override
         public VertexConsumer addVertex(float x, float y, float z) {
             delegate.addVertex(x, y, z);
@@ -274,5 +289,57 @@ public final class WornPiece {
             delegate.setNormal(x, y, z);
             return this;
         }
+        //?} else {
+        /*@Override
+        public VertexConsumer vertex(double x, double y, double z) {
+            delegate.vertex(x, y, z);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer color(int red, int green, int blue, int alpha) {
+            delegate.color(red, green, blue, alpha);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer uv(float u, float v) {
+            delegate.uv(u, v);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer overlayCoords(int u, int v) {
+            delegate.overlayCoords(u, v);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer uv2(int u, int v) {
+            delegate.uv2(u, v);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer normal(float x, float y, float z) {
+            delegate.normal(x, y, z);
+            return this;
+        }
+
+        @Override
+        public void endVertex() {
+            delegate.endVertex();
+        }
+
+        @Override
+        public void defaultColor(int red, int green, int blue, int alpha) {
+            delegate.defaultColor(red, green, blue, alpha);
+        }
+
+        @Override
+        public void unsetDefaultColor() {
+            delegate.unsetDefaultColor();
+        }
+        *///?}
     }
 }

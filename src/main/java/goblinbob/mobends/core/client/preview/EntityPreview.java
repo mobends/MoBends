@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.util.Ids;
 import goblinbob.mobends.mixin.PlayerAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -256,7 +257,7 @@ public class EntityPreview {
         // A player is never made from its entity type: it's a copy of the player.
         Class<?> entityClass = defined.entityClass();
         if (entityClass != null && entityClass.isAssignableFrom(RemotePlayer.class)
-                || ResourceLocation.withDefaultNamespace("player").equals(defined.entityTypeId())) {
+                || Ids.minecraft("player").equals(defined.entityTypeId())) {
             return new PreviewPlayer(level, player);
         }
         EntityType<?> type = entityTypeOf(defined);

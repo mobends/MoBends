@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.BendingEntityRenderer;
 import goblinbob.mobends.core.client.BendsLayers;
 import goblinbob.mobends.core.client.BendsRenderer;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
@@ -90,16 +91,29 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
         method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
         at = @At(
             value = "INVOKE",
+            //? if >=1.21 {
             target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;setupRotations(Lnet/minecraft/world/entity/LivingEntity;Lcom/mojang/blaze3d/vertex/PoseStack;FFFF)V"
+            //?} else {
+            /*target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;setupRotations(Lnet/minecraft/world/entity/LivingEntity;Lcom/mojang/blaze3d/vertex/PoseStack;FFF)V"
+            *///?}
         )
     )
+    //? if >=1.21 {
     private void mobends$keepEntityFrame(LivingEntityRenderer<?, ?> renderer, LivingEntity entity, PoseStack poseStack, float bob, float bodyYaw,
                                          float partialTicks, float scale, Operation<Void> original) {
+    //?} else {
+    /*private void mobends$keepEntityFrame(LivingEntityRenderer<?, ?> renderer, LivingEntity entity, PoseStack poseStack, float bob, float bodyYaw,
+                                         float partialTicks, Operation<Void> original) {
+    *///?}
         if (mobends$bent != null) {
             mobends$entityFrame.set(poseStack.last().pose());
             mobends$bodyYaw = bodyYaw;
         }
+        //? if >=1.21 {
         original.call(renderer, entity, poseStack, bob, bodyYaw, partialTicks, scale);
+        //?} else {
+        /*original.call(renderer, entity, poseStack, bob, bodyYaw, partialTicks);
+        *///?}
     }
 
     /**
@@ -111,19 +125,37 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
         method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
         at = @At(
             value = "INVOKE",
+            //? if >=1.21 {
             target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V"
+            //?} else {
+            /*target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V"
+            *///?}
         )
     )
+    //? if >=1.21 {
     private void mobends$drawBent(EntityModel<?> model, PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay, int color,
                                   Operation<Void> original) {
+    //?} else {
+    /*private void mobends$drawBent(EntityModel<?> model, PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay,
+                                  float red, float green, float blue, float alpha, Operation<Void> original) {
+        int color = VanillaDraw.argb(red, green, blue, alpha);
+    *///?}
         DefinedEntityData<?> bent = mobends$bent;
         if (bent == null) {
+            //? if >=1.21 {
             original.call(model, poseStack, consumer, packedLight, packedOverlay, color);
+            //?} else {
+            /*original.call(model, poseStack, consumer, packedLight, packedOverlay, red, green, blue, alpha);
+            *///?}
             return;
         }
         BendsRenderer.markBentDraw(bent, model, mobends$entityFrame, mobends$bodyYaw);
         try {
+            //? if >=1.21 {
             original.call(model, poseStack, consumer, packedLight, packedOverlay, color);
+            //?} else {
+            /*original.call(model, poseStack, consumer, packedLight, packedOverlay, red, green, blue, alpha);
+            *///?}
             // A model that draws its parts its own way didn't take the mark: drawn bent now.
             BendsRenderer.drawIfSkipped(model, poseStack, consumer, packedLight, packedOverlay, color);
         } finally {

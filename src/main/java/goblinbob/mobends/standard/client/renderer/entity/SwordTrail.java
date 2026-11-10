@@ -3,6 +3,7 @@ package goblinbob.mobends.standard.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.BendsLayers;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.client.definition.DefinedModel;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.EntityComponent;
@@ -155,10 +156,10 @@ public class SwordTrail implements EntityComponent {
             float alpha = part.alpha();
             if (i > 0) {
                 // A quad from the last part to this one, each end as faded as its part.
-                consumer.addVertex(frame, lastNear.x, lastNear.y, lastNear.z).setColor(red, green, blue, lastAlpha);
-                consumer.addVertex(frame, lastFar.x, lastFar.y, lastFar.z).setColor(red, green, blue, lastAlpha);
-                consumer.addVertex(frame, far.x, far.y, far.z).setColor(red, green, blue, alpha);
-                consumer.addVertex(frame, near.x, near.y, near.z).setColor(red, green, blue, alpha);
+                VanillaDraw.vertex(consumer, frame, lastNear.x, lastNear.y, lastNear.z, red, green, blue, lastAlpha);
+                VanillaDraw.vertex(consumer, frame, lastFar.x, lastFar.y, lastFar.z, red, green, blue, lastAlpha);
+                VanillaDraw.vertex(consumer, frame, far.x, far.y, far.z, red, green, blue, alpha);
+                VanillaDraw.vertex(consumer, frame, near.x, near.y, near.z, red, green, blue, alpha);
             }
             lastNear.set(near);
             lastFar.set(far);

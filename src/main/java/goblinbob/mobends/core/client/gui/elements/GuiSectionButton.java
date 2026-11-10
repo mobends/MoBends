@@ -2,7 +2,9 @@ package goblinbob.mobends.core.client.gui.elements;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.MoBends;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.util.Draw;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -24,7 +26,7 @@ import java.util.Locale;
  * in the section's icon on the left.
  */
 public class GuiSectionButton {
-    public static final ResourceLocation BUTTONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(MoBends.MOD_ID, "textures/gui/buttons.png");
+    public static final ResourceLocation BUTTONS_TEXTURE = Ids.of(MoBends.MOD_ID, "textures/gui/buttons.png");
 
     public static final int HEIGHT = 24;
 
@@ -177,10 +179,10 @@ public class GuiSectionButton {
                              float r, float g, float b, float leftAlpha, float rightAlpha) {
         float topOffset = slant * (top - y) / HEIGHT;
         float bottomOffset = slant * (bottom - y) / HEIGHT;
-        buffer.addVertex(pose, left - topOffset, top, 0).setColor(r, g, b, leftAlpha);
-        buffer.addVertex(pose, left - bottomOffset, bottom, 0).setColor(r, g, b, leftAlpha);
-        buffer.addVertex(pose, right - bottomOffset, bottom, 0).setColor(r, g, b, rightAlpha);
-        buffer.addVertex(pose, right - topOffset, top, 0).setColor(r, g, b, rightAlpha);
+        VanillaDraw.vertex(buffer, pose, left - topOffset, top, 0, r, g, b, leftAlpha);
+        VanillaDraw.vertex(buffer, pose, left - bottomOffset, bottom, 0, r, g, b, leftAlpha);
+        VanillaDraw.vertex(buffer, pose, right - bottomOffset, bottom, 0, r, g, b, rightAlpha);
+        VanillaDraw.vertex(buffer, pose, right - topOffset, top, 0, r, g, b, rightAlpha);
     }
 
     private void drawIcon(GuiGraphics graphics, float pop) {

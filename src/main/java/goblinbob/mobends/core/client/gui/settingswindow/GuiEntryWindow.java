@@ -48,13 +48,21 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+        //? if <1.20.2 {
+        /*renderBackground(graphics, mouseX, mouseY, partialTicks);
+        *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     /** The window under the widgets. */
+    //? if >=1.20.2 {
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+    //?} else {
+    /*private void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
+    *///?}
 
         GuiSettingsWindow.drawWindow(graphics, x, y, GuiSettingsWindow.EDITOR_WIDTH, GuiSettingsWindow.EDITOR_HEIGHT);
         entryList.draw(graphics, mouseX, mouseY, partialTicks);
@@ -85,10 +93,17 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
+    //? if >=1.20.2 {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         return entryList.handleMouseScrolled(mouseX, mouseY, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
+    //?} else {
+    /*@Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
+        return entryList.handleMouseScrolled(mouseX, mouseY, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollY);
+    }
+    *///?}
 
     @Override
     public void onClose() {

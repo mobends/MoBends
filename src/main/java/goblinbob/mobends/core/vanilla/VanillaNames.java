@@ -1,6 +1,7 @@
 package goblinbob.mobends.core.vanilla;
 
 import goblinbob.mobends.core.kumo.expr.Expression;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.model.ChickenModel;
 import net.minecraft.client.model.CreeperModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -324,7 +325,7 @@ public final class VanillaNames {
     /** Today's id of the entities a 1.12 entity id names (as a type file's selector writes it). */
     public static ResourceLocation entityType(ResourceLocation legacyId) {
         String renamed = RENAMED_ENTITY_IDS.get(legacyId.toString());
-        return renamed == null ? legacyId : ResourceLocation.parse(renamed);
+        return renamed == null ? legacyId : Ids.parse(renamed);
     }
 
     /** The model class a 1.12 model class name stands for, or null if it isn't one this version knows. */

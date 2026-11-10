@@ -18,7 +18,7 @@ Say you came from GitHub if you decide to come by! Hope to see you there
 
 ## Local Development Setup
 You only need a Java Development Kit (any recent one, e.g. [Eclipse Temurin](https://adoptium.net/temurin/releases))
-to start Gradle: it downloads the JDKs the build needs by itself (JDK 25 to run Gradle, JDK 21 for Minecraft 1.21.1).
+to start Gradle: it downloads the JDKs the build needs by itself (JDK 25 to run Gradle, JDK 21 for Minecraft 1.21.1, JDK 17 for 1.20.1).
 
 `main` builds every modern Minecraft version and loader from one source tree with [Stonecutter](https://stonecutter.kikugie.dev/).
 `./gradlew build` builds them all (the jars land in `versions/<minecraft>-<loader>/build/libs/`) and runs the tests;

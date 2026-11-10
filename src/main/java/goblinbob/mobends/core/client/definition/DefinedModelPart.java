@@ -2,6 +2,7 @@ package goblinbob.mobends.core.client.definition;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.client.model.ModelPartTransform;
 import goblinbob.mobends.core.client.model.MutatedBox;
 import goblinbob.mobends.core.definition.DefinedEntityData;
@@ -126,7 +127,7 @@ public class DefinedModelPart {
                 poseStack.pushPose();
                 poseStack.translate(vanillaChildrenShift.x * SCALE, vanillaChildrenShift.y * SCALE, vanillaChildrenShift.z * SCALE);
                 for (ModelPart child : vanillaChildren) {
-                    child.render(poseStack, consumer, packedLight, packedOverlay, color);
+                    VanillaDraw.render(child, poseStack, consumer, packedLight, packedOverlay, color);
                 }
                 poseStack.popPose();
             }

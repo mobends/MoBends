@@ -24,7 +24,9 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.SaddleLayer;
 import net.minecraft.client.renderer.entity.layers.SheepFurLayer;
+//? if >=1.21 {
 import net.minecraft.client.renderer.entity.layers.WolfArmorLayer;
+//?}
 
 /** Mo' Bends' own content, registered as an addon like any other mod's (1.12's {@code DefaultAddon}). */
 public class DefaultAddon implements IAddon {
@@ -74,7 +76,9 @@ public class DefaultAddon implements IAddon {
         // model that no 1.12 definition names (the first two are new; the pig only bends with the
         // dev pack), and an unbent copy would show the mob twice.
         registry.registerImplicitLayer("drowned_outer_layer", DrownedOuterLayer.class, DefinedLayers.Role.COPY);
+        //? if >=1.21 {
         registry.registerImplicitLayer("wolf_armor_layer", WolfArmorLayer.class, DefinedLayers.Role.COPY);
+        //?}
         registry.registerImplicitLayer("saddle_layer", SaddleLayer.class, DefinedLayers.Role.COPY);
     }
 

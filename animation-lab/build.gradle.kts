@@ -52,6 +52,7 @@ val modIncludes = listOf(
     "goblinbob/mobends/core/client/model/TreeRoot.java",
     "goblinbob/mobends/core/client/definition/ModelPartLookup.java",
     "goblinbob/mobends/core/util/GsonResources.java",
+    "goblinbob/mobends/core/util/Ids.java",
     "goblinbob/mobends/core/util/WildcardPattern.java",
     "goblinbob/mobends/core/vanilla/VanillaNames.java",
     "goblinbob/mobends/core/vanilla/VanillaEntityFields.java",

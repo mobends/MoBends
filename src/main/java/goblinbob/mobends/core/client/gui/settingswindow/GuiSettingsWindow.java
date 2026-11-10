@@ -7,6 +7,7 @@ import goblinbob.mobends.core.client.preview.EntityPreview;
 import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.Draw;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -29,7 +30,7 @@ import java.util.Map;
  * Every change is saved at once ({@code ClientConfig}).
  */
 public class GuiSettingsWindow extends Screen {
-    public static final ResourceLocation BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(MoBends.MOD_ID, "textures/gui/settings_window.png");
+    public static final ResourceLocation BACKGROUND_TEXTURE = Ids.of(MoBends.MOD_ID, "textures/gui/settings_window.png");
     public static final int EDITOR_WIDTH = 280;
     /** The least height; the window grows with the screen up to the max, clear of its edges and the back button. */
     public static final int EDITOR_HEIGHT = 177;
@@ -106,13 +107,21 @@ public class GuiSettingsWindow extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+        //? if <1.20.2 {
+        /*renderBackground(graphics, mouseX, mouseY, partialTicks);
+        *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     /** The window under the widgets. */
+    //? if >=1.20.2 {
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+    //?} else {
+    /*private void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
+    *///?}
 
         drawWindow(graphics, x, y, EDITOR_WIDTH, editorHeight);
         bendsSettingsListUI.draw(graphics, mouseX, mouseY, partialTicks);
@@ -139,10 +148,17 @@ public class GuiSettingsWindow extends Screen {
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
+    //? if >=1.20.2 {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         return bendsSettingsListUI.handleMouseScrolled(mouseX, mouseY, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
+    //?} else {
+    /*@Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
+        return bendsSettingsListUI.handleMouseScrolled(mouseX, mouseY, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollY);
+    }
+    *///?}
 
     private void goBack() {
         this.minecraft.setScreen(new GuiBendsMenu(exit));

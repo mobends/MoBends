@@ -2,6 +2,7 @@ package goblinbob.mobends.standard.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import net.minecraft.client.Minecraft;
@@ -112,7 +113,7 @@ public final class ArrowTrail {
     }
 
     private static void vertex(VertexConsumer consumer, Matrix4f pose, float x, float y, float z) {
-        consumer.addVertex(pose, x, y, z).setColor(1.0F, 1.0F, 1.0F, 0.5F);
+        VanillaDraw.vertex(consumer, pose, x, y, z, 1.0F, 1.0F, 1.0F, 0.5F);
     }
 
     /** A place the arrow was, and two directions across its flight there, at right angles. */

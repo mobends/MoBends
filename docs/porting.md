@@ -7,7 +7,8 @@ first.
 
 ## Where it stands
 
-`main` builds Minecraft 1.21.1 for Fabric and NeoForge from one source tree (`src/`, Stonecutter).
+`main` builds Minecraft 1.21.1 for Fabric and NeoForge, and 1.20.1 for Fabric, from one source tree
+(`src/`, Stonecutter).
 Ported so far, in this order:
 
 | PR | What |
@@ -24,6 +25,7 @@ Ported so far, in this order:
 | #413 | The Legacy Mo' Bends pack is built, signed and released from `main`. |
 | #416, #417, #418, #420 | The rest of 1.12: errors told in chat, `core:equipment_name` and `core:ledge_ahead`, NeoForge's update check, the credits, two tests. `legacy-1.12/` is gone. |
 | #421, #422, #423, #424 | Model definitions bend any model, a mod's too, and any mob, named by registry id. |
+| #428 | Minecraft 1.20.1 on Fabric. |
 
 I've checked the player, its layers and the other mobs (the zombie, skeleton, zombie villager,
 creeper, golem, villager, witch, spider, squid, and the wolf, adult and pup, side by side with vanilla)
@@ -32,7 +34,8 @@ a test addon in its own jar).
 
 ## What's next
 
-1. The 1.20.1 and latest targets.
+1. 1.20.1 on Forge (TODO.md, *Add targets*).
+2. The latest target.
 
 Left for a later alpha: poses for the items 1.12 didn't have (spyglass, goat horn, brush, crossbow,
 trident: they now just keep the current pose).
@@ -62,6 +65,10 @@ trident: they now just keep the current pose).
   marks (`BendsRenderer.markBentDraw`). Layers get a bone's frame from `DefinedModel.applyVanillaFrame`
   after `DefinedRenderer.transformModel`; the bones come from the definition's `layers` block
   (`DefinedLayers`).
+- **Versions differ in vanilla's API**, fenced with Stonecutter. 1.20.1's differ from 1.21.1's mostly
+  in drawing (a colour is four floats, vertices are ended by hand), which `core.client.VanillaDraw`
+  hides, resource locations (`core.util.Ids`), the screens (1.20.1 draws no background by itself),
+  networking (channels, not payload types) and a few mixin targets' signatures.
 - **Other mods are optional.** GeckoLib is a compile-only dependency; its mixins
   (`mixin.geckolib`) are in their own config, `mobends.geckolib.mixins.json`, which lists them only
   when GeckoLib is installed and isn't required. Nothing outside that package touches GeckoLib's

@@ -12,7 +12,9 @@ import goblinbob.mobends.standard.AttackActionType;
 import goblinbob.mobends.standard.ItemActions;
 import goblinbob.mobends.standard.UseActionType;
 import net.minecraft.client.player.AbstractClientPlayer;
+//? if >=1.21 {
 import net.minecraft.client.resources.PlayerSkin;
+//?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -65,9 +67,16 @@ public final class MoBendsOperations {
                 .choice("variant", "default", "slim")
                 .returns(Expression.Type.BOOLEAN).selectorSafe(false)
                 .bind(args -> {
+                    //? if >=1.21 {
                     PlayerSkin.Model variant = "slim".equals(args.string(0)) ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE;
                     return (BooleanEvaluator) (context, values) -> context.entity() instanceof AbstractClientPlayer player
                             && player.getSkin().model() == variant;
+                    //?} else {
+                    /*// 1.20.1 names the skin's model "slim" or "default".
+                    String variant = args.string(0);
+                    return (BooleanEvaluator) (context, values) -> context.entity() instanceof AbstractClientPlayer player
+                            && variant.equals(player.getModelName());
+                    *///?}
                 }));
 
         // The wolf's own: vanilla's angles, in degrees, interpolated by partialTicks where vanilla does.

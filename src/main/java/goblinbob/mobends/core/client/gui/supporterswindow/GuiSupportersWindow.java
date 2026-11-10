@@ -14,13 +14,13 @@ import goblinbob.mobends.core.supporters.AccessoryDetails;
 import goblinbob.mobends.core.supporters.AccessorySettings;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import goblinbob.mobends.core.util.Draw;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -91,7 +91,7 @@ public class GuiSupportersWindow extends Screen {
     private final Map<String, EntityPreview> previews = new HashMap<>();
     private final List<LivingEntity> dressed = new ArrayList<>();
     @Nullable
-    private final DefinedEntity playerModel = DefinedEntities.defaultFor(ResourceLocation.withDefaultNamespace("player"), RemotePlayer.class);
+    private final DefinedEntity playerModel = DefinedEntities.defaultFor(Ids.minecraft("player"), RemotePlayer.class);
     private final Map<String, AccessoryDetails> accessories = new HashMap<>();
 
     /** The accessory previewed; null if there are none. */
@@ -163,6 +163,9 @@ public class GuiSupportersWindow extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+        //? if <1.20.2 {
+        /*renderBackground(graphics, mouseX, mouseY, partialTicks);
+        *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         if (accessoryList.isLockHovered()) {
@@ -171,9 +174,14 @@ public class GuiSupportersWindow extends Screen {
     }
 
     /** The window under the widgets. */
+    //? if >=1.20.2 {
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderBackground(graphics, mouseX, mouseY, partialTicks);
+    //?} else {
+    /*private void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(graphics);
+    *///?}
 
         // The container at (x, y), its title on a tab above it.
         GuiSettingsWindow.drawWindow(graphics, x - 4, y - 4, EDITOR_WIDTH, editorHeight);
@@ -296,10 +304,17 @@ public class GuiSupportersWindow extends Screen {
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
+    //? if >=1.20.2 {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         return accessoryList.handleMouseScrolled(mouseX, mouseY, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
+    //?} else {
+    /*@Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
+        return accessoryList.handleMouseScrolled(mouseX, mouseY, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollY);
+    }
+    *///?}
 
     @Override
     public void onClose() {

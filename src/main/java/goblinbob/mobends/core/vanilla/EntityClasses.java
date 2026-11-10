@@ -1,5 +1,6 @@
 package goblinbob.mobends.core.vanilla;
 
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,7 +20,7 @@ import java.util.Optional;
  * the first time it's asked. Render thread only.
  */
 public final class EntityClasses {
-    private static final ResourceLocation PLAYER = ResourceLocation.withDefaultNamespace("player");
+    private static final ResourceLocation PLAYER = Ids.minecraft("player");
     private static final Map<ResourceLocation, Optional<Class<? extends Entity>>> CLASSES = new HashMap<>();
 
     private EntityClasses() {

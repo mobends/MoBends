@@ -8,6 +8,7 @@ import goblinbob.mobends.core.kumo.bind.EntityBone;
 import goblinbob.mobends.core.kumo.state.template.EntityTemplate;
 import goblinbob.mobends.core.math.SmoothOrientation;
 import goblinbob.mobends.core.math.vector.Vec3f;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -37,7 +38,7 @@ public class DefinedEntityData<E extends LivingEntity> extends LivingEntityData<
     public DefinedEntityData(EntityModelDefinition definition, E entity) {
         super(entity);
         this.definition = definition;
-        this.animator = ResourceLocation.parse(definition.animator);
+        this.animator = Ids.parse(definition.animator);
     }
 
     public EntityModelDefinition getDefinition() {

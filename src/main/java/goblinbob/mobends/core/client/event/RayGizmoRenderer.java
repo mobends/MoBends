@@ -4,7 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+//? if >=1.21 {
 import com.mojang.blaze3d.vertex.MeshData;
+//?}
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import goblinbob.mobends.core.kumo.RayGizmos;
@@ -12,7 +14,11 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+//? if >=1.21 {
 import org.joml.Matrix4fStack;
+//?} else {
+/*import com.mojang.blaze3d.vertex.PoseStack;
+*///?}
 
 /**
  * Draws the rays {@code core:raycast} and {@code core:raycast_array} cast with {@code "debug": true}
@@ -41,9 +47,15 @@ public final class RayGizmoRenderer {
         }
         Vec3 view = camera.getPosition();
 
+        //? if >=1.21 {
         Matrix4fStack modelView = RenderSystem.getModelViewStack();
         modelView.pushMatrix();
         modelView.mul(viewMatrix);
+        //?} else {
+        /*PoseStack modelView = RenderSystem.getModelViewStack();
+        modelView.pushPose();
+        modelView.mulPoseMatrix(viewMatrix);
+        *///?}
         RenderSystem.applyModelViewMatrix();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.disableDepthTest();
@@ -52,7 +64,12 @@ public final class RayGizmoRenderer {
         RenderSystem.defaultBlendFunc();
         RenderSystem.lineWidth(2.0F);
 
+        //? if >=1.21 {
         BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        //?} else {
+        /*BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        buffer.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        *///?}
         for (int i = 0; i < count; i++) {
             RayGizmos.Kind kind = RayGizmos.kind(i);
             float r, g, b, a;
@@ -76,21 +93,34 @@ public final class RayGizmoRenderer {
                         toZ + RayGizmos.get(i, 8) * NORMAL_LENGTH, 0.2F, 0.9F, 1F, 1F);
             }
         }
+        //? if >=1.21 {
         MeshData mesh = buffer.build();
         if (mesh != null) {
             BufferUploader.drawWithShader(mesh);
         }
+        //?} else {
+        /*BufferUploader.drawWithShader(buffer.end());
+        *///?}
 
         RenderSystem.lineWidth(1.0F);
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
+        //? if >=1.21 {
         modelView.popMatrix();
+        //?} else {
+        /*modelView.popPose();
+        *///?}
         RenderSystem.applyModelViewMatrix();
     }
 
     private static void line(BufferBuilder buffer, double x0, double y0, double z0, double x1, double y1, double z1, float r, float g, float b, float a) {
+        //? if >=1.21 {
         buffer.addVertex((float) x0, (float) y0, (float) z0).setColor(r, g, b, a);
         buffer.addVertex((float) x1, (float) y1, (float) z1).setColor(r, g, b, a);
+        //?} else {
+        /*buffer.vertex(x0, y0, z0).color(r, g, b, a).endVertex();
+        buffer.vertex(x1, y1, z1).color(r, g, b, a).endVertex();
+        *///?}
     }
 }

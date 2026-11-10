@@ -147,7 +147,11 @@ public final class MinecraftLink {
         User user = mc.getUser();
         ConnectionHelper.runInBackground("account link", () -> {
             try {
+                //? if >=1.21 {
                 mc.getMinecraftSessionService().joinServer(user.getProfileId(), user.getAccessToken(), start.serverId());
+                //?} else {
+                /*mc.getMinecraftSessionService().joinServer(user.getGameProfile(), user.getAccessToken(), start.serverId());
+                *///?}
 
                 JsonObject body = new JsonObject();
                 body.addProperty("code", start.code());

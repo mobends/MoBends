@@ -8,6 +8,7 @@ import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
 import goblinbob.mobends.core.client.gui.supporterswindow.GuiSupportersWindow;
 import goblinbob.mobends.core.connection.ConnectionManager;
 import goblinbob.mobends.core.connection.MoBendsAccount;
+import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -24,8 +25,8 @@ import javax.annotation.Nullable;
  * (see {@code KeyboardHandler}) or from the mod list (the mod's config screen, {@link #fromModList}).
  */
 public class GuiBendsMenu extends Screen {
-    private static final ResourceLocation MENU_TITLE_TEXTURE = ResourceLocation.fromNamespaceAndPath(MoBends.MOD_ID, "textures/gui/title.png");
-    public static final ResourceLocation ICONS_TEXTURE = ResourceLocation.fromNamespaceAndPath(MoBends.MOD_ID, "textures/gui/icons.png");
+    private static final ResourceLocation MENU_TITLE_TEXTURE = Ids.of(MoBends.MOD_ID, "textures/gui/title.png");
+    public static final ResourceLocation ICONS_TEXTURE = Ids.of(MoBends.MOD_ID, "textures/gui/icons.png");
     private static final int BUTTON_HEIGHT = 20;
     private static final int BUTTON_GAP = 4;
     /** The title texture's size: its pixel art is drawn at twice the size of a pixel. */
@@ -167,6 +168,9 @@ public class GuiBendsMenu extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        //? if <1.20.2 {
+        /*renderBackground(graphics);
+        *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
 
         Layout layout = new Layout();
