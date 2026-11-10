@@ -1,6 +1,20 @@
 # Rendering & Mutation System
 
-## How It Hooks Into Minecraft
+## On the modern versions
+
+- **Hooks are vanilla Mixins** (`goblinbob.mobends.mixin`, client), so they're written once for every
+  loader. Prefer `@WrapOperation`/`@Inject` that keep other mods' wrappers running. Anything Mo'
+  Bends can't bend must draw exactly as vanilla, never twice.
+- **Drawing:** `ModelPart` is final on the modern versions, so instead of swapping parts as 1.12 did, a bent copy
+  of the model is built per vanilla model (`DefinedModelBuilder`, `DefinedModel`) and drawn inside the
+  model's own `renderToBuffer` (`AgeableListModelMixin`, `HierarchicalModelMixin`), which the renderer
+  marks (`BendsRenderer.markBentDraw`). Layers get a bone's frame from `DefinedModel.applyVanillaFrame`
+  after `DefinedRenderer.transformModel`; the bones come from the definition's `layers` block
+  (`DefinedLayers`).
+
+The rest of this doc describes 1.12.2 (the `forge-1.12` branch).
+
+## How It Hooks Into Minecraft (1.12.2)
 
 All hooks use Forge's `MinecraftForge.EVENT_BUS`, registered in `CoreClient.init()`.
 

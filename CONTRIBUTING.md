@@ -82,6 +82,12 @@ nothing else from it is used. Mod Menu's API is compiled against (not bundled), 
 uses a loader API, and that `src/` is committed with the default node active. Run it before
 pushing if you like.
 
+### Other mods
+
+Other mods are optional. GeckoLib is a compile-only dependency; its mixins (`mixin.geckolib`) have
+their own config, `mobends.geckolib.mixins.json`, which applies them only when GeckoLib is installed.
+Nothing outside that package touches GeckoLib's classes.
+
 ## Building and running
 
 Gradle runs on JDK 25 and builds 1.21.1 with JDK 21, 1.20.1 with JDK 17. You don't need to install any: Gradle
@@ -96,6 +102,22 @@ downloads them (`gradle/gradle-daemon-jvm.properties`, and the toolchains of the
 | `./gradlew :core:test` | Tests the core. |
 | `cd animation-lab && ./gradlew test` | Runs the animation lab (see its README). |
 
+### Checking a change
+
+- Before pushing: `.github/scripts/check-sources.sh` and `./gradlew build`. If `core/`, the animators
+  or the animation code in `src/` change, the animation lab too.
+- **Geometry and transforms can be checked without the game.** A standalone program run against the
+  built classes and the real vanilla meshes, comparing the bent parts with vanilla's at rest (every
+  vertex and UV) and the layers' frames with the drawn parts, catches most mistakes before the game
+  does.
+- **Then check it in the game.** `./gradlew :1.21.1-fabric:runClient --args="--quickPlaySingleplayer 'New World'"`
+  starts the client straight into a world. On NeoForge, `--args` breaks the dev launcher: run
+  `:1.21.1-neoforge:runClient` plain and pick the world. Only one client can hold a world: close
+  earlier test clients first (a `session.lock` error in the log means one is still open).
+- To compare a mob with vanilla, use a resource pack with an extension whose only layer is a
+  `core:vanilla` node, on every other second (`"@when"` on `entityTicksExisted`): it switches the mob
+  back and forth in place.
+
 ## Branches
 
 ```
@@ -108,6 +130,9 @@ forge-1.12               Mo' Bends 2.X for Minecraft 1.12.2
 - Branch off `main`, open a pull request back into `main`. For 1.12.2, branch off `forge-1.12`
   instead; its CONTRIBUTING.md describes how 1.12.2 is built and released.
 - CI builds every node and runs the `core/` tests and the animation lab. All of them must pass.
+- Nothing goes straight to `main`: every change is a pull request. Keep its description stupidly
+  simple and clear: a sentence of what it does, a short *What changed* list, *Not yet*, *Tested*. No
+  implementation detail. Say plainly what was and wasn't checked in the game, and on which loader.
 - `forge-1.12` doesn't merge from `main`. It shares the engine by depending on a published, pinned
   release of `core` (see [TODO.md](TODO.md)): an engine fix is made in `core/` on `main`, released,
   and the dependency bumped on `forge-1.12`.

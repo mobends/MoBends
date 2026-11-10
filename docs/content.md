@@ -78,6 +78,12 @@ which works for any mob, those added after 1.12 too; and a bone's part by its pa
 part tree (`part`), which works for any model. So a mob 1.12 never had takes a definition with
 ids, no `model`, and parts by path. See *Field names* in `misc/kumo-format.md`.
 
+### One format for every version
+
+The asset format is shared with `forge-1.12`, and so are the assets
+(`src/main/resources/assets/mobends/bends/`). Don't change what an existing key means. A new key is
+fine if 1.12.2 can ignore it (its Gson skips unknown keys), like `@variants`.
+
 ## What Resource Packs May Do
 
 Content is either *trusted* — the mod, other mods, vanilla, and the server's own resource pack —
