@@ -193,8 +193,8 @@ forge-1.12               1.12.2
        Mo' Bends pack built and signed from `main` (#413).
      - [x] Model definitions bend any model (#421, #422, #423, #424): a mod's, named by its class,
        parts by path or by field; any mob, named by registry id or a list of them, those 1.12 never
-       had too. Checked in the game on NeoForge (a resource pack's wolf, panda, goat, fox, shulker,
-       llama, rabbit and camel).
+       had too. Checked in the game on both loaders (a resource pack's wolf, panda, goat, fox,
+       shulker, llama, rabbit and camel).
    - [x] Convert the `.lang` translations to `.json`.
    - [x] A release workflow for the modern versions (all targets at once, Modrinth and CurseForge):
      `.github/workflows/release.yml`, for `v<version>` tags on `main`. Its Modrinth and CurseForge
