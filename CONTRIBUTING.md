@@ -145,8 +145,7 @@ prerelease), give `CHANGELOG.md` a `## <version>` section, merge that into `main
 4. uploads each jar to Modrinth and CurseForge as its own version, `<version>+<minecraft>-<loader>`,
    for its loader and the Minecraft releases in its `mod.mc_releases`, with the changelog section as
    its changelog. A version with `alpha` in it is released as an alpha, with any other `-` suffix as
-   a beta, otherwise as a release. **This step is switched off for now** (see [TODO.md](TODO.md));
-   until it's on, upload the jars by hand from the GitHub release;
+   a beta, otherwise as a release;
 5. uploads the pack to its own Modrinth and CurseForge projects, as `<version>`, for 1.12.2 and every
    node's Minecraft releases. **Also switched off for now** (TODO.md, *Legacy Mo' Bends pack*).
 
