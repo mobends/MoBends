@@ -124,6 +124,8 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
         BendsRenderer.markBentDraw(bent, model, mobends$entityFrame, mobends$bodyYaw);
         try {
             original.call(model, poseStack, consumer, packedLight, packedOverlay, color);
+            // A model that draws its parts its own way didn't take the mark: drawn bent now.
+            BendsRenderer.drawIfSkipped(model, poseStack, consumer, packedLight, packedOverlay, color);
         } finally {
             BendsRenderer.clearBentDraw();
         }
