@@ -116,6 +116,31 @@ public final class BendsLayers {
         current = outer;
     }
 
+    /** The frame of the layer submitting now, or null (26.x keeps it with each model the layer submits). */
+    @Nullable
+    public static Frame currentFrame() {
+        return current;
+    }
+
+    /**
+     * {@link #drawInLayer(EntityModel, PoseStack, VertexConsumer, int, int, int)} in {@code frame}: on
+     * 26.x a layer's models are drawn after the layer ran, in the frame it was in as it submitted them.
+     */
+    public static boolean drawInLayer(Frame frame, EntityModel<?> model, PoseStack poseStack, VertexConsumer consumer, int packedLight,
+                                      int packedOverlay, int color) {
+        Frame outer = current;
+        ItemStack piece = armourPiece;
+        current = frame;
+        // Whether the piece is kept as vanilla was settled as it was submitted (frameForSubmit).
+        armourPiece = ItemStack.EMPTY;
+        try {
+            return drawInLayer(model, poseStack, consumer, packedLight, packedOverlay, color);
+        } finally {
+            current = outer;
+            armourPiece = piece;
+        }
+    }
+
     /** The frame of the layer drawing {@code entity}, or null if it isn't drawing it bent. */
     @Nullable
     private static Frame frameFor(Entity entity) {
@@ -212,7 +237,7 @@ public final class BendsLayers {
         OrientationComponent item = data.getComponent(right ? "rightHeldItem" : "leftHeldItem", OrientationComponent.class);
         if (item != null) {
             poseStack.translate(0.0F, 0.5F, 0.0F);
-            poseStack.mulPose(DefinedModelPart.toJoml(item.getSmooth()));
+            VanillaDraw.rotate(poseStack, DefinedModelPart.toJoml(item.getSmooth()));
             poseStack.translate(0.0F, -0.5F, 0.0F);
         }
     }
@@ -387,7 +412,7 @@ public final class BendsLayers {
         frame.parts.applyVanillaFrame("body", frame.data, poseStack, 0.0F, 0.0F, 0.0F);
         poseStack.translate(0.0F, 0.0F, 0.125F);
         frame.parts.applyLocalTransform("cape", frame.data, poseStack);
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        VanillaDraw.rotate(poseStack, Axis.YP.rotationDegrees(180.0F));
         return true;
     }
 
@@ -503,8 +528,22 @@ public final class BendsLayers {
     }
 
     private static boolean isArmour(Frame frame, EntityModel<?> model) {
-        return frame.layer instanceof HumanoidArmorLayer<?, ?, ?> && model instanceof HumanoidModel<?>
-                && (armourPiece.isEmpty() || !ClientConfig.INSTANCE.keepsArmorVanilla(BuiltInRegistries.ITEM.getKey(armourPiece.getItem()).toString()));
+        return frame.layer instanceof HumanoidArmorLayer<?, ?, ?> && model instanceof HumanoidModel<?> && !keepsPieceVanilla();
+    }
+
+    /** Whether the armour piece being drawn is one the user keeps as vanilla draws it. */
+    private static boolean keepsPieceVanilla() {
+        return !armourPiece.isEmpty() && ClientConfig.INSTANCE.keepsArmorVanilla(BuiltInRegistries.ITEM.getKey(armourPiece.getItem()).toString());
+    }
+
+    /**
+     * The frame a model submitted now is to be drawn in, later in the frame (26.x): the frame of the
+     * layer submitting it, unless it's an armour piece the user keeps as vanilla draws it; else null.
+     */
+    @Nullable
+    public static Frame frameForSubmit() {
+        Frame frame = current;
+        return frame == null || frame.layer instanceof HumanoidArmorLayer<?, ?, ?> && keepsPieceVanilla() ? null : frame;
     }
 
     /** The armour piece an armour layer is drawing ({@code HumanoidArmorLayerMixin}); render thread only. */

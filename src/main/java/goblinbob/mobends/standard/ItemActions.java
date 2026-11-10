@@ -9,7 +9,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
+//? if <26.1 {
 import net.minecraft.world.item.SwordItem;
+//?}
 import net.minecraft.world.item.UseAnim;
 
 /**
@@ -79,7 +81,11 @@ public final class ItemActions {
                 return configured;
             }
         }
+        //? if >=26.1 {
+        /*if (stack.is(net.minecraft.tags.ItemTags.SWORDS)) {
+        *///?} else {
         if (stack.getItem() instanceof SwordItem) {
+        //?}
             return AttackActionType.SWORD;
         }
         if (stack.isEmpty()) {

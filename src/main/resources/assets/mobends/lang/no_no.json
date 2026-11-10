@@ -36,6 +36,7 @@
   "mobends.gui.link.error.api": "Noe gikk galt på Mo' Bends-serveren. Prøv igjen senere.",
   "mobends.gui.link.error.connection": "Fikk ikke kontakt med Mo' Bends-serveren. Sjekk internettforbindelsen og prøv igjen.",
   "key.categories.mobends": "Mo' Bends",
+  "key.category.mobends.main": "Mo' Bends",
   "key.mobends.menu": "Mo' Bends-meny",
   "mobends.player": "Spiller",
   "mobends.config.show_arrow_trails": "Vis pilspor",

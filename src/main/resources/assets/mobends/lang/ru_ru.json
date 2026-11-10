@@ -36,6 +36,7 @@
   "mobends.gui.link.error.api": "На сервере Mo' Bends что-то пошло не так. Попробуйте позже.",
   "mobends.gui.link.error.connection": "Не удалось подключиться к серверу Mo' Bends. Проверьте подключение к интернету и попробуйте ещё раз.",
   "key.categories.mobends": "Mo' Bends",
+  "key.category.mobends.main": "Mo' Bends",
   "key.mobends.menu": "Меню Mo' Bends",
   "mobends.player": "Игрок",
   "mobends.config.show_arrow_trails": "Показывать следы стрел",

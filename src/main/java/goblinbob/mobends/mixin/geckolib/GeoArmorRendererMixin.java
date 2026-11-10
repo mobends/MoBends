@@ -1,5 +1,7 @@
 package goblinbob.mobends.mixin.geckolib;
 
+// GeckoLib 5 (26.x) isn't supported yet.
+//? if <26.1 {
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -216,3 +218,4 @@ public abstract class GeoArmorRendererMixin {
         return poseStack.last().pose();
     }
 }
+//?}

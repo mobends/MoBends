@@ -136,6 +136,12 @@ public final class DefinedLayers {
             return;
         }
         for (String id : definition.layers.keySet()) {
+            //? if >=26.1 {
+            /*// Mo' Bends' own layers not ported to 26.x yet: left out without a word.
+            if (id.equals("mobends:accessories") || id.equals("mobends:wolf_misc")) {
+                continue;
+            }
+            *///?}
             if (!KINDS.containsKey(id)) {
                 MoBends.LOGGER.warn("Model definition {}: there is no layer '{}'; it is left out.", definition.location, id);
             }

@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.client.event;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import goblinbob.mobends.core.client.gui.GuiBendsMenu;
+//? if <26.1 {
 import goblinbob.mobends.mixin.KeyMappingAccessor;
+//?}
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -16,18 +16,26 @@ import java.util.Map;
  * way on every loader, and is checked with them ({@code MinecraftMixin}).
  */
 public final class KeyboardHandler {
+    //? if >=26.1 {
+    /*private static final KeyMapping.Category MAIN_CATEGORY =
+        KeyMapping.Category.register(goblinbob.mobends.core.util.Ids.of(goblinbob.mobends.MoBends.MOD_ID, "main"));
+    *///?} else {
     private static final String MAIN_CATEGORY = "key.categories.mobends";
-    private static final KeyMapping KEY_MENU = new KeyMapping("key.mobends.menu", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, MAIN_CATEGORY);
+    //?}
+    private static final KeyMapping KEY_MENU = new KeyMapping("key.mobends.menu", InputConstants.Type.KEYSYM, InputConstants.KEY_G, MAIN_CATEGORY);
 
     private KeyboardHandler() {
     }
 
     /** The game's keys with Mo' Bends' added (once), and its category given a place in the Controls screen. */
     public static KeyMapping[] withKeyMappings(KeyMapping[] keyMappings) {
+        // On 26.x, registering the category gave it its place.
+        //? if <26.1 {
         Map<String, Integer> categories = KeyMappingAccessor.mobends$getCategorySortOrder();
         if (!categories.containsKey(MAIN_CATEGORY)) {
             categories.put(MAIN_CATEGORY, categories.values().stream().max(Integer::compare).orElse(0) + 1);
         }
+        //?}
         if (Arrays.asList(keyMappings).contains(KEY_MENU)) {
             return keyMappings;
         }
@@ -39,7 +47,10 @@ public final class KeyboardHandler {
     /** With the game's keys: opens the menu if its key was pressed. */
     public static void onKeybinds() {
         while (KEY_MENU.consumeClick()) {
-            Minecraft.getInstance().setScreen(new GuiBendsMenu());
+            // The menu isn't ported to 26.x's GUI yet.
+            //? if <26.1 {
+            Minecraft.getInstance().setScreen(new goblinbob.mobends.core.client.gui.GuiBendsMenu());
+            //?}
         }
     }
 }

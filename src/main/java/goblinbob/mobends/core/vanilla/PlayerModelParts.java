@@ -9,5 +9,8 @@ import net.minecraft.client.model.geom.ModelPart;
 public interface PlayerModelParts {
     boolean mobends$isSlim();
 
+    // 26.x's cape is a model of its own.
+    //? if <26.1 {
     ModelPart mobends$cloak();
+    //?}
 }

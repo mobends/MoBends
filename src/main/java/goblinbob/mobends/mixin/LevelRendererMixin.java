@@ -1,5 +1,7 @@
 package goblinbob.mobends.mixin;
 
+// Not ported to 26.x yet (the trails and debug rays).
+//? if <26.1 {
 import goblinbob.mobends.core.client.event.RayGizmoRenderer;
 import net.minecraft.client.Camera;
 //? if >=1.21 {
@@ -40,3 +42,4 @@ public abstract class LevelRendererMixin {
     }
     *///?}
 }
+//?}

@@ -142,10 +142,18 @@ public final class SupporterContent {
         if (!(entity instanceof Player player)) {
             return Collections.emptyMap();
         }
+        //? if >=26.1 {
+        /*String name = player.getGameProfile().name();
+        *///?} else {
         String name = player.getGameProfile().getName();
+        //?}
         Map<String, AccessorySettings> settings = settingsPerPlayer.get(name);
         if (settings == null) {
-            ConnectionManager.fetchSettingsForPlayer(name, player.getGameProfile().getId());
+            //? if >=26.1 {
+        /*ConnectionManager.fetchSettingsForPlayer(name, player.getGameProfile().id());
+        *///?} else {
+        ConnectionManager.fetchSettingsForPlayer(name, player.getGameProfile().getId());
+        //?}
             return Collections.emptyMap();
         }
         return settings;

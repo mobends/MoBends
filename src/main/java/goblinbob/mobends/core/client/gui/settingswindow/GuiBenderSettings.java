@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
@@ -280,3 +282,4 @@ public class GuiBenderSettings implements IGuiListElement {
         listOrder = order;
     }
 }
+//?}

@@ -1,5 +1,36 @@
 package goblinbob.mobends.mixin;
 
+//? if >=26.1 {
+/*import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import goblinbob.mobends.core.client.BentRenderState;
+import goblinbob.mobends.core.client.definition.DefinedRenderer;
+import goblinbob.mobends.core.definition.DefinedEntityData;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+/^*
+ * A bent player who swims or crawls isn't tilted by its renderer (26.x's {@code AvatarRenderer}): its
+ * definition lays the body down itself ({@link DefinedRenderer#replacesSwimmingTilt}). The
+ * supporters' accessories aren't drawn on 26.x yet.
+ ^/
+@Mixin(AvatarRenderer.class)
+public abstract class PlayerRendererMixin {
+    @WrapOperation(
+        method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V",
+        at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;swimAmount:F")
+    )
+    private float mobends$noSwimTiltWhenBent(AvatarRenderState state, Operation<Float> original) {
+        DefinedEntityData<?> bent = ((BentRenderState) state).mobends$bent();
+        if (bent != null && DefinedRenderer.replacesSwimmingTilt(bent.getEntity())) {
+            return 0.0F;
+        }
+        return original.call(state);
+    }
+}
+*///?} else {
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import goblinbob.mobends.core.client.BendingEntityRenderer;
@@ -54,3 +85,4 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
         return original.call(player, partialTicks);
     }
 }
+//?}

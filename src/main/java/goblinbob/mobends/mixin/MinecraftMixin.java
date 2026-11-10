@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.event.KeyboardHandler;
+import goblinbob.mobends.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -31,7 +32,9 @@ public abstract class MinecraftMixin {
     )
     private void mobends$registerReloadListener(ReloadableResourceManager resourceManager, PreparableReloadListener listener,
                                                 Operation<Void> original) {
-        resourceManager.registerReloadListener((ResourceManagerReloadListener) manager -> CoreClient.reloadAnimation());
+        if (!Platform.INSTANCE.registersReloadListener()) {
+            resourceManager.registerReloadListener((ResourceManagerReloadListener) manager -> CoreClient.reloadAnimation());
+        }
         original.call(resourceManager, listener);
     }
 

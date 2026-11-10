@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -115,3 +117,4 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
         return false;
     }
 }
+//?}

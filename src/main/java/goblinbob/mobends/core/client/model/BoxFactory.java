@@ -335,6 +335,22 @@ public class BoxFactory {
             current[7] = z;
             return this;
         }
+        //? if >=26.1 {
+        /*@Override
+        public VertexConsumer setLineWidth(float width) {
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setUv3(float u, float v) {
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setColor(int color) {
+            return this;
+        }
+        *///?}
         //?} else {
         /*@Override
         public VertexConsumer vertex(double x, double y, double z) {

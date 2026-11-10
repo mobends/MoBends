@@ -33,6 +33,7 @@ stonecutter {
         // The targets, see TODO.md. The sources in src/ are always committed with vcsVersion active.
         match("1.20.1", "fabric", "forge")
         match("1.21.1", "fabric", "neoforge")
+        match("26.3", "fabric", "neoforge")
         vcsVersion = "1.21.1-fabric"
     }
 }

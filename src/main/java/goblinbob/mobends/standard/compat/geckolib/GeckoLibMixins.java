@@ -20,7 +20,12 @@ public final class GeckoLibMixins implements IMixinConfigPlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
+        //? if <26.1 {
         present = GeckoLibMixins.class.getClassLoader().getResource(ARMOR_RENDERER) != null;
+        //?} else {
+        /*// GeckoLib 5 (26.x) isn't supported yet: GeoArmorRendererMixin isn't built there.
+        present = false;
+        *///?}
     }
 
     @Override

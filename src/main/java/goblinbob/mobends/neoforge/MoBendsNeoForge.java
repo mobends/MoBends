@@ -16,6 +16,9 @@ public class MoBendsNeoForge {
         if (FMLEnvironment.dist.isClient()) {
             // In a class of its own, so a server never loads the client's screens.
             NeoForgeClient.registerConfigScreen(modContainer);
+            //? if >=26.1 {
+            /^NeoForgeClient.registerReloadListener(modEventBus);
+            ^///?}
         }
     }
 }

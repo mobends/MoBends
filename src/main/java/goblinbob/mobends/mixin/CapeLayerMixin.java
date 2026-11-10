@@ -1,5 +1,48 @@
 package goblinbob.mobends.mixin;
 
+//? if >=26.1 {
+/*import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import goblinbob.mobends.core.client.BendsLayers;
+import goblinbob.mobends.core.client.BentRenderState;
+import goblinbob.mobends.core.definition.DefinedEntityData;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.layers.CapeLayer;
+import net.minecraft.client.renderer.RenderType;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+/^*
+ * Submits a bent player's cape on the bent body's back ({@link BendsLayers#placeCape}). On 26.x the
+ * cape is a model of its own, drawn later in the frame; its ripple ({@code CapeWave}) and standing it
+ * up as 1.12 did aren't ported yet.
+ ^/
+@Mixin(CapeLayer.class)
+public abstract class CapeLayerMixin {
+    @WrapOperation(
+        method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;III)V"
+        )
+    )
+    private void mobends$bentCape(SubmitNodeCollector collector, Model<?> model, Object state, PoseStack poseStack, RenderType renderType,
+                                  int lightCoords, int overlayCoords, int outlineColor, Operation<Void> original) {
+        DefinedEntityData<?> bent = state instanceof BentRenderState bentState ? bentState.mobends$bent() : null;
+        poseStack.pushPose();
+        try {
+            if (bent != null) {
+                BendsLayers.placeCape(bent.getEntity(), poseStack);
+            }
+            original.call(collector, model, state, poseStack, renderType, lightCoords, overlayCoords, outlineColor);
+        } finally {
+            poseStack.popPose();
+        }
+    }
+}
+*///?} else {
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -57,3 +100,4 @@ public abstract class CapeLayerMixin {
         }
     }
 }
+//?}

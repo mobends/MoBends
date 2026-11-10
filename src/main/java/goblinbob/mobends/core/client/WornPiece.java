@@ -289,6 +289,25 @@ public final class WornPiece {
             delegate.setNormal(x, y, z);
             return this;
         }
+        //? if >=26.1 {
+        /*@Override
+        public VertexConsumer setLineWidth(float width) {
+            delegate.setLineWidth(width);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setUv3(float u, float v) {
+            delegate.setUv3(u, v);
+            return this;
+        }
+
+        @Override
+        public VertexConsumer setColor(int color) {
+            delegate.setColor(color);
+            return this;
+        }
+        *///?}
         //?} else {
         /*@Override
         public VertexConsumer vertex(double x, double y, double z) {

@@ -32,6 +32,15 @@ public interface Platform {
     @Nullable
     String modName(String modId);
 
+    /**
+     * Whether the loader gives Mo' Bends' resource reload listener (which reads the definitions and
+     * animators again) its place itself: NeoForge 26.x, which wants every listener named. Otherwise
+     * {@code MinecraftMixin} adds it with the game's own.
+     */
+    default boolean registersReloadListener() {
+        return false;
+    }
+
     /** Whether the game is a client (the server has no rendering, so animation stays off there). */
     boolean isClient();
 

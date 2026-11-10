@@ -36,6 +36,7 @@
   "mobends.gui.link.error.api": "Qualcosa è andato storto sul server di Mo' Bends. Riprova più tardi.",
   "mobends.gui.link.error.connection": "Impossibile raggiungere il server di Mo' Bends. Controlla la connessione a Internet e riprova.",
   "key.categories.mobends": "Mo' Bends",
+  "key.category.mobends.main": "Mo' Bends",
   "key.mobends.menu": "Menu di Mo' Bends",
   "mobends.player": "Giocatore",
   "mobends.config.show_arrow_trails": "Mostra scie delle frecce",

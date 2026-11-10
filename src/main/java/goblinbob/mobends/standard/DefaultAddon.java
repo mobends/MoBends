@@ -4,8 +4,12 @@ import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.addon.IAddon;
 import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
+//? if <26.1 {
 import goblinbob.mobends.standard.client.renderer.entity.layers.PlayerAccessoriesLayer;
+//?}
+//? if <26.1 {
 import goblinbob.mobends.standard.client.renderer.entity.layers.WolfMiscLayer;
+//?}
 import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.standard.kumo.CapeDriver;
 import goblinbob.mobends.standard.kumo.MoBendsOperations;
@@ -19,11 +23,17 @@ import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.CreeperPowerLayer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.DrownedOuterLayer;
+//? if <26.1 {
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;
+//?}
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+//? if <26.1 {
 import net.minecraft.client.renderer.entity.layers.SaddleLayer;
+//?}
+//? if <26.1 {
 import net.minecraft.client.renderer.entity.layers.SheepFurLayer;
+//?}
 //? if >=1.21 {
 import net.minecraft.client.renderer.entity.layers.WolfArmorLayer;
 //?}
@@ -64,14 +74,27 @@ public class DefaultAddon implements IAddon {
         registry.registerLayer("held_item", ItemInHandLayer.class);
         registry.registerLayer("custom_head", CustomHeadLayer.class);
         registry.registerLayer("cape", CapeLayer.class);
+        //? if >=26.1 {
+        /*registry.registerLayer("elytra", net.minecraft.client.renderer.entity.layers.WingsLayer.class);
+        *///?} else {
         registry.registerLayer("elytra", ElytraLayer.class);
+        //?}
         // Mo' Bends' own layer of supporter accessories (added to the player's renderer by PlayerRendererMixin).
+        // Not on 26.x yet.
+        //? if <26.1 {
         registry.registerLayer("accessories", PlayerAccessoriesLayer.class);
+        //?}
         // Mo' Bends' own layer of the wolf's mouth (added to the wolf's renderer by WolfRendererMixin).
+        // Not on 26.x yet.
+        //? if <26.1 {
         registry.registerLayer("wolf_misc", WolfMiscLayer.class);
+        //?}
         // Layers that draw their own copy of the model: drawn bent, as 1.12's AnimatedCopyLayer drew them.
         registry.registerCopyLayer("creeper_charge", CreeperPowerLayer.class);
+        // Not on 26.x yet.
+        //? if <26.1 {
         registry.registerCopyLayer("sheep_wool", SheepFurLayer.class);
+        //?}
         // The drowned's outer layer, the wolf's armour and the pig's saddle are copies of their
         // model that no 1.12 definition names (the first two are new; the pig only bends with the
         // dev pack), and an unbent copy would show the mob twice.
@@ -79,7 +102,10 @@ public class DefaultAddon implements IAddon {
         //? if >=1.21 {
         registry.registerImplicitLayer("wolf_armor_layer", WolfArmorLayer.class, DefinedLayers.Role.COPY);
         //?}
+        // Not on 26.x yet.
+        //? if <26.1 {
         registry.registerImplicitLayer("saddle_layer", SaddleLayer.class, DefinedLayers.Role.COPY);
+        //?}
     }
 
     @Override

@@ -48,6 +48,14 @@ public final class NeoForgePlatform implements Platform {
         return ModList.get().getModContainerById(modId).map(mod -> mod.getModInfo().getDisplayName()).orElse(null);
     }
 
+    //? if >=26.1 {
+    /^@Override
+    public boolean registersReloadListener() {
+        // NeoForgeClient.registerReloadListener, as NeoForge 26.x asks.
+        return true;
+    }
+    ^///?}
+
     @Override
     public boolean isClient() {
         return FMLEnvironment.dist.isClient();

@@ -1,5 +1,7 @@
 package goblinbob.mobends.mixin;
 
+// 26.x has no HierarchicalModel: ModelFeatureRendererMixin draws every model.
+//? if <26.1 {
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import goblinbob.mobends.core.client.BendsLayers;
@@ -36,3 +38,4 @@ public abstract class HierarchicalModelMixin {
         }
     }
 }
+//?}

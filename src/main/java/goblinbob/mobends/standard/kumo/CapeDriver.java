@@ -49,17 +49,31 @@ public class CapeDriver implements IPoseItem {
 
         // As CapeLayer computes it, in 1.21.1.
         float partialTicks = DataUpdateHandler.partialTicks;
+        //? if >=26.1 {
+        /*if (!(player instanceof net.minecraft.client.entity.ClientAvatarEntity avatar)) {
+            return;
+        }
+        double d0 = avatar.avatarState().getInterpolatedCloakX(partialTicks) - Mth.lerp(partialTicks, player.xo, player.getX());
+        double d1 = avatar.avatarState().getInterpolatedCloakY(partialTicks) - Mth.lerp(partialTicks, player.yo, player.getY());
+        double d2 = avatar.avatarState().getInterpolatedCloakZ(partialTicks) - Mth.lerp(partialTicks, player.zo, player.getZ());
+        *///?} else {
         double d0 = Mth.lerp(partialTicks, player.xCloakO, player.xCloak) - Mth.lerp(partialTicks, player.xo, player.getX());
         double d1 = Mth.lerp(partialTicks, player.yCloakO, player.yCloak) - Mth.lerp(partialTicks, player.yo, player.getY());
         double d2 = Mth.lerp(partialTicks, player.zCloakO, player.zCloak) - Mth.lerp(partialTicks, player.zo, player.getZ());
+        //?}
         float f = Mth.rotLerp(partialTicks, player.yBodyRotO, player.yBodyRot);
         double d3 = Mth.sin(f * Mth.DEG_TO_RAD);
         double d4 = -Mth.cos(f * Mth.DEG_TO_RAD);
         float f1 = Mth.clamp((float) d1 * 10.0F, -6.0F, 32.0F);
         float f2 = Mth.clamp((float) (d0 * d3 + d2 * d4) * 100.0F, 0.0F, 150.0F);
         float f3 = Mth.clamp((float) (d0 * d4 - d2 * d3) * 100.0F, -20.0F, 20.0F);
+        //? if >=26.1 {
+        /*float f4 = avatar.avatarState().getInterpolatedBob(partialTicks);
+        f1 += Mth.sin(avatar.avatarState().getInterpolatedWalkDistance(partialTicks) * 6.0F) * 32.0F * f4;
+        *///?} else {
         float f4 = Mth.lerp(partialTicks, player.oBob, player.bob);
         f1 += Mth.sin(Mth.lerp(partialTicks, player.walkDistO, player.walkDist) * 6.0F) * 32.0F * f4;
+        //?}
         if (player.isCrouching()) {
             f1 += 25.0F;
         }

@@ -47,7 +47,11 @@ public final class EntityClasses {
         Optional<EntityType<?>> type = BuiltInRegistries.ENTITY_TYPE.getOptional(id);
         if (type.isPresent()) {
             try {
+                //? if >=26.1 {
+                /*Entity made = type.get().create(level, net.minecraft.world.entity.EntitySpawnReason.LOAD);
+                *///?} else {
                 Entity made = type.get().create(level);
+                //?}
                 found = made == null ? null : made.getClass();
             } catch (RuntimeException | LinkageError e) {
                 found = null;

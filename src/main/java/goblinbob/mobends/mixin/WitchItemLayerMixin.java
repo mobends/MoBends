@@ -1,5 +1,7 @@
 package goblinbob.mobends.mixin;
 
+// Not ported to 26.x yet (the mobs).
+//? if <26.1 {
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -29,3 +31,4 @@ public abstract class WitchItemLayerMixin {
         }
     }
 }
+//?}

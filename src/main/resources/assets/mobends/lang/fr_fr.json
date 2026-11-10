@@ -36,6 +36,7 @@
   "mobends.gui.link.error.api": "Une erreur s'est produite sur le serveur Mo' Bends. Veuillez réessayer plus tard.",
   "mobends.gui.link.error.connection": "Impossible de joindre le serveur Mo' Bends. Vérifiez votre connexion Internet et réessayez.",
   "key.categories.mobends": "Mo' Bends",
+  "key.category.mobends.main": "Mo' Bends",
   "key.mobends.menu": "Menu Mo' Bends",
   "mobends.player": "Joueur",
   "mobends.config.show_arrow_trails": "Afficher les traînées des flèches",

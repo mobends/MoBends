@@ -23,10 +23,12 @@ repositories {
 
 dependencies {
     // GeckoLib, whose armour Mo' Bends bends when it's installed (mixin.geckolib); not needed. Run the
-    // client with -Pgeckolib to have it in the game.
-    val geckoLib = "software.bernie.geckolib:geckolib-neoforge-${sc.current.version}:${sc.properties["deps.geckolib"]}"
-    compileOnly(geckoLib) { isTransitive = false }
-    if (providers.gradleProperty("geckolib").isPresent) {
+    // client with -Pgeckolib to have it in the game. Not on 26.x yet (GeckoLib 5, whose API differs;
+    // mixin.geckolib is fenced out there).
+    val withGeckoLib = sc.current.parsed < "26.1"
+    val geckoLib by lazy { "software.bernie.geckolib:geckolib-neoforge-${sc.current.version}:${sc.properties["deps.geckolib"]}" }
+    if (withGeckoLib) compileOnly(geckoLib) { isTransitive = false }
+    if (withGeckoLib && providers.gradleProperty("geckolib").isPresent) {
         runtimeOnly(geckoLib) { isTransitive = false }
     }
 }
