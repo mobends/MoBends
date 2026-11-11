@@ -229,6 +229,7 @@ public class PoseNode implements INodeState
             }
             ClipBinding binding = new ClipBinding(animation, skeleton, clipTemplate.bones);
             binding.describe(effects);
+            effects.requireWritten("core:clip '" + clipTemplate.animationKey + "'");
 
             float clipLength = animation.duration != null ? animation.duration : Math.max(binding.keyframeCount - 1, 0);
             Map<String, Expression> clipValues = new HashMap<>();

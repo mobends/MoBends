@@ -124,8 +124,7 @@
                   "leg5": 1,
                   "leg6": 1,
                   "leg7": 1,
-                  "leg8": 1,
-                  "root": 1.67
+                  "leg8": 1
                 }
               },
               {
@@ -272,7 +271,7 @@
               {"core:rotate": {"bone": "head", "axis": "y", "angle": "entityHeadYaw"}, "@space": "pre"},
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/spider/rest.json"},
-                "@smoothing": {"center": 1},
+                "@smoothing": {"center": 1, "root": 1.67},
                 "@vectorModes": {"center": "slide"}
               }
             ]

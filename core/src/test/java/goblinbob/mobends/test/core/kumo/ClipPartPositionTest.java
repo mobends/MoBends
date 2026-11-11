@@ -30,17 +30,6 @@ public class ClipPartPositionTest
                 + "{'core:clip': {'animationKey': 'clip', 'bones': ['head.rotation']}" + modifiers + "}]");
     }
 
-    /** A translate of the head that eases over 10 ticks, then a clip of the head and the arm applying the arm alone, with {@code modifiers}. */
-    private static KumoAnimatorState besideATranslate(String modifiers) throws MalformedKumoTemplateException
-    {
-        String clip = "{'bones': {'head': {'keyframes': [{'position': [-10, 0, 0], 'rotation': [0, 0, 0, 1]}]}, "
-                + "'arm': {'keyframes': [{'position': [0, 0, 0], 'rotation': [0, 0, 0, 1]}]}}}";
-        return TestSubject.instance(("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {"
-                + "'pose': [{'core:translate': {'bone': 'head', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override', '@smoothing': {'head': 10}}, "
-                + "{'core:clip': {'animationKey': 'clip', 'bones': ['arm']}" + modifiers + "}]}}}}]}").replace('\'', '"'),
-                Collections.singletonMap("clip", clip.replace('\'', '"')));
-    }
-
     private static KumoAnimatorState animatorOf(String node) throws MalformedKumoTemplateException
     {
         return TestSubject.instance(("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {" + node + "}}}}]}")
@@ -158,45 +147,10 @@ public class ClipPartPositionTest
     }
 
     @Test
-    public void aRotationClipsSnapModeLeavesAnEarlierTranslateEasing() throws MalformedKumoTemplateException
-    {
-        KumoAnimatorState animator = afterATranslate(", '@vectorModes': {'head': 'snap'}");
-        TestSubject subject = new TestSubject("head");
-
-        animator.update(subject, 1F);
-
-        assertVector(0, 0, 0, subject.offsets.get("head"));
-    }
-
-    @Test
     public void aRotationClipsSmoothingLeavesAnEarlierTranslatesAlone() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = afterATranslate(", '@smoothing': {'head': 0}");
         TestSubject subject = new TestSubject("head");
-
-        animator.update(subject, 1F);
-        subject.updateOffsets(1F);
-
-        float first = subject.offsets.get("head").y;
-        assertTrue("on its way: " + first, first > 0 && first < 10);
-    }
-
-    @Test
-    public void aClipsSnapModeLeavesABoneItLeavesOutEasing() throws MalformedKumoTemplateException
-    {
-        KumoAnimatorState animator = besideATranslate(", '@vectorModes': {'head': 'snap'}");
-        TestSubject subject = new TestSubject("head", "arm");
-
-        animator.update(subject, 1F);
-
-        assertVector(0, 0, 0, subject.offsets.get("head"));
-    }
-
-    @Test
-    public void aClipsSmoothingLeavesABoneItLeavesOutAlone() throws MalformedKumoTemplateException
-    {
-        KumoAnimatorState animator = besideATranslate(", '@smoothing': {'head': 0}");
-        TestSubject subject = new TestSubject("head", "arm");
 
         animator.update(subject, 1F);
         subject.updateOffsets(1F);

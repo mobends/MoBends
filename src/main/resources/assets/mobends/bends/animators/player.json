@@ -1070,7 +1070,7 @@
               },
               {
                 "core:clip": {"animationKey": "mobends:bends/animations/player/swim_common.json"},
-                "@smoothing": {"head": 1, "root": 0.715, "center": 3.33, "body": 2},
+                "@smoothing": {"head": 1, "root": 0.715, "center": 3.33},
                 "@vectorModes": {"center": "slide"}
               },
               {
@@ -1086,7 +1086,7 @@
                   "animationKey": "mobends:bends/animations/player/swim_surface_arms.json",
                   "frame": {"mod": [{"mul": ["ticks", 0.0825]}, "clipLength"]}
                 },
-                "@smoothing": {"leftArm": 3.33, "rightArm": 3.33, "leftForeArm": 3.33, "rightForeArm": 3.33}
+                "@smoothing": {"leftArm": 3.33, "rightArm": 3.33, "leftForeArm": 3.33, "rightForeArm": 3.33, "body": 2}
               },
               {
                 "@when": {
@@ -2553,16 +2553,14 @@
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
                     "core:clip": {
                       "animationKey": "mobends:bends/animations/player/slash_whirl_still.json",
-                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg", "root.position"]
+                      "bones": ["leftLeg", "rightLeg", "leftForeLeg", "rightForeLeg"]
                     },
                     "@smoothing": {
                       "leftLeg": 3.33,
                       "rightLeg": 3.33,
                       "leftForeLeg": 3.33,
-                      "rightForeLeg": 3.33,
-                      "root": [null, 0.835, null]
-                    },
-                    "@vectorModes": {"root": "slide"}
+                      "rightForeLeg": 3.33
+                    }
                   },
                   {
                     "@when": {"and": ["entityIsStandingStill", {"not": ["entityIsRiding"]}]},
