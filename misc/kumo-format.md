@@ -222,7 +222,8 @@ A connection is written like a selector branch:
 
 * `when` is its condition, and `then` any node or machine of the layer: a machine is entered as
   above. A connection to where the layer already is starts that node over (a jump bouncing into
-  another jump).
+  another jump). One into a machine whose scope exists (the layer is in it, or one of its nodes
+  still fades out) leaves it first, with every machine inside it, and enters it afresh.
 * `do` is a statement list, run when the connection fires (see *Definitions and statements*).
   `transitionDuration` (ticks)
   crossfades (an interrupted crossfade continues from what was on screen); easings `linear`,

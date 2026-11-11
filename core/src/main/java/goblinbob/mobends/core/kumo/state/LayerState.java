@@ -57,10 +57,11 @@ public class LayerState
     // The entity's state (see StateLayout). Ints: the current node's index, how many nodes fade out,
     // whether start() entered the node this frame (which stands for the frame's decision), whether
     // the "when" held on the last update; per machine, whether it was left while one of its nodes
-    // still fades out (it is disposed when the last is); and per node fading out, oldest first, its
+    // still fades out (it is disposed when the last is) and whether its scope exists (from its
+    // entry until its exit list runs); and per node fading out, oldest first, its
     // index (-1: frozen) and the easing of the transition out of it (into the next one, or the
     // current node).
-    private final int currentSlot, fadingCountSlot, justStartedSlot, enabledSlot, offSlot, pendingExitSlot, fadingNodeSlot, fadingEasingSlot;
+    private final int currentSlot, fadingCountSlot, justStartedSlot, enabledSlot, offSlot, pendingExitSlot, aliveSlot, fadingNodeSlot, fadingEasingSlot;
     // Floats: the layer's clock and its weight (how far it is faded in; -1 before its first frame);
     // per node fading out, the progress and duration of the transition out of it.
     private final int elapsedSlot, weightSlot, fadingProgressSlot, fadingDurationSlot;
@@ -105,6 +106,7 @@ public class LayerState
         this.enabledSlot = layout.ints(1, 1);
         this.offSlot = layout.ints(1, 0);
         this.pendingExitSlot = layout.ints(machines.size(), 0);
+        this.aliveSlot = layout.ints(machines.size(), 0);
         this.fadingNodeSlot = layout.ints(MAX_FADING, -1);
         this.fadingEasingSlot = layout.ints(MAX_FADING, ConnectionTemplate.Easing.EASE_IN_OUT_QUAD.ordinal());
         this.elapsedSlot = layout.floats(1, 0);
@@ -208,8 +210,7 @@ public class LayerState
         context.getState().floats[elapsedSlot] = 0;
         context.enterNode(current(context).node);
         lists.enter(context);
-        List<MachineState> entered = new ArrayList<>();
-        moveTo(descend(enter(machine, context, entered), context, entered), context);
+        moveTo(descend(enter(machine, context), context), context);
         context.enterNode(current(context).node);
         startNode(context);
         context.getState().ints[justStartedSlot] = 1;
@@ -519,9 +520,26 @@ public class LayerState
             exit(leftMember, context);
             leftMember = null;
         }
+        // The machines the transition enters again (around where it leads but not around the node
+        // left, or the one it leads into) are left first, with every machine inside them: a scope
+        // is created on every entry, and its exit list runs before it is created again.
+        MachineMember named = transition.getTarget();
+        List<MachineState> around = around(named);
+        for (MachineState machine : around)
+        {
+            if (!left.contains(machine)) disposeMachine(machine, context);
+        }
+        if (named.machine != null)
+        {
+            disposeMachine(named.machine, context);
+        }
         transition.getRun().run(context);
-        List<MachineState> entered = new ArrayList<>();
-        MachineMember target = descend(transition.getTarget(), context, entered);
+        // Then entered, from the outermost in, down to a node.
+        for (MachineState machine : around)
+        {
+            if (!left.contains(machine)) startMachine(machine, context);
+        }
+        MachineMember target = descend(named, context);
 
         if (fades)
         {
@@ -561,14 +579,6 @@ public class LayerState
             }
         }
         context.enterNode(target.node);
-        for (MachineState machine : target.path)
-        {
-            // Those around a node the transition names directly; the entered ones have started.
-            if (!left.contains(machine) && !entered.contains(machine))
-            {
-                startMachine(machine, context);
-            }
-        }
         startNode(context);
     }
 
@@ -627,8 +637,11 @@ public class LayerState
     private void exitLeftMachines(IKumoContext context)
     {
         EntityState state = context.getState();
-        for (MachineState machine : machines)
+        // Innermost first, as a layer leaves the machines around its node (machines are indexed
+        // outermost first).
+        for (int i = machines.size() - 1; i >= 0; i--)
         {
+            MachineState machine = machines.get(i);
             if (state.ints[pendingExitSlot + machine.index] != 0 && !posedInside(machine, state))
             {
                 exitMachine(machine, context);
@@ -652,20 +665,72 @@ public class LayerState
         return false;
     }
 
+    /** Runs the {@code exit} list of {@code machine}, if its scope exists. */
     private void exitMachine(MachineState machine, IKumoContext context)
     {
-        context.getState().ints[pendingExitSlot + machine.index] = 0;
+        EntityState state = context.getState();
+        state.ints[pendingExitSlot + machine.index] = 0;
+        if (state.ints[aliveSlot + machine.index] == 0)
+        {
+            return;
+        }
+        state.ints[aliveSlot + machine.index] = 0;
         machine.exit(context);
     }
 
-    /** Starts {@code machine}; one still waiting to be disposed (left while its nodes fade out) is disposed first. */
+    /**
+     * Creates {@code machine}'s scope. One that still exists (a node of it fades out) is disposed
+     * first, with every machine inside it (see {@link #disposeMachine}).
+     */
     private void startMachine(MachineState machine, IKumoContext context) throws MalformedKumoTemplateException
     {
-        if (context.getState().ints[pendingExitSlot + machine.index] != 0)
-        {
-            exitMachine(machine, context);
-        }
+        disposeMachine(machine, context);
+        context.getState().ints[aliveSlot + machine.index] = 1;
         machine.start(context);
+    }
+
+    /** Runs the {@code exit} lists of {@code machine}, if its scope exists, and of every machine inside it whose scope does, innermost first. */
+    private void disposeMachine(MachineState machine, IKumoContext context)
+    {
+        if (context.getState().ints[aliveSlot + machine.index] == 0)
+        {
+            return;
+        }
+        // Machines are indexed outermost first: the ones inside come after it.
+        for (int i = machines.size() - 1; i > machine.index; i--)
+        {
+            MachineState inner = machines.get(i);
+            if (isInside(inner, machine))
+            {
+                exitMachine(inner, context);
+            }
+        }
+        exitMachine(machine, context);
+    }
+
+    /** Whether {@code inner} is a machine somewhere inside {@code outer}. */
+    private static boolean isInside(MachineState inner, MachineState outer)
+    {
+        for (MachineState around = inner.member == null ? null : inner.member.parent; around != null; around = around.member == null ? null : around.member.parent)
+        {
+            if (around == outer) return true;
+        }
+        return false;
+    }
+
+    /** The machines around {@code member} (a node or a machine), the outermost first. */
+    private static List<MachineState> around(MachineMember member)
+    {
+        if (member.machine == null)
+        {
+            return member.path;
+        }
+        List<MachineState> path = new ArrayList<>();
+        for (MachineState around = member.parent; around != null; around = around.member == null ? null : around.member.parent)
+        {
+            path.add(0, around);
+        }
+        return path;
     }
 
     /** Runs the {@code exit} list of {@code member}'s node. */
@@ -677,11 +742,11 @@ public class LayerState
     }
 
     /** Follows {@code target} into the machines it leads into, entering each, down to a node. */
-    private MachineMember descend(MachineMember target, IKumoContext context, List<MachineState> entered) throws MalformedKumoTemplateException
+    private MachineMember descend(MachineMember target, IKumoContext context) throws MalformedKumoTemplateException
     {
         while (target.machine != null)
         {
-            target = enter(target.machine, context, entered);
+            target = enter(target.machine, context);
         }
         return target;
     }
@@ -691,9 +756,8 @@ public class LayerState
      * selector chooses where it goes (and the branch's {@code set} applies) or, where it chooses
      * nothing, its defaultOnEntry does.
      */
-    private MachineMember enter(MachineState machine, IKumoContext context, List<MachineState> entered) throws MalformedKumoTemplateException
+    private MachineMember enter(MachineState machine, IKumoContext context) throws MalformedKumoTemplateException
     {
-        entered.add(machine);
         startMachine(machine, context);
         Selector.Branch branch = machine.selector == null ? null : machine.selector.choose(context);
         if (branch == null)

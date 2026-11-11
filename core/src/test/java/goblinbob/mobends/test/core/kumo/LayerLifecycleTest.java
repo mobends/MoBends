@@ -102,4 +102,71 @@ public class LayerLifecycleTest
         assertEquals(1, read(subject, "exits"), 0);
     }
 
+    @Test
+    public void aConnectionIntoTheMachineItIsInLeavesItFirst() throws MalformedKumoTemplateException
+    {
+        // a, in m inside outer, leads into outer again when GO holds.
+        KumoAnimatorState animator = animator("{'defaultOnEntry': 'outer', 'nodes': {'idle': {'core:pose': {}}}, 'machines': {'outer': {"
+                + "  '@on': {'enter': [" + count("outerEnters") + ", " + mark("outerEntered") + "], 'exit': [" + count("outerExits") + ", " + mark("outerExited") + "]}, "
+                + "  'machines': {'m': {'@on': {'enter': [" + count("mEnters") + "], 'exit': [" + count("mExits") + ", " + mark("mExited") + "]}, "
+                + "    'nodes': {'a': {'core:pose': {}, '@connections': [{'when': 'GO', 'then': 'outer', 'do': [" + mark("done") + "]}]}}}}}}}",
+                "outerEnters", "outerExits", "outerEntered", "outerExited", "mEnters", "mExits", "mExited", "done");
+        TestSubject subject = new TestSubject("outerEnters", "outerExits", "outerEntered", "outerExited", "mEnters", "mExits", "mExited", "done");
+        subject.states.put("GO", false);
+        frames(animator, subject, 2);
+        subject.states.put("GO", true);
+        frames(animator, subject, 1);
+        // Left, the inner machine first, before the connection's do; then created afresh.
+        assertEquals(2, read(subject, "outerEnters"), 0);
+        assertEquals(1, read(subject, "outerExits"), 0);
+        assertEquals(2, read(subject, "mEnters"), 0);
+        assertEquals(1, read(subject, "mExits"), 0);
+        assertTrue(read(subject, "mExited") < read(subject, "outerExited"));
+        assertTrue(read(subject, "outerExited") < read(subject, "done"));
+        assertTrue(read(subject, "done") < read(subject, "outerEntered"));
+    }
+
+    /**
+     * Machine m holds machine inner, which holds node a; out is outside both. Every list notes the
+     * step it ran at, and inner counts its frames.
+     */
+    private static final String NESTED = "{'defaultOnEntry': 'm', "
+            + "'nodes': {'out': {'core:pose': {}, '@connections': [{'when': 'GO', 'then': 'inner', 'transitionDuration': 2, 'do': [" + mark("goDone") + "]}]}}, "
+            + "'machines': {'m': {'@on': {'enter': [" + mark("mEntered") + "], 'exit': [" + mark("mExited") + ", " + count("mExits") + "]}, "
+            + "  'machines': {'inner': {'@on': {'enter': [" + mark("innerEntered") + "], 'update': [" + count("innerFrames") + "], "
+            + "    'exit': [" + mark("innerExited") + ", " + count("innerExits") + "]}, "
+            + "    'nodes': {'a': {'core:pose': {}, '@on': {'exit': [" + mark("aExited") + "]}, "
+            + "      '@connections': [{'when': 'OUT', 'then': 'out', 'transitionDuration': %s, 'do': [" + mark("outDone") + "]}]}}}}}}}";
+
+    private static final String[] NESTED_NAMES = { "goDone", "mEntered", "mExited", "mExits", "innerEntered", "innerFrames", "innerExited", "innerExits", "aExited", "outDone" };
+
+    @Test
+    public void aNestedMachineEnteredAgainWhileItsNodeFadesOutStartsOverAndKeepsUpdating() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator(String.format(NESTED, 5), NESTED_NAMES);
+        TestSubject subject = new TestSubject(NESTED_NAMES);
+        subject.states.put("GO", false);
+        subject.states.put("OUT", true);
+        frames(animator, subject, 2);
+        // a fades out over 5 ticks: m and inner still exist.
+        assertEquals(0, read(subject, "innerExits"), 0);
+        subject.states.put("OUT", false);
+        subject.states.put("GO", true);
+        frames(animator, subject, 1);
+        subject.states.put("GO", false);
+        // Both were left, the inner one first, before the do; then created again from the outermost in.
+        assertEquals(1, read(subject, "innerExits"), 0);
+        assertEquals(1, read(subject, "mExits"), 0);
+        assertTrue(read(subject, "innerExited") < read(subject, "mExited"));
+        assertTrue(read(subject, "mExited") < read(subject, "goDone"));
+        assertTrue(read(subject, "goDone") < read(subject, "mEntered"));
+        assertTrue(read(subject, "mEntered") < read(subject, "innerEntered"));
+        // Long after every crossfade ended, inner still updates every frame, and was never left again.
+        float before = read(subject, "innerFrames");
+        frames(animator, subject, 10);
+        assertEquals(before + 10, read(subject, "innerFrames"), 0);
+        assertEquals(1, read(subject, "innerExits"), 0);
+        assertEquals(1, read(subject, "mExits"), 0);
+    }
+
 }
