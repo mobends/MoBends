@@ -414,8 +414,9 @@ public class PoseNode implements INodeState
 
         if (state[enterPendingSlot] != 0)
         {
-            // What the entry poses relatively (a PRE / POST rotation, an additive offset or vector) builds on
-            // the layers beneath, as the node's own items do: the bone starts from there.
+            // What the entry poses relatively (a PRE / POST rotation, an additive offset or vector, a
+            // relative scale) builds on the layers beneath, as the node's own items do: the bone
+            // starts from there.
             Pose enterPose = context.getState().poses[this.enterPose];
             enterPose.setBelow(pose.getBelow());
             for (int slot = 0; slot < pose.size(); slot++)
@@ -479,6 +480,23 @@ public class PoseNode implements INodeState
                         enterPose.vectorSoFar(slot, target.vector);
                         target.vectorAdditive = false;
                         target.vectorMode = IVectorSink.Mode.SNAP;
+                    }
+                }
+                if (entered.hasScale)
+                {
+                    if (!entered.scaleRelative && hasNaN(entered.scale))
+                    {
+                        Vec3f beneath = new Vec3f(1F, 1F, 1F);
+                        if (pose.getBelow() != null) pose.getBelow().scaleSoFar(slot, beneath);
+                        fillNaN(entered.scale, beneath);
+                    }
+                    // A scale isn't smoothed, so there is no start for the pose's own to move from:
+                    // that one wins, and a scale only the entry writes holds for the entry frame.
+                    if (!target.hasScale)
+                    {
+                        target.hasScale = true;
+                        enterPose.scaleSoFar(slot, target.scale);
+                        target.scaleRelative = false;
                     }
                 }
             }
