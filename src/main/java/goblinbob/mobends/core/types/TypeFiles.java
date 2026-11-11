@@ -23,11 +23,18 @@ final class TypeFiles {
     }
 
     /**
-     * The type a type file describes, its model (a model definition's defined entity) resolved; null
-     * if the policy leaves it out.
+     * A type file read, with the model definition it names by path made into its defined entity
+     * (so its key is known before any type names it by key); the rest is resolved by {@link #build}.
+     */
+    record Read(TypeFileDiscovery.TypeFile file, EntityTypeDefinition definition, @Nullable DefinedEntity model) {
+    }
+
+    /**
+     * Reads a type file and makes the model definition it names by path; null if the policy leaves
+     * it out.
      */
     @Nullable
-    static EntityType loadType(TypeFileDiscovery.TypeFile file, ResourcePackPolicy policy) throws Exception {
+    static Read read(TypeFileDiscovery.TypeFile file, ResourcePackPolicy policy) throws Exception {
         EntityTypeDefinition definition = EntityTypeDefinition.parse(file.json());
         if (definition.isModelDefinition() && !file.trusted() && policy != ResourcePackPolicy.ALLOW) {
             // Custom geometry from a resource pack: the whole type is left out, so it can't hide a
@@ -36,24 +43,38 @@ final class TypeFiles {
                     file.source(), definition.model);
             return null;
         }
-        ISelectorCondition selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
+        DefinedEntity model = definition.isModelDefinition() ? DefinedEntities.forTypeFile(Ids.parse(definition.model)) : null;
+        return new Read(file, definition, model);
+    }
 
-        DefinedEntity model = null;
+    /**
+     * The type a type file describes, once every type file has been read: a model it names by key
+     * is any type file's, whichever pack it comes from and in whatever order they were read.
+     */
+    static EntityType build(Read read) throws Exception {
+        EntityTypeDefinition definition = read.definition();
+        DefinedEntity model = read.model();
         boolean vanilla = false;
         if (EntityTypeDefinition.VANILLA_MODEL.equals(definition.model)) {
             vanilla = true;
-        } else if (definition.isModelDefinition()) {
-            model = DefinedEntities.forTypeFile(Ids.parse(definition.model));
-        } else if (definition.model != null) {
+        } else if (model == null && definition.model != null) {
             model = DefinedEntities.byKey(definition.model);
             if (model == null) {
                 throw new MalformedKumoTemplateException("There is no model '" + definition.model + "'.");
             }
         }
 
+        ISelectorCondition selector;
+        if (definition.defaultModel) {
+            DefinedEntity defaultModel = model;
+            selector = entity -> EntityTypeRegistry.INSTANCE.defaultModelFor(entity) == defaultModel;
+        } else {
+            selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
+        }
         ResourceLocation animator = definition.animator == null ? null : Ids.parse(definition.animator);
         OptionSet options = KumoOptions.INSTANCE.declare(definition.id, definition.options);
-        return new EntityType(definition.id, file.source(), selector, definition.specificity(), model, vanilla, animator, options);
+        return new EntityType(definition.id, read.file().source(), selector, definition.specificity(), model, definition.defaultModel, vanilla,
+                animator, options);
     }
 
     /** The extension an extension file describes. */

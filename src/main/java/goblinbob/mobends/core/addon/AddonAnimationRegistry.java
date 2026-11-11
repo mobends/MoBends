@@ -1,6 +1,5 @@
 package goblinbob.mobends.core.addon;
 
-import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.core.data.EntityComponents;
 import goblinbob.mobends.core.kumo.api.KumoDriver;
@@ -30,16 +29,6 @@ public class AddonAnimationRegistry {
     /** The mod id everything is registered under. */
     public String getModId() {
         return modId;
-    }
-
-    /**
-     * Animates the entities a model definition of this addon defines
-     * ({@code assets/<modid>/bends/models/<name>.json}), as the default model of its entity class.
-     * The definition is read when it's first needed, and again after every resource reload.
-     */
-    public void registerDefinedEntity(String name) {
-        Addons.checkRegistrationOpen();
-        DefinedEntities.register(modId, name);
     }
 
     /**

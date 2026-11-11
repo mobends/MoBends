@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:squid",
+  "model": "mobends:bends/models/squid.json",
+  "defaultModel": true
+}

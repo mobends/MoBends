@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.types;
 
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
-import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
@@ -30,10 +29,12 @@ public class EntityType implements TypeOrder.Ranked {
     /** The model, or null for the entity's default model (or for vanilla). */
     @Nullable
     private final DefinedEntity model;
+    /** Whether the model is the default model of the entities its definition names ({@code "defaultModel": true}). */
+    private final boolean defaultModel;
     private final boolean vanilla;
     @Nullable
     private final ResourceLocation animator;
-    /** The options the type file declares (a built-in type has its model definition's, through the entity's data). */
+    /** The options the type file declares (besides its model definition's, which come through the entity's data). */
     private final OptionSet options;
     /** The animators of the extensions of this type, in the order their layers go on top, and their options. */
     private final List<ResourceLocation> extensions = new ArrayList<>();
@@ -42,22 +43,17 @@ public class EntityType implements TypeOrder.Ranked {
     private final Map<DefinedEntity, EntityTypeRegistry.Selection> selections = new HashMap<>();
     private final EntityTypeRegistry.Selection vanillaSelection = new EntityTypeRegistry.Selection(this, null, null);
 
-    EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity, @Nullable DefinedEntity model, boolean vanilla,
-               @Nullable ResourceLocation animator, OptionSet options) {
+    EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity, @Nullable DefinedEntity model, boolean defaultModel,
+               boolean vanilla, @Nullable ResourceLocation animator, OptionSet options) {
         this.id = id;
         this.source = source;
         this.selector = selector;
         this.specificity = specificity;
         this.model = model;
+        this.defaultModel = defaultModel;
         this.vanilla = vanilla;
         this.animator = animator;
         this.options = options;
-    }
-
-    /** The type every entity registered in code gets: its model for the entities it's the default model of. */
-    static EntityType builtIn(DefinedEntity defined, String key) {
-        ISelectorCondition isDefaultModel = entity -> DefinedEntities.defaultFor(entity) == defined;
-        return new EntityType(key, "built in", isDefaultModel, 1, defined, false, null, OptionSet.EMPTY);
     }
 
     @Override
@@ -65,7 +61,7 @@ public class EntityType implements TypeOrder.Ranked {
         return id;
     }
 
-    /** Where the type came from: the pack and the file, or "built in". */
+    /** Where the type came from: the pack and the file. */
     public String getSource() {
         return source;
     }
@@ -85,6 +81,11 @@ public class EntityType implements TypeOrder.Ranked {
     @Nullable
     public DefinedEntity getModel() {
         return model;
+    }
+
+    /** Whether the type's model is the default model of the entities its definition names. */
+    public boolean isDefaultModel() {
+        return defaultModel;
     }
 
     /** Whether the type keeps its entities vanilla ({@code "model": "core:vanilla"}). */
@@ -124,7 +125,7 @@ public class EntityType implements TypeOrder.Ranked {
         if (vanilla) {
             return vanillaSelection;
         }
-        DefinedEntity defined = model != null ? model : DefinedEntities.defaultFor(entity);
+        DefinedEntity defined = model != null ? model : EntityTypeRegistry.INSTANCE.defaultModelFor(entity);
         if (defined == null || !defined.animates(entity)) {
             return null;
         }

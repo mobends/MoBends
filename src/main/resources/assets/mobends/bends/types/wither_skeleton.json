@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:wither_skeleton",
+  "model": "mobends:bends/models/wither_skeleton.json",
+  "defaultModel": true
+}

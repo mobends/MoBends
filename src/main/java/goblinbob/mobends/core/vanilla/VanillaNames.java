@@ -57,7 +57,7 @@ import java.util.function.ToDoubleFunction;
  * <p>
  * What a 1.12 entity class stands for here covers the modern subclasses of the class it maps to,
  * as the 1.12 class covered its own: a definition for a class bends every entity of a subclass
- * that no definition of a closer class claims ({@code DefinedEntities.defaultFor}). So
+ * that no default model of a closer class claims ({@code EntityTypeRegistry.defaultModelFor}). So
  * {@code EntityZombie} (today's {@link Zombie}) also bends the husk, as it did in 1.12, and the
  * drowned, which is a zombie now; the zombie villager and the zombified piglin have definitions of
  * their own. {@code EntitySkeleton} is {@link Skeleton} alone: the stray, the wither skeleton and the

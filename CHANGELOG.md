@@ -6,6 +6,18 @@
 
 - Wither skeletons are animated, as skeletons are. They were left out when the mobs moved to model
   definitions.
+- A type file can make its model the default model of the entities its definition names
+  (`"defaultModel": true`), covering their subclasses, as a mob registered in code was.
+
+### Changed
+
+- Every mob Mo' Bends animates, the player included, is a type file now (`bends/types/`), not
+  registered in code. Their ids are the same, so ranks, switches and options set before still apply.
+- A type file can name a model by key whatever order the packs were read in.
+
+### Removed
+
+- `AddonAnimationRegistry.registerDefinedEntity`: an addon's mobs are type files in its resources.
 
 ## 2.0.0-alpha.3
 

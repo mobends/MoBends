@@ -120,6 +120,20 @@ public class EntityTypesTest
         assertTypeRefused("no longer reads", "{\"formatVersion\": 1, \"id\": \"x:y\"}");
     }
 
+    @Test
+    void aDefaultModelTypeIsOneConditionAndNeedsAModelButNoSelector() throws Exception
+    {
+        EntityTypeDefinition zombie = EntityTypeDefinition.parse(JsonParser.parseString(
+                "{\"formatVersion\": 2, \"id\": \"mobends:zombie\", \"model\": \"mobends:bends/models/zombie.json\", \"defaultModel\": true}"));
+        assertTrue(zombie.defaultModel);
+        // "This is the entity's default model", as the built-in types of the mobs registered in code were.
+        assertEquals(1, zombie.specificity());
+        assertTypeRefused("needs a 'model'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"defaultModel\": true}");
+        assertTypeRefused("needs a 'model'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"model\": \"vanilla\", \"defaultModel\": true}");
+        assertTypeRefused("has no 'selector'", "{\"formatVersion\": 2, \"id\": \"x:y\", \"model\": \"x:bends/models/y.json\", \"defaultModel\": true, "
+                + "\"selector\": {\"core:entity_type\": [\"minecraft:zombie\"]}}");
+    }
+
     private static void assertTypeRefused(String message, String json)
     {
         MalformedKumoTemplateException e = assertThrows(MalformedKumoTemplateException.class, () -> EntityTypeDefinition.parse(JsonParser.parseString(json)));
@@ -191,10 +205,10 @@ public class EntityTypesTest
         assertEquals(2, example.specificity());
 
         TypeOrder.Ranked exampleType = type(example.id, 0, example.specificity());
-        // Built-in types are one condition: "this entity's default model is this bender".
+        // Default-model types are one condition: "this entity's default model is this model".
         TypeOrder.Ranked builtIn = type("mobends:player", 0, 1);
         assertSame(exampleType, TypeOrder.first(Arrays.asList(builtIn, exampleType)));
-        // Unless the user ranks the built-in type above it.
+        // Unless the user ranks the default-model type above it.
         TypeOrder.Ranked rankedBuiltIn = type("mobends:player", 1, 1);
         assertSame(rankedBuiltIn, TypeOrder.first(Arrays.asList(rankedBuiltIn, exampleType)));
     }
