@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
-  "@comment": "The wolf: its body lies along Z with its texture turned to fit (vanilla turns the whole part instead), so its legs, mane and tail hang from it as the animator expects; the head turns where vanilla's does (1 px left of its middle), and the legs and tail sit where vanilla's do; the nose, mouth, tongue and ears are bones of their own. Vanilla draws a pup's head outside its half-size body, so the head is drawn alone, at half the offsets.",
+  "@comment": "The wolf: its body lies along Z with its texture turned to fit (vanilla turns the whole part instead), so its legs, mane and tail hang from it as the animator expects; the head turns where vanilla's does (1 px left of its middle), and the legs and tail sit where vanilla's do; the nose, mouth, tongue and ears are bones of their own. Vanilla draws a pup's head outside its half-size body, so the head is drawn alone, at half the offsets, and moved to where vanilla draws it.",
   "entity": "net.minecraft.entity.passive.EntityWolf",
   "model": "net.minecraft.client.model.ModelWolf",
   "animator": "mobends:bends/animators/wolf.json",
@@ -24,17 +24,8 @@
     {"name": "rightEar", "parent": "head", "position": [3, -3, 1], "boxes": [{"uv": [16, 14], "from": [-1, -2, -1], "size": [2, 2, 1]}]}
   ],
   "childBones": {
-    "head": {"offsetScale": 0.5, "globalOffset": [-0.5, 5, -3]}
+    "head": {"offsetScale": 0.5, "globalOffset": [-0.5, 6.75, -3.5]}
   },
-  "@variants": [
-    {
-      "@comment": "Mo' Bends 1.12.2 draws the pup's head 1.8 px higher and 0.5 px further back than vanilla does (the offset above). On later versions it goes exactly where vanilla draws it (measured against 1.21.1). Mo' Bends 1.12.2 ignores this key and keeps its own look.",
-      "@when": {"core:minecraft_version": [">", "1.12.2"]},
-      "childBones": {
-        "head": {"offsetScale": 0.5, "globalOffset": [-0.5, 6.75, -3.5]}
-      }
-    }
-  ],
   "layers": {
     "mobends:wolf_misc": {}
   }

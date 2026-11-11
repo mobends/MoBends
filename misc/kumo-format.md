@@ -1112,14 +1112,14 @@ The chicken's definition also declares the values its animator reads, over the e
 | `@variants` | conditional values: a list of objects, each an `@when` and the fields it merges into the definition when that holds, in order, the way a definition is merged into the one it `extends` (see `extends` above; a variant can't set `extends`, `formatVersion` or `@variants`). An `@when` is a boolean expression that has to be known when the definition loads: constants and constant operations only, such as `core:minecraft_version` (anything else is a load error). Variants are merged after `extends`, and a parent's into the parent first, so a child's own fields and variants override them |
 | `@comment` | a note, ignored |
 
-The wolf places its pup's head for the newer versions so (a field merged key by key replaces
-the whole entry: `head` writes its `offsetScale` again):
+The zombie pigman is drawn with the piglin's model after 1.12.2, so its variant names that model
+and adds the player's overlays it has (new bones come after the zombie's, as with `extends`):
 
 ```json
-"childBones": {"head": {"offsetScale": 0.5, "globalOffset": [-0.5, 5, -3]}},
 "@variants": [
   {"@when": {"core:minecraft_version": [">", "1.12.2"]},
-   "childBones": {"head": {"offsetScale": 0.5, "globalOffset": [-0.5, 6.75, -3.5]}}}
+   "model": "net.minecraft.client.model.ModelPlayer",
+   "bones": [{"name": "bodywear", "vanilla": {"field": "bipedBodyWear"}, "overlay": "body"}, ...]}
 ]
 ```
 
