@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.client.gui.supporterswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
+import com.mojang.blaze3d.platform.InputConstants;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiBenderList;
 import goblinbob.mobends.core.supporters.AccessorySettings;
@@ -69,7 +68,7 @@ public class GuiAccessoryRow implements IGuiListElement {
     public boolean handleMouseClicked(int originX, int originY, double mouseX, double mouseY, int button) {
         int rowX = originX + x;
         int rowY = originY + y;
-        if (button != 0 || mouseX < rowX || mouseX >= rowX + width || mouseY < rowY || mouseY >= rowY + HEIGHT) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT || mouseX < rowX || mouseX >= rowX + width || mouseY < rowY || mouseY >= rowY + HEIGHT) {
             return false;
         }
         if (!selected.getAsBoolean()) {
@@ -97,6 +96,9 @@ public class GuiAccessoryRow implements IGuiListElement {
         boolean isSelected = selected.getAsBoolean();
         int rowX = originX + x;
         int rowY = originY + y;
+        if (hovered && !isSelected) {
+            Draw.pointer(graphics);
+        }
         Font font = mc.font;
 
         Draw.borderBox(graphics, GuiBenderList.LIST_TEXTURE, rowX + 4, rowY + 4, width - 8, HEIGHT - 8, 4, isSelected || hovered ? 140 : 130, 0);
@@ -109,12 +111,12 @@ public class GuiAccessoryRow implements IGuiListElement {
         if (settings.unlocked()) {
             Component status = Component.translatable(settings.hidden() ? "mobends.gui.supporters.hidden" : "mobends.gui.supporters.unlocked");
             statusWidth = font.width(status);
-            graphics.drawString(font, status, rowX + width - 6 - statusWidth, textY, 0x6fd35a, false);
+            graphics.drawString(font, status, rowX + width - 6 - statusWidth, textY, 0xFF6FD35A, false);
         } else {
             statusWidth = LOCK_WIDTH;
             Draw.texturedModalRect(graphics, GuiBenderList.LIST_TEXTURE, lockX(rowX), lockY(rowY), LOCK_U, LOCK_V, LOCK_WIDTH, LOCK_HEIGHT);
         }
-        graphics.drawString(font, font.plainSubstrByWidth(name, width - 12 - statusWidth - 6), rowX + 6, textY, 0xffffff);
+        graphics.drawString(font, font.plainSubstrByWidth(name, width - 12 - statusWidth - 6), rowX + 6, textY, 0xFFFFFFFF);
     }
 
     private int lockX(int rowX) {
@@ -150,4 +152,3 @@ public class GuiAccessoryRow implements IGuiListElement {
         listOrder = order;
     }
 }
-//?}

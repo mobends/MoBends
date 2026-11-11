@@ -9,13 +9,10 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
  * of fabric.mod.json). Mod Menu is optional: without it, this class is never loaded.
  */
 public class MoBendsModMenu implements ModMenuApi {
-    // The menu isn't ported to 26.x's GUI yet: there, Mod Menu shows no Config button.
-    //? if <26.1 {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         // Leaving the menu goes back to the mod list; on the title screen, it says to open it in a world.
         return goblinbob.mobends.core.client.gui.GuiBendsMenu::fromModList;
     }
-    //?}
 }
 //?}

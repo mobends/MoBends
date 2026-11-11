@@ -1,12 +1,11 @@
 package goblinbob.mobends.core.client.gui.supporterswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
+import goblinbob.mobends.core.client.gui.Screens;
 import goblinbob.mobends.core.client.gui.WebLink;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiBenderList;
 import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
@@ -21,16 +20,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+//? if >=26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SwordItem;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -138,7 +140,7 @@ public class GuiSupportersWindow extends Screen {
         int buttonsY = y + editorHeight - PADDING - BUTTON_HEIGHT;
         this.bodyHeight = buttonsY - 2 * GAP - bodyTop;
 
-        addRenderableWidget(Button.builder(Component.translatable("mobends.gui.back"), button -> this.minecraft.setScreen(new GuiBendsMenu(exit)))
+        addRenderableWidget(Button.builder(Component.translatable("mobends.gui.back"), button -> Screens.open(new GuiBendsMenu(exit)))
                 .bounds(10, height - 30, 60, 20).build());
         Component refresh = Component.translatable("mobends.gui.supporters.refresh");
         int refreshWidth = font.width(refresh) + 20;
@@ -157,26 +159,43 @@ public class GuiSupportersWindow extends Screen {
         SupporterContent.fetchAccessoryDetails();
         LocalPlayer player = this.minecraft.player;
         if (player != null) {
+            //? if >=26.1 {
+            /*SupporterContent.forgetPlayer(player.getGameProfile().name());
+            *///?} else {
             SupporterContent.forgetPlayer(player.getGameProfile().getName());
+            //?}
         }
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+    *///?} else {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        this.mouseX = mouseX;
-        this.mouseY = mouseY;
         //? if <1.20.2 {
         /*renderBackground(graphics, mouseX, mouseY, partialTicks);
         *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
+    //?}
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
 
         if (accessoryList.isLockHovered()) {
+            //? if >=26.1 {
+            /*graphics.setTooltipForNextFrame(font, Component.translatable("mobends.gui.supporters.locked"), mouseX, mouseY);
+            *///?} else {
             setTooltipForNextRenderPass(Component.translatable("mobends.gui.supporters.locked"));
+            //?}
         }
     }
 
     /** The window under the widgets. */
-    //? if >=1.20.2 {
+    //? if >=26.1 {
+    /*@Override
+    public void extractBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
+    *///?} else if >=1.20.2 {
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderBackground(graphics, mouseX, mouseY, partialTicks);
@@ -187,10 +206,10 @@ public class GuiSupportersWindow extends Screen {
 
         // The container at (x, y), its title on a tab above it.
         GuiSettingsWindow.drawWindow(graphics, x - 4, y - 4, EDITOR_WIDTH, editorHeight);
-        graphics.drawString(font, this.title, x + 2, y - 13, 0xffffff);
+        graphics.drawString(font, this.title, x + 2, y - 13, 0xFFFFFFFF);
 
         // On the light container, dark text as in the game's own windows.
-        int headerColor = isSupporter() ? 0x2e7d32 : 0x404040;
+        int headerColor = isSupporter() ? 0xFF2E7D32 : 0xFF404040;
         int lineY = y + PADDING + 1;
         for (FormattedCharSequence line : headerLines) {
             graphics.drawString(font, line, x + PADDING, lineY, headerColor, false);
@@ -207,7 +226,7 @@ public class GuiSupportersWindow extends Screen {
             int listLeft = x + PADDING + PREVIEW_WIDTH + GAP;
             int emptyY = bodyTop + 10;
             for (FormattedCharSequence line : font.split(Component.translatable("mobends.gui.supporters.empty"), accessoryList.getWidth() - 16)) {
-                graphics.drawString(font, line, listLeft + 8, emptyY, 0x9a9a9a, false);
+                graphics.drawString(font, line, listLeft + 8, emptyY, 0xFF9A9A9A, false);
                 emptyY += font.lineHeight;
             }
         }
@@ -230,7 +249,7 @@ public class GuiSupportersWindow extends Screen {
         }
 
         graphics.enableScissor(innerLeft, innerTop, innerLeft + innerWidth, innerTop + innerHeight);
-        preview.draw(graphics, innerLeft + innerWidth / 2F, innerTop + innerHeight / 2F,
+        preview.draw(graphics, innerLeft, innerTop, innerLeft + innerWidth, innerTop + innerHeight,
                 Math.round((innerHeight - 12) * PREVIEW_SCALE), partialTicks);
         graphics.disableScissor();
     }
@@ -292,12 +311,21 @@ public class GuiSupportersWindow extends Screen {
         return 180F * t * t * (3F - 2F * t);
     }
 
+    //? if >=26.1 {
+    /*@Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return super.mouseClicked(event, doubleClick) || accessoryList.handleMouseClicked(event.x(), event.y(), event.button());
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        accessoryList.handleMouseReleased(event.x(), event.y(), event.button());
+        return super.mouseReleased(event);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
-            return true;
-        }
-        return accessoryList.handleMouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(mouseX, mouseY, button) || accessoryList.handleMouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -305,6 +333,7 @@ public class GuiSupportersWindow extends Screen {
         accessoryList.handleMouseReleased(mouseX, mouseY, button);
         return super.mouseReleased(mouseX, mouseY, button);
     }
+    //?}
 
     //? if >=1.20.2 {
     @Override
@@ -320,7 +349,7 @@ public class GuiSupportersWindow extends Screen {
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(exit);
+        Screens.open(exit);
     }
 
     @Override
@@ -372,7 +401,7 @@ public class GuiSupportersWindow extends Screen {
             EntityPreview preview = previews.computeIfAbsent(key, k -> new EntityPreview(previewWorld, playerModel, made -> {
                 dress(made, key);
                 dressed.add(made);
-                if (SWORD_TRAIL_KEY.equals(key) && !(made.getMainHandItem().getItem() instanceof SwordItem)) {
+                if (SWORD_TRAIL_KEY.equals(key) && !made.getMainHandItem().is(ItemTags.SWORDS)) {
                     made.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_SWORD));
                 }
             }));
@@ -399,4 +428,3 @@ public class GuiSupportersWindow extends Screen {
         SupporterContent.setPreviewAccessories(entity, Collections.singletonMap(key, new AccessorySettings(true, false, color)));
     }
 }
-//?}

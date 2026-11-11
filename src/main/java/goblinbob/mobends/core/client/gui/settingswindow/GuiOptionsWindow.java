@@ -1,7 +1,5 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
 import goblinbob.mobends.core.kumo.option.KumoOption;
 import goblinbob.mobends.core.kumo.option.OptionSet;
@@ -75,4 +73,3 @@ public class GuiOptionsWindow extends GuiEntryWindow<GuiOptionEntry> {
         }
     }
 }
-//?}

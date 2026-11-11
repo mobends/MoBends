@@ -1,24 +1,19 @@
 package goblinbob.mobends.core.client.gui.elements;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.platform.InputConstants;
 import goblinbob.mobends.MoBends;
-import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.Ids;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import org.joml.Matrix4f;
 
 import java.util.Locale;
 
@@ -90,7 +85,7 @@ public class GuiSectionButton {
 
     /** Whether a left click at the mouse is on it; it plays the button's sound if so. */
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        boolean clicked = button == 0 && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + HEIGHT;
+        boolean clicked = button == InputConstants.MOUSE_BUTTON_LEFT && mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + HEIGHT;
         if (clicked) {
             mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
@@ -121,6 +116,9 @@ public class GuiSectionButton {
             graphics.disableScissor();
         }
         drawBorder(graphics);
+        if (this.hover) {
+            Draw.pointer(graphics);
+        }
 
         // The icon pops in as the glint passes over it, and makes room for itself by pushing the label.
         float iconPop = 0;
@@ -150,11 +148,10 @@ public class GuiSectionButton {
         float g = (color >> 8 & 255) / 255F;
         float b = (color & 255) / 255F;
 
-        VertexConsumer buffer = graphics.bufferSource().getBuffer(RenderType.gui());
-        Matrix4f pose = graphics.pose().last().pose();
-        slantedQuad(buffer, pose, left, right, slant, y, shadeTop, r, g, b, a, a);
-        slantedQuad(buffer, pose, left, right, slant, shadeTop, y + HEIGHT, r * shade, g * shade, b * shade, a, a);
-        graphics.flush();
+        GuiQuads quads = new GuiQuads(graphics, x, y, x + width, y + HEIGHT);
+        slantedQuad(quads, left, right, slant, y, shadeTop, r, g, b, a, a);
+        slantedQuad(quads, left, right, slant, shadeTop, y + HEIGHT, r * shade, g * shade, b * shade, a, a);
+        quads.draw();
     }
 
     /** A black outline, like Minecraft's buttons have, over the background's edges. */
@@ -167,9 +164,9 @@ public class GuiSectionButton {
 
     /** A white band, brightest at its front edge and fading out behind it. */
     private void drawGlint(GuiGraphics graphics, float front) {
-        VertexConsumer buffer = graphics.bufferSource().getBuffer(RenderType.gui());
-        slantedQuad(buffer, graphics.pose().last().pose(), front - GLINT_WIDTH, front, GLINT_SLANT, y, y + HEIGHT, 1, 1, 1, 0, GLINT_ALPHA);
-        graphics.flush();
+        GuiQuads quads = new GuiQuads(graphics, x, y, x + width, y + HEIGHT);
+        slantedQuad(quads, front - GLINT_WIDTH, front, GLINT_SLANT, y, y + HEIGHT, 1, 1, 1, 0, GLINT_ALPHA);
+        quads.draw();
     }
 
     /**
@@ -177,25 +174,25 @@ public class GuiSectionButton {
      * cross the button's top, from row {@code top} to row {@code bottom}. Alpha goes from
      * {@code leftAlpha} to {@code rightAlpha} across it.
      */
-    private void slantedQuad(VertexConsumer buffer, Matrix4f pose, float left, float right, float slant, float top, float bottom,
+    private void slantedQuad(GuiQuads quads, float left, float right, float slant, float top, float bottom,
                              float r, float g, float b, float leftAlpha, float rightAlpha) {
         float topOffset = slant * (top - y) / HEIGHT;
         float bottomOffset = slant * (bottom - y) / HEIGHT;
-        VanillaDraw.vertex(buffer, pose, left - topOffset, top, 0, r, g, b, leftAlpha);
-        VanillaDraw.vertex(buffer, pose, left - bottomOffset, bottom, 0, r, g, b, leftAlpha);
-        VanillaDraw.vertex(buffer, pose, right - bottomOffset, bottom, 0, r, g, b, rightAlpha);
-        VanillaDraw.vertex(buffer, pose, right - topOffset, top, 0, r, g, b, rightAlpha);
+        quads.vertex(left - topOffset, top, r, g, b, leftAlpha);
+        quads.vertex(left - bottomOffset, bottom, r, g, b, leftAlpha);
+        quads.vertex(right - bottomOffset, bottom, r, g, b, rightAlpha);
+        quads.vertex(right - topOffset, top, r, g, b, rightAlpha);
     }
 
     private void drawIcon(GuiGraphics graphics, float pop) {
         // Grows in, overshooting a little before settling, for a pop.
         float scale = (1 + 0.3F * Mth.sin(pop * (float) Math.PI)) * Math.min(1, pop * 2);
 
-        graphics.pose().pushPose();
-        graphics.pose().translate(x + ICON_PADDING + icon.texWidth / 2, y + (HEIGHT - SHADE_HEIGHT + BORDER) / 2, 0);
-        graphics.pose().scale(scale, scale, 1);
+        Draw.pushPose(graphics);
+        Draw.translate(graphics, x + ICON_PADDING + icon.texWidth / 2, y + (HEIGHT - SHADE_HEIGHT + BORDER) / 2);
+        Draw.scale(graphics, scale);
         icon.draw(graphics);
-        graphics.pose().popPose();
+        Draw.popPose(graphics);
     }
 
     /** The label, centered in the button, or once the icon is in, in the room to its right. */
@@ -213,15 +210,15 @@ public class GuiSectionButton {
         int textY = y + (HEIGHT - SHADE_HEIGHT + BORDER) / 2 - 4;
         if (scale >= 1) {
             // On whole pixels: off them, the font's letters (drawn twice a pixel apart, in bold) show seams.
-            graphics.drawString(font, this.label, Math.round(centerX - textWidth / 2F), textY, 0xFFFFFF);
+            graphics.drawString(font, this.label, Math.round(centerX - textWidth / 2F), textY, 0xFFFFFFFF);
             return;
         }
 
-        graphics.pose().pushPose();
-        graphics.pose().translate(Math.round(centerX), textY + 4, 0);
-        graphics.pose().scale(scale, scale, 1);
-        graphics.drawString(font, this.label, -textWidth / 2, -4, 0xFFFFFF);
-        graphics.pose().popPose();
+        Draw.pushPose(graphics);
+        Draw.translate(graphics, Math.round(centerX), textY + 4);
+        Draw.scale(graphics, scale);
+        graphics.drawString(font, this.label, -textWidth / 2, -4, 0xFFFFFFFF);
+        Draw.popPose(graphics);
     }
 
     private static class SectionIcon {
@@ -239,9 +236,8 @@ public class GuiSectionButton {
 
         /** Draws the icon centered on the origin (to the whole pixel), at its size in pixels. */
         void draw(GuiGraphics graphics) {
-            graphics.blit(BUTTONS_TEXTURE, -texWidth / 2, -texHeight / 2, texWidth, texHeight, texU, texV, texWidth, texHeight,
+            Draw.blit(graphics, BUTTONS_TEXTURE, -texWidth / 2, -texHeight / 2, texWidth, texHeight, texU, texV, texWidth, texHeight,
                     TEXTURE_WIDTH, TEXTURE_HEIGHT);
         }
     }
 }
-//?}

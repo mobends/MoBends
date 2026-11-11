@@ -1,11 +1,13 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
+import goblinbob.mobends.core.client.gui.Screens;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+//? if >=26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -39,7 +41,7 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
         this.x = (this.width - GuiSettingsWindow.EDITOR_WIDTH) / 2;
         this.y = (this.height - GuiSettingsWindow.EDITOR_HEIGHT) / 2;
 
-        addRenderableWidget(Button.builder(Component.translatable("mobends.gui.back"), button -> this.minecraft.setScreen(new GuiSettingsWindow(exit)))
+        addRenderableWidget(Button.builder(Component.translatable("mobends.gui.back"), button -> Screens.open(new GuiSettingsWindow(exit)))
                 .bounds(10, height - 30, 60, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("mobends.gui.reset"), button -> reset())
                 .bounds(width - 70, height - 30, 60, 20).build());
@@ -47,17 +49,26 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+    *///?} else {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        this.mouseX = mouseX;
-        this.mouseY = mouseY;
         //? if <1.20.2 {
         /*renderBackground(graphics, mouseX, mouseY, partialTicks);
         *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
+    //?}
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
     }
 
     /** The window under the widgets. */
-    //? if >=1.20.2 {
+    //? if >=26.1 {
+    /*@Override
+    public void extractBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
+    *///?} else if >=1.20.2 {
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderBackground(graphics, mouseX, mouseY, partialTicks);
@@ -70,9 +81,9 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
         entryList.draw(graphics, mouseX, mouseY, partialTicks);
 
         int textWidth = GuiSettingsWindow.EDITOR_WIDTH - 12;
-        graphics.drawString(this.font, this.font.plainSubstrByWidth(this.title.getString(), GuiSettingsWindow.EDITOR_WIDTH - 24), this.x + 6, this.y - 9, 0xffffff);
+        graphics.drawString(this.font, this.font.plainSubstrByWidth(this.title.getString(), GuiSettingsWindow.EDITOR_WIDTH - 24), this.x + 6, this.y - 9, 0xFFFFFFFF);
         graphics.drawString(this.font, this.font.plainSubstrByWidth(getHint().getString(), textWidth),
-                this.x + 9, this.y + GuiSettingsWindow.EDITOR_HEIGHT + 12, 0xcccccc);
+                this.x + 9, this.y + GuiSettingsWindow.EDITOR_HEIGHT + 12, 0xFFCCCCCC);
     }
 
     @Override
@@ -81,12 +92,21 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
         entryList.update(mouseX, mouseY);
     }
 
+    //? if >=26.1 {
+    /*@Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return super.mouseClicked(event, doubleClick) || entryList.handleMouseClicked(event.x(), event.y(), event.button());
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        entryList.handleMouseReleased(event.x(), event.y(), event.button());
+        return super.mouseReleased(event);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
-            return true;
-        }
-        return entryList.handleMouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(mouseX, mouseY, button) || entryList.handleMouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -94,6 +114,7 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
         entryList.handleMouseReleased(mouseX, mouseY, button);
         return super.mouseReleased(mouseX, mouseY, button);
     }
+    //?}
 
     //? if >=1.20.2 {
     @Override
@@ -109,7 +130,7 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(exit);
+        Screens.open(exit);
     }
 
     @Override
@@ -117,4 +138,3 @@ abstract class GuiEntryWindow<T extends IGuiListElement> extends Screen {
         return false;
     }
 }
-//?}

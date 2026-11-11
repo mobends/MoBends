@@ -1,8 +1,5 @@
 package goblinbob.mobends.core.client.gui;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
-import com.mojang.blaze3d.systems.RenderSystem;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.CoreClient;
 import goblinbob.mobends.core.client.gui.elements.GuiSectionButton;
@@ -10,12 +7,16 @@ import goblinbob.mobends.core.client.gui.settingswindow.GuiSettingsWindow;
 import goblinbob.mobends.core.client.gui.supporterswindow.GuiSupportersWindow;
 import goblinbob.mobends.core.connection.ConnectionManager;
 import goblinbob.mobends.core.connection.MoBendsAccount;
+import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.Ids;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.Screen;
+//? if >=26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -64,7 +65,7 @@ public class GuiBendsMenu extends Screen {
     public static Screen fromModList(Screen modList) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) {
-            return new AlertScreen(() -> mc.setScreen(modList), Component.literal("Mo' Bends"),
+            return new AlertScreen(() -> Screens.open(modList), Component.literal("Mo' Bends"),
                     Component.translatable("mobends.gui.needs_world", Component.keybind("key.mobends.menu")));
         }
         return new GuiBendsMenu(modList);
@@ -83,7 +84,7 @@ public class GuiBendsMenu extends Screen {
 
         // The account may have been unlinked or renamed on the dashboard.
         MoBendsAccount.verify(() -> {
-            if (Minecraft.getInstance().screen == this) {
+            if (Screens.current() == this) {
                 this.rebuildWidgets();
             }
         });
@@ -123,7 +124,7 @@ public class GuiBendsMenu extends Screen {
         if (session == null) {
             int linkWidth = width / 2;
             this.addRenderableWidget(Button.builder(Component.translatable("mobends.gui.link.button"),
-                    button -> this.minecraft.setScreen(new GuiLinkAccount(this)))
+                    button -> Screens.open(new GuiLinkAccount(this)))
                     .bounds(x + (width - linkWidth) / 2, y, linkWidth, BUTTON_HEIGHT).build());
             return;
         }
@@ -145,10 +146,22 @@ public class GuiBendsMenu extends Screen {
                 .bounds(x, y, nameWidth, BUTTON_HEIGHT).build());
     }
 
+    //? if >=26.1 {
+    /*@Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return clickSection(event.x(), event.y(), event.button()) || super.mouseClicked(event, doubleClick);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return clickSection(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
+    }
+    //?}
+
+    /** Opens the section clicked, if one was. */
+    private boolean clickSection(double mouseX, double mouseY, int button) {
         if (settingsButton.mouseClicked(mouseX, mouseY, button)) {
-            this.minecraft.setScreen(new GuiSettingsWindow(exit));
+            Screens.open(new GuiSettingsWindow(exit));
             return true;
         }
         if (customizeButton.mouseClicked(mouseX, mouseY, button)) {
@@ -157,27 +170,31 @@ public class GuiBendsMenu extends Screen {
             return true;
         }
         if (supportersButton.mouseClicked(mouseX, mouseY, button)) {
-            this.minecraft.setScreen(new GuiSupportersWindow(exit));
+            Screens.open(new GuiSupportersWindow(exit));
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return false;
     }
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(exit);
+        Screens.open(exit);
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+    *///?} else {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         //? if <1.20.2 {
         /*renderBackground(graphics);
         *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
+    //?}
 
         Layout layout = new Layout();
-        RenderSystem.enableBlend();
-        graphics.blit(MENU_TITLE_TEXTURE, layout.titleX, layout.titleY, layout.titleWidth, layout.titleHeight, 0, 0,
+        Draw.blit(graphics, MENU_TITLE_TEXTURE, layout.titleX, layout.titleY, layout.titleWidth, layout.titleHeight, 0, 0,
                 TITLE_TEXTURE_WIDTH, TITLE_TEXTURE_HEIGHT, TITLE_TEXTURE_WIDTH, TITLE_TEXTURE_HEIGHT);
 
         this.settingsButton.display(graphics, mouseX, mouseY);
@@ -226,4 +243,3 @@ public class GuiBendsMenu extends Screen {
         return false;
     }
 }
-//?}

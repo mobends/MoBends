@@ -1,16 +1,18 @@
 package goblinbob.mobends.core.client.gui;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
+import com.mojang.blaze3d.platform.InputConstants;
 import goblinbob.mobends.core.connection.MinecraftLink;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+//? if >=26.1 {
+/*import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * Links the player's Minecraft account to their Mo' Bends account (see {@link MinecraftLink}): the
@@ -206,12 +208,17 @@ public class GuiLinkAccount extends Screen {
 
     /** Whether this screen is still the one shown: what linking answers is only shown on it. */
     private boolean isOpen() {
-        return this.minecraft != null && this.minecraft.screen == this;
+        return Screens.current() == this;
     }
 
     @Override
+    //? if >=26.1 {
+    /*public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        boolean clicked = super.mouseClicked(event, doubleClick);
+    *///?} else {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         boolean clicked = super.mouseClicked(mouseX, mouseY, button);
+    //?}
         // The code is typed in whatever was clicked, as 1.12's field kept the focus: a button
         // (Try again) would otherwise take it.
         if (state == State.ENTER_CODE && getFocused() != codeField) {
@@ -220,37 +227,54 @@ public class GuiLinkAccount extends Screen {
         return clicked;
     }
 
+    //? if >=26.1 {
+    /*@Override
+    public boolean keyPressed(KeyEvent event) {
+        return enterCode(event.key()) || super.keyPressed(event);
+    }
+    *///?} else {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (state == State.ENTER_CODE && (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)) {
+        return enterCode(keyCode) || super.keyPressed(keyCode, scanCode, modifiers);
+    }
+    //?}
+
+    /** Enter starts linking, while the code is typed in. */
+    private boolean enterCode(int keyCode) {
+        if (state == State.ENTER_CODE && (keyCode == InputConstants.KEY_RETURN || keyCode == InputConstants.KEY_NUMPADENTER)) {
             startLinking();
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return false;
     }
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(parent);
+        Screens.open(parent);
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+    *///?} else {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         //? if <1.20.2 {
         /*renderBackground(graphics);
         *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
+    //?}
 
         int centerX = width / 2;
-        graphics.drawCenteredString(this.font, this.title, centerX, height / 2 - 70, 0xFFFFFF);
+        graphics.drawCenteredString(this.font, this.title, centerX, height / 2 - 70, 0xFFFFFFFF);
 
         if (state == State.ENTER_CODE) {
-            drawLines(graphics, Component.translatable("mobends.gui.link.enter_code"), height / 2 - 45, 0xAAAAAA);
+            drawLines(graphics, Component.translatable("mobends.gui.link.enter_code"), height / 2 - 45, 0xFFAAAAAA);
         } else {
-            int color = state == State.FAILED ? 0xFF5555 : state == State.LINKED ? 0x55FF55 : 0xFFFFFF;
+            int color = state == State.FAILED ? 0xFFFF5555 : state == State.LINKED ? 0xFF55FF55 : 0xFFFFFFFF;
             int y = drawLines(graphics, message, height / 2 - 40, color);
             if (state == State.CONFIRM) {
-                drawLines(graphics, Component.translatable("mobends.gui.link.confirm_warning"), y + 8, 0xAAAAAA);
+                drawLines(graphics, Component.translatable("mobends.gui.link.confirm_warning"), y + 8, 0xFFAAAAAA);
             }
         }
     }
@@ -269,4 +293,3 @@ public class GuiLinkAccount extends Screen {
         return false;
     }
 }
-//?}

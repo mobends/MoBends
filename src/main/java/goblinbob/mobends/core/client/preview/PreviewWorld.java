@@ -27,6 +27,10 @@ import java.util.Map;
 public final class PreviewWorld {
     /** Every preview entity of every open world, so the renderer knows one when it draws it. */
     private static final Map<LivingEntity, Preview> PREVIEWS = new IdentityHashMap<>();
+    //? if >=26.1 {
+    /*/^* The id given to the last preview entity made. ^/
+    private static int lastId;
+    *///?}
 
     private final List<LivingEntity> entities = new ArrayList<>();
 
@@ -48,6 +52,11 @@ public final class PreviewWorld {
 
     /** Makes the entity a preview of {@code defined}. */
     public void register(LivingEntity entity, DefinedEntity defined) {
+        //? if >=26.1 {
+        /*// 26.x gives an entity its id as the level adds it, which a preview's never does; drawing it
+        // (and telling it from another) needs one. Below 0, clear of the server's.
+        entity.setId(--lastId);
+        *///?}
         PREVIEWS.put(entity, new Preview(defined));
         entities.add(entity);
     }

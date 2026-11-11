@@ -1,11 +1,12 @@
 package goblinbob.mobends.core.client.event;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import goblinbob.mobends.core.client.gui.GuiBendsMenu;
+import goblinbob.mobends.core.client.gui.Screens;
 //? if <26.1 {
 import goblinbob.mobends.mixin.KeyMappingAccessor;
 //?}
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -47,10 +48,7 @@ public final class KeyboardHandler {
     /** With the game's keys: opens the menu if its key was pressed. */
     public static void onKeybinds() {
         while (KEY_MENU.consumeClick()) {
-            // The menu isn't ported to 26.x's GUI yet.
-            //? if <26.1 {
-            Minecraft.getInstance().setScreen(new goblinbob.mobends.core.client.gui.GuiBendsMenu());
-            //?}
+            Screens.open(new GuiBendsMenu());
         }
     }
 }

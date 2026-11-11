@@ -1,9 +1,8 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
 import goblinbob.mobends.core.client.gui.elements.GuiCustomButton;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
+import goblinbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -72,12 +71,12 @@ public class GuiOrderEntry implements IGuiListElement {
         Font font = Minecraft.getInstance().font;
         int left = originX + x;
         int top = originY + y;
-        graphics.drawString(font, (position + 1) + ".", left + 4, top + 6, 0xaaaaaa);
-        graphics.drawString(font, font.plainSubstrByWidth(id, 170), left + 20, top + 6, 0xffffff);
-        graphics.drawString(font, font.plainSubstrByWidth(description, 170), left + 20, top + 18, 0x9a9a9a, false);
+        graphics.drawString(font, (position + 1) + ".", left + 4, top + 6, 0xFFAAAAAA);
+        graphics.drawString(font, font.plainSubstrByWidth(id, 170), left + 20, top + 6, 0xFFFFFFFF);
+        graphics.drawString(font, font.plainSubstrByWidth(description, 170), left + 20, top + 18, 0xFF9A9A9A, false);
 
-        upButton.render(graphics, mouseX, mouseY, partialTicks);
-        downButton.render(graphics, mouseX, mouseY, partialTicks);
+        Draw.widget(graphics, upButton, mouseX, mouseY, partialTicks);
+        Draw.widget(graphics, downButton, mouseX, mouseY, partialTicks);
     }
 
     @Override
@@ -105,4 +104,3 @@ public class GuiOrderEntry implements IGuiListElement {
         listOrder = order;
     }
 }
-//?}
