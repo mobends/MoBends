@@ -87,6 +87,19 @@ public class EntityBoneTest
     }
 
     @Test
+    public void aClipFilteredToAChannelItDoesntKeyLeavesTheSmoothingAlone() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator("{'core:translate': {'bone': 'root', 'x': 0, 'y': 8, 'z': 0}, '@space': 'override', '@smoothing': {'root': 4}}, "
+                + "{'core:clip': {'animationKey': 'clip', 'bones': ['root.rotation']}, '@space': 'override', '@smoothing': {'root': 0}}", MOTION_CLIP);
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+        subject.root.update(1F);
+
+        assertEquals("the translate's position still eases in", 2, subject.root.position.getY(), 1e-3F);
+    }
+
+    @Test
     public void aSmoothingCanGiveTheRotationAndThePositionApart() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'core:clip': {'animationKey': 'clip'}, '@smoothing': {'root': {'rotation': 0, 'position': 4}}}", BOTH_CLIP);
