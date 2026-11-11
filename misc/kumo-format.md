@@ -576,11 +576,12 @@ a hand put on a ledge, a foot on a step.
   `entityWorldX`, ...) and body yaw (`yaw`, `entityBodyYaw`), through the bones as the items before
   it have posed them: `rootBone` (`root`), `centerBone` (`center`, turned about `centerPivot`,
   `{"x", "y", "z"}` in blocks, the entity's own pivot unless written), and the bones it hangs from,
-  `parents` (each a `bone` and its `pivot`, outermost first: a player's arms hang from its body).
-  So the end stays on the target wherever the entity is drawn: leaning, or held at a point by
+  `parents` (each a `bone` and its `pivot`, outermost first: a player's arms hang from its body),
+  moved, turned and scaled as they are posed. So the end stays on the target wherever the entity is drawn: leaning, or held at a point by
   `core:anchor`. Write it after what moves the model, and snap what it reads (a smoothed bone is
   drawn behind its target, and the end would lag with it). `modelScale` is the renderer's scale of
-  the model (vanilla draws the player at 0.9375); the bones are assumed to have no `restRotation`.
+  the model (vanilla draws the player at 0.9375); the bones are assumed to have no `restRotation`,
+  and the chain's own bones no scale.
 * `weight` (0..1) blends it in from what lies beneath. At 1 the bones snap to it, so the end
   doesn't slide; at 0 it writes nothing (and still says its `stretch`).
 

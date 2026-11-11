@@ -15,10 +15,10 @@ import java.util.Map;
  * it, as a split's joints are (they bend on the side of their hinge), and points
  * {@link Segment#bendDirection}: the elbow out to that side. The driver puts the chain where the
  * renderer draws it, from the bones as the items before it have posed them (the whole-model
- * offsets and rotations, {@link #parents}), so the target is met wherever the entity is drawn: one
- * leaning, or held at a point by {@code core:anchor}. It assumes the bones have no
- * {@code restRotation}, and that the renderer draws the model as vanilla does, unscaled but for
- * {@link #modelScale}.
+ * offsets and rotations, {@link #parents} moved, turned and scaled), so the target is met wherever
+ * the entity is drawn: one leaning, or held at a point by {@code core:anchor}. It assumes the
+ * bones have no {@code restRotation}, the chain's own bones no scale, and that the renderer draws
+ * the model as vanilla does, unscaled but for {@link #modelScale}.
  *
  * <p>Out of reach, the chain points at the target as straight as it gets (or folds as far as it
  * goes, for a target too near); {@code stretch} says how far its end is from the target.
