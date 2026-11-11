@@ -40,6 +40,7 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
         "IronGolemRendererMixin",
         "ItemInHandLayerMixin",
         "LayerDefinitionMixin",
+        "LevelExtractorMixin",
         "LivingEntityAccessor",
         "LivingEntityRendererMixin",
         "MinecraftMixin",
