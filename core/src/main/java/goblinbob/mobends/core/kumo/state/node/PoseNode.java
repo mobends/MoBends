@@ -360,17 +360,15 @@ public class PoseNode implements INodeState
             item.apply(pose, context, state[clockSlot]);
         }
 
-        // Node-level smoothing applies to whatever this node wrote and no item smoothed already: a
+        // Node-level smoothing applies to whatever this node wrote and no item smoothed already, each
+        // channel apart (an item that smooths a bone's rotation leaves its position to the node): a
         // bone's own entries first, then the default for the channels they leave out. A part's
         // offset is smoothed apart from its rotation, as an item's translate smooths it, and counts
         // as its position.
         for (int i = 0; i < smoothingSlots.length; i++)
         {
             BoneTarget target = pose.get(smoothingSlots[i]);
-            if (Float.isNaN(target.smoothing) && isUnsmoothed(target.vectorSmoothing))
-            {
-                ItemEffects.applySmoothing(target, smoothingValues[i]);
-            }
+            smooth(target, smoothingValues[i]);
             smoothOffset(target, smoothingValues[i]);
         }
         for (int i = 0; i < rotationSlots.length; i++)
@@ -508,6 +506,19 @@ public class PoseNode implements INodeState
                 // Keyframed root motion is already smooth; without an explicit smoothing entry it is applied as is.
                 target.vectorMode = IVectorSink.Mode.SNAP;
             }
+        }
+    }
+
+    /** Gives the bone's rotation and position the node's smoothing, each unless an item smoothed it already. */
+    private static void smooth(BoneTarget target, float[] value)
+    {
+        if (Float.isNaN(target.smoothing))
+        {
+            ItemEffects.applyRotationSmoothing(target, value);
+        }
+        if (isUnsmoothed(target.vectorSmoothing))
+        {
+            ItemEffects.applyVectorSmoothing(target, value);
         }
     }
 
