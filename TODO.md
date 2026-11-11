@@ -112,6 +112,25 @@ changes in 1.12.2: the entry's `@when` doesn't hold on 1.12.2.
 - [ ] Check that the animation lab passes (`LegacyPackTest` compares the two), and in the game that the
       zombie pigman still bends as before, with the mod and with the legacy pack.
 
+### #437: Wither skeletons are animated
+
+Doesn't need a new `core`. On `main` the wither skeleton bends as the skeleton does. The skeleton's
+definition names `EntitySkeleton`, which the wither skeleton isn't (both extend `AbstractSkeleton`, in
+1.12.2 too), so it was left vanilla here as well.
+
+- [ ] Copy `src/main/resources/assets/mobends/bends/models/wither_skeleton.json` from `main`. It
+      extends the skeleton's and names `net.minecraft.entity.monster.EntityWitherSkeleton`, a single
+      class name, which this branch reads as is.
+- [ ] Register it in `DefaultAddon`, after the skeleton: `registry.registerDefinedEntity("wither_skeleton")`.
+- [ ] Add `"wither_skeleton"` to the lab's `DefinedModelsTest` (`DEFAULT_MODELS`, and next to the
+      skeleton in `IDLE_MOVES` and `STAND_WHERE_THEY_STOPPED`), and `DefinitionExtendsTest`'s
+      `theWitherSkeletonIsTheSkeletonOfItsOwnEntity`, as on `main`.
+- [ ] Mention it in `misc/kumo-format.md` (the list of model definitions, and `extends`) and in
+      CHANGELOG.md.
+- [ ] Check in the game (`/summon wither_skeleton`): it walks, attacks with its stone sword and stands
+      on its feet as the skeleton does, at its bigger size, and the Settings menu lists it with its
+      own switch. The skeleton, the stray and the wither (the boss) are unchanged.
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
