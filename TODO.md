@@ -122,7 +122,7 @@ forge-1.12               1.12.2
   - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
   - [ ] The latest Minecraft version (26.3), on Fabric and NeoForge. The node builds, starts and
     bends the player, its layers and the mobs; still to port on 26.x:
-    - [ ] The sword and arrow trails, the cape's ripple, the supporters' accessories, the debug rays.
+    - [ ] The sword and arrow trails, the cape's ripple, the debug rays.
     - [ ] Babies with a model of their own. 26.x draws most babies (wolf pups, baby zombies and
       villagers, the dev pack's animals) with their own model and texture, shaped unlike the adult
       the definitions were made for; they're drawn as vanilla for now (`LivingEntityRendererMixin`).

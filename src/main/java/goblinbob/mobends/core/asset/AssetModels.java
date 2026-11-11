@@ -69,8 +69,21 @@ public final class AssetModels {
          */
         public void render(PoseStack poseStack, VertexConsumer consumer, int light, int overlay, int color) {
             poseStack.pushPose();
+            applyHeadTransform(poseStack);
+            draw(poseStack.last(), consumer, light, overlay, color);
+            poseStack.popPose();
+        }
+
+        /** Moves {@code poseStack} through the model's head transform, which {@link #draw} doesn't apply. */
+        public void applyHeadTransform(PoseStack poseStack) {
             VanillaDraw.mulPose(poseStack, headTransform);
-            PoseStack.Pose pose = poseStack.last();
+        }
+
+        /**
+         * Draws the model in {@code pose}, as it is (past its head transform already, see
+         * {@link #applyHeadTransform}), every vertex coloured {@code color} (ARGB).
+         */
+        public void draw(PoseStack.Pose pose, VertexConsumer consumer, int light, int overlay, int color) {
             for (Quad quad : quads) {
                 for (int i = 0; i < 4; i++) {
                     Vector3f position = quad.positions[i];
@@ -78,7 +91,6 @@ public final class AssetModels {
                         quad.normal.x, quad.normal.y, quad.normal.z);
                 }
             }
-            poseStack.popPose();
         }
     }
 
