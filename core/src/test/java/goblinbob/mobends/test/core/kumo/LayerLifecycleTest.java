@@ -83,4 +83,23 @@ public class LayerLifecycleTest
         assertEquals(0, read(subject, "start"), 0);
     }
 
+    @Test
+    public void aMachineKeepsUpdatingWhileItsNodeFadesOut() throws MalformedKumoTemplateException
+    {
+        // a, in m, crossfades out of m over 3 ticks on frame 4.
+        KumoAnimatorState animator = animator("{'defaultOnEntry': 'm', 'nodes': {'out': {'core:pose': {}}}, "
+                + "'machines': {'m': {'@on': {'update': [" + count("frames") + "], 'exit': [" + count("exits") + "]}, "
+                + "  'nodes': {'a': {'core:pose': {}, '@connections': [{'when': {'gt': ['nodeTicksElapsed', 2]}, 'then': 'out', 'transitionDuration': 3}]}}}}}",
+                "frames", "exits");
+        TestSubject subject = new TestSubject("frames", "exits");
+        frames(animator, subject, 5);
+        // Frames 4 to 6, a fades out: m still exists, and updates.
+        assertEquals(5, read(subject, "frames"), 0);
+        assertEquals(0, read(subject, "exits"), 0);
+        // The crossfade ended once frame 6 was posed: m was left then, once.
+        frames(animator, subject, 3);
+        assertEquals(6, read(subject, "frames"), 0);
+        assertEquals(1, read(subject, "exits"), 0);
+    }
+
 }

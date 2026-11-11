@@ -341,12 +341,16 @@ public class LayerState
         INodeState currentNode = current.node;
         int count = state.ints[fadingCountSlot];
 
-        // 2. The scopes' update lists: the layer's, its machines' from the outermost in, the nodes
-        // fading out, oldest first, the current node.
+        // 2. The scopes' update lists: the layer's, its machines' from the outermost in (every one
+        // that exists: around the current node or a node still fading out), the nodes fading out,
+        // oldest first, the current node.
         lists.update(context);
-        for (MachineState machine : current.path)
+        for (MachineState machine : machines)
         {
-            machine.update(context);
+            if (posedInside(machine, state))
+            {
+                machine.update(context);
+            }
         }
         for (int k = 0; k < count; k++)
         {
