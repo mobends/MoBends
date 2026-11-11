@@ -105,4 +105,28 @@ public class EnterPoseScaleTest
         assertVector(1.2F, 1.2F, 1.2F, subject.scales.get("arm"));
     }
 
+    @Test
+    public void anOverrideAfterARelativeEntryKeepsItsFactorOnTheAxesItLeavesOut() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = onTopOf(scale("'all': 1.2", "override"),
+                scale("'all': 0.5", "pre") + ", " + scale("'x': 0.25", "override"));
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+
+        assertVector(0.25F, 0.6F, 0.6F, subject.scales.get("arm"));
+    }
+
+    @Test
+    public void aRelativeEntryAfterAPartialOverrideScalesTheAxesItLeftOut() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = onTopOf(scale("'all': 1.2", "override"),
+                scale("'x': 0.25", "override") + ", " + scale("'all': 0.5", "pre"));
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+
+        assertVector(0.125F, 0.6F, 0.6F, subject.scales.get("arm"));
+    }
+
 }
