@@ -33,6 +33,7 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Witch;
+import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
@@ -61,7 +62,7 @@ import java.util.function.ToDoubleFunction;
  * drowned, which is a zombie now; the zombie villager and the zombified piglin have definitions of
  * their own. {@code EntitySkeleton} is {@link Skeleton} alone: the stray, the wither skeleton and the
  * bogged are other subclasses of {@code AbstractSkeleton}, as the stray and the wither skeleton were
- * in 1.12, and stay vanilla. {@code EntitySpider} bends the cave spider too, as in 1.12, and
+ * in 1.12. The wither skeleton has a definition of its own; the stray and the bogged stay vanilla. {@code EntitySpider} bends the cave spider too, as in 1.12, and
  * {@code EntitySquid} the glow squid, which is a squid now (both drawn with their parent's model).
  * <p>
  * Each model's parts are mapped by where 1.12's model put them and what it drew there (read off
@@ -105,6 +106,7 @@ public final class VanillaNames {
         entity("net.minecraft.client.entity.AbstractClientPlayer", AbstractClientPlayer.class, "minecraft:player");
         entity("net.minecraft.entity.monster.EntityZombie", Zombie.class, "minecraft:zombie");
         entity("net.minecraft.entity.monster.EntitySkeleton", Skeleton.class, "minecraft:skeleton");
+        entity("net.minecraft.entity.monster.EntityWitherSkeleton", WitherSkeleton.class, "minecraft:wither_skeleton");
         entity("net.minecraft.entity.monster.EntityZombieVillager", ZombieVillager.class, "minecraft:zombie_villager");
         // The zombie pigman is the zombified piglin now: a zombie still, drawn with PiglinModel (a
         // PlayerModel), which the pig zombie's definition names through a variant for later versions.

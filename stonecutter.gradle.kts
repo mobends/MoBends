@@ -73,6 +73,7 @@ stonecutter parameters {
             replace("import net.minecraft.world.entity.animal.Squid;", "import net.minecraft.world.entity.animal.squid.Squid;")
             replace("import net.minecraft.world.entity.animal.Wolf;", "import net.minecraft.world.entity.animal.wolf.Wolf;")
             replace("import net.minecraft.world.entity.monster.Skeleton;", "import net.minecraft.world.entity.monster.skeleton.Skeleton;")
+            replace("import net.minecraft.world.entity.monster.WitherSkeleton;", "import net.minecraft.world.entity.monster.skeleton.WitherSkeleton;")
             replace("import net.minecraft.world.entity.monster.Spider;", "import net.minecraft.world.entity.monster.spider.Spider;")
             replace("import net.minecraft.world.entity.monster.Zombie;", "import net.minecraft.world.entity.monster.zombie.Zombie;")
             replace("import net.minecraft.world.entity.monster.ZombieVillager;", "import net.minecraft.world.entity.monster.zombie.ZombieVillager;")

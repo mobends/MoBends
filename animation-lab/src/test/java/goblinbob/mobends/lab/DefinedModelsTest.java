@@ -61,7 +61,7 @@ public class DefinedModelsTest
 
     static
     {
-        for (String name : new String[] { "player", "zombie", "skeleton", "zombie_villager", "pig_zombie", "squid", "spider", "wolf" })
+        for (String name : new String[] { "player", "zombie", "skeleton", "wither_skeleton", "zombie_villager", "pig_zombie", "squid", "spider", "wolf" })
         {
             DEFAULT_MODELS.put("mobends:" + name, ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/" + name + ".json"));
         }
@@ -94,14 +94,14 @@ public class DefinedModelsTest
     private static final Map<String, Set<String>> VANILLA_BONES = Collections.singletonMap("mobends:witch", Collections.singleton("nose"));
 
     /** The models whose animator moves the limbs while standing. */
-    private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:pig_zombie"));
+    private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:wither_skeleton", "mobends:pig_zombie"));
 
     /**
      * The models that stand on their feet where the walk left them (core:step_turn's
      * placeFromPose), their legs bent as far as the feet are apart: VillagerStepTurnTest and
      * ZombieStepTurnTest check where the feet end up.
      */
-    private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch", "mobends:skeleton",
+    private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch", "mobends:skeleton", "mobends:wither_skeleton",
             "mobends:zombie", "mobends:zombie_villager"));
 
     /** The model definitions the shipped type files name, by type id, the default models and the unreleased ones. */

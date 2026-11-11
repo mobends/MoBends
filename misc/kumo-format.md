@@ -1071,7 +1071,7 @@ The chicken's definition also declares the values its animator reads, over the e
 | field | meaning |
 |---|---|
 | `formatVersion` | `2` (the index, `{"formatVersion": 2, "models": [...]}`, has one too) |
-| `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothing`, `renderer` and `options` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie. A chain with a resource pack's file in it is untrusted |
+| `extends` | another model definition (`mobends:bends/models/zombie.json`) this one is, with its own on top: a bone of the same name replaces the other's where it stands and new ones come after; `@define` adds names (declaring one the other declares is an error); each `@on` list runs the other's statements first; `components`, `layers`, `childBones`, `smoothing`, `renderer` and `options` merge key by key; anything else is its own if it has it. The zombie villager and the zombie pigman extend the zombie, the wither skeleton the skeleton. A chain with a resource pack's file in it is untrusted |
 | `entity` | the entities it's for: a registry id (`minecraft:fox`), the entities of that type alone, or a class, those of that class and its subclasses (Minecraft's by its 1.12 name, a mod's by its full name); or a list of them (`["minecraft:zombie", "minecraft:husk"]`), any of which may name an entity. Names this version doesn't know are skipped (see *Field names*). `model` (optional) bends only models of that class and its subclasses, named as a class is |
 | `animator` | the animator asset; `key` / `unlocalizedName` override the registry's |
 | `bones[].vanilla` | the model's part the bone takes over: `part` is its path in the model's part tree (`body/left_arm`), for any model; `field` is the model's field holding it, a vanilla model's by its 1.12 name, a mod's model's by its own (see *Field names* below), and `element` its index for array fields. `index` (1.12's position in the model's box list) is read but has nothing to stand for in the modern versions. |
@@ -1116,9 +1116,9 @@ its own animator's `@define`), so two extensions never collide on an `entity.` n
 definitions can `extends` another, but not declare a name it declares (see `extends` above). A model definition from a resource pack is untrusted: an
 untrusted animator may set its state, never a trusted one's.
 
-The player, the zombie, the skeleton, the zombie villager, the zombie pigman, the squid, the
-spider and the wolf are model definitions too (`player`, `zombie`, `skeleton`, `zombie_villager`,
-`pig_zombie`, `squid`, `spider`, `wolf`): the default
+The player, the zombie, the skeleton, the wither skeleton, the zombie villager, the zombie pigman,
+the squid, the spider and the wolf are model definitions too (`player`, `zombie`, `skeleton`,
+`wither_skeleton`, `zombie_villager`, `pig_zombie`, `squid`, `spider`, `wolf`): the default
 models of their entity classes rather than a type file's (an addon registers them with
 `registerDefinedEntity`). Their bodies bend at the hips, their limbs at elbows and knees (the
 player's sleeves and trousers ride them), and they declare the components, layers, renderer
