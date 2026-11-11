@@ -525,6 +525,17 @@ public class KumoAnimatorStateTest
     }
 
     @Test
+    public void aScopeStartsOverWhateverTheOrderOfItsStatefulLiveDefinitions() throws MalformedKumoTemplateException
+    {
+        // b rises with the flag, which starts true and falls while the node runs; a falls with b.
+        // Entered again, b starts over before a reads it, so neither sees the last entry.
+        String a = "'a': {'live': {'fell': ['node.b']}}", b = "'b': {'live': {'rose': ['node.flag']}}", flag = "'flag': {'state': true}";
+        String update = String.format(NOTE, "node.b") + ", {'set': ['node.flag', false]}";
+        assertEquals(0, firedAfterReentry(a + ", " + b + ", " + flag, update), 0);
+        assertEquals(0, firedAfterReentry(flag + ", " + b + ", " + a, update), 0);
+    }
+
+    @Test
     public void aConstantIsTakenWhenItsScopeIsCreated() throws MalformedKumoTemplateException
     {
         KumoAnimatorState animator = animator("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', "

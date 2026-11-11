@@ -64,6 +64,8 @@ public final class DefinitionScope
     private Expression[] compiled = new Expression[0];
     private Expression.Type[] types = new Expression.Type[0];
     private final List<String> compiling = new ArrayList<>();
+    /** The definitions in the order they finished compiling: each after those it reads. */
+    private final List<Integer> dependencyOrder = new ArrayList<>();
 
     // Where the entity's values are, in its state (see StateLayout): the values (doubles, which hold
     // a number or a boolean exactly too), then, by index too, whether each is set (ints) and the
@@ -249,6 +251,7 @@ public final class DefinitionScope
             Expression expression = compileScope.compileDefinition(template.expression);
             compiled[index] = expression;
             types[index] = expression.getType();
+            dependencyOrder.add(index);
         }
         catch (MalformedKumoTemplateException e)
         {
@@ -263,8 +266,9 @@ public final class DefinitionScope
     // --- the entity's values -----------------------------------------------------------------------
 
     /**
-     * Creates the scope for the entity: what its definitions remember starts over, and its
-     * constants and states take their values (in any order: each reads the others it needs).
+     * Creates the scope for the entity: what its definitions remember starts over (each after the
+     * definitions it reads), and its constants and states take their values (in any order: each
+     * reads the others it needs).
      */
     public void start(ITriggerConditionContext context)
     {
@@ -276,7 +280,9 @@ public final class DefinitionScope
             ints[statusSlot + i] = UNSET;
             ints[frameSlot + i] = -1;
         }
-        for (int i = 0; i < compiled.length; i++)
+        // A memory starting over reads what it is written on, which may be a live definition that
+        // remembers too: those it reads start over first, so it never reads one's previous entry.
+        for (int i : dependencyOrder)
         {
             if (compiled[i].isStateful())
             {

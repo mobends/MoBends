@@ -892,7 +892,10 @@ prefix says where the value lives, and a name that scope doesn't declare is an e
 the animator's on its first frame; a layer's when it starts; a machine's on every entry into it, so its definitions
 start over each time, and it is disposed once the last of its nodes has faded out; a node's on
 every entry. A node fading out keeps its scope until its crossfade ends; a node a transition
-leaves without a crossfade, or whose crossfade a transition cuts short, is disposed at once.
+leaves without a crossfade, or whose crossfade a transition cuts short, is disposed at once. A
+scope created again keeps nothing of its previous entry: whatever order its definitions are
+declared in, none of them, nor what one remembers (an edge trigger starting from what it watches),
+reads a value from before.
 
 **Statement lists**, in a scope's `@on`:
 
