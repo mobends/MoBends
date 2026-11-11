@@ -25,6 +25,8 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
     private static final List<String> CLIENT = List.of(
         //? if >=26.1 {
         /*"AgeableMobRendererAccessor",
+        "ArrowRendererMixin",
+        "ArrowRenderStateMixin",
         "CapeLayerMixin",
         "ClientPacketListenerMixin",
         "CustomHeadLayerMixin",

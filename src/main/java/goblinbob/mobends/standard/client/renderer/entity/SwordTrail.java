@@ -10,15 +10,19 @@ import goblinbob.mobends.core.data.EntityComponent;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import net.minecraft.client.model.EntityModel;
-//? if <26.1 {
+//? if >=26.1 {
+/*import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+*///?} else {
 import net.minecraft.client.renderer.MultiBufferSource;
-//?}
 import net.minecraft.client.renderer.RenderType;
+//?}
 import net.minecraft.world.entity.HumanoidArm;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -139,19 +143,45 @@ public class SwordTrail implements EntityComponent {
         trail.parts.add(new TrailPart(hand, arm == HumanoidArm.RIGHT ? -1.0F : 1.0F, velocity));
     }
 
-    // Not drawn on 26.x yet.
-    //? if <26.1 {
-    /** After the entity's render ({@code LivingEntityRendererMixin}): draws its trail, if it has one. */
-    public static void draw(DefinedEntityData<?> data, Matrix4fc entityFrame, float bodyYaw, MultiBufferSource buffers) {
-        SwordTrail trail = data.getComponent("swordTrail", SwordTrail.class);
-        if (trail == null || trail.parts.size() < 2 || !ClientConfig.INSTANCE.showSwordTrail()) {
+    //? if >=26.1 {
+    /*/^*
+     * After the entity's layers ({@code LivingEntityRendererMixin}): submits its trail, if it has one,
+     * drawn later in the frame. It's worked out now, as the trail stands this frame.
+     ^/
+    public static void submit(DefinedEntityData<?> data, Matrix4fc entityFrame, float bodyYaw, SubmitNodeCollector collector) {
+        float[] vertices = vertices(data);
+        if (vertices == null) {
             return;
         }
-        Matrix4f frame = entityFrame(entityFrame, bodyYaw);
-        // White, or the colour a supporter picked for their sword trail (1.12's SupporterContent.getTrailColorFor).
         int color = SupporterContent.getTrailColorFor(data.getEntity());
-        float red = (color >> 16 & 0xFF) / 255.0F, green = (color >> 8 & 0xFF) / 255.0F, blue = (color & 0xFF) / 255.0F;
-        VertexConsumer consumer = buffers.getBuffer(RenderType.debugQuads());
+        PoseStack frame = new PoseStack();
+        VanillaDraw.mulPose(frame, entityFrame(entityFrame, bodyYaw));
+        collector.submitCustomGeometry(frame, RenderTypes.debugQuads(), (pose, consumer) -> emit(consumer, pose.pose(), vertices, color));
+    }
+    *///?} else {
+    /** After the entity's render ({@code LivingEntityRendererMixin}): draws its trail, if it has one. */
+    public static void draw(DefinedEntityData<?> data, Matrix4fc entityFrame, float bodyYaw, MultiBufferSource buffers) {
+        float[] vertices = vertices(data);
+        if (vertices == null) {
+            return;
+        }
+        int color = SupporterContent.getTrailColorFor(data.getEntity());
+        emit(buffers.getBuffer(RenderType.debugQuads()), entityFrame(entityFrame, bodyYaw), vertices, color);
+    }
+    //?}
+
+    /**
+     * The trail's quads as it stands, in the entity's frame: four corners each, every corner
+     * {@code x, y, z, alpha}; null if it has fewer than two parts or the config hides it.
+     */
+    @Nullable
+    private static float[] vertices(DefinedEntityData<?> data) {
+        SwordTrail trail = data.getComponent("swordTrail", SwordTrail.class);
+        if (trail == null || trail.parts.size() < 2 || !ClientConfig.INSTANCE.showSwordTrail()) {
+            return null;
+        }
+        float[] vertices = new float[(trail.parts.size() - 1) * 16];
+        int at = 0;
         Vector3f near = new Vector3f(), far = new Vector3f(), lastNear = new Vector3f(), lastFar = new Vector3f();
         float lastAlpha = 0.0F;
         for (int i = 0; i < trail.parts.size(); i++) {
@@ -160,17 +190,36 @@ public class SwordTrail implements EntityComponent {
             float alpha = part.alpha();
             if (i > 0) {
                 // A quad from the last part to this one, each end as faded as its part.
-                VanillaDraw.vertex(consumer, frame, lastNear.x, lastNear.y, lastNear.z, red, green, blue, lastAlpha);
-                VanillaDraw.vertex(consumer, frame, lastFar.x, lastFar.y, lastFar.z, red, green, blue, lastAlpha);
-                VanillaDraw.vertex(consumer, frame, far.x, far.y, far.z, red, green, blue, alpha);
-                VanillaDraw.vertex(consumer, frame, near.x, near.y, near.z, red, green, blue, alpha);
+                at = corner(vertices, at, lastNear, lastAlpha);
+                at = corner(vertices, at, lastFar, lastAlpha);
+                at = corner(vertices, at, far, alpha);
+                at = corner(vertices, at, near, alpha);
             }
             lastNear.set(near);
             lastFar.set(far);
             lastAlpha = alpha;
         }
+        return vertices;
     }
-    //?}
+
+    private static int corner(float[] vertices, int at, Vector3f position, float alpha) {
+        vertices[at] = position.x;
+        vertices[at + 1] = position.y;
+        vertices[at + 2] = position.z;
+        vertices[at + 3] = alpha;
+        return at + 4;
+    }
+
+    /**
+     * Writes the trail's quads ({@link #vertices}) in the entity's frame {@code frame}, white or a
+     * supporter's own colour ({@code 0xRRGGBB}, 1.12's {@code SupporterContent.getTrailColorFor}).
+     */
+    private static void emit(VertexConsumer consumer, Matrix4f frame, float[] vertices, int color) {
+        float red = (color >> 16 & 0xFF) / 255.0F, green = (color >> 8 & 0xFF) / 255.0F, blue = (color & 0xFF) / 255.0F;
+        for (int at = 0; at < vertices.length; at += 4) {
+            VanillaDraw.vertex(consumer, frame, vertices[at], vertices[at + 1], vertices[at + 2], red, green, blue, vertices[at + 3]);
+        }
+    }
 
     @Override
     public void update(float ticksPerFrame) {

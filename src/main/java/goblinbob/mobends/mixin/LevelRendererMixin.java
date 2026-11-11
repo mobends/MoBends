@@ -1,6 +1,6 @@
 package goblinbob.mobends.mixin;
 
-// Not ported to 26.x yet (the trails and debug rays).
+// Not ported to 26.x yet (the debug rays).
 //? if <26.1 {
 import goblinbob.mobends.core.client.event.RayGizmoRenderer;
 import net.minecraft.client.Camera;

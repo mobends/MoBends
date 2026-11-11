@@ -8,12 +8,14 @@ import goblinbob.mobends.core.client.BendsLayers;
 import goblinbob.mobends.core.client.BendsRenderer;
 import goblinbob.mobends.core.client.BentRenderState;
 import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,8 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Bends living entities, on 26.x, where a renderer fills a render state from the entity, then submits
  * the state, and the models it submitted are drawn later in the frame: the entity's animation runs as
  * its state is filled, which carries the data it's bent by ({@link BentRenderState}); the entity's
- * frame is kept as it's submitted, and its layers run in the bent body's frames. The models are drawn
- * bent by {@code ModelFeatureRendererMixin}.
+ * frame is kept as it's submitted, and its layers run in the bent body's frames, its sword trail
+ * after them. The models are drawn bent by {@code ModelFeatureRendererMixin}.
  ^/
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin {
@@ -89,6 +91,19 @@ public abstract class LivingEntityRendererMixin {
             original.call(layer, poseStack, collector, lightCoords, state, yRot, xRot);
         } finally {
             BendsLayers.end(outer);
+        }
+    }
+
+    /^* Submits a bent entity's sword trail, after the entity and its layers. ^/
+    @Inject(
+        method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
+        at = @At("TAIL")
+    )
+    private void mobends$submitTrail(LivingEntityRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera,
+                                     CallbackInfo ci) {
+        BentRenderState bent = (BentRenderState) state;
+        if (bent.mobends$bent() != null) {
+            SwordTrail.submit(bent.mobends$bent(), bent.mobends$entityFrame(), bent.mobends$bodyYaw(), collector);
         }
     }
 }
