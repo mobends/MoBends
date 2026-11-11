@@ -340,7 +340,8 @@ public class PoseNode implements INodeState
             item.apply(pose, context, state[clockSlot]);
         }
 
-        // Node-level smoothing applies to whatever this node wrote and no item smoothed already.
+        // Node-level smoothing applies to whatever this node wrote and no item smoothed already. A
+        // part's offset is smoothed apart from its rotation, as an item's translate smooths it.
         for (int i = 0; i < smoothingSlots.length; i++)
         {
             if (smoothingSlots[i] >= 0)
@@ -350,6 +351,7 @@ public class PoseNode implements INodeState
                 {
                     ItemEffects.applySmoothing(target, smoothingValues[i]);
                 }
+                smoothOffset(target, smoothingValues[i]);
             }
             else
             {
@@ -359,6 +361,10 @@ public class PoseNode implements INodeState
                     if ((target.hasRotation || target.hasPre || target.hasPost || target.hasVector) && Float.isNaN(target.smoothing) && isUnsmoothed(target.vectorSmoothing))
                     {
                         ItemEffects.applySmoothing(target, smoothingValues[i]);
+                    }
+                    if (target.hasOffset)
+                    {
+                        smoothOffset(target, smoothingValues[i]);
                     }
                 }
             }
@@ -379,6 +385,7 @@ public class PoseNode implements INodeState
             {
                 ItemEffects.applyVectorSmoothing(target, positionValues[i]);
             }
+            smoothOffset(target, positionValues[i]);
         }
 
         if (state[enterPendingSlot] != 0)
@@ -441,6 +448,15 @@ public class PoseNode implements INodeState
                 // Keyframed root motion is already smooth; without an explicit smoothing entry it is applied as is.
                 target.vectorMode = IVectorSink.Mode.SNAP;
             }
+        }
+    }
+
+    /** Gives a part's offset the node's smoothing, unless an item smoothed it already. */
+    private static void smoothOffset(BoneTarget target, float[] value)
+    {
+        if (isUnsmoothed(target.offsetSmoothing))
+        {
+            ItemEffects.applyOffsetSmoothing(target, value);
         }
     }
 
