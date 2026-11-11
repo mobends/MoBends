@@ -416,22 +416,25 @@ public class PoseNode implements INodeState
 
         if (state[enterPendingSlot] != 0)
         {
+            // What the entry poses relatively (a PRE / POST rotation, an additive offset or vector) builds on
+            // the layers beneath, as the node's own items do: the bone starts from there.
             Pose enterPose = context.getState().poses[this.enterPose];
+            enterPose.setBelow(pose.getBelow());
             for (int slot = 0; slot < pose.size(); slot++)
             {
                 BoneTarget entered = enterPose.get(slot);
                 BoneTarget target = pose.get(slot);
-                if (entered.hasRotation)
+                if (entered.hasRotation || entered.hasPre || entered.hasPost)
                 {
                     if (target.hasRotation || target.hasPre || target.hasPost)
                     {
                         target.hasSnapFrom = true;
-                        target.snapFrom.set(entered.rotation);
+                        enterPose.rotationSoFar(slot, target.snapFrom);
                     }
                     else
                     {
                         target.hasRotation = true;
-                        target.rotation.set(entered.rotation);
+                        enterPose.rotationSoFar(slot, target.rotation);
                         target.snap = true;
                     }
                 }
@@ -441,13 +444,13 @@ public class PoseNode implements INodeState
                     {
                         // The pose moves the part from where the entry put it.
                         target.hasVectorStart = true;
-                        target.vectorStart.set(entered.offset);
+                        enterPose.offsetSoFar(slot, target.vectorStart);
                     }
                     else
                     {
                         target.hasOffset = true;
-                        target.offset.set(entered.offset);
-                        target.offsetAdditive = entered.offsetAdditive;
+                        enterPose.offsetSoFar(slot, target.offset);
+                        target.offsetAdditive = false;
                         target.offsetMode = IVectorSink.Mode.SNAP;
                     }
                 }
@@ -456,17 +459,18 @@ public class PoseNode implements INodeState
                     if (target.hasVector)
                     {
                         target.hasVectorStart = true;
-                        target.vectorStart.set(entered.vector);
+                        enterPose.vectorSoFar(slot, target.vectorStart);
                     }
                     else
                     {
                         target.hasVector = true;
-                        target.vector.set(entered.vector);
-                        target.vectorAdditive = entered.vectorAdditive;
+                        enterPose.vectorSoFar(slot, target.vector);
+                        target.vectorAdditive = false;
                         target.vectorMode = IVectorSink.Mode.SNAP;
                     }
                 }
             }
+            enterPose.setBelow(null);
             state[enterPendingSlot] = 0;
         }
 

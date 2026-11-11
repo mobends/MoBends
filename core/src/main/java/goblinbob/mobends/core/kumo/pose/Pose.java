@@ -77,6 +77,12 @@ public class Pose
         this.below = below;
     }
 
+    /** The pose this one goes on top of, or null (see {@link #setBelow}). */
+    public Pose getBelow()
+    {
+        return below;
+    }
+
     /**
      * The rotation a slot has so far this frame: its own, with its relative parts applied to what
      * the pose below has so far. Where nothing has written the bone this frame, the rest rotation

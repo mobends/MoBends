@@ -96,7 +96,9 @@ node is in *Choosing the node*.
 
 * The node's one key without `@` is its type: `core:pose`, `core:fallthrough` or
   `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
-  `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`.
+  `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`. The bones `enterPose`
+  poses start from there when the node is entered; what it poses relatively (`pre`, `post`) builds
+  on the layers below, as the node's own items do.
 * `@define` and `@on` are the node's definitions and statement lists (see *Definitions and
   statements*): `node.` names, and what runs when the node is entered, every frame it is posed
   and when it is left.
