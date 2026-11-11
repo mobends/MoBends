@@ -140,6 +140,19 @@ its target, and `stretch` stays in blocks. All of it is in `core`. `core` adds
 - [ ] Run the animation lab. Its goldens shouldn't change (`main`'s didn't).
 - [ ] Check in the game that the iron golem still grabs the ledge and climbs.
 
+### #457: A clip's bone with no keyframes doesn't count as written
+
+Needs the first `core` release after 2.0.0-alpha.3. On `main` a clip's bone with `"keyframes": []`
+no longer counts as written by the clip item: its `@snap` and `@smoothing` leave that bone alone (a
+snapping clip that listed `head` with no keyframes snapped the head's rotation from the items before
+it). All of it is in `core`; no asset changes.
+
+- [ ] Bump `core_version` (gradle.properties) to that release.
+- [ ] Copy the sentence `misc/kumo-format.md` adds on `main` after "Keyframes straddling the ±180°
+      wrap interpolate the short way." (this branch's copy differs elsewhere, so don't copy the whole
+      file).
+- [ ] Run the animation lab. Its goldens shouldn't change (`main`'s didn't).
+
 ## Other tasks
 
 - [ ] Make `field` resolve every vanilla field in production. The generated accessors
