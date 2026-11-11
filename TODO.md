@@ -53,6 +53,22 @@ comes with a pull request here that adds its steps below, under the `main` PR's 
 CONTRIBUTING.md, *Branches*). Steps that need a new `core` wait for its release; the others can be
 done right away. Once a group is done and merged here, delete it.
 
+### #443: Node smoothing, enterPose and mirrored clips
+
+Needs the first `core` release after 2.0.0-alpha.3. On `main` three things in the engine work as the format
+says: a bone's own node or layer smoothing wins over `@default` (`{"@default": 10, "head":
+{"rotation": 0}}` snaps the head), a relative `enterPose` (`pre` / `post`, an additive position)
+(a part's offset included) builds on the layers below instead of starting from itself, and an item with `@mirror` reads the
+layers below mirrored (a weighted clip blends from them, not from rest). Nothing changes in the
+assets; the lab's goldens didn't move on `main`.
+
+- [ ] Build with that release (`core_version` in gradle.properties).
+- [ ] Copy the three passages of `misc/kumo-format.md` that say so from `main`: the layer's
+      `smoothing` row, the `enterPose` sentence under *Nodes*, and the paragraph under *Mirroring*.
+- [ ] Check that the animation lab passes without re-recording anything, and in the game that a
+      left-handed player and skeleton still swing and draw the bow as the right-handed ones,
+      mirrored.
+
 ### #383: The wolf matches vanilla
 
 Doesn't need a new `core`. On `main` the wolf's head, legs and tail now sit and turn where vanilla's
