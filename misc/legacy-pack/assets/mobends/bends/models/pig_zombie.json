@@ -19,6 +19,15 @@
         {"name": "rightLegwear", "vanilla": {"field": "bipedRightLegwear"}, "overlay": "rightLeg", "inflate": [[0, 0, 0], [0.005, 0, 0.005]]},
         {"name": "leftLegwear", "vanilla": {"field": "bipedLeftLegwear"}, "overlay": "leftLeg", "inflate": [[0, 0, 0], [0.005, 0, 0.005]]}
       ]
+    },
+    {
+      "@comment": "On 26.x the zombified piglin's model is no PlayerModel: a HumanoidModel on the player's mesh, whose body is replaced (it has no jacket) and whose head has no hat. The sleeves and trousers are where the player's are.",
+      "@when": {"core:minecraft_version": [">=", "26.1"]},
+      "model": "net.minecraft.client.model.monster.piglin.ZombifiedPiglinModel",
+      "bones": [
+        {"name": "headwear", "parent": "head"},
+        {"name": "bodywear", "overlay": "body"}
+      ]
     }
   ]
 }
