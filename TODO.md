@@ -148,6 +148,8 @@ its target, and `stretch` stays in blocks. All of it is in `core`. `core` adds
 Needs the `core` release after 2.0.0-alpha.3. On `main` a `core:scale` in a node's `enterPose` scales
 the part on the frame the node is entered (it did nothing), unless the node's `pose` scales it too;
 a relative one scales what the layers below have, and an `override` one's left-out axes keep theirs.
+The entry is also posed on top of the layers below now, so an `override` after a relative item in the
+same `enterPose` keeps that item's factor (or a `core:translate`'s move) on the axes it leaves out.
 No animator here or on `main` scales a part in `enterPose`, so nothing changes in the assets, and the
 lab's goldens didn't move on `main`.
 
