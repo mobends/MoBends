@@ -233,13 +233,22 @@ public final class ExpressionOperations
         /** Whether it takes a {@code @fallback}: what it is when it can't be computed. */
         final boolean takesFallback;
         private final Factory factory;
+        /** What it returns, where that doesn't depend on its arguments (else null). */
+        @Nullable
+        private final Expression.Type returns;
 
         Operation(Param[] params, boolean repeatsLast, boolean takesFallback, Factory factory)
+        {
+            this(params, repeatsLast, takesFallback, factory, null);
+        }
+
+        Operation(Param[] params, boolean repeatsLast, boolean takesFallback, Factory factory, @Nullable Expression.Type returns)
         {
             this.params = params;
             this.repeatsLast = repeatsLast;
             this.takesFallback = takesFallback;
             this.factory = factory;
+            this.returns = returns;
         }
 
         private String describeArity()
@@ -259,6 +268,7 @@ public final class ExpressionOperations
             Expression[] expressions = new Expression[count];
             String[] strings = new String[count];
             float[] constants = new float[count];
+            boolean standsIn = false;
             for (int i = 0; i < count; i++)
             {
                 Param param = params[Math.min(i, params.length - 1)];
@@ -268,6 +278,12 @@ public final class ExpressionOperations
                 {
                     case STRING:
                     case CHOICE:
+                        if (FunctionCall.StandIn.of(argument) != null)
+                        {
+                            // A function's string or choice parameter, as its body is checked: its value is the call's.
+                            standsIn = true;
+                            break;
+                        }
                         if (argument == null || !argument.isJsonPrimitive() || !argument.getAsJsonPrimitive().isString())
                         {
                             throw new MalformedKumoTemplateException(where + " must be a string, got " + Expression.describe(argument) + ".");
@@ -307,6 +323,16 @@ public final class ExpressionOperations
             }
             unifyPrecision(name, expressions, whole);
             Expression fallback = fallbackJson == null ? null : Expression.compileAny(fallbackJson, scope);
+            if (standsIn)
+            {
+                // The value is checked where the function is called, with the string it is given.
+                if (returns == null)
+                {
+                    throw new MalformedKumoTemplateException("A function's string or choice parameter can't be given to '" + name + "', whose type depends on the string: "
+                            + Expression.describe(whole));
+                }
+                return Expression.standIn(returns);
+            }
             try
             {
                 Expression result = factory.create(new Arguments(name, params, expressions, strings, constants, fallback, scope.getEntityClass(), scope.getFieldsOf() != null, scope.isSelector(), scope.getLayout()));
@@ -486,10 +512,10 @@ public final class ExpressionOperations
 
         // The entity's own fields, read only by its model definition's definitions.
         registerWithFallback("field", params(string("field")), true, ExpressionOperations::field);
-        register("exists", params(string("field")), true, args -> {
+        OPERATIONS.put("exists", new Operation(params(string("field")), true, false, args -> {
             EntityFields.Path path = resolveField(args);
             return path == null ? Expression.FALSE : new FieldExists(path);
-        });
+        }, Expression.Type.BOOLEAN));
 
         // The engine's own registered operations (core:), which need nothing of Minecraft's.
         registerBuiltIn(goblinbob.mobends.core.kumo.MinecraftVersion.OPERATION);
@@ -499,7 +525,7 @@ public final class ExpressionOperations
     private static void registerBuiltIn(goblinbob.mobends.core.kumo.api.KumoOperation operation)
     {
         OPERATIONS.put(operation.name, new Operation(operation.compilerParams(), operation.repeatsLast, operation.takesFallback,
-                args -> BoundOperation.compile(operation, args)));
+                args -> BoundOperation.compile(operation, args), operation.returns));
         REGISTERED.put(operation.name, operation);
     }
 
@@ -599,7 +625,7 @@ public final class ExpressionOperations
             throw new IllegalArgumentException("'" + operation.name + "' is already registered as a driver.");
         }
         OPERATIONS.put(operation.name, new Operation(operation.compilerParams(), operation.repeatsLast, operation.takesFallback,
-                args -> BoundOperation.compile(operation, args)));
+                args -> BoundOperation.compile(operation, args), operation.returns));
         REGISTERED.put(operation.name, operation);
     }
 

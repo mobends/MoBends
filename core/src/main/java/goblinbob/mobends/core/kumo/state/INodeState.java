@@ -16,6 +16,14 @@ public interface INodeState
 
     boolean isAnimationFinished(ITriggerConditionContext context);
 
+    /**
+     * Sets the node's clock back to 0: done on entry before its scope is created, so its
+     * definitions and {@code enter} list see the node as entered (then {@link #start} runs).
+     */
+    default void resetClock(ITriggerConditionContext context)
+    {
+    }
+
     void start(IKumoContext context) throws MalformedKumoTemplateException;
 
     /** Writes this node's pose for the current frame into the given (cleared) pose. */

@@ -222,7 +222,8 @@ A connection is written like a selector branch:
 
 * `when` is its condition, and `then` any node or machine of the layer: a machine is entered as
   above. A connection to where the layer already is starts that node over (a jump bouncing into
-  another jump).
+  another jump). One into a machine whose scope exists (the layer is in it, or one of its nodes
+  still fades out) leaves it first, with every machine inside it, and enters it afresh.
 * `do` is a statement list, run when the connection fires (see *Definitions and statements*).
   `transitionDuration` (ticks)
   crossfades (an interrupted crossfade continues from what was on screen); easings `linear`,
@@ -244,8 +245,10 @@ frame it happens:
 Every condition of those selectors and connections is evaluated every frame, whatever is chosen
 (edge triggers such as `decreased` stay fresh). When a branch or a connection leads into a
 machine, the transition (its duration and easing) is that of the branch or the connection. What
-runs, in order: the `exit` lists of what the transition disposes of at once, the transition's own
-`do`, then, on the way in, each machine entered (its definitions and `enter` list, then its
+runs, in order: the `exit` lists of what the transition disposes of at once, innermost first
+(without a crossfade, the nodes fading out, the node left and the machines it leaves; and the
+machines it enters again, see *Connections*), the transition's own `do`, then, on the way in, each
+machine entered from the outermost in (its definitions and `enter` list, then its
 selector, whose branch runs its `do`), and last the node entered. Each selector sees what ran
 before it.
 
@@ -892,7 +895,10 @@ prefix says where the value lives, and a name that scope doesn't declare is an e
 the animator's on its first frame; a layer's when it starts; a machine's on every entry into it, so its definitions
 start over each time, and it is disposed once the last of its nodes has faded out; a node's on
 every entry. A node fading out keeps its scope until its crossfade ends; a node a transition
-leaves without a crossfade, or whose crossfade a transition cuts short, is disposed at once.
+leaves without a crossfade, or whose crossfade a transition cuts short, is disposed at once. A
+scope created again keeps nothing of its previous entry: whatever order its definitions are
+declared in, none of them, nor what one remembers (an edge trigger starting from what it watches),
+reads a value from before.
 
 **Statement lists**, in a scope's `@on`:
 
@@ -958,7 +964,10 @@ expression repeated with different inputs, written once.
   are, so they can stand where an operation takes a string or a constant.
 * **A body reads** its parameters, the built-ins, and the names of the scope declaring it: an
   animator's function can't read a layer's names, wherever it is called. It is checked once, where
-  it is declared, used or not.
+  it is declared, used or not. What a `string` or `choice` argument says is checked at each call: a
+  body passing `arg.v` to `core:minecraft_version` loads, and a call giving it something that isn't
+  a version is the error. The same goes for one passed on to another function. A `string` or
+  `choice` parameter can't name a `field`, whose type depends on that name.
 * A function that calls itself, through any number of others, is a load error. A function and a
   definition of one scope can't share a name, nor can two functions (across `extends` too, which
   is how files share functions).

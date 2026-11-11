@@ -67,8 +67,15 @@ public final class LegIk
             final double dot = px * dx + py * dy + pz * dz;
             if (dot < -0.999999)
             {
-                // Pointing the opposite way: half a turn about X.
-                qx = 1; qy = 0; qz = 0; qw = 0;
+                // Pointing the opposite way: half a turn about an axis across the leg, X made
+                // square to it (X itself for a leg in the YZ plane), or Z where the leg lies along X.
+                double ax = 1 - px * px, ay = -px * py, az = -px * pz;
+                if (ax < 1e-6)
+                {
+                    ax = 0; ay = 0; az = 1;
+                }
+                final double aLen = Math.sqrt(ax * ax + ay * ay + az * az);
+                qx = ax / aLen; qy = ay / aLen; qz = az / aLen; qw = 0;
             }
             else
             {
