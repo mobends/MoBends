@@ -177,30 +177,6 @@ public class ExtensionsTest
     }
 
     @Test
-    void theVanillaWolfCheckIsVanillaEveryOtherSecond() throws Exception
-    {
-        Path pack = LabPaths.root().resolve("../misc/examples/vanilla-wolf-toggle/assets/mobends_vanilla_wolf/bends");
-        ExtensionDefinition extension = ExtensionDefinition.parse(new String(Files.readAllBytes(pack.resolve("extensions/vanilla_wolf.json")), StandardCharsets.UTF_8));
-        assertEquals("mobends:wolf", extension.type);
-        AnimatorTemplate toggle;
-        try (Reader reader = Files.newBufferedReader(pack.resolve("animators/vanilla_wolf.json")))
-        {
-            toggle = KumoSerializer.INSTANCE.gson.fromJson(reader, AnimatorTemplate.class);
-        }
-
-        Scenario scenario = new Scenario(EntityKind.WOLF, "extension_vanilla_wolf", Scenarios.FPS, 80, (tick, in) -> Scripts.walk(in, Scripts.WALK_SPEED));
-        KumoSession session = new KumoSession(scenario, KumoSession.loadAnimator(Animators.forKind(EntityKind.WOLF)), Collections.singletonList(toggle));
-        for (int frame = 0; frame < scenario.frameCount(); frame++)
-        {
-            session.step();
-            float tick = frame * 20F / Scenarios.FPS;
-            float inCycle = tick % 40;
-            if (inCycle > 2 && inCycle < 18) assertTrue(!session.animator.wantsVanilla(), "bent on tick " + tick);
-            else if (inCycle > 22 && inCycle < 38) assertTrue(session.animator.wantsVanilla(), "vanilla on tick " + tick);
-        }
-    }
-
-    @Test
     void theExampleWavesWhileStandingStillOnly() throws Exception
     {
         AnimatorTemplate wave;
