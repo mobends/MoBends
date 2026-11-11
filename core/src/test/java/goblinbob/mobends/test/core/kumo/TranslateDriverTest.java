@@ -197,4 +197,124 @@ public class TranslateDriverTest
         assertVector(0, 10, 0, subject.offsets.get("arm"));
     }
 
+    private static KumoAnimatorState animator(String layerSmoothing, String nodeSmoothing, String pose) throws MalformedKumoTemplateException
+    {
+        return TestSubject.instance("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a'" + (layerSmoothing == null ? "" : ", 'smoothing': " + layerSmoothing)
+                + ", 'nodes': {'a': {'core:pose': {'pose': [" + pose + "]" + (nodeSmoothing == null ? "" : ", 'smoothing': " + nodeSmoothing) + "}}}}]}");
+    }
+
+    /** After one frame, the part is on its way to y = 10, not there yet. */
+    private static void assertOnItsWay(KumoAnimatorState animator) throws MalformedKumoTemplateException
+    {
+        TestSubject subject = new TestSubject("arm");
+        animator.update(subject, 1F);
+        subject.updateOffsets(1F);
+        float y = subject.offsets.get("arm").y;
+        assertTrue("on its way: " + y, y > 0 && y < 10);
+
+        for (int frame = 0; frame < 60; frame++)
+        {
+            animator.update(subject, 1F);
+            subject.updateOffsets(1F);
+        }
+        assertVector(0, 10, 0, subject.offsets.get("arm"));
+    }
+
+    private static final String MOVE_ARM = "{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override'}";
+
+    @Test
+    public void aNodesPositionSmoothingSmoothsAnOffset() throws MalformedKumoTemplateException
+    {
+        assertOnItsWay(animator(null, "{'arm': {'position': 4}}", MOVE_ARM));
+    }
+
+    @Test
+    public void aNodesPerAxisPositionSmoothingSmoothsAnOffset() throws MalformedKumoTemplateException
+    {
+        assertOnItsWay(animator(null, "{'arm': {'position': [0, 4, 0]}}", MOVE_ARM));
+    }
+
+    @Test
+    public void aNodesSmoothingSmoothsAnOffset() throws MalformedKumoTemplateException
+    {
+        assertOnItsWay(animator(null, "{'arm': 4}", MOVE_ARM));
+    }
+
+    @Test
+    public void aNodesDefaultSmoothingSmoothsAnOffset() throws MalformedKumoTemplateException
+    {
+        assertOnItsWay(animator(null, "{'@default': 4}", MOVE_ARM));
+    }
+
+    @Test
+    public void aLayersPositionSmoothingSmoothsAnOffset() throws MalformedKumoTemplateException
+    {
+        assertOnItsWay(animator("{'arm': {'position': 4}}", null, MOVE_ARM));
+    }
+
+    @Test
+    public void aLayersDefaultSmoothingSmoothsAnOffset() throws MalformedKumoTemplateException
+    {
+        assertOnItsWay(animator("{'@default': 4}", null, MOVE_ARM));
+    }
+
+    @Test
+    public void aNodesRotationSmoothingLeavesAnOffsetAlone() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = animator(null, "{'arm': {'rotation': 4}}", MOVE_ARM);
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+
+        assertVector(0, 10, 0, subject.offsets.get("arm"));
+    }
+
+    @Test
+    public void anItemsSmoothingWinsOverTheNodes() throws MalformedKumoTemplateException
+    {
+        // The item's slide of 4 ticks, not the node's 100.
+        KumoAnimatorState animator = animator("{'arm': {'position': 100}}", "{'arm': {'position': 100}}",
+                "{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override', '@smoothing': {'arm': 4}, '@vectorModes': {'arm': 'slide'}}");
+        TestSubject subject = new TestSubject("arm");
+
+        for (int frame = 0; frame < 2; frame++)
+        {
+            animator.update(subject, 1F);
+            subject.updateOffsets(1F);
+        }
+        assertVector(0, 5, 0, subject.offsets.get("arm"));
+    }
+
+    private static KumoAnimatorState entered(String enterPose, String pose) throws MalformedKumoTemplateException
+    {
+        return TestSubject.instance("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'enterPose': [" + enterPose + "], 'pose': [" + pose + "]}}}}]}");
+    }
+
+    @Test
+    public void theEnterPoseMovesAPart() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = entered("{'core:translate': {'bone': 'arm', 'x': 10, 'y': 0, 'z': 0}, '@space': 'override'}", "");
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+
+        assertVector(10, 0, 0, subject.offsets.get("arm"));
+    }
+
+    @Test
+    public void thePoseMovesAPartOnFromWhereTheEnterPosePutIt() throws MalformedKumoTemplateException
+    {
+        // A linear tween of 4 ticks from the entry's 10 to the pose's 20.
+        KumoAnimatorState animator = entered("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override'}",
+                "{'core:translate': {'bone': 'arm', 'x': 0, 'y': 20, 'z': 0}, '@space': 'override', '@smoothing': {'arm': 4}, '@vectorModes': {'arm': 'slide'}}");
+        TestSubject subject = new TestSubject("arm");
+
+        for (int frame = 0; frame < 2; frame++)
+        {
+            animator.update(subject, 1F);
+            subject.updateOffsets(1F);
+        }
+        assertVector(0, 15, 0, subject.offsets.get("arm"));
+    }
+
 }
