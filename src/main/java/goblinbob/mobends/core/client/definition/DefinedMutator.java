@@ -515,6 +515,10 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
                 {
                     factory.offsetTextureQuad(side(face.getKey()), face.getValue().uvOffset[0], face.getValue().uvOffset[1]);
                 }
+                if (face.getValue().flip)
+                {
+                    factory.flipTextureQuad(side(face.getKey()));
+                }
                 if (face.getValue().rotate != null)
                 {
                     factory.rotateTextureQuad(side(face.getKey()), FaceRotation.valueOf(face.getValue().rotate.toUpperCase(Locale.ROOT)));

@@ -86,31 +86,6 @@ move on `main`.
       animator with an expression in a node's `smoothing` fails to load with a message naming the
       bone.
 
-### #383: The wolf matches vanilla
-
-Doesn't need a new `core`. On `main` the wolf's head, legs and tail now sit and turn where vanilla's
-do, with vanilla's texture on every face (the vanilla wolf's geometry is the same in 1.12.2).
-
-- [ ] Copy `assets/mobends/bends/models/wolf.json` and `assets/mobends/bends/animators/wolf.json` from
-      `main`. The animator only changes the tail's angle (measured from the idle clip's tail, 72.93°,
-      instead of from 90°). The model's `@variants` only applies after 1.12.2, and its
-      `childBones` are already the 1.12.2 placement of the pup's head.
-- [ ] Teach box faces `"flip": true` (mirrors a face's texture left to right, before it's turned),
-      which the wolf's body and mane now use: `BoneDefinition.FaceDefinition.flip`,
-      `BoxFactory.TextureFace.flipped` and `BoxFactory.flipTextureQuad`, `MutatedBox` swapping the face's
-      `u1` and `u2` when it's flipped, and `DefinedMutator.createBox` applying it. `main`'s
-      `BoneDefinition`, `BoxFactory`, `MutatedBox` and `DefinedModelBuilder` have it. Without it, the
-      undersides and ends of the body and mane show the wrong part of the texture.
-- [ ] Move the inside of the mouth in `LayerWolfMisc` with the head, which now turns 2 px further
-      forward and 1 px left of its middle: `mouthInside` at `-0.5F, -2.1F` instead of `-1.5F, -4.1F`
-      (as `WolfMiscLayer` on `main`).
-- [ ] Re-record the lab's wolf goldens: `./gradlew record --args="$PWD/golden wolf/idle_walk_sit
-      wolf/interest_and_shake"` in `animation-lab/`. Only the tail should differ (8.5°, every frame);
-      check with `compare` first. Note it in `docs/testing.md`, as on `main`.
-- [ ] Check it in the game, side by side with vanilla (an extension whose only layer is a
-      `core:vanilla` node, on every other second): the adult and the pup, looking up and around, the
-      tail, the legs, and the mouth sitting in the head.
-
 ### #388: The first-person hand is vanilla's
 
 Doesn't need a new `core`. On `main` the first-person hand is never bent: it's vanilla's arm and

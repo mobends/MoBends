@@ -243,6 +243,19 @@ public class BoxFactory
 		return this;
 	}
 	
+	public BoxFactory flipTextureQuad(BoxSide face)
+	{
+		if (!this.textureUVSet)
+		{
+			this.textureUVSet = true;
+			this.generateTextureFaces();
+		}
+
+		this.faces[face.faceIndex].flipped = !this.faces[face.faceIndex].flipped;
+
+		return this;
+	}
+
 	public BoxFactory offset(float x, float y, float z)
 	{
 		this.min.add(x, y, z);
@@ -283,6 +296,8 @@ public class BoxFactory
 		public int uSize;
 		public int vSize;
 		public FaceRotation faceRotation = FaceRotation.IDENTITY;
+		/** Whether the texture is mirrored left to right on the face, before {@link #faceRotation} turns it. */
+		public boolean flipped;
 		
 		public TextureFace(int uPos, int vPos, int uSize, int vSize)
 		{
@@ -298,6 +313,8 @@ public class BoxFactory
 			this.vPos = face.vPos;
 			this.uSize = face.uSize;
 			this.vSize = face.vSize;
+			this.faceRotation = face.faceRotation;
+			this.flipped = face.flipped;
 		}
 	}
 }

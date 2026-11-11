@@ -128,7 +128,15 @@ public class ModelUtils
             vSize = face.uSize;
         }
 
-        TexturedQuad quad = new TexturedQuad(positions, face.uPos, face.vPos, face.uPos + uSize, face.vPos + vSize, textureWidth, textureHeight);
+        int u1 = face.uPos;
+        int u2 = face.uPos + uSize;
+        if (face.flipped)
+        {
+            // Mirrored left to right, before the rotation below turns it.
+            u1 = u2;
+            u2 = face.uPos;
+        }
+        TexturedQuad quad = new TexturedQuad(positions, u1, face.vPos, u2, face.vPos + vSize, textureWidth, textureHeight);
 
         applyFaceRotation(quad, face.faceRotation);
 

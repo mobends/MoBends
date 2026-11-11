@@ -209,6 +209,12 @@ public class BoneDefinition
         public int[] uvOffset;
         /** Turns the face's texture: identity, clockwise, counter_clockwise or half_turn. */
         public String rotate;
+        /**
+         * Mirrors the face's texture left to right, before it is turned: vanilla draws a box's
+         * bottom face mirrored, so a box laid along another axis than vanilla's needs it to show
+         * vanilla's texture on that face.
+         */
+        public boolean flip;
     }
 
     public static class VanillaPart

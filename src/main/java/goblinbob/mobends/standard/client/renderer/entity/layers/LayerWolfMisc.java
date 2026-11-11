@@ -49,7 +49,7 @@ public class LayerWolfMisc implements LayerRenderer<EntityWolf>
 
         mouthInside = new Mesh(DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL, 6);
         mouthInside.beginDrawing(GL11.GL_TRIANGLES);
-        MeshBuilder.texturedXZPlane(mouthInside, -1.5F, -4.1F, -3.0F, 3, 1, true, Color.WHITE,
+        MeshBuilder.texturedXZPlane(mouthInside, -0.5F, -2.1F, -3.0F, 3, 1, true, Color.WHITE,
                 new int[] { 0, 0, 3, 4 }, textureWidth, textureHeight);
         mouthInside.finishDrawing();
 
@@ -77,14 +77,12 @@ public class LayerWolfMisc implements LayerRenderer<EntityWolf>
         GlStateManager.pushMatrix();
         if (isChild)
         {
-            GlStateManager.translate(0.0F, 10.0F * scale, 0.0F * scale);
-            body.applyLocalTransform(scale * 0.5F);
+            // Where vanilla's ModelWolf moves a pup's head before drawing it, outside its half-size body.
+            GlStateManager.translate(0.0F, 5.0F * scale, 2.0F * scale);
         }
-        else
-        {
-            body.applyLocalTransform(scale);
-        }
-        head.applyLocalTransform(scale);
+        // The head as it's drawn (drawnAlone): its childBones offset for a pup, then the body at the
+        // head's offset scale, then the head itself.
+        head.applyCharacterTransform(scale);
 
         GlStateManager.enableCull();
         // Mouth inside
