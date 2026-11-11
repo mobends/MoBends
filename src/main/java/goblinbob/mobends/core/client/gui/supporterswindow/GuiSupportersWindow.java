@@ -13,12 +13,12 @@ import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.supporters.AccessoryDetails;
 import goblinbob.mobends.core.supporters.AccessorySettings;
 import goblinbob.mobends.core.supporters.SupporterContent;
+import goblinbob.mobends.core.types.EntityTypeRegistry;
 import goblinbob.mobends.core.util.Color;
 import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.IColorRead;
 import goblinbob.mobends.core.util.UIScissorHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -91,7 +91,7 @@ public class GuiSupportersWindow extends GuiScreen
     private final Map<String, EntityPreview> previews = new HashMap<>();
     private final List<EntityLivingBase> dressed = new ArrayList<>();
     @Nullable
-    private final EntityBender<?> playerBender = EntityBenderRegistry.instance.getDefaultBender(EntityOtherPlayerMP.class);
+    private final EntityBender<?> playerBender = playerBender();
     private final Map<String, AccessoryDetails> accessories = new HashMap<>();
 
     /** The accessory previewed; null if there are none. */
@@ -453,6 +453,14 @@ public class GuiSupportersWindow extends GuiScreen
             Core.LOG.warning("Unable to make the world of the accessory previews: " + e);
             return null;
         }
+    }
+
+    /** The player's bender (Mo' Bends' player type's model), or null if it didn't load. */
+    @Nullable
+    private static EntityBender<?> playerBender()
+    {
+        EntityTypeRegistry.INSTANCE.ensureLoaded();
+        return EntityBenderRegistry.instance.getByKey("mobends:player");
     }
 
 }

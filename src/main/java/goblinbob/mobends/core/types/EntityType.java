@@ -29,11 +29,9 @@ public class EntityType implements TypeOrder.Ranked
     @Nullable
     private final ISelectorCondition selector;
     private final int specificity;
-    /** The model, or null for the entity's default model (or for vanilla). */
+    /** The model; null for a type that keeps its entities vanilla. */
     @Nullable
     private final EntityBender<?> model;
-    /** Whether the model is the default model of its entity class ({@code "defaultModel": true}). */
-    private final boolean defaultModel;
     private final boolean vanilla;
     @Nullable
     private final ResourceLocation animator;
@@ -48,9 +46,8 @@ public class EntityType implements TypeOrder.Ranked
     private final EntityTypeRegistry.Selection vanillaSelection = new EntityTypeRegistry.Selection(this, null, null);
 
     EntityType(String id, String source, @Nullable ISelectorCondition selector, int specificity, @Nullable EntityBender<?> model,
-               boolean defaultModel, boolean vanilla, @Nullable ResourceLocation animator, OptionSet options)
+               boolean vanilla, @Nullable ResourceLocation animator, OptionSet options)
     {
-        this.defaultModel = defaultModel;
         this.options = options;
         this.id = id;
         this.source = source;
@@ -88,12 +85,6 @@ public class EntityType implements TypeOrder.Ranked
     public int getSpecificity()
     {
         return specificity;
-    }
-
-    /** Whether the type's model is the default model of its entity class. */
-    public boolean isDefaultModel()
-    {
-        return defaultModel;
     }
 
     public boolean isVanilla()
@@ -142,8 +133,8 @@ public class EntityType implements TypeOrder.Ranked
     }
 
     /**
-     * What this type does to the entity, or null if it can't apply to it (no default model for it,
-     * or a model made for another entity class).
+     * What this type does to the entity, or null if it can't apply to it (a model made for another
+     * entity class).
      */
     @Nullable
     EntityTypeRegistry.Selection selectionFor(EntityLivingBase entity)
@@ -152,12 +143,11 @@ public class EntityType implements TypeOrder.Ranked
         {
             return vanillaSelection;
         }
-        EntityBender<?> bender = model != null ? model : EntityBenderRegistry.instance.getDefaultBender(entity.getClass());
-        if (bender == null || !bender.entityClass.isInstance(entity))
+        if (model == null || !model.entityClass.isInstance(entity))
         {
             return null;
         }
-        return selections.computeIfAbsent(bender, b -> new EntityTypeRegistry.Selection(this, b, dataFactoryFor(b)));
+        return selections.computeIfAbsent(model, b -> new EntityTypeRegistry.Selection(this, b, dataFactoryFor(b)));
     }
 
     /** This type's extensions, in the order their layers go on (see {@link Extension#inLayerOrder}). */

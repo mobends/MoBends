@@ -1107,9 +1107,9 @@ untrusted animator may set its state, never a trusted one's.
 
 The player, the zombie, the skeleton, the zombie villager, the zombie pigman, the squid, the
 spider and the wolf are model definitions too (`player`, `zombie`, `skeleton`, `zombie_villager`,
-`pig_zombie`, `squid`, `spider`, `wolf`), which their type files make the default models of their
-entity classes (`"defaultModel": true`, see *Type files*), so the zombie's also bends the husk and
-the spider's the cave spider. Their bodies bend at the hips, their limbs at elbows and knees (the
+`pig_zombie`, `squid`, `spider`, `wolf`), each given by a type file as the others are. The
+zombie's type also names the husk and the spider's the cave spider, whose classes their
+definitions accept. Their bodies bend at the hips, their limbs at elbows and knees (the
 player's sleeves and trousers ride them), and they declare the components, layers, renderer
 settings and entity values their animators and layers use (the zombie's animation set and
 walking style, the squid's tentacle phase, the spider's crawl). The squid's tentacles are cut
@@ -1121,7 +1121,7 @@ elbow) and share three generated animators (`quadruped`, `chicken`, `villager`: 
 jump with a smooth look, made by the lab's `tools/gen_animators.ts`). The golem's (`iron_golem`:
 its attack from its timer, turning on its feet), the creeper's (`creeper`: leaning at the waist)
 and the cow's (`cow`, extending `quadruped`) are edited by hand.
-`DefinedModelsTest` in the lab checks every listed definition and default model builds, covers
+`DefinedModelsTest` in the lab checks every listed definition builds, covers
 what its animator drives, and walks.
 
 ### Field names
@@ -1170,6 +1170,7 @@ Java addon is needed unless it brings its own operations or drivers.
   "formatVersion": 2,
   "id": "yourpack:notch_zombie_arms",
   "selector": {"and": [{"core:entity_type": ["minecraft:player"]}, {"core:player_name": ["Notch"]}]},
+  "model": "mobends:player",
   "animator": "yourpack:bends/animators/zombie_arms.json"
 }
 ```
@@ -1179,23 +1180,17 @@ Java addon is needed unless it brings its own operations or drivers.
 | `formatVersion` | `2` |
 | `id` | identifies the type; ranks are stored by it. Two types with the same id: a warning, and the one from the higher-priority pack is used (the server's resource pack, then the enabled resource packs from the top of the list, then mods) |
 | `selector` | a condition on the entity, an expression (see *Selectors*); absent means the type applies to every entity |
-| `model` | optional: a bender key (`mobends:player`, `mobends:zombie`), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla). Absent: the model the entity has by default |
+| `model` | a bender key (`mobends:player`, `mobends:zombie`, see *Model keys*), a model definition (`yourmod:bends/models/beast.json`), or `vanilla` (the entity stays vanilla) |
 | `animator` | optional: the animator asset. Absent: the model's own animator |
 | `options` | optional: options the user sets in the Mo' Bends menu, which the type's animator reads as `option.x`, besides its model definition's (see *Options*) |
-| `defaultModel` | optional: `true` makes `model` the **default model** of the entities its definition names (see below). Such a type has no `selector`: it applies to the entities it is the default model of, and counts as one condition |
 
-A type applies to an entity only if its model fits the entity's class. A type without a `model`
-applies only to entities that have a default model.
-
-**Default models.** The model of a `defaultModel` type is the default model of the entities of
-the class its definition's `entity` names, and of its subclasses: the default model for the
-entity's exact class, or else the first for a superclass (the zombie's covers the husk, not the
-zombie villager, which has its own). They are taken in the order of their types' ids, worked out
-after every type file is read, so which one an entity gets never depends on the order packs were
-read in. To give a mob another default
-model, a pack replaces its type (the same id). Mo' Bends' own mobs that 1.X animated in code (the
-player, the zombie, ...) are default models; the creeper, the villager, the witch and the iron
-golem are given by an ordinary selector.
+A type applies to an entity only if its model fits the entity's class (the definition's
+`entity`, a class and its subclasses): a type never gives its model to another mob, whatever its
+selector says. A `vanilla` type fits any entity. Which entities get a model is the selector's to
+say: a definition for `EntityZombie` accepts the husk, and Mo' Bends' zombie type names it
+(`{"core:entity_type": ["minecraft:zombie", "minecraft:husk"]}`). Another mod's subclass of a
+vanilla mob bends only if a type names it. To give a mob another model, a pack replaces its type
+(the same id) or adds one that takes precedence.
 
 **Model keys.** A model a type file names by path gets a **key**, a resource location: the
 definition's namespace, and its `key` or else the entity's id (`mobends:player`, `mobends:zombie`,
@@ -1247,7 +1242,7 @@ sorted by these keys, most significant first (`TypeOrder`):
    other than `and`, `or`, `not` and `if` counts 1, whatever it means; `and` counts the sum of
    its conditions, `or` the fewest of any of its conditions (it only holds as narrowly as its
    broadest branch), `not` 1, and `if` its condition plus the fewer of its two branches'. A
-   constant counts 0, and so does a type without a selector; a `defaultModel` type counts 1.
+   constant counts 0, and so does a type without a selector.
 3. **id**, plain lexical order, earlier first; the final tie breaker, so the result never depends
    on load order.
 

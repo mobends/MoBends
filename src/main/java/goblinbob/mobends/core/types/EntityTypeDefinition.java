@@ -22,6 +22,7 @@ import java.util.Map;
  *   "formatVersion": 2,
  *   "id": "mobends:example_notch",
  *   "selector": {"and": [{"core:entity_type": ["minecraft:player"]}, {"core:player_name": ["Notch"]}]},
+ *   "model": "mobends:player",
  *   "animator": "mobends:bends/animators/example_zombie_walk.json"
  * }
  * </pre>
@@ -44,19 +45,10 @@ public class EntityTypeDefinition
     public JsonElement selector;
 
     /**
-     * Optional: a bender key ({@code mobends:player}), a model definition
-     * ({@code yourmod:bends/models/beast.json}) or {@value #VANILLA_MODEL}. Absent: the model the
-     * entity has by default.
+     * Required: a bender key ({@code mobends:player}), a model definition
+     * ({@code yourmod:bends/models/beast.json}) or {@value #VANILLA_MODEL}.
      */
     public String model;
-
-    /**
-     * Optional: {@code true} makes the model the default model of the entities of the class its
-     * definition names, and of its subclasses, and the type applies to the
-     * entities it's the default model of; it then has no {@link #selector}. Mo' Bends' own mobs are
-     * given so ({@code mobends:zombie} the husk too).
-     */
-    public boolean defaultModel;
 
     /** Optional: the animator asset. Absent: the model's own animator. */
     public String animator;
@@ -88,16 +80,9 @@ public class EntityTypeDefinition
         {
             throw new MalformedKumoTemplateException("A type needs an 'id'.");
         }
-        if (defaultModel)
+        if (model == null || model.isEmpty())
         {
-            if (model == null || VANILLA_MODEL.equals(model))
-            {
-                throw new MalformedKumoTemplateException("The type '" + id + "' is a default model ('defaultModel'), so it needs a 'model'.");
-            }
-            if (selector != null)
-            {
-                throw new MalformedKumoTemplateException("The type '" + id + "' is a default model ('defaultModel'): it applies to the entities it's the default model of, so it has no 'selector'.");
-            }
+            throw new MalformedKumoTemplateException("The type '" + id + "' needs a 'model': a bender key (mobends:player), a model definition (yourmod:bends/models/beast.json) or 'vanilla'.");
         }
         OptionTemplate.validate(options, "the type '" + id + "'");
     }
@@ -107,13 +92,10 @@ public class EntityTypeDefinition
         return model != null && model.endsWith(".json");
     }
 
-    /**
-     * The number of conditions of the selector, for precedence (see {@link SelectorExpression#countConditions});
-     * a default model's type has one, "this is the entity's default model".
-     */
+    /** The number of conditions of the selector, for precedence (see {@link SelectorExpression#countConditions}). */
     public int specificity()
     {
-        return defaultModel ? 1 : SelectorExpression.countConditions(selector);
+        return SelectorExpression.countConditions(selector);
     }
 
 }

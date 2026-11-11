@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
   "id": "mobends:skeleton",
-  "model": "mobends:bends/models/skeleton.json",
-  "defaultModel": true
+  "selector": {"core:entity_type": ["minecraft:skeleton"]},
+  "model": "mobends:bends/models/skeleton.json"
 }

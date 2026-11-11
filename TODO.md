@@ -97,9 +97,9 @@ definition names `EntitySkeleton`, which the wither skeleton isn't (both extend 
       class name, which this branch reads as is.
 - [ ] Give it a type file, as the skeleton has: copy
       `src/main/resources/assets/mobends/bends/types/wither_skeleton.json` from `main` (id
-      `mobends:wither_skeleton`, `"defaultModel": true`). Mobs aren't registered in `DefaultAddon`
-      any more (`registerDefinedEntity` is gone).
-- [ ] Add `"mobends:wither_skeleton"` to the lab's `DefinedModelsTest` (`theDefaultModelsKeepTheirIds`'s
+      `mobends:wither_skeleton`, selector `{"core:entity_type": ["minecraft:wither_skeleton"]}`).
+      Mobs aren't registered in `DefaultAddon` any more (`registerDefinedEntity` is gone).
+- [ ] Add `"mobends:wither_skeleton"` to the lab's `DefinedModelsTest` (`theShippedTypesKeepTheirIds`'s
       expected ids, and next to the skeleton in `IDLE_MOVES` and `STAND_WHERE_THEY_STOPPED`), and
       `DefinitionExtendsTest`'s `theWitherSkeletonIsTheSkeletonOfItsOwnEntity`, as on `main`.
 - [ ] Mention it in `misc/kumo-format.md` (the list of model definitions, and `extends`) and in

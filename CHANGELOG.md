@@ -2,16 +2,15 @@
 
 ## Unreleased
 
-### Added
-
-- A type file can make its model the default model of the entities of the class its definition
-  names, and of its subclasses (`"defaultModel": true`), as a mob registered in code was.
-
 ### Changed
 
 - Every mob Mo' Bends animates, the player included, is a type file now (`bends/types/`), not
   registered in code. Their ids are the same, so ranks, switches and options set before still apply.
 - A type file can name a model by key whatever order the packs were read in.
+- A type file needs a `model` (a bender key, a model definition or `vanilla`): there are no
+  default models anymore, which a type without one used to get.
+- Another mod's mob that is a subclass of a mob Mo' Bends animates (a mod's zombie) no longer
+  bends with that mob's model unless a type names it.
 
 ### Removed
 

@@ -8,16 +8,13 @@ import goblinbob.mobends.core.configuration.CoreClientConfig;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.client.AnimationPolicy;
 import goblinbob.mobends.core.network.ResourcePackPolicy;
-import goblinbob.mobends.core.kumo.MinecraftKumoOperations;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,9 +24,8 @@ import java.util.logging.Level;
 
 /**
  * Every entity type, one for each type file found in {@code assets/<namespace>/bends/types/} of
- * every mod and resource pack, Mo' Bends' own mobs included. Decides which type animates an entity (see {@code misc/kumo-format.md},
- * "Entity types and selectors"), and which models are the default models of their entity class
- * (the types marked {@code defaultModel}).
+ * every mod and resource pack, Mo' Bends' own mobs included. Decides which type animates an entity
+ * (see {@code misc/kumo-format.md}, "Entity types and selectors").
  */
 public class EntityTypeRegistry
 {
@@ -182,22 +178,6 @@ public class EntityTypeRegistry
                 Core.LOG.log(Level.SEVERE, "Could not load the type " + type.file.source, e);
             }
         }
-        // By id, so which one is an entity's default model never depends on the order packs were read in.
-        List<EntityType> defaultModelTypes = new ArrayList<>();
-        for (EntityType type : types.values())
-        {
-            if (type.isDefaultModel() && type.getModel() != null)
-            {
-                defaultModelTypes.add(type);
-            }
-        }
-        defaultModelTypes.sort(Comparator.comparing(EntityType::getId));
-        List<EntityBender<?>> defaultModels = new ArrayList<>();
-        for (EntityType type : defaultModelTypes)
-        {
-            defaultModels.add(type.getModel());
-        }
-        benders.setDefaultBenders(defaultModels);
 
         if (config != null)
         {
@@ -277,37 +257,33 @@ public class EntityTypeRegistry
     }
 
     /**
-     * The types that can animate the entities of this bender, in precedence order: its built-in
-     * type, the types with it as the model, and the types without a model whose selector names an
-     * entity type that has it as the default model (or names none).
+     * The types that can animate the entities of this bender, in precedence order: those with it as
+     * the model, and those that keep entities vanilla where they could get it: for an entity type
+     * one of its types names, or for any entity, if they name no entity type.
      */
     public List<EntityType> getTypesFor(EntityBender<?> bender)
     {
         ensureLoaded();
         List<EntityType> found = new ArrayList<>();
+        Set<ResourceLocation> entityTypes = new HashSet<>();
         for (EntityType type : types.values())
         {
-            if (type.getModel() != null)
-            {
-                if (type.getModel() == bender) found.add(type);
-                continue;
-            }
-            Set<ResourceLocation> entityTypes = new HashSet<>(type.getEntityTypes());
-            if (entityTypes.isEmpty())
+            if (type.getModel() == bender)
             {
                 found.add(type);
+                entityTypes.addAll(type.getEntityTypes());
+            }
+        }
+        for (EntityType type : types.values())
+        {
+            if (!type.isVanilla())
+            {
                 continue;
             }
-            for (ResourceLocation entityType : entityTypes)
+            Collection<ResourceLocation> named = type.getEntityTypes();
+            if (named.isEmpty() || !Collections.disjoint(named, entityTypes))
             {
-                Class<?> entityClass = MinecraftKumoOperations.PLAYER.equals(entityType)
-                        ? AbstractClientPlayer.class
-                        : EntityList.getClass(entityType);
-                if (entityClass != null && EntityBenderRegistry.instance.getDefaultBender(entityClass) == bender)
-                {
-                    found.add(type);
-                    break;
-                }
+                found.add(type);
             }
         }
         found.sort(TypeOrder.PRECEDENCE);

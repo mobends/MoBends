@@ -1,6 +1,6 @@
 {
   "formatVersion": 2,
   "id": "mobends:squid",
-  "model": "mobends:bends/models/squid.json",
-  "defaultModel": true
+  "selector": {"core:entity_type": ["minecraft:squid"]},
+  "model": "mobends:bends/models/squid.json"
 }

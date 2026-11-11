@@ -13,7 +13,6 @@ import org.junit.Test;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -44,7 +43,7 @@ public class EntityIdReuseTest
         EntityBender<EntityZombie> zombieBender = new DefaultEntityBender<>("mobends", "zombie", "entity.Zombie.name",
                 EntityZombie.class, entity -> null, () -> null, allocate(StubRenderer.class));
         zombieBender.setAnimate(true);
-        useOnlyTheDefaultModelTypeOf(zombieBender);
+        useOnlyATypeOf(zombieBender);
 
         EntityZombie zombie = withId(allocate(EntityZombie.class), 42);
         NotAZombie notAZombie = withId(allocate(NotAZombie.class), 42);
@@ -60,11 +59,12 @@ public class EntityIdReuseTest
     }
 
     /**
-     * One type, as a type file with {@code "defaultModel": true} makes it, giving {@code bender} to
-     * the entities it's the default model of; without the type files (which need the game).
+     * One type, as a type file with this bender as its model and no selector makes it: it holds for
+     * every entity, so only the model's class keeps it off the others. Without the type files
+     * (which need the game).
      */
     @SuppressWarnings("unchecked")
-    private static void useOnlyTheDefaultModelTypeOf(EntityBender<?> bender) throws Exception
+    private static void useOnlyATypeOf(EntityBender<?> bender) throws Exception
     {
         EntityTypeRegistry registry = EntityTypeRegistry.INSTANCE;
         Field loadedField = EntityTypeRegistry.class.getDeclaredField("loaded");
@@ -74,10 +74,8 @@ public class EntityIdReuseTest
         typesField.setAccessible(true);
         Map<String, EntityType> types = (Map<String, EntityType>) typesField.get(registry);
         types.clear();
-        EntityType type = new EntityType(bender.getKey(), "test", entity -> EntityBenderRegistry.instance.getDefaultBender(entity.getClass()) == bender,
-                1, bender, true, false, null, OptionSet.EMPTY);
+        EntityType type = new EntityType(bender.getKey(), "test", null, 0, bender, false, null, OptionSet.EMPTY);
         types.put(type.getId(), type);
-        EntityBenderRegistry.instance.setDefaultBenders(Collections.<EntityBender<?>>singletonList(bender));
         EntityBenderRegistry.instance.clearCache();
     }
 

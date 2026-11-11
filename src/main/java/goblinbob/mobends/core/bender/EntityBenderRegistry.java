@@ -22,11 +22,6 @@ public class EntityBenderRegistry
     /** Every bender by key, in registration order. */
     private final Map<String, EntityBender<?>> benders = new LinkedHashMap<>();
 
-    /** The benders of the types marked {@code defaultModel}, by the types' ids: each is the default model of its entity class. */
-    private final List<EntityBender<?>> defaultBenders = new ArrayList<>();
-
-    private final Map<Class<?>, Optional<EntityBender<?>>> defaultBenderByClass = new HashMap<>();
-
     /**
      * The types each entity can have, so they aren't worked out every frame. Weak keys, so entities
      * that are no longer referenced elsewhere don't stay in memory. Entities compare by id, and a
@@ -65,22 +60,9 @@ public class EntityBenderRegistry
         }
     }
 
-    /**
-     * The benders of the types marked {@code defaultModel} (see {@link #getDefaultBender}), set by
-     * the types as they load.
-     */
-    public void setDefaultBenders(List<EntityBender<?>> benders)
-    {
-        defaultBenders.clear();
-        defaultBenders.addAll(benders);
-        defaultBenderByClass.clear();
-    }
-
     /** Removes the benders made by types (every bender), putting their renderers back to vanilla. */
     public void removeTypeBenders()
     {
-        defaultBenders.clear();
-        defaultBenderByClass.clear();
         for (EntityBender<?> bender : benders.values())
         {
             bender.refreshMutation();
@@ -120,27 +102,6 @@ public class EntityBenderRegistry
         }
         benderList.sort(Comparator.comparing(EntityBender::getKey));
         return benderList;
-    }
-
-    /**
-     * The model an entity of this class has by default: of the benders of the {@code defaultModel}
-     * types (by type id), the one for exactly this class, or else the first one for a superclass.
-     */
-    @Nullable
-    public EntityBender<?> getDefaultBender(Class<?> entityClass)
-    {
-        EntityTypeRegistry.INSTANCE.ensureLoaded();
-        return defaultBenderByClass.computeIfAbsent(entityClass, c -> {
-            for (EntityBender<?> entityBender : defaultBenders)
-                if (entityBender.entityClass.equals(c))
-                    return Optional.of(entityBender);
-
-            for (EntityBender<?> entityBender : defaultBenders)
-                if (entityBender.entityClass.isAssignableFrom(c))
-                    return Optional.of(entityBender);
-
-            return Optional.empty();
-        }).orElse(null);
     }
 
     /** The type the entity is animated by, with its bender, or null if it stays vanilla. */

@@ -93,7 +93,7 @@ final class TypeFiles
         {
             vanilla = true;
         }
-        else if (model == null && definition.model != null)
+        else if (model == null)
         {
             model = EntityBenderRegistry.instance.getByKey(definition.model);
             if (model == null)
@@ -102,20 +102,10 @@ final class TypeFiles
             }
         }
 
-        ISelectorCondition selector;
-        if (definition.defaultModel)
-        {
-            EntityBender<?> defaultModel = model;
-            selector = entity -> EntityBenderRegistry.instance.getDefaultBender(entity.getClass()) == defaultModel;
-        }
-        else
-        {
-            selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
-        }
+        ISelectorCondition selector = definition.selector == null ? null : SelectorExpression.compile(definition.selector);
         ResourceLocation animator = definition.animator == null ? null : new ResourceLocation(definition.animator);
         OptionSet options = KumoOptions.INSTANCE.declare(definition.id, definition.options);
-        return new EntityType(definition.id, read.file.source, selector, definition.specificity(), model, definition.defaultModel, vanilla,
-                animator, options);
+        return new EntityType(definition.id, read.file.source, selector, definition.specificity(), model, vanilla, animator, options);
     }
 
     /** The extension an extension file describes, with its rank. */
