@@ -55,12 +55,12 @@ done right away. Once a group is done and merged here, delete it.
 
 ### #443: Node smoothing, enterPose and mirrored clips
 
-Needs the first `core` release after 2.0.0-alpha.3. On `main` three things in the engine work as the format
-says: a bone's own node or layer smoothing wins over `@default` (`{"@default": 10, "head":
-{"rotation": 0}}` snaps the head), a relative `enterPose` (`pre` / `post`, an additive position)
-(a part's offset included) builds on the layers below instead of starting from itself, and an item with `@mirror` reads the
-layers below mirrored (a weighted clip blends from them, not from rest). Nothing changes in the
-assets; the lab's goldens didn't move on `main`.
+Needs the first `core` release after 2.0.0-alpha.3. On `main` three things in the engine work as
+the format says: a bone's own node or layer smoothing wins over `@default` (`{"@default": 10,
+"head": {"rotation": 0}}` snaps the head), a relative `enterPose` (`pre` / `post`, an additive
+position or offset) builds on the layers below instead of starting from itself, and an item with
+`@mirror` reads the layers below mirrored (a weighted clip blends from them, not from rest). Nothing
+changes in the assets; the lab's goldens didn't move on `main`.
 
 - [ ] Build with that release (`core_version` in gradle.properties).
 - [ ] Copy the three passages of `misc/kumo-format.md` that say so from `main`: the layer's
