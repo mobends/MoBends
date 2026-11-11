@@ -4,6 +4,7 @@ import goblinbob.mobends.core.kumo.state.KumoAnimatorState;
 import goblinbob.mobends.core.kumo.state.template.MalformedKumoTemplateException;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /** An item's {@code @smoothing}, and its {@code @default}. */
@@ -38,6 +39,18 @@ public class ItemSmoothingTest
     public void anExpressionDefaultSmoothsWhatTheItemWrites() throws MalformedKumoTemplateException
     {
         assertEases(firstTick("{'@default': 'node.ticks'}"));
+    }
+
+    @Test
+    public void aBonesExpressionSmoothingWinsOverANumericDefault() throws MalformedKumoTemplateException
+    {
+        assertEases(firstTick("{'@default': 0, 'head': 'node.ticks'}"));
+    }
+
+    @Test
+    public void aBonesNumericSmoothingWinsOverAnExpressionDefault() throws MalformedKumoTemplateException
+    {
+        assertEquals(10F, firstTick("{'@default': 'node.ticks', 'head': 0}"), 1e-4F);
     }
 
     private static void assertEases(float first)

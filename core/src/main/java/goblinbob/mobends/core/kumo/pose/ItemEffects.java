@@ -193,10 +193,6 @@ public class ItemEffects
     /** @param writtenSlots the slots the item wrote this frame (the default smoothing applies to those). */
     public void apply(Pose pose, int[] writtenSlots, ITriggerConditionContext context)
     {
-        for (int i = 0; i < dynamicSlots.length; i++)
-        {
-            smooth(pose, dynamicSlots[i], dynamicValues[i].get(context));
-        }
         if (snap)
         {
             for (int slot : writtenSlots)
@@ -227,9 +223,14 @@ public class ItemEffects
                 smooth(pose, slot, ticks);
             }
         }
+        // A bone's own smoothing, numbers or expression, wins over the default.
         for (int i = 0; i < smoothingSlots.length; i++)
         {
             smooth(pose, smoothingSlots[i], smoothingValues[i]);
+        }
+        for (int i = 0; i < dynamicSlots.length; i++)
+        {
+            smooth(pose, dynamicSlots[i], dynamicValues[i].get(context));
         }
         // Given apart: an item that moves bones smooths no rotation.
         if (!positions)
