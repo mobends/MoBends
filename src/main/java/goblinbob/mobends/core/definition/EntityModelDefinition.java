@@ -110,11 +110,6 @@ public class EntityModelDefinition
         /** The same while a player sneaks and flies (descends); null for {@link #sneakOffset}. */
         public Float flyingSneakOffset;
         /**
-         * The bones whose animated rotation is dropped while the first-person hand is drawn, so the
-         * hand is at rest in front of the camera (the arm's chain, from the body).
-         */
-        public List<String> firstPersonRest = new ArrayList<>();
-        /**
          * Whether the renderer turns the model back from the rock vanilla gives an iron golem while
          * it walks (RenderIronGolem), so the animator has the whole model to itself.
          */
@@ -235,17 +230,6 @@ public class EntityModelDefinition
                 float[] offset = entry.getValue().globalOffset;
                 if (offset != null && offset.length != 3)
                     throw new MalformedKumoTemplateException("'childBones." + entry.getKey() + ".globalOffset' is [x, y, z].");
-            }
-        }
-        if (renderer.firstPersonRest == null)
-        {
-            renderer.firstPersonRest = new ArrayList<>();
-        }
-        for (String name : renderer.firstPersonRest)
-        {
-            if (!seen.contains(name))
-            {
-                throw new MalformedKumoTemplateException("'renderer.firstPersonRest' names '" + name + "', which is not a bone.");
             }
         }
         if (components != null)

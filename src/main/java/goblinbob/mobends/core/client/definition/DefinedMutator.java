@@ -54,8 +54,6 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
     /** Per bone: the vanilla part, and every place in the model that referenced it. */
     private final Map<String, ModelRenderer> vanillaParts = new LinkedHashMap<>();
     private final List<Slot> slots = new ArrayList<>();
-    /** The stand-ins of bones drawn inside a parent, which draw the bone for the first-person hand. */
-    private final List<DefinedStandIn> parentedStandIns = new ArrayList<>();
     /** Every part made, bones, segments and overlay pieces. */
     private final List<DefinedModelPart> drawnParts = new ArrayList<>();
     /** Per bone: its segments' origins in its frame. */
@@ -264,7 +262,6 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         resolve(model);
         parts.clear();
         positions.clear();
-        parentedStandIns.clear();
         drawnParts.clear();
         originsOf.clear();
         // Per bone, in model units: where it turns, and how far its boxes move into its frame
@@ -412,13 +409,7 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
             BoneDefinition definitionOf = definition.bone(bone);
             if (definitionOf != null && !definitionOf.drawnAlone && (definitionOf.parent != null || definitionOf.overlay != null))
             {
-                DefinedStandIn standIn = new DefinedStandIn(model, part);
-                if (definitionOf.overlay == null)
-                {
-                    // An overlay is drawn with the bone it lies over.
-                    parentedStandIns.add(standIn);
-                }
-                slot.set(standIn);
+                slot.set(new DefinedStandIn(model, part));
             }
             else
             {
@@ -705,27 +696,6 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         return q;
     }
 
-    /**
-     * Puts the definition's {@code renderer.firstPersonRest} bones at rest, and lets the stand-ins
-     * draw their bones: vanilla draws the hand through the arm's field alone.
-     */
-    @Override
-    public void poseForFirstPersonView()
-    {
-        for (String name : definition.renderer.firstPersonRest)
-        {
-            ModelPart part = parts.get(name);
-            if (part != null)
-            {
-                part.rotation.identity();
-            }
-        }
-        for (DefinedStandIn standIn : parentedStandIns)
-        {
-            standIn.setDrawsAlone(true);
-        }
-    }
-
     @Override
     public void syncUpWithData(DefinedEntityData<E> data)
     {
@@ -734,10 +704,6 @@ public class DefinedMutator<E extends EntityLivingBase> extends Mutator<DefinedE
         if (!data.hasAdoptedPositionsOf(this))
         {
             data.adoptPositions(this, positions);
-        }
-        for (DefinedStandIn standIn : parentedStandIns)
-        {
-            standIn.setDrawsAlone(false);
         }
         syncUpParts(data);
     }
