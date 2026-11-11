@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:zombie",
+  "selector": {"core:entity_type": ["minecraft:zombie", "minecraft:husk", "minecraft:drowned"]},
+  "model": "mobends:bends/models/zombie.json"
+}

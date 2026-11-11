@@ -42,18 +42,8 @@ import net.minecraft.client.renderer.entity.layers.WolfArmorLayer;
 public class DefaultAddon implements IAddon {
     @Override
     public void registerContent(AddonAnimationRegistry registry) {
-        // These mobs are their model definitions (bends/models/), each the default model of its
-        // entity class. Mobs described as data (creepers, villagers, ...) come from the type files
-        // in bends/types/.
-        registry.registerDefinedEntity("player");
-        registry.registerDefinedEntity("zombie");
-        registry.registerDefinedEntity("skeleton");
-        registry.registerDefinedEntity("wither_skeleton");
-        registry.registerDefinedEntity("zombie_villager");
-        registry.registerDefinedEntity("pig_zombie");
-        registry.registerDefinedEntity("squid");
-        registry.registerDefinedEntity("spider");
-        registry.registerDefinedEntity("wolf");
+        // The mobs themselves are data: the type files in bends/types/ give each its model definition
+        // (bends/models/).
 
         // The operations and drivers the animators name; an animator naming one that isn't
         // registered fails to load.

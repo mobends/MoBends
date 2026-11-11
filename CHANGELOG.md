@@ -7,6 +7,20 @@
 - Wither skeletons are animated, as skeletons are. They were left out when the mobs moved to model
   definitions.
 
+### Changed
+
+- Every mob Mo' Bends animates, the player included, is a type file now (`bends/types/`), not
+  registered in code. Their ids are the same, so ranks, switches and options set before still apply.
+- A type file can name a model by key whatever order the packs were read in.
+- A type file needs a `model` (a model's key, a model definition or `vanilla`): there are no
+  default models anymore, which a type without one used to get.
+- Another mod's mob that is a subclass of a mob Mo' Bends animates (a mod's zombie) no longer
+  bends with that mob's model unless a type names it.
+
+### Removed
+
+- `AddonAnimationRegistry.registerDefinedEntity`: an addon's mobs are type files in its resources.
+
 ## 2.0.0-alpha.3
 
 The first Mo' Bends for Minecraft 1.21.1, on Fabric and NeoForge. It animates what 2.0.0-alpha.2

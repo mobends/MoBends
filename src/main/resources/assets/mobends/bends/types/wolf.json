@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:wolf",
+  "selector": {"core:entity_type": ["minecraft:wolf"]},
+  "model": "mobends:bends/models/wolf.json"
+}

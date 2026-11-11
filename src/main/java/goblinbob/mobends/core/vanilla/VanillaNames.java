@@ -56,14 +56,16 @@ import java.util.function.ToDoubleFunction;
  * runtime (Fabric does, outside development), and the literals are renamed with them.
  * <p>
  * What a 1.12 entity class stands for here covers the modern subclasses of the class it maps to,
- * as the 1.12 class covered its own: a definition for a class bends every entity of a subclass
- * that no definition of a closer class claims ({@code DefinedEntities.defaultFor}). So
- * {@code EntityZombie} (today's {@link Zombie}) also bends the husk, as it did in 1.12, and the
- * drowned, which is a zombie now; the zombie villager and the zombified piglin have definitions of
- * their own. {@code EntitySkeleton} is {@link Skeleton} alone: the stray, the wither skeleton and the
- * bogged are other subclasses of {@code AbstractSkeleton}, as the stray and the wither skeleton were
- * in 1.12. The wither skeleton has a definition of its own; the stray and the bogged stay vanilla. {@code EntitySpider} bends the cave spider too, as in 1.12, and
- * {@code EntitySquid} the glow squid, which is a squid now (both drawn with their parent's model).
+ * as the 1.12 class covered its own: a definition for a class can bend every entity of a subclass,
+ * and which entities get it is up to the selectors of the types that name it. So
+ * {@code EntityZombie} (today's {@link Zombie}) can bend the husk, as it did in 1.12, and the
+ * drowned, which is a zombie now, and Mo' Bends' zombie type names both; the zombie villager and the
+ * zombified piglin have definitions of their own. {@code EntitySkeleton} is {@link Skeleton} alone:
+ * the stray, the wither skeleton and the bogged are other subclasses of {@code AbstractSkeleton}, as
+ * the stray and the wither skeleton were in 1.12. The wither skeleton has a definition of its own;
+ * the stray and the bogged stay vanilla. {@code EntitySpider} can bend the cave spider too, as in
+ * 1.12, and {@code EntitySquid} the glow squid, which is a squid now (both drawn with their parent's
+ * model), and their types name them.
  * <p>
  * Each model's parts are mapped by where 1.12's model put them and what it drew there (read off
  * 1.12.2's classes), not by their names: 1.12's {@code ironGolemLeftLeg} stood on the golem's right,

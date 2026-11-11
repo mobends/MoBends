@@ -14,52 +14,31 @@ import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
- * The entities Mo' Bends animates, each made from a model definition (1.12's benders): those
- * registered in code ({@link #register}), each the default model of its entity class, and those
- * type files name ({@link #forTypeFile}), which animate only the entities of their types. Which
- * one an entity gets is its type's choice ({@code core.types.EntityTypeRegistry}).
+ * The entities Mo' Bends animates, each made from a model definition (1.12's benders) that a type
+ * file names ({@link #forTypeFile}). Which one an entity gets is its type's choice
+ * ({@code core.types.EntityTypeRegistry}).
  */
 public final class DefinedEntities {
-    /** Registered in code, in order: the default models of their entity classes. */
-    private static final List<DefinedEntity> DEFAULTS = new ArrayList<>();
-    /** Made for the type files since the last reload. */
+    /** Made for the type files since the last reload, in the order they were first named. */
     private static final List<DefinedEntity> FROM_TYPES = new ArrayList<>();
-    /** The default model by entity type id and class ({@link #defaultFor(ResourceLocation, Class)}). */
-    private static final Map<List<Object>, Optional<DefinedEntity>> DEFAULT_BY_TYPE = new HashMap<>();
 
     private DefinedEntities() {
     }
 
-    /** Animates the entities {@code <modId>:bends/models/<name>.json} defines, as the default model of its entity class. */
-    public static void register(String modId, String name) {
-        DEFAULTS.add(new DefinedEntity(modId, ModelDefinitions.locationOf(modId, name)));
-    }
-
-    /** The entities registered in code. */
-    public static List<DefinedEntity> defaults() {
-        return DEFAULTS;
-    }
-
-    /** Every defined entity: those registered in code, then those made for the type files since the last reload. */
+    /** Every defined entity, made for the type files since the last reload. */
     public static List<DefinedEntity> all() {
-        List<DefinedEntity> all = new ArrayList<>(DEFAULTS);
-        all.addAll(FROM_TYPES);
-        return all;
+        return new ArrayList<>(FROM_TYPES);
     }
 
     /**
      * The defined entity of the model definition at {@code location}, which a type file names:
-     * the one already made under the same key (registered in code, or for another type), else a
-     * new one, which lives until the next reload.
+     * the one already made under the same key (for another type), else a new one, which lives
+     * until the next reload.
      *
      * @throws Exception if the definition can't be loaded, or names no entity this version knows
      */
@@ -77,51 +56,12 @@ public final class DefinedEntities {
     /** The defined entity with this key ({@code mobends:zombie}), or null if none (that loads) has it. */
     @Nullable
     public static DefinedEntity byKey(String key) {
-        for (List<DefinedEntity> list : List.of(DEFAULTS, FROM_TYPES)) {
-            for (DefinedEntity defined : list) {
-                if (key.equals(defined.key())) {
-                    return defined;
-                }
+        for (DefinedEntity defined : FROM_TYPES) {
+            if (key.equals(defined.key())) {
+                return defined;
             }
         }
         return null;
-    }
-
-    /** The model {@code entity} has by default ({@link #defaultFor(ResourceLocation, Class)}). */
-    @Nullable
-    public static DefinedEntity defaultFor(LivingEntity entity) {
-        return defaultFor(typeIdOf(entity), entity.getClass());
-    }
-
-    /**
-     * The model an entity of the type {@code typeId} and the class {@code entityClass} (null if not
-     * known) has by default, of those registered in code: the first that names its type by id, else
-     * the one for the closest class it is an instance of (its own, else the nearest superclass), so
-     * a zombie villager, a zombie, gets the zombie villager's and a husk the zombie's. 1.12 took the
-     * first registered superclass instead, which picks the same for every 1.12 mob.
-     */
-    @Nullable
-    public static DefinedEntity defaultFor(ResourceLocation typeId, @Nullable Class<?> entityClass) {
-        return DEFAULT_BY_TYPE.computeIfAbsent(Arrays.asList(typeId, entityClass), k -> {
-            DefinedEntity best = null;
-            Class<?> bestClass = null;
-            for (DefinedEntity defined : DEFAULTS) {
-                defined.ensureLoaded();
-                if (defined.types.contains(typeId)) {
-                    return Optional.of(defined);
-                }
-                if (entityClass == null) {
-                    continue;
-                }
-                for (Class<?> type : defined.classes) {
-                    if (type.isAssignableFrom(entityClass) && (best == null || bestClass.isAssignableFrom(type))) {
-                        best = defined;
-                        bestClass = type;
-                    }
-                }
-            }
-            return Optional.ofNullable(best);
-        }).orElse(null);
     }
 
     /** The registry id of {@code entity}'s type ({@code minecraft:fox}). */
@@ -129,20 +69,16 @@ public final class DefinedEntities {
         return BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
     }
 
-    /** Forgets the definitions read and the entities made for type files: they're made again (after a resource reload). */
+    /** Forgets the entities made for type files: they're made again, their definitions read anew (after a resource reload). */
     public static void clearCache() {
-        for (DefinedEntity defined : DEFAULTS) {
-            defined.clearCache();
-        }
         FROM_TYPES.clear();
-        DEFAULT_BY_TYPE.clear();
     }
 
     /** An entity made from a model definition, which is read when it is first needed. */
     public static final class DefinedEntity {
-        private final String modId;
+        private final String namespace;
         private final ResourceLocation location;
-        /** Makes the entity's data from the current definition; the same factory across reloads. */
+        /** Makes the entity's data from its definition. */
         private final IEntityDataFactory<LivingEntity> dataFactory;
         @Nullable
         private EntityModelDefinition definition;
@@ -157,8 +93,8 @@ public final class DefinedEntities {
         /** Whether it was said that the definition's model has no counterpart here, until the next reload. */
         private boolean warnedModel;
 
-        private DefinedEntity(String modId, ResourceLocation location) {
-            this.modId = modId;
+        private DefinedEntity(String namespace, ResourceLocation location) {
+            this.namespace = namespace;
             this.location = location;
             this.dataFactory = entity -> new DefinedEntityData<>(definition(), entity);
         }
@@ -191,8 +127,8 @@ public final class DefinedEntities {
         }
 
         /**
-         * Its key, which its built-in type takes as its id: the mod that registered it, and the
-         * definition's {@code key}, or else one made from its first entity
+         * Its key, which the type giving it to its entities takes as its id: the namespace of its
+         * definition, and the definition's {@code key}, or else one made from its first entity
          * ({@link EntityModelDefinition#defaultKey()}: {@code mobends:zombie_pigman},
          * {@code mobends:fox}); null if the definition can't be loaded.
          */
@@ -294,7 +230,7 @@ public final class DefinedEntities {
             definition = loaded;
             classes = List.copyOf(knownClasses);
             types = Set.copyOf(knownTypes);
-            key = modId + ":" + name;
+            key = namespace + ":" + name;
         }
 
         /**
@@ -325,15 +261,6 @@ public final class DefinedEntities {
                 }
             }
             return type != null && LivingEntity.class.isAssignableFrom(type) ? type : null;
-        }
-
-        private void clearCache() {
-            definition = null;
-            classes = List.of();
-            types = Set.of();
-            key = null;
-            failed = false;
-            warnedModel = false;
         }
     }
 }

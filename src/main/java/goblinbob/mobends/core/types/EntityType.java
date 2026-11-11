@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.types;
 
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
-import goblinbob.mobends.core.client.definition.DefinedEntities;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.data.IEntityDataFactory;
 import goblinbob.mobends.core.data.LivingEntityData;
@@ -27,13 +26,13 @@ public class EntityType implements TypeOrder.Ranked {
     @Nullable
     private final ISelectorCondition selector;
     private final int specificity;
-    /** The model, or null for the entity's default model (or for vanilla). */
+    /** The model; null for a type that keeps its entities vanilla. */
     @Nullable
     private final DefinedEntity model;
     private final boolean vanilla;
     @Nullable
     private final ResourceLocation animator;
-    /** The options the type file declares (a built-in type has its model definition's, through the entity's data). */
+    /** The options the type file declares (besides its model definition's, which come through the entity's data). */
     private final OptionSet options;
     /** The animators of the extensions of this type, in the order their layers go on top, and their options. */
     private final List<ResourceLocation> extensions = new ArrayList<>();
@@ -54,18 +53,12 @@ public class EntityType implements TypeOrder.Ranked {
         this.options = options;
     }
 
-    /** The type every entity registered in code gets: its model for the entities it's the default model of. */
-    static EntityType builtIn(DefinedEntity defined, String key) {
-        ISelectorCondition isDefaultModel = entity -> DefinedEntities.defaultFor(entity) == defined;
-        return new EntityType(key, "built in", isDefaultModel, 1, defined, false, null, OptionSet.EMPTY);
-    }
-
     @Override
     public String getId() {
         return id;
     }
 
-    /** Where the type came from: the pack and the file, or "built in". */
+    /** Where the type came from: the pack and the file. */
     public String getSource() {
         return source;
     }
@@ -81,7 +74,7 @@ public class EntityType implements TypeOrder.Ranked {
         return specificity;
     }
 
-    /** The model the type gives its entities; null for the entity's default model, or for vanilla. */
+    /** The model the type gives its entities; null if it keeps them vanilla. */
     @Nullable
     public DefinedEntity getModel() {
         return model;
@@ -116,19 +109,18 @@ public class EntityType implements TypeOrder.Ranked {
     }
 
     /**
-     * What this type does to the entity, or null if it can't apply to it (no default model for it,
-     * or a model made for another entity class).
+     * What this type does to the entity, or null if it can't apply to it (a model made for another
+     * entity class).
      */
     @Nullable
     EntityTypeRegistry.Selection selectionFor(LivingEntity entity) {
         if (vanilla) {
             return vanillaSelection;
         }
-        DefinedEntity defined = model != null ? model : DefinedEntities.defaultFor(entity);
-        if (defined == null || !defined.animates(entity)) {
+        if (model == null || !model.animates(entity)) {
             return null;
         }
-        return selections.computeIfAbsent(defined, d -> new EntityTypeRegistry.Selection(this, d, dataFactoryFor(d)));
+        return selections.computeIfAbsent(model, d -> new EntityTypeRegistry.Selection(this, d, dataFactoryFor(d)));
     }
 
     /** This type's extensions, in the order their layers go on (see {@link Extension#inLayerOrder}). */

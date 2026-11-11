@@ -1,0 +1,6 @@
+{
+  "formatVersion": 2,
+  "id": "mobends:spider",
+  "selector": {"core:entity_type": ["minecraft:spider", "minecraft:cave_spider"]},
+  "model": "mobends:bends/models/spider.json"
+}

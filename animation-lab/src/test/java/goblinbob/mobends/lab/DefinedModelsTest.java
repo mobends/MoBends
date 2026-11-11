@@ -56,17 +56,6 @@ public class DefinedModelsTest
 {
     private static final Path BENDS = LabPaths.root().resolve("../src/main/resources/assets/mobends/bends");
 
-    /** The model definitions the mod registers as default models (DefaultAddon.registerContent), by bender key. */
-    private static final Map<String, ResourceLocation> DEFAULT_MODELS = new TreeMap<>();
-
-    static
-    {
-        for (String name : new String[] { "player", "zombie", "skeleton", "wither_skeleton", "zombie_villager", "pig_zombie", "squid", "spider", "wolf" })
-        {
-            DEFAULT_MODELS.put("mobends:" + name, ResourceLocation.fromNamespaceAndPath("mobends", "bends/models/" + name + ".json"));
-        }
-    }
-
     /**
      * Models still being refined: their type files live in the development resource pack
      * (misc/dev-pack), so no mob uses them in a release yet, but they are checked all the same.
@@ -94,7 +83,7 @@ public class DefinedModelsTest
     private static final Map<String, Set<String>> VANILLA_BONES = Collections.singletonMap("mobends:witch", Collections.singleton("nose"));
 
     /** The models whose animator moves the limbs while standing. */
-    private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:wither_skeleton", "mobends:pig_zombie"));
+    private static final Set<String> IDLE_MOVES = new TreeSet<>(java.util.Arrays.asList("mobends:player", "mobends:skeleton", "mobends:wither_skeleton", "mobends:zombie_pigman"));
 
     /**
      * The models that stand on their feet where the walk left them (core:step_turn's
@@ -104,11 +93,10 @@ public class DefinedModelsTest
     private static final Set<String> STAND_WHERE_THEY_STOPPED = new TreeSet<>(java.util.Arrays.asList("mobends:villager", "mobends:witch", "mobends:skeleton", "mobends:wither_skeleton",
             "mobends:zombie", "mobends:zombie_villager"));
 
-    /** The model definitions the shipped type files name, by type id, the default models and the unreleased ones. */
+    /** The model definitions the shipped type files name, by type id, and the unreleased ones. */
     private static Map<String, ResourceLocation> definedModels() throws Exception
     {
-        Map<String, ResourceLocation> models = new TreeMap<>(DEFAULT_MODELS);
-        models.putAll(UNRELEASED_MODELS);
+        Map<String, ResourceLocation> models = new TreeMap<>(UNRELEASED_MODELS);
         try (Stream<Path> files = Files.list(BENDS.resolve("types")))
         {
             for (Path file : files.sorted().collect(Collectors.toList()))
@@ -160,9 +148,37 @@ public class DefinedModelsTest
         {
             for (Path file : files.collect(Collectors.toList()))
             {
-                assertTrue(named.contains("bends/models/" + file.getFileName()), file.getFileName() + " is named by no type file and is no default model, so no mob uses it");
+                assertTrue(named.contains("bends/models/" + file.getFileName()), file.getFileName() + " is named by no type file, so no mob uses it");
             }
         }
+    }
+
+    /**
+     * Every shipped type's id is its model's key, which the mobs registered in code before they were
+     * type files had as their built-in types' ids: users' ranks, switches and options, and
+     * extensions, name them by these.
+     */
+    @Test
+    void theShippedTypesKeepTheirIds() throws Exception
+    {
+        Set<String> ids = new TreeSet<>();
+        try (Stream<Path> files = Files.list(BENDS.resolve("types")))
+        {
+            for (Path file : files.collect(Collectors.toList()))
+            {
+                EntityTypeDefinition type = EntityTypeDefinition.parse(JsonParser.parseString(new String(Files.readAllBytes(file), StandardCharsets.UTF_8)));
+                if (!type.isModelDefinition())
+                {
+                    continue;
+                }
+                EntityModelDefinition definition = ModelDefinitions.INSTANCE.load(ResourceLocation.parse(type.model));
+                String key = "mobends:" + (definition.key != null ? definition.key : definition.defaultKey());
+                assertEquals(key, type.id, file.getFileName() + ": a type's id is its model's key");
+                ids.add(type.id);
+            }
+        }
+        assertTrue(ids.containsAll(java.util.Arrays.asList("mobends:player", "mobends:zombie", "mobends:skeleton", "mobends:wither_skeleton",
+                "mobends:zombie_villager", "mobends:zombie_pigman", "mobends:squid", "mobends:spider", "mobends:wolf")), ids.toString());
     }
 
     @TestFactory

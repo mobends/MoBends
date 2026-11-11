@@ -2,13 +2,12 @@
 
 How another mod adds to Mo' Bends in code, on the modern versions (1.21.1, Fabric and NeoForge).
 
-You don't need an addon for animations, entity types, extensions or model definitions: a mod
+You don't need an addon for mobs, animations, entity types, extensions or model definitions: a mod
 ships those in its resources (`assets/<modid>/bends/`), like a resource pack (see
-[content.md](content.md)). An addon is for what needs Java:
+[content.md](content.md), and *A mob of your own* below). An addon is for what needs Java:
 
 | Register | So that | Method |
 |---|---|---|
-| A mob | the entities a model definition of yours names are animated, as the default for their class | `registerDefinedEntity("my_mob")` (`assets/<modid>/bends/models/my_mob.json`) |
 | A KUMO operation | animators can use `{"mymod:name": [...]}` in expressions | `registerOperation`, `registerFunction`, `registerEntityFloatReader` (and `Double`, `Boolean`) |
 | A driver | animators can use a pose item computed in Java | `registerDriver` |
 | A component | model definitions can give an entity's data a component (their `components`) | `registerComponent` |
@@ -27,7 +26,6 @@ Implement `goblinbob.mobends.core.addon.IAddon`, with a public constructor that 
 public class MyAddon implements IAddon {
     @Override
     public void registerContent(AddonAnimationRegistry registry) {
-        registry.registerDefinedEntity("my_mob");
         registry.registerEntityFloatReader("wetness", MyMob.class, MyMob::getWetness);
     }
 
@@ -58,7 +56,26 @@ model definition or type file loads; registering later throws.
 ## A mob of your own
 
 A mob is a model definition (`assets/<modid>/bends/models/my_mob.json`, see
-[content.md](content.md)) registered with `registerDefinedEntity`. It names your entity by its
+[content.md](content.md)) and a type file that gives it to your entities
+(`assets/<modid>/bends/types/my_mob.json`), both in your mod's resources; no addon is needed for
+them. The type file gives the model to your entities, the way Mo' Bends gives its own mobs theirs:
+
+```json
+{
+  "formatVersion": 2,
+  "id": "mymod:my_mob",
+  "selector": {"core:entity_type": ["mymod:my_mob"]},
+  "model": "mymod:bends/models/my_mob.json"
+}
+```
+
+Give it its model's key as id (your mod id and your entity's id, `mymod:my_mob`, or the
+definition's `key`), so extensions and the user's settings name it the way they name Mo' Bends'
+mobs. The selector says which entities get the model: list every entity type of yours it's for
+(a subclass of your mob isn't covered unless it's listed). See *Type files* in
+`misc/kumo-format.md`.
+
+The definition names your entity by its
 registry id (`mymod:my_mob`) or its full class name (which also covers its subclasses), your model
 by its full class name, which loaders don't rename, and each bone's part by its path in your
 model's part tree (the names you gave `addOrReplaceChild`), or by your model's `ModelPart` field:
@@ -114,7 +131,7 @@ The API is 1.12's `IAddon` and `AddonAnimationRegistry`, with these differences:
 - **Found, not registered.** Addons are found through the entrypoint or the annotation;
   `AddonHelper.registerAddon` still works, but isn't needed.
 - **No Java benders.** `registerNewEntity` and `registerEntity` are gone: every mob is a model
-  definition now (`registerDefinedEntity`, which no longer returns a key).
+  definition and a type file in your mod's resources now, which no code registers.
 - **Layers.** `registerLayer` takes the layer class model definitions name, not a factory that
   replaces a vanilla layer: the vanilla layer stays and follows the bones. Layers drawing a copy
   of the model have `registerCopyLayer`.
