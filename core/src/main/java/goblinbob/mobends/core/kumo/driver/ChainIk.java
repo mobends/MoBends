@@ -9,8 +9,8 @@ package goblinbob.mobends.core.kumo.driver;
  * Each joint points where it is told. A two-segment chain bends its joint to the target's
  * distance, then turns about the line to the target until the joint points its way. A
  * three-segment chain first puts its second joint where it points, as far from the first pivot as
- * the first two segments would be bent by as much as the whole chain is, then solves the first two
- * for it; where the two joints are told to point out of one plane, the middle segment twists about
+ * the first two segments would be bent by as much as the whole chain is (or as near to that as the
+ * first two and the last can each reach), then solves the first two for it; where the two joints are told to point out of one plane, the middle segment twists about
  * its own length (which keeps its hinges joined) so the last joint is a hinge too.
  *
  * <p>Rotations are {@code {x, y, z, w}} quaternions, in doubles.
@@ -33,7 +33,7 @@ public final class ChainIk
      * @param fallbacks  per segment, where its joint points when its direction is null or along the reach (as it is posed so far)
      * @param target     the end's target, relative to the first pivot, in the chain's frame
      * @param rotations  receives each segment's rotation, relative to the segment before it (the first's to the chain's frame)
-     * @return how far the end stays short of the target (0 where it reaches)
+     * @return how far the end ends up from the target (0 where it reaches)
      */
     public static double solve(double[][] segments, float[] bends, double[][] directions, double[][] fallbacks, double[] target, double[][] rotations)
     {
@@ -64,6 +64,10 @@ public final class ChainIk
         }
         double[] hinge = side == null ? new double[] {1, 0, 0} : scaled(cross(along, side), -bends[2]);
         double[] end = solveThree(segments, bends, directions, fallbacks, aim, hinge, rotations);
+        // Aimed again, a target the chain can't reach can drift away: the closest of the tries is kept.
+        double[][] best = copy(rotations);
+        double[] bestEnd = end;
+        double bestMiss = missAfterSwing(end, target);
         for (int i = 0; i < REFINEMENTS; i++)
         {
             final double[] miss = distance < total ? sub(target, end) : new double[3];
@@ -76,15 +80,44 @@ public final class ChainIk
             aim = add(aim, miss);
             hinge = solvedHinge;
             end = solveThree(segments, bends, directions, fallbacks, aim, hinge, rotations);
+            final double missed = missAfterSwing(end, target);
+            if (missed < bestMiss)
+            {
+                best = copy(rotations);
+                bestEnd = end;
+                bestMiss = missed;
+            }
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            System.arraycopy(best[i], 0, rotations[i], 0, 4);
         }
 
         // What is left: the whole chain swung onto the target.
         final double[] swing = new double[4];
-        if (shortestArc(end, target, swing))
+        if (shortestArc(bestEnd, target, swing))
         {
             multiply(swing, rotations[0], rotations[0]);
+            bestEnd = rotate(swing, bestEnd);
         }
-        return Math.max(0, distance - length(end));
+        return length(sub(target, bestEnd));
+    }
+
+    /** How far {@code end} is from {@code target} once the whole chain is swung onto it. */
+    private static double missAfterSwing(double[] end, double[] target)
+    {
+        final double[] swing = new double[4];
+        return length(sub(target, shortestArc(end, target, swing) ? rotate(swing, end) : end));
+    }
+
+    private static double[][] copy(double[][] rotations)
+    {
+        final double[][] copy = new double[rotations.length][];
+        for (int i = 0; i < rotations.length; i++)
+        {
+            copy[i] = rotations[i].clone();
+        }
+        return copy;
     }
 
     /**
@@ -101,11 +134,27 @@ public final class ChainIk
 
         // The second joint: the first two segments bent by as much as the whole chain, and the last
         // one's length from the target, where it points. The last segment's sideways part stays
-        // along the hinge, so the joint is put for the target without it.
+        // along the hinge, so the joint is put for the target without it. It has to be as far from
+        // the first pivot as the first two segments can be, and as far from the target as the last
+        // one can be: of those, the nearest to how far it would be.
         final double reach = total > EPSILON ? (l0 + l1) * Math.min(distance, total) / total : 0;
-        final double toSecond = Math.max(Math.abs(l0 - l1), Math.min(l0 + l1, reach));
         final double[] inPlane = sub(target, scaled(hinge, r2[0]));
-        final double[] second = place(inPlane, toSecond, Math.sqrt(r2[1] * r2[1] + r2[2] * r2[2]), directions[2], fallbacks[2]);
+        final double inPlaneDistance = length(inPlane);
+        final double fromTarget = Math.sqrt(r2[1] * r2[1] + r2[2] * r2[2]);
+        final double[] firstTwoReach = reachOf(r0, r1, bends[1]);
+        final double near = Math.max(firstTwoReach[0], Math.abs(inPlaneDistance - fromTarget));
+        final double far = Math.min(firstTwoReach[1], inPlaneDistance + fromTarget);
+        final double toSecond;
+        if (near <= far)
+        {
+            toSecond = Math.max(near, Math.min(far, reach));
+        }
+        else
+        {
+            // Out of reach: as close to the target as the first two segments let the last one get.
+            toSecond = inPlaneDistance + fromTarget < firstTwoReach[0] ? firstTwoReach[0] : firstTwoReach[1];
+        }
+        final double[] second = place(inPlane, toSecond, fromTarget, directions[2], fallbacks[2]);
 
         // The first two segments reach it.
         final double angle1 = bendFor(r0, r1, bends[1], dot(second, second));
@@ -139,7 +188,7 @@ public final class ChainIk
                 final double k = dot(toTarget, axis) - axis[0] * r2[0];
                 final double phase = Math.atan2(b, a);
                 final double spread = Math.acos(clamp(k / r));
-                angle2 = LegIk.pickBend(LegIk.wrapPi(phase + spread), LegIk.wrapPi(phase - spread), bends[2]);
+                angle2 = pickBend(phase, spread, bends[2]);
             }
         }
         final double[] last = rotateX(r2, angle2);
@@ -182,7 +231,61 @@ public final class ChainIk
         final double k = (distSq - dot(knee, knee) - dot(foot, foot) - 2 * knee[0] * foot[0]) / 2;
         final double phase = Math.atan2(b, a);
         final double spread = Math.acos(clamp(k / r));
-        return LegIk.pickBend(LegIk.wrapPi(phase + spread), LegIk.wrapPi(phase - spread), bend);
+        return pickBend(phase, spread, bend);
+    }
+
+    /**
+     * Of the two angles {@code phase ± spread}, the smaller one that doesn't bend the joint
+     * backwards. Folded all the way, it bends by half a turn either way, so it bends its own way.
+     */
+    private static double pickBend(double phase, double spread, float bend)
+    {
+        return LegIk.pickBend(folded(LegIk.wrapPi(phase + spread), bend), folded(LegIk.wrapPi(phase - spread), bend), bend);
+    }
+
+    private static double folded(double angle, float bend)
+    {
+        return Math.abs(angle) > Math.PI - 1e-12 ? Math.copySign(Math.PI, bend) : angle;
+    }
+
+    /**
+     * How near to and far from the pivot the end ({@code foot} from the joint, {@code knee} from the
+     * pivot) gets, the joint bending by any angle about X that {@link #bendFor} would pick.
+     */
+    private static double[] reachOf(double[] knee, double[] foot, float bend)
+    {
+        // As in bendFor: |knee + rotX(k)·foot|² = c + 2·(A·cos k + B·sin k), A·cos k + B·sin k = r·cos(k - phase).
+        final double a = knee[1] * foot[1] + knee[2] * foot[2];
+        final double b = knee[2] * foot[1] - knee[1] * foot[2];
+        final double r = Math.sqrt(a * a + b * b);
+        final double c = dot(knee, knee) + dot(foot, foot) + 2 * knee[0] * foot[0];
+        if (r <= 1e-6)
+        {
+            // bendFor leaves the joint straight.
+            final double at = Math.sqrt(Math.max(0, c + 2 * a));
+            return new double[] {at, at};
+        }
+        final double phase = Math.atan2(b, a);
+        double min = Double.POSITIVE_INFINITY, max = Double.NEGATIVE_INFINITY;
+        // The ends of the angles it bends by, and where r·cos(k - phase) peaks and bottoms out within them.
+        final double[] angles = {0, Math.signum(bend) * Math.PI, phase, LegIk.wrapPi(phase + Math.PI)};
+        for (int i = 0; i < angles.length; i++)
+        {
+            final double k = angles[i];
+            if (i >= 2 && k * bend < -1e-6)
+            {
+                continue;
+            }
+            final double value = a * Math.cos(k) + b * Math.sin(k);
+            min = Math.min(min, value);
+            max = Math.max(max, value);
+        }
+        if (bend == 0)
+        {
+            min = -r;
+            max = r;
+        }
+        return new double[] {Math.sqrt(Math.max(0, c + 2 * min)), Math.sqrt(Math.max(0, c + 2 * max))};
     }
 
     /**
