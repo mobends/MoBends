@@ -1,14 +1,22 @@
 package goblinbob.mobends.core.client.preview;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
+//? if >=26.1 {
+/*import goblinbob.mobends.mixin.LivingEntityAccessor;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.world.entity.EntitySpawnReason;
+import org.joml.Vector3f;
+*///?} else {
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.VanillaDraw;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+//?}
+import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
 import goblinbob.mobends.core.data.LivingEntityData;
+import goblinbob.mobends.core.util.Draw;
 import goblinbob.mobends.core.util.Ids;
 import goblinbob.mobends.mixin.PlayerAccessor;
 import net.minecraft.client.Minecraft;
@@ -16,7 +24,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -47,8 +54,10 @@ public class EntityPreview {
     private static final float TILT = 20F;
     /** Blocks per tick, about a mob's walking pace. */
     private static final double WALK_SPEED = 0.2D;
-    /** The light it's drawn in: full, as the inventory draws the player. */
+    //? if <26.1 {
+    /** The light it's drawn in: full, as the inventory draws the player (26.x's GUI draws every entity so). */
     private static final int LIGHT = 0xF000F0;
+    //?}
 
     @Nullable
     private final PreviewWorld world;
@@ -104,6 +113,12 @@ public class EntityPreview {
         entity.setPos(entity.getX(), entity.getY(), entity.getZ() + speed);
         entity.setOnGround(true);
         // As LivingEntity#calculateEntityAnimation swings the limbs.
+        //? if >=26.1 {
+        /*entity.walkAnimation.update(Math.min((float) speed * 4F, 1F), 0.4F, entity.isBaby() ? 3F : 1F);
+
+        // As LivingEntity#baseTick carries a swing (begun by #swing) through.
+        ((LivingEntityAccessor) entity).mobends$getSwingState().tick();
+        *///?} else {
         entity.walkAnimation.update(Math.min((float) speed * 4F, 1F), 0.4F);
 
         // As LivingEntity#updateSwingTime carries a swing (begun by #swing) through, without haste or fatigue.
@@ -115,13 +130,21 @@ public class EntityPreview {
             entity.swingTime = 0;
         }
         entity.attackAnim = (float) entity.swingTime / LivingEntity.SWING_DURATION;
+        //?}
 
+        //? if >=26.1 {
+        /*if (entity instanceof AbstractClientPlayer player) {
+            // The cape follows the player, as the game moves it every tick; left behind, it would fly up.
+            player.avatarState().tick(player.position(), Vec3.ZERO);
+        }
+        *///?} else {
         if (entity instanceof Player player) {
             // The cape follows these; left behind, it would fly up.
             player.xCloakO = player.xCloak = player.getX();
             player.yCloakO = player.yCloak = player.getY();
             player.zCloakO = player.zCloak = player.getZ();
         }
+        //?}
 
         // As the entity database does for the entities of the level, at the start of a tick.
         LivingEntityData<LivingEntity> data = PreviewWorld.dataOf(entity);
@@ -133,15 +156,20 @@ public class EntityPreview {
     /** Swings the mob's main arm, as a player's attack does; carried through by {@link #tick}. Nothing before it's made. */
     public void swing() {
         if (entity != null) {
+            //? if >=26.1 {
+            /*entity.swing(InteractionHand.MAIN_HAND, entity.getMainHandItem().getAttackAnimation(), false);
+            *///?} else {
             entity.swing(InteractionHand.MAIN_HAND);
+            //?}
         }
     }
 
     /**
-     * Draws the mob centered at ({@code x}, {@code y}), fit in a square {@code size} wide, in front
-     * of what's drawn at depth 0. To be drawn clipped to its frame (a scissor).
+     * Draws the mob in the middle of the frame from ({@code left}, {@code top}) to ({@code right},
+     * {@code bottom}), fit in a square {@code size} wide, in front of what's drawn before it. To be
+     * drawn clipped to the frame (a scissor).
      */
-    public void draw(GuiGraphics graphics, float x, float y, int size, float partialTicks) {
+    public void draw(GuiGraphics graphics, int left, int top, int right, int bottom, int size, float partialTicks) {
         if (!made) {
             made = true;
             entity = world != null ? make(world) : null;
@@ -152,7 +180,7 @@ public class EntityPreview {
 
         if (entity != null) {
             try {
-                drawEntity(graphics, entity, x, y, size, partialTicks);
+                drawEntity(graphics, entity, left, top, right, bottom, size, partialTicks);
             } catch (Throwable e) {
                 MoBends.LOGGER.warn("Unable to draw the preview of {}: {}", defined.key(), e.toString());
                 if (world != null) {
@@ -160,15 +188,17 @@ public class EntityPreview {
                 }
                 entity = null;
                 fallbackIcon = spawnEggOf(defined);
+                //? if <26.1 {
                 Minecraft.getInstance().getEntityRenderDispatcher().setRenderShadow(true);
                 Lighting.setupFor3DItems();
+                //?}
             }
         } else {
-            drawFallback(graphics, x, y, size);
+            drawFallback(graphics, (left + right) / 2F, (top + bottom) / 2F, size);
         }
     }
 
-    private static void drawEntity(GuiGraphics graphics, LivingEntity entity, float x, float y, int size, float partialTicks) {
+    private static void drawEntity(GuiGraphics graphics, LivingEntity entity, int left, int top, int right, int bottom, int size, float partialTicks) {
         // The hitbox's outline from the view, an upright box turned by YAW and seen from TILT above.
         float yaw = (float) Math.toRadians(YAW);
         float tilt = (float) Math.toRadians(TILT);
@@ -183,13 +213,27 @@ public class EntityPreview {
             data.update(partialTicks);
         }
 
+        // Up the right way (as InventoryScreen draws the player), then turned as 1.12 turned it: the
+        // inventory's base is 1.12's turned half a turn about y.
+        Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI).rotateY((float) Math.PI).rotateX(tilt).rotateY(yaw);
+        //? if >=26.1 {
+        /*// Drawn later in the frame, into a texture the size of the frame, from its render state, which
+        // is made now (and carries the pose Mo' Bends bends it by). The frame's middle is the origin.
+        EntityRenderState state = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity).createRenderState(entity, partialTicks);
+        state.shadowPieces.clear();
+        state.outlineColor = 0;
+        // A copy of the player would show their name over its head.
+        state.nameTag = null;
+        // Turned about the hitbox's center, which lands on the origin.
+        Vector3f translation = rotation.transform(new Vector3f(0F, -entity.getBbHeight() / 2F, 0F));
+        graphics.entity(state, scale, translation, rotation, null, left, top, right, bottom);
+        *///?} else {
         // A stack of its own, so a render that stops halfway leaves the screen's as it was.
         PoseStack poses = new PoseStack();
         poses.last().pose().set(graphics.pose().last().pose());
         poses.last().normal().set(graphics.pose().last().normal());
-        // In front of the frame, and up the right way (as InventoryScreen#renderEntityInInventory),
-        // then turned as 1.12 turned it: the inventory's base is 1.12's turned half a turn about y.
-        poses.translate(x, y, 100F);
+        // In front of the frame.
+        poses.translate((left + right) / 2F, (top + bottom) / 2F, 100F);
         //? if >=1.21 {
         poses.scale(scale, scale, -scale);
         //?} else {
@@ -197,7 +241,7 @@ public class EntityPreview {
         // so, as its InventoryScreen, the scale goes into the position's matrix only.
         VanillaDraw.mulPose(poses, new org.joml.Matrix4f().scaling(scale, scale, -scale));
         *///?}
-        poses.mulPose(new Quaternionf().rotateZ((float) Math.PI).rotateY((float) Math.PI).rotateX(tilt).rotateY(yaw));
+        poses.mulPose(rotation);
         // Turned about the hitbox's center, which lands on the origin.
         poses.translate(0F, -entity.getBbHeight() / 2F, 0F);
 
@@ -211,21 +255,25 @@ public class EntityPreview {
             dispatcher.setRenderShadow(true);
             Lighting.setupFor3DItems();
         }
+        //?}
     }
 
     private void drawFallback(GuiGraphics graphics, float x, float y, int size) {
         Minecraft mc = Minecraft.getInstance();
-        graphics.pose().pushPose();
-        graphics.pose().translate(x, y, 0F);
+        Draw.pushPose(graphics);
+        Draw.translate(graphics, x, y);
         if (fallbackIcon != null) {
-            float scale = size / 16F;
-            graphics.pose().scale(scale, scale, 1F);
+            Draw.scale(graphics, size / 16F);
+            //? if >=26.1 {
+            /*graphics.fakeItem(fallbackIcon, -8, -8);
+            *///?} else {
             graphics.renderFakeItem(fallbackIcon, -8, -8);
+            //?}
         } else {
-            graphics.pose().scale(2F, 2F, 1F);
-            graphics.drawString(mc.font, "?", -mc.font.width("?") / 2, -4, 0x808080);
+            Draw.scale(graphics, 2F);
+            graphics.drawString(mc.font, "?", -mc.font.width("?") / 2, -4, 0xFF808080);
         }
-        graphics.pose().popPose();
+        Draw.popPose(graphics);
     }
 
     /** The entity shown, registered with the preview world; null if one can't be made. */
@@ -244,7 +292,11 @@ public class EntityPreview {
             }
             // Standing where the player stands, so what the animators find around it is ground.
             origin = player.position();
+            //? if >=26.1 {
+            /*made.snapTo(origin.x, origin.y, origin.z, 0F, 0F);
+            *///?} else {
             made.moveTo(origin.x, origin.y, origin.z, 0F, 0F);
+            //?}
             // Nothing ticks it to catch the previous rotations up: the head would turn between the two.
             made.yHeadRot = made.yHeadRotO = 0F;
             made.yBodyRot = made.yBodyRotO = 0F;
@@ -273,7 +325,11 @@ public class EntityPreview {
         if (type == null) {
             return null;
         }
+        //? if >=26.1 {
+        /*Entity made = type.create(level, EntitySpawnReason.LOAD);
+        *///?} else {
         Entity made = type.create(level);
+        //?}
         return made instanceof LivingEntity living && defined.animates(living) ? living : null;
     }
 
@@ -285,8 +341,16 @@ public class EntityPreview {
 
     @Nullable
     private static ItemStack spawnEggOf(DefinedEntity defined) {
-        SpawnEggItem egg = SpawnEggItem.byId(entityTypeOf(defined));
+        EntityType<?> type = entityTypeOf(defined);
+        if (type == null) {
+            return null;
+        }
+        //? if >=26.1 {
+        /*return SpawnEggItem.byId(type).map(ItemStack::new).orElse(null);
+        *///?} else {
+        SpawnEggItem egg = SpawnEggItem.byId(type);
         return egg == null ? null : new ItemStack(egg);
+        //?}
     }
 
     /** A copy of the player: their skin, the parts of it they show, their hand and what they hold and wear. */
@@ -302,4 +366,3 @@ public class EntityPreview {
         }
     }
 }
-//?}

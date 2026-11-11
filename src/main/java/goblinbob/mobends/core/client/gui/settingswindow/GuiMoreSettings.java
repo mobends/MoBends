@@ -1,8 +1,7 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
 import goblinbob.mobends.core.CoreClient;
+import goblinbob.mobends.core.client.gui.Screens;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import goblinbob.mobends.core.configuration.ClientConfig.PatternList;
 import net.minecraft.client.gui.GuiGraphics;
@@ -97,16 +96,21 @@ public class GuiMoreSettings extends Screen {
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+    *///?} else {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         //? if <1.20.2 {
         /*renderBackground(graphics);
         *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
-        graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xffffff);
+    //?}
+        graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF);
         int left = (this.width - COLUMN_WIDTH) / 2;
         for (int i = 0; i < LIST_KEYS.length; i++) {
             int y = listsTop + i * (LABEL_HEIGHT + ROW_HEIGHT + LIST_GAP);
-            graphics.drawString(this.font, Component.translatable(LIST_KEYS[i]), left, y + 1, 0xa0a0a0);
+            graphics.drawString(this.font, Component.translatable(LIST_KEYS[i]), left, y + 1, 0xFFA0A0A0);
         }
     }
 
@@ -128,7 +132,7 @@ public class GuiMoreSettings extends Screen {
         if (changed) {
             CoreClient.reloadAnimation();
         }
-        this.minecraft.setScreen(next);
+        Screens.open(next);
     }
 
     /** The entries of a line: separated by commas, trimmed, the empty ones left out. */
@@ -148,4 +152,3 @@ public class GuiMoreSettings extends Screen {
         return false;
     }
 }
-//?}

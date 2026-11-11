@@ -1,7 +1,6 @@
 package goblinbob.mobends.core.client.gui.elements;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
+import com.mojang.blaze3d.platform.InputConstants;
 import goblinbob.mobends.core.util.Draw;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
@@ -60,7 +59,7 @@ public abstract class GuiScrollPanel {
 
     public boolean handleMouseClicked(double mouseX, double mouseY, int button) {
         this.scrollBarGrabbed = false;
-        if (button == 0 && isOverScrollBar(mouseX, mouseY)) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && isOverScrollBar(mouseX, mouseY)) {
             scrollBarGrabY = mouseY - y - getScrollHandleY();
             scrollBarGrabbed = true;
             return true;
@@ -190,4 +189,3 @@ public abstract class GuiScrollPanel {
         return 0xffbbbbbb;
     }
 }
-//?}

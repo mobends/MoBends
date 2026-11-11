@@ -52,7 +52,8 @@ applyPose(renderState);
   CI rejects it otherwise.
 - Where vanilla's API differs between versions, prefer one small helper that fences it once over
   fences at every call: `core.client.VanillaDraw` (vertices, colours, poses; a colour is one ARGB
-  `int` everywhere, as 1.21 has it) and `core.util.Ids` (resource locations). Write a condition with
+  `int` everywhere, as 1.21 has it), `core.util.Ids` (resource locations), `core.util.Draw` (the
+  GUI's drawing) and `core.client.gui.Screens` (the screen shown). Write a condition with
   braces (`//? if >=1.21 {` … `//?}`), even around one line.
 - A fix is made once, in one pull request, for every version. Adding a Minecraft version means adding
   a node in `settings.gradle.kts` (and its properties), **not** creating a branch.

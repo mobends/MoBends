@@ -1,10 +1,9 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
 import goblinbob.mobends.core.client.gui.GuiBendsMenu;
+import goblinbob.mobends.core.client.gui.Screens;
 import goblinbob.mobends.core.client.preview.EntityPreview;
 import goblinbob.mobends.core.client.preview.PreviewWorld;
 import goblinbob.mobends.core.types.EntityTypeRegistry;
@@ -14,6 +13,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+//? if >=26.1 {
+/*import net.minecraft.client.input.MouseButtonEvent;
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -75,7 +77,7 @@ public class GuiSettingsWindow extends Screen {
         // The rest of the client's settings (1.12's Forge config screen).
         Component moreSettings = Component.translatable("mobends.gui.more_settings");
         int moreSettingsWidth = this.font.width(moreSettings) + 20;
-        addRenderableWidget(Button.builder(moreSettings, button -> this.minecraft.setScreen(new GuiMoreSettings(new GuiSettingsWindow(exit), exit)))
+        addRenderableWidget(Button.builder(moreSettings, button -> Screens.open(new GuiMoreSettings(new GuiSettingsWindow(exit), exit)))
                 .bounds(width - 10 - moreSettingsWidth, height - 30, moreSettingsWidth, 20).build());
 
         String previousQuery = filterQueryInput != null ? filterQueryInput.getValue() : query;
@@ -106,17 +108,26 @@ public class GuiSettingsWindow extends Screen {
     }
 
     @Override
+    //? if >=26.1 {
+    /*public void extractRenderState(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+    *///?} else {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        this.mouseX = mouseX;
-        this.mouseY = mouseY;
         //? if <1.20.2 {
         /*renderBackground(graphics, mouseX, mouseY, partialTicks);
         *///?}
         super.render(graphics, mouseX, mouseY, partialTicks);
+    //?}
+        this.mouseX = mouseX;
+        this.mouseY = mouseY;
     }
 
     /** The window under the widgets. */
-    //? if >=1.20.2 {
+    //? if >=26.1 {
+    /*@Override
+    public void extractBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
+    *///?} else if >=1.20.2 {
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.renderBackground(graphics, mouseX, mouseY, partialTicks);
@@ -127,7 +138,7 @@ public class GuiSettingsWindow extends Screen {
 
         drawWindow(graphics, x, y, EDITOR_WIDTH, editorHeight);
         bendsSettingsListUI.draw(graphics, mouseX, mouseY, partialTicks);
-        graphics.drawString(this.font, this.title, this.x + 6, this.y - 9, 0xffffff);
+        graphics.drawString(this.font, this.title, this.x + 6, this.y - 9, 0xFFFFFFFF);
     }
 
     @Override
@@ -136,12 +147,21 @@ public class GuiSettingsWindow extends Screen {
         bendsSettingsListUI.update(mouseX, mouseY);
     }
 
+    //? if >=26.1 {
+    /*@Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return super.mouseClicked(event, doubleClick) || bendsSettingsListUI.handleMouseClicked(event.x(), event.y(), event.button());
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        bendsSettingsListUI.handleMouseReleased(event.x(), event.y(), event.button());
+        return super.mouseReleased(event);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
-            return true;
-        }
-        return bendsSettingsListUI.handleMouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(mouseX, mouseY, button) || bendsSettingsListUI.handleMouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -149,6 +169,7 @@ public class GuiSettingsWindow extends Screen {
         bendsSettingsListUI.handleMouseReleased(mouseX, mouseY, button);
         return super.mouseReleased(mouseX, mouseY, button);
     }
+    //?}
 
     //? if >=1.20.2 {
     @Override
@@ -163,12 +184,12 @@ public class GuiSettingsWindow extends Screen {
     *///?}
 
     private void goBack() {
-        this.minecraft.setScreen(new GuiBendsMenu(exit));
+        Screens.open(new GuiBendsMenu(exit));
     }
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(exit);
+        Screens.open(exit);
     }
 
     @Override
@@ -200,10 +221,9 @@ public class GuiSettingsWindow extends Screen {
             int optionCount = GuiOptionsWindow.optionsOf(defined).size();
             EntityPreview preview = previews.computeIfAbsent(defined, d -> new EntityPreview(previewWorld, d));
             bendsSettingsListUI.addElement(new GuiBenderSettings(bendsSettingsListUI, defined, preview,
-                    typeCount, () -> this.minecraft.setScreen(GuiOrderWindow.forTypes(defined, exit)),
-                    extensionCount, () -> this.minecraft.setScreen(GuiOrderWindow.forExtensions(defined, exit)),
-                    optionCount, () -> this.minecraft.setScreen(new GuiOptionsWindow(defined, exit))));
+                    typeCount, () -> Screens.open(GuiOrderWindow.forTypes(defined, exit)),
+                    extensionCount, () -> Screens.open(GuiOrderWindow.forExtensions(defined, exit)),
+                    optionCount, () -> Screens.open(new GuiOptionsWindow(defined, exit))));
         }
     }
 }
-//?}

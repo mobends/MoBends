@@ -1,7 +1,5 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.client.PackTrust;
 import goblinbob.mobends.core.client.definition.DefinedEntities.DefinedEntity;
@@ -179,18 +177,18 @@ public class GuiBenderSettings implements IGuiListElement {
 
         int textWidth = width - 34 - 4 - TEXT_X;
         int nameY = rowY + (hasButtons() ? 4 : 10);
-        graphics.drawString(font, font.plainSubstrByWidth(name, textWidth), rowX + TEXT_X, nameY, animated ? 0xffffff : 0x8a8a8a);
-        graphics.drawString(font, font.plainSubstrByWidth(source, textWidth), rowX + TEXT_X, nameY + 11, animated ? 0x9a9a9a : 0x626262, false);
+        graphics.drawString(font, font.plainSubstrByWidth(name, textWidth), rowX + TEXT_X, nameY, animated ? 0xFFFFFFFF : 0xFF8A8A8A);
+        graphics.drawString(font, font.plainSubstrByWidth(source, textWidth), rowX + TEXT_X, nameY + 11, animated ? 0xFF9A9A9A : 0xFF626262, false);
 
-        toggleButton.render(graphics, mouseX, mouseY, partialTicks);
+        Draw.widget(graphics, toggleButton, mouseX, mouseY, partialTicks);
         if (orderButton != null) {
-            orderButton.render(graphics, mouseX, mouseY, partialTicks);
+            Draw.widget(graphics, orderButton, mouseX, mouseY, partialTicks);
         }
         if (extensionsButton != null) {
-            extensionsButton.render(graphics, mouseX, mouseY, partialTicks);
+            Draw.widget(graphics, extensionsButton, mouseX, mouseY, partialTicks);
         }
         if (optionsButton != null) {
-            optionsButton.render(graphics, mouseX, mouseY, partialTicks);
+            Draw.widget(graphics, optionsButton, mouseX, mouseY, partialTicks);
         }
     }
 
@@ -202,13 +200,17 @@ public class GuiBenderSettings implements IGuiListElement {
         // Within the list's clip.
         graphics.enableScissor(left, top, left + THUMBNAIL_SIZE, top + THUMBNAIL_SIZE);
         // The animation's partial tick: what a screen is handed is the frame's real time in ticks.
-        preview.draw(graphics, left + THUMBNAIL_SIZE / 2F, top + THUMBNAIL_SIZE / 2F, MOB_SIZE, DataUpdateHandler.partialTicks);
+        preview.draw(graphics, left, top, left + THUMBNAIL_SIZE, top + THUMBNAIL_SIZE, MOB_SIZE, DataUpdateHandler.partialTicks);
         if (!animated) {
+            //? if >=26.1 {
+            /*Draw.rectangle(graphics, left, top, THUMBNAIL_SIZE, THUMBNAIL_SIZE, 0x80000000);
+            *///?} else {
             // Over the mob, which is drawn in front of the frame.
             graphics.pose().pushPose();
             graphics.pose().translate(0, 0, 400);
             Draw.rectangle(graphics, left, top, THUMBNAIL_SIZE, THUMBNAIL_SIZE, 0x80000000);
             graphics.pose().popPose();
+            //?}
         }
         graphics.disableScissor();
     }
@@ -282,4 +284,3 @@ public class GuiBenderSettings implements IGuiListElement {
         listOrder = order;
     }
 }
-//?}

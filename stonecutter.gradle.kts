@@ -38,6 +38,11 @@ stonecutter parameters {
             replace("UseAnim.", "ItemUseAnimation.")
             replace("UseAnim action", "ItemUseAnimation action")
             replace("UseAnim animation", "ItemUseAnimation animation")
+            // The GUI's drawing context (it extracts what's drawn, later in the frame) and its text calls.
+            replace("import net.minecraft.client.gui.GuiGraphics;", "import net.minecraft.client.gui.GuiGraphicsExtractor;")
+            replace("GuiGraphics graphics", "GuiGraphicsExtractor graphics")
+            replace("graphics.drawString(", "graphics.text(")
+            replace("graphics.drawCenteredString(", "graphics.centeredText(")
         }
 
         // Classes that moved to other packages by 26.x (a mob's entity and model classes went into a
@@ -63,6 +68,7 @@ stonecutter parameters {
             replace("import net.minecraft.client.model.ZombieVillagerModel;", "import net.minecraft.client.model.monster.zombie.ZombieVillagerModel;")
             replace("import net.minecraft.client.renderer.RenderType;", "import net.minecraft.client.renderer.rendertype.RenderType;")
             replace("import net.minecraft.client.resources.PlayerSkin;", "import net.minecraft.world.entity.player.PlayerSkin;")
+            replace("import net.minecraft.Util;", "import net.minecraft.util.Util;")
             replace("import net.minecraft.world.entity.animal.Chicken;", "import net.minecraft.world.entity.animal.chicken.Chicken;")
             replace("import net.minecraft.world.entity.animal.Cow;", "import net.minecraft.world.entity.animal.cow.Cow;")
             replace("import net.minecraft.world.entity.animal.IronGolem;", "import net.minecraft.world.entity.animal.golem.IronGolem;")

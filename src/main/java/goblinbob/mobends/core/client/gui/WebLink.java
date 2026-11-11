@@ -1,11 +1,11 @@
 package goblinbob.mobends.core.client.gui;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
 import com.google.gson.JsonParseException;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.util.ConnectionHelper;
+//? if <26.1 {
 import net.minecraft.Util;
+//?}
 
 import java.io.IOException;
 import java.net.URI;
@@ -55,7 +55,11 @@ public final class WebLink {
 
     /** Reads the static API in the background, then opens the page in the browser. */
     public void open() {
+        //? if >=26.1 {
+        /*fetch(url -> com.mojang.blaze3d.Blaze3D.openUri(URI.create(url)));
+        *///?} else {
         fetch(url -> Util.getPlatform().openUri(url));
+        //?}
     }
 
     private String read() {
@@ -80,4 +84,3 @@ public final class WebLink {
         String accountUrl;
     }
 }
-//?}

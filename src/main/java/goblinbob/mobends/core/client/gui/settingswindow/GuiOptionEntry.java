@@ -1,15 +1,15 @@
 package goblinbob.mobends.core.client.gui.settingswindow;
 
-// The Mo' Bends menu isn't ported to 26.x's GUI yet.
-//? if <26.1 {
 import goblinbob.mobends.core.client.gui.elements.GuiCustomButton;
 import goblinbob.mobends.core.client.gui.elements.GuiSmallToggleButton;
 import goblinbob.mobends.core.client.gui.elements.IGuiListElement;
 import goblinbob.mobends.core.kumo.option.KumoOption;
+import goblinbob.mobends.core.util.Draw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -60,7 +60,7 @@ public class GuiOptionEntry implements IGuiListElement {
     /** The label the option's file gives it, translated, or else its name. */
     public static String labelOf(KumoOption option) {
         String label = option.getLabel();
-        return label != null && I18n.exists(label) ? I18n.get(label) : label != null ? label : option.getName();
+        return label != null && Language.getInstance().has(label) ? I18n.get(label) : label != null ? label : option.getName();
     }
 
     /** A value as the menu shows it: on or off, or the number without trailing zeros. */
@@ -130,21 +130,21 @@ public class GuiOptionEntry implements IGuiListElement {
 
         int textWidth = RIGHT - 3 * BUTTON_SIZE - 12;
         String details = source + " · " + I18n.get("mobends.gui.options.default", format(option, option.getDefault()));
-        graphics.drawString(font, font.plainSubstrByWidth(labelOf(option), textWidth), left + 6, top + 6, option.isDefault() ? 0xffffff : 0xffe680);
-        graphics.drawString(font, font.plainSubstrByWidth(details, textWidth), left + 6, top + 18, 0x9a9a9a, false);
+        graphics.drawString(font, font.plainSubstrByWidth(labelOf(option), textWidth), left + 6, top + 6, option.isDefault() ? 0xFFFFFFFF : 0xFFFFE680);
+        graphics.drawString(font, font.plainSubstrByWidth(details, textWidth), left + 6, top + 18, 0xFF9A9A9A, false);
 
         if (toggle != null) {
             // Reset changes it from outside.
             toggle.setToggleState(option.isOn());
-            toggle.render(graphics, mouseX, mouseY, partialTicks);
+            Draw.widget(graphics, toggle, mouseX, mouseY, partialTicks);
         } else {
             downButton.active = option.get() > option.getMin();
             upButton.active = option.get() < option.getMax();
             String value = format(option, option.get());
             int center = left + RIGHT - BUTTON_SIZE - 2 - BUTTON_SIZE / 2;
-            graphics.drawString(font, value, center - font.width(value) / 2, top + 11, 0xffffff);
-            downButton.render(graphics, mouseX, mouseY, partialTicks);
-            upButton.render(graphics, mouseX, mouseY, partialTicks);
+            graphics.drawString(font, value, center - font.width(value) / 2, top + 11, 0xFFFFFFFF);
+            Draw.widget(graphics, downButton, mouseX, mouseY, partialTicks);
+            Draw.widget(graphics, upButton, mouseX, mouseY, partialTicks);
         }
     }
 
@@ -173,4 +173,3 @@ public class GuiOptionEntry implements IGuiListElement {
         listOrder = order;
     }
 }
-//?}
