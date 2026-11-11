@@ -24,14 +24,18 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
     /** On the client only. */
     private static final List<String> CLIENT = List.of(
         //? if >=26.1 {
-        /*"CapeLayerMixin",
+        /*"AgeableMobRendererAccessor",
+        "CapeLayerMixin",
         "ClientPacketListenerMixin",
         "CustomHeadLayerMixin",
+        "ElytraLayerMixin",
         "EntityRenderStateMixin",
         "GameRendererMixin",
         "GuiGraphicsExtractorAccessor",
         "HumanoidArmorLayerMixin",
         "HumanoidModelMixin",
+        "IronGolemFlowerLayerMixin",
+        "IronGolemRendererMixin",
         "ItemInHandLayerMixin",
         "LayerDefinitionMixin",
         "LivingEntityAccessor",
@@ -39,12 +43,15 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
         "MinecraftMixin",
         "ModelFeatureRendererMixin",
         "ModelPartMixin",
+        "MushroomCowMushroomLayerMixin",
         "OptionsMixin",
         "PlayerAccessor",
         "PlayerItemInHandLayerMixin",
         "PlayerModelMixin",
         "PlayerRendererMixin",
-        "SubmitNodeCollectionMixin"
+        "SubmitNodeCollectionMixin",
+        "WitchItemLayerMixin",
+        "WolfRendererMixin"
         *///?} else {
         "AgeableListModelMixin",
         "AgeableModelRootMixin",

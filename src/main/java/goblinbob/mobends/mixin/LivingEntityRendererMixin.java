@@ -35,6 +35,18 @@ public abstract class LivingEntityRendererMixin {
     )
     private void mobends$pose(LivingEntity entity, LivingEntityRenderState state, float partialTicks, CallbackInfo ci) {
         EntityModel<?> model = ((LivingEntityRenderer<?, ?, ?>) (Object) this).getModel();
+        // A renderer with a baby model of its own picks the model only as it submits the entity: the
+        // one it will draw is the adult's or the baby's, whichever drew last. A baby drawn with a model
+        // of its own (26.x's, shaped and textured as its own) isn't the model a definition bends, made
+        // for the adult: it's drawn as vanilla, until definitions of the baby models exist.
+        if ((Object) this instanceof AgeableMobRendererAccessor ageable) {
+            EntityModel<?> adult = ageable.mobends$adultModel();
+            if (entity.isBaby() && ageable.mobends$babyModel() != adult) {
+                ((BentRenderState) state).mobends$setBent(null, null);
+                return;
+            }
+            model = adult;
+        }
         ((BentRenderState) state).mobends$setBent(BendsRenderer.beforeRender(entity, model, partialTicks), model);
     }
 
