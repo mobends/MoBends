@@ -4,9 +4,7 @@ import goblinbob.mobends.core.addon.AddonAnimationRegistry;
 import goblinbob.mobends.core.addon.IAddon;
 import goblinbob.mobends.core.client.definition.DefinedLayers;
 import goblinbob.mobends.standard.client.renderer.entity.SwordTrail;
-//? if <26.1 {
 import goblinbob.mobends.standard.client.renderer.entity.layers.PlayerAccessoriesLayer;
-//?}
 import goblinbob.mobends.standard.client.renderer.entity.layers.WolfMiscLayer;
 import goblinbob.mobends.standard.data.CapeWave;
 import goblinbob.mobends.standard.kumo.CapeDriver;
@@ -71,10 +69,7 @@ public class DefaultAddon implements IAddon {
         registry.registerLayer("elytra", ElytraLayer.class);
         //?}
         // Mo' Bends' own layer of supporter accessories (added to the player's renderer by PlayerRendererMixin).
-        // Not on 26.x yet.
-        //? if <26.1 {
         registry.registerLayer("accessories", PlayerAccessoriesLayer.class);
-        //?}
         // Mo' Bends' own layer of the wolf's mouth (added to the wolf's renderer by WolfRendererMixin).
         registry.registerLayer("wolf_misc", WolfMiscLayer.class);
         // Layers that draw their own copy of the model: drawn bent, as 1.12's AnimatedCopyLayer drew them.

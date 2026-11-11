@@ -6,18 +6,37 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import goblinbob.mobends.core.client.BentRenderState;
 import goblinbob.mobends.core.client.definition.DefinedRenderer;
 import goblinbob.mobends.core.definition.DefinedEntityData;
+import goblinbob.mobends.standard.client.renderer.entity.layers.PlayerAccessoriesLayer;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /^*
- * A bent player who swims or crawls isn't tilted by its renderer (26.x's {@code AvatarRenderer}): its
- * definition lays the body down itself ({@link DefinedRenderer#replacesSwimmingTilt}). The
- * supporters' accessories aren't drawn on 26.x yet.
+ * Gives the player's renderer (26.x's {@code AvatarRenderer}) Mo' Bends' layer of supporter
+ * accessories ({@link PlayerAccessoriesLayer}), which draws nothing for a player drawn as vanilla.
+ * (It extends the renderer's superclass to reach {@code addLayer}, which isn't public.)
+ * <p>
+ * A bent player who swims or crawls isn't tilted by its renderer: its definition lays the body down
+ * itself ({@link DefinedRenderer#replacesSwimmingTilt}).
  ^/
 @Mixin(AvatarRenderer.class)
-public abstract class PlayerRendererMixin {
+public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, AvatarRenderState, PlayerModel> {
+    private PlayerRendererMixin(EntityRendererProvider.Context context, PlayerModel model, float shadowRadius) {
+        super(context, model, shadowRadius);
+    }
+
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void mobends$addAccessoriesLayer(EntityRendererProvider.Context context, boolean slim, CallbackInfo ci) {
+        addLayer(new PlayerAccessoriesLayer(this));
+    }
+
     @WrapOperation(
         method = "setupRotations(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V",
         at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;swimAmount:F")
