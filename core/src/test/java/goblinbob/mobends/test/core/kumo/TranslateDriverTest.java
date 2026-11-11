@@ -285,4 +285,36 @@ public class TranslateDriverTest
         assertVector(0, 5, 0, subject.offsets.get("arm"));
     }
 
+    private static KumoAnimatorState entered(String enterPose, String pose) throws MalformedKumoTemplateException
+    {
+        return TestSubject.instance("{'formatVersion': 2, 'layers': [{'defaultOnEntry': 'a', 'nodes': {'a': {'core:pose': {'enterPose': [" + enterPose + "], 'pose': [" + pose + "]}}}}]}");
+    }
+
+    @Test
+    public void theEnterPoseMovesAPart() throws MalformedKumoTemplateException
+    {
+        KumoAnimatorState animator = entered("{'core:translate': {'bone': 'arm', 'x': 10, 'y': 0, 'z': 0}, '@space': 'override'}", "");
+        TestSubject subject = new TestSubject("arm");
+
+        animator.update(subject, 1F);
+
+        assertVector(10, 0, 0, subject.offsets.get("arm"));
+    }
+
+    @Test
+    public void thePoseMovesAPartOnFromWhereTheEnterPosePutIt() throws MalformedKumoTemplateException
+    {
+        // A linear tween of 4 ticks from the entry's 10 to the pose's 20.
+        KumoAnimatorState animator = entered("{'core:translate': {'bone': 'arm', 'x': 0, 'y': 10, 'z': 0}, '@space': 'override'}",
+                "{'core:translate': {'bone': 'arm', 'x': 0, 'y': 20, 'z': 0}, '@space': 'override', '@smoothing': {'arm': 4}, '@vectorModes': {'arm': 'slide'}}");
+        TestSubject subject = new TestSubject("arm");
+
+        for (int frame = 0; frame < 2; frame++)
+        {
+            animator.update(subject, 1F);
+            subject.updateOffsets(1F);
+        }
+        assertVector(0, 15, 0, subject.offsets.get("arm"));
+    }
+
 }

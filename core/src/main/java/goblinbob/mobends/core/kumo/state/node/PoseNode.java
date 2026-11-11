@@ -409,6 +409,22 @@ public class PoseNode implements INodeState
                         target.snap = true;
                     }
                 }
+                if (entered.hasOffset)
+                {
+                    if (target.hasOffset)
+                    {
+                        // The pose moves the part from where the entry put it.
+                        target.hasVectorStart = true;
+                        target.vectorStart.set(entered.offset);
+                    }
+                    else
+                    {
+                        target.hasOffset = true;
+                        target.offset.set(entered.offset);
+                        target.offsetAdditive = entered.offsetAdditive;
+                        target.offsetMode = IVectorSink.Mode.SNAP;
+                    }
+                }
                 if (entered.hasVector)
                 {
                     if (target.hasVector)
