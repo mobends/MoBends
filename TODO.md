@@ -123,10 +123,6 @@ forge-1.12               1.12.2
   - [ ] The latest Minecraft version (26.3), on Fabric and NeoForge. The node builds, starts and
     bends the player, its layers and the mobs; still to port on 26.x:
     - [ ] The sword and arrow trails, the cape's ripple, the supporters' accessories, the debug rays.
-    - [x] The mobs' own layers (the wolf's mouth, the iron golem's flower and walking rock, the
-      mooshroom's mushrooms, the witch's item, the sheep's wool, saddles) and the elytra (26.x's
-      `WingsLayer`).
-    - [x] What's stuck in the body (arrows, bee stingers, `StuckInBodyLayerMixin`).
     - [ ] Babies with a model of their own. 26.x draws most babies (wolf pups, baby zombies and
       villagers, the dev pack's animals) with their own model and texture, shaped unlike the adult
       the definitions were made for; they're drawn as vanilla for now (`LivingEntityRendererMixin`).
