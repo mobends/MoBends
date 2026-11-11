@@ -69,6 +69,23 @@ changes in the assets; the lab's goldens didn't move on `main`.
       left-handed player and skeleton still swing and draw the bow as the right-handed ones,
       mirrored.
 
+### #446: enterPose axes and node smoothing per channel
+
+Needs the first `core` release after 2.0.0-alpha.3. On `main` three things in the engine work as the format
+says: an `override` translate in an `enterPose` that leaves axes out starts them from the layers below
+(it started them from NaN), a node's or layer's smoothing smooths a bone's rotation and position each
+on their own (an item that smoothed one of them made it skip both), and an expression in a node's or
+layer's `smoothing`, which was read and then ignored, is now a load error (an item's `@smoothing`
+still takes one). No animator here or on `main` has such an expression; the lab's goldens didn't
+move on `main`.
+
+- [ ] Build with that release (`core_version` in gradle.properties).
+- [ ] Copy the two passages of `misc/kumo-format.md` that say so from `main`: the layer's
+      `smoothing` row, and the `enterPose` sentence under *Nodes*.
+- [ ] Check that the animation lab passes without re-recording anything, and that a resource pack's
+      animator with an expression in a node's `smoothing` fails to load with a message naming the
+      bone.
+
 ### #383: The wolf matches vanilla
 
 Doesn't need a new `core`. On `main` the wolf's head, legs and tail now sit and turn where vanilla's
