@@ -707,12 +707,15 @@ public class LayerState
     }
 
     /**
-     * Starts the current node: its definitions take their values and its {@code enter} list runs,
-     * then the node itself starts, and the conditions of its connections start over.
+     * Starts the current node: its clock starts over, its definitions take their values and its
+     * {@code enter} list runs, then the node itself starts, and the conditions of its connections
+     * start over.
      */
     private void startNode(IKumoContext context) throws MalformedKumoTemplateException
     {
         MachineMember current = current(context);
+        // The clock first: the definitions and the enter list see the node as entered.
+        current.node.resetClock(context);
         current.scope.enter(context);
         current.node.start(context);
         for (ConnectionState connection : current.connections)
