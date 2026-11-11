@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.gui.elements;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import net.minecraft.client.gui.GuiGraphics;
 
 /**
@@ -27,3 +29,4 @@ public interface IGuiListElement {
 
     void setOrder(int order);
 }
+//?}

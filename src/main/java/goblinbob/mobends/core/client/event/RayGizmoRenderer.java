@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.event;
 
+// Not ported to 26.x yet (the debug rays).
+//? if <26.1 {
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -124,3 +126,4 @@ public final class RayGizmoRenderer {
         *///?}
     }
 }
+//?}

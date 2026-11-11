@@ -61,8 +61,17 @@ public final class ErrorReporter {
             SHOWN.addAll(due.keySet());
         }
         for (String message : due.values()) {
-            minecraft.gui.getChat().addMessage(Component.literal("[Mo' Bends] ").withStyle(ChatFormatting.YELLOW)
+            tell(minecraft, Component.literal("[Mo' Bends] ").withStyle(ChatFormatting.YELLOW)
                     .append(Component.literal(message).withStyle(ChatFormatting.WHITE)));
         }
+    }
+
+    /** Adds {@code message} to the chat (which moved into the HUD on 26.x), as the client's own. */
+    private static void tell(Minecraft minecraft, Component message) {
+        //? if >=26.1 {
+        /*minecraft.gui.hud.getChat().addClientSystemMessage(message);
+        *///?} else {
+        minecraft.gui.getChat().addMessage(message);
+        //?}
     }
 }

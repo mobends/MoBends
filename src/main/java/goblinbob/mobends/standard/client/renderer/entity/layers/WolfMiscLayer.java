@@ -1,5 +1,7 @@
 package goblinbob.mobends.standard.client.renderer.entity.layers;
 
+// Not ported to 26.x yet (the mobs).
+//? if <26.1 {
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -54,7 +56,7 @@ public class WolfMiscLayer extends RenderLayer<Wolf, WolfModel<Wolf>> {
         // The inside of the mouth, across the back of it (the front of the head, 2 px before where it turns,
         // which is 1 px left of the head's middle).
         poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+        VanillaDraw.rotate(poseStack, Axis.XP.rotationDegrees(90.0F));
         plane(poseStack, consumer, packedLight, overlay, -0.5F, -2.1F, -3.0F, 3, 1, true, 0, 0, 3, 4);
         poseStack.popPose();
 
@@ -105,3 +107,4 @@ public class WolfMiscLayer extends RenderLayer<Wolf, WolfModel<Wolf>> {
         VanillaDraw.vertex(consumer, pose, x * SCALE, y * SCALE, z * SCALE, -1, u, v, overlay, light, 0.0F, normalY, 0.0F);
     }
 }
+//?}

@@ -1,5 +1,7 @@
 package goblinbob.mobends.standard.client.renderer.entity.layers;
 
+// Not ported to 26.x yet (the supporters' accessories).
+//? if <26.1 {
 import com.mojang.blaze3d.vertex.PoseStack;
 import goblinbob.mobends.core.asset.AssetModels;
 import goblinbob.mobends.core.asset.AssetTextures;
@@ -81,3 +83,4 @@ public class PlayerAccessoriesLayer extends RenderLayer<AbstractClientPlayer, Pl
         poseStack.popPose();
     }
 }
+//?}

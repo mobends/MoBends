@@ -85,28 +85,40 @@ public final class DefinedRenderer {
         Matrix4f toModel = new Matrix4f(entityFrame).invertAffine().mul(poseStack.last().pose());
         VanillaDraw.mulPose(poseStack, new Matrix4f(toModel).invertAffine());
         float yaw = (float) Math.toRadians(bodyYaw);
-        poseStack.mulPose(new Quaternionf().rotationY(-yaw));
+        VanillaDraw.rotate(poseStack, new Quaternionf().rotationY(-yaw));
 
         // 1.12's frame: the entity's feet, facing as its body does, Y up, in blocks.
         poseStack.translate(0.0F, -swimmingDrop(entity), 0.0F);
         float globalScale = entity.isBaby() ? definition.childScale : 1;
         float s = SCALE * globalScale;
         poseStack.translate(data.root.position.getX() * s, data.root.position.getY() * s, data.root.position.getZ() * s);
-        poseStack.mulPose(DefinedModelPart.toJoml(data.root.rotation.getSmooth()));
+        VanillaDraw.rotate(poseStack, DefinedModelPart.toJoml(data.root.rotation.getSmooth()));
         poseStack.translate(data.center.position.getX() * s, data.center.position.getY() * s, data.center.position.getZ() * s);
         Vec3f pivot = data.getCenterPivot(new Vec3f());
         poseStack.translate(pivot.x, pivot.y, pivot.z);
-        poseStack.mulPose(DefinedModelPart.toJoml(data.center.rotation.getSmooth()));
+        VanillaDraw.rotate(poseStack, DefinedModelPart.toJoml(data.center.rotation.getSmooth()));
         poseStack.translate(-pivot.x, -pivot.y, -pivot.z);
         transformLocally(entity, definition, poseStack);
 
-        poseStack.mulPose(new Quaternionf().rotationY(yaw));
+        VanillaDraw.rotate(poseStack, new Quaternionf().rotationY(yaw));
         VanillaDraw.mulPose(poseStack, toModel);
+
+        // 26.x builds some models' size into their root's pose (the cave spider's 0.7), which vanilla
+        // applies as it draws the root: the bent model's bones hang from it too.
+        //? if >=26.1 {
+        /*net.minecraft.client.model.geom.PartPose rest = model.root().getInitialPose();
+        poseStack.translate(rest.x() / 16.0F, rest.y() / 16.0F, rest.z() / 16.0F);
+        poseStack.scale(rest.xScale(), rest.yScale(), rest.zScale());
+        *///?}
 
         // 1.12's ModelBiped lowered a sneaking biped's whole model, in the model's space, before
         // drawing its parts; this version's moves the parts instead, which the bent model doesn't
         // read. The definitions' sneak offsets count on it.
+        //? if >=26.1 {
+        /*if (model instanceof HumanoidModel<?> && entity.isCrouching()) {
+        *///?} else {
         if (model instanceof HumanoidModel<?> humanoid && humanoid.crouching) {
+        //?}
             poseStack.translate(0.0F, 0.2F, 0.0F);
         }
     }

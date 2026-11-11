@@ -124,8 +124,7 @@ final class DefinedModelBuilder {
             // (a crouch lowers the body), which the definition's pose replaces.
             float[] turnsAt = new float[3];
             if (vanilla != null) {
-                PartPose rest = vanilla.getInitialPose();
-                turnsAt = new float[] { rest.x, rest.y, rest.z };
+                turnsAt = restInRoot(vanilla);
             }
             float[] pivot;
             if (bone.position != null) {
@@ -226,7 +225,11 @@ final class DefinedModelBuilder {
                         int k = 0;
                         if (byCuts) {
                             PartPose at = child.getInitialPose();
+                            //? if >=26.1 {
+                            /*float along = (axis == 0 ? at.x() : axis == 1 ? at.y() : at.z()) + shift[axis];
+                            *///?} else {
                             float along = (axis == 0 ? at.x : axis == 1 ? at.y : at.z) + shift[axis];
+                            //?}
                             for (int i = 1; i < cuts.size(); i++) {
                                 if (along >= cuts.get(i)[axis]) {
                                     k = i;
@@ -414,6 +417,42 @@ final class DefinedModelBuilder {
      * The part's direct children that draw anything, found through the paths {@code ModelPart.visit}
      * gives their boxes ({@code /<child>/<grandchild>...}): vanilla keeps them private.
      */
+    /**
+     * Where {@code part} turns as the model is made, in the root's frame: its rest offset, plus its
+     * ancestors' (none turn at rest). A part on the root (all of them on 1.21.1) is at its own offset;
+     * 26.x hangs a player's outer layers on the parts they cover.
+     */
+    private float[] restInRoot(ModelPart part) {
+        float[] at = new float[3];
+        if (!addRestOffsets(root, part, at)) {
+            add(part.getInitialPose(), at);
+        }
+        return at;
+    }
+
+    /** Adds the rest offsets of the parts from {@code from} (left out) down to {@code part} to {@code at}; false if it isn't under {@code from}. */
+    private static boolean addRestOffsets(ModelPart from, ModelPart part, float[] at) {
+        for (ModelPart child : childrenOf(from)) {
+            if (child == part || addRestOffsets(child, part, at)) {
+                add(child.getInitialPose(), at);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void add(PartPose pose, float[] at) {
+        //? if >=26.1 {
+        /*at[0] += pose.x();
+        at[1] += pose.y();
+        at[2] += pose.z();
+        *///?} else {
+        at[0] += pose.x;
+        at[1] += pose.y;
+        at[2] += pose.z;
+        //?}
+    }
+
     private static List<ModelPart> childrenOf(ModelPart part) {
         Set<String> names = new LinkedHashSet<>();
         part.visit(new PoseStack(), (pose, path, index, cube) -> {

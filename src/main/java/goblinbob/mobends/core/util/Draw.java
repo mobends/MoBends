@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.util;
 
+// Only the Mo' Bends menu uses it, which isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -54,3 +56,4 @@ public final class Draw {
         graphics.fillGradient(left, top, left + width, top + height, colorTop, colorBottom);
     }
 }
+//?}

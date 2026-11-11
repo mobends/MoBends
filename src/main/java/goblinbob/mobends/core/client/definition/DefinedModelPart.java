@@ -206,7 +206,7 @@ public class DefinedModelPart {
         }
         if (transform == null) {
             if (restRotation != null) {
-                poseStack.mulPose(toJoml(restRotation));
+                VanillaDraw.rotate(poseStack, toJoml(restRotation));
             }
             return;
         }
@@ -216,9 +216,9 @@ public class DefinedModelPart {
         }
         applyParentRotationUndone(poseStack, data);
         if (restRotation != null) {
-            poseStack.mulPose(toJoml(restRotation));
+            VanillaDraw.rotate(poseStack, toJoml(restRotation));
         }
-        poseStack.mulPose(toJoml(rotationOf(transform, data)));
+        VanillaDraw.rotate(poseStack, toJoml(rotationOf(transform, data)));
         Vec3f partScale = transform.scale;
         if (partScale.x != 1 || partScale.y != 1 || partScale.z != 1) {
             poseStack.scale(partScale.x, partScale.y, partScale.z);
@@ -290,7 +290,7 @@ public class DefinedModelPart {
         Quaternion parentRotation = new Quaternion();
         parent.getModelRotation(data, parentRotation);
         parentRotation.conjugate();
-        poseStack.mulPose(toJoml(parentRotation));
+        VanillaDraw.rotate(poseStack, toJoml(parentRotation));
     }
 
     /**

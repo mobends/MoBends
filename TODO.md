@@ -120,7 +120,14 @@ forge-1.12               1.12.2
 
 - [ ] **Add targets:** 1.20.1 (Forge + Fabric), then the latest Minecraft version.
   - [ ] A resource pack's definition of a list-drawn mob (the fox) on 1.20.1.
-  - [ ] The latest Minecraft version, on Fabric and NeoForge.
+  - [ ] The latest Minecraft version (26.3), on Fabric and NeoForge. The node builds, starts and
+    bends the player, its layers and the mobs; still to port on 26.x:
+    - [ ] The Mo' Bends menu (26.x's GUI draws through `GuiGraphicsExtractor`), its key and the
+      Config buttons.
+    - [ ] The sword and arrow trails, the cape's ripple, the supporters' accessories, the debug rays.
+    - [ ] The mobs' own layers (the wolf's mouth, the iron golem's flower, the mooshroom's mushrooms,
+      the witch's item, the sheep's wool, saddles) and the elytra (26.x's `WingsLayer`).
+    - [ ] GeckoLib 5's armour.
 
 ### Other tasks
 

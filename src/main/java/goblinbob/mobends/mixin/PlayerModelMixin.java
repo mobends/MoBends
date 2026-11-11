@@ -14,17 +14,21 @@ public abstract class PlayerModelMixin implements PlayerModelParts {
     @Final
     private boolean slim;
 
+    //? if <26.1 {
     @Shadow
     @Final
     private ModelPart cloak;
+    //?}
 
     @Override
     public boolean mobends$isSlim() {
         return slim;
     }
 
+    //? if <26.1 {
     @Override
     public ModelPart mobends$cloak() {
         return cloak;
     }
+    //?}
 }

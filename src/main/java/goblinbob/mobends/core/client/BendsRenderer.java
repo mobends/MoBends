@@ -243,7 +243,11 @@ public final class BendsRenderer {
         }
 
         float headPitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot());
+        //? if >=26.1 {
+        /*if (isUpsideDown(entity)) {
+        *///?} else {
         if (LivingEntityRenderer.isEntityUpsideDown(entity)) {
+        //?}
             headPitch *= -1.0F;
             netHeadYaw *= -1.0F;
         }
@@ -262,6 +266,19 @@ public final class BendsRenderer {
         data.headPitch = Mth.wrapDegrees(headPitch);
         data.limbSwing = limbSwing;
         data.limbSwingAmount = limbSwingAmount;
+        //? if >=26.1 {
+        /*data.swingProgress = entity.getSwingAnimation(partialTicks);
+        *///?} else {
         data.swingProgress = entity.getAttackAnim(partialTicks);
+        //?}
     }
+
+    //? if >=26.1 {
+    /*/^* Whether {@code entity} is drawn upside down (named Dinnerbone or Grumm), as its renderer says. ^/
+    @SuppressWarnings("unchecked")
+    private static boolean isUpsideDown(LivingEntity entity) {
+        return net.minecraft.client.Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(entity) instanceof LivingEntityRenderer<?, ?, ?> renderer
+            && ((LivingEntityRenderer<LivingEntity, ?, ?>) renderer).isEntityUpsideDown(entity);
+    }
+    *///?}
 }

@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.gui;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import com.mojang.blaze3d.systems.RenderSystem;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.CoreClient;
@@ -224,3 +226,4 @@ public class GuiBendsMenu extends Screen {
         return false;
     }
 }
+//?}

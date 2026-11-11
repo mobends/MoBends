@@ -1,5 +1,7 @@
 package goblinbob.mobends.mixin;
 
+// 26.x's key categories are registered, with their place (KeyMapping.Category#register).
+//? if <26.1 {
 import net.minecraft.client.KeyMapping;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -14,3 +16,4 @@ public interface KeyMappingAccessor {
         throw new AssertionError();
     }
 }
+//?}

@@ -1,5 +1,7 @@
 package goblinbob.mobends.mixin;
 
+// Not ported to 26.x yet (the arrow trails).
+//? if <26.1 {
 import com.mojang.blaze3d.vertex.PoseStack;
 import goblinbob.mobends.standard.client.renderer.entity.ArrowTrail;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -22,3 +24,4 @@ public abstract class ArrowRendererMixin {
         ArrowTrail.draw(arrow, partialTicks, poseStack, buffers);
     }
 }
+//?}

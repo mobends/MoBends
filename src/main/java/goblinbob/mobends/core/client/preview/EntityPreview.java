@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.preview;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -300,3 +302,4 @@ public class EntityPreview {
         }
     }
 }
+//?}

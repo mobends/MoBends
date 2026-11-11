@@ -65,7 +65,11 @@ public final class FabricPlatform implements Platform {
     @Override
     public void registerServerRules(@Nullable Consumer<ServerRulesPayload> onClientReceived) {
         //? if >=1.21 {
+        //? if >=26.1 {
+        /*PayloadTypeRegistry.clientboundPlay().register(ServerRulesPayload.TYPE, ServerRulesPayload.CODEC);
+        *///?} else {
         PayloadTypeRegistry.playS2C().register(ServerRulesPayload.TYPE, ServerRulesPayload.CODEC);
+        //?}
         //?}
         if (onClientReceived != null) {
             // In a class of its own, so a server never loads the client's networking.

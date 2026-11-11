@@ -147,7 +147,9 @@ public final class MinecraftLink {
         User user = mc.getUser();
         ConnectionHelper.runInBackground("account link", () -> {
             try {
-                //? if >=1.21 {
+                //? if >=26.1 {
+                /*mc.services().sessionService().joinServer(user.getProfileId(), user.getAccessToken(), start.serverId());
+                *///?} else if >=1.21 {
                 mc.getMinecraftSessionService().joinServer(user.getProfileId(), user.getAccessToken(), start.serverId());
                 //?} else {
                 /*mc.getMinecraftSessionService().joinServer(user.getGameProfile(), user.getAccessToken(), start.serverId());

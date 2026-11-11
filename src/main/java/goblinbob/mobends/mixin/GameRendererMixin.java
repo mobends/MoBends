@@ -13,7 +13,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /** The start of every rendered frame, before anything of it is drawn. */
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
-    //? if >=1.21 {
+    //? if >=26.1 {
+    /*// 26.x fills the entities' render states (where their animation runs) as it extracts the frame.
+    @Inject(method = "extract(Lnet/minecraft/client/DeltaTracker;Z)V", at = @At("HEAD"))
+    private void mobends$beginFrame(DeltaTracker deltaTracker, boolean advanceGameTime, CallbackInfo ci) {
+        // The partial tick the world's entities are extracted at.
+        DataUpdateHandler.onRenderFrame(deltaTracker.getGameTimeDeltaPartialTick(false));
+    }
+    *///?} else if >=1.21 {
     @Inject(method = "render(Lnet/minecraft/client/DeltaTracker;Z)V", at = @At("HEAD"))
     private void mobends$beginFrame(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci) {
         // The partial tick the world's entities are drawn at (LevelRenderer.renderLevel).

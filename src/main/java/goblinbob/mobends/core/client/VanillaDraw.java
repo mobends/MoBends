@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
@@ -71,6 +72,15 @@ public final class VanillaDraw {
         //?} else {
         /*poseStack.mulPoseMatrix(matrix);
         *///?}
+    }
+
+    /** Turns the top of {@code poseStack} by {@code rotation}. */
+    public static void rotate(PoseStack poseStack, Quaternionf rotation) {
+        //? if >=26.1 {
+        /*poseStack.rotate(rotation);
+        *///?} else {
+        poseStack.mulPose(rotation);
+        //?}
     }
 
     /** Draws {@code part} (and its children) as vanilla does, tinted {@code color}. */

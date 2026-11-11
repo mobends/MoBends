@@ -39,7 +39,11 @@ public final class AssetTextures {
         }
         try (InputStream in = Files.newInputStream(AssetsModule.fileOf(path))) {
             NativeImage image = NativeImage.read(in);
+            //? if >=26.1 {
+            /*Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(id::toString, image));
+            *///?} else {
             Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(image));
+            //?}
             return Optional.of(id);
         } catch (IOException e) {
             MoBends.LOGGER.warn("Couldn't read the asset texture {}: {}", path, e.toString());

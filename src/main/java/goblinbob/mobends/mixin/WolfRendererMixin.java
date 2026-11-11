@@ -1,5 +1,7 @@
 package goblinbob.mobends.mixin;
 
+// Not ported to 26.x yet (the mobs).
+//? if <26.1 {
 import goblinbob.mobends.standard.client.renderer.entity.layers.WolfMiscLayer;
 import net.minecraft.client.model.WolfModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -27,3 +29,4 @@ public abstract class WolfRendererMixin extends MobRenderer<Wolf, WolfModel<Wolf
         addLayer(new WolfMiscLayer(this));
     }
 }
+//?}

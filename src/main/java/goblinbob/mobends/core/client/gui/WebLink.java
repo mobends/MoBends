@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.gui;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import com.google.gson.JsonParseException;
 import goblinbob.mobends.MoBends;
 import goblinbob.mobends.core.util.ConnectionHelper;
@@ -78,3 +80,4 @@ public final class WebLink {
         String accountUrl;
     }
 }
+//?}

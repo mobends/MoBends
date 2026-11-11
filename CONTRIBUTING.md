@@ -72,7 +72,12 @@ What does need a loader lives in its own package:
 
 When the loader-independent code needs something from the loader, add it to `Platform` and implement
 it in every loader package. Hooks into the game are vanilla Mixins (`goblinbob.mobends.mixin`,
-`mobends.mixins.json`) wherever they can be, so they're written once for every loader.
+`mobends.mixins.json`) wherever they can be, so they're written once for every loader. They're listed
+in `MoBendsMixins` (the config's plugin), not in the JSON, so each Minecraft version lists its own.
+
+On 26.x an entity is drawn from its render state, after its renderer ran: the state carries what Mo'
+Bends bends it by (`BentRenderState`), and its models are drawn bent as they're drawn
+(`ModelFeatureRendererMixin`), a layer's in the frame it submitted them in.
 
 Fabric Loader alone doesn't put mods' assets in the resource manager (NeoForge does), nor sends a
 mod's payloads, so the Fabric jar bundles Fabric API's resource loader and networking modules and
@@ -98,7 +103,7 @@ Nothing outside that package touches GeckoLib's classes.
 
 ## Building and running
 
-Gradle runs on JDK 25 and builds 1.21.1 with JDK 21, 1.20.1 with JDK 17. You don't need to install any: Gradle
+Gradle runs on JDK 25 and builds 26.3 with it too, 1.21.1 with JDK 21, 1.20.1 with JDK 17. You don't need to install any: Gradle
 downloads them (`gradle/gradle-daemon-jvm.properties`, and the toolchains of the build scripts).
 
 | Command | What |

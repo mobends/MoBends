@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.gui.elements;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 //? if >=1.20.2 {
 import goblinbob.mobends.core.util.Ids;
 //?}
@@ -80,3 +82,4 @@ public class GuiSmallToggleButton extends AbstractButton {
         output.add(NarratedElementType.TITLE, this.toggleState ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF);
     }
 }
+//?}

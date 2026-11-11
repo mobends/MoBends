@@ -9,7 +9,9 @@ import goblinbob.mobends.core.vanilla.AgeableModelLayout;
 import goblinbob.mobends.core.client.model.ModelRoots;
 import goblinbob.mobends.core.vanilla.ModelRootHolder;
 import net.minecraft.client.model.EntityModel;
+//? if <26.1 {
 import net.minecraft.client.model.HierarchicalModel;
+//?}
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.RandomSource;
 
@@ -121,6 +123,10 @@ public final class DefinedModel {
      */
     @Nullable
     public static ModelPart rootOf(EntityModel<?> model) {
+        // Every model keeps its root on 26.x.
+        //? if >=26.1 {
+        /*return model.root();
+        *///?} else {
         ModelPart root = model instanceof ModelRootHolder holder ? holder.mobends$getRoot()
                 : model instanceof HierarchicalModel<?> hierarchical ? hierarchical.root() : null;
         if (root != null) {
@@ -128,6 +134,7 @@ public final class DefinedModel {
         }
         // Found once per model: its fields don't change trees.
         return FOUND_ROOTS.computeIfAbsent(model, m -> Optional.ofNullable(ModelRoots.find(m))).orElse(null);
+        //?}
     }
 
     /** Forgets every built model: the definitions they came from are read again. */

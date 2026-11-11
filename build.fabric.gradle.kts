@@ -52,10 +52,12 @@ dependencies {
     // Mod Menu's API, for its Config button (MoBendsModMenu). Optional: the jar doesn't need it.
     modCompileOnly("com.terraformersmc:modmenu:${sc.properties["deps.modmenu"]}") { isTransitive = false }
     // GeckoLib, whose armour Mo' Bends bends when it's installed (mixin.geckolib); not needed. Run the
-    // client with -Pgeckolib to have it (and the Fabric API it needs) in the game.
-    val geckoLib = "software.bernie.geckolib:geckolib-fabric-${sc.current.version}:${sc.properties["deps.geckolib"]}"
-    modCompileOnly(geckoLib) { isTransitive = false }
-    if (providers.gradleProperty("geckolib").isPresent) {
+    // client with -Pgeckolib to have it (and the Fabric API it needs) in the game. Not on 26.x yet
+    // (GeckoLib 5, whose API differs; mixin.geckolib is fenced out there).
+    val withGeckoLib = sc.current.parsed < "26.1"
+    val geckoLib by lazy { "software.bernie.geckolib:geckolib-fabric-${sc.current.version}:${sc.properties["deps.geckolib"]}" }
+    if (withGeckoLib) modCompileOnly(geckoLib) { isTransitive = false }
+    if (withGeckoLib && providers.gradleProperty("geckolib").isPresent) {
         modLocalRuntime(geckoLib) { isTransitive = false }
         modLocalRuntime("net.fabricmc.fabric-api:fabric-api:${sc.properties["deps.fabric_api"]}")
         // GeckoLib 4.8 (1.20.1) reads its files with mclib, which its jar bundles but the

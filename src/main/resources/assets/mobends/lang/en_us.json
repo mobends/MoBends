@@ -36,6 +36,7 @@
   "mobends.gui.link.error.api": "Something went wrong on the Mo' Bends server. Please try again later.",
   "mobends.gui.link.error.connection": "Couldn't reach the Mo' Bends server. Check your internet connection and try again.",
   "key.categories.mobends": "Mo' Bends",
+  "key.category.mobends.main": "Mo' Bends",
   "key.mobends.menu": "Mo' Bends Menu",
   "mobends.player": "Player",
   "mobends.config.show_arrow_trails": "Show Arrow Trails",

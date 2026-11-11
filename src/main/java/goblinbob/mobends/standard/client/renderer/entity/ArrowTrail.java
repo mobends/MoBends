@@ -6,7 +6,9 @@ import goblinbob.mobends.core.client.VanillaDraw;
 import goblinbob.mobends.core.client.event.DataUpdateHandler;
 import goblinbob.mobends.core.configuration.ClientConfig;
 import net.minecraft.client.Minecraft;
+//? if <26.1 {
 import net.minecraft.client.renderer.MultiBufferSource;
+//?}
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -57,6 +59,8 @@ public final class ArrowTrail {
         }
     }
 
+    // Not drawn on 26.x yet.
+    //? if <26.1 {
     /** As {@code arrow} is drawn: its trail, in the frame the arrow is drawn in (at its place, unturned). */
     public static void draw(AbstractArrow arrow, float partialTicks, PoseStack poseStack, MultiBufferSource buffers) {
         if (!ClientConfig.INSTANCE.showArrowTrails()) {
@@ -64,6 +68,7 @@ public final class ArrowTrail {
         }
         TRAILS.computeIfAbsent(arrow, ArrowTrail::new).draw(partialTicks, poseStack, buffers);
     }
+    //?}
 
     private void resetNodes() {
         for (int i = 0; i < MAX_LENGTH; i++) {
@@ -72,6 +77,8 @@ public final class ArrowTrail {
         }
     }
 
+    // Not drawn on 26.x yet.
+    //? if <26.1 {
     private void draw(float partialTicks, PoseStack poseStack, MultiBufferSource buffers) {
         if (spawnCooldown > 40) {
             // Not drawn for a while (out of sight): starting over.
@@ -103,6 +110,7 @@ public final class ArrowTrail {
             quad(consumer, pose, x0, y0, z0, node0.up, scale0, x1, y1, z1, node1.up, scale1);
         }
     }
+    //?}
 
     private static void quad(VertexConsumer consumer, Matrix4f pose, float x0, float y0, float z0, Vector3f side0, float scale0,
                              float x1, float y1, float z1, Vector3f side1, float scale1) {

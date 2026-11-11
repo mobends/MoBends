@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.gui.elements;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -18,3 +20,4 @@ public class GuiCustomButton extends Button {
         return this.mouseClicked(mouseX, mouseY, button);
     }
 }
+//?}

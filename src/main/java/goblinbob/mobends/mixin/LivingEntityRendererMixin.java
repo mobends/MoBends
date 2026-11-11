@@ -1,5 +1,86 @@
 package goblinbob.mobends.mixin;
 
+//? if >=26.1 {
+/*import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import goblinbob.mobends.core.client.BendsLayers;
+import goblinbob.mobends.core.client.BendsRenderer;
+import goblinbob.mobends.core.client.BentRenderState;
+import goblinbob.mobends.core.definition.DefinedEntityData;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.world.entity.LivingEntity;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+/^*
+ * Bends living entities, on 26.x, where a renderer fills a render state from the entity, then submits
+ * the state, and the models it submitted are drawn later in the frame: the entity's animation runs as
+ * its state is filled, which carries the data it's bent by ({@link BentRenderState}); the entity's
+ * frame is kept as it's submitted, and its layers run in the bent body's frames. The models are drawn
+ * bent by {@code ModelFeatureRendererMixin}.
+ ^/
+@Mixin(LivingEntityRenderer.class)
+public abstract class LivingEntityRendererMixin {
+    @Inject(
+        method = "extractRenderState(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;F)V",
+        at = @At("TAIL")
+    )
+    private void mobends$pose(LivingEntity entity, LivingEntityRenderState state, float partialTicks, CallbackInfo ci) {
+        EntityModel<?> model = ((LivingEntityRenderer<?, ?, ?>) (Object) this).getModel();
+        ((BentRenderState) state).mobends$setBent(BendsRenderer.beforeRender(entity, model, partialTicks), model);
+    }
+
+    /^* The pose as vanilla's {@code setupRotations} starts: the entity's frame, which the bent model is drawn in. ^/
+    @WrapOperation(
+        method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;setupRotations(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FF)V"
+        )
+    )
+    private void mobends$keepEntityFrame(LivingEntityRenderer<?, ?, ?> renderer, LivingEntityRenderState state, PoseStack poseStack, float bodyYaw,
+                                         float scale, Operation<Void> original) {
+        BentRenderState bent = (BentRenderState) state;
+        if (bent.mobends$bent() != null) {
+            bent.mobends$entityFrame().set(poseStack.last().pose());
+            bent.mobends$setBodyYaw(bodyYaw);
+        }
+        original.call(renderer, state, poseStack, bodyYaw, scale);
+    }
+
+    /^* Each layer submits in the frame of the bent part it's drawn on, kept with what it submits ({@code SubmitNodeCollectionMixin}). ^/
+    @WrapOperation(
+        method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/entity/layers/RenderLayer;submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/EntityRenderState;FF)V"
+        )
+    )
+    private void mobends$submitLayerBent(RenderLayer<?, ?> layer, PoseStack poseStack, SubmitNodeCollector collector, int lightCoords,
+                                         EntityRenderState state, float yRot, float xRot, Operation<Void> original) {
+        BentRenderState bent = (BentRenderState) state;
+        DefinedEntityData<?> data = bent.mobends$bent();
+        if (data == null || bent.mobends$model() == null) {
+            original.call(layer, poseStack, collector, lightCoords, state, yRot, xRot);
+            return;
+        }
+        BendsLayers.Frame outer = BendsLayers.begin(data, bent.mobends$model(), layer, poseStack, bent.mobends$entityFrame(), bent.mobends$bodyYaw());
+        try {
+            original.call(layer, poseStack, collector, lightCoords, state, yRot, xRot);
+        } finally {
+            BendsLayers.end(outer);
+        }
+    }
+}
+*///?} else {
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -191,3 +272,4 @@ public abstract class LivingEntityRendererMixin implements BendingEntityRenderer
         }
     }
 }
+//?}

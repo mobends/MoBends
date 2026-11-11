@@ -1,5 +1,7 @@
 package goblinbob.mobends.core.client.gui.elements;
 
+// The Mo' Bends menu isn't ported to 26.x's GUI yet.
+//? if <26.1 {
 import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.Iterator;
@@ -97,3 +99,4 @@ public abstract class GuiList<T extends IGuiListElement> extends GuiScrollPanel 
         return super.handleMouseClicked(mouseX, mouseY, button);
     }
 }
+//?}

@@ -154,7 +154,11 @@ public final class MinecraftKumoOperations {
                         names.add(args.string(i).toLowerCase(Locale.ROOT));
                     }
                     return (BooleanEvaluator) (context, values) -> context.entity() instanceof Player player
-                            && names.contains(player.getGameProfile().getName().toLowerCase(Locale.ROOT));
+                            //? if >=26.1 {
+                /*&& names.contains(player.getGameProfile().name().toLowerCase(Locale.ROOT));
+                *///?} else {
+                && names.contains(player.getGameProfile().getName().toLowerCase(Locale.ROOT));
+                //?}
                 }));
         // {"core:player_uuid": ["069a79f4-44e9-4726-a5be-fca90e38aaf5"]}: a player with one of these UUIDs, which stay the same when it renames.
         KumoRegistry.registerOperation(KumoOperation.named("core:player_uuid")
@@ -170,7 +174,11 @@ public final class MinecraftKumoOperations {
                         }
                     }
                     return (BooleanEvaluator) (context, values) -> context.entity() instanceof Player player
-                            && uuids.contains(player.getGameProfile().getId());
+                            //? if >=26.1 {
+                /*&& uuids.contains(player.getGameProfile().id());
+                *///?} else {
+                && uuids.contains(player.getGameProfile().getId());
+                //?}
                 }));
     }
 

@@ -10,7 +10,9 @@ import goblinbob.mobends.core.data.EntityComponent;
 import goblinbob.mobends.core.definition.DefinedEntityData;
 import goblinbob.mobends.core.supporters.SupporterContent;
 import net.minecraft.client.model.EntityModel;
+//? if <26.1 {
 import net.minecraft.client.renderer.MultiBufferSource;
+//?}
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.HumanoidArm;
 import org.joml.Matrix4f;
@@ -137,6 +139,8 @@ public class SwordTrail implements EntityComponent {
         trail.parts.add(new TrailPart(hand, arm == HumanoidArm.RIGHT ? -1.0F : 1.0F, velocity));
     }
 
+    // Not drawn on 26.x yet.
+    //? if <26.1 {
     /** After the entity's render ({@code LivingEntityRendererMixin}): draws its trail, if it has one. */
     public static void draw(DefinedEntityData<?> data, Matrix4fc entityFrame, float bodyYaw, MultiBufferSource buffers) {
         SwordTrail trail = data.getComponent("swordTrail", SwordTrail.class);
@@ -166,6 +170,7 @@ public class SwordTrail implements EntityComponent {
             lastAlpha = alpha;
         }
     }
+    //?}
 
     @Override
     public void update(float ticksPerFrame) {

@@ -63,7 +63,7 @@ public final class BendsCapeRenderer {
             // other: the front (toward the back of the player) or the back.
             float hinge = angle < 0 ? 0.0F : -MODEL_DEPTH;
             poseStack.translate(0.0F, (i == 0 ? 0 : SLAB_LENGTH) / 16.0F, hinge / 16.0F);
-            poseStack.mulPose(Axis.XP.rotationDegrees(angle));
+            VanillaDraw.rotate(poseStack, Axis.XP.rotationDegrees(angle));
             poseStack.translate(0.0F, 0.0F, -hinge / 16.0F);
             VanillaDraw.compile(SLABS[i], poseStack.last(), consumer, packedLight, packedOverlay, -1);
         }

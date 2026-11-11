@@ -87,7 +87,11 @@ public abstract class LivingEntityData<E extends LivingEntity> extends EntityDat
 
         registerState("entityIsClimbing", this::isClimbing);
         registerState("entityIsDrawingBow", this::isDrawingBow);
+        //? if >=26.1 {
+        /*registerState("entityIsSwinging", entity::isSwinging);
+        *///?} else {
         registerState("entityIsSwinging", () -> entity.swinging);
+        //?}
         registerState("entityIsChild", entity::isBaby);
         registerState("entityIsRidingLiving", () -> entity.getVehicle() instanceof LivingEntity);
         registerState("entityIsLeftHanded", () -> entity.getMainArm() == HumanoidArm.LEFT);
@@ -142,7 +146,11 @@ public abstract class LivingEntityData<E extends LivingEntity> extends EntityDat
                     this.motionY);
         }
 
+        //? if >=26.1 {
+        /*if (this.entity.isSwinging()) {
+        *///?} else {
         if (this.entity.swinging) {
+        //?}
             if (!this.alreadyAttacked || this.ticksAfterAttack > 5.0F) {
                 this.onAttack();
                 this.alreadyAttacked = true;

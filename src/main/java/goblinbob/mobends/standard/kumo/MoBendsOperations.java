@@ -67,7 +67,12 @@ public final class MoBendsOperations {
                 .choice("variant", "default", "slim")
                 .returns(Expression.Type.BOOLEAN).selectorSafe(false)
                 .bind(args -> {
-                    //? if >=1.21 {
+                    //? if >=26.1 {
+                    /*net.minecraft.world.entity.player.PlayerModelType variant = "slim".equals(args.string(0))
+                        ? net.minecraft.world.entity.player.PlayerModelType.SLIM : net.minecraft.world.entity.player.PlayerModelType.WIDE;
+                    return (BooleanEvaluator) (context, values) -> context.entity() instanceof AbstractClientPlayer player
+                            && player.getSkin().model() == variant;
+                    *///?} else if >=1.21 {
                     PlayerSkin.Model variant = "slim".equals(args.string(0)) ? PlayerSkin.Model.SLIM : PlayerSkin.Model.WIDE;
                     return (BooleanEvaluator) (context, values) -> context.entity() instanceof AbstractClientPlayer player
                             && player.getSkin().model() == variant;
@@ -95,8 +100,13 @@ public final class MoBendsOperations {
                 .bind(args -> {
                     if (!MinecraftKumoOperations.applies(Wolf.class, args)) return null;
                     float offset = args.constant(0);
+                    //? if >=26.1 {
+                    /*return (NumberEvaluator) (context, values) -> context.entity() instanceof Wolf wolf
+                            ? wolfBodyRoll(wolf.getShakeAnim(DataUpdateHandler.partialTicks), offset) * Mth.RAD_TO_DEG : 0;
+                    *///?} else {
                     return (NumberEvaluator) (context, values) -> context.entity() instanceof Wolf wolf
                             ? wolf.getBodyRollAngle(DataUpdateHandler.partialTicks, offset) * Mth.RAD_TO_DEG : 0;
+                    //?}
                 }));
 
         // The spider's: it is beside a block it climbs (1.12's isBesideClimbableBlock: today's isClimbing).
@@ -125,4 +135,12 @@ public final class MoBendsOperations {
         }
         return 0;
     }
+
+    //? if >=26.1 {
+    /*/^* A shaking wolf's roll (radians), as 26.x's WolfRenderState#getBodyRollAngle works it out. ^/
+    private static float wolfBodyRoll(float shakeAnim, float offset) {
+        float progress = Mth.clamp((shakeAnim + offset) / 1.8F, 0.0F, 1.0F);
+        return Mth.sin(progress * (float) Math.PI) * Mth.sin(progress * (float) Math.PI * 11.0F) * 0.15F * (float) Math.PI;
+    }
+    *///?}
 }

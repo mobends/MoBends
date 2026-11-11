@@ -161,20 +161,33 @@ public final class VanillaNames {
         model(MODEL_QUADRUPED, QuadrupedModel.class, null);
         model(MODEL_CHICKEN, ChickenModel.class, null);
 
-        // HumanoidModel's parts (1.12's ModelBiped). The hat is a child of the root now, not of the head.
+        // HumanoidModel's parts (1.12's ModelBiped). The hat is a child of the root on 1.21.1, of the
+        // head again on 26.x; so are the player's outer layers of the parts they cover there.
         part(MODEL_BIPED, "bipedHead", "head");
+        //? if >=26.1 {
+        /*part(MODEL_BIPED, "bipedHeadwear", "head/hat");
+        *///?} else {
         part(MODEL_BIPED, "bipedHeadwear", "hat");
+        //?}
         part(MODEL_BIPED, "bipedBody", "body");
         part(MODEL_BIPED, "bipedRightArm", "right_arm");
         part(MODEL_BIPED, "bipedLeftArm", "left_arm");
         part(MODEL_BIPED, "bipedRightLeg", "right_leg");
         part(MODEL_BIPED, "bipedLeftLeg", "left_leg");
         // PlayerModel's own (1.12's ModelPlayer).
+        //? if >=26.1 {
+        /*part(MODEL_PLAYER, "bipedBodyWear", "body/jacket");
+        part(MODEL_PLAYER, "bipedRightArmwear", "right_arm/right_sleeve");
+        part(MODEL_PLAYER, "bipedLeftArmwear", "left_arm/left_sleeve");
+        part(MODEL_PLAYER, "bipedRightLegwear", "right_leg/right_pants");
+        part(MODEL_PLAYER, "bipedLeftLegwear", "left_leg/left_pants");
+        *///?} else {
         part(MODEL_PLAYER, "bipedBodyWear", "jacket");
         part(MODEL_PLAYER, "bipedRightArmwear", "right_sleeve");
         part(MODEL_PLAYER, "bipedLeftArmwear", "left_sleeve");
         part(MODEL_PLAYER, "bipedRightLegwear", "right_pants");
         part(MODEL_PLAYER, "bipedLeftLegwear", "left_pants");
+        //?}
         part(MODEL_PLAYER, "bipedCape", "cloak");
         part(MODEL_PLAYER, "bipedDeadmau5Head", "ear");
 
@@ -249,8 +262,16 @@ public final class VanillaNames {
         number(Entity.class, "prevRotationPitch", e -> ((Entity) e).xRotO);
         number(Entity.class, "ticksExisted", e -> ((Entity) e).tickCount);
         number(Entity.class, "fallDistance", e -> ((Entity) e).fallDistance);
+        //? if >=26.1 {
+        /*// Only players (avatars) keep the walked distance 1.12 read; other entities their moved distance.
+        number(Entity.class, "distanceWalkedModified", e -> e instanceof net.minecraft.client.entity.ClientAvatarEntity avatar
+            ? avatar.avatarState().getInterpolatedWalkDistance(1.0F) : ((Entity) e).moveDist);
+        number(Entity.class, "prevDistanceWalkedModified", e -> e instanceof net.minecraft.client.entity.ClientAvatarEntity avatar
+            ? avatar.avatarState().getInterpolatedWalkDistance(0.0F) : ((Entity) e).moveDist);
+        *///?} else {
         number(Entity.class, "distanceWalkedModified", e -> ((Entity) e).walkDist);
         number(Entity.class, "prevDistanceWalkedModified", e -> ((Entity) e).walkDistO);
+        //?}
         number(LivingEntity.class, "renderYawOffset", e -> ((LivingEntity) e).yBodyRot);
         number(LivingEntity.class, "prevRenderYawOffset", e -> ((LivingEntity) e).yBodyRotO);
         number(LivingEntity.class, "rotationYawHead", e -> ((LivingEntity) e).yHeadRot);

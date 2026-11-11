@@ -1,5 +1,7 @@
 package goblinbob.mobends.mixin;
 
+// 26.x's models all keep their root (Model#root).
+//? if <26.1 {
 import com.llamalad7.mixinextras.sugar.Local;
 import goblinbob.mobends.core.vanilla.ModelRootHolder;
 import net.minecraft.client.model.AxolotlModel;
@@ -45,3 +47,4 @@ public abstract class AgeableModelRootMixin implements ModelRootHolder {
         return mobends$root;
     }
 }
+//?}
