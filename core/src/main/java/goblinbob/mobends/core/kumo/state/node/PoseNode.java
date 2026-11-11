@@ -31,6 +31,10 @@ public class PoseNode implements INodeState
     private final List<IPoseItem> items;
     private final int[] smoothingSlots;
     private final float[][] smoothingValues;
+    /** The {@code @default} smoothing, for every channel the node writes that nothing else smooths; null for none. */
+    private final float[] defaultSmoothing;
+    /** By slot: whether the bone has an entry of its own that smooths its rotation, its position. */
+    private final boolean[] explicitRotation, explicitPosition;
     /** A bone's rotation's and position's smoothing given apart (see {@link SmoothingTemplate#rotations}), as {@link #smoothingSlots}. */
     private final int[] rotationSlots, positionSlots;
     private final float[][] rotationValues, positionValues;
@@ -64,7 +68,8 @@ public class PoseNode implements INodeState
         if (layerSmoothing != null) smoothing.putAll(layerSmoothing.entries);
         if (nodeSmoothing != null) smoothing.putAll(nodeSmoothing.entries);
         float[] defaultSmoothing = smoothing.remove(SmoothingTemplate.DEFAULT);
-        this.smoothingValues = new float[smoothing.size() + (defaultSmoothing != null ? 1 : 0)][];
+        this.defaultSmoothing = defaultSmoothing;
+        this.smoothingValues = new float[smoothing.size()][];
         this.smoothingSlots = new int[smoothingValues.length];
         int i = 0;
         for (Map.Entry<String, float[]> entry : smoothing.entrySet())
@@ -72,11 +77,6 @@ public class PoseNode implements INodeState
             smoothingSlots[i] = skeleton.indexOf(entry.getKey());
             smoothingValues[i] = entry.getValue();
             i++;
-        }
-        if (defaultSmoothing != null)
-        {
-            smoothingSlots[i] = -1;
-            smoothingValues[i] = defaultSmoothing;
         }
 
         Map<String, float[]> rotations = new LinkedHashMap<>();
@@ -100,11 +100,31 @@ public class PoseNode implements INodeState
         this.positionSlots = slots(skeleton, positions);
         this.positionValues = positions.values().toArray(new float[0][]);
 
+        // A channel a bone's own entry smooths doesn't take the default.
+        this.explicitRotation = explicit(smoothingSlots, rotationSlots);
+        this.explicitPosition = explicit(smoothingSlots, positionSlots);
+
         this.snapSlots = new int[snapOnEnter == null ? 0 : snapOnEnter.size()];
         for (int j = 0; j < snapSlots.length; j++)
         {
             snapSlots[j] = skeleton.indexOf(snapOnEnter.get(j));
         }
+    }
+
+    private static boolean[] explicit(int[] both, int[] alone)
+    {
+        int size = 0;
+        for (int slot : both) size = Math.max(size, slot + 1);
+        for (int slot : alone) size = Math.max(size, slot + 1);
+        boolean[] explicit = new boolean[size];
+        for (int slot : both) explicit[slot] = true;
+        for (int slot : alone) explicit[slot] = true;
+        return explicit;
+    }
+
+    private static boolean has(boolean[] slots, int slot)
+    {
+        return slot < slots.length && slots[slot];
     }
 
     private static int[] slots(Skeleton skeleton, Map<String, float[]> byBone)
@@ -340,36 +360,19 @@ public class PoseNode implements INodeState
             item.apply(pose, context, state[clockSlot]);
         }
 
-        // Node-level smoothing applies to whatever this node wrote and no item smoothed already. A
-        // part's offset is smoothed apart from its rotation, as an item's translate smooths it.
+        // Node-level smoothing applies to whatever this node wrote and no item smoothed already: a
+        // bone's own entries first, then the default for the channels they leave out. A part's
+        // offset is smoothed apart from its rotation, as an item's translate smooths it, and counts
+        // as its position.
         for (int i = 0; i < smoothingSlots.length; i++)
         {
-            if (smoothingSlots[i] >= 0)
+            BoneTarget target = pose.get(smoothingSlots[i]);
+            if (Float.isNaN(target.smoothing) && isUnsmoothed(target.vectorSmoothing))
             {
-                BoneTarget target = pose.get(smoothingSlots[i]);
-                if (Float.isNaN(target.smoothing) && isUnsmoothed(target.vectorSmoothing))
-                {
-                    ItemEffects.applySmoothing(target, smoothingValues[i]);
-                }
-                smoothOffset(target, smoothingValues[i]);
+                ItemEffects.applySmoothing(target, smoothingValues[i]);
             }
-            else
-            {
-                for (int slot = 0; slot < pose.size(); slot++)
-                {
-                    BoneTarget target = pose.get(slot);
-                    if ((target.hasRotation || target.hasPre || target.hasPost || target.hasVector) && Float.isNaN(target.smoothing) && isUnsmoothed(target.vectorSmoothing))
-                    {
-                        ItemEffects.applySmoothing(target, smoothingValues[i]);
-                    }
-                    if (target.hasOffset)
-                    {
-                        smoothOffset(target, smoothingValues[i]);
-                    }
-                }
-            }
+            smoothOffset(target, smoothingValues[i]);
         }
-
         for (int i = 0; i < rotationSlots.length; i++)
         {
             BoneTarget target = pose.get(rotationSlots[i]);
@@ -386,6 +389,29 @@ public class PoseNode implements INodeState
                 ItemEffects.applyVectorSmoothing(target, positionValues[i]);
             }
             smoothOffset(target, positionValues[i]);
+        }
+        if (defaultSmoothing != null)
+        {
+            for (int slot = 0; slot < pose.size(); slot++)
+            {
+                BoneTarget target = pose.get(slot);
+                boolean posed = target.hasRotation || target.hasPre || target.hasPost || target.hasVector;
+                if (posed && !has(explicitRotation, slot) && Float.isNaN(target.smoothing))
+                {
+                    ItemEffects.applyRotationSmoothing(target, defaultSmoothing);
+                }
+                if (!has(explicitPosition, slot))
+                {
+                    if (posed && isUnsmoothed(target.vectorSmoothing))
+                    {
+                        ItemEffects.applyVectorSmoothing(target, defaultSmoothing);
+                    }
+                    if (target.hasOffset)
+                    {
+                        smoothOffset(target, defaultSmoothing);
+                    }
+                }
+            }
         }
 
         if (state[enterPendingSlot] != 0)
