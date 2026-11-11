@@ -171,4 +171,23 @@ public class KumoSerializerTest
         assertEquals(3, layer.allNodes().size());
     }
 
+    @Test
+    public void refusesAnExpressionInANodesOrALayersSmoothing()
+    {
+        String expression = "{\"+\": [5, 5]}";
+        assertRefused("The smoothing of 'head' is an expression",
+                "{\"nodes\": {\"a\": {\"core:pose\": {\"smoothing\": {\"head\": " + expression + "}}}}}");
+        assertRefused("The smoothing of 'head' is an expression",
+                "{\"smoothing\": {\"head\": \"height\"}, \"nodes\": {\"a\": {\"core:pose\": {}}}}");
+    }
+
+    @Test
+    public void readsAnExpressionInAnItemsSmoothing()
+    {
+        AnimatorTemplate template = TestSubject.animator("{\"formatVersion\": 2, \"layers\": [{\"defaultOnEntry\": \"a\", \"nodes\": {\"a\": {\"core:pose\": {\"pose\": ["
+                + "{\"core:rotate\": {\"bone\": \"head\", \"axis\": \"x\", \"angle\": 1}, \"@smoothing\": {\"head\": {\"+\": [5, 5]}}}]}}}}]}");
+        PoseNodeTemplate node = (PoseNodeTemplate) template.layers.get(0).nodes.get(0);
+        assertTrue(node.pose.get(0).smoothing.dynamic.containsKey("head"));
+    }
+
 }

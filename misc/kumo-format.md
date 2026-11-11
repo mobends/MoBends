@@ -72,7 +72,7 @@ node is in *Choosing the node*.
 | `@when` | a condition (a boolean expression): the layer is posed while it holds. When it stops, the layer fades out (over `@fade`) and is left: its nodes, machines and the layer itself are disposed (their `exit` lists run), and it writes nothing. When it holds again, the layer starts over (as on its first frame) and fades in |
 | `@fade` | the ticks the layer takes to fade in and out with its `@when`, eased in and out (default 0, at once). It fades against the layers below, as a transition fades a bone one side doesn't pose; while it fades out its nodes keep running, and smoothing and snapping follow what is fading in (the layers below) |
 | `@define`, `@on` | the layer's definitions and statement lists (see *Definitions and statements*) |
-| `smoothing` | default smoothing for the bones the layer writes (nodes and items override). A bone's own entry comes first, and `@default` smooths only what no entry of its own does: `{"@default": 10, "head": {"rotation": 0}}` snaps the head's rotation and eases its position, and every other bone, over 10 ticks |
+| `smoothing` | default smoothing for the bones the layer writes (nodes and items override). A bone's own entry comes first, and `@default` smooths only what no entry of its own does: `{"@default": 10, "head": {"rotation": 0}}` snaps the head's rotation and eases its position, and every other bone, over 10 ticks. A bone's rotation and position take it apart: an item that smooths only the rotation leaves the position to the node's or the layer's smoothing. It, and a node's `smoothing`, is written as an item's `@smoothing`, but in numbers of ticks only: an expression is a load error |
 | `mask` | `{"mode": "include_only", "includedParts": ["mouth"]}` (or `exclude_only`): the bones the layer may write |
 | `mirror` | `{"@when": <condition>, "pairs": [["leftArm","rightArm"], ...]}`: the rule items with `@mirror` / `@swapSides` follow (see *Mirroring*) |
 | `nodes`, `machines` | the layer's nodes and machines, as maps by name |
@@ -98,7 +98,8 @@ node is in *Choosing the node*.
   `core:vanilla`. `core:pose` takes the pose stack and what goes with it (`pose`, `enterPose`,
   `snapOnEnter`, `smoothing`); the other two pose nothing and take `{}`. The bones `enterPose`
   poses start from there when the node is entered; what it poses relatively (`pre`, `post`) builds
-  on the layers below, as the node's own items do.
+  on the layers below, as the node's own items do, and an axis an `override` translate in it leaves
+  out starts from what the layers below have, as it would in `pose`.
 * `@define` and `@on` are the node's definitions and statement lists (see *Definitions and
   statements*): `node.` names, and what runs when the node is entered, every frame it is posed
   and when it is left.

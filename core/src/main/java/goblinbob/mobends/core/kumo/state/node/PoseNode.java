@@ -360,17 +360,15 @@ public class PoseNode implements INodeState
             item.apply(pose, context, state[clockSlot]);
         }
 
-        // Node-level smoothing applies to whatever this node wrote and no item smoothed already: a
+        // Node-level smoothing applies to whatever this node wrote and no item smoothed already, each
+        // channel apart (an item that smooths a bone's rotation leaves its position to the node): a
         // bone's own entries first, then the default for the channels they leave out. A part's
         // offset is smoothed apart from its rotation, as an item's translate smooths it, and counts
         // as its position.
         for (int i = 0; i < smoothingSlots.length; i++)
         {
             BoneTarget target = pose.get(smoothingSlots[i]);
-            if (Float.isNaN(target.smoothing) && isUnsmoothed(target.vectorSmoothing))
-            {
-                ItemEffects.applySmoothing(target, smoothingValues[i]);
-            }
+            smooth(target, smoothingValues[i]);
             smoothOffset(target, smoothingValues[i]);
         }
         for (int i = 0; i < rotationSlots.length; i++)
@@ -424,6 +422,20 @@ public class PoseNode implements INodeState
             {
                 BoneTarget entered = enterPose.get(slot);
                 BoneTarget target = pose.get(slot);
+                // The axes an override entry leaves out keep what the layers beneath have: the entry
+                // was posed when the node started, before there was anything to read.
+                if (entered.hasVector && !entered.vectorAdditive && hasNaN(entered.vector))
+                {
+                    Vec3f beneath = new Vec3f();
+                    if (pose.getBelow() != null) pose.getBelow().vectorSoFar(slot, beneath);
+                    fillNaN(entered.vector, beneath);
+                }
+                if (entered.hasOffset && !entered.offsetAdditive && hasNaN(entered.offset))
+                {
+                    Vec3f beneath = new Vec3f();
+                    if (pose.getBelow() != null) pose.getBelow().offsetSoFar(slot, beneath);
+                    fillNaN(entered.offset, beneath);
+                }
                 if (entered.hasRotation || entered.hasPre || entered.hasPost)
                 {
                     if (target.hasRotation || target.hasPre || target.hasPost)
@@ -497,6 +509,19 @@ public class PoseNode implements INodeState
         }
     }
 
+    /** Gives the bone's rotation and position the node's smoothing, each unless an item smoothed it already. */
+    private static void smooth(BoneTarget target, float[] value)
+    {
+        if (Float.isNaN(target.smoothing))
+        {
+            ItemEffects.applyRotationSmoothing(target, value);
+        }
+        if (isUnsmoothed(target.vectorSmoothing))
+        {
+            ItemEffects.applyVectorSmoothing(target, value);
+        }
+    }
+
     /** Gives a part's offset the node's smoothing, unless an item smoothed it already. */
     private static void smoothOffset(BoneTarget target, float[] value)
     {
@@ -509,6 +534,19 @@ public class PoseNode implements INodeState
     private static boolean isUnsmoothed(Vec3f smoothing)
     {
         return Float.isNaN(smoothing.x) && Float.isNaN(smoothing.y) && Float.isNaN(smoothing.z);
+    }
+
+    private static boolean hasNaN(Vec3f v)
+    {
+        return Float.isNaN(v.x) || Float.isNaN(v.y) || Float.isNaN(v.z);
+    }
+
+    /** Puts every axis of {@code v} that is NaN at {@code from}'s. */
+    private static void fillNaN(Vec3f v, Vec3f from)
+    {
+        if (Float.isNaN(v.x)) v.x = from.x;
+        if (Float.isNaN(v.y)) v.y = from.y;
+        if (Float.isNaN(v.z)) v.z = from.z;
     }
 
     @Override

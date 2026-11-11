@@ -109,7 +109,8 @@ public class PoseItemSerializer implements JsonDeserializer<PoseItemTemplate>
         }
         if (object.has("@smoothing"))
         {
-            item.smoothing = KumoSerializer.INSTANCE.leafGson.fromJson(object.get("@smoothing"), SmoothingTemplate.class);
+            JsonElement smoothing = object.get("@smoothing");
+            item.smoothing = smoothing.isJsonNull() ? null : SmoothingTemplateSerializer.ITEM.deserialize(smoothing, SmoothingTemplate.class, null);
         }
         if (object.has("@vectorModes"))
         {
