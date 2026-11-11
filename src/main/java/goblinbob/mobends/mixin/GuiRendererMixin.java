@@ -1,6 +1,6 @@
 package goblinbob.mobends.mixin;
 
-//? if >=26.1 {
+//? if >=26.1 && fabric {
 /*import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.GuiRenderer;
 import net.minecraft.client.gui.render.pip.GuiEntityRenderer;
@@ -23,7 +23,7 @@ import java.util.List;
  * Draws each entity the GUI shows in a frame into a texture of its own. 26.x draws a GUI entity into
  * a texture later in the frame, and has one for them all: drawn into one after another, every entity
  * would show the last one. The first still has vanilla's; the rest have Mo' Bends', made as needed
- * (the Settings window's mobs, one a row).
+ * (the Settings window's mobs, one a row). NeoForge's GUI keeps renderers enough for them already.
  ^/
 @Mixin(GuiRenderer.class)
 public abstract class GuiRendererMixin {

@@ -30,7 +30,6 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
         "EntityRenderStateMixin",
         "GameRendererMixin",
         "GuiGraphicsExtractorAccessor",
-        "GuiRendererMixin",
         "HumanoidArmorLayerMixin",
         "HumanoidModelMixin",
         "ItemInHandLayerMixin",
@@ -103,6 +102,10 @@ public final class MoBendsMixins implements IMixinConfigPlugin {
         List<String> mixins = new ArrayList<>(COMMON);
         if (MixinEnvironment.getCurrentEnvironment().getSide() == MixinEnvironment.Side.CLIENT) {
             mixins.addAll(CLIENT);
+            // NeoForge gives each of the GUI's pictures (an entity, say) a renderer of its own already.
+            //? if >=26.1 && fabric {
+            /*mixins.add("GuiRendererMixin");
+            *///?}
         }
         return mixins;
     }
