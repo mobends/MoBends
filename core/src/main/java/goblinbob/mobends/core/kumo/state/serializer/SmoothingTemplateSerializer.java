@@ -9,11 +9,29 @@ import java.util.Map;
 
 /**
  * {"@default": 3, "rightArm": 1.25, "root": [3, 1.7, 3]}, in ticks (0: at once, never negative); a
- * bone's smoothing can also be an expression (a name or an operation), evaluated every frame, or
- * its rotation's and position's apart: {"root": {"rotation": 1.67, "position": [3, 1.7, 3]}}.
+ * bone's smoothing can be its rotation's and position's apart: {"root": {"rotation": 1.67,
+ * "position": [3, 1.7, 3]}}. In an item's {@code @smoothing} ({@link #ITEM}) it can also be an
+ * expression (a name or an operation), evaluated every frame; a node's or a layer's smoothing is
+ * numbers only.
  */
 public class SmoothingTemplateSerializer implements JsonDeserializer<SmoothingTemplate>
 {
+
+    /** An item's {@code @smoothing}, which takes expressions. */
+    public static final SmoothingTemplateSerializer ITEM = new SmoothingTemplateSerializer(true);
+
+    private final boolean expressions;
+
+    /** A node's or a layer's smoothing: numbers only. */
+    public SmoothingTemplateSerializer()
+    {
+        this(false);
+    }
+
+    private SmoothingTemplateSerializer(boolean expressions)
+    {
+        this.expressions = expressions;
+    }
 
     @Override
     public SmoothingTemplate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
@@ -59,6 +77,11 @@ public class SmoothingTemplateSerializer implements JsonDeserializer<SmoothingTe
             }
             else if (value.isJsonObject() || (value.isJsonPrimitive() && value.getAsJsonPrimitive().isString()))
             {
+                if (!expressions)
+                {
+                    throw new JsonParseException(what + " is an expression: a node's or a layer's smoothing is numbers of ticks. "
+                            + "An item's \"@smoothing\" can be an expression.");
+                }
                 smoothing.dynamic.put(entry.getKey(), new ExpressionTemplate(value));
             }
             else
