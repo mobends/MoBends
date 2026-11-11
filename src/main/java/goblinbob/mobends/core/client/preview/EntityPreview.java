@@ -68,8 +68,10 @@ public class EntityPreview {
     private boolean made;
     @Nullable
     private LivingEntity entity;
-    /** Where the entity stands when it isn't walking. */
+    /** Where the entity starts each walk from. */
     private Vec3 origin = Vec3.ZERO;
+    /** Whether it walked in the last tick. */
+    private boolean walking;
     /** Drawn when there is no entity: the mob's spawn egg, or nothing (a question mark) if it has none. */
     @Nullable
     private ItemStack fallbackIcon;
@@ -92,18 +94,21 @@ public class EntityPreview {
         return entity;
     }
 
-    /** Advances the mob by a tick: walking forward if {@code walking}, else standing still where it started. */
+    /** Advances the mob by a tick: walking forward if {@code walking}, else standing still where it stopped. */
     public void tick(boolean walking) {
         if (entity == null) {
             return;
         }
 
         entity.tickCount++;
-        if (!walking && !entity.position().equals(origin)) {
-            // Back where it started, and its animation with it: walking carried its feet away.
+        if (walking && !this.walking && !entity.position().equals(origin)) {
+            // Back where it started, and its animation with it: the last walk carried its feet away,
+            // and a jump back would read as motion. Done as it sets off again rather than as it stops,
+            // so it settles into its idle pose where it stopped, as on 1.12.
             entity.setPos(origin);
             PreviewWorld.forget(entity);
         }
+        this.walking = walking;
         entity.xo = entity.xOld = entity.getX();
         entity.yo = entity.yOld = entity.getY();
         entity.zo = entity.zOld = entity.getZ();
